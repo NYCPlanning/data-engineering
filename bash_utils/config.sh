@@ -1,7 +1,10 @@
 #!/bin/bash
 
 DATE=$(date "+%Y-%m-%d")
-edm_recipes_url=https://nyc3.digitaloceanspaces.com/edm-recipes
+s3_endpoint=https://nyc3.digitaloceanspaces.com
+recipes_bucket=edm-recipes
+publishing_bucket=edm-publishing
+recipes_url=${s3_endpoint}/${recipes_bucket}
 
 
 # Pretty print messages
@@ -67,7 +70,7 @@ function parse_connection_string {
 function get_acl {
     local name=${1}
     local version=${2:-latest} #default version to latest
-    local config_curl=${URL}/datasets/${name}/${version}/config.json
+    local config_curl=${recipes_url}/datasets/${name}/${version}/config.json
     local statuscode=$(curl --write-out '%{http_code}' --silent --output /dev/null ${config_curl})
     if [[ "${statuscode}" -ne 200 ]] ; then
         echo "private"
@@ -81,7 +84,7 @@ function get_version {
     local name=${1}
     local version=${2:-latest}
     local acl=${3:-public-read}
-    local config_curl=${URL}/datasets/${name}/${version}/config.json
+    local config_curl=${recipes_url}/datasets/${name}/${version}/config.json
     local config_mc=spaces/edm-recipes/datasets/${name}/${version}/config.json
     if [ "${acl}" != "public-read" ] ; then
         local version=$(mc cat ${config_mc} | jq -r '.dataset.version')
@@ -116,9 +119,9 @@ function import_recipe {
         mkdir -p ${target_dir} && (
             cd ${target_dir}
             if [ "${acl}" != "public-read" ] ; then
-                mc cp spaces/edm-recipes/datasets/${name}/${version}/${name}.sql $name.sql
+                mc cp spaces/${recipes_bucket}/datasets/${name}/${version}/${name}.sql $name.sql
             else
-                curl -ss -O ${url}/datasets/${name}/${version}/${name}.sql
+                curl -ss -O ${recipes_url}/datasets/${name}/${version}/${name}.sql
             fi
         )
     fi
@@ -132,6 +135,7 @@ function import_recipe {
 }
 
 
+# pluto does not have null arg
 function import_local_csv {
     local filename=${1}
     cat data/${filename}.csv | psql ${BUILD_ENGINE} -c "COPY ${filename} FROM STDIN WITH DELIMITER ',' NULL '' CSV HEADER;"
@@ -199,11 +203,11 @@ function compress {
 }
 
 
-# colp
 function upload {
-    local version=${1}
+    local dataset_name=${1}
+    local version=${2}
     local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-    local SPACES="spaces/edm-publishing/db-colp/${branchname}"
+    local SPACES="spaces/${publishing_bucket}/${dataset_name}/${branchname}"
     mc rm -r --force ${SPACES}/${version}
     mc cp -r output ${SPACES}/${version}
 }
