@@ -1,6 +1,15 @@
 #!/bin/bash
 
+DATE=$(date "+%Y-%m-%d")
 edm_recipes_url=https://nyc3.digitaloceanspaces.com/edm-recipes
+
+
+# Pretty print messages
+function display {
+    echo -e "
+        \e[92m\e[1m$@\e[21m\e[0m
+        "
+}
 
 
 function set_env {
@@ -21,6 +30,23 @@ function run_sql_file {
 function run_sql_command {
     local command = ${1}
     psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1  --quiet --command "${command}"
+}
+
+
+# currently only in dev db. Seems nice though for local development
+function psql_count_and_ddl {
+    table=${1}
+    psql -d ${BUILD_ENGINE} -At -c "SELECT count(*) FROM ${table};" | 
+    while read -a count; do
+        echo -e "
+            \e[33m${1}: ${count} records\e[0m
+            "
+    done
+
+    ddl=$(psql -At ${BUILD_ENGINE} -c "SELECT get_DDL('${table}') as DDL;")
+    echo -e "
+        \e[33m${ddl}\e[0m
+        "
 }
 
 
@@ -75,7 +101,7 @@ function create_source_data_table {
 }
 
 
-function import_public {
+function import_recipe {
     local name=${1}
     local version=${2:-latest}
     local acl=$(get_acl ${name} ${version})
@@ -105,6 +131,13 @@ function import_public {
         INSERT INTO source_data_versions VALUES ('$name','$version');";
 }
 
+
+function import_local_csv {
+    local filename=${1}
+    cat data/${filename}.csv | psql ${BUILD_ENGINE} -c "COPY ${filename} FROM STDIN WITH DELIMITER ',' NULL '' CSV HEADER;"
+}
+
+
 function csv_export {
     local connection_string=${1}
     local table=${2}
@@ -116,24 +149,25 @@ function csv_export {
         >${output_file}.csv
 }
 
-#colp
+
 function shp_export {
     urlparse ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
-    local name=${3:-$table}
-    mkdir -p ${name} &&(
-        cd ${name}
-        ogr2ogr -progress -f "ESRI Shapefile" ${name}.shp \
+    local filename=${3:-$table}
+    mkdir -p ${filename} &&(
+        cd ${filename}
+        ogr2ogr -progress -f "ESRI Shapefile" ${filename}.shp \
             PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
             ${table} -nlt ${geomtype}
-        rm -f ${name}.shp.zip
-        zip -9 ${name}.shp.zip *
-        ls | grep -v ${name}.shp.zip | xargs rm
+        rm -f ${filename}.shp.zip
+        zip -9 ${filename}.shp.zip *
+        ls | grep -v ${filename}.shp.zip | xargs rm
     )
-    mv ${name}/${name}.shp.zip ${name}.shp.zip
-    rm -rf ${name}
+    mv ${filename}/${filename}.shp.zip ${filename}.shp.zip
+    rm -rf ${filename}
 }
+
 
 #colp
 function fgdb_export {
@@ -160,6 +194,7 @@ function fgdb_export {
     rm -rf ${name}.gdb
 }
 
+
 # colp
 function upload {
     local version=${1}
@@ -169,7 +204,8 @@ function upload {
     mc cp -r output ${SPACES}/${version}
 }
 
-# cpdb - then immediately calls with 5 as arg
+
+# cpdb immediately calls with 5 as arg. Similar for devdb
 function max_bg_procs {
     if [[ $# -eq 0 ]] ; then
         echo "Usage: max_bg_procs NUM_PROCS.  Will wait until the number of background (&)"
@@ -186,7 +222,8 @@ function max_bg_procs {
     done
 }
 
-# cpdb - edm_data archive
+
+# cpdb edm_data archive
 function archive {
     local src=${1}
     local dst=${2-$src}
@@ -200,4 +237,30 @@ function archive {
     psql ${EDM_DATA} -c "CREATE SCHEMA IF NOT EXISTS ${dst_schema};"
     pg_dump ${BUILD_ENGINE} -t ${src} -O -c | sed "s/${src}/${dst}/g" | psql ${EDM_DATA}
     psql ${EDM_DATA} -c "COMMENT ON TABLE ${dst} IS '${DATE} ${commit}'"
+}
+
+
+# devdb dedm_data archive
+function archive {
+    echo "archiving $1 -> $2"
+    pg_dump -t $1 ${BUILD_ENGINE} -O -c | psql ${EDM_DATA}
+    psql ${EDM_DATA} -c "CREATE SCHEMA IF NOT EXISTS $2;";
+    psql ${EDM_DATA} -c "ALTER TABLE $1 SET SCHEMA $2;";
+    psql ${EDM_DATA} -c "DROP VIEW IF EXISTS $2.latest;";
+    psql ${EDM_DATA} -c "DROP TABLE IF EXISTS $2.\"${DATE}\";";
+    psql ${EDM_DATA} -c "ALTER TABLE $2.$1 RENAME TO \"${DATE}\";";
+    psql ${EDM_DATA} -c "CREATE VIEW $2.latest AS (SELECT '${DATE}' as v, * FROM $2.\"$DATE\");"
+}
+
+
+# devdb only at moment, maybe remove
+function geocode {
+    docker run --network=host --rm\
+        -v $(pwd):/src\
+        -w /src\
+        -e BUILD_ENGINE=$BUILD_ENGINE\
+        nycplanning/docker-geosupport:$GEOSUPPORT_DOCKER_IMAGE_VERSION bash -c "
+            python3 python/geocode.py
+            python3 python/geocode_hny.py
+        "
 }
