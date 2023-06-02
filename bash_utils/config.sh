@@ -2,6 +2,7 @@
 
 edm_recipes_url=https://nyc3.digitaloceanspaces.com/edm-recipes
 
+
 function set_env {
     for envfile in $@; do
         if [ -f ${envfile} ]; then
@@ -10,38 +11,76 @@ function set_env {
     done
 }
 
+
 function run_sql_file {
     local filename = ${1}
     psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --file ${filename}
 }
 
-function parse_connection_string {
-    local connection_string = $1
-    proto="$(echo $connection_string | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-    url=$(echo $connection_string | sed -e s,$proto,,g)
-    userpass="$(echo $url | grep @ | cut -d@ -f1)"
-    BUILD_PWD=`echo $userpass | grep : | cut -d: -f2`
-    BUILD_USER=`echo $userpass | grep : | cut -d: -f1`
-    hostport=$(echo $url | sed -e s,$userpass@,,g | cut -d/ -f1)
-    BUILD_HOST="$(echo $hostport | sed -e 's,:.*,,g')"
-    BUILD_PORT="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
-    BUILD_DB="$(echo $url | grep / | cut -d/ -f2-)"
+
+function run_sql_command {
+    local command = ${1}
+    psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1  --quiet --command "${command}"
 }
+
+
+function parse_connection_string {
+    local connection_string = ${1}
+    local proto="$(echo ${connection_string} | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+    local url=$(echo ${connection_string} | sed -e s,${proto},,g)
+    local userpass="$(echo ${url} | grep @ | cut -d@ -f1)"
+    BUILD_PWD=`echo ${userpass} | grep : | cut -d: -f2`
+    BUILD_USER=`echo ${userpass} | grep : | cut -d: -f1`
+    local hostport=$(echo ${url} | sed -e s,${userpass}@,,g | cut -d/ -f1)
+    BUILD_HOST="$(echo ${hostport} | sed -e 's,:.*,,g')"
+    BUILD_PORT="$(echo ${hostport} | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+    BUILD_DB="$(echo ${url} | grep / | cut -d/ -f2-)"
+}
+
+
+function get_acl {
+    local name=${1}
+    local version=${2:-latest} #default version to latest
+    local config_curl=${URL}/datasets/${name}/${version}/config.json
+    local statuscode=$(curl --write-out '%{http_code}' --silent --output /dev/null ${config_curl})
+    if [[ "${statuscode}" -ne 200 ]] ; then
+        echo "private"
+    else
+        echo "public-read"
+    fi
+}
+
 
 function get_version {
     local name=${1}
     local version=${2:-latest}
-    local url=${edm_recipes_url}
-    local version=$(curl -s ${url}/datasets/${name}/${version}/config.json | jq -r '.dataset.version')
-    echo -e "🔵 ${name} version: \e[92m\e[1m${version}\e[21m\e[0m"
-    echo ${version}
+    local acl=${3:-public-read}
+    local config_curl=${URL}/datasets/${name}/${version}/config.json
+    local config_mc=spaces/edm-recipes/datasets/${name}/${version}/config.json
+    if [ "${acl}" != "public-read" ] ; then
+        local version=$(mc cat ${config_mc} | jq -r '.dataset.version')
+    else
+        local version=$(curl -sS ${config_curl} | jq -r '.dataset.version')
+    fi
+    echo "${version}"
 }
+
+
+function create_source_data_table {
+    run_sql_command \
+        "CREATE TABLE source_data_versions (
+            schema_name character varying,
+            v character varying
+        );"
+}
+
 
 function import_public {
     local name=${1}
     local version=${2:-latest}
-    local version=get_version ${name} ${version}
-    target_dir=$./.library/datasets/${name}/${version}
+    local acl=$(get_acl ${name} ${version})
+    local version=$(get_version ${name} ${version} ${acl})
+    target_dir=./.library/datasets/${name}/${version}
 
     # Download sql dump for the datasets from data library
     if [ -f ${target_dir}/${name}.sql ]; then
@@ -50,38 +89,44 @@ function import_public {
         echo "🛠 ${name}.sql doesn't exists in cache, downloading ..."
         mkdir -p ${target_dir} && (
             cd ${target_dir}
-            curl -ss -O ${url}/datasets/${name}/${version}/${name}.sql
+            if [ "${acl}" != "public-read" ] ; then
+                mc cp spaces/edm-recipes/datasets/${name}/${version}/${name}.sql $name.sql
+            else
+                curl -ss -O ${url}/datasets/${name}/${version}/${name}.sql
+            fi
         )
     fi
 
     # Loading into Database
-    psql ${BUILD_ENGINE} -v ON_ERROR_STOP=1 -q -f $target_dir/${name}.sql
-    psql ${BUILD_ENGINE} -c "ALTER TABLE ${name} ADD COLUMN v text; UPDATE ${name} SET v = '${version}';"
+    run_sql_file $target_dir/${name}.sql
+    run_sql_command \
+        "ALTER TABLE ${name} ADD COLUMN v text; \
+        UPDATE ${name} SET v = '${version}'; \
+        INSERT INTO source_data_versions VALUES ('$name','$version');";
 }
 
-function CSV_export {
+function csv_export {
     local connection_string=${1}
     local table=${2}
     local output_file=${2:-${table}}
-    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 -c "\COPY (
-        SELECT * FROM ${table}
-    ) TO STDOUT DELIMITER ',' CSV HEADER;" >${output_file}.csv
+    run_sql_command \
+        "\COPY ( \
+            SELECT * FROM ${table} \
+        ) TO STDOUT DELIMITER ',' CSV HEADER;" \ 
+        >${output_file}.csv
 }
 
 #colp
-function SHP_export {
+function shp_export {
+    urlparse ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
     local name=${3:-$table}
     mkdir -p ${name} &&(
         cd ${name}
-        docker run \
-            --network host\
-            -v $(pwd):/data\
-            --user ${UID}\
-            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "ESRI Shapefile" ${name}.shp \
-                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-                ${table} -nlt ${geomtype}
+        ogr2ogr -progress -f "ESRI Shapefile" ${name}.shp \
+            PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+            ${table} -nlt ${geomtype}
         rm -f ${name}.shp.zip
         zip -9 ${name}.shp.zip *
         ls | grep -v ${name}.shp.zip | xargs rm
@@ -91,7 +136,7 @@ function SHP_export {
 }
 
 #colp
-function FGDB_export {
+function fgdb_export {
     table=${1}
     geomtype=${2}
     name=${3:-${table}}
@@ -115,24 +160,44 @@ function FGDB_export {
     rm -rf ${name}.gdb
 }
 
-# cbbr
-function Upload {
-    local BRANCHNAME=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-    local DATE=$(date "+%Y-%m-%d")
-    local SPACES="spaces/edm-publishing/db-cbbr/${BRANCHNAME}"
-
-    pwd
-
-    mc rm -r --force ${SPACES}/latest
-    mc cp -r ./ ${SPACES}/latest
-    mc rm -r --force ${SPACES}/${VERSION}
-    mc cp -r ./ ${SPACES}/${VERSION}
+# colp
+function upload {
+    local version=${1}
+    local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
+    local SPACES="spaces/edm-publishing/db-colp/${branchname}"
+    mc rm -r --force ${SPACES}/${version}
+    mc cp -r output ${SPACES}/${version}
 }
 
-# colp
-function Upload {
-  local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-  local SPACES="spaces/edm-publishing/db-colp/$branchname"
-  mc rm -r --force $SPACES/$@
-  mc cp -r output $SPACES/$@
+# cpdb - then immediately calls with 5 as arg
+function max_bg_procs {
+    if [[ $# -eq 0 ]] ; then
+        echo "Usage: max_bg_procs NUM_PROCS.  Will wait until the number of background (&)"
+        echo "           bash processes (as determined by 'jobs -pr') falls below NUM_PROCS"
+        return
+    fi
+    local max_number=$((0 + ${1:-0}))
+    while true; do
+        local current_number=$(jobs -pr | wc -l)
+        if [[ $c{urrent_number} -lt ${max_number} ]]; then
+                break
+        fi
+        sleep 1
+    done
+}
+
+# cpdb - edm_data archive
+function archive {
+    local src=${1}
+    local dst=${2-$src}
+    local src_schema="$(cut -d'.' -f1 <<< "${src}")"
+    local src_table="$(cut -d'.' -f2 <<< "${src}")"
+    local dst_schema="$(cut -d'.' -f1 <<< "${dst}")"
+    local dst_table="$(cut -d'.' -f2 <<< "${dst}")"
+    local commit="$(git log -1 --oneline)"
+    local DATE=$(date "+%Y-%m-%d")
+    echo "Dumping ${src_schema}.${src_table} to ${dst_schema}.${dst_table}"
+    psql ${EDM_DATA} -c "CREATE SCHEMA IF NOT EXISTS ${dst_schema};"
+    pg_dump ${BUILD_ENGINE} -t ${src} -O -c | sed "s/${src}/${dst}/g" | psql ${EDM_DATA}
+    psql ${EDM_DATA} -c "COMMENT ON TABLE ${dst} IS '${DATE} ${commit}'"
 }
