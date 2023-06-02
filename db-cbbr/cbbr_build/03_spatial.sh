@@ -2,7 +2,7 @@
 source ../../bash_utils/config.sh
 set_env ../../.env
 
-echo "CBBR Version $VERSION : 03 Spatial"
+echo "CBBR Version ${VERSION} : 03 Spatial"
 # TODO delete tables that are created by this stage
 echo "Geocode with geosupport image  ..."
 python3 -m library.geocode
