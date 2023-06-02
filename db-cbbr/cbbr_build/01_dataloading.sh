@@ -9,7 +9,6 @@ VERSION=$DATE
 
 source ../../bash_utils/config.sh
 set_env ../../.env
-set_env .env
 
 echo "CBBR Version $VERSION : 01 Data Loading"
 echo "Load data into the container ..."

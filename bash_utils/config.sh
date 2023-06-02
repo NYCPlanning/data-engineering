@@ -98,7 +98,8 @@ function get_version {
 
 function create_source_data_table {
     run_sql_command \
-        "CREATE TABLE source_data_versions (
+        "DROP TABLE IF EXISTS source_data_versions;
+        CREATE TABLE source_data_versions (
             schema_name character varying,
             v character varying
         );"
@@ -148,15 +149,14 @@ function csv_export {
     local table=${2}
     local output_file=${2:-${table}}
     run_sql_command \
-        "\COPY ( \
-            SELECT * FROM ${table} \
-        ) TO STDOUT DELIMITER ',' CSV HEADER;" \ 
-        >${output_file}.csv
+        "\COPY (\
+            SELECT * FROM ${table}\
+        ) TO STDOUT DELIMITER ',' CSV HEADER;">${output_file}.csv
 }
 
 
 function shp_export {
-    urlparse ${BUILD_ENGINE}
+    parse_connection_string ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
