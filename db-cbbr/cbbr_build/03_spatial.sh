@@ -1,5 +1,6 @@
 #!/bin/bash
 source ../../bash_utils/config.sh
+set_env ../../.env
 
 echo "CBBR Version $VERSION : 03 Spatial"
 # TODO delete tables that are created by this stage
