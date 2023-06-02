@@ -20,6 +20,8 @@ function set_env {
             export $(cat $envfile | sed 's/#.*//g' | xargs)
         fi
     done
+    # TODO this is a terrible spot for this, docker setup would make more sense but then .env must be loaded
+    mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 }
 
 
