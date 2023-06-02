@@ -191,6 +191,14 @@ function fgdb_export {
 }
 
 
+# only in kpdb currently
+function compress {
+  filename=${1}
+  zip -9 ${filename}.zip ${filename}
+  rm ${filename}
+}
+
+
 # colp
 function upload {
     local version=${1}
@@ -212,14 +220,14 @@ function max_bg_procs {
     while true; do
         local current_number=$(jobs -pr | wc -l)
         if [[ $c{urrent_number} -lt ${max_number} ]]; then
-                break
+            break
         fi
         sleep 1
     done
 }
 
 
-# cpdb/facdb edm_data archive
+# cpdb/facdb/kpdb edm_data archive
 function archive {
     local src=${1}
     local dst=${2-$src}
