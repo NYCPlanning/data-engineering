@@ -1,0 +1,222 @@
+bldgclass,landuse,landusevalue
+A0,01,One and Two Family Buildings
+A1,01,One and Two Family Buildings
+A2,01,One and Two Family Buildings
+A3,01,One and Two Family Buildings
+A4,01,One and Two Family Buildings
+A5,01,One and Two Family Buildings
+A6,01,One and Two Family Buildings
+A7,01,One and Two Family Buildings
+A8,01,One and Two Family Buildings
+A9,01,One and Two Family Buildings
+B1,01,One and Two Family Buildings
+B2,01,One and Two Family Buildings
+B3,01,One and Two Family Buildings
+B9,01,One and Two Family Buildings
+Z0,01,One and Two Family Buildings
+C0,02,Multi-Family Walk-Up Buildings
+C1,02,Multi-Family Walk-Up Buildings
+C2,02,Multi-Family Walk-Up Buildings
+C3,02,Multi-Family Walk-Up Buildings
+C4,02,Multi-Family Walk-Up Buildings
+C5,02,Multi-Family Walk-Up Buildings
+C6,02,Multi-Family Walk-Up Buildings
+C8,02,Multi-Family Walk-Up Buildings
+C9,02,Multi-Family Walk-Up Buildings
+CM,02,Multi-Family Walk-Up Buildings
+R1,02,Multi-Family Walk-Up Buildings
+R2,02,Multi-Family Walk-Up Buildings
+R3,02,Multi-Family Walk-Up Buildings
+R6,02,Multi-Family Walk-Up Buildings
+D0,03,Multi-Family Elevator Buildings
+D1,03,Multi-Family Elevator Buildings
+D2,03,Multi-Family Elevator Buildings
+D3,03,Multi-Family Elevator Buildings
+D4,03,Multi-Family Elevator Buildings
+D5,03,Multi-Family Elevator Buildings
+D8,03,Multi-Family Elevator Buildings
+D9,03,Multi-Family Elevator Buildings
+H6,03,Multi-Family Elevator Buildings
+H7,03,Multi-Family Elevator Buildings
+R4,03,Multi-Family Elevator Buildings
+RD,03,Multi-Family Elevator Buildings
+C7,04,Mixed Residential and Commercial Buildings
+D6,04,Mixed Residential and Commercial Buildings
+D7,04,Mixed Residential and Commercial Buildings
+K4,04,Mixed Residential and Commercial Buildings
+O8,04,Mixed Residential and Commercial Buildings
+R8,04,Mixed Residential and Commercial Buildings
+R9,04,Mixed Residential and Commercial Buildings
+RM,04,Mixed Residential and Commercial Buildings
+RR,04,Mixed Residential and Commercial Buildings
+RX,04,Mixed Residential and Commercial Buildings
+RZ,04,Mixed Residential and Commercial Buildings
+S0,04,Mixed Residential and Commercial Buildings
+S1,04,Mixed Residential and Commercial Buildings
+S2,04,Mixed Residential and Commercial Buildings
+S3,04,Mixed Residential and Commercial Buildings
+S4,04,Mixed Residential and Commercial Buildings
+S5,04,Mixed Residential and Commercial Buildings
+S9,04,Mixed Residential and Commercial Buildings
+G8,05,Commercial and Office Buildings
+GU,05,Commercial and Office Buildings
+GW,05,Commercial and Office Buildings
+H1,05,Commercial and Office Buildings
+H2,05,Commercial and Office Buildings
+H3,05,Commercial and Office Buildings
+H4,05,Commercial and Office Buildings
+H5,05,Commercial and Office Buildings
+H9,05,Commercial and Office Buildings
+HB,05,Commercial and Office Buildings
+HH,05,Commercial and Office Buildings
+HR,05,Commercial and Office Buildings
+HS,05,Commercial and Office Buildings
+J1,05,Commercial and Office Buildings
+J2,05,Commercial and Office Buildings
+J3,05,Commercial and Office Buildings
+J4,05,Commercial and Office Buildings
+J5,05,Commercial and Office Buildings
+J6,05,Commercial and Office Buildings
+J7,05,Commercial and Office Buildings
+J8,05,Commercial and Office Buildings
+J9,05,Commercial and Office Buildings
+K1,05,Commercial and Office Buildings
+K2,05,Commercial and Office Buildings
+K3,05,Commercial and Office Buildings
+K5,05,Commercial and Office Buildings
+K6,05,Commercial and Office Buildings
+K7,05,Commercial and Office Buildings
+K8,05,Commercial and Office Buildings
+K9,05,Commercial and Office Buildings
+O1,05,Commercial and Office Buildings
+O2,05,Commercial and Office Buildings
+O3,05,Commercial and Office Buildings
+O4,05,Commercial and Office Buildings
+O5,05,Commercial and Office Buildings
+O6,05,Commercial and Office Buildings
+O7,05,Commercial and Office Buildings
+O9,05,Commercial and Office Buildings
+P1,05,Commercial and Office Buildings
+R5,05,Commercial and Office Buildings
+R7,05,Commercial and Office Buildings
+RB,05,Commercial and Office Buildings
+RC,05,Commercial and Office Buildings
+RH,05,Commercial and Office Buildings
+RI,05,Commercial and Office Buildings
+RK,05,Commercial and Office Buildings
+RS,05,Commercial and Office Buildings
+E1,06,Industrial and Manufacturing Buildings
+E2,06,Industrial and Manufacturing Buildings
+E3,06,Industrial and Manufacturing Buildings
+E7,06,Industrial and Manufacturing Buildings
+E9,06,Industrial and Manufacturing Buildings
+F1,06,Industrial and Manufacturing Buildings
+F2,06,Industrial and Manufacturing Buildings
+F4,06,Industrial and Manufacturing Buildings
+F5,06,Industrial and Manufacturing Buildings
+F8,06,Industrial and Manufacturing Buildings
+F9,06,Industrial and Manufacturing Buildings
+L1,06,Industrial and Manufacturing Buildings
+L2,06,Industrial and Manufacturing Buildings
+L3,06,Industrial and Manufacturing Buildings
+L8,06,Industrial and Manufacturing Buildings
+L9,06,Industrial and Manufacturing Buildings
+RW,06,Industrial and Manufacturing Buildings
+G2,07,Transportation and Utility
+G3,07,Transportation and Utility
+G4,07,Transportation and Utility
+G5,07,Transportation and Utility
+G9,07,Transportation and Utility
+T1,07,Transportation and Utility
+T2,07,Transportation and Utility
+T9,07,Transportation and Utility
+U0,07,Transportation and Utility
+U1,07,Transportation and Utility
+U2,07,Transportation and Utility
+U4,07,Transportation and Utility
+U5,07,Transportation and Utility
+U6,07,Transportation and Utility
+U7,07,Transportation and Utility
+U8,07,Transportation and Utility
+U9,07,Transportation and Utility
+Y6,07,Transportation and Utility
+Y7,07,Transportation and Utility
+Y8,07,Transportation and Utility
+Y9,07,Transportation and Utility
+H8,08,Public Facilities and Institutions
+I1,08,Public Facilities and Institutions
+I2,08,Public Facilities and Institutions
+I3,08,Public Facilities and Institutions
+I4,08,Public Facilities and Institutions
+I5,08,Public Facilities and Institutions
+I6,08,Public Facilities and Institutions
+I7,08,Public Facilities and Institutions
+I9,08,Public Facilities and Institutions
+M1,08,Public Facilities and Institutions
+M2,08,Public Facilities and Institutions
+M3,08,Public Facilities and Institutions
+M4,08,Public Facilities and Institutions
+M9,08,Public Facilities and Institutions
+N1,08,Public Facilities and Institutions
+N2,08,Public Facilities and Institutions
+N3,08,Public Facilities and Institutions
+N4,08,Public Facilities and Institutions
+N9,08,Public Facilities and Institutions
+P2,08,Public Facilities and Institutions
+P3,08,Public Facilities and Institutions
+P5,08,Public Facilities and Institutions
+P7,08,Public Facilities and Institutions
+P8,08,Public Facilities and Institutions
+P9,08,Public Facilities and Institutions
+RA,08,Public Facilities and Institutions
+W1,08,Public Facilities and Institutions
+W2,08,Public Facilities and Institutions
+W3,08,Public Facilities and Institutions
+W4,08,Public Facilities and Institutions
+W5,08,Public Facilities and Institutions
+W6,08,Public Facilities and Institutions
+W7,08,Public Facilities and Institutions
+W8,08,Public Facilities and Institutions
+W9,08,Public Facilities and Institutions
+Y1,08,Public Facilities and Institutions
+Y2,08,Public Facilities and Institutions
+Y3,08,Public Facilities and Institutions
+Y4,08,Public Facilities and Institutions
+Z1,08,Public Facilities and Institutions
+Z3,08,Public Facilities and Institutions
+Z4,08,Public Facilities and Institutions
+Z5,08,Public Facilities and Institutions
+P4,09,Open Space and Outdoor Recreation
+P6,09,Open Space and Outdoor Recreation
+Q0,09,Open Space and Outdoor Recreation
+Q1,09,Open Space and Outdoor Recreation
+Q2,09,Open Space and Outdoor Recreation
+Q3,09,Open Space and Outdoor Recreation
+Q4,09,Open Space and Outdoor Recreation
+Q5,09,Open Space and Outdoor Recreation
+Q6,09,Open Space and Outdoor Recreation
+Q7,09,Open Space and Outdoor Recreation
+Q8,09,Open Space and Outdoor Recreation
+Q9,09,Open Space and Outdoor Recreation
+QG,09,Open Space and Outdoor Recreation
+Z8,09,Open Space and Outdoor Recreation
+G0,10,Parking Facilities
+G1,10,Parking Facilities
+G6,10,Parking Facilities
+G7,10,Parking Facilities
+RG,10,Parking Facilities
+RP,10,Parking Facilities
+Z2,10,Parking Facilities
+V0,11,Vacant Land
+V1,11,Vacant Land
+V2,11,Vacant Land
+V3,11,Vacant Land
+V4,11,Vacant Land
+V5,11,Vacant Land
+V6,11,Vacant Land
+V7,11,Vacant Land
+V8,11,Vacant Land
+V9,11,Vacant Land
+Y5,,
+Z7,,
+Z9,,

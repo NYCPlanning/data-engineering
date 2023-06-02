@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'push' &&
+        ! contains(github.event.head_commit.message, '[skip]')
+      )
+    name: Building ...
+    runs-on: ubuntu-20.04
+    env:
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    steps:
+        - uses: actions/checkout@v2
+
+        - name: Install Minio Client and Ogr2ogr
+          run: |
+            curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+            chmod +x mc
+            sudo mv ./mc /usr/bin
+            mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+            sudo apt-get update
+            sudo apt-get -y install --no-install-recommends gdal-bin
+
+        - name: Initialize
+          run: ./facdb.sh init
+
+        - name: Dataloading
+          run: ./facdb.sh dataloading
+
+        - name: Check on Services
+          run: docker-compose ps
+
+        - name: Run Pipelines
+          run: ./facdb.sh run --all
+
+        - name: Build facdb
+          run: ./facdb.sh build
+
+        - name: QAQC facdb
+          run: ./facdb.sh qaqc
+
+        - name: Export facdb
+          run: ./facdb.sh export
+
+        - name: Upload Artifacts
+          run: ./facdb.sh upload
+
+        - name: Archive tables to EDM_DATA
+          if: github.ref == 'refs/heads/develop'
+          run: ./facdb.sh archive --all

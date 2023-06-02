@@ -1,0 +1,37 @@
+dataset:
+  name: &name pluto_input_numbldgs
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-recipes/tmp/pluto_input_numbldgs.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: |
+      SELECT bbl, count(*) as count
+      FROM @filename
+      WHERE bbl IS NOT NULL
+      GROUP BY bbl
+
+  info:
+    description: |
+      ### Number of Buildings
+      Please check the following url to check the `building_p` csv url
+      it needs to match up with the url in the python script
+    url: https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh
+    dependents: []

@@ -1,0 +1,42 @@
+name: 📁 Number of Buildings Processing (input data for PLUTO)
+
+on:
+  schedule:
+    - cron: 0 13 * * MON
+  workflow_dispatch:
+
+jobs:
+  process_numbldgs:
+    runs-on: ubuntu-22.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install minio ..
+        run: |
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv mc /usr/bin/mc
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: get numbldgs
+        working-directory: pluto_build
+        run: ./pluto geocode numbldgs
+
+      - uses: NYCPlanning/action-library-archive@v1.1
+        id: pluto_input_numbldgs
+        with:
+          name: pluto_input_numbldgs
+          path: pluto_build/templates/pluto_input_numbldgs.yml
+          s3: true
+          latest: true
+          output_format: pgdump csv
+
+      - name: clean numbldgs
+        working-directory: pluto_build
+        run: ./pluto clean numbldgs

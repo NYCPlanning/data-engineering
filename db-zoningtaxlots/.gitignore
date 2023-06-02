@@ -1,0 +1,13 @@
+*/__pycache__/*
+*.DS_Store
+*/.ipynb_checkpoints/*
+.ipynb_checkpoints
+zoningtaxlots_build/.env
+**/zoningtaxlot_db.*
+zoningtaxlots_build/output/intermediate_lotzoneperorder.csv
+*.gz
+output.log
+.env
+!version.env
+output
+/.library

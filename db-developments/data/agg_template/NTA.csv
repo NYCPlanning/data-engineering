@@ -1,0 +1,263 @@
+OBJECTID,boro,nta2020,ntaname20
+1,Brooklyn,BK0101,Greenpoint
+2,Brooklyn,BK0102,Williamsburg
+3,Brooklyn,BK0103,South Williamsburg
+4,Brooklyn,BK0104,East Williamsburg
+5,Brooklyn,BK0201,Brooklyn Heights
+6,Brooklyn,BK0202,Downtown Brooklyn-DUMBO-Boerum Hill
+7,Brooklyn,BK0203,Fort Greene
+8,Brooklyn,BK0204,Clinton Hill
+9,Brooklyn,BK0261,Brooklyn Navy Yard
+10,Brooklyn,BK0301,Bedford-Stuyvesant (West)
+11,Brooklyn,BK0302,Bedford-Stuyvesant (East)
+12,Brooklyn,BK0401,Bushwick (West)
+13,Brooklyn,BK0402,Bushwick (East)
+14,Brooklyn,BK0471,The Evergreens Cemetery
+15,Brooklyn,BK0501,Cypress Hills
+16,Brooklyn,BK0502,East New York (North)
+17,Brooklyn,BK0503,East New York-New Lots
+18,Brooklyn,BK0504,Spring Creek-Starrett City
+19,Brooklyn,BK0505,East New York-City Line
+20,Brooklyn,BK0571,Highland Park-Cypress Hills Cemeteries (South)
+21,Brooklyn,BK0601,Carroll Gardens-Cobble Hill-Gowanus-Red Hook
+22,Brooklyn,BK0602,Park Slope
+23,Brooklyn,BK0701,Windsor Terrace-South Slope
+24,Brooklyn,BK0702,Sunset Park (West)
+25,Brooklyn,BK0703,Sunset Park (Central)
+26,Brooklyn,BK0771,Green-Wood Cemetery
+27,Brooklyn,BK0801,Prospect Heights
+28,Brooklyn,BK0802,Crown Heights (North)
+29,Brooklyn,BK0891,Lincoln Terrace Park
+30,Brooklyn,BK0901,Crown Heights (South)
+31,Brooklyn,BK0902,Prospect Lefferts Gardens-Wingate
+32,Brooklyn,BK1001,Bay Ridge
+33,Brooklyn,BK1002,Dyker Heights
+34,Brooklyn,BK1061,Fort Hamilton
+35,Brooklyn,BK1091,Dyker Beach Park
+36,Brooklyn,BK1101,Bensonhurst
+37,Brooklyn,BK1102,Bath Beach
+38,Brooklyn,BK1103,Gravesend (West)
+39,Brooklyn,BK1201,Sunset Park (East)-Borough Park (West)
+40,Brooklyn,BK1202,Borough Park
+41,Brooklyn,BK1203,Kensington
+42,Brooklyn,BK1204,Mapleton-Midwood (West)
+43,Brooklyn,BK1301,Gravesend (South)
+44,Brooklyn,BK1302,Coney Island-Sea Gate
+45,Brooklyn,BK1303,Brighton Beach
+46,Brooklyn,BK1391,Calvert Vaux Park
+47,Brooklyn,BK1401,Flatbush
+48,Brooklyn,BK1402,Flatbush (West)-Ditmas Park-Parkville
+49,Brooklyn,BK1403,Midwood
+50,Brooklyn,BK1501,Gravesend (East)-Homecrest
+51,Brooklyn,BK1502,Madison
+52,Brooklyn,BK1503,Sheepshead Bay-Manhattan Beach-Gerritsen Beach
+53,Brooklyn,BK1601,Ocean Hill
+54,Brooklyn,BK1602,Brownsville
+55,Brooklyn,BK1701,East Flatbush-Erasmus
+56,Brooklyn,BK1702,East Flatbush-Farragut
+57,Brooklyn,BK1703,East Flatbush-Rugby
+58,Brooklyn,BK1704,East Flatbush-Remsen Village
+59,Brooklyn,BK1801,Flatlands
+60,Brooklyn,BK1802,Marine Park-Mill Basin-Bergen Beach
+61,Brooklyn,BK1803,Canarsie
+62,Brooklyn,BK1891,Marine Park-Plumb Island
+63,Brooklyn,BK1892,McGuire Fields
+64,Brooklyn,BK1893,Canarsie Park & Pier
+65,Brooklyn,BK5591,Prospect Park
+66,Brooklyn,BK5691,Barren Island-Floyd Bennett Field
+67,Bronx,BX0101,Mott Haven-Port Morris
+68,Bronx,BX0102,Melrose
+69,Bronx,BX0201,Hunts Point
+70,Bronx,BX0202,Longwood
+71,Bronx,BX0301,Morrisania
+72,Bronx,BX0302,Claremont Village-Claremont (East)
+73,Bronx,BX0303,Crotona Park East
+74,Bronx,BX0391,Crotona Park
+75,Bronx,BX0401,Concourse-Concourse Village
+76,Bronx,BX0402,Highbridge
+77,Bronx,BX0403,Mount Eden-Claremont (West)
+78,Bronx,BX0491,Yankee Stadium-Macombs Dam Park
+79,Bronx,BX0501,University Heights (South)-Morris Heights
+80,Bronx,BX0502,Mount Hope
+81,Bronx,BX0503,Fordham Heights
+82,Bronx,BX0601,West Farms
+83,Bronx,BX0602,Tremont
+84,Bronx,BX0603,Belmont
+85,Bronx,BX0701,University Heights (North)-Fordham
+86,Bronx,BX0702,Bedford Park
+87,Bronx,BX0703,Norwood
+88,Bronx,BX0801,Kingsbridge Heights-Van Cortlandt Village
+89,Bronx,BX0802,Kingsbridge-Marble Hill
+90,Bronx,BX0803,Riverdale-Spuyten Duyvil
+91,Bronx,BX0901,Soundview-Bruckner-Bronx River
+92,Bronx,BX0902,Soundview-Clason Point
+93,Bronx,BX0903,Castle Hill-Unionport
+94,Bronx,BX0904,Parkchester
+95,Bronx,BX0991,Soundview Park
+96,Bronx,BX1001,Westchester Square
+97,Bronx,BX1002,Throgs Neck-Schuylerville
+98,Bronx,BX1003,Pelham Bay-Country Club-City Island
+99,Bronx,BX1004,Co-op City
+100,Bronx,BX1091,Ferry Point Park-St. Raymond Cemetery
+101,Bronx,BX1101,Pelham Parkway-Van Nest
+102,Bronx,BX1102,Morris Park
+103,Bronx,BX1103,Pelham Gardens
+104,Bronx,BX1104,Allerton
+105,Bronx,BX1161,Hutchinson Metro Center
+106,Bronx,BX1201,Williamsbridge-Olinville
+107,Bronx,BX1202,Eastchester-Edenwald-Baychester
+108,Bronx,BX1203,Wakefield-Woodlawn
+109,Bronx,BX1271,Woodlawn Cemetery
+110,Bronx,BX2691,Van Cortlandt Park
+111,Bronx,BX2791,Bronx Park
+112,Bronx,BX2891,Pelham Bay Park
+113,Manhattan,MN0101,Financial District-Battery Park City
+114,Manhattan,MN0102,Tribeca-Civic Center
+115,Manhattan,MN0191,The Battery-Governors Island-Ellis Island-Liberty Island
+116,Manhattan,MN0201,SoHo-Little Italy-Hudson Square
+117,Manhattan,MN0202,Greenwich Village
+118,Manhattan,MN0203,West Village
+119,Manhattan,MN0301,Chinatown-Two Bridges
+120,Manhattan,MN0302,Lower East Side
+121,Manhattan,MN0303,East Village
+122,Manhattan,MN0401,Chelsea-Hudson Yards
+123,Manhattan,MN0402,Hell's Kitchen
+124,Manhattan,MN0501,Midtown South-Flatiron-Union Square
+125,Manhattan,MN0502,Midtown-Times Square
+126,Manhattan,MN0601,Stuyvesant Town-Peter Cooper Village
+127,Manhattan,MN0602,Gramercy
+128,Manhattan,MN0603,Murray Hill-Kips Bay
+129,Manhattan,MN0604,East Midtown-Turtle Bay
+130,Manhattan,MN0701,Upper West Side-Lincoln Square
+131,Manhattan,MN0702,Upper West Side (Central)
+132,Manhattan,MN0703,Upper West Side-Manhattan Valley
+133,Manhattan,MN0801,Upper East Side-Lenox Hill-Roosevelt Island
+134,Manhattan,MN0802,Upper East Side-Carnegie Hill
+135,Manhattan,MN0803,Upper East Side-Yorkville
+136,Manhattan,MN0901,Morningside Heights
+137,Manhattan,MN0902,Manhattanville-West Harlem
+138,Manhattan,MN0903,Hamilton Heights-Sugar Hill
+139,Manhattan,MN1001,Harlem (South)
+140,Manhattan,MN1002,Harlem (North)
+141,Manhattan,MN1101,East Harlem (South)
+142,Manhattan,MN1102,East Harlem (North)
+143,Manhattan,MN1191,Randall's Island
+144,Manhattan,MN1201,Washington Heights (South)
+145,Manhattan,MN1202,Washington Heights (North)
+146,Manhattan,MN1203,Inwood
+147,Manhattan,MN1291,Highbridge Park
+148,Manhattan,MN1292,Inwood Hill Park
+149,Manhattan,MN6491,Central Park
+150,Queens,QN0101,Astoria (North)-Ditmars-Steinway
+151,Queens,QN0102,Old Astoria-Hallets Point
+152,Queens,QN0103,Astoria (Central)
+153,Queens,QN0104,Astoria (East)-Woodside (North)
+154,Queens,QN0105,Queensbridge-Ravenswood-Dutch Kills
+155,Bronx,QN0151,Rikers Island
+156,Queens,QN0161,Sunnyside Yards (North)
+157,Queens,QN0171,St. Michael's Cemetery
+158,Queens,QN0191,Astoria Park
+159,Queens,QN0201,Long Island City-Hunters Point
+160,Queens,QN0202,Sunnyside
+161,Queens,QN0203,Woodside
+162,Queens,QN0261,Sunnyside Yards (South)
+163,Queens,QN0271,Calvary & Mount Zion Cemeteries
+164,Queens,QN0301,Jackson Heights
+165,Queens,QN0302,East Elmhurst
+166,Queens,QN0303,North Corona
+167,Queens,QN0401,Elmhurst
+168,Queens,QN0402,Corona
+169,Queens,QN0501,Maspeth
+170,Queens,QN0502,Ridgewood
+171,Queens,QN0503,Glendale
+172,Queens,QN0504,Middle Village
+173,Queens,QN0571,Mount Olivet & All Faiths Cemeteries
+174,Queens,QN0572,Middle Village Cemetery
+175,Queens,QN0573,St. John Cemetery
+176,Queens,QN0574,Highland Park-Cypress Hills Cemeteries (North)
+177,Queens,QN0601,Rego Park
+178,Queens,QN0602,Forest Hills
+179,Queens,QN0701,College Point
+180,Queens,QN0702,Whitestone-Beechhurst
+181,Queens,QN0703,Bay Terrace-Clearview
+182,Queens,QN0704,Murray Hill-Broadway Flushing
+183,Queens,QN0705,East Flushing
+184,Queens,QN0706,Queensboro Hill
+185,Queens,QN0707,Flushing-Willets Point
+186,Queens,QN0761,Fort Totten
+187,Queens,QN0801,Kew Gardens Hills
+188,Queens,QN0802,Pomonok-Electchester-Hillcrest
+189,Queens,QN0803,Fresh Meadows-Utopia
+190,Queens,QN0804,Jamaica Estates-Holliswood
+191,Queens,QN0805,Jamaica Hills-Briarwood
+192,Queens,QN0901,Kew Gardens
+193,Queens,QN0902,Richmond Hill
+194,Queens,QN0903,South Richmond Hill
+195,Queens,QN0904,Ozone Park (North)
+196,Queens,QN0905,Woodhaven
+197,Queens,QN1001,South Ozone Park
+198,Queens,QN1002,Ozone Park
+199,Queens,QN1003,Howard Beach-Lindenwood
+200,Queens,QN1101,Auburndale
+201,Queens,QN1102,Bayside
+202,Queens,QN1103,Douglaston-Little Neck
+203,Queens,QN1104,Oakland Gardens-Hollis Hills
+204,Queens,QN1191,Alley Pond Park
+205,Queens,QN1201,Jamaica
+206,Queens,QN1202,South Jamaica
+207,Queens,QN1203,Baisley Park
+208,Queens,QN1204,Springfield Gardens (North)-Rochdale Village
+209,Queens,QN1205,St. Albans
+210,Queens,QN1206,Hollis
+211,Queens,QN1301,Glen Oaks-Floral Park-New Hyde Park
+212,Queens,QN1302,Bellerose
+213,Queens,QN1303,Queens Village
+214,Queens,QN1304,Cambria Heights
+215,Queens,QN1305,Laurelton
+216,Queens,QN1306,Springfield Gardens (South)-Brookville
+217,Queens,QN1307,Rosedale
+218,Queens,QN1401,Far Rockaway-Bayswater
+219,Queens,QN1402,Rockaway Beach-Arverne-Edgemere
+220,Queens,QN1403,Breezy Point-Belle Harbor-Rockaway Park-Broad Channel
+221,Queens,QN1491,Rockaway Community Park
+222,Queens,QN8191,Flushing Meadows-Corona Park
+223,Queens,QN8381,John F. Kennedy International Airport
+224,Queens,QN8491,Jamaica Bay (East)
+225,Queens,QN8492,Jacob Riis Park-Fort Tilden-Breezy Point Tip
+226,Staten Island,SI0101,St. George-New Brighton
+227,Staten Island,SI0102,Tompkinsville-Stapleton-Clifton-Fox Hills
+228,Staten Island,SI0103,Rosebank-Shore Acres-Park Hill
+229,Staten Island,SI0104,West New Brighton-Silver Lake-Grymes Hill
+230,Staten Island,SI0105,Westerleigh-Castleton Corners
+231,Staten Island,SI0106,Port Richmond
+232,Staten Island,SI0107,Mariner's Harbor-Arlington-Graniteville
+233,Staten Island,SI0191,Snug Harbor
+234,Staten Island,SI0201,Grasmere-Arrochar-South Beach-Dongan Hills
+235,Staten Island,SI0202,New Dorp-Midland Beach
+236,Staten Island,SI0203,Todt Hill-Emerson Hill-Lighthouse Hill-Manor Heights
+237,Staten Island,SI0204,New Springville-Willowbrook-Bulls Head-Travis
+238,Staten Island,SI0291,Freshkills Park (North)
+239,Staten Island,SI0301,Oakwood-Richmondtown
+240,Staten Island,SI0302,Great Kills-Eltingville
+241,Staten Island,SI0303,Arden Heights-Rossville
+242,Staten Island,SI0304,Annadale-Huguenot-Prince's Bay-Woodrow
+243,Staten Island,SI0305,Tottenville-Charleston
+244,Staten Island,SI0391,Freshkills Park (South)
+245,Staten Island,SI9592,Miller Field
+246,Brooklyn,BK1771,Holy Cross Cemetery
+247,Brooklyn,BK5692,Jamaica Bay (West)
+248,Brooklyn,BK5693,Shirley Chisholm State Park
+249,Bronx,BX0291,North & South Brother Islands
+250,Bronx,BX0492,Claremont Park
+251,Bronx,BX1071,Hart Island
+252,Manhattan,MN0661,United Nations
+253,Queens,QN0791,Kissena Park
+254,Queens,QN0871,Mount Hebron & Cedar Grove Cemeteries
+255,Queens,QN0891,Cunningham Park
+256,Queens,QN1091,Spring Creek Park
+257,Queens,QN1371,Montefiore Cemetery
+258,Queens,QN8081,LaGuardia Airport
+259,Queens,QN8291,Forest Park
+260,Staten Island,SI9561,Fort Wadsworth
+261,Staten Island,SI9591,Hoffman & Swinburne Islands
+262,Staten Island,SI9593,Great Kills Park

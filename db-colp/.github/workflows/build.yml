@@ -1,0 +1,51 @@
+name: Build
+on: 
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    services:
+      db:
+        image: postgis/postgis:12-3.0-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies ...
+      run: |
+        curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+        chmod +x mc
+        sudo mv ./mc /usr/bin
+        mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+    - name: Dataloading ...
+      run: ./colp.sh dataloading
+
+    - name: Build COLP ...
+      run: ./colp.sh build
+
+    - name: Run QAQC ...
+      run: ./colp.sh qaqc
+
+    - name: Export COLP ...
+      run: ./colp.sh export
+
+    - name: Upload outputs to s3 ...
+      run: ./colp.sh upload

@@ -1,0 +1,34 @@
+dataset:
+  name: &name pluto_input_geocodes
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-recipes/tmp/pluto_input_geocodes.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude"
+      - "Y_POSSIBLE_NAMES=latitude"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Geocoded PTS
+      Geocoded pluto_pts
+    url: null
+    dependents: []

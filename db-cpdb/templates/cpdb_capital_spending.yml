@@ -1,0 +1,31 @@
+dataset:
+  name: &name cpdb_capital_spending
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: /.output/cpdb_capital_spending.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## CheckBookNYC - Capital Spending
+    url: null
+    dependents: []

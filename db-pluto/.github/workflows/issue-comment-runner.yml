@@ -1,0 +1,109 @@
+name: 🏗️ CI
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  build:
+    if: >-
+      contains(github.event.issue.title, '[build]') && 
+      contains(github.event.comment.body, '[build]') && 
+      (
+        github.event.comment.user.login == 'SashaWeinstein' || 
+        github.event.comment.user.login == 'mbh329' || 
+        github.event.comment.user.login == 'AmandaDoyle' ||
+        github.event.comment.user.login == 'td928'
+      )
+
+    runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+      RECIPE_ENGINE: ${{ secrets.RECIPE_ENGINE }}
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install dependencies
+        working-directory: pluto_build
+        shell: bash
+        run: |
+          ./pluto setup init
+          sudo apt install python3-pip
+          pip3 install csv2md
+
+      - name: dataloading ..
+        working-directory: pluto_build
+        shell: bash
+        run: ./01_dataloading.sh
+
+      - name: building ...
+        working-directory: pluto_build
+        shell: bash
+        run: ./02_build.sh
+
+      - name: applying corrections ...
+        shell: bash
+        working-directory: pluto_build
+        run: ./03_corrections.sh
+
+      - name: archiving ...
+        shell: bash
+        working-directory: pluto_build
+        run: ./04_archive.sh
+
+      - name: Creating QAQC tables ...
+        shell: bash
+        working-directory: pluto_build
+        run: ./05_qaqc.sh
+
+      - name: exporting ...
+        working-directory: pluto_build
+        shell: bash
+        run: |
+          ./06_export.sh
+
+      - name: create report
+        id: report
+        shell: bash
+        working-directory: pluto_build
+        run: |
+          report=$(csv2md output/source_data_versions.csv)
+          report="${report//'%'/'%25'}"
+          report="${report//$'\n'/'%0A'}"
+          report="${report//$'\r'/'%0D'}"
+          echo ::set-output name=report::$report
+
+      - name: report results in comment
+        if: success()
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+
+            ## PLUTO Build Complete! 
+
+            <summary> Source Info </summary>
+            <details>
+
+            ${{ steps.report.outputs.report }}
+
+            </details>
+
+            for more details, check https://github.com/NYCPlanning/db-pluto/actions/runs/${{ github.run_id }}
+          reactions: hooray

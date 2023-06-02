@@ -1,0 +1,86 @@
+name: 📁 Property Tax System (PTS) processing (input data for PLUTO)
+on:
+  push:
+    branches:
+      - main
+      - pts/**
+    paths:
+      - pluto_build/python/geocode.py
+      - pluto_build/bin/pts.sh
+      - pluto_build/sql/_load_pts.sql
+  schedule:
+    - cron: 0 13 * * MON
+  workflow_dispatch:
+
+jobs:
+  process_pts:
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --shm-size=2gb
+        ports:
+          - 5432:5432
+    env:
+      RECIPE_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+      SSH_PRIVATE_KEY_GINGER: ${{ secrets.SSH_PRIVATE_KEY_GINGER }}
+      GINGER_USER: ${{ secrets.GINGER_USER }}
+      GINGER_HOST: ${{ secrets.GINGER_HOST }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: install ssh key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY_GINGER" > ~/.ssh/ginger
+          chmod 600 ~/.ssh/ginger
+
+      - name: install minio ..
+        run: |
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv mc /usr/bin/mc
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: process pts
+        working-directory: pluto_build
+        run: ./pluto import pts
+
+      - uses: NYCPlanning/action-library-archive@v1.1
+        id: pluto_pts
+        with:
+          name: pluto_pts
+          path: pluto_build/templates/pluto_pts.yml
+          s3: true
+          latest: true
+          compress: true
+          output_format: pgdump csv
+
+      - name: geocode pts
+        working-directory: pluto_build
+        run: ./pluto geocode pts
+
+      - uses: NYCPlanning/action-library-archive@v1.1
+        id: pluto_input_geocodes
+        with:
+          name: pluto_input_geocodes
+          path: pluto_build/templates/pluto_input_geocodes.yml
+          s3: true
+          latest: true
+          compress: true
+          output_format: pgdump csv
+
+      - name: clean up pts
+        shell: bash
+        working-directory: pluto_build
+        run: ./pluto clean pts

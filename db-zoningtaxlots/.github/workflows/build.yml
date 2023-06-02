@@ -1,0 +1,56 @@
+name: 🏗️ Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: >-
+      contains(github.event.head_commit.message, '[build]') ||
+      github.event_name == 'workflow_dispatch'
+    name: Building ...
+    runs-on: ubuntu-20.04
+    services:
+      db:
+        image: postgis/postgis:11-3.0-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --shm-size=2g
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5435:5432
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5435/postgres
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: install dependencies ...
+        run: |
+          sudo apt update
+          sudo apt install -y gdal-bin
+
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv ./mc /usr/bin
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: 1. dataloading ..
+        run: |
+          ./ztl.sh dataloading
+          rm -rf .library
+
+      - name: 2. build ...
+        run: ./ztl.sh build
+
+      - name: 3. qaqc ...
+        run: ./ztl.sh qaqc

@@ -1,0 +1,26 @@
+DROP TABLE IF EXISTS facdb_base;
+CREATE TABLE facdb_base (
+    uid text,
+    source text,
+    facname text,
+    addressnum text,
+    streetname text,
+    address text,
+    city text,
+    zipcode text,
+    boro text,
+    borocode text,
+    bin text,
+    bbl text,
+    factype text,
+    facsubgrp text,
+    opname text,
+    opabbrev text,
+    overabbrev text,
+    capacity text,
+    captype text,
+    wkb_geometry geometry,
+    geo_1b json,
+    geo_bl json,
+    geo_bn json
+);

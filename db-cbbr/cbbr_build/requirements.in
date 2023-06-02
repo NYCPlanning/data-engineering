@@ -1,0 +1,8 @@
+geopandas
+pandas
+psycopg2-binary
+pytest
+python-dotenv
+python-geosupport
+sqlalchemy
+usaddress

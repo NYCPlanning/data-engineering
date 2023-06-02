@@ -1,0 +1,53 @@
+name: Test
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test_lint:
+    name: Linting tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: "3.11.1"
+
+      - name: Setup linting
+        run: pip install black==22.8.0
+
+      - name: Black linting
+        run: black --diff --check ./
+
+  test_container_job:
+    name: Unit tests - geosupport container
+    runs-on: ubuntu-latest
+    container:
+      image: nycplanning/docker-geosupport:latest
+      env:
+        RUN_ENV: TEST
+      volumes:
+        - ${{ github.workspace }}:/home/db-cbbr
+      options: -w /home/db-cbbr
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check for dockerenv file
+        run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
+
+      - name: Setup pytest
+        working-directory: cbbr_build
+        run: |
+          python3 -m pip list
+          python3 -m pip install pytest
+          python3 -m pip list
+
+      - name: Run pytest
+        working-directory: cbbr_build
+        run: |
+          python3 -m pytest

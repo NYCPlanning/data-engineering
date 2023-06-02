@@ -1,0 +1,105 @@
+name: Data Sync and Geocoding of HPD and DOB Data
+on:
+  push:
+    paths:
+      - .github/workflows/dob_data_sync.yml
+      - templates/dob_jobapplications.yml
+      - templates/dob_permitissuance.yml
+  schedule:
+    - cron: "0 0 * * MON"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Would you like to specify a version for dob_jobapplications?"
+        required: false
+        default: "latest"
+
+jobs:
+  sync:
+    name: syncing ...
+    runs-on: ubuntu-22.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+    strategy:
+      matrix:
+        dataset:
+          - dob_permitissuance
+          - dob_jobapplications
+          - hpd_hny_units_by_building
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: NYCPlanning/action-library-archive@v1.1
+        with:
+          # name of the dataset
+          name: ${{ matrix.dataset }}
+          path: templates/${{ matrix.dataset }}.yml
+          s3: true
+          latest: true
+          compress: true
+          output_format: csv pgdump
+
+  geocode:
+    name: geocoding
+    needs: sync
+    services:
+      db:
+        image: postgis/postgis:15-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    runs-on: ubuntu-22.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v3
+      - name: Load to Database (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          ./devdb.sh import dob_jobapplications ${{  github.event.inputs.version }}
+          ./devdb.sh import hpd_hny_units_by_building
+          ./devdb.sh import dob_now_applications
+
+      - name: Load to Database
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          ./devdb.sh import hpd_hny_units_by_building
+          ./devdb.sh import dob_jobapplications
+          ./devdb.sh import dob_now_applications
+
+      - name: Geocode
+        # Also combines the imported DOB datasets
+        run: ./devdb.sh geocode
+
+      - name: Export to csv
+        run: |
+          ./devdb.sh output hny_geocode_results csv
+          ./devdb.sh output dob_geocode_results csv
+
+      - name: Check file existence
+        run: ls *.csv
+
+      - name: Archive to Data Library (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
+          ./devdb.sh library_archive_version dob_geocode_results ${{  github.event.inputs.version }}
+
+      - name: Archive to Data Library
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
+          ./devdb.sh library_archive dob_geocode_results dob_jobapplications

@@ -1,0 +1,30 @@
+name: Publish
+on:
+  release:
+    types:
+      - published
+      - edited
+      - released
+
+jobs:
+  publish:
+    name: Publishing ...
+    runs-on: ubuntu-20.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+      VERSION: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v2
+      
+      - uses: NYCPlanning/action-library-archive@v1.1
+        id: dcp_housing
+        with:
+          name: dcp_colp
+          s3: true
+          latest: true
+          compress: true
+          output_format: shapefile csv pgdump
+          version: ${{ env.VERSION }}

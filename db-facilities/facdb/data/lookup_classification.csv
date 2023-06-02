@@ -1,0 +1,82 @@
+facsubgrp, facgroup,facdomain,servarea
+Camps,Camps,"Education, Child Welfare, and Youth",Local
+Day Care,Day Care and Pre-Kindergarten,"Education, Child Welfare, and Youth",Local
+DOE Universal Pre-Kindergarten,Day Care and Pre-Kindergarten,"Education, Child Welfare, and Youth",Local
+Dual Child Care and Universal Pre-K,Day Care and Pre-Kindergarten,"Education, Child Welfare, and Youth",Local
+Preschools for Students with Disabilities,Day Care and Pre-Kindergarten,"Education, Child Welfare, and Youth",Local
+Child Nutrition,Child Services and Welfare,"Education, Child Welfare, and Youth",Local
+School-Based Food Services,Child Services and Welfare,"Education, Child Welfare, and Youth",Local
+Foster Care Services and Residential Care,Child Services and Welfare,"Education, Child Welfare, and Youth",Regional
+"Preventative Care, Evaluation Services, and Respite",Child Services and Welfare,"Education, Child Welfare, and Youth",Local
+Colleges or Universities,Higher Education,"Education, Child Welfare, and Youth",Regional
+Non-Public K-12 Schools,Schools (K-12),"Education, Child Welfare, and Youth",Local
+Other Schools Serving Students with Disabilities,Schools (K-12),"Education, Child Welfare, and Youth",Local
+Public and Private Special Education Schools,Schools (K-12),"Education, Child Welfare, and Youth",Local
+Charter K-12 Schools,Schools (K-12),"Education, Child Welfare, and Youth",Local
+Public K-12 Schools,Schools (K-12),"Education, Child Welfare, and Youth",Local
+Proprietary Schools,Vocational and Proprietary Schools,"Education, Child Welfare, and Youth",Local
+GED and Alternative High School Equivalency,Schools (K-12),"Education, Child Welfare, and Youth",Local
+After-School Programs,Youth Services,"Education, Child Welfare, and Youth",Local
+"Youth Centers, Literacy Programs, and Job Training Services",Youth Services,"Education, Child Welfare, and Youth",Local
+Adult and Immigrant Literacy,Adult Services,"Education, Child Welfare, and Youth",Local
+Historical Sites,Historical Sites,"Parks, Gardens, and Historical Sites",Local
+Cemeteries,Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+Gardens,Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+Privately Owned Public Space,Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+Parks,Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+Undeveloped,Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+Preserves and Conservation Areas,Parks and Plazas,"Parks, Gardens, and Historical Sites",Regional
+Recreation and Waterfront Sites,Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+"Streetscapes, Plazas, and Malls",Parks and Plazas,"Parks, Gardens, and Historical Sites",Local
+Historical Societies,Cultural Institutions,Libraries and Cultural Programs,Regional
+Museums,Cultural Institutions,Libraries and Cultural Programs,Regional
+Other Cultural Institutions,Cultural Institutions,Libraries and Cultural Programs,Regional
+Academic and Special Libraries,Libraries,Libraries and Cultural Programs,Regional
+Public Libraries,Libraries,Libraries and Cultural Programs,Local
+Fire Services,Emergency Services,"Public Safety, Emergency Services, and Administration of Justice",Local
+Other Emergency Services,Emergency Services,"Public Safety, Emergency Services, and Administration of Justice",Local
+Courthouses and Judicial,Justice and Corrections,"Public Safety, Emergency Services, and Administration of Justice",Regional
+Detention and Correctional,Justice and Corrections,"Public Safety, Emergency Services, and Administration of Justice",Regional
+Other Public Safety,Public Safety,"Public Safety, Emergency Services, and Administration of Justice",Local
+Police Services,Public Safety,"Public Safety, Emergency Services, and Administration of Justice",Local
+School-Based Safety Program,Public Safety,"Public Safety, Emergency Services, and Administration of Justice",Local
+Substance Use Disorder Treatment Programs,Health Care,Health and Human Services,Regional
+Health Promotion and Disease Prevention,Health Care,Health and Human Services,Regional
+Hospitals and Clinics,Health Care,Health and Human Services,Regional
+Mental Health,Health Care,Health and Human Services,Regional
+Other Health Care,Health Care,Health and Human Services,Regional
+Residential Health Care,Health Care,Health and Human Services,Regional
+Community Centers and Community Programs,Human Services,Health and Human Services,Local
+Financial Assistance and Social Services,Human Services,Health and Human Services,Local
+Legal and Intervention Services,Human Services,Health and Human Services,Local
+Non-residential Housing and Homeless Services,Human Services,Health and Human Services,Local
+Programs for People with Disabilities,Human Services,Health and Human Services,Local
+Senior Services,Human Services,Health and Human Services,Local
+Shelters and Transitional Housing,Human Services,Health and Human Services,Regional
+Soup Kitchens and Food Pantries,Human Services,Health and Human Services,Local
+Workforce Development,Human Services,Health and Human Services,Local
+Public or Affordable Housing,Human Services,Health and Human Services,Regional
+Immigrant Services,Human Services,Health and Human Services,Local
+Material Supplies,Material Supplies and Markets,Core Infrastructure and Transportation,Regional
+Wholesale Markets,Material Supplies and Markets,Core Infrastructure and Transportation,Regional
+Solid Waste Processing,Solid Waste,Core Infrastructure and Transportation,Regional
+Solid Waste Transfer and Carting,Solid Waste,Core Infrastructure and Transportation,Regional
+DSNY Drop-off Facility,Solid Waste,Core Infrastructure and Transportation,Regional
+Telecommunications,Telecommunications,Core Infrastructure and Transportation,Regional
+Airports and Heliports,Transportation,Core Infrastructure and Transportation,Regional
+Bus Depots and Terminals,Transportation,Core Infrastructure and Transportation,Regional
+Other Transportation,Transportation,Core Infrastructure and Transportation,Regional
+Parking Lots and Garages,Transportation,Core Infrastructure and Transportation,Local
+Ports and Ferry Landings,Transportation,Core Infrastructure and Transportation,Regional
+Rail Yards and Maintenance,Transportation,Core Infrastructure and Transportation,Regional
+Wastewater and Pollution Control,Water and Wastewater,Core Infrastructure and Transportation,Regional
+Water Supply,Water and Wastewater,Core Infrastructure and Transportation,Regional
+City Agency Parking,"City Agency Parking, Maintenance, and Storage",Administration of Government,Local
+Custodial,"City Agency Parking, Maintenance, and Storage",Administration of Government,Local
+Maintenance and Garages,"City Agency Parking, Maintenance, and Storage",Administration of Government,Regional
+Storage,"City Agency Parking, Maintenance, and Storage",Administration of Government,Regional
+City Government Offices,"Offices, Training, and Testing",Administration of Government,Regional
+Training and Testing,"Offices, Training, and Testing",Administration of Government,Regional
+Miscellaneous Use,Other Property,Administration of Government,Regional
+Properties Leased or Licensed to Non-public Entities,Other Property,Administration of Government,Regional
+Head Start,Day Care and Pre-Kindergarten,"Education, Child Welfare, and Youth",Local

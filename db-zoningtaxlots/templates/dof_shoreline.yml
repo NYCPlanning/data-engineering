@@ -1,0 +1,33 @@
+dataset:
+  name: &name dof_shoreline
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dof_dtm_shoreline_polygon/staging/dof_dtm_shoreline_polygon.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## DOF Shoreline
+      uploaded by GIS
+    url: null
+    dependents: []

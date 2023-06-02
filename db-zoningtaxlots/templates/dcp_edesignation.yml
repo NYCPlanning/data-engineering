@@ -1,0 +1,37 @@
+dataset:
+  name: &name dcp_edesignation
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dcp_e_designations/staging/dcp_e_designations.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC (E) Designations
+      (E) Designations are established to provide notice of the presence of an environmental
+      requirement pertaining to potential hazardous materials contamination, high ambient noise
+      levels or air emission concerns on a particular tax lot. This includes CEQR Environment
+      Requirements and CEQR Restrictive Declarations, in Appendix C of the
+      Zoning Resolution.
+    url: "https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/nyedes_metadata.pdf"
+    dependents: []

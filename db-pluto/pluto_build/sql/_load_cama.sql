@@ -1,0 +1,41 @@
+CREATE TEMP TABLE tmp ( 
+    BBL text, 
+    PARCELCARD text, 
+    BLDGNUM text, 
+    BLDGCLASS text, 
+    PRIMARYUSECODE text, 
+    DEVELOPMENTNAME text, 
+    STREETTYPE text, 
+    LOTTYPE text, 
+    RESIDAREA text, 
+    OFFICEAREA text, 
+    RETAILAREA text, 
+    GARAGEAREA text, 
+    STORAGEAREA text, 
+    FACTORYAREA text, 
+    OTHERAREA text, 
+    GROSSAREA text, 
+    OWNERAREA text, 
+    GROSSVOLUME text, 
+    COMMERCIALAREA text, 
+    PROXCODE text, 
+    BSMNT_TYPE text, 
+    BSMNTGRADIENT text, 
+    BSMNTAREA text, 
+    FIRSTFLOORAREA text, 
+    SECONDFLOORAREA text, 
+    UPPERFLOORAREA text, 
+    PARTRESFLOORAREA text, 
+    UNFINISHEDFLOORAREA text, 
+    FINISHEDFLOORAREA text, 
+    NONRESIDFLOORAREA text, 
+    RESIDCONSTRTYPE text, 
+    COMMERCIALCONSTRTYPE text, 
+    CONDOMAINCONSTRTYPE text, 
+    CONDOUNITSCONSTRTYPE text 
+);
+
+\COPY tmp FROM PSTDIN WITH NULL AS '' DELIMITER '|' CSV;
+
+DROP TABLE IF EXISTS :NAME CASCADE;
+SELECT * INTO :NAME FROM tmp;

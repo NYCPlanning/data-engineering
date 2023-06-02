@@ -1,0 +1,10 @@
+bsmnt_type,bsmntgradient,bsmtcode,bsmnt_typevalue, bsmntgradientvalue, bsmtcodevalue
+0,0,5, unknown, unknown, unknown
+1,1,0, none, none, none or no basement
+1,2,1, none, above grade, full basement above grade
+2,0,5, crawl, unknwon, unknown
+3,2,3, part, above grade, partial basement above grade
+3,3,4, part, below grade, partial basement below grade
+4,0,5, full, unknown, unknown
+4,2,1, full, above grade, full basement above grade
+4,3,2, full, below grade, full basement below grade

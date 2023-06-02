@@ -1,0 +1,74 @@
+name: 🚀 Publish
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+jobs:
+  version:
+    name: get version
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get Version
+        id: version
+        run: |
+          source pluto_build/version.env
+          echo "::set-output name=version::$VERSION"
+          echo "Version is $VERSION"
+
+  publish:
+    needs: [version]
+    name: publishing
+    runs-on: ubuntu-22.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+    strategy:
+      matrix:
+        dataset:
+          - dcp_mappluto
+          - dcp_mappluto_wi
+          - dcp_pluto
+          - dcp_mappluto_clipped
+          # - pluto_corrections
+    steps:
+      - uses: actions/checkout@v3
+      - uses: NYCPlanning/action-library-archive@v1.1
+        # if: matrix.dataset != 'pluto_corrections'
+        with:
+          name: ${{ matrix.dataset }}
+          s3: true
+          latest: true
+          compress: true
+          output_format: pgdump csv shapefile
+          version: ${{ needs.version.outputs.version }}
+
+      - uses: NYCPlanning/action-library-archive@v1.1
+        # if: matrix.dataset == 'pluto_corrections'
+        with:
+          name: ${{ matrix.dataset }}
+          s3: true
+          latest: true
+          compress: true
+          output_format: pgdump csv
+          version: ${{ needs.version.outputs.version }}
+
+      - name: Set up Cloud SDK
+        if: matrix.dataset == 'dcp_mappluto'
+        uses: google-github-actions/setup-gcloud@v0.6.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
+          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Upload to BigQuery
+        if: matrix.dataset == 'dcp_mappluto'
+        working-directory: pluto_build
+        run: ./pluto bq publish dcp_mappluto

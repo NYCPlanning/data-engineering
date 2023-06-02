@@ -1,0 +1,15 @@
+test_id,borough_code,location,and_cross_street_2,between_cross_street_1,address,facility_or_park_name,addressnum,street_name,geo_function,geo_message,geo_grc,geo_reason_code,geo_housenum,geo_streetname,geo_bbl,geo_borough,geo_bin,geo_latitude,geo_longitude,geo_x_coord,geo_y_coord,geo_from_node,geo_from_x_coord,geo_from_y_coord,geo_to_node,geo_to_x_coord,geo_to_y_coord
+empty_location,3,,,,,,,,NO LOCATION DATA,,,,,,,,,,,,,,,,,,
+invalid_location,3,;,,,,,,,INVALID LOCATION DATA,,,,,,,,,,,,,,,,,,
+district_wide_1,3,district wide,,,,,,,INVALID LOCATION DATA,,,,,,,,,,,,,,,,,,
+district_wide_2,3,Site Name: District Wide;,,,,District Wide,,,LOCATION IS DISTRICT WIDE,,,,,,,,,,,,,,,,,,
+fake_address,3,Site Name: Home; Street Name: 1991 August Ave,,,1991 August Ave,Home,1991,August Ave,GEOCODING FAILED,,,,,,,,,,,,,,,,,,
+fake_place,3,Site Name: Little Park,,,,Little Park,,,GEOCODING FAILED,,,,,,,,,,,,,,,,,,
+real_address_works_1,3,Site Name: Pena-Herrera Park;   Street Name: 4601 3 Avenue,,,4601 3 Avenue,Pena-Herrera Park,4601,3 Avenue,geosupport_1B_address,,00,,4601,3 AVENUE,3007550014,3,3011819,40.649437,-74.012213,,,,,,,,
+real_address_works_2,3,"Site Name: Kosciuszko Pool;   Street Name: 670 Marcy Avenue, Brooklyn, New York, NY",,,"670 Marcy Avenue, Brooklyn, New York, NY",Kosciuszko Pool,670,Marcy Avenue,geosupport_1B_address,,00,,670,MARCY AVENUE,3017790027,3,3255870,40.691205,-73.949441,,,,,,,,
+real_place_works_1,3,"Site Name: Kosciuszko Pool;   Street Name: Brooklyn, New York, NY",,,"Brooklyn, New York, NY",Kosciuszko Pool,,"Brooklyn, New York, NY",geosupport_1B_place,INPUT IS A COMPLEX. OUTPUT DATA MAY PERTAIN TO ONLY PART OF THE COMPLEX,01,5,,KOSCIUSZKO POOL,3017790027,3,3426988,40.691205,-73.949441,,,,,,,,
+real_place_works_2,3,"Site Name: Hancock Playground;   Street Name: Bedford Avenue, Brooklyn, New York, NY",,,"Bedford Avenue, Brooklyn, New York, NY",Hancock Playground,,"Bedford Avenue, Brooklyn, New York, NY",geosupport_1B_place,INPUT ADDRESS IS A PSEUDO-ADDRESS,01,8,,HANCOCK PLAYGROUND,3019980024,3,3000000,40.682443,-73.954325,,,,,,,,
+real_intersection_works_1,3,Street Name: Broadway    Cross Street 1: Flushing Avenue  Cross Street 2: Flushing Avenue,Flushing Avenue,Flushing Avenue,Broadway,,,Broadway,geosupport_2_street_name,,00,,,BROADWAY,,,,,,1000351,0194575,,,,,,
+real_intersection_works_2,3,Street Name: Wyona Street    Cross Street 1: Livonia Avenue,,Livonia Avenue,Wyona Street,,,Wyona Street,geosupport_2_street_name,,00,,,WYONA STREET,,,,,,1014430,0181637,,,,,,
+real_segment_fails_1,3,Street Name: Flushing Ave    Cross Street 1: Navy St  Cross Street 2: Williamsburg St W,Williamsburg St W,Navy St,Flushing Ave,,,Flushing Ave,GEOCODING FAILED,,,,,,,,,,,,,,,,,,
+real_segment_works_1,3,Street Name: Weirfield Street    Cross Street 1: Wyckoff Avenue  Cross Street 2: Irving Avenue,Irving Avenue,Wyckoff Avenue,Weirfield Street,,,Weirfield Street,geosupport_3,,00,,,WEIRFIELD STREET,,,,,,,,0028018,1009957,0192493,0029883,1010381,0193062

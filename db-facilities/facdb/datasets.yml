@@ -1,0 +1,230 @@
+datasets:
+  - name: nypl_libraries
+    scripts:
+      - nypl_libraries.sql
+
+  - name: bpl_libraries
+    scripts:
+      - bpl_libraries.sql
+
+  - name: dcp_colp
+    scripts:
+      - dcp_colp.sql
+
+  - name: dca_operatingbusinesses
+    scripts:
+      - dca_operatingbusinesses.sql
+
+  - name: dcla_culturalinstitutions
+    scripts:
+      - dcla_culturalinstitutions.sql
+
+  - name: dcp_sfpsd
+    version: 20210409
+    scripts:
+      - dcp_sfpsd.sql
+
+  - name: dcp_pops
+    scripts:
+      - dcp_pops.sql
+
+  - name: dsny_garages
+    scripts:
+      - dsny_garages.sql
+
+  - name: dsny_specialwastedrop
+    scripts:
+      - dsny_specialwastedrop.sql
+
+  - name: dsny_donatenycdirectory
+    scripts:
+      - dsny_donatenycdirectory.sql
+
+  - name: dsny_leafdrop
+    scripts:
+      - dsny_leafdrop.sql
+
+  - name: dsny_fooddrop
+    scripts:
+      - dsny_fooddrop.sql
+
+  - name: dsny_electronicsdrop
+    scripts:
+      - dsny_electronicsdrop.sql
+
+  - name: hra_snapcenters
+    scripts:
+      - hra_snapcenters.sql
+
+  - name: hra_jobcenters
+    scripts:
+      - hra_jobcenters.sql
+
+  - name: hra_medicaid
+    scripts:
+      - hra_medicaid.sql
+
+  - name: nycha_communitycenters
+    scripts:
+      - nycha_communitycenters.sql
+
+  - name: nycha_policeservice
+    scripts:
+      - nycha_policeservice.sql
+
+  - name: nycourts_courts
+    scripts:
+      - nycourts_courts.sql
+
+  - name: nysdec_lands
+    scripts:
+      - nysdec_lands.sql
+
+  - name: dot_bridgehouses
+    scripts:
+      - dot_bridgehouses.sql
+
+  - name: dot_ferryterminals
+    scripts:
+      - dot_ferryterminals.sql
+
+  - name: dot_mannedfacilities
+    scripts:
+      - dot_mannedfacilities.sql
+
+  - name: dot_pedplazas
+    scripts:
+      - dot_pedplazas.sql
+
+  - name: dot_publicparking
+    scripts:
+      - dot_publicparking.sql
+
+  - name: qpl_libraries
+    scripts:
+      - qpl_libraries.sql
+
+  - name: sbs_workforce1
+    scripts:
+      - sbs_workforce1.sql
+
+  - name: uscourts_courts
+    scripts:
+      - uscourts_courts.sql
+
+  - name: usdot_airports
+    scripts:
+      - usdot_airports.sql
+
+  - name: usdot_ports
+    scripts:
+      - usdot_ports.sql
+
+  - name: usnps_parks
+    scripts:
+      - usnps_parks.sql
+
+  - name: nysdec_solidwaste
+    scripts:
+      - nysdec_solidwaste.sql
+
+  - name: nysdoh_healthfacilities
+    scripts:
+      - nysdoh_healthfacilities.sql
+
+  - name: nysdoh_nursinghomes
+    scripts:
+      - nysdoh_nursinghomes.sql
+
+  - name: nysdoccs_corrections
+    scripts:
+      - nysdoccs_corrections.sql
+
+  - name: nysed_nonpublicenrollment
+
+  - name: nysed_activeinstitutions
+    scripts:
+      - nysed_activeinstitutions.sql
+
+  - name: nysomh_mentalhealth
+    scripts:
+      - nysomh_mentalhealth.sql
+
+  - name: dpr_parksproperties
+    scripts:
+      - dpr_parksproperties.sql
+
+  - name: dycd_afterschoolprograms
+    scripts:
+      -  dycd_afterschoolprograms.sql
+
+  - name: fbop_corrections
+    scripts:
+      - fbop_corrections.sql
+
+  - name: fdny_firehouses
+    scripts:
+      - fdny_firehouses.sql
+
+  - name: nysomh_mentalhealth
+    scripts:
+      - nysomh_mentalhealth.sql
+
+  - name: dep_wwtc
+    version: 20210413
+    scripts:
+      - dep_wwtc.sql
+
+  - name: dfta_contracts
+    scripts:
+      - dfta_contracts.sql
+
+  - name: doe_busroutesgarages
+    scripts:
+      - doe_busroutesgarages.sql
+
+  - name: sca_enrollment_capacity
+
+  - name: doe_lcgms
+    scripts:
+      - doe_lcgms.sql
+
+  - name: doe_universalprek
+    scripts:
+      - doe_universalprek.sql
+
+  - name: dohmh_daycare
+    scripts:
+      - dohmh_daycare.sql
+
+  - name: foodbankny_foodbanks
+    scripts:
+      - foodbankny_foodbanks.sql
+
+  - name: hhc_hospitals
+    scripts:
+      - hhc_hospitals.sql
+
+  - name: moeo_socialservicesitelocations
+    scripts:
+      - moeo_socialservicesitelocations.sql
+
+  - name: nycdoc_corrections
+    scripts:
+      - nycdoc_corrections.sql
+
+  - name: nysopwdd_providers
+    scripts:
+      - nysopwdd_providers.sql
+
+  - name: nysparks_historicplaces
+    scripts:
+      - nysparks_historicplaces.sql
+
+  - name: nysparks_parks
+    scripts:
+      - nysparks_parks.sql
+
+  - name: nysoasas_programs
+    scripts:
+      - nysoasas_programs.sql

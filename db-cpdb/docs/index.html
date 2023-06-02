@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NYC Planning CPDB</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="NYC Planning CPDB" content="NYC Planning CPDB">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+  <link rel="icon" href="https://raw.githubusercontent.com/NYCPlanning/data-engineering-doc/master/assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="path/to/prismjs-theme.css">
+</head>
+<style>
+  :root {
+    /* Reduce the font size */
+    --base-font-size: 16px;
+
+    /* Change the theme color hue */
+    --theme-color: #d96b27;
+    --theme-color-dark: #ae561f;
+  
+    --text-color-base: #212326;
+    --text-color-secondary: #212326;
+    --text-color-tertiary: #aaafb5;
+  }
+  .sidebar .app-name-link img {
+        height: 50px;
+  }
+</style>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'Data Engineering',
+      logo: 'https://raw.githubusercontent.com/NYCPlanning/dcp-logo/master/dcp_logo_772.png',
+      repo: 'https://github.com/NYCPlanning/db-cpdb',
+      basePath: 'https://raw.githubusercontent.com/wiki/NYCPlanning/db-cpdb/',
+      homepage: 'https://raw.githubusercontent.com/wiki/NYCPlanning/db-cpdb/Home.md',
+      alias: {
+        '/_sidebar.md' : '/docsify.md'
+      },
+      loadSidebar: true,
+      autoHeader: true,
+      maxLevel: 3,  
+      subMaxLevel: 2
+    }
+  </script>
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/external-script.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+  <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" data-auto-a11y="true"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0"></script>
+  <script>
+    ((window.gitter = {}).chat = {}).options = {
+      room: 'NYCPlanning/community'
+    };
+  </script>
+  <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+</body>
+</html>

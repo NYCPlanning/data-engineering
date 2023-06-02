@@ -1,0 +1,11 @@
+lottype,lottypevalue
+0,"Mixed or Unknown"
+1,"Block Assemblage: A tax lot which encompasses an entire block"
+2,"Waterfront: A Tax lot bordering on a body of water. Waterfront lots may contain a small amount of submerged land."
+3,"Corner: A tax lot bordering on two intersecting streets."
+4,"Through: A tax lot which connects two streets and fronts on both streets. A lot with two frontages is not necessarily a through lot. For example, an L-shaped lot with two frontages would be coded as an Inside Lot (5)."
+5,"Inside: A tax lot which is not an assemblage, waterfront, corner,through, interior, island, alley or submerged lot."
+6,"Interior Lot:A tax lot that has no street frontage."
+7,"Island Lot: A tax lot that is entirely surrounded by water."
+8,"Alley Lot: A tax lot that is too narrow to accommodate a building. The lot is usually 12 feet or less in width."
+9,"Submerged Land Lot: A tax lot that is totally or almost completely submerged."

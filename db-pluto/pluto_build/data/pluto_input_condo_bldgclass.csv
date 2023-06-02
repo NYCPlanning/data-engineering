@@ -1,0 +1,27 @@
+Code,Description,Type,DCP created,Logic for codes created by DCP
+RG,	Indoor Parking,,,
+RP,Outdoor Parking,,,
+RS,Non-Business Storage Space,,,
+RT,Terraces/Gardens/Cabanas,,,
+R5,	Miscellaneous Commercial,Com,,
+R7,Commercial Unit of 1-3 Units Bldg- Orig Class 1,Com,,
+R8,Commercial Unit of 2-10 Unit Bldg,Com,,
+RA,"Cultural, Medical, Educational, etc.",Com,,
+RB,	Office Space,Com,,
+RH,Hotel/Boatel,Com,,
+RK,Retail Space,Com,,
+R9,	Co-op within a Condominium,R9,,
+RW,Warehouse/Factory/Industrial,Ind,,
+RC,Commercial Building (Mixed Commercial Condo Building Classification Codes),Mix,Y,Two or more Com code types —> Com
+RD,Residential Building (Mixed Residential Condo Building Classification Codes),Mix,Y,Two or more Res code types —> Res
+RI,Mixed Warehouse/Factory/Industrial & Commercial,Mix,Y,"Mixture of Ind and Com code types —> Com, Ind"
+RM,Mixed Residential & Commercial Building (Mixed Residential & Commercial),Mix,Y,"Mixture of Res and Com code types —> Com, Res"
+RX,"Mixed Residential, Commercial & Industrial",Mix,Y,"Mixture of Res, Com, and Ind code types —> Com, Ind, Res"
+RZ,Mixed Residential & Warehouse,Mix,Y,"Mixture of Res and Ware code types —> Ind, Res"
+R1,Residential Unit in 2-10 Unit Bldg,Res,,
+R2,	Residential Unit in Walk-Up Bldg,Res,,
+R3,Residential Unit in 1-3 Story Bldg,Res,,
+R4,	Residential Unit in Elevator Bldg,Res,,
+R6,Residential Unit of 1-3 Unit Bldg-Orig Class 1,Res,,
+RR,Condominium Rentals,Res,,
+R0,	Condo Billing Lot,,,

@@ -1,0 +1,54 @@
+name: 🚀 Publish - Historical MapPLUTO
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: version name of the release
+        required: false
+        default: "02b"
+      library:
+        description: run data library load process?
+        required: false
+        default: "yes"
+      bq:
+        description: run bq load process?
+        required: false
+        default: "yes"
+jobs:
+  library:
+    name: load to data library
+    if: github.event.inputs.library == 'yes'
+    runs-on: ubuntu-22.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+    steps:
+      - uses: actions/checkout@v3
+      - uses: NYCPlanning/action-library-archive@v1.1
+        if: github.event.inputs.library == 'yes'
+        with:
+          path: templates/dcp_mappluto_historical.yml
+          s3: true
+          latest: false
+          compress: true
+          output_format: pgdump csv shapefile
+          version: ${{ github.event.inputs.version }}
+  bq:
+    name: load to bigquery
+    needs: library
+    runs-on: ubuntu-22.04
+    if: always() && github.event.inputs.bq == 'yes'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
+          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Upload to BigQuery
+        working-directory: pluto_build
+        run: ./pluto bq publish_historical dcp_mappluto ${{ github.event.inputs.version }}

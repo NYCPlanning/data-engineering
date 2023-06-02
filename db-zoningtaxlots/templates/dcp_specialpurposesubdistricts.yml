@@ -1,0 +1,36 @@
+dataset:
+  name: &name dcp_specialpurposesubdistricts
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dcp_special_purpose_subdistricts/staging/dcp_special_purpose_subdistricts.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC Special Purpose Districts With Subdistricts (Zoning)
+      This feature class contains only the internal subdistricts of any special purpose
+      districts that are so subdivided. The main special purpose district name is
+      indicated by the SPNAME attribute, the SUBDIST attribute contains the subdistrict name.
+      Any further subdistrict divisions are named in the SUBSUB attribute.
+    url: "https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata"
+    dependents: []

@@ -1,0 +1,41 @@
+projecttype,tycs,agencyname,agencyabbrev,agencycode,agencyacronym,agency,projecttypeabbrev
+Correction,CORRECTION                                                  ,New York City Department of Correction,NYCDOC,72,DOC,Department of Correction,C
+Courts,COURTS                                                      ,New York City Office of Court Administration,NYCOCA,0,OCA,Office of Court Administration,CO
+Childrens Services,ADMIN FOR CHILDREN'S SERVICES                               ,New York City Administration for Childrens Services,NYCACS,68,ACS,Administration for Childrens Services,CS
+Dept. of Information Technology & Telecomm,DOITT DP EQUIPMENT                                          ,New York City Department of Information Technology and Telecommunications,NYCDOITT,858,DOITT,Department of Information Technology and Telecommunications,DP
+Education,EDUCATION                                                   ,New York City Department of Education,NYCDOE,40,DOE,Department of Education,E
+Economic Development,ECONOMIC DEVELOPMENT                                        ,New York City Department of Small Business Services,NYCSBS,801,SBS,Department of Small Business Services,ED
+Environmental Protection-Equipment,DEP EQUIPMENT                                               ,New York City Department of Environmental Protection,NYCDEP,826,DEP,Department of Environmental Protection,EP
+Fire Department,FIRE                                                        ,New York City Fire Department,NYCFDNY,57,FDNY,Fire Department,F
+Ferries and Aviation,FERRIES & AVIATION                                          ,New York City Department of Transportation,NYCDOT,841,DOT,Department of Transportation,FA
+Housing Authority,HOUSING AUTHORITY                                           ,New York City Housing Authority,NYCHA,996,NYCHA,Housing Authority,HA
+Highway Bridges,HIGHWAY BRIDGES                                             ,New York City Department of Transportation,NYCDOT,841,DOT,Department of Transportation,HB
+Housing Preservation and Development,HOUSING & DEVELOPMENT                                       ,New York City Department of Housing Preservation and Development,NYCHPD,806,HPD,Department of Housing Preservation and Development,HD
+Homeless Services,HOMELESS SERVICES                                           ,New York City Department of Homeless Services,NYCDHS,71,DHS,Department of Homeless Services,HH
+Health and Mental Hygiene,HEALTH                                                      ,New York City Department of Health and Mental Hygiene,NYCDOHMH,816,DOHMH,Department of Health and Mental Hygiene,HL
+City University of New York,HIGHER EDUCATION                                            ,City University of New York,CUNY,42,CUNY,City University of New York,HN
+Health and Hospitals Corporation,HEALTH & HOSPITALS CORP.                                    ,New York City Health and Hospitals Corporation,NYCHHC,819,HHC,Health and Hospitals Corporation,HO
+Human Resources,HUMAN RESOURCES                                             ,New York City Human Resources Administration/Department of Social Services,NYCHRA/DSS,69,HRA/DSS,Human Resources Administration/Department of Social Services,HR
+Highways,HIGHWAYS                                                    ,New York City Department of Transportation,NYCDOT,841,DOT,Department of Transportation,HW
+New York Research Library,NEW YORK RESEARCH LIBRARY                                   ,0,0,35,NYRL,New York Research Libraries,L
+Brooklyn Public Library,BROOKLYN PUBLIC LIBRARY                                     ,Brooklyn Public Library,BPL,38,BPL,Brooklyn Public Library,LB
+New York Public Library,NEW YORK PUBLIC LIBRARY                                     ,New York Public Library,NYPL,37,NYPL,New York Public Library,LN
+Queens Borough Public Library,QUEENS BOROUGH PUB. LIB.                                    ,Queens Public Library,QPL,39,QBPL,Queens Public Library,LQ
+MTA Bus Company,,Metropolitan Transportation Authority,MTA,0,MTA,Metropolitan Transportation Authority,MT
+Parks and Recreation,PARKS                                                       ,New York City Department of Parks and Recreation,NYCDPR,846,DPR,Department of Parks and Recreation,P
+Police,POLICE                                                      ,New York City Police Department,NYPD,56,NYPD,Police Department,PO
+Cultural Affairs,CULTURAL INSTITUTIONS                                       ,New York City Department of Cultural Affairs,NYCDCLA,126,DCLA,Department of Cultural Affairs,PV
+Public Buildings,PUBLIC BUILDINGS                                            ,New York City Department of Citywide Administrative Services,NYCDCAS,856,DCAS,Department of Citywide Administrative Services,PW
+Real Property,REAL PROPERTY                                               ,New York City Department of Citywide Administrative Services,NYCDCAS,856,DCAS,Department of Citywide Administrative Services,RE
+Sanitation,SANITATION                                                  ,New York City Department of Sanitation,NYCDSNY,827,DSNY,Department of Sanitation,S
+Sewers,SEWERS                                                      ,New York City Department of Environmental Protection,NYCDEP,826,DEP,Department of Environmental Protection,SE
+Staten Island Rapid Transit,SIRTOA                                                      ,Metropolitan Transportation Authority,MTA,0,MTA,Metropolitan Transportation Authority,ST
+Transit Authority,TRANSIT AUTHORITY                                           ,Metropolitan Transportation Authority,MTA,0,MTA,Metropolitan Transportation Authority,T
+Transportation - Equipment,TRANSPORTATION EQUIPMENT                                    ,New York City Department of Transportation,NYCDOT,841,DOT,Department of Transportation,TD
+Traffic,TRAFFIC                                                     ,New York City Department of Transportation,NYCDOT,841,DOT,Department of Transportation,TF
+Water Supply,WATER SUPPLY                                                ,New York City Department of Environmental Protection,NYCDEP,826,DEP,Department of Environmental Protection,W
+"Water Mains, Sources and Treatment","WATER MAINS, SOURCES AND TREATMENT                          ",New York City Department of Environmental Protection,NYCDEP,826,DEP,Department of Environmental Protection,WM
+Water Pollution Control,WATER POLLUTION CONTROL                                     ,New York City Department of Environmental Protection,NYCDEP,826,DEP,Department of Environmental Protection,WP
+Aging,DEPARTMENT FOR THE AGING                                    ,New York City Department for the Aging,NYCDFTA,125,DFTA,Department for the Aging,AG
+Waterway Bridges,WATERWAY BRIDGES                                            ,New York City Department of Transportation,NYCDOT,841,DOT,Department of Transportation,BR
+EDP Equipment and Finance Costs,EDP EQUIP & FINANC COSTS                                    ,New York City Department of Citywide Administrative Services,NYCDCAS,856,DCAS,Department of Citywide Administrative Services,PU
