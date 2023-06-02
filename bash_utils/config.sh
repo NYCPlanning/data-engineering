@@ -1,10 +1,9 @@
 #!/bin/bash
 
 DATE=$(date "+%Y-%m-%d")
-s3_endpoint=https://nyc3.digitaloceanspaces.com
 recipes_bucket=edm-recipes
 publishing_bucket=edm-publishing
-recipes_url=${s3_endpoint}/${recipes_bucket}
+recipes_url=${AWS_S3_ENDPOINT}/${recipes_bucket}
 
 
 # Pretty print messages
@@ -25,13 +24,13 @@ function set_env {
 
 
 function run_sql_file {
-    local filename = ${1}
+    local filename=${1}
     psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --file ${filename}
 }
 
 
 function run_sql_command {
-    local command = ${1}
+    local command=${1}
     psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1  --quiet --command "${command}"
 }
 
@@ -54,7 +53,7 @@ function psql_count_and_ddl {
 
 
 function parse_connection_string {
-    local connection_string = ${1}
+    local connection_string=${1}
     local proto="$(echo ${connection_string} | grep :// | sed -e's,^\(.*://\).*,\1,g')"
     local url=$(echo ${connection_string} | sed -e s,${proto},,g)
     local userpass="$(echo ${url} | grep @ | cut -d@ -f1)"
@@ -198,9 +197,9 @@ function fgdb_export {
 
 # only in kpdb currently
 function compress {
-  filename=${1}
-  zip -9 ${filename}.zip ${filename}
-  rm ${filename}
+    filename=${1}
+    zip -9 ${filename}.zip ${filename}
+    rm ${filename}
 }
 
 
@@ -259,17 +258,4 @@ function archive {
     psql ${EDM_DATA} -c "DROP TABLE IF EXISTS $2.\"${DATE}\";";
     psql ${EDM_DATA} -c "ALTER TABLE $2.$1 RENAME TO \"${DATE}\";";
     psql ${EDM_DATA} -c "CREATE VIEW $2.latest AS (SELECT '${DATE}' as v, * FROM $2.\"$DATE\");"
-}
-
-
-# devdb only at moment, maybe remove
-function geocode {
-    docker run --network=host --rm\
-        -v $(pwd):/src\
-        -w /src\
-        -e BUILD_ENGINE=$BUILD_ENGINE\
-        nycplanning/docker-geosupport:$GEOSUPPORT_DOCKER_IMAGE_VERSION bash -c "
-            python3 python/geocode.py
-            python3 python/geocode_hny.py
-        "
 }
