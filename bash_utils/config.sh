@@ -175,6 +175,7 @@ function shp_export {
 
 #colp, facdb
 function fgdb_export {
+    urlparse ${BUILD_ENGINE}
     table=${1}
     geomtype=${2}
     name=${3:-${table}}
@@ -231,7 +232,7 @@ function max_bg_procs {
 }
 
 
-# cpdb/facdb/kpdb edm_data archive
+# cpdb/facdb/kpdb/ztl edm_data archive
 function archive {
     local src=${1}
     local dst=${2-$src}
