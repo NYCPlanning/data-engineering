@@ -1,111 +1,138 @@
 #!/bin/bash
-# A script used by build scripts to import utility functions, set environment variables,
-# and configure connections
 
-function set_error_traps {
-  # Exit when any command fails
-  set -e
-  # Keep track of the last executed command
-  trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
-  # # Echo an error message before exiting
-  # trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
-}
+edm_recipes_url=https://nyc3.digitaloceanspaces.com/edm-recipes
 
 function set_env {
-  for envfile in $@; do
-    if [ -f $envfile ]; then
-      export $(cat $envfile | sed 's/#.*//g' | xargs)
-    fi
-  done
+    for envfile in $@; do
+        if [ -f ${envfile} ]; then
+            export $(cat $envfile | sed 's/#.*//g' | xargs)
+        fi
+    done
 }
 
-# Setting error traps
-set_error_traps
-
-# Setting Environmental Variables
-set_env .env version.env
-
-function run_sql {
-  psql $BUILD_ENGINE --set ON_ERROR_STOP=1 --file $1
+function run_sql_file {
+    local filename = ${1}
+    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --file ${filename}
 }
 
-function urlparse {
-  proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-  url=$(echo $1 | sed -e s,$proto,,g)
-  userpass="$(echo $url | grep @ | cut -d@ -f1)"
-  BUILD_PWD=$(echo $userpass | grep : | cut -d: -f2)
-  BUILD_USER=$(echo $userpass | grep : | cut -d: -f1)
-  hostport=$(echo $url | sed -e s,$userpass@,,g | cut -d/ -f1)
-  BUILD_HOST="$(echo $hostport | sed -e 's,:.*,,g')"
-  BUILD_PORT="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
-  BUILD_DB="$(echo $url | grep / | cut -d/ -f2-)"
+function parse_connection_string {
+    local connection_string = $1
+    proto="$(echo $connection_string | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+    url=$(echo $connection_string | sed -e s,$proto,,g)
+    userpass="$(echo $url | grep @ | cut -d@ -f1)"
+    BUILD_PWD=`echo $userpass | grep : | cut -d: -f2`
+    BUILD_USER=`echo $userpass | grep : | cut -d: -f1`
+    hostport=$(echo $url | sed -e s,$userpass@,,g | cut -d/ -f1)
+    BUILD_HOST="$(echo $hostport | sed -e 's,:.*,,g')"
+    BUILD_PORT="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+    BUILD_DB="$(echo $url | grep / | cut -d/ -f2-)"
 }
 
-function CSV_export {
-  psql $1 --set ON_ERROR_STOP=1 -c "\COPY (
-    SELECT * FROM $2
-  ) TO STDOUT DELIMITER ',' CSV HEADER;" >$3.csv
-}
-
-function SHP_export {
-  urlparse $1
-  mkdir -p $4 &&
-    (
-      cd $4
-      ogr2ogr -progress -f "ESRI Shapefile" $4.shp \
-        PG:"host=$BUILD_HOST user=$BUILD_USER port=$BUILD_PORT dbname=$BUILD_DB password=$BUILD_PWD" \
-        -nlt $3 $2
-      rm -f $4.zip
-      zip -9 $4.zip *
-      ls | grep -v $4.zip | xargs rm
-    )
-  mv $4/$4.zip $4.zip
-  rm -rf $4
+function get_version {
+    local name=${1}
+    local version=${2:-latest}
+    local url=${edm_recipes_url}
+    local version=$(curl -s ${url}/datasets/${name}/${version}/config.json | jq -r '.dataset.version')
+    echo -e "🔵 ${name} version: \e[92m\e[1m${version}\e[21m\e[0m"
+    echo ${version}
 }
 
 function import_public {
-  local name=$1
-  local version=${2:-latest}
-  local url=https://nyc3.digitaloceanspaces.com/edm-recipes
-  local version=$(curl -ss $url/datasets/$name/$version/config.json | jq -r '.dataset.version')
-  echo "$name version: $version"
+    local name=${1}
+    local version=${2:-latest}
+    local version=get_version ${name} ${version}
+    target_dir=$./.library/datasets/${name}/${version}
 
-  local target_dir=$(pwd)/.library/datasets/$name/$version
+    # Download sql dump for the datasets from data library
+    if [ -f ${target_dir}/${name}.sql ]; then
+        echo "✅ ${name}.sql exists in cache"
+    else
+        echo "🛠 ${name}.sql doesn't exists in cache, downloading ..."
+        mkdir -p ${target_dir} && (
+            cd ${target_dir}
+            curl -ss -O ${url}/datasets/${name}/${version}/${name}.sql
+        )
+    fi
 
-  # Download sql dump for the datasets from data library
-  if [ -f $target_dir/$name.sql ]; then
-    echo "✅ $name.sql exists in cache"
-  else
-    echo "🛠 $name.sql doesn't exists in cache, downloading ..."
-    mkdir -p $target_dir && (
-      cd $target_dir
-      local download_url=$url/datasets/$name/$version/$name.sql
-      local download_url_zip=$download_url.zip
-      local statuscode=$(curl --silent --output $name.sql.zip --write-out "%{http_code}" $download_url_zip)
-      if [ $statuscode = 404 ]; then
-        curl -ss -O $download_url
-      else
-        unzip $name.sql.zip
-      fi
-      rm $name.sql.zip
-    )
-  fi
-
-  # Loading into Database
-  psql $BUILD_ENGINE -f $target_dir/$name.sql
+    # Loading into Database
+    psql ${BUILD_ENGINE} -v ON_ERROR_STOP=1 -q -f $target_dir/${name}.sql
+    psql ${BUILD_ENGINE} -c "ALTER TABLE ${name} ADD COLUMN v text; UPDATE ${name} SET v = '${version}';"
 }
 
+function CSV_export {
+    local connection_string=${1}
+    local table=${2}
+    local output_file=${2:-${table}}
+    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 -c "\COPY (
+        SELECT * FROM ${table}
+    ) TO STDOUT DELIMITER ',' CSV HEADER;" >${output_file}.csv
+}
 
-# Upload to DigitalOcean
+#colp
+function SHP_export {
+    local table=${1}
+    local geomtype=${2}
+    local name=${3:-$table}
+    mkdir -p ${name} &&(
+        cd ${name}
+        docker run \
+            --network host\
+            -v $(pwd):/data\
+            --user ${UID}\
+            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "ESRI Shapefile" ${name}.shp \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                ${table} -nlt ${geomtype}
+        rm -f ${name}.shp.zip
+        zip -9 ${name}.shp.zip *
+        ls | grep -v ${name}.shp.zip | xargs rm
+    )
+    mv ${name}/${name}.shp.zip ${name}.shp.zip
+    rm -rf ${name}
+}
+
+#colp
+function FGDB_export {
+    table=${1}
+    geomtype=${2}
+    name=${3:-${table}}
+    mkdir -p ${name}.gdb && (
+        cd ${name}.gdb
+        docker run \
+            --network host\
+            -v $(pwd):/data\
+            --user ${UID}\
+            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                -mapFieldType Integer64=Real\
+                -lco GEOMETRY_NAME=Shape\
+                -nln ${name}\
+                -nlt ${geomtype} ${name}
+            rm -f ${name}.gdb.zip
+            zip -r ${name}.gdb.zip ${name}.gdb
+            rm -rf ${name}.gdb
+    )
+    mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
+    rm -rf ${name}.gdb
+}
+
+# cbbr
 function Upload {
     local BRANCHNAME=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
     local DATE=$(date "+%Y-%m-%d")
-    local SPACES="spaces/edm-publishing/db-cbbr/$BRANCHNAME"
+    local SPACES="spaces/edm-publishing/db-cbbr/${BRANCHNAME}"
 
     pwd
 
-    mc rm -r --force $SPACES/latest
-    mc cp -r ./ $SPACES/latest
-    mc rm -r --force $SPACES/$VERSION
-    mc cp -r ./ $SPACES/$VERSION
+    mc rm -r --force ${SPACES}/latest
+    mc cp -r ./ ${SPACES}/latest
+    mc rm -r --force ${SPACES}/${VERSION}
+    mc cp -r ./ ${SPACES}/${VERSION}
+}
+
+# colp
+function Upload {
+  local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
+  local SPACES="spaces/edm-publishing/db-colp/$branchname"
+  mc rm -r --force $SPACES/$@
+  mc cp -r output $SPACES/$@
 }
