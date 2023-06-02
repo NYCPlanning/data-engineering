@@ -169,26 +169,22 @@ function shp_export {
 }
 
 
-#colp
+#colp, facdb
 function fgdb_export {
     table=${1}
     geomtype=${2}
     name=${3:-${table}}
     mkdir -p ${name}.gdb && (
         cd ${name}.gdb
-        docker run \
-            --network host\
-            -v $(pwd):/data\
-            --user ${UID}\
-            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
-                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-                -mapFieldType Integer64=Real\
-                -lco GEOMETRY_NAME=Shape\
-                -nln ${name}\
-                -nlt ${geomtype} ${name}
-            rm -f ${name}.gdb.zip
-            zip -r ${name}.gdb.zip ${name}.gdb
-            rm -rf ${name}.gdb
+        ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+            PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+            -mapFieldType Integer64=Real\
+            -lco GEOMETRY_NAME=Shape\
+            -nln ${name}\
+            -nlt ${geomtype} ${name}
+        rm -f ${name}.gdb.zip
+        zip -r ${name}.gdb.zip ${name}.gdb
+        rm -rf ${name}.gdb
     )
     mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
     rm -rf ${name}.gdb
@@ -205,7 +201,7 @@ function upload {
 }
 
 
-# cpdb immediately calls with 5 as arg. Similar for devdb
+# cpdb immediately calls with 5 as arg. Similar for devdb, facdb
 function max_bg_procs {
     if [[ $# -eq 0 ]] ; then
         echo "Usage: max_bg_procs NUM_PROCS.  Will wait until the number of background (&)"
@@ -223,7 +219,7 @@ function max_bg_procs {
 }
 
 
-# cpdb edm_data archive
+# cpdb/facdb edm_data archive
 function archive {
     local src=${1}
     local dst=${2-$src}
