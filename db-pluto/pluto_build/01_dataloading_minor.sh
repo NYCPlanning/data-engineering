@@ -34,7 +34,7 @@ import_recipe dcp_zoningmapindex &
 
 # import PTS and CAMA from data library
 import_recipe pluto_input_numbldgs ${DOF_WEEKLY_DATA_VERSION} &
-import_recipe pluto_input_geocodes ${DOF_WEEKLY_DATA_VERSION }&
+import_recipe pluto_input_geocodes ${DOF_WEEKLY_DATA_VERSION} &
 import_recipe pluto_pts ${DOF_WEEKLY_DATA_VERSION} &
 import_recipe pluto_input_cama_dof ${DOF_CAMA_DATA_VERSION} &
 
@@ -47,7 +47,7 @@ import_recipe dcp_ct2020_wi ${GEOSUPPORT_VERSION} &
 import_recipe dcp_school_districts ${GEOSUPPORT_VERSION} &
 import_recipe dcp_firecompanies ${GEOSUPPORT_VERSION} &
 import_recipe dcp_policeprecincts ${GEOSUPPORT_VERSION} &
-import_recipe dcp_councildistricts_wi $GEOSUPPORT_CITYCOUNCIL &
+import_recipe dcp_councildistricts_wi ${GEOSUPPORT_CITYCOUNCIL} &
 import_recipe dcp_healthareas ${GEOSUPPORT_VERSION} &
 import_recipe dcp_healthcenters ${GEOSUPPORT_VERSION} &
 import_recipe fema_firms2007_100yr ${FEMA_FIRPS_VERSION} &
