@@ -5,16 +5,12 @@ FROM pluto a
 WHERE ST_GeometryType(ST_MakeValid(a.geom)) = 'ST_MultiPolygon');
 CREATE INDEX validdtm_geom_idx ON validdtm USING GIST (geom gist_geometry_ops_2d);
 
-VACUUM ANALYZE validdtm;
-
 DROP TABLE IF EXISTS validzones;
 CREATE TABLE validzones AS (
 SELECT a.zonedist, ST_MakeValid(a.geom) as geom  
 FROM dcp_zoningdistricts a
 WHERE ST_GeometryType(ST_MakeValid(a.geom)) = 'ST_MultiPolygon'); 
 CREATE INDEX validzones_geom_idx ON validzones USING GIST (geom gist_geometry_ops_2d);
-
-VACUUM ANALYZE validzones;
 
 DROP TABLE IF EXISTS lotzoneper;
 CREATE TABLE lotzoneper AS (
@@ -41,8 +37,6 @@ CREATE TABLE lotzoneper AS (
 
 ALTER TABLE lotzoneper
 SET (parallel_workers=30);
-
-VACUUM ANALYZE lotzoneper;
 
 DROP TABLE IF EXISTS lotzoneperorder; 
 CREATE TABLE lotzoneperorder AS (

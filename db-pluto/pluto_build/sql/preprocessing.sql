@@ -8,6 +8,7 @@ ALTER TABLE dcp_cb2010_wi RENAME wkb_geometry to geom;
 ALTER TABLE dcp_ct2020_wi RENAME wkb_geometry to geom;
 ALTER TABLE dcp_cb2020_wi RENAME wkb_geometry to geom;
 ALTER TABLE dcp_edesignation RENAME wkb_geometry to geom;
+ALTER TABLE dcp_colp DROP COLUMN geom;
 ALTER TABLE dcp_colp RENAME wkb_geometry to geom;
 ALTER TABLE lpc_historic_districts RENAME wkb_geometry to geom;
 ALTER TABLE lpc_landmarks RENAME wkb_geometry to geom;
