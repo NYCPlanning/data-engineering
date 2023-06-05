@@ -25,6 +25,16 @@ function set_env {
 }
 
 
+function set_error_traps {
+  # Exit when any command fails
+  set -e
+  # keep track of the last executed command
+  trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+  # echo an error message before exiting
+  trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
+}
+
+
 function run_sql_file {
     local filename=${1}
     psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --file ${filename}
@@ -174,7 +184,6 @@ function shp_export {
 }
 
 
-#colp, facdb
 function fgdb_export {
     urlparse ${BUILD_ENGINE}
     table=${1}
