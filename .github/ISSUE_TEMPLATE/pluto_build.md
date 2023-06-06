@@ -1,5 +1,5 @@
 ---
-name: Build
+name: PLUTO Build
 about: This is a build issue for PLUTO that tracks dataloading, pluto improvements
   and additional info
 title: "[build] version: {e.g. Major: 20v4, Minor: 22v3.1}"

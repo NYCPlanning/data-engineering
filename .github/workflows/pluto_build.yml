@@ -1,4 +1,4 @@
-name: 🏗️ CI - Run
+name: 🏗️ Pluto - Build
 
 on:
   workflow_dispatch:
@@ -35,50 +35,43 @@ jobs:
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    working-directory: ./db-pluto/pluto_build
     steps:
       - uses: actions/checkout@v3
 
       - name: install dependencies
-        working-directory: pluto_build
         shell: bash
         run: ./pluto setup init
 
       - name: dataloading (major) ..
-        working-directory: pluto_build
         shell: bash
         run: ./01_dataloading.sh
         if: inputs.minor_version == false
 
       - name: dataloading (minor) ..
-        working-directory: pluto_build
         shell: bash
         run: ./01_dataloading_minor.sh
         if: inputs.minor_version == true
 
       - name: building ...
-        working-directory: pluto_build
         shell: bash
         run: ./02_build.sh
 
       - name: apply corrections
         shell: bash
-        working-directory: pluto_build
         run: ./03_corrections.sh
 
       - name: Archive
         shell: bash
-        working-directory: pluto_build
         run: ./04_archive.sh
         if: inputs.run_export
 
       - name: QAQC
         shell: bash
-        working-directory: pluto_build
         run: ./05_qaqc.sh
         if: inputs.run_export
 
       - name: create shapefile
-        working-directory: pluto_build
         shell: bash
         run: |
           ./06_export.sh

@@ -53,28 +53,28 @@ jobs:
           mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
       - name: process pts
-        working-directory: pluto_build
+        working-directory: db-pluto/pluto_build
         run: ./pluto import pts
 
       - uses: NYCPlanning/action-library-archive@v1.1
         id: pluto_pts
         with:
           name: pluto_pts
-          path: pluto_build/templates/pluto_pts.yml
+          path: db-pluto/pluto_build/templates/pluto_pts.yml
           s3: true
           latest: true
           compress: true
           output_format: pgdump csv
 
       - name: geocode pts
-        working-directory: pluto_build
+        working-directory: db-pluto/pluto_build
         run: ./pluto geocode pts
 
       - uses: NYCPlanning/action-library-archive@v1.1
         id: pluto_input_geocodes
         with:
           name: pluto_input_geocodes
-          path: pluto_build/templates/pluto_input_geocodes.yml
+          path: db-pluto/pluto_build/templates/pluto_input_geocodes.yml
           s3: true
           latest: true
           compress: true
@@ -82,5 +82,5 @@ jobs:
 
       - name: clean up pts
         shell: bash
-        working-directory: pluto_build
+        working-directory: db-pluto/pluto_build
         run: ./pluto clean pts
