@@ -2,10 +2,10 @@
 source ../../bash_utils/config.sh
 set_env ../../.env
 set_env ./version.env
-set_error_traps
 
 # DROP all tables
 if [[ ${1} == "drop" ]]; then
+    echo "Dropping all tables"
     run_sql_command "
     DO \$\$ DECLARE
         r RECORD;
@@ -17,12 +17,13 @@ if [[ ${1} == "drop" ]]; then
     "
 fi
 
+echo "Creating source data table"
 create_source_data_table
 
 # This shell script is for minor releases of PLUTO where all datasets remain constant
 # except for DCP data that is updated monthly and used by ZOLA (e.g. E-Designations, zoning files)
 
-# import zoning files from data library - default to latest
+echo "import zoning files from data library - default to latest"
 import_recipe dcp_edesignation &
 import_recipe dcp_commercialoverlay &
 import_recipe dcp_limitedheight &
@@ -32,13 +33,13 @@ import_recipe dcp_specialpurposesubdistricts &
 import_recipe dcp_zoningmapamendments &
 import_recipe dcp_zoningmapindex &
 
-# import PTS and CAMA from data library
+echo "import PTS and CAMA from data library"
 import_recipe pluto_input_numbldgs ${DOF_WEEKLY_DATA_VERSION} &
 import_recipe pluto_input_geocodes ${DOF_WEEKLY_DATA_VERSION} &
 import_recipe pluto_pts ${DOF_WEEKLY_DATA_VERSION} &
 import_recipe pluto_input_cama_dof ${DOF_CAMA_DATA_VERSION} &
 
-# import spatial bounaries from data library
+echo "import spatial bounaries from data library"
 import_recipe dcp_cdboundaries_wi ${GEOSUPPORT_VERSION} &
 import_recipe dcp_cb2010_wi ${GEOSUPPORT_VERSION} &
 import_recipe dcp_ct2010_wi ${GEOSUPPORT_VERSION} &
@@ -55,7 +56,7 @@ import_recipe fema_pfirms2015_100yr ${FEMA_FIRPS_VERSION} &
 import_recipe doitt_zipcodeboundaries ${DOITT_DATA_VERSION} & 
 import_recipe dof_shoreline ${DOF_DATA_VERSION} & 
 
-# import other
+echo "import other"
 import_recipe dof_dtm ${DOF_DATA_VERSION_DTM} & 
 import_recipe dof_condo ${DOF_DATA_VERSION} &
 import_recipe dcp_colp ${DCP_COLP_VERSION} &
