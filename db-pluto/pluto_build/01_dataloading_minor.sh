@@ -6,7 +6,7 @@ set_error_traps
 
 # DROP all tables
 if [[ "${1}" == "drop" ]]; then
-    run_sql_command "
+    psql $BUILD_ENGINE -c "
     DO \$\$ DECLARE
         r RECORD;
     BEGIN
