@@ -2,11 +2,10 @@
 source ../../bash_utils/config.sh
 set_env ../../.env
 set_env ./version.env
-set_error_traps
 
 # DROP all tables
-if [[ "${1}" == "drop" ]]; then
-    psql $BUILD_ENGINE -c "
+if [[ ${1} == "drop" ]]; then
+    run_sql_command "
     DO \$\$ DECLARE
         r RECORD;
     BEGIN
