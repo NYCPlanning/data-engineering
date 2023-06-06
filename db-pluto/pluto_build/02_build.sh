@@ -2,6 +2,7 @@
 source ../../bash_utils/config.sh
 set_env ../../.env
 set_env ./version.env
+set_error_traps
 
 echo "Starting to build PLUTO ..."
 run_sql_file sql/preprocessing.sql

@@ -1,4 +1,7 @@
 #!/bin/bash
+source ../../bash_utils/config.sh
+set_env ../../.env
+
 declare -a commands
 declare -a actions
 declare -a hints
