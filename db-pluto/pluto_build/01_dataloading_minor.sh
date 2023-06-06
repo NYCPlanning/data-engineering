@@ -2,6 +2,7 @@
 source ../../bash_utils/config.sh
 set_env ../../.env
 set_env ./version.env
+set_error_traps
 
 # DROP all tables
 if [[ ${1} == "drop" ]]; then
@@ -70,6 +71,3 @@ wait
 
 ## Load local CSV files
 run_sql_file sql/_create.sql
-
-# Create data version table 
-run_sql_file sql/source_data_versions.sql

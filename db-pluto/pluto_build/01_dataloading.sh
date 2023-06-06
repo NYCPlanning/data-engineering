@@ -66,6 +66,3 @@ wait
 
 ## Load local CSV files
 run_sql_file sql/_create.sql
-
-# Create data version table
-run_sql_file sql/source_data_versions.sql
