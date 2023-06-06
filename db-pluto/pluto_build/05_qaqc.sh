@@ -17,9 +17,7 @@ import_qaqc qaqc_outlier main &
 wait
 
 # QAQC EXPECTED VALUE ANALYSIS
-psql ${BUILD_ENGINE} \
-  -v VERSION=${VERSION} \
-  -f sql/qaqc_expected.sql &
+run_sql_file sql/qaqc_expected.sql -v VERSION=${VERSION}
 
 function set_condition {
   mapped=${1} 
@@ -41,8 +39,8 @@ function QAQC {
   mapped=${2}
   condo=${3}
   set_condition ${mapped} ${condo}
-  psql ${BUILD_ENGINE} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} -v CONDO=${condo} \
-  -v MAPPED=${mapped}  -v CONDITION="${condition}" -f ${file}
+  run_sql_file ${file} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} -v CONDO=${condo} \
+  -v MAPPED=${mapped}  -v CONDITION="${condition}"
 }
 
 # QAQC MISMATCH ANALYSIS
