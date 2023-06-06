@@ -36,11 +36,13 @@ function set_error_traps {
 
 
 function run_sql_file {
+    echo "psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --file $@"
     psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --file $@
 }
 
 
 function run_sql_command {
+    echo "psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --file $@"
     psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1 --quiet --command $@
 }
 
