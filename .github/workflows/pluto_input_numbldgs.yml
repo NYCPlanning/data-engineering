@@ -1,4 +1,4 @@
-name: 📁 Number of Buildings Processing (input data for PLUTO)
+name: PLUTO Inputs - Number of Buildings Processing
 
 on:
   schedule:

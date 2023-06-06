@@ -1,4 +1,4 @@
-name: 🏗️ Pluto - Build
+name: PLUTO - 🏗️ Build
 
 on:
   workflow_dispatch:
