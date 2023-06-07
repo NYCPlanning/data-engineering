@@ -1,5 +1,6 @@
 #!/bin/bash
 source ../../bash_utils/config.sh
+source ./bin/config.sh
 set_env ../../.env
 set_env ./version.env
 
