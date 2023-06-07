@@ -5,7 +5,7 @@ set_env ../../.env
 set_env ./version.env
 
 # import previous version of pluto
-import_public dcp_pluto ${VERSION_PREV }
+import_recipe dcp_pluto ${VERSION_PREV}
 run_sql_command "ALTER TABLE IF EXISTS dcp_pluto RENAME to previous_pluto"
 
 # Download Existing QAQC from DO
