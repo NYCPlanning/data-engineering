@@ -43,7 +43,7 @@ function run_sql_file {
 function run_sql_command {
     command=${1}
     shift
-    psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1 --quiet --command ${command} $@
+    psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1 --quiet --command "${command}" $@
 }
 
 
