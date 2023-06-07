@@ -183,7 +183,7 @@ function shp_export {
 
 
 function fgdb_export {
-    urlparse ${BUILD_ENGINE}
+    parse_connection_string ${BUILD_ENGINE}
     table=${1}
     geomtype=${2}
     name=${3:-${table}}
