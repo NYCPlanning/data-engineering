@@ -182,7 +182,7 @@ function shp_export {
 }
 
 
-function fgdb_export {
+function fgdb_export_no_docker {
     parse_connection_string ${BUILD_ENGINE}
     table=${1}
     geomtype=${2}
@@ -195,6 +195,42 @@ function fgdb_export {
             -lco GEOMETRY_NAME=Shape\
             -nln ${name}\
             -nlt ${geomtype} ${name}
+        rm -f ${name}.gdb.zip
+        zip -r ${name}.gdb.zip ${name}.gdb
+        rm -rf ${name}.gdb
+    )
+    mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
+    rm -rf ${name}.gdb
+}
+
+
+function fgdb_export_no_docker {
+    parse_connection_string ${BUILD_ENGINE}
+    table=${1}
+    geomtype=${2}
+    name=${3:-${table}}
+    mkdir -p ${name}.gdb && (
+        docker run \
+            --network host\
+            -v $(pwd):/data\
+            --user $UID\
+            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                -mapFieldType Integer64=Real\
+                -lco GEOMETRY_NAME=Shape\
+                -nln ${name}\
+                -nlt MULTIPOLYGON\
+                ${name}
+        docker run \
+            --network host\
+            -v $(pwd):/data\
+            --user $UID\
+            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                -mapFieldType Integer64=Real\
+                -update -nlt NONE\
+                -nln NOT_MAPPED_LOTS\
+                unmapped
         rm -f ${name}.gdb.zip
         zip -r ${name}.gdb.zip ${name}.gdb
         rm -rf ${name}.gdb
