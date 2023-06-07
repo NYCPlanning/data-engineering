@@ -3,22 +3,20 @@ source ../../bash_utils/config.sh
 set_env ../../.env
 set_env ./version.env
 
-mkdir -p output && 
-  (cd output 
-    echo "version: ${VERSION}" > version.txt
-    echo "date: ${DATE}" >> version.txt
-    # csv_export ${BUILD-ENGINE} pluto_changes
-    csv_export ${BUILD-ENGINE} pluto_removed_records
-    csv_export ${BUILD-ENGINE} pluto_changes_not_applied
-    csv_export ${BUILD-ENGINE} pluto_changes_applied
-    zip pluto_changes.zip *
-    ls | grep -v pluto_changes.zip | xargs rm
-  )
+mkdir -p output
+cd output
+    
+echo "version: ${VERSION}" > version.txt
+echo "date: ${DATE}" >> version.txt
+# csv_export ${BUILD-ENGINE} pluto_changes
+csv_export ${BUILD-ENGINE} pluto_removed_records
+csv_export ${BUILD-ENGINE} pluto_changes_not_applied
+csv_export ${BUILD-ENGINE} pluto_changes_applied
+zip pluto_changes.zip *
+ls | grep -v pluto_changes.zip | xargs rm
 
-mkdir -p output &&
-  (cd output
-    csv_export ${BUILD_ENGINE} source_data_versions
-  )
+
+csv_export ${BUILD_ENGINE} source_data_versions
 
 # mappluto.gdb
 fgdb_export mappluto_gdb MULTIPOLYGON &
@@ -33,8 +31,8 @@ shp_export mappluto MULTIPOLYGON &
 shp_export mappluto_unclipped MULTIPOLYGON &
 
 # Pluto
-mkdir -p output/pluto &&
-  (cd output/pluto
+mkdir -p pluto &&
+  (cd pluto
     rm -f pluto.zip
     run_sql_command "\COPY ( 
           SELECT * FROM export_pluto
@@ -46,8 +44,8 @@ mkdir -p output/pluto &&
   )
 
 # BBL and Council info for DOF
-mkdir -p output/dof && 
-  (cd output/dof
+mkdir -p dof && 
+  (cd dof
     rm -f bbl_council.zip
     run_sql_command "\COPY ( 
           SELECT bbl, council FROM export_pluto
@@ -58,8 +56,8 @@ mkdir -p output/dof &&
     ls | grep -v bbl_council.zip | xargs rm
   )
 
-mkdir -p output/qaqc && 
-  (cd output/qaqc
+mkdir -p qaqc && 
+  (cd qaqc
     for table in qaqc_aggregate qaqc_expected qaqc_mismatch qaqc_null qaqc_outlier
     do
       run_sql_command "\COPY ( 
@@ -70,6 +68,8 @@ mkdir -p output/qaqc &&
 
   )
 
+cd ..
+
 wait
-upload "db-pluto" ${VERSION} &
+#upload "db-pluto" ${VERSION} &
 upload "db-pluto" ${branchname}
