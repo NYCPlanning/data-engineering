@@ -1,9 +1,9 @@
 ---
-name: Zoning Tax Lots Build
-about: Use this issue template to create a Zoning Tax Lots DB release
-title: "[build] Zoning Tax Lots {{ put timestamp here, e.g. 2020 July Release }}"
+name: Zoning Tax Lots - Update
+about: Master issue for Zoning Tax Lots releases
+title: "{Version, i.e. 20Q4} ZTL Update"
 labels: ["ztl", "data update"]
-assignees: 
+assignees:
 
 ---
 

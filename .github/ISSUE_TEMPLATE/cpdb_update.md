@@ -1,3 +1,12 @@
+---
+name: CPDB - Update
+about: Master issue for CPDB releases
+title: "{Version, i.e. 20Q4} CPDB Update"
+labels: ["cpdb", "data update"]
+assignees:
+
+---
+
 The purpose of this issue is to help the team track the tasks that need to occur before kicking off a CPDB update.
 
 # Update source data
