@@ -71,5 +71,5 @@ mkdir -p qaqc &&
 cd ..
 
 wait
-#upload "db-pluto" ${VERSION} &
-upload "db-pluto" ${branchname}
+upload "db-pluto" "${VERSION}/${DATE}" &
+upload "db-pluto" "${branchname}/${DATE}"
