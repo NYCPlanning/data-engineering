@@ -8,6 +8,8 @@ CREATE TABLE validdtm AS (
 );
 CREATE INDEX validdtm_geom_idx ON validdtm USING GIST (geom gist_geometry_ops_2d);
 
+VACUUM ANALYZE;
+
 DROP TABLE IF EXISTS validzones; 
 CREATE TABLE validzones AS (
   SELECT 
@@ -44,6 +46,8 @@ CREATE TABLE lotzoneper AS (
   FROM validdtm AS p INNER JOIN validzones AS n 
   ON ST_Intersects(p.geom, n.geom)
 );
+
+VACUUM ANALYZE;
 
 DROP TABLE IF EXISTS lotzoneperorder; 
 CREATE TABLE lotzoneperorder AS (
