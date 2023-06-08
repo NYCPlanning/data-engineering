@@ -10,11 +10,11 @@ on:
         default: 'no'
       export:
         description: 'Would you like to export outputs to db-knownprojects-data? (yes/no)'
-      required: false
+        required: false
         default: 'no'
       comments:
         description: 'Provide any additional comments below'
-      required: false
+        required: false
         default: ''
 
 jobs:
