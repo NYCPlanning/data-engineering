@@ -1,4 +1,4 @@
-name: PLUTO Inputs - CAMA Processing
+name: PLUTO Inputs - 📁 CAMA Processing
 
 on:
   workflow_dispatch:
