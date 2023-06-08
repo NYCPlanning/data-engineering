@@ -8,8 +8,6 @@ CREATE TABLE validdtm AS (
 );
 CREATE INDEX validdtm_geom_idx ON validdtm USING GIST (geom gist_geometry_ops_2d);
 
-VACUUM ANALYZE;
-
 DROP TABLE IF EXISTS validzones; 
 CREATE TABLE validzones AS (
   SELECT 
@@ -19,6 +17,8 @@ CREATE TABLE validzones AS (
   WHERE ST_GeometryType(ST_MakeValid(a.geom)) = 'ST_MultiPolygon'
 ); 
 CREATE INDEX validzones_geom_idx ON validzones USING GIST (geom gist_geometry_ops_2d);
+
+VACUUM ANALYZE;
 
 DROP TABLE IF EXISTS lotzoneper; 
 CREATE TABLE lotzoneper AS (
