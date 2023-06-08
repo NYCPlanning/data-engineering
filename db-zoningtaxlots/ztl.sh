@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-source bash/config.sh
 
 function dataloading { 
     ./bash/01_dataloading.sh

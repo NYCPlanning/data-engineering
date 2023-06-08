@@ -4,13 +4,7 @@ source bash/config.sh
 set_env ../.env
 set_error_traps
 
-run_sql_command "
-  DROP TABLE IF EXISTS versions;
-  CREATE TABLE versions ( 
-    datasource text, 
-    version text 
-  );
-"
+create_source_data_table
 
 # Import Data
 import_recipe dcp_commercialoverlay &
