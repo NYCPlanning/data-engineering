@@ -1,6 +1,6 @@
 name: (TODO) COLP - 🚀 Publish
 on:
-  workflow-dispatch:
+  workflow_dispatch:
   #release:
   #  types:
   #    - published
