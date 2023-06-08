@@ -1,9 +1,9 @@
-name: Zoning Tax Lots - 🏗️ Build
+name: z(TODO) Zoning Tax Lots - 🏗️ Build
 
 on:
-  push:
-    branches:
-      - main
+  #push:
+  #  branches:
+  #    - main
   workflow_dispatch:
 
 jobs:
