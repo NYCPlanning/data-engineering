@@ -1,15 +1,17 @@
 #!/bin/bash
 # Create a postgres database container
 BASEDIR=$(dirname $0)
-NAME=$(basename $BASEDIR)
-WORKDIR="$(pwd)/$NAME"
+NAME=$(basename ${BASEDIR})
+WORKDIR="$(pwd)/${NAME}"
 CONTAINER_NAME="cbbr_cook_container"
-CONTAINER_WORKDIR="/cook_container_home/$NAME"
-VERSION=$DATE
+CONTAINER_WORKDIR="/cook_container_home/${NAME}"
+VERSION=${DATE}
 
-source $WORKDIR/config.sh
+source ../../bash_utils/config.sh
+set_env ../../.env
+set_env version.env
 
-echo "CBBR Version $VERSION : 01 Data Loading"
+echo "CBBR Version ${VERSION} : 01 Data Loading"
 echo "Load data into the container ..."
 
 ## DEPRICATED USE OF COOK DOCKER IMAGE
@@ -28,14 +30,16 @@ echo "Load data into the container ..."
 # "
 # psql $BUILD_ENGINE -f sql/preprocessing.sql
 
+create_source_data_table
+
 ## REPLACES python3 python/dataloading.py in cook image
-import_public cbbr_submissions
-import_public dpr_parksproperties $DPR_PARKS_VERSION
-import_public dcp_facilities $DCP_FACILITIES_VERSION
-import_public doitt_buildingfootprints $DOITT_FOOTPRINTS_VERSION # last version with a valid sql archive in in edm-recipes
+import_recipe cbbr_submissions
+import_recipe dpr_parksproperties ${DPR_PARKS_VERSION}
+import_recipe dcp_facilities ${DCP_FACILITIES_VERSION}
+import_recipe doitt_buildingfootprints ${DOITT_FOOTPRINTS_VERSION} # last version with a valid sql archive in in edm-recipes
 
 echo "Create Manually Mapped Corrections table..."
-run_sql sql/create_corrections.sql
+run_sql_file sql/create_corrections.sql
 
 ## Skipping aggregate_geoms for dev of initial FY2024 build
 # echo "Aggregate geometries ..."

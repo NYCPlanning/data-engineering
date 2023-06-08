@@ -1,10 +1,9 @@
 #!/bin/bash
 
 DATE=$(date "+%Y-%m-%d")
-s3_endpoint=https://nyc3.digitaloceanspaces.com
 recipes_bucket=edm-recipes
 publishing_bucket=edm-publishing
-recipes_url=${s3_endpoint}/${recipes_bucket}
+recipes_url=${AWS_S3_ENDPOINT}/${recipes_bucket}
 
 
 # Pretty print messages
@@ -21,18 +20,28 @@ function set_env {
             export $(cat $envfile | sed 's/#.*//g' | xargs)
         fi
     done
+    # TODO this is a terrible spot for this, docker setup would make more sense but then .env must be loaded
+    mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+}
+
+
+function set_error_traps {
+  # Exit when any command fails
+  set -e
+  # keep track of the last executed command
+  trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+  # echo an error message before exiting
+  trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 }
 
 
 function run_sql_file {
-    local filename = ${1}
-    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --file ${filename}
+    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --file "$@"
 }
 
 
 function run_sql_command {
-    local command = ${1}
-    psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1  --quiet --command "${command}"
+    psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1 --quiet --command "$@"
 }
 
 
@@ -54,7 +63,7 @@ function psql_count_and_ddl {
 
 
 function parse_connection_string {
-    local connection_string = ${1}
+    local connection_string=${1}
     local proto="$(echo ${connection_string} | grep :// | sed -e's,^\(.*://\).*,\1,g')"
     local url=$(echo ${connection_string} | sed -e s,${proto},,g)
     local userpass="$(echo ${url} | grep @ | cut -d@ -f1)"
@@ -97,7 +106,8 @@ function get_version {
 
 function create_source_data_table {
     run_sql_command \
-        "CREATE TABLE source_data_versions (
+        "DROP TABLE IF EXISTS source_data_versions;
+        CREATE TABLE source_data_versions (
             schema_name character varying,
             v character varying
         );"
@@ -147,15 +157,14 @@ function csv_export {
     local table=${2}
     local output_file=${2:-${table}}
     run_sql_command \
-        "\COPY ( \
-            SELECT * FROM ${table} \
-        ) TO STDOUT DELIMITER ',' CSV HEADER;" \ 
-        >${output_file}.csv
+        "\COPY (\
+            SELECT * FROM ${table}\
+        ) TO STDOUT DELIMITER ',' CSV HEADER;">${output_file}.csv
 }
 
 
 function shp_export {
-    urlparse ${BUILD_ENGINE}
+    parse_connection_string ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
@@ -173,9 +182,8 @@ function shp_export {
 }
 
 
-#colp, facdb
-function fgdb_export {
-    urlparse ${BUILD_ENGINE}
+function fgdb_export_no_docker {
+    parse_connection_string ${BUILD_ENGINE}
     table=${1}
     geomtype=${2}
     name=${3:-${table}}
@@ -196,11 +204,47 @@ function fgdb_export {
 }
 
 
+function fgdb_export {
+    parse_connection_string ${BUILD_ENGINE}
+    table=${1}
+    geomtype=${2}
+    name=${3:-${table}}
+    mkdir -p ${name}.gdb && (
+        docker run \
+            --network host\
+            -v $(pwd):/data\
+            --user $UID\
+            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                -mapFieldType Integer64=Real\
+                -lco GEOMETRY_NAME=Shape\
+                -nln ${name}\
+                -nlt MULTIPOLYGON\
+                ${name}
+        docker run \
+            --network host\
+            -v $(pwd):/data\
+            --user $UID\
+            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                -mapFieldType Integer64=Real\
+                -update -nlt NONE\
+                -nln NOT_MAPPED_LOTS\
+                unmapped
+        rm -f ${name}.gdb.zip
+        zip -r ${name}.gdb.zip ${name}.gdb
+        rm -rf ${name}.gdb
+    )
+    mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
+    rm -rf ${name}.gdb
+}
+
+
 # only in kpdb currently
 function compress {
-  filename=${1}
-  zip -9 ${filename}.zip ${filename}
-  rm ${filename}
+    filename=${1}
+    zip -9 ${filename}.zip ${filename}
+    rm ${filename}
 }
 
 
@@ -259,17 +303,4 @@ function archive {
     psql ${EDM_DATA} -c "DROP TABLE IF EXISTS $2.\"${DATE}\";";
     psql ${EDM_DATA} -c "ALTER TABLE $2.$1 RENAME TO \"${DATE}\";";
     psql ${EDM_DATA} -c "CREATE VIEW $2.latest AS (SELECT '${DATE}' as v, * FROM $2.\"$DATE\");"
-}
-
-
-# devdb only at moment, maybe remove
-function geocode {
-    docker run --network=host --rm\
-        -v $(pwd):/src\
-        -w /src\
-        -e BUILD_ENGINE=$BUILD_ENGINE\
-        nycplanning/docker-geosupport:$GEOSUPPORT_DOCKER_IMAGE_VERSION bash -c "
-            python3 python/geocode.py
-            python3 python/geocode_hny.py
-        "
 }

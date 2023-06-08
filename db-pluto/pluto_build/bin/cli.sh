@@ -1,4 +1,5 @@
 #!/bin/bash
+
 declare -a commands
 declare -a actions
 declare -a hints

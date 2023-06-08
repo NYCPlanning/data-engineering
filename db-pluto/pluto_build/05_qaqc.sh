@@ -1,9 +1,12 @@
 #!/bin/bash
-source bin/config.sh
+source ../../bash_utils/config.sh
+source ./bin/config.sh
+set_env ../../.env
+set_env ./version.env
 
 # import previous version of pluto
-import_public dcp_pluto $VERSION_PREV 
-psql $BUILD_ENGINE -c "ALTER TABLE IF EXISTS dcp_pluto RENAME to previous_pluto"
+import_recipe dcp_pluto $(echo ${VERSION_PREV} | tr . _)
+run_sql_command "ALTER TABLE IF EXISTS dcp_pluto RENAME to previous_pluto"
 
 # Download Existing QAQC from DO
 import_qaqc qaqc_expected main &
@@ -15,13 +18,11 @@ import_qaqc qaqc_outlier main &
 wait
 
 # QAQC EXPECTED VALUE ANALYSIS
-psql $BUILD_ENGINE \
-  -v VERSION=$VERSION \
-  -f sql/qaqc_expected.sql &
+run_sql_file sql/qaqc_expected.sql -v VERSION=${VERSION}
 
 function set_condition {
-  mapped=$1 
-  condo=$2
+  mapped=${1} 
+  condo=${2}
   if [ "${mapped}" = true ] && [ "${condo}" = true ] ; then
     export condition="WHERE right(a.bbl::bigint::text, 4) LIKE '75%%' AND a.geom IS NOT NULL"
   elif [ "${mapped}" = true ] && [ "${condo}" = false ] ; then
@@ -34,13 +35,13 @@ function set_condition {
 }
 
 function QAQC {
-  echo "Running $1"
-  file=$1
-  mapped=$2
-  condo=$3
-  set_condition $mapped $condo
-  psql $BUILD_ENGINE -v VERSION=$VERSION -v VERSION_PREV=$VERSION_PREV -v CONDO=$condo \
-  -v MAPPED=$mapped  -v CONDITION="$condition" -f $file
+  echo "Running ${1}"
+  file=${1}
+  mapped=${2}
+  condo=${3}
+  set_condition ${mapped} ${condo}
+  run_sql_file ${file} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} -v CONDO=${condo} \
+  -v MAPPED=${mapped}  -v CONDITION="${condition}"
 }
 
 # QAQC MISMATCH ANALYSIS
@@ -50,7 +51,7 @@ do
   do
     for condo in true false 
     do
-      QAQC $file $mapped $condo
+      QAQC ${file} ${mapped} ${condo}
     done
   done 
 done 

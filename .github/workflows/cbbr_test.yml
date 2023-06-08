@@ -1,7 +1,9 @@
-name: Test
+name: CBBR - Test
 
 on:
   push:
+    paths:
+    - db-cbbr/**
   workflow_dispatch:
 
 jobs:
@@ -21,7 +23,7 @@ jobs:
         run: pip install black==22.8.0
 
       - name: Black linting
-        run: black --diff --check ./
+        run: black --diff --check ./db-cbbr
 
   test_container_job:
     name: Unit tests - geosupport container
@@ -41,13 +43,13 @@ jobs:
         run: (ls /.dockerenv && echo Found dockerenv) || (echo No dockerenv)
 
       - name: Setup pytest
-        working-directory: cbbr_build
+        working-directory: db-cbbr/cbbr_build
         run: |
           python3 -m pip list
           python3 -m pip install pytest
           python3 -m pip list
 
       - name: Run pytest
-        working-directory: cbbr_build
+        working-directory: db-cbbr/cbbr_build
         run: |
           python3 -m pytest

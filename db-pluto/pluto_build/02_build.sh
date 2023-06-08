@@ -1,114 +1,116 @@
 #!/bin/bash
-source bin/config.sh
+source ../../bash_utils/config.sh
+set_env ../../.env
+set_env ./version.env
+set_error_traps
 
 echo "Starting to build PLUTO ..."
-psql $BUILD_ENGINE -f sql/preprocessing.sql
-psql $BUILD_ENGINE -f sql/create_pts.sql
-psql $BUILD_ENGINE -f sql/create_rpad_geo.sql
+run_sql_file sql/preprocessing.sql
+run_sql_file sql/create_pts.sql
+run_sql_file sql/create_rpad_geo.sql
 
 echo 'Making DCP edits to RPAD...'
-psql $BUILD_ENGINE -f sql/zerovacantlots.sql
-psql $BUILD_ENGINE -f sql/lotarea.sql
-psql $BUILD_ENGINE -f sql/primebbl.sql
-psql $BUILD_ENGINE -f sql/apdate.sql
+run_sql_file sql/zerovacantlots.sql
+run_sql_file sql/lotarea.sql
+run_sql_file sql/primebbl.sql
+run_sql_file sql/apdate.sql
 
 echo 'Creating table that aggregates condo data and is used to build PLUTO...'
-psql $BUILD_ENGINE -f sql/create_allocated.sql
-psql $BUILD_ENGINE -f sql/yearbuiltalt.sql
+run_sql_file sql/create_allocated.sql
+run_sql_file sql/yearbuiltalt.sql
 
 echo 'Creating base PLUTO table'
-psql $BUILD_ENGINE -v version=$VERSION -f sql/create.sql
-psql $BUILD_ENGINE -f sql/bbl.sql
+run_sql_file sql/create.sql -v version=${VERSION}
+run_sql_file sql/bbl.sql
 
 echo 'Adding on RPAD data attributes'
-psql $BUILD_ENGINE -f sql/allocated.sql
+run_sql_file sql/allocated.sql
 
 echo 'Adding on spatial data attributes'
-psql $BUILD_ENGINE -f sql/geocodes.sql
+run_sql_file sql/geocodes.sql
 # clean up numeric fields
-psql $BUILD_ENGINE -f sql/numericfields.sql
-psql $BUILD_ENGINE -f sql/condono.sql
+run_sql_file sql/numericfields.sql
+run_sql_file sql/condono.sql
 
 echo 'Adding on CAMA data attributes'
-psql $BUILD_ENGINE -f sql/landuse.sql
-psql $BUILD_ENGINE -f sql/create_cama_primebbl.sql
+run_sql_file sql/landuse.sql
+run_sql_file sql/create_cama_primebbl.sql
 
-psql $BUILD_ENGINE -f sql/cama_bsmttype.sql
-psql $BUILD_ENGINE -f sql/cama_lottype.sql
-psql $BUILD_ENGINE -f sql/cama_proxcode.sql
-psql $BUILD_ENGINE -f sql/cama_bldgarea_1.sql
-psql $BUILD_ENGINE -f sql/cama_bldgarea_2.sql
-psql $BUILD_ENGINE -f sql/cama_bldgarea_3.sql
-psql $BUILD_ENGINE -f sql/cama_bldgarea_4.sql
-psql $BUILD_ENGINE -f sql/cama_easements.sql
+run_sql_file sql/cama_bsmttype.sql
+run_sql_file sql/cama_lottype.sql
+run_sql_file sql/cama_proxcode.sql
+run_sql_file sql/cama_bldgarea_1.sql
+run_sql_file sql/cama_bldgarea_2.sql
+run_sql_file sql/cama_bldgarea_3.sql
+run_sql_file sql/cama_bldgarea_4.sql
+run_sql_file sql/cama_easements.sql
 
 echo 'Adding on data attributes from other sources'
-psql $BUILD_ENGINE -f sql/lpc.sql
-psql $BUILD_ENGINE -f sql/edesignation.sql
-psql $BUILD_ENGINE -f sql/ownertype.sql
+run_sql_file sql/lpc.sql
+run_sql_file sql/edesignation.sql
+run_sql_file sql/ownertype.sql
 
 echo 'Transform RPAD data attributes'
-psql $BUILD_ENGINE -f sql/irrlotcode.sql
+run_sql_file sql/irrlotcode.sql
 
 echo 'Adding DCP data attributes'
-psql $BUILD_ENGINE -f sql/address.sql
+run_sql_file sql/address.sql
 
 echo 'Create base DTM'
-psql $BUILD_ENGINE -f sql/dedupecondotable.sql
-psql $BUILD_ENGINE -f sql/dtmmergepolygons.sql
-psql $BUILD_ENGINE -f sql/plutogeoms.sql
+run_sql_file sql/dedupecondotable.sql
+run_sql_file sql/dtmmergepolygons.sql
+run_sql_file sql/plutogeoms.sql
 
 echo 'Adding in geometries that are in the DTM but not in RPAD'
-psql $BUILD_ENGINE -f sql/dtmgeoms.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/dtmgeoms.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
-psql $BUILD_ENGINE -f sql/spatialindex.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/spatialindex.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Computing zoning fields'
-psql $BUILD_ENGINE -f sql/zoning_create_priority.sql
-psql $BUILD_ENGINE -f sql/zoning_zoningdistrict_create.sql
-psql $BUILD_ENGINE -f sql/zoning_zoningdistrict.sql
-psql $BUILD_ENGINE -f sql/zoning_commercialoverlay.sql
-psql $BUILD_ENGINE -f sql/zoning_specialdistrict.sql
-psql $BUILD_ENGINE -f sql/zoning_limitedheight.sql
-psql $BUILD_ENGINE -f sql/zoning_zonemap.sql
-psql $BUILD_ENGINE -f sql/zoning_parks.sql
-psql $BUILD_ENGINE -f sql/zoning_correctdups.sql
-psql $BUILD_ENGINE -f sql/zoning_correctgaps.sql
-psql $BUILD_ENGINE -f sql/zoning_splitzone.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/zoning_create_priority.sql
+run_sql_file sql/zoning_zoningdistrict_create.sql
+run_sql_file sql/zoning_zoningdistrict.sql
+run_sql_file sql/zoning_commercialoverlay.sql
+run_sql_file sql/zoning_specialdistrict.sql
+run_sql_file sql/zoning_limitedheight.sql
+run_sql_file sql/zoning_zonemap.sql
+run_sql_file sql/zoning_parks.sql
+run_sql_file sql/zoning_correctdups.sql
+run_sql_file sql/zoning_correctgaps.sql
+run_sql_file sql/zoning_splitzone.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Filling in FAR values'
-psql $BUILD_ENGINE -f sql/far.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/far.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Populating building class for condos lots and land use field'
-psql $BUILD_ENGINE -f sql/bldgclass.sql
-psql $BUILD_ENGINE -f sql/landuse.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/bldgclass.sql
+run_sql_file sql/landuse.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Flagging tax lots within the FEMA floodplain'
-psql $BUILD_ENGINE -f sql/latlong.sql
-psql $BUILD_ENGINE -f sql/update_empty_coord.sql
-psql $BUILD_ENGINE -f sql/flood_flag.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/latlong.sql
+run_sql_file sql/update_empty_coord.sql
+run_sql_file sql/flood_flag.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Assigning political values with spatial join'
-psql $BUILD_ENGINE -f sql/spatialjoins.sql
+run_sql_file sql/spatialjoins.sql
 # clean up numeric fields
-psql $BUILD_ENGINE -f sql/numericfields_geomfields.sql
-psql $BUILD_ENGINE -f sql/sanitboro.sql
-psql $BUILD_ENGINE -f sql/latlong.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;"
+run_sql_file sql/numericfields_geomfields.sql
+run_sql_file sql/sanitboro.sql
+run_sql_file sql/latlong.sql
+run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Populating PLUTO tags and version fields'
-psql $BUILD_ENGINE -v ON_ERROR_STOP=1 -f sql/plutomapid.sql
-psql $BUILD_ENGINE -c "VACUUM ANALYZE pluto;" & 
-psql $BUILD_ENGINE -c "VACUUM ANALYZE dof_shoreline_subdivide;"
-psql $BUILD_ENGINE -v ON_ERROR_STOP=1 -f sql/plutomapid_1.sql
-psql $BUILD_ENGINE -v ON_ERROR_STOP=1 -f sql/plutomapid_2.sql
-psql $BUILD_ENGINE -f sql/shorelineclip.sql
+run_sql_file sql/plutomapid.sql
+run_sql_command "VACUUM ANALYZE pluto;" & 
+run_sql_command "VACUUM ANALYZE dof_shoreline_subdivide;"
+run_sql_file sql/plutomapid_1.sql
+run_sql_file sql/plutomapid_2.sql
+run_sql_file sql/shorelineclip.sql
 
 echo 'Done'
-exit 0
