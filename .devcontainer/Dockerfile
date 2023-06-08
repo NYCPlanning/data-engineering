@@ -1,4 +1,4 @@
-FROM nycplanning/docker-geosupport:latest
+FROM osgeo/gdal:ubuntu-small-3.6.1
 
 ENV PYTHONUNBUFFERED 1
 
@@ -9,10 +9,8 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 RUN if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then groupmod --gid $USER_GID vscode && usermod --uid $USER_UID --gid $USER_GID vscode; fi
 
-RUN python -m pip install poetry
-
 RUN apt update && export DEBIAN_FRONTEND=noninteractive \
-    && apt -y install --no-install-recommends postgresql-client gdal-bin
+    && apt -y install --no-install-recommends postgresql-client python3-pip python3-distutils jq zip unzip git-core bash-completion
 
 RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
     && chmod +x mc \
@@ -20,7 +18,5 @@ RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
 
 # need to load env if this happens here
 # RUN mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-
-RUN apt install -y jq zip unzip git-core bash-completion
 
 USER vscode

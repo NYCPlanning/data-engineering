@@ -5,11 +5,6 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-      args:
-        USER_UID: 1000
-        USER_GID: 1000
-    environment:
-       BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
     volumes:
       - ..:/workspace:cached
 
