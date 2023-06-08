@@ -1,9 +1,9 @@
 ---
-name: Build
+name: Zoning Tax Lots Build
 about: Use this issue template to create a Zoning Tax Lots DB release
-title: "[build] {{ put timestamp here, e.g. 2020 July Release }}"
-labels: zoningtaxlots
-assignees: ''
+title: "[build] Zoning Tax Lots {{ put timestamp here, e.g. 2020 July Release }}"
+labels: ["ztl", "data update"]
+assignees: 
 
 ---
 

@@ -1,6 +1,7 @@
-name: Run DevDB/HousingDB
+name: (TODO) DevDB - Build
+
 on:
-  push:
+  #push:
   workflow_dispatch:
     inputs:
       rebuild:

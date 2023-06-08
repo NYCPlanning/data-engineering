@@ -1,4 +1,4 @@
-name: Build
+name: (TODO) FacDB - 🏗️ Build
 
 on:
   workflow_dispatch:

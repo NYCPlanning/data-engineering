@@ -1,9 +1,9 @@
 ---
-name: Data Loading
+name: Facilities - Build/Data Loading
 about: Track progress prepping source data
-title: "{Version} Facilites DB Dataloading"
-labels: ''
-assignees: ''
+title: "{Version} Facilites DB Build and Dataloading"
+labels: {"facdb", "data update"]
+assignees: 
 
 ---
 

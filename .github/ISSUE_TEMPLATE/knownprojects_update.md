@@ -1,3 +1,12 @@
+---
+name: KPDB - Build/Data Loading
+about: Track progress prepping source data
+title: "{Version} KPDBDB Build and Dataloading"
+labels: {"kpdb", "data update"]
+assignees: 
+
+---
+
 # Update source data
 
 ## Partner Agency Data

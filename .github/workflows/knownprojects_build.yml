@@ -1,6 +1,7 @@
-name: Build
+name: (TODO) KPDB - Build
+
 on:
-  push:
+  #push: todo - add branch paths if we want this. More likely want to normalize across projects
   workflow_dispatch:
     inputs:
       update_submodule:
@@ -9,11 +10,11 @@ on:
         default: 'no'
       export:
         description: 'Would you like to export outputs to db-knownprojects-data? (yes/no)'
-        required: false
+      required: false
         default: 'no'
       comments:
         description: 'Provide any additional comments below'
-        required: false
+      required: false
         default: ''
 
 jobs:

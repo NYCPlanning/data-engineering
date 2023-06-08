@@ -1,10 +1,10 @@
-name: Publish
+name: (TODO) COLP - 🚀 Publish
 on:
-  release:
-    types:
-      - published
-      - edited
-      - released
+  #release:
+  #  types:
+  #    - published
+  #    - edited
+  #    - released
 
 jobs:
   publish:

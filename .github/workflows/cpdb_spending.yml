@@ -1,4 +1,4 @@
-name: Archive Capital Spending Data
+name: (TODO) CPDB - Archive Capital Spending Data
 
 on:
   workflow_dispatch:

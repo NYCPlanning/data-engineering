@@ -1,8 +1,8 @@
 ---
-name: Update
+name: DevDB - Build
 about: Master issue for DevDB releases
-title: "{Version, i.e. 20Q4} UPDATE"
-labels: ''
+title: "{Version, i.e. 20Q4} DevDB UPDATE"
+labels: ["devdb", "data update"]
 assignees:
 
 ---
