@@ -57,5 +57,5 @@ psql -q ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} \
 psql -q ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} \
     -f sql/qaqc/null.sql > output/qaqc_null.csv
 
-Upload db-zoningtaxlots ${DATE}
-Upload db-zoningtaxlots latest
+upload db-zoningtaxlots ${DATE}
+upload db-zoningtaxlots latest
