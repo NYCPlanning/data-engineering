@@ -18,13 +18,3 @@ import_recipe dcp_zoningmapindex &
 wait
 
 rm -rf .library
-
-# Generate source_data_versions table
-run_sql_command "
-  DROP TABLE IF EXISTS source_data_versions;
-  SELECT 
-    datasource as schema_name, 
-    version as v
-  INTO source_data_versions
-  FROM versions;
-" -1
