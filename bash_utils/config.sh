@@ -184,17 +184,21 @@ function shp_export {
 
 function fgdb_export { 
     parse_connection_string ${BUILD_ENGINE}
-    table=${1}
-    geomtype=${2}
-    name=${3:-${table}}
+    geomtype=${1}
+    name=${2}
+    shift
     mkdir -p ${name}.gdb && (
         cd ${name}.gdb
-        ogr2ogr -progress -f "FileGDB" ${name}.gdb \
-            PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-            -mapFieldType Integer64=Real\
-            -lco GEOMETRY_NAME=Shape\
-            -nln ${name}\
-            -nlt ${geomtype} ${name}
+        for nln in $@ 
+        do
+            ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
+                -mapFieldType Integer64=Real\
+                -lco GEOMETRY_NAME=Shape\
+                -nln ${nln}\
+                -nlt ${geomtype} 
+                ${name}
+        done
         rm -f ${name}.gdb.zip
         zip -r ${name}.gdb.zip ${name}.gdb
         rm -rf ${name}.gdb
