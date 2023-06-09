@@ -182,7 +182,7 @@ function shp_export {
 }
 
 
-function fgdb_export_no_docker {
+function fgdb_export_no_docker { 
     parse_connection_string ${BUILD_ENGINE}
     table=${1}
     geomtype=${2}

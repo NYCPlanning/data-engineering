@@ -72,4 +72,6 @@ cd ..
 
 wait
 upload "db-pluto" "${VERSION}/${DATE}" &
-upload "db-pluto" "${branchname}/${DATE}"
+upload "db-pluto" "${VERSION}/latest" &
+upload "db-pluto" "${branchname}/${DATE}" &
+upload "db-pluto" "${branchname}/latest"

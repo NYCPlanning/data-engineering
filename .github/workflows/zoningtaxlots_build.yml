@@ -1,4 +1,4 @@
-name: z(TODO) Zoning Tax Lots - 🏗️ Build
+name: Zoning Tax Lots - 🏗️ Build
 
 on:
   #push:
@@ -44,13 +44,14 @@ jobs:
           sudo mv ./mc /usr/bin
           mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
-      - name: 1. dataloading ..
-        run: |
-          ./ztl.sh dataloading
-          rm -rf .library
+      - name: 1. dataloading ...
+        working-directory: ./db-zoningtaxlots
+        run: ./ztl.sh dataloading
 
       - name: 2. build ...
+        working-directory: ./db-zoningtaxlots
         run: ./ztl.sh build
 
       - name: 3. qaqc ...
+        working-directory: ./db-zoningtaxlots
         run: ./ztl.sh qaqc

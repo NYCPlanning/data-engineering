@@ -1,6 +1,8 @@
 #!/bin/bash
-set -e
+source ../bash_utils/config.sh
 source bash/config.sh
+set_env ../.env
+set_error_traps
 
 run_sql_file sql/create_priority.sql &
 run_sql_file sql/create.sql
@@ -25,10 +27,10 @@ run_sql_file sql/correct_invalidrecords.sql
 echo "archive final output"
 
 echo "archive final output"
-pg_dump -t dcp_zoning_taxlot $BUILD_ENGINE | psql $EDM_DATA
-psql $EDM_DATA -c "
+pg_dump -t dcp_zoning_taxlot ${BUILD_ENGINE} | psql ${EDM_DATA}
+psql ${EDM_DATA} -c "
   CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
   ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;
-  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"$VERSION\";
-  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"$VERSION\";
+  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"${VERSION}\";
+  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION}\";
 "
