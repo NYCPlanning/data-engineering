@@ -2,6 +2,8 @@
 source ../bash_utils/config.sh
 set_env ../.env
 
+create_source_data_table
+
 import_recipe dcp_pluto &
 import_recipe dcp_colp &
 import_recipe dcas_ipis &
