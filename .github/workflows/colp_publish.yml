@@ -1,10 +1,11 @@
-name: Publish
+name: z(TODO) COLP - 🚀 Publish
 on:
-  release:
-    types:
-      - published
-      - edited
-      - released
+  workflow_dispatch:
+  #release:
+  #  types:
+  #    - published
+  #    - edited
+  #    - released
 
 jobs:
   publish:

@@ -1,4 +1,4 @@
-name: CBBR - Build
+name: CBBR - 🏗️ Build
 
 on:
   workflow_dispatch:

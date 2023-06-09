@@ -1,3 +1,12 @@
+---
+name: COLP - Update
+about: Master issue for COLP releases
+title: "{Version, i.e. 20Q4} COLP Update"
+labels: ["colp", "data update"]
+assignees:
+
+---
+
 # COLP Source Data Updates
 
 Like most of our data products, source data must be updated in data library before COLP is run/built. 
