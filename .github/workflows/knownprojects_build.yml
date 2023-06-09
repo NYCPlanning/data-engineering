@@ -1,6 +1,7 @@
-name: Build
+name: z(TODO) KPDB - Build
+
 on:
-  push:
+  #push: todo - add branch paths if we want this. More likely want to normalize across projects
   workflow_dispatch:
     inputs:
       update_submodule:

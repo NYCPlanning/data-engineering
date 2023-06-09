@@ -1,9 +1,9 @@
 ---
-name: dataloading
+name: Zoning Tax Lots Data Loading
 about: use this template to create a zoning tax lots source data bulk load
-title: "[dataloading] {{ input dates here, e.g. 2021/03/08 }}"
-labels: dataloading
-assignees: ''
+title: "[dataloading] Zoning Tax Lots {{ input dates here, e.g. 2021/03/08 }}"
+labels: "ztl"
+assignees: 
 
 ---
 

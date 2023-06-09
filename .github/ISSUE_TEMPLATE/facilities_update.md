@@ -1,9 +1,9 @@
 ---
-name: Data Loading
-about: Track progress prepping source data
-title: "{Version} Facilites DB Dataloading"
-labels: ''
-assignees: ''
+name: FacDB - Update
+about: Master issue for FacDB releases
+title: "{Version, i.e. 20Q4} FacDB Update"
+labels: ["facdb", "data update"]
+assignees:
 
 ---
 

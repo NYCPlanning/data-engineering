@@ -1,8 +1,9 @@
-name: Publish
+name: z(TODO) DevDB - 🚀 Publish
+
 on:
-  release:
-    types:
-      - published
+#  release:
+#    types:
+#      - published
   workflow_dispatch:
 
 jobs:

@@ -1,3 +1,12 @@
+---
+name: KPDB - Update
+about: Master issue for KPDB releases
+title: "{Version, i.e. 20Q4} KPDB Update"
+labels: ["kpdb", "data update"]
+assignees:
+
+---
+
 # Update source data
 
 ## Partner Agency Data

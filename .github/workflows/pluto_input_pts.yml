@@ -1,4 +1,4 @@
-name: PLUTO Inputs - Property Tax System (PTS) processing
+name: PLUTO Inputs - 📁 Property Tax System (PTS) processing
 on:
   push:
     branches:

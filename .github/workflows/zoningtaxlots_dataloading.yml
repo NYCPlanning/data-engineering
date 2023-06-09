@@ -1,8 +1,8 @@
-name: 📁 DataLoading
+name: z(TODO) Zoning Tax lots - 📁 DataLoading
 
 on:
-  issues:
-    types: [opened, edited]
+  #issues:
+  #  types: [opened, edited]
   workflow_dispatch:
 
 jobs:

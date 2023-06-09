@@ -2,7 +2,7 @@
 name: PLUTO Build - Major
 about: This is a build issue for PLUTO that tracks dataloading and build
 title: "PLUTO build version: {e.g. 20v4, 22v3.1}"
-labels: 'pluto', "data update"
+labels: ["pluto", "data update"]
 assignees:
 
 ---

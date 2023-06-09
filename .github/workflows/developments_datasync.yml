@@ -1,12 +1,13 @@
-name: Data Sync and Geocoding of HPD and DOB Data
+name: z(TODO) DevDB - Data Sync and Geocoding of HPD and DOB Data
+
 on:
-  push:
-    paths:
-      - .github/workflows/dob_data_sync.yml
-      - templates/dob_jobapplications.yml
-      - templates/dob_permitissuance.yml
-  schedule:
-    - cron: "0 0 * * MON"
+#  push:
+#    paths:
+#      - .github/workflows/dob_data_sync.yml
+#      - templates/dob_jobapplications.yml
+#      - templates/dob_permitissuance.yml
+#  schedule:
+#    - cron: "0 0 * * MON"
   workflow_dispatch:
     inputs:
       version:
