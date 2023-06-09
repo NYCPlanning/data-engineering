@@ -155,7 +155,7 @@ function import_local_csv {
 function csv_export {
     local connection_string=${1}
     local table=${2}
-    local output_file=${2:-${table}}
+    local output_file=${3:-${table}}
     run_sql_command \
         "\COPY (\
             SELECT * FROM ${table}\
@@ -250,11 +250,12 @@ function compress {
 
 function upload {
     local dataset_name=${1}
-    local version=${2}
+    local subfolder=${2} # typically version
     local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-    local SPACES="spaces/${publishing_bucket}/${dataset_name}/${branchname}"
-    mc rm -r --force ${SPACES}/${version}
-    mc cp -r output ${SPACES}/${version}
+    local top_level_folder=${3:-${branchname}}
+    local path="spaces/${publishing_bucket}/${dataset_name}/${top_level_folder}/${subfolder}"
+    mc rm -r --force ${path}
+    mc cp -r output ${path}
 }
 
 

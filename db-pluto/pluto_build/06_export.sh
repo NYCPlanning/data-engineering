@@ -71,7 +71,8 @@ mkdir -p qaqc &&
 cd ..
 
 wait
-upload "db-pluto" "${VERSION}/${DATE}" &
-upload "db-pluto" "${VERSION}/latest" &
-upload "db-pluto" "${branchname}/${DATE}" &
-upload "db-pluto" "${branchname}/latest"
+# "standard" export to branch folder
+upload "db-pluto" "${DATE}" &
+upload "db-pluto" "latest" &
+upload "db-pluto" "${DATE}" "${VERSION}" &
+upload "db-pluto" "latest" "${VERSION}"
