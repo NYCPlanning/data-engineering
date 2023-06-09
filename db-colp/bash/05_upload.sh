@@ -1,10 +1,11 @@
 #!/bin/bash
-source bash/config.sh
+source ../bash_utils/config.sh
+set_env ../.env
 
 DATE=$(date "+%Y-%m-%d")
 
-Upload latest &
-Upload $DATE
+upload db-colp latest &
+upload db-colp ${DATE}
 
 wait 
 echo "Upload Complete"

@@ -1,4 +1,4 @@
-name: z(TODO) COLP - 🏗️ Build
+name: COLP - 🏗️ Build
 on: 
   workflow_dispatch:
   #pull_request:
@@ -26,7 +26,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install dependencies ...
       run: |
@@ -36,16 +36,21 @@ jobs:
         mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
     - name: Dataloading ...
+      working-directory: db-colp
       run: ./colp.sh dataloading
 
     - name: Build COLP ...
+      working-directory: db-colp
       run: ./colp.sh build
 
     - name: Run QAQC ...
+      working-directory: db-colp
       run: ./colp.sh qaqc
 
     - name: Export COLP ...
+      working-directory: db-colp
       run: ./colp.sh export
 
     - name: Upload outputs to s3 ...
+      working-directory: db-colp
       run: ./colp.sh upload

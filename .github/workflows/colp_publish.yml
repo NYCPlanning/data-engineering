@@ -1,4 +1,4 @@
-name: z(TODO) COLP - 🚀 Publish
+name: COLP - 🚀 Publish
 on:
   workflow_dispatch:
   #release:
@@ -18,7 +18,7 @@ jobs:
       AWS_S3_BUCKET: edm-recipes
       VERSION: ${{ github.event.release.tag_name }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - uses: NYCPlanning/action-library-archive@v1.1
         id: dcp_housing
