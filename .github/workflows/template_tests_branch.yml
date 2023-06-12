@@ -1,6 +1,7 @@
-name: Branch tests
-
-on: [pull_request, workflow_dispatch]
+name: z(TODO) Template - Branch tests
+on: 
+  workflow_dispatch:
+  # pull_request
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
