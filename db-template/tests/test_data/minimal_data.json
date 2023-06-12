@@ -1,0 +1,20 @@
+[
+    {
+        "key_a": "value_1",
+        "key_list": [
+            "list_value_1",
+            "list_value_2",
+            "list_value_3"
+        ],
+        "key_int": 100
+    },
+    {
+        "key_a": "value_2",
+        "key_list": [
+            "list_value_1",
+            "list_value_2",
+            "list_value_3"
+        ],
+        "key_int": 300
+    }
+]
