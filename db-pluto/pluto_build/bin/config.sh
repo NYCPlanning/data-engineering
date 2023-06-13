@@ -23,7 +23,7 @@ function fgdb_export_pluto {
     local filename=${1}
     fgdb_export_partial ${filename} MULTIPOLYGON ${filename} ${filename}
     fgdb_export_partial ${filename} NONE NOT_MAPPED_LOTS unmapped -update
-    fgdb_export_cleanup filename
+    fgdb_export_cleanup ${filename}
 }
 
 function fgdb_export_pluto_docker { # keeping for posterity at the moment

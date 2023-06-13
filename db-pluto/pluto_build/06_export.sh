@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../../bash_utils/config.sh
+source ./bin/config.sh
 set_env ../../.env
 set_env ./version.env
 
@@ -19,10 +19,10 @@ ls | grep -v pluto_changes.zip | xargs rm
 csv_export ${BUILD_ENGINE} source_data_versions
 
 # mappluto.gdb
-fgdb_export mappluto_gdb MULTIPOLYGON &
+fgdb_export_pluto mappluto_gdb &
 
 # mappluto_unclipped.gdb
-fgdb_export mappluto_unclipped_gdb MULTIPOLYGON &
+fgdb_export_pluto mappluto_unclipped_gdb &
 
 # mappluto
 shp_export mappluto MULTIPOLYGON &
