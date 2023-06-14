@@ -1,4 +1,4 @@
-name: z(TODO) 🏗️ Data Build
+name: z(TODO) Template - 🏗️ Data Build
 
 on:
   workflow_dispatch:
