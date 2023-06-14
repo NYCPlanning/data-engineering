@@ -62,7 +62,8 @@ jobs:
       # - id: cbbr
       #   if: ${{ matrix.dataset_name }} == 'cbbr'
       #   uses: ./.github/workflows/cbbr_test.yml
-      - uses: ./.github/workflows/test_dataset.yml
+      - uses: ./.github/actions/test_dataset
+      # - uses: ./.github/workflows/test_dataset.yml
         with:
           dataset_name: ${{ matrix.dataset_name }}
     # secrets: inherit

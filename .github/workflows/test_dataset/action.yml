@@ -1,0 +1,15 @@
+name: 🧪 Test dataset (${{ inputs.dataset_name }})
+description: "Test a dataset"
+inputs:
+  dataset_name:
+    description: "Dataset to test"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - id: sanity
+      run: echo Testing ${{ inputs.dataset_name }}
+      shell: bash
+    - id: template
+      if: ${{ inputs.dataset_name }} == 'template'
+      uses: ./.github/workflows/template_test.yml
