@@ -9,20 +9,12 @@ on:
         required: true
 
 jobs:
-  # dataset_tests:
-  #   name: Run tests for ${{ inputs.dataset_name }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     # - run: |
-  #     #     echo -e "changed datasets raw: ${{ needs.check_changes.outputs.sub_directories }}"
-  #     #     echo -e "changed datasets fromJson: ${{ fromJson(needs.check_changes.outputs.sub_directories) }}"
-  #     - id: template
-  #       if: ${{ inputs.dataset_name }} == 'template'
-  #       uses: ./.github/workflows/template_test.yml
-  #     - id: cbbr
-  #       if: ${{ inputs.dataset_name }} == 'cbbr'
-  #       uses: ./.github/workflows/cbbr_test.yml
+  sanity:
+    name: Running tests for ${{ inputs.dataset_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo Dataset name is ${{ inputs.dataset_name }}
   template:
     if: ${{ inputs.dataset_name }} == 'template'
     uses: ./.github/workflows/template_test.yml
