@@ -35,8 +35,10 @@ jobs:
         id: filter
         with:
           filters: |
-            template: db-template/**
-            cbbr: db-cbbr/**
+            template:
+              - db-template/**
+            cbbr:
+              - db-cbbr/**
 
   test_changed_datasets:
     name: Test changed datasets
@@ -51,8 +53,8 @@ jobs:
 
     steps:
       - run: |
-          echo "changed datasets raw: ${{ needs.check_changes.outputs.sub_directories }}"
-          echo "changed datasets fromJson: ${{ fromJson(needs.check_changes.outputs.sub_directories) }}"
+          echo -e "changed datasets raw: ${{ needs.check_changes.outputs.sub_directories }}"
+          echo -e "changed datasets fromJson: ${{ fromJson(needs.check_changes.outputs.sub_directories) }}"
       # - id: template
       #   if: ${{ matrix.dataset_name }} == 'template'
       #   uses: ./.github/workflows/template_test.yml
