@@ -1,4 +1,4 @@
-name: 🧪 Test dataset (${{ inputs.dataset_name }})
+name: 🧪 Test a dataset
 description: "Test a dataset"
 inputs:
   dataset_name:
