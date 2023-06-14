@@ -2,6 +2,7 @@
 source ./bin/config.sh
 set_env ../../.env
 set_env ./version.env
+set_error_traps
 
 mkdir -p output
 cd output
