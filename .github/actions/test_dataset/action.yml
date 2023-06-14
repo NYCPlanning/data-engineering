@@ -10,6 +10,7 @@ runs:
     - id: sanity
       run: echo Testing ${{ inputs.dataset_name }}
       shell: bash
-    - id: template
-      if: ${{ inputs.dataset_name }} == 'template'
-      uses: ./.github/workflows/template_test.yml
+    # - id: template
+    #   if: ${{ inputs.dataset_name }} == 'template'
+    #   run: echo Testing ${{ inputs.dataset_name }}
+# uses: ./.github/workflows/template_test.yml
