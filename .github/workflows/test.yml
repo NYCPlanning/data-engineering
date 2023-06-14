@@ -44,10 +44,10 @@ jobs:
     name: Test changed datasets
     needs: check_changes
     if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Parse JSON array containing names of all filters matching any of changed files
+        # Parse JSON array containing names of all matched file change filters
         # e.g. ['template', 'cbbr'] if both sub-directories contains changes
         dataset_name: ${{ fromJSON(needs.check_changes.outputs.sub_directories) }}
 
@@ -56,14 +56,13 @@ jobs:
       # - run: |
       #     echo -e "changed datasets raw: ${{ needs.check_changes.outputs.sub_directories }}"
       #     echo -e "changed datasets fromJson: ${{ fromJson(needs.check_changes.outputs.sub_directories) }}"
-      - id: template
-        if: ${{ matrix.dataset_name }} == 'template'
-        uses: ./.github/workflows/template_test.yml
-      - id: cbbr
-        if: ${{ matrix.dataset_name }} == 'cbbr'
-        uses: ./.github/workflows/cbbr_test.yml
-        # secrets: inherit
-    # uses: ./.github/workflows/test_dataset.yml
-    # with:
-    #   dataset_name: ${{ matrix.dataset_name }}
+      # - id: template
+      #   if: ${{ matrix.dataset_name }} == 'template'
+      #   uses: ./.github/workflows/template_test.yml
+      # - id: cbbr
+      #   if: ${{ matrix.dataset_name }} == 'cbbr'
+      #   uses: ./.github/workflows/cbbr_test.yml
+      - uses: ./.github/workflows/test_dataset.yml
+        with:
+          dataset_name: ${{ matrix.dataset_name }}
     # secrets: inherit
