@@ -1,4 +1,4 @@
-name: z(TODO) 🏗️ Data Build
+name: z(TODO) 🏗️ Build a Dataset
 
 on:
   workflow_dispatch:
