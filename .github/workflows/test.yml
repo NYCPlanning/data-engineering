@@ -49,5 +49,5 @@ jobs:
     steps:
       - run: |
           echo "testing dataset named ${{ matrix.dataset_name }}"
-    # uses: ./.github/workflows/reusable/${{ matrix.dataset_name }}_test.yml
+    # uses: ./.github/workflows/${{ matrix.dataset_name }}_test.yml
     # secrets: inherit
