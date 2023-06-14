@@ -45,11 +45,11 @@ jobs:
     needs: check_changes
     if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
     runs-on: ubuntu-22.04
-    # strategy:
-    #   matrix:
-    #     # Parse JSON array containing names of all filters matching any of changed files
-    #     # e.g. ['template', 'cbbr'] if both sub-directories contains changes
-    #     dataset_name: ${{ fromJSON(needs.changes.outputs.sub_directories) }}
+    strategy:
+      matrix:
+        # Parse JSON array containing names of all filters matching any of changed files
+        # e.g. ['template', 'cbbr'] if both sub-directories contains changes
+        dataset_name: ${{ fromJSON(needs.check_changes.outputs.sub_directories) }}
 
     steps:
       - run: |
