@@ -1,4 +1,4 @@
-name: z(TODO) 🏗️ Build a Dataset
+name: 🏗️ Build a Dataset
 
 on:
   workflow_dispatch:
@@ -14,18 +14,19 @@ on:
         type: boolean
         required: true
         default: false
-      build_note:
-        description: "A short note about this build (optional)"
-        type: string
-        required: false
       logging_level:
         description: "Logging level"
         type: choice
         required: true
+        default: WARNING
         options:
           - WARNING
           - INFO
           - DEBUG
+      build_note:
+        description: "A short note about this build (optional)"
+        type: string
+        required: false
 env:
   DATASET_NAME: ${{ inputs.dataset_name }}
   BUILD_NOTE: ${{ inputs.build_note }}
@@ -35,7 +36,7 @@ env:
 jobs:
   branch_build_tests:
     name: Build dataset ${DATASET_NAME}
-    uses: ./.github/workflows/${DATASET_NAME}_build_called.yml
+    uses: ./.github/workflows/reusable/${DATASET_NAME}_build.yml
     with:
       do_export: ${DO_EXPORT}
       build_note: ${BUILD_NOTE}

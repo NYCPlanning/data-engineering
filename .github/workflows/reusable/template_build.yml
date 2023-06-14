@@ -1,30 +1,20 @@
 name: z(TODO) Template - 🏗️ Data Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      build_note:
-        description: "A short note about this build (optional)"
-        type: string
-        required: false
-      do_export:
-        description: "Whether to export "
-        type: boolean
-        required: true
-        default: false
-      logging_level:
-        description: "Logging level"
-        type: choice
-        required: true
-        options:
-          - WARNING
-          - INFO
-          - DEBUG
   workflow_call:
     inputs:
-      logging_level:
-        required: true
+      dataset_name:
         type: string
+        required: true
+      do_export:
+        type: boolean
+        required: true
+      logging_level:
+        type: string
+        required: true
+      build_note:
+        type: string
+        required: false
 env:
   LOGGING_LEVEL: ${{ inputs.logging_level }}
   BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres

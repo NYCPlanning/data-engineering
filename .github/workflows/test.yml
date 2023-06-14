@@ -1,0 +1,93 @@
+name: 🧪 Tests
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  dev_container_tests:
+    name: Dev container tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and dev container and run a command
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: pip list
+
+  changes:
+    name: Check changed files
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: read
+
+    outputs:
+      # Expose matched filters as a job output variable
+      sub_directories: ${{ steps.filter.outputs.changes }}
+
+    steps:
+      # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            template: db-template/**
+            cbbr: db-cbbr/**
+
+  test_datasets:
+    needs: changes
+    strategy:
+      matrix:
+        # Parse JSON array containing names of all filters matching any of changed files
+        # e.g. ['template', 'cbbr'] if both sub-directories contains changes
+        dataset_name: ${{ fromJSON(needs.changes.outputs.sub_directories) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          echo "Testing dataset with name ${{ matrix.dataset_name }}"
+    # steps:
+    #   - uses: actions/checkout@v3
+
+    #   - name: Run changed-files with dir_names
+    #     id: changed-files-dir-names
+    #     uses: tj-actions/changed-files@v36
+    #     with:
+    #       dir_names: true
+
+    #   - name: List all changed directories
+    #     run: |
+    #       for directory in ${{ steps.changed-files-dir-names.outputs.all_changed_files }}; do
+    #           echo "$directory was changed"
+    #       done
+
+    #   - name: Setup python
+    #     uses: actions/setup-python@v4.5.0
+    #     with:
+    #       python-version: 3.11.2
+
+    #   - name: Setup build environment
+    #     run: |
+    #       python --version
+    #       ./bash/setup_build_env.sh
+
+    #   - name: Run python tests
+    #     run: |
+    #       python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
+
+  unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+#   build_tests:
+#     name: Build test run
+#     uses: ./.github/workflows/build.yml
+#     with:
+#       logging_level: DEBUG
+#     secrets: inherit
