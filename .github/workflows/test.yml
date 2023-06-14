@@ -42,17 +42,24 @@ jobs:
     name: Test changed datasets
     needs: check_changes
     if: ${{ needs.check_changes.outputs.sub_directories != '[]' && needs.check_changes.outputs.sub_directories != '' }}
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         # Parse JSON array containing names of all filters matching any of changed files
         # e.g. ['template', 'cbbr'] if both sub-directories contains changes
         dataset_name: ${{ fromJSON(needs.changes.outputs.sub_directories) }}
 
-    # runs-on: ubuntu-22.04
-    # steps:
-    #   - run: |
-    #       echo "testing dataset named ${{ matrix.dataset_name }}"
-    uses: ./.github/workflows/test_dataset.yml
-    with:
-      dataset_name: ${{ matrix.dataset_name }}
-    secrets: inherit
+    steps:
+      - id: template
+        if: ${{ matrix.dataset_name }} == 'template'
+        uses: ./.github/workflows/template_test.yml
+      # - id: cbbr
+      #   if: ${{ matrix.dataset_name }} == 'cbbr'
+      #   uses: ./.github/workflows/cbbr_test.yml
+        # secrets: inherit
+      # - run: |
+      #     echo "testing dataset named ${{ matrix.dataset_name }}"
+    # uses: ./.github/workflows/test_dataset.yml
+    # with:
+    #   dataset_name: ${{ matrix.dataset_name }}
+    # secrets: inherit
