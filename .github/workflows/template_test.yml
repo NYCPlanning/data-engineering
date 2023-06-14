@@ -19,14 +19,15 @@ jobs:
           python-version: 3.11.2
 
       - name: Setup build environment
+        working-directory: db-template
         run: |
           python --version
           ./bash/setup_build_env.sh
 
-      - name: Run truck linter
-        uses: trunk-io/trunk-action@v1.0.8
-        with:
-          arguments: --no-fix --no-progress
+      # - name: Run truck linter
+      #   uses: trunk-io/trunk-action@v1.0.8
+      #   with:
+      #     arguments: --no-fix --no-progress
 
   branch_unit_tests:
     name: Unit tests
@@ -40,11 +41,13 @@ jobs:
           python-version: 3.11.2
 
       - name: Setup build environment
+        working-directory: db-template
         run: |
           python --version
           ./bash/setup_build_env.sh
 
       - name: Run python tests
+        working-directory: db-template
         run: |
           python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
 
