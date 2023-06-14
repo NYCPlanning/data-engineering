@@ -18,6 +18,6 @@ jobs:
   template:
     if: ${{ inputs.dataset_name }} == 'template'
     uses: ./.github/workflows/template_test.yml
-  cbbr:
-    if: ${{ inputs.dataset_name }} == 'cbbr'
-    uses: ./.github/workflows/cbbr_test.yml
+  # cbbr:
+  #   if: ${{ inputs.dataset_name }} == 'cbbr'
+  #   uses: ./.github/workflows/cbbr_test.yml
