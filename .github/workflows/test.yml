@@ -63,7 +63,7 @@ jobs:
       #   if: ${{ matrix.dataset_name }} == 'cbbr'
       #   uses: ./.github/workflows/cbbr_test.yml
       # - uses: workflows/test_dataset.yml
-      - uses: actions/test_dataset
+      - uses: ./.github/actions/test_dataset
         with:
           dataset_name: ${{ matrix.dataset_name }}
     # secrets: inherit
