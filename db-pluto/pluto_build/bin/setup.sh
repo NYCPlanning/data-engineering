@@ -2,7 +2,7 @@
 
 function setup {
     apt-get update
-    apt-get install -y curl zip jq postgresql-client
+    apt-get install -y curl zip jq unzip postgresql-client
     #wget http://download.osgeo.org/gdal/3.6.4/gdal-3.6.4.tar.gz
     #tar -xvzf gdal-3.6.4.tar.gz && (
     #    cd gdal-3.6.4
