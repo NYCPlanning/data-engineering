@@ -22,7 +22,7 @@ jobs:
   #       with:
   #         runCmd: pip list
 
-  changes:
+  check_changes:
     name: Check changed files
     runs-on: ubuntu-22.04
     permissions:
@@ -40,8 +40,8 @@ jobs:
 
   test_changed_datasets:
     name: Test changed datasets
-    needs: changes
-    if: ${{ fromJSON(needs.changes.outputs.sub_directories) }}
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.sub_directories != '[]' && needs.check_changes.outputs.sub_directories != '' }}
     strategy:
       matrix:
         # Parse JSON array containing names of all filters matching any of changed files
