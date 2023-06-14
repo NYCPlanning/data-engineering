@@ -48,9 +48,9 @@ jobs:
         # e.g. ['template', 'cbbr'] if both sub-directories contains changes
         dataset_name: ${{ fromJSON(needs.changes.outputs.sub_directories) }}
 
-    runs-on: ubuntu-22.04
-    steps:
-      - run: |
-          echo "testing dataset named ${{ matrix.dataset_name }}"
-    # uses: ./.github/workflows/${{ matrix.dataset_name }}_test.yml
-    # secrets: inherit
+    # runs-on: ubuntu-22.04
+    # steps:
+      # - run: |
+      #     echo "testing dataset named ${{ matrix.dataset_name }}"
+    uses: ./.github/workflows/${{ matrix.dataset_name }}_test.yml
+    secrets: inherit
