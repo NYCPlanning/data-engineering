@@ -41,7 +41,7 @@ jobs:
   test_changed_datasets:
     name: Test changed datasets
     needs: check_changes
-    if: ${{ needs.check_changes.outputs.sub_directories != '[]' && needs.check_changes.outputs.sub_directories != '' }}
+    if: ${{ check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
     runs-on: ubuntu-22.04
     strategy:
       matrix:
