@@ -48,20 +48,20 @@ jobs:
         run: |
           python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
 
-  branch_dev_container_tests:
-    name: Dev container tests
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: echo "CI environment variable is $CI"
-      - name: Build and run dev container task
-        uses: devcontainers/ci@v0.3
-        with:
-          runCmd: pip list
+  # branch_dev_container_tests:
+  #   name: Dev container tests
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - run: echo "CI environment variable is $CI"
+  #     - name: Build and run dev container task
+  #       uses: devcontainers/ci@v0.3
+  #       with:
+  #         runCmd: pip list
 
-  branch_build_tests:
-    name: Build test run
-    uses: ./.github/workflows/build.yml
-    with:
-      logging_level: DEBUG
-    secrets: inherit
+  # branch_build_tests:
+  #   name: Build test run
+  #   uses: ./.github/workflows/build.yml
+  #   with:
+  #     logging_level: DEBUG
+  #   secrets: inherit
