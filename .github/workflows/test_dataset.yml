@@ -1,0 +1,15 @@
+name: 🧪 Test dataset
+run-name: 🧪 Test dataset (${{ inputs.dataset_name }})
+
+on:
+  workflow_call:
+    inputs:
+      dataset_name:
+        type: string
+        required: true
+
+jobs:
+  dataset_tests:
+    name: Run tests for ${{ inputs.dataset_name }}
+    uses: ./.github/workflows/${{ inputs.dataset_name }}_test.yml
+    secrets: inherit
