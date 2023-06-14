@@ -1,0 +1,85 @@
+name: z(TODO) Template - 🏗️ Data Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_note:
+        description: "Note about this build"
+        type: string
+        required: false
+      logging_level:
+        description: "Logging level"
+        type: choice
+        required: true
+        options:
+          - WARNING
+          - INFO
+          - DEBUG
+  workflow_call:
+    inputs:
+      logging_level:
+        required: true
+        type: string
+env:
+  LOGGING_LEVEL: ${{ inputs.logging_level }}
+  BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+  DO_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+  DO_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+  DO_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+
+jobs:
+  build:
+    name: Build Dataset
+    runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v3
+      - name: Inputs check
+        run: |
+          python --version
+          echo "Hello build note: ${{ inputs.build_note }}"
+          echo "Hello logging level: ${{ inputs.logging_level }} (directly from action inputs)"
+          echo "Hello logging level: $LOGGING_LEVEL (from envar from action inputs)"
+          python -m python.run_logging
+
+      - name: Setup python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: 3.11.2
+
+      - name: Setup build environment
+        run: |
+          python --version
+          ./bash/setup_build_env.sh
+
+      - name: 1) Data loading
+        run: |
+          ./bash/01_dataloading.sh
+
+      - name: 2) Preprocessing
+        run: |
+          ./bash/02_preprocessing.sh
+
+      - name: 3) Build
+        run: |
+          ./bash/03_build.sh
+
+      - name: 4) Export for QAQC
+        run: |
+          echo "PLACEHOLDER running qaqc export"
+
+      - name: 5) Export for production
+        if: ${{ github.event_name != 'workflow_call' }}
+        run: |
+          echo "PLACEHOLDER running production export"
