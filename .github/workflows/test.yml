@@ -41,6 +41,7 @@ jobs:
   test_changed_datasets:
     name: Test changed datasets
     needs: changes
+    if: ${{ fromJSON(needs.changes.outputs.sub_directories) }}
     strategy:
       matrix:
         # Parse JSON array containing names of all filters matching any of changed files
