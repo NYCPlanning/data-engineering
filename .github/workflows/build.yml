@@ -1,9 +1,6 @@
 name: 🏗️ Build a Dataset
 
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       dataset_name:

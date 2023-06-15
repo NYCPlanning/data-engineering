@@ -62,9 +62,11 @@ jobs:
   #       with:
   #         runCmd: pip list
 
-  # branch_build_tests:
-  #   name: Build test run
-  #   uses: ./.github/workflows/build.yml
-  #   with:
-  #     logging_level: DEBUG
-  #   secrets: inherit
+  branch_build_tests:
+    name: Build test run
+    uses: ./.github/workflows/build.yml
+    with:
+      do_export: false
+      logging_level: DEBUG
+      build_note: a test build
+    secrets: inherit
