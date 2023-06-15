@@ -1,4 +1,3 @@
-
 DROP TABLE IF EXISTS :TABLE;
 SELECT
 	a.borough as "Borough",

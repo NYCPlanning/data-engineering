@@ -155,7 +155,7 @@ function import_local_csv {
 function csv_export {
     local connection_string=${1}
     local table=${2}
-    local output_file=${2:-${table}}
+    local output_file=${3:-${table}}
     run_sql_command \
         "\COPY (\
             SELECT * FROM ${table}\
@@ -182,61 +182,45 @@ function shp_export {
 }
 
 
-function fgdb_export_no_docker { 
+function fgdb_export_partial {
     parse_connection_string ${BUILD_ENGINE}
-    table=${1}
-    geomtype=${2}
-    name=${3:-${table}}
-    mkdir -p ${name}.gdb && (
-        cd ${name}.gdb
-        ogr2ogr -progress -f "FileGDB" ${name}.gdb \
+    local filename=${1}
+    local geomtype=${2}
+    local nln=${3}
+    local table=${4}
+    shift 4
+    mkdir -p ${filename}.gdb && (
+        cd ${filename}.gdb
+        ogr2ogr -progress -f "OpenFileGDB" ${filename}.gdb \
             PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
             -mapFieldType Integer64=Real\
             -lco GEOMETRY_NAME=Shape\
-            -nln ${name}\
-            -nlt ${geomtype} ${name}
-        rm -f ${name}.gdb.zip
-        zip -r ${name}.gdb.zip ${name}.gdb
-        rm -rf ${name}.gdb
+            -nln ${nln}\
+            -nlt ${geomtype}\
+            ${table} "$@"
+        rm -f ${filename}.gdb.zip
     )
-    mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
-    rm -rf ${name}.gdb
 }
 
 
-function fgdb_export {
+function fgdb_export_cleanup {
+    local filename=${1}
+    cd ${filename}.gdb
+    zip -r ${filename}.gdb.zip ${filename}.gdb
+    rm -rf ${filename}.gdb
+    cd ..
+    mv ${filename}.gdb/${filename}.gdb.zip ${filename}.gdb.zip
+    rm -rf ${filename}.gdb
+}
+
+
+function fgdb_export { 
     parse_connection_string ${BUILD_ENGINE}
-    table=${1}
-    geomtype=${2}
-    name=${3:-${table}}
-    mkdir -p ${name}.gdb && (
-        docker run \
-            --network host\
-            -v $(pwd):/data\
-            --user $UID\
-            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
-                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-                -mapFieldType Integer64=Real\
-                -lco GEOMETRY_NAME=Shape\
-                -nln ${name}\
-                -nlt MULTIPOLYGON\
-                ${name}
-        docker run \
-            --network host\
-            -v $(pwd):/data\
-            --user $UID\
-            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
-                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-                -mapFieldType Integer64=Real\
-                -update -nlt NONE\
-                -nln NOT_MAPPED_LOTS\
-                unmapped
-        rm -f ${name}.gdb.zip
-        zip -r ${name}.gdb.zip ${name}.gdb
-        rm -rf ${name}.gdb
-    )
-    mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
-    rm -rf ${name}.gdb
+    local table=${1}
+    local geomtype=${2}
+    local filename=${3:-$table}
+    fgdb_export_partial ${filename} ${geomtype} ${table} ${table}
+    fgdb_export_cleanup ${filename}
 }
 
 
@@ -250,11 +234,12 @@ function compress {
 
 function upload {
     local dataset_name=${1}
-    local version=${2}
+    local subfolder=${2} # typically version
     local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-    local SPACES="spaces/${publishing_bucket}/${dataset_name}/${branchname}"
-    mc rm -r --force ${SPACES}/${version}
-    mc cp -r output ${SPACES}/${version}
+    local top_level_folder=${3:-${branchname}}
+    local path="spaces/${publishing_bucket}/${dataset_name}/${top_level_folder}/${subfolder}"
+    mc rm -r --force ${path}
+    mc cp -r output ${path}
 }
 
 

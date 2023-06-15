@@ -1,7 +1,8 @@
 #!/bin/bash
-source ../../bash_utils/config.sh
+source ./bin/config.sh
 set_env ../../.env
 set_env ./version.env
+set_error_traps
 
 mkdir -p output
 cd output
@@ -19,10 +20,10 @@ ls | grep -v pluto_changes.zip | xargs rm
 csv_export ${BUILD_ENGINE} source_data_versions
 
 # mappluto.gdb
-fgdb_export mappluto_gdb MULTIPOLYGON &
+fgdb_export_pluto mappluto_gdb &
 
 # mappluto_unclipped.gdb
-fgdb_export mappluto_unclipped_gdb MULTIPOLYGON &
+fgdb_export_pluto mappluto_unclipped_gdb &
 
 # mappluto
 shp_export mappluto MULTIPOLYGON &
@@ -71,7 +72,8 @@ mkdir -p qaqc &&
 cd ..
 
 wait
-upload "db-pluto" "${VERSION}/${DATE}" &
-upload "db-pluto" "${VERSION}/latest" &
-upload "db-pluto" "${branchname}/${DATE}" &
-upload "db-pluto" "${branchname}/latest"
+# "standard" export to branch folder
+upload "db-pluto" "${DATE}" &
+upload "db-pluto" "latest" &
+upload "db-pluto" "${DATE}" "${VERSION}" &
+upload "db-pluto" "latest" "${VERSION}"
