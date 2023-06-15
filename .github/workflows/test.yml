@@ -40,31 +40,35 @@ jobs:
             cbbr:
               - db-cbbr/**
 
-  test_changed_datasets:
-    name: Test changed datasets
+  confirm_changes:
+    name: Confirm there are changes to relevant files
+    runs-on: ubuntu-latest
     needs: check_changes
     if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
-    # runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Parse JSON array containing names of all matched file change filters
-        # e.g. ['template', 'cbbr'] if both sub-directories contains changes
-        dataset_name: ${{ fromJSON(needs.check_changes.outputs.sub_directories) }}
-    uses: ./.github/workflows/test_dataset.yml
-    with:
-      dataset_name: ${{ matrix.dataset_name }}
-    # steps:
-    #   - uses: actions/checkout@v3
-    #   # - run: |
-    #   #     echo -e "changed datasets raw: ${{ needs.check_changes.outputs.sub_directories }}"
-    #   #     echo -e "changed datasets fromJson: ${{ fromJson(needs.check_changes.outputs.sub_directories) }}"
-    #   # - id: template
-    #   #   if: ${{ matrix.dataset_name }} == 'template'
-    #   #   uses: ./.github/workflows/template_test.yml
-    #   # - id: cbbr
-    #   #   if: ${{ matrix.dataset_name }} == 'cbbr'
-    #   #   uses: ./.github/workflows/cbbr_test.yml
-    #   # - uses: workflows/test_dataset.yml
-    #   - uses: ./.github/actions/test_dataset
-    #     with:
-    #       dataset_name: ${{ matrix.dataset_name }}
+    steps:
+      - name: Output that files have changed
+        run: |
+          echo "files_changed=True" >> "$GITHUB_OUTPUT"
+
+
+  # test_changed_datasets:
+  #   name: Test changed datasets
+  #   needs: check_changes
+    # if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
+    # strategy:
+    #   matrix:
+    #     # Parse JSON array containing names of all matched file change filters
+    #     # e.g. ['template', 'cbbr'] if both sub-directories contains changes
+    #     dataset_name: ${{ fromJSON(needs.check_changes.outputs.sub_directories) }}
+    # uses: ./.github/workflows/test_dataset.yml
+    # with:
+    #   dataset_name: ${{ matrix.dataset_name }}
+
+  template:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.sub_directories, 'template')
+    uses: ./.github/workflows/template_test.yml
+  cbbr:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.sub_directories, 'cbbr')
+    uses: ./.github/workflows/cbbr_test.yml
