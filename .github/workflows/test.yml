@@ -28,8 +28,7 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      # Expose matched filters as a job output variable
-      sub_directories: ${{ steps.filter.outputs.changes }}
+      path_filters: ${{ steps.filter.outputs.changes }}
     steps:
       - uses: dorny/paths-filter@v2
         id: filter
@@ -41,34 +40,34 @@ jobs:
               - db-cbbr/**
 
   confirm_changes:
-    name: Confirm there are changes to relevant files
+    name: Confirm changes to relevant files
     runs-on: ubuntu-latest
     needs: check_changes
-    if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
+    if: ${{ needs.check_changes.outputs.path_filters != '' && toJson(fromJson(needs.check_changes.outputs.path_filters)) != '[]' }}
     steps:
       - name: Output if files have changed
         run: |
-          echo "files_changed: ${{ needs.check_changes.outputs.sub_directories }}"
+          echo "path filters with changed files: ${{ needs.check_changes.outputs.path_filters }}"
 
 
   # test_changed_datasets:
   #   name: Test changed datasets
   #   needs: check_changes
-    # if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
+    # if: ${{ needs.check_changes.outputs.path_filters != '' && toJson(fromJson(needs.check_changes.outputs.path_filters)) != '[]' }}
     # strategy:
     #   matrix:
     #     # Parse JSON array containing names of all matched file change filters
     #     # e.g. ['template', 'cbbr'] if both sub-directories contains changes
-    #     dataset_name: ${{ fromJSON(needs.check_changes.outputs.sub_directories) }}
+    #     dataset_name: ${{ fromJSON(needs.check_changes.outputs.path_filters) }}
     # uses: ./.github/workflows/test_dataset.yml
     # with:
     #   dataset_name: ${{ matrix.dataset_name }}
 
   template:
     needs: confirm_changes
-    if: contains(needs.check_changes.outputs.sub_directories, 'template')
+    if: contains(needs.check_changes.outputs.path_filters, 'template')
     uses: ./.github/workflows/template_test.yml
   cbbr:
     needs: confirm_changes
-    if: contains(needs.check_changes.outputs.sub_directories, 'cbbr')
+    if: contains(needs.check_changes.outputs.path_filters, 'cbbr')
     uses: ./.github/workflows/cbbr_test.yml
