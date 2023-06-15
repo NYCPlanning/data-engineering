@@ -52,6 +52,7 @@ jobs:
           python-version: 3.11.2
 
       - name: Setup build environment
+        working-directory: db-template
         run: |
           python --version
           ./bash/setup_build_env.sh
