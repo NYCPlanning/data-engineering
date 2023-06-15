@@ -64,7 +64,7 @@ jobs:
 
   branch_build_tests:
     name: Build test run
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/template_build.yml
     with:
       do_export: false
       logging_level: DEBUG

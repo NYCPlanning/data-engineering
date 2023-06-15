@@ -27,11 +27,6 @@ on:
         description: "A short note about this build (optional)"
         type: string
         required: false
-# env:
-#   DATASET_NAME: ${{ inputs.dataset_name }}
-#   DO_EXPORT: ${{ inputs.do_export }}
-#   LOGGING_LEVEL: ${{ inputs.logging_level }}
-#   BUILD_NOTE: ${{ inputs.build_note }}
 
 jobs:
   template:
