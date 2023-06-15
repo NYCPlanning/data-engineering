@@ -45,10 +45,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: check_changes
     if: ${{ needs.check_changes.outputs.sub_directories != '' && toJson(fromJson(needs.check_changes.outputs.sub_directories)) != '[]' }}
-    # steps:
-    #   - name: Output that files have changed
-    #     run: |
-    #       echo "files_changed=True" >> "$GITHUB_OUTPUT"
+    steps:
+      - name: Output if files have changed
+        run: |
+          echo "files_changed: ${{ needs.check_changes.outputs.sub_directories }}"
 
 
   # test_changed_datasets:
