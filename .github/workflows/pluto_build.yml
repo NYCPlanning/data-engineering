@@ -16,6 +16,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container: ghcr.io/osgeo/gdal:ubuntu-small-3.6.4
     services:
       postgres:
         image: postgis/postgis:13-3.3-alpine
@@ -30,7 +31,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+      BUILD_ENGINE: postgresql://postgres:postgres@postgres:5432/postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

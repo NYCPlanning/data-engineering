@@ -1,0 +1,43 @@
+// For format details, see https://aka.ms/devcontainer.json
+// For config options, see the README at:
+// https://github.com/devcontainers/templates/tree/main/src/postgres
+{
+	"name": "db-template-repo (Python 3.11.2, PostgreSQL)",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "runner",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"redhat.vscode-yaml",
+				"bierner.markdown-preview-github-styles",
+				"bierner.markdown-mermaid",
+				"yzhang.markdown-all-in-one",
+				"mechatroner.rainbow-csv",
+				"janisdd.vscode-edit-csv",
+				"Trunk.io"
+			]
+		}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// This can be used to network with other containers or the host.
+	"forwardPorts": [
+		5432
+	],
+	// Use 'initializeCommand' to run commands on the host machine before the container is created.
+	"initializeCommand": "./bash/setup_devcontainer.sh",
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "pip install --user -r requirements.txt",
+	// "postCreateCommand": "poetry install"
+	// "postCreateCommand": "export PATH=/root/.local/bin:$PATH",
+	// "postCreateCommand": "./bash/install_python_packages.sh",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+	"remoteUser": "vscode"
+}
