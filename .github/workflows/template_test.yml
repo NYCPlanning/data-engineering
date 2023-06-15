@@ -1,10 +1,6 @@
-name: z(TODO) Template - Branch tests
+name: Template - Tests
 on: 
   workflow_call:
-
-# concurrency:
-#   group: ${{ github.head_ref || github.run_id }}
-#   cancel-in-progress: true
 
 jobs:
   branch_lint:
