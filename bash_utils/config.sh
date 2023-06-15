@@ -276,16 +276,3 @@ function archive {
     pg_dump ${BUILD_ENGINE} -t ${src} -O -c | sed "s/${src}/${dst}/g" | psql ${EDM_DATA}
     psql ${EDM_DATA} -c "COMMENT ON TABLE ${dst} IS '${DATE} ${commit}'"
 }
-
-
-# devdb dedm_data archive
-function archive {
-    echo "archiving $1 -> $2"
-    pg_dump -t $1 ${BUILD_ENGINE} -O -c | psql ${EDM_DATA}
-    psql ${EDM_DATA} -c "CREATE SCHEMA IF NOT EXISTS $2;";
-    psql ${EDM_DATA} -c "ALTER TABLE $1 SET SCHEMA $2;";
-    psql ${EDM_DATA} -c "DROP VIEW IF EXISTS $2.latest;";
-    psql ${EDM_DATA} -c "DROP TABLE IF EXISTS $2.\"${DATE}\";";
-    psql ${EDM_DATA} -c "ALTER TABLE $2.$1 RENAME TO \"${DATE}\";";
-    psql ${EDM_DATA} -c "CREATE VIEW $2.latest AS (SELECT '${DATE}' as v, * FROM $2.\"$DATE\");"
-}
