@@ -20,10 +20,9 @@ jobs:
           python --version
           ./bash/setup_build_env.sh
 
-      # - name: Run truck linter
-      #   uses: trunk-io/trunk-action@v1.0.8
-      #   with:
-      #     arguments: --no-fix --no-progress
+      - name: Black linting
+        working-directory: db-template
+        run: black --diff --check .
 
   branch_unit_tests:
     name: Unit tests

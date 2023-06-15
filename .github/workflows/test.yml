@@ -12,16 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # dev_container_tests:
-  #   name: Dev container tests
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Build and dev container and run a command
-  #       uses: devcontainers/ci@v0.3
-  #       with:
-  #         runCmd: pip list
-
   check_changes:
     name: Check changed files
     runs-on: ubuntu-latest
@@ -48,19 +38,6 @@ jobs:
       - name: Output if files have changed
         run: |
           echo "path filters with changed files: ${{ needs.check_changes.outputs.path_filters }}"
-
-  # test_changed_datasets:
-  #   name: Test changed datasets
-  #   needs: check_changes
-    # if: ${{ needs.check_changes.outputs.path_filters != '' && toJson(fromJson(needs.check_changes.outputs.path_filters)) != '[]' }}
-    # strategy:
-    #   matrix:
-    #     # Parse JSON array containing names of all matched file change filters
-    #     # e.g. ['template', 'cbbr'] if both sub-directories contains changes
-    #     dataset_name: ${{ fromJSON(needs.check_changes.outputs.path_filters) }}
-    # uses: ./.github/workflows/test_dataset.yml
-    # with:
-    #   dataset_name: ${{ matrix.dataset_name }}
 
   template:
     needs: confirm_changes
