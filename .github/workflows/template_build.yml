@@ -60,25 +60,25 @@ jobs:
       - name: 1) Data loading
         working-directory: db-template
         run: |
-          ./bash/01_dataloading.sh
+          echo "PLACEHOLDER running Data loading"
 
       - name: 2) Preprocessing
         working-directory: db-template
         run: |
-          ./bash/02_preprocessing.sh
+          echo "PLACEHOLDER running Preprocessing"
 
       - name: 3) Build
         working-directory: db-template
         run: |
-          ./bash/03_build.sh
+          echo "PLACEHOLDER running Build"
 
       - name: 4) Export for QAQC
         working-directory: db-template
         run: |
-          echo "PLACEHOLDER running qaqc export"
+          echo "PLACEHOLDER running Export for QAQC"
 
       - name: 5) Export for production
         working-directory: db-template
         if: inputs.do_export
         run: |
-          echo "PLACEHOLDER running DO export"
+          echo "PLACEHOLDER running Export for production"
