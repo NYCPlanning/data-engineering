@@ -40,11 +40,11 @@ jobs:
   template:
     if: inputs.dataset_name == 'template'
     uses: ./.github/workflows/template_build.yml
+    secrets: inherit
     with:
       do_export: ${{ inputs.do_export }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-    secrets: inherit
   # cbbr:
   #   if: inputs.dataset_name == 'cbbr'
   #   uses: ./.github/workflows/cbbr_build.yml

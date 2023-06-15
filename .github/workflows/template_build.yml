@@ -3,9 +3,6 @@ name: z(TODO) Template - 🏗️ Data Build
 on:
   workflow_call:
     inputs:
-      dataset_name:
-        type: string
-        required: true
       do_export:
         type: boolean
         required: true
