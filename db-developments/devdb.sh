@@ -24,17 +24,6 @@ function archive {
     ./bash/05_archive.sh 
 }
 
-function output {
-    shift;
-    name=$1
-    format=$2
-    case $format in 
-        csv) CSV_export $1;;
-        shp) SHP_export $1;;
-        *) echo "format: $2 is unknow"
-    esac
-}
-
 function library_archive {
     shift;
     get_version $2
@@ -136,13 +125,17 @@ function clear {
     rm -rf .library
 }
 
+function do_upload {
+    upload $VERSION
+    upload latest
+}
+
 case $1 in
     dataloading | build | qaqc | aggregate | export | archive | clear ) $@ ;;
-    upload) Upload;;
+    upload) do_upload;;
     geocode) geocode ;;
     import) import $@ ;;
     output) output $@ ;;
-    sql) sql $@ ;;
     bq) upload_to_bq ;;
     library_archive) library_archive $@ ;;
     library_archive_version) library_archive_version $@ ;;

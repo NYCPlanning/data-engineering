@@ -71,28 +71,33 @@ jobs:
 
       - name: 1. dataloading for EDM builds
         if: steps.config.outputs.rebuild == 'yes'
+        working-directory: db-developments
         run: ./devdb.sh dataloading edm && ls -l
 
       - name: Clear cache
+        working-directory: db-developments
         run: rm -rf .library
 
       - name: 2. build dev_db ...
         if: steps.config.outputs.rebuild == 'yes'
+        working-directory: db-developments
         run: |
           ./devdb.sh build
           ./devdb.sh aggregate
 
       - name: 3. qaqc dev_db ...
         if: steps.config.outputs.rebuild == 'yes'
-        run: |
-          ./devdb.sh qaqc
+        working-directory: db-developments
+        run: ./devdb.sh qaqc
 
       - name: 4. Export ...
         if: steps.config.outputs.export == 'yes'
+        working-directory: db-developments
         run: |
           ./devdb.sh export
           ./devdb.sh upload
 
       - name: 5. Archive ...
         if: steps.config.outputs.archive == 'yes'
+        working-directory: db-developments
         run: ./devdb.sh archive
