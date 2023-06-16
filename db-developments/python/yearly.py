@@ -7,8 +7,7 @@ from utils import engine
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    decade = sys.argv[2]  # e.g. "10" or "20"
-    engine = sys.argv[3]
+    decade = sys.argv[2]  # e
     CAPTURE_DATE = os.environ.get("CAPTURE_DATE")
 
     # Get current year
