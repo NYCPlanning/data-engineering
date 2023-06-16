@@ -93,5 +93,5 @@ run_sql_file sql/_hny_join.sql
 sql_table_summary HNY_devdb_lookup
 
 display "Creating FINAL_devdb and formatted QAQC table"
-psql $BUILD_ENGINE -v VERSION=$VERSION  -f sql/final.sql
+run_sql_file sql/final.sql -v VERSION=$VERSION
 run_sql_file sql/corrections.sql
