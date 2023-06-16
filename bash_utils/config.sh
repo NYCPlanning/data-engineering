@@ -253,7 +253,7 @@ function max_bg_procs {
     local max_number=$((0 + ${1:-0}))
     while true; do
         local current_number=$(jobs -pr | wc -l)
-        if [[ $c{urrent_number} -lt ${max_number} ]]; then
+        if [[ ${current_number} -lt ${max_number} ]]; then
             break
         fi
         sleep 1
