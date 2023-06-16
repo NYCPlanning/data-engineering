@@ -1,11 +1,6 @@
-name: z(TODO) Template - Branch tests
+name: Template - Tests
 on: 
-  workflow_dispatch:
-  # pull_request
-
-concurrency:
-  group: ${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  workflow_call:
 
 jobs:
   branch_lint:
@@ -20,14 +15,14 @@ jobs:
           python-version: 3.11.2
 
       - name: Setup build environment
+        working-directory: db-template
         run: |
           python --version
           ./bash/setup_build_env.sh
 
-      - name: Run truck linter
-        uses: trunk-io/trunk-action@v1.0.8
-        with:
-          arguments: --no-fix --no-progress
+      - name: Black linting
+        working-directory: db-template
+        run: black --diff --check .
 
   branch_unit_tests:
     name: Unit tests
@@ -41,28 +36,21 @@ jobs:
           python-version: 3.11.2
 
       - name: Setup build environment
+        working-directory: db-template
         run: |
           python --version
           ./bash/setup_build_env.sh
 
       - name: Run python tests
+        working-directory: db-template
         run: |
           python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
 
-  branch_dev_container_tests:
-    name: Dev container tests
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: echo "CI environment variable is $CI"
-      - name: Build and run dev container task
-        uses: devcontainers/ci@v0.3
-        with:
-          runCmd: pip list
-
   branch_build_tests:
     name: Build test run
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/template_build.yml
     with:
+      do_export: false
       logging_level: DEBUG
+      build_note: a test build
     secrets: inherit
