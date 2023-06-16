@@ -139,8 +139,8 @@ function import_recipe {
     # Loading into Database
     run_sql_file $target_dir/${name}.sql
     run_sql_command \
-        "ALTER TABLE ${name} ADD COLUMN v text; \
-        UPDATE ${name} SET v = '${version}'; \
+        "ALTER TABLE ${name} ADD COLUMN data_library_version text; \
+        UPDATE ${name} SET data_library_version = '${version}'; \
         INSERT INTO source_data_versions VALUES ('$name','$version');";
 }
 
