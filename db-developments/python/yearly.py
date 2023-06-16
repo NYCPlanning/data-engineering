@@ -3,10 +3,12 @@ from datetime import datetime
 from pathlib import Path
 import os
 import sys
+from utils import engine
 
 if __name__ == "__main__":
     filename = sys.argv[1]
     decade = sys.argv[2]  # e.g. "10" or "20"
+    engine = sys.argv[3]
     CAPTURE_DATE = os.environ.get("CAPTURE_DATE")
 
     # Get current year
@@ -22,4 +24,5 @@ if __name__ == "__main__":
         decade=decade,
         CAPTURE_DATE=CAPTURE_DATE)
 
-    print(sql_rendered)
+    with engine.begin() as connection:
+        connection.execute(sql_rendered)

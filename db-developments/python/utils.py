@@ -2,8 +2,11 @@ import csv
 import re
 from io import StringIO
 import os
+from sqlalchemy import create_engine
 
 import pandas as pd
+
+engine = create_engine(os.environ.get("BUILD_ENGINE"))
 
 def psql_insert_copy(table, conn, keys, data_iter):
     """

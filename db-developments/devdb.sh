@@ -97,17 +97,17 @@ function upload_to_bq {
 
 function aggregate {
     display "Creating aggregate tables"
-    python3 python/yearly.py sql/aggregate/yearly.sql 2010 | sql
-    python3 python/yearly.py sql/aggregate/yearly.sql 2020 | sql
-    python3 python/yearly.py sql/aggregate/block.sql 2010 | sql
-    python3 python/yearly.py sql/aggregate/tract.sql 2010 | sql
-    python3 python/yearly.py sql/aggregate/block.sql 2020 | sql
-    python3 python/yearly.py sql/aggregate/tract.sql 2020 | sql
-    python3 python/yearly.py sql/aggregate/commntydst.sql 2010| sql
-    python3 python/yearly.py sql/aggregate/councildst.sql 2010| sql
-    python3 python/yearly.py sql/aggregate/nta.sql 2010| sql
-    python3 python/yearly.py sql/aggregate/nta.sql 2020| sql
-    python3 python/yearly.py sql/aggregate/cdta.sql 2020| sql
+    python3 python/yearly.py sql/aggregate/yearly.sql 2010
+    python3 python/yearly.py sql/aggregate/yearly.sql 2020
+    python3 python/yearly.py sql/aggregate/block.sql 2010
+    python3 python/yearly.py sql/aggregate/tract.sql 2010
+    python3 python/yearly.py sql/aggregate/block.sql 2020
+    python3 python/yearly.py sql/aggregate/tract.sql 2020
+    python3 python/yearly.py sql/aggregate/commntydst.sql 2010
+    python3 python/yearly.py sql/aggregate/councildst.sql 2010
+    python3 python/yearly.py sql/aggregate/nta.sql 2010
+    python3 python/yearly.py sql/aggregate/nta.sql 2020
+    python3 python/yearly.py sql/aggregate/cdta.sql 2020
 
     mkdir -p output && (
         display "Export aggregate tables"
