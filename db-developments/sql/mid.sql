@@ -36,4 +36,4 @@ INTO MID_devdb
 FROM _MID_devdb
 LEFT JOIN STATUS_devdb
 ON _MID_devdb.job_number = STATUS_devdb.job_number;
-CREATE INDEX MID_devdb_raw_job_number_idx ON MID_devdb_raw(job_number);
+CREATE INDEX MID_devdb_job_number_idx ON MID_devdb(job_number);
