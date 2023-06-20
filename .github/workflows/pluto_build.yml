@@ -48,10 +48,11 @@ jobs:
           if grep -q "$SUBSTRING" <<< "$VERSION"
           then
             echo "::set-output name=is_minor_version::true"
+            echo "$VERSION is a major version"
           else
             echo "::set-output name=is_minor_version::false"
+            echo "$VERSION is a minor version"
           fi
-          echo "is_minor_version is $VERSION"
   build:
     needs: [version]
     runs-on: ubuntu-22.04
@@ -87,13 +88,13 @@ jobs:
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading.sh
-        if: needs.version.outputs.is_minor_version == false
+        if: needs.version.outputs.is_minor_version == 'false'
 
       - name: dataloading (minor) ..
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading_minor.sh
-        if: needs.version.outputs.is_minor_version == true
+        if: needs.version.outputs.is_minor_version == 'true'
 
       - name: building ...
         shell: bash
