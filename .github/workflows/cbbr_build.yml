@@ -74,9 +74,9 @@ jobs:
       - name: Export CBBR Output to DO (edm-publishing)
         working-directory: db-cbbr/cbbr_build
         run: ./04_export.sh
-        if: inputs.will_export == true
+        if: inputs.will_export
 
       - name: Archive CBBR to EDM-DATA
         working-directory: db-cbbr/cbbr_build
         run: ./05_archive.sh
-        if: inputs.will_export == true
+        if: inputs.will_export
