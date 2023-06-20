@@ -27236,3 +27236,5 @@ bbl,field,old_value,new_value,Type,reason,version
 4050157502,unitstotal,629,22,2,PTS error - units,23v1
 4019917501,unitsres,463,22,2,PTS error - units,23v1
 4019917501,unitstotal,467,26,2,PTS error - units,23v1
+4004377502,unitsres,19201,802,2,PTS error - units,23v2
+4004377502,unitstotal,19203,804,2,PTS error - units,23v2
