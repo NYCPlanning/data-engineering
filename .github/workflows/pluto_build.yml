@@ -33,17 +33,19 @@ jobs:
 
       - name: Get Version
         id: version
+        working-directory: ./db-pluto/pluto_build
         run: |
-          source pluto_build/version.env
+          source version.env
           echo "::set-output name=version::$VERSION"
           echo "Version is $VERSION"
       - name: Check for minor version
         id: minor_version
+        working-directory: ./db-pluto/pluto_build
         run: |
-          source pluto_build/version.env
+          source version.env
           SUBSTRING='.'
 
-          if grep -q "$SUB" <<< "$STR"
+          if grep -q "$SUBSTRING" <<< "$VERSION"
           then
             echo "::set-output name=is_minor_version::true"
           else
