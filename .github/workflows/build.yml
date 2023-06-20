@@ -28,20 +28,25 @@ on:
         type: string
         required: false
 
+env:
+  DO_EXPORT: ${{ inputs.do_export }}
+  LOGGING_LEVEL: ${{ inputs.logging_level }}
+  BUILD_NOTE: ${{ inputs.build_note }}
+
 jobs:
   template:
     if: inputs.dataset_name == 'template'
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
-      do_export: ${{ inputs.do_export }}
-      logging_level: ${{ inputs.logging_level }}
-      build_note: ${{ inputs.build_note }}
+      do_export: ${{ env.DO_EXPORT }}
+      logging_level: ${{ env.LOGGING_LEVEL }}
+      build_note: ${{ env.BUILD_NOTE }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
     with:
-      do_export: ${DO_EXPORT}
-      build_note: ${BUILD_NOTE}
-      logging_level: ${LOGGING_LEVEL}
+      do_export: ${{ env.DO_EXPORT }}
+      logging_level: ${{ env.LOGGING_LEVEL }}
+      build_note: ${{ env.BUILD_NOTE }}
     secrets: inherit
