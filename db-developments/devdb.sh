@@ -65,7 +65,7 @@ function import {
     shift;
     local name=$1
     local version=${2:-latest}
-    import_public $1 $2
+    import_recipe $1 $2
 }
 
 function sql {
