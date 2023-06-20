@@ -3,26 +3,55 @@ name: PLUTO - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      minor_version:
-        type: boolean
-        required: true
+      # minor_version:
+      #   type: boolean
+      #   required: true
       run_export:
         type: boolean
         required: true
   workflow_dispatch:
     inputs:
-      minor_version:
-        description: "Run minor version build"
-        type: boolean
-        required: true
-        default: false
+      # minor_version:
+      #   description: "Run minor version build"
+      #   type: boolean
+      #   required: true
+      #   default: false
       run_export:
         description: "Run Export Step and Upload to DO"
         type: boolean
         required: true
         default: false
 jobs:
+  version:
+    name: get version
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_minor_version: ${{ steps.minor_version.outputs.is_minor_version }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get Version
+        id: version
+        run: |
+          source pluto_build/version.env
+          echo "::set-output name=version::$VERSION"
+          echo "Version is $VERSION"
+      - name: Check for minor version
+        id: minor_version
+        run: |
+          source pluto_build/version.env
+          SUBSTRING='.'
+
+          if grep -q "$SUB" <<< "$STR"
+          then
+            echo "::set-output name=is_minor_version::true"
+          else
+            echo "::set-output name=is_minor_version::false"
+          fi
+          echo "is_minor_version is $VERSION"
   build:
+    needs: [version]
     runs-on: ubuntu-22.04
     container: ghcr.io/osgeo/gdal:ubuntu-small-3.6.4
     services:
@@ -56,13 +85,13 @@ jobs:
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading.sh
-        if: inputs.minor_version == false
+        if: needs.version.outputs.is_minor_version == false
 
       - name: dataloading (minor) ..
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading_minor.sh
-        if: inputs.minor_version == true
+        if: needs.version.outputs.is_minor_version == true
 
       - name: building ...
         shell: bash
