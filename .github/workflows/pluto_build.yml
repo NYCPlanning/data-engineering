@@ -3,19 +3,11 @@ name: PLUTO - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      # minor_version:
-      #   type: boolean
-      #   required: true
       run_export:
         type: boolean
         required: true
   workflow_dispatch:
     inputs:
-      # minor_version:
-      #   description: "Run minor version build"
-      #   type: boolean
-      #   required: true
-      #   default: false
       run_export:
         description: "Run Export Step and Upload to DO"
         type: boolean
@@ -26,20 +18,20 @@ jobs:
     name: get version
     runs-on: ubuntu-22.04
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      is_minor_version: ${{ steps.minor_version.outputs.is_minor_version }}
+      version: ${{ steps.get_version.outputs.version }}
+      is_minor_version: ${{ steps.check_minor_version.outputs.is_minor_version }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Get Version
-        id: version
+        id: get_version
         working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
           echo "::set-output name=version::$VERSION"
           echo "Version is $VERSION"
       - name: Check for minor version
-        id: minor_version
+        id: check_minor_version
         working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
