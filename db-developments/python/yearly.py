@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 import os
 import sys
+from sqlalchemy import text
 from utils import engine
 
 if __name__ == "__main__":
@@ -24,4 +25,4 @@ if __name__ == "__main__":
         CAPTURE_DATE=CAPTURE_DATE)
 
     with engine.begin() as connection:
-        connection.execute(sql_rendered)
+        connection.execute(text(sql_rendered))
