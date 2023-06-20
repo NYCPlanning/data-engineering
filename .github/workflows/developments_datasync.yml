@@ -71,17 +71,17 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         working-directory: db-developments
         run: |
-          ./devdb.sh import dob_jobapplications ${{  github.event.inputs.version }}
-          ./devdb.sh import hpd_hny_units_by_building
-          ./devdb.sh import dob_now_applications
+          ./devdb.sh import dob_jobapplications ${{  github.event.inputs.version }} false
+          ./devdb.sh import hpd_hny_units_by_building latest false
+          ./devdb.sh import dob_now_applications latest false
 
       - name: Load to Database
         if: github.event_name != 'workflow_dispatch'
         working-directory: db-developments
         run: |
-          ./devdb.sh import hpd_hny_units_by_building
-          ./devdb.sh import dob_jobapplications
-          ./devdb.sh import dob_now_applications
+          ./devdb.sh import hpd_hny_units_by_building latest false
+          ./devdb.sh import dob_jobapplications latest false
+          ./devdb.sh import dob_now_applications latest false
 
       - name: Geocode
         working-directory: db-developments
