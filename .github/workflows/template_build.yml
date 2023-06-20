@@ -3,15 +3,15 @@ name: Template - Build
 on:
   workflow_call:
     inputs:
-      do_export:
-        type: boolean
-        required: true
       logging_level:
         type: string
         required: true
       build_note:
         type: string
         required: false
+      will_export:
+        type: boolean
+        required: true
 
 env:
   LOGGING_LEVEL: ${{ inputs.logging_level }}
@@ -81,6 +81,6 @@ jobs:
 
       - name: 5) Export for production
         working-directory: db-template
-        if: inputs.do_export
+        if: inputs.will_export
         run: |
           echo "PLACEHOLDER running Export for production"

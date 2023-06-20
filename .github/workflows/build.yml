@@ -22,7 +22,7 @@ on:
         description: "A short note about this build (optional)"
         type: string
         required: false
-      do_export:
+      will_export:
         description: "Export build outputs"
         type: boolean
         required: true
@@ -36,7 +36,7 @@ jobs:
     with:
       logging_level: ${{ inputs.LOGGING_LEVEL }}
       build_note: ${{ inputs.BUILD_NOTE }}
-      do_export: ${{ inputs.DO_EXPORT }}
+      will_export: ${{ inputs.will_export }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
@@ -44,4 +44,4 @@ jobs:
     with:
       logging_level: ${{ inputs.LOGGING_LEVEL }}
       build_note: ${{ inputs.BUILD_NOTE }}
-      do_export: ${{ inputs.DO_EXPORT }}
+      will_export: ${{ inputs.will_export }}
