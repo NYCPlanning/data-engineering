@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-22.04
     services:
       db:
-        image: postgis/postgis:15-3.3-alpine
+        image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: devdb
