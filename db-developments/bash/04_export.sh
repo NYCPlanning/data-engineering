@@ -39,7 +39,10 @@ mkdir -p output
     display "Export A2 units for review by housing"
     csv_export $BUILD_ENGINE EXPORT_A2_devdb
 
+    display "Export source data versions"
+    csv_export $BUILD_ENGINE source_data_versions
     wait
+
     display "CSV Export Complete"
     echo "[$(date)] ${VERSION}" > version.txt
 )
