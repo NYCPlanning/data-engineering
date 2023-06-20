@@ -12,6 +12,7 @@ on:
       build_note:
         type: string
         required: false
+
 env:
   LOGGING_LEVEL: ${{ inputs.logging_level }}
   BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
@@ -37,13 +38,14 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v3
-      - name: Inputs check
+      - name: Check inputs
         working-directory: db-template
         run: |
           python --version
           echo "Hello build note: ${{ inputs.build_note }}"
           echo "Hello logging level: ${{ inputs.logging_level }} (directly from action inputs)"
           echo "Hello logging level: $LOGGING_LEVEL (from envar from action inputs)"
+          echo "Running python.run_logging ..."
           python -m python.run_logging
 
       - name: Setup python
