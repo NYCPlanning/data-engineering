@@ -24,6 +24,17 @@ function archive {
     ./bash/05_archive.sh 
 }
 
+function output {
+    shift;
+    name=$1
+    format=$2
+    case $format in 
+        csv) csv_export $1;;
+        shp) shp_export $1 POINT;;
+        *) echo "format: $2 is unknown"
+    esac
+}
+
 function library_archive {
     shift;
     get_version $2
