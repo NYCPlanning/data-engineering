@@ -9,11 +9,6 @@ on:
         required: true
         options:
           - template
-      do_export:
-        description: "Export build outputs"
-        type: boolean
-        required: true
-        default: false
       logging_level:
         description: "Logging level"
         type: choice
@@ -27,6 +22,11 @@ on:
         description: "A short note about this build (optional)"
         type: string
         required: false
+      do_export:
+        description: "Export build outputs"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   template:
@@ -34,14 +34,14 @@ jobs:
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
-      do_export: ${{ inputs.DO_EXPORT }}
       logging_level: ${{ inputs.LOGGING_LEVEL }}
       build_note: ${{ inputs.BUILD_NOTE }}
+      do_export: ${{ inputs.DO_EXPORT }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
     with:
-      do_export: ${{ inputs.DO_EXPORT }}
       logging_level: ${{ inputs.LOGGING_LEVEL }}
       build_note: ${{ inputs.BUILD_NOTE }}
+      do_export: ${{ inputs.DO_EXPORT }}
