@@ -25,6 +25,8 @@ jobs:
         with:
           filters: |
             template:
+              - .github/workflows/tests.yml
+              - .github/workflows/build.yml
               - db-template/**
             cbbr:
               - db-cbbr/**
