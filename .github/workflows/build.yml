@@ -10,7 +10,7 @@ on:
         options:
           - template
       do_export:
-        description: "Whether to export build outputs"
+        description: "Export build outputs"
         type: boolean
         required: true
         default: false
@@ -28,25 +28,20 @@ on:
         type: string
         required: false
 
-env:
-  DO_EXPORT: ${{ inputs.do_export }}
-  LOGGING_LEVEL: ${{ inputs.logging_level }}
-  BUILD_NOTE: ${{ inputs.build_note }}
-
 jobs:
   template:
     if: inputs.dataset_name == 'template'
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
-      do_export: ${{ env.DO_EXPORT }}
-      logging_level: ${{ env.LOGGING_LEVEL }}
-      build_note: ${{ env.BUILD_NOTE }}
+      do_export: ${{ inputs.DO_EXPORT }}
+      logging_level: ${{ inputs.LOGGING_LEVEL }}
+      build_note: ${{ inputs.BUILD_NOTE }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
-    with:
-      do_export: ${{ env.DO_EXPORT }}
-      logging_level: ${{ env.LOGGING_LEVEL }}
-      build_note: ${{ env.BUILD_NOTE }}
     secrets: inherit
+    with:
+      do_export: ${{ inputs.DO_EXPORT }}
+      logging_level: ${{ inputs.LOGGING_LEVEL }}
+      build_note: ${{ inputs.BUILD_NOTE }}
