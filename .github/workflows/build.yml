@@ -60,6 +60,5 @@ jobs:
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
-      logging_level: ${{ inputs.logging_level }}
       minor_version: true
       run_export: ${{ inputs.will_export }}
