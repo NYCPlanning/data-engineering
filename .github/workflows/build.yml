@@ -32,11 +32,11 @@ on:
 jobs:
   health_check:
     name: Health Check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check inputs
         run: |
-          echo "Githubt aciton inputs are:"
+          echo "Workflow inputs are:"
           echo "${{ toJSON(github.event.inputs) }}"
   template:
     if: inputs.dataset_name == 'template'
