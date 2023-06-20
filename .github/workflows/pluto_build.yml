@@ -1,6 +1,14 @@
 name: PLUTO - 🏗️ Build
 
 on:
+  workflow_call:
+    inputs:
+      minor_version:
+        type: boolean
+        required: true
+      run_export:
+        type: boolean
+        required: true
   workflow_dispatch:
     inputs:
       minor_version:

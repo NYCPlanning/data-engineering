@@ -10,6 +10,7 @@ on:
         options:
           - template
           - cbbr
+          - pluto
       logging_level:
         description: "Logging level"
         type: choice
@@ -54,3 +55,11 @@ jobs:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
       will_export: ${{ inputs.will_export }}
+  pluto:
+    if: inputs.dataset_name == 'pluto'
+    uses: ./.github/workflows/pluto_build.yml
+    secrets: inherit
+    with:
+      logging_level: ${{ inputs.logging_level }}
+      minor_version: true
+      run_export: ${{ inputs.will_export }}
