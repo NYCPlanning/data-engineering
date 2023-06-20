@@ -48,10 +48,10 @@ jobs:
           if grep -q "$SUBSTRING" <<< "$VERSION"
           then
             echo "::set-output name=is_minor_version::true"
-            echo "$VERSION is a major version"
+            echo "$VERSION is a minor version"
           else
             echo "::set-output name=is_minor_version::false"
-            echo "$VERSION is a minor version"
+            echo "$VERSION is a major version"
           fi
   build:
     needs: [version]
