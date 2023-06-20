@@ -34,14 +34,14 @@ jobs:
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
-      logging_level: ${{ inputs.LOGGING_LEVEL }}
-      build_note: ${{ inputs.BUILD_NOTE }}
+      logging_level: ${{ inputs.logging_level }}
+      build_note: ${{ inputs.build_note }}
       will_export: ${{ inputs.will_export }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
     with:
-      logging_level: ${{ inputs.LOGGING_LEVEL }}
-      build_note: ${{ inputs.BUILD_NOTE }}
+      logging_level: ${{ inputs.logging_level }}
+      build_note: ${{ inputs.build_note }}
       will_export: ${{ inputs.will_export }}
