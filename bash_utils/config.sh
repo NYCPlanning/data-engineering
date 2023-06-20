@@ -156,9 +156,8 @@ function import_local_csv {
 
 
 function csv_export {
-    local connection_string=${1}
-    local table=${2}
-    local output_file=${3:-${table}}
+    local table=${1}
+    local output_file=${2:-${table}}
     run_sql_command \
         "\COPY (\
             SELECT * FROM ${table}\
