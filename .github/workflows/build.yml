@@ -9,6 +9,7 @@ on:
         required: true
         options:
           - template
+          - cbbr
       logging_level:
         description: "Logging level"
         type: choice
@@ -29,6 +30,14 @@ on:
         default: false
 
 jobs:
+  health_check:
+    name: Health Check
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check inputs
+        run: |
+          echo "Githubt aciton inputs are:"
+          echo "${{ toJSON(github.event.inputs) }}"
   template:
     if: inputs.dataset_name == 'template'
     uses: ./.github/workflows/template_build.yml
