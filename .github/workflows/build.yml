@@ -9,11 +9,8 @@ on:
         required: true
         options:
           - template
-      do_export:
-        description: "Whether to export build outputs"
-        type: boolean
-        required: true
-        default: false
+          - cbbr
+          - pluto
       logging_level:
         description: "Logging level"
         type: choice
@@ -27,21 +24,40 @@ on:
         description: "A short note about this build (optional)"
         type: string
         required: false
+      will_export:
+        description: "Export build outputs"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
+  health_check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check inputs
+        run: |
+          echo "Workflow inputs are:"
+          echo "${{ toJSON(github.event.inputs) }}"
   template:
     if: inputs.dataset_name == 'template'
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
-      do_export: ${{ inputs.do_export }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
+      will_export: ${{ inputs.will_export }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
-    with:
-      do_export: ${DO_EXPORT}
-      build_note: ${BUILD_NOTE}
-      logging_level: ${LOGGING_LEVEL}
     secrets: inherit
+    with:
+      logging_level: ${{ inputs.logging_level }}
+      build_note: ${{ inputs.build_note }}
+      will_export: ${{ inputs.will_export }}
+  pluto:
+    if: inputs.dataset_name == 'pluto'
+    uses: ./.github/workflows/pluto_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.will_export }}

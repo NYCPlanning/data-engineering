@@ -3,15 +3,15 @@ name: CBBR - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      do_export:
-        type: boolean
-        required: true
       logging_level:
         type: string
         required: true
       build_note:
         type: string
         required: false
+      will_export:
+        type: boolean
+        required: true
 
 jobs:
   build:
@@ -74,9 +74,9 @@ jobs:
       - name: Export CBBR Output to DO (edm-publishing)
         working-directory: db-cbbr/cbbr_build
         run: ./04_export.sh
-        if: inputs.do_export == true
+        if: inputs.will_export
 
       - name: Archive CBBR to EDM-DATA
         working-directory: db-cbbr/cbbr_build
         run: ./05_archive.sh
-        if: inputs.do_export == true
+        if: inputs.will_export

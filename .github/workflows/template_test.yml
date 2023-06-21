@@ -50,7 +50,7 @@ jobs:
     name: Build test run
     uses: ./.github/workflows/template_build.yml
     with:
-      do_export: false
+      will_export: false
       logging_level: DEBUG
       build_note: a test build
     secrets: inherit
