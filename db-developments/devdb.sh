@@ -2,7 +2,6 @@
 source bash/config.sh
 
 function dataloading { 
-    shift;
     MODE="${1:-edm}"
     echo "mode: $MODE"
     ./bash/01_dataloading.sh $1
@@ -25,7 +24,6 @@ function archive {
 }
 
 function output {
-    shift;
     name=$1
     format=$2
     case $format in 
@@ -36,7 +34,6 @@ function output {
 }
 
 function library_archive {
-    shift;
     get_version $2
     docker run --rm\
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
@@ -54,7 +51,6 @@ function library_archive {
 }
 
 function library_archive_version {
-    shift; 
     local name=$1
     local version=$2
     docker run --rm\
@@ -73,12 +69,10 @@ function library_archive_version {
 }
 
 function import {
-    shift;
-    import_recipe "$@"
+    import_recipe $1 false
 }
 
 function sql {
-    shift;
     psql $BUILD_ENGINE $@
 }
 
@@ -139,8 +133,11 @@ function do_upload {
     upload latest
 }
 
-case $1 in
-    dataloading | build | qaqc | aggregate | export | archive | clear ) $@ ;;
+command="$1"
+shift
+
+case "${command}" in
+    dataloading | build | qaqc | aggregate | export | archive | clear ) ${command} $@ ;;
     upload) do_upload;;
     geocode) geocode ;;
     import) import $@ ;;
@@ -148,5 +145,5 @@ case $1 in
     bq) upload_to_bq ;;
     library_archive) library_archive $@ ;;
     library_archive_version) library_archive_version $@ ;;
-    *) echo "$1 not found" ;;
+    *) echo "${command} not found" ;;
 esac
