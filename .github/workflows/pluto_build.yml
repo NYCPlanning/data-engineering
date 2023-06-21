@@ -47,7 +47,8 @@ jobs:
             echo "$VERSION is a major version"
           fi
       - name: sanity check
-        run: echo "is_minor: ${{ steps.check_minor_version.outputs.is_minor_version }}"
+        run: |
+          echo "is_minor: ${{ steps.check_minor_version.outputs.is_minor_version }}"
   build:
     needs: [version]
     runs-on: ubuntu-22.04
