@@ -39,7 +39,7 @@ jobs:
 
           is_minor_version=$(grep -q "$SUBSTRING" <<< "$VERSION")
           echo "is_minor_version=$is_minor_version" >> $GITHUB_OUTPUT
-          if is_minor_version
+          if $is_minor_version
           then
             echo "$VERSION is a minor version"
           else
