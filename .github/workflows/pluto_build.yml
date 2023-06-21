@@ -75,7 +75,7 @@ jobs:
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: |
-          echo "is_minor: ${{ !needs.version.outputs.is_minor_version }}""
+          echo "is_minor: ${{ needs.version.outputs.is_minor_version }}"
           ./pluto setup init
 
       - name: dataloading (major) ..
