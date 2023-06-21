@@ -46,9 +46,6 @@ jobs:
             echo "$VERSION is a major version"
           fi
           echo "is_minor_version=$is_minor_version" >> $GITHUB_OUTPUT
-      - name: sanity check
-        run: |
-          echo "is_minor: ${{ steps.check_minor_version.outputs.is_minor_version }}"
   build:
     needs: [version]
     runs-on: ubuntu-22.04
