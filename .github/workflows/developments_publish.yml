@@ -22,7 +22,7 @@ jobs:
         id: version
         run: |
           source version.env
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version is $VERSION"
 
       - uses: NYCPlanning/action-library-archive@v1.1

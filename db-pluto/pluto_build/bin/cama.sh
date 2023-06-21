@@ -14,7 +14,7 @@ function cama {
         PATH_TXT=$(ls *.txt)
         BASE_TXT=$(echo $(basename $PATH_TXT) | cut -d'.' -f1)
         VERSION=$(echo "$BASE_TXT" | rev | cut -d'_' -f1 | rev)
-        echo "::set-output name=version::$VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
         mv $PATH_TXT pluto_input_cama_dof.csv
 
         # Check number of rows

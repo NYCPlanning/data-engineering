@@ -51,7 +51,7 @@ def upload_file(path_local: str, target_branch: str):
 
 def create_pull_request(title: str, body: str, head: str, base: str = "main"):
     pr = repo.create_pull(title=title, body=body, head=head, base=base)
-    os.system(f'echo "::set-output name=issue_number::{pr.number}"')
+    os.system(f'echo "issue_number={pr.number}" >> $GITHUB_OUTPUT')
     print(f"Created PR with PR number: {pr.number}")
 
 if __name__ == "__main__":

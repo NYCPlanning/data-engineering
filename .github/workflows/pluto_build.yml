@@ -28,7 +28,7 @@ jobs:
         working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version is $VERSION"
       - name: Check for minor version
         id: check_minor_version
@@ -37,12 +37,12 @@ jobs:
           source version.env
           SUBSTRING='.'
 
-          if grep -q "$SUBSTRING" <<< "$VERSION"
+          is_minor_version=$(grep -q "$SUBSTRING" <<< "$VERSION")
+          echo "is_minor_version=$is_minor_version" >> $GITHUB_OUTPUT
+          if is_minor_version
           then
-            echo "::set-output name=is_minor_version::true"
             echo "$VERSION is a minor version"
           else
-            echo "::set-output name=is_minor_version::false"
             echo "$VERSION is a major version"
           fi
   build:
