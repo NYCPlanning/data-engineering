@@ -74,7 +74,9 @@ jobs:
       - name: install dependencies
         shell: bash
         working-directory: ./db-pluto/pluto_build
-        run: ./pluto setup init
+        run: |
+          echo "is_minor: ${{ !needs.version.outputs.is_minor_version }}""
+          ./pluto setup init
 
       - name: dataloading (major) ..
         shell: bash
