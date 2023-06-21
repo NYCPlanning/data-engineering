@@ -69,7 +69,9 @@ function library_archive_version {
 }
 
 function import {
-    import_recipe $1 false
+    dataset=$1
+    version=$2
+    import_recipe $dataset $version false
 }
 
 function sql {
