@@ -1,28 +1,25 @@
-name: z(TODO) DevDB - Build
+name: DevDB - 🏗️ Build
 
 on:
-  #push:
   workflow_dispatch:
     inputs:
-      rebuild:
-        description: "Would you like to rebuild DevDB (yes/no)? If no, set archive or export to yes."
-        required: true
-        default: "yes"
       export:
         description: "Would you like to export the outputs and QAQC to DigitalOcean? (yes/no)"
-        required: false
-        default: "no"
+        type: boolean
+        required: true
+        default: false
       archive:
         description: "Would you like to archive developments and dcp_housing to EDM-DATA? (yes/no)"
-        required: false
-        default: "no"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     services:
       db:
-        image: postgis/postgis:15-3.3-alpine
+        image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: devdb
@@ -43,21 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: config workflows
-        id: config
-        run: |
-          if [[ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]]; then
-            echo "::set-output name=rebuild::${{  github.event.inputs.rebuild }}"
-            echo "::set-output name=archive::${{  github.event.inputs.archive }}"
-            echo "::set-output name=export::${{  github.event.inputs.export }}"
-
-          else
-            echo "::set-output name=rebuild::yes"
-            echo "::set-output name=archive::no"
-            echo "::set-output name=export::no"
-
-          fi
-
       - name: install dependencies ...
         run: |
           sudo apt update
@@ -70,29 +52,31 @@ jobs:
           pip3 install pandas sqlalchemy psycopg2
 
       - name: 1. dataloading for EDM builds
-        if: steps.config.outputs.rebuild == 'yes'
+        working-directory: db-developments
         run: ./devdb.sh dataloading edm && ls -l
 
       - name: Clear cache
+        working-directory: db-developments
         run: rm -rf .library
 
       - name: 2. build dev_db ...
-        if: steps.config.outputs.rebuild == 'yes'
+        working-directory: db-developments
         run: |
           ./devdb.sh build
           ./devdb.sh aggregate
 
       - name: 3. qaqc dev_db ...
-        if: steps.config.outputs.rebuild == 'yes'
-        run: |
-          ./devdb.sh qaqc
+        working-directory: db-developments
+        run: ./devdb.sh qaqc
 
       - name: 4. Export ...
-        if: steps.config.outputs.export == 'yes'
+        if: inputs.export
+        working-directory: db-developments
         run: |
           ./devdb.sh export
           ./devdb.sh upload
 
       - name: 5. Archive ...
-        if: steps.config.outputs.archive == 'yes'
+        if: inputs.archive
+        working-directory: db-developments
         run: ./devdb.sh archive

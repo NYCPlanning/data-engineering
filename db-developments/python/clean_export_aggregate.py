@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import sys
 from sqlalchemy import create_engine, text
+from utils import engine
 
 template_lookup = {
     "aggregate_cdta_2020": "CDTA",
@@ -39,11 +40,10 @@ if __name__ == "__main__":
 
     table_name = sys.argv[1]
 
-    engine = create_engine(os.environ["BUILD_ENGINE"])
-
     geo_base = read_aggregate_template(table_name)
     select_query = f"SELECT * FROM {table_name}"
-    aggregate = pd.read_sql(sql=text(select_query), con=engine.connect())
+    with engine.begin() as conn:
+        aggregate = pd.read_sql(sql=text(select_query), con=conn)
 
     idx = get_index_columns(table_name)
     aggregate.dropna(axis=0, subset=[idx], inplace=True)

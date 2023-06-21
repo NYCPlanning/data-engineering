@@ -3,6 +3,8 @@ from datetime import datetime
 from pathlib import Path
 import os
 import sys
+from sqlalchemy import text
+from utils import engine
 
 if __name__ == "__main__":
     filename = sys.argv[1]
@@ -22,4 +24,5 @@ if __name__ == "__main__":
         decade=decade,
         CAPTURE_DATE=CAPTURE_DATE)
 
-    print(sql_rendered)
+    with engine.begin() as connection:
+        connection.execute(text(sql_rendered))

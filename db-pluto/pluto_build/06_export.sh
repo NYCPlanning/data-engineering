@@ -17,7 +17,7 @@ zip pluto_changes.zip *
 ls | grep -v pluto_changes.zip | xargs rm
 
 
-csv_export ${BUILD_ENGINE} source_data_versions
+csv_export source_data_versions
 
 # mappluto.gdb
 fgdb_export_pluto mappluto_gdb &

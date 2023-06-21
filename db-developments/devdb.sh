@@ -2,7 +2,6 @@
 source bash/config.sh
 
 function dataloading { 
-    shift;
     MODE="${1:-edm}"
     echo "mode: $MODE"
     ./bash/01_dataloading.sh $1
@@ -25,18 +24,16 @@ function archive {
 }
 
 function output {
-    shift;
     name=$1
     format=$2
     case $format in 
-        csv) CSV_export $1;;
-        shp) SHP_export $1;;
-        *) echo "format: $2 is unknow"
+        csv) csv_export $1;;
+        shp) shp_export $1 POINT;;
+        *) echo "format: $2 is unknown"
     esac
 }
 
 function library_archive {
-    shift;
     get_version $2
     docker run --rm\
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
@@ -54,7 +51,6 @@ function library_archive {
 }
 
 function library_archive_version {
-    shift; 
     local name=$1
     local version=$2
     docker run --rm\
@@ -73,14 +69,12 @@ function library_archive_version {
 }
 
 function import {
-    shift;
-    local name=$1
-    local version=${2:-latest}
-    import_public $1 $2
+    dataset=$1
+    version=$2
+    import_recipe $dataset $version false
 }
 
 function sql {
-    shift;
     psql $BUILD_ENGINE $@
 }
 
@@ -108,17 +102,17 @@ function upload_to_bq {
 
 function aggregate {
     display "Creating aggregate tables"
-    python3 python/yearly.py sql/aggregate/yearly.sql 2010 | sql
-    python3 python/yearly.py sql/aggregate/yearly.sql 2020 | sql
-    python3 python/yearly.py sql/aggregate/block.sql 2010 | sql
-    python3 python/yearly.py sql/aggregate/tract.sql 2010 | sql
-    python3 python/yearly.py sql/aggregate/block.sql 2020 | sql
-    python3 python/yearly.py sql/aggregate/tract.sql 2020 | sql
-    python3 python/yearly.py sql/aggregate/commntydst.sql 2010| sql
-    python3 python/yearly.py sql/aggregate/councildst.sql 2010| sql
-    python3 python/yearly.py sql/aggregate/nta.sql 2010| sql
-    python3 python/yearly.py sql/aggregate/nta.sql 2020| sql
-    python3 python/yearly.py sql/aggregate/cdta.sql 2020| sql
+    python3 python/yearly.py sql/aggregate/yearly.sql 2010
+    python3 python/yearly.py sql/aggregate/yearly.sql 2020
+    python3 python/yearly.py sql/aggregate/block.sql 2010
+    python3 python/yearly.py sql/aggregate/tract.sql 2010
+    python3 python/yearly.py sql/aggregate/block.sql 2020
+    python3 python/yearly.py sql/aggregate/tract.sql 2020
+    python3 python/yearly.py sql/aggregate/commntydst.sql 2010
+    python3 python/yearly.py sql/aggregate/councildst.sql 2010
+    python3 python/yearly.py sql/aggregate/nta.sql 2010
+    python3 python/yearly.py sql/aggregate/nta.sql 2020
+    python3 python/yearly.py sql/aggregate/cdta.sql 2020
 
     mkdir -p output && (
         display "Export aggregate tables"
@@ -136,15 +130,22 @@ function clear {
     rm -rf .library
 }
 
-case $1 in
-    dataloading | build | qaqc | aggregate | export | archive | clear ) $@ ;;
-    upload) Upload;;
+function do_upload {
+    upload $VERSION
+    upload latest
+}
+
+command="$1"
+shift
+
+case "${command}" in
+    dataloading | build | qaqc | aggregate | export | archive | clear ) ${command} $@ ;;
+    upload) do_upload;;
     geocode) geocode ;;
     import) import $@ ;;
     output) output $@ ;;
-    sql) sql $@ ;;
     bq) upload_to_bq ;;
     library_archive) library_archive $@ ;;
     library_archive_version) library_archive_version $@ ;;
-    *) echo "$1 not found" ;;
+    *) echo "${command} not found" ;;
 esac

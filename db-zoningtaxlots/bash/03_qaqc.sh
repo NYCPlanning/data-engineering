@@ -15,9 +15,9 @@ rm -rf output && mkdir -p output
 (
     cd output
 
-    csv_export ${BUILD_ENGINE} source_data_versions &
+    csv_export source_data_versions &
     
-    csv_export ${BUILD_ENGINE} dcp_zoning_taxlot_export zoningtaxlot_db &
+    csv_export dcp_zoning_taxlot_export zoningtaxlot_db &
 
     psql ${EDM_DATA} -c "\copy (
     SELECT * FROM dcp_zoningtaxlots.qaqc_frequency 

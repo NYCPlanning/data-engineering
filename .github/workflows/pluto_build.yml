@@ -28,7 +28,7 @@ jobs:
         working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version is $VERSION"
       - name: Check for minor version
         id: check_minor_version
@@ -39,12 +39,13 @@ jobs:
 
           if grep -q "$SUBSTRING" <<< "$VERSION"
           then
-            echo "::set-output name=is_minor_version::true"
+            is_minor_version=true
             echo "$VERSION is a minor version"
           else
-            echo "::set-output name=is_minor_version::false"
+            is_minor_version=false
             echo "$VERSION is a major version"
           fi
+          echo "is_minor_version=$is_minor_version" >> $GITHUB_OUTPUT
   build:
     needs: [version]
     runs-on: ubuntu-22.04
@@ -74,7 +75,9 @@ jobs:
       - name: install dependencies
         shell: bash
         working-directory: ./db-pluto/pluto_build
-        run: ./pluto setup init
+        run: |
+          echo "is_minor: ${{ needs.version.outputs.is_minor_version }}"
+          ./pluto setup init
 
       - name: dataloading (major) ..
         shell: bash
