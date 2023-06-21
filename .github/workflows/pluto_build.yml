@@ -28,7 +28,7 @@ jobs:
         working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version is $VERSION"
       - name: Check for minor version
         id: check_minor_version
@@ -37,15 +37,15 @@ jobs:
           source version.env
           SUBSTRING='.'
 
-          is_minor_version=$(grep -q "$SUBSTRING" <<< "$VERSION")
-          echo "is_minor_version=$is_minor_version"
-          echo "is_minor_version=$is_minor_version" >> "$GITHUB_OUTPUT"
-          if $is_minor_version
+          if grep -q "$SUBSTRING" <<< "$VERSION"
           then
+            is_minor_version=true
             echo "$VERSION is a minor version"
           else
+            is_minor_version=false
             echo "$VERSION is a major version"
           fi
+          echo "is_minor_version=$is_minor_version" >> $GITHUB_OUTPUT
       - name: sanity check
         run: |
           echo "is_minor: ${{ steps.check_minor_version.outputs.is_minor_version }}"
@@ -86,13 +86,13 @@ jobs:
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading.sh
-        if: ${{ !needs.version.outputs.is_minor_version }}
+        if: needs.version.outputs.is_minor_version == "false"
 
       - name: dataloading (minor) ..
         shell: bash
         working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading_minor.sh
-        if: needs.version.outputs.is_minor_version
+        if: needs.version.outputs.is_minor_version == "true"
 
       - name: building ...
         shell: bash
