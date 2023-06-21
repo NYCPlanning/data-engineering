@@ -1,25 +1,18 @@
-name: z(TODO) Template - 🏗️ Data Build
+name: Template - Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      build_note:
-        description: "Note about this build"
-        type: string
-        required: false
-      logging_level:
-        description: "Logging level"
-        type: choice
-        required: true
-        options:
-          - WARNING
-          - INFO
-          - DEBUG
   workflow_call:
     inputs:
       logging_level:
-        required: true
         type: string
+        required: true
+      build_note:
+        type: string
+        required: false
+      will_export:
+        type: boolean
+        required: true
+
 env:
   LOGGING_LEVEL: ${{ inputs.logging_level }}
   BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
@@ -45,12 +38,14 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v3
-      - name: Inputs check
+      - name: Check inputs
+        working-directory: db-template
         run: |
           python --version
           echo "Hello build note: ${{ inputs.build_note }}"
           echo "Hello logging level: ${{ inputs.logging_level }} (directly from action inputs)"
           echo "Hello logging level: $LOGGING_LEVEL (from envar from action inputs)"
+          echo "Running python.run_logging ..."
           python -m python.run_logging
 
       - name: Setup python
@@ -59,27 +54,33 @@ jobs:
           python-version: 3.11.2
 
       - name: Setup build environment
+        working-directory: db-template
         run: |
           python --version
           ./bash/setup_build_env.sh
 
       - name: 1) Data loading
+        working-directory: db-template
         run: |
-          ./bash/01_dataloading.sh
+          echo "PLACEHOLDER running Data loading"
 
       - name: 2) Preprocessing
+        working-directory: db-template
         run: |
-          ./bash/02_preprocessing.sh
+          echo "PLACEHOLDER running Preprocessing"
 
       - name: 3) Build
+        working-directory: db-template
         run: |
-          ./bash/03_build.sh
+          echo "PLACEHOLDER running Build"
 
       - name: 4) Export for QAQC
+        working-directory: db-template
         run: |
-          echo "PLACEHOLDER running qaqc export"
+          echo "PLACEHOLDER running Export for QAQC"
 
       - name: 5) Export for production
-        if: ${{ github.event_name != 'workflow_call' }}
+        working-directory: db-template
+        if: inputs.will_export
         run: |
-          echo "PLACEHOLDER running production export"
+          echo "PLACEHOLDER running Export for production"

@@ -42,4 +42,3 @@ def test_load_geodata_url():
 def test_load_shapefile_large():
     geography = load_shapefile("./.data/dev_db", "housing.shp.zip")
     assert len(geography) > 1
-

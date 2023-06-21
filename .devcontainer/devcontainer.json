@@ -33,7 +33,8 @@
 				"ms-python.vscode-pylance",
 				"mtxr.sqltools",
 				"mtxr.sqltools-driver-pg",
-				"ms-toolsai.jupyter"
+				"ms-toolsai.jupyter",
+				"redhat.vscode-yaml"
 			]
 		}
 	},
