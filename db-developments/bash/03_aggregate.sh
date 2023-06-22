@@ -1,17 +1,17 @@
 source bash/config.sh
 
 display "Creating aggregate tables"
-python3 python/yearly.py sql/aggregate/yearly.sql 2010
-python3 python/yearly.py sql/aggregate/yearly.sql 2020
-python3 python/yearly.py sql/aggregate/block.sql 2010
-python3 python/yearly.py sql/aggregate/tract.sql 2010
-python3 python/yearly.py sql/aggregate/block.sql 2020
-python3 python/yearly.py sql/aggregate/tract.sql 2020
-python3 python/yearly.py sql/aggregate/commntydst.sql 2010
-python3 python/yearly.py sql/aggregate/councildst.sql 2010
-python3 python/yearly.py sql/aggregate/nta.sql 2010
-python3 python/yearly.py sql/aggregate/nta.sql 2020
-python3 python/yearly.py sql/aggregate/cdta.sql 2020
+python3 python/aggregate.py sql/aggregate/yearly.sql 2010
+python3 python/aggregate.py sql/aggregate/yearly.sql 2020
+python3 python/aggregate.py sql/aggregate/spatial.sql 2010 block
+python3 python/aggregate.py sql/aggregate/spatial.sql 2010 tract
+python3 python/aggregate.py sql/aggregate/spatial.sql 2020 block
+python3 python/aggregate.py sql/aggregate/spatial.sql 2020 tract
+python3 python/aggregate.py sql/aggregate/spatial.sql 2010 commntydst
+python3 python/aggregate.py sql/aggregate/spatial.sql 2010 councildst
+python3 python/aggregate.py sql/aggregate/spatial.sql 2010 nta
+python3 python/aggregate.py sql/aggregate/spatial.sql 2020 nta
+python3 python/aggregate.py sql/aggregate/spatial.sql 2020 cdta
 
 mkdir -p output && (
     display "Export aggregate tables"
