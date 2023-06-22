@@ -43,3 +43,5 @@ INTO AGGREGATE_{{ geom }}_{{ decade }}
 FROM
     agg
     RIGHT JOIN {{ join_table }} j ON agg.{{ output_column }} = j.{{ right_join_column }}
+
+ORDER BY j.{{ right_join_column }}
