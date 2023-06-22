@@ -10,7 +10,7 @@ ARG USER_GID=$USER_UID
 RUN if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then groupmod --gid $USER_GID vscode && usermod --uid $USER_UID --gid $USER_GID vscode; fi
 
 RUN apt update && export DEBIAN_FRONTEND=noninteractive \
-    && apt -y install postgresql-client python3-pip python3-distutils jq zip unzip git bash-completion locales
+    && apt -y install postgresql-client libpg-dev python3-pip python3-distutils jq zip unzip git bash-completion locales
 
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en 
