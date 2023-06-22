@@ -68,18 +68,18 @@ if __name__ == "__main__":
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
 
-        # Render template
+        # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
             years=list(range(2010, current_year+1)),
-            decade=decade,
             CAPTURE_DATE=CAPTURE_DATE,
+            decade=decade,
             geom=geom,
             source_column=source_column,
             output_column=output_column,
             group_by=group_by,
             join_table=join_table)
-      
-    print(sql_rendered)
+        
+        sql_rendered = Template(sql_rendered).render(decade=decade)
 
-    #with engine.begin() as connection:
-    #   connection.execute(text(sql_rendered))
+    with engine.begin() as connection:
+        connection.execute(text(sql_rendered))
