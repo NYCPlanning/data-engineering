@@ -26,15 +26,15 @@ SELECT
     {%- for column in additional_columns %} -- These are grabbed from joined table in case of no rows present in prior table
         j.{{ column[0] }} as {{ column[1] }},
     {% endfor %}
-    agg.comp2010ap,
+    coalesce(agg.comp2010ap, 0),
     {%- for year in years %}
-        agg.comp{{year}},
+        coalesce(agg.comp{{year}}, 0),
     {% endfor %}
-    agg.filed,
-    agg.approved,
-    agg.permitted,
-    agg.withdrawn,
-    agg.inactive,
+    coalesce(agg.filed, 0),
+    coalesce(agg.approved, 0),
+    coalesce(agg.permitted, 0),
+    coalesce(agg.withdrawn, 0),
+    coalesce(agg.inactive, 0),
     j.shape_area as Shape_Area,
     j.shape_leng as Shape_Leng,
     j.wkb_geometry
