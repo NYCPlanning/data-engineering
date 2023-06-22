@@ -3,13 +3,13 @@ source bash/config.sh
 display "Creating aggregate tables"
 python3 python/aggregate.py sql/aggregate/yearly.sql 2010
 python3 python/aggregate.py sql/aggregate/yearly.sql 2020
-python3 python/aggregate.py sql/aggregate/spatial.sql 2010 block
-python3 python/aggregate.py sql/aggregate/spatial.sql 2010 tract
+#python3 python/aggregate.py sql/aggregate/spatial.sql 2010 block
+#python3 python/aggregate.py sql/aggregate/spatial.sql 2010 tract
 python3 python/aggregate.py sql/aggregate/spatial.sql 2020 block
 python3 python/aggregate.py sql/aggregate/spatial.sql 2020 tract
 python3 python/aggregate.py sql/aggregate/spatial.sql 2010 commntydst
 python3 python/aggregate.py sql/aggregate/spatial.sql 2010 councildst
-python3 python/aggregate.py sql/aggregate/spatial.sql 2010 nta
+#python3 python/aggregate.py sql/aggregate/spatial.sql 2010 nta
 python3 python/aggregate.py sql/aggregate/spatial.sql 2020 nta
 python3 python/aggregate.py sql/aggregate/spatial.sql 2020 cdta
 
