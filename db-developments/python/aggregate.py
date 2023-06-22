@@ -10,32 +10,47 @@ geoms = {
     "block": {
         "source_column": "bctcb{{decade}}",
         "output_column": "bctcb{{decade}}",
+        "additional_columns": [
+            ("geoid", "cenblock{{decade}}")
+        ],
         "group_by": ["boro", "bctcb{{decade}}", "cenblock{{decade}}"],
         "join_table": "dcp_cb{{decade}}"
     },
     "cdta": {
         "source_column": "cdta{{decade}}",
         "output_column": "cdta{{decade}}",
+        "additional_columns": [
+            ("cdtaname", "cdtaname{{decade[:-2]}}")
+        ],
         "join_table": "dcp_cdta{{decade}}"
     },
     "commntydst": {
         "source_column": "comunitydist",
-        "join_table": "dcp_cdboundaries"
+        "join_table": "dcp_cdboundaries",
+        "right_join_column": "borocd::TEXT"
     },
     "councildst": {
         "source_column": "councildist",
-        "join_table": "dcp_councildistricts"
+        "join_table": "dcp_councildistricts",
+        "right_join_column": "coundist::TEXT"
     },
     "nta": {
-        "source_column": "nta{{ decade }}",
-        "output_column": "nta{{ decade }}",
+        "source_column": "nta{{decade}}",
+        "output_column": "nta{{decade}}",
+        "additional_columns": [
+            ("ntaname", "ntaname{{decade[:-2]}}")
+        ],
         "join_table": "dcp_nta{{decade}}"
     },
     "tract": {
         "source_column": "bct{{decade}}",
         "output_column": "bct{{decade}}",
+        "additional_columns": [
+            ("geoid", "centract{{decade}}")
+        ],
         "group_by": ["boro", "bct{{decade}}", "centract{{decade}}"],
-        "join_table": "dcp_ct{{decade}}"
+        "join_table": "dcp_ct{{decade}}",
+        "right_join_column": "boroct2020"
     }
 }
 
@@ -53,20 +68,21 @@ if __name__ == "__main__":
 
     try:
         geom=sys.argv[3]
-        print(f"hello! geom is {geom}")
     except:
-        print("No geom supplied, assuming yearly aggregation")
+        print(f"Aggregating by year for decade {decade}")
         sql_rendered = Template(sql).render(
             years=list(range(2010, current_year+1)),
             decade=decade,
             CAPTURE_DATE=CAPTURE_DATE)
     else:
-        print(f"geom of {geom} supplied, aggregating by {geom}")
+        print(f"Aggregating by {geom}")
         column_info = geoms[geom]
         source_column = column_info.get("source_column", geom)
         output_column = column_info.get("output_column", geom)
+        additional_columns = column_info.get("additional_columns", [])
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
+        right_join_column = column_info.get("right_join_column", output_column)
 
         # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
@@ -76,10 +92,12 @@ if __name__ == "__main__":
             geom=geom,
             source_column=source_column,
             output_column=output_column,
+            additional_columns=additional_columns,
             group_by=group_by,
-            join_table=join_table)
+            join_table=join_table,
+            right_join_column=right_join_column)
         
         sql_rendered = Template(sql_rendered).render(decade=decade)
-
+    
     with engine.begin() as connection:
         connection.execute(text(sql_rendered))
