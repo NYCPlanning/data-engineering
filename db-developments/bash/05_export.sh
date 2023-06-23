@@ -40,9 +40,9 @@ mkdir -p output
     csv_export EXPORT_A2_devdb
 
     display "Export aggregate tables"
-    mkdir -p aggregate 
+    mkdir -p aggregate_external
     (
-        cd aggregate
+        cd aggregate_external
         csv_export aggregate_block_2020_external HousingDB_by_2020_CensusBlock &
         csv_export aggregate_tract_2020_external HousingDB_by_2020_CensusTract &
         csv_export aggregate_nta_2020_external HousingDB_by_2020_NTA &
@@ -57,13 +57,16 @@ mkdir -p output
         shp_export aggregate_cdta_2020 MULTIPOLYGON_shp HousingDB_by_2020_CDTA 
         wait
     )
-
-    csv_export aggregate_block_2020_internal aggregate_block_2020 &
-    csv_export aggregate_tract_2020_internal aggregate_tract_2020 &
-    csv_export aggregate_nta_2020_internal aggregate_nta_2020 &
-    csv_export aggregate_councildst_2010_internal aggregate_councildst_2010 &
-    csv_export aggregate_commntydst_2010_internal aggregate_commntydst_2010 &
-    csv_export aggregate_cdta_2020_internal aggregate_cdta_2020
+    mkdir -p aggregate_internal
+    (
+        cd aggregate_internal
+        csv_export aggregate_block_2020_internal aggregate_block_2020 &
+        csv_export aggregate_tract_2020_internal aggregate_tract_2020 &
+        csv_export aggregate_nta_2020_internal aggregate_nta_2020 &
+        csv_export aggregate_councildst_2010_internal aggregate_councildst_2010 &
+        csv_export aggregate_commntydst_2010_internal aggregate_commntydst_2010 &
+        csv_export aggregate_cdta_2020_internal aggregate_cdta_2020
+    )
 
     wait
 
