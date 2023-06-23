@@ -5,7 +5,6 @@ DESCRIPTION:
     
 INPUTS:
     FINAL_devdb
-    LOOKUP_geo
 OUTPUTS:
     YEARLY_devdb
 */
