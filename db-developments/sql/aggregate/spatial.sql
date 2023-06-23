@@ -56,7 +56,7 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
     {% endfor %}
     comp2010ap,
     {%- for year in years %}
-        {% if (not loop.last) or include_current_year %}
+        {% if not loop.last %}
             comp{{year}},
         {% endif %}
     {% endfor %}
@@ -75,7 +75,7 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
     {% endfor %}
     comp2010ap,
     {%- for year in years %}
-        {% if (not loop.last) or include_current_year %}
+        {% if not loop.last %}
             comp{{year}},
         {% endif %}
     {% endfor %}
