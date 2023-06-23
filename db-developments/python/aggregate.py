@@ -11,7 +11,7 @@ geoms = {
         "source_column": "bctcb{{decade}}",
         "output_column": "bctcb{{decade}}",
         "additional_columns": [
-            ("geoid", "cenblock{{decade}}")
+            ("geoid", "cenblock{{decade[:-2]}}")
         ],
         "group_by": ["boro", "bctcb{{decade}}", "cenblock{{decade}}"],
         "join_table": "dcp_cb{{decade}}"
@@ -79,6 +79,7 @@ if __name__ == "__main__":
         column_info = geoms[geom]
         source_column = column_info.get("source_column", geom)
         output_column = column_info.get("output_column", geom)
+        output_column_internal = column_info.get("output_column_internal", output_column)
         additional_columns = column_info.get("additional_columns", [])
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
@@ -92,6 +93,7 @@ if __name__ == "__main__":
             geom=geom,
             source_column=source_column,
             output_column=output_column,
+            output_column_internal=output_column_internal,
             additional_columns=additional_columns,
             group_by=group_by,
             join_table=join_table,

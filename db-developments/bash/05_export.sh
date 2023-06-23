@@ -40,12 +40,31 @@ mkdir -p output
     csv_export EXPORT_A2_devdb
 
     display "Export aggregate tables"
-    python3 python/clean_export_aggregate.py aggregate_block_2020 &
-    python3 python/clean_export_aggregate.py aggregate_tract_2020 &
-    python3 python/clean_export_aggregate.py aggregate_nta_2020 &
-    python3 python/clean_export_aggregate.py aggregate_councildst_2010 &
-    python3 python/clean_export_aggregate.py aggregate_commntydst_2010  &
-    python3 python/clean_export_aggregate.py aggregate_cdta_2020 & 
+    mkdir -p aggregate 
+    (
+        cd aggregate
+        csv_export aggregate_block_2020_external HousingDB_by_2020_CensusBlock &
+        csv_export aggregate_tract_2020_external HousingDB_by_2020_CensusTract &
+        csv_export aggregate_nta_2020_external HousingDB_by_2020_NTA &
+        csv_export aggregate_councildst_2010_external HousingDB_by_2013_CityCouncilDistrict &
+        csv_export aggregate_commntydst_2010_external HousingDB_by_CommunityDistrict &
+        csv_export aggregate_cdta_2020_external HousingDB_by_2020_CDTA &
+        shp_export aggregate_block_2020_shp MULTIPOLYGON HousingDB_by_2020_CensusBlock &
+        shp_export aggregate_tract_2020_shp MULTIPOLYGON HousingDB_by_2020_CensusTract &
+        shp_export aggregate_nta_2020_shp MULTIPOLYGON HousingDB_by_2020_NTA &
+        shp_export aggregate_councildst_2010_shp MULTIPOLYGON HousingDB_by_2013_CityCouncilDistrict &
+        shp_export aggregate_commntydst_2010_shp MULTIPOLYGON HousingDB_by_CommunityDistrict &
+        shp_export aggregate_cdta_2020 MULTIPOLYGON_shp HousingDB_by_2020_CDTA 
+        wait
+    )
+
+    csv_export aggregate_block_2020_internal aggregate_block_2020 &
+    csv_export aggregate_tract_2020_internal aggregate_tract_2020 &
+    csv_export aggregate_nta_2020_internal aggregate_nta_2020 &
+    csv_export aggregate_councildst_2010_internal aggregate_councildst_2010 &
+    csv_export aggregate_commntydst_2010_internal aggregate_commntydst_2010 &
+    csv_export aggregate_cdta_2020_internal aggregate_cdta_2020
+
     wait
 
     display "Export source data versions"
