@@ -165,6 +165,22 @@ function csv_export {
 }
 
 
+function csv_export_drop_columns {
+    local table=${1}
+    local columns=${2} #expected in format `csv_export_drop_columns mytable "'geom', 'other_column'"
+    local output_file=${3:-${table}}
+    local select_columns=$(run_sql_command \
+        "\COPY (SELECT STRING_AGG(column_name, ',' ORDER BY ordinal_position)\
+        FROM information_schema.columns\
+        WHERE table_name = '${table}' and column_name not in (${columns})
+        ) TO STDOUT;")
+    run_sql_command \
+        "\COPY (\
+            SELECT ${select_columns} FROM ${table}\
+        ) TO STDOUT DELIMITER ',' CSV HEADER;">${output_file}.csv
+}
+
+
 function shp_export {
     parse_connection_string ${BUILD_ENGINE}
     local table=${1}

@@ -67,27 +67,8 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
     inactive
     FROM aggregate_{{ geom }}_{{ decade }};
 
--- external export csv - drop current year if export is for last year, drop geom
-CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
-    {{ output_column }},
-    {%- for column in additional_columns %} 
-        {{ column[1] }},
-    {% endfor %}
-    comp2010ap,
-    {%- for year in years %}
-        {% if not loop.last %}
-            comp{{year}},
-        {% endif %}
-    {% endfor %}
-    filed,
-    approved,
-    permitted,
-    withdrawn,
-    inactive
-    FROM aggregate_{{ geom }}_{{ decade }};
-
 -- external export for shapefile
-CREATE VIEW aggregate_{{ geom }}_{{ decade }}_shp AS SELECT
+CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
     {{ output_column }}::integer,
     {%- for column in additional_columns %} 
         {{ column[1] }},
