@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS aggregate_{{ geom }}_{{ decade }};
+DROP TABLE IF EXISTS aggregate_{{ geom }}_{{ decade }} CASCADE;
 WITH agg as (
     SELECT 
         {{ source_column }}::TEXT as {{ output_column }},
@@ -47,10 +47,8 @@ FROM
 ORDER BY j.{{ right_join_column }};
 
 -- Views to simplify export
-DROP VIEW IF EXISTS aggregate_{{ geom }}_{{ decade }}_shp;
 
 -- internal export - include current year even if export is Q4 of prior year, exclude geom
-DROP VIEW IF EXISTS aggregate_{{ geom }}_{{ decade }}_internal;
 CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
     {{ output_column }} AS {{ output_column_internal }},
     {%- for column in additional_columns %} 
@@ -70,7 +68,6 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
     FROM aggregate_{{ geom }}_{{ decade }};
 
 -- external export csv - drop current year if export is for last year, drop geom
-DROP VIEW IF EXISTS aggregate_{{ geom }}_{{ decade }}_external;
 CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
     {{ output_column }},
     {%- for column in additional_columns %} 
@@ -91,7 +88,7 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
 
 -- external export for shapefile
 CREATE VIEW aggregate_{{ geom }}_{{ decade }}_shp AS SELECT
-    {{ output_column }},
+    {{ output_column }}::integer,
     {%- for column in additional_columns %} 
         {{ column[1] }},
     {% endfor %}
