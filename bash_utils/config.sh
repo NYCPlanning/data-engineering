@@ -170,9 +170,11 @@ function csv_export_drop_columns {
     local columns=${2} #expected in format `csv_export_drop_columns mytable "'geom', 'other_column'"
     local output_file=${3:-${table}}
     local select_columns=$(run_sql_command \
-        "\COPY (SELECT STRING_AGG(column_name, ',' ORDER BY ordinal_position)\
-        FROM information_schema.columns\
-        WHERE table_name = '${table}' and column_name not in (${columns})
+        "\COPY (SELECT '\"' || STRING_AGG(attname, '\",\"' ORDER BY attnum) || '\"'\
+        FROM pg_attribute\
+        WHERE attrelid = 'public.${table}'::regclass\
+            AND attname not in (${columns})\
+            AND attnum>0
         ) TO STDOUT;")
     run_sql_command \
         "\COPY (\
