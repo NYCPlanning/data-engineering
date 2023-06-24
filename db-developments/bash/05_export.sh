@@ -48,7 +48,7 @@ mkdir -p output
         csv_export_drop_columns aggregate_nta_2020_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2020_NTA &
         csv_export_drop_columns aggregate_councildst_2010_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2013_CityCouncilDistrict &
         csv_export_drop_columns aggregate_commntydst_2010_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_CommunityDistrict &
-        csv_export_drop_columns aggregate_cdta_2020_external HousingDB_by_2020_CDTA &
+        csv_export_drop_columns aggregate_cdta_2020_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2020_CDTA &
         shp_export aggregate_block_2020_external MULTIPOLYGON HousingDB_by_2020_CensusBlock &
         shp_export aggregate_tract_2020_external MULTIPOLYGON HousingDB_by_2020_CensusTract &
         shp_export aggregate_nta_2020_external MULTIPOLYGON HousingDB_by_2020_NTA &
@@ -79,11 +79,11 @@ mkdir -p output
         csv_export_drop_columns HousingDB_post2010_incomplete_jobs "'geom'"
         csv_export_drop_columns HousingDB_post2010_inactive_jobs "'geom'"
         csv_export_drop_columns HousingDB_post2010_inactive_included "'geom'"
-        shp_export HousingDB_post2010
-        shp_export HousingDB_post2010_completed_jobs
-        shp_export HousingDB_post2010_incomplete_jobs
-        shp_export HousingDB_post2010_inactive_jobs
-        shp_export HousingDB_post2010_inactive_included
+        shp_export HousingDB_post2010 POINT
+        shp_export HousingDB_post2010_completed_jobs POINT
+        shp_export HousingDB_post2010_incomplete_jobs POINT
+        shp_export HousingDB_post2010_inactive_jobs POINT
+        shp_export HousingDB_post2010_inactive_included POINT
     )
     
 
