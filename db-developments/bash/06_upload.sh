@@ -1,4 +1,4 @@
 source bash/config.sh
 
-upload $VERSION
-upload latest
+upload db-developments $VERSION
+upload db-developments latest
