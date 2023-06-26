@@ -15,7 +15,6 @@ import_recipe dcp_ct2010 $GEOSUPPORT_VERSION &
 import_recipe dcp_cb2020 $GEOSUPPORT_VERSION &
 import_recipe dcp_ct2020 $GEOSUPPORT_VERSION &
 import_recipe dcp_cdta2020 $GEOSUPPORT_VERSION &
-import_recipe dcp_nta2010 $GEOSUPPORT_VERSION &
 import_recipe dcp_nta2020 $GEOSUPPORT_VERSION &
 import_recipe dcp_school_districts $GEOSUPPORT_VERSION &
 import_recipe dcp_boroboundaries_wi $GEOSUPPORT_VERSION &
