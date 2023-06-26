@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS aggregate_{{ geom }}_{{ decade }} CASCADE;
+DROP TABLE IF EXISTS aggregate_{{ geom }} CASCADE;
 WITH agg as (
     SELECT 
         {{ source_column }}::TEXT as {{ output_column }},
@@ -14,7 +14,7 @@ WITH agg as (
         SUM(withdrawn) as withdrawn,
         SUM(inactive) as inactive
 
-    FROM YEARLY_devdb_{{ decade }}
+    FROM YEARLY_devdb
 
     GROUP BY 
         {%- for column in group_by %}
@@ -49,7 +49,7 @@ ORDER BY j.{{ right_join_column }};
 -- Views to simplify export
 
 -- internal export - include current year even if export is Q4 of prior year, exclude geom
-CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
+CREATE VIEW aggregate_{{ geom }}_internal AS SELECT
     {{ output_column }} AS {{ output_column_internal }},
     {%- for column in additional_columns %} 
         {{ column[1] }}, -- TODO add alias here if needed
@@ -65,10 +65,10 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
     permitted,
     withdrawn,
     inactive
-    FROM aggregate_{{ geom }}_{{ decade }};
+    FROM aggregate_{{ geom }};
 
 -- external export for shapefile
-CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
+CREATE VIEW aggregate_{{ geom }}_external AS SELECT
     {{ output_column }}::integer,
     {%- for column in additional_columns %} 
         {{ column[1] }},
@@ -87,4 +87,4 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
     Shape_Area,
     Shape_Leng,
     wkb_geometry
-    FROM aggregate_{{ geom }}_{{ decade }};
+    FROM aggregate_{{ geom }};

@@ -9,7 +9,8 @@ OUTPUTS:
     YEARLY_devdb
 */
 
-DROP TABLE IF EXISTS YEARLY_devdb_{{ decade }};
+DROP TABLE IF EXISTS YEARLY_devdb;
+CREATE TABLE YEARLY_devdb AS
 SELECT 
     job_number,
     (CASE
@@ -27,10 +28,8 @@ SELECT
     nta{{ decade }}::TEXT,
     ntaname{{ decade }},
 
-    {% if decade == '2020' %}
-        cdta{{ decade }}::TEXT,
-        cdtaname{{ decade }},
-    {% endif %}
+    cdta{{ decade }}::TEXT,
+    cdtaname{{ decade }},
 
     comunitydist::TEXT,
     councildist::TEXT,
@@ -77,4 +76,4 @@ SELECT
         THEN  classa_net 
         ELSE NULL END as inactive
 
-INTO YEARLY_devdb_{{ decade }} FROM FINAL_devdb; 
+FROM FINAL_devdb; 
