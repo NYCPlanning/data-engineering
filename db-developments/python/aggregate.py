@@ -14,8 +14,7 @@ geoms = {
             ("geoid", "cenblock{{decade[:-2]}}")
         ],
         "group_by": ["boro", "bctcb{{decade}}", "cenblock{{decade}}"],
-        "join_table": "dcp_cb{{decade}}",
-        "census_join_column": "geoid20"
+        "join_table": "dcp_cb{{decade}}"
     },
     "cdta": {
         "source_column": "cdta{{decade}}",
@@ -51,8 +50,7 @@ geoms = {
         ],
         "group_by": ["boro", "bct{{decade}}", "centract{{decade}}"],
         "join_table": "dcp_ct{{decade}}",
-        "geom_join_column": "boroct2020",
-        "census_join_column": "bct2020"
+        "geom_join_column": "boroct2020"
     }
 }
 
@@ -86,7 +84,6 @@ if __name__ == "__main__":
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
         geom_join_column = column_info.get("geom_join_column", output_column)
-        census_join_column = column_info.get("census_join_column", "geoid")
 
         # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
@@ -100,8 +97,7 @@ if __name__ == "__main__":
             additional_columns=additional_columns,
             group_by=group_by,
             join_table=join_table,
-            geom_join_column=geom_join_column,
-            census_join_column=census_join_column)
+            geom_join_column=geom_join_column)
         
         sql_rendered = Template(sql_rendered).render(decade=decade)
     
