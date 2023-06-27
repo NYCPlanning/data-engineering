@@ -1,5 +1,7 @@
+-- only need hunits, geography id for joining to tables of units aggregated by geography. 
+-- geotype included for sanity check, but the join column is unique across geographies
+-- as written, if boroughs were included there would be collision in unique ids between council district code and borough code
 DROP TABLE IF EXISTS censusdata_cleaned;
-
 CREATE TABLE censusdata_cleaned AS
 SELECT 
     geotype,
@@ -19,6 +21,8 @@ SELECT
 FROM dcp_censusdata_blocks
 WHERE geogtype='CB2020';
 
+-- CDTAs not included in census, so join and aggregate. NTAs nest perfectly into CDTAs
+-- TODO when data library is redone, great opportunity for a persisted intermediate table
 INSERT INTO censusdata_cleaned 
     SELECT 
         'CDTA2020' AS geotype,
