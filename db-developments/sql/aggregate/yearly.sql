@@ -5,7 +5,6 @@ DESCRIPTION:
     
 INPUTS:
     FINAL_devdb
-    LOOKUP_geo
 OUTPUTS:
     YEARLY_devdb
 */
@@ -29,9 +28,8 @@ SELECT
     ntaname{{ decade }},
 
     {% if decade == '2020' %}
-        
         cdta{{ decade }}::TEXT,
-
+        cdtaname{{ decade }},
     {% endif %}
 
     comunitydist::TEXT,

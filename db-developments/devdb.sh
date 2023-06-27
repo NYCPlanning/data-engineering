@@ -11,16 +11,24 @@ function build {
     ./bash/02_build_devdb.sh 
 }
 
+function aggregate {
+    ./bash/03_aggregate.sh
+}
+
 function qaqc { 
-    ./bash/03_qaqc.sh 
+    ./bash/04_qaqc.sh 
 }
 
 function export { 
-    ./bash/04_export.sh 
+    ./bash/05_export.sh 
+}
+
+function upload {
+    ./bash/06_upload.sh
 }
 
 function archive { 
-    ./bash/05_archive.sh 
+    ./bash/07_archive.sh 
 }
 
 function output {
@@ -74,10 +82,6 @@ function import {
     import_recipe $dataset $version false
 }
 
-function sql {
-    psql $BUILD_ENGINE $@
-}
-
 function upload_to_bq {
     FILEPATH=dcp_developments/$VERSION/dcp_developments.csv
     curl -O https://nyc3.digitaloceanspaces.com/edm-recipes/datasets/$FILEPATH
@@ -100,52 +104,15 @@ function upload_to_bq {
         schemas/dcp_developments.json
 }
 
-function aggregate {
-    display "Creating aggregate tables"
-    python3 python/yearly.py sql/aggregate/yearly.sql 2010
-    python3 python/yearly.py sql/aggregate/yearly.sql 2020
-    python3 python/yearly.py sql/aggregate/block.sql 2010
-    python3 python/yearly.py sql/aggregate/tract.sql 2010
-    python3 python/yearly.py sql/aggregate/block.sql 2020
-    python3 python/yearly.py sql/aggregate/tract.sql 2020
-    python3 python/yearly.py sql/aggregate/commntydst.sql 2010
-    python3 python/yearly.py sql/aggregate/councildst.sql 2010
-    python3 python/yearly.py sql/aggregate/nta.sql 2010
-    python3 python/yearly.py sql/aggregate/nta.sql 2020
-    python3 python/yearly.py sql/aggregate/cdta.sql 2020
-
-    mkdir -p output && (
-        display "Export aggregate tables"
-        python3 python/clean_export_aggregate.py aggregate_block_2020 &
-        python3 python/clean_export_aggregate.py aggregate_tract_2020 &
-        python3 python/clean_export_aggregate.py aggregate_nta_2020 &
-        python3 python/clean_export_aggregate.py aggregate_councildst_2010 &
-        python3 python/clean_export_aggregate.py aggregate_commntydst_2010  &
-        python3 python/clean_export_aggregate.py aggregate_cdta_2020 & 
-        wait
-    )
-}
-
 function clear {
     rm -rf .library
-}
-
-function do_upload {
-    upload $VERSION
-    upload latest
 }
 
 command="$1"
 shift
 
 case "${command}" in
-    dataloading | build | qaqc | aggregate | export | archive | clear ) ${command} $@ ;;
-    upload) do_upload;;
-    geocode) geocode ;;
-    import) import $@ ;;
-    output) output $@ ;;
+    dataloading | build | qaqc | aggregate | export | upload | archive | clear | geocode | import | output | library_archive | library_archive_version) ${command} $@ ;;
     bq) upload_to_bq ;;
-    library_archive) library_archive $@ ;;
-    library_archive_version) library_archive_version $@ ;;
     *) echo "${command} not found" ;;
 esac
