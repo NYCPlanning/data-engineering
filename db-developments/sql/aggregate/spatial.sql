@@ -44,7 +44,7 @@ INTO aggregate_{{ geom }}
 FROM
     agg
     RIGHT JOIN {{ join_table }} j ON agg.{{ output_column }} = j.{{ geom_join_column }}
-    LEFT JOIN censusdata_cleaned c ON j.{{ geom_join_column }}::TEXT = c.aggregate_join
+    LEFT JOIN census2020_housing_units_by_geography c ON j.{{ geom_join_column }}::TEXT = c.aggregate_join
 
 ORDER BY j.{{ geom_join_column }};
 
