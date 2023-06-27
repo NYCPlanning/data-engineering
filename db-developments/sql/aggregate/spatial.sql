@@ -72,7 +72,7 @@ CREATE VIEW aggregate_{{ geom }}_internal AS SELECT
 
 -- external export for shapefile
 CREATE VIEW aggregate_{{ geom }}_external AS SELECT
-    {{ output_column }}::integer,
+    {{ output_column }}::TEXT,
     {%- for column_pair in additional_column_mappings %} 
         {{ column_pair[1] }},
     {% endfor %}
