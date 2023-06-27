@@ -1,6 +1,5 @@
 from jinja2 import Template
 from datetime import datetime
-from pathlib import Path
 import os
 import sys
 from sqlalchemy import text
@@ -68,7 +67,7 @@ if __name__ == "__main__":
 
     try:
         geom=sys.argv[3]
-    except:
+    except IndexError:
         print(f"Aggregating by year for decade {decade}")
         sql_rendered = Template(sql).render(
             years=list(range(2010, current_year+1)),
