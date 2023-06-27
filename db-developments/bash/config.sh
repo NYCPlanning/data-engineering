@@ -4,6 +4,7 @@ source ../bash_utils/config.sh # expected to be run from db-developments folder
 # Setting Environmental Variables
 set_env ../.env version.env
 DATE=$(date "+%Y-%m-%d")
+set_error_traps
 
 function sql_table_summary {
   psql -d $BUILD_ENGINE -At -c "SELECT count(*) FROM $1;" | 
