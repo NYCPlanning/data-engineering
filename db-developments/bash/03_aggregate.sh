@@ -1,5 +1,8 @@
 source bash/config.sh
 
+display "Clean census data"
+run_sql_file sql/_census.sql
+
 display "Creating yearly aggregate tables"
 python3 python/aggregate.py sql/aggregate/yearly.sql 2020
 

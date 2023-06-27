@@ -31,9 +31,9 @@ geoms = {
         "geom_join_column": "borocd::TEXT"
     },
     "councildst": {
-        "source_column": "councildist",
+        "source_column": "councildist::INT",
         "join_table": "dcp_councildistricts",
-        "geom_join_column": "coundist::TEXT"
+        "geom_join_column": "coundist",
     },
     "nta": {
         "source_column": "nta{{decade}}",
