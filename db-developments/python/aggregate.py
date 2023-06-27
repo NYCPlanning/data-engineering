@@ -9,7 +9,7 @@ geoms = {
     "block": {
         "source_column": "bctcb{{decade}}",
         "output_column": "bctcb{{decade}}",
-        "additional_columns": [
+        "additional_column_mappings": [
             ("geoid", "cenblock{{decade[:-2]}}")
         ],
         "group_by": ["boro", "bctcb{{decade}}", "cenblock{{decade}}"],
@@ -18,7 +18,7 @@ geoms = {
     "cdta": {
         "source_column": "cdta{{decade}}",
         "output_column": "cdta{{decade}}",
-        "additional_columns": [
+        "additional_column_mappings": [
             ("cdtaname", "cdtaname{{decade[:-2]}}")
         ],
         "join_table": "dcp_cdta{{decade}}"
@@ -36,7 +36,7 @@ geoms = {
     "nta": {
         "source_column": "nta{{decade}}",
         "output_column": "nta{{decade}}",
-        "additional_columns": [
+        "additional_column_mappings": [
             ("ntaname", "ntaname{{decade[:-2]}}")
         ],
         "join_table": "dcp_nta{{decade}}"
@@ -44,7 +44,7 @@ geoms = {
     "tract": {
         "source_column": "bct{{decade}}",
         "output_column": "bct{{decade}}",
-        "additional_columns": [
+        "additional_column_mappings": [
             ("geoid", "centract{{decade}}")
         ],
         "group_by": ["boro", "bct{{decade}}", "centract{{decade}}"],
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         source_column = column_info.get("source_column", geom)
         output_column = column_info.get("output_column", geom)
         output_column_internal = column_info.get("output_column_internal", output_column)
-        additional_columns = column_info.get("additional_columns", [])
+        additional_column_mappings = column_info.get("additional_column_mappings", [])
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
         right_join_column = column_info.get("right_join_column", output_column)
@@ -93,7 +93,7 @@ if __name__ == "__main__":
             source_column=source_column,
             output_column=output_column,
             output_column_internal=output_column_internal,
-            additional_columns=additional_columns,
+            additional_column_mappings=additional_column_mappings,
             group_by=group_by,
             join_table=join_table,
             right_join_column=right_join_column)

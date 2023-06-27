@@ -23,8 +23,8 @@ WITH agg as (
 )
 SELECT 
     j.{{ right_join_column }} as {{ output_column }},
-    {%- for column in additional_columns %} -- These are grabbed from joined table in case of no rows present in prior table
-        j.{{ column[0] }} as {{ column[1] }},
+    {%- for column_pair in additional_column_mappings %} -- These are grabbed from joined table in case of no rows present in prior table
+        j.{{ column_pair[0] }} as {{ column_pair[1] }},
     {% endfor %}
     coalesce(agg.comp2010ap, 0) AS comp2010ap,
     {%- for year in years %}
@@ -51,8 +51,8 @@ ORDER BY j.{{ right_join_column }};
 -- internal export - include current year even if export is Q4 of prior year, exclude geom
 CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
     {{ output_column }} AS {{ output_column_internal }},
-    {%- for column in additional_columns %} 
-        {{ column[1] }}, -- TODO add alias here if needed
+    {%- for column_pair in additional_column_mappings %} 
+        {{ column_pair[1] }}, -- TODO add alias here if needed
     {% endfor %}
     comp2010ap,
     {%- for year in years %}
@@ -70,8 +70,8 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
 -- external export for shapefile
 CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
     {{ output_column }}::integer,
-    {%- for column in additional_columns %} 
-        {{ column[1] }},
+    {%- for column_pair in additional_column_mappings %} 
+        {{ column_pair[1] }},
     {% endfor %}
     comp2010ap,
     {%- for year in years %}
