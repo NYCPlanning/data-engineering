@@ -54,7 +54,7 @@ mkdir -p output
         shp_export aggregate_nta_external MULTIPOLYGON HousingDB_by_2020_NTA &
         shp_export aggregate_councildst_external MULTIPOLYGON HousingDB_by_2013_CityCouncilDistrict &
         shp_export aggregate_commntydst_external MULTIPOLYGON HousingDB_by_CommunityDistrict &
-        shp_export aggregate_cdta_2020 MULTIPOLYGON_external HousingDB_by_2020_CDTA 
+        shp_export aggregate_cdta_external MULTIPOLYGON_external HousingDB_by_2020_CDTA 
         wait
     )
     mkdir -p aggregate
@@ -65,7 +65,7 @@ mkdir -p output
         csv_export aggregate_nta_internal aggregate_nta &
         csv_export aggregate_councildst_internal aggregate_councildst &
         csv_export aggregate_commntydst_internal aggregate_commntydst &
-        csv_export aggregate_cdta_2020_internal aggregate_cdta
+        csv_export aggregate_cdta_internal aggregate_cdta
     )
 
     wait
