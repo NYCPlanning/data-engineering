@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS aggregate_{{ geom }}_{{ decade }} CASCADE;
+DROP TABLE IF EXISTS aggregate_{{ geom }} CASCADE;
 WITH agg as (
     SELECT 
-        {{ source_column }}::TEXT as {{ output_column }},
+        {{ source_column }} as {{ output_column }},
 
-        SUM(comp2010ap) as comp2010ap,
+        SUM(comp2020ap) as comp2020ap,
         {%- for year in years %}
             SUM(comp{{year}}) as comp{{year}},
         {% endfor %}
@@ -14,7 +14,7 @@ WITH agg as (
         SUM(withdrawn) as withdrawn,
         SUM(inactive) as inactive
 
-    FROM YEARLY_devdb_{{ decade }}
+    FROM YEARLY_devdb
 
     GROUP BY 
         {%- for column in group_by %}
@@ -22,14 +22,15 @@ WITH agg as (
         {% endfor %}
 )
 SELECT 
-    j.{{ right_join_column }} as {{ output_column }},
+    j.{{ geom_join_column }} as {{ output_column }},
     {%- for column_pair in additional_column_mappings %} -- These are grabbed from joined table in case of no rows present in prior table
         j.{{ column_pair[0] }} as {{ column_pair[1] }},
     {% endfor %}
-    coalesce(agg.comp2010ap, 0) AS comp2010ap,
+    coalesce(agg.comp2020ap, 0) AS comp2020ap,
     {%- for year in years %}
         coalesce(agg.comp{{year}}, 0) AS comp{{year}},
     {% endfor %}
+    c.hunits AS cenunits20,
     coalesce(agg.filed, 0) AS filed,
     coalesce(agg.approved, 0) AS approved,
     coalesce(agg.permitted, 0) AS permitted,
@@ -39,46 +40,49 @@ SELECT
     j.shape_leng as Shape_Leng,
     j.wkb_geometry
 
-INTO aggregate_{{ geom }}_{{ decade }}
+INTO aggregate_{{ geom }}
 FROM
     agg
-    RIGHT JOIN {{ join_table }} j ON agg.{{ output_column }} = j.{{ right_join_column }}
+    RIGHT JOIN {{ join_table }} j ON agg.{{ output_column }} = j.{{ geom_join_column }}
+    LEFT JOIN census2020_housing_units_by_geography c ON j.{{ geom_join_column }}::TEXT = c.aggregate_join
 
-ORDER BY j.{{ right_join_column }};
+ORDER BY j.{{ geom_join_column }};
 
 -- Views to simplify export
 
 -- internal export - include current year even if export is Q4 of prior year, exclude geom
-CREATE VIEW aggregate_{{ geom }}_{{ decade }}_internal AS SELECT
+CREATE VIEW aggregate_{{ geom }}_internal AS SELECT
     {{ output_column }} AS {{ output_column_internal }},
     {%- for column_pair in additional_column_mappings %} 
         {{ column_pair[1] }}, -- TODO add alias here if needed
     {% endfor %}
-    comp2010ap,
+    comp2020ap,
     {%- for year in years %}
         {% if not loop.last %}
             comp{{year}},
         {% endif %}
     {% endfor %}
+    cenunits20,
     filed,
     approved,
     permitted,
     withdrawn,
     inactive
-    FROM aggregate_{{ geom }}_{{ decade }};
+    FROM aggregate_{{ geom }};
 
 -- external export for shapefile
-CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
-    {{ output_column }}::integer,
+CREATE VIEW aggregate_{{ geom }}_external AS SELECT
+    {{ output_column }}::TEXT,
     {%- for column_pair in additional_column_mappings %} 
         {{ column_pair[1] }},
     {% endfor %}
-    comp2010ap,
+    comp2020ap,
     {%- for year in years %}
         {% if (not loop.last) or include_current_year %}
             comp{{year}},
         {% endif %}
     {% endfor %}
+    cenunits20,
     filed,
     approved,
     permitted,
@@ -87,4 +91,4 @@ CREATE VIEW aggregate_{{ geom }}_{{ decade }}_external AS SELECT
     Shape_Area,
     Shape_Leng,
     wkb_geometry
-    FROM aggregate_{{ geom }}_{{ decade }};
+    FROM aggregate_{{ geom }};

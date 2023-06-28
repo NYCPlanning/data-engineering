@@ -21,17 +21,17 @@ geoms = {
         "additional_column_mappings": [
             ("cdtaname", "cdtaname{{decade[:-2]}}")
         ],
-        "join_table": "dcp_cdta{{decade}}"
+        "join_table": "dcp_cdta{{decade}}",
     },
     "commntydst": {
         "source_column": "comunitydist",
         "join_table": "dcp_cdboundaries",
-        "right_join_column": "borocd::TEXT"
+        "geom_join_column": "borocd::TEXT"
     },
     "councildst": {
-        "source_column": "councildist",
+        "source_column": "councildist::INT",
         "join_table": "dcp_councildistricts",
-        "right_join_column": "coundist::TEXT"
+        "geom_join_column": "coundist",
     },
     "nta": {
         "source_column": "nta{{decade}}",
@@ -49,7 +49,7 @@ geoms = {
         ],
         "group_by": ["boro", "bct{{decade}}", "centract{{decade}}"],
         "join_table": "dcp_ct{{decade}}",
-        "right_join_column": "boroct2020"
+        "geom_join_column": "boroct2020"
     }
 }
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         additional_column_mappings = column_info.get("additional_column_mappings", [])
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
-        right_join_column = column_info.get("right_join_column", output_column)
+        geom_join_column = column_info.get("geom_join_column", output_column)
 
         # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             additional_column_mappings=additional_column_mappings,
             group_by=group_by,
             join_table=join_table,
-            right_join_column=right_join_column)
+            geom_join_column=geom_join_column)
         
         sql_rendered = Template(sql_rendered).render(decade=decade)
     

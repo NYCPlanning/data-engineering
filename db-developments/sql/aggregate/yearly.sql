@@ -9,7 +9,8 @@ OUTPUTS:
     YEARLY_devdb
 */
 
-DROP TABLE IF EXISTS YEARLY_devdb_{{ decade }};
+DROP TABLE IF EXISTS YEARLY_devdb;
+CREATE TABLE YEARLY_devdb AS
 SELECT 
     job_number,
     (CASE
@@ -27,18 +28,16 @@ SELECT
     nta{{ decade }}::TEXT,
     ntaname{{ decade }},
 
-    {% if decade == '2020' %}
-        cdta{{ decade }}::TEXT,
-        cdtaname{{ decade }},
-    {% endif %}
+    cdta{{ decade }}::TEXT,
+    cdtaname{{ decade }},
 
     comunitydist::TEXT,
     councildist::TEXT,
 
-    CASE WHEN complete_year = '2010' AND date_complete > '2010-03-31'::date
+    CASE WHEN complete_year = '2020' AND date_complete > '2020-03-31'::date
             AND job_inactive IS NULL
         THEN classa_net
-        ELSE NULL END AS comp2010ap,
+        ELSE NULL END AS comp2020ap,
     
     {%- for year in years %}
      CASE WHEN complete_year = '{{ year }}' AND job_inactive IS NULL
@@ -46,10 +45,10 @@ SELECT
         ELSE NULL END AS comp{{ year }},
     {% endfor %}
 
-    CASE WHEN date_complete > '2010-03-31'::date AND date_complete < '{{CAPTURE_DATE}}'::date
+    CASE WHEN date_complete > '2020-03-31'::date AND date_complete < '{{CAPTURE_DATE}}'::date
             AND job_inactive IS NULL
         THEN classa_net
-        ELSE NULL END AS since_cen10,
+        ELSE NULL END AS since_cen20,
 
     CASE WHEN job_status = '1. Filed Application'
             AND job_inactive IS NULL
@@ -77,4 +76,4 @@ SELECT
         THEN  classa_net 
         ELSE NULL END as inactive
 
-INTO YEARLY_devdb_{{ decade }} FROM FINAL_devdb; 
+FROM FINAL_devdb; 

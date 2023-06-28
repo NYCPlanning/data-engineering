@@ -60,23 +60,7 @@ CREATE TABLE DRAFT_spatial AS (
             THEN get_boro(geom)::text
         ELSE a.geo_boro END) as geo_boro,
 
-        -- geo_cb2010
-        (CASE WHEN a.geo_cb2010 IS NULL 
-            OR a.geo_cb2010 = '' 
-            OR a.geo_ct2010 = '000000' 
-            OR a.mode = 'tpad'
-            THEN get_cb2010(geom)
-        ELSE a.geo_cb2010 END) as _geo_cb2010, 
-
-        -- geo_ct2010
-    (CASE WHEN a.geo_ct2010 IS NULL 
-            OR a.geo_ct2010 = '' 
-            OR a.geo_ct2010 = '000000'
-            OR a.mode = 'tpad' 
-            THEN get_ct2010(geom)
-        ELSE a.geo_ct2010 END) as _geo_ct2010, 
-
-        -- geo_cb2010
+        -- geo_cb2020
         (CASE WHEN a.geo_cb2020 IS NULL 
             OR a.geo_cb2020 = '' 
             OR a.geo_ct2020 = '000000' 
@@ -84,7 +68,7 @@ CREATE TABLE DRAFT_spatial AS (
             THEN get_cb2020(geom)
         ELSE a.geo_cb2020 END) as _geo_cb2020, 
 
-        -- geo_ct2010
+        -- geo_ct2020
     (CASE WHEN a.geo_ct2020 IS NULL 
             OR a.geo_ct2020 = '' 
             OR a.geo_ct2020 = '000000'
@@ -166,19 +150,15 @@ CREATE TABLE CENSUS_TRACT_BLOCK AS (
             WHEN DRAFT_spatial.geo_boro = '4' THEN '36081'
             WHEN DRAFT_spatial.geo_boro = '5' THEN '36085'
         END) as fips,
-        geo_boro||_geo_ct2010||_geo_cb2010 as bctcb2010,
         geo_boro||_geo_ct2020||_geo_cb2020 as bctcb2020,
-        geo_boro||_geo_ct2010 as bct2010,
         geo_boro||_geo_ct2020 as bct2020
     FROM DRAFT_spatial
 );
 
 DROP INDEX IF EXISTS CENSUS_TRACT_BLOCK_uid_idx;
 DROP INDEX IF EXISTS dcp_ct2020_boroct2020_idx;
-DROP INDEX IF EXISTS dcp_ct2010_boroct2010_idx;
 CREATE INDEX CENSUS_TRACT_BLOCK_uid_idx ON CENSUS_TRACT_BLOCK(uid);
 CREATE INDEX dcp_ct2020_boroct2020_idx ON dcp_ct2020(boroct2020);
-CREATE INDEX dcp_ct2010_boroct2010_idx ON dcp_ct2010(boroct2010);
 
 
 DROP TABLE IF EXISTS SPATIAL_devdb;
@@ -207,16 +187,10 @@ SELECT
     DRAFT_spatial.longitude,
     DRAFT_spatial.geom,
     DRAFT_spatial.geomsource,
-    CENSUS_TRACT_BLOCK.fips||DRAFT_spatial._geo_ct2010||DRAFT_spatial._geo_cb2010 as geo_cb2010,
-    CENSUS_TRACT_BLOCK.fips||DRAFT_spatial._geo_ct2010 as geo_ct2010,
-    CENSUS_TRACT_BLOCK.bctcb2010,
-    CENSUS_TRACT_BLOCK.bct2010,
     CENSUS_TRACT_BLOCK.fips||DRAFT_spatial._geo_ct2020||DRAFT_spatial._geo_cb2020 as geo_cb2020,
     CENSUS_TRACT_BLOCK.fips||DRAFT_spatial._geo_ct2020 as geo_ct2020,
     CENSUS_TRACT_BLOCK.bctcb2020,
     CENSUS_TRACT_BLOCK.bct2020,
-    dcp_ct2010.ntacode as geo_nta2010,
-    dcp_ct2010.ntaname as geo_ntaname2010,
     dcp_ct2020.nta2020 as geo_nta2020,
     dcp_ct2020.ntaname as geo_ntaname2020,
     dcp_ct2020.cdta2020 as geo_cdta2020,
@@ -224,7 +198,6 @@ SELECT
 INTO SPATIAL_devdb
 FROM DRAFT_spatial
 LEFT JOIN CENSUS_TRACT_BLOCK ON DRAFT_spatial.uid = CENSUS_TRACT_BLOCK.uid
-LEFT JOIN dcp_ct2010 ON CENSUS_TRACT_BLOCK.bct2010 = boroct2010
 LEFT JOIN dcp_ct2020 ON CENSUS_TRACT_BLOCK.bct2020 = boroct2020;
 
 DROP TABLE IF EXISTS DRAFT_spatial CASCADE;

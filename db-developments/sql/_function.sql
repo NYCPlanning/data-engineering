@@ -104,26 +104,6 @@ CREATE OR REPLACE FUNCTION get_council(
       LIMIT 1
   $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION get_ct2010(
-    _geom geometry
-  ) 
-    RETURNS varchar AS $$
-      SELECT b.ct2010::varchar
-      FROM dcp_ct2010 b
-      WHERE ST_Within(_geom, b.wkb_geometry)
-      LIMIT 1
-  $$ LANGUAGE sql;
-
-CREATE OR REPLACE FUNCTION get_cb2010(
-    _geom geometry
-  ) 
-    RETURNS varchar AS $$
-      SELECT b.cb2010::varchar
-      FROM dcp_cb2010 b
-      WHERE ST_Within(_geom, b.wkb_geometry)
-      LIMIT 1
-  $$ LANGUAGE sql;
-
 CREATE OR REPLACE FUNCTION get_ct2020(
     _geom geometry
   ) 
