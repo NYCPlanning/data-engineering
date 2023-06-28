@@ -1,13 +1,18 @@
 name: CBBR - 🏗️ Build
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      run_export:
-        description: "Run Export Step and Upload to DO"
+      logging_level:
+        type: string
+        required: true
+      build_note:
+        type: string
+        required: false
+      will_export:
         type: boolean
         required: true
-        default: false
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -68,9 +73,9 @@ jobs:
       - name: Export CBBR Output to DO (edm-publishing)
         working-directory: db-cbbr/cbbr_build
         run: ./04_export.sh
-        if: inputs.run_export == true
+        if: inputs.will_export
 
       - name: Archive CBBR to EDM-DATA
         working-directory: db-cbbr/cbbr_build
         run: ./05_archive.sh
-        if: inputs.run_export == true
+        if: inputs.will_export

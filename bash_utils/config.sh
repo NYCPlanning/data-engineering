@@ -117,6 +117,7 @@ function create_source_data_table {
 function import_recipe {
     local name=${1}
     local version=${2:-latest}
+    local set_version_option=${3:-true}
     local acl=$(get_acl ${name} ${version})
     local version=$(get_version ${name} ${version} ${acl})
     target_dir=./.library/datasets/${name}/${version}
@@ -137,11 +138,13 @@ function import_recipe {
     fi
 
     # Loading into Database
-    run_sql_file $target_dir/${name}.sql
+    run_sql_file ${target_dir}/${name}.sql
     run_sql_command \
-        "ALTER TABLE ${name} ADD COLUMN v text; \
-        UPDATE ${name} SET v = '${version}'; \
-        INSERT INTO source_data_versions VALUES ('$name','$version');";
+        "ALTER TABLE ${name} ADD COLUMN data_library_version text; \
+        UPDATE ${name} SET data_library_version = '${version}';"
+    if [ "${set_version_option}" = true ]; then
+        run_sql_command "INSERT INTO source_data_versions VALUES ('$name','$version');";
+    fi
 }
 
 
@@ -153,12 +156,29 @@ function import_local_csv {
 
 
 function csv_export {
-    local connection_string=${1}
-    local table=${2}
-    local output_file=${3:-${table}}
+    local table=${1}
+    local output_file=${2:-${table}}
     run_sql_command \
         "\COPY (\
             SELECT * FROM ${table}\
+        ) TO STDOUT DELIMITER ',' CSV HEADER;">${output_file}.csv
+}
+
+
+function csv_export_drop_columns {
+    local table=${1}
+    local columns=${2} #expected in format `csv_export_drop_columns mytable "'geom', 'other_column'"
+    local output_file=${3:-${table}}
+    local select_columns=$(run_sql_command \
+        "\COPY (SELECT '\"' || STRING_AGG(attname, '\",\"' ORDER BY attnum) || '\"'\
+        FROM pg_attribute\
+        WHERE attrelid = 'public.${table}'::regclass\
+            AND attname not in (${columns})\
+            AND attnum>0
+        ) TO STDOUT;")
+    run_sql_command \
+        "\COPY (\
+            SELECT ${select_columns} FROM ${table}\
         ) TO STDOUT DELIMITER ',' CSV HEADER;">${output_file}.csv
 }
 
@@ -253,7 +273,7 @@ function max_bg_procs {
     local max_number=$((0 + ${1:-0}))
     while true; do
         local current_number=$(jobs -pr | wc -l)
-        if [[ $c{urrent_number} -lt ${max_number} ]]; then
+        if [[ ${current_number} -lt ${max_number} ]]; then
             break
         fi
         sleep 1

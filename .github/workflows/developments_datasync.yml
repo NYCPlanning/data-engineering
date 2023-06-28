@@ -1,4 +1,4 @@
-name: z(TODO) DevDB - Data Sync and Geocoding of HPD and DOB Data
+name: DevDB - Data Sync and Geocoding of HPD and DOB Data
 
 on:
 #  push:
@@ -6,8 +6,8 @@ on:
 #      - .github/workflows/dob_data_sync.yml
 #      - templates/dob_jobapplications.yml
 #      - templates/dob_permitissuance.yml
-#  schedule:
-#    - cron: "0 0 * * MON"
+  schedule:
+    - cron: "0 0 * * MON"
   workflow_dispatch:
     inputs:
       version:
@@ -37,7 +37,7 @@ jobs:
         with:
           # name of the dataset
           name: ${{ matrix.dataset }}
-          path: templates/${{ matrix.dataset }}.yml
+          path: db-developments/templates/${{ matrix.dataset }}.yml
           s3: true
           latest: true
           compress: true
@@ -69,38 +69,45 @@ jobs:
       - uses: actions/checkout@v3
       - name: Load to Database (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
+        working-directory: db-developments
         run: |
           ./devdb.sh import dob_jobapplications ${{  github.event.inputs.version }}
-          ./devdb.sh import hpd_hny_units_by_building
-          ./devdb.sh import dob_now_applications
+          ./devdb.sh import hpd_hny_units_by_building latest
+          ./devdb.sh import dob_now_applications latest
 
       - name: Load to Database
         if: github.event_name != 'workflow_dispatch'
+        working-directory: db-developments
         run: |
-          ./devdb.sh import hpd_hny_units_by_building
-          ./devdb.sh import dob_jobapplications
-          ./devdb.sh import dob_now_applications
+          ./devdb.sh import hpd_hny_units_by_building latest
+          ./devdb.sh import dob_jobapplications latest
+          ./devdb.sh import dob_now_applications latest
 
       - name: Geocode
+        working-directory: db-developments
         # Also combines the imported DOB datasets
         run: ./devdb.sh geocode
 
       - name: Export to csv
+        working-directory: db-developments
         run: |
           ./devdb.sh output hny_geocode_results csv
           ./devdb.sh output dob_geocode_results csv
 
       - name: Check file existence
+        working-directory: db-developments
         run: ls *.csv
 
       - name: Archive to Data Library (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
+        working-directory: db-developments
         run: |
           ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
           ./devdb.sh library_archive_version dob_geocode_results ${{  github.event.inputs.version }}
 
       - name: Archive to Data Library
         if: github.event_name != 'workflow_dispatch'
+        working-directory: db-developments
         run: |
           ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
           ./devdb.sh library_archive dob_geocode_results dob_jobapplications

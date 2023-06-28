@@ -91,7 +91,7 @@ Please refer to the [EDM QAQC web application](https://edm-data-engineering.nycp
 
 ### Notes
 
-> Only `main` has branch protection rules. This means that tests are allowed to fail on `dev`.
+> Only `main` has branch protection rules. This means that tests are allowed to fail on `dev` branches.
 >
 > If using VS Code's `Format on Save`, ensure the Python formatting provider is set to `black`
 

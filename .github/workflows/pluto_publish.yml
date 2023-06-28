@@ -18,7 +18,7 @@ jobs:
         id: version
         run: |
           source pluto_build/version.env
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version is $VERSION"
 
   publish:

@@ -1,10 +1,7 @@
 name: CBBR - Test
 
 on:
-  push:
-    paths:
-    - db-cbbr/**
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   test_lint:

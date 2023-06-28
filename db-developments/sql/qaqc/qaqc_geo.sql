@@ -22,10 +22,6 @@ SELECT
             geo_boro IS NULL OR
             geo_cd IS NULL OR
             geo_council IS NULL OR
-            geo_nta2010 IS NULL OR
-            geo_ntaname2010 IS NULL OR
-            geo_cb2010 IS NULL OR
-            geo_ct2010 IS NULL OR
             geo_nta2020 IS NULL OR
             geo_ntaname2020 IS NULL OR
             geo_cb2020 IS NULL OR
