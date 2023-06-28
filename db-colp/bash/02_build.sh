@@ -7,7 +7,7 @@ run_sql_file sql/load_modifications.sql
 run_sql_file sql/geo_inputs.sql
 
 python3 -m python.geocode
-python3 -m python.geo_qaqc"
+python3 -m python.geo_qaqc
 
 run_sql_file sql/_procedures.sql
 run_sql_file sql/clean_parcelname.sql
