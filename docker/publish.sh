@@ -10,7 +10,7 @@ esac
 
 cp $1 Dockerfile
 
-DOCKER_IMAGE_NAME=nycplanning/
+DOCKER_IMAGE_NAME=nycplanning/$1
 
 echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
 # Build image - Once we reach some sort of MVP, maybe worth starting versioning. For now, just latest
