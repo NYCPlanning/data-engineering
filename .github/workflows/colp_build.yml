@@ -1,8 +1,17 @@
 name: COLP - 🏗️ Build
 on: 
+  workflow_call:
+    inputs:
+      run_export:
+        type: boolean
+        required: true
   workflow_dispatch:
-  #pull_request:
-  #  types: [closed]
+    inputs:
+      run_export:
+        description: "Run Export Step and Upload to DO"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
@@ -47,9 +56,11 @@ jobs:
       run: ./colp.sh qaqc
 
     - name: Export COLP ...
+      if: inputs.run_export
       working-directory: db-colp
       run: ./colp.sh export
 
     - name: Upload outputs to s3 ...
+      if: inputs.run_export
       working-directory: db-colp
       run: ./colp.sh upload

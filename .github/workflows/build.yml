@@ -11,6 +11,7 @@ on:
           - template
           - cbbr
           - pluto
+          - colp
       logging_level:
         description: "Logging level"
         type: choice
