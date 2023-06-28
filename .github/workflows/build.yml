@@ -56,6 +56,12 @@ jobs:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
       will_export: ${{ inputs.will_export }}
+  colp:
+    if: inputs.dataset_name == 'colp'
+    uses: ./.github/workflows/colp_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.will_export }}
   pluto:
     if: inputs.dataset_name == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
