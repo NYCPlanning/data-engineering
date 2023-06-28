@@ -8,8 +8,8 @@ case $1 in
 esac
 
 cp $1 Dockerfile
-cp ../bash ./bash
-cp ../python ./python
+cp -r ../bash ./bash
+cp -r ../python ./python
 
 DOCKER_IMAGE_NAME=nycplanning/$1
 
