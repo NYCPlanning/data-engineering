@@ -25,6 +25,8 @@ jobs:
         AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        POSTGRES_HOST: postgres
+        POSTGRES_PORT: 5432
     services:
       db:
         image: postgis/postgis:14-3.3-alpine
@@ -38,7 +40,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 25060:5432
+          - 5432:5432
     steps:
       - uses: actions/checkout@v3
 
