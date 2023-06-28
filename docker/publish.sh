@@ -1,6 +1,5 @@
 set -e
 
-
 case $1 in
     base) echo "Publishing '${1}' image" ;;
     *) 
@@ -9,6 +8,8 @@ case $1 in
 esac
 
 cp $1 Dockerfile
+cp ../bash ./bash
+cp ../python ./python
 
 DOCKER_IMAGE_NAME=nycplanning/$1
 
@@ -19,3 +20,5 @@ docker build \
 docker push $DOCKER_IMAGE_NAME:latest
 
 rm Dockerfile
+rm -rf bash
+rm -rf python

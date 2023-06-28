@@ -7,8 +7,8 @@ RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
     && chmod +x mc \
     && mv ./mc /usr/bin/ 
 
-COPY ../bash/ bash/
-COPY ../python python/
+COPY bash/ bash/
+COPY python python/
 
 RUN bash/compile_python_packages.sh python \
     && bash/install_python_packages python \
