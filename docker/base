@@ -11,6 +11,6 @@ COPY bash/ bash/
 COPY python python/
 
 RUN bash/compile_python_packages.sh python \
-    && bash/install_python_packages python \
+    && bash/install_python_packages.sh python \
     && rm -rf bash \
     && rm -rf python
