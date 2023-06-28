@@ -18,4 +18,4 @@ jobs:
         
       - name: build and publish ...
         working-directory: docker
-        run: publish.sh base ## only image for now - once in main, workflow dispatch can use input
+        run: ./publish.sh base ## only image for now - once in main, workflow dispatch can use input
