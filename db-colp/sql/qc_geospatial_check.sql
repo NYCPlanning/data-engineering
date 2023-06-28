@@ -10,7 +10,7 @@ from (
     'adress', tmp.address, 'parcelname', tmp.PARCELNAME, 'agency', tmp.AGENCY, 
     'latitude', tmp.latitude,'longitude', tmp.longitude, 'v', tmp.v)) as values, 
                               'projects_not_within_NYC' as field
-	from (SELECT a.uid, a.HNUM, a.sname, a.address, a.PARCELNAME, a.AGENCY, a.latitude, a.longitude, a.v
+	from (SELECT a.uid, a.HNUM, a.sname, a.address, a.PARCELNAME, a.AGENCY, a.latitude, a.longitude, a.data_library_version as v
           FROM dcp_colp a, 
                (SELECT ST_Union(wkb_geometry) geom
                FROM dcp_boroboundaries_wi) combined 
@@ -25,7 +25,7 @@ from (
     'bbl', tmp.bbl, 'v', tmp.v)) as values, 
                               'projects_inconsistent_geographies' as field
 	from (
-        select uid, borough, cd, bbl, v
+        select uid, borough, cd, bbl, data_library_version as v
         FROM dcp_colp
         WHERE borough <> LEFT(cd::TEXT, 1)
         OR borough <> LEFT(bbl::TEXT, 1)
