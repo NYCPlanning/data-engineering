@@ -1,0 +1,21 @@
+name: Publish Build Docker Image
+on:
+  workflow_dispatch:
+  push:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+        
+      - name: build and publish ...
+        working-directory: docker
+        run: publish.sh
