@@ -188,7 +188,8 @@ function shp_export {
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
-    if [[ filename == "-" ]]; then 
+    shift 3
+    if [ $filename = "-" ]; then 
         local filename=$table
     fi
     mkdir -p ${filename} &&(
