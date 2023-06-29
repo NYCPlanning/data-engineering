@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../../bash_utils/config.sh # assumes being run from pluto_build folder
+source ../../bash/utils.sh # assumes being run from pluto_build folder
 
 function import_qaqc {
     name=${1}
