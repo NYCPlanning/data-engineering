@@ -1,5 +1,6 @@
 #!/bin/bash
 source bash/config.sh
+set_error_traps
 
 display "Generate output tables"
 run_sql_file sql/_export.sql\
@@ -40,32 +41,33 @@ mkdir -p output
     csv_export EXPORT_A2_devdb
 
     display "Export aggregate tables"
-    mkdir -p bytes_unit_change_summary
-    (
-        cd bytes_unit_change_summary
-        csv_export_drop_columns aggregate_block_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2020_CensusBlock &
-        csv_export_drop_columns aggregate_tract_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2020_CensusTract &
-        csv_export_drop_columns aggregate_nta_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2020_NTA &
-        csv_export_drop_columns aggregate_councildst_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2013_CityCouncilDistrict &
-        csv_export_drop_columns aggregate_commntydst_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_CommunityDistrict &
-        csv_export_drop_columns aggregate_cdta_external "'Shape_Area', 'Shape_Leng', 'wkb_geometry'" HousingDB_by_2020_CDTA &
-        shp_export aggregate_block_external MULTIPOLYGON HousingDB_by_2020_CensusBlock &
-        shp_export aggregate_tract_external MULTIPOLYGON HousingDB_by_2020_CensusTract &
-        shp_export aggregate_nta_external MULTIPOLYGON HousingDB_by_2020_NTA &
-        shp_export aggregate_councildst_external MULTIPOLYGON HousingDB_by_2013_CityCouncilDistrict &
-        shp_export aggregate_commntydst_external MULTIPOLYGON HousingDB_by_CommunityDistrict &
-        shp_export aggregate_cdta_external MULTIPOLYGON_external HousingDB_by_2020_CDTA 
-        wait
-    )
+    column_drop="'Shape_Area', 'Shape_Leng', 'wkb_geometry'"
     mkdir -p aggregate
     (
         cd aggregate
-        csv_export aggregate_block_internal aggregate_block &
-        csv_export aggregate_tract_internal aggregate_tract &
-        csv_export aggregate_nta_internal aggregate_nta &
-        csv_export aggregate_councildst_internal aggregate_councildst &
-        csv_export aggregate_commntydst_internal aggregate_commntydst &
-        csv_export aggregate_cdta_internal aggregate_cdta
+        csv_export_drop_columns aggregate_block "${column_drop}" &
+        csv_export_drop_columns aggregate_tract "${column_drop}" &
+        csv_export_drop_columns aggregate_nta "${column_drop}" HousingDB_by_2020_NTA &
+        csv_export_drop_columns aggregate_councildst "${column_drop}" &
+        csv_export_drop_columns aggregate_commntydst "${column_drop}" &
+        csv_export_drop_columns aggregate_cdta "${column_drop}" &
+    )
+    mkdir -p bytes_unit_change_summary
+    (
+        cd bytes_unit_change_summary
+        csv_export_drop_columns aggregate_block_external "${column_drop}" HousingDB_by_2020_CensusBlock &
+        csv_export_drop_columns aggregate_tract_external "${column_drop}" HousingDB_by_2020_CensusTract &
+        csv_export_drop_columns aggregate_nta_external "${column_drop}" HousingDB_by_2020_NTA &
+        csv_export_drop_columns aggregate_councildst_external "${column_drop}" HousingDB_by_2013_CityCouncilDistrict &
+        csv_export_drop_columns aggregate_commntydst_external "${column_drop}" HousingDB_by_CommunityDistrict &
+        csv_export_drop_columns aggregate_cdta_external "${column_drop}" HousingDB_by_2020_CDTA &
+        shp_export aggregate_block_external MULTIPOLYGON HousingDB_by_2020_CensusBlock &
+        shp_export aggregate_tract_external MULTIPOLYGON HousingDB_by_2020_CensusTract &
+        shp_export aggregate_nta MULTIPOLYGON_external HousingDB_by_2020_NTA &
+        shp_export aggregate_councildst_external MULTIPOLYGON HousingDB_by_2013_CityCouncilDistrict &
+        shp_export aggregate_commntydst_external MULTIPOLYGON HousingDB_by_CommunityDistrict &
+        shp_export aggregate_cdta_external MULTIPOLYGON HousingDB_by_2020_CDTA 
+        wait
     )
 
     wait
