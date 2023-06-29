@@ -188,11 +188,14 @@ function shp_export {
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
+    if [[ filename == "-" ]]; then 
+        local filename=$table
+    fi
     mkdir -p ${filename} &&(
         cd ${filename}
         ogr2ogr -progress -f "ESRI Shapefile" ${filename}.shp \
             PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-            ${table} -nlt ${geomtype}
+            ${table} -nlt ${geomtype} "$@"
         rm -f ${filename}.shp.zip
         zip -9 ${filename}.shp.zip *
         ls | grep -v ${filename}.shp.zip | xargs rm
