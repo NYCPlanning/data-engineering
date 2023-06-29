@@ -29,6 +29,8 @@ mkdir -p output
     pg_dump -d $BUILD_ENGINE -t qaqc_historic -f qaqc_historic.sql
     csv_export qaqc_field_distribution &
     csv_export qaqc_quarter_check &
+
+    wait
     
     display "Export Corrections"
     csv_export CORR_hny_matches &
@@ -38,66 +40,65 @@ mkdir -p output
     csv_export _manual_corrections manual_corrections &
 
     display "Export A2 units for review by housing"
-    csv_export EXPORT_A2_devdb
+    csv_export EXPORT_A2_devdb &
+
+    wait
 
     display "Export aggregate tables"
-    column_drop="'Shape_Area', 'Shape_Leng', 'wkb_geometry'"
+    columns_to_drop="'Shape_Area', 'Shape_Leng', 'wkb_geometry'"
     mkdir -p aggregate
     (
         cd aggregate
-        csv_export_drop_columns aggregate_block "${column_drop}" &
-        csv_export_drop_columns aggregate_tract "${column_drop}" &
-        csv_export_drop_columns aggregate_nta "${column_drop}" HousingDB_by_2020_NTA &
-        csv_export_drop_columns aggregate_councildst "${column_drop}" &
-        csv_export_drop_columns aggregate_commntydst "${column_drop}" &
-        csv_export_drop_columns aggregate_cdta "${column_drop}" &
+        csv_export_drop_columns aggregate_block "${columns_to_drop}" &
+        csv_export_drop_columns aggregate_tract "${columns_to_drop}" &
+        csv_export_drop_columns aggregate_nta "${columns_to_drop}" HousingDB_by_2020_NTA &
+        csv_export_drop_columns aggregate_councildst "${columns_to_drop}" &
+        csv_export_drop_columns aggregate_commntydst "${columns_to_drop}" &
+        csv_export_drop_columns aggregate_cdta "${columns_to_drop}" &
+        wait
     )
     mkdir -p bytes_unit_change_summary
     (
         cd bytes_unit_change_summary
-        csv_export_drop_columns aggregate_block_external "${column_drop}" HousingDB_by_2020_CensusBlock &
-        csv_export_drop_columns aggregate_tract_external "${column_drop}" HousingDB_by_2020_CensusTract &
-        csv_export_drop_columns aggregate_nta_external "${column_drop}" HousingDB_by_2020_NTA &
-        csv_export_drop_columns aggregate_councildst_external "${column_drop}" HousingDB_by_2013_CityCouncilDistrict &
-        csv_export_drop_columns aggregate_commntydst_external "${column_drop}" HousingDB_by_CommunityDistrict &
-        csv_export_drop_columns aggregate_cdta_external "${column_drop}" HousingDB_by_2020_CDTA &
+        csv_export_drop_columns aggregate_block_external "${columns_to_drop}" HousingDB_by_2020_CensusBlock &
+        csv_export_drop_columns aggregate_tract_external "${columns_to_drop}" HousingDB_by_2020_CensusTract &
+        csv_export_drop_columns aggregate_nta_external "${columns_to_drop}" HousingDB_by_2020_NTA &
+        csv_export_drop_columns aggregate_councildst_external "${columns_to_drop}" HousingDB_by_2013_CityCouncilDistrict &
+        csv_export_drop_columns aggregate_commntydst_external "${columns_to_drop}" HousingDB_by_CommunityDistrict &
+        csv_export_drop_columns aggregate_cdta_external "${columns_to_drop}" HousingDB_by_2020_CDTA &
         shp_export aggregate_block_external MULTIPOLYGON HousingDB_by_2020_CensusBlock -t_srs "EPSG:2263" &
         shp_export aggregate_tract_external MULTIPOLYGON HousingDB_by_2020_CensusTract -t_srs "EPSG:2263" &
-        shp_export aggregate_nta MULTIPOLYGON_external HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
+        shp_export aggregate_nta_external MULTIPOLYGON HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
         shp_export aggregate_councildst_external MULTIPOLYGON HousingDB_by_2013_CityCouncilDistrict -t_srs "EPSG:2263" &
         shp_export aggregate_commntydst_external MULTIPOLYGON HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
-        shp_export aggregate_cdta_external MULTIPOLYGON HousingDB_by_2020_CDTA -t_srs "EPSG:2263"
+        shp_export aggregate_cdta_external MULTIPOLYGON HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
         wait
     )
 
-    wait
-
     display "Export bytes project-level files"
     mkdir -p bytes_project_level
+    columns_to_drop="'geom', 'Job_Inactv'"
     (
         cd bytes_project_level
-        csv_export_drop_columns HousingDB_post2010 "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_completed_jobs "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_incomplete_jobs "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_inactive_jobs "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_inactive_included "'geom'" &
+        csv_export_drop_columns HousingDB_post2010 "${columns_to_drop}" &
+        csv_export_drop_columns HousingDB_post2010_completed_jobs "${columns_to_drop}" &
+        csv_export_drop_columns HousingDB_post2010_incomplete_jobs "${columns_to_drop}" &
+        csv_export_drop_columns HousingDB_post2010_inactive_jobs "${columns_to_drop}" &
+        csv_export_drop_columns HousingDB_post2010_inactive_included "${columns_to_drop}" &
         shp_export HousingDB_post2010 POINT - -t_srs "EPSG:2263" &
         shp_export HousingDB_post2010_completed_jobs POINT - -t_srs "EPSG:2263" &
         shp_export HousingDB_post2010_incomplete_jobs POINT - -t_srs "EPSG:2263" &
         shp_export HousingDB_post2010_inactive_jobs POINT - -t_srs "EPSG:2263" &
         shp_export HousingDB_post2010_inactive_included POINT - -t_srs "EPSG:2263" &
+        wait
     )
-    
 
     display "Export source data versions"
     csv_export source_data_versions
-    wait
-
-    display "CSV Export Complete"
     echo "[$(date)] ${VERSION}" > version.txt
 )
 
+wait
 zip -r output/output.zip output
 
-wait 
-display "Upload Complete"
+display "Export Complete"

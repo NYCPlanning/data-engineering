@@ -27,7 +27,7 @@ SELECT
         j.{{ column_pair[0] }} AS {{ column_pair[1] }},
     {% endfor %}
     coalesce(agg.comp2020ap, 0) AS comp2020ap,
-    {%- for year IN years %}
+    {%- for year in years %}
         coalesce(agg.comp{{year}}, 0) AS comp{{year}},
     {% endfor %}
     c.hunits AS cenunits20,

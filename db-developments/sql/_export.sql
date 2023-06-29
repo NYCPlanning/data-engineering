@@ -213,7 +213,8 @@ SELECT
 	"GeomSource",
 	"DCPEdited",
 	"Version",
-	"geom"
+	"geom",
+	"Job_Inactv" -- Used in generating specific views, but dropped in public export in bash call
 FROM shp_housing;
 
 CREATE VIEW HousingDB_post2010_inactive_included AS 
