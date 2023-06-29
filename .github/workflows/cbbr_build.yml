@@ -45,6 +45,7 @@ jobs:
           python-version: "3.11.1"
 
       - name: install dependencies ...
+        working-directory: db-cbbr/cbbr_build
         run: |
           sudo apt update
           sudo apt install -y gdal-bin

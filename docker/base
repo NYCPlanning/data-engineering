@@ -10,7 +10,6 @@ RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
 COPY bash/ bash/
 COPY python python/
 
-RUN bash/compile_python_packages.sh python \
-    && bash/install_python_packages.sh python \
+RUN bash/install_python_packages.sh python \
     && rm -rf bash \
     && rm -rf python
