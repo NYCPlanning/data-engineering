@@ -8,7 +8,7 @@ mkdir -p output && (
 
     echo "Exporting COLP"
     csv_export colp
-    csv_export colp POINT
+    shp_export colp POINT
     fgdb_export colp POINT
 
     echo "[$(date)] ${DATE}" > version.txt
