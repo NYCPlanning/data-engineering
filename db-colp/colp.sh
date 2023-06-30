@@ -1,15 +1,4 @@
 #!/bin/bash
-source bash/config.sh
-
-function sql {
-    shift;
-    local filename=$1
-    if [ -f $filename ]; then
-        psql $BUILD_ENGINE -f $filename
-    else
-        echo "$filename is not a valid file path"
-    fi
-}
 
 case $1 in 
     dataloading ) ./bash/01_dataloading.sh ;;

@@ -1,8 +1,8 @@
 #!/bin/bash
-source bash/config.sh
+source ../bash/utils.sh
 
 echo "Running QAQC"
 
-psql $BUILD_ENGINE -f sql/geo_qaqc.sql
-psql $BUILD_ENGINE -f sql/qc_geospatial_check.sql 
-psql $BUILD_ENGINE -f sql/colp_qaqc.sql
+run_sql_file sql/geo_qaqc.sql
+run_sql_file sql/qc_geospatial_check.sql 
+run_sql_file sql/colp_qaqc.sql

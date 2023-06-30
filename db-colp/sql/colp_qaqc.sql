@@ -316,11 +316,11 @@ DROP TABLE IF EXISTS usetype_changes;
 WITH 
 prev AS (
     SELECT
-        v as v_previous,
+        data_library_version as v_previous,
         usetype,
         COUNT(*) as num_records_previous
     FROM dcp_colp
-    GROUP BY v, usetype
+    GROUP BY v_previous, usetype
 ),
 current AS (
     SELECT

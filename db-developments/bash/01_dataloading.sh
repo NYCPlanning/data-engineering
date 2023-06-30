@@ -10,10 +10,10 @@ create_source_data_table
 
 # import spatial bounaries from data library
 import_recipe dcp_cdboundaries $GEOSUPPORT_VERSION &
-import_recipe dcp_cb2010 $GEOSUPPORT_VERSION &
-import_recipe dcp_ct2010 $GEOSUPPORT_VERSION &
 import_recipe dcp_cb2020 $GEOSUPPORT_VERSION &
 import_recipe dcp_ct2020 $GEOSUPPORT_VERSION &
+import_recipe dcp_cdta2020 $GEOSUPPORT_VERSION &
+import_recipe dcp_nta2020 $GEOSUPPORT_VERSION &
 import_recipe dcp_school_districts $GEOSUPPORT_VERSION &
 import_recipe dcp_boroboundaries_wi $GEOSUPPORT_VERSION &
 import_recipe dcp_councildistricts $GEOSUPPORT_VERSION &
@@ -34,6 +34,9 @@ import_recipe dob_now_permits $DOB_NOW_PERMITS_VERSION &
 import_recipe dob_cofos $DOB_COFOS_VERSION &
 import_recipe doitt_buildingfootprints $DOITT_BUILDINGS_VERSION &
 import_recipe doitt_buildingfootprints_historical $DOITT_BUILDINGS_HISTORICAL_VERSION &
+
+import_recipe dcp_censusdata 2020 & 
+import_recipe dcp_censusdata_blocks 2020 &
 
 ## Geocode results shares index with _geo_devdb
 run_sql_command "DROP TABLE IF EXISTS _geo_devdb;"

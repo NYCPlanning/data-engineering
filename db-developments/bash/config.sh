@@ -1,8 +1,8 @@
 #!/bin/bash
-source ../bash_utils/config.sh # expected to be run from db-developments folder
+source ../bash/utils.sh # expected to be run from db-developments folder
 
 # Setting Environmental Variables
-set_env .env version.env
+set_env ../.env version.env
 DATE=$(date "+%Y-%m-%d")
 set_error_traps
 

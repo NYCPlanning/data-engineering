@@ -1,4 +1,4 @@
-name: z(TODO) COLP - 🚀 Publish
+name: COLP - 🚀 Publish
 on:
   workflow_dispatch:
   #release:
@@ -10,7 +10,7 @@ on:
 jobs:
   publish:
     name: Publishing ...
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
@@ -18,7 +18,7 @@ jobs:
       AWS_S3_BUCKET: edm-recipes
       VERSION: ${{ github.event.release.tag_name }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - uses: NYCPlanning/action-library-archive@v1.1
         id: dcp_housing

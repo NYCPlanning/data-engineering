@@ -7,7 +7,7 @@ CONTAINER_NAME="cbbr_cook_container"
 CONTAINER_WORKDIR="/cook_container_home/${NAME}"
 VERSION=${DATE}
 
-source ../../bash_utils/config.sh
+source ../../bash/utils.sh
 set_env ../../.env
 set_env version.env
 

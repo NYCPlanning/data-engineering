@@ -1,16 +1,34 @@
-name: z(TODO) COLP - 🏗️ Build
+name: COLP - 🏗️ Build
 on: 
+  workflow_call:
+    inputs:
+      run_export:
+        type: boolean
+        required: true
   workflow_dispatch:
-  #pull_request:
-  #  types: [closed]
+    inputs:
+      run_export:
+        description: "Run Export Step and Upload to DO"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    container: 
+      image: nycplanning/base:latest
+      env:
+        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/dbcolp
+        EDM_DATA: ${{ secrets.EDM_DATA }}
+        AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     services:
-      db:
-        image: postgis/postgis:12-3.0-alpine
+      postgis:
+        image: postgis/postgis:14-3.3-alpine
         env:
+          POSTGRES_DB: dbcolp
           POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
@@ -19,33 +37,30 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    env:
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
-      EDM_DATA: ${{ secrets.EDM_DATA }}
-      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - name: Install dependencies ...
-      run: |
-        curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-        chmod +x mc
-        sudo mv ./mc /usr/bin
-        mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+    - name: Add s3 endpoint ...
+      run: mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
     - name: Dataloading ...
+      working-directory: db-colp
       run: ./colp.sh dataloading
 
     - name: Build COLP ...
+      working-directory: db-colp
       run: ./colp.sh build
 
     - name: Run QAQC ...
+      working-directory: db-colp
       run: ./colp.sh qaqc
 
     - name: Export COLP ...
+      if: inputs.run_export
+      working-directory: db-colp
       run: ./colp.sh export
 
     - name: Upload outputs to s3 ...
+      if: inputs.run_export
+      working-directory: db-colp
       run: ./colp.sh upload

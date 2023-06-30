@@ -1,5 +1,5 @@
 -- EXPORT DevDB
-DROP TABLE IF EXISTS EXPORT_devdb;
+DROP TABLE IF EXISTS EXPORT_devdb CASCADE;
 SELECT * 
 INTO EXPORT_devdb
 FROM FINAL_devdb
@@ -11,13 +11,13 @@ WHERE (Date_Complete::date <=  :'CAPTURE_DATE'
 		AND Date_Filed::date <=  :'CAPTURE_DATE'));
 
 -- EXPORT HousingDB
-DROP TABLE IF EXISTS EXPORT_housing;
-SELECT * INTO EXPORT_housing
+CREATE VIEW export_housing AS 
+SELECT * 
 FROM EXPORT_devdb
 WHERE resid_flag = 'Residential';
 
 -- Switch to 10 char fieldnames
-DROP TABLE IF EXISTS SHP_devdb;
+CREATE VIEW SHP_devdb AS
 SELECT
 	Job_Number as "Job_Number",
 	Job_Type as "Job_Type",
@@ -108,12 +108,6 @@ SELECT
 	PLUTO_Bldgs as "PL_Bldgs",
 	PLUTO_Floors as "PL_Floors",
 	PLUTO_Version as "PL_Version",
-	CenBlock2010 as "CenBlock10",
-	CenTract2010 as "CenTract10",
-	BCTCB2010 as "BCTCB2010",
-	BCT2010 as "BCT2010",
-	NTA2010 as "NTA2010",
-	NTAName2010 as "NTAName10",
 	CenBlock2020 as "CenBlock20",
 	CenTract2020 as "CenTract20",
 	BCTCB2020 as "BCTCB2020",
@@ -145,11 +139,34 @@ SELECT
 	HNY_JobRelate as "HNY_Relate",
 	Version as "Version",
 	ST_SetSRID(ST_MakePoint(longitude,latitude), 4326) as geom
-INTO SHP_devdb
 FROM EXPORT_devdb;
 
-
-DROP TABLE IF EXISTS SHP_housing;
-SELECT * INTO SHP_housing
+CREATE VIEW shp_housing AS 
+SELECT * 
 FROM SHP_devdb
 WHERE "ResidFlag" = 'Residential';
+
+CREATE VIEW HousingDB_post2010_inactive_included AS 
+SELECT * 
+FROM shp_housing
+WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::DATE >= '2010-01-01');
+
+CREATE VIEW HousingDB_post2010 AS
+SELECT * 
+FROM HousingDB_post2010_inactive_included 
+WHERE "Job_Inactv" IS NULL;
+
+CREATE VIEW HousingDB_post2010_completed_jobs AS
+SELECT * 
+FROM HousingDB_post2010_inactive_included 
+WHERE "Job_Inactv" IS NULL AND "CompltYear"::integer >= '2010'::integer;
+
+CREATE VIEW HousingDB_post2010_incomplete_jobs AS
+SELECT * 
+FROM HousingDB_post2010_inactive_included 
+WHERE "Job_Inactv" IS NULL AND "CompltYear" IS NULL;
+
+CREATE VIEW HousingDB_post2010_inactive_jobs AS
+SELECT * 
+FROM HousingDB_post2010_inactive_included 
+WHERE "Job_Inactv" IS NOT NULL;
