@@ -19,44 +19,22 @@ function import_qaqc {
     run_sql_file ${target_dir}/${name}.sql
 }
 
-function fgdb_export_pluto {
+function shp_export_pluto {
     local filename=${1}
-    fgdb_export_partial ${filename} MULTIPOLYGON ${filename} ${filename}
-    fgdb_export_partial ${filename} NONE NOT_MAPPED_LOTS unmapped -update
-    fgdb_export_cleanup ${filename}
+    mkdir ${filename}
+    (
+        cd ${filename}
+        shp_export "$@"
+    )
 }
 
-function fgdb_export_pluto_docker { # keeping for posterity at the moment
-    parse_connection_string ${BUILD_ENGINE}
-    table=${1}
-    geomtype=${2}
-    name=${3:-${table}}
-    mkdir -p ${name}.gdb && (
-        docker run \
-            --network host\
-            -v $(pwd):/data\
-            --user $UID\
-            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
-                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-                -mapFieldType Integer64=Real\
-                -lco GEOMETRY_NAME=Shape\
-                -nln ${name}\
-                -nlt MULTIPOLYGON\
-                ${name}
-        docker run \
-            --network host\
-            -v $(pwd):/data\
-            --user $UID\
-            --rm webmapp/gdal-docker:latest ogr2ogr -progress -f "FileGDB" ${name}.gdb \
-                PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-                -mapFieldType Integer64=Real\
-                -update -nlt NONE\
-                -nln NOT_MAPPED_LOTS\
-                unmapped
-        rm -f ${name}.gdb.zip
-        zip -r ${name}.gdb.zip ${name}.gdb
-        rm -rf ${name}.gdb
+function fgdb_export_pluto {
+    local filename=${1}
+    mkdir ${filename}
+    (
+        cd ${filename}
+        fgdb_export_partial ${filename} MULTIPOLYGON ${filename} ${filename}
+        fgdb_export_partial ${filename} NONE NOT_MAPPED_LOTS unmapped -update
+        fgdb_export_cleanup ${filename}
     )
-    mv ${name}.gdb/${name}.gdb.zip ${name}.gdb.zip
-    rm -rf ${name}.gdb
 }

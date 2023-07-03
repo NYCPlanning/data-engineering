@@ -26,10 +26,10 @@ fgdb_export_pluto mappluto_gdb &
 fgdb_export_pluto mappluto_unclipped_gdb &
 
 # mappluto
-shp_export mappluto MULTIPOLYGON &
+shp_export_pluto mappluto MULTIPOLYGON &
 
 # mappluto_unclipped
-shp_export mappluto_unclipped MULTIPOLYGON &
+shp_export_pluto mappluto_unclipped MULTIPOLYGON &
 
 # Pluto
 mkdir -p pluto &&
