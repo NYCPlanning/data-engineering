@@ -49,17 +49,15 @@ FROM
 ORDER BY j.{{ geom_join_column }};
 
 
--- external export - not include current year if building 22Q4 in 2023
+-- external export - some have different capitalization in output column
 CREATE VIEW aggregate_{{ geom }}_external AS SELECT
-    {{ output_column }},
+    {{ output_column }} AS "{{ external_output_column }}",
     {%- for column_pair in additional_column_mappings %} 
         {{ column_pair[1] }},
     {% endfor %}
     comp2020ap,
     {%- for year in years %}
-        {% if (not loop.last) or include_current_year %}
-            comp{{year}},
-        {% endif %}
+        comp{{year}},
     {% endfor %}
     cenunits20,
     filed,

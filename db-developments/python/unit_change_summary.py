@@ -22,6 +22,7 @@ geoms = {
             ("cdtaname", "cdtaname{{decade[:-2]}}")
         ],
         "join_table": "dcp_cdta{{decade}}",
+        "external_output_column": "CDTA{{decade}}"
     },
     "commntydst": {
         "source_column": "comunitydist",
@@ -39,7 +40,8 @@ geoms = {
         "additional_column_mappings": [
             ("ntaname", "ntaname{{decade[:-2]}}")
         ],
-        "join_table": "dcp_nta{{decade}}"
+        "join_table": "dcp_nta{{decade}}",
+        "external_output_column": "NTA{{decade}}"
     },
     "tract": {
         "source_column": "bct{{decade}}",
@@ -84,6 +86,7 @@ if __name__ == "__main__":
         group_by = column_info.get("group_by", [output_column])
         join_table = column_info["join_table"]
         geom_join_column = column_info.get("geom_join_column", output_column)
+        external_output_column = column_info.get("external_column", output_column)
 
         # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
@@ -98,7 +101,7 @@ if __name__ == "__main__":
             group_by=group_by,
             join_table=join_table,
             geom_join_column=geom_join_column,
-            include_current_year=os.environ["VERSION"].endswith("Q2"))
+            external_output_column=external_output_column)
         
         sql_rendered = Template(sql_rendered).render(decade=decade)
     
