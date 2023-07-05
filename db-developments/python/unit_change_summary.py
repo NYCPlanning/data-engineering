@@ -59,7 +59,8 @@ if __name__ == "__main__":
     CAPTURE_DATE = os.environ.get("CAPTURE_DATE")
 
     # Get current year
-    current_year = datetime.today().year
+    version = os.environ.get("VERSION")
+    current_year = int(f"20{version[:2]}")
 
     # SQL Template
     with open(filename, 'r') as f:
