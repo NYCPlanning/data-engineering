@@ -10,9 +10,9 @@ cd output
 echo "version: ${VERSION}" > version.txt
 echo "date: ${DATE}" >> version.txt
 # csv_export ${BUILD-ENGINE} pluto_changes
-csv_export ${BUILD-ENGINE} pluto_removed_records
-csv_export ${BUILD-ENGINE} pluto_changes_not_applied
-csv_export ${BUILD-ENGINE} pluto_changes_applied
+csv_export pluto_removed_records
+csv_export pluto_changes_not_applied
+csv_export pluto_changes_applied
 zip pluto_changes.zip *
 ls | grep -v pluto_changes.zip | xargs rm
 
@@ -26,10 +26,10 @@ fgdb_export_pluto mappluto_gdb &
 fgdb_export_pluto mappluto_unclipped_gdb &
 
 # mappluto
-shp_export mappluto MULTIPOLYGON &
+shp_export_pluto mappluto MULTIPOLYGON &
 
 # mappluto_unclipped
-shp_export mappluto_unclipped MULTIPOLYGON &
+shp_export_pluto mappluto_unclipped MULTIPOLYGON &
 
 # Pluto
 mkdir -p pluto &&
