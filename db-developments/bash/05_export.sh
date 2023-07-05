@@ -96,9 +96,13 @@ mkdir -p output
     display "Export source data versions"
     csv_export source_data_versions
     echo "[$(date)] ${VERSION}" > version.txt
+
+    ls -alt
 )
 
 wait
 zip -r output/output.zip output
+
+ls -alt
 
 display "Export Complete"

@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
         # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
-            years=list(range(2010, current_year+1)), ## todo - is this right?
+            years=list(range(2010, current_year+1)),
             CAPTURE_DATE=CAPTURE_DATE,
             decade=decade,
             geom=geom,
