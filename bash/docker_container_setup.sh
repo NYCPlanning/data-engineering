@@ -7,5 +7,5 @@ if [[ -z "$CI" ]]; then
 else
     workspace=/__w/data-engineering/data-engineering
 fi 
-echo $workspace
+
 git config --global --add safe.directory $workspace
