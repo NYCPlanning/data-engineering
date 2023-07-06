@@ -41,13 +41,10 @@ function cpdb_upload {
     local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
     local DATE=$(date "+%Y-%m-%d")
     local SPACES="spaces/edm-publishing/db-cpdb/$branchname"
-    local HASH=$(git describe --always)
     mc rm -r --force $SPACES/latest
     mc rm -r --force $SPACES/$DATE
-    mc rm -r --force $SPACES/$HASH
     mc cp --attr acl=private -r output $SPACES/latest
     mc cp --attr acl=private -r output $SPACES/$DATE
-    mc cp --attr acl=private -r output $SPACES/$HASH
 }
 
 function share {

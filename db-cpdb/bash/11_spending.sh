@@ -1,6 +1,5 @@
 #!/bin/bash
 source bash/config.sh
-set -e
 
 # Import fisa_capitalcommitments to database
 version=$(get_version fisa_capitalcommitments latest private)
@@ -8,8 +7,7 @@ location=US
 
 function import_data {
     echo "version: $version"
-    create_source_data_table
-    import fisa_capitalcommitments $version
+    import_recipe fisa_capitalcommitments $version false
 }
 
 
@@ -20,7 +18,7 @@ function fisa {
         local dataset=fisa_capitalcommitments
         local tablename=$dataset.$version
         echo "$dataset"
-        CSV_export $dataset
+        csv_export $dataset
         bq show \
             --location=$location\
             --dataset $dataset ||

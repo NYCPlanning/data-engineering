@@ -2,39 +2,40 @@
 source bash/config.sh
 
 # Reference tables
-psql "${BUILD_ENGINE}" -f "sql/_create.sql"
+run_sql_file "sql/_create.sql"
+create_source_data_table
 
 # Spatial boundaries
-import dcp_boroboundaries_wi &
-import dcp_stateassemblydistricts &
-import dcp_ct2020 &
-import dcp_congressionaldistricts &
-import dcp_cdboundaries &
-import dcp_statesenatedistricts &
-import dcp_municipalcourtdistricts &
-import dcp_school_districts &
-import dcp_trafficanalysiszones &
-import dcp_councildistricts &
-import nypd_policeprecincts &
-import fdny_firecompanies &
+import_recipe dcp_boroboundaries_wi &
+import_recipe dcp_stateassemblydistricts &
+import_recipe dcp_ct2020 &
+import_recipe dcp_congressionaldistricts &
+import_recipe dcp_cdboundaries &
+import_recipe dcp_statesenatedistricts &
+import_recipe dcp_municipalcourtdistricts &
+import_recipe dcp_school_districts &
+import_recipe dcp_trafficanalysiszones &
+import_recipe dcp_councildistricts &
+import_recipe nypd_policeprecincts &
+import_recipe fdny_firecompanies &
 
 # Building and lot-level info
-import dcp_mappluto_wi &
-import dcp_facilities 20210811 &
-import doitt_buildingfootprints &
+import_recipe dcp_mappluto_wi &
+import_recipe dcp_facilities 20210811 & # why pinned to this version?
+import_recipe doitt_buildingfootprints &
 
 # Projects
-import cpdb_capital_spending &
-import fisa_capitalcommitments &
-import dot_projects_intersections &
-import dot_projects_streets &
-import dot_projects_bridges &
-import dpr_capitalprojects &
-import dpr_parksproperties &
-import edc_capitalprojects_ferry &
-import edc_capitalprojects &
-import ddc_capitalprojects_infrastructure &
-import ddc_capitalprojects_publicbuildings &
+import_recipe cpdb_capital_spending &
+import_recipe fisa_capitalcommitments &
+import_recipe dot_projects_intersections &
+import_recipe dot_projects_streets &
+import_recipe dot_projects_bridges &
+import_recipe dpr_capitalprojects &
+import_recipe dpr_parksproperties &
+import_recipe edc_capitalprojects_ferry &
+import_recipe edc_capitalprojects &
+import_recipe ddc_capitalprojects_infrastructure &
+import_recipe ddc_capitalprojects_publicbuildings &
 wait
 
 echo "fixing dot_bridges"

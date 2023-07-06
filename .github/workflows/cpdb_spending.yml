@@ -1,4 +1,4 @@
-name: z(TODO) CPDB - Archive Capital Spending Data
+name: CPDB - Archive Capital Spending Data
 
 on:
   workflow_dispatch:
@@ -7,9 +7,21 @@ jobs:
   scrape:
     timeout-minutes: 720
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-cpdb
+    container: 
+      image: nycplanning/base:latest
+      env:
+        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+        EDM_DATA: ${{ secrets.EDM_DATA }}
+        AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     services:
-      postgres:
-        image: postgis/postgis:15-3.3-alpine
+      postgis:
+        image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -19,26 +31,16 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    env:
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
-      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET: edm-recipes
     steps:
       - uses: actions/checkout@v3
 
       - name: install dependencies ...
-        run: |
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+        run: ../bash/docker_container_setup.sh
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
@@ -46,6 +48,7 @@ jobs:
         run: ./bash/11_spending.sh
 
       - name: Archive to Data Library -- pgdump and csv
+        working-directory: db-cpdb
         run: |
           ./bash/11_spending.sh archive csv
           ./bash/11_spending.sh archive pgdump

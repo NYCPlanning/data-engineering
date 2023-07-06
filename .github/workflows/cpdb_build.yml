@@ -1,19 +1,37 @@
-name: z(TODO) CPDB - 🏗️ BUILD
+name: CPDB - 🏗️ BUILD
 
-on: workflow_dispatch
+on: 
+  workflow_call:
+    inputs:
+      run_export:
+        type: boolean
+        required: true
+  workflow_dispatch:
+    inputs:
+      run_export:
+        description: "Run Export Step and Upload to DO"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    env:
-      EDM_DATA: ${{ secrets.EDM_DATA }}
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
-      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-cpdb
+    container: 
+      image: nycplanning/base:latest
+      env:
+        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+        EDM_DATA: ${{ secrets.EDM_DATA }}
+        AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     services:
-      postgres:
-        image: postgis/postgis:15-3.3-alpine
+      postgis:
+        image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -27,20 +45,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-
-      - name: install dependencies
-        run: |
-          sudo apt install -y gdal-bin
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-          pip install poetry
-          poetry config virtualenvs.create false
-          poetry install
+      - name: Finish container setup
+        run: ../bash/docker_container_setup.sh
 
       - name: 01 dataloading
         run: ./cpdb.sh dataloading
@@ -55,11 +61,13 @@ jobs:
         run: ./cpdb.sh analysis
 
       - name: 05 Export
+        if: inputs.run_export
         run: ./cpdb.sh export
 
       - name: 06 Upload to DigitalOcean
+        if: inputs.run_export
         run: ./cpdb.sh upload
 
-      - name: 07 Archive to secrets.EDM_DATA
-        if: github.ref == 'refs/heads/main'
+      - name: 07 Archive to EDM_DATA
+        if: (github.ref == 'refs/heads/main') && (inputs.run_export)
         run: ./cpdb.sh archive --all
