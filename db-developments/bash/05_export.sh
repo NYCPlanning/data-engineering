@@ -77,14 +77,13 @@ mkdir -p output
 
     display "Export bytes project-level files"
     mkdir -p bytes_project_level
-    columns_to_drop="'geom', 'Job_Inactv'"
     (
         cd bytes_project_level
-        csv_export_drop_columns HousingDB_post2010 "${columns_to_drop}" &
-        csv_export_drop_columns HousingDB_post2010_completed_jobs "${columns_to_drop}" &
-        csv_export_drop_columns HousingDB_post2010_incomplete_jobs "${columns_to_drop}" &
-        csv_export_drop_columns HousingDB_post2010_inactive_jobs "${columns_to_drop}" &
-        csv_export_drop_columns HousingDB_post2010_inactive_included "${columns_to_drop}" &
+        csv_export_drop_columns HousingDB_post2010 "'geom'" &
+        csv_export_drop_columns HousingDB_post2010_completed_jobs "'geom'" &
+        csv_export_drop_columns HousingDB_post2010_incomplete_jobs "'geom'" &
+        csv_export_drop_columns HousingDB_post2010_inactive_jobs "'geom'" &
+        csv_export_drop_columns HousingDB_post2010_inactive_included "'geom'" &
         shp_export HousingDB_post2010 POINT -t_srs "EPSG:2263" &
         shp_export HousingDB_post2010_completed_jobs POINT -t_srs "EPSG:2263" &
         shp_export HousingDB_post2010_incomplete_jobs POINT -t_srs "EPSG:2263" &
