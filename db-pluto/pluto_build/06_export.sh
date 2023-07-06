@@ -17,6 +17,8 @@ ls | grep -v pluto_changes.zip | xargs rm
 
 csv_export source_data_versions
 
+echo "Exporting gdbs and shapefiles"
+
 # mappluto.gdb
 fgdb_export_pluto mappluto_gdb &
 
@@ -28,6 +30,9 @@ shp_export_pluto mappluto MULTIPOLYGON &
 
 # mappluto_unclipped
 shp_export_pluto mappluto_unclipped MULTIPOLYGON &
+
+wait
+echo "Exporting pluto csv"
 
 # Pluto
 mkdir -p pluto &&
@@ -42,6 +47,7 @@ mkdir -p pluto &&
     ls | grep -v pluto.zip | xargs rm
   )
 
+echo "Exporting DOF"
 # BBL and Council info for DOF
 mkdir -p dof && 
   (cd dof
@@ -55,6 +61,7 @@ mkdir -p dof &&
     ls | grep -v bbl_council.zip | xargs rm
   )
 
+echo "Exporting QAQC"
 mkdir -p qaqc && 
   (cd qaqc
     for table in qaqc_aggregate qaqc_expected qaqc_mismatch qaqc_null qaqc_outlier
@@ -67,9 +74,9 @@ mkdir -p qaqc &&
 
   )
 
+wait 
 cd ..
 
-wait
 # "standard" export to branch folder
 upload "db-pluto" "${DATE}" &
 upload "db-pluto" "latest" &

@@ -27,7 +27,6 @@ function shp_export_pluto {
     mkdir -p ${filename}
     (
         cd ${filename}
-        echo "shp export $@"
         shp_export "$@"
     )
 }

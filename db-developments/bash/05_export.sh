@@ -13,10 +13,10 @@ mkdir -p output
 
     display "Export Devdb and HousingDB"
     csv_export EXPORT_housing housing &
-    shp_export SHP_housing POINT housing &
+    shp_export SHP_housing POINT -f housing &
 
     csv_export EXPORT_devdb devdb &
-    shp_export SHP_devdb POINT devdb &
+    shp_export SHP_devdb POINT -f devdb &
     
     display "Export HNY_devdb_lookup"
     csv_export HNY_devdb_lookup &
@@ -66,12 +66,12 @@ mkdir -p output
         csv_export_drop_columns aggregate_councildst_external "${columns_to_drop}" HousingDB_by_2013_CityCouncilDistrict &
         csv_export_drop_columns aggregate_commntydst_external "${columns_to_drop}" HousingDB_by_CommunityDistrict &
         csv_export_drop_columns aggregate_cdta_external "${columns_to_drop}" HousingDB_by_2020_CDTA &
-        shp_export aggregate_block_external MULTIPOLYGON HousingDB_by_2020_CensusBlock -t_srs "EPSG:2263" &
-        shp_export aggregate_tract_external MULTIPOLYGON HousingDB_by_2020_CensusTract -t_srs "EPSG:2263" &
-        shp_export aggregate_nta_external MULTIPOLYGON HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
-        shp_export aggregate_councildst_external MULTIPOLYGON HousingDB_by_2013_CityCouncilDistrict -t_srs "EPSG:2263" &
-        shp_export aggregate_commntydst_external MULTIPOLYGON HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
-        shp_export aggregate_cdta_external MULTIPOLYGON HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
+        shp_export aggregate_block_external MULTIPOLYGON -f HousingDB_by_2020_CensusBlock -t_srs "EPSG:2263" &
+        shp_export aggregate_tract_external MULTIPOLYGON -f HousingDB_by_2020_CensusTract -t_srs "EPSG:2263" &
+        shp_export aggregate_nta_external MULTIPOLYGON -f HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
+        shp_export aggregate_councildst_external MULTIPOLYGON -f HousingDB_by_2013_CityCouncilDistrict -t_srs "EPSG:2263" &
+        shp_export aggregate_commntydst_external MULTIPOLYGON -f HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
+        shp_export aggregate_cdta_external MULTIPOLYGON -f HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
         wait
     )
 
@@ -85,11 +85,11 @@ mkdir -p output
         csv_export_drop_columns HousingDB_post2010_incomplete_jobs "${columns_to_drop}" &
         csv_export_drop_columns HousingDB_post2010_inactive_jobs "${columns_to_drop}" &
         csv_export_drop_columns HousingDB_post2010_inactive_included "${columns_to_drop}" &
-        shp_export HousingDB_post2010 POINT - -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_completed_jobs POINT - -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_incomplete_jobs POINT - -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_inactive_jobs POINT - -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_inactive_included POINT - -t_srs "EPSG:2263" &
+        shp_export HousingDB_post2010 POINT -t_srs "EPSG:2263" &
+        shp_export HousingDB_post2010_completed_jobs POINT -t_srs "EPSG:2263" &
+        shp_export HousingDB_post2010_incomplete_jobs POINT -t_srs "EPSG:2263" &
+        shp_export HousingDB_post2010_inactive_jobs POINT -t_srs "EPSG:2263" &
+        shp_export HousingDB_post2010_inactive_included POINT -t_srs "EPSG:2263" &
         wait
     )
 
