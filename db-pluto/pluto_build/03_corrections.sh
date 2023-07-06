@@ -1,6 +1,6 @@
 #!/bin/bash
-source ../../bash/utils.sh
-set_env ../../.env
+source ./bash/config.sh
+set_error_traps
 
 run_sql_file sql/corr_create.sql
 
