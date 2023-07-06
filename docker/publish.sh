@@ -1,9 +1,9 @@
 set -e
 
 case $1 in
-    base) echo "Publishing '${1}' image" ;;
+    build-base | build-geosupport) echo "Publishing '${1}' image" ;;
     *) 
-        echo "${command} not found" 
+        echo "${1} is not an existing Dockerfile." 
         exit 1;;
 esac
 
