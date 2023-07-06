@@ -146,9 +146,80 @@ SELECT *
 FROM SHP_devdb
 WHERE "ResidFlag" = 'Residential';
 
+CREATE VIEW shp_housing_public AS 
+SELECT 
+    "Job_Number",
+	"Job_Type",
+	"ResidFlag",
+	"NonresFlag",
+	"Job_Status",
+	"CompltYear",
+	"PermitYear",
+	"ClassAInit",
+	"ClassAProp",
+	"ClassANet",
+	"HotelInit",
+	"HotelProp",
+	"OtherBInit",
+	"OtherBProp",
+	"Units_CO",
+	"Boro",
+	"BIN",
+	"BBL",
+	"AddressNum",
+	"AddressSt",
+	"Occ_Init",
+	"Occ_Prop",
+	"Bldg_Class",
+	"Job_Desc",
+	"Desc_Other",
+	"DateFiled",
+	"DatePermit",
+	"DateLstUpd",
+	"DateComplt",
+	"ZoningDst1",
+	"ZoningDst2",
+	"ZoningDst3",
+	"SpeclDst1",
+	"SpeclDst2",
+	"Landmark",
+	"FloorsInit",
+	"FloorsProp",
+	"Enlargemnt",
+	"Ownership",
+	"CenBlock20",
+	"CenTract20",
+	"BCTCB2020",
+	"BCT2020",
+	"NTA2020",
+	"NTAName20",
+	"CDTA2020",
+	"CDTAName20",
+	"CommntyDst",
+	"CouncilDst",
+	"SchSubDist",
+	"SchCommnty",
+	"SchElmntry",
+	"SchMiddle",
+	"FireCmpany",
+	"FireBattln",
+	"FireDivsn",
+	"PolicePcnt",
+	"PL_FIRM07",
+	"PL_PFIRM15",
+	"Latitude",
+	"Longitude",
+	"DataSource",
+	"GeomSource",
+	"DCPEdited",
+	"Version",
+	"geom",
+	"Job_Inactv" -- Used in generating specific views, but dropped in public export in bash call
+FROM shp_housing;
+
 CREATE VIEW HousingDB_post2010_inactive_included AS 
 SELECT * 
-FROM shp_housing
+FROM shp_housing_public
 WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::DATE >= '2010-01-01');
 
 CREATE VIEW HousingDB_post2010 AS

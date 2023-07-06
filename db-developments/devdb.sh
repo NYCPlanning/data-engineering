@@ -12,7 +12,7 @@ function build {
 }
 
 function aggregate {
-    ./bash/03_aggregate.sh
+    ./bash/03_aggregate_unit_change_summary.sh
 }
 
 function qaqc { 

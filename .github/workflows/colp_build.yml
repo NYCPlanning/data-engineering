@@ -40,8 +40,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Add s3 endpoint ...
-      run: mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+    - name: Finish container setup ...
+      run: ./bash/docker_container_setup.sh
 
     - name: Dataloading ...
       working-directory: db-colp

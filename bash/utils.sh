@@ -20,8 +20,6 @@ function set_env {
             export $(cat $envfile | sed 's/#.*//g' | xargs)
         fi
     done
-    # TODO this is a terrible spot for this, docker setup would make more sense but then .env must be loaded
-    mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 }
 
 
@@ -188,11 +186,15 @@ function shp_export {
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
+    shift 3
+    if [ $filename = "-" ]; then 
+        local filename=$table
+    fi
     mkdir -p ${filename} &&(
         cd ${filename}
         ogr2ogr -progress -f "ESRI Shapefile" ${filename}.shp \
             PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-            ${table} -nlt ${geomtype}
+            ${table} -nlt ${geomtype} "$@"
         rm -f ${filename}.shp.zip
         zip -9 ${filename}.shp.zip *
         ls | grep -v ${filename}.shp.zip | xargs rm
