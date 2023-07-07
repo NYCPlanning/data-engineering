@@ -88,6 +88,10 @@ jobs:
         run: ./01_dataloading_minor.sh
         if: needs.version.outputs.is_minor_version == 'true'
 
+      - name: clean out raw source data 
+        working-directory:  ./db-pluto/pluto_build
+        run: rm -rf .library
+
       - name: building ...
         working-directory: ./db-pluto/pluto_build
         run: ./02_build.sh
