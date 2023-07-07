@@ -1,4 +1,4 @@
-name: Publish Build Docker Image
+name: Publish Build Docker Images
 on:
   workflow_dispatch:
   
@@ -10,11 +10,14 @@ jobs:
       GITHUB_ACTOR: ${{ github.actor }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    strategy:
+      matrix:
+        dataset:
+          - build-base 
+          - build-geosupport
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
         
-      - name: build and publish ...
+      - name: build and publish ${{ matrix.dataset }} ...
         working-directory: docker
-        run: ./publish.sh base ## only image for now - once in main, workflow dispatch can use input
+        run: ./publish.sh ${{ matrix.dataset }}

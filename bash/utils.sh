@@ -185,11 +185,14 @@ function shp_export {
     parse_connection_string ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
-    local filename=${3:-$table}
-    shift 3
-    if [ $filename = "-" ]; then 
-        local filename=$table
-    fi
+    case $3 in
+        -f) 
+            local filename=$4
+            shift 4;;
+        *) 
+            local filename=$table
+            shift 2;;
+    esac
     mkdir -p ${filename} &&(
         cd ${filename}
         ogr2ogr -progress -f "ESRI Shapefile" ${filename}.shp \

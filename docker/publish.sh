@@ -1,11 +1,13 @@
-set -e
+#!/bin/bash
 
-case $1 in
-    base) echo "Publishing '${1}' image" ;;
-    *) 
-        echo "${command} not found" 
-        exit 1;;
-esac
+if [ -f "${1}" ]; then
+    echo "Publishing '${1}' image"
+else
+    echo "${1} is not an existing Dockerfile." 
+    exit 1
+fi
+
+set -e
 
 cp $1 Dockerfile
 cp -r ../bash ./bash

@@ -1,6 +1,9 @@
 #!/bin/bash
 source ../../bash/utils.sh # assumes being run from pluto_build folder
 
+set_env ../../.env
+set_env ./version.env
+
 function import_qaqc {
     name=${1}
     DO_folder=${2}
@@ -21,7 +24,7 @@ function import_qaqc {
 
 function shp_export_pluto {
     local filename=${1}
-    mkdir ${filename}
+    mkdir -p ${filename}
     (
         cd ${filename}
         shp_export "$@"

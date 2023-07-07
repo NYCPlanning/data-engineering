@@ -1,8 +1,6 @@
 #!/bin/bash
-source ../../bash/utils.sh
-source ./bin/config.sh
-set_env ../../.env
-set_env ./version.env
+source ./bash/config.sh
+set_error_traps
 
 # import previous version of pluto
 import_recipe dcp_pluto $(echo ${VERSION_PREV} | tr . _)

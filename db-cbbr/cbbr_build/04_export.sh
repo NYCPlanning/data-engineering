@@ -26,8 +26,8 @@ csv_export cbbr_export_poly cbbr_submissions_poly
 csv_export cbbr_export_pts cbbr_submissions_pts
 
 echo "Exporting output geometry tables to zip shapefiles ..."
-shp_export cbbr_export_poly MULTIPOLYGON cbbr_submissions_poly_shapefile
-shp_export cbbr_export_pts MULTIPOINT cbbr_submissions_pts_shapefile
+shp_export cbbr_export_poly MULTIPOLYGON -f cbbr_submissions_poly_shapefile
+shp_export cbbr_export_pts MULTIPOINT -f cbbr_submissions_pts_shapefile
 
 echo "Upload Output to DigitalOcean" 
 

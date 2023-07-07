@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     container: 
-      image: nycplanning/base:latest
+      image: nycplanning/build-geosupport:latest
       env:
         BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/dbcolp
         EDM_DATA: ${{ secrets.EDM_DATA }}
