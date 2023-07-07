@@ -13,6 +13,7 @@ on:
           - cbbr
           - pluto
           - colp
+          - facilities
       logging_level:
         description: "Logging level"
         type: choice
@@ -66,6 +67,12 @@ jobs:
   pluto:
     if: inputs.dataset_name == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.will_export }}
+  facilities:
+    if: inputs.dataset_name == 'facilities'
+    uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.will_export }}

@@ -1,60 +1,80 @@
-name: z(TODO) FacDB - 🏗️ Build
+name: FacDB - 🏗️ Build
 
 on:
+  workflow_call:
+    inputs:
+      run_export:
+        type: boolean
+        required: true
   workflow_dispatch:
+    inputs:
+      run_export:
+        description: "Run Export Step and Upload to DO"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
-  Build:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (
-        github.event_name == 'push' &&
-        ! contains(github.event.head_commit.message, '[skip]')
-      )
+  build:
     name: Building ...
-    runs-on: ubuntu-20.04
-    env:
-      EDM_DATA: ${{ secrets.EDM_DATA }}
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
-      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-facilities
+    container:
+      image: nycplanning/build-geosupport:latest
+      env:
+        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+        EDM_DATA: ${{ secrets.EDM_DATA }}
+        AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    services:
+      postgis:
+        image: postgis/postgis:14-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --shm-size=2gb
+        ports:
+          - 5432:5432
     steps:
-        - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-        - name: Install Minio Client and Ogr2ogr
-          run: |
-            curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-            chmod +x mc
-            sudo mv ./mc /usr/bin
-            mc alias set spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-            sudo apt-get update
-            sudo apt-get -y install --no-install-recommends gdal-bin
+      - name: Run Container Setup
+        run: ../bash/docker_container_setup.sh
 
-        - name: Initialize
-          run: ./facdb.sh init
+      - name: Build Python Poetry deps and CLI
+        run: |
+          pip3 install poetry==1.5.1 &&\
+          python3 -m poetry config virtualenvs.create false --local && python3 -m poetry install --no-dev
 
-        - name: Dataloading
-          run: ./facdb.sh dataloading
+      - name: Initialize
+        run: facdb init
 
-        - name: Check on Services
-          run: docker-compose ps
+      - name: Dataloading
+        run: facdb dataloading
 
-        - name: Run Pipelines
-          run: ./facdb.sh run --all
+      - name: Run Pipelines
+        run: facdb run --all
 
-        - name: Build facdb
-          run: ./facdb.sh build
+      - name: Build facdb
+        run: facdb build
 
-        - name: QAQC facdb
-          run: ./facdb.sh qaqc
+      - name: QAQC facdb
+        run: facdb qaqc
 
-        - name: Export facdb
-          run: ./facdb.sh export
+      - name: Export facdb
+        run: ./facdb.sh export
 
-        - name: Upload Artifacts
-          run: ./facdb.sh upload
+      - name: Upload Artifacts
+        run: ./facdb.sh upload
 
-        - name: Archive tables to EDM_DATA
-          if: github.ref == 'refs/heads/develop'
-          run: ./facdb.sh archive --all
+      # - name: Archive tables to EDM_DATA
+      #   if: github.ref == 'refs/heads/develop'
+      #   run: ./facdb.sh archive --all

@@ -41,6 +41,7 @@ def version_from_config(name, read_version):
         aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
         endpoint_url=os.environ["AWS_S3_ENDPOINT"],
     )
+    print("Retrieving edm-recipe: " + f"datasets/{name}/{read_version}/config.json")
     obj = client.get_object(
         Bucket="edm-recipes", Key=f"datasets/{name}/{read_version}/config.json"
     )
