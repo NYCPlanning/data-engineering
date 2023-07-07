@@ -24,7 +24,9 @@ datasets:
     scripts:
       - dcp_sfpsd.sql
 
+  # TODO: revisit this pin
   - name: dcp_pops
+    version: 20230320
     scripts:
       - dcp_pops.sql
 
