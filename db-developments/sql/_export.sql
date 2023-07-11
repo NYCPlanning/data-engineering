@@ -146,364 +146,61 @@ SELECT *
 FROM SHP_devdb
 WHERE "ResidFlag" = 'Residential';
 
-CREATE VIEW shp_housing_mdrive AS 
-    "Job_Number",
-    "Job_Type",
-    "ResidFlag",
-    "NonresFlag",
-    "Job_Inactv".
-    "Job_Status",
-    "CompltYear",
-    "CompltQrtr",
-    "PermitYear",
-    "PermitQrtr",
-    "ClassAInit",
-    "ClassAProp",
-    "ClassANet",
-    "ClassA_HNY",
-    "HotelInit",
-    "HotelProp",
-    "OtherBInit",
-    "OtherBProp",
-    "Units_CO",
-    "Boro",
-    "BIN",
-    "BBL",
-    "AddressNum",
-    "AddressSt",
-    "Occ_Init",
-    "Occ_Prop",
-    "Bldg_Class",
-    "Job_Desc",
-    "DateFiled",
-    "DatePermit",
-    "DateLstUpd",
-    "DateComplt",
-    "ZoningDst1",
-    "ZoningDst2",
-    "ZoningDst3",
-    "SpeclDst1",
-    "SpeclDst2",
-    "Landmark",
-    "FloorsInit",
-    "FloorsProp",
-    "Enlargemnt",
-    "EnlrgSF",
-    "Ownership",
-    "CenBlock20",
-    "CenTract20",
-    "BCTCB2020",
-    "BCT2020",
-    "NTA2020",
-    "NTAName20",
-    "CDTA2020",
-    "CDTAName20",
-    "CommntyDst",
-    "CouncilDst",
-    "SchSubDist",
-    "SchCommnty",
-    "SchElmntry",
-    "SchMiddle",
-    "FireCmpany",
-    "FireBattln",
-    "FireDivsn",
-    "PolicePcnt",
-    "PL_FIRM07",
-    "PL_PFIRM15",
-    "Latitude",
-    "Longitude",
-    "GeomSource",
-    "DCPEdited",
-    "Version",
-    "geom"
-FROM shp_housing;
 
-CREATE VIEW shp_housing_public AS 
-SELECT 
-    "Job_Number",
-    "Job_Type",
-    "ResidFlag",
-    "NonresFlag",
-    "Job_Status",
-    "CompltYear",
-    "PermitYear",
-    "ClassAInit",
-    "ClassAProp",
-    "ClassANet",
-    "HotelInit",
-    "HotelProp",
-    "OtherBInit",
-    "OtherBProp",
-    "Units_CO",
-    "Boro",
-    "BIN",
-    "BBL",
-    "AddressNum",
-    "AddressSt",
-    "Occ_Init",
-    "Occ_Prop",
-    "Bldg_Class",
-    "Job_Desc",
-    "DateFiled",
-    "DatePermit",
-    "DateLstUpd",
-    "DateComplt",
-    "ZoningDst1",
-    "ZoningDst2",
-    "ZoningDst3",
-    "SpeclDst1",
-    "SpeclDst2",
-    "Landmark",
-    "FloorsInit",
-    "FloorsProp",
-    "Enlargemnt",
-    "Ownership",
-    "CenBlock20",
-    "CenTract20",
-    "BCTCB2020",
-    "BCT2020",
-    "NTA2020",
-    "NTAName20",
-    "CDTA2020",
-    "CDTAName20",
-    "CommntyDst",
-    "CouncilDst",
-    "SchSubDist",
-    "SchCommnty",
-    "SchElmntry",
-    "SchMiddle",
-    "FireCmpany",
-    "FireBattln",
-    "FireDivsn",
-    "PolicePcnt",
-    "PL_FIRM07",
-    "PL_PFIRM15",
-    "Latitude",
-    "Longitude",
-    "GeomSource",
-    "DCPEdited",
-    "Version",
-    "geom",
-    "Job_Inactv" -- Used in generating specific views, but dropped in public export in bash call
-FROM shp_housing;
-
-CREATE VIEW HousingDB_post2010_all AS 
-SELECT * 
-FROM shp_housing_public
+-- internal project-level files
+-- created for distribution on m drive
+CREATE VIEW HousingDB_post2010_all_internal AS 
+SELECT :internal_columns
+FROM shp_housing
 WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::DATE >= '2010-01-01');
 
-CREATE VIEW HousingDB_post2010 AS
-SELECT 
-    "Job_Number",
-    "Job_Type",
-    "ResidFlag",
-    "NonresFlag",
-    "Job_Status",
-    "CompltYear",
-    "PermitYear",
-    "ClassAInit",
-    "ClassAProp",
-    "ClassANet",
-    "HotelInit",
-    "HotelProp",
-    "OtherBInit",
-    "OtherBProp",
-    "Units_CO",
-    "Boro",
-    "BIN",
-    "BBL",
-    "AddressNum",
-    "AddressSt",
-    "Occ_Init",
-    "Occ_Prop",
-    "Bldg_Class",
-    "Job_Desc",
-    "DateFiled",
-    "DatePermit",
-    "DateLstUpd",
-    "DateComplt",
-    "ZoningDst1",
-    "ZoningDst2",
-    "ZoningDst3",
-    "SpeclDst1",
-    "SpeclDst2",
-    "Landmark",
-    "FloorsInit",
-    "FloorsProp",
-    "Enlargemnt",
-    "Ownership",
-    "CenBlock20",
-    "CenTract20",
-    "BCTCB2020",
-    "BCT2020",
-    "NTA2020",
-    "NTAName20",
-    "CDTA2020",
-    "CDTAName20",
-    "CommntyDst",
-    "CouncilDst",
-    "SchSubDist",
-    "SchCommnty",
-    "SchElmntry",
-    "SchMiddle",
-    "FireCmpany",
-    "FireBattln",
-    "FireDivsn",
-    "PolicePcnt",
-    "PL_FIRM07",
-    "PL_PFIRM15",
-    "Latitude",
-    "Longitude",
-    "GeomSource",
-    "DCPEdited",
-    "Version",
-    "geom"
-FROM HousingDB_post2010_all 
+CREATE VIEW HousingDB_post2010_internal AS
+SELECT *
+FROM HousingDB_post2010_all_internal
 WHERE "Job_Inactv" IS NULL;
 
-CREATE VIEW HousingDB_post2010_completed_jobs AS
-SELECT * 
-FROM HousingDB_post2010
+CREATE VIEW HousingDB_post2010_completed_jobs_internal AS
+SELECT *
+FROM HousingDB_post2010_internal
 WHERE "CompltYear"::integer >= '2010'::integer;
 
-CREATE VIEW HousingDB_post2010_incomplete_jobs AS
-SELECT * 
-FROM HousingDB_post2010
+CREATE VIEW HousingDB_post2010_incomplete_jobs_internal AS
+SELECT *
+FROM HousingDB_post2010_internal
 WHERE "CompltYear" IS NULL;
 
-CREATE VIEW HousingDB_post2010_inactive_jobs AS
-SELECT 
-    "Job_Number",
-    "Job_Type",
-    "ResidFlag",
-    "NonresFlag",
-    "Job_Status",
-    "CompltYear",
-    "PermitYear",
-    "ClassAInit",
-    "ClassAProp",
-    "ClassANet",
-    "HotelInit",
-    "HotelProp",
-    "OtherBInit",
-    "OtherBProp",
-    "Units_CO",
-    "Boro",
-    "BIN",
-    "BBL",
-    "AddressNum",
-    "AddressSt",
-    "Occ_Init",
-    "Occ_Prop",
-    "Bldg_Class",
-    "Job_Desc",
-    "DateFiled",
-    "DatePermit",
-    "DateLstUpd",
-    "DateComplt",
-    "ZoningDst1",
-    "ZoningDst2",
-    "ZoningDst3",
-    "SpeclDst1",
-    "SpeclDst2",
-    "Landmark",
-    "FloorsInit",
-    "FloorsProp",
-    "Enlargemnt",
-    "Ownership",
-    "CenBlock20",
-    "CenTract20",
-    "BCTCB2020",
-    "BCT2020",
-    "NTA2020",
-    "NTAName20",
-    "CDTA2020",
-    "CDTAName20",
-    "CommntyDst",
-    "CouncilDst",
-    "SchSubDist",
-    "SchCommnty",
-    "SchElmntry",
-    "SchMiddle",
-    "FireCmpany",
-    "FireBattln",
-    "FireDivsn",
-    "PolicePcnt",
-    "PL_FIRM07",
-    "PL_PFIRM15",
-    "Latitude",
-    "Longitude",
-    "GeomSource",
-    "DCPEdited",
-    "Version",
-    "geom"
-FROM HousingDB_post2010_all 
+CREATE VIEW HousingDB_post2010_inactive_jobs_internal AS
+SELECT *
+FROM HousingDB_post2010_all_internal
 WHERE "Job_Inactv" IS NOT NULL;
 
-CREATE VIEW HousingDB_post2010_inactive_included AS
-SELECT 
-    "Job_Number",
-    "Job_Type",
-    "ResidFlag",
-    "NonresFlag",
-    "Job_Status",
-    "CompltYear",
-    "PermitYear",
-    "ClassAInit",
-    "ClassAProp",
-    "ClassANet",
-    "HotelInit",
-    "HotelProp",
-    "OtherBInit",
-    "OtherBProp",
-    "Units_CO",
-    "Boro",
-    "BIN",
-    "BBL",
-    "AddressNum",
-    "AddressSt",
-    "Occ_Init",
-    "Occ_Prop",
-    "Bldg_Class",
-    "Job_Desc",
-    "DateFiled",
-    "DatePermit",
-    "DateLstUpd",
-    "DateComplt",
-    "ZoningDst1",
-    "ZoningDst2",
-    "ZoningDst3",
-    "SpeclDst1",
-    "SpeclDst2",
-    "Landmark",
-    "FloorsInit",
-    "FloorsProp",
-    "Enlargemnt",
-    "Ownership",
-    "CenBlock20",
-    "CenTract20",
-    "BCTCB2020",
-    "BCT2020",
-    "NTA2020",
-    "NTAName20",
-    "CDTA2020",
-    "CDTAName20",
-    "CommntyDst",
-    "CouncilDst",
-    "SchSubDist",
-    "SchCommnty",
-    "SchElmntry",
-    "SchMiddle",
-    "FireCmpany",
-    "FireBattln",
-    "FireDivsn",
-    "PolicePcnt",
-    "PL_FIRM07",
-    "PL_PFIRM15",
-    "Latitude",
-    "Longitude",
-    "GeomSource",
-    "DCPEdited",
-    "Version",
-    "geom"
-FROM HousingDB_post2010_all 
+CREATE VIEW HousingDB_post2010_inactive_included_internal AS
+SELECT *
+FROM HousingDB_post2010_all_internal;
+
+
+-- external project-level files
+-- created for distribution via BYTES by GIS team
+CREATE VIEW HousingDB_post2010_all_external AS 
+SELECT :external_columns
+FROM HousingDB_post2010_all_internal;
+
+CREATE VIEW HousingDB_post2010 AS
+SELECT :external_columns
+FROM HousingDB_post2010_internal;
+
+CREATE VIEW HousingDB_post2010_completed_jobs_external AS
+SELECT :external_columns
+FROM HousingDB_post2010_completed_jobs_internal;
+
+CREATE VIEW HousingDB_post2010_incomplete_jobs_external AS
+SELECT :external_columns
+FROM HousingDB_post2010_incomplete_jobs_internal;
+
+CREATE VIEW HousingDB_post2010_inactive_jobs_external AS
+SELECT :external_columns
+FROM HousingDB_post2010_inactive_jobs_internal;
+
+CREATE VIEW HousingDB_post2010_inactive_included_external AS
+SELECT :external_columns
+FROM HousingDB_post2010_inactive_included_internal

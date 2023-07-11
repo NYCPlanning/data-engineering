@@ -1,11 +1,14 @@
 #!/bin/bash
 source bash/config.sh
+source sql/constants/export_schemas.sh
 set_error_traps
 
 display "Generate output tables"
 run_sql_file sql/_export.sql\
     -v VERSION=$VERSION\
-    -v CAPTURE_DATE=$CAPTURE_DATE
+    -v CAPTURE_DATE=$CAPTURE_DATE\
+    -v internal_columns="$internal_columns"\
+    -v external_columns="$external_columns"
 
 mkdir -p output 
 (
@@ -44,11 +47,11 @@ mkdir -p output
 
     wait
 
-    display "Export aggregate tables"
+    display "Export unit change summary tables"
     columns_to_drop="'Shape_Area', 'Shape_Leng', 'wkb_geometry'"
-    mkdir -p aggregate
+    mkdir -p unit_change_summary_internal
     (
-        cd aggregate
+        cd unit_change_summary_internal
         csv_export_drop_columns aggregate_block "${columns_to_drop}" &
         csv_export_drop_columns aggregate_tract "${columns_to_drop}" &
         csv_export_drop_columns aggregate_nta "${columns_to_drop}" HousingDB_by_2020_NTA &
@@ -57,9 +60,9 @@ mkdir -p output
         csv_export_drop_columns aggregate_cdta "${columns_to_drop}" &
         wait
     )
-    mkdir -p bytes_unit_change_summary
+    mkdir -p unit_change_summary_external
     (
-        cd bytes_unit_change_summary
+        cd unit_change_summary_external
         csv_export_drop_columns aggregate_block_external "${columns_to_drop}" HousingDB_by_2020_CensusBlock &
         csv_export_drop_columns aggregate_tract_external "${columns_to_drop}" HousingDB_by_2020_CensusTract &
         csv_export_drop_columns aggregate_nta_external "${columns_to_drop}" HousingDB_by_2020_NTA &
@@ -75,20 +78,26 @@ mkdir -p output
         wait
     )
 
-    display "Export bytes project-level files"
-    mkdir -p bytes_project_level
+    display "Export project-level files"
+    mkdir -p project_level_internal
     (
-        cd bytes_project_level
-        csv_export_drop_columns HousingDB_post2010 "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_completed_jobs "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_incomplete_jobs "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_inactive_jobs "'geom'" &
-        csv_export_drop_columns HousingDB_post2010_inactive_included "'geom'" &
-        shp_export HousingDB_post2010 POINT -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_completed_jobs POINT -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_incomplete_jobs POINT -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_inactive_jobs POINT -t_srs "EPSG:2263" &
-        shp_export HousingDB_post2010_inactive_included POINT -t_srs "EPSG:2263" &
+        cd project_level_internal
+        for table in HousingDB_post2010 HousingDB_post2010_completed_jobs HousingDB_post2010_incomplete_jobs HousingDB_post2010_inactive_jobs HousingDB_post2010_inactive_included
+        do
+            csv_export_drop_columns ${table}_internal "'geom'" $table &
+            shp_export ${table}_internal POINT -f $table -t_srs "EPSG:2263" &
+        done
+        wait
+    )
+
+    mkdir -p project_level_external
+    (
+        cd project_level_external
+        for table in HousingDB_post2010 HousingDB_post2010_completed_jobs HousingDB_post2010_incomplete_jobs HousingDB_post2010_inactive_jobs HousingDB_post2010_inactive_included
+        do
+            csv_export_drop_columns ${table}_external "'geom'" $table &
+            shp_export ${table}_external POINT -f $table -t_srs "EPSG:2263" &
+        done
         wait
     )
 
