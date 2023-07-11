@@ -47,8 +47,19 @@ jobs:
       - name: Copy the Latest fisa capital commitment to biquery
         run: ./bash/11_spending.sh
 
-      - name: Archive to Data Library -- pgdump and csv
-        working-directory: db-cpdb
+      - name: Get Capital Spending version
+        id: version
         run: |
-          ./bash/11_spending.sh archive csv
-          ./bash/11_spending.sh archive pgdump
+          source bash/config.sh
+          echo "version=$(get_version fisa_capitalcommitments latest private)" >> $GITHUB_OUTPUT
+
+      - name: Archive to Data Library -- pgdump and csv
+        uses: NYCPlanning/action-library-archive@v1.1
+        with:
+          # Specify the path to the configuration file
+          path: templates/cpdb_capital_spending.yml 
+          version: ${{ steps.version.outputs.version }}
+          s3: true
+          latest: true
+          compress: true
+          output_format: csv pgdump
