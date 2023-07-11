@@ -16,7 +16,7 @@ fi
 
 # resolve path to this file (following symlinks) and load libs
 BASEDIR=$( dirname $( ${CMD_READLINK} -f "${BASH_SOURCE[0]}" ) )
-for f in ${BASEDIR}/bin/cli.sh ${BASEDIR}/bin/* ; do source $f; done
+for f in ${BASEDIR}/bash/cli.sh ${BASEDIR}/bash/* ; do source $f; done
 
 # cli runner
 cli "$@"
