@@ -185,7 +185,7 @@ CREATE VIEW HousingDB_post2010_all_external AS
 SELECT :external_columns
 FROM HousingDB_post2010_all_internal;
 
-CREATE VIEW HousingDB_post2010 AS
+CREATE VIEW HousingDB_post2010_external AS
 SELECT :external_columns
 FROM HousingDB_post2010_internal;
 

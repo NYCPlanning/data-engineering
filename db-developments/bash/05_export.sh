@@ -49,32 +49,21 @@ mkdir -p output
 
     display "Export unit change summary tables"
     columns_to_drop="'Shape_Area', 'Shape_Leng', 'wkb_geometry'"
-    mkdir -p unit_change_summary_internal
+    mkdir -p unit_change_summary
     (
-        cd unit_change_summary_internal
-        csv_export_drop_columns aggregate_block "${columns_to_drop}" &
-        csv_export_drop_columns aggregate_tract "${columns_to_drop}" &
+        cd unit_change_summary
+        csv_export_drop_columns aggregate_block "${columns_to_drop}" HousingDB_by_2020_CensusBlock &
+        csv_export_drop_columns aggregate_tract "${columns_to_drop}" HousingDB_by_2020_CensusTract &
         csv_export_drop_columns aggregate_nta "${columns_to_drop}" HousingDB_by_2020_NTA &
-        csv_export_drop_columns aggregate_councildst "${columns_to_drop}" &
-        csv_export_drop_columns aggregate_commntydst "${columns_to_drop}" &
-        csv_export_drop_columns aggregate_cdta "${columns_to_drop}" &
-        wait
-    )
-    mkdir -p unit_change_summary_external
-    (
-        cd unit_change_summary_external
-        csv_export_drop_columns aggregate_block_external "${columns_to_drop}" HousingDB_by_2020_CensusBlock &
-        csv_export_drop_columns aggregate_tract_external "${columns_to_drop}" HousingDB_by_2020_CensusTract &
-        csv_export_drop_columns aggregate_nta_external "${columns_to_drop}" HousingDB_by_2020_NTA &
-        csv_export_drop_columns aggregate_councildst_external "${columns_to_drop}" HousingDB_by_2013_CityCouncilDistrict &
-        csv_export_drop_columns aggregate_commntydst_external "${columns_to_drop}" HousingDB_by_CommunityDistrict &
-        csv_export_drop_columns aggregate_cdta_external "${columns_to_drop}" HousingDB_by_2020_CDTA &
-        shp_export aggregate_block_external MULTIPOLYGON -f HousingDB_by_2020_CensusBlock -t_srs "EPSG:2263" &
-        shp_export aggregate_tract_external MULTIPOLYGON -f HousingDB_by_2020_CensusTract -t_srs "EPSG:2263" &
-        shp_export aggregate_nta_external MULTIPOLYGON -f HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
-        shp_export aggregate_councildst_external MULTIPOLYGON -f HousingDB_by_2013_CityCouncilDistrict -t_srs "EPSG:2263" &
-        shp_export aggregate_commntydst_external MULTIPOLYGON -f HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
-        shp_export aggregate_cdta_external MULTIPOLYGON -f HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
+        csv_export_drop_columns aggregate_councildst "${columns_to_drop}" HousingDB_by_2013_CityCouncilDistrict &
+        csv_export_drop_columns aggregate_commntydst "${columns_to_drop}" HousingDB_by_CommunityDistrict &
+        csv_export_drop_columns aggregate_cdta "${columns_to_drop}" HousingDB_by_2020_CDTA &
+        shp_export aggregate_block MULTIPOLYGON -f HousingDB_by_2020_CensusBlock -t_srs "EPSG:2263" &
+        shp_export aggregate_tract MULTIPOLYGON -f HousingDB_by_2020_CensusTract -t_srs "EPSG:2263" &
+        shp_export aggregate_nta MULTIPOLYGON -f HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
+        shp_export aggregate_councildst MULTIPOLYGON -f HousingDB_by_2013_CityCouncilDistrict -t_srs "EPSG:2263" &
+        shp_export aggregate_commntydst MULTIPOLYGON -f HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
+        shp_export aggregate_cdta MULTIPOLYGON -f HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
         wait
     )
 
