@@ -1,3 +1,7 @@
+-- spatial aggregates
+-- this file is templated and called by python/unit_change_summary
+-- one output is created with changes in units by year per each relevant geometry
+
 DROP TABLE IF EXISTS aggregate_{{ geom }} CASCADE;
 WITH agg AS (
     SELECT 
@@ -22,8 +26,9 @@ WITH agg AS (
         {% endfor %}
 )
 SELECT 
-    j.{{ geom_join_column }}::TEXT AS {{ output_column }},
-    {%- for column_pair in additional_column_mappings %} -- These are grabbed from joined table in case of no rows present in prior table
+    j.{{ geom_join_column }}::TEXT AS "{{ output_column }}", -- slightly hacky. Some outputs we want capitalized, but without quotes everythin is lowercase. 
+                                                             -- so prior to this point we're only working with lowercase to be consistent with upstream data
+    {%- for column_pair in additional_column_mappings %}
         j.{{ column_pair[0] }} AS {{ column_pair[1] }},
     {% endfor %}
     coalesce(agg.comp2020ap, 0) AS comp2020ap,
@@ -47,25 +52,3 @@ FROM
     LEFT JOIN census2020_housing_units_by_geography c ON j.{{ geom_join_column }}::TEXT = c.aggregate_join
 
 ORDER BY j.{{ geom_join_column }};
-
-
--- external export - some have different capitalization in output column
-CREATE VIEW aggregate_{{ geom }}_external AS SELECT
-    {{ output_column }} AS "{{ external_output_column }}",
-    {%- for column_pair in additional_column_mappings %} 
-        {{ column_pair[1] }},
-    {% endfor %}
-    comp2020ap,
-    {%- for year in years %}
-        comp{{year}},
-    {% endfor %}
-    cenunits20,
-    filed,
-    approved,
-    permitted,
-    withdrawn,
-    inactive,
-    "Shape_Area",
-    "Shape_Leng",
-    wkb_geometry
-    FROM aggregate_{{ geom }};
