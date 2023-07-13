@@ -13,11 +13,10 @@ function import_data {
 
 # Loading the latest fisa_capitalcommitments to bigquery
 function fisa {
+    local dataset=fisa_capitalcommitments
+    local tablename=$dataset.$version
     mkdir -p .output && (
         cd .output
-        local dataset=fisa_capitalcommitments
-        local tablename=$dataset.$version
-        echo "$dataset"
         csv_export $dataset
         bq show \
             --location=$location\

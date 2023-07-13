@@ -45,7 +45,7 @@ jobs:
           export_default_credentials: true
 
       - name: Copy the Latest fisa capital commitment to biquery
-        run: ./bash/11_spending.sh
+        run: ./bash/06_spending.sh
 
       - name: Get Capital Spending version
         id: version
