@@ -1,3 +1,5 @@
+## loading for data in bigquery for the transformation that occurs is broken, maybe out of scope of cpdb now
+
 name: CPDB - Archive Capital Spending Data
 
 on:
