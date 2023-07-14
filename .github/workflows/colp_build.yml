@@ -16,6 +16,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-colp
     container: 
       image: nycplanning/build-geosupport:latest
       env:
@@ -41,26 +45,21 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Finish container setup ...
-      run: ./bash/docker_container_setup.sh
+      run: ../bash/docker_container_setup.sh
 
     - name: Dataloading ...
-      working-directory: db-colp
       run: ./colp.sh dataloading
 
     - name: Build COLP ...
-      working-directory: db-colp
       run: ./colp.sh build
 
     - name: Run QAQC ...
-      working-directory: db-colp
       run: ./colp.sh qaqc
 
     - name: Export COLP ...
       if: inputs.run_export
-      working-directory: db-colp
       run: ./colp.sh export
 
     - name: Upload outputs to s3 ...
       if: inputs.run_export
-      working-directory: db-colp
       run: ./colp.sh upload
