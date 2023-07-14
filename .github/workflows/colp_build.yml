@@ -22,12 +22,12 @@ jobs:
         working-directory: ./db-colp
     container: 
       image: nycplanning/build-geosupport:latest
-      env:
-        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/dbcolp
-        EDM_DATA: ${{ secrets.EDM_DATA }}
-        AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/dbcolp
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     services:
       postgis:
         image: postgis/postgis:14-3.3-alpine

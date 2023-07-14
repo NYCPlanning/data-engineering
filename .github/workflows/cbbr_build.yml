@@ -22,12 +22,12 @@ jobs:
         working-directory: ./db-cbbr/cbbr_build
     container:
       image: nycplanning/build-base:latest
-      env:
-        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
-        EDM_DATA: ${{ secrets.EDM_DATA }}
-        AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
     services:
       postgis:
         image: postgis/postgis:14-3.3-alpine
