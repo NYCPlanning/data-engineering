@@ -1,5 +1,6 @@
 #!/bin/bash
 source ../bash/utils.sh # expected to be run from db-developments folder
+set_error_traps
 
 # Setting Environmental Variables
 set_env ../.env version.env
@@ -53,7 +54,8 @@ function geocode {
       -w /src\
       -e BUILD_ENGINE=$BUILD_ENGINE\
       nycplanning/docker-geosupport:$GEOSUPPORT_DOCKER_IMAGE_VERSION bash -c "
-        python3 python/geocode.py
-        python3 python/geocode_hny.py
+        python3 python/geocode_hpd_hny.py
+        python3 python/geocode_hpd_historical.py
+        python3 python/geocode_dob.py
       "
 }

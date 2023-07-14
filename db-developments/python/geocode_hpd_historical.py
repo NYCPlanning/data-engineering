@@ -12,29 +12,52 @@ g = Geosupport()
 def geocode(input):
     # collect inputs
     uid = str(input.pop("ogc_fid"))
-    hnum = input.pop("number")
-    sname = input.pop("street")
-    borough = input.pop("borough")
+    hnum = input.pop("house_number")
+    sname = input.pop("street_name")
+    borough = input.pop("boro_short_name")
 
     try:
         geo = g["1B"](
-            street_name=sname, house_number=hnum, borough=borough, mode="regular"
+            street_name=sname,
+            house_number=hnum,
+            borough=borough,
+            mode="regular",
         )
         geo = parse_output(geo)
-        geo.update(dict(uid=uid, mode="regular", func="1B", status="success"))
-        return geo
+        geo.update(
+            dict(
+                uid=uid,
+                mode="regular",
+                func="1B",
+                status="success",
+            )
+        )
     except GeosupportError:
         try:
             geo = g["1B"](
-                street_name=sname, house_number=hnum, borough=borough, mode="tpad"
+                street_name=sname,
+                house_number=hnum,
+                borough=borough,
+                mode="tpad",
             )
             geo = parse_output(geo)
-            geo.update(dict(uid=uid, mode="tpad", func="1B", status="success"))
-            return geo
+            geo.update(
+                dict(
+                    uid=uid,
+                    mode="tpad",
+                    func="1B",
+                    status="success",
+                )
+            )
         except GeosupportError as e:
             geo = parse_output(e.result)
-            geo.update(uid=uid, mode="tpad", func="1B", status="failure")
-            return geo
+            geo.update(
+                uid=uid,
+                mode="tpad",
+                func="1B",
+                status="failure",
+            )
+    return geo
 
 
 def parse_output(geo):
@@ -63,7 +86,7 @@ if __name__ == "__main__":
     # read in housing table
     select_query = """
             SELECT * 
-            FROM hpd_hny_units_by_building
+            FROM hpd_historical_units_by_building
             WHERE reporting_construction_type = 'New Construction'
             AND project_name <> 'CONFIDENTIAL';
             """
@@ -73,7 +96,6 @@ if __name__ == "__main__":
             conn,
         )
 
-    # get the row number
     df = df.rename(
         columns={
             "latitude_(internal)": "latitude_internal",
@@ -83,7 +105,7 @@ if __name__ == "__main__":
 
     records = df.to_dict("records")
 
-    print("Geocoding HNY...")
+    print("Geocoding HPD Historical...")
     # Multiprocess
     with Pool(processes=cpu_count()) as pool:
         it = pool.map(geocode, records, 10000)
@@ -91,7 +113,7 @@ if __name__ == "__main__":
     print("Geocoding finished, dumping to postgres ...")
     df = pd.DataFrame(it)
     df.to_sql(
-        "hny_geocode_results",
+        "hpd_historical_geocode_results",
         con=engine,
         if_exists="replace",
         index=False,

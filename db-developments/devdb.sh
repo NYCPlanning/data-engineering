@@ -42,12 +42,14 @@ function output {
 }
 
 function library_archive {
-    get_version $2
+    local version=$(get_version $2)
+    echo "version of ${2} is ${version}"
     docker run --rm\
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-        -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
+        -e AWS_S3_BUCKET=$recipes_bucket\
+        -e CI=$CI\
         -v $(pwd)/templates/$1.yml:/library/$1.yml\
         -v $(pwd)/$1.csv:/library/$1.csv\
         -v $(pwd)/.library:/library/.library\
@@ -65,7 +67,7 @@ function library_archive_version {
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-        -e AWS_S3_BUCKET=$AWS_S3_BUCKET\
+        -e AWS_S3_BUCKET=$recipes_bucket\
         -v $(pwd)/templates/$name.yml:/library/$name.yml\
         -v $(pwd)/$name.csv:/library/$name.csv\
         -v $(pwd)/.library:/library/.library\

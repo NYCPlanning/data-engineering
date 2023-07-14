@@ -1,10 +1,10 @@
 dataset:
-  name: &name hny_geocode_results
+  name: &name hpd_historical_geocode_results
   version: "{{ version }}"
   acl: public-read
   source:
     url:
-      path: /library/hny_geocode_results.csv
+      path: /library/hpd_historical_geocode_results.csv
       subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
@@ -26,7 +26,7 @@ dataset:
 
   info:
     description: |
-      ### hny_geocode_results
-      geocoded hpd_hny_units_by_building
+      ### hpd_historical_geocode_results
+      geocoded hpd_historical_units_by_building
     url: ""
     dependents: []
