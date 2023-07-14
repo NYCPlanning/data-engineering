@@ -22,7 +22,7 @@ jobs:
         shell: bash
         working-directory: ./db-cpdb
     container: 
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-geosupport:latest
       env:
         BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
         EDM_DATA: ${{ secrets.EDM_DATA }}
