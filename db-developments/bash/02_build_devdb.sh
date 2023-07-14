@@ -6,6 +6,7 @@ run_sql_file sql/_function.sql
 run_sql_file sql/_procedures.sql
 run_sql_file sql/bis/_init.sql
 run_sql_file sql/now/_init.sql
+run_sql_file sql/hpd/_init.sql
 run_sql_file sql/_init.sql
 sql_table_summary _INIT_devdb
 
@@ -88,6 +89,7 @@ display "Creating HNY fields:
       classa_hnyaff,
       all_hny_units,
       hny_jobrelate"
+run_sql_file sql/_hny_union.sql
 run_sql_file sql/_hny_match.sql
 run_sql_file sql/_hny_join.sql
 sql_table_summary HNY_devdb_lookup

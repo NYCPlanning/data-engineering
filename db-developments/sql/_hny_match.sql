@@ -2,7 +2,7 @@
 DESCRIPTION:
     Merging devdb with hny. This requires the following procedure.
 
-    1) Merge hny data from hpd_hny_units_by_building with hny_geocode_results,
+    1) Merge hny data from hpd_units_by_building with hpd_geocode_results,
         and filter to new construction that isn't confidential. Create a unique ID 
         using a hash.
     2) Find matches between geocoded devdb and hny using three different methods:
@@ -38,7 +38,7 @@ DESCRIPTION:
 
 
 INPUTS: 
-    hpd_hny_units_by_building (
+    hpd_units_by_building (
         ogc_fid,
         project_id,
         project_name,
@@ -49,7 +49,7 @@ INPUTS:
         total_units
     )
 
-    hny_geocode_results (
+    hpd_geocode_results (
         * uid,
         geo_bin,
         geo_bbl,
@@ -134,8 +134,8 @@ WITH hny AS (
                                     b.geo_latitude::NUMERIC),4326)
                     ELSE NULL
                 END) AS geom
-        FROM hpd_hny_units_by_building a
-        JOIN hny_geocode_results b
+        FROM hpd_units_by_building a
+        JOIN hpd_geocode_results b
         ON a.ogc_fid::text = b.uid
         WHERE a.reporting_construction_type = 'New Construction'
         AND a.project_name <> 'CONFIDENTIAL')

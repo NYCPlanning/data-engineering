@@ -18,20 +18,45 @@ def geocode(input):
 
     try:
         geo = g["1B"](
-            street_name=sname, house_number=hnum, borough=borough, mode="regular"
+            street_name=sname,
+            house_number=hnum,
+            borough=borough,
+            mode="regular",
         )
         geo = parse_output(geo)
-        geo.update(dict(uid=uid, mode="regular", func="1B", status="success"))
+        geo.update(
+            dict(
+                uid=uid,
+                mode="regular",
+                func="1B",
+                status="success",
+            )
+        )
     except GeosupportError:
         try:
             geo = g["1B"](
-                street_name=sname, house_number=hnum, borough=borough, mode="tpad"
+                street_name=sname,
+                house_number=hnum,
+                borough=borough,
+                mode="tpad",
             )
             geo = parse_output(geo)
-            geo.update(dict(uid=uid, mode="tpad", func="1B", status="success"))
+            geo.update(
+                dict(
+                    uid=uid,
+                    mode="tpad",
+                    func="1B",
+                    status="success",
+                )
+            )
         except GeosupportError as e:
             geo = parse_output(e.result)
-            geo.update(uid=uid, mode="tpad", func="1B", status="failure")
+            geo.update(
+                uid=uid,
+                mode="tpad",
+                func="1B",
+                status="failure",
+            )
 
     geo.update(input)
     return geo
@@ -72,8 +97,7 @@ def parse_output(geo):
         geo_ct2020=geo.get("2020 Census Tract", None),
         geo_cb2010=geo.get("2010 Census Block", None),
         geo_cb2020=geo.get("2020 Census Block", None),
-        geo_cdta2020=geo.get(
-            "2020 Community District Tabulation Area (CDTA)", None),
+        geo_cdta2020=geo.get("2020 Community District Tabulation Area (CDTA)", None),
         # the return codes and messaged are for diagnostic puposes
         grc=geo.get("Geosupport Return Code (GRC)", ""),
         grc2=geo.get("Geosupport Return Code 2 (GRC 2)", ""),
