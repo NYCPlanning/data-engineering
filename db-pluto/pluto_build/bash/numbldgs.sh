@@ -1,12 +1,8 @@
 #!/bin/bash
 function numbldgs_geocode {
-   docker run --rm\
-        --user $(id -u):$(id -g)\
-        -v $(pwd)/python:/home/python\
-        -w /home/python\
-        -e RECIPE_ENGINE=$RECIPE_ENGINE\
-        -e API_TOKEN=$API_TOKEN\
-       nycplanning/docker-geosupport:latest python3 numbldgs.py
+   cd python
+   python3 numbldgs.py
+   cd ..
    mc cp $(pwd)/python/pluto_input_numbldgs.csv spaces/edm-recipes/tmp/pluto_input_numbldgs.csv
 }
 register 'geocode' 'numbldgs' 'geocode numbldgs' numbldgs_geocode
