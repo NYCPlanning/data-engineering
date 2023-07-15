@@ -65,7 +65,7 @@ crashtest==0.4.1
     # via
     #   cleo
     #   poetry
-cryptography==41.0.1
+cryptography==41.0.2
     # via secretstorage
 cycler==0.11.0
     # via matplotlib
@@ -77,8 +77,6 @@ distlib==0.3.6
     # via virtualenv
 dulwich==0.21.5
     # via poetry
-exceptiongroup==1.1.1
-    # via pytest
 executing==1.2.0
     # via stack-data
 filelock==3.12.2
@@ -106,13 +104,7 @@ html5lib==1.1
 idna==3.4
     # via requests
 importlib-metadata==6.7.0
-    # via
-    #   fiona
-    #   jupyter-client
-    #   keyring
-    #   poetry
-importlib-resources==5.12.0
-    # via matplotlib
+    # via keyring
 iniconfig==2.0.0
     # via pytest
 installer==0.7.0
@@ -338,14 +330,6 @@ tabulate==0.9.0
     # via -r requirements.in
 threadpoolctl==3.1.0
     # via scikit-learn
-tomli==2.0.1
-    # via
-    #   black
-    #   build
-    #   coverage
-    #   poetry
-    #   pyproject-hooks
-    #   pytest
 tomlkit==0.11.8
     # via poetry
 tornado==6.3.2
@@ -363,10 +347,7 @@ traitlets==5.9.0
 trove-classifiers==2023.7.6
     # via poetry
 typing-extensions==4.6.3
-    # via
-    #   black
-    #   ipython
-    #   sqlalchemy
+    # via sqlalchemy
 urllib3==1.26.16
     # via
     #   dulwich
@@ -385,9 +366,7 @@ webencodings==0.5.1
 xyzservices==2023.5.0
     # via contextily
 zipp==3.15.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
