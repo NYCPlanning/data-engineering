@@ -7,7 +7,6 @@ Jinja2==3.1.2
 mapclassify==2.5.0
 matplotlib==3.7.1
 pandas==1.5.3
-poetry==1.5.1
 psycopg2-binary==2.9.5
 pytest==7.2.2
 pytest-cov==4.0.0
