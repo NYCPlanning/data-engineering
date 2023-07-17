@@ -1,4 +1,6 @@
 #!/bin/bash
+source config.sh
+
 # Create a postgres database container
 BASEDIR=$(dirname $0)
 NAME=$(basename ${BASEDIR})
@@ -6,10 +8,6 @@ WORKDIR="$(pwd)/${NAME}"
 CONTAINER_NAME="cbbr_cook_container"
 CONTAINER_WORKDIR="/cook_container_home/${NAME}"
 VERSION=${DATE}
-
-source ../../bash/utils.sh
-set_env ../../.env
-set_env version.env
 
 echo "CBBR Version ${VERSION} : 01 Data Loading"
 echo "Load data into the container ..."

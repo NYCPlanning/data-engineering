@@ -1,7 +1,5 @@
 #!/bin/bash
-source ../../bash/utils.sh
-set_env ../../.env
-set_env version.env
+source config.sh
 
 echo "CBBR Version ${VERSION} : 02 CBBR"
 # TODO delete tables that are created by this stage
