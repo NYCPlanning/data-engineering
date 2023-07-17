@@ -21,7 +21,7 @@ import_recipe fdny_firecompanies &
 
 # Building and lot-level info
 import_recipe dcp_mappluto_wi &
-import_recipe dcp_facilities 20210811 & # why pinned to this version?
+import_recipe dcp_facilities &∂
 import_recipe doitt_buildingfootprints &
 
 # Projects
