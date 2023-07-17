@@ -1,6 +1,5 @@
 #!/bin/bash
 source bash/config.sh
-set -e
 
 run_sql_file sql/projects_fisa.sql
 run_sql_file sql/budget_fisa.sql
@@ -27,7 +26,7 @@ run_sql_command "
         geomsource text, 
         geom geometry)"
 
-psql $BUILD_ENGINE --set ON_ERROR_STOP=1 -q -f sql/sprints.sql
+run_sql_file sql/sprints.sql
 
 # update cpdb_dcpattributes with geoms from sprints
 echo 'Updating geometries from old sprints'
@@ -103,13 +102,7 @@ echo 'Creating geometries for agency verified data - Summer 2017'
 run_sql_file sql/attributes_agencyverified_geoms.sql
 
 # geocode agencyverified
-docker run --rm\
-    --network host\
-    -v $(pwd)/python:/home/python\
-    -w /home/python\
-    -e BUILD_ENGINE=$BUILD_ENGINE\
-    nycplanning/docker-geosupport:latest bash -c "
-      python3 attributes_geom_agencyverified_geocode.py"
+python3 python/attributes_geom_agencyverified_geocode.py
 
 # These may overwrite any geometry from above
 echo 'Adding agency verified geometries'
@@ -152,7 +145,7 @@ echo
 
 # geometry cleaning -- lines to polygons and all geoms to multi
 echo 'Cleaning geometries: lines to polygons and geoms to multi'
-psql $BUILD_ENGINE  -q  -f sql/attributes_geomclean.sql
+run_sql_file sql/attributes_geomclean.sql
 
 # remove faulty geometries	
 echo 'Removing bad geometries'	

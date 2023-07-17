@@ -1,6 +1,6 @@
 from jinja2 import Template
 from datetime import datetime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import os
 
 # connect to postgres db
@@ -33,4 +33,5 @@ GROUP BY TRIM(LEFT(capital_project,12));
 sql_rendered = Template(sql).render(years=list(range(2010, current_year+1)))
 
 # Execute SQL
-engine.execute(sql_rendered)
+with engine.begin() as conn:
+    conn.execute(text(sql_rendered))

@@ -5,7 +5,7 @@
 ## Instructions
 
 1. All the relevant commands for running CPDB is wrapped in the cli bash script `./cpdb.sh`, please read the file for more details.
-2. The capital spending scraping process should be done right after we load `fisa_capitalcommitments` to data library. A separate bash script will import  `fisa_capitalcommitments` to bigquery and we will create export the capital spending table `cpdb_capital_spending` via a bigquery command (see `bash/11_spending.sh` for more details)
+2. The capital spending scraping process should be done right after we load `fisa_capitalcommitments` to data library. A separate bash script will import  `fisa_capitalcommitments` to bigquery and we will create export the capital spending table `cpdb_capital_spending` via a bigquery command (see `bash/06_spending.sh` for more details)
 
     > Note that this process is triggered via workflow dispatch
 

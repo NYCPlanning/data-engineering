@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import pandas as pd
 import os
 from dotenv import load_dotenv
@@ -26,20 +26,21 @@ def parkid_parse(x):
 engine = create_engine(os.getenv("BUILD_ENGINE", ""))
 
 # makes selection
-parkproj = pd.read_sql_query(
-    "SELECT * FROM dpr_capitalprojects WHERE park_id is not NULL", engine
-)
+with engine.begin() as conn:
+    parkproj = pd.read_sql_query(
+        text("SELECT * FROM dpr_capitalprojects WHERE park_id is not NULL"), conn
+    )
 
-# park_id cleaning
-parkproj_cleaned = pd.DataFrame()
-for i in range(len(parkproj)):
-    parkproj_cleaned = pd.concat([parkproj_cleaned, parkid_parse(parkproj.iloc[i, :])])
-parkproj_cleaned = parkproj_cleaned[["fmsid", "park_id"]]
+    # park_id cleaning
+    parkproj_cleaned = pd.DataFrame()
+    for i in range(len(parkproj)):
+        parkproj_cleaned = pd.concat([parkproj_cleaned, parkid_parse(parkproj.iloc[i, :])])
+    parkproj_cleaned = parkproj_cleaned[["fmsid", "park_id"]]
 
-parkproj_cleaned.to_sql(
-    "dpr_capitalprojects_fms_parkid",
-    engine,
-    if_exists="replace",
-    index=False,
-    method=psql_insert_copy,
-)
+    parkproj_cleaned.to_sql(
+        "dpr_capitalprojects_fms_parkid",
+        conn,
+        if_exists="replace",
+        index=False,
+        method=psql_insert_copy,
+    )
