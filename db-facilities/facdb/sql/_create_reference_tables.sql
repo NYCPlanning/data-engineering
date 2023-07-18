@@ -4,7 +4,7 @@ CREATE TABLE lookup_boro (
     boroname TEXT,
     borocode INTEGER
 );
-\COPY lookup_boro FROM 'db-facilities/facdb/data/lookup_boro.csv' DELIMITER ',' CSV HEADER;
+\COPY lookup_boro FROM 'facdb/data/lookup_boro.csv' DELIMITER ',' CSV HEADER;
 
 
 DROP TABLE IF EXISTS lookup_classification;
@@ -14,7 +14,7 @@ CREATE TABLE lookup_classification (
     facdomain TEXT,
     servarea TEXT
 );
-\COPY lookup_classification FROM 'db-facilities/facdb/data/lookup_classification.csv' DELIMITER ',' CSV HEADER;
+\COPY lookup_classification FROM 'facdb/data/lookup_classification.csv' DELIMITER ',' CSV HEADER;
 
 
 DROP TABLE IF EXISTS lookup_agency;
@@ -24,7 +24,7 @@ CREATE TABLE lookup_agency (
     overlevel TEXT,
     optype TEXT
 );
-\COPY lookup_agency FROM 'db-facilities/facdb/data/lookup_agency.csv' DELIMITER ',' CSV HEADER;
+\COPY lookup_agency FROM 'facdb/data/lookup_agency.csv' DELIMITER ',' CSV HEADER;
 
 
 DROP TABLE IF EXISTS manual_corrections;
@@ -34,4 +34,4 @@ CREATE TABLE manual_corrections (
     old_value TEXT,
     new_value TEXT
 );
-\COPY manual_corrections FROM 'db-facilities/facdb/data/manual_corrections.csv' DELIMITER ',' CSV HEADER;
+\COPY manual_corrections FROM 'facdb/data/manual_corrections.csv' DELIMITER ',' CSV HEADER;

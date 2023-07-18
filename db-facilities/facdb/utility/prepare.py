@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .. import CACHE_PATH, BASE_URL
+from facdb import CACHE_PATH, BASE_URL
 from .metadata import add_version
 from .utils import format_field_names, hash_each_row
 
