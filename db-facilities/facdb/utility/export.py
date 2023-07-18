@@ -1,7 +1,7 @@
 from functools import wraps
 from sqlalchemy import dialects
 from dcpy.connectors import psql
-from .. import BUILD_ENGINE
+from facdb import BUILD_ENGINE
 from sqlalchemy import create_engine
 
 ENGINE = create_engine(BUILD_ENGINE)

@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: ./db-facilities
     container:
       image: nycplanning/build-geosupport:latest
       env:
@@ -46,30 +47,30 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Run Container Setup
+        working-directory: ./
         run: ./bash/docker_container_setup.sh
 
       - name: Install python deps
+        working-directory: ./
         run: pip install -r ./python/requirements.txt
 
       - name: Initialize
-        run: python -m db-facilities.facdb.cli init
+        run: python -m facdb.cli init
 
       - name: Dataloading
-        run: python -m db-facilities.facdb.cli dataloading
+        run: python -m facdb.cli dataloading
 
       - name: Run Pipelines
-        run: python -m db-facilities.facdb.cli run --all
+        run: python -m facdb.cli run --all
 
       - name: Build facdb
-        run: python -m db-facilities.facdb.cli build
+        run: python -m facdb.cli build
 
       - name: QAQC facdb
-        run: python -m db-facilities.facdb.cli qaqc
+        run: python -m facdb.cli qaqc
 
       - name: Export facdb
-        working-directory: ./db-facilities
         run: ./facdb.sh export
 
       - name: Upload Artifacts
-        working-directory: ./db-facilities
         run: ./facdb.sh upload

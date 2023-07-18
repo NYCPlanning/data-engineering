@@ -9,7 +9,7 @@ from dcpy.connectors import psql
 from .utility.prepare import read_datasets_yml
 from .utility.metadata import dump_metadata
 
-from . import SQL_PATH, BASH_PATH, BUILD_ENGINE, CACHE_PATH, VERSION_PREV
+from facdb import SQL_PATH, BASH_PATH, BUILD_ENGINE, CACHE_PATH, VERSION_PREV
 
 if not CACHE_PATH.exists():
     CACHE_PATH.mkdir()
@@ -105,7 +105,7 @@ def run(
         dataset = next(filter(lambda x: x["name"] == name, datasets), None)
         scripts = dataset.get("scripts", None)
         if python:
-            pipelines = importlib.import_module("db-facilities.facdb.pipelines")
+            pipelines = importlib.import_module("facdb.pipelines")
             pipeline = getattr(pipelines, name)
             pipeline()
 
