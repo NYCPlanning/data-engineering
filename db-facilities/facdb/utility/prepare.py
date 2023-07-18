@@ -3,15 +3,15 @@ import os
 from functools import wraps
 from pathlib import Path
 
-import boto3
 import numpy as np
 import pandas as pd
 import yaml
 
-from . import BASE_PATH, BASE_URL
+from facdb import CACHE_PATH, BASE_URL
 from .metadata import add_version
 from .utils import format_field_names, hash_each_row
 
+from dcpy.connectors.edm import recipes
 
 def read_datasets_yml() -> dict:
     with open(Path(__file__).parent.parent / ("datasets.yml"), "r") as f:
@@ -35,18 +35,7 @@ def read_from_S3(name: str) -> pd.DataFrame:
 
 
 def version_from_config(name, read_version):
-    client = boto3.client(
-        "s3",
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-        endpoint_url=os.environ["AWS_S3_ENDPOINT"],
-    )
-    print("Retrieving edm-recipe: " + f"datasets/{name}/{read_version}/config.json")
-    obj = client.get_object(
-        Bucket="edm-recipes", Key=f"datasets/{name}/{read_version}/config.json"
-    )
-    file_content = str(obj["Body"].read(), "utf-8")
-    json_content = json.loads(file_content)
+    json_content = recipes.get_config(name, read_version)
     version = json_content["dataset"]["version"]
     if version.isnumeric():
         version = int(version)
@@ -57,7 +46,7 @@ def Prepare(func) -> callable:
     @wraps(func)
     def wrapper(*args, **kwargs) -> pd.DataFrame:
         name = func.__name__
-        pkl_path = BASE_PATH / f"{name}.pkl"
+        pkl_path = CACHE_PATH / f"{name}.pkl"
         if not os.path.isfile(pkl_path):
             # pull from data library
             print(f"pulling from {name} data library")

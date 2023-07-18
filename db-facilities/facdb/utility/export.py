@@ -1,11 +1,10 @@
 from functools import wraps
-
-import pandas as pd
 from sqlalchemy import dialects
+from dcpy.connectors import psql
+from facdb import BUILD_ENGINE
+from sqlalchemy import create_engine
 
-from . import ENGINE
-from .utils import psql_insert_copy
-
+ENGINE = create_engine(BUILD_ENGINE)
 
 def Export(func):
     @wraps(func)
@@ -22,7 +21,7 @@ def Export(func):
                 "geo_bl": dialects.postgresql.JSON,
                 "geo_bn": dialects.postgresql.JSON,
             },
-            method=psql_insert_copy,
+            method=psql.insert_copy,
         )
 
     return wrapper

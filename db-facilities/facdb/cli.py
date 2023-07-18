@@ -5,8 +5,14 @@ from typing import List, Optional
 
 import typer
 
-from . import ExecuteSQL, dump_metadata
+from dcpy.connectors import psql
 from .utility.prepare import read_datasets_yml
+from .utility.metadata import dump_metadata
+
+from facdb import SQL_PATH, BASH_PATH, BUILD_ENGINE, CACHE_PATH, VERSION_PREV
+
+if not CACHE_PATH.exists():
+    CACHE_PATH.mkdir()
 
 app = typer.Typer(add_completion=False)
 
@@ -25,10 +31,10 @@ def init():
     """
     Initialize empty facdb_base table and create procedures and functions
     """
-    ExecuteSQL("facdb/sql/_create_facdb_base.sql")
-    ExecuteSQL("facdb/sql/_create_reference_tables.sql")
-    ExecuteSQL("facdb/sql/_procedures.sql")
-    ExecuteSQL("facdb/sql/_functions.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_base.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
 
 
 @app.command()
@@ -36,7 +42,7 @@ def dataloading():
     """
     Load SQL dump datasets from data library e.g. dcp_mappluto_wi, doitt_buildingcentroids
     """
-    os.system("./facdb/bash/dataloading.sh")
+    os.system(BASH_PATH / f"dataloading.sh {VERSION_PREV}")
 
 
 @app.command()
@@ -44,14 +50,14 @@ def build():
     """
     Building facdb based on facdb_base
     """
-    ExecuteSQL("facdb/sql/_create_facdb_geom.sql")
-    ExecuteSQL("facdb/sql/_create_facdb_address.sql")
-    ExecuteSQL("facdb/sql/_create_facdb_spatial.sql")
-    ExecuteSQL("facdb/sql/_create_facdb_boro.sql")
-    ExecuteSQL("facdb/sql/_create_facdb_classification.sql")
-    ExecuteSQL("facdb/sql/_create_facdb_agency.sql")
-    ExecuteSQL("facdb/sql/_create_facdb.sql")
-    ExecuteSQL("facdb/sql/_deduplication.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_geom.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_address.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_spatial.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_boro.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_agency.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
 
 
 @app.command()
@@ -59,7 +65,7 @@ def qaqc():
     """
     Running QAQC commands
     """
-    ExecuteSQL("facdb/sql/_qaqc.sql")
+    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_qaqc.sql")
 
 
 @app.command()
@@ -105,7 +111,7 @@ def run(
 
         if scripts and sql:
             for script in scripts:
-                ExecuteSQL(Path(__file__).parent / "sql" / script)
+                psql.exec_file_via_shell(BUILD_ENGINE, Path(__file__).parent / "sql" / script)
 
         typer.echo(typer.style(f"SUCCESS: {name}", fg=typer.colors.GREEN))
     dump_metadata()
@@ -124,7 +130,7 @@ def sql(
     """
     if scripts:
         for script in scripts:
-            ExecuteSQL(script)
+            psql.exec_file_via_shell(script)
 
 
 @app.command()
@@ -143,12 +149,14 @@ def clear(
     facdb clear -n {{ name }}\n
     facdb clear --all\n
     """
-    from facdb.utility import BASE_PATH
-
     files_for_removal = (
         [f"{name}.pkl"]
         if name and not all_datasets
-        else [f for f in os.listdir(BASE_PATH) if ".pkl" in f]
+        else [f for f in os.listdir(CACHE_PATH) if ".pkl" in f]
     )
     for f in files_for_removal:
-        os.remove(BASE_PATH / f)
+        os.remove(CACHE_PATH / f)
+
+
+if __name__ == "__main__":
+    app()

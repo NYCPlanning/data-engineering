@@ -47,34 +47,30 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Run Container Setup
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
-      - name: Build Python Poetry deps and CLI
-        run: |
-          pip3 install poetry==1.5.1 &&\
-          python3 -m poetry config virtualenvs.create false --local && python3 -m poetry install --no-dev
+      - name: Install python deps
+        working-directory: ./
+        run: pip install -r ./python/requirements.txt
 
       - name: Initialize
-        run: facdb init
+        run: python -m facdb.cli init
 
       - name: Dataloading
-        run: facdb dataloading
+        run: python -m facdb.cli dataloading
 
       - name: Run Pipelines
-        run: facdb run --all
+        run: python -m facdb.cli run --all
 
       - name: Build facdb
-        run: facdb build
+        run: python -m facdb.cli build
 
       - name: QAQC facdb
-        run: facdb qaqc
+        run: python -m facdb.cli qaqc
 
       - name: Export facdb
         run: ./facdb.sh export
 
       - name: Upload Artifacts
         run: ./facdb.sh upload
-
-      # - name: Archive tables to EDM_DATA
-      #   if: github.ref == 'refs/heads/develop'
-      #   run: ./facdb.sh archive --all
