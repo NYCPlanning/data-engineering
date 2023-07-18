@@ -1,18 +1,17 @@
 name: DevDB - 🏗️ Build
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      export:
-        description: "Would you like to export the outputs and QAQC to DigitalOcean? (yes/no)"
+      run_export:
         type: boolean
         required: true
         default: false
-      archive:
-        description: "Would you like to archive developments and dcp_housing to EDM-DATA? (yes/no)"
-        type: boolean
-        required: true
-        default: false
+      # archive:
+      #   description: "Would you like to archive developments and dcp_housing to EDM-DATA? (yes/no)"
+      #   type: boolean
+      #   required: true
+      #   default: false
 
 jobs:
   build:
@@ -64,11 +63,11 @@ jobs:
         run: ./devdb.sh qaqc
 
       - name: 4. Export ...
-        if: inputs.export
+        if: inputs.run_export
         run: |
           ./devdb.sh export
           ./devdb.sh upload
 
-      - name: 5. Archive ...
-        if: inputs.archive
-        run: ./devdb.sh archive
+      # - name: 5. Archive ...
+      #   if: inputs.archive
+      #   run: ./devdb.sh archive
