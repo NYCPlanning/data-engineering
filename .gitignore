@@ -130,3 +130,6 @@ dmypy.json
 
 .vscode
 *.DS_Store
+
+
+db-checkbook/historical_cpdb_data/
