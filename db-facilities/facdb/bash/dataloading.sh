@@ -4,8 +4,8 @@ FILE_DIR=$(dirname "$(readlink -f "$0")")
 
 source $FILE_DIR/../../../bash/utils.sh
 set_error_traps
-set_env .env version.env
 max_bg_procs 5
+VERSION_PREV=$1
 
 create_source_data_table
 
