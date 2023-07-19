@@ -1,0 +1,73 @@
+name: Build - ACS
+on:
+  workflow_dispatch:
+    inputs:
+      data_year:
+        description: 'Release year of ACS data. e.g. For 2015-2019 acs5 data, type "2019"'
+        required: true
+        default: '2019'
+      geo_year:
+        description: 'Year of geographic units. Options: "2010", "2020", or "2010_to_2020"'
+        required: true
+        default: '2010_to_2020'
+      cache:
+        description: 'Would you like to use cached download data? (yes/no)'
+        required: true
+        default: 'yes'
+
+jobs:
+  build:
+    name: "ACS Year: ${{ github.event.inputs.data_year }} Geography: ${{ github.event.inputs.geo_year }}"
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      DATA_YEAR: ${{ github.event.inputs.data_year }}
+      GEO_YEAR: ${{ github.event.inputs.geo_year }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install Minio CLI
+        run: |
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv ./mc /usr/bin
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: Install locally
+        run: |
+          python3.9 -m pip install --upgrade pip
+          python3.9 -m pip install .
+
+      - name: Cache Download - so that we are less reliant on the API
+        if: github.event.inputs.cache == 'yes'
+        uses: actions/cache@v2
+        with:
+          path: .cache/download/year=${{ github.event.inputs.data_year }}/geography=${{ github.event.inputs.geo_year }}
+          key: ${{ hashFiles('factfinder/download.py') }}
+
+      - name: run pipelines/acs
+        run: |
+          python3.9 -m pipelines.acs --year $DATA_YEAR --geography $GEO_YEAR
+          python3.9 -m pipelines.support_geoids --geography $GEO_YEAR
+
+      - name: send to database
+        run: |
+          TABLE_NAME=staging-Y$DATA_YEAR-G$GEO_YEAR
+          FILE_PATH=.output/acs/year=$DATA_YEAR/geography=$GEO_YEAR/acs.csv
+          cat $FILE_PATH | psql $EDM_DATA -v TABLE_NAME=$TABLE_NAME -f pipelines/create_acs.sql
+
+      - name: upload to s3
+        if: github.ref == 'refs/heads/main'
+        run: |
+          ACS_FILE_PATH=.output/acs/year=$DATA_YEAR/geography=$GEO_YEAR/acs.csv
+          SUPPORT_GEOIDS_FILE_PATH=.output/support_geoids/geography=$GEO_YEAR/support_geoids.csv
+          mc cp $ACS_FILE_PATH spaces/edm-publishing/db-factfinder/acs/year=$DATA_YEAR/geography=$GEO_YEAR/
+          mc cp $SUPPORT_GEOIDS_FILE_PATH spaces/edm-publishing/db-factfinder/support_geoids/geography=$GEO_YEAR/

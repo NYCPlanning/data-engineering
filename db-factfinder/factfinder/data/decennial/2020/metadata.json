@@ -1,0 +1,204 @@
+[
+    {
+        "pff_variable": "decennial_pop",
+        "base_variable": "decennial_pop",
+        "census_variable": [
+            "P001001"
+        ],
+        "domain": "community_profiles",
+        "rounding": 0,
+        "source": "decennial"
+    },
+    {
+        "pff_variable": "pop1",
+        "census_variable": [],
+        "base_variable": "pop1",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "POPULATION"
+    },
+    {
+        "pff_variable": "popinhh",
+        "census_variable": [],
+        "base_variable": "pop1",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "POPULATION"
+    },
+    {
+        "pff_variable": "ingrpqtrs",
+        "census_variable": [],
+        "base_variable": "pop1",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "POPULATION"
+    },
+    {
+        "pff_variable": "institlzd",
+        "census_variable": [],
+        "base_variable": "pop1",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "POPULATION"
+    },
+    {
+        "pff_variable": "avghhsz",
+        "census_variable": [],
+        "base_variable": "mean",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "POPULATION"
+    },
+    {
+        "pff_variable": "popperacre",
+        "census_variable": [],
+        "base_variable": "ratio",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "POPULATION"
+    },
+    {
+        "pff_variable": "pop2",
+        "census_variable": [],
+        "base_variable": "pop2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "male ",
+        "census_variable": [],
+        "base_variable": "pop2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "fem",
+        "census_variable": [],
+        "base_variable": "pop2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "popu18_1",
+        "census_variable": [],
+        "base_variable": "pop2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "popu18_2",
+        "census_variable": [],
+        "base_variable": "popu18_2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "popu18m",
+        "census_variable": [],
+        "base_variable": "popu18_2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "popu18f",
+        "census_variable": [],
+        "base_variable": "popu18_2",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "AGE AND SEX"
+    },
+    {
+        "pff_variable": "pop3",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "hsp1",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "wnh",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "bnh",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "anh",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "onh",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "twoplnh",
+        "census_variable": [],
+        "base_variable": "pop3",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+    },
+    {
+        "pff_variable": "hunits",
+        "census_variable": [],
+        "base_variable": "hunits",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "HOUSING OCCUPANCY"
+    },
+    {
+        "pff_variable": "ochu_1",
+        "census_variable": [],
+        "base_variable": "hunits",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "HOUSING OCCUPANCY"
+    },
+    {
+        "pff_variable": "vachus",
+        "census_variable": [],
+        "base_variable": "hunits",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "HOUSING OCCUPANCY"
+    },
+    {
+        "pff_variable": "landacres",
+        "census_variable": [],
+        "base_variable": "popperacre",
+        "domain": "decennial",
+        "rounding": 0,
+        "category": "For Persons per Acre"
+    }
+]

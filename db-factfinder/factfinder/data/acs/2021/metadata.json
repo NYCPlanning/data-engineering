@@ -1,0 +1,6092 @@
+[
+    {
+        "pff_variable": "pop_1",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "male",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fem",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "popu5",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop5t9",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop10t14",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop15t19",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop20t24",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop25t29",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop30t34",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop35t39",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop40t44",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop45t49",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop50t54",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop55t59",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop60t64",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop65t69",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop70t74",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop75t79",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop80t84",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop85pl",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "popu181",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop65pl1",
+        "category": "Sex and Age",
+        "base_variable": "pop_1",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdage",
+        "category": "Sex and Age",
+        "base_variable": "median",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "popu18_2",
+        "category": "Sex and Age",
+        "base_variable": "popu18_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "popu18m",
+        "category": "Sex and Age",
+        "base_variable": "popu18_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "popu18f",
+        "category": "Sex and Age",
+        "base_variable": "popu18_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop65pl2",
+        "category": "Sex and Age",
+        "base_variable": "pop65pl2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop65plm",
+        "category": "Sex and Age",
+        "base_variable": "pop65pl2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop65plf",
+        "category": "Sex and Age",
+        "base_variable": "pop65pl2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop_2",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsp1",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "nhsp",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "wtnh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "blnh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "aiannh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnnh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "nhpinh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "othnh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "rc2plnh",
+        "category": "Mutually Exclusive Race/Hispanic Origin",
+        "base_variable": "pop_2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsp2",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspme",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsppr",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspcub",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspdom",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspcam",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspcr",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspguatm",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsphnd",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspnic",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsppan",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspsalv",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspocam",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspsam",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsparg",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspbol",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspchl",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspcol",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspec",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspprg",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspperu",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspurg",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspvnz",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hsposam",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspoth",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspspnrd",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspspnsh",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspspam",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hspalloth",
+        "category": "Hispanic Subgroup",
+        "base_variable": "hsp2",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asn1rc",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asneast",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnchinot",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnjpn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnkor",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnmgol",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnokinw",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asntwn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnsouth",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnind",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnbng",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnbhutn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnnepal",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnpak",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnsril",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnseast",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnburm",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asncmb",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnflp",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnhmng",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnindnsn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnlao",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnmalsn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnthai",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnvtn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asnoasn",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "asn2pl",
+        "category": "Asian Subgroup",
+        "base_variable": "asn1rc",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop_3",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop0t4",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop5t9",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop10t14",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop15t17",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop18t19",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop20",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop21",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop22t24",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop25t29",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop30t34",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop35t39",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop40t44",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop45t49",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop50t54",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop55t59",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop60t61",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop62t64",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop65t66",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop67t69",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop70t74",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop75t79",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop80t84",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mdpop85pl",
+        "category": "Demographic- Special Variable",
+        "base_variable": "mdage",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "pop",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop0t5",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop5t9",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop10t14",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop15t19",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop20t24",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop25t29",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop30t34",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop35t39",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop40t44",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop45t49",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop50t54",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop55t59",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop60t64",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop65t69",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop70t74",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop75t79",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop80t84",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "mpop85pl",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop0t5",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop5t9",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop10t14",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop15t19",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop20t24",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop25t29",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop30t34",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop35t39",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop40t44",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop45t49",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop50t54",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop55t59",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop60t64",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop65t69",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop70t74",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop75t79",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop80t84",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "fpop85pl",
+        "category": "PopPyramid Only",
+        "base_variable": "pop",
+        "domain": "demographic"
+    },
+    {
+        "pff_variable": "hh1",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fam1",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "famchu18",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mrdfam",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mrdchu18",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mhns",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mhnschu18",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fhns",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fhnschu18",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nfam1",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nfama",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nfama65pl",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hh1plu18",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hh1pl65pl",
+        "category": "Household Type",
+        "base_variable": "hh1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "avghhsz",
+        "category": "Household Type",
+        "base_variable": "mean",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "avgfmsz",
+        "category": "Household Type",
+        "base_variable": "mean",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hhpop",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshphhldr",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshp_sp",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshp_ch",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshp_othr",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshp_nr",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshp_nrup",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "rshp_ssup",
+        "category": "Relationship to Head of Household (Householder)",
+        "base_variable": "hhpop",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_m15pl",
+        "category": "Marital Status",
+        "base_variable": "ms_m15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_mnvmrd",
+        "category": "Marital Status",
+        "base_variable": "ms_m15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_mmrdsp",
+        "category": "Marital Status",
+        "base_variable": "ms_m15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_msp",
+        "category": "Marital Status",
+        "base_variable": "ms_m15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_mwd",
+        "category": "Marital Status",
+        "base_variable": "ms_m15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_mdvcd",
+        "category": "Marital Status",
+        "base_variable": "ms_m15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_f15pl",
+        "category": "Marital Status",
+        "base_variable": "ms_f15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_fnvmrd",
+        "category": "Marital Status",
+        "base_variable": "ms_f15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_fmrdsp",
+        "category": "Marital Status",
+        "base_variable": "ms_f15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_fsp",
+        "category": "Marital Status",
+        "base_variable": "ms_f15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_fwd",
+        "category": "Marital Status",
+        "base_variable": "ms_f15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ms_fdvcd",
+        "category": "Marital Status",
+        "base_variable": "ms_f15pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "gplgcu18",
+        "category": "Grandparents",
+        "base_variable": "gplgcu18",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "gprgcu18",
+        "category": "Grandparents",
+        "base_variable": "gplgcu18",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop3plen",
+        "category": "School Enrollment",
+        "base_variable": "pop3plen",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "se_nscpsc",
+        "category": "School Enrollment",
+        "base_variable": "pop3plen",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "se_kndgtn",
+        "category": "School Enrollment",
+        "base_variable": "pop3plen",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "se_g1t8",
+        "category": "School Enrollment",
+        "base_variable": "pop3plen",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "se_g9t12",
+        "category": "School Enrollment",
+        "base_variable": "pop3plen",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "se_clggsc",
+        "category": "School Enrollment",
+        "base_variable": "pop3plen",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_p25pl",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_lt9g",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_9t12nd",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_hscgrd",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_sclgnd",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_ascd",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_bchd",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_grdpfd",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_lthsgr",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ea_bchdh",
+        "category": "Educational Attainment (Highest Grade Completed)",
+        "base_variable": "ea_p25pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvpop18pl",
+        "category": "Veteran Status",
+        "base_variable": "cvpop18pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvvet18pl",
+        "category": "Veteran Status",
+        "base_variable": "cvpop18pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnipop1",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid_hrg",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid_vsn",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid_cog",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid_amb",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid_scr",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvnid_ild",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvnipop1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvniu18_1",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvniu18d",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cu18dhrg",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cu18dvsn",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cu18dcog",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cu18damb",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cu18dscr",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvniu18_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cni1864_1",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cni18t64d",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c1864dhrg",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c1864dvsn",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c1864dcog",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c1864damb",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c1864dscr",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c1864dild",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cni1864_1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvni65pl",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvni65pld",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c65pldhrg",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c65pldvsn",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c65pldcog",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c65pldamb",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c65pldscr",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "c65pldild",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "base_variable": "cvni65pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop1pl",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "pop1pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "smhs",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "pop1pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dfhs1",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "pop1pl",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dfhs2",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dfhsus",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dfhssmcnt",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dfhsdfcnt",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dhdfcntnyc",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dhnonyc",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "abroad",
+        "category": "Residence 1 Year Ago",
+        "base_variable": "dfhs2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop_4",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ntv",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ntvus",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ntvnys",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ntvnotnys",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ntvprusab",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fb1",
+        "category": "Place of Birth",
+        "base_variable": "pop_4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fb2",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "neur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "untdkgdm",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "uknoengsc",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eng",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "scot",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ireland",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "denmark",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "norway",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sweden",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oneur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "weur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "austria",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "belgium",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "france",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "germany",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nthrlds",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "switzrld",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oweur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "seur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "greece",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "italy",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "portugal",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "spain",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oseur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eeur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "albania",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "belarus",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bulgaria",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "croatia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "czchslv",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hungary",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "latvia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lthuania",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mcdonia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "moldova",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "poland",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "romania",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "russia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ukraine",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bosniah",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "serbia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oeeur",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eurnec",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "asia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "easia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "china",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "chnohktwn",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hongkong",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "taiwan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "japan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "korea",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oeasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "scasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "afghan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bngldsh",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "india",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "iran",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "kzkhstan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nepal",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pakistan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "srilanka",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "uzbkstan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oscasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "seasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cambodia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "indnsia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "laos",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "malaysia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "burma",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "philipns",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sngapore",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "thailand",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "vietnam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oseasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "wasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "iraq",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "israel",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "jordan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "kuwait",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lebanon",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "saudiar",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "syria",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "yemen",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "turkey",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "armenia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "owasia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "asianec",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "afr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eritrea",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ethiopia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "kenya",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oeafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cameroon",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "omafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "egypt",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "morocco",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sudan",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "onafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sthrnafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sthafrca",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "osthrnafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "wafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "caboverd",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ghana",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "liberia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nigeria",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sierral",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "owafr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "afrnec",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oceania",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ausnzsbr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "austrlia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oausnzsbr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fiji",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ocnianec",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "amricas",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "carib",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bahamas",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "barbados",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cuba",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dominica",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "domrep",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "grenada",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "haiti",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "jamaica",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "stvgren",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "trandtob",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "windies",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ocarib",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "mexico",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "belize",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cstarica",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "elslvdr",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "guatmala",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "honduras",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nicargua",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "panama",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ocam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "argntina",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bolivia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "brazil",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "chile",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "colombia",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ecuador",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "guyana",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "peru",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "uruguay",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "vnzuela",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "osam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "canada",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "onam",
+        "category": "Place of Birth",
+        "base_variable": "fb2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fb3",
+        "category": "U.S. Citizenship Status",
+        "base_variable": "fb3",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fbntlzd",
+        "category": "U.S. Citizenship Status",
+        "base_variable": "fb3",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fbnotczn",
+        "category": "U.S. Citizenship Status",
+        "base_variable": "fb3",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fb4",
+        "category": "Year of Entry",
+        "base_variable": "fb4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fb2010ltr",
+        "category": "Year of Entry",
+        "base_variable": "fb4",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop5pl1",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "engonly1",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoeng1",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoenlep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgsp1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgsp1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgsplep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgsp1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgfr1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgfr1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgfrlep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgfr1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lggrm1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lggrm1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lggrmlep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lggrm1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgruspol1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgruspol1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgrsplep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgruspol1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoieu1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoieu1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoielep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoieu1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgkor1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgkor1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgkorlep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgkor1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgchi1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgchi1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgchilep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgchi1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgviet1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgviet1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgvielep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgviet1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgtag1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgtag1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgtaglep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgtag1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoasn1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoasn1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoanlep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoasn1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgarab1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgarab1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgarblep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgarab1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgolg1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgolg1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgolglep1",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgolg1",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop5pl2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "engonly2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoeng2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgsp2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgfr2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lggrm2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgruspol2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoieu2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgkor2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgchi2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgviet2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgtag2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoasn2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgarab2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgolg2",
+        "category": "Language Spoken at Home",
+        "base_variable": "pop5pl2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoenlep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgsplep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgfrlep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lggrmlep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgrsplep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoielep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgkorlep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgchilep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgvielep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgtaglep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgoanlep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgarblep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lgolglep2",
+        "category": "Language Spoken at Home",
+        "base_variable": "lgoenlep2",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop_5",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "afg",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "alb",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "alsatn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "amercn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "arab",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "egyptn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "iraqi",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "jrdnian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lebanese",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "moroccan",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "palstnian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "syrian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "arabsub",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "oarab",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "armenian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "asyrchlds",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "austrln",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "austrian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "basque",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "belgian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "brzlian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "british",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bulgrian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cajun",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "canadian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "carprusn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "celtic",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "croatian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cypriot",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "czech",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "czechslv",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "danish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dutch",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "eeurpn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "english",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "estonian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "european",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "finnish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "frnotbsq",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "frcandian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "german",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "germrus",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "greek",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "guyanese",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hgrian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "icelndr",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "iranian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "irish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "israeli",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "italian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "latvian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "lthian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "luxmbgr",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "macdnian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "maltese",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nzealnd",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "neurpn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "norwgian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "penngerm",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "polish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "portgese",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "romanian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "russian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "scandnvn",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sctchirsh",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "scottish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "serbian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "slavic",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "slovak",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "slovene",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "svtunion",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "subsaf",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "cvrdean",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ethpian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ghanaian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "kenyan",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "liberian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "nigerian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "snglese",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sleonean",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "somali",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "safrican",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "sudanese",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ugandan",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "zmbwean",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "african",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "osubsafr",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "swedish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "swiss",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "turkish",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "ukrnian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "welsh",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "windnhsp",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bahamian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "brbdian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "belizean",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "bermudan",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "brtwind",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "dchwind",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "haitian",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "jamaican",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "tandtob",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "usvrgis",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "windsub",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "owind",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "yugoslv",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "othr",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "unclsnr",
+        "category": "Ancestry",
+        "base_variable": "pop_5",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hh3",
+        "category": "Computers and Internet Use",
+        "base_variable": "hh3",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hhcomp",
+        "category": "Computers and Internet Use",
+        "base_variable": "hh3",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hhint",
+        "category": "Computers and Internet Use",
+        "base_variable": "hh3",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hh4",
+        "category": "Social-Special Variable",
+        "base_variable": "avghhsz",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "fam3",
+        "category": "Social-Special Variable",
+        "base_variable": "avgfmsz",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "hhpop1",
+        "category": "Social-Special Variable",
+        "base_variable": "avghhsz",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "popinfms",
+        "category": "Social-Special Variable",
+        "base_variable": "avgfmsz",
+        "domain": "social"
+    },
+    {
+        "pff_variable": "pop16pl",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "lf",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvlf1",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvem16pl1",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvlfuem1",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "lfarmdf",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nlf1",
+        "category": "Employment Status",
+        "base_variable": "pop16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvlf2",
+        "category": "Employment Status",
+        "base_variable": "cvlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvlfuem2",
+        "category": "Employment Status",
+        "base_variable": "cvlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "f16pl",
+        "category": "Employment Status",
+        "base_variable": "f16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "f16pllf",
+        "category": "Employment Status",
+        "base_variable": "f16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "f16plcvlf",
+        "category": "Employment Status",
+        "base_variable": "f16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "f16plclfe",
+        "category": "Employment Status",
+        "base_variable": "f16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ochu6",
+        "category": "Employment Status",
+        "base_variable": "ochu6",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ochu6plf",
+        "category": "Employment Status",
+        "base_variable": "ochu6",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "och6t17",
+        "category": "Employment Status",
+        "base_variable": "och6t17",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "oc6t17plf",
+        "category": "Employment Status",
+        "base_variable": "och6t17",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "wrkr16pl",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cw_drvaln",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cw_crpld",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cw_pbtrns",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cw_wlkd",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cw_oth",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cw_wrkdhm",
+        "category": "Commute to Work",
+        "base_variable": "wrkr16pl",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mntrvtm",
+        "category": "Commute to Work",
+        "base_variable": "mean",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvem16pl2",
+        "category": "Occupation",
+        "base_variable": "cvem16pl2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mgbsciart",
+        "category": "Occupation",
+        "base_variable": "cvem16pl2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "srvc",
+        "category": "Occupation",
+        "base_variable": "cvem16pl2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "salesoff",
+        "category": "Occupation",
+        "base_variable": "cvem16pl2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nrcnstmnt",
+        "category": "Occupation",
+        "base_variable": "cvem16pl2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "prdtrnsmm",
+        "category": "Occupation",
+        "base_variable": "cvem16pl2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvem16pl3",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "agffhm",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "constctn",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mnfctrng",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "whlsale",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "retail",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "trwhut",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "info",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fire",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "prfsmgawm",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "edhlthcsa",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "artenrafs",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "othnotpa",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pubadmin",
+        "category": "Industry",
+        "base_variable": "cvem16pl3",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvem16pl4",
+        "category": "Class of Worker",
+        "base_variable": "cvem16pl4",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "prvwswrkr",
+        "category": "Class of Worker",
+        "base_variable": "cvem16pl4",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "gvtwrkr",
+        "category": "Class of Worker",
+        "base_variable": "cvem16pl4",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "slfemninc",
+        "category": "Class of Worker",
+        "base_variable": "cvem16pl4",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "updfmwrkr",
+        "category": "Class of Worker",
+        "base_variable": "cvem16pl4",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hh2",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhiu10",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi10t14",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi15t24",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi25t34",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi35t49",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi50t74",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi75t99",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hi100t149",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hi150t199",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hhi200pl",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhinc",
+        "category": "Income and Benefits",
+        "base_variable": "median",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mnhhinc",
+        "category": "Income and Benefits",
+        "base_variable": "mean",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "inc_sosec",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "inc_rtrmt",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "inc_spsec",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "inc_cpba",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "inc_snap",
+        "category": "Income and Benefits",
+        "base_variable": "hh2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fam2",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "famiu10",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami10t14",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami15t24",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami25t34",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami35t49",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami50t74",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami75t99",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fi100t149",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fi150t199",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fami200pl",
+        "category": "Income and Benefits",
+        "base_variable": "fam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfaminc",
+        "category": "Income and Benefits",
+        "base_variable": "median",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfam2",
+        "category": "Income and Benefits",
+        "base_variable": "nfam2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdnfinc",
+        "category": "Income and Benefits",
+        "base_variable": "median",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "percapinc",
+        "category": "Income and Benefits",
+        "base_variable": "mean",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdewrk",
+        "category": "Earnings",
+        "base_variable": "median",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdemftwrk",
+        "category": "Earnings",
+        "base_variable": "median",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdefftwrk",
+        "category": "Earnings",
+        "base_variable": "median",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvnipop2",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvnipop2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvnipop2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pvhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvnipop2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pbhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvnipop2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvnipop2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvniu18_2",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvniu18_2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "u18nhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvniu18_2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cni1864_2",
+        "category": "Health Insurance Coverage",
+        "base_variable": "",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvlf18t64",
+        "category": "Health Insurance Coverage",
+        "base_variable": "",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "cvlfem",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvlfem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "emhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvlfem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "empvhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvlfem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "empbhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvlfem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "emnhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "cvlfem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "uem",
+        "category": "Health Insurance Coverage",
+        "base_variable": "uem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "uemhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "uem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "uempvhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "uem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "uempbhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "uem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "uemnhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "uem",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nlf2",
+        "category": "Health Insurance Coverage",
+        "base_variable": "nlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nlfhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "nlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nlfpvhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "nlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nlfpbhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "nlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nlfnhins",
+        "category": "Health Insurance Coverage",
+        "base_variable": "nlf2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fampvu",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "fampvu",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fambwpv",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "fampvu",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "poppvu1",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "poppvu1",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pbwpv",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "poppvu1",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pu18pvu",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "pu18pvu",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pu18bwpv",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "pu18pvu",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "p65plpvu",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "p65plpvu",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "p65plbwpv",
+        "category": "Income in Past 12 Months is Below the Poverty Level",
+        "base_variable": "p65plpvu",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "poppvu2",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pvu50",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv50t74",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv75t99",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv100t124",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv125t149",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv150t174",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv175t184",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv185t199",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv200t299",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv300t399",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv400t499",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pv500pl",
+        "category": "Ratio of Income to Poverty Level",
+        "base_variable": "poppvu2",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "agttm",
+        "category": "Economic- Special Variable",
+        "base_variable": "mntrvtm",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "wrkrnothm",
+        "category": "Economic- Special Variable",
+        "base_variable": "mntrvtm",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "aghhinc",
+        "category": "Economic- Special Variable",
+        "base_variable": "mnhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hh5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mnhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "pop_6",
+        "category": "Economic- Special Variable",
+        "base_variable": "percapinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "agip15pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "percapinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhh",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhiu10",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi10t14",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi15t19",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi20t24",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi25t29",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi30t34",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi35t39",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi40t44",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi45t49",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi50t59",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi60t74",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi75t99",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhi100t124",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhi125t149",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhi150t199",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdhhi200pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdhhinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfam",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfamiu10",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami10t14",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami15t19",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami20t24",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami25t29",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami30t34",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami35t39",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami40t44",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami45t49",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami50t59",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami60t74",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami75t99",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfi100t124",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfi125t149",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfi150t199",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mdfami200pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdfaminc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfam",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmiu10",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi10t14",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi15t19",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi20t24",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi25t29",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi30t34",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi35t39",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi40t44",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi45t49",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi50t59",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi60t74",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfmi75t99",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nf100t124",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nf125t149",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nf150t199",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "nfi200pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdnfinc",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "wrke16pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ernu2pt5k",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern2pt5t5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern5t7pt5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e7pt5t10",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e10t12pt5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e12pt5t15",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e15t17pt5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e17pt5t20",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e20t22pt5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "e22pt5t25",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern25t30",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern30t35",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern35t40",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern40t45",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern45t50",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern50t55",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern55t65",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern65t75",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern75t100",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ern100pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdewrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mwrkern",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mftu2pt5k",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft2p5t5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft5t7p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft7p5t10",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mf10t12p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mf12p5t15",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mf15t17p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mf17p5t20",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mf20t22p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mf22p5t25",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft25t30",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft30t35",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft35t40",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft40t45",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft45t50",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft50t55",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft55t65",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft65t75",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft75t100",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "mft100pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdemftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fwrkern",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fftu2pt5k",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft2p5t5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft5t7p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft7p5t10",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ff10t12p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ff12p5t15",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ff15t17p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ff17p5t20",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ff20t22p5",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "ff22p5t25",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft25t30",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft30t35",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft35t40",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft40t45",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft45t50",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft50t55",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft55t65",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft65t75",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft75t100",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "fft100pl",
+        "category": "Economic- Special Variable",
+        "base_variable": "mdefftwrk",
+        "domain": "economic"
+    },
+    {
+        "pff_variable": "hu1",
+        "category": "Housing Occupancy",
+        "base_variable": "hu1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochu1",
+        "category": "Housing Occupancy",
+        "base_variable": "hu1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vachu",
+        "category": "Housing Occupancy",
+        "base_variable": "hu1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hovacrt",
+        "category": "Housing Occupancy",
+        "base_variable": "rate",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rntvacrt",
+        "category": "Housing Occupancy",
+        "base_variable": "rate",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu2",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu1ud",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu1ua",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu2u",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu3t4u",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu5t9u",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu10t19u",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu20plu",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mobhm",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "btrvvetc",
+        "category": "Units in Structure",
+        "base_variable": "hu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu3",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt10ltr",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt00t09",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt90t99",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt80t89",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt70t79",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt60t69",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt50t59",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "blt40t49",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "bltbf39",
+        "category": "Year Structure Built",
+        "base_variable": "hu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hu4",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms1",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms2",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms3",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms4",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms5",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms6",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms7",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms8",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rms9pl",
+        "category": "Rooms",
+        "base_variable": "hu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mdrms",
+        "category": "Rooms",
+        "base_variable": "median",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochu2",
+        "category": "Housing Tenure",
+        "base_variable": "ochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "oochu1",
+        "category": "Housing Tenure",
+        "base_variable": "ochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rochu1",
+        "category": "Housing Tenure",
+        "base_variable": "ochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "avghhsooc",
+        "category": "Housing Tenure",
+        "base_variable": "mean",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "avghhsroc",
+        "category": "Housing Tenure",
+        "base_variable": "mean",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochu3",
+        "category": "Year Householder Moved Into Unit",
+        "base_variable": "ochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mv10ltr",
+        "category": "Year Householder Moved Into Unit",
+        "base_variable": "ochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mv00t09",
+        "category": "Year Householder Moved Into Unit",
+        "base_variable": "ochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mv90t99",
+        "category": "Year Householder Moved Into Unit",
+        "base_variable": "ochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mvbf89",
+        "category": "Year Householder Moved Into Unit",
+        "base_variable": "ochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochu4",
+        "category": "Vehicles Available",
+        "base_variable": "ochu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "novhclav",
+        "category": "Vehicles Available",
+        "base_variable": "ochu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vhcl1av",
+        "category": "Vehicles Available",
+        "base_variable": "ochu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vhcl2av",
+        "category": "Vehicles Available",
+        "base_variable": "ochu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vhcl3plav",
+        "category": "Vehicles Available",
+        "base_variable": "ochu4",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochu5",
+        "category": "Occupants Per Room",
+        "base_variable": "ochu5",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ocpr0t1",
+        "category": "Occupants Per Room",
+        "base_variable": "ochu5",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ocpr1pl",
+        "category": "Occupants Per Room",
+        "base_variable": "ochu5",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ocpr1p5pl",
+        "category": "Occupants Per Room",
+        "base_variable": "ochu5",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "oochu2",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vlu50",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl50t99",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl100t149",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl150t199",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl200t299",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl300t499",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl500t999",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vl1milpl",
+        "category": "Value",
+        "base_variable": "oochu2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mdvl",
+        "category": "Value",
+        "base_variable": "median",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "oochu3",
+        "category": "Mortgage Status",
+        "base_variable": "oochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "huwmrtg",
+        "category": "Mortgage Status",
+        "base_variable": "oochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hunomrtg1",
+        "category": "Mortgage Status",
+        "base_variable": "oochu3",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "huwmrtgex",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "huwmrtgex",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "smpu20",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "huwmrtgex",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "smp20t24",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "huwmrtgex",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "smp25t29",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "huwmrtgex",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "smp30t34",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "huwmrtgex",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "smp35pl",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "huwmrtgex",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "smpntc",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hunomrtg2",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmpu10",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmp1014",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmp1519",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmp2024",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmp2529",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmp3034",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmp35pl",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "hunomrtg2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "nmsmpntc",
+        "category": "Selected Monthly Owner Costs as a Percentage of Household Income (SMOCAPI)",
+        "base_variable": "",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochuprnt1",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gru500",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gr500t999",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gr1kt14k",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gr15kt19k",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gr20kt24k",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gr25kt29k",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "gr3kpl",
+        "category": "Gross Rent",
+        "base_variable": "ochuprnt1",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "mdgr",
+        "category": "Gross Rent",
+        "base_variable": "median",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grnorntpd",
+        "category": "Gross Rent",
+        "base_variable": "",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ochuprnt2",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpiu15",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpi15t19",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpi20t24",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpi25t29",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpi30pl",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpi50pl",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "ochuprnt2",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "grpintc",
+        "category": "Gross Rent as a Percentage of Household Income (GRAPI)",
+        "base_variable": "",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "hovacu",
+        "category": "Housing- Special Variable",
+        "base_variable": "hovacrt",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "oochu4",
+        "category": "Housing- Special Variable",
+        "base_variable": "avghhsooc",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vacsale",
+        "category": "Housing- Special Variable",
+        "base_variable": "hovacrt",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vacsoldno",
+        "category": "Housing- Special Variable",
+        "base_variable": "vacsoldno",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rntvacu",
+        "category": "Housing- Special Variable",
+        "base_variable": "rntvacrt",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "rochu2",
+        "category": "Housing- Special Variable",
+        "base_variable": "avghhsroc",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vacrnt",
+        "category": "Housing- Special Variable",
+        "base_variable": "rntvacrt",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "vacrntno",
+        "category": "Housing- Special Variable",
+        "base_variable": "vacrntno",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "popoochu",
+        "category": "Housing- Special Variable",
+        "base_variable": "avghhsooc",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "poprtochu",
+        "category": "Housing- Special Variable",
+        "base_variable": "avghhsroc",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "oochu5",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovlu10",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl10t14",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl15t19",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl20t24",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl25t29",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl30t34",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl35t39",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl40t49",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl50t59",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl60t69",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl70t79",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl80t89",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ovl90t99",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov100t124",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov125t149",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov150t174",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov175t199",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov200t249",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov250t299",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov300t399",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov400t499",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov500t749",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov750t999",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov1milpl",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov1t149m",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov150t199m",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ov2milpl",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdvl",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "roccshrnt",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "ru100",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r100t149",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r150t199",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r200t249",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r250t299",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r300t349",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r350t399",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r400t449",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r450t499",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r500t549",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r550t599",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r600t649",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r650t699",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r700t749",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r750t799",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r800t899",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r900t999",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r1kt1249",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r1250t1p5",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r1p5t1999",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r2000pl",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r2kt2499",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r2p5t2999",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r3kt3499",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    },
+    {
+        "pff_variable": "r3500pl",
+        "category": "Housing- Special Variable",
+        "base_variable": "mdgr",
+        "domain": "housing"
+    }
+]
