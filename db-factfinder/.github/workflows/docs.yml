@@ -1,0 +1,44 @@
+name: Update Docs
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install locally
+        run: |
+          python3.9 -m pip install --upgrade pip
+          python3.9 -m pip install .
+          python3.9 -m pip install pdoc3
+
+      - name: Generate Docs
+        run: python3.9 -m pdoc -f -o docs --html factfinder
+
+      - name: Commit files
+        continue-on-error: true
+        id: commit
+        run: |
+          ls -l docs/
+          ls -l docs/factfinder
+          git status
+          DATE=$(date)
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/
+          git commit -m "🎉 Update Docs $DATE" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
