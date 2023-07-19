@@ -78,15 +78,7 @@ DOITT_BUILDINGS_HISTORICAL_VERSION=
 #### DOB data
 
 - [ ]  `dob_cofos` -> manually updated, received by email
-<<<<<<< HEAD
-- [ ]  `dob_jobapplications` [run Data Sync action](https://github.com/NYCPlanning/db-developments/actions/workflows/data_sync.yml)
-- [ ]  `dob_permitissuance` [run Data Sync action](https://github.com/NYCPlanning/db-developments/actions/workflows/data_sync.yml)
-- [ ] `dob_now_applications` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and ingested via Data Library pipeline
-- [ ] `dob_now_permits` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and ingested via Data Library pipeline
-- [ ] `dob_geocode_results` [run Data Sync action](https://github.com/NYCPlanning/db-developments/actions/workflows/data_sync.yml)
-=======
 - [ ]  `dob_jobapplications` [check actions](https://github.com/NYCPlanning/recipes/actions?query=workflow%3A%22DOB+pull+for+HED%22)
 - [ ]  `dob_permitissuance` [check actions](https://github.com/NYCPlanning/recipes/actions?query=workflow%3A%22DOB+pull+for+HED%22)
 - [ ] `dob_now_applications` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and ingested via Data Library pipeline
 - [ ] `dob_now_permits` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and ingested via Data Library pipeline
->>>>>>> origin/main
