@@ -10,7 +10,6 @@ def do_stuff() -> None:
     print(f"This S3 client is a {type(s3_client)}")
     print(f"This S3 client has access to buckets: {available_buckets}")
 
-
 if __name__ == "__main__":
     print("started dataloading ...")
     do_stuff()
