@@ -28,9 +28,9 @@ import_recipe doe_eszones $DOE_ZONES_VERSION &
 import_recipe doe_mszones $DOE_ZONES_VERSION &
 import_recipe doe_school_subdistricts $DOE_SUBDISTRICTS_VERSION &
 import_recipe hpd_hny_units_by_building $HNY_VERSION &
-import_recipe hny_geocode_results $HNY_GEOCODE_VERSION &
-import_recipe hpd_historical_units_by_building &
-import_recipe hpd_historical_geocode_results &
+import_recipe hny_geocode_results $HNY_VERSION &
+import_recipe hpd_historical_units_by_building $HPD_HISTOICAL_VERSION &
+import_recipe hpd_historical_geocode_results $HPD_HISTOICAL_VERSION &
 import_recipe dob_now_applications $DOB_NOW_APPS_VERSION &
 import_recipe dob_now_permits $DOB_NOW_PERMITS_VERSION &
 import_recipe dob_cofos $DOB_COFOS_VERSION &
