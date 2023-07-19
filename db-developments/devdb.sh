@@ -42,8 +42,8 @@ function output {
 }
 
 function library_archive {
-    local version=$(get_version $2)
-    echo "version of ${2} is ${version}"
+    local version=$(get_version ${2})
+    # echo "version of ${2} is ${version}"
     docker run --rm\
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
