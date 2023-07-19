@@ -1,6 +1,5 @@
-#from dcpy.connectors.s3 import client
+from dcpy.connectors import s3
 import json
-import os
 from functools import wraps
 from pathlib import Path
 
@@ -9,16 +8,18 @@ import yaml
 import geopandas as gpd
 
 
+import os
+import boto3
 
-#def do_stuff() -> None:
- #   print("doing stuff")
-  #  s3_client = client()
-   # available_buckets = [
-    #    bucket["Name"] for bucket in s3_client.list_buckets()["Buckets"]
-    #]
-   # print(f"This S3 client is a {type(s3_client)}")
-   # print(f"This S3 client has access to buckets: {available_buckets}")
 
+
+def read_s3(digital_ocean_filepath, save_file_path):
+
+    #digital_ocean_filepath example "datasets/bpl_libraries/20210208/bpl_libraries.csv"
+
+    s3_client = s3.client()
+    file = s3_client.download_file('edm-recipes', digital_ocean_filepath, save_file_path)
+    return file
 
 # reading in the checkboob daa
 def read_from_csv(name: str) -> pd.DataFrame:
