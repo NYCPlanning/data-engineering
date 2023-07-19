@@ -23,27 +23,23 @@ jobs:
     container: 
       image: nycplanning/build-geosupport:latest
       env:
-        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/devdb
+        BUILD_ENGINE_DATABASE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/devdb-build
+        BUILD_ENGINE_SCHEMA: build_${{ github.event_name }}_${{ github.ref_name }}
         EDM_DATA: ${{ secrets.EDM_DATA }}
         AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    services:
-      postgis:
-        image: postgis/postgis:14-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: devdb
-        options: >-
-          --shm-size=1g
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set build environment variables
+        run: |
+          # replace dashes with underscores to create a valid postgres schema name
+          BUILD_ENGINE_SCHEMA=$(echo ${BUILD_ENGINE_SCHEMA} | tr - _)
+          echo "BUILD_ENGINE_SCHEMA=$BUILD_ENGINE_SCHEMA" >> "$GITHUB_ENV"
+          # set postgres schema search path to prioritize BUILD_ENGINE_SCHEMA
+          BUILD_ENGINE=${BUILD_ENGINE_DATABASE}?options=--search_path%3D${BUILD_ENGINE_SCHEMA},public
+          echo "BUILD_ENGINE=$BUILD_ENGINE" >> "$GITHUB_ENV"
 
       - name: Finish container setup ...
         run: ../bash/docker_container_setup.sh
