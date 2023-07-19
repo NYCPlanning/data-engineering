@@ -86,4 +86,5 @@ def join_checkbook_geoms(df, cpdb_geoms):
 
 if __name__ == "__main__":
     print("started build ...")
+    ## TO DO: call functions above
     
