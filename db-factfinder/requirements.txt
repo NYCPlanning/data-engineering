@@ -30,7 +30,7 @@ idna==3.4
     # via requests
 multiprocess==0.70.14
     # via pathos
-numpy==1.20.3
+numpy==1.22.0
     # via
     #   -r requirements.in
     #   pandas

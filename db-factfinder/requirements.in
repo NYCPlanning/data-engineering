@@ -5,7 +5,7 @@ click>=8
 python-dotenv==0.15.0
 typer==0.7.0
 tqdm==4.56.0
-numpy==1.20.3
+numpy==1.22.0
 pathos==0.2.8
 retry==0.9.2
 openpyxl==3.0.10
