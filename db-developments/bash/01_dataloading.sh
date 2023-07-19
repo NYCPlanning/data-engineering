@@ -1,5 +1,6 @@
 #!/bin/bash
 source bash/config.sh
+set_error_traps
 
 ## Default mode is EDM
 MODE="${1:-edm}"
