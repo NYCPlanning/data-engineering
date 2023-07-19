@@ -8,6 +8,19 @@ from sqlalchemy.schema import Table, MetaData
 LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
 
 
+def create_source_data_table():
+    """Create the source_data_versions table"""
+    with build_engine.begin() as con:
+        con.execute(
+            text(
+                """DROP TABLE IF EXISTS source_data_versions;
+                CREATE TABLE source_data_versions (
+                schema_name character varying,
+                v character varying);"""
+            )
+        )
+
+
 def import_recipe(
     recipe_name: str,
     *,
