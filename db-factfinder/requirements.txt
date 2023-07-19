@@ -52,7 +52,7 @@ python-dotenv==0.15.0
     # via -r requirements.in
 pytz==2022.7.1
     # via pandas
-requests==2.28.2
+requests==2.31.0
     # via census
 retry==0.9.2
     # via -r requirements.in
