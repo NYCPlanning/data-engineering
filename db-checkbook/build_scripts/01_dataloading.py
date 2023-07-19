@@ -1,32 +1,33 @@
 from dcpy.connectors import s3
-import json
 from functools import wraps
 from pathlib import Path
-
 import pandas as pd
 
 BASE_BUCKET = 'edm-recipes'
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
 
-
-import os
-import boto3
-
+base_bucket = 'edm-recipes'
+base_url = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
 
 
-def read_s3(digital_ocean_filepath, save_file_path):
 
-    #digital_ocean_filepath example "datasets/bpl_libraries/20210208/bpl_libraries.csv"
+# reading in the data: using S3 connectors
 
+# example: datasets/dcp_cpdb/2018_adopted_polygons/
+# dataset name: datasets/dcp_cpdb
+# version: 2018_adopted, 2019_adopted, 2020_adopted, 2021_adopted, 2022_adopted, 2023_executive
+# type geom: _polygons, _points
+
+def read_s3_edm_recipes_cpdb(dataset_name, version, type_geom, save_file_path):
+    digital_ocean_filepath = f'{dataset_name}/{version}{type_geom}/dcp_cpdb.shp'
     s3_client = s3.client()
-    file = s3_client.download_file('edm-recipes', digital_ocean_filepath, save_file_path)
+    file = s3_client.download_file(base_bucket, digital_ocean_filepath, save_file_path)
     return file
 
-# reading in the checkboob daa
-def read_from_csv(name: str) -> pd.DataFrame:
-    df = pd.read_csv(
-        "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/test_nypl_libraries/20210122/test_nypl_libraries.csv", dtype=str, index_col=False
-    )
+
+def read_edm_recipes_nyc_checkbook(name):
+    file_name = f'{base_url}/{name}'
+    df = pd.read_csv(file_name, dtype=str, index_col=False)
     return df
 
 

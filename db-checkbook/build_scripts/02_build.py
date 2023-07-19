@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 from sqlalchemy import create_engine, text
 
+<<<<<<< HEAD
 _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
 SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
@@ -180,6 +181,11 @@ def run_build() -> pd.DataFrame:
     cleaned_data = _clean_joined_checkbook_cpdb(joined_data)
     final_data = _assign_final_category(cleaned_data)
     return final_data
+=======
+def run_categorization(df):
+    # 
+    return 
+>>>>>>> af7ac20 (data loading s3 function)
 
 if __name__ == "__main__":
     print("started build ...")
