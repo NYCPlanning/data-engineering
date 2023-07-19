@@ -1,0 +1,79 @@
+[
+    {
+        "pff_variable" : "percapinc",
+        "base_variables": [
+            "agip15pl",
+            "pop_6"
+        ]
+    },
+    {
+        "pff_variable" : "mntrvtm",
+        "base_variables": [
+            "agttm",
+            "wrkr16pl",
+            "cw_wrkdhm",
+            "wrkrnothm"
+        ]
+    },
+    {
+        "pff_variable" : "mnhhinc",
+        "base_variables": [
+            "aghhinc",
+            "hh2",
+            "hh5"
+        ]
+    },
+    {
+        "pff_variable" : "avghhsooc",
+        "base_variables": [
+            "popoochu",
+            "oochu1",
+            "oochu4"
+        ]
+    },
+    {
+        "pff_variable" : "avghhsroc",
+        "base_variables": [
+            "poprtochu",
+            "rochu1",
+            "rochu2"
+        ]
+    },
+    {
+        "pff_variable" : "avghhsz",
+        "base_variables": [
+            "hhpop1",
+            "hh1",
+            "hh4"
+        ]
+    },
+    {
+        "pff_variable" : "avgfmsz",
+        "base_variables": [
+            "popinfms",
+            "fam1",
+            "fam3"
+        ]
+    },
+    {
+        "pff_variable" : "rntvacrt",
+        "base_variables": [
+            "rntvacu",
+            "vacrnt"
+        ]
+    },
+    {
+        "pff_variable" : "hovacrt",
+        "base_variables": [
+            "hovacu",
+            "vacsale"
+        ]
+    },
+    {
+        "pff_variable" : "wrkrnothm",
+        "base_variables": [
+            "wrkr16pl",
+            "cw_wrkdhm"
+        ]
+    }
+]
