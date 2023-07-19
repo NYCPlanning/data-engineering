@@ -1,9 +1,10 @@
-name: Update Docs
+name: z(TODO) Population Fact Finder - Update Docs
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - '**.py'
+  workflow_call: # seemed easiest way to disable for now
+  #push:
+  #  branches: [ main ]
+  #  paths:
+  #    - 'db-factfinder/**.py'
 
 jobs:
   build:

@@ -1,4 +1,4 @@
-name: Build - ACS Manual Update
+name: z(TODO) Population Fact Finder - Build ACS Manual Update
 
 on:
   workflow_dispatch:
@@ -14,6 +14,13 @@ on:
 jobs:
   build:
     name: "ACS Manual Update Year: ${{ github.event.inputs.data_year }} Geography: ${{ github.event.inputs.geo_year }}"
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-factfinder
+    container: 
+      image: nycplanning/build-base:latest
     env:
       API_KEY: ${{ secrets.API_KEY }}
       EDM_DATA: ${{ secrets.EDM_DATA }}
@@ -22,24 +29,12 @@ jobs:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      - name: install Minio CLI
-        run: |
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-
-      - name: install python packages
-        run: |
-          ./bash/dev_python_packages.sh
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: run acs manual update
         run: |
