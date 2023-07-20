@@ -1,15 +1,11 @@
-name: Population Fact Finder - Build ACS Manual Update
+name: Population Fact Finder - Build Decennial Census Manual Update
 
 on:
   workflow_dispatch:
-    inputs:
-      data_year:
-        description: 'Release year of ACS data. e.g. For 2016-2020 acs5 data, type "2020"'
-        required: true
-        default: '2020'
+
 jobs:
   build:
-    name: "ACS Manual Update: ${{ github.event.inputs.data_year }}"
+    name: "Decennial Manual Update"
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -20,8 +16,6 @@ jobs:
     env:
       API_KEY: ${{ secrets.API_KEY }}
       EDM_DATA: ${{ secrets.EDM_DATA }}
-      DATA_YEAR: ${{ github.event.inputs.data_year }}
-      GEO_YEAR: ${{ github.event.inputs.geo_year }}
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
@@ -32,6 +26,6 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: run acs manual update
+      - name: run decennial manual update
         run: |
-          python3 -m pipelines.acs_manual_update --year $DATA_YEAR --upload
+          python3 -m pipelines.decennial_manual_update --upload
