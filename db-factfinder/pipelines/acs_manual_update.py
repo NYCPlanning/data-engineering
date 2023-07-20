@@ -1,10 +1,9 @@
 # This script transforms and uploads ACS data provided by the NYCDCP Population team
-import argparse
-import os
-from typing import Tuple
-
+from pathlib import Path
 import pandas as pd
 import re
+
+from .utils import parse_args, download_manual_update, s3_upload
 
 OUTPUT_SCHEMA_COLUMNS = [
     "census_geoid",
@@ -19,26 +18,6 @@ OUTPUT_SCHEMA_COLUMNS = [
     "z",
     "domain",
 ]
-
-
-def parse_args() -> Tuple[str, str]:
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "-y",
-        "--year",
-        type=str,
-        help="The ACS5 year, e.g. 2020 (2016-2020)",
-        choices=["2010", "2020", "2021"],
-    )
-    parser.add_argument(
-        "-g",
-        "--geography",
-        type=str,
-        help="The geography year, e.g. 2010_to_2020",
-    )
-    args = parser.parse_args()
-    return args.year, args.geography
 
 
 def pivot_field_name(df, field_name, domain):
@@ -110,7 +89,8 @@ def transform_dataframe(df, domain):
 
 def transform_all_dataframes(year):
     domains_sheets = sheet_names(year)
-    input_file = f"factfinder/data/acs_manual_updates/{year}/acs_{year}.xlsx"
+
+    input_file = download_manual_update("acs", year)
 
     dfs = pd.read_excel(input_file, sheet_name=None, engine="openpyxl")
     combined_df = pd.DataFrame()
@@ -145,7 +125,7 @@ def rename_columns(df):
 
 if __name__ == "__main__":
     # Get ACS year
-    year, geography = parse_args()
+    year, _geography, upload = parse_args()
 
     print("transform_all_dataframes ...")
     export_df = transform_all_dataframes(year)
@@ -156,8 +136,9 @@ if __name__ == "__main__":
     print("rename_columns ...")
     export_df = rename_columns(export_df)
 
-    output_folder = f".output/acs/year={year}/geography={geography}"
+    output_file = Path(".output/acs") / year / "acs.csv"
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    export_df.to_csv(output_file, index=False)
 
-    print("export_df.to_csv ...")
-    os.makedirs(output_folder, exist_ok=True)
-    export_df.to_csv(f"{output_folder}/acs_manual_update.csv", index=False)
+    if upload:
+        s3_upload(output_file)

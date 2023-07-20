@@ -49,9 +49,4 @@ jobs:
 
       - name: run pipelines/acs
         run: |
-          python3 -m pipelines.acs_community_profiles --year $DATA_YEAR --geography $GEO_YEAR
-
-      - name: upload to s3
-        run: |
-          ACS_FILE_PATH=.output/acs_community_profiles/year=$DATA_YEAR/geography=$GEO_YEAR/acs_community_profiles.csv
-          mc cp $ACS_FILE_PATH spaces/edm-publishing/db-factfinder/acs_community_profiles/year=$DATA_YEAR/geography=$GEO_YEAR/
+          python3 -m pipelines.acs_community_profiles --year $DATA_YEAR --geography $GEO_YEAR --upload
