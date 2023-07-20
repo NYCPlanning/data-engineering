@@ -1,0 +1,46 @@
+name: z(TODO) Population Fact Finder - Build ACS Manual Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      data_year:
+        description: 'Release year of ACS data. e.g. For 2016-2020 acs5 data, type "2020"'
+        required: true
+        default: '2020'
+      geo_year:
+        description: 'Year of geographic units. Options: "2010", "2020", or "2010_to_2020"'
+        required: true
+        default: '2010_to_2020'
+jobs:
+  build:
+    name: "ACS Manual Update Year: ${{ github.event.inputs.data_year }} Geography: ${{ github.event.inputs.geo_year }}"
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-factfinder
+    container: 
+      image: nycplanning/build-base:latest
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      DATA_YEAR: ${{ github.event.inputs.data_year }}
+      GEO_YEAR: ${{ github.event.inputs.geo_year }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: run acs manual update
+        run: |
+          python3.9 -m pipelines.acs_manual_update --year $DATA_YEAR --geography $GEO_YEAR
+
+      - name: upload to s3
+        run: |
+          ACS_FILE_PATH=.output/acs/year=$DATA_YEAR/geography=$GEO_YEAR/acs_manual_update.csv
+          mc cp $ACS_FILE_PATH spaces/edm-publishing/db-factfinder/acs/year=$DATA_YEAR/geography=$GEO_YEAR/acs.csv

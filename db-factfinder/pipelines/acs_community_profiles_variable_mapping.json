@@ -1,0 +1,557 @@
+[
+   {
+      "pff_variable": "wtnh",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "pct_white_nh"
+      }
+   },
+   {
+      "pff_variable": "asnnh",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "pct_asian_nh"
+      }
+   },
+   {
+      "pff_variable": "blnh",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "pct_black_nh"
+      }
+   },
+   {
+      "pff_variable": "cvlfuem1",
+      "geotype": "borough",
+      "column_mapping": {
+         "z": "moe_unemployment_boro",
+         "p": "unemployment_boro"
+      }
+   },
+   {
+      "pff_variable": "cvlfuem1",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_unemployment",
+         "p": "unemployment"
+      }
+   },
+   {
+      "pff_variable": "cvlfuem1",
+      "geotype": "city",
+      "column_mapping": {
+         "z": "moe_unemployment_nyc",
+         "p": "unemployment_nyc"
+      }
+   },
+   {
+      "pff_variable": "ea_bchdh",
+      "geotype": "borough",
+      "column_mapping": {
+         "z": "moe_bach_deg_boro",
+         "p": "pct_bach_deg_boro"
+      }
+   },
+   {
+      "pff_variable": "ea_bchdh",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_bach_deg",
+         "p": "pct_bach_deg"
+      }
+   },
+   {
+      "pff_variable": "ea_bchdh",
+      "geotype": "city",
+      "column_mapping": {
+         "z": "moe_bach_deg_nyc",
+         "p": "pct_bach_deg_nyc"
+      }
+   },
+   {
+      "pff_variable": "fb1",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_foreign_born",
+         "p": "pct_foreign_born"
+      }
+   },
+   {
+      "pff_variable": "fpop0t5",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_under_5"
+      }
+   },
+   {
+      "pff_variable": "fpop10t14",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_10_14"
+      }
+   },
+   {
+      "pff_variable": "fpop15t19",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_15_19"
+      }
+   },
+   {
+      "pff_variable": "fpop20t24",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_20_24"
+      }
+   },
+   {
+      "pff_variable": "fpop25t29",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_25_29"
+      }
+   },
+   {
+      "pff_variable": "fpop30t34",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_30_34"
+      }
+   },
+   {
+      "pff_variable": "fpop35t39",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_35_39"
+      }
+   },
+   {
+      "pff_variable": "fpop40t44",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_40_44"
+      }
+   },
+   {
+      "pff_variable": "fpop45t49",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_45_49"
+      }
+   },
+   {
+      "pff_variable": "fpop50t54",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_50_54"
+      }
+   },
+   {
+      "pff_variable": "fpop55t59",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_55_59"
+      }
+   },
+   {
+      "pff_variable": "fpop5t9",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_5_9"
+      }
+   },
+   {
+      "pff_variable": "fpop60t64",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_60_64"
+      }
+   },
+   {
+      "pff_variable": "fpop65t69",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_65_69"
+      }
+   },
+   {
+      "pff_variable": "fpop70t74",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_70_74"
+      }
+   },
+   {
+      "pff_variable": "fpop75t79",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_75_79"
+      }
+   },
+   {
+      "pff_variable": "fpop80t84",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_80_84"
+      }
+   },
+   {
+      "pff_variable": "fpop85pl",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "female_85_over"
+      }
+   },
+   {
+      "pff_variable": "grpi35pl",
+      "geotype": "borough",
+      "column_mapping": {
+         "z": "moe_hh_rent_burd_boro",
+         "p": "pct_hh_rent_burd_boro"
+      }
+   },
+   {
+      "pff_variable": "grpi35pl",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_hh_rent_burd",
+         "p": "pct_hh_rent_burd"
+      }
+   },
+   {
+      "pff_variable": "grpi35pl",
+      "geotype": "city",
+      "column_mapping": {
+         "z": "moe_hh_rent_burd_nyc",
+         "p": "pct_hh_rent_burd_nyc"
+      }
+   },
+   {
+      "pff_variable": "hsp1",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "pct_hispanic"
+      }
+   },
+   {
+      "pff_variable": "lgoenlep1",
+      "geotype": "borough",
+      "column_mapping": {
+         "z": "moe_lep_rate_boro",
+         "p": "lep_rate_boro"
+      }
+   },
+   {
+      "pff_variable": "lgoenlep1",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_lep_rate",
+         "p": "lep_rate"
+      }
+   },
+   {
+      "pff_variable": "lgoenlep1",
+      "geotype": "city",
+      "column_mapping": {
+         "z": "moe_lep_rate_nyc",
+         "p": "lep_rate_nyc"
+      }
+   },
+   {
+      "pff_variable": "mntrvtm",
+      "geotype": "borough",
+      "column_mapping": {
+         "m": "moe_mean_commute_boro",
+         "e": "mean_commute_boro"
+      }
+   },
+   {
+      "pff_variable": "mntrvtm",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "m": "moe_mean_commute",
+         "e": "mean_commute"
+      }
+   },
+   {
+      "pff_variable": "mntrvtm",
+      "geotype": "city",
+      "column_mapping": {
+         "m": "moe_mean_commute_nyc",
+         "e": "mean_commute_nyc"
+      }
+   },
+   {
+      "pff_variable": "mpop0t5",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_under_5"
+      }
+   },
+   {
+      "pff_variable": "mpop10t14",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_10_14"
+      }
+   },
+   {
+      "pff_variable": "mpop15t19",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_15_19"
+      }
+   },
+   {
+      "pff_variable": "mpop20t24",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_20_24"
+      }
+   },
+   {
+      "pff_variable": "mpop25t29",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_25_29"
+      }
+   },
+   {
+      "pff_variable": "mpop30t34",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_30_34"
+      }
+   },
+   {
+      "pff_variable": "mpop35t39",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_35_39"
+      }
+   },
+   {
+      "pff_variable": "mpop40t44",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_40_44"
+      }
+   },
+   {
+      "pff_variable": "mpop45t49",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_45_49"
+      }
+   },
+   {
+      "pff_variable": "mpop50t54",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_50_54"
+      }
+   },
+   {
+      "pff_variable": "mpop55t59",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_55_59"
+      }
+   },
+   {
+      "pff_variable": "mpop5t9",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_5_9"
+      }
+   },
+   {
+      "pff_variable": "mpop60t64",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_60_64"
+      }
+   },
+   {
+      "pff_variable": "mpop65t69",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_65_69"
+      }
+   },
+   {
+      "pff_variable": "mpop70t74",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_70_74"
+      }
+   },
+   {
+      "pff_variable": "mpop75t79",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_75_79"
+      }
+   },
+   {
+      "pff_variable": "mpop80t84",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_80_84"
+      }
+   },
+   {
+      "pff_variable": "mpop85pl",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "p": "male_85_over"
+      }
+   },
+   {
+      "pff_variable": "pop65pl1",
+      "geotype": "borough",
+      "column_mapping": {
+         "z": "moe_over65_rate_boro",
+         "p": "over65_rate_boro"
+      }
+   },
+   {
+      "pff_variable": "pop65pl1",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_over65_rate",
+         "p": "over65_rate"
+      }
+   },
+   {
+      "pff_variable": "pop65pl1",
+      "geotype": "city",
+      "column_mapping": {
+         "z": "moe_over65_rate_nyc",
+         "p": "over65_rate_nyc"
+      }
+   },
+   {
+      "pff_variable": "pop_1",
+      "geotype": "borough",
+      "column_mapping": {
+         "e": "pop_acs_boro"
+      }
+   },
+   {
+      "pff_variable": "pop_1",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "e": "pop_acs"
+      }
+   },
+   {
+      "pff_variable": "pop_1",
+      "geotype": "city",
+      "column_mapping": {
+         "e": "pop_acs_nyc"
+      }
+   },
+   {
+      "pff_variable": "popu181",
+      "geotype": "borough",
+      "column_mapping": {
+         "z": "moe_under18_rate_boro",
+         "p": "under18_rate_boro"
+      }
+   },
+   {
+      "pff_variable": "popu181",
+      "geotype": "CDTA",
+      "column_mapping": {
+         "z": "moe_under18_rate",
+         "p": "under18_rate"
+      }
+   },
+   {
+      "pff_variable": "popu181",
+      "geotype": "city",
+      "column_mapping": {
+         "z": "moe_under18_rate_nyc",
+         "p": "under18_rate_nyc"
+      }
+   },
+   {
+      "pff_variable": "costburden",
+      "geotype": "cdta_fp_100",
+      "column_mapping": {
+         "p": "fp_100_cost_burden",
+         "e": "fp_100_cost_burden_value"
+      }
+   },
+   {
+      "pff_variable": "costburden",
+      "geotype": "cdta_fp_500",
+      "column_mapping": {
+         "p": "fp_500_cost_burden",
+         "e": "fp_500_cost_burden_value"
+      }
+   },
+   {
+      "pff_variable": "rentburden",
+      "geotype": "cdta_fp_100",
+      "column_mapping": {
+         "p": "fp_100_rent_burden",
+         "e": "fp_100_rent_burden_value"
+      }
+   },
+   {
+      "pff_variable": "rentburden",
+      "geotype": "cdta_fp_500",
+      "column_mapping": {
+         "p": "fp_500_rent_burden",
+         "e": "fp_500_rent_burden_value"
+      }
+   },
+   {
+      "pff_variable": "mdhhinc",
+      "geotype": "cdta_fp_100",
+      "column_mapping": {
+         "e": "fp_100_mhhi"
+      }
+   },
+   {
+      "pff_variable": "mdhhinc",
+      "geotype": "cdta_fp_500",
+      "column_mapping": {
+         "e": "fp_500_mhhi"
+      }
+   },
+   {
+      "pff_variable": "mortg",
+      "geotype": "cdta_fp_100",
+      "column_mapping": {
+         "p": "fp_100_permortg",
+         "e": "fp_100_mortg_value"
+      }
+   },
+   {
+      "pff_variable": "mortg",
+      "geotype": "cdta_fp_500",
+      "column_mapping": {
+         "p": "fp_500_permortg",
+         "e": "fp_500_mortg_value"
+      }
+   },
+   {
+      "pff_variable": "ownerocc",
+      "geotype": "cdta_fp_100",
+      "column_mapping": {
+         "p": "fp_100_ownerocc",
+         "e": "fp_100_ownerocc_value"
+      }
+   },
+   {
+      "pff_variable": "ownerocc",
+      "geotype": "cdta_fp_500",
+      "column_mapping": {
+         "p": "fp_500_ownerocc",
+         "e": "fp_500_ownerocc_value"
+      }
+   }
+]
