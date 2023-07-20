@@ -49,14 +49,18 @@ jobs:
   build:
     needs: [version]
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-pluto/pluto_build
     container: 
       image: nycplanning/build-base:latest
-      env:
-        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
-        EDM_DATA: ${{ secrets.EDM_DATA }}
-        AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     services:
       postgis:
         image: postgis/postgis:14-3.3-alpine
@@ -76,41 +80,33 @@ jobs:
       - name: Check is_minor, finish container setup
         run: |
           echo "is_minor: ${{ needs.version.outputs.is_minor_version }}"
-          ./bash/docker_container_setup.sh
+          ../../bash/docker_container_setup.sh
 
       - name: dataloading (major) ..
-        working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading.sh
         if: needs.version.outputs.is_minor_version == 'false'
 
       - name: dataloading (minor) ..
-        working-directory: ./db-pluto/pluto_build
         run: ./01_dataloading_minor.sh
         if: needs.version.outputs.is_minor_version == 'true'
 
       - name: clean out raw source data 
-        working-directory:  ./db-pluto/pluto_build
         run: rm -rf .library
 
       - name: building ...
-        working-directory: ./db-pluto/pluto_build
         run: ./02_build.sh
 
       - name: apply corrections
-        working-directory: ./db-pluto/pluto_build
         run: ./03_corrections.sh
 
       - name: Archive
-        working-directory: ./db-pluto/pluto_build
         run: ./04_archive.sh
         if: inputs.run_export
 
       - name: QAQC
-        working-directory: ./db-pluto/pluto_build
         run: ./05_qaqc.sh
         if: inputs.run_export
 
       - name: Export and Upload
-        working-directory: ./db-pluto/pluto_build
         run: ./06_export.sh
         if: inputs.run_export

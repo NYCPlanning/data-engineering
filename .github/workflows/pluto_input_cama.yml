@@ -8,18 +8,12 @@ on:
 jobs:
   process_cama:
     runs-on: ubuntu-22.04
-    services:
-      postgres:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-pluto/pluto_build
+    container: 
+      image: nycplanning/build-base:latest
     env:
       RECIPE_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
@@ -29,25 +23,32 @@ jobs:
       SSH_PRIVATE_KEY_GINGER: ${{ secrets.SSH_PRIVATE_KEY_GINGER }}
       GINGER_USER: ${{ secrets.GINGER_USER }}
       GINGER_HOST: ${{ secrets.GINGER_HOST }}
+    services:
+      postgres:
+        image: postgis/postgis:14-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v3
+
+      - name: Run Container Setup
+        run: ../../bash/docker_container_setup.sh
+        
       - name: install ssh key
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_PRIVATE_KEY_GINGER" > ~/.ssh/ginger
           chmod 600 ~/.ssh/ginger
 
-      - name: install minio ..
-        run: |
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv mc /usr/bin/mc
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-
       - name: process CAMA
         id: processing
-        shell: bash
-        working-directory: db-pluto/pluto_build
         run: ./pluto import cama
 
       - uses: NYCPlanning/action-library-archive@v1.1
@@ -62,6 +63,4 @@ jobs:
           output_format: pgdump csv
 
       - name: Clean CAMA
-        shell: bash
-        working-directory: db-pluto/pluto_build
         run: ./pluto clean cama
