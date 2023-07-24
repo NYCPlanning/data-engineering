@@ -19,7 +19,7 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
             return int(match.group())
         return None
     
-    file_list = [p.name for p in Path(LIB_DIR).iterdir() if p.is_file()]
+    file_list = [p.name for p in LIB_DIR.iterdir() if p.is_file()]
     file_list = sorted(file_list, key=lambda x: extract_year(x), reverse=True) # sort by year
 
     gdf_list = []
@@ -90,6 +90,8 @@ def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd
     return gdf
 
 # ----  TODO: category assignment on BC, CP, and high-sensitivity Fixed Asset approach ----
+
+def _
 
 if __name__ == "__main__":
 
