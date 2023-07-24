@@ -12,7 +12,7 @@ def read_s3_edm_recipes_cpdb(version, type_geom, save_file_path):
     version: 2018_adopted, 2019_adopted, 2020_adopted, 2021_adopted, 2022_adopted, 2023_executive
     type_geom: _polygons, _points 
     """
-    digital_ocean_filepath = f'datasets/dcp_cpdb/{version}{type_geom}/dcp_cpdb.shp'
+    digital_ocean_filepath = f'datasets/dcp_cpdb/{version}{type_geom}'
     s3.client().download_file(BASE_BUCKET, digital_ocean_filepath, save_file_path)
     return save_file_path
 
