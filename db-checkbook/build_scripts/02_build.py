@@ -19,12 +19,7 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
             return int(match.group())
         return None
     
-    def get_all_filenames_in_folder():
-        # TODO: error checking
-        return [p.name for p in Path(LIB_DIR).iterdir() if p.is_file()]
-    
-    file_list = get_all_filenames_in_folder()
-    
+    file_list = [p.name for p in Path(LIB_DIR).iterdir() if p.is_file()]
     file_list = sorted(file_list, key=lambda x: extract_year(x), reverse=True) # sort by year
 
     gdf_list = []
