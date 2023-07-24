@@ -5,36 +5,23 @@ set_error_traps
 # Setting Environmental Variables
 set_env ../.env version.env
 DATE=$(date "+%Y-%m-%d")
-set_error_traps
-
-function sql_table_summary {
-  psql -d $BUILD_ENGINE -At -c "SELECT count(*) FROM $1;" | 
-  while read -a count; do
-  echo -e "
-  \e[33m$1: $count records\e[0m
-  "
-  done
-
-  ddl=$(psql -At $BUILD_ENGINE -c "SELECT get_DDL('$1') as DDL;")
-  echo -e "
-  \e[33m$ddl\e[0m
-  "
-}
 
 function import_qaqc_historic {
-  target_dir=$(pwd)/.library/qaqc/$VERSION
-  qaqc_do_path=spaces/edm-publishing/db-developments/main/latest/output/qaqc_historic.sql
-  if [ -f $target_dir/$name.sql ]; then
-    echo "✅ $name.sql exists in cache"
+  local name="qaqc_historic"
+  target_dir=$(pwd)/.library/data/$VERSION
+  target_filename="${name}.csv"
+  qaqc_do_path=spaces/edm-publishing/db-developments/main/latest/output/${target_filename}
+  if [ -f ${target_dir}/${target_filename} ]; then
+    echo "✅ ${target_filename} exists in cache"
   else
-    echo "🛠 $name.sql doesn't exists in cache, downloading ..."
+    echo "🛠 ${target_filename} doesn't exists in cache, downloading ..."
     mkdir -p $target_dir && (
       cd $target_dir
-      mc cp $qaqc_do_path qaqc_historic.sql
+      mc cp $qaqc_do_path ${target_filename}
     )
   fi
-  psql $BUILD_ENGINE -c 'DROP TABLE IF EXISTS qaqc_historic'
-  psql $BUILD_ENGINE -v ON_ERROR_STOP=1 -q -f $target_dir/qaqc_historic.sql
+	run_sql_file sql/qaqc/_create_qaqc_historic.sql
+	run_sql_command "\COPY qaqc_historic FROM "${target_dir}/${target_filename}" DELIMITER ',' CSV HEADER;"
 }
 
 function archive_devdb { ## different from "standard" archive slightly
