@@ -1,18 +1,39 @@
 import pandas as pd
 import geopandas as gpd
+import client
+import re
+import os
 
 """
 merge_cpdb_geoms: this function is essentially the same as in my jupyter notebook:
 can someone help me think through how to modify it for using the data 
 from digital ocean? I think I'm a little confused as to how exactly this needs to change
 """
-def merge_cpdb_geoms(path, file_list): 
+def get_file_list():
+    return
+
+def merge_cpdb_geoms(): 
     """
     :param path: raw checkbook nyc data
     :type data: pandas df
     :return: cleaned checkbook nyc data
     :rtype: pandas df
     """
+    def extract_year(filename):
+        match = re.search(r'^\d{4}', filename)
+        if match:
+            return int(match.group())
+        return 0
+    
+    ## stealing this from pluto-enhancements/digital_ocean_utils
+    def get_all_filenames_in_folder():
+        filenames = set()
+        for filenames in os.listdir(directory_path):
+            filename = object.key.split("/")[-1]
+            if filename != "":
+                filenames.add(object.key.split("/")[-1])
+        return filenames
+
     file_list = sorted(file_list, key=lambda x: int(re.search(r'\d+$',x).group()), reverse=True)
 
     gdf_list = []
@@ -86,5 +107,7 @@ def join_checkbook_geoms(df, cpdb_geoms):
 
 if __name__ == "__main__":
     print("started build ...")
+    cpdb = merge_cpdb_geoms()
+
     ## TO DO: call functions above
     
