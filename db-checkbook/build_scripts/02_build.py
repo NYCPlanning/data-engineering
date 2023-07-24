@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 _curr_file_path = Path(__file__).resolve()
-LIB_DIR = _curr_file_path / '..' / '.library'
+LIB_DIR = _curr_file_path.parent.parent / '.library'
 
 def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
     """
@@ -19,11 +19,12 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
             return int(match.group())
         return None
     
-    file_list = [p.name for p in LIB_DIR.iterdir() if p.is_file()]
-    file_list = sorted(file_list, key=lambda x: extract_year(x), reverse=True) # sort by year
+    # change to subdirectories that have all the files for each version of cpdb
+    subdir_list = [p.name for p in LIB_DIR.iterdir() if p.is_dir()]
+    subdirectory_list = sorted(subdir_list, key=lambda x: extract_year(x), reverse=True) # sort by year
 
     gdf_list = []
-    for f in file_list:
+    for f in subdir_list:
         gdf = gpd.read_file(LIB_DIR / f)
         gdf_list.append(gdf)
 
@@ -37,7 +38,7 @@ def _clean_checkbook() -> pd.DataFrame:
     :return: cleaned checkbook nyc data
     :rtype: pandas df
     """
-    data = pd.read_csv(LIB_DIR + 'nycoc_checkbook.csv')
+    data = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
     data = data[data['Check Amount']<99000000]
     data = data[data['Check Amount']>=0]
@@ -91,14 +92,14 @@ def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd
 
 # ----  TODO: category assignment on BC, CP, and high-sensitivity Fixed Asset approach ----
 
-def _
-
 if __name__ == "__main__":
-
     print("started build ...")
     cpdb_geoms = _merge_cpdb_geoms()
+    print("joined cpdb geoms")
     cleaned_checkbook = _clean_checkbook() 
+    print("cleaned checkbook")
     grouped_checkbook = _group_checkbook(cleaned_checkbook)
     joined_data = _join_checkbook_geoms(grouped_checkbook, cpdb_geoms)
+    print(joined_data.head(1))
     # TODO: call categorization functions
     # TODO: save outputs
