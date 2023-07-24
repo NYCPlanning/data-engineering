@@ -19,11 +19,10 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
             return int(match.group())
         return None
     
-    # change to subdirectories that have all the files for each version of cpdb
     subdir_list = [p.name for p in LIB_DIR.iterdir() if p.is_dir()]
-    subdirectory_list = sorted(subdir_list, key=lambda x: extract_year(x), reverse=True) # sort by year
-
+    subdir_list = sorted(subdir_list, key=lambda x: extract_year(x), reverse=True) # sort by year
     gdf_list = []
+    
     for f in subdir_list:
         gdf = gpd.read_file(LIB_DIR / f)
         gdf_list.append(gdf)
@@ -95,11 +94,8 @@ def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd
 if __name__ == "__main__":
     print("started build ...")
     cpdb_geoms = _merge_cpdb_geoms()
-    print("joined cpdb geoms")
     cleaned_checkbook = _clean_checkbook() 
-    print("cleaned checkbook")
     grouped_checkbook = _group_checkbook(cleaned_checkbook)
     joined_data = _join_checkbook_geoms(grouped_checkbook, cpdb_geoms)
-    print(joined_data.head(1))
     # TODO: call categorization functions
     # TODO: save outputs
