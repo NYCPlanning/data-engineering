@@ -2,8 +2,10 @@ import pandas as pd
 import geopandas as gpd
 import re
 import os
+from pathlib import Path
 
-PATH_DIR = '../.library/'
+_curr_file_path = Path(__file__).resolve()
+LIB_DIR = _curr_file_path / '..' / '.library'
 
 def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
     """
@@ -17,14 +19,9 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
             return int(match.group())
         return None
     
-    ## stealing this from pluto-enhancements/digital_ocean_utils
     def get_all_filenames_in_folder():
         # TODO: error checking
-        filenames = set()
-        for filename in os.listdir(PATH_DIR):
-            if filename != "":
-                filenames.add(object.key.split("/")[-1])
-        return filenames
+        return [p.name for p in Path(LIB_DIR).iterdir() if p.is_file()]
     
     file_list = get_all_filenames_in_folder()
     
@@ -32,7 +29,7 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
 
     gdf_list = []
     for f in file_list:
-        gdf = gpd.read_file(PATH_DIR + f)
+        gdf = gpd.read_file(LIB_DIR + f)
         gdf_list.append(gdf)
 
     all_cpdb_geoms = pd.concat(gdf_list)
@@ -45,7 +42,7 @@ def _clean_checkbook() -> pd.DataFrame:
     :return: cleaned checkbook nyc data
     :rtype: pandas df
     """
-    data = pd.read_csv(PATH_DIR + 'nycoc_checkbook.csv')
+    data = pd.read_csv(LIB_DIR + 'nycoc_checkbook.csv')
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
     data = data[data['Check Amount']<99000000]
     data = data[data['Check Amount']>=0]
