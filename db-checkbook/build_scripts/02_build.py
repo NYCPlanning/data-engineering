@@ -3,9 +3,20 @@ import geopandas as gpd
 import re
 import os
 from pathlib import Path
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from sqlalchemy import text
 
 _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
+SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
+
+# should these be declared as constants, or in a function?
+DB_URL = 'sqlite:///checkbook.db'
+ENGINE = create_engine(DB_URL)
+Session = sessionmaker(bind=ENGINE)
+SESSION = Session()
 
 def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
     """
@@ -39,8 +50,8 @@ def _clean_checkbook() -> pd.DataFrame:
     """
     data = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
-    data = data[data['Check Amount']<99000000]
-    data = data[data['Check Amount']>=0]
+    data = data[data['check_amount']<99000000]
+    data = data[data['check_amount']>=0]
     # taking out white space from capital project for join with cpdb 
     """
     remove last three digits and any trailing whitespace from `Capital Project`
@@ -49,7 +60,7 @@ def _clean_checkbook() -> pd.DataFrame:
     d+: matches one or more digits
     $: assert position at the end of the string
     """
-    data['FMS ID'] = data['Capital Project'].str.replace(r'\s*d+$','') # QA this output because seems this causes an issue with SCA data
+    data['fms_id'] = data['capital_project'].str.replace(r'\s*d+$','') # QA this output because seems this causes an issue with SCA data
     return data
 
 def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame: 
@@ -60,19 +71,19 @@ def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
     def fn_join_vals(x):
         return ';'.join([y for y in list(x) if pd.notna(y)])
 
-    cols_for_grouping = ['FMS ID']
+    cols_for_grouping = ['fms_id']
     cols_for_limiting = cols_for_grouping + [
-        'Contract Purpose', 
-        'Agency', 
-        'Budget Code', 
-        'Check Amount'
+        'contract_purpose', 
+        'agency', 
+        'budget_code', 
+        'check_amount'
     ]
     df_limited_cols = data.loc[:, cols_for_limiting]
     agg_dict = {
-        'Check Amount': 'sum',
-        'Contract Purpose': fn_join_vals,
-        'Budget Code': fn_join_vals,
-        'Agency': fn_join_vals
+        'check_amount': 'sum',
+        'contract_purpose': fn_join_vals,
+        'budget_code': fn_join_vals,
+        'agency': fn_join_vals
     }
 
     df = df_limited_cols.groupby(cols_for_grouping, as_index=False).agg(agg_dict)
@@ -84,18 +95,55 @@ def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd
     :param cpdb_geoms: final versions of archived CPDB geometries from every year, and the most recent geometry for the current year
     :return: CPDB geometries left-joined onto Checkbook NYC data 
     """
-    merged = df.merge(cpdb_geoms, how='left', left_on='FMS ID', right_on='maprojid', indicator=True)
-    merged = df.drop('Unnamed: 0', axis=1, inplace=True) # TODO: figure out how to avoid this column appearing in the first place!
+    merged = df.merge(cpdb_geoms, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
+    #merged = df.drop('Unnamed: 0', axis=1, inplace=True) # TODO: figure out how to avoid this column appearing in the first place!
     gdf = gpd.GeoDataFrame(merged, geometry='geometry')
     return gdf
 
-# ----  TODO: category assignment on BC, CP, and high-sensitivity Fixed Asset approach ----
+def _df_to_sql(df: pd.DataFrame) -> None:
+    table_name = 'capital_projects'
+    df.to_sql(table_name, ENGINE, if_exists='replace', index=False)
+    return
+
+def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    return: pandas df of checkbook data with category assignment based on specified col 
+    """
+    replace = {'budget_code': 'bc_category', 'contract_purpose': 'cp_category'}
+    # TODO: fix the way the query is being read
+    with ENGINE.connect() as con:
+        for query_txt in SQL_QUERY_DIR.iterdir():
+            with open(query_txt) as file:
+                query = str(file.read())
+                for k, v in replace.items():
+                    print(k, v)
+                    query = query.replace('COLUMN', k)
+                    query = query.replace('col_category', v)
+                    con.execute(query)
+
+    ret = pd.read_sql_table('capital_projects', ENGINE)
+    ENGINE.dispose() # do we need this?
+    return ret
+
+def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """
+    return: geopandas gdf with merged checkbook cpdb data and 
+    final category assignment using high sensitivity fixed asset method
+    """ 
+    return
 
 if __name__ == "__main__":
     print("started build ...")
-    cpdb_geoms = _merge_cpdb_geoms()
+    #cpdb_geoms = _merge_cpdb_geoms()
+    #print('Merged CPDB geoms')
     cleaned_checkbook = _clean_checkbook() 
+    print('Cleaned checkbook data')
     grouped_checkbook = _group_checkbook(cleaned_checkbook)
-    joined_data = _join_checkbook_geoms(grouped_checkbook, cpdb_geoms)
+    print('grouped checkbook data')
+    #joined_data = _join_checkbook_geoms(grouped_checkbook, cpdb_geoms)
+    #print('joined checkbook and cpdb data')
+    cat_checkbook = _assign_checkbook_category(grouped_checkbook)
+    print('assigned cats')
+    print(cat_checkbook.head(5))
     # TODO: call categorization functions
     # TODO: save outputs
