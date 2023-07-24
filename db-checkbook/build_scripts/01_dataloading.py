@@ -1,3 +1,4 @@
+#from selectors import EpollSelector
 from dcpy.connectors import s3
 from functools import wraps
 from pathlib import Path
@@ -24,11 +25,14 @@ def read_s3_edm_recipes_cpdb(dataset_name, version, type_geom, save_file_path):
     file = s3_client.download_file(base_bucket, digital_ocean_filepath, save_file_path)
     return file
 
-
-def read_edm_recipes_nyc_checkbook(name):
-    file_name = f'{base_url}/{name}'
+# filepath: datasets/nycoc_checkbook/latest/nycoc_checkbook.csv
+def read_edm_recipes_nyc_checkbook(name = 'nycoc_checkbook.csv', version = "latest"):
+    file_name = f'{base_url}/datasets/nycoc_checkbook/{version}/{name}'
     df = pd.read_csv(file_name, dtype=str, index_col=False)
     return df
+
+
+print(read_edm_recipes_nyc_checkbook().head())
 
 
 if __name__ == "__main__":
