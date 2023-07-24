@@ -39,7 +39,8 @@ def merge_cpdb_geoms():
     file_list = get_all_filenames_in_folder()
     
     file_list = sorted(file_list, key=lambda x: extract_year(x), reverse=True) # sort by year
-    file_list = sorted(file_list, key=lambda x: int(re.search(r'\d+$',x).group()), reverse=True) # sort by year
+    print(file_list)
+    #file_list = sorted(file_list, key=lambda x: int(re.search(r'\d+$',x).group()), reverse=True) # sort by year
 
     gdf_list = []
     for f in file_list:
@@ -109,15 +110,27 @@ def join_checkbook_geoms(df, cpdb_geoms):
     gdf = gpd.GeoDataFrame(merged, geometry='geometry')
     return gdf
 
-# ---- # TO DO: category assignment on BC, CP, and high-sensitivity Fixed Asset approach 
+# ----  TO DO: category assignment on BC, CP, and high-sensitivity Fixed Asset approach ----
 
 
 if __name__ == "__main__":
     # Sample CPDB data (geodataframe)
-    cpdb_data = gpd.GeoDataFrame({
+    cpdb_data_1 = gpd.GeoDataFrame({
         'maprojid': [1, 2, 3],
         'geometry': [Point(0, 0), Point(1, 1), Point(2, 2)]
     })
+
+    cpdb_data_2 = gpd.GeoDataFrame({
+        'maprojid': [4, 5, 6],
+        'geometry': [Point(0, 0), Point(1, 1), Point(2, 2)]
+    })
+
+    cpdb_data_3 = gpd.GeoDataFrame({
+        'maprojid': [7, 8, 9],
+        'geometry': [Point(0, 0), Point(1, 1), Point(2, 2)]
+    })
+
+    cpdb_data = [cpdb_data_1, cpdb_data_2, cpdb_data_3]
 
     checkbook_data = pd.DataFrame({
         'FMS ID': [1, 2, 3],
@@ -141,4 +154,3 @@ if __name__ == "__main__":
     print(joined_data)
 
     ## TO DO: call functions above
-    
