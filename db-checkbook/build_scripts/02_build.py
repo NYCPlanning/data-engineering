@@ -24,7 +24,7 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
 
     gdf_list = []
     for f in file_list:
-        gdf = gpd.read_file(LIB_DIR + f)
+        gdf = gpd.read_file(LIB_DIR / f)
         gdf_list.append(gdf)
 
     all_cpdb_geoms = pd.concat(gdf_list)
