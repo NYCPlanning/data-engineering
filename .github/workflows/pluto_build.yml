@@ -15,7 +15,7 @@ on:
         default: false
 jobs:
   version:
-    name: get version
+    name: check version
     runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.get_version.outputs.version }}
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get Version
+      - name: Check Version
         id: get_version
         working-directory: ./db-pluto/pluto_build
         run: |
@@ -35,9 +35,9 @@ jobs:
         working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
-          SUBSTRING='.'
+          SUBSTRING="."
 
-          if grep -q "$SUBSTRING" <<< "$VERSION"
+          if [[ "$VERSION" =~ .*"$SUBSTRING".* ]];
           then
             is_minor_version=true
             echo "$VERSION is a minor version"
@@ -53,7 +53,7 @@ jobs:
       run:
         shell: bash
         working-directory: ./db-pluto/pluto_build
-    container: 
+    container:
       image: nycplanning/build-base:latest
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
@@ -71,7 +71,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-          --shm-size=2gb
+          --shm-size=4gb
         ports:
           - 5432:5432
     steps:
@@ -81,6 +81,13 @@ jobs:
         run: |
           echo "is_minor: ${{ needs.version.outputs.is_minor_version }}"
           ../../bash/docker_container_setup.sh
+
+      - name: clean out shared libs
+        run: |
+          rm -rf /usr/share/dotnet
+          rm -rf /opt/ghc
+          rm -rf "/usr/local/share/boost"
+          rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: dataloading (major) ..
         run: ./01_dataloading.sh

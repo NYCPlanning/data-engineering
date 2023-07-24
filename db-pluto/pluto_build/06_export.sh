@@ -2,6 +2,10 @@
 source ./bash/config.sh
 set_error_traps
 
+echo "Vacuuming build DB"
+# NOTE in the future may need to drop big tables (dof_dtm, pluto_input_cama_dof, pluto_input_geocodes)
+run_sql_command "VACUUM (FULL, ANALYZE, VERBOSE)"
+
 mkdir -p output
 cd output
     
@@ -19,6 +23,8 @@ csv_export source_data_versions
 
 echo "Exporting gdbs and shapefiles"
 
+# DEV section start: low disk space
+
 # mappluto.gdb
 fgdb_export_pluto mappluto_gdb &
 
@@ -30,6 +36,8 @@ shp_export_pluto mappluto MULTIPOLYGON &
 
 # mappluto_unclipped
 shp_export_pluto mappluto_unclipped MULTIPOLYGON &
+
+# DEV section end: low disk space
 
 wait
 echo "Exporting pluto csv"
