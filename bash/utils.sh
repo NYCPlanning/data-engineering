@@ -34,14 +34,29 @@ function set_error_traps {
 
 
 function run_sql_file {
-    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --file "$@"
+    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --quiet --file "$@"
 }
 
 
 function run_sql_command {
-    psql "${BUILD_ENGINE}" --set ON_ERROR_STOP=1 --quiet --command "$@"
+    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --quiet --command "$@"
 }
 
+function sql_table_summary {
+  # TODO use utils function for ALL sql commands using BUILD_ENGINE
+  # psql -d $BUILD_ENGINE -At -c "SELECT count(*) FROM $1;" | 
+  psql -d ${BUILD_ENGINE} -At -c "SELECT count(*) FROM $1;" | 
+  while read -a count; do
+  echo -e "
+  \e[33m$1: $count records\e[0m
+  "
+  done
+
+  ddl=$(psql -At ${BUILD_ENGINE} -c "SELECT get_DDL('$1') as DDL;")
+  echo -e "
+  \e[33m$ddl\e[0m
+  "
+}
 
 # currently only in dev db. Seems nice though for local development
 function psql_count_and_ddl {
@@ -137,6 +152,11 @@ function import_recipe {
 
     # Loading into Database
     run_sql_file ${target_dir}/${name}.sql
+    if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
+        # pgdumb files always create a table in the default "public" schema
+        echo "Setting schema of recipe table ${1} to be ${BUILD_ENGINE_SCHEMA}"
+        run_sql_command "ALTER TABLE $1 SET SCHEMA ${BUILD_ENGINE_SCHEMA};";
+    fi
     run_sql_command \
         "ALTER TABLE ${name} ADD COLUMN data_library_version text; \
         UPDATE ${name} SET data_library_version = '${version}';"
@@ -167,10 +187,17 @@ function csv_export_drop_columns {
     local table=${1}
     local columns=${2} #expected in format `csv_export_drop_columns mytable "'geom', 'other_column'"
     local output_file=${3:-${table}}
+    if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
+        local schema=${BUILD_ENGINE_SCHEMA}
+    else
+        local schema="public"
+    fi
+    
+    # TODO schema isn't always public
     local select_columns=$(run_sql_command \
         "\COPY (SELECT '\"' || STRING_AGG(attname, '\",\"' ORDER BY attnum) || '\"'\
         FROM pg_attribute\
-        WHERE attrelid = 'public.${table}'::regclass\
+        WHERE attrelid = '${schema}.${table}'::regclass\
             AND attname not in (${columns})\
             AND attnum>0
         ) TO STDOUT;")
@@ -182,7 +209,7 @@ function csv_export_drop_columns {
 
 
 function shp_export {
-    parse_connection_string ${BUILD_ENGINE}
+    # parse_connection_string ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
     case $3 in
@@ -193,11 +220,16 @@ function shp_export {
             local filename=$table
             shift 2;;
     esac
+    if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
+        local schema=${BUILD_ENGINE_SCHEMA}
+    else
+        local schema="public"
+    fi
     mkdir -p ${filename} &&(
         cd ${filename}
         ogr2ogr -progress -f "ESRI Shapefile" ${filename}.shp \
-            PG:"host=${BUILD_HOST} user=${BUILD_USER} port=${BUILD_PORT} dbname=${BUILD_DB} password=${BUILD_PWD}" \
-            ${table} -nlt ${geomtype} "$@"
+            PG:${BUILD_ENGINE} \
+            ${schema}.${table} -nlt ${geomtype} "$@"
         rm -f ${filename}.shp.zip
         zip -9 ${filename}.shp.zip *
         ls | grep -v ${filename}.shp.zip | xargs rm
