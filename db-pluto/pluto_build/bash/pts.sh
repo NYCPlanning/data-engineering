@@ -44,12 +44,9 @@ register 'import' 'pts' 'import pts' import_pts
 function geocode_pts {
    cp /tmp/pts/geocode_input_pluto_pts.csv $(pwd)/python/geocode_input_pluto_pts.csv
    rm -rf /tmp/pts/pluto_input_geocodes.csv
-   docker run --rm\
-      --user $(id -u):$(id -g)\
-      -v $(pwd):/project\
-      -w /project/python\
-      -e RECIPE_ENGINE=$RECIPE_ENGINE\
-      nycplanning/docker-geosupport:latest python3 geocode.py
+   cd python
+   python3 geocode.py
+   cd ..
    rm $(pwd)/python/geocode_input_pluto_pts.csv
    mc cp $(pwd)/python/pluto_input_geocodes.csv spaces/edm-recipes/tmp/pluto_input_geocodes.csv
 }

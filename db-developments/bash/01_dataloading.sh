@@ -1,10 +1,19 @@
 #!/bin/bash
 source bash/config.sh
+set_error_traps
 
 ## Default mode is EDM
 MODE="${1:-edm}"
 
 max_bg_procs 5
+
+echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
+# create build schema
+run_sql_command \
+    "
+    DROP SCHEMA IF EXISTS ${BUILD_ENGINE_SCHEMA} CASCADE;
+    CREATE SCHEMA ${BUILD_ENGINE_SCHEMA};
+    "
 
 create_source_data_table
 
@@ -28,9 +37,9 @@ import_recipe doe_eszones $DOE_ZONES_VERSION &
 import_recipe doe_mszones $DOE_ZONES_VERSION &
 import_recipe doe_school_subdistricts $DOE_SUBDISTRICTS_VERSION &
 import_recipe hpd_hny_units_by_building $HNY_VERSION &
-import_recipe hny_geocode_results $HNY_GEOCODE_VERSION &
-import_recipe hpd_historical_units_by_building &
-import_recipe hpd_historical_geocode_results &
+import_recipe hny_geocode_results $HNY_VERSION &
+import_recipe hpd_historical_units_by_building $HPD_HISTOICAL_VERSION &
+import_recipe hpd_historical_geocode_results $HPD_HISTOICAL_VERSION &
 import_recipe dob_now_applications $DOB_NOW_APPS_VERSION &
 import_recipe dob_now_permits $DOB_NOW_PERMITS_VERSION &
 import_recipe dob_cofos $DOB_COFOS_VERSION &
@@ -42,18 +51,23 @@ import_recipe dcp_censusdata_blocks 2020 &
 
 ## Geocode results shares index with _geo_devdb
 run_sql_command "DROP TABLE IF EXISTS _geo_devdb;"
-case $MODE in
-weekly)
-    import_recipe dob_permitissuance &
-    import_recipe dob_jobapplications &
-    import_recipe dob_geocode_results &
-    ;;
-*)
-    import_recipe dob_permitissuance $DOB_DATA_DATE &
-    import_recipe dob_jobapplications $DOB_DATA_DATE &
-    import_recipe dob_geocode_results $DOB_DATA_DATE &
-    ;;
-esac
+
+import_recipe dob_permitissuance &
+import_recipe dob_jobapplications &
+import_recipe dob_geocode_results &
+
+# case $MODE in
+# weekly)
+#     import_recipe dob_permitissuance &
+#     import_recipe dob_jobapplications &
+#     import_recipe dob_geocode_results &
+#     ;;
+# *)
+#     import_recipe dob_permitissuance $DOB_DATA_DATE &
+#     import_recipe dob_jobapplications $DOB_DATA_DATE &
+#     import_recipe dob_geocode_results $DOB_DATA_DATE &
+#     ;;
+# esac
 
 run_sql_file sql/_create.sql
 

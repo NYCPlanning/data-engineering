@@ -1,10 +1,8 @@
 #!/bin/bash
-source ../../bash/utils.sh
-set_env ../../.env
-set_env version.env
+source config.sh
 
 echo "CBBR Version ${VERSION} : 04 Export"
-OUTPUT_DIRECTORY="output/${VERSION}"
+OUTPUT_DIRECTORY="output"
 mkdir -p ${OUTPUT_DIRECTORY}
 
 echo "Transforming to final schemas ..."
@@ -28,13 +26,11 @@ csv_export cbbr_export_pts cbbr_submissions_pts
 echo "Exporting output geometry tables to zip shapefiles ..."
 shp_export cbbr_export_poly MULTIPOLYGON -f cbbr_submissions_poly_shapefile
 shp_export cbbr_export_pts MULTIPOINT -f cbbr_submissions_pts_shapefile
+cd ..
 
 echo "Upload Output to DigitalOcean" 
 
-wait
-upload db-cbbr $(date "+%Y-%m-%d")
+upload db-cbbr $VERSION
 upload db-cbbr "latest"
-wait
-exit 0
 
 echo "Done!"
