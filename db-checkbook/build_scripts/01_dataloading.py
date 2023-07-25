@@ -1,5 +1,6 @@
-from dcpy.connectors import s3
+#from dcpy.connectors import s3
 import pandas as pd
+import geopandas as gpd
 
 BASE_BUCKET = 'edm-recipes'
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
@@ -12,9 +13,26 @@ def read_s3_edm_recipes_cpdb(version, type_geom, save_file_path):
     version: 2018_adopted, 2019_adopted, 2020_adopted, 2021_adopted, 2022_adopted, 2023_executive
     type_geom: _polygons, _points 
     """
-    digital_ocean_filepath = f'datasets/dcp_cpdb/{version}{type_geom}'
-    s3.client().download_file(BASE_BUCKET, digital_ocean_filepath, save_file_path)
+
+    digital_ocean_filepath = f'datasets/dcp_cpdb/{version}{type_geom}/'
+    #s3.client().download_file(BASE_BUCKET, digital_ocean_filepath, save_file_path)
     return save_file_path
+
+
+def read_gpd_edm_recipes_cpdb(version, type_geom):
+    """read in all files: cpg, dbf, shx, shp, prj
+    """
+
+    file_extensions = ['dbf', 'shx', 'shp', 'prj']
+    geo_dataframes = {}
+    for extension in file_extensions:
+        digital_ocean_filepath = f'{BASE_URL}/dcp_cpdb/{version}{type_geom}/cpdb_dcpattributes_pts.{extension}'
+    geo_df = gpd.read_file('zip://https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/dcp_cpdb/2023_executive_polygons/cpdb_dcpattributes_poly_23.zip')
+    geo_dataframes[extension] = geo_df
+    return geo_dataframes
+
+
+print(read_gpd_edm_recipes_cpdb("2018_adopted", "_points"))
 
 
 def read_edm_recipes_nyc_checkbook(version = "latest"):
