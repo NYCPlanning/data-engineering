@@ -4,9 +4,7 @@ import re
 import os
 from pathlib import Path
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 
 _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
@@ -15,8 +13,6 @@ SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
 # should these be declared as constants, or in a function?
 DB_URL = 'sqlite:///checkbook.db'
 ENGINE = create_engine(DB_URL)
-Session = sessionmaker(bind=ENGINE)
-SESSION = Session()
 
 def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
     """
@@ -107,22 +103,28 @@ def _df_to_sql(df: pd.DataFrame) -> None:
 
 def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
     """
+    param df: cleaned and collapsed checkbook NYC data 
     return: pandas df of checkbook data with category assignment based on specified col 
     """
-    replace = {'budget_code': 'bc_category', 'contract_purpose': 'cp_category'}
-    # TODO: fix the way the query is being read
-    with ENGINE.connect() as con:
-        for query_txt in SQL_QUERY_DIR.iterdir():
-            with open(query_txt) as file:
-                query = str(file.read())
-                for k, v in replace.items():
-                    print(k, v)
-                    query = query.replace('COLUMN', k)
-                    query = query.replace('col_category', v)
-                    con.execute(query)
+    queries = [SQL_QUERY_DIR / 'query_itt_vehicles_equipment.sql', SQL_QUERY_DIR / 'query_lump_sum.sql', SQL_QUERY_DIR / 'query_fixed_asset.sql']
+    target_cols = {'budget_code': 'bc_category', 'contract_purpose': 'cp_category'}
+    df['bc_category'] = None
+    df['cp_category'] = None
+    
+    _df_to_sql(df)
 
-    ret = pd.read_sql_table('capital_projects', ENGINE)
-    ENGINE.dispose() # do we need this?
+    with ENGINE.connect() as conn:
+        for k, v in target_cols.items():
+            with open(SQL_QUERY_DIR / 'query.sql', 'r') as query_file:
+                query = query_file.read()
+            query = query.replace('COLUMN', k)
+            query = query.replace('col_category', v)
+            queries = [q.strip() for q in query.split(';') if q.strip()]
+            for q in queries:
+                conn.execute(text(q))
+    
+        ret = pd.read_sql_table('capital_projects', conn)
+
     return ret
 
 def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -142,6 +144,7 @@ if __name__ == "__main__":
     print('grouped checkbook data')
     #joined_data = _join_checkbook_geoms(grouped_checkbook, cpdb_geoms)
     #print('joined checkbook and cpdb data')
+
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
     print('assigned cats')
     print(cat_checkbook.head(5))
