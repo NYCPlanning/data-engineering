@@ -13,8 +13,7 @@ ENGINE = create_engine(DB_URL)
 
 def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
     """
-    :return: cleaned checkbook nyc data
-    :rtype: pandas df
+    :return: mergedf cpdb geometries
     """
     def extract_year(filename):
         # TODO: error checking
@@ -39,7 +38,6 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
 def _clean_checkbook() -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
-    :rtype: pandas df
     """
     data = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
@@ -53,14 +51,15 @@ def _clean_checkbook() -> pd.DataFrame:
     d+: matches one or more digits
     $: assert position at the end of the string
     """
-    data['fms_id'] = data['capital_project'].str.replace(r'\s*d+$','') # QA this output because seems this causes an issue with SCA data
+    data['fms_id'] = data['capital_project'].str.replace(r'\s*\d+$','') # QA this output because seems this causes an issue with SCA data
     return data
 
-def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame: 
+def _group_checkbook() -> pd.DataFrame: 
     """
-    :param data: cleaned checkbook nyc data
     :return: checkbook nyc data grouped by capital project
     """
+    data = _clean_checkbook()
+
     def fn_join_vals(x):
         return ';'.join([y for y in list(x) if pd.notna(y)])
 
@@ -90,11 +89,6 @@ def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd
     merged = df.merge(cpdb_geoms, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
     gdf = gpd.GeoDataFrame(merged, geometry='geometry')
     return gdf
-
-# def _df_to_sql(df: pd.DataFrame) -> None:
-#     table_name = 'capital_projects'
-#     df.to_sql(table_name, ENGINE, if_exists='replace', index=False)
-#     return
 
 def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -175,24 +169,21 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf['final_category'] = gdf[cols].apply(lambda row: cats[next((i for i, cat in enumerate(cats) if cat in row.values), 3)], axis=1)
     return gdf
 
+def run_build() -> pd.DataFrame:
+    """
+    :return: historical spending data
+    """
+    cpdb_geoms = _merge_cpdb_geoms()
+    grouped_checkbook = _group_checkbook()
+    cat_checkbook = _assign_checkbook_category(grouped_checkbook)
+    joined_data = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
+    cleaned_data = _clean_joined_checkbook_cpdb(joined_data)
+    final_data = _assign_final_category(cleaned_data)
+    return final_data
+
 if __name__ == "__main__":
     print("started build ...")
-    cpdb_geoms = _merge_cpdb_geoms()
-    print('Merged CPDB geoms...')
-    cleaned_checkbook = _clean_checkbook() 
-    print('Cleaned checkbook data...')
-    grouped_checkbook = _group_checkbook(cleaned_checkbook)
-    print('grouped checkbook data...')
-    cat_checkbook = _assign_checkbook_category(grouped_checkbook)
-    print('assigned checkbook categories...')
-    joined_data = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
-    print('joined checkbook and cpdb data...')
-    cleaned_data = _clean_joined_checkbook_cpdb(joined_data)
-    print('cleaned joined checkbook and cpdb data...')
-    final_data = _assign_final_category(joined_data)
-    print('assigned final category... done!')
-    print(final_data.head(5))
-    print(final_data.columns)
-    print(final_data.shape)
-    fp = _curr_file_path.parent.parent / 'tmp' / 'temp_historical_spend.csv'
+    final_data = run_build()
+    print('.. done!')
+    fp = _curr_file_path.parent.parent / 'output' / 'temp_historical_spend.csv'
     final_data.to_csv(fp)
