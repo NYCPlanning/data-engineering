@@ -122,31 +122,77 @@ def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
             queries = [q.strip() for q in query.split(';') if q.strip()]
             for q in queries:
                 conn.execute(text(q))
-    
+
         ret = pd.read_sql_table('capital_projects', conn)
 
     return ret
+
+def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """
+    :param gdf: joined cpdb and checkbook nyc data
+    :return: cleaned joined checkbook cpdb data 
+    """
+    gdf.rename(columns={'typecatego':'cpdb_category'}, inplace=True)
+    gdf['has_geometry'] = gdf['_merge'].map(lambda x: x == 'both')
+    gdf['cpdb_category'].fillna('None', inplace=True)
+    gdf['bc_category'].fillna('None', inplace=True)
+    gdf['cp_category'].fillna('None', inplace=True)
+    gdf.drop('_merge', axis=1, inplace=True)
+    gdf = _limit_cols(gdf)
+    return gdf
+
+def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    return gdf[[
+        'fms_id', 
+        'check_amount', 
+        'contract_purpose', 
+        'budget_code', 
+        'agency', 
+        'bc_category', 
+        'cp_category', 
+        'cpdb_category', 
+        'ccpversion',
+        'maprojid',
+        'magency',
+        'magencyacr',
+        'projectid',
+        'descriptio',
+        'geomsource',
+        'dataname',
+        'datasource',
+        'datadate',
+        'geometry',
+        'cartodb_id',
+        'has_geometry'
+    ]]
 
 def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     return: geopandas gdf with merged checkbook cpdb data and 
     final category assignment using high sensitivity fixed asset method
     """ 
-    return
+    cols = ['cpdb_category', 'bc_category', 'cp_category']
+    cats = ['Fixed Asset', 'ITT, Vehicles and Equipment', 'Lump Sum', 'None']
+
+    gdf['final_category'] = gdf[cols].apply(lambda row: cats[next((i for i, cat in enumerate(cats) if cat in row.values), 3)], axis=1)
+    return gdf
 
 if __name__ == "__main__":
     print("started build ...")
-    #cpdb_geoms = _merge_cpdb_geoms()
-    #print('Merged CPDB geoms')
+    cpdb_geoms = _merge_cpdb_geoms()
+    print('Merged CPDB geoms...')
     cleaned_checkbook = _clean_checkbook() 
-    print('Cleaned checkbook data')
+    print('Cleaned checkbook data...')
     grouped_checkbook = _group_checkbook(cleaned_checkbook)
-    print('grouped checkbook data')
-    #joined_data = _join_checkbook_geoms(grouped_checkbook, cpdb_geoms)
-    #print('joined checkbook and cpdb data')
+    print('grouped checkbook data...')
+    
 
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
-    print('assigned cats')
-    print(cat_checkbook.head(5))
-    # TODO: call categorization functions
+    print('assigned checkbook categories...')
+    joined_data = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
+    print('joined checkbook and cpdb data...')
+    cleaned_data = _clean_joined_checkbook_cpdb(joined_data)
+    print('cleaned joined checkbook and cpdb data...')
+    final_data = _assign_final_category(joined_data)
+    print('assigned final category... done!')
     # TODO: save outputs
