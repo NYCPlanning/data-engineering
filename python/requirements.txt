@@ -16,16 +16,16 @@ attrs==23.1.0
 backcall==0.2.0
     # via ipython
 black==23.1.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 boto3==1.28.3
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 botocore==1.31.3
     # via
     #   boto3
     #   s3transfer
 branca==0.6.0
     # via folium
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   fiona
     #   pyproj
@@ -53,7 +53,7 @@ cligj==0.7.2
 comm==0.1.3
     # via ipykernel
 contextily==1.3.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 contourpy==1.1.0
     # via matplotlib
 coverage[toml]==7.2.7
@@ -64,14 +64,12 @@ debugpy==1.6.7
     # via ipykernel
 decorator==5.1.1
     # via ipython
-exceptiongroup==1.1.2
-    # via pytest
 executing==1.2.0
     # via stack-data
 fiona==1.9.4.post1
     # via geopandas
 folium==0.14.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 fonttools==4.41.0
     # via matplotlib
 future==0.18.3
@@ -79,7 +77,7 @@ future==0.18.3
 geographiclib==2.0
     # via geopy
 geopandas==0.12.2
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 geopy==2.3.0
     # via contextily
 greenlet==2.0.2
@@ -89,7 +87,7 @@ idna==3.4
 iniconfig==2.0.0
     # via pytest
 ipykernel==6.22.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 ipython==8.14.0
     # via ipykernel
 jedi==0.18.2
@@ -98,7 +96,7 @@ jellyfish==0.6.1
     # via us
 jinja2==3.1.2
     # via
-    #   -r ./python/requirements.in
+    #   -r requirements.in
     #   branca
     #   folium
 jmespath==1.0.1
@@ -118,12 +116,12 @@ jupyter-core==5.3.1
 kiwisolver==1.4.4
     # via matplotlib
 mapclassify==2.5.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 markupsafe==2.1.3
     # via jinja2
 matplotlib==3.7.1
     # via
-    #   -r ./python/requirements.in
+    #   -r requirements.in
     #   contextily
 matplotlib-inline==0.1.6
     # via
@@ -158,7 +156,7 @@ packaging==23.1
     #   pytest
 pandas==1.5.3
     # via
-    #   -r ./python/requirements.in
+    #   -r requirements.in
     #   geopandas
     #   mapclassify
 parso==0.8.3
@@ -186,7 +184,7 @@ prompt-toolkit==3.0.39
 psutil==5.9.5
     # via ipykernel
 psycopg2-binary==2.9.5
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -201,10 +199,10 @@ pyproj==3.6.0
     # via geopandas
 pytest==7.2.2
     # via
-    #   -r ./python/requirements.in
+    #   -r requirements.in
     #   pytest-cov
 pytest-cov==4.0.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 python-crfsuite==0.9.9
     # via usaddress
 python-dateutil==2.8.2
@@ -214,13 +212,13 @@ python-dateutil==2.8.2
     #   matplotlib
     #   pandas
 python-dotenv==0.20.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport.git@3b8df06
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 pytz==2023.3
     # via pandas
 pyyaml==6.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 pyzmq==25.1.0
     # via
     #   ipykernel
@@ -243,30 +241,24 @@ shapely==2.0.1
     # via geopandas
 six==1.16.0
     # via
-    #   asttokens
     #   fiona
     #   python-dateutil
 snuggs==1.4.7
     # via rasterio
 sqlalchemy==2.0.15
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 stack-data==0.6.2
     # via ipython
 tabulate==0.9.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 threadpoolctl==3.2.0
     # via scikit-learn
-tomli==2.0.1
-    # via
-    #   black
-    #   coverage
-    #   pytest
 tornado==6.3.2
     # via
     #   ipykernel
     #   jupyter-client
 tqdm==4.65.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 traitlets==5.9.0
     # via
     #   comm
@@ -276,7 +268,7 @@ traitlets==5.9.0
     #   jupyter-core
     #   matplotlib-inline
 typer==0.9.0
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 typing-extensions==4.7.1
     # via
     #   sqlalchemy
@@ -286,9 +278,9 @@ urllib3==1.26.16
     #   botocore
     #   requests
 us==2.0.2
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 usaddress==0.5.10
-    # via -r ./python/requirements.in
+    # via -r requirements.in
 wcwidth==0.2.6
     # via prompt-toolkit
 xyzservices==2023.7.0
