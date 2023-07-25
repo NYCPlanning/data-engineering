@@ -1,16 +1,13 @@
 import pandas as pd
 import geopandas as gpd
 import re
-import os
 from pathlib import Path
-import sqlalchemy
 from sqlalchemy import create_engine, text
 
 _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
 SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
 
-# should these be declared as constants, or in a function?
 DB_URL = 'sqlite:///checkbook.db'
 ENGINE = create_engine(DB_URL)
 
@@ -81,7 +78,6 @@ def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
         'budget_code': fn_join_vals,
         'agency': fn_join_vals
     }
-
     df = df_limited_cols.groupby(cols_for_grouping, as_index=False).agg(agg_dict)
     return df
 
@@ -92,14 +88,13 @@ def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd
     :return: CPDB geometries left-joined onto Checkbook NYC data 
     """
     merged = df.merge(cpdb_geoms, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
-    #merged = df.drop('Unnamed: 0', axis=1, inplace=True) # TODO: figure out how to avoid this column appearing in the first place!
     gdf = gpd.GeoDataFrame(merged, geometry='geometry')
     return gdf
 
-def _df_to_sql(df: pd.DataFrame) -> None:
-    table_name = 'capital_projects'
-    df.to_sql(table_name, ENGINE, if_exists='replace', index=False)
-    return
+# def _df_to_sql(df: pd.DataFrame) -> None:
+#     table_name = 'capital_projects'
+#     df.to_sql(table_name, ENGINE, if_exists='replace', index=False)
+#     return
 
 def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -111,9 +106,8 @@ def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
     df['bc_category'] = None
     df['cp_category'] = None
     
-    _df_to_sql(df)
-
     with ENGINE.connect() as conn:
+        df.to_sql('capital_projects', ENGINE, if_exists='replace', index=False)
         for k, v in target_cols.items():
             with open(SQL_QUERY_DIR / 'query.sql', 'r') as query_file:
                 query = query_file.read()
@@ -142,6 +136,10 @@ def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """
+    :param gdf: joined checkbook nyc and cpdb data
+    :return: geopandas df of joined checkbook cpdb data with cols limited/reordered
+    """
     return gdf[[
         'fms_id', 
         'check_amount', 
@@ -185,8 +183,6 @@ if __name__ == "__main__":
     print('Cleaned checkbook data...')
     grouped_checkbook = _group_checkbook(cleaned_checkbook)
     print('grouped checkbook data...')
-    
-
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
     print('assigned checkbook categories...')
     joined_data = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
@@ -195,4 +191,8 @@ if __name__ == "__main__":
     print('cleaned joined checkbook and cpdb data...')
     final_data = _assign_final_category(joined_data)
     print('assigned final category... done!')
-    # TODO: save outputs
+    print(final_data.head(5))
+    print(final_data.columns)
+    print(final_data.shape)
+    fp = _curr_file_path.parent.parent / 'tmp' / 'temp_historical_spend.csv'
+    final_data.to_csv(fp)
