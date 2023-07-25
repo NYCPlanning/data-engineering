@@ -19,7 +19,7 @@ black==23.1.0
     # via -r requirements.in
 branca==0.6.0
     # via folium
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   fiona
     #   pyproj
