@@ -39,13 +39,24 @@ def download_s3_edm_recipes_cpdb():
     return ''
 
 
-def read_edm_recipes_nyc_checkbook(version = "latest"):
+def read_edm_recipes_nyc_checkbook(version = "latest") -> pd.DataFrame:
     """filepath: datasets/nycoc_checkbook/latest/nycoc_checkbook.csv 
     """
     file_name = f'{BASE_URL}/datasets/nycoc_checkbook/{version}/nycoc_checkbook.csv'
     df = pd.read_csv(file_name, dtype=str, index_col=False)
+    pd.to_csv(LIB_DIR / 'nycoc_checkbook.csv')
     return df
+
+def run_dataloading() -> None:
+
+    download_s3_edm_recipes_cpdb()
+    read_edm_recipes_nyc_checkbook()
+
 
 
 if __name__ == "__main__":
-    print("started dataloading ...")
+    print("Started dataloading ...")
+    run_dataloading()
+    print("Finished dataloading ...")
+    
+
