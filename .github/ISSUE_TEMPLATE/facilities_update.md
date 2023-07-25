@@ -13,7 +13,7 @@ Like most of our data products, source data must be updated in data library befo
 **All source data listed is to be uploaded as .csv files**
 
 ## Geosupport
-- [ ] Update geosupport version in both Dockerfiles
+- [ ] Ensure latest Geosupport version is present in production EDM Docker images
 
 ## Version Env
 - [ ] Update previous version for QCQA in `version.env` file
@@ -90,6 +90,8 @@ NOTE: DPR open data table URLs are not consistent. Be sure to double-check befor
 
 - [ ] nysdoh_nursinghomes https://health.data.ny.gov/Health/Nursing-Home-Weekly-Bed-Census-Last-Submission/izta-vnpq
 
+ - [ ] nysed_nonpublicenrollment http://www.p12.nysed.gov/irs/statistics/nonpublic/
+
 - [ ] nysomh_mentalhealth https://data.ny.gov/Human-Services/Local-Mental-Health-Programs/6nvr-tbv8
 
 - [ ] nysopwdd_providers https://data.ny.gov/Human-Services/Directory-of-Developmental-Disabilities-Service-Pr/ieqx-cqyk
@@ -142,10 +144,7 @@ This dataset is updated for CEQR
       6. then run library archive --name foodbankny_foodbanks with the -version flag set to the DATE in the file path
 
 - [ ] nysed_activeinstitutions  https://eservices.nysed.gov/sedreports/list?id=1
- Active Institutions with GIS coordinates and OITS Accuracy Code - Select by County__ CSV. Note that .csv data is automatically downloaded without comma delimiter. Exporting to csv from numbers is one way to get around this issue
-
- - [ ] nysed_nonpublicenrollment http://www.p12.nysed.gov/irs/statistics/nonpublic/
- Nonpublic Enrollment by Grade
+ Active Institutions with GIS coordinates and OITS Accuracy Code - Select by County__ CSV. Note that .csv data is automatically downloaded without comma delimiter. Exporting to csv from numbers is one way to get around this issue. (Exporting as an xls and converting to a csv is also an option) 
 
 - [ ] nysoasas_programs  https://webapps.oasas.ny.gov/providerDirectory/index.cfm?search_type=2
 Download all treatment providers
@@ -161,16 +160,13 @@ NOTE: the final number in the URL (2225713) is not always stable. If the data is
 - [ ] dot_mannedfacilities
 - [ ] dot_publicparking
 - [ ] dot_pedplazas
+- [ ] doe_universalprek (https://maps.nyc.gov/prek/data/pka/pka.csv)
 
-
-
-## Unresolved process
-Still waiting to figure out best way to upload these data
-
-- [ ] doe_universalprek
-Source url: https://maps.nyc.gov/prek/data/pka/pka.csv
 
 ## Last step
 - [ ] dcp_pops
 Source: Download from POPs app, available on DCP Commons. Be sure to only take the public version.
 *Be sure to do this source last, as the OpenData release of POPs needs to be in sync*
+
+## TODO
+- Ped Plazas can now be pulled from open data via data-library (https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex)
