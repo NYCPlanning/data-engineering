@@ -366,9 +366,11 @@ def dsny_leafdrop(df: pd.DataFrame = None):
 @ParseAddress(raw_address_field="location")
 @Prepare
 def dsny_fooddrop(df: pd.DataFrame = None):
-    df["zip_code"] = df["location"].apply(
-        lambda x: x[:-5] if x[:-5].isnumeric() else None
-    )
+    def _loc_to_zipcode(location):
+        location_str = str(location)
+        return location_str[:-5] if location_str[:-5].isnumeric() else None
+
+    df["zip_code"] = df["location"].apply(_loc_to_zipcode)
     return df
 
 
