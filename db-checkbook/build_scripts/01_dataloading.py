@@ -17,7 +17,7 @@ load_dotenv(_curr_file_path.parent.parent.parent / '.env')
 def download_s3_edm_recipes_cpdb():
     """read EDM data: using S3 connectors
     example: datasets/dcp_cpdb/2018_adopted_polygons/
-    version: 2018_adopted, 2019_adopted, 2020_adopted, 2021_adopted, 2022_adopted, 2023_executive
+    version: 2017_adopted, 2018_adopted, 2019_adopted, 2020_adopted, 2021_adopted, 2022_adopted, 2023_executive
     type_geom: _polygons, _points 
     """
 
@@ -32,25 +32,27 @@ def download_s3_edm_recipes_cpdb():
     bucket = s3_resource.Bucket(BASE_BUCKET)     
     for obj in bucket.objects.filter(Prefix = prefix):
         key = obj.key.replace(prefix, '')
-        if not os.path.exists(LIB_DIR / os.path.dirname(key)):
-            os.makedirs(LIB_DIR / os.path.dirname(key))
-        bucket.download_file(obj.key, LIB_DIR / key)
+        if key and (key[-1] != '/'):
+            if not os.path.exists(LIB_DIR / os.path.dirname(key)):
+                os.makedirs(LIB_DIR / os.path.dirname(key))
+            bucket.download_file(obj.key, LIB_DIR / key)
+    return
 
-    return ''
 
-
-def read_edm_recipes_nyc_checkbook(version = "latest") -> pd.DataFrame:
+def read_edm_recipes_nyc_checkbook(version = "latest"):
     """filepath: datasets/nycoc_checkbook/latest/nycoc_checkbook.csv 
     """
     file_name = f'{BASE_URL}/datasets/nycoc_checkbook/{version}/nycoc_checkbook.csv'
     df = pd.read_csv(file_name, dtype=str, index_col=False)
     pd.to_csv(LIB_DIR / 'nycoc_checkbook.csv')
-    return df
+    return
 
 def run_dataloading() -> None:
 
     download_s3_edm_recipes_cpdb()
     read_edm_recipes_nyc_checkbook()
+
+    return 
 
 
 
