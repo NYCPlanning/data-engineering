@@ -15,7 +15,8 @@ LIB_DIR = _curr_file_path.parent.parent / '.library'
 
 from build_scripts.build import _group_checkbook, _clean_checkbook, _merge_cpdb_geoms, _join_checkbook_geoms
 
-raw_checkbook_df = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
+# TODO: use raw checkbook data in future
+# raw_checkbook_df = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
 grouped_checkbook_df = _group_checkbook()
 cpdb_df = _merge_cpdb_geoms()
 
@@ -26,11 +27,11 @@ def test_fms_id_exists():
 def test_null_fms_id():
     assert np.where(grouped_checkbook_df['fms_id'].isnull())
 
-@pytest.mark.skip(reason='not done')
+@pytest.mark.skip(reason='TODO after major refactor')
 def test_unique_fms_id():
     assert pd.Series(grouped_checkbook_df['fms_id']).is_unique()
 
-@pytest.mark.skip(reason='not done')
+@pytest.mark.skip(reason='TODO after major refactor')
 def test_check_nonneg():
     assert pd.Series(grouped_checkbook_df['check_amount']) > 0
 
@@ -53,7 +54,7 @@ def test_clean_checkbook():
 def test_null_maprojid():
     assert np.where(cpdb_df['maprojid'].isnull())
 
-@pytest.mark.skip(reason='not done')
+@pytest.mark.skip(reason='TODO after major refactor')
 def test_unique_maprojid(): 
     assert pd.Series(cpdb_df['maprojid']).is_unique()
 
@@ -62,7 +63,7 @@ def test_null_geometry():
 
 # --- results of join
 
-@pytest.mark.skip(reason='not done')
+@pytest.mark.skip(reason='TODO after major refactor')
 def test_merge_cpdb_geoms():
     gdf1 = gpd.GeoDataFrame({'maprojid': [1, 2, 3], 'geometry': [None, 'POINT (1 1)', 'POINT (2 2)']})
     gdf2 = gpd.GeoDataFrame({'maprojid': [2, 4], 'geometry': ['POINT (3 3)', 'POINT (4 4)']})
@@ -70,30 +71,10 @@ def test_merge_cpdb_geoms():
     result = _merge_cpdb_geoms(gdf_list=[gdf1, gdf2])
     assert result.equals(expected_result)
 
-# --- below are endpoint tests
+# --- high-sensitivity fixed asset CATEGORY ASSIGNMENT
 
-# def test_num_capital_projects() -> bool:
-#     print('testing number of capital projects...')
-#     df = _clean_checkbook()
-#     print(df['fms_id'].nunique())
-#     return df['fms_id'].nunique() == 16687
-
-# def test_size_raw_checkbook() -> bool:
-#     print('testing size of raw checkbook data...')
-#     df = _clean_checkbook()
-#     print(df.shape)
-#     return df.shape[0] > 1900000
-
-# def test_checkbook_grouping() -> bool:
-#     print('testing checkbook size...')
-#     df = _group_checkbook()
-#     print(df.shape)
-#     return df.shape[0] == 16687
-
-# def test_join_size(gdf: gpd.GeoDataFrame) -> bool:
-#     print('testing number of projects with geometries...')
-#     print(gdf[gdf['has_geometry']==True].shape[0])
-#     return gdf[gdf['has_geometry']==True].shape[0] == 3880
+def test_final_category_assignment():
+    assert 
 
 if __name__ == '__main__':
     pytest.main()
