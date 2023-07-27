@@ -62,9 +62,9 @@ def upload_file(
 
 
 def download_folder(
-    bucket, prefix, export_path, include_prefix_in_export=False
+    bucket: str, prefix: str, export_path: str, include_prefix_in_export: bool = False
 ) -> None:
-    """given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
+    """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     export_path = Path(export_path)
     if prefix[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
@@ -91,7 +91,8 @@ def upload_folder(
     acl: str = "public-read",
     metadata: dict = {},
     include_foldername: bool = True,
-):
+) -> None:
+    """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
     local_folder_path = Path(local_folder_path)
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
         raise NotADirectoryError(f"'{local_folder_path}' is not a folder.")
