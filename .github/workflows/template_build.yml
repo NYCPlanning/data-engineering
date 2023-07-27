@@ -24,6 +24,12 @@ jobs:
   build:
     name: Build Dataset
     runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-template
     services:
       postgres:
         image: postgis/postgis:15-3.3-alpine
@@ -39,7 +45,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check inputs
-        working-directory: db-template
         run: |
           python --version
           echo "Hello build note: ${{ inputs.build_note }}"
@@ -48,39 +53,26 @@ jobs:
           echo "Running python.run_logging ..."
           python -m python.run_logging
 
-      - name: Setup python
-        uses: actions/setup-python@v4.5.0
-        with:
-          python-version: 3.11.2
-
       - name: Setup build environment
-        working-directory: db-template
-        run: |
-          python --version
-          ./bash/setup_build_env.sh
+        run: ../bash/docker_container_setup.sh
 
       - name: 1) Data loading
-        working-directory: db-template
         run: |
           echo "PLACEHOLDER running Data loading"
 
       - name: 2) Preprocessing
-        working-directory: db-template
         run: |
           echo "PLACEHOLDER running Preprocessing"
 
       - name: 3) Build
-        working-directory: db-template
         run: |
           echo "PLACEHOLDER running Build"
 
       - name: 4) Export for QAQC
-        working-directory: db-template
         run: |
           echo "PLACEHOLDER running Export for QAQC"
 
       - name: 5) Export for production
-        working-directory: db-template
         if: inputs.will_export
         run: |
           echo "PLACEHOLDER running Export for production"
