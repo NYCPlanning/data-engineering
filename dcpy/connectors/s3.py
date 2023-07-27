@@ -28,16 +28,16 @@ def client(
     )
 
 
-## adapted from data library
-## https://github.com/NYCPlanning/db-data-library/blob/main/library/s3.py#L37
 def upload_file(
     bucket: str,
     path: str,
     key: str,
     acl: str = "public-read",
-    metadata: dict = {},
+    metadata: dict = None,
 ) -> dict:
-    """Uploads a single file to AWS S3."""
+    """Uploads a single file to AWS S3.
+    adapted from data library
+    https://github.com/NYCPlanning/db-data-library/blob/main/library/s3.py#L37"""
     with Progress(
         SpinnerColumn(spinner_name="earth"),
         TextColumn("[progress.description]{task.description}"),
