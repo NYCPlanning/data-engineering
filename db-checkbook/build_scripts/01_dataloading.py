@@ -13,12 +13,7 @@ _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
 load_dotenv(_curr_file_path.parent.parent.parent / '.env') 
 
-<<<<<<< HEAD
-
-def download_s3_edm_recipes_cpdb():
-=======
 def download_s3_edm_recipes_cpdb() -> None:
->>>>>>> main
     """read EDM data: using S3 connectors
     example: datasets/dcp_cpdb/2018_adopted_polygons/
     version: 2017_adopted, 2018_adopted, 2019_adopted, 2020_adopted, 2021_adopted, 2022_adopted, 2023_executive
@@ -40,11 +35,7 @@ def download_s3_edm_recipes_cpdb() -> None:
             bucket.download_file(obj.key, LIB_DIR / key)
     return
 
-<<<<<<< HEAD
-def read_edm_recipes_nyc_checkbook(version = "latest"):
-=======
 def read_edm_recipes_nyc_checkbook(version = "latest") -> None:
->>>>>>> main
     """filepath: datasets/nycoc_checkbook/latest/nycoc_checkbook.csv 
     """
     file_name = f'{BASE_URL}/datasets/nycoc_checkbook/{version}/nycoc_checkbook.csv'

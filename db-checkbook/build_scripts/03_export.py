@@ -37,7 +37,10 @@ def upload_final_file(final_file, digital_ocean_file) -> None:
     folder_structure_metadata = create_metadata_folder_structure(digital_ocean_file)
     final_file_path = _curr_file_path.parent.parent / 'output' / final_file
     do_destination = f'datasets/dcp_cpdb/{digital_ocean_file}'
-    s3_client.upload_file(final_file_path, BASE_BUCKET, do_destination, #ExtraArgs = {"Metadata": folder_structure_metadata} 
+    s3_client.upload_file(final_file_path,
+                          BASE_BUCKET, 
+                          do_destination, 
+                          #ExtraArgs = {"Metadata": folder_structure_metadata} 
 
     )
     
