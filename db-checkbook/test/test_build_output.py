@@ -73,8 +73,5 @@ def test_merge_cpdb_geoms():
 
 # --- high-sensitivity fixed asset CATEGORY ASSIGNMENT
 
-def test_final_category_assignment():
-    assert 
-
 if __name__ == '__main__':
     pytest.main()
