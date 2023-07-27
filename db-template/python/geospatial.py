@@ -1,3 +1,5 @@
+from typing import Union
+
 import contextily as cx
 import geopandas as gpd
 import pandas as pd
@@ -71,7 +73,7 @@ def pad_map_bounds(
 def map_simple(
     data: gpd.GeoDataFrame,
     projection: str = NYC_PROJECTION,
-    basemap: str | TileProvider = DEFAULT_BASEMAP,
+    basemap: Union[str, TileProvider] = DEFAULT_BASEMAP,
     map_config: dict = DEFAULT_MATPLOTLIB_MAP_CONFIG,
 ) -> Axes:
     axes = data.plot(

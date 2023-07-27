@@ -10,11 +10,11 @@ echo -e "🛠 upgrading python package management tools"
 python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade pip-tools wheel
 
-echo -e "🛠 deleting requirements.txt"
 # Delete existing requirements file to ensure full dependency resolution
+echo -e "🛠 deleting ${path_to_requirements}/requirements.txt"
 rm --force ${path_to_requirements}/requirements.txt
 
 # Compile requirements
-echo -e "🛠 compiling requirements.txt"
+echo -e "🛠 compiling from ${path_to_requirements}/requirements.in"
 CUSTOM_COMPILE_COMMAND="./${RELATIVE_SCRIPTPATH}" python3 -m piptools compile --output-file=${path_to_requirements}/requirements.txt ${path_to_requirements}/requirements.in
-echo -e "✅ done compiling requirements.txt"
+echo -e "✅ done compiling ${path_to_requirements}/requirements.txt"
