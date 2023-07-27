@@ -85,17 +85,17 @@ def download_folder(
 
 
 def upload_folder(
-    bucket:str,
-    local_folder_path:str,
-    upload_path:str,
+    bucket: str,
+    local_folder_path: str,
+    upload_path: str,
     acl: str = "public-read",
     metadata: dict = {},
-    include_foldername: bool=True,
+    include_foldername: bool = True,
 ):
     local_folder_path = Path(local_folder_path)
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
         raise NotADirectoryError(f"'{local_folder_path}' is not a folder.")
-    for path_object in local_folder_path.rglob('*'):
+    for path_object in local_folder_path.rglob("*"):
         if path_object.is_file():
             if not include_foldername:
                 key = upload_path / Path(*path_object.parts[2:])
