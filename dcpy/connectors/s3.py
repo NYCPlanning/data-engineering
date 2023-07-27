@@ -31,11 +31,11 @@ def client(
 
 def upload_file(
     bucket: str,
-    path: str,
+    path: Path,
     key: str,
     acl: str,
     *,
-    metadata: dict = None,
+    metadata: Optional[dict] = None,
 ) -> dict:
     """Uploads a single file to AWS S3.
     adapted from data library
@@ -50,14 +50,15 @@ def upload_file(
     ) as progress:
         size = os.stat(path).st_size
         task = progress.add_task(
-            f"[green]Uploading [bold]{os.path.basename(path)}[/bold]", total=size
+            f"[green]Uploading [bold]{path.name}[/bold]", total=size
         )
-
+        extra_args = {"ACL": acl}
+        if metadata: extra_args["Metadata"] = metadata
         response = client().upload_file(
             path,
             bucket,
             key,
-            ExtraArgs={"ACL": acl, "Metadata": metadata},
+            ExtraArgs=extra_args,
             Callback=lambda complete: progress.update(task, completed=complete),
         )
     return response
@@ -66,12 +67,11 @@ def upload_file(
 def download_folder(
     bucket: str,
     prefix: str,
-    export_path: str,
+    export_path: Path,
     *,
     include_prefix_in_export: bool = False,
 ) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
-    export_path = Path(export_path)
     if prefix[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
 
@@ -80,9 +80,12 @@ def download_folder(
     if not "Contents" in resp:
         raise NotADirectoryError(f"Folder {prefix} not found in bucket {bucket}")
     for obj in resp["Contents"]:
+        print(obj["Key"])
         key = obj["Key"].replace(prefix, "")
+        print(key)
         if key and (key[-1] != "/"):
-            key_directory = os.path.dirname(key)
+            key_directory = Path(key).parent
+            print(key_directory)
             if include_prefix_in_export:
                 export_path = export_path / prefix
             if not (export_path / key_directory).exists():
@@ -92,16 +95,14 @@ def download_folder(
 
 def upload_folder(
     bucket: str,
-    local_folder_path: str,
+    local_folder_path: Path,
     upload_path: str,
     acl: str,
     *,
     max_files: int = 20,
-    metadata: dict = None,
     include_foldername: bool = True,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
-    local_folder_path = Path(local_folder_path)
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
         raise NotADirectoryError(f"'{local_folder_path}' is not a folder.")
     files = [object for object in local_folder_path.rglob("*") if object.is_file()]
@@ -115,4 +116,4 @@ def upload_folder(
             if include_foldername
             else upload_path / Path(*file.parts[2:])
         )
-        upload_file(bucket, file, str(key), acl=acl, metadata=metadata)
+        upload_file(bucket, file, str(key), acl=acl)
