@@ -27254,3 +27254,5 @@ bbl,field,old_value,new_value,Type,reason,version
 ,ownername,NEW YORK STATE DEPARTMENT OF TRANSPORTAT,NYS DEPARTMENT OF TRANSPORTATION,1,Normalized owner name,23v2
 ,ownername,NYS COMPTROLLER OFFICE,NYS COMPTROLLER'S OFFICE,1,Normalized owner name,23v2
 ,ownername,NYS DEPT OF TRANSPORTATIO,NYS DEPARTMENT OF TRANSPORTATION,1,Normalized owner name,23v2
+4158620001,zonedist2,,M1-4/R6,2,issue calculating zoning distrcts,23v2
+4158620001,spdist1,,MX-21,2,issue calculating zoning distrcts,23v2
