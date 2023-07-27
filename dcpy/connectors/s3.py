@@ -89,7 +89,7 @@ def upload_folder(
     local_folder_path: str,
     upload_path: str,
     acl: str = "public-read",
-    metadata: dict = {},
+    metadata: dict = None,
     include_foldername: bool = True,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
