@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Optional
 import boto3
 from botocore.client import Config
 
@@ -32,7 +33,8 @@ def upload_file(
     bucket: str,
     path: str,
     key: str,
-    acl: str = "public-read",
+    acl: str,
+    *,
     metadata: dict = None,
 ) -> dict:
     """Uploads a single file to AWS S3.
@@ -62,7 +64,11 @@ def upload_file(
 
 
 def download_folder(
-    bucket: str, prefix: str, export_path: str, include_prefix_in_export: bool = False
+    bucket: str,
+    prefix: str,
+    export_path: str,
+    *,
+    include_prefix_in_export: bool = False,
 ) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     export_path = Path(export_path)
@@ -88,7 +94,9 @@ def upload_folder(
     bucket: str,
     local_folder_path: str,
     upload_path: str,
-    acl: str = "public-read",
+    acl: str,
+    *,
+    max_files: int = 20,
     metadata: dict = None,
     include_foldername: bool = True,
 ) -> None:
@@ -96,10 +104,15 @@ def upload_folder(
     local_folder_path = Path(local_folder_path)
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
         raise NotADirectoryError(f"'{local_folder_path}' is not a folder.")
-    for path_object in local_folder_path.rglob("*"):
-        if path_object.is_file():
-            if not include_foldername:
-                key = upload_path / Path(*path_object.parts[2:])
-            else:
-                key = Path(upload_path) / path_object
-            upload_file(bucket, path_object, str(key), acl=acl, metadata=metadata)
+    files = [object for object in local_folder_path.rglob("*") if object.is_file()]
+    if len(files) > max_files:
+        raise Exception(
+            f"{len(files)} found in folder '{local_folder_path}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
+        )
+    for file in files:
+        key = (
+            upload_path / file
+            if include_foldername
+            else upload_path / Path(*file.parts[2:])
+        )
+        upload_file(bucket, file, str(key), acl=acl, metadata=metadata)
