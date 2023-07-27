@@ -87,14 +87,14 @@ and a.servarea = b.servarea;
 DROP TABLE IF EXISTS qc_captype;
 with
 new as (
-	SELECT captype, sum(capacity::integer) as sum_new
+	SELECT captype, sum(capacity::numeric)::integer as sum_new
 	FROM facdb
-	group by captype
+	GROUP BY captype
 ),
 old as (
-	SELECT captype, sum(capacity::integer) as sum_old
+	SELECT captype, sum(capacity::numeric)::integer as sum_old
 	FROM dcp_facilities_with_unmapped
-	group by captype
+	GROUP BY captype
 )
 select a.captype, a.sum_new, b.sum_old, a.sum_new - b.sum_old as diff
 INTO qc_captype
