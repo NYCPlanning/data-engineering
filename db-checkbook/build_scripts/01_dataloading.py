@@ -4,8 +4,6 @@ import pandas as pd
 BASE_BUCKET = 'edm-recipes'
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
 
-
-
 def read_s3_edm_recipes_cpdb(version, type_geom, save_file_path):
     """read EDM data: using S3 connectors
     example: datasets/dcp_cpdb/2018_adopted_polygons/
