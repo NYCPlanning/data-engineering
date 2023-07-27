@@ -94,7 +94,7 @@ def upload_folder(
 ):
     local_folder_path = Path(local_folder_path)
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
-        raise ValueError(f"'{local_folder_path}' is not a folder.")
+        raise NotADirectoryError(f"'{local_folder_path}' is not a folder.")
     for path_object in local_folder_path.rglob('*'):
         if path_object.is_file():
             if not include_foldername:
