@@ -1,9 +1,10 @@
-from dcpy.connectors.edm import recipes
-from dcpy import DCPY_ROOT_PATH
-from dcpy.connectors import psql
-from dcpy import BUILD_ENGINE_RAW, build_engine
 from sqlalchemy import text, update, insert
 from sqlalchemy.schema import Table, MetaData
+
+from dcpy import BUILD_ENGINE_RAW, build_engine
+from dcpy import DCPY_ROOT_PATH
+from dcpy.connectors import psql
+from dcpy.connectors.edm import recipes
 
 LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
 

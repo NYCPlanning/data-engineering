@@ -1,7 +1,7 @@
-import os
+from io import StringIO
 from pathlib import Path
 import csv
-from io import StringIO
+import os
 
 
 def exec_file_via_shell(build_engine: str, path: Path):
