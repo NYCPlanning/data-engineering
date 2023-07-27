@@ -12,6 +12,7 @@ run_sql_file sql/corr_ownername_punctuation.sql
 run_sql_file sql/corr_communitydistrict.sql
 run_sql_file sql/corr_numfloors.sql
 run_sql_file sql/corr_units.sql
+run_sql_file sql/corr_zoning.sql
 run_sql_file sql/corr_inwoodrezoning.sql
 run_sql_file sql/corr_dropoldrecords.sql
 run_sql_file sql/remove_unitlots.sql
