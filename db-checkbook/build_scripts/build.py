@@ -42,11 +42,18 @@ def _merge_cpdb_geoms(dir = LIB_DIR) -> gpd.GeoDataFrame:
     all_cpdb_geoms.drop_duplicates(subset='maprojid', keep='first', inplace=True, ignore_index=True)
     return all_cpdb_geoms
 
-def _clean_checkbook(dir = LIB_DIR, f = 'nycoc_checkbook.csv') -> pd.DataFrame:
+def _read_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv'):
+    """
+    :return: raw checkbook data as pd df
+    """
+    df = pd.read_csv(dir / f)
+    return df
+
+def _clean_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv') -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    df = pd.read_csv(dir / f)
+    df = _read_checkbook(dir, f)
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.lower()
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
