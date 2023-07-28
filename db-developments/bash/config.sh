@@ -5,6 +5,21 @@ set_error_traps
 # Setting Environmental Variables
 set_env ../.env version.env
 DATE=$(date "+%Y-%m-%d")
+set_error_traps
+
+function sql_table_summary {
+  psql -d $BUILD_ENGINE -At -c "SELECT count(*) FROM $1;" | 
+  while read -a count; do
+  echo -e "
+  \e[33m$1: $count records\e[0m
+  "
+  done
+
+  ddl=$(psql -At $BUILD_ENGINE -c "SELECT get_DDL('$1') as DDL;")
+  echo -e "
+  \e[33m$ddl\e[0m
+  "
+}
 
 function import_qaqc_historic {
   local name="qaqc_historic"
