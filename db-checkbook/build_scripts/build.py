@@ -32,11 +32,13 @@ def _read_all_cpdb_geoms(dir = LIB_DIR) -> list:
     
     return gdf_list
 
-def _merge_cpdb_geoms(dir = LIB_DIR) -> gpd.GeoDataFrame: 
+def _merge_cpdb_geoms(gdf_list = None) -> gpd.GeoDataFrame: 
     """
     :return: merged cpdb geometries
     """
-    gdf_list = _read_all_cpdb_geoms()
+    if not gdf_list:
+        gdf_list = _read_all_cpdb_geoms()
+
     all_cpdb_geoms = pd.concat(gdf_list)
     # NOTE: keeping the latest geometry when there are multiple
     all_cpdb_geoms.drop_duplicates(subset='maprojid', keep='first', inplace=True, ignore_index=True)
@@ -49,11 +51,13 @@ def _read_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv'):
     df = pd.read_csv(dir / f)
     return df
 
-def _clean_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv') -> pd.DataFrame:
+def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    df = _read_checkbook(dir, f)
+    if df.empty:
+        df = _read_checkbook()
+
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.lower()
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
@@ -70,11 +74,12 @@ def _clean_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv') -> pd.
     df['fms_id'] = df['capital_project'].str.replace(r'\s*\d+$','') # QA this output because seems this causes an issue with SCA data
     return df
 
-def _group_checkbook(dir = LIB_DIR, f = 'nycoc_checkbook.csv') -> pd.DataFrame: 
+def _group_checkbook(data: pd.DataFrame = None) -> pd.DataFrame: 
     """
     :return: checkbook nyc data grouped by capital project
     """
-    data = _clean_checkbook(dir, f)
+    if data.empty:
+        data = _clean_checkbook()
 
     def fn_join_vals(x):
         return ';'.join([y for y in list(x) if pd.notna(y)])

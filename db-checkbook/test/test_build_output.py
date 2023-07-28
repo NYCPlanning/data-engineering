@@ -6,72 +6,63 @@ import numpy as np
 import pytest
 from pathlib import Path
 
-_current_dir = os.path.dirname(os.path.abspath(__file__))
-_parent_dir = os.path.dirname(_current_dir)
-sys.path.insert(0, _parent_dir)
-
-_curr_file_path = Path(__file__).resolve()
-LIB_DIR = _curr_file_path.parent.parent / '.library'
-
 from build_scripts.build import _group_checkbook, _clean_checkbook, _merge_cpdb_geoms, _join_checkbook_geoms
+from test.generate_test_data import generate_cpdb_test_data, generate_checkbook_test_data, generate_expected_cpdb_join, generate_expected_grouped_checkbook
 
 # TODO: use raw checkbook data in future
-# raw_checkbook_df = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
-grouped_checkbook_df = _group_checkbook()
-cpdb_df = _merge_cpdb_geoms()
+cpdb_gpd_list_test = generate_cpdb_test_data()
+checkbook_test = generate_checkbook_test_data()
 
 # --- checkbook data
 def test_fms_id_exists():
+    clean_checkbook = _clean_checkbook(checkbook_test)
+    grouped_checkbook_df = _group_checkbook(clean_checkbook)
     assert 'fms_id' in grouped_checkbook_df.columns
 
 def test_null_fms_id():
+    clean_checkbook = _clean_checkbook(checkbook_test)
+    grouped_checkbook_df = _group_checkbook(clean_checkbook)
     assert np.where(grouped_checkbook_df['fms_id'].isnull())
 
-@pytest.mark.skip(reason='TODO after major refactor')
 def test_unique_fms_id():
-    assert pd.Series(grouped_checkbook_df['fms_id']).is_unique()
+    clean_checkbook = _clean_checkbook(checkbook_test)
+    grouped_checkbook_df = _group_checkbook(clean_checkbook)
+    assert not grouped_checkbook_df['fms_id'].duplicated().any()
 
-@pytest.mark.skip(reason='TODO after major refactor')
 def test_check_nonneg():
-    assert pd.Series(grouped_checkbook_df['check_amount']) > 0
+    cleaned_checkbook_df = _clean_checkbook(checkbook_test)
+    assert (cleaned_checkbook_df['check_amount'] >= 0).all()
 
 @pytest.mark.skip(reason='clean checkbook needs to be updated')
-def test_clean_checkbook():
-    df = pd.DataFrame({
-        'test_case' : ['normal', 'neg', 'big'],
-        'check_amount': [1000, -500, 200000000],
-        'capital_project': ['998CAP2024  005', '123CAP2025  005', '987CAP2023  005']
-    })
-    expected_result = pd.DataFrame({
-        'check_amount': [1000],
-        'fms_id': ['998CAP2024']
-    })
-    result = _clean_checkbook(df)
+def test_group_checkbook():
+    expected_result = generate_expected_grouped_checkbook()
+    result = _clean_checkbook(checkbook_test)
     assert result.equals(expected_result)
-
 
 # --- cpdb data
 def test_null_maprojid():
+    cpdb_gpd_list_test = generate_cpdb_test_data()
+    cpdb_df = _merge_cpdb_geoms(cpdb_gpd_list_test)
     assert np.where(cpdb_df['maprojid'].isnull())
 
-@pytest.mark.skip(reason='TODO after major refactor')
+# @pytest.mark.skip(reason='TODO after major refactor')
 def test_unique_maprojid(): 
-    assert pd.Series(cpdb_df['maprojid']).is_unique()
+    cpdb_gpd_list_test = generate_cpdb_test_data()
+    cpdb_df = _merge_cpdb_geoms(cpdb_gpd_list_test)
+    assert not cpdb_df['maprojid'].duplicated().any()
 
 def test_null_geometry():
+    cpdb_gpd_list_test = generate_cpdb_test_data()
+    cpdb_df = _merge_cpdb_geoms(cpdb_gpd_list_test)
     assert np.where(cpdb_df['geometry'].isnull())
 
 # --- results of join
 
-@pytest.mark.skip(reason='TODO after major refactor')
+# @pytest.mark.skip(reason='TODO after major refactor')
 def test_merge_cpdb_geoms():
-    gdf1 = gpd.GeoDataFrame({'maprojid': [1, 2, 3], 'geometry': [None, 'POINT (1 1)', 'POINT (2 2)']})
-    gdf2 = gpd.GeoDataFrame({'maprojid': [2, 4], 'geometry': ['POINT (3 3)', 'POINT (4 4)']})
-    expected_result = gpd.GeoDataFrame({'maprojid': [1, 2, 3, 4], 'geometry': [None, 'POINT (1 1)', 'POINT (2 2)', 'POINT (4 4)']})
-    result = _merge_cpdb_geoms(gdf_list=[gdf1, gdf2])
+    cpdb_gpd_list_test = generate_cpdb_test_data()
+    expected_result = generate_expected_cpdb_join()
+    result = _merge_cpdb_geoms(cpdb_gpd_list_test)
     assert result.equals(expected_result)
 
 # --- high-sensitivity fixed asset CATEGORY ASSIGNMENT
-
-if __name__ == '__main__':
-    pytest.main()
