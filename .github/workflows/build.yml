@@ -13,6 +13,7 @@ on:
           - cbbr
           - colp
           - cpdb
+          - devdb
           - facilities
           - pluto
       logging_level:
@@ -68,6 +69,12 @@ jobs:
   cpdb:
     if: inputs.dataset_name == 'cpdb'
     uses: ./.github/workflows/cpdb_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.will_export }}
+  devdb:
+    if: inputs.dataset_name == 'devdb'
+    uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.will_export }}

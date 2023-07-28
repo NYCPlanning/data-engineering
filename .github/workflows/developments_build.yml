@@ -1,15 +1,9 @@
 name: DevDB - 🏗️ Build
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      export:
-        description: "Would you like to export the outputs and QAQC to DigitalOcean? (yes/no)"
-        type: boolean
-        required: true
-        default: false
-      archive:
-        description: "Would you like to archive developments and dcp_housing to EDM-DATA? (yes/no)"
+      run_export:
         type: boolean
         required: true
         default: false
@@ -47,7 +41,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Finish container setup ...
-        run: ./bash/docker_container_setup.sh
+        run: ../bash/docker_container_setup.sh
 
       - name: 1. dataloading for EDM builds
         run: ./devdb.sh dataloading edm && ls -l
@@ -64,11 +58,11 @@ jobs:
         run: ./devdb.sh qaqc
 
       - name: 4. Export ...
-        if: inputs.export
+        if: inputs.run_export
         run: |
           ./devdb.sh export
           ./devdb.sh upload
 
-      - name: 5. Archive ...
-        if: inputs.archive
-        run: ./devdb.sh archive
+      # - name: 5. Archive ...
+      #   if: inputs.archive
+      #   run: ./devdb.sh archive
