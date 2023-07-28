@@ -11,9 +11,9 @@ SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
 DB_URL = 'sqlite:///checkbook.db'
 ENGINE = create_engine(DB_URL)
 
-def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
+def _read_all_cpdb_geoms(dir = LIB_DIR) -> list:
     """
-    :return: mergedf cpdb geometries
+    :return: list of gdfs, one for each cpdb folder
     """
     def extract_year(filename):
         # TODO: error checking
@@ -21,25 +21,32 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
         if match:
             return int(match.group())
         return None
-    
-    subdir_list = [p.name for p in LIB_DIR.iterdir() if p.is_dir()]
+
+    subdir_list = [p.name for p in dir.iterdir() if p.is_dir()]
     subdir_list = sorted(subdir_list, key=lambda x: extract_year(x), reverse=True) # sort by year
     gdf_list = []
     
     for f in subdir_list:
-        gdf = gpd.read_file(LIB_DIR / f)
+        gdf = gpd.read_file(dir / f)
         gdf_list.append(gdf)
+    
+    return gdf_list
 
+def _merge_cpdb_geoms(dir = LIB_DIR) -> gpd.GeoDataFrame: 
+    """
+    :return: merged cpdb geometries
+    """
+    gdf_list = _read_all_cpdb_geoms()
     all_cpdb_geoms = pd.concat(gdf_list)
     # NOTE: keeping the latest geometry when there are multiple
     all_cpdb_geoms.drop_duplicates(subset='maprojid', keep='first', inplace=True, ignore_index=True)
     return all_cpdb_geoms
 
-def _clean_checkbook() -> pd.DataFrame:
+def _clean_checkbook(dir = LIB_DIR, f = 'nycoc_checkbook.csv') -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    df = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
+    df = pd.read_csv(dir / f)
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.lower()
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
@@ -56,11 +63,11 @@ def _clean_checkbook() -> pd.DataFrame:
     df['fms_id'] = df['capital_project'].str.replace(r'\s*\d+$','') # QA this output because seems this causes an issue with SCA data
     return df
 
-def _group_checkbook() -> pd.DataFrame: 
+def _group_checkbook(dir = LIB_DIR, f = 'nycoc_checkbook.csv') -> pd.DataFrame: 
     """
     :return: checkbook nyc data grouped by capital project
     """
-    data = _clean_checkbook()
+    data = _clean_checkbook(dir, f)
 
     def fn_join_vals(x):
         return ';'.join([y for y in list(x) if pd.notna(y)])
@@ -82,22 +89,21 @@ def _group_checkbook() -> pd.DataFrame:
     df = df_limited_cols.groupby(cols_for_grouping, as_index=False).agg(agg_dict)
     return df
 
-def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _join_checkbook_geoms(df: pd.DataFrame, cpdb_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     :param df: Checkbook NYC data collapsed on FMS ID
     :param cpdb_geoms: final versions of archived CPDB geometries from every year, and the most recent geometry for the current year
     :return: CPDB geometries left-joined onto Checkbook NYC data 
     """
-    merged = df.merge(cpdb_geoms, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
+    merged = df.merge(cpdb_gdf, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
     gdf = gpd.GeoDataFrame(merged, geometry='geometry')
     return gdf
 
-def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
+def _assign_checkbook_category(df: pd.DataFrame, sql_dir = SQL_QUERY_DIR) -> pd.DataFrame:
     """
     param df: cleaned and collapsed checkbook NYC data 
     return: pandas df of checkbook data with category assignment based on specified col 
     """
-    queries = [SQL_QUERY_DIR / 'query_itt_vehicles_equipment.sql', SQL_QUERY_DIR / 'query_lump_sum.sql', SQL_QUERY_DIR / 'query_fixed_asset.sql']
     target_cols = {'budget_code': 'bc_category', 'contract_purpose': 'cp_category'}
     df['bc_category'] = None
     df['cp_category'] = None
@@ -105,7 +111,7 @@ def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
     with ENGINE.connect() as conn:
         df.to_sql('capital_projects', ENGINE, if_exists='replace', index=False)
         for k, v in target_cols.items():
-            with open(SQL_QUERY_DIR / 'query.sql', 'r') as query_file:
+            with open(sql_dir / 'query.sql', 'r') as query_file:
                 query = query_file.read()
             query = query.replace('COLUMN', k)
             query = query.replace('col_category', v)
