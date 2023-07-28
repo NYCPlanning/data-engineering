@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import typer
 
-from dcpy.connectors import psql
+from dcpy.connectors import postgres
 from .utility.prepare import read_datasets_yml
 from .utility.metadata import dump_metadata
 
@@ -31,10 +31,10 @@ def init():
     """
     Initialize empty facdb_base table and create procedures and functions
     """
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_base.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_base.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
 
 
 @app.command()
@@ -50,14 +50,14 @@ def build():
     """
     Building facdb based on facdb_base
     """
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_geom.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_address.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_spatial.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_boro.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_agency.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb.sql")
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_geom.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_address.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_spatial.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_boro.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_agency.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
 
 
 @app.command()
@@ -65,7 +65,7 @@ def qaqc():
     """
     Running QAQC commands
     """
-    psql.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_qaqc.sql")
+    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_qaqc.sql")
 
 
 @app.command()
@@ -111,7 +111,7 @@ def run(
 
         if scripts and sql:
             for script in scripts:
-                psql.exec_file_via_shell(BUILD_ENGINE, Path(__file__).parent / "sql" / script)
+                postgres.exec_file_via_shell(BUILD_ENGINE, Path(__file__).parent / "sql" / script)
 
         typer.echo(typer.style(f"SUCCESS: {name}", fg=typer.colors.GREEN))
     dump_metadata()
@@ -130,7 +130,7 @@ def sql(
     """
     if scripts:
         for script in scripts:
-            psql.exec_file_via_shell(script)
+            postgres.exec_file_via_shell(script)
 
 
 @app.command()

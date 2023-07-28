@@ -3,6 +3,12 @@ from pathlib import Path
 import csv
 import os
 
+from sqlalchemy import create_engine
+
+
+BUILD_ENGINE_RAW = os.environ["BUILD_ENGINE"]
+build_engine = create_engine(BUILD_ENGINE_RAW)
+
 
 def exec_file_via_shell(build_engine: str, path: Path):
     """Execute .sql script at given path."""
