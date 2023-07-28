@@ -53,7 +53,8 @@ def upload_file(
             f"[green]Uploading [bold]{path.name}[/bold]", total=size
         )
         extra_args = {"ACL": acl}
-        if metadata: extra_args["Metadata"] = metadata
+        if metadata:
+            extra_args["Metadata"] = metadata
         response = client().upload_file(
             path,
             bucket,
@@ -80,14 +81,9 @@ def download_folder(
     if not "Contents" in resp:
         raise NotADirectoryError(f"Folder {prefix} not found in bucket {bucket}")
     for obj in resp["Contents"]:
-        print(obj["Key"])
-        key = obj["Key"].replace(prefix, "")
-        print(key)
-        if key and (key[-1] != "/"):
+        key = obj["Key"].replace(prefix, "") if include_prefix_in_export else obj["Key"]
+        if key and (key != prefix) and (key[-1] != "/"):
             key_directory = Path(key).parent
-            print(key_directory)
-            if include_prefix_in_export:
-                export_path = export_path / prefix
             if not (export_path / key_directory).exists():
                 os.makedirs(export_path / key_directory)
             client_.download_file(bucket, obj["Key"], export_path / key)
