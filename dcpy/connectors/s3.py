@@ -60,7 +60,7 @@ def upload_file(
             bucket,
             key,
             ExtraArgs=extra_args,
-            Callback=lambda complete: progress.update(task, completed=complete),
+            Callback=lambda bytes: progress.update(task, advance=bytes),
         )
     return response
 
