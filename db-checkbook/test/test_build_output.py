@@ -60,7 +60,7 @@ def test_high_sensitivity_fixed_asset():
     checkbook = _group_checkbook(_clean_checkbook(CHECKBOOK_TEST))
     cat_checkbook = _assign_checkbook_category(checkbook)
     join = _join_checkbook_geoms(cat_checkbook, cpdb)
-    clean_join = _clean_joined_checkbook_cpdb(join, True)
+    clean_join = _clean_joined_checkbook_cpdb(join)
     clean_join = clean_join[[
         'fms_id', 
         'contract_purpose', 

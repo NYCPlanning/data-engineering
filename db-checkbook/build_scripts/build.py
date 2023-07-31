@@ -135,7 +135,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir = SQL_QUERY_DIR) -> pd.
 
     return ret
 
-def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame, test = False) -> gpd.GeoDataFrame:
+def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     :param gdf: joined cpdb and checkbook nyc data
     :return: cleaned joined checkbook cpdb data 
