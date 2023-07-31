@@ -1,10 +1,10 @@
 import argparse
-from datetime import date
 from typing import Tuple
 from pathlib import Path
 
-from dcpy.connectors.s3 import client, upload_file
-from dcpy.utils import git_branch
+from dcpy.connectors import s3
+from dcpy.connectors.edm.publishing import upload
+from dcpy.git import git_branch
 
 from pipelines import PRODUCT_PATH
 
@@ -49,10 +49,10 @@ def download_manual_update(update_type, version, overwrite=False):
     if not filepath.exists() or overwrite:
         print(f"Downloading {update_type} manual update data ...")
         filepath.parent.mkdir(parents=True, exist_ok=True)
-        client().download_file(
-            Bucket="edm-recipes",
-            Key=f"datasets/{recipe_names[update_type]}/{version}/{recipe_names[update_type]}.xlsx",
-            Filename=str(filepath),
+        s3.download_file(
+            "edm-recipes",
+            f"datasets/{recipe_names[update_type]}/{version}/{recipe_names[update_type]}.xlsx",
+            filepath,
         )
     else:
         print(f"{update_type} manual update data already downloaded locally.")
@@ -62,14 +62,10 @@ def download_manual_update(update_type, version, overwrite=False):
 def s3_upload(file: Path, latest=True):
     export_type = file.stem
     year = file.parent.name
-    prefix = Path("db-factfinder") / git_branch() / export_type / year
-    key = prefix / str(date.today()) / file.name
-    upload_file("edm-publishing", file, str(key), "public-read")
-    if latest:
-        ## much faster than uploading again
-        client().copy_object(
-            CopySource={"Bucket": "edm-publishing", "Key": str(key)},
-            Bucket="edm-publishing",
-            Key=str(prefix / "latest" / file.name),
-            ACL="public-read",
-        )
+    upload(
+        file,
+        "db-factfinder",
+        "public-read",
+        s3_subpath=Path(git_branch()) / export_type / year,
+        latest=latest,
+    )
