@@ -135,7 +135,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir = SQL_QUERY_DIR) -> pd.
 
     return ret
 
-def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame, test = False) -> gpd.GeoDataFrame:
     """
     :param gdf: joined cpdb and checkbook nyc data
     :return: cleaned joined checkbook cpdb data 
@@ -146,7 +146,8 @@ def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf['bc_category'].fillna('None', inplace=True)
     gdf['cp_category'].fillna('None', inplace=True)
     gdf.drop('_merge', axis=1, inplace=True)
-    gdf = _limit_cols(gdf)
+    if not test:
+        gdf = _limit_cols(gdf)
     return gdf
 
 def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -186,7 +187,16 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     cols = ['cpdb_category', 'bc_category', 'cp_category']
     cats = ['Fixed Asset', 'ITT, Vehicles and Equipment', 'Lump Sum', 'None']
 
-    gdf['final_category'] = gdf[cols].apply(lambda row: cats[next((i for i, cat in enumerate(cats) if cat in row.values), 3)], axis=1)
+    def assign_category(row):
+        for cat in cats[:3]:
+            if cat in row.values:
+                return cat
+        return cats[-1]
+
+
+    gdf['final_category'] = gdf[cols].apply(lambda row: assign_category(row), axis=1)
+
+    gdf['final_category'] = 
     return gdf
 
 def run_build() -> pd.DataFrame:
