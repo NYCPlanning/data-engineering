@@ -134,4 +134,4 @@ CORRECTIONS
     job_inactive
 */
 CREATE INDEX STATUS_devdb_job_number_idx ON STATUS_devdb(job_number);
-CALL apply_correction('STATUS_devdb', '_manual_corrections', 'job_inactive');
+CALL apply_correction(:'build_schema', 'STATUS_devdb', '_manual_corrections', 'job_inactive');

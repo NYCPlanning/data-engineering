@@ -80,6 +80,7 @@ If a field does not exist in the table or is a geometry field, notice gets raise
 */
 DROP PROCEDURE IF EXISTS apply_correction;
 CREATE OR REPLACE PROCEDURE apply_correction (
+    _schema text, 
     _table text, 
     _corrections text,
     _field text,
@@ -92,12 +93,13 @@ DECLARE
     _reason text;
     _valid_fields text[];
 BEGIN
+    RAISE NOTICE 'Attempting to apply corrections for field % to %.%', _field, _schema, _table;
+    
     SELECT array_agg(column_name) FROM information_schema.columns
-    WHERE table_schema = 'public' 
+    WHERE table_schema = _schema
     AND table_name = lower(_table) INTO  _valid_fields;
 
     IF (_field = any(_valid_fields)) AND (_field NOT IN ('latitude','longitude')) THEN
-        RAISE NOTICE 'Applying Corrections for %', _field;
         FOR _job_number, _old_value, _new_value, _reason IN 
             EXECUTE FORMAT($n$
                 SELECT job_number, old_value, new_value, reason 
@@ -117,7 +119,7 @@ BEGIN
             );
         END LOOP;
     ELSE
-        RAISE NOTICE '( % ) is not a valid field for function apply_correction to ( % )', _field, _table;    
+        RAISE EXCEPTION '( % ) is not a valid field for function apply_correction to ( % )', _field, _table;    
     END IF;
 END
 $BODY$ LANGUAGE plpgsql;

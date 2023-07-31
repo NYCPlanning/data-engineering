@@ -94,12 +94,12 @@ CORRECTIONS:
 	date_statusr
 	date_statusx
 */
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'stories_prop');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'bin');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'bbl');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'date_lastupdt');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'date_filed');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'date_statusd');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'date_statusp');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'date_statusr');
-CALL apply_correction('_INIT_devdb', '_manual_corrections', 'date_statusx');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'stories_prop');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'bin');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'bbl');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_lastupdt');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_filed');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusd');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusp');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusr');
+CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusx');
