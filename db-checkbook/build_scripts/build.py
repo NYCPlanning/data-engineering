@@ -127,7 +127,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir = SQL_QUERY_DIR) -> pd.
                 query = query_file.read()
             query = query.replace('COLUMN', k)
             query = query.replace('col_category', v)
-            queries = [q.strip() for q in query.split(';') if q.strip()]
+            queries = [q for q in query.split(';')]
             for q in queries:
                 conn.execute(text(q))
 
@@ -195,8 +195,6 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
     gdf['final_category'] = gdf[cols].apply(lambda row: assign_category(row), axis=1)
-
-    gdf['final_category'] = 
     return gdf
 
 def run_build() -> pd.DataFrame:
