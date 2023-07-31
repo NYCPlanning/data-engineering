@@ -76,12 +76,12 @@ the associated classa field. As a result, these corrections
 get applied prior to the classa corrections.
 */
 CREATE INDEX _UNITS_devdb_raw_job_number_idx ON _UNITS_devdb_raw(job_number);
-CALL apply_correction('_UNITS_devdb_raw', '_manual_corrections', 'hotel_init', 'classa_init');
-CALL apply_correction('_UNITS_devdb_raw', '_manual_corrections', 'hotel_prop', 'classa_prop');
-CALL apply_correction('_UNITS_devdb_raw', '_manual_corrections', 'otherb_init', 'classa_init');
-CALL apply_correction('_UNITS_devdb_raw', '_manual_corrections', 'otherb_prop', 'classa_prop');
-CALL apply_correction('_UNITS_devdb_raw', '_manual_corrections', 'classa_init');
-CALL apply_correction('_UNITS_devdb_raw', '_manual_corrections', 'classa_prop');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'hotel_init', 'classa_init');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'hotel_prop', 'classa_prop');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'otherb_init', 'classa_init');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'otherb_prop', 'classa_prop');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'classa_init');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'classa_prop');
 
 /*
 Using corrected classa, hotel, and otherb unit fields, 
@@ -109,7 +109,7 @@ DROP TABLE _UNITS_devdb_raw CASCADE;
 CORRECTIONS
 	resid_flag
 */
-CALL apply_correction('_UNITS_devdb_resid_flag', '_manual_corrections', 'resid_flag');
+CALL apply_correction(:'build_schema', '_UNITS_devdb_resid_flag', '_manual_corrections', 'resid_flag');
 
 /*
 Separate A2 job types from other types of records with units 

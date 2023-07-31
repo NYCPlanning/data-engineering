@@ -3,11 +3,11 @@ source bash/config.sh
 
 display "Starting to build Developments DB"
 run_sql_file sql/_function.sql
-run_sql_file sql/_procedures.sql
+run_sql_file sql/_procedures.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 run_sql_file sql/bis/_init.sql
 run_sql_file sql/now/_init.sql
 run_sql_file sql/hpd/_init.sql
-run_sql_file sql/_init.sql
+run_sql_file sql/_init.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 sql_table_summary _INIT_devdb
 
 display "Assign geoms to _GEO_devdb and create GEO_devdb"
@@ -15,8 +15,7 @@ run_sql_file sql/_geo.sql
 run_sql_file sql/_geo_corrections.sql
 sql_table_summary GEO_devdb
 
-display "Fill NULLs spatial boundries in GEO_devdb through spatial joins. 
-  This is the consolidated spatial attributes table"
+display "Fill NULLs spatial boundries in GEO_devdb through spatial joins. This is the consolidated spatial attributes table"
 run_sql_file sql/_spatial.sql
 sql_table_summary SPATIAL_devdb
 run_sql_file sql/init.sql
@@ -39,7 +38,7 @@ sql_table_summary CO_devdb
 display "Creating OCC fields: 
       occ_initial, 
       occ_proposed"
-run_sql_file sql/_occ.sql
+run_sql_file sql/_occ.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 sql_table_summary OCC_devdb
 
 display "Creating UNITS fields: 
@@ -51,7 +50,7 @@ display "Creating UNITS fields:
       otherb_prop,
       classa_net,
       resid_flag"
-run_sql_file sql/_units.sql
+run_sql_file sql/_units.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 sql_table_summary UNITS_devdb
 
 display "Creating status_q fields: date_permittd,
@@ -68,7 +67,7 @@ display "Combining INIT_devdb with OCC_devdb,
       OCC_devdb, 
       UNITS_devdb,
       STATUS_Q_devdb to create _MID_devdb"
-run_sql_file sql/_mid.sql
+run_sql_file sql/_mid.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 sql_table_summary _MID_devdb
 
 display "Creating status fields: 
@@ -77,7 +76,7 @@ display "Creating status fields:
       date_permittd,
       job_inactive"
 
-run_sql_file sql/_status.sql -v CAPTURE_DATE=$CAPTURE_DATE
+run_sql_file sql/_status.sql -v CAPTURE_DATE=$CAPTURE_DATE -v build_schema=${BUILD_ENGINE_SCHEMA}
 
 display "Combining _MID_devdb with STATUS_devdb to create MID_devdb,
             Creating nonres_flag field"
