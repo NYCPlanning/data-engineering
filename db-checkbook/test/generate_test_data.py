@@ -75,7 +75,17 @@ def generate_expected_grouped_checkbook() -> pd.DataFrame:
             'ZZZZZZ', 
             'ABCDEFG'
             ],
+        'check_amount': [
+            1000, 
+            2000, 
+            8000
+            ],
         'contract_purpose': [
+            'Park 1', 
+            'Vehicle 2', 
+            'Lump Sum 3;Vehicle 6'
+            ],
+        'budget_code': [
             'Park 1', 
             'Vehicle 2', 
             'Lump Sum 3;Vehicle 6'
@@ -85,16 +95,6 @@ def generate_expected_grouped_checkbook() -> pd.DataFrame:
             'Agency 2', 
             'Agency 3;Agency 6'
             ],
-        'budget_code': [
-            'Park 1', 
-            'Vehicle 2', 
-            'Lump Sum 3;Vehicle 6'
-            ],
-        'check_amount': [
-            1000, 
-            2000, 
-            8000
-            ]
     })
     return checkbook_data
 
@@ -115,5 +115,69 @@ def generate_expected_cpdb_join() -> gpd.GeoDataFrame:
             Point(0, 12), 
             Point(1, 1)
             ]
+    })
+
+def generate_expected_final_data() -> gpd.GeoDataFrame:
+    return gpd.GeoDataFrame({
+        'fms_id': [
+            'GFEDCBA', 
+            'ZZZZZZ', 
+            'ABCDEFG'
+        ],
+        'contract_purpose': [
+            'Park 1', 
+            'Vehicle 2', 
+            'Lump Sum 3;Vehicle 6'
+        ],
+        'agency': [
+            'Agency 1', 
+            'Agency 2', 
+            'Agency 3;Agency 6'
+        ],
+        'budget_code': [
+            'Park 1', 
+            'Vehicle 2', 
+            'Lump Sum 3;Vehicle 6'
+        ],
+        'check_amount': [
+            1000, 
+            2000, 
+            8000
+        ],
+        'bc_category': [
+            'Fixed Asset',
+            'ITT, Vehicles and Equipment',
+            'ITT, Vehicles, and Equipment'
+        ],
+        'cp_category': [
+            'Fixed Asset',
+            'ITT, Vehicles, and Equipment',
+            'ITT, Vehicles, and Equipment'
+        ],
+        'maprojid': [
+            None,
+            'ZZZZZZ',
+            'ABCDEFG' 
+        ],
+        'cpdb_category': [
+            None,  
+            'Lump Sum',
+            'Fixed Asset'
+        ],
+        'geometry': [
+            None,
+            Point(0, 12),
+            Point(0, 0)
+        ],
+        'has_geometry': [
+            False,
+            True,
+            True
+        ],
+        'final_category': [
+            'Fixed Asset',
+            'ITT, Vehicles, and Equipment',
+            'Fixed Asset'
+        ]
     })
 
