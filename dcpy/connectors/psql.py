@@ -1,19 +1,26 @@
-import os
+from io import StringIO
 from pathlib import Path
 import csv
-from io import StringIO
+import os
 
 
 def exec_file_via_shell(build_engine: str, path: Path):
-    "Execute .sql script at given path"
+    """Execute .sql script at given path."""
     cmd = f"psql {build_engine} -v ON_ERROR_STOP=1 -f {path}"
     if os.system(cmd) != 0:
         raise Exception(f"{path} has errors!")
 
 
+def exec_via_shell(build_engine: str, sql_statement):
+    """Execute sql via psql shell."""
+    cmd = f"psql {build_engine} -v ON_ERROR_STOP=1 {sql_statement}"
+    if os.system(cmd) != 0:
+        raise Exception(f"Command has errors! {cmd}")
+
+
 def insert_copy(table, conn, keys, data_iter):
     """
-    Execute SQL statement inserting data
+    Execute SQL statement inserting data.
     Parameters
     ----------
     table : pandas.io.sql.SQLTable

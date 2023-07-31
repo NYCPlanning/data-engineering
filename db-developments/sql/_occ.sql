@@ -48,5 +48,5 @@ CORRECTIONS
 	occ_proposed
 */
 CREATE INDEX OCC_devdb_job_number_idx ON OCC_devdb(job_number);
-CALL apply_correction('OCC_devdb', '_manual_corrections', 'occ_initial');
-CALL apply_correction('OCC_devdb', '_manual_corrections', 'occ_proposed');
+CALL apply_correction(:'build_schema', 'OCC_devdb', '_manual_corrections', 'occ_initial');
+CALL apply_correction(:'build_schema', 'OCC_devdb', '_manual_corrections', 'occ_proposed');
