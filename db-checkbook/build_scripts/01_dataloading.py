@@ -51,7 +51,7 @@ def create_source_data_version_csv() -> None:
     schema = []
     version = []
     for file in files:
-        file_name = str(file).split('/')[7]
+        file_name = file.stem
         schema.append(file_name)
         version_name = file_name.split('_')[0]
         version.append(version_name)

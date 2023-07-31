@@ -1,8 +1,8 @@
-import boto3
 import os
 from datetime import date
 from pathlib import Path
 from dotenv import load_dotenv
+from dcpy.connectors import s3
 
 BASE_BUCKET = 'edm-publishing'
 _curr_file_path = Path(__file__).resolve()
@@ -28,7 +28,7 @@ def upload_final_file(final_file, digital_ocean_file) -> None:
         digital_ocean_file: str name of file in digital ocean to save  
     """
 
-    s3_client = boto3.client('s3', 
+    s3_client = s3.client('s3', 
         aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
         endpoint_url=os.environ["AWS_S3_ENDPOINT"] 
@@ -36,7 +36,9 @@ def upload_final_file(final_file, digital_ocean_file) -> None:
 
     folder_structure_metadata = create_metadata_folder_structure(digital_ocean_file)
     final_file_path = _curr_file_path.parent.parent / 'output' / final_file
-    do_destination = f'datasets/dcp_cpdb/{digital_ocean_file}'
+
+    today = date.today()
+    do_destination = f'db-checkbook/{str(today)}/{digital_ocean_file}'
     s3_client.upload_file(final_file_path,
                           BASE_BUCKET, 
                           do_destination, 
