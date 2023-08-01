@@ -1,0 +1,23 @@
+name: Checkbook - Tests
+on: 
+  workflow_call:
+
+jobs:
+  branch_unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./db-checkbook
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup build environment
+        run: ../bash/docker_container_setup.sh
+
+      - name: Run python tests
+        run: |
+          python3 -m test.test_build_output

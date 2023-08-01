@@ -11,9 +11,9 @@ SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
 DB_URL = 'sqlite:///checkbook.db'
 ENGINE = create_engine(DB_URL)
 
-def _merge_cpdb_geoms() -> gpd.GeoDataFrame: 
+def _read_all_cpdb_geoms(dir = LIB_DIR) -> list:
     """
-    :return: mergedf cpdb geometries
+    :return: list of gdfs, one for each cpdb folder
     """
     def extract_year(filename):
         # TODO: error checking
@@ -21,28 +21,48 @@ def _merge_cpdb_geoms() -> gpd.GeoDataFrame:
         if match:
             return int(match.group())
         return None
-    
-    subdir_list = [p.name for p in LIB_DIR.iterdir() if p.is_dir()]
+
+    subdir_list = [p.name for p in dir.iterdir() if p.is_dir()]
     subdir_list = sorted(subdir_list, key=lambda x: extract_year(x), reverse=True) # sort by year
     gdf_list = []
     
     for f in subdir_list:
-        gdf = gpd.read_file(LIB_DIR / f)
+        gdf = gpd.read_file(dir / f)
         gdf_list.append(gdf)
+    
+    return gdf_list
+
+def _merge_cpdb_geoms(gdf_list = None) -> gpd.GeoDataFrame: 
+    """
+    :return: merged cpdb geometries
+    """
+    if not gdf_list:
+        gdf_list = _read_all_cpdb_geoms()
 
     all_cpdb_geoms = pd.concat(gdf_list)
     # NOTE: keeping the latest geometry when there are multiple
     all_cpdb_geoms.drop_duplicates(subset='maprojid', keep='first', inplace=True, ignore_index=True)
     return all_cpdb_geoms
 
-def _clean_checkbook() -> pd.DataFrame:
+def _read_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv'):
+    """
+    :return: raw checkbook data as pd df
+    """
+    df = pd.read_csv(dir / f)
+    return df
+
+def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    data = pd.read_csv(LIB_DIR / 'nycoc_checkbook.csv')
+    if df.empty:
+        df = _read_checkbook()
+
+    df.columns = df.columns.str.replace(' ', '_')
+    df.columns = df.columns.str.lower()
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
-    data = data[data['check_amount']<99000000]
-    data = data[data['check_amount']>=0]
+    df = df[df['check_amount']<99000000]
+    df = df[df['check_amount']>=0]
     # taking out white space from capital project for join with cpdb 
     """
     remove last three digits and any trailing whitespace from `Capital Project`
@@ -51,14 +71,15 @@ def _clean_checkbook() -> pd.DataFrame:
     d+: matches one or more digits
     $: assert position at the end of the string
     """
-    data['fms_id'] = data['capital_project'].str.replace(r'\s*\d+$','') # QA this output because seems this causes an issue with SCA data
-    return data
+    df['fms_id'] = df['capital_project'].str.replace(r'\s*\d+$','') # QA this output because seems this causes an issue with SCA data
+    return df
 
-def _group_checkbook() -> pd.DataFrame: 
+def _group_checkbook(data: pd.DataFrame = None) -> pd.DataFrame: 
     """
     :return: checkbook nyc data grouped by capital project
     """
-    data = _clean_checkbook()
+    if data.empty:
+        data = _clean_checkbook()
 
     def fn_join_vals(x):
         return ';'.join([y for y in list(x) if pd.notna(y)])
@@ -80,22 +101,21 @@ def _group_checkbook() -> pd.DataFrame:
     df = df_limited_cols.groupby(cols_for_grouping, as_index=False).agg(agg_dict)
     return df
 
-def _join_checkbook_geoms(df: pd.DataFrame, cpdb_geoms: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _join_checkbook_geoms(df: pd.DataFrame, cpdb_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     :param df: Checkbook NYC data collapsed on FMS ID
     :param cpdb_geoms: final versions of archived CPDB geometries from every year, and the most recent geometry for the current year
     :return: CPDB geometries left-joined onto Checkbook NYC data 
     """
-    merged = df.merge(cpdb_geoms, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
+    merged = df.merge(cpdb_gdf, how='left', left_on='fms_id', right_on='maprojid', indicator=True)
     gdf = gpd.GeoDataFrame(merged, geometry='geometry')
     return gdf
 
-def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
+def _assign_checkbook_category(df: pd.DataFrame, sql_dir = SQL_QUERY_DIR) -> pd.DataFrame:
     """
     param df: cleaned and collapsed checkbook NYC data 
     return: pandas df of checkbook data with category assignment based on specified col 
     """
-    queries = [SQL_QUERY_DIR / 'query_itt_vehicles_equipment.sql', SQL_QUERY_DIR / 'query_lump_sum.sql', SQL_QUERY_DIR / 'query_fixed_asset.sql']
     target_cols = {'budget_code': 'bc_category', 'contract_purpose': 'cp_category'}
     df['bc_category'] = None
     df['cp_category'] = None
@@ -103,11 +123,11 @@ def _assign_checkbook_category(df: pd.DataFrame) -> pd.DataFrame:
     with ENGINE.connect() as conn:
         df.to_sql('capital_projects', ENGINE, if_exists='replace', index=False)
         for k, v in target_cols.items():
-            with open(SQL_QUERY_DIR / 'query.sql', 'r') as query_file:
+            with open(sql_dir / 'query.sql', 'r') as query_file:
                 query = query_file.read()
             query = query.replace('COLUMN', k)
             query = query.replace('col_category', v)
-            queries = [q.strip() for q in query.split(';') if q.strip()]
+            queries = [q for q in query.split(';')]
             for q in queries:
                 conn.execute(text(q))
 
@@ -126,7 +146,8 @@ def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf['bc_category'].fillna('None', inplace=True)
     gdf['cp_category'].fillna('None', inplace=True)
     gdf.drop('_merge', axis=1, inplace=True)
-    gdf = _limit_cols(gdf)
+    if not test:
+        gdf = _limit_cols(gdf)
     return gdf
 
 def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -166,7 +187,14 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     cols = ['cpdb_category', 'bc_category', 'cp_category']
     cats = ['Fixed Asset', 'ITT, Vehicles and Equipment', 'Lump Sum', 'None']
 
-    gdf['final_category'] = gdf[cols].apply(lambda row: cats[next((i for i, cat in enumerate(cats) if cat in row.values), 3)], axis=1)
+    def assign_category(row):
+        for cat in cats[:3]:
+            if cat in row.values:
+                return cat
+        return cats[-1]
+
+
+    gdf['final_category'] = gdf[cols].apply(lambda row: assign_category(row), axis=1)
     return gdf
 
 def run_build() -> pd.DataFrame:
