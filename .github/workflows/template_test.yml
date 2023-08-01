@@ -11,12 +11,13 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-template
+        working-directory: products/db-template
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup build environment
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Black linting
         run: black --diff --check .
@@ -29,12 +30,13 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-template
+        working-directory: products/db-template
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup build environment
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Run python tests
         run: |

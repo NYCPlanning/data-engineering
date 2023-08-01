@@ -11,7 +11,7 @@ BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
 
 _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
-load_dotenv(_curr_file_path.parent.parent.parent / '.env') 
+load_dotenv(_curr_file_path.parent.parent.parent.parent / '.env') 
 
 def download_s3_edm_recipes_cpdb() -> None:
     """read EDM data: using S3 connectors

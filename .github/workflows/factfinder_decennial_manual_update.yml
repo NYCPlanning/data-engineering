@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-factfinder
+        working-directory: products/db-factfinder
     container: 
       image: nycplanning/build-base:latest
     env:

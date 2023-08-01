@@ -1,6 +1,4 @@
 #!/bin/bash
-source ../bash/utils.sh
-set_env ../.env
 
 run_sql_file sql/load_modifications.sql  
 

@@ -1,8 +1,5 @@
 #!/bin/bash
-source ../bash/utils.sh
 source bash/config.sh
-set_env ../.env
-set_error_traps
 
 create_source_data_table
 

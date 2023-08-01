@@ -7,7 +7,7 @@ from dcpy.connectors import s3
 BASE_BUCKET = 'edm-publishing'
 _curr_file_path = Path(__file__).resolve()
 LIB_DIR = _curr_file_path.parent.parent / '.library'
-load_dotenv(_curr_file_path.parent.parent.parent / '.env') 
+load_dotenv(_curr_file_path.parent.parent.parent.parent / '.env') 
 
 
 def create_metadata_folder_structure(digital_ocean_file) -> dict:

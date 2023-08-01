@@ -1,9 +1,15 @@
 #!/bin/bash
-source ../bash/utils.sh # expected to be run from db-developments folder
+
+FILE_DIR=$(dirname "$(readlink -f "$0")")
+ROOT_DIR="${FILE_DIR}/../../.."
+
+source $ROOT_DIR/bash/utils.sh
+
+set_env $ROOT_DIR/.env version.env
 set_error_traps
 
+
 # Setting Environmental Variables
-set_env ../.env version.env
 DATE=$(date "+%Y-%m-%d")
 
 function import_qaqc_historic {

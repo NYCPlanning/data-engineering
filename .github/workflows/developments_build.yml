@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: db-developments
+        working-directory: products/db-developments
     container: 
       image: nycplanning/build-geosupport:latest
       env:
@@ -42,7 +42,8 @@ jobs:
           echo "BUILD_ENGINE=$BUILD_ENGINE" >> "$GITHUB_ENV"
 
       - name: Finish container setup ...
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: 1. dataloading for EDM builds
         run: ./devdb.sh dataloading edm && ls -l
