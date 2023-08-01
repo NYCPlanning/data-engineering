@@ -146,9 +146,7 @@ def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf['bc_category'].fillna('None', inplace=True)
     gdf['cp_category'].fillna('None', inplace=True)
     gdf.drop('_merge', axis=1, inplace=True)
-    if not test:
-        gdf = _limit_cols(gdf)
-    return gdf
+    return _limit_cols(gdf)
 
 def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
