@@ -30,6 +30,8 @@ jobs:
               - db-template/**
             cbbr:
               - db-cbbr/**
+            checkbook:
+              - db-checkbook/**
 
   confirm_changes:
     name: Confirm changes to relevant files
@@ -49,3 +51,7 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'cbbr')
     uses: ./.github/workflows/cbbr_test.yml
+  checkbook:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.path_filters, 'checkbook')
+    uses: ./.github/workflows/checkbook_test.yml
