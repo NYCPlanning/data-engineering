@@ -1,4 +1,5 @@
 import argparse
+from datetime import date
 from typing import Tuple
 from pathlib import Path
 
@@ -63,9 +64,10 @@ def s3_upload(file: Path, latest=True):
     export_type = file.stem
     year = file.parent.name
     upload(
-        file,
-        "db-factfinder",
-        "public-read",
+        output=file,
+        publishing_folder="db-factfinder",
+        version=str(date.today()),
+        acl="public-read",
         s3_subpath=Path(git_branch()) / export_type / year,
         latest=latest,
     )

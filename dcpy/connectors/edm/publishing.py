@@ -2,7 +2,6 @@ from datetime import date
 from pathlib import Path
 
 from dcpy.connectors import s3
-from dcpy.git import git_branch
 
 BUCKET = "edm-publishing"
 
@@ -10,6 +9,7 @@ BUCKET = "edm-publishing"
 def upload(
     output: Path,
     publishing_folder: str,
+    version: str,
     acl: str,
     *,
     s3_subpath: str = None,
@@ -18,16 +18,16 @@ def upload(
     max_files: int = 20
 ):
     if s3_subpath is None:
-        ## potential TODO, change this to environment variable
-        s3_subpath = git_branch()
-    prefix = Path(publishing_folder) / s3_subpath
-    version_folder = prefix / str(date.today())
+        prefix = Path(publishing_folder)
+    else:
+        prefix = Path(publishing_folder) / s3_subpath
+    version_folder = prefix / version
     key = version_folder / output.name
     if output.is_dir():
         s3.upload_folder(
             BUCKET,
             output,
-            version_folder / key,
+            key,
             acl,
             include_foldername=include_foldername,
             max_files=max_files,
