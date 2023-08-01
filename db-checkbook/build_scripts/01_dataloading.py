@@ -4,6 +4,7 @@ import boto3
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import re
 
 BASE_BUCKET = 'edm-recipes'
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
@@ -42,9 +43,27 @@ def read_edm_recipes_nyc_checkbook(version = "latest") -> None:
     df.to_csv(LIB_DIR / 'nycoc_checkbook.csv')
     return
 
+def create_source_data_version_csv() -> None:
+    """ makes a csv with a schema (dataset name) and version (CPDB year)
+    """
+    
+    files = Path(LIB_DIR).glob('*')
+    schema = []
+    version = []
+    for file in files:
+        file_name = file.stem
+        schema.append(file_name)
+        version_name = file_name.split('_')[0]
+        version.append(version_name)
+    pd.DataFrame({'Schema': schema, 'v': version}).to_csv(_curr_file_path.parent.parent / 'output' / 'source_data_versions.csv')
+    return 
+
+
 def run_dataloading() -> None:
     download_s3_edm_recipes_cpdb()
     read_edm_recipes_nyc_checkbook()
+    create_source_data_version_csv()
+
     return 
 
 if __name__ == "__main__":
