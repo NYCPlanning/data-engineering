@@ -28,11 +28,7 @@ def upload_final_file(final_file, digital_ocean_file) -> None:
         digital_ocean_file: str name of file in digital ocean to save  
     """
 
-    s3_client = s3.client('s3', 
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-        endpoint_url=os.environ["AWS_S3_ENDPOINT"] 
-        )
+    s3_client = s3.client()
 
     folder_structure_metadata = create_metadata_folder_structure(digital_ocean_file)
     final_file_path = _curr_file_path.parent.parent / 'output' / final_file
