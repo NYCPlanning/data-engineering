@@ -27,11 +27,11 @@ jobs:
             template:
               - .github/workflows/tests.yml
               - .github/workflows/build.yml
-              - db-template/**
+              - products/db-template/**
             cbbr:
-              - db-cbbr/**
+              - products/db-cbbr/**
             checkbook:
-              - db-checkbook/**
+              - products/db-checkbook/**
 
   confirm_changes:
     name: Confirm changes to relevant files

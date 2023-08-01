@@ -11,12 +11,13 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-checkbook
+        working-directory: products/db-checkbook
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup build environment
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Run python tests
         run: |

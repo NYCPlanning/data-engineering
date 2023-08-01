@@ -9,6 +9,10 @@ jobs:
   version:
     name: get version
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-pluto/pluto_build
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -17,7 +21,7 @@ jobs:
       - name: Get Version
         id: version
         run: |
-          source pluto_build/version.env
+          source version.env
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version is $VERSION"
 
@@ -25,6 +29,10 @@ jobs:
     needs: [version]
     name: publishing
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-pluto/pluto_build
     env:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}

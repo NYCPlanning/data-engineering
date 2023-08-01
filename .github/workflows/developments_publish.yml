@@ -53,5 +53,5 @@ jobs:
           export_default_credentials: true
 
       - name: Archive to BigQuery
-        working-directory: db-developments
+        working-directory: products/db-developments
         run: ./devdb.sh bq

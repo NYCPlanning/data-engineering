@@ -1,5 +1,4 @@
 #!/bin/bash
-source ../bash/utils.sh
 
 echo "Running QAQC"
 

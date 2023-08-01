@@ -11,7 +11,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-pluto/pluto_build
+        working-directory: products/db-pluto/pluto_build
     container: 
       image: nycplanning/build-base:latest
     env:
@@ -39,7 +39,8 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Run Container Setup
-        run: ../../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
         
       - name: install ssh key
         run: |

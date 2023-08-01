@@ -1,8 +1,12 @@
 #!/bin/bash
-source ../../bash/utils.sh # assumes being run from pluto_build folder
 
-set_env ../../.env
-set_env ./version.env
+FILE_DIR=$(dirname "$(readlink -f "$0")")
+ROOT_DIR="${FILE_DIR}/../../../.."
+
+source $ROOT_DIR/bash/utils.sh
+
+set_env $ROOT_DIR/.env version.env
+set_error_traps
 
 function import_qaqc {
     name=${1}

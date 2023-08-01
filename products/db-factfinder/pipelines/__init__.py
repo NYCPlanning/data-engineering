@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 PRODUCT_PATH = Path(__file__).parent.parent
-ROOT_PATH = PRODUCT_PATH.parent
+ROOT_PATH = PRODUCT_PATH.parent.parent
 BASE_PATH = PRODUCT_PATH / ".output"
 
 if not os.path.isdir(BASE_PATH):

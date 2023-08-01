@@ -17,6 +17,10 @@ jobs:
   version:
     name: check version
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-pluto/pluto_build
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       is_minor_version: ${{ steps.check_minor_version.outputs.is_minor_version }}
@@ -25,14 +29,12 @@ jobs:
 
       - name: Check Version
         id: get_version
-        working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version is $VERSION"
       - name: Check for minor version
         id: check_minor_version
-        working-directory: ./db-pluto/pluto_build
         run: |
           source version.env
           SUBSTRING="."
@@ -52,7 +54,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-pluto/pluto_build
+        working-directory: products/db-pluto/pluto_build
     container:
       image: nycplanning/build-base:latest
     env:
@@ -78,9 +80,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Check is_minor, finish container setup
+        working-directory: ./
         run: |
           echo "is_minor: ${{ needs.version.outputs.is_minor_version }}"
-          ../../bash/docker_container_setup.sh
+          ./bash/docker_container_setup.sh
 
       - name: clean out shared libs
         run: |

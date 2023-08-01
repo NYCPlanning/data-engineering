@@ -12,7 +12,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-cpdb
+        working-directory: ./products/db-cpdb
     container: 
       image: nycplanning/base:latest
       env:
@@ -37,7 +37,8 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: install dependencies ...
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0

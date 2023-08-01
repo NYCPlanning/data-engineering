@@ -1,6 +1,4 @@
 #!/bin/bash
-source ../bash/utils.sh
-set_env ../.env
 
 create_source_data_table
 

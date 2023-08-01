@@ -1,8 +1,5 @@
 #!/bin/bash
-source ../bash/utils.sh
 source bash/config.sh
-set_env ../.env
-set_error_traps
 
 run_sql_file sql/export.sql
 psql ${EDM_DATA} -v VERSION=${VERSION} -f sql/qaqc/frequency.sql

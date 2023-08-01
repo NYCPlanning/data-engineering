@@ -29,10 +29,10 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-template
+        working-directory: products/db-template
     services:
       postgres:
-        image: postgis/postgis:15-3.3-alpine
+        image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -54,7 +54,8 @@ jobs:
           python -m python.run_logging
 
       - name: Setup build environment
-        run: ../bash/docker_container_setup.sh
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: 1) Data loading
         run: |
