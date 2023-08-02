@@ -12,4 +12,4 @@ COPY . .
 
 CMD [ "./entrypoint.sh" ]
 
-EXPOSE 5000
+EXPOSE 8501
