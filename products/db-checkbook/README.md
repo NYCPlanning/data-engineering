@@ -28,7 +28,10 @@
 4. Run the following command(s) from a terminal
 
     ```bash
-    ./db-checkbook/checkbook.sh
+    cd projects/db-checkbook
+    python3 -m build_scripts.dataloading
+    python3 -m build_scripts.build
+    python3 -m build_scripts.export
     ```
 
     > 🚧 This is a work-in-progress and doesn't build the data product yet

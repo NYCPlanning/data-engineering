@@ -4,14 +4,13 @@ import boto3
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import re
+from dcpy.connectors.s3 import download_file
+
+from . import LIB_DIR, OUTPUT_DIR
 
 BASE_BUCKET = 'edm-recipes'
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
 
-_curr_file_path = Path(__file__).resolve()
-LIB_DIR = _curr_file_path.parent.parent / '.library'
-load_dotenv(_curr_file_path.parent.parent.parent.parent / '.env') 
 
 def download_s3_edm_recipes_cpdb() -> None:
     """read EDM data: using S3 connectors
@@ -38,9 +37,9 @@ def download_s3_edm_recipes_cpdb() -> None:
 def read_edm_recipes_nyc_checkbook(version = "latest") -> None:
     """filepath: datasets/nycoc_checkbook/latest/nycoc_checkbook.csv 
     """
-    file_name = f'{BASE_URL}/datasets/nycoc_checkbook/{version}/nycoc_checkbook.csv'
-    df = pd.read_csv(file_name, dtype=str, index_col=False)
-    df.to_csv(LIB_DIR / 'nycoc_checkbook.csv')
+    s3_object_key = f'datasets/nycoc_checkbook/{version}/nycoc_checkbook.csv'
+    download_filepath = Path(LIB_DIR / "nycoc_checkbook.csv")
+    download_file(BASE_BUCKET, s3_object_key, download_filepath)
     return
 
 def create_source_data_version_csv() -> None:
@@ -55,7 +54,7 @@ def create_source_data_version_csv() -> None:
         schema.append(file_name)
         version_name = file_name.split('_')[0]
         version.append(version_name)
-    pd.DataFrame({'Schema': schema, 'v': version}).to_csv(_curr_file_path.parent.parent / 'output' / 'source_data_versions.csv')
+    pd.DataFrame({'Schema': schema, 'v': version}).to_csv(OUTPUT_DIR / 'source_data_versions.csv')
     return 
 
 
