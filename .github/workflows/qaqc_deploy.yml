@@ -1,0 +1,29 @@
+name: QAQC - Deploy Streamlit App to Dokku
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+      # working-directory: apps/qaqc ## currently needs to be run from root for git subtree command
+    container: 
+      image: dokku/ci-docker-image:latest
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_KEY }}
+      DOKKU_HOST: ${{ secrets.DOKKU_HOST }}
+      APP_NAME: edm-data-engineering
+      GIT_REMOTE_URL: ssh://dokku@${{ secrets.DOKKU_HOST }}/edm-data-engineering
+      APP_REMOTE_BRANCH: main
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          sparse-checkout: apps/qaqc
+      - name: Deploy
+        run: apps/qaqc/bash/deploy.sh 
+
