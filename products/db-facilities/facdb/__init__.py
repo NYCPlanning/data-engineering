@@ -6,7 +6,7 @@ from dotenv import dotenv_values
 
 _module_top_path = Path(__file__).resolve().parent
 _product_path = _module_top_path.parent
-_proj_root = _product_path.parent
+_proj_root = _product_path.parent.parent
 
 # Make `dcpy` available
 sys.path.append(str(_proj_root))
