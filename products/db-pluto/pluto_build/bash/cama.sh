@@ -9,8 +9,7 @@ function cama {
         cd /tmp/cama
 
         # copy to directory
-        ssh_cmd get Prod_FromDOF/CAMA.zip cama.zip
-        unzip cama.zip -d $(pwd)
+        unzip CAMA.zip -d $(pwd)
         PATH_TXT=$(ls *.txt)
         BASE_TXT=$(echo $(basename $PATH_TXT) | cut -d'.' -f1)
         VERSION=$(echo "$BASE_TXT" | rev | cut -d'_' -f1 | rev)
