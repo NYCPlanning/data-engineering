@@ -28,9 +28,15 @@ function facdb_export {
     ./facdb/bash/export.sh
 }
 
+function facdb_upload {
+    DATE=$(date "+%Y-%m-%d")
+    upload "db-facilities" "latest"
+    upload "db-facilities" ${DATE}
+}
+
 case $1 in
     init) init ;;
-    upload) upload "db-facilities" "latest" ;; # sourced from ../utils.sh
+    upload) facdb_upload ;;
     archive) facdb_archive $@ ;;
     export) facdb_export $@ ;;
     *) facdb_execute $@ ;;
