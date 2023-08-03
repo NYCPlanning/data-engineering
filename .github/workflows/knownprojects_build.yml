@@ -1,29 +1,27 @@
-name: z(TODO) KPDB - Build
+name: KPDB - 🏗️ Build
 
 on:
-  #push: todo - add branch paths if we want this. More likely want to normalize across projects
   workflow_dispatch:
     inputs:
-      update_submodule:
-        description: 'Would you like to use the latest db-knownprojects-data? (yes/no)'
-        required: false
-        default: 'no'
-      export:
-        description: 'Would you like to export outputs to db-knownprojects-data? (yes/no)'
-        required: false
-        default: 'no'
-      comments:
-        description: 'Provide any additional comments below'
-        required: false
-        default: ''
+      will_export:
+        description: 'Export outputs to a private S3 bucket?'
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
-    name: Building in Github database
-    runs-on: ubuntu-20.04
+    name: build
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-base:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./products/db-knownprojects
     services:
-      postgres:
-        image: postgis/postgis:11-3.0-alpine
+      postgis:
+        image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -34,57 +32,26 @@ jobs:
         ports:
           - 5432:5432
     env:
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-      ARD_PAT: ${{ secrets.ARD_PAT }}
-      AUTHOR: Data Engineering
     steps:
-      - uses: actions/checkout@v2
-        with: 
-            submodules: true
-            token: ${{ secrets.ARD_PAT }}
-            persist-credentials: true
+      - uses: actions/checkout@v3
 
-      - name: Update Submodule
-        if: github.event.inputs.update_submodule == 'yes'
-        run: git submodule update --remote
-         
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      - name: install dependencies ...
-        run: |
-          sudo apt install -y gdal-bin
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-          python3 -m pip install -r requirements.txt
+      - name: Setup build environment
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: 1. dataloading ..
-        run: ./kpdb.sh dataloading
+        run: ./bash/01_dataloading.sh
 
       - name: 2. build ...
-        run: ./kpdb.sh build
-
-      - name: 3. export ...
-        id: export
-        if: github.event.inputs.export == 'yes'
-        run: ./kpdb.sh export ${{ github.event.sender.login }}
-
-      - name: 4. comment on PR
-        uses: actions/github-script@v3
-        if: github.event.inputs.export == 'yes' && github.event.inputs.comments != ''
-        with: 
-          github-token: ${{ secrets.ARD_PAT }}
-          script: |
-            github.issues.createComment({
-              issue_number: ${{ steps.export.outputs.issue_number }},
-              owner: 'NYCPlanning',
-              repo: 'db-knownprojects-data',
-              body: `${{ github.event.inputs.comments }}`
-            })
+        run: ./bash/02_build.sh
+      
+      # TODO upload outputs to a private S3 bucket
+      # - name: 3. export ...
+      #   id: export
+      #   if: inputs.will_export
+      #   run: ./kpdb.sh export ${{ github.event.sender.login }}

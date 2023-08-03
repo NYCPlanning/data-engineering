@@ -38,7 +38,7 @@ function import_private {
   version=$(mc cat spaces/edm-recipes/datasets/$name/$version/config.json | jq -r '.dataset.version')
   echo "$name version: $version"
   mc cp spaces/edm-recipes/datasets/$name/$version/$name.sql $name.sql
-  psql $BUILD_ENGINE -f $name.sql
+  run_sql_file $name.sql
   rm $name.sql
 }
 
@@ -48,12 +48,12 @@ function import_public {
   version=$(curl -s https://nyc3.digitaloceanspaces.com/edm-recipes/datasets/$name/$version/config.json | jq -r '.dataset.version')
   echo "$name version: $version"
   curl -O https://nyc3.digitaloceanspaces.com/edm-recipes/datasets/$name/$version/$name.sql
-  psql $BUILD_ENGINE -f $name.sql
+  run_sql_file $name.sql
   rm $name.sql
 }
 
 function CSV_export {
-  psql $BUILD_ENGINE  -c "\COPY (
+  run_sql_command "\COPY (
     SELECT * FROM $@
   ) TO STDOUT DELIMITER ',' CSV HEADER;" > $@.csv
 }
