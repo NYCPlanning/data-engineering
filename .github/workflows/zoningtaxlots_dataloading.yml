@@ -1,15 +1,10 @@
 name: Zoning Tax lots - 📁 DataLoading
 
 on:
-  #issues:
-  #  types: [opened, edited]
   workflow_dispatch:
 
 jobs:
   dataloading:
-    if: >- 
-      contains(github.event.issue.title, '[dataloading]') ||
-      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-20.04
     env:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
@@ -31,24 +26,11 @@ jobs:
           - dof_shoreline
           - dof_condo
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3
       - uses: NYCPlanning/action-library-archive@v1.1
         with:
-          path: templates/${{ matrix.dataset }}.yml 
+          path: ./db-zoningtaxlots/templates/${{ matrix.dataset }}.yml
           latest: true
           s3: true
           compress: true
           output_format: pgdump shapefile
-
-  close_issue:
-    if: github.event_name == 'issues'
-    runs-on: ubuntu-20.04
-    needs: dataloading
-    steps:
-      - name: Close Issue
-        uses: peter-evans/close-issue@v1
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          comment: |
-            # Success! 🎉
-            for more details, check https://github.com/NYCPlanning/db-zoningtaxlots/actions/runs/${{ github.run_id }}
