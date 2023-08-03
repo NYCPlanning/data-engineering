@@ -27,6 +27,6 @@ pg_dump -t dcp_zoning_taxlot ${BUILD_ENGINE} | psql ${EDM_DATA}
 psql ${EDM_DATA} -c "
   CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
   ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;
-  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"${VERSION}\";
-  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION}\";
+  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\";
+  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION_SQL_TABLE}\";
 "
