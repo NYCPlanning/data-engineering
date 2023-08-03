@@ -3,7 +3,7 @@ set -e
 source bash/config.sh
 
 echo "Generate output tables"
-psql $BUILD_ENGINE -f sql/_export.sql
+run_sql_file sql/_export.sql
 
 echo "Archive tables"
 archive public.kpdb kpdb.kpdb &
@@ -33,9 +33,9 @@ mkdir -p output
         SHP_export review_dob MULTIPOLYGON 
         wait
 
-        psql $BUILD_ENGINE  -c "ALTER TABLE review_project DROP COLUMN geom;" &
-        psql $BUILD_ENGINE  -c "ALTER TABLE review_dob DROP COLUMN geom;" &
-        psql $BUILD_ENGINE  -c "ALTER TABLE combined DROP COLUMN geom;"
+        run_sql_command "ALTER TABLE review_project DROP COLUMN geom;" &
+        run_sql_command "ALTER TABLE review_dob DROP COLUMN geom;" &
+        run_sql_command "ALTER TABLE combined DROP COLUMN geom;"
         wait 
         
         CSV_export combined &
