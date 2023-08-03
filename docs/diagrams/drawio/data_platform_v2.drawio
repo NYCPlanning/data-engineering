@@ -1,0 +1,131 @@
+<mxfile host="65bd71144e" scale="1" border="40">
+    <diagram id="ZGiubuzTnFsMa45nnlA5" name="Page-1">
+        <mxGraphModel dx="699" dy="419" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" background="#4D4D4D" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="293" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=default;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;" parent="1" source="29" target="152" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="600" y="320"/>
+                            <mxPoint x="600" y="400"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="API" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="280" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="297" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=default;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;" parent="1" source="35" target="282" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="email" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="560.0000000000001" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="299" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=default;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;" parent="1" source="36" target="282" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="hyperlink" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="640.0000000000002" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="294" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=default;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;" parent="1" source="37" target="152" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="S3" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="440" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="295" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=default;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;" parent="1" source="150" target="152" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="150" value="SFTP" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="360" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="153" value="" style="group;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=10;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="680" y="319.99999999999994" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="152" value="S3&lt;br&gt;source" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="153" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3F8624;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=16;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket_with_objects;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="153" vertex="1">
+                    <mxGeometry x="63.41463414634143" y="60.000000000000114" width="73.17073170731707" height="76.09756097560975" as="geometry"/>
+                </mxCell>
+                <mxCell id="160" value="" style="group;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=10;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="960" y="319.99999999999994" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="155" value="Postgres&lt;br&gt;test / staging" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="160" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="159" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.data;fontSize=16;fontColor=#000000;fillColor=none;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="160" vertex="1">
+                    <mxGeometry x="68.29268292682923" y="60.00000000000006" width="63.41463414634146" height="78.81" as="geometry"/>
+                </mxCell>
+                <mxCell id="102" value="Load" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=15;fontColor=#000000;strokeColor=#CCCCCC;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;labelBackgroundColor=#CCCCCC;labelBorderColor=none;" parent="1" source="152" target="155" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="860" y="410" as="sourcePoint"/>
+                        <mxPoint x="897" y="376" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="165" value="" style="group;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=10;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="1240" y="319.99999999999994" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="166" value="Postgres&lt;br&gt;publishing" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="165" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="167" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.data;fontSize=16;fontColor=#000000;fillColor=none;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="165" vertex="1">
+                    <mxGeometry x="68.29268292682923" y="60.00000000000006" width="63.41463414634146" height="78.81" as="geometry"/>
+                </mxCell>
+                <mxCell id="168" value="Promote" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=#CCCCCC;strokeColor=#CCCCCC;fontFamily=Roboto;fontSize=15;fontColor=#000000;endArrow=classic;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;labelBorderColor=none;" parent="1" source="155" target="166" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="172" value="" style="group;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=10;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="1240" y="79.99999999999994" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="173" value="S3&lt;br&gt;publishing" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="172" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="174" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3F8624;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=16;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket_with_objects;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="172" vertex="1">
+                    <mxGeometry x="63.41463414634143" y="60.000000000000114" width="73.17073170731707" height="76.09756097560975" as="geometry"/>
+                </mxCell>
+                <mxCell id="175" value="" style="group;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=10;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="960" y="79.99999999999994" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="176" value="S3&lt;br&gt;test / staging" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="175" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="177" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3F8624;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=16;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket_with_objects;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="175" vertex="1">
+                    <mxGeometry x="63.41463414634143" y="60.000000000000114" width="73.17073170731707" height="76.09756097560975" as="geometry"/>
+                </mxCell>
+                <mxCell id="184" value="Export" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;labelBackgroundColor=#CCCCCC;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;labelBorderColor=none;" parent="1" source="155" target="176" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="185" value="Export" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;labelBackgroundColor=#CCCCCC;strokeColor=#CCCCCC;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=15;fontColor=#000000;endArrow=classic;labelBorderColor=none;" parent="1" source="166" target="173" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="281" value="" style="group;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=10;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="360" y="560" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="282" value="S3&lt;br&gt;inbox" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Roboto;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="281" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="283" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3F8624;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=16;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket_with_objects;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="281" vertex="1">
+                    <mxGeometry x="63.41463414634143" y="60.000000000000114" width="73.17073170731707" height="76.09756097560975" as="geometry"/>
+                </mxCell>
+                <mxCell id="149" value="Extract" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;html=1;labelBackgroundColor=#CCCCCC;strokeColor=#CCCCCC;fontFamily=Roboto;fontSize=15;fontColor=#000000;endArrow=classic;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;labelBorderColor=none;" parent="1" source="282" target="152" edge="1">
+                    <mxGeometry x="0.7778" relative="1" as="geometry">
+                        <mxPoint x="610" y="440" as="targetPoint"/>
+                        <mxPoint x="560" y="640" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="600" y="640"/>
+                            <mxPoint x="600" y="400"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="302" value="Transform" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#CCCCCC;verticalAlign=top;strokeWidth=2;strokeColor=#bbc8d3;shadow=0;dashed=0;shape=mxgraph.ios7.icons.reload;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;fontSize=16;fontColor=#000000;labelBorderColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="1000" y="480" width="119" height="120" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
