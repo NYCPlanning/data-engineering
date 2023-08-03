@@ -34,7 +34,8 @@
 				"mtxr.sqltools",
 				"mtxr.sqltools-driver-pg",
 				"ms-toolsai.jupyter",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"hediet.vscode-drawio"
 			]
 		}
 	},
