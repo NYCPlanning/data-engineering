@@ -53,7 +53,7 @@ def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    if not df:
+    if df.empty:
         df = _read_checkbook()
 
     df.columns = df.columns.str.replace(' ', '_')
@@ -76,7 +76,7 @@ def _group_checkbook(data: pd.DataFrame = None) -> pd.DataFrame:
     """
     :return: checkbook nyc data grouped by capital project
     """
-    if not data:
+    if data.empty:
         data = _clean_checkbook()
 
     def fn_join_vals(x):
