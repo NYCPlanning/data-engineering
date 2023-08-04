@@ -46,7 +46,7 @@ jobs:
     name: Build test run
     uses: ./.github/workflows/template_build.yml
     with:
-      will_export: false
+      run_export: false
       logging_level: DEBUG
       build_note: a test build
     secrets: inherit

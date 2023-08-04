@@ -1,6 +1,8 @@
 #!/bin/bash
 source bash/config.sh
 
+echo "Run build"
+
 run_sql_file sql/create_priority.sql &
 run_sql_file sql/create.sql
 run_sql_file sql/preprocessing.sql
@@ -21,9 +23,10 @@ run_sql_file sql/correct_duplicatevalues.sql
 run_sql_file sql/correct_zoninggaps.sql
 run_sql_file sql/correct_invalidrecords.sql
 
-echo "archive final output"
-pg_dump -t dcp_zoning_taxlot ${BUILD_ENGINE} | psql ${EDM_DATA}
 
+echo "Archive final output"
+
+pg_dump -d ${BUILD_ENGINE} -t dcp_zoning_taxlot --no-owner --clean | psql ${EDM_DATA}
 psql ${EDM_DATA} -c "
   CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
   ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;

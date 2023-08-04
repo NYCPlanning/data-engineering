@@ -9,7 +9,7 @@ on:
       build_note:
         type: string
         required: false
-      will_export:
+      run_export:
         type: boolean
         required: true
 
@@ -60,8 +60,8 @@ jobs:
 
       - name: Export CBBR Output to DO (edm-publishing)
         run: ./04_export.sh
-        if: inputs.will_export
+        if: inputs.run_export
 
       - name: Archive CBBR to EDM-DATA
         run: ./05_archive.sh
-        if: inputs.will_export
+        if: inputs.run_export

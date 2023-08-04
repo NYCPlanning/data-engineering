@@ -4,9 +4,7 @@ import re
 from pathlib import Path
 from sqlalchemy import create_engine, text
 
-_curr_file_path = Path(__file__).resolve()
-LIB_DIR = _curr_file_path.parent.parent / '.library'
-SQL_QUERY_DIR = _curr_file_path.parent.parent / 'sql_query'
+from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR
 
 DB_URL = 'sqlite:///checkbook.db'
 ENGINE = create_engine(DB_URL)
@@ -55,7 +53,7 @@ def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    if df.empty:
+    if not df:
         df = _read_checkbook()
 
     df.columns = df.columns.str.replace(' ', '_')
@@ -78,7 +76,7 @@ def _group_checkbook(data: pd.DataFrame = None) -> pd.DataFrame:
     """
     :return: checkbook nyc data grouped by capital project
     """
-    if data.empty:
+    if not data:
         data = _clean_checkbook()
 
     def fn_join_vals(x):
@@ -195,21 +193,26 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf['final_category'] = gdf[cols].apply(lambda row: assign_category(row), axis=1)
     return gdf
 
-def run_build() -> pd.DataFrame:
+def run_build() -> None:
     """
     :return: historical spending data
     """
+    print("merge and group source data ...")
     cpdb_geoms = _merge_cpdb_geoms()
     grouped_checkbook = _group_checkbook()
+    print("_assign_checkbook_category ...")
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
+    print("_join_checkbook_geoms ...")
     joined_data = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
+    print("_clean_joined_checkbook_cpdb ...")
     cleaned_data = _clean_joined_checkbook_cpdb(joined_data)
+    print("_assign_final_category ...")
     final_data = _assign_final_category(cleaned_data)
-    return final_data
+    print("save temp csv ...")
+    fp = OUTPUT_DIR / 'historical_spend.csv'
+    final_data.to_csv(fp)
 
 if __name__ == "__main__":
     print("started build ...")
-    final_data = run_build()
-    print('.. done!')
-    fp = _curr_file_path.parent.parent / 'output' / 'temp_historical_spend.csv'
-    final_data.to_csv(fp)
+    run_build()
+    print('done!')

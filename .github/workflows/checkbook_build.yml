@@ -1,0 +1,40 @@
+name: Checkbook - Build
+
+on:
+  workflow_call:
+    inputs:
+      run_export:
+        type: boolean
+        required: true
+
+env:
+  AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+
+jobs:
+  build:
+    name: Build Dataset
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-checkbook
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup build environment
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: Run dataloading and build
+        run: |
+          python3 -m build_scripts.dataloading
+          python3 -m build_scripts.build
+
+      - name: Run export
+        if: inputs.run_export
+        run: |
+          python3 -m build_scripts.export

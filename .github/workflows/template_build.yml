@@ -9,7 +9,7 @@ on:
       build_note:
         type: string
         required: false
-      will_export:
+      run_export:
         type: boolean
         required: true
 
@@ -74,6 +74,6 @@ jobs:
           echo "PLACEHOLDER running Export for QAQC"
 
       - name: 5) Export for production
-        if: inputs.will_export
+        if: inputs.run_export
         run: |
           echo "PLACEHOLDER running Export for production"

@@ -1,0 +1,63 @@
+name: QAQC - Deploy Streamlit App to Dokku
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    env:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build and Push
+        run: apps/qaqc/bash/build_and_publish.sh
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build_and_push
+    defaults:
+      run:
+        shell: bash
+    env: 
+      QAQC_DROPLET_SSH_PRIVATE_KEY: ${{ secrets.QAQC_DROPLET_SSH_PRIVATE_KEY }}
+      QAQC_DROPLET_SSH_HOST: ${{ secrets.QAQC_DROPLET_SSH_HOST }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      SQL_ENGINE_EDM_DATA: ${{ secrets.SQL_ENGINE_EDM_DATA }}
+      DOCKER_IMAGE_NAME: nycplanning/qaqc:latest
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$QAQC_DROPLET_SSH_PRIVATE_KEY" > ~/.ssh/qaqc.key
+          chmod 400 ~/.ssh/qaqc.key
+          cat >> ~/.ssh/config <<EOF
+          Host qaqc
+            HostName $QAQC_DROPLET_SSH_HOST
+            User root
+            IdentityFile ~/.ssh/qaqc.key
+            StrictHostKeyChecking no
+          EOF
+      - name: Deploy
+        run: |
+          ssh qaqc "\
+            docker pull $DOCKER_IMAGE_NAME
+            pid=\"\$(docker ps -a -q -f ancestor=$DOCKER_IMAGE_NAME)\"
+            if [[ \$pid ]]; then
+              docker stop \"\$pid\"
+              docker rm \"\$pid\"
+            fi
+            docker run -p 8501:8501 -d --restart always\
+                -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
+                -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
+                -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
+                -e SQL_ENGINE_EDM_DATA=$SQL_ENGINE_EDM_DATA\
+                $DOCKER_IMAGE_NAME"
+    

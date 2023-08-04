@@ -61,22 +61,23 @@ if __name__ == "__main__":
     file_list = glob.glob(basepath + "/output/**", recursive=True)
     file_list = [f for f in file_list if os.path.isfile(f)]
 
-    # Create a new target branch
-    timestamp = dt.now()
-    title = timestamp.strftime("%Y-%m-%d %H:%M")
-    target_branch = timestamp.strftime("output-%Y%m%d-%H%M")
-    create_new_branch(target_branch)
+    # TODO upload outputs to a private S3 bucket
+    # # Create a new target branch
+    # timestamp = dt.now()
+    # title = timestamp.strftime("%Y-%m-%d %H:%M")
+    # target_branch = timestamp.strftime("output-%Y%m%d-%H%M")
+    # create_new_branch(target_branch)
     
-    # Upload files one by one
-    for _file in file_list:
-        upload_file(_file, target_branch)
+    # # Upload files one by one
+    # for _file in file_list:
+    #     upload_file(_file, target_branch)
 
-    # Create a PR after upload
-    md_file_list = "\n".join([f" - `{f.replace(basepath+'/', '')}`" for f in file_list])
-    body = f"## Files Commited:\n{md_file_list}\n"
+    # # Create a PR after upload
+    # md_file_list = "\n".join([f" - `{f.replace(basepath+'/', '')}`" for f in file_list])
+    # body = f"## Files Commited:\n{md_file_list}\n"
 
-    pr = create_pull_request(
-        title=f'output: {timestamp.strftime("%Y-%m-%d %H:%M")}, created by: {SENDER}',
-        body=body,
-        head=target_branch,
-    )
+    # pr = create_pull_request(
+    #     title=f'output: {timestamp.strftime("%Y-%m-%d %H:%M")}, created by: {SENDER}',
+    #     body=body,
+    #     head=target_branch,
+    # )

@@ -11,6 +11,7 @@ on:
         options:
           - template
           - cbbr
+          - checkbook
           - colp
           - cpdb
           - devdb
@@ -29,7 +30,7 @@ on:
         description: "A short note about this build (optional)"
         type: string
         required: false
-      will_export:
+      run_export:
         description: "Export build outputs"
         type: boolean
         required: true
@@ -51,7 +52,7 @@ jobs:
     with:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-      will_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
   cbbr:
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
@@ -59,34 +60,40 @@ jobs:
     with:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-      will_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
+  checkbook:
+    if: inputs.dataset_name == 'checkbook'
+    uses: ./.github/workflows/checkbook_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.run_export }}
   colp:
     if: inputs.dataset_name == 'colp'
     uses: ./.github/workflows/colp_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
   cpdb:
     if: inputs.dataset_name == 'cpdb'
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
   devdb:
     if: inputs.dataset_name == 'devdb'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
   facilities:
     if: inputs.dataset_name == 'facilities'
     uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
   pluto:
     if: inputs.dataset_name == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.will_export }}
+      run_export: ${{ inputs.run_export }}
