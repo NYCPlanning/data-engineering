@@ -1,5 +1,6 @@
 # test s3 and sql data IO
-from src.postgres_utils import QAQC_DB_SCHEMA_SOURCE_DATA, get_table_columns
+from dcpy.connectors.postgres import get_table_columns
+from src import QAQC_DB_SCHEMA_SOURCE_DATA
 from src.digital_ocean_utils import get_datatset_config
 
 TEST_DATA_SOURCE_NAME = "dcp_zoningmapamendments"

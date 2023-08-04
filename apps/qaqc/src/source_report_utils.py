@@ -8,8 +8,8 @@ from src.digital_ocean_utils import (
     get_data_library_sql_file,
 )
 
-from src.postgres_utils import (
-    QAQC_DB_SCHEMA_SOURCE_DATA,
+from . import QAQC_DB_SCHEMA_SOURCE_DATA
+from dcpy.connectors.postgres import (
     create_sql_schema,
     load_data_from_sql_dump,
     get_schemas,
