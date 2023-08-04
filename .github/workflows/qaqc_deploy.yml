@@ -1,4 +1,4 @@
-name: QAQC - Deploy Streamlit App to Dokku
+name: QAQC - Deploy Streamlit App to Droplet
 
 on: 
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Build and Push
-        run: apps/qaqc/bash/build_and_publish.sh
+        run: apps/qaqc/bash/docker_build_and_publish.sh
 
   deploy:
     runs-on: ubuntu-22.04
@@ -49,7 +49,7 @@ jobs:
         run: |
           ssh qaqc "\
             docker pull $DOCKER_IMAGE_NAME
-            pid=\"\$(docker ps -a -q -f ancestor=$DOCKER_IMAGE_NAME)\"
+            pid=\"\$(docker ps -a -q)\"
             if [[ \$pid ]]; then
               docker stop \"\$pid\"
               docker rm \"\$pid\"
