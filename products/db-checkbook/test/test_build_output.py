@@ -1,14 +1,16 @@
 import numpy as np
+import pandas as pd
 import pytest
 
-from pandas.testing import assert_frame_equal, assert_series_equal
 from build_scripts.build import _group_checkbook, _clean_checkbook, _merge_cpdb_geoms, _join_checkbook_geoms, _assign_checkbook_category, _clean_joined_checkbook_cpdb, _assign_final_category 
 from test.generate_test_data import generate_cpdb_test_data, generate_checkbook_test_data, generate_expected_cpdb_join, generate_expected_grouped_checkbook, generate_expected_final_data
 
 CPDB_GDF_LIST = generate_cpdb_test_data()
 CHECKBOOK_TEST = generate_checkbook_test_data()
 
-# -- validate input data
+@pytest.fixture
+def df_columns(df: pd.DataFrame) -> List[str]:
+    return 
 
 class TestCheckbook:
     """
@@ -16,67 +18,69 @@ class TestCheckbook:
     cleaning and groupby transformations before joining 
     to CPDB geoms
     """
-    cleaned_checkbook_df = _clean_checkbook(CHECKBOOK_TEST)
-    grouped_checkbook_df = _group_checkbook(cleaned_checkbook_df)
-    expected_grouped_checkbook = generate_expected_grouped_checkbook()
+    def __init__(self):
+        self.cleaned_checkbook_df = _clean_checkbook(CHECKBOOK_TEST)
+        self.grouped_checkbook_df = _group_checkbook(self.cleaned_checkbook_df)
+        self.expected_grouped_checkbook = generate_expected_grouped_checkbook()
     
     def test_check_nonneg(self):
-        assert (self.cleaned_checkbook_df['check_amount'] >= 0).all()
+        assert (self.cleaned_checkbook_df['check_amount'] >= 0).all(), \
+        "nonnegative checks exist in cleaned checkbook data"
 
     def test_fms_id_exists(self):
-        assert 'fms_id' in self.grouped_checkbook_df.columns
+        assert 'fms_id' in self.grouped_checkbook_df.columns, \
+        "`fms_id` column missing from grouped checkbook data"
 
     def test_null_fms_id(self):
-        assert np.where(self.grouped_checkbook_df['fms_id'].isnull())
+        assert np.where(self.grouped_checkbook_df['fms_id'].isnull()), \
+        "there are null values in `fms_id` column in grouped checkbook data"
 
     def test_unique_fms_id(self):
-        assert not self.grouped_checkbook_df['fms_id'].duplicated().any()
+        assert not self.grouped_checkbook_df['fms_id'].duplicated().any(), \
+        "duplicate `fms_id`s exist in grouped checkbook data"
+
+    def test_group_checkbook_cols(self):
+        assert
 
     def test_group_checkbook(self):
         expected_result = self.expected_grouped_checkbook.set_index('fms_id').sort_index()
         result = self.grouped_checkbook_df.set_index('fms_id').sort_index()
-        assert result.equals(expected_result)
+        assert result.equals(expected_result), \
+        "results of grouping checkbook data do not match expectations"
 
 class TestCPDB:
     """
     tests that validate CPDB geoms and transformations 
     before joining to Checkbook NYC capital projects 
     """
+    def __init__(self):
+        self.cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
+        self.expected_result = generate_expected_cpdb_join()
+
     @pytest.mark.skip(reason="TODO define a more useful test")
     def test_null_maprojid(self):
-        CPDB_GDF_LIST = generate_cpdb_test_data()
-        cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        assert np.where(cpdb_df['maprojid'].isnull())
+        assert np.where(self.cpdb_df['maprojid'].isnull())
 
     def test_unique_maprojid(self): 
-        CPDB_GDF_LIST = generate_cpdb_test_data()
-        cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        assert not cpdb_df['maprojid'].duplicated().any()
+        assert not self.cpdb_df['maprojid'].duplicated().any()
 
     def test_null_geometry(self):
-        CPDB_GDF_LIST = generate_cpdb_test_data()
-        cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        assert np.where(cpdb_df['geometry'].isnull())
+        assert np.where(self.cpdb_df['geometry'].isnull())
 
     def test_merge_cpdb_geoms(self):
-        CPDB_GDF_LIST = generate_cpdb_test_data()
-        expected_result = generate_expected_cpdb_join()
-        result = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        assert result.equals(expected_result)
+        assert self.cpdb_df.equals(self.expected_result)
 
 class TestHistoricalLiquidations:
     """
     tests that validate the build output, i.e. the final 
     Historical Liquidations dataset
     """
-    @pytest.mark.skip(reason='TODO QA output of category assignment on budget code and contract purpose')
-    def test_high_sensitivity_fixed_asset(self):
-        cpdb = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        checkbook = _group_checkbook(_clean_checkbook(CHECKBOOK_TEST))
-        cat_checkbook = _assign_checkbook_category(checkbook)
-        join = _join_checkbook_geoms(cat_checkbook, cpdb)
-        clean_join = _clean_joined_checkbook_cpdb(join)
-        clean_join = clean_join[[
+    def __init__(self):
+        self.cpdb = _merge_cpdb_geoms(CPDB_GDF_LIST)
+        self.checkbook = _group_checkbook(_clean_checkbook(CHECKBOOK_TEST))
+        self.cat_checkbook = _assign_checkbook_category(self.checkbook)
+        self.join = _join_checkbook_geoms(self.cat_checkbook, self.cpdb)
+        self.clean_join = _clean_joined_checkbook_cpdb(self.join)[[
             'fms_id', 
             'contract_purpose', 
             'agency', 
@@ -89,9 +93,11 @@ class TestHistoricalLiquidations:
             'geometry',
             'has_geometry'
         ]]
+        self.historical_liquidations = _assign_final_category(self.clean_join).set_index('fms_id').sort_index()
+        self.expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index()
         
-        result = _assign_final_category(clean_join).set_index('fms_id').sort_index()
-        expected_result = generate_expected_final_data().set_index('fms_id').sort_index()
-        assert result.equals(expected_result)
+    @pytest.mark.skip(reason='TODO QA output of category assignment on budget code and contract purpose')
+    def test_high_sensitivity_fixed_asset(self):
+        assert self.historical_liquidations.equals(self.expected_historical_liquidations)
 
 
