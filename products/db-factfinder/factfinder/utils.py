@@ -42,10 +42,10 @@ def get_z(e, m, p, agg_e, agg_m):
         return np.nan
     elif agg_e == 0:
         return np.nan
-    elif m ** 2 - (e * agg_m / agg_e) ** 2 < 0:
-        return math.sqrt(m ** 2 + (e * agg_m / agg_e) ** 2) / agg_e * 100
+    elif m**2 - (e * agg_m / agg_e) ** 2 < 0:
+        return math.sqrt(m**2 + (e * agg_m / agg_e) ** 2) / agg_e * 100
     else:
-        return math.sqrt(m ** 2 - (e * agg_m / agg_e) ** 2) / agg_e * 100
+        return math.sqrt(m**2 - (e * agg_m / agg_e) ** 2) / agg_e * 100
 
 
 def rounding(df: pd.DataFrame, digits: int) -> pd.DataFrame:

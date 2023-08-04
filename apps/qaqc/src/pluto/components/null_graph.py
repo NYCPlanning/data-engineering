@@ -160,7 +160,7 @@ class NullReport:
         ]
 
     def sort_and_filter_df(self, df, range, fields):
-        selected = fields[range[0]-1 : range[1]]
+        selected = fields[range[0] - 1 : range[1]]
         df = df[["pair"] + selected]
         df_transformed = df.set_index("pair").stack().reset_index()
         df_transformed.rename(

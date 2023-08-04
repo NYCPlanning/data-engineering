@@ -6,6 +6,7 @@ from utils import psql_insert_copy
 # connect to postgres db
 engine = create_engine(os.environ.get("BUILD_ENGINE", ""))
 
+
 # helper function
 def fms_parse(x):
     # case 1: comma separated fms ids
@@ -20,6 +21,7 @@ def fms_parse(x):
         fms_ids = x
     return fms_ids
 
+
 with engine.begin() as conn:
     # makes selection
     bridges = pd.read_sql_query(
@@ -33,5 +35,9 @@ with engine.begin() as conn:
 
     # write new table to postgres
     bridges_cleaned.to_sql(
-        "dot_projects_bridges_byfms", conn, if_exists="replace", index=False, method=psql_insert_copy
+        "dot_projects_bridges_byfms",
+        conn,
+        if_exists="replace",
+        index=False,
+        method=psql_insert_copy,
     )

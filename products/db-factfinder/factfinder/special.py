@@ -23,15 +23,15 @@ def hovacrtm(hovacue, vacsalee, vacsalem, hovacum):
         return 0
     elif vacsalee == 0:
         return 0
-    elif vacsalem ** 2 - (vacsalee * hovacum / hovacue) ** 2 < 0:
+    elif vacsalem**2 - (vacsalee * hovacum / hovacue) ** 2 < 0:
         return (
-            math.sqrt(vacsalem ** 2 + (vacsalee * hovacum / hovacue) ** 2)
+            math.sqrt(vacsalem**2 + (vacsalee * hovacum / hovacue) ** 2)
             / hovacue
             * 100
         )
     else:
         return (
-            math.sqrt(vacsalem ** 2 - (vacsalee * hovacum / hovacue) ** 2)
+            math.sqrt(vacsalem**2 - (vacsalee * hovacum / hovacue) ** 2)
             / hovacue
             * 100
         )
@@ -43,7 +43,7 @@ def percapinc(df: pd.DataFrame, base_variables: list) -> pd.DataFrame:
     df["m"] = (
         1
         / df.pop_6e
-        * np.sqrt(df.agip15plm ** 2 + (df.agip15ple * df.pop_6m / df.pop_6e) ** 2)
+        * np.sqrt(df.agip15plm**2 + (df.agip15ple * df.pop_6m / df.pop_6e) ** 2)
     )
     return df
 

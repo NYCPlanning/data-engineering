@@ -15,8 +15,8 @@ DATASET_PAGES = {
     "PLUTO": "pluto",
     "Template Repo DB": "trdb",
     "Zoning Tax Lots": "ztl",
-    #"Geosupport Demo": "geocode",
-    "GRU QAQC": "gru"
+    # "Geosupport Demo": "geocode",
+    "GRU QAQC": "gru",
 }
 
 DATASET_NAMES = {
@@ -46,4 +46,6 @@ DATASET_SOURCE_VERSIONS = {
     )
 }
 
-construct_dataset_by_version = lambda dataset, version: f"{dataset}_{version.replace('/', '_')}"
+construct_dataset_by_version = (
+    lambda dataset, version: f"{dataset}_{version.replace('/', '_')}"
+)

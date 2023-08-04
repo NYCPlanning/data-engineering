@@ -34,7 +34,9 @@ with engine.begin() as conn:
     # park_id cleaning
     parkproj_cleaned = pd.DataFrame()
     for i in range(len(parkproj)):
-        parkproj_cleaned = pd.concat([parkproj_cleaned, parkid_parse(parkproj.iloc[i, :])])
+        parkproj_cleaned = pd.concat(
+            [parkproj_cleaned, parkid_parse(parkproj.iloc[i, :])]
+        )
     parkproj_cleaned = parkproj_cleaned[["fmsid", "park_id"]]
 
     parkproj_cleaned.to_sql(

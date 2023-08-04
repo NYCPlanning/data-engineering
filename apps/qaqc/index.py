@@ -4,7 +4,7 @@ from src.constants import DATASET_PAGES
 
 
 def run():
-    st.set_page_config(page_title="Data Engineering QAQC", page_icon="📊", layout='wide')
+    st.set_page_config(page_title="Data Engineering QAQC", page_icon="📊", layout="wide")
     st.sidebar.markdown(
         """
         <div stule="margin-left: auto; margin-right: auto;">
@@ -30,7 +30,9 @@ def run():
 
     st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
 
-    dataset_module = importlib.import_module(f"src.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}")
+    dataset_module = importlib.import_module(
+        f"src.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}"
+    )
     dataset_page = getattr(dataset_module, DATASET_PAGES[name])
     dataset_page()
 

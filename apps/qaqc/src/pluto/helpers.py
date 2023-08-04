@@ -122,9 +122,9 @@ def get_s3_folders():
 
 def get_past_versions():
     folders = get_all_s3_folders()
-    pattern = "^\d{2}v\d(\.\d)?$" # matches pluto version format of 23v1, 23v1.2, etc
-    versions = [ f for f in folders if re.match(pattern, f)]
-    return sorted(versions, reverse = True)
+    pattern = "^\d{2}v\d(\.\d)?$"  # matches pluto version format of 23v1, 23v1.2, etc
+    versions = [f for f in folders if re.match(pattern, f)]
+    return sorted(versions, reverse=True)
 
 
 def convert(dt):

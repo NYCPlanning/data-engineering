@@ -93,7 +93,7 @@ def test_value_differences_across_versions(
     example_ExpectedValueDifferencesReport: ExpectedValueDifferencesReport,
 ):
     comparison_name = "zoning"
-    expeted_in1not2 = ['M1-4/R9', 'M1-4/R7-3', 'M1-4/R9', 'M1-4/R7-3']
+    expeted_in1not2 = ["M1-4/R9", "M1-4/R7-3", "M1-4/R9", "M1-4/R7-3"]
     expeted_in2not1 = []
     (
         in1not2,

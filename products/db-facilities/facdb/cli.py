@@ -32,7 +32,9 @@ def init():
     Initialize empty facdb_base table and create procedures and functions
     """
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_base.sql")
-    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql")
+    postgres.exec_file_via_shell(
+        BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql"
+    )
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
 
@@ -54,7 +56,9 @@ def build():
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_address.sql")
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_spatial.sql")
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_boro.sql")
-    postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql")
+    postgres.exec_file_via_shell(
+        BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql"
+    )
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_agency.sql")
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb.sql")
     postgres.exec_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
@@ -111,7 +115,9 @@ def run(
 
         if scripts and sql:
             for script in scripts:
-                postgres.exec_file_via_shell(BUILD_ENGINE, Path(__file__).parent / "sql" / script)
+                postgres.exec_file_via_shell(
+                    BUILD_ENGINE, Path(__file__).parent / "sql" / script
+                )
 
         typer.echo(typer.style(f"SUCCESS: {name}", fg=typer.colors.GREEN))
     dump_metadata()
