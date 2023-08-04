@@ -18,10 +18,9 @@ class TestCheckbook:
     cleaning and groupby transformations before joining 
     to CPDB geoms
     """
-    def __init__(self):
-        self.cleaned_checkbook_df = _clean_checkbook(CHECKBOOK_TEST)
-        self.grouped_checkbook_df = _group_checkbook(self.cleaned_checkbook_df)
-        self.expected_grouped_checkbook = generate_expected_grouped_checkbook()
+    cleaned_checkbook_df = _clean_checkbook(CHECKBOOK_TEST)
+    grouped_checkbook_df = _group_checkbook(cleaned_checkbook_df)
+    expected_grouped_checkbook = generate_expected_grouped_checkbook()
     
     def test_check_nonneg(self):
         assert (self.cleaned_checkbook_df['check_amount'] >= 0).all(), \
@@ -53,9 +52,8 @@ class TestCPDB:
     tests that validate CPDB geoms and transformations 
     before joining to Checkbook NYC capital projects 
     """
-    def __init__(self):
-        self.cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        self.expected_result = generate_expected_cpdb_join()
+    cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
+    expected_result = generate_expected_cpdb_join()
 
     @pytest.mark.skip(reason="TODO define a more useful test")
     def test_null_maprojid(self):
@@ -75,26 +73,25 @@ class TestHistoricalLiquidations:
     tests that validate the build output, i.e. the final 
     Historical Liquidations dataset
     """
-    def __init__(self):
-        self.cpdb = _merge_cpdb_geoms(CPDB_GDF_LIST)
-        self.checkbook = _group_checkbook(_clean_checkbook(CHECKBOOK_TEST))
-        self.cat_checkbook = _assign_checkbook_category(self.checkbook)
-        self.join = _join_checkbook_geoms(self.cat_checkbook, self.cpdb)
-        self.clean_join = _clean_joined_checkbook_cpdb(self.join)[[
-            'fms_id', 
-            'contract_purpose', 
-            'agency', 
-            'budget_code',
-            'check_amount',
-            'bc_category',
-            'cp_category',
-            'maprojid',
-            'cpdb_category',
-            'geometry',
-            'has_geometry'
-        ]]
-        self.historical_liquidations = _assign_final_category(self.clean_join).set_index('fms_id').sort_index()
-        self.expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index()
+    cpdb = _merge_cpdb_geoms(CPDB_GDF_LIST)
+    checkbook = _group_checkbook(_clean_checkbook(CHECKBOOK_TEST))
+    cat_checkbook = _assign_checkbook_category(checkbook)
+    join = _join_checkbook_geoms(cat_checkbook, cpdb)
+    clean_join = _clean_joined_checkbook_cpdb(join)[[
+        'fms_id', 
+        'contract_purpose', 
+        'agency', 
+        'budget_code',
+        'check_amount',
+        'bc_category',
+        'cp_category',
+        'maprojid',
+        'cpdb_category',
+        'geometry',
+        'has_geometry'
+    ]]
+    historical_liquidations = _assign_final_category(clean_join).set_index('fms_id').sort_index()
+    expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index()
         
     @pytest.mark.skip(reason='TODO QA output of category assignment on budget code and contract purpose')
     def test_high_sensitivity_fixed_asset(self):
