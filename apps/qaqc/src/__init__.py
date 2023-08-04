@@ -1,11 +1,10 @@
-import os
 import sys
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-APP_PATH = Path(__file__).parent
+APP_PATH = Path(__file__).parent.parent
 ROOT_PATH = APP_PATH.parent.parent
 
 load_dotenv(ROOT_PATH / ".env")

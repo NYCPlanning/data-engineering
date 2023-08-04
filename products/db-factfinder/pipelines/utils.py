@@ -5,7 +5,7 @@ from pathlib import Path
 
 from dcpy.connectors import s3
 from dcpy.connectors.edm.publishing import upload
-from dcpy.git import git_branch
+from dcpy.git.git import git_branch
 
 from pipelines import PRODUCT_PATH
 

@@ -1,6 +1,7 @@
 def gru():
     import streamlit as st
     import time
+    from dcpy.git.github import workflow_is_running
     from src.gru.constants import readme_markdown_text, tests
     from src.gru.helpers import (
         get_qaqc_runs,
@@ -8,7 +9,6 @@ def gru():
         get_geosupport_versions,
     )
     from src.gru.components import source_table, check_table
-    from src.github import workflow_is_running
 
     st.markdown(
         "<style>button{text-align:left; margin:0}.stDownloadButton{max-width:195px;}</style>",

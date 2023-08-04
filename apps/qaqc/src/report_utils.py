@@ -1,6 +1,6 @@
 import streamlit as st
 from src.digital_ocean_utils import DigitalOceanClient
-from src.github import get_default_branch, get_branches
+from dcpy.git.github import get_default_branch, get_branches
 
 
 @st.cache_data
