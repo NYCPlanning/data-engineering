@@ -3,13 +3,14 @@ import pandas as pd
 from src.digital_ocean_utils import construct_branch_output_data_directory_url
 
 BUCKET_NAME = "edm-publishing"
-REPO_NAME = "db-facilities"
+PRODUCT_NAME = "db-facilities"
+REPO_NAME = "data-engineering"
 
 def get_latest_data(
     branch,
 ) -> tuple[dict[str, dict[str, pd.DataFrame | str]], pd.DataFrame, pd.DataFrame]:
     url = construct_branch_output_data_directory_url(
-        dataset=REPO_NAME,
+        dataset=PRODUCT_NAME,
         branch=branch,
         version="latest",
     )
