@@ -1,15 +1,11 @@
-FROM python:3.11-slim as build
+FROM nycplanning/build-base:latest
 
-# Run environment setup script
-COPY bash/ /bash/
-COPY requirements.txt /.
-RUN bash/setup_env.sh
-
-# Run deployed environment setups
 WORKDIR /app
 
 COPY . .
 
-CMD [ "./entrypoint.sh" ]
-
 EXPOSE 8501
+
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+
+ENTRYPOINT [ "python3", "-m", "streamlit", "run", "src/index.py" ]

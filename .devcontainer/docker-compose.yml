@@ -35,6 +35,7 @@ services:
       - "5432"
     ports:
       - "8888:8888"
+      - "8501:8501"
 
 volumes:
   postgres-data:

@@ -13,7 +13,7 @@ DATASET_PAGES = {
     "Equitable Development Data Explorer": "edde",
     "Facilities DB": "facdb",
     "PLUTO": "pluto",
-    "Template Repo DB": "trdb",
+    # "Template Repo DB": "trdb",
     "Zoning Tax Lots": "ztl",
     # "Geosupport Demo": "geocode",
     "GRU QAQC": "gru",

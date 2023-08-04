@@ -14,7 +14,7 @@ concurrency:
 jobs:
   check_formatting:
     name: Check formatting of files
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-base:latest
     steps:
@@ -47,10 +47,12 @@ jobs:
               - products/db-cbbr/**
             checkbook:
               - products/db-checkbook/**
+            qaqc:
+              - apps/qaqc/**
 
   confirm_changes:
     name: Confirm changes to relevant files
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: check_changes
     if: ${{ needs.check_changes.outputs.path_filters != '' && toJson(fromJson(needs.check_changes.outputs.path_filters)) != '[]' }}
     steps:
@@ -71,4 +73,9 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'checkbook')
     uses: ./.github/workflows/checkbook_test.yml
+    secrets: inherit
+  qaqc:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.path_filters, 'qaqc')
+    uses: ./.github/workflows/qaqc_test.yml
     secrets: inherit

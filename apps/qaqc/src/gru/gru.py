@@ -1,9 +1,13 @@
 def gru():
     import streamlit as st
     import time
-    from .constants import readme_markdown_text, tests
-    from .helpers import get_qaqc_runs, run_all_workflows, get_geosupport_versions
-    from .components import source_table, check_table
+    from src.gru.constants import readme_markdown_text, tests
+    from src.gru.helpers import (
+        get_qaqc_runs,
+        run_all_workflows,
+        get_geosupport_versions,
+    )
+    from src.gru.components import source_table, check_table
     from src.github import workflow_is_running
 
     st.markdown(
