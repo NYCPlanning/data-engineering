@@ -4,7 +4,6 @@ from src.source_report_utils import (
     get_source_data_versions_to_compare,
     create_source_data_schema,
     load_source_data_to_compare,
-    get_source_dataset_names,
     compare_source_data_columns,
     compare_source_data_row_count,
     dataframe_style_source_report_results,

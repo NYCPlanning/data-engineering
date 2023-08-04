@@ -1,12 +1,8 @@
 import pandas as pd
-from typing import Dict
-from urllib.error import HTTPError
-import streamlit as st
 import json
-from src.digital_ocean_utils import (
-    DigitalOceanClient,
-    construct_branch_output_data_directory_url,
-)
+
+from dcpy.connectors.edm import publishing
+from src.digital_ocean_utils import DigitalOceanClient
 
 BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-developments"
@@ -175,7 +171,7 @@ QAQC_CHECK_DICTIONARY = {
 
 def get_latest_data(branch) -> dict[str, pd.DataFrame]:
     rv = {}
-    url = construct_branch_output_data_directory_url(
+    url = publishing.get_dataset_branch_path(
         dataset=REPO_NAME,
         branch=branch,
         version="latest",

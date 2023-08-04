@@ -5,6 +5,8 @@ import json
 from typing import Dict
 from dotenv import load_dotenv
 import streamlit as st
+
+from dcpy.connectors import s3
 from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()
@@ -79,9 +81,7 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
             "not_applied_filename": "pluto_corrections_not_applied.csv",
         },
     ]
-    output_filenames = client.get_all_filenames_in_folder(
-        folder_path=get_output_folder_path(branch)
-    )
+    output_filenames = s3.get_filenames(S3_BUCKET_NAME, get_output_folder_path(branch))
 
     for changes_files_group in valid_changes_files_group:
         if changes_files_group["zip_filename"] in output_filenames:
@@ -110,9 +110,7 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
 
 @st.cache_data(ttl=600)
 def get_all_s3_folders():
-    return DigitalOceanClient(
-        bucket_name=S3_BUCKET_NAME, repo_name=S3_DATASET_NAME
-    ).get_all_folder_names_in_repo_folder()
+    return s3.get_subfolders(S3_BUCKET_NAME, S3_DATASET_NAME)
 
 
 def get_s3_folders():

@@ -13,6 +13,10 @@ from rich.progress import (
 )
 
 
+def _make_folder(s: str):
+    return s if s[-1] == "/" else s + "/"
+
+
 def _progress():
     return Progress(
         SpinnerColumn(spinner_name="earth"),
@@ -40,6 +44,19 @@ def client(
     )
 
 
+def list_objects(bucket: str, prefix: str):
+    objects = []
+    prefix = _make_folder(prefix)
+    try:
+        paginator = client().get_paginator("list_objects_v2")
+        for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
+            objects = objects + result.get("Contents", [])
+    except Exception as exc:
+        print(f"get_objects(bucket={bucket}, prefix={prefix}) failed")
+        raise exc
+    return objects
+
+
 def download_file(
     bucket: str,
     key: str,
@@ -58,6 +75,27 @@ def download_file(
             Filename=str(path),
             Callback=lambda bytes: progress.update(task, advance=bytes),
         )
+
+
+def get_file(
+    bucket: str,
+    key: str,
+    path: Path,
+):
+    """Downloads a file from S3"""
+    with _progress() as progress:
+        client_ = client()
+        size = client_.head_object(Bucket=bucket, Key=key)["ContentLength"]
+        task = progress.add_task(
+            f"[green]Downloading [bold]{Path(key).name}[/bold]", total=size
+        )
+        obj = client_.get_object(
+            Bucket=bucket,
+            Key=key,
+            Filename=str(path),
+            Callback=lambda bytes: progress.update(task, advance=bytes),
+        )
+        return obj["Body"]
 
 
 def upload_file(
@@ -120,12 +158,7 @@ def download_folder(
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if prefix[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
-
-    client_ = client()
-    resp = client_.list_objects_v2(Bucket=bucket, Prefix=prefix)
-    if not "Contents" in resp:
-        raise NotADirectoryError(f"Folder {prefix} not found in bucket {bucket}")
-    for obj in resp["Contents"]:
+    for obj in list_objects(bucket, prefix):
         key = obj["Key"].replace(prefix, "") if include_prefix_in_export else obj["Key"]
         if key and (key != prefix) and (key[-1] != "/"):
             key_directory = Path(key).parent
@@ -166,18 +199,39 @@ def copy_folder(
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
-    if target[-1] != "/":
-        target += "/"
+    target = _make_folder(target)
 
-    client_ = client()
-    resp = client_.list_objects_v2(Bucket=bucket, Prefix=source)
-    if len(resp) > max_files:
+    objects = list_objects(bucket, source)
+    if len(objects) > max_files:
         raise Exception(
-            f"{len(resp)} found in folder '{source}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
+            f"{len(objects)} found in folder '{source}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
-    if not "Contents" in resp:
-        raise NotADirectoryError(f"Folder {source} not found in bucket {bucket}")
-    for obj in resp["Contents"]:
+    for obj in objects:
         key = obj["Key"].replace(source, "")
         if key and (key[-1] != "/"):
             copy_file(bucket, obj["Key"], f"{target}{key}", acl)
+
+
+def get_filenames(bucket, prefix):
+    return {
+        obj["Key"].split("/")[-1]
+        for obj in list_objects(bucket, prefix)
+        if obj["Key"].split("/")[-1] != ""
+    }
+
+
+def get_subfolders(bucket: str, prefix: str, index=1):
+    prefix = _make_folder(prefix)
+    prefix_path = Path(prefix)
+    subfolders = set()
+    try:
+        paginator = client().get_paginator("list_objects_v2")
+        for result in paginator.paginate(Bucket=bucket, Prefix=prefix, Delimiter="/"):
+            for obj in result.get("CommonPrefixes", []):
+                path = Path(obj["Prefix"])
+                if len(path.relative_to(prefix_path).parts) == index:
+                    subfolders.add(path.name)
+    except Exception as exc:
+        print(f"get_subfolders(bucket={bucket}, prefix={prefix}) failed")
+        raise exc
+    return list(subfolders)

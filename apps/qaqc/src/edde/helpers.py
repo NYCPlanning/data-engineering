@@ -1,7 +1,7 @@
 import pandas as pd
 from itertools import groupby
 import re
-from src.digital_ocean_utils import DigitalOceanClient
+from dcpy.connectors import s3
 
 REPO_NAME = "db-equitable-development-tool"
 S3_FOLDER_NAME = "db-eddt"
@@ -21,11 +21,10 @@ geographies = ["citywide", "borough", "puma"]
 def get_demographics_data(branch: str, version: str):
     parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
-    client = DigitalOceanClient(BUCKET_NAME, S3_FOLDER_NAME)
     for category in demographic_categories:
         category_data = {}
-        files = client.get_all_filenames_in_folder(
-            f"db-eddt/{branch}/{version}/{category}"
+        files = s3.get_filenames(
+            BUCKET_NAME, f"{S3_FOLDER_NAME}/{branch}/{version}/{category}"
         )
         matches = [
             re.match(
