@@ -6,6 +6,7 @@ BUCKET_NAME = "edm-publishing"
 PRODUCT_NAME = "db-facilities"
 REPO_NAME = "data-engineering"
 
+
 def get_latest_data(
     branch,
 ) -> tuple[dict[str, dict[str, pd.DataFrame | str]], pd.DataFrame, pd.DataFrame]:
@@ -14,7 +15,7 @@ def get_latest_data(
         branch=branch,
         version="latest",
     )
-    
+
     qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
     qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
     qc_classification = pd.read_csv(f"{url}/qc_classification.csv")

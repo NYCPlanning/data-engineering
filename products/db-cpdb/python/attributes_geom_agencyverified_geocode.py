@@ -12,10 +12,10 @@ g = Geosupport()
 # connect to postgres db
 engine = create_engine(os.environ.get("BUILD_ENGINE", ""))
 
+
 def quick_clean(address):
     address = (
-        "-".join([i.strip() for i in address.split("-")]
-                 ) if address is not None else ""
+        "-".join([i.strip() for i in address.split("-")]) if address is not None else ""
     )
     result = [
         k
@@ -73,16 +73,20 @@ def parse_output(geo):
         lon=geo.get("Longitude", np.nan),
     )
 
+
 # read in dcp_cpdb_agencyverified table
 with engine.begin() as conn:
     dcp_cpdb_agencyverified = pd.read_sql(
-        text("""
+        text(
+            """
         SELECT address, borough, maprojid 
         FROM dcp_cpdb_agencyverified 
         WHERE geom IS NULL 
         AND address IS NOT NULL 
         AND borough IS NOT NULL;
-        """), con=conn,
+        """
+        ),
+        con=conn,
     )
     records = dcp_cpdb_agencyverified.to_dict("records")
 
@@ -99,5 +103,5 @@ with engine.begin() as conn:
         "dcp_cpdb_agencyverified_geo",
         con=conn,
         if_exists="replace",
-        method=psql_insert_copy
+        method=psql_insert_copy,
     )

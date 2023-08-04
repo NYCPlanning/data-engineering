@@ -35,6 +35,7 @@ ZONING_FIELD_CATEGORIES = {
     ],
 }
 
+
 def output_report():
     dataset = DATASET_NAMES["ztl"]
     data_url = construct_output_data_directory_url(dataset=dataset, version="latest")
@@ -168,6 +169,8 @@ def output_report():
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    source_data_versions = get_source_data_versions_from_build(dataset=dataset, version="latest")
+    source_data_versions = get_source_data_versions_from_build(
+        dataset=dataset, version="latest"
+    )
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================

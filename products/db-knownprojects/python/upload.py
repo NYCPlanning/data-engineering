@@ -42,7 +42,13 @@ def upload_file(path_local: str, target_branch: str):
         print(f"Updating exisitng file ...")
         print(f"exisiting contents path: {contents_existing.path}")
         print(f"exisiting contents sha: {contents_existing.sha}")
-        repo.update_file(contents_existing.path, message, content, contents_existing.sha, branch=target_branch)
+        repo.update_file(
+            contents_existing.path,
+            message,
+            content,
+            contents_existing.sha,
+            branch=target_branch,
+        )
     except UnknownObjectException:
         repo.create_file(path_repo_bad, message, content, branch=target_branch)
 
@@ -53,6 +59,7 @@ def create_pull_request(title: str, body: str, head: str, base: str = "main"):
     pr = repo.create_pull(title=title, body=body, head=head, base=base)
     os.system(f'echo "issue_number={pr.number}" >> "$GITHUB_OUTPUT"')
     print(f"Created PR with PR number: {pr.number}")
+
 
 if __name__ == "__main__":
     # List all files under output
@@ -67,7 +74,7 @@ if __name__ == "__main__":
     # title = timestamp.strftime("%Y-%m-%d %H:%M")
     # target_branch = timestamp.strftime("output-%Y%m%d-%H%M")
     # create_new_branch(target_branch)
-    
+
     # # Upload files one by one
     # for _file in file_list:
     #     upload_file(_file, target_branch)

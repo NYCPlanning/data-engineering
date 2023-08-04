@@ -9,24 +9,20 @@ geoms = {
     "block": {
         "source_column": "bctcb{{decade}}",
         "output_column": "bctcb{{decade}}",
-        "additional_column_mappings": [
-            ("geoid", "cenblock{{decade[:-2]}}")
-        ],
+        "additional_column_mappings": [("geoid", "cenblock{{decade[:-2]}}")],
         "group_by": ["boro", "bctcb{{decade}}", "cenblock{{decade}}"],
-        "join_table": "dcp_cb{{decade}}"
+        "join_table": "dcp_cb{{decade}}",
     },
     "cdta": {
         "source_column": "cdta{{decade}}",
         "output_column": "CDTA{{decade}}",
-        "additional_column_mappings": [
-            ("cdtaname", "cdtaname{{decade[:-2]}}")
-        ],
-        "join_table": "dcp_cdta{{decade}}"
+        "additional_column_mappings": [("cdtaname", "cdtaname{{decade[:-2]}}")],
+        "join_table": "dcp_cdta{{decade}}",
     },
     "commntydst": {
         "source_column": "comunitydist",
         "join_table": "dcp_cdboundaries",
-        "geom_join_column": "borocd::TEXT"
+        "geom_join_column": "borocd::TEXT",
     },
     "councildst": {
         "source_column": "councildist::INT",
@@ -36,21 +32,17 @@ geoms = {
     "nta": {
         "source_column": "nta{{decade}}",
         "output_column": "NTA{{decade}}",
-        "additional_column_mappings": [
-            ("ntaname", "ntaname{{decade[:-2]}}")
-        ],
-        "join_table": "dcp_nta{{decade}}"
+        "additional_column_mappings": [("ntaname", "ntaname{{decade[:-2]}}")],
+        "join_table": "dcp_nta{{decade}}",
     },
     "tract": {
         "source_column": "bct{{decade}}",
         "output_column": "bct{{decade}}",
-        "additional_column_mappings": [
-            ("geoid", "centract{{decade}}")
-        ],
+        "additional_column_mappings": [("geoid", "centract{{decade}}")],
         "group_by": ["boro", "bct{{decade}}", "centract{{decade}}"],
         "join_table": "dcp_ct{{decade}}",
-        "geom_join_column": "boroct2020"
-    }
+        "geom_join_column": "boroct2020",
+    },
 }
 
 if __name__ == "__main__":
@@ -63,17 +55,18 @@ if __name__ == "__main__":
     current_year = int(f"20{version[:2]}")
 
     # SQL Template
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         sql = f.read()
 
     try:
-        geom=sys.argv[3]
+        geom = sys.argv[3]
     except IndexError:
         print(f"Aggregating by year for decade {decade}")
         sql_rendered = Template(sql).render(
-            years=list(range(2010, current_year+1)),
+            years=list(range(2010, current_year + 1)),
             decade=decade,
-            CAPTURE_DATE=CAPTURE_DATE)
+            CAPTURE_DATE=CAPTURE_DATE,
+        )
     else:
         print(f"Aggregating by {geom}")
         column_info = geoms[geom]
@@ -86,7 +79,7 @@ if __name__ == "__main__":
 
         # Render template in twice because decade is part of render inputs as well
         sql_rendered = Template(sql).render(
-            years=list(range(2010, current_year+1)),
+            years=list(range(2010, current_year + 1)),
             CAPTURE_DATE=CAPTURE_DATE,
             decade=decade,
             geom=geom,
@@ -95,9 +88,10 @@ if __name__ == "__main__":
             additional_column_mappings=additional_column_mappings,
             group_by=group_by,
             join_table=join_table,
-            geom_join_column=geom_join_column)
-        
+            geom_join_column=geom_join_column,
+        )
+
         sql_rendered = Template(sql_rendered).render(decade=decade)
-    
+
     with engine.begin() as connection:
         connection.execute(text(sql_rendered))

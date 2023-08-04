@@ -2,7 +2,9 @@ from factfinder.calculate import Calculate
 
 from . import api_key
 
-calculate = Calculate(api_key=api_key, year=2019, source="acs", geography="2010_to_2020")
+calculate = Calculate(
+    api_key=api_key, year=2019, source="acs", geography="2010_to_2020"
+)
 
 
 def test_calculate_e_m():
@@ -99,4 +101,3 @@ def test_calculate():
     df = calculate("prdtrnsmm", "CT20")
     print("\n")
     print(df.head())
-    
