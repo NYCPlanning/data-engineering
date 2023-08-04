@@ -20,11 +20,17 @@ Instructions on how to build the Zoning Tax Lot Database are included in the zon
 QAQC metrics comparing versions of ZTL can be found on the [Data Engineering QAQC Portal](https://edm-data-engineering.nycplanningdigital.com/?page=Zoning+Tax+Lots).
 
 ## Instructions 
-### Run through GitHub Actions
-Open a [new issue](https://github.com/NYCPlanning/db-zoningtaxlots/issues/new/choose) using the **build** issue template to kick off a build of Zoning Tax Lots using GitHub Actions. You can see the progress of the build [here](https://github.com/NYCPlanning/db-zoningtaxlots/actions?query=workflow%3ACI).
+### Building via GHA
+> 🚧 This section is a work in progress as we move our existing data products into the Data Engineering monorepo.
 
-### Run through local command line
-1. create zoningtaxlots_build/.env according to example.env
-2. run `./build.sh` at root directory to build zoningtaxlots database
-
+### Build instructions
+1. Clone the repo and create `.env`
+2. Open the repo in the defined devcontainer in VS Code
+3. Run the following commands at the root directory of the Zoning Tax Lot Database product (`/db-zoningtaxlots`):
+```bash
+./ztl.sh dataloading
+./ztl.sh build
+./ztl.sh qaqc
+```
+> 🚧 The dataloading step is currently failing in the monorepo.
 
