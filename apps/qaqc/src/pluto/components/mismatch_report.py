@@ -73,7 +73,9 @@ class MismatchReport:
     def filter_by_version_pair(self, df, version_pair):
         version_pair_data = df.loc[df.pair == version_pair, :]
         if len(version_pair_data) == 0:
-            valid_pairs_text = '  \n'.join(sorted(list(self.df_mismatch.pair.unique()), reverse=True))
+            valid_pairs_text = "  \n".join(
+                sorted(list(self.df_mismatch.pair.unique()), reverse=True)
+            )
             st.error(
                 f"""
                 Valid PLUTO qaqc_mismatch version pairs for chosen S3 build folder:  

@@ -32,4 +32,3 @@ def csv_from_DO(url, kwargs={}):
         return pd.read_csv(url, **kwargs)
     except:
         st.warning(f"{url} not found")
-

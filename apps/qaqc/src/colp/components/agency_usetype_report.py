@@ -23,9 +23,9 @@ class CountRecordsReport(ABC):
         )
         self.data.sort_values(by="count", ascending=False, inplace=True)
         fig1 = px.bar(
-            self.data.iloc[
-                slider_input[0] - 1 : slider_input[1],
-            ].sort_values(by="count", ascending=True),
+            self.data.iloc[slider_input[0] - 1 : slider_input[1],].sort_values(
+                by="count", ascending=True
+            ),
             y=self.y_axis_col,
             x="count",
             orientation="h",

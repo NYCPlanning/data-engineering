@@ -44,20 +44,17 @@ def test_get_source_data_versions_from_build():
         == TEST_DATA_SOURCE_VERSION_REFERENCE
     )
 
+
 def test_get_source_data_versions_from_build_manual():
     source_data_versions = get_source_data_versions_from_build(
         dataset=DATASET_NAMES["facdb"], version="2021-03-02"
     )
     assert isinstance(source_data_versions, pd.DataFrame)
-    assert (
-        source_data_versions.loc["doitt_buildingfootprints", "version"]
-        == "XXX"
-    )
+    assert source_data_versions.loc["doitt_buildingfootprints", "version"] == "XXX"
+
 
 def test_get_latest_source_data_versions():
-    source_data_versions = get_latest_source_data_versions(
-        dataset=TEST_DATASET_NAME
-    )
+    source_data_versions = get_latest_source_data_versions(dataset=TEST_DATASET_NAME)
     assert isinstance(source_data_versions, pd.DataFrame)
     assert (
         source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
