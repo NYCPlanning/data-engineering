@@ -68,7 +68,6 @@ def UseAirportName(func):
         return df
 
     def find_sname(row):
-
         if row["parsed_sname"] != "":
             return row["parsed_sname"]
         if row["airport_name"] != "":

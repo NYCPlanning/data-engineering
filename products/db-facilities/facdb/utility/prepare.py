@@ -13,6 +13,7 @@ from .utils import format_field_names, hash_each_row
 
 from dcpy.connectors.edm import recipes
 
+
 def read_datasets_yml() -> dict:
     with open(Path(__file__).parent.parent / ("datasets.yml"), "r") as f:
         return yaml.safe_load(f.read())["datasets"]

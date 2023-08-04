@@ -122,7 +122,13 @@ class Metadata:
         """
         returns a list of inputs to median variables
         """
-        return [in_var for sublist in [list(self.median[var]["ranges"].keys()) for var in self.median] for in_var in sublist]
+        return [
+            in_var
+            for sublist in [
+                list(self.median[var]["ranges"].keys()) for var in self.median
+            ]
+            for in_var in sublist
+        ]
 
     def median_ranges(self, pff_variable) -> dict:
         """
@@ -163,6 +169,5 @@ class Metadata:
         """
         given pff_variable name, return a Variable object
         """
-        meta = next(
-            filter(lambda x: x["pff_variable"] == pff_variable, self.metadata))
+        meta = next(filter(lambda x: x["pff_variable"] == pff_variable, self.metadata))
         return Variable(meta)

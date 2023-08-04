@@ -8,6 +8,7 @@ import pandas as pd
 
 engine = create_engine(os.environ.get("BUILD_ENGINE"))
 
+
 def psql_insert_copy(table, conn, keys, data_iter):
     """
     Execute SQL statement inserting data

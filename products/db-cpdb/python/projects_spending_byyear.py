@@ -30,7 +30,7 @@ GROUP BY TRIM(LEFT(capital_project,12));
 """
 
 # Render template
-sql_rendered = Template(sql).render(years=list(range(2010, current_year+1)))
+sql_rendered = Template(sql).render(years=list(range(2010, current_year + 1)))
 
 # Execute SQL
 with engine.begin() as conn:
