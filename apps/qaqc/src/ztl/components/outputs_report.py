@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+
+from dcpy.connectors.edm import publishing
 from src.constants import DATASET_NAMES, COLOR_SCHEME
-from src.digital_ocean_utils import construct_output_data_directory_url
-from src.source_report_utils import get_source_data_versions_from_build
 
 ZONING_FIELD_CATEGORIES = {
     "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
@@ -38,7 +38,7 @@ ZONING_FIELD_CATEGORIES = {
 
 def output_report():
     dataset = DATASET_NAMES["ztl"]
-    data_url = construct_output_data_directory_url(dataset=dataset, version="latest")
+    data_url = publishing.get_dataset_path(dataset=dataset, version="latest")
 
     bbldiff = pd.read_csv(
         f"{data_url}/qc_bbldiffs.csv",
@@ -169,7 +169,7 @@ def output_report():
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    source_data_versions = get_source_data_versions_from_build(
+    source_data_versions = publishing.get_source_data_versions(
         dataset=dataset, version="latest"
     )
     st.table(source_data_versions)

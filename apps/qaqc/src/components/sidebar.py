@@ -1,7 +1,7 @@
 import streamlit as st
 
+from dcpy.connectors import s3
 from src.report_utils import get_active_s3_folders
-from src.digital_ocean_utils import DigitalOceanClient
 
 
 def branch_selectbox(
@@ -22,10 +22,6 @@ def branch_selectbox(
 def output_selectbox(repo, bucket, branch, label="Select an export for comparison"):
     return st.sidebar.selectbox(
         label,
-        DigitalOceanClient(
-            bucket_name=bucket,
-            repo_name=f"{repo}/{branch}",
-        ).get_all_folder_names_in_repo_folder(
-            index=2
-        ),  ##todo - all other than latest if same branch, or latest if other branch?
+        s3.get_subfolders(bucket, f"{repo}/{branch}"),
+        ##todo - all other than latest if same branch, or latest if other branch?
     )

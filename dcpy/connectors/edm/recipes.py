@@ -2,16 +2,30 @@ import json
 
 from dcpy.connectors import s3
 
-RECIPES_BUCKET = "edm-recipes"
+BUCKET = "edm-recipes"
+BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
+
+
+def get_dataset_sql_path(dataset: str, version: str = "latest"):
+    return f"{BASE_URL}/{dataset}/{version}/{dataset}.sql"
+
+
+def get_dataset_config_path(dataset: str, version: str = "latest"):
+    return f"{BASE_URL}/{dataset}/{version}/config.json"
 
 
 def get_config(name, version="latest"):
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
-        Bucket=RECIPES_BUCKET, Key=f"datasets/{name}/{version}/config.json"
+        Bucket=BUCKET, Key=f"datasets/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
     return json.loads(file_content)
+
+
+def get_latest_version(name):
+    """Retrieve a recipe config from s3."""
+    return get_config(name)["dataset"]["version"]
 
 
 def fetch_sql(name: str, version: str, local_library_dir):
@@ -25,7 +39,7 @@ def fetch_sql(name: str, version: str, local_library_dir):
             target_dir.mkdir(parents=True)
         print("🛠 {name}.sql doesn't exists in cache, downloading")
         s3.client().download_file(
-            Bucket=RECIPES_BUCKET,
+            Bucket=BUCKET,
             Key=f"datasets/{name}/{version}/{name}.sql",
             Filename=target_file_path,
         )

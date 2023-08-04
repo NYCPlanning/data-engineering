@@ -1,9 +1,6 @@
 def geocode():
     import streamlit as st
-    import pandas as pd
-    import numpy as np
     import requests
-    import os
 
     st.title("Geosupport Flask API Demo")
     st.sidebar.markdown(

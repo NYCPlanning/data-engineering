@@ -1,14 +1,6 @@
 # functions used to generate source data reports
 import pandas as pd
-import urllib
-from src.constants import construct_dataset_by_version, DATASET_SOURCE_VERSIONS
-from src.digital_ocean_utils import (
-    construct_output_data_directory_url,
-    get_datatset_config,
-    get_data_library_sql_file,
-)
-
-from . import QAQC_DB_SCHEMA_SOURCE_DATA
+from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.postgres import (
     create_sql_schema,
     load_data_from_sql_dump,
@@ -17,6 +9,9 @@ from dcpy.connectors.postgres import (
     get_table_columns,
     get_table_row_count,
 )
+from src.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
+
+from . import QAQC_DB_SCHEMA_SOURCE_DATA
 
 
 def dataframe_style_source_report_results(value: bool):
@@ -25,49 +20,21 @@ def dataframe_style_source_report_results(value: bool):
 
 
 def get_source_dataset_names(dataset: str, version: str) -> pd.DataFrame:
-    source_data_versions = get_source_data_versions_from_build(
-        dataset=dataset, version=version
-    )
+    """Gets names of source datasets used in build
+    TODO this should not come from publishing, but should be defined in code for each data product
+    """
+    source_data_versions = publishing.get_source_data_versions(dataset, version)
     return sorted(source_data_versions.index.values.tolist())
 
 
-def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFrame:
-    try:
-        source_data_versions = pd.read_csv(
-            f"{construct_output_data_directory_url(dataset=dataset, version=version)}/source_data_versions.csv",
-            index_col=False,
-            dtype=str,
-        )
-    except urllib.error.HTTPError:
-        # TODO handle lack of source_data_versions file
-        # NOTE this uses a placeholder for an un-implemented feature
-        source_data_versions = DATASET_SOURCE_VERSIONS[dataset]
-    source_data_versions.rename(
-        columns={
-            "schema_name": "datalibrary_name",
-            "v": "version",
-        },
-        errors="raise",
-        inplace=True,
-    )
-    source_data_versions.sort_values(
-        by=["datalibrary_name"], ascending=True
-    ).reset_index(drop=True, inplace=True)
-    source_data_versions.set_index("datalibrary_name", inplace=True)
-    return source_data_versions
-
-
 def get_latest_source_data_versions(dataset: str) -> pd.DataFrame:
-    source_data_versions = get_source_data_versions_from_build(
-        dataset=dataset, version="latest"
-    )
+    """Gets latest available versions of source datasets for specific data product
+    Does NOT return versions used in any specific build
+    TODO this should not come from publishing, but should be defined in code for each data product
+    """
+    source_data_versions = publishing.get_source_data_versions(dataset, "latest")
     source_data_versions["version"] = source_data_versions.index.map(
-        lambda dataset: get_datatset_config(
-            dataset=dataset,
-            version="latest",
-        )[
-            "dataset"
-        ]["version"]
+        recipes.get_latest_version
     )
     return source_data_versions
 
@@ -76,14 +43,14 @@ def get_source_data_versions_to_compare(
     dataset: str, reference_version: str, staging_version: str
 ):
     # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = get_source_data_versions_from_build(
-        dataset=dataset, version=reference_version
+    reference_source_data_versions = publishing.get_source_data_versions(
+        dataset, reference_version
     )
     if not staging_version:
         latest_source_data_versions = get_latest_source_data_versions(dataset=dataset)
     else:
-        latest_source_data_versions = get_source_data_versions_from_build(
-            dataset=dataset, version=staging_version
+        latest_source_data_versions = publishing.get_source_data_versions(
+            dataset, staging_version
         )
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,
@@ -171,7 +138,7 @@ def load_source_data_to_compare(
 
 
 def load_source_data(dataset: str, version: str) -> str:
-    get_data_library_sql_file(dataset=dataset, version=version)
+    recipes.fetch_sql(dataset, version, SQL_FILE_DIRECTORY)
 
     dataset_by_version = construct_dataset_by_version(dataset, version)
     schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)

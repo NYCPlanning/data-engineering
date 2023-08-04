@@ -1,10 +1,9 @@
 # test generation of source data reports
-import pytest
 import pandas as pd
+from dcpy.connectors.edm import publishing
 from src.constants import DATASET_NAMES
 from src.source_report_utils import (
     get_source_dataset_names,
-    get_source_data_versions_from_build,
     get_latest_source_data_versions,
     compare_source_data_columns,
     compare_source_data_row_count,
@@ -14,7 +13,7 @@ from src.ztl.ztl import REFERENCE_VESION
 TEST_DATASET_NAME = DATASET_NAMES["ztl"]
 TEST_DATASET_REFERENCE_VERSION = REFERENCE_VESION
 TEST_DATA_SOURCE_NAME = "dcp_zoningmapamendments"
-TEST_DATA_SOURCE_VERSION_REFERENCE = "20230306"
+TEST_DATA_SOURCE_VERSION_REFERENCE = "20230404"
 TEST_DATA_SOURCE_VERSION_LATEST = "20230724"
 TEST_DATA_SOURCE_NAMES = [
     "dcp_commercialoverlay",
@@ -35,7 +34,7 @@ TEST_SOURCE_REPORT_RESULTS = {
 
 
 def test_get_source_data_versions_from_build():
-    source_data_versions = get_source_data_versions_from_build(
+    source_data_versions = publishing.get_source_data_versions(
         dataset=TEST_DATASET_NAME, version=TEST_DATASET_REFERENCE_VERSION
     )
     assert isinstance(source_data_versions, pd.DataFrame)
@@ -45,21 +44,14 @@ def test_get_source_data_versions_from_build():
     )
 
 
-def test_get_source_data_versions_from_build_manual():
-    source_data_versions = get_source_data_versions_from_build(
-        dataset=DATASET_NAMES["facdb"], version="2021-03-02"
-    )
-    assert isinstance(source_data_versions, pd.DataFrame)
-    assert source_data_versions.loc["doitt_buildingfootprints", "version"] == "XXX"
-
-
-def test_get_latest_source_data_versions():
-    source_data_versions = get_latest_source_data_versions(dataset=TEST_DATASET_NAME)
-    assert isinstance(source_data_versions, pd.DataFrame)
-    assert (
-        source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
-        == TEST_DATA_SOURCE_VERSION_LATEST
-    )
+## TODO this really needs a mocked up data product/input dataset in DO - tough to verify a latest version otherwise
+# def test_get_latest_source_data_versions():
+#    source_data_versions = get_latest_source_data_versions(dataset=TEST_DATASET_NAME)
+#    assert isinstance(source_data_versions, pd.DataFrame)
+#    assert (
+#        source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
+#        == TEST_DATA_SOURCE_VERSION_LATEST
+#    )
 
 
 def test_get_source_dataset_names():

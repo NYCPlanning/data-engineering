@@ -9,7 +9,6 @@ import re
 from dcpy.git import github
 from dcpy.connectors.edm import recipes
 from .constants import tests
-from src.digital_ocean_utils import get_datatset_config
 
 
 def get_source_version(dataset):
@@ -39,7 +38,7 @@ def get_source_version(dataset):
             "date": timestamp.strftime("%Y-%m-%d"),
         }
     else:
-        config = get_datatset_config(dataset, "latest")
+        config = recipes.get_config(dataset)
         if "execution_details" in config:
             timestamp = datetime.strptime(
                 config["execution_details"]["timestamp"], "%Y-%m-%d %H:%M:%S"
