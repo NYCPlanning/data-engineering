@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 
 
 BUILD_ENGINE_RAW = os.environ["BUILD_ENGINE"]
+print(BUILD_ENGINE_RAW[:10])
 build_engine = create_engine(BUILD_ENGINE_RAW)
 
 

@@ -4,8 +4,8 @@ set -e
 FILE_DIR=$(dirname "$(readlink -f "$0")")
 
 DOCKER_IMAGE_NAME=nycplanning/qaqc
-
-cp -r $FILE_DIR/../../../dcpy $FILE_DIR/dcpy
+echo $FILE_DIR
+cp -r $FILE_DIR/../../../dcpy $FILE_DIR/../src/
 
 echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
 # Build image - Once we reach some sort of MVP, maybe worth starting versioning. For now, just latest

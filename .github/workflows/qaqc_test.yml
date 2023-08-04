@@ -1,0 +1,22 @@
+name: QAQC App - Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: QAQC Tests
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-base:latest
+    env:
+      BUILD_ENGINE: ${{ secrets.EDM_DATA_QAQC_ENGINE }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: pytest
+      working-directory: apps/qaqc
+      run: python3 -m pytest

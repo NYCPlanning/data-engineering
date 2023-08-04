@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from typing import Union
 from src.digital_ocean_utils import construct_branch_output_data_directory_url
 
 BUCKET_NAME = "edm-publishing"
@@ -9,7 +10,7 @@ REPO_NAME = "data-engineering"
 
 def get_latest_data(
     branch,
-) -> tuple[dict[str, dict[str, pd.DataFrame | str]], pd.DataFrame, pd.DataFrame]:
+) -> tuple[dict[str, dict[str, Union[pd.DataFrame, str]]], pd.DataFrame, pd.DataFrame]:
     url = construct_branch_output_data_directory_url(
         dataset=PRODUCT_NAME,
         branch=branch,
