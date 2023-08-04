@@ -25,13 +25,17 @@ jobs:
         with:
           filters: |
             template:
-              - .github/workflows/tests.yml
-              - .github/workflows/build.yml
               - products/db-template/**
+              - .github/workflows/template_test.yml
+              - .github/workflows/template_build.yml
+              - .github/workflows/test.yml
+              - .github/workflows/build.yml
             cbbr:
               - products/db-cbbr/**
             checkbook:
               - products/db-checkbook/**
+              - .github/workflows/checkbook_test.yml
+              - .github/workflows/checkbook_build.yml
 
   confirm_changes:
     name: Confirm changes to relevant files

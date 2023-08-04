@@ -3,8 +3,8 @@ on:
   workflow_call:
 
 jobs:
-  branch_lint:
-    name: Linting tests
+  branch_tests:
+    name: Tests
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
@@ -19,31 +19,15 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: Black linting
-        run: black --diff --check .
-
-  branch_unit_tests:
-    name: Unit tests
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-geosupport:latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: products/db-template
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup build environment
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
+      - name: Run black formatting check
+        run: black --diff --color --check .
 
       - name: Run python tests
         run: |
           python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
 
-  branch_build_tests:
-    name: Build test run
+  branch_test_build:
+    name: Test build
     uses: ./.github/workflows/template_build.yml
     with:
       run_export: false

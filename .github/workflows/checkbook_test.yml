@@ -3,8 +3,8 @@ on:
   workflow_call:
 
 jobs:
-  branch_unit_tests:
-    name: Unit tests
+  branch_tests:
+    name: Tests
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
@@ -18,6 +18,9 @@ jobs:
       - name: Setup build environment
         working-directory: ./
         run: ./bash/docker_container_setup.sh
+
+      - name: Run black formatting check
+        run: black --diff --color --check .
 
       - name: Run python tests
         run: |
