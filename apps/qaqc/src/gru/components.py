@@ -4,14 +4,15 @@ import pandas as pd
 import streamlit as st
 import time
 
-from .constants import tests
-from .helpers import get_source_versions, get_geosupport_versions
-from ..github import dispatch_workflow_button, workflow_is_running
+from dcpy.git.github import workflow_is_running
+from src.github import dispatch_workflow_button
+from src.gru.constants import tests
+from src.gru.helpers import get_source_versions, get_geosupport_versions
 
 
 def status_details(workflow):
     timestamp = (
-        datetime.fromisoformat(workflow["timestamp"])
+        workflow["timestamp"]
         .astimezone(pytz.timezone("US/Eastern"))
         .strftime("%Y-%m-%d %H:%M")
     )

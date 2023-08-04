@@ -6,9 +6,10 @@ import streamlit as st
 import requests
 import re
 
+from dcpy.git import github
+from dcpy.connectors.edm import recipes
 from .constants import tests
 from src.digital_ocean_utils import get_datatset_config
-from src.github import get_workflow_runs, parse_workflow, dispatch_workflow
 
 
 def get_source_version(dataset):
@@ -66,7 +67,7 @@ def get_qaqc_runs(geosupport_version):
     raw_workflow_runs = []
     page = 0
     while len(workflows) != 7:
-        raw_workflow_runs = get_workflow_runs(
+        raw_workflow_runs = github.get_workflow_runs(
             "db-gru-qaqc",
             "main.yml",
             items_per_page=30,
@@ -86,7 +87,7 @@ def get_qaqc_runs(geosupport_version):
                     and (gs_version == geosupport_version)
                     and (name not in workflows)
                 ):
-                    workflows[name] = parse_workflow(run)
+                    workflows[name] = github.parse_workflow(run)
         page += 1
     return workflows
 
@@ -94,7 +95,7 @@ def get_qaqc_runs(geosupport_version):
 def run_all_workflows(actions, geosupport_version):
     def on_click():
         for action in actions:
-            dispatch_workflow(
+            github.dispatch_workflow(
                 "db-gru-qaqc",
                 "main.yml",
                 name=action,

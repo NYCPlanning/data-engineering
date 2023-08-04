@@ -14,7 +14,7 @@ def cpdb():
         VIZKEY,
     )
     from src.constants import COLOR_SCHEME
-    from src.github import get_default_branch
+    from dcpy.git.github import get_default_branch
     from src.cpdb.components.geometry_visualization_report import (
         geometry_visualization_report,
     )
