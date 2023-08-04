@@ -11,5 +11,4 @@ load_dotenv(ROOT_PATH / ".env")
 
 sys.path.append(str(ROOT_PATH))
 
-EDM_DATA = os.environ.get("SQL_ENGINE_EDM_DATA")
 QAQC_DB_SCHEMA_SOURCE_DATA = "source_data"
