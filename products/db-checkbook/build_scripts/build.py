@@ -30,7 +30,7 @@ def _read_all_cpdb_geoms(dir = LIB_DIR) -> list:
     
     return gdf_list
 
-def _merge_cpdb_geoms(gdf_list = None) -> gpd.GeoDataFrame: 
+def _merge_cpdb_geoms(gdf_list: list[str]) -> gpd.GeoDataFrame: 
     """
     :return: merged cpdb geometries
     """
@@ -49,13 +49,10 @@ def _read_checkbook(dir: Path = LIB_DIR, f: str = 'nycoc_checkbook.csv'):
     df = pd.read_csv(dir / f)
     return df
 
-def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
+def _clean_checkbook(df: pd.DataFrame) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    if df.empty:
-        df = _read_checkbook()
-
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.lower()
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
@@ -197,9 +194,12 @@ def run_build() -> None:
     """
     :return: historical spending data
     """
+    print("read in source data...")
+    raw_checkbook = _read_checkbook()
+    cpdb_list = _read_all_cpdb_geoms()
     print("merge and group source data ...")
-    cpdb_geoms = _merge_cpdb_geoms()
-    grouped_checkbook = _group_checkbook()
+    cpdb_geoms = _merge_cpdb_geoms(cpdb_list)
+    grouped_checkbook = _group_checkbook(raw_checkbook)
     print("_assign_checkbook_category ...")
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
     print("_join_checkbook_geoms ...")
