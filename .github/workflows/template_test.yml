@@ -26,7 +26,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-22.04
     env:
-      TOY_SECRET: toy_secret_value
+      TOY_SECRET: ${{ secrets.TOY_SECRET }}
     container:
       image: nycplanning/build-geosupport:latest
     defaults:
