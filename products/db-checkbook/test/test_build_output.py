@@ -19,30 +19,28 @@ class TestCheckbook:
     expected_grouped_checkbook = generate_expected_grouped_checkbook()
     
     def test_check_nonneg(self):
-        assert (self.cleaned_checkbook_df['check_amount'] >= 0).all(), \
-        "nonnegative checks exist in cleaned checkbook data"
+        # checks that no checks in the cleaned checkbook df are negative 
+        assert (self.cleaned_checkbook_df['check_amount'] >= 0).all()
 
     def test_fms_id_exists(self):
-        assert 'fms_id' in self.grouped_checkbook_df.columns, \
-        "`fms_id` column missing from grouped checkbook data"
+        # checks that `fms_id` is a column in the dataset 
+        assert 'fms_id' in self.grouped_checkbook_df.columns
 
     def test_null_fms_id(self):
-        assert np.where(self.grouped_checkbook_df['fms_id'].isnull()), \
-        "there are null values in `fms_id` column in grouped checkbook data"
+        # checks that no row in grouped checkbook has a null value for `fms_id`
+        assert np.where(self.grouped_checkbook_df['fms_id'].isnull())
 
     def test_unique_fms_id(self):
         # checks that all fms_ids in test grouped checkbook are unique 
-        assert not self.grouped_checkbook_df['fms_id'].duplicated().any(), \
-        "duplicate `fms_id`s exist in grouped checkbook data"
+        assert not self.grouped_checkbook_df['fms_id'].duplicated().any()
 
-    def test_grouped_checkbook(self):
+    def test_groupby(self):
         # checks that the results of running checkbook cleaning and grouping on test data match the expected output 
         expected_result = self.expected_grouped_checkbook.set_index('fms_id').sort_index()
         result = self.grouped_checkbook_df.set_index('fms_id').sort_index()
-        assert result.equals(expected_result), \
-        "results of grouping checkbook data do not match expectations"
+        assert result.equals(expected_result)
 
-    def test_grouped_checkbook_cols(self):
+    def test_columns(self):
         # checks that grouped checkbook contains the expected columns
         assert (self.grouped_checkbook_df.columns).equals(self.expected_grouped_checkbook.columns)
 
@@ -54,13 +52,28 @@ class TestCPDB:
     cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
     expected_result = generate_expected_cpdb_join()
 
-    def test_unique_maprojid(self): 
+    def test_unique_maprojid(self):
+        # checks that there are no duplicate capital projects in merged cpdb 
         assert not self.cpdb_df['maprojid'].duplicated().any()
 
     def test_null_geometry(self):
+        # checks that there are no null geometries in the merged cpdb test data
         assert np.where(self.cpdb_df['geometry'].isnull())
 
+    def test_valid_geometry(self):
+        """
+        tests that all geometries in merged cpdb are valid;
+        will be more useful as we look toward increasing the
+        sources of geometries for historical liquidations
+        beyond CPDB
+        """
+        assert self.cpdb_df['geometry'].is_valid.all()
+
+    def test_columns(self):
+        assert self.cpdb_df.columns.equals(self.expected_result.columns)
+
     def test_merge_cpdb_geoms(self):
+        # checks that result of merging test cpdb data matches expected result
         assert self.cpdb_df.equals(self.expected_result)
 
 class TestHistoricalLiquidations:
@@ -85,11 +98,27 @@ class TestHistoricalLiquidations:
         'geometry',
         'has_geometry'
     ]]
-    historical_liquidations = _assign_final_category(clean_join).set_index('fms_id').sort_index()
-    expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index()
+    historical_liquidations = _assign_final_category(clean_join).set_index('fms_id').sort_index() # align expected and actual results rowwise
+    expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index() # align expected and actual results rowwise
         
-    # @pytest.mark.skip(reason='TODO QA output of category assignment on budget code and contract purpose')
-    def test_high_sensitivity_fixed_asset(self):
-        assert self.historical_liquidations.equals(self.expected_historical_liquidations)
+    def test_columns(self):
+        # check that output columns match expected
+        assert self.historical_liquidations.columns.equals(self.expected_historical_liquidations.columns)
+
+    def test_cp_category(self):
+        assert self.historical_liquidations['cp_category'].equals(self.expected_historical_liquidations['cp_category'])
+
+    def test_bc_category(self):
+        assert self.historical_liquidations['bc_category'].equals(self.expected_historical_liquidations['bc_category'])
+
+    def test_cpdb_category(self):
+        assert self.historical_liquidations['cpdb_category'].equals(self.expected_historical_liquidations['cpdb_category'])
+
+    def test_all_categories(self):
+        cols = ['cpdb_category', 'bc_category', 'cp_category', 'final_category']
+        assert self.historical_liquidations[cols].equals(self.expected_historical_liquidations[cols])
+
+    def test_final_category(self):
+        assert self.historical_liquidations['final_category'].equals(self.expected_historical_liquidations['final_category'])
 
 

@@ -34,7 +34,7 @@ def generate_checkbook_test_data() -> pd.DataFrame:
             'ABCDEFG 100'
             ],
         'Contract Purpose': [
-            'Park 1', 
+            'Auditorium 1', 
             'Vehicle 2', 
             'Lump Sum 3', 
             'Park 4', 
@@ -50,7 +50,7 @@ def generate_checkbook_test_data() -> pd.DataFrame:
             'Agency 6'
             ],
         'Budget Code': [
-            'Park 1', 
+            'Auditorium 1', 
             'Vehicle 2', 
             'Lump Sum 3', 
             'Park 4',
@@ -81,12 +81,12 @@ def generate_expected_grouped_checkbook() -> pd.DataFrame:
             8000
             ],
         'contract_purpose': [
-            'Park 1', 
+            'Auditorium 1', 
             'Vehicle 2', 
             'Lump Sum 3;Vehicle 6'
             ],
         'budget_code': [
-            'Park 1', 
+            'Auditorium 1', 
             'Vehicle 2', 
             'Lump Sum 3;Vehicle 6'
             ],
@@ -125,7 +125,7 @@ def generate_expected_final_data() -> gpd.GeoDataFrame:
             'ABCDEFG'
         ],
         'contract_purpose': [
-            'Park 1', 
+            'Auditorium 1', 
             'Vehicle 2', 
             'Lump Sum 3;Vehicle 6'
         ],
@@ -135,7 +135,7 @@ def generate_expected_final_data() -> gpd.GeoDataFrame:
             'Agency 3;Agency 6'
         ],
         'budget_code': [
-            'Park 1', 
+            'Auditorium 1', 
             'Vehicle 2', 
             'Lump Sum 3;Vehicle 6'
         ],
@@ -146,7 +146,7 @@ def generate_expected_final_data() -> gpd.GeoDataFrame:
         ],
         'bc_category': [
             'Fixed Asset',
-            'ITT, Vehicles and Equipment',
+            'ITT, Vehicles, and Equipment',
             'ITT, Vehicles, and Equipment'
         ],
         'cp_category': [
@@ -160,7 +160,7 @@ def generate_expected_final_data() -> gpd.GeoDataFrame:
             'ABCDEFG' 
         ],
         'cpdb_category': [
-            None,  
+            'None',  
             'Lump Sum',
             'Fixed Asset'
         ],

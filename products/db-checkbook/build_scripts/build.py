@@ -181,7 +181,7 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     final category assignment using high sensitivity fixed asset method
     """ 
     cols = ['cpdb_category', 'bc_category', 'cp_category']
-    cats = ['Fixed Asset', 'ITT, Vehicles and Equipment', 'Lump Sum', 'None']
+    cats = ['Fixed Asset', 'ITT, Vehicles, and Equipment', 'Lump Sum', 'None']
 
     def assign_category(row):
         for cat in cats[:3]:
