@@ -148,7 +148,7 @@ def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     :param gdf: joined checkbook nyc and cpdb data
     :return: geopandas df of joined checkbook cpdb data with cols limited/reordered
     """
-    return gdf[[
+    cols = [
         'fms_id', 
         'check_amount', 
         'contract_purpose', 
@@ -170,7 +170,10 @@ def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         'geometry',
         'cartodb_id',
         'has_geometry'
-    ]]
+    ]
+
+    filtered_cols = [col for col in cols if col in gdf.columns]
+    return gdf[filtered_cols]
 
 def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """

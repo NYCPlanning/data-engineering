@@ -8,10 +8,6 @@ from test.generate_test_data import generate_cpdb_test_data, generate_checkbook_
 CPDB_GDF_LIST = generate_cpdb_test_data()
 CHECKBOOK_TEST = generate_checkbook_test_data()
 
-@pytest.fixture
-def df_columns(df: pd.DataFrame) -> List[str]:
-    return 
-
 class TestCheckbook:
     """
     tests that validate Checkbook NYC input data,
@@ -35,17 +31,20 @@ class TestCheckbook:
         "there are null values in `fms_id` column in grouped checkbook data"
 
     def test_unique_fms_id(self):
+        # checks that all fms_ids in test grouped checkbook are unique 
         assert not self.grouped_checkbook_df['fms_id'].duplicated().any(), \
         "duplicate `fms_id`s exist in grouped checkbook data"
 
-    def test_group_checkbook_cols(self):
-        assert
-
-    def test_group_checkbook(self):
+    def test_grouped_checkbook(self):
+        # checks that the results of running checkbook cleaning and grouping on test data match the expected output 
         expected_result = self.expected_grouped_checkbook.set_index('fms_id').sort_index()
         result = self.grouped_checkbook_df.set_index('fms_id').sort_index()
         assert result.equals(expected_result), \
         "results of grouping checkbook data do not match expectations"
+
+    def test_grouped_checkbook_cols(self):
+        # checks that grouped checkbook contains the expected columns
+        assert (self.grouped_checkbook_df.columns).equals(self.expected_grouped_checkbook.columns)
 
 class TestCPDB:
     """
@@ -54,10 +53,6 @@ class TestCPDB:
     """
     cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
     expected_result = generate_expected_cpdb_join()
-
-    @pytest.mark.skip(reason="TODO define a more useful test")
-    def test_null_maprojid(self):
-        assert np.where(self.cpdb_df['maprojid'].isnull())
 
     def test_unique_maprojid(self): 
         assert not self.cpdb_df['maprojid'].duplicated().any()
@@ -93,7 +88,7 @@ class TestHistoricalLiquidations:
     historical_liquidations = _assign_final_category(clean_join).set_index('fms_id').sort_index()
     expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index()
         
-    @pytest.mark.skip(reason='TODO QA output of category assignment on budget code and contract purpose')
+    # @pytest.mark.skip(reason='TODO QA output of category assignment on budget code and contract purpose')
     def test_high_sensitivity_fixed_asset(self):
         assert self.historical_liquidations.equals(self.expected_historical_liquidations)
 
