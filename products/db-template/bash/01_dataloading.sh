@@ -18,8 +18,12 @@ run_sql_command "
 
 # Import data
 echo "Import source data ..."
-import_public dcp_zoningdistricts
-import_public dcp_cdboundaries_wi $DCP_CDBOUNDARIES_WI_VERSION
+import_public dcp_zoningdistricts &
+import_public dcp_commercialoverlay &
+import_public dcp_cb2020_wi &
+import_public dcp_ct2020_wi &
+import_public dcp_cdboundaries_wi $DCP_CDBOUNDARIES_WI_VERSION &
+import_public dpr_greenthumb
 
 python3 -m python.01_dataloading
 
