@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pytest
 
 from build_scripts.build import _group_checkbook, _clean_checkbook, _merge_cpdb_geoms, _join_checkbook_geoms, _assign_checkbook_category, _clean_joined_checkbook_cpdb, _assign_final_category 
