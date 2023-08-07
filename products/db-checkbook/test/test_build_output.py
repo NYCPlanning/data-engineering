@@ -16,7 +16,15 @@ class TestCheckbook:
     """
     cleaned_checkbook_df = _clean_checkbook(CHECKBOOK_TEST)
     grouped_checkbook_df = _group_checkbook(cleaned_checkbook_df)
-    expected_grouped_checkbook = generate_expected_grouped_checkbook()
+    expected_grouped_checkbook_df = generate_expected_grouped_checkbook()
+
+    def test_columns(self):
+        # checks that grouped checkbook contains the expected columns
+        assert (self.grouped_checkbook_df.columns).equals(self.expected_grouped_checkbook_df.columns)
+
+    def test_rows(self):
+        # checks that grouped checkbook contains the expected number of rows
+        assert self.grouped_checkbook_df.shape[0] == self.expected_grouped_checkbook_df.shape[0]
     
     def test_check_nonneg(self):
         # checks that no checks in the cleaned checkbook df are negative 
@@ -36,13 +44,9 @@ class TestCheckbook:
 
     def test_groupby(self):
         # checks that the results of running checkbook cleaning and grouping on test data match the expected output 
-        expected_result = self.expected_grouped_checkbook.set_index('fms_id').sort_index()
+        expected_result = self.expected_grouped_checkbook_df.set_index('fms_id').sort_index()
         result = self.grouped_checkbook_df.set_index('fms_id').sort_index()
         assert result.equals(expected_result)
-
-    def test_columns(self):
-        # checks that grouped checkbook contains the expected columns
-        assert (self.grouped_checkbook_df.columns).equals(self.expected_grouped_checkbook.columns)
 
 class TestCPDB:
     """
@@ -50,7 +54,13 @@ class TestCPDB:
     before joining to Checkbook NYC capital projects 
     """
     cpdb_df = _merge_cpdb_geoms(CPDB_GDF_LIST)
-    expected_result = generate_expected_cpdb_join()
+    expected_cpdb_df = generate_expected_cpdb_join()
+
+    def test_columns(self):
+        assert self.cpdb_df.columns.equals(self.expected_cpdb_df.columns)
+
+    def test_rows(self):
+        assert self.cpdb_df.shape[0] == self.expected_cpdb_df.shape[0]
 
     def test_unique_maprojid(self):
         # checks that there are no duplicate capital projects in merged cpdb 
@@ -69,12 +79,9 @@ class TestCPDB:
         """
         assert self.cpdb_df['geometry'].is_valid.all()
 
-    def test_columns(self):
-        assert self.cpdb_df.columns.equals(self.expected_result.columns)
-
-    def test_merge_cpdb_geoms(self):
+    def test_matches_expected(self):
         # checks that result of merging test cpdb data matches expected result
-        assert self.cpdb_df.equals(self.expected_result)
+        assert self.cpdb_df.equals(self.expected_cpdb_df)
 
 class TestHistoricalLiquidations:
     """
@@ -102,8 +109,10 @@ class TestHistoricalLiquidations:
     expected_historical_liquidations = generate_expected_final_data().set_index('fms_id').sort_index() # align expected and actual results rowwise
         
     def test_columns(self):
-        # check that output columns match expected
         assert self.historical_liquidations.columns.equals(self.expected_historical_liquidations.columns)
+
+    def test_rows(self):
+        assert self.historical_liquidations.shape[0] == self.expected_historical_liquidations.shape[0]
 
     def test_cp_category(self):
         assert self.historical_liquidations['cp_category'].equals(self.expected_historical_liquidations['cp_category'])
@@ -114,11 +123,14 @@ class TestHistoricalLiquidations:
     def test_cpdb_category(self):
         assert self.historical_liquidations['cpdb_category'].equals(self.expected_historical_liquidations['cpdb_category'])
 
+    def test_final_category(self):
+        assert self.historical_liquidations['final_category'].equals(self.expected_historical_liquidations['final_category'])
+
     def test_all_categories(self):
         cols = ['cpdb_category', 'bc_category', 'cp_category', 'final_category']
         assert self.historical_liquidations[cols].equals(self.expected_historical_liquidations[cols])
 
-    def test_final_category(self):
-        assert self.historical_liquidations['final_category'].equals(self.expected_historical_liquidations['final_category'])
+    def test_matches_expected(self):
+        assert self.historical_liquidations.equals(self.expected_historical_liquidations)
 
 
