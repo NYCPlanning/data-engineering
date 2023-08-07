@@ -25,6 +25,8 @@ jobs:
   branch_unit_tests:
     name: Unit tests
     runs-on: ubuntu-22.04
+    env:
+      TOY_SECRET: toy_secret_value
     container:
       image: nycplanning/build-geosupport:latest
     defaults:
