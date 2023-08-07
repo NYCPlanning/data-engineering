@@ -22,7 +22,6 @@ CPDB_GDF_LIST = generate_cpdb_test_data()
 CHECKBOOK_TEST = generate_checkbook_test_data()
 
 
-
 class TestCheckbook:
     """
     tests that validate Checkbook NYC input data,
