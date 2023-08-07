@@ -195,7 +195,6 @@ def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     filtered_cols = [col for col in cols if col in gdf.columns]
     return gdf[filtered_cols]
 
-
 def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     return: geopandas gdf with merged checkbook cpdb data and

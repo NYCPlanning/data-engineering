@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./db-zoningtaxlots
+        working-directory: products/db-zoningtaxlots
     services:
       db:
         image: postgis/postgis:14-3.3-alpine

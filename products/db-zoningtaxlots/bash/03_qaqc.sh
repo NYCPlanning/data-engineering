@@ -2,10 +2,10 @@
 source bash/config.sh
 
 run_sql_file sql/export.sql
-psql ${EDM_DATA} -v VERSION=${VERSION} -f sql/qaqc/frequency.sql
-psql ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} -f sql/qaqc/bbl.sql
-psql ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} -f sql/qaqc/mismatch.sql
-psql ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} -f sql/qaqc/out_bbldiffs.sql | 
+psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -f sql/qaqc/frequency.sql
+psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/bbl.sql
+psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/mismatch.sql
+psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/out_bbldiffs.sql | 
     psql ${BUILD_ENGINE} -f sql/qaqc/in_bbldiffs.sql
 
 rm -rf output && mkdir -p output
@@ -48,10 +48,10 @@ rm -rf output && mkdir -p output
     wait
 )
 
-psql -q ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} \
+psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} \
     -f sql/qaqc/versioncomparison.sql > output/qc_versioncomparison.csv
 
-psql -q ${EDM_DATA} -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV} \
+psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} \
     -f sql/qaqc/null.sql > output/qaqc_null.csv
 
 upload db-zoningtaxlots ${DATE}
