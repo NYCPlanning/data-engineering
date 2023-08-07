@@ -63,6 +63,7 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'template')
     uses: ./.github/workflows/template_test.yml
+    secrets: inherit
   cbbr:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'cbbr')
