@@ -32,7 +32,7 @@ jobs:
         with:
           # name of the dataset
           name: ${{ matrix.dataset }}
-          path: db-developments/templates/${{ matrix.dataset }}.yml
+          path: products/db-developments/templates/${{ matrix.dataset }}.yml
           s3: true
           latest: true
           compress: true
