@@ -15,6 +15,11 @@ LIB_DIR = _product_path / ".library"
 OUTPUT_DIR = _product_path / ".output"
 SQL_QUERY_DIR = _product_path / "sql_query"
 
+SOURCE_DATA_VERSIONS_FILENAME = "source_data_versions.csv"
+BUILD_OUTPUT_FILENAME = "historical_spend.csv"
+SUMMARY_STATS_DESCRIBE_FILENAME = "historical_spend_stats.csv"
+SUMMARY_STATS_LOG_FILENAME = "build_summarization.log"
+
 if not os.path.isdir(LIB_DIR):
     os.makedirs(LIB_DIR)
 

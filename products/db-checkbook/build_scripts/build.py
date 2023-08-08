@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from sqlalchemy import create_engine, text
 
-from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR
+from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME
 
 DB_URL = "sqlite:///checkbook.db"
 ENGINE = create_engine(DB_URL)
@@ -232,7 +232,7 @@ def run_build() -> None:
     print("_assign_final_category ...")
     final_data = _assign_final_category(cleaned_data)
     print("save temp csv ...")
-    fp = OUTPUT_DIR / "historical_spend.csv"
+    fp = OUTPUT_DIR / BUILD_OUTPUT_FILENAME
     final_data.to_csv(fp)
 
 
