@@ -209,7 +209,7 @@ class Runner:
         if self.name == "dcp_projects":
             print("recode_id ...")
             recode_table_name = f"{self.name}_recoded"
-            
+
             print("pd.read_sql ...")
             df = pd.read_sql(
                 "select * from %(name)s"
@@ -243,7 +243,9 @@ class Runner:
                 source_table_name,
                 output_file_internal,
             )
-            print(f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ...")
+            print(
+                f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ..."
+            )
             self.sql_to_csv(
                 source_table_name,
                 output_file_data_library,
@@ -251,12 +253,16 @@ class Runner:
         else:
             source_table_name = f"{self.name}_recoded"
 
-            print(f"self.sql_to_csv from {source_table_name} to {output_file_internal} ...")
+            print(
+                f"self.sql_to_csv from {source_table_name} to {output_file_internal} ..."
+            )
             self.sql_to_csv(
                 source_table_name,
                 output_file_internal,
             )
-            print(f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ...")
+            print(
+                f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ..."
+            )
             self.sql_to_csv(
                 source_table_name,
                 output_file_data_library,
@@ -265,7 +271,9 @@ class Runner:
             source_table_name = f"{self.name}_visible"
             output_file_visible = f"{self.output_dir}/{self.name}_visible"
 
-            print(f"self.sql_to_csv from {source_table_name} to {output_file_visible} ...")
+            print(
+                f"self.sql_to_csv from {source_table_name} to {output_file_visible} ..."
+            )
             make_open_data_table(self.engine, self.name)
             self.sql_to_csv(
                 source_table_name,

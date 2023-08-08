@@ -2,6 +2,7 @@ import logging
 import os
 import pandas as pd
 
+
 def create_logger(logger_name, file_name) -> logging.Logger:
     if not os.path.exists(".logs/"):
         os.makedirs(".logs/")
