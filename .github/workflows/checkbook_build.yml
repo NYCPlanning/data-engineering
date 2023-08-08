@@ -34,6 +34,10 @@ jobs:
           python3 -m build_scripts.dataloading
           python3 -m build_scripts.build
 
+      - name: Run summarization
+        run: |
+          python3 -m build_scripts.summarization
+
       - name: Run export
         if: inputs.run_export
         run: |
