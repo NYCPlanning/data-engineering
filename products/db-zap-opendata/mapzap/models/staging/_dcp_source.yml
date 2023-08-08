@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: zap_projects
+    schema: dcp_projects
+    tables:
+      - name: "20230607_test_recoded"
+
+  - name: zap_bbls
+    schema: dcp_projectbbls
+    tables:
+      - name: "20230526"
+  
+  - name: zoning_map_amendments
+    schema: dcp_zoningmapamendments
+    tables:
+      - name: "20230519_internal"
+
+  - name: map_pluto
+    schema: dcp_mappluto
+    tables:
+      - name: 02b
+      - name: 03c
+      - name: 04c
+      - name: 05d
+      - name: 06c
+      - name: 07c
+      - name: 08b
+      - name: 09v1
+      - name: 10v1
+      - name: 11v1
+      - name: 12v1
+      - name: 13v1
+      - name: 14v1
+      - name: 15v1
+      - name: 16v1
+      - name: 17v1
+      - name: 18v1_1
+      - name: 19v1
+      - name: 20v8
+      - name: 21v3
+      - name: 22v2

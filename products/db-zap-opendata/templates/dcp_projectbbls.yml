@@ -1,0 +1,32 @@
+dataset:
+  name: &name dcp_projectbbls
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: /.output/dcp_projectbbls/dcp_projectbbls.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## dcp_projectbbls
+      This table has info on the BBLs involved in each project
+    url: null
+    dependents: []

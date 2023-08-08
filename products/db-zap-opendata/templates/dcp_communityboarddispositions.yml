@@ -1,0 +1,30 @@
+dataset:
+  name: &name dcp_communityboarddispositions
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: /.output/dcp_communityboarddispositions/dcp_communityboarddispositions.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+  info:
+    description: |
+      ## dcp_communityboarddispositions
+    url: null
+    dependents: []

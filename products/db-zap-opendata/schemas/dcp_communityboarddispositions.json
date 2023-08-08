@@ -1,0 +1,347 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "statecode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_votelocation",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_documentprocessingstatus",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dispositionprojectname",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_consideration",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_representing",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_wasaquorumpresent",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_communityboardrecommendation",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ulurpnonulurp",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_communitydistricts",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_votingagainstrecommendation",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_ownerid_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "modifiedon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_totalmembersappointedtotheboard",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "versionnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_visibility",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "createdon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dateofvote",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ceqrnumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_spabsoluteurl",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "timezoneruleversionnumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_nameofpersoncompletingthisform",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statuscode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_project_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_workflowtriggerfield",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_communityboarddispositionid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_datereceived",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_votinginfavorrecommendation",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_projectaction_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ulurpnumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningbusinessunit_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owninguser_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_recommendationsubmittedby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_votingabstainingonrecommendation",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_areyouproposingamodification",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_cpcreportfileddate",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_statedmeetingcallupdate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_citycouncilresolutionnumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_cpcreport",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dateofpublichearing",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ispublichearingrequired",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_requestedcitycouncilactionexplain",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_borough",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_autoorcallup",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_boroughpresidentrecommendation",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_title",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_citycouncilresolutionreport",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_communityboard",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_citycouncilvote",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "processid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "importsequencenumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_sharepointabsoluteurl",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_lucallupnumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "utcconversiontimezonecode",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "traversedpath",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_boroughboardrecommendation",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningteam_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_publichearinglocation",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_docketdescription",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "overriddencreatedon",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_compliancenote",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_stageid_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_statedmeetingvotedate",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_requestedcitycouncilaction",
+    "type": "STRING"
+  }
+]

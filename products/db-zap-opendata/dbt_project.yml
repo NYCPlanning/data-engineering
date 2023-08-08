@@ -1,0 +1,43 @@
+name: "dbt_mapzap"
+version: "1.0.0"
+config-version: 2
+
+profile: "dbt_mapzap"
+
+model-paths: ["mapzap/models"]
+seed-paths: ["mapzap/seeds"]
+test-paths: ["mapzap/tests"]
+docs-paths: ["docs"]
+
+clean-targets:
+  - "target"
+
+seeds:
+  +quote_columns: false
+
+models:
+  dbt_mapzap:
+    staging:
+      +materialized: view
+      +docs:
+        node_color: "#6977cf"
+      base:
+        +materialized: view
+        +docs:
+          node_color: "#8896f5"
+    intermediate:
+      +materialized: view
+      +docs:
+        node_color: "#7da74a"
+    marts:
+      +materialized: table
+      +docs:
+        node_color: "#c3783c"
+    summary:
+      +materialized: view
+      +docs:
+        node_color: "#c75580"
+
+tests:
+  +store_failures: true
+  +schema: test_results

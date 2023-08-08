@@ -1,0 +1,22 @@
+version: 2
+
+seeds:
+  - name: seed_pluto_versions
+    description: "The most usable version of PLUTO for each available year"
+    columns:
+      - name: year
+        tests:
+          - unique
+          - not_null
+      - name: primary_pluto_version
+        tests:
+          - unique
+          - not_null
+      - name: has_bbl
+        description: "Whether the version of PLUTO has a BBL field"
+        tests:
+          - not_null
+      - name: has_wkt_geometry
+        description: "Whether the version of PLUTO has BBL geometries"
+        tests:
+          - not_null

@@ -1,0 +1,38 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/postgres
+{
+	"name": "ZAP Opendata (Python 3)",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"redhat.vscode-yaml",
+				"bierner.markdown-preview-github-styles",
+				"bierner.markdown-mermaid",
+				"yzhang.markdown-all-in-one",
+				"mechatroner.rainbow-csv",
+				"janisdd.vscode-edit-csv",
+				"dorzey.vscode-sqlfluff",
+				"github.vscode-github-actions",
+				"bungcip.better-toml",
+				"innoverio.vscode-dbt-power-user"
+			]
+		}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// This can be used to network with other containers or the host.
+	"forwardPorts": [
+		5432
+	],
+	// Use 'initializeCommand' to run commands on the host machine before the container is created.
+	"initializeCommand": "${localWorkspaceFolder}/.devcontainer/initializeCommand.sh",
+	"runArgs": [
+		"--env-file",
+		"${localWorkspaceFolder}/.devcontainer/.env"
+	]
+}

@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: stg_dcp__zap_projects
+    description: "ZAP projects"
+    columns:
+      - name: project_id
+        description: '{{ doc("project_id") }}'
+        tests:
+          - not_null
+          - unique
+      - name: dcp_name
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: project_certified_referred_date
+        description: '{{ doc("project_certified_referred_date") }}'
+      - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
+      - name: applicant_type
+      - name: ulurp_type
+      - name: ulurp_numbers
+      - name: ceqr_number
+      - name: ceqr_type
+      - name: project_status
+      - name: public_status
+      - name: action_codes
+      - name: lead_division
+      - name: fema_flood_zone_v
+      - name: fema_flood_zone_coastal
+      - name: wrp_review_required
+      - name: current_zoning_district
+      - name: proposed_zoning_district
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - project_id
+            - project_certified_referred_date
+
+  - name: stg_dcp__zap_bbls
+    description: "ZAP project BBL details"
+    columns:
+      - name: project_id
+        description: '{{ doc("project_id") }}'
+        tests:
+          - not_null
+      - name: project_bbl
+        description: '{{ doc("project_bbl") }}'
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - project_id
+            - project_bbl
+
+  - name: stg_dcp__zoning_map_amendments
+    description: "Zoning map amendments"
+    columns:
+      - name: ulurp_number
+        tests:
+          - not_null
+          - unique
+      - name: tracking_number
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: wkt
+
+  - name: base_dcp__pluto_with_bbls
+    description: "MapPLUTO records which already have BBL values"
+    columns:
+      - name: pluto_version
+      - name: bbl
+      - name: wkt
+
+  - name: base_dcp__pluto_without_bbls
+    description: "MapPLUTO records which have Borough, Block, and Lot values"
+    columns:
+      - name: pluto_version
+      - name: borocode
+      - name: block
+      - name: lot
+      - name: wkt
+
+  - name: stg_dcp__pluto_bbls
+    description: "MapPLUTO records with BBls and WKT geometries"
+    columns:
+      - name: pluto_year
+      - name: pluto_version
+      - name: bbl
+      - name: wkt
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pluto_version
+            - bbl

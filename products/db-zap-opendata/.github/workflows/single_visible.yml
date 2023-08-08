@@ -1,0 +1,61 @@
+name: Export Single Open Dataset from CRM to DO
+run-name: Export ${{ inputs.dataset }}
+
+on:
+  workflow_dispatch:
+    inputs:
+        dataset:
+          description: 'Name of the dataset'
+          required: true
+          type: choice
+          default: dcp_projects
+          options:
+            - dcp_projects
+            - dcp_projectbbls
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      SECRET: ${{ secrets.SECRET }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
+      ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+      ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_LIBRARY_BUCKET: edm-recipes
+      EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+      - name: Install Dependencies
+        run: ./bash/setup_build_env.sh
+
+      - name: Set Version info
+        id: version
+        run: |
+          DATE=$(date +%Y%m%d)
+          echo "version=$DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Mini IO
+        run: |
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv ./mc /usr/bin
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: Get ${{ github.event.inputs.dataset }}
+        run: python3 -m src.runner ${{ github.event.inputs.dataset }} $EDM_DATA_ZAP_SCHEMA
+
+      - name: Export open data to edm-publishing
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "exporting ${{ github.event.inputs.dataset }} with version $VERSION"
+          ./zap.sh upload_do ${{ github.event.inputs.dataset }} $VERSION

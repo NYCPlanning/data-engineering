@@ -1,0 +1,327 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_milestonesequence",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_milestonetype",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statuscode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "createdon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_isadhocprojectmilestone",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "importsequencenumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_endofprecertification",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statecode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_parallelmilestone",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_legalduration",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_ownerid_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "modifiedon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_plannedstartdate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "versionnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_milestone_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_plannedcompletiondate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "timezoneruleversionnumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_goaldurationcalculated",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_enableholidaycalendar",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_project_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningteam_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_sequence",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_goalduration",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_isreviewmeetingdateoverridden",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_reviewmeetingdate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningbusinessunit_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_override",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projectmilestoneid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_milestonephase",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actualstartdate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_legalenddate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_warningdurationcalcutated",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_remainingplanneddayscalculated",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owninguser_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_migratedlastceqrstatusupdateddate",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_nextceqrmilestone_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actualnumbersofreviews",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_prefix",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actualdurationasoftoday",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_migratedlaststatusupdateddate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_timerflag",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_milestoneoutcome_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_numberofrevisions",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actualenddate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_projectaction_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_sharepointabsoluteurl",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "utcconversiontimezonecode",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actualduration",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_goaldate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_precedingmilestone_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_remainingplanneddays",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_nextlumilestone_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projecttype",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_cpcmeeting_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "overriddencreatedon",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dmsourceid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_goalduration2",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_goalduration3",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_spabsoluteurl",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_warningduration",
+    "type": "FLOAT"
+  }
+]

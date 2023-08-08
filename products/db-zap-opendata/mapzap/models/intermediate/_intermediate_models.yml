@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: int_zap_project_bbls
+    description: "The BBLs associated with a ZAP project"
+    columns:
+      - name: project_id
+      - name: project_name
+      - name: project_certified_referred_date
+      - name: project_certified_referred_year
+      - name: project_bbl
+
+  - name: int_zap_project_bbl_geometries
+    description: "ZAP projects with geometries from MapPLUTO"
+    columns:
+      - name: project_id
+      - name: project_name
+      - name: project_certified_referred_date
+      - name: project_certified_referred_year
+      - name: pluto_version
+      - name: project_bbl
+      - name: bbl_geometry_wkt
+
+  - name: int_zap_project_map_geometries
+    description: "ZAP projects with geometries from the Zoning Map Amendment"
+    columns:
+      - name: project_id
+      - name: project_name
+      - name: ulurp_number
+      - name: tracking_number
+      - name: wkt
