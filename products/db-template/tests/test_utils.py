@@ -1,10 +1,16 @@
+import os
 import geopandas as gpd
 import pandas as pd
 import pytest
 
 from python.utils import load_data_file, load_geodata_url, load_shapefile
 
+TOY_SECRET = os.environ["TOY_SECRET"]
 TEST_DATA_PATH = "tests/test_data"
+
+
+def test_use_of_github_secret():
+    assert TOY_SECRET == "toy_secret_value"
 
 
 def test_load_data_file_csv():
