@@ -1,5 +1,5 @@
 import os
-from dcpy.connectors.s3 import client
+from dcpy.utils.s3 import client
 
 from . import (
     S3_SOURCE_BUCKET,

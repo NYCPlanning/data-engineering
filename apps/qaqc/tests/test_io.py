@@ -1,5 +1,5 @@
 # test s3 and sql data IO
-from dcpy.connectors.postgres import get_table_columns
+from dcpy.utils.postgres import get_table_columns
 from dcpy.connectors.edm.recipes import get_config
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
 

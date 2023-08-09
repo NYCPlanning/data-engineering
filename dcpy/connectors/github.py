@@ -42,7 +42,7 @@ def get_workflow(repo, name):
     return r.json()
 
 
-def __get_workflow_runs_helper(url, params=None):
+def _get_workflow_runs_helper(url, params=None):
     response = requests.get(url, headers=headers, params=params).json()
     if "workflow_runs" in response:
         return response["workflow_runs"]
@@ -66,7 +66,7 @@ def get_workflow_runs(
         total_items is not None and len(workflows) < total_items
     ):
         page += 1
-        res = __get_workflow_runs_helper(
+        res = _get_workflow_runs_helper(
             url, params={"per_page": items_per_page, "page": page}
         )
         workflows += res

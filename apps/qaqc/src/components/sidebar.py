@@ -1,6 +1,6 @@
 import streamlit as st
 
-from dcpy.connectors import s3
+from dcpy.utils import s3
 from src.report_utils import get_active_s3_folders
 
 

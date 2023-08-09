@@ -1,6 +1,6 @@
 from functools import wraps
 from sqlalchemy import dialects
-from dcpy.connectors import postgres
+from dcpy.utils import postgres
 from facdb import BUILD_ENGINE
 from sqlalchemy import create_engine
 

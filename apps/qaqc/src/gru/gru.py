@@ -1,7 +1,7 @@
 def gru():
     import streamlit as st
     import time
-    from dcpy.git.github import workflow_is_running
+    from dcpy.connectors.github import workflow_is_running
     from src.gru.constants import readme_markdown_text, tests
     from src.gru.helpers import (
         get_qaqc_runs,

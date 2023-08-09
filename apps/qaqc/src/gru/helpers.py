@@ -6,7 +6,7 @@ import streamlit as st
 import requests
 import re
 
-from dcpy.git import github
+from dcpy.connectors import github
 from dcpy.connectors.edm import recipes
 from .constants import tests
 

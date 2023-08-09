@@ -4,7 +4,7 @@ import boto3
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from dcpy.connectors.s3 import download_file
+from dcpy.utils.s3 import download_file
 
 from . import LIB_DIR, OUTPUT_DIR
 

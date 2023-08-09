@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import typer
 
-from dcpy.connectors import postgres
+from dcpy.utils import postgres
 from .utility.prepare import read_datasets_yml
 from .utility.metadata import dump_metadata
 

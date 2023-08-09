@@ -1,7 +1,7 @@
 from datetime import date
 from pathlib import Path
 from dcpy.connectors.edm.publishing import upload
-from dcpy.git.git import git_branch
+from dcpy.utils.git import git_branch
 
 from . import (
     OUTPUT_DIR,

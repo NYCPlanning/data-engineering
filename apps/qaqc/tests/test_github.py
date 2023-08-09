@@ -1,4 +1,4 @@
-from dcpy.git.github import get_default_branch, get_branches
+from dcpy.connectors.github import get_default_branch, get_branches
 
 TEST_REPO = "data-engineering-qaqc"
 
