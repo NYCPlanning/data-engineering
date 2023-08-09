@@ -1,6 +1,5 @@
 #!/bin/bash
 source ../../bash/utils.sh
-source bash/config.sh
 set_error_traps
 
 # Create functions and procedures
