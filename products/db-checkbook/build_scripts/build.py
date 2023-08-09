@@ -85,6 +85,7 @@ def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
     """
     :return: checkbook nyc data grouped by capital project
     """
+
     def fn_join_vals(x):
         return ";".join([y for y in list(x) if pd.notna(y)])
 
