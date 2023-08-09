@@ -221,7 +221,7 @@ def run_build() -> None:
     print("read in source data...")
     raw_checkbook = _read_checkbook()
     cpdb_list = _read_all_cpdb_geoms()
-    print('_clean_checkbook...')
+    print("_clean_checkbook...")
     clean_checkbook = _clean_checkbook(raw_checkbook)
     print("merge and group source data ...")
     cpdb_geoms = _merge_cpdb_geoms(cpdb_list)
