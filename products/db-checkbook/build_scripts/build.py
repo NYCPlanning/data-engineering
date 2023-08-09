@@ -133,7 +133,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
     with ENGINE.connect() as conn:
         df.to_sql("capital_projects", ENGINE, if_exists="replace", index=False)
         for k, v in target_cols.items():
-            with open(sql_dir / "query.sql", "r") as query_file:
+            with open(sql_dir / "categorization.sql", "r") as query_file:
                 query = query_file.read()
             query = query.replace("COLUMN", k)
             query = query.replace("col_category", v)
