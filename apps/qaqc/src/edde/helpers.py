@@ -1,7 +1,7 @@
 import pandas as pd
 from itertools import groupby
 import re
-from dcpy.connectors import s3
+from dcpy.utils import s3
 
 REPO_NAME = "db-equitable-development-tool"
 S3_FOLDER_NAME = "db-eddt"

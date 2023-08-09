@@ -6,7 +6,7 @@ from typing import Dict
 from dotenv import load_dotenv
 import streamlit as st
 
-from dcpy.connectors import s3
+from dcpy.utils import s3
 from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()

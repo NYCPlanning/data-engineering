@@ -2,7 +2,7 @@ from pathlib import Path
 import requests
 import pandas as pd
 
-from dcpy.connectors import s3
+from dcpy.utils import s3
 
 BUCKET = "edm-publishing"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"

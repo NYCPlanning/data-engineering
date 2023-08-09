@@ -1,5 +1,5 @@
 import streamlit as st
-from dcpy.git.github import dispatch_workflow
+from dcpy.connectors.github import dispatch_workflow
 
 
 def dispatch_workflow_button(

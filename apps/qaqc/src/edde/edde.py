@@ -1,6 +1,6 @@
 import streamlit as st
 
-from dcpy.git.github import get_default_branch
+from dcpy.connectors.github import get_default_branch
 from src.constants import COLOR_SCHEME
 from src.edde.helpers import (
     REPO_NAME,

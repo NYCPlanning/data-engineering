@@ -1,6 +1,6 @@
 import streamlit as st
-from dcpy.git import github
-from dcpy.connectors import s3
+from dcpy.connectors import github
+from dcpy.utils import s3
 
 
 @st.cache_data

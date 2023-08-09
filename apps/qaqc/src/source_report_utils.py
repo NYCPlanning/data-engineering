@@ -1,7 +1,7 @@
 # functions used to generate source data reports
 import pandas as pd
 from dcpy.connectors.edm import recipes, publishing
-from dcpy.connectors.postgres import (
+from dcpy.utils.postgres import (
     create_sql_schema,
     load_data_from_sql_dump,
     get_schemas,

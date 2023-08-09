@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 import time
 
-from dcpy.git.github import workflow_is_running
+from dcpy.connectors.github import workflow_is_running
 from src.github import dispatch_workflow_button
 from src.gru.constants import tests
 from src.gru.helpers import get_source_versions, get_geosupport_versions

@@ -3,9 +3,9 @@ from datetime import date
 from typing import Tuple
 from pathlib import Path
 
-from dcpy.connectors import s3
+from dcpy.utils import s3
 from dcpy.connectors.edm.publishing import upload
-from dcpy.git.git import git_branch
+from dcpy.utils.git import git_branch
 
 from pipelines import PRODUCT_PATH
 
