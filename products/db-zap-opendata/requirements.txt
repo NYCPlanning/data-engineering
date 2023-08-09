@@ -261,7 +261,7 @@ sqlalchemy==2.0.15
     # via db-zap-opendata (pyproject.toml)
 sqlfluff==2.1.1
     # via db-zap-opendata (pyproject.toml)
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via dbt-core
 tblib==1.7.0
     # via sqlfluff
