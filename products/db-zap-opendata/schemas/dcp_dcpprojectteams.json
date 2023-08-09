@@ -1,0 +1,137 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "statecode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statuscode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dcpprojectteamid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "createdon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "overriddencreatedon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_ownerid_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "modifiedon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "versionnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dmsourceid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "timezoneruleversionnumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_status",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_division",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_project_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_isupdated",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projectrole",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningbusinessunit_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_user_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owninguser_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projectteamrolecomplexity",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "importsequencenumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "utcconversiontimezonecode",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningteam_value",
+    "type": "STRING"
+  }
+]

@@ -1,0 +1,177 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "statecode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statuscode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "createdon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_developmentsite",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_userinputborough",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_userinputlot",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_bblvalidateddate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_ownerid_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_bblnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "modifiedon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_userinputblock",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "versionnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "timezoneruleversionnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_validatedborough",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_project_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_bblvalidated",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projectbblid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_partiallot",
+    "type": "BOOLEAN"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_validatedlot",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_validatedblock",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningbusinessunit_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owninguser_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "overriddencreatedon",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "importsequencenumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_responsewarning",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_bblgeometry",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "utcconversiontimezonecode",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_responseerror",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dmsourceid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningteam_value",
+    "type": "STRING"
+  }
+]

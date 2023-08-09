@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: mapzap
+    description: "ZAP project details and geometry"
+    columns:
+      - name: project_id
+        description: '{{ doc("project_id") }}'
+        tests:
+          - unique
+          - not_null
+      - name: dcp_name
+      - name: project_name
+        description: '{{ doc("project_name") }}'
+      - name: project_certified_referred_date
+        description: '{{ doc("project_certified_referred_date") }}'
+      - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
+      - name: project_bbls
+        description: '{{ doc("project_bbls") }}'
+      - name: pluto_version
+      - name: applicant_type
+      - name: ulurp_type
+      - name: ulurp_numbers
+      - name: ceqr_number
+      - name: ceqr_type
+      - name: project_status
+      - name: public_status
+      - name: action_codes
+      - name: map_amendment_ulurp_numner
+      - name: has_bbls_geometry
+      - name: map_amendment_project_name
+      - name: has_map_amendment_geometry
+      - name: geometry_source
+      - name: bbl_areas_sum
+      - name: project_area
+      - name: wkt
+      # columns not in new recoded source data, but desired in output
+      # - name: lead_division
+      # - name: current_zoning_district
+      # - name: proposed_zoning_district
+      # - name: wrp_review_required
+      # - name: fema_flood_zone_coastal
+      # - name: fema_flood_zone_v

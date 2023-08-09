@@ -1,0 +1,71 @@
+name: Branch tests
+run-name: Tests (${{ github.event_name }})
+
+on: [pull_request, workflow_dispatch]
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
+  TENANT_ID: ${{ secrets.TENANT_ID }}
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  SECRET: ${{ secrets.SECRET }}
+  ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+  TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
+
+jobs:
+  branch_unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Setup build environment
+        run: |
+          ./bash/setup_build_env.sh
+
+      - name: Run python unit tests
+        run: |
+          python3 -m pytest -m "not integration" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
+
+  branch_integration_tests:
+    name: Integration tests
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+
+    - name: Setup build environment
+      run: |
+        ./bash/setup_build_env.sh
+
+    - name: Run python integration tests
+      run: |
+        echo "🚨 These tests may take ~5 minutes"
+        python3 -m pytest -m "integration" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
+
+  branch_build_mapzap_tests:
+    name: Build MapZAP test run
+    uses: ./.github/workflows/build_mapzap.yml
+    secrets: inherit
+
+  branch_dev_container_tests:
+    name: Dev container tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and run dev container task
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            echo "Dev Container is in CI? $CI"
+            gcloud version
+            python3 --version
+            pip list

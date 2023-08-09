@@ -1,0 +1,53 @@
+repos:
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v1.1.0
+    hooks:
+      # # Phase 1
+      - id: check-model-has-description
+      - id: check-column-desc-are-same
+      # skipping due to incorrect failure in for-loops using pluto_table
+      # - id: check-script-ref-and-source
+      # skipping due to incorrect failure on EXTRACT function
+      # - id: check-script-has-no-table-name
+
+      # Phase 2
+      # requires `compile` and `docs generate`)
+      - id: dbt-clean
+      - id: dbt-compile
+      - id: dbt-docs-generate
+      
+      - id: check-script-semicolon
+      - id: check-column-name-contract
+        args: [--pattern, "(is|has|do)_.*", --dtype, BOOL]
+
+      # Models - staging
+      - id: check-model-name-contract
+        name: Staging - Check model names
+        files: models/staging/
+        args: [--pattern, "(base_|stg_).*"]
+      - id: check-model-has-all-columns
+        name: Staging - Check columns are in properties file
+        files: ^mapzap/models/staging
+
+      # Models - intermediate
+      - id: check-model-name-contract
+        name: intermediate - Check model names
+        files: models/intermediate/
+        args: [--pattern, "(int_).*"]
+      - id: check-model-has-all-columns
+        name: intermediate - Check columns are in properties file
+        files: ^mapzap/models/intermediate
+
+      # Models - marts
+      - id: check-model-has-all-columns
+        name: marts - Check columns are in properties file
+        files: ^mapzap/models/marts
+      
+      # Models - summary
+      - id: check-model-name-contract
+        name: summary - Check model names
+        files: models/summary/
+        args: [--pattern, "(summary_).*"]
+      - id: check-model-has-all-columns
+        name: summary - Check columns are in properties file
+        files: ^mapzap/models/summary

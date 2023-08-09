@@ -1,0 +1,31 @@
+dataset:
+  name: &name dcp_projects
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: /.output/dcp_projects/dcp_projects.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## dcp_projects
+    url: null
+    dependents: []

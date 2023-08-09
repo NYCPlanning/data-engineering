@@ -1,0 +1,282 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "_owningbusinessunit_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_action_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_borough",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_date",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statuscode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actionhierarchy",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_project_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_dmsourceid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_ownerid_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ulurpnumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "modifiedon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owninguser_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "versionnumber",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ulurpnonulurp",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "createdon",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "statecode",
+    "type": "INTEGER"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projectactionid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_zrmodifyingzrtxt",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_cpcreportlink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_boroughboardrecommendationslink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_citycouncilvoteoutcome",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_citymaplink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_trdstaff_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_isthistheleadaction",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actiongeometry",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_boroughpresidentrecommendationslink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_boroughstaff_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "overriddencreatedon",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_sharepointabsoluteurl",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ulurpfee",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "importsequencenumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_spabsoluteurl",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_modifiedonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_sketchmaplink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_communityboardrecommendationslink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_migratedlastupdateddate",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_historiczoningresolutionsectionnumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_actiongeometrysource",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_zoningresolution_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_docket",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_modifyingzr_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "utcconversiontimezonecode",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_prefix",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_projectactionstatusdate",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_location",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_citycouncilreportlink",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_dcp_counsel_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_createdonbehalfby_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_ccresolutionnumber",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_cityclerknumber",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "dcp_comment",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "_owningteam_value",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "timezoneruleversionnumber",
+    "type": "FLOAT"
+  }
+]

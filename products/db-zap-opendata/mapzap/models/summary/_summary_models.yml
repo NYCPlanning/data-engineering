@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: summary_geometry_sources
+    description: "Summary of MapZAP record geometry sources"
+    columns:
+      - name: geometry_source
+      - name: geometry_source_count
+      - name: geometry_count
+
+  - name: summary_mapzap_bbls
+    description: "Summary of MapZAP records with BBLs"
+    columns:
+      - name: project_certified_referred_year
+        description: '{{ doc("project_certified_referred_year") }}'
+      - name: pluto_version
+      - name: project_count
+      - name: projects_with_no_bbl
+      - name: percent_projects_with_no_bbl
+      - name: projects_with_no_geometry
+      - name: percent_projects_with_no_geometry
+      - name: projects_with_bbl_and_no_geometry
+      - name: percent_projects_with_bbl_and_no_geometry
