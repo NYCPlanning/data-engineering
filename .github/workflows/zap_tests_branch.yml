@@ -53,7 +53,7 @@ jobs:
 
   branch_build_mapzap_tests:
     name: Build MapZAP test run
-    uses: ./.github/workflows/build_mapzap.yml
+    uses: ./.github/workflows/zap_build_mapzap.yml
     secrets: inherit
 
   branch_dev_container_tests:
