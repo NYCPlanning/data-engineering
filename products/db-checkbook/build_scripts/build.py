@@ -81,7 +81,7 @@ def _clean_checkbook(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _group_checkbook(data: pd.DataFrame = None) -> pd.DataFrame:
+def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
     """
     :return: checkbook nyc data grouped by capital project
     """
@@ -221,9 +221,11 @@ def run_build() -> None:
     print("read in source data...")
     raw_checkbook = _read_checkbook()
     cpdb_list = _read_all_cpdb_geoms()
+    print('_clean_checkbook...')
+    clean_checkbook = _clean_checkbook(raw_checkbook)
     print("merge and group source data ...")
     cpdb_geoms = _merge_cpdb_geoms(cpdb_list)
-    grouped_checkbook = _group_checkbook(raw_checkbook)
+    grouped_checkbook = _group_checkbook(clean_checkbook)
     print("_assign_checkbook_category ...")
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
     print("_join_checkbook_geoms ...")
