@@ -1,6 +1,5 @@
 #!/bin/bash
 source ../../bash/utils.sh
-source bash/config.sh
 set_error_traps
 max_bg_procs 5
 
@@ -29,23 +28,24 @@ do
     run_sql_file data/processed/$f
 done
 
+create_source_data_table
 
 # Load ZAP tables
-import_private dcp_projects &
-import_private dcp_projectactions &
-import_private dcp_projectbbls &
-import_private dcp_dcpprojectteams &
+import_recipe dcp_projects &
+import_recipe dcp_projectactions &
+import_recipe dcp_projectbbls &
+import_recipe dcp_dcpprojectteams &
 
 # Load other tables
-import_public dcp_mappluto_wi &
-import_public dcp_boroboundaries & 
-import_public dcp_housing &
-import_public dcp_zoningmapamendments &
+import_recipe dcp_mappluto_wi &
+import_recipe dcp_boroboundaries & 
+import_recipe dcp_housing &
+import_recipe dcp_zoningmapamendments &
 
 # Add SCA Geometry Aggregate Tables
-import_public doe_eszones &
-import_public doe_school_subdistricts & 
-import_public dcp_school_districts
+import_recipe doe_eszones &
+import_recipe doe_school_subdistricts & 
+import_recipe dcp_school_districts
 wait
 
 # Load corrections tables

@@ -1,6 +1,6 @@
 #!/bin/bash
-set -e
-source bash/config.sh
+source ../../bash/utils.sh
+set_error_traps
 
 echo "Generate output tables"
 run_sql_file sql/_export.sql
@@ -28,9 +28,9 @@ mkdir -p output
 
     (
         cd review
-        SHP_export combined MULTIPOLYGON &
-        SHP_export review_project MULTIPOLYGON &
-        SHP_export review_dob MULTIPOLYGON 
+        shp_export combined MULTIPOLYGON &
+        shp_export review_project MULTIPOLYGON &
+        shp_export review_dob MULTIPOLYGON 
         wait
 
         run_sql_command "ALTER TABLE review_project DROP COLUMN geom;" &
@@ -38,20 +38,24 @@ mkdir -p output
         run_sql_command "ALTER TABLE combined DROP COLUMN geom;"
         wait 
         
-        CSV_export combined &
-        CSV_export review_project &
-        CSV_export review_dob &
-        CSV_export corrections_applied &
-        CSV_export corrections_not_applied &
-        CSV_export corrections_zap &
-        CSV_export corrections_dob_match &
-        CSV_export corrections_project &
-        CSV_export corrections_main
+        csv_export combined &
+        csv_export review_project &
+        csv_export review_dob &
+        csv_export corrections_applied &
+        csv_export corrections_not_applied &
+        csv_export corrections_zap &
+        csv_export corrections_dob_match &
+        csv_export corrections_project &
+        csv_export corrections_main
         wait
         
-        Compress combined.csv
-        Compress review_dob.csv
-        Compress review_project.csv
+        echo "Compress large csvs"
+        zip -9 combined.zip combined.csv
+        rm combined.csv
+        zip -9 review_dob.zip review_dob.csv
+        rm review_dob.csv
+        zip -9 review_project.zip review_project.csv
+        rm review_project.csv
     )
     echo "Compress review folder"
     zip -r review.zip review/
@@ -60,9 +64,9 @@ mkdir -p output
     echo "Export SCA aggregate tables"
     (
         cd sca
-        CSV_export longform_csd_output &
-        CSV_export longform_es_zone_output &
-        CSV_export longform_subdist_output_cp_assumptions
+        csv_export longform_csd_output &
+        csv_export longform_es_zone_output &
+        csv_export longform_subdist_output_cp_assumptions
         wait
     )
     echo "Compress SCA folder"
@@ -70,9 +74,9 @@ mkdir -p output
     rm -rf sca
 
     echo "Exporting output tables"
-    CSV_export kpdb
+    csv_export kpdb
     Compress kpdb.csv
-    SHP_export kpdb MULTIPOLYGON
+    shp_export kpdb MULTIPOLYGON
 )
 
 # Upload
