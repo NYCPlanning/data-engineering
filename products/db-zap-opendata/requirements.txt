@@ -259,7 +259,7 @@ six==1.16.0
     #   python-dateutil
 sqlalchemy==2.0.15
     # via db-zap-opendata (pyproject.toml)
-sqlfluff==2.1.1
+sqlfluff==2.1.2
     # via db-zap-opendata (pyproject.toml)
 sqlparse==0.4.3
     # via dbt-core
