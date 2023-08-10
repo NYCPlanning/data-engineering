@@ -1,8 +1,6 @@
 import os
 import subprocess
 
-from .. import REPO_ROOT_PATH
-
 
 def git_username():
     if os.environ.get("CI"):
