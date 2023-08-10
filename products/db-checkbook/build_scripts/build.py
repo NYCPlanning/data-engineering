@@ -35,7 +35,7 @@ def _read_all_cpdb_geoms(dir=LIB_DIR) -> list:
     return gdf_list
 
 
-def _merge_cpdb_geoms(gdf_list=None) -> gpd.GeoDataFrame:
+def _merge_cpdb_geoms(gdf_list: list[str]) -> gpd.GeoDataFrame:
     """
     :return: merged cpdb geometries
     """
@@ -58,13 +58,10 @@ def _read_checkbook(dir: Path = LIB_DIR, f: str = "nycoc_checkbook.csv"):
     return df
 
 
-def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
+def _clean_checkbook(df: pd.DataFrame) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
     """
-    if not df:
-        df = _read_checkbook()
-
     df.columns = df.columns.str.replace(" ", "_")
     df.columns = df.columns.str.lower()
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
@@ -84,12 +81,10 @@ def _clean_checkbook(df: pd.DataFrame = None) -> pd.DataFrame:
     return df
 
 
-def _group_checkbook(data: pd.DataFrame = None) -> pd.DataFrame:
+def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
     """
     :return: checkbook nyc data grouped by capital project
     """
-    if not data:
-        data = _clean_checkbook()
 
     def fn_join_vals(x):
         return ";".join([y for y in list(x) if pd.notna(y)])
@@ -139,7 +134,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
     with ENGINE.connect() as conn:
         df.to_sql("capital_projects", ENGINE, if_exists="replace", index=False)
         for k, v in target_cols.items():
-            with open(sql_dir / "query.sql", "r") as query_file:
+            with open(sql_dir / "categorization.sql", "r") as query_file:
                 query = query_file.read()
             query = query.replace("COLUMN", k)
             query = query.replace("col_category", v)
@@ -171,31 +166,32 @@ def _limit_cols(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     :param gdf: joined checkbook nyc and cpdb data
     :return: geopandas df of joined checkbook cpdb data with cols limited/reordered
     """
-    return gdf[
-        [
-            "fms_id",
-            "check_amount",
-            "contract_purpose",
-            "budget_code",
-            "agency",
-            "bc_category",
-            "cp_category",
-            "cpdb_category",
-            "ccpversion",
-            "maprojid",
-            "magency",
-            "magencyacr",
-            "projectid",
-            "descriptio",
-            "geomsource",
-            "dataname",
-            "datasource",
-            "datadate",
-            "geometry",
-            "cartodb_id",
-            "has_geometry",
-        ]
+    cols = [
+        "fms_id",
+        "check_amount",
+        "contract_purpose",
+        "budget_code",
+        "agency",
+        "bc_category",
+        "cp_category",
+        "cpdb_category",
+        "ccpversion",
+        "maprojid",
+        "magency",
+        "magencyacr",
+        "projectid",
+        "descriptio",
+        "geomsource",
+        "dataname",
+        "datasource",
+        "datadate",
+        "geometry",
+        "cartodb_id",
+        "has_geometry",
     ]
+
+    filtered_cols = [col for col in cols if col in gdf.columns]
+    return gdf[filtered_cols]
 
 
 def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -204,7 +200,7 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     final category assignment using high sensitivity fixed asset method
     """
     cols = ["cpdb_category", "bc_category", "cp_category"]
-    cats = ["Fixed Asset", "ITT, Vehicles and Equipment", "Lump Sum", "None"]
+    cats = ["Fixed Asset", "ITT, Vehicles, and Equipment", "Lump Sum", "None"]
 
     def assign_category(row):
         for cat in cats[:3]:
@@ -220,9 +216,14 @@ def run_build() -> None:
     """
     :return: historical spending data
     """
+    print("read in source data...")
+    raw_checkbook = _read_checkbook()
+    cpdb_list = _read_all_cpdb_geoms()
+    print("_clean_checkbook...")
+    clean_checkbook = _clean_checkbook(raw_checkbook)
     print("merge and group source data ...")
-    cpdb_geoms = _merge_cpdb_geoms()
-    grouped_checkbook = _group_checkbook()
+    cpdb_geoms = _merge_cpdb_geoms(cpdb_list)
+    grouped_checkbook = _group_checkbook(clean_checkbook)
     print("_assign_checkbook_category ...")
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
     print("_join_checkbook_geoms ...")

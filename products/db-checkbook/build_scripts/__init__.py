@@ -13,7 +13,7 @@ sys.path.append(str(_proj_root))
 
 LIB_DIR = _product_path / ".library"
 OUTPUT_DIR = _product_path / ".output"
-SQL_QUERY_DIR = _product_path / "sql_query"
+SQL_QUERY_DIR = _product_path / "sql"
 
 SOURCE_DATA_VERSIONS_FILENAME = "source_data_versions.csv"
 BUILD_OUTPUT_FILENAME = "historical_spend.csv"
