@@ -21,18 +21,6 @@ YEAR_CONFIG = pd.DataFrame(
     ]
 )
 
-## columns in manual xlsx provided were in output schema as defined in factfinder/data/decennial metadata files
-## however, the following columns were inconsistent. This maps input to desired output column
-## this may not remain stable year-to-year
-COLUMN_MAPPING = {
-    "popacre": "popperacre",
-    "popacrep": "popperacrep",
-    "popinhh_1": "popinhh",
-    "popinhh_1p": "popinhhp",
-    "popu18": "popu18_1",
-    "popu18p": "popu18_1p",
-}
-
 PIVOT_COLUMNS = ["year", "geoid"]
 
 ## TODO hard-coded for now - need to think about how we want to specify this
@@ -42,38 +30,13 @@ INPUT_FILEPATH = (
 )
 
 
-## attempt to parse years from file. Seems likely fragile and more worth defining in constant, see YEAR_CONFIG. Leaving in case we return to it
-def get_sheet_metadata(excel_file: pd.ExcelFile):
-    sheet_metadata = {}
-    for sheet_name in excel_file.sheet_names:
-        regex = re.match("^(\d{4})(.*\(.*(\d{4}).*\))?", sheet_name)
-        if regex:
-            sheet_year = regex.group(1)
-            geog_conversion = regex.group(3)
-            if geog_conversion:
-                geog = f"{regex.group(1)}_to_{regex.group(3)}"
-            else:
-                geog = sheet_year
-            metadata = {"sheet_name": sheet_name, "geog": geog}
-            sheet_metadata[sheet_year] = metadata
-    return sheet_metadata
-
-
-def clean_data(df: pd.DataFrame, year: str) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # clean community districts
     df["geoid"] = df.apply(
         lambda x: "CCD" + x["geoid"] if x["geogtype"] == "CCD2023" else x["geoid"],
         axis=1,
     )
-
-    # filter columns by what's needed for output
-    metadata_file = f"factfinder/data/decennial/{year}/metadata.json"
-    output_columns = list(pd.read_json(metadata_file)["pff_variable"])
-    output_columns = output_columns + [column + "p" for column in output_columns]
-    df.columns = [COLUMN_MAPPING.get(column, column) for column in df.columns]
-    df = df[
-        [column for column in df.columns if column in (output_columns + PIVOT_COLUMNS)]
-    ]
+    df.drop("geogtype", axis=1, inplace=True)
     return df
 
 
@@ -95,7 +58,7 @@ def process_excel_file(excel_file, year, sheet_name):
     )
 
     print("Cleaning data")
-    df = clean_data(df, year)
+    df = clean_data(df)
     df = df.melt(id_vars=PIVOT_COLUMNS)
 
     print("Exporting")
