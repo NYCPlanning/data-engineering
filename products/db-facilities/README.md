@@ -1,24 +1,22 @@
 # db-facilities
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/NYCPlanning/db-facilities?label=version)
-![Build](https://github.com/NYCPlanning/db-facilities/workflows/Build/badge.svg)
 
 ## Outputs:
 | File | Description |
 | ---- | ----------- |
-| [facilities.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/facilities.csv) | CSV version of facDB, as of the latest build on the `develop` branch |
-| [facilities.gdb.zip](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/facilities.gdb.zip) | GeoDatabase version of facDB, as of the latest build on the `develop` branch |
-| [facilities.shp.zip](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/facilities.shp.zip) | Shapefile version of facDB, as of the latest build on the `develop` branch |
-| [qc_captype.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_captype.csv) | QAQC for consistency in capacity type |
-| [qc_classification.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_classification.csv) | QAQC for consistency in grouping information |
-| [qc_diff.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_diff.csv) | QAQC for change in distribution of number of records by facsubgroup/group/domain between current and previous version |
-| [qc_mapped.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_mapped.csv) | QAQC for change in mapped records by facdomain, facgroup, facsubgrp, factype, and datasource |
-| [qc_operator.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_operator.csv) | QAQC for consistency in operator information |
-| [qc_oversight.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_oversight.csv) | QAQC for consistency in oversight information |
-| [qc_recordcounts.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_recordcounts.csv) | QAQC for number of records in source vs facdb |
-| [qc_subgrpbins.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/develop/latest/output/qc_subgrpbins.csv) | QAQC for number of BINs per subgroup |
+| [facilities.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/facilities.csv) | CSV version of facDB, as of the latest build on the `main` branch |
+| [facilities.gdb.zip](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/facilities.gdb.zip) | GeoDatabase version of facDB, as of the latest build on the `main` branch |
+| [facilities.shp.zip](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/facilities.shp.zip) | Shapefile version of facDB, as of the latest build on the `main` branch |
+| [qc_captype.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_captype.csv) | QAQC for consistency in capacity type |
+| [qc_classification.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_classification.csv) | QAQC for consistency in grouping information |
+| [qc_diff.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_diff.csv) | QAQC for change in distribution of number of records by facsubgroup/group/domain between current and previous version |
+| [qc_mapped.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_mapped.csv) | QAQC for change in mapped records by facdomain, facgroup, facsubgrp, factype, and datasource |
+| [qc_operator.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_operator.csv) | QAQC for consistency in operator information |
+| [qc_oversight.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_oversight.csv) | QAQC for consistency in oversight information |
+| [qc_recordcounts.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_recordcounts.csv) | QAQC for number of records in source vs facdb |
+| [qc_subgrpbins.csv](https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/main/latest/output/qc_subgrpbins.csv) | QAQC for number of BINs per subgroup |
 
 ## QAQC:
-[Streamlit QAQC Page](https://edm-data-engineering.nycplanningdigital.com/?page=Facilities+DB)
+[Streamlit QAQC Page](https://de-qaqc.nycplanningdigital.com/?page=Facilities+DB)
 
 ## Development:
 ### Configurations
