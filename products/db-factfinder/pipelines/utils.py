@@ -10,6 +10,9 @@ from dcpy.utils.git import git_branch
 from pipelines import PRODUCT_PATH
 
 
+DATA_PATH = PRODUCT_PATH / "factfinder" / "data"
+
+
 def parse_args() -> Tuple[str, str, bool]:
     parser = argparse.ArgumentParser()
 
@@ -43,9 +46,7 @@ def download_manual_update(update_type, version, overwrite=False):
     recipe_names = {"acs": "dcp_pop_acs", "decennial": "dcp_pop_decennial_dhc"}
     if update_type not in recipe_names:
         raise ValueError("'update_type' must either be 'acs' or 'decennial'")
-    output_folder = (
-        PRODUCT_PATH / f"factfinder/data/{update_type}_manual_updates/{version}"
-    )
+    output_folder = DATA_PATH / f"{update_type}_manual_updates" / version
     filepath = output_folder / f"{recipe_names[update_type]}.xlsx"
     if not filepath.exists() or overwrite:
         print(f"Downloading {update_type} manual update data ...")
@@ -61,7 +62,10 @@ def download_manual_update(update_type, version, overwrite=False):
 
 
 def s3_upload(file: Path, latest=True):
-    export_type = file.stem
+    if file.suffix == ".json":
+        export_type = file.parent.parent.name
+    else:
+        export_type = file.stem
     year = file.parent.name
     upload(
         output=file,
