@@ -1,9 +1,9 @@
-# This script transforms and uploads ACS data provided by the NYCDCP Population team
 from pathlib import Path
-import re
 import pandas as pd
+
+from dcpy.utils.json import df_to_json
 from pipelines import PRODUCT_PATH
-from pipelines.utils import parse_args, download_manual_update, s3_upload
+from pipelines.utils import parse_args, download_manual_update, s3_upload, DATA_PATH
 
 
 YEAR_CONFIG = pd.DataFrame(
@@ -23,12 +23,6 @@ YEAR_CONFIG = pd.DataFrame(
 
 PIVOT_COLUMNS = ["year", "geoid"]
 
-## TODO hard-coded for now - need to think about how we want to specify this
-INPUT_FILEPATH = (
-    PRODUCT_PATH
-    / "factfinder/data/decennial_manual_updates/2023/dcp_pop_decennial_dhc.xlsx"
-)
-
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # clean community districts
@@ -40,7 +34,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def process_excel_file(excel_file, year, sheet_name):
+def process_data_sheet(excel_file, year, sheet_name):
     print(f"Processing data for decennial year {year} using sheet '{sheet_name}'")
     output_file = Path(".output/decennial") / year / "decennial.csv"
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -66,6 +60,28 @@ def process_excel_file(excel_file, year, sheet_name):
     return output_file
 
 
+def process_metadata(excel_file):
+    df = pd.read_excel(excel_file, sheet_name="Data Dictionary", skiprows=3)
+    df = df.dropna(subset=["Category"])
+    df["year"] = df["Dataset"].str.split(", ")
+    df = df.explode("year")
+    columns = {
+        "VariableName": "pff_variable",
+        "Relation": "base_variable",
+        "Category": "category",
+    }
+    df.rename(columns=columns, inplace=True)
+    files = {}
+    for year, year_df in df.groupby("year"):
+        year_df = year_df[columns.values()]
+        year_df["domain"] = "decennial"
+        file = DATA_PATH / "decennial" / year / "metadata.json"
+        with open(file, "w") as outfile:
+            outfile.write(df_to_json(year_df))
+        files[year] = file
+    return files
+
+
 if __name__ == "__main__":
     input_year, geography, upload = parse_args()
     print("read in excel ...")
@@ -73,9 +89,11 @@ if __name__ == "__main__":
 
     excel = pd.ExcelFile(input_file)
 
+    metadata_files = process_metadata(excel)
+
     for _, year in YEAR_CONFIG.iterrows():
         if not input_year or (input_year == year["year"]):
-            output_file = process_excel_file(excel, year["year"], year["sheet_name"])
+            output_file = process_data_sheet(excel, year["year"], year["sheet_name"])
             print(f"Finished decennial year {year['year']}")
 
             output_file = Path(".output/decennial") / year["year"] / "decennial.csv"
@@ -84,3 +102,5 @@ if __name__ == "__main__":
             if upload:
                 print(f"Uploading {output_file}")
                 s3_upload(output_file)
+                if year["year"] in metadata_files:
+                    s3_upload(metadata_files[year["year"]])
