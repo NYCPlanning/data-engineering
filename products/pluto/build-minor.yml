@@ -1,6 +1,7 @@
 name: Pluto Minor
 base_build: build.yml
 version_type: minor
+version_strategy: bump_latest_release
 product: db-pluto
 recipe:
   missing_versions_strategy: use_latest_release

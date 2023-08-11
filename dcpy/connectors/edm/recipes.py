@@ -9,6 +9,7 @@ from sqlalchemy import text, update, Table, MetaData
 from dcpy import DCPY_ROOT_PATH
 from dcpy.utils import s3
 from dcpy.utils import postgres
+from dcpy.utils import versions
 
 # In order to keep things sane, we should allow recipes to import publishing
 # but not the other way around
@@ -84,7 +85,7 @@ def import_recipe(
         con.commit()
 
 
-def plan_build_versions(build_file: Path):
+def plan_build_versions(build_file: Path, *, branch="main"):
     """Plan build versions for a product release.
 
     Similar to pip freeze, determines recipe versions to use for a build.
@@ -96,6 +97,16 @@ def plan_build_versions(build_file: Path):
         build = yaml.safe_load(f)
     build_input_names = {i["name"] for i in build["recipe"]["inputs"]}
     merged_build = copy.deepcopy(build)
+
+    if "version_strategy" in merged_build:
+        strat = merged_build["version_strategy"]
+        if strat == "bump_latest_release":
+            v = publishing.get_latest_version(merged_build["product"], branch=branch)
+            merged_build["version"] = versions.bump(
+                v, bumped_part=merged_build["version_type"]
+            )
+        else:
+            raise Exception(f"Invalid 'missing_version_strategy': {strat}")
 
     # merge in base build's recipe inputs
     base_build = {}
@@ -121,6 +132,10 @@ def plan_build_versions(build_file: Path):
                 rec["version"] = previous_versions[rec["name"]]
             else:
                 rec["version"] = "latest"
+
+    for rec in recipe["inputs"]:
+        if rec["version"] == "latest":
+            rec["version"] = get_config(rec["name"], "latest")["dataset"]["version"]
 
     return merged_build
 

@@ -14,24 +14,24 @@ BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
 ## TODO - these functions need some cleaning
 ## ideally they don't need to called individually, but we either have consistent folder structure
 ## Or have metadata in json/etc about structure of outputs per dataset
-def get_dataset_branch_path(dataset: str, branch: str, version: str):
-    return f"{BASE_URL}/{dataset}/{branch}/{version}/output"
+def get_dataset_path(dataset: str, *, branch: str, version="latest"):
+    """Construct s3 path for a published dataset."""
+    return (
+        f"{BASE_URL}/{dataset}/"
+        + (branch + "/" if branch is not None else "")
+        + version
+        + "/output"
+    )
 
 
-def get_dataset_path(dataset: str, version: str):
-    return f"{BASE_URL}/{dataset}/{version}/output"
-
-
-def get_latest_version(dataset: str):
+def get_latest_version(dataset: str, *, branch: str):
     """Given dataset name, gets latest version
     Assumes that dataset follows standard folder structure of {dataset}/{version}/output/version.txt
     """
-
-    version = requests.get(
-        f"{get_dataset_path(dataset=dataset, version='latest')}/version.txt",
+    return requests.get(
+        f"{get_dataset_path(dataset=dataset, version='latest', branch=branch)}/version.txt",
         timeout=10,
-    ).text
-    return version
+    ).text.splitlines()[0]
 
 
 def get_source_data_versions(
@@ -40,12 +40,7 @@ def get_source_data_versions(
     """Given dataset name, gets source data versions
     Assumes that dataset follows standard folder structure of {dataset}/{version}/output/
     """
-    if branch is None:
-        output_url = get_dataset_path(dataset=dataset, version=version)
-    else:
-        output_url = get_dataset_branch_path(
-            dataset=dataset, branch=branch, version=version
-        )
+    output_url = get_dataset_path(dataset=dataset, branch=branch, version=version)
     source_data_versions = pd.read_csv(
         f"{output_url}/source_data_versions.csv",
         index_col=False,
