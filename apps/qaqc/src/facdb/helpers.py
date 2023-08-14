@@ -2,26 +2,22 @@ import pandas as pd
 from typing import Union
 from dcpy.connectors.edm import publishing
 
-BUCKET_NAME = "edm-publishing"
-PRODUCT_NAME = "db-facilities"
+DATASET = "db-facilities"
 REPO_NAME = "data-engineering"
 
 
 def get_latest_data(
     branch,
 ) -> tuple[dict[str, dict[str, Union[pd.DataFrame, str]]], pd.DataFrame, pd.DataFrame]:
-    url = publishing.get_dataset_branch_path(
-        dataset=PRODUCT_NAME,
-        branch=branch,
-        version="latest",
-    )
+    version = f"{branch}/latest/output"
+    read_csv = lambda csv: publishing.read_csv(DATASET, version, f"{csv}.csv")
 
-    qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
-    qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
-    qc_classification = pd.read_csv(f"{url}/qc_classification.csv")
-    qc_mapped = pd.read_csv(f"{url}/qc_mapped.csv")
-    qc_operator = pd.read_csv(f"{url}/qc_operator.csv")
-    qc_oversight = pd.read_csv(f"{url}/qc_oversight.csv")
+    qc_diff = read_csv("qc_diff")
+    qc_captype = read_csv("qc_captype")
+    qc_classification = read_csv("qc_classification")
+    qc_mapped = read_csv("qc_mapped")
+    qc_operator = read_csv("qc_operator")
+    qc_oversight = read_csv("qc_oversight")
 
     qc_tables = {
         "Facility subgroup classification": {

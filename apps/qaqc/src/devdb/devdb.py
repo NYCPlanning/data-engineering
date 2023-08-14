@@ -5,8 +5,7 @@ def devdb():
     import streamlit as st
     from src.devdb.helpers import (
         get_latest_data,
-        REPO_NAME,
-        BUCKET_NAME,
+        DATASET,
         QAQC_CHECK_DICTIONARY,
         QAQC_CHECK_SECTIONS,
     )
@@ -39,7 +38,7 @@ def devdb():
         """
     )
 
-    branch = branch_selectbox(REPO_NAME, BUCKET_NAME)
+    branch = branch_selectbox(DATASET)
     data = get_latest_data(branch)
 
     QAQCVersionHistoryReport(

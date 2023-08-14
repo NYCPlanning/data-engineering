@@ -1,6 +1,8 @@
 from pathlib import Path
 import requests
+from zipfile import ZipFile
 import pandas as pd
+import geopandas as gpd
 
 from dcpy.utils import s3
 
@@ -97,3 +99,26 @@ def upload(
         if latest:
             ## much faster than uploading again
             s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
+
+
+def read_csv(dataset, version, filepath, **kwargs):
+    """Reads csv into pandas dataframe from edm-publishing
+    'version' currently must be a path from root dataset folder in edm-publishing to output folder
+    Works for zipped or standard csvs
+    """
+    print(f"{dataset}/{version}/{filepath}")
+    with s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}") as stream:
+        df = pd.read_csv(stream, **kwargs)
+    return df
+
+
+def read_shapefile(dataset, version, filepath):
+    with s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}") as stream:
+        gdf = gpd.read_file(stream)
+    return gdf
+
+
+def get_zip(dataset, version, filepath):
+    stream = s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}")
+    zip = ZipFile(stream)
+    return zip

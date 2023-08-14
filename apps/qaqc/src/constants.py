@@ -3,6 +3,8 @@ import pandas as pd
 
 COLOR_SCHEME = ["#003f5c", "#ffa600", "#58508d", "#ff6361", "#bc5090"]
 
+BUCKET_NAME = "edm-publishing"
+
 SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
 
 DATASET_PAGES = {

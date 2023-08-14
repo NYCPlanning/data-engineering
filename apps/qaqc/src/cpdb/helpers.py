@@ -1,6 +1,6 @@
 import pandas as pd
 from dotenv import load_dotenv
-from src.digital_ocean_utils import DigitalOceanClient
+from dcpy.connectors.edm import publishing
 
 load_dotenv()
 
@@ -11,8 +11,7 @@ cpdb_published_versions = [
 ]
 
 
-BUCKET_NAME = "edm-publishing"
-REPO_NAME = "db-cpdb"
+DATASET = "db-cpdb"
 
 VIZKEY = {
     "all categories": {
@@ -30,12 +29,9 @@ where would this list comes from? """
 
 
 def get_geometries(branch, table) -> dict:
-    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
-
-    gdf = client.shapefile_from_DO(
-        shapefile_zip=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
+    gdf = publishing.read_shapefile(
+        DATASET, f"{branch}/latest/output", f"{table}.shp.zip"
     )
-
     return gdf
 
 
@@ -48,22 +44,21 @@ def get_data(branch, previous_branch, previous_version) -> dict:
         "geometries": ["cpdb_dcpattributes_pts", "cpdb_dcpattributes_poly"],
     }
 
-    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
-
     for t in tables["analysis"]:
-        rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
-        rv["pre_" + t] = client.csv_from_DO(
-            url=construct_url(
-                previous_branch, t, previous_version, sub_folder="analysis/"
-            )
+        rv[t] = publishing.read_csv(
+            DATASET, f"{branch}/latest/output", f"analysis/{t}.csv"
         )
+        rv["pre_" + t] = publishing.read_csv(
+            DATASET, f"{previous_branch}/{previous_version}/output", f"analysis/{t}.csv"
+        )
+
     for t in tables["others"]:
-        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
-        rv["pre_" + t] = client.csv_from_DO(
-            url=construct_url(previous_branch, t, previous_version)
+        rv[t] = publishing.read_csv(DATASET, f"{branch}/latest/output", f"{t}.csv")
+        rv["pre_" + t] = publishing.read_csv(
+            DATASET, f"{previous_branch}/{previous_version}/output", f"{t}.csv"
         )
     for t in tables["no_version_compare"]:
-        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
+        rv[t] = publishing.read_csv(DATASET, f"{branch}/latest/output", f"{t}.csv")
     for t in tables["geometries"]:
         rv[t] = get_geometries(branch, table=t)
     return rv
@@ -102,10 +97,3 @@ def sort_base_on_option(
     )
 
     return df_sort
-
-
-def construct_url(branch, table, build="latest", sub_folder=""):
-    return (
-        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-cpdb/{branch}"
-        f"/{build}/output/{sub_folder}{table}.csv"
-    )
