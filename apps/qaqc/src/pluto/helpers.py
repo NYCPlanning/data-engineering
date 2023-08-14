@@ -7,45 +7,39 @@ from dotenv import load_dotenv
 import streamlit as st
 
 from dcpy.utils import s3
-from src.digital_ocean_utils import DigitalOceanClient
+from dcpy.connectors.edm import publishing
+from src.constants import BUCKET_NAME
+from src import digital_ocean_utils
 
 load_dotenv()
 
-S3_BUCKET_NAME = "edm-publishing"
-S3_DATASET_NAME = "db-pluto"
-
-
-def get_output_folder_path(branch: str) -> str:
-    return f"{S3_DATASET_NAME}/{branch}/latest/output"
+DATASET = "db-pluto"
 
 
 def get_data(branch: str) -> Dict[str, pd.DataFrame]:
     data = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/{get_output_folder_path(branch)}"
+    version = f"{branch}/latest/output"
 
-    client = DigitalOceanClient(bucket_name=S3_BUCKET_NAME, repo_name=S3_DATASET_NAME)
-    kwargs = {"true_values": ["t"], "false_values": ["f"]}
+    def read_csv(qaqc_type, **kwargs):
+        return publishing.read_csv(
+            DATASET,
+            version,
+            f"qaqc/qaqc_{qaqc_type}.csv",
+            true_values=["t"],
+            false_values=["f"],
+            **kwargs,
+        )
 
-    data["df_mismatch"] = client.csv_from_DO(
-        url=f"{url}/qaqc/qaqc_mismatch.csv", kwargs=kwargs
-    )
-    data["df_null"] = client.csv_from_DO(url=f"{url}/qaqc/qaqc_null.csv", kwargs=kwargs)
-    data["df_aggregate"] = client.csv_from_DO(
-        url=f"{url}/qaqc/qaqc_aggregate.csv", kwargs=kwargs
-    )
-    data["df_expected"] = client.csv_from_DO(
-        url=f"{url}/qaqc/qaqc_expected.csv",
-        kwargs={"converters": {"expected": json.loads}} | kwargs,
-    )
-    data["df_outlier"] = client.csv_from_DO(
-        url=f"{url}/qaqc/qaqc_outlier.csv",
-        kwargs={"converters": {"outlier": json.loads}} | kwargs,
-    )
+    data["df_mismatch"] = read_csv("mismatch")
+    data["df_null"] = read_csv("null")
+    data["df_aggregate"] = read_csv("aggregate")
+    data["df_expected"] = read_csv("expected", converters={"expected": json.loads})
+    data["df_outlier"] = read_csv("outlier", converters={"outlier": json.loads})
 
-    data = data | get_changes(client, branch)
+    data = data | get_changes(branch)
 
-    data["source_data_versions"] = client.csv_from_DO(
-        url=f"{url}/source_data_versions.csv"
+    data["source_data_versions"] = publishing.read_csv(
+        DATASET, version, "source_data_versions.csv"
     )
 
     data["version_text"] = data["source_data_versions"]
@@ -65,7 +59,7 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
     return data
 
 
-def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFrame]:
+def get_changes(branch: str) -> Dict[str, pd.DataFrame]:
     changes = {}
     valid_changes_files_group = [
         # latest set of filenames
@@ -81,19 +75,21 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
             "not_applied_filename": "pluto_corrections_not_applied.csv",
         },
     ]
-    output_filenames = s3.get_filenames(S3_BUCKET_NAME, get_output_folder_path(branch))
+    output_filenames = s3.get_filenames(
+        BUCKET_NAME, f"{DATASET}/{branch}/latest/output"
+    )
 
     for changes_files_group in valid_changes_files_group:
         if changes_files_group["zip_filename"] in output_filenames:
-            pluto_changes_zip = client.zip_from_DO(
-                zip_filename=f"db-pluto/{branch}/latest/output/{changes_files_group['zip_filename']}",
+            pluto_changes_zip = publishing.get_zip(
+                DATASET, f"{branch}/latest/output", changes_files_group["zip_filename"]
             )
-            changes["pluto_changes_applied"] = client.unzip_csv(
+            changes["pluto_changes_applied"] = digital_ocean_utils.unzip_csv(
                 csv_filename=changes_files_group["applied_filename"],
                 zipfile=pluto_changes_zip,
             )
-            changes["pluto_changes_not_applied"] = client.unzip_csv(
-                csv_filename=changes_files_group["applied_filename"],
+            changes["pluto_changes_not_applied"] = digital_ocean_utils.unzip_csv(
+                csv_filename=changes_files_group["not_applied_filename"],
                 zipfile=pluto_changes_zip,
             )
 
@@ -110,7 +106,7 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
 
 @st.cache_data(ttl=600)
 def get_all_s3_folders():
-    return s3.get_subfolders(S3_BUCKET_NAME, S3_DATASET_NAME)
+    return s3.get_subfolders(BUCKET_NAME, DATASET)
 
 
 def get_s3_folders():

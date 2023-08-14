@@ -1,11 +1,9 @@
-import pandas as pd
 import json
+import pandas as pd
 
 from dcpy.connectors.edm import publishing
-from src.digital_ocean_utils import DigitalOceanClient
 
-BUCKET_NAME = "edm-publishing"
-REPO_NAME = "db-developments"
+DATASET = "db-developments"
 
 QAQC_CHECK_SECTIONS = {
     "Class B": "These checks are related to class A and class B unit distinctions.",
@@ -171,26 +169,23 @@ QAQC_CHECK_DICTIONARY = {
 
 def get_latest_data(branch) -> dict[str, pd.DataFrame]:
     rv = {}
-    url = publishing.get_dataset_branch_path(
-        dataset=REPO_NAME,
-        branch=branch,
-        version="latest",
+    version = f"{branch}/latest/output"
+
+    rv["qaqc_app"] = publishing.read_csv(
+        DATASET, version, "qaqc_app.csv", dtype={"job_number": "str"}
     )
 
-    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
+    rv["qaqc_historic"] = publishing.read_csv(DATASET, version, "qaqc_historic.csv")
 
-    rv["qaqc_app"] = client.csv_from_DO(
-        url=f"{url}/qaqc_app.csv",
-        kwargs={"dtype": {"job_number": "str"}},
+    rv["qaqc_field_distribution"] = publishing.read_csv(
+        DATASET,
+        version,
+        "qaqc_field_distribution.csv",
+        converters={"result": json.loads},
     )
 
-    rv["qaqc_historic"] = client.csv_from_DO(url=f"{url}/qaqc_historic.csv")
-
-    rv["qaqc_field_distribution"] = client.csv_from_DO(
-        f"{url}/qaqc_field_distribution.csv",
-        kwargs={"converters": {"result": json.loads}},
+    rv["qaqc_quarter_check"] = publishing.read_csv(
+        DATASET, version, "qaqc_quarter_check.csv"
     )
-
-    rv["qaqc_quarter_check"] = client.csv_from_DO(url=f"{url}/qaqc_quarter_check.csv")
 
     return rv

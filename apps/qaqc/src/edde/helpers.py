@@ -2,10 +2,11 @@ import pandas as pd
 from itertools import groupby
 import re
 from dcpy.utils import s3
+from dcpy.connectors.edm import publishing
+from src.constants import BUCKET_NAME
 
 REPO_NAME = "db-equitable-development-tool"
-S3_FOLDER_NAME = "db-eddt"
-BUCKET_NAME = "edm-publishing"
+DATASET = "db-eddt"
 
 demographic_categories = ["demographics", "economics"]
 
@@ -18,13 +19,13 @@ other_categories = [
 geographies = ["citywide", "borough", "puma"]
 
 
+## TODO - this needs cleaning ideally to get rid of s3 reference, but EDDE needs some rework in versioning, data export
 def get_demographics_data(branch: str, version: str):
-    parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
     for category in demographic_categories:
         category_data = {}
         files = s3.get_filenames(
-            BUCKET_NAME, f"{S3_FOLDER_NAME}/{branch}/{version}/{category}"
+            BUCKET_NAME, f"{DATASET}/{branch}/{version}/{category}"
         )
         matches = [
             re.match(
@@ -41,8 +42,10 @@ def get_demographics_data(branch: str, version: str):
             category_data[geography] = {}
             for match in matches:
                 year = match.group(2)
-                category_data[geography][year] = pd.read_csv(
-                    f"{parent_dir}/{category}/{category}_{year}_{geography}.csv"
+                category_data[geography][year] = publishing.read_csv(
+                    DATASET,
+                    f"{branch}/{version}",
+                    f"{category}/{category}_{year}_{geography}.csv",
                 )
 
         data[category] = category_data
@@ -51,13 +54,14 @@ def get_demographics_data(branch: str, version: str):
 
 
 def get_other_data(branch: str, version: str):
-    parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
     for category in other_categories:
         category_data = {}
         for geography in geographies:
-            category_data[geography] = pd.read_csv(
-                f"{parent_dir}/{category}/{category}_{geography}.csv"
+            category_data[geography] = publishing.read_csv(
+                DATASET,
+                f"{branch}/{version}",
+                f"{category}/{category}_{geography}.csv",
             )
         data[category] = category_data
     return data

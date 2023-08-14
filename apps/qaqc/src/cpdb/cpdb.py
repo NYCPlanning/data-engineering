@@ -4,8 +4,7 @@ def cpdb():
     import plotly.graph_objects as go
 
     from src.cpdb.helpers import (
-        REPO_NAME,
-        BUCKET_NAME,
+        DATASET,
         get_data,
         get_commit_cols,
         get_diff_dataframe,
@@ -24,15 +23,14 @@ def cpdb():
 
     st.title("Capital Projects Database QAQC")
 
-    default_branch = get_default_branch(REPO_NAME)
+    default_branch = get_default_branch(DATASET)
     branch = branch_selectbox(
-        REPO_NAME,
-        BUCKET_NAME,
+        DATASET,
         label="Select a branch (latest build will be used)",
         default=default_branch,
     )
 
-    previous_version = output_selectbox(REPO_NAME, BUCKET_NAME, default_branch)
+    previous_version = output_selectbox(DATASET, default_branch)
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",

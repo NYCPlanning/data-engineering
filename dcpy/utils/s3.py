@@ -1,6 +1,9 @@
 import os
+from io import BytesIO
 from pathlib import Path
 from typing import Optional
+from zipfile import ZipFile
+import pandas as pd
 import boto3
 from botocore.client import Config
 
@@ -235,3 +238,10 @@ def get_subfolders(bucket: str, prefix: str, index=1):
         print(f"get_subfolders(bucket={bucket}, prefix={prefix}) failed")
         raise exc
     return list(subfolders)
+
+
+def get_file_as_stream(bucket, path):
+    stream = BytesIO()
+    client().download_fileobj(Bucket=bucket, Key=path, Fileobj=stream)
+    stream.seek(0)
+    return stream

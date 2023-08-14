@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 from src.constants import COLOR_SCHEME
-from src.facdb.helpers import get_latest_data, REPO_NAME, BUCKET_NAME, PRODUCT_NAME
+from src.facdb.helpers import get_latest_data, REPO_NAME, DATASET
 from src.components.sidebar import branch_selectbox
 
 
@@ -36,9 +36,7 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    branch = branch_selectbox(
-        repo=REPO_NAME, bucket=BUCKET_NAME, s3_folder=PRODUCT_NAME
-    )
+    branch = branch_selectbox(repo=REPO_NAME, s3_folder=DATASET)
 
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
