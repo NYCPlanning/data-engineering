@@ -5,10 +5,6 @@ from src.colp.components.usetype_version_comparison_report import (
 
 def colp():
     import streamlit as st
-    import pandas as pd
-    import numpy as np
-    import os
-    import json
     from src.colp.helpers import get_data
     from src.colp.components.agency_usetype_report import (
         RecordsByAgency,
