@@ -1,6 +1,6 @@
 import streamlit as st
-import plotly.graph_objects as go  # type: ignore
-import plotly.express as px  # type: ignore
+import plotly.graph_objects as go
+import plotly.express as px
 from src.constants import COLOR_SCHEME
 from src.facdb.helpers import get_latest_data, REPO_NAME, DATASET
 from src.components.sidebar import branch_selectbox

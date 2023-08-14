@@ -1,10 +1,6 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 import plotly.express as px
-from st_aggrid import AgGrid
 from src.constants import COLOR_SCHEME
-from abc import ABC
 
 
 class UsetypeVersionComparisonReport:

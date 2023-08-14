@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from numerize.numerize import numerize
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME

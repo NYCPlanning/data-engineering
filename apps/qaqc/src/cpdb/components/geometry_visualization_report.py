@@ -1,4 +1,4 @@
-import streamlit as st  # type: ignore
+import streamlit as st
 from src.constants import COLOR_SCHEME
 
 
