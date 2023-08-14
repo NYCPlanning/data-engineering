@@ -4,14 +4,17 @@ from helpers import get_data
 
 
 def get_category_data(df):
-    category_data = df.groupby('final_category', as_index = False).sum()
+    category_data = df.groupby("final_category", as_index=False).sum()
     return category_data
 
+
 def get_geometry_data(df):
-    geometry_data = df.groupby('has_geometry', as_index = False).sum()
+    geometry_data = df.groupby("has_geometry", as_index=False).sum()
     return geometry_data
 
+
 data = get_data()
+
 
 def checkbook():
     st.title("Historical Liquidations Visualizations")
@@ -33,44 +36,50 @@ def checkbook():
     grouped_by_category_all = get_category_data(data)
     grouped_by_geometry_all = get_geometry_data(data)
 
-    st.header(
-            "Check Amounts Per Category"
-        )
-    st.bar_chart(grouped_by_category_all, x = 'final_category', y = 'check_amount')
+    st.header("Check Amounts Per Category")
+    st.bar_chart(grouped_by_category_all, x="final_category", y="check_amount")
 
+    agency = st.selectbox(
+        "Agency Selection: ",
+        (
+            "SCHOOL CONSTRUCTION AUTHORITY",
+            "Department of Education",
+            "Transit Authority",
+            "Department of Environmental Protection",
+            "Housing, Preservation and Development",
+            "Department of Parks and Recreation",
+            "Department of Citywide Administrative Services",
+            "Health and Hospitals Corporation",
+        ),
+        key="category",
+    )
 
-    agency = st.selectbox('Agency Selection: ',
-            ('SCHOOL CONSTRUCTION AUTHORITY', 
-            'Department of Education', 
-            'Transit Authority',
-            'Department of Environmental Protection',
-            'Housing, Preservation and Development',
-            'Department of Parks and Recreation',
-            'Department of Citywide Administrative Services',
-            'Health and Hospitals Corporation'), key = 'category')
+    agency_data = data[data["agency"].str.contains(agency) == True]
+    grouped_by_category = agency_data.groupby("final_category", as_index=False).sum()
 
-    agency_data = data[data['agency'].str.contains(agency) == True]
-    grouped_by_category = agency_data.groupby('final_category', as_index = False).sum()
+    st.bar_chart(grouped_by_category, x="final_category", y="check_amount")
 
-    st.bar_chart(grouped_by_category, x = 'final_category', y = 'check_amount')
-    
-    st.header(
-            "Check Amounts Represented by Geometries"
-        )
-    st.bar_chart(grouped_by_geometry_all, x = 'has_geometry', y = 'check_amount')
+    st.header("Check Amounts Represented by Geometries")
+    st.bar_chart(grouped_by_geometry_all, x="has_geometry", y="check_amount")
 
+    agency_geom = st.selectbox(
+        "Agency Selection: ",
+        (
+            "SCHOOL CONSTRUCTION AUTHORITY",
+            "Department of Education",
+            "Transit Authority",
+            "Department of Environmental Protection",
+            "Housing, Preservation and Development",
+            "Department of Parks and Recreation",
+            "Department of Citywide Administrative Services",
+            "Health and Hospitals Corporation",
+        ),
+        key="geometry",
+    )
 
-    agency_geom = st.selectbox('Agency Selection: ',
-            ('SCHOOL CONSTRUCTION AUTHORITY', 
-            'Department of Education', 
-            'Transit Authority',
-            'Department of Environmental Protection',
-            'Housing, Preservation and Development',
-            'Department of Parks and Recreation',
-            'Department of Citywide Administrative Services',
-            'Health and Hospitals Corporation'), key = 'geometry')
-
-    agency_data_geom = data[data['agency'].str.contains(agency_geom) == True]
-    grouped_by_agency_geom = agency_data_geom.groupby('has_geometry', as_index = False).sum()
-    st.bar_chart(grouped_by_agency_geom, x = 'has_geometry', y = 'check_amount')
-    return 
+    agency_data_geom = data[data["agency"].str.contains(agency_geom) == True]
+    grouped_by_agency_geom = agency_data_geom.groupby(
+        "has_geometry", as_index=False
+    ).sum()
+    st.bar_chart(grouped_by_agency_geom, x="has_geometry", y="check_amount")
+    return

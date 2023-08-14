@@ -15,9 +15,9 @@ DATASET_PAGES = {
     "PLUTO": "pluto",
     # "Template Repo DB": "trdb",
     "Zoning Tax Lots": "ztl",
-    #"Geosupport Demo": "geocode",
+    # "Geosupport Demo": "geocode",
     "GRU QAQC": "gru",
-    'Checkbook': 'checkbook'
+    "Checkbook": "checkbook",
 }
 
 DATASET_NAMES = {
