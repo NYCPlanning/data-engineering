@@ -17,6 +17,7 @@ DATASET_PAGES = {
     "Zoning Tax Lots": "ztl",
     # "Geosupport Demo": "geocode",
     "GRU QAQC": "gru",
+    "Checkbook": "checkbook",
 }
 
 DATASET_NAMES = {
