@@ -56,7 +56,7 @@ jobs:
         id: cama
         with:
           name: pluto_input_cama_dof
-          path: db-pluto/pluto_build/templates/pluto_input_cama_dof.yml
+          path: products/db-pluto/pluto_build/templates/pluto_input_cama_dof.yml
           version: ${{ steps.processing.outputs.version }}
           s3: true
           latest: true
