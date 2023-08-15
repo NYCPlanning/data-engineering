@@ -1,3 +1,9 @@
+-- categorize Checkbook NYC records using the same logic as in CPDB
+-- Order: Fixed Asset, ITT, Vehicles and Equipment, Lump Sum
+-- source: /db-cpdb/sql/projectscategorization.sql 
+
+-- step 1: assign projects as fixed asset
+
 UPDATE capital_projects SET col_category = 'Fixed Asset'
 WHERE (
 upper(COLUMN) LIKE '%AUDITORIUM%'
@@ -297,6 +303,12 @@ OR upper(COLUMN) LIKE '%ZOO%'
 )
 AND col_category IS NULL;
 
+-- DPR records
+UPDATE capital_projects SET col_category = 'Fixed Asset'
+WHERE COLUMN REGEXP '[BMQRX][0-9][0-9][0-9]' AND [agency] = 'Department of Parks and Recreation'
+AND col_category IS NULL;
+
+-- step 2: ITT, Vehicles and Equipment
 
 UPDATE capital_projects SET col_category = 'ITT, Vehicles, and Equipment'
 WHERE (
@@ -537,6 +549,9 @@ OR upper(COLUMN) LIKE '%WORKFORCE%SYST%'
 )
 AND( upper(COLUMN) NOT LIKE '%GARAGE%' );
 
+
+--- step 3: assign LUMP SUM
+
 UPDATE capital_projects SET col_category = 'Lump Sum'
 WHERE (
 upper(COLUMN) LIKE '%LUMP SUM%'
@@ -681,8 +696,4 @@ OR upper(COLUMN) LIKE '%WM%SWR%'
 )
 AND( upper(COLUMN) NOT LIKE '%SPACE%')
 AND( upper(COLUMN) NOT LIKE '%RESTOR%' )
-AND col_category IS NULL;
-
-UPDATE capital_projects SET col_category = 'Fixed Asset'
-WHERE COLUMN REGEXP '[BMQRX][0-9][0-9][0-9]' AND [agency] = 'Department of Parks and Recreation'
 AND col_category IS NULL;
