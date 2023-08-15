@@ -34,7 +34,7 @@ jobs:
         id: pluto_input_numbldgs
         with:
           name: pluto_input_numbldgs
-          path: db-pluto/pluto_build/templates/pluto_input_numbldgs.yml
+          path: products/db-pluto/pluto_build/templates/pluto_input_numbldgs.yml
           s3: true
           latest: true
           output_format: pgdump csv

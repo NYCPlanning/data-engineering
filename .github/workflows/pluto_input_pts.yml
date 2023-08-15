@@ -1,13 +1,5 @@
 name: PLUTO Inputs - 📁 Property Tax System (PTS) processing
 on:
-  push:
-    branches:
-      - main
-      - pts/**
-    paths:
-      - pluto_build/python/geocode.py
-      - pluto_build/bin/pts.sh
-      - pluto_build/sql/_load_pts.sql
   schedule:
     - cron: 0 13 * * MON
   workflow_dispatch:
@@ -63,7 +55,7 @@ jobs:
         id: pluto_pts
         with:
           name: pluto_pts
-          path: db-pluto/pluto_build/templates/pluto_pts.yml
+          path: products/db-pluto/pluto_build/templates/pluto_pts.yml
           s3: true
           latest: true
           compress: true
@@ -76,7 +68,7 @@ jobs:
         id: pluto_input_geocodes
         with:
           name: pluto_input_geocodes
-          path: db-pluto/pluto_build/templates/pluto_input_geocodes.yml
+          path: products/db-pluto/pluto_build/templates/pluto_input_geocodes.yml
           s3: true
           latest: true
           compress: true
