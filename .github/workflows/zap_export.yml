@@ -1,4 +1,4 @@
-name: Weekly Export from CRM to BigQuery
+name: ZAP - Weekly Export from CRM to BigQuery
 
 on:
   schedule:
@@ -8,17 +8,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-zap-opendata
     env:
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      SECRET: ${{ secrets.SECRET }}
-      TENANT_ID: ${{ secrets.TENANT_ID }}
-      ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
-      ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+      ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
+      TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
+      CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
+      SECRET: ${{ secrets.ZAP_CRM_SECRET }}
+      ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
+      EDM_DATA_ZAP_SCHEMA: weekly_export_${{ github.event_name }}_${{ github.ref_name }}
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
       AWS_S3_LIBRARY_BUCKET: edm-recipes
-      EDM_DATA_ZAP_SCHEMA: export_${{ github.event_name }}_${{ github.ref_name }}
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -55,12 +59,13 @@ jobs:
           DATE=$(date +%Y%m%d)
           echo "version=$DATE" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
-          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
-          export_default_credentials: true
+      # NOTE disabling all use of BigQuery
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v0
+      #   with:
+      #     project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
+      #     service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
+      #     export_default_credentials: true
 
       - name: Set up Mini IO
         run: |
@@ -69,17 +74,19 @@ jobs:
           sudo mv ./mc /usr/bin
           mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
-      - name: Archive to BigQuery
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: ./zap.sh upload_bq ${{ matrix.entity }} $VERSION
+      # NOTE disabling all use of BigQuery
+      # - name: Archive to BigQuery
+      #   env:
+      #     VERSION: ${{ steps.version.outputs.version }}
+      #   run: ./zap.sh upload_bq ${{ matrix.entity }} $VERSION
 
-      - name: Archive recoded data to BigQuery
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        if: ${{ matrix.open }}
-        run: |
-          ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
+      # NOTE disabling all use of BigQuery
+      # - name: Archive recoded data to BigQuery
+      #   env:
+      #     VERSION: ${{ steps.version.outputs.version }}
+      #   if: ${{ matrix.open }}
+      #   run: |
+      #     ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
 
       - name: Archive to data library - PGdump
         env:

@@ -1,4 +1,4 @@
-name: Export Single Open Dataset from CRM to DO
+name: ZAP - Export Single Open Dataset from CRM to DO
 run-name: Export ${{ inputs.dataset }}
 
 on:
@@ -16,12 +16,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-zap-opendata
     env:
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      SECRET: ${{ secrets.SECRET }}
-      TENANT_ID: ${{ secrets.TENANT_ID }}
-      ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
-      ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+      CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
+      SECRET: ${{ secrets.ZAP_CRM_SECRET }}
+      TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
+      ZAP_DOMAIN: ${{ secrets.ZAP_CRM_ZAP_DOMAIN }}
+      ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
