@@ -1,7 +1,11 @@
 name: Zoning Tax Lots - 🏗️ Build
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      run_export:
+        type: boolean
+        required: true
 
 jobs:
   build:
@@ -48,5 +52,6 @@ jobs:
       - name: 2. build ...
         run: ./ztl.sh build
 
-      - name: 3. qaqc ...
+      - name: 3. qaqc, export, and upload ...
+        if: inputs.run_export
         run: ./ztl.sh qaqc
