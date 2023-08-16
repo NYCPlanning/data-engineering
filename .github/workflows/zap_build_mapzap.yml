@@ -1,4 +1,4 @@
-name: Build MapZAP
+name: ZAP - MapZAP (Placeholder)
 
 on:
   workflow_dispatch:

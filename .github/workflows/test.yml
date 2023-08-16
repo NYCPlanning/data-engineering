@@ -49,6 +49,10 @@ jobs:
               - products/db-checkbook/**
             qaqc:
               - apps/qaqc/**
+            zap:
+              - .github/workflows/zap_test.yml
+              - .github/workflows/build.yml
+              - products/db-zap-opendata/**
 
   confirm_changes:
     name: Confirm changes to relevant files
@@ -78,4 +82,8 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'qaqc')
     uses: ./.github/workflows/qaqc_test.yml
+  zap:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.path_filters, 'zap')
+    uses: ./.github/workflows/zap_test.yml
     secrets: inherit

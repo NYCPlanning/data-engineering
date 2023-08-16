@@ -1,25 +1,25 @@
-name: Branch tests
+name: ZAP - Tests
 run-name: Tests (${{ github.event_name }})
 
 on: 
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  workflow_call:
 
 env:
-  ZAP_DOMAIN: ${{ secrets.ZAP_DOMAIN }}
-  TENANT_ID: ${{ secrets.TENANT_ID }}
-  CLIENT_ID: ${{ secrets.CLIENT_ID }}
-  SECRET: ${{ secrets.SECRET }}
-  ZAP_ENGINE: ${{ secrets.ZAP_ENGINE }}
+  ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
+  TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
+  CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
+  SECRET: ${{ secrets.ZAP_CRM_SECRET }}
+  ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
   TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
 
 jobs:
   branch_unit_tests:
     name: Unit tests
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-zap-opendata
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -37,6 +37,10 @@ jobs:
   branch_integration_tests:
     name: Integration tests
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/db-zap-opendata
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
@@ -65,6 +69,7 @@ jobs:
       - name: Build and run dev container task
         uses: devcontainers/ci@v0.3
         with:
+          subFolder: products/db-zap-opendata
           runCmd: |
             echo "Dev Container is in CI? $CI"
             gcloud version
