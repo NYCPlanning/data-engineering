@@ -9,8 +9,6 @@ function import_pts {
    mkdir -p /tmp/pts &&
    (
       cd /tmp/pts
-
-      ssh_cmd get Prod_FromDOF/PTS_Propmast.gz .
       gunzip PTS_Propmast.gz
 
       # remove last column of pts --> empty column
