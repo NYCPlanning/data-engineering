@@ -143,21 +143,6 @@ CORRECTIONS
 
 */
 
--- Programatically insert removals into _manual_corrections for test records andd NULL bbl
-INSERT INTO _manual_corrections 
-    (job_number, field, reason)
-SELECT 
-    job_number, 
-    'remove' as field,
-    'job_desc suggest this is a test record' as reason
-FROM INIT_devdb
-WHERE UPPER(job_desc) LIKE '%BIS%TEST%' 
-    OR UPPER(job_desc) LIKE '% TEST %'
-AND job_number NOT IN(
-    SELECT DISTINCT job_number
-    FROM _manual_corrections
-    WHERE field = 'remove');
-
 INSERT INTO _manual_corrections 
     (job_number, field, reason)
 SELECT
