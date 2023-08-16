@@ -1,6 +1,16 @@
 #!/bin/bash
 source bash/config.sh
 
+echo "Archive final output"
+
+pg_dump -d ${BUILD_ENGINE} -t dcp_zoning_taxlot --no-owner --clean | psql ${EDM_DATA}
+psql ${EDM_DATA} -c "
+  CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
+  ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;
+  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\";
+  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION_SQL_TABLE}\";
+"
+
 run_sql_file sql/export.sql
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -f sql/qaqc/frequency.sql
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/bbl.sql

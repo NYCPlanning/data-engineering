@@ -9,10 +9,11 @@ function build {
 }
 
 function qaqc { 
-    ./bash/03_qaqc.sh 
+    ./bash/03_qaqc_upload.sh 
 }
 
 case $1 in
     dataloading | build | qaqc ) $1 ;;
+    upload | qaqc_upload ) qaqc ;;
     *) echo "$1 not found!" ;;
 esac

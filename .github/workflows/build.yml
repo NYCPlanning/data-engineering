@@ -17,6 +17,7 @@ on:
           - devdb
           - facilities
           - pluto
+          - ztl
       logging_level:
         description: "Logging level"
         type: choice
@@ -94,6 +95,12 @@ jobs:
   pluto:
     if: inputs.dataset_name == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.run_export }}
+  ztl:
+    if: inputs.dataset_name == 'ztl'
+    uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
