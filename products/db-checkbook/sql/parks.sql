@@ -29,11 +29,12 @@ JOIN parks b ON (
             upper(a.contract_purpose) LIKE '%' || upper(b.SIGNNAME) || '%'
         )
     )
+)
 
 UPDATE csdb 
 SET 
     geometry = master.multipolygon,
-    has_geometry = 1,
+    has_geometry = true,
     final_category = 'Fixed Asset'
 FROM master
 WHERE
