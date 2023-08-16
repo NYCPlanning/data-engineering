@@ -236,14 +236,15 @@ FROM (
   FROM dof_shoreline) a;
 CREATE INDEX dof_shoreline_subdivide_wkb_geometry_geom_idx ON dof_shoreline_subdivide USING GIST (wkb_geometry gist_geometry_ops_2d);
 
-CREATE OR REPLACE FUNCTION in_water(
-    _geom geometry
-  ) 
-    RETURNS boolean AS $$
-      SELECT id IS NOT NULL
-      FROM dof_shoreline_subdivide b 
-      WHERE st_intersects(_geom, b.wkb_geometry)
-  $$ LANGUAGE sql;
+CREATE OR REPLACE FUNCTION in_water(_geom geometry) 
+  RETURNS BOOLEAN
+AS $$
+  SELECT EXISTS(
+    SELECT id 
+    FROM dof_shoreline_subdivide b 
+    WHERE st_intersects(_geom, b.wkb_geometry)
+  );
+$$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION flag_nonres(
     _resid_flag varchar,
