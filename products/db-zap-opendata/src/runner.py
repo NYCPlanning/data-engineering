@@ -50,20 +50,6 @@ class Runner:
             f.write(content)
         return os.path.isfile(f"{self.cache_dir}/{filename}")
 
-    def check_table_existence(self, name):
-        with self.engine.begin() as sql_conn:
-            statement = """
-                select * from information_schema.tables 
-                where
-                    table_schema='%(schema)s'
-                    and table_name='%(name)s'
-            """ % {
-                "schema": self.pg.schema,
-                "name": name,
-            }
-            r = sql_conn.execute(statement=text(statement))
-        return bool(r.rowcount)
-
     def sql_to_csv(self, table_name, output_file):
         print("pd.read_sql ...")
         df = pd.read_sql(
@@ -99,25 +85,19 @@ class Runner:
 
     def combine(self):
         combine_table_name = f"{self.name}_crm"
+        with self.engine.begin() as sql_conn:
+            statement = """
+                BEGIN; DROP TABLE IF EXISTS %(table_name)s; COMMIT;
+            """ % {
+                "table_name": combine_table_name
+            }
+            sql_conn.execute(statement=text(statement))
+
         # sort file paths by file modification
         file_paths = sorted(
             Path(self.cache_dir).iterdir(),
             key=os.path.getmtime,
         )
-        if self.check_table_existence(self.name):
-            print("check_table_existence ...")
-            with self.engine.begin() as sql_conn:
-                statement = """
-                    BEGIN; DROP TABLE IF EXISTS %(newname)s; 
-                    ALTER TABLE %(name)s RENAME TO %(newname)s; COMMIT;
-                """ % {
-                    "name": combine_table_name,
-                    "newname": combine_table_name + "_",
-                }
-                sql_conn.execute(statement=text(statement))
-        else:
-            print("table does not exist")
-
         for file_path in file_paths:
             print(f"json.load {file_path} ...")
             with open(file_path) as f:
@@ -137,12 +117,6 @@ class Runner:
                 if_exists="append",
                 method=psql_insert_copy,
             )
-
-        with self.engine.begin() as sql_conn:
-            statement = "BEGIN; DROP TABLE IF EXISTS %(name)s; COMMIT;" % {
-                "name": combine_table_name + "_"
-            }
-            sql_conn.execute(statement=text(statement))
 
     def recode(self):
         recode_table_name = f"{self.name}_recoded"

@@ -28,20 +28,16 @@ test_datasets = [
     TestDataset(
         table_name="dcp_projects",
         filter_clause="""
-            where dcp_name in (
-                'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
-                )
+            where dcp_name in ('2023K0228')
             """,
-        expected_row_count=4,
+        expected_row_count=1,
     ),
     TestDataset(
         table_name="dcp_projectbbls",
         filter_clause="""
-            where SUBSTRING(dcp_name, 0,10) in (
-                'P2016K0159', '2023K0228', 'P2005K0122', '2021M0260'
-                )
+            where SUBSTRING(dcp_name, 0,10) in ('2023K0228') and dcp_bblnumber = '3050637501'
             """,
-        expected_row_count=2210,
+        expected_row_count=8,
     ),
 ]
 
@@ -68,7 +64,6 @@ def test_runner_download(test_dataset):
         schema=test_schema_actual,
     )
     runner.download()
-    # TODO assert things
 
 
 @pytest.mark.integration()
@@ -81,7 +76,6 @@ def test_runner_combine(test_dataset):
     runner.combine()
 
     table_name = f"{test_dataset.table_name}_crm"
-
     test_data_query_parameters = {
         "dataset_name": table_name,
         "filter_clause": test_dataset.filter_clause,
@@ -95,7 +89,9 @@ def test_runner_combine(test_dataset):
         .sort_values(by="@odata.etag")
         .reset_index()
     )
-    # TODO assert things
+
+    assert len(test_data_actual) == test_dataset.expected_row_count
+    # TODO compare entire tables
     # runner_expected = Runner(name=test_dataset.table_name, schema=test_data_expected_schema)
     # test_data_expected = runner_expected.pg.execute_select_query(
     #     base_query=test_data_query,

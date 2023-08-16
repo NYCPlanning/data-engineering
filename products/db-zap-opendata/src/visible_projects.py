@@ -101,8 +101,7 @@ def make_staging_table(sql_engine, dataset_name) -> None:
                     %(source_table_name)s.dcp_userinputborough as unverified_borough,
                     %(source_table_name)s.dcp_userinputblock as unverified_block,
                     %(source_table_name)s.dcp_userinputlot as unverified_lot
-             from %(source_table_name)s INNER JOIN dcp_projects_recoded
-            on SUBSTRING(%(source_table_name)s.dcp_name, 0,10) = dcp_projects_recoded.project_id);
+            FROM %(source_table_name)s);
             COMMIT;
         """ % {
             "source_table_name": source_table_name,
@@ -112,7 +111,7 @@ def make_staging_table(sql_engine, dataset_name) -> None:
         statement_staging_table = """
             BEGIN;
             DROP TABLE IF EXISTS %{staging_table_name}s;
-            CREATE TABLE %{staging_table_name}s as SELECT * FROM %{source_table_name}s
+            CREATE TABLE %{staging_table_name}s as SELECT * FROM %{source_table_name}s;
             COMMIT;
         """ % {
             "source_table_name": source_table_name,
