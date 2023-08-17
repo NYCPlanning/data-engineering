@@ -305,7 +305,7 @@ AND col_category IS NULL;
 
 -- DPR records
 UPDATE capital_projects SET col_category = 'Fixed Asset'
-WHERE COLUMN REGEXP '[BMQRX][0-9][0-9][0-9]' AND [agency] = 'Department of Parks and Recreation'
+WHERE COLUMN ~ '[BMQRX][0-9][0-9][0-9]' AND agency = 'Department of Parks and Recreation'
 AND col_category IS NULL;
 
 -- step 2: ITT, Vehicles and Equipment
