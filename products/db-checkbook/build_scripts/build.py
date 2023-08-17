@@ -7,7 +7,13 @@ from sqlalchemy import create_engine, text
 from dcpy.utils.postgres import execute_file_via_shell
 import geoalchemy2
 
-from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME, BUILD_ENGINE_RAW
+from . import (
+    LIB_DIR,
+    OUTPUT_DIR,
+    SQL_QUERY_DIR,
+    BUILD_OUTPUT_FILENAME,
+    BUILD_ENGINE_RAW,
+)
 
 ENGINE = create_engine(BUILD_ENGINE_RAW)
 
