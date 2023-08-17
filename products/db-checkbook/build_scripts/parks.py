@@ -35,9 +35,10 @@ def layer_parks(csdb: pd.DataFrame, parks: pd.DataFrame) -> pd.DataFrame:
     csdb.to_sql("csdb", ENGINE, if_exists="replace", index=False)
     parks_lim.to_sql("parks", ENGINE, if_exists="replace", index=False)
     execute_file_via_shell(os.environ["BUILD_ENGINE"], SQL_QUERY_DIR / "parks.sql")
-    
-    csdb_with_parks = pd.read_sql_table("csdb", os.environ["BUILD_ENGINE"])
+    with ENGINE.connect() as conn:
+        csdb_with_parks = pd.read_sql_table("csdb", conn)
     return csdb_with_parks
+
 
 def run() -> None:
     if not Path(LIB_DIR / "dpr_parksproperties.csv").exists():
@@ -47,6 +48,8 @@ def run() -> None:
 
     print('% projects mapped to geoms before adding parks: {}'.format(csdb[csdb['has_geometry']==True].shape[0]/csdb.shape[0]))
     csdb_with_parks = layer_parks(csdb, parks)
+    fp = OUTPUT_DIR / "temp_csdb_with_parks.csv"
+    csdb_with_parks.to_csv(fp, index=False)
     print('% projects mapped to geoms AFTER adding parks: {}'.format(csdb_with_parks[csdb_with_parks['has_geometry']==True].shape[0]/csdb_with_parks.shape[0]))
     return
 
