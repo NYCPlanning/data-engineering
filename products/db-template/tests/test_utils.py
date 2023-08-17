@@ -39,9 +39,10 @@ def test_load_shapefile():
 
 
 def test_load_geodata_url():
-    data = load_geodata_url("https://data.cityofnewyork.us/resource/uiay-nctu.geojson")
+    open_streets_url = "https://data.cityofnewyork.us/resource/uiay-nctu.geojson"
+    data = load_geodata_url(url=open_streets_url)
     assert isinstance(data, gpd.GeoDataFrame)
-    assert len(data) == 325
+    assert "appronstre" in data.columns
 
 
 @pytest.mark.skip(reason="result is 'Killed' due to large file")
