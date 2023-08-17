@@ -10,13 +10,15 @@ on:
 jobs:
   build:
     name: Building ...
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
         working-directory: products/db-zoningtaxlots
+    container:
+      image: nycplanning/build-base:latest
     services:
-      db:
+      postgis:
         image: postgis/postgis:14-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
@@ -27,25 +29,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5435:5432
+          - 5432:5432
     env:
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5435/postgres
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v3
-      - name: install dependencies ...
-        run: |
-          sudo apt update
-          sudo apt install -y gdal-bin
 
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+        
       - name: 1. dataloading ...
         run: ./ztl.sh dataloading
 
