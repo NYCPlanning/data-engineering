@@ -7,9 +7,9 @@ from sqlalchemy import create_engine, text
 from dcpy.utils.postgres import execute_file_via_shell
 import geoalchemy2
 
-from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME
+from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME, BUILD_ENGINE_RAW
 
-ENGINE = create_engine(os.environ["BUILD_ENGINE"])
+ENGINE = create_engine(BUILD_ENGINE_RAW)
 
 
 def _read_all_cpdb_geoms(dir=LIB_DIR) -> list:
@@ -224,7 +224,7 @@ def _layer_parks_geoms(csdb: gpd.GeoDataFrame, parks: gpd.GeoDataFrame) -> pd.Da
     """
     csdb.to_postgis("csdb", ENGINE, if_exists="replace", index=False)
     parks.to_postgis("parks", ENGINE, if_exists="replace", index=False)
-    execute_file_via_shell(os.environ["BUILD_ENGINE"], SQL_QUERY_DIR / "parks.sql")
+    execute_file_via_shell(BUILD_ENGINE_RAW, SQL_QUERY_DIR / "parks.sql")
     with ENGINE.connect() as conn:
         csdb_with_parks = gpd.read_postgis("csdb", conn, geom_col="geometry")
     return csdb_with_parks
