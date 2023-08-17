@@ -11,6 +11,7 @@ from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME
 
 ENGINE = create_engine(os.environ["BUILD_ENGINE"])
 
+
 def _read_all_cpdb_geoms(dir=LIB_DIR) -> list:
     """
     :return: list of gdfs, one for each cpdb folder
@@ -89,7 +90,9 @@ def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
 
     def fn_join_vals(x):
         seen = set()
-        return ";".join([seen.add(y) or y for y in list(x) if (y not in seen and pd.notna(y))])
+        return ";".join(
+            [seen.add(y) or y for y in list(x) if (y not in seen and pd.notna(y))]
+        )
 
     cols_for_grouping = ["fms_id"]
     cols_for_limiting = cols_for_grouping + [
@@ -213,17 +216,19 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf["final_category"] = gdf[cols].apply(lambda row: assign_category(row), axis=1)
     return gdf
 
+
 def _layer_parks_geoms(csdb: gpd.GeoDataFrame, parks: gpd.GeoDataFrame) -> pd.DataFrame:
     """
-    return: geopandas gdf with parks properties geoms 
+    return: geopandas gdf with parks properties geoms
     layered onto rows without a geometry
     """
     csdb.to_postgis("csdb", ENGINE, if_exists="replace", index=False)
     parks.to_postgis("parks", ENGINE, if_exists="replace", index=False)
     execute_file_via_shell(os.environ["BUILD_ENGINE"], SQL_QUERY_DIR / "parks.sql")
     with ENGINE.connect() as conn:
-        csdb_with_parks = gpd.read_postgis("csdb", conn, geom_col='geometry')
+        csdb_with_parks = gpd.read_postgis("csdb", conn, geom_col="geometry")
     return csdb_with_parks
+
 
 def run_build() -> None:
     """
@@ -232,12 +237,12 @@ def run_build() -> None:
     print("read in source data...")
     raw_checkbook = _read_csv_to_df("nycoc_checkbook.csv")
     cpdb_list = _read_all_cpdb_geoms()
-    
+
     # read in parks csv to gdf
     parks = _read_csv_to_df("dpr_parksproperties.csv")
     parks_gs = gpd.GeoSeries.from_wkt(parks["WKT"])
     parks_gdf = gpd.GeoDataFrame(parks, geometry=parks_gs)
-    
+
     print("_clean_checkbook...")
     clean_checkbook = _clean_checkbook(raw_checkbook)
     print("merge and group source data ...")
@@ -255,10 +260,11 @@ def run_build() -> None:
 
     # layer parks geometries on top of any unmapped capital projects whose agency is DPR
     csdb = _layer_parks_geoms(final_cat_csdb, parks_gdf)
-    
+
     print("save temp csv ...")
     fp = OUTPUT_DIR / BUILD_OUTPUT_FILENAME
     csdb.to_csv(fp, index=False)
+
 
 if __name__ == "__main__":
     print("started build ...")
