@@ -9,8 +9,7 @@ from dcpy.utils.postgres import execute_file_via_shell
 
 from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME
 
-DB_URL = "sqlite:///checkbook.db"
-ENGINE = create_engine(DB_URL)
+ENGINE = create_engine(os.environ["BUILD_ENGINE"])
 
 BASE_BUCKET = "edm-recipes"
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
@@ -29,19 +28,31 @@ def read_csv_to_df(dir: Path = LIB_DIR, fn: str = "dpr_parksproperties.csv") -> 
     df = pd.read_csv(dir / fn)
     return df
 
+def filter_csdb(df: pd.DataFrame) -> pd.DataFrame:
+    """returns slice of csdb records with no geometries where dpr is one of the 
+    associated agencies, and limits number of columns"""
+    cols = ['fms_id', 'budget_code', 'contract_purpose']
+    return df[df['has_geometry']==False & df['agency'].str.contains("Department of Parks and Recreation")].loc[:,cols]
+
 def layer_parks(csdb: pd.DataFrame, parks: pd.DataFrame) -> pd.DataFrame:
     """execute sql query on csdb to layer in geometries from parks properties
     """
-    with ENGINE.connect() as conn:
-        csdb.to_sql("csdb", ENGINE, if_exists="replace", index=False)
-        parks.to_sql("parks", ENGINE, if_exists="replace", index=False)
-        execute_file_via_shell(conn, SQL_QUERY_DIR / "parks.sql")
+    csdb_lim = filter_csdb(csdb)
+    parks_lim = parks.loc[:, ['eapply', 'address', 'name311', 'signname']]
+    csdb_lim.to_sql("csdb", ENGINE, if_exists="replace", index=False)
+    parks_lim.to_sql("parks", ENGINE, if_exists="replace", index=False)
+    execute_file_via_shell(ENGINE, SQL_QUERY_DIR / "parks.sql")
     
     csdb_with_parks = pd.read_sql_table("csdb", conn)
     return csdb_with_parks
 
+# TODO: def fn to join records with new parks geometries from csdb onto input csdb
+
+# TODO: def fn to write output back to csv
+
 def run() -> None:
-    download_s3_parks()
+    if not Path(LIB_DIR / "dpr_parksproperties.csv").exists():
+        download_s3_parks()
     csdb = read_csv_to_df(OUTPUT_DIR, BUILD_OUTPUT_FILENAME) 
     parks = read_csv_to_df()
 

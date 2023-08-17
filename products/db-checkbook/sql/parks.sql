@@ -2,35 +2,25 @@
 
 WITH master AS (
     SELECT 
-        a.fms_id,
-        a.agency, 
-        a.budget_code, 
-        a.contract_purpose, 
-        a.has_geometry, 
-        a.geometry, 
-        b.EAPPLY, 
-        b.ADDRESS, 
-        b.NAME311, 
-        b.SIGNNAME, 
-        b.multipolygon
-FROM csdb a
-JOIN parks b ON (
-        (upper(a.agency) LIKE '%DEPARTMENT OF PARKS AND RECREATION%' OR
-        upper(a.agency) LIKE '%DPR%')
-        AND a.geometry IS NULL
-        AND (
-            upper(a.budget_code) LIKE '%' || upper(b.EAPPLY) || '%' OR
-            upper(a.budget_code) LIKE '%' || upper(b.ADDRESS) || '%' OR
-            upper(a.budget_code) LIKE '%' || upper(b.NAME311) || '%' OR
-            upper(a.budget_code) LIKE '%' || upper(b.SIGNNAME) || '%' OR
-            upper(a.contract_purpose) LIKE '%' || upper(b.EAPPLY) || '%' OR 
-            upper(a.contract_purpose) LIKE '%' || upper(b.ADDRESS) || '%' OR
-            upper(a.contract_purpose) LIKE '%' || upper(b.NAME311) || '%' OR
-            upper(a.contract_purpose) LIKE '%' || upper(b.SIGNNAME) || '%'
-        )
-    )
+        csdb.fms_id,
+        csdb.agency, 
+        csdb.budget_code, 
+        csdb.contract_purpose, 
+        csdb.has_geometry, 
+        csdb.geometry, 
+        parks.signname, 
+        parks.multipolygon
+    FROM csdb
+    JOIN parks ON (upper(csdb.agency) LIKE '%DEPARTMENT OF PARKS AND RECREATION%' OR upper(csdb.agency) LIKE '%DPR%') AND 
+            (upper(csdb.budget_code) LIKE '%' || upper(parks.signname) || '%' OR
+            upper(csdb.contract_purpose) LIKE '%' || upper(parks.signname) || '%') AND
+            csdb.geometry IS NULL AND
+            upper(parks.signname) <> 'PARK' AND
+            upper(parks.signname) <> 'LOT' AND
+            upper(parks.signname) <> 'GARDEN' AND
+            upper(parks.signname) <> 'TRIANGLE' AND
+            upper(parks.signname) <> 'SITTING AREA'
 )
-
 UPDATE csdb 
 SET 
     geometry = master.multipolygon,
@@ -38,4 +28,6 @@ SET
     final_category = 'Fixed Asset'
 FROM master
 WHERE
-    csdb.fms_id = master.fms_id;
+    csdb.fms_id = master.fms_id
+    AND csdb.geometry IS NULL;
+
