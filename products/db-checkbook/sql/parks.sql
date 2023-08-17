@@ -1,6 +1,6 @@
 -- assign geometries to capital projects using Parks Properties dataset
 
-WITH master AS (
+WITH csdb_parks AS (
     SELECT 
         csdb.fms_id,
         csdb.agency, 
@@ -23,11 +23,9 @@ WITH master AS (
 )
 UPDATE csdb 
 SET 
-    geometry = master.multipolygon,
+    geometry = csdb_parks.multipolygon,
     has_geometry = true,
     final_category = 'Fixed Asset'
-FROM master
-WHERE
-    csdb.fms_id = master.fms_id
-    AND csdb.geometry IS NULL;
+FROM csdb_parks
+WHERE csdb.fms_id = csdb_parks.fms_id AND csdb.geometry IS NULL;
 
