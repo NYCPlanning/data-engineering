@@ -1,6 +1,7 @@
 import pandas as pd
 import geopandas as gpd
 import re
+import os
 from pathlib import Path
 from sqlalchemy import create_engine, text
 
@@ -8,7 +9,6 @@ from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME
 
 DB_URL = "sqlite:///checkbook.db"
 ENGINE = create_engine(DB_URL)
-
 
 def _read_all_cpdb_geoms(dir=LIB_DIR) -> list:
     """
@@ -50,7 +50,7 @@ def _merge_cpdb_geoms(gdf_list: list[str]) -> gpd.GeoDataFrame:
     return all_cpdb_geoms
 
 
-def _read_checkbook(dir: Path = LIB_DIR, f: str = "nycoc_checkbook.csv"):
+def _read_csv_to_df(f: str, dir: Path = LIB_DIR):
     """
     :return: raw checkbook data as pd df
     """
@@ -87,7 +87,8 @@ def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
     """
 
     def fn_join_vals(x):
-        return ";".join([y for y in list(x) if pd.notna(y)])
+        seen = set()
+        return ";".join([seen.add(y) or y for y in list(x) if (y not in seen and pd.notna(y))])
 
     cols_for_grouping = ["fms_id"]
     cols_for_limiting = cols_for_grouping + [
@@ -217,7 +218,8 @@ def run_build() -> None:
     :return: historical spending data
     """
     print("read in source data...")
-    raw_checkbook = _read_checkbook()
+    raw_checkbook = _read_csv_to_df("nycoc_checkbook.csv")
+    parks = _read_csv_to_df("dpr_parksproperties.csv")
     cpdb_list = _read_all_cpdb_geoms()
     print("_clean_checkbook...")
     clean_checkbook = _clean_checkbook(raw_checkbook)
@@ -234,7 +236,7 @@ def run_build() -> None:
     final_data = _assign_final_category(cleaned_data)
     print("save temp csv ...")
     fp = OUTPUT_DIR / BUILD_OUTPUT_FILENAME
-    final_data.to_csv(fp)
+    final_data.to_csv(fp, index=False)
 
 
 if __name__ == "__main__":
