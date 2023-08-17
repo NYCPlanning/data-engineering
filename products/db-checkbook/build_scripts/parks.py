@@ -28,27 +28,16 @@ def read_csv_to_df(dir: Path = LIB_DIR, fn: str = "dpr_parksproperties.csv") -> 
     df = pd.read_csv(dir / fn)
     return df
 
-def filter_csdb(df: pd.DataFrame) -> pd.DataFrame:
-    """returns slice of csdb records with no geometries where dpr is one of the 
-    associated agencies, and limits number of columns"""
-    cols = ['fms_id', 'budget_code', 'contract_purpose']
-    return df[df['has_geometry']==False & df['agency'].str.contains("Department of Parks and Recreation")].loc[:,cols]
-
 def layer_parks(csdb: pd.DataFrame, parks: pd.DataFrame) -> pd.DataFrame:
     """execute sql query on csdb to layer in geometries from parks properties
     """
-    csdb_lim = filter_csdb(csdb)
-    parks_lim = parks.loc[:, ['eapply', 'address', 'name311', 'signname']]
-    csdb_lim.to_sql("csdb", ENGINE, if_exists="replace", index=False)
+    parks_lim = parks.loc[:, ['WKT', 'signname', 'eapply']]
+    csdb.to_sql("csdb", ENGINE, if_exists="replace", index=False)
     parks_lim.to_sql("parks", ENGINE, if_exists="replace", index=False)
-    execute_file_via_shell(ENGINE, SQL_QUERY_DIR / "parks.sql")
+    execute_file_via_shell(os.environ["BUILD_ENGINE"], SQL_QUERY_DIR / "parks.sql")
     
-    csdb_with_parks = pd.read_sql_table("csdb", conn)
+    csdb_with_parks = pd.read_sql_table("csdb", os.environ["BUILD_ENGINE"])
     return csdb_with_parks
-
-# TODO: def fn to join records with new parks geometries from csdb onto input csdb
-
-# TODO: def fn to write output back to csv
 
 def run() -> None:
     if not Path(LIB_DIR / "dpr_parksproperties.csv").exists():
