@@ -3,7 +3,7 @@ import pandas as pd
 from helpers import get_data
 import folium
 from streamlit_folium import st_folium
-import geopandas 
+import geopandas
 
 
 def get_category_data(df):
@@ -15,26 +15,31 @@ def get_geometry_data(df):
     geometry_data = df.groupby("has_geometry", as_index=False).sum()
     return geometry_data
 
+
 def output_map(df):
-    df_clean = df.dropna(subset=['geometry'])
-    geometries = gpd.GeoSeries.from_wkt(df_clean['geometry'])
+    df_clean = df.dropna(subset=["geometry"])
+    geometries = gpd.GeoSeries.from_wkt(df_clean["geometry"])
     gdf = gpd.GeoDataFrame(df_clean, geometry=geometries, crs="EPSG:4326")
-    gdf_polygons = gdf[gdf['geometry'].geom_type == 'Polygon']
-    gdf_no_id = gdf_polygons.to_json(drop_id=True)  
-    base_map_nyc = folium.Map(location=[40.754187, -73.990591], zoom_start=15, control_scale=True)  
+    gdf_polygons = gdf[gdf["geometry"].geom_type == "Polygon"]
+    gdf_no_id = gdf_polygons.to_json(drop_id=True)
+    base_map_nyc = folium.Map(
+        location=[40.754187, -73.990591], zoom_start=15, control_scale=True
+    )
 
-    for idx, row in gdf[gdf['geometry'].geom_type != 'Polygon'].iterrows():
-        lat, lon = row['geometry'].centroid.y, row['geometry'].centroid.x
+    for idx, row in gdf[gdf["geometry"].geom_type != "Polygon"].iterrows():
+        lat, lon = row["geometry"].centroid.y, row["geometry"].centroid.x
         radius = 1
-        folium.CircleMarker(location=[lat, lon], radius=radius, color='blue').add_to(base_map_nyc)
-
+        folium.CircleMarker(location=[lat, lon], radius=radius, color="blue").add_to(
+            base_map_nyc
+        )
 
     folium.Choropleth(
         geo_data=gdf,
         data=gdf,
-        columns = ['fms_id', 'check_amount'],
+        columns=["fms_id", "check_amount"],
         fill_opacity=0.7,
-        line_opacity=0.2).add_to(base_map_nyc)
+        line_opacity=0.2,
+    ).add_to(base_map_nyc)
 
     return st_folium(base_map_nyc, width=900, height=500)
 
