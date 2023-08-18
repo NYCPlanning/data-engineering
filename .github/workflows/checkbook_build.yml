@@ -8,6 +8,7 @@ on:
         required: true
 
 env:
+  BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
   AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
   AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
