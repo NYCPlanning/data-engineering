@@ -71,6 +71,7 @@ def create_source_data_version_csv() -> None:
 
 def run_dataloading() -> None:
     download_s3_edm_recipes_cpdb()
+    download_s3_parks()
     read_edm_recipes_nyc_checkbook()
     create_source_data_version_csv()
 
