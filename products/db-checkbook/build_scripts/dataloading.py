@@ -12,6 +12,14 @@ BASE_BUCKET = "edm-recipes"
 BASE_URL = "https://edm-recipes.nyc3.cdn.digitaloceanspaces.com"
 
 
+def download_s3_parks(version="latest") -> None:
+    """download parks properties dataset as csv from edm-recipes"""
+    s3_object_key = f"datasets/dpr_parksproperties/{version}/dpr_parksproperties.csv"
+    download_filepath = Path(LIB_DIR / "dpr_parksproperties.csv")
+    download_file(BASE_BUCKET, s3_object_key, download_filepath)
+    return
+
+
 def download_s3_edm_recipes_cpdb() -> None:
     """read EDM data: using S3 connectors
     example: datasets/dcp_cpdb/2018_adopted_polygons/
@@ -63,6 +71,7 @@ def create_source_data_version_csv() -> None:
 
 def run_dataloading() -> None:
     download_s3_edm_recipes_cpdb()
+    download_s3_parks()
     read_edm_recipes_nyc_checkbook()
     create_source_data_version_csv()
 

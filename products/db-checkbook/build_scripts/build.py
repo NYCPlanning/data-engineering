@@ -1,13 +1,21 @@
 import pandas as pd
 import geopandas as gpd
 import re
+import os
 from pathlib import Path
 from sqlalchemy import create_engine, text
+from dcpy.utils.postgres import execute_file_via_shell
+import geoalchemy2
 
-from . import LIB_DIR, OUTPUT_DIR, SQL_QUERY_DIR, BUILD_OUTPUT_FILENAME
+from . import (
+    LIB_DIR,
+    OUTPUT_DIR,
+    SQL_QUERY_DIR,
+    BUILD_OUTPUT_FILENAME,
+    BUILD_ENGINE_RAW,
+)
 
-DB_URL = "sqlite:///checkbook.db"
-ENGINE = create_engine(DB_URL)
+ENGINE = create_engine(BUILD_ENGINE_RAW)
 
 
 def _read_all_cpdb_geoms(dir=LIB_DIR) -> list:
@@ -50,7 +58,7 @@ def _merge_cpdb_geoms(gdf_list: list[str]) -> gpd.GeoDataFrame:
     return all_cpdb_geoms
 
 
-def _read_checkbook(dir: Path = LIB_DIR, f: str = "nycoc_checkbook.csv"):
+def _read_csv_to_df(f: str, dir: Path = LIB_DIR):
     """
     :return: raw checkbook data as pd df
     """
@@ -87,7 +95,10 @@ def _group_checkbook(data: pd.DataFrame) -> pd.DataFrame:
     """
 
     def fn_join_vals(x):
-        return ";".join([y for y in list(x) if pd.notna(y)])
+        seen = set()
+        return ";".join(
+            [seen.add(y) or y for y in list(x) if (y not in seen and pd.notna(y))]
+        )
 
     cols_for_grouping = ["fms_id"]
     cols_for_limiting = cols_for_grouping + [
@@ -131,14 +142,14 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
     df["bc_category"] = None
     df["cp_category"] = None
 
+    df.to_sql("capital_projects", ENGINE, if_exists="replace", index=False)
     with ENGINE.connect() as conn:
-        df.to_sql("capital_projects", ENGINE, if_exists="replace", index=False)
         for k, v in target_cols.items():
             with open(sql_dir / "categorization.sql", "r") as query_file:
                 query = query_file.read()
             query = query.replace("COLUMN", k)
             query = query.replace("col_category", v)
-            queries = [q for q in query.split(";")]
+            queries = [q.strip() for q in query.split(";") if q.strip()]
             for q in queries:
                 conn.execute(text(q))
 
@@ -212,13 +223,32 @@ def _assign_final_category(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
+def _layer_parks_geoms(csdb: gpd.GeoDataFrame, parks: gpd.GeoDataFrame) -> pd.DataFrame:
+    """
+    return: geopandas gdf with parks properties geoms
+    layered onto rows without a geometry
+    """
+    csdb.to_postgis("csdb", ENGINE, if_exists="replace", index=False)
+    parks.to_postgis("parks", ENGINE, if_exists="replace", index=False)
+    execute_file_via_shell(BUILD_ENGINE_RAW, SQL_QUERY_DIR / "parks.sql")
+    with ENGINE.connect() as conn:
+        csdb_with_parks = gpd.read_postgis("csdb", conn, geom_col="geometry")
+    return csdb_with_parks
+
+
 def run_build() -> None:
     """
     :return: historical spending data
     """
     print("read in source data...")
-    raw_checkbook = _read_checkbook()
+    raw_checkbook = _read_csv_to_df("nycoc_checkbook.csv")
     cpdb_list = _read_all_cpdb_geoms()
+
+    # read in parks csv to gdf
+    parks = _read_csv_to_df("dpr_parksproperties.csv")
+    parks_gs = gpd.GeoSeries.from_wkt(parks["WKT"])
+    parks_gdf = gpd.GeoDataFrame(parks, geometry=parks_gs)
+
     print("_clean_checkbook...")
     clean_checkbook = _clean_checkbook(raw_checkbook)
     print("merge and group source data ...")
@@ -227,14 +257,19 @@ def run_build() -> None:
     print("_assign_checkbook_category ...")
     cat_checkbook = _assign_checkbook_category(grouped_checkbook)
     print("_join_checkbook_geoms ...")
-    joined_data = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
+    raw_csdb = _join_checkbook_geoms(cat_checkbook, cpdb_geoms)
     print("_clean_joined_checkbook_cpdb ...")
-    cleaned_data = _clean_joined_checkbook_cpdb(joined_data)
+    cleaned_csdb = _clean_joined_checkbook_cpdb(raw_csdb)
     print("_assign_final_category ...")
-    final_data = _assign_final_category(cleaned_data)
+    final_cat_csdb = _assign_final_category(cleaned_csdb)
+    print("_layer_parks_geoms ...")
+
+    # layer parks geometries on top of any unmapped capital projects whose agency is DPR
+    csdb = _layer_parks_geoms(final_cat_csdb, parks_gdf)
+
     print("save temp csv ...")
     fp = OUTPUT_DIR / BUILD_OUTPUT_FILENAME
-    final_data.to_csv(fp)
+    csdb.to_csv(fp, index=False)
 
 
 if __name__ == "__main__":

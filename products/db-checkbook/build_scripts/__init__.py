@@ -20,6 +20,8 @@ BUILD_OUTPUT_FILENAME = "historical_spend.csv"
 SUMMARY_STATS_DESCRIBE_FILENAME = "historical_spend_stats.csv"
 SUMMARY_STATS_LOG_FILENAME = "build_summarization.log"
 
+BUILD_ENGINE_RAW = os.environ["BUILD_ENGINE"]
+
 if not os.path.isdir(LIB_DIR):
     os.makedirs(LIB_DIR)
 
