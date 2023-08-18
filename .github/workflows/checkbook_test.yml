@@ -1,12 +1,6 @@
 name: Checkbook - Tests
 on: 
   workflow_call:
-    
-env:
-  BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
-  AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-  AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
 
 jobs:
   branch_unit_tests:
@@ -14,6 +8,24 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    services:
+      postgis:
+        image: postgis/postgis:14-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+        ports:
+          - 5432:5432
     defaults:
       run:
         shell: bash
