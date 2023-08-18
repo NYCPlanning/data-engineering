@@ -17,10 +17,16 @@ def get_geometry_data(df):
 
 def output_map(df):
     df_clean = df.dropna(subset=['geometry'])
-    geometries = geopandas.GeoSeries.from_wkt(df_clean['geometry'])
-    gdf = geopandas.GeoDataFrame(df_clean, geometry=geometries, crs="EPSG:4326")
-    gdf_no_id = gdf.to_json(drop_id = True)
-    base_map_nyc = folium.Map(location=[40.754187, -73.990591], zoom_start=10, control_scale=True)
+    geometries = gpd.GeoSeries.from_wkt(df_clean['geometry'])
+    gdf = gpd.GeoDataFrame(df_clean, geometry=geometries, crs="EPSG:4326")
+    gdf_polygons = gdf[gdf['geometry'].geom_type == 'Polygon']
+    gdf_no_id = gdf_polygons.to_json(drop_id=True)  
+    base_map_nyc = folium.Map(location=[40.754187, -73.990591], zoom_start=15, control_scale=True)  
+
+    for idx, row in gdf[gdf['geometry'].geom_type != 'Polygon'].iterrows():
+        lat, lon = row['geometry'].centroid.y, row['geometry'].centroid.x
+        radius = 1
+        folium.CircleMarker(location=[lat, lon], radius=radius, color='blue').add_to(base_map_nyc)
 
 
     folium.Choropleth(
@@ -30,7 +36,7 @@ def output_map(df):
         fill_opacity=0.7,
         line_opacity=0.2).add_to(base_map_nyc)
 
-    return st_folium(base_map_nyc, width=700, height=450)
+    return st_folium(base_map_nyc, width=900, height=500)
 
 
 data = get_data()
