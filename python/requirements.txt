@@ -90,6 +90,8 @@ fonttools==4.42.0
     # via matplotlib
 future==0.18.3
     # via usaddress
+geoalchemy2==0.14.1
+    # via -r python/requirements.in
 geographiclib==2.0
     # via geopy
 geopandas==0.12.2
