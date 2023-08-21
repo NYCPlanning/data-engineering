@@ -3,25 +3,6 @@ on:
   workflow_call:
 
 jobs:
-  branch_lint:
-    name: Linting tests
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-geosupport:latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: products/db-template
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup build environment
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
-      - name: Black linting
-        run: black --diff --check .
-
   branch_unit_tests:
     name: Unit tests
     runs-on: ubuntu-22.04

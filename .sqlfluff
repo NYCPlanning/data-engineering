@@ -1,0 +1,3 @@
+[sqlfluff]
+dialect = postgres
+exclude_rules = layout.long_lines, ambiguous.column_count

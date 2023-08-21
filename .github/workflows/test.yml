@@ -23,9 +23,15 @@ jobs:
       - name: Check python files
         run: black --diff --color --check .
 
-      # TODO add sql formatting check
-      # - name: Check sql files
-      #   run: sqlfluff ...
+      # ! temporary until packages added to build-base image
+      - name: Install extra python packages
+        run: |
+          pip install sqlfluff
+
+      - name: Check sql files
+        run: |
+          # ! temporarily limit to a single data product
+          sqlfluff lint products/db-knownprojects/sql/create_corrections.sql
 
   check_changes:
     name: Check changed files
