@@ -33,10 +33,10 @@ import_recipe dcp_zoningmapamendments &
 import_recipe dcp_zoningmapindex &
 
 echo "import PTS and CAMA from data library"
-import_recipe pluto_input_numbldgs ${DOF_WEEKLY_DATA_VERSION} &
-import_recipe pluto_input_geocodes ${DOF_WEEKLY_DATA_VERSION} &
-import_recipe pluto_pts ${DOF_WEEKLY_DATA_VERSION} &
-import_recipe pluto_input_cama_dof ${DOF_CAMA_DATA_VERSION} &
+import_recipe pluto_input_numbldgs ${PLUTO_INPUT_NUMBLDGS_VERSION} &
+import_recipe pluto_input_geocodes ${PLUTO_PTS_VERSION} &
+import_recipe pluto_pts ${PLUTO_PTS_VERSION} &
+import_recipe pluto_input_cama_dof ${PLUTO_INPUT_CAMA_VERSION} &
 
 echo "import spatial bounaries from data library"
 import_recipe dcp_cdboundaries_wi ${GEOSUPPORT_VERSION} &
@@ -50,14 +50,14 @@ import_recipe dcp_policeprecincts ${GEOSUPPORT_VERSION} &
 import_recipe dcp_councildistricts_wi ${GEOSUPPORT_CITYCOUNCIL} &
 import_recipe dcp_healthareas ${GEOSUPPORT_VERSION} &
 import_recipe dcp_healthcenters ${GEOSUPPORT_VERSION} &
-import_recipe fema_firms2007_100yr ${FEMA_FIRPS_VERSION} &
-import_recipe fema_pfirms2015_100yr ${FEMA_FIRPS_VERSION} &
-import_recipe doitt_zipcodeboundaries ${DOITT_DATA_VERSION} & 
-import_recipe dof_shoreline ${DOF_DATA_VERSION} & 
+import_recipe fema_firms2007_100yr ${FEMA_FIRMS_VERSION} &
+import_recipe fema_pfirms2015_100yr ${FEMA_FIRMS_VERSION} &
+import_recipe doitt_zipcodeboundaries ${DOITT_ZIPCODEBOUNDARIES_VERSION} & 
+import_recipe dof_shoreline ${DOF_CONDO_SHORELINE_VERSION} & 
 
 echo "import other"
-import_recipe dof_dtm ${DOF_DATA_VERSION_DTM} & 
-import_recipe dof_condo ${DOF_DATA_VERSION} &
+import_recipe dof_dtm ${DOF_DTM_VERSION} & 
+import_recipe dof_condo ${DOF_CONDO_SHORELINE_VERSION} &
 import_recipe dcp_colp ${DCP_COLP_VERSION} &
 import_recipe dpr_greenthumb ${DPR_GREENTHUMB_VERSION} &
 import_recipe dsny_frequencies ${DSNY_FREQUENCIES_VERSION} &

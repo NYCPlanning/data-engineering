@@ -23,13 +23,13 @@ For example, say 22v1.4 is the last release. 22v2 is to be built. These args are
 When it's time to build 22v2.1, these must be updated to match [the versions used in 22v2](https://nyc3.digitaloceanspaces.com/edm-publishing/db-pluto/22v2/latest/output/source_data_versions.csv) as they were last used for 22v1 minor versions. Finally, when 22v2.2 is being built, they don't need to be updated since they've
 already been updated to be set to 22v2 versions
 
-- [ ] DOF_WEEKLY_DATA_VERSION
-- [ ] DOF_CAMA_DATA_VERSION
+- [ ] DOF_WEEKLY_DATA_VERSION - temporarily split out to pts, numbldgs since pts temporarily fell slightly out of date. Can be rejoined to one var in minor builds of 23v3
+- [ ] PLUTO_INPUT_CAMA_VERSION
 
 - [ ] GEOSUPPORT_VERSION
-- [ ] FEMA_FIRPS_VERSION
-- [ ] DOITT_DATA_VERSION
-- [ ] DOF_DATA_VERSION
+- [ ] FEMA_FIRMS_VERSION
+- [ ] DOITT_ZIPCODEBOUNDARIES_VERSION
+- [ ] DOF_CONDO_SHORELINE_VERSION
 
 - [ ] DCP_COLP_VERSION
 - [ ] DPR_GREENTHUMB_VERSION
@@ -37,7 +37,7 @@ already been updated to be set to 22v2 versions
 - [ ] LPC_HISTORIC_DISTRICTS_VERSION
 - [ ] LPC_LANDMARKS_VESRSION
 
-- [ ] PLUTO_CORRECTIONS_VERSION
+- [x] ~~PLUTO_CORRECTIONS_VERSION~~ defunct as of 23v2.1
 
 ## Data loading
 
