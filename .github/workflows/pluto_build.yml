@@ -109,6 +109,9 @@ jobs:
       - name: apply corrections
         run: ./03_corrections.sh
 
+      - name: clean out database
+        run: ./bash/clean_database.sh
+
       - name: Archive
         run: ./04_archive.sh
         if: inputs.run_export
