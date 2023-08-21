@@ -1,6 +1,8 @@
+import argparse
 import copy
 import json
 from pathlib import Path
+import sys
 import yaml
 
 from sqlalchemy import text, update, Table, MetaData
@@ -8,6 +10,7 @@ from sqlalchemy import text, update, Table, MetaData
 
 from dcpy import DCPY_ROOT_PATH
 from dcpy.utils import s3
+from dcpy.utils.logging import logger
 from dcpy.utils import postgres
 from dcpy.utils import versions
 
@@ -85,7 +88,7 @@ def import_recipe(
         con.commit()
 
 
-def plan_build_versions(build_file: Path, *, branch="main"):
+def plan_build_versions(build_file: Path, *, branch="main") -> dict:
     """Plan build versions for a product release.
 
     Similar to pip freeze, determines recipe versions to use for a build.
@@ -147,3 +150,24 @@ def import_build_datasets(build):
     for rec in build["recipe"]["inputs"]:
         # import_recipe(rec['name'], version=rec['version'], set_version=True)
         import_recipe(rec["name"], version=rec["version"])
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "import":
+        flags_parser = argparse.ArgumentParser()
+        flags_parser.add_argument("cmd")
+        flags_parser.add_argument(
+            "-f", "--file", help="Requirements filepath", type=Path
+        )
+        flags_parser.add_argument("-b", "--branch", help="Branch")
+        flags = flags_parser.parse_args()
+
+        logger.info("Planning build")
+        build = plan_build_versions(Path(flags.file), branch=flags.branch)
+        lock_file_path = flags.file.parent / "build.lock.yml"
+        logger.info("Writing build lockfile")
+        with open(lock_file_path, "w", encoding="utf-8") as f:
+            yaml.dump(build, f)
+
+        logger.info("Importing build datasets")
+        import_build_datasets(build)
