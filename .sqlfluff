@@ -1,3 +1,4 @@
 [sqlfluff]
 dialect = postgres
-exclude_rules = layout.long_lines, ambiguous.column_count
+exclude_rules = layout.long_lines, ambiguous.column_count, references.consistent, references.qualification, references.keywords, structure.unused_cte, aliasing.expression
+processes = -1

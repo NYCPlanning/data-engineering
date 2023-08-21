@@ -31,7 +31,7 @@ jobs:
       - name: Check sql files
         run: |
           # ! temporarily limit to a single data product
-          sqlfluff lint products/db-knownprojects/sql/create_corrections.sql
+          sqlfluff lint products/db-knownprojects/
 
   check_changes:
     name: Check changed files
