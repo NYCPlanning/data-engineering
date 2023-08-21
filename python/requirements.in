@@ -22,6 +22,7 @@ rich>=13.4.2
 streamlit-aggrid==0.*
 streamlit==1.*
 sqlalchemy==2.0.15
+sqlfluff==2.3.0
 streamlit-aggrid==0.*
 streamlit==1.*
 tabulate==0.9.0
