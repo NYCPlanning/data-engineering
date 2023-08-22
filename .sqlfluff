@@ -26,4 +26,4 @@ processes = -1
 # removed in a future version.
 # Set either to 0 to disable.
 large_file_skip_char_limit = 0
-large_file_skip_byte_limit = 25000
+large_file_skip_byte_limit = 42000

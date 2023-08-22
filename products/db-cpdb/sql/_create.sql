@@ -26,7 +26,7 @@ CREATE TABLE dcp_agencylookup (
 
 DROP TABLE IF EXISTS dcp_json CASCADE;
 CREATE TABLE dcp_json (
-    maprojid text, 
+    maprojid text,
     geom text
 );
 \COPY dcp_json FROM 'data/dcp_json.csv' DELIMITER ',' CSV HEADER;
@@ -39,7 +39,7 @@ CREATE TABLE cpdb_badgeoms (
 
 DROP TABLE IF EXISTS dcp_id_bin_map CASCADE;
 CREATE TABLE dcp_id_bin_map (
-    maprojid text, 
+    maprojid text,
     bin text
 );
 \COPY dcp_id_bin_map FROM 'data/id_bin_map.csv' DELIMITER ',' CSV HEADER;
