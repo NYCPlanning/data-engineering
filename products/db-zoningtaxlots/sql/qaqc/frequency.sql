@@ -1,8 +1,8 @@
 delete from dcp_zoningtaxlots.qaqc_frequency
-where version = :'VERSION'; 
+where version =: 'VERSION';
 
 insert into dcp_zoningtaxlots.qaqc_frequency (
-    select 
+    select
         count(boroughcode) as boroughcode,
         count(taxblock) as taxblock,
         count(taxlot) as taxlot,
@@ -22,5 +22,6 @@ insert into dcp_zoningtaxlots.qaqc_frequency (
         count(zoningmapnumber) as zoningmapnumber,
         count(zoningmapcode) as zoningmapcode,
         count(area) as area,
-        :'VERSION' as version
-    FROM dcp_zoningtaxlots.:"VERSION");
+        : 'VERSION' as version
+    from dcp_zoningtaxlots.:"VERSION"
+);

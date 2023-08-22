@@ -36,8 +36,10 @@ CREATE TEMP TABLE tmp (
 \COPY tmp FROM PSTDIN DELIMITER ',' CSV HEADER;
 
 DROP TABLE IF EXISTS qc_bbldiffs;
-SELECT a.*, b.geom
+SELECT
+    a.*,
+    b.geom
 INTO qc_bbldiffs
-FROM tmp a
-JOIN dof_dtm b
-on a.bblnew::text = b.bbl::text;
+FROM tmp AS a
+INNER JOIN dof_dtm AS b
+    ON a.bblnew::text = b.bbl::text;

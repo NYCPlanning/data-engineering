@@ -1,46 +1,63 @@
 CREATE TEMP TABLE qaqc_frequency_change AS (
     WITH
-    count_old as (
-        SELECT b.key as field, b.value::numeric as count
-        FROM( SELECT row_to_json(row) as _col 
-        FROM(
-        SELECT 
-            sum(zoningdistrict1 is not null::int) as zoningdistrict1,
-            sum(zoningdistrict2 is not null::int) as zoningdistrict2,
-            sum(zoningdistrict3 is not null::int) as zoningdistrict3,
-            sum(zoningdistrict4 is not null::int) as zoningdistrict4,
-            sum(commercialoverlay1 is not null::int) as commercialoverlay1,
-            sum(commercialoverlay2 is not null::int) as commercialoverlay2,
-            sum(specialdistrict1 is not null::int) as specialdistrict1,
-            sum(specialdistrict2 is not null::int) as specialdistrict2,
-            sum(specialdistrict3 is not null::int) as specialdistrict3,
-            sum(limitedheightdistrict is not null::int) as limitedheightdistrict,
-            sum(zoningmapnumber is not null::int) as zoningmapnumber,
-            sum(zoningmapcode is not null::int) as zoningmapcode
-        FROM dcp_zoningtaxlots.:"VERSION_PREV") row) a, json_each_text(_col) as b
+    count_old AS (
+        SELECT
+            b.key AS field,
+            b.value::numeric AS count
+        FROM (
+            SELECT row_to_json(row) AS _col
+            FROM (
+                SELECT
+                    sum(zoningdistrict1 IS NOT NULL::int) AS zoningdistrict1,
+                    sum(zoningdistrict2 IS NOT NULL::int) AS zoningdistrict2,
+                    sum(zoningdistrict3 IS NOT NULL::int) AS zoningdistrict3,
+                    sum(zoningdistrict4 IS NOT NULL::int) AS zoningdistrict4,
+                    sum(commercialoverlay1 IS NOT NULL::int) AS commercialoverlay1,
+                    sum(commercialoverlay2 IS NOT NULL::int) AS commercialoverlay2,
+                    sum(specialdistrict1 IS NOT NULL::int) AS specialdistrict1,
+                    sum(specialdistrict2 IS NOT NULL::int) AS specialdistrict2,
+                    sum(specialdistrict3 IS NOT NULL::int) AS specialdistrict3,
+                    sum(limitedheightdistrict IS NOT NULL::int) AS limitedheightdistrict,
+                    sum(zoningmapnumber IS NOT NULL::int) AS zoningmapnumber,
+                    sum(zoningmapcode IS NOT NULL::int) AS zoningmapcode
+                FROM dcp_zoningtaxlots.:"VERSION_PREV"
+            ) AS row
+        ) AS a, json_each_text(_col
+        ) AS b
     ),
-    count_new as (
-        SELECT b.key as field, b.value::numeric as count
-        FROM( SELECT row_to_json(row) as _col 
-        FROM(
-        SELECT 
-            sum(zoningdistrict1 is not null::int) as zoningdistrict1,
-            sum(zoningdistrict2 is not null::int) as zoningdistrict2,
-            sum(zoningdistrict3 is not null::int) as zoningdistrict3,
-            sum(zoningdistrict4 is not null::int) as zoningdistrict4,
-            sum(commercialoverlay1 is not null::int) as commercialoverlay1,
-            sum(commercialoverlay2 is not null::int) as commercialoverlay2,
-            sum(specialdistrict1 is not null::int) as specialdistrict1,
-            sum(specialdistrict2 is not null::int) as specialdistrict2,
-            sum(specialdistrict3 is not null::int) as specialdistrict3,
-            sum(limitedheightdistrict is not null::int) as limitedheightdistrict,
-            sum(zoningmapnumber is not null::int) as zoningmapnumber,
-            sum(zoningmapcode is not null::int) as zoningmapcode
-        FROM dcp_zoningtaxlots.:"VERSION") row) a, json_each_text(_col) as b
-    ) 
-    SELECT a.field, a.count as countold, b.count as countnew
-    FROM count_old a JOIN count_new b on a.field=b.field
-    ORDER BY b.count - a.count DESC       
+
+    count_new AS (
+        SELECT
+            b.key AS field,
+            b.value::numeric AS count
+        FROM (
+            SELECT row_to_json(row) AS _col
+            FROM (
+                SELECT
+                    sum(zoningdistrict1 IS NOT NULL::int) AS zoningdistrict1,
+                    sum(zoningdistrict2 IS NOT NULL::int) AS zoningdistrict2,
+                    sum(zoningdistrict3 IS NOT NULL::int) AS zoningdistrict3,
+                    sum(zoningdistrict4 IS NOT NULL::int) AS zoningdistrict4,
+                    sum(commercialoverlay1 IS NOT NULL::int) AS commercialoverlay1,
+                    sum(commercialoverlay2 IS NOT NULL::int) AS commercialoverlay2,
+                    sum(specialdistrict1 IS NOT NULL::int) AS specialdistrict1,
+                    sum(specialdistrict2 IS NOT NULL::int) AS specialdistrict2,
+                    sum(specialdistrict3 IS NOT NULL::int) AS specialdistrict3,
+                    sum(limitedheightdistrict IS NOT NULL::int) AS limitedheightdistrict,
+                    sum(zoningmapnumber IS NOT NULL::int) AS zoningmapnumber,
+                    sum(zoningmapcode IS NOT NULL::int) AS zoningmapcode
+                FROM dcp_zoningtaxlots.:"VERSION"
+            ) AS row
+        ) AS a, json_each_text(_col
+        ) AS b
+    )
+
+    SELECT
+        a.field,
+        a.count AS countold,
+        b.count AS countnew
+    FROM count_old AS a INNER JOIN count_new AS b ON a.field = b.field
+    ORDER BY b.count - a.count DESC
 );
 
 \COPY qaqc_frequency_change TO PSTDOUT DELIMITER ',' CSV HEADER;
