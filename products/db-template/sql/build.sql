@@ -5,11 +5,11 @@ DROP TABLE IF EXISTS validzones;
 CREATE TABLE validzones AS (
     SELECT
         zoningdistricts.zonedist,
-        ST_MakeValid(zoningdistricts.geom) AS geom
+        ST_MAKEVALID(zoningdistricts.geom) AS geom
     FROM _dcp_zoningdistricts AS zoningdistricts
     WHERE
-        ST_GeometryType(ST_MakeValid(zoningdistricts.geom)) = 'ST_MultiPolygon'
+        ST_GEOMETRYTYPE(ST_MAKEVALID(zoningdistricts.geom)) = 'ST_MultiPolygon'
 );
 
 CREATE INDEX validzones_geom_idx ON validzones
-USING GIST(geom gist_geometry_ops_2d);
+USING gist (geom gist_geometry_ops_2d);
