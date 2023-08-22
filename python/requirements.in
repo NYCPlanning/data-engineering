@@ -20,6 +20,7 @@ python-dotenv==0.20.0
 PyYAML>=5.4.1
 rich>=13.4.2
 sqlalchemy==2.0.15
+sqlfluff==2.3.0
 streamlit==1.*
 streamlit-aggrid==0.*
 streamlit-folium==0.*
