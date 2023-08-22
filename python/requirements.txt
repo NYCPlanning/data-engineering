@@ -371,11 +371,7 @@ tornado==6.3.3
     #   jupyter-client
     #   streamlit
 tqdm==4.66.1
-<<<<<<< HEAD
-    # via -r python/requirements.in
-=======
     # via -r ./python/requirements.in
->>>>>>> 9ae2aba (rework map for checkbook to somewhat align with capital projects explorer)
 traitlets==5.9.0
     # via
     #   comm
