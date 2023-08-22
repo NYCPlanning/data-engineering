@@ -1,28 +1,14 @@
-import streamlit as st
-import pandas as pd
-from helpers import get_data
-
-
-def get_category_data(df):
-    category_data = df.groupby("final_category", as_index=False).sum()
-    return category_data
-
-
-def get_geometry_data(df):
-    geometry_data = df.groupby("has_geometry", as_index=False).sum()
-    return geometry_data
-
-
-data = get_data()
-
-
 def checkbook():
-    st.title("Historical Liquidations Visualizations")
+    import streamlit as st
+    from checkbook.helpers import get_data
+    from checkbook.components import output_map
+
+    st.title("Capital Spending Database")
     st.markdown(
         body="""
-        ### About the Historical Liquidations Database
+        ### About
 
-        The Historical Liquidations Dataset (db-checkbook), a data product produced by the New York City (NYC) Department of City Planning (DCP) Data Engineering team, presents the first-ever spatialized view of historical liquidations of the NYC capital budget. 
+        The [Capital Spending Database](https://github.com/NYCPlanning/data-engineering/tree/main/products/db-checkbook) (db-checkbook), a data product produced by the New York City (NYC) Department of City Planning (DCP) Data Engineering team, presents the first-ever spatialized view of historical liquidations of the NYC capital budget. 
         Each row in the dataset corresponds to a unique capital project and captures vital information such as the sum of all checks disbursed for the project, a list of agencies associated with the project, a category assignment based on keywords in project text fields (‘Fixed Asset’, ‘Lump Sum’, or ‘ITT, Vehicles, and Equipment’), and most importantly, geospatial information associated with the project when possible. 
         Currently, the dataset is created from two source datasets: Checkbook NYC and the Capital Projects Database (CPDB). Checkbook NYC provides the information related to historical liquidations of the capital budget at the capital project level, while CPDB provides geospatial information for those projects. 
         Checkbook NYC is an open-source dataset and tool from the NYC Comptroller’s Office that publishes every check disbursed by the city. For the Historical Liquidations dataset, we limited the scope of this data source to only those checks pertaining to capital spending, as defined by Checkbook NYC. 
@@ -31,17 +17,10 @@ def checkbook():
         """
     )
 
-    st.dataframe(data)
-
-    grouped_by_category_all = get_category_data(data)
-    grouped_by_geometry_all = get_geometry_data(data)
-
-    st.header("Check Amounts Per Category")
-    st.bar_chart(grouped_by_category_all, x="final_category", y="check_amount")
-
-    agency = st.selectbox(
+    agency = st.sidebar.selectbox(
         "Agency Selection: ",
         (
+            "All",
             "SCHOOL CONSTRUCTION AUTHORITY",
             "Department of Education",
             "Transit Authority",
@@ -51,35 +30,26 @@ def checkbook():
             "Department of Citywide Administrative Services",
             "Health and Hospitals Corporation",
         ),
-        key="category",
     )
 
-    agency_data = data[data["agency"].str.contains(agency) == True]
-    grouped_by_category = agency_data.groupby("final_category", as_index=False).sum()
+    data = get_data()
 
+    if agency != "All":
+        agency_data = data[data["agency"].str.contains(agency)]
+    else:
+        agency_data = data
+
+    grouped_by_category = agency_data.groupby("final_category", as_index=False).sum(
+        numeric_only=True
+    )
+    grouped_by_geometry = agency_data.groupby("has_geometry", as_index=False).sum(
+        numeric_only=True
+    )
+
+    st.header("Check Amounts Per Category")
     st.bar_chart(grouped_by_category, x="final_category", y="check_amount")
 
     st.header("Check Amounts Represented by Geometries")
-    st.bar_chart(grouped_by_geometry_all, x="has_geometry", y="check_amount")
+    st.bar_chart(grouped_by_geometry, x="has_geometry", y="check_amount")
 
-    agency_geom = st.selectbox(
-        "Agency Selection: ",
-        (
-            "SCHOOL CONSTRUCTION AUTHORITY",
-            "Department of Education",
-            "Transit Authority",
-            "Department of Environmental Protection",
-            "Housing, Preservation and Development",
-            "Department of Parks and Recreation",
-            "Department of Citywide Administrative Services",
-            "Health and Hospitals Corporation",
-        ),
-        key="geometry",
-    )
-
-    agency_data_geom = data[data["agency"].str.contains(agency_geom) == True]
-    grouped_by_agency_geom = agency_data_geom.groupby(
-        "has_geometry", as_index=False
-    ).sum()
-    st.bar_chart(grouped_by_agency_geom, x="has_geometry", y="check_amount")
-    return
+    output_map(data)

@@ -82,6 +82,7 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'qaqc')
     uses: ./.github/workflows/qaqc_test.yml
+    secrets: inherit
   zap:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'zap')
