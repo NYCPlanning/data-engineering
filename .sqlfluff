@@ -1,4 +1,20 @@
 [sqlfluff]
 dialect = postgres
-exclude_rules = layout.long_lines, ambiguous.column_count, references.consistent, references.qualification, references.keywords, structure.unused_cte, aliasing.expression
+
+# Warn only for rule codes (one of more rule codes, seperated by commas: e.g. LT01,LT02)
+# Also works for templating and parsing errors by using TMP or PRS
+warnings = PRS
+
+# Allow fix to run on files, even if they contain parsing errors
+# Note altering this is NOT RECOMMENDED as can corrupt SQL
+fix_even_unparsable = True
+
+# CPU processes to use while linting.
+# The default is "single threaded" to allow easy debugging, but this
+# is often undesirable at scale.
+# If positive, just implies number of processes.
+# If negative or zero, implies number_of_cpus - specified_number.
+# e.g. -1 means use all processors but one. 0 means all cpus.
 processes = -1
+
+exclude_rules = layout.long_lines, ambiguous.column_count, references.consistent, references.qualification, references.keywords, structure.unused_cte, aliasing.expression, convention.left_join
