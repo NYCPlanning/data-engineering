@@ -17,15 +17,15 @@ CREATE TABLE _dcp_facilities AS TABLE dcp_facilities;
 
 DROP TABLE IF EXISTS _cbbr_point_corrections;
 
-CREATE TABLE  _cbbr_point_corrections AS TABLE cbbr_point_corrections;
+CREATE TABLE _cbbr_point_corrections AS TABLE cbbr_point_corrections;
 
 DROP TABLE IF EXISTS _cbbr_line_corrections;
 
-CREATE TABLE  _cbbr_line_corrections AS TABLE cbbr_line_corrections;
+CREATE TABLE _cbbr_line_corrections AS TABLE cbbr_line_corrections;
 
 DROP TABLE IF EXISTS _cbbr_poly_corrections;
 
-CREATE TABLE  _cbbr_poly_corrections AS TABLE cbbr_poly_corrections;
+CREATE TABLE _cbbr_poly_corrections AS TABLE cbbr_poly_corrections;
 
 -- -- extract geometries from manually researched json files
 -- UPDATE
@@ -37,16 +37,16 @@ CREATE TABLE  _cbbr_poly_corrections AS TABLE cbbr_poly_corrections;
 --
 -- create unique_id column
 ALTER TABLE _cbbr_submissions
-    ADD unique_id text;
+ADD unique_id text;
 
 UPDATE
-    _cbbr_submissions
+_cbbr_submissions
 SET
     unique_id = ogc_fid;
 
 -- create columns expected in export
 ALTER TABLE _cbbr_submissions
-    ADD parent_tracking_code text;
+ADD parent_tracking_code text;
 
 -- rename columns
 ALTER TABLE _cbbr_submissions RENAME COLUMN trkno TO tracking_code;
@@ -77,22 +77,21 @@ ALTER TABLE _dpr_parksproperties RENAME COLUMN wkb_geometry TO geom;
 
 ALTER TABLE _dcp_facilities RENAME COLUMN wkb_geometry TO geom;
 
-ALTER TABLE _cbbr_point_corrections RENAME COLUMN wkt to geom;
+ALTER TABLE _cbbr_point_corrections RENAME COLUMN wkt TO geom;
 
-UPDATE _cbbr_point_corrections SET geom = ST_GeometryFromText(geom, 4326);
+UPDATE _cbbr_point_corrections SET geom = ST_GEOMETRYFROMTEXT(geom, 4326);
 
-ALTER TABLE _cbbr_line_corrections RENAME COLUMN wkt to geom;
+ALTER TABLE _cbbr_line_corrections RENAME COLUMN wkt TO geom;
 
-UPDATE _cbbr_line_corrections SET geom = ST_GeometryFromText(geom, 4326);
+UPDATE _cbbr_line_corrections SET geom = ST_GEOMETRYFROMTEXT(geom, 4326);
 
-ALTER TABLE _cbbr_poly_corrections RENAME COLUMN wkt to geom;
+ALTER TABLE _cbbr_poly_corrections RENAME COLUMN wkt TO geom;
 
-UPDATE _cbbr_poly_corrections SET geom = ST_GeometryFromText(geom, 4326);
+UPDATE _cbbr_poly_corrections SET geom = ST_GEOMETRYFROMTEXT(geom, 4326);
 
 -- remove linebreaks from certain text columns
 UPDATE
-    _cbbr_submissions
+_cbbr_submissions
 SET
-    explanation = replace(explanation, E'\n', ' '),
-    additional_comment = replace(additional_comment, E'\n', ' ');
-
+    explanation = REPLACE(explanation, E'\n', ' '),
+    additional_comment = REPLACE(additional_comment, E'\n', ' ');

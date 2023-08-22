@@ -1,8 +1,8 @@
 ALTER TABLE _cbbr_submissions
-    DROP COLUMN IF EXISTS denominator;
+DROP COLUMN IF EXISTS denominator;
 
 ALTER TABLE _cbbr_submissions
-    ADD COLUMN denominator text;
+ADD COLUMN denominator text;
 
 WITH denominatorcount AS (
     SELECT
@@ -13,14 +13,15 @@ WITH denominatorcount AS (
         _cbbr_submissions
     GROUP BY
         commdist,
-        type_br)
+        type_br
+)
+
 UPDATE
-    _cbbr_submissions a
+_cbbr_submissions a
 SET
     denominator = b.count
 FROM
-    denominatorcount b
+    denominatorcount AS b
 WHERE
     a.commdist = b.commdist
     AND a.type_br = b.type_br;
-
