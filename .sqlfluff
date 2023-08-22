@@ -1,6 +1,8 @@
 [sqlfluff]
 dialect = postgres
 
+exclude_rules = layout.long_lines, ambiguous.column_count, references.consistent, references.qualification, references.keywords, structure.unused_cte, aliasing.expression, convention.left_join
+
 # Warn only for rule codes (one of more rule codes, seperated by commas: e.g. LT01,LT02)
 # Also works for templating and parsing errors by using TMP or PRS
 warnings = PRS
@@ -17,4 +19,11 @@ fix_even_unparsable = True
 # e.g. -1 means use all processors but one. 0 means all cpus.
 processes = -1
 
-exclude_rules = layout.long_lines, ambiguous.column_count, references.consistent, references.qualification, references.keywords, structure.unused_cte, aliasing.expression, convention.left_join
+# Very large files can make the parser effectively hang.
+# The more efficient check is the _byte_ limit check which
+# is enabled by default. The previous _character_ limit check
+# is still present for backward compatibility. This will be
+# removed in a future version.
+# Set either to 0 to disable.
+large_file_skip_char_limit = 0
+large_file_skip_byte_limit = 25000

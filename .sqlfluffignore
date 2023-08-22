@@ -1,0 +1,2 @@
+# Ignore all files which cause error "RecursionError: maximum recursion depth exceeded in comparison"
+/products/db-checkbook/sql/
