@@ -3,7 +3,7 @@ DESCRIPTION:
 	1. Combine _INIT_BIS_devdb and _INIT_NOW_devdb into _INIT_devdb
 	2. Apply corrections on stories_prop, bin, bbl, and date fields
 
-INPUTS: 
+INPUTS:
 	_INIT_BIS_devdb
 	_INIT_NOW_devdb
 
@@ -69,21 +69,25 @@ OUTPUTS:
 		zsfm_prop numeric,
 		prkng_prop numeric
 	)
-	
+
 */
 
-DROP TABLE IF EXISTS _INIT_devdb;
+DROP TABLE IF EXISTS _INIT_DEVDB;
 SELECT *
-INTO _INIT_devdb
+INTO _INIT_DEVDB
 FROM (
-	SELECT *, 'bis' AS datasource
-	FROM _INIT_BIS_devdb
-	UNION
-	SELECT *, 'now' AS datasource
-	FROM _INIT_NOW_devdb
-) t;
+    SELECT
+        *,
+        'bis' AS DATASOURCE
+    FROM _INIT_BIS_DEVDB
+    UNION
+    SELECT
+        *,
+        'now' AS DATASOURCE
+    FROM _INIT_NOW_DEVDB
+) AS T;
 /*
-CORRECTIONS: 
+CORRECTIONS:
 	stories_prop
 	bin
 	bbl
@@ -94,12 +98,12 @@ CORRECTIONS:
 	date_statusr
 	date_statusx
 */
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'stories_prop');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'bin');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'bbl');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_lastupdt');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_filed');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusd');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusp');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusr');
-CALL apply_correction(:'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusx');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'stories_prop');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'bin');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'bbl');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'date_lastupdt');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'date_filed');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusd');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusp');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusr');
+CALL apply_correction(: 'build_schema', '_INIT_devdb', '_manual_corrections', 'date_statusx');

@@ -1,8 +1,8 @@
 /*
 DESCRIPTION:
-    This script is created to assign/recode the field "date_permittd" 
+    This script is created to assign/recode the field "date_permittd"
 
-INPUTS: 
+INPUTS:
     INIT_devdb (
         job_number
     )
@@ -21,27 +21,29 @@ OUTPUTS:
     )
 
 */
-DROP TABLE IF EXISTS STATUS_Q_devdb;
-WITH 
-STATUS_Q_create as (
-    SELECT 
-        jobnum as job_number, 
-        min(issuancedate::date) as date_permittd
-    FROM dob_permitissuance
-    WHERE jobdocnum = '01'
-    AND jobtype ~* 'A1|DM|NB|A2'
-    GROUP BY jobnum
+DROP TABLE IF EXISTS STATUS_Q_DEVDB;
+WITH
+STATUS_Q_CREATE AS (
+    SELECT
+        JOBNUM AS JOB_NUMBER,
+        min(ISSUANCEDATE::date) AS DATE_PERMITTD
+    FROM DOB_PERMITISSUANCE
+    WHERE
+        JOBDOCNUM = '01'
+        AND JOBTYPE ~* 'A1|DM|NB|A2'
+    GROUP BY JOBNUM
     UNION
-    SELECT 
-        left(job_filing_number, strpos(job_filing_number, '-') - 1)::text as job_number,
-        min(issued_date::date) as date_permittd 
-    FROM dob_now_permits
-    GROUP BY left(job_filing_number, strpos(job_filing_number, '-') - 1)::text
-) 
-SELECT 
-    job_number,
-    date_permittd,
-    extract(year from date_permittd)::text as permit_year,
-    year_quarter(date_permittd) as permit_qrtr
-INTO STATUS_Q_devdb
-FROM STATUS_Q_create
+    SELECT
+        left(JOB_FILING_NUMBER, strpos(JOB_FILING_NUMBER, '-') - 1)::text AS JOB_NUMBER,
+        min(ISSUED_DATE::date) AS DATE_PERMITTD
+    FROM DOB_NOW_PERMITS
+    GROUP BY left(JOB_FILING_NUMBER, strpos(JOB_FILING_NUMBER, '-') - 1)::text
+)
+
+SELECT
+    JOB_NUMBER,
+    DATE_PERMITTD,
+    extract(YEAR FROM DATE_PERMITTD)::text AS PERMIT_YEAR,
+    year_quarter(DATE_PERMITTD) AS PERMIT_QRTR
+INTO STATUS_Q_DEVDB
+FROM STATUS_Q_CREATE

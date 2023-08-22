@@ -1,34 +1,34 @@
 /*
-IN PREVIOUS VERSION: 
+IN PREVIOUS VERSION:
     pluto_merge.sql
 */
-DROP TABLE IF EXISTS PLUTO_devdb CASCADE;
-SELECT 
-    a.*,
-    b.version as pluto_version,
-	b.bbl as mpluto_bbl,
-	b.unitsres as pluto_unitres,
-	b.bldgarea as pluto_bldgsf,
-	b.comarea as pluto_comsf,
-    b.officearea as pluto_offcsf,
-	b.retailarea as pluto_retlsf,
-	b.resarea as pluto_ressf,
-	b.yearbuilt as pluto_yrbuilt,
-	b.yearalter1 as pluto_yralt1,
-	b.yearalter2 as pluto_yralt2,
-	b.bldgclass as pluto_bldgcls,
-	b.landuse as pluto_landuse,
-	b.ownertype as pluto_owntype,
-    b.ownername as pluto_owner,
-	b.condono as pluto_condo,
-	b.numbldgs as pluto_bldgs,
-	b.numfloors as pluto_floors,
-	b.firm07_fla as pluto_firm07,
-	b.pfirm15_fl as pluto_pfirm15,
-	b.histdist as pluto_histdst,
-	b.landmark as pluto_landmk
-INTO PLUTO_devdb
-FROM INIT_devdb a
-LEFT JOIN dcp_mappluto b
-ON a.geo_bbl = b.bbl::bigint::text;
-CREATE INDEX PLUTO_devdb_job_number_idx ON PLUTO_devdb(job_number);
+DROP TABLE IF EXISTS PLUTO_DEVDB CASCADE;
+SELECT
+    A.*,
+    B.VERSION AS PLUTO_VERSION,
+    B.BBL AS MPLUTO_BBL,
+    B.UNITSRES AS PLUTO_UNITRES,
+    B.BLDGAREA AS PLUTO_BLDGSF,
+    B.COMAREA AS PLUTO_COMSF,
+    B.OFFICEAREA AS PLUTO_OFFCSF,
+    B.RETAILAREA AS PLUTO_RETLSF,
+    B.RESAREA AS PLUTO_RESSF,
+    B.YEARBUILT AS PLUTO_YRBUILT,
+    B.YEARALTER1 AS PLUTO_YRALT1,
+    B.YEARALTER2 AS PLUTO_YRALT2,
+    B.BLDGCLASS AS PLUTO_BLDGCLS,
+    B.LANDUSE AS PLUTO_LANDUSE,
+    B.OWNERTYPE AS PLUTO_OWNTYPE,
+    B.OWNERNAME AS PLUTO_OWNER,
+    B.CONDONO AS PLUTO_CONDO,
+    B.NUMBLDGS AS PLUTO_BLDGS,
+    B.NUMFLOORS AS PLUTO_FLOORS,
+    B.FIRM07_FLA AS PLUTO_FIRM07,
+    B.PFIRM15_FL AS PLUTO_PFIRM15,
+    B.HISTDIST AS PLUTO_HISTDST,
+    B.LANDMARK AS PLUTO_LANDMK
+INTO PLUTO_DEVDB
+FROM INIT_DEVDB AS A
+LEFT JOIN DCP_MAPPLUTO AS B
+    ON A.GEO_BBL = B.BBL::bigint::text;
+CREATE INDEX PLUTO_DEVDB_JOB_NUMBER_IDX ON PLUTO_DEVDB (JOB_NUMBER);

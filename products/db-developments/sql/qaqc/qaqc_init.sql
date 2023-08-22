@@ -9,54 +9,71 @@
 **/
 
 
-DROP TABLE IF EXISTS _INIT_qaqc;
+DROP TABLE IF EXISTS _INIT_QAQC;
 WITH
 -- identify invalid dates in input data
-JOBNUMBER_invalid_dates AS (
-	SELECT DISTINCT job_number,
-		 (CASE WHEN (is_date(date_lastupdt) AND date_lastupdt::date > '1990-01-01'::date)
-		 		OR date_lastupdt IS NULL THEN 0
-		 	ELSE 1 END) as invalid_date_lastupdt,
-		 (CASE WHEN (is_date(date_filed) AND date_filed::date > '1990-01-01'::date)
-		 		OR date_filed IS NULL THEN 0
-		 	ELSE 1 END) as invalid_date_filed,
-		 (CASE WHEN (is_date(date_statusd) AND date_statusd::date > '1990-01-01'::date)
-		 		OR date_statusd IS NULL THEN 0
-		 	ELSE 1 END) as invalid_date_statusd,
-		 (CASE WHEN (is_date(date_statusp) AND date_statusp::date > '1990-01-01'::date)
-		 		OR date_statusp IS NULL THEN 0
-		 	ELSE 1 END) as invalid_date_statusp,
-		 (CASE WHEN (is_date(date_statusr) AND date_statusr::date > '1990-01-01'::date)
-		 		OR date_statusr IS NULL THEN 0
-		 	ELSE 1 END) as invalid_date_statusr,
-		 (CASE WHEN (is_date(date_statusx) AND date_statusx::date > '1990-01-01'::date)
-		 		OR date_statusx IS NULL THEN 0
-		 	ELSE 1 END) as invalid_date_statusx
-		FROM _INIT_devdb ),
+JOBNUMBER_INVALID_DATES AS (
+    SELECT DISTINCT
+        JOB_NUMBER,
+        (CASE WHEN
+            (is_date(DATE_LASTUPDT) AND DATE_LASTUPDT::date > '1990-01-01'::date)
+            OR DATE_LASTUPDT IS NULL THEN 0
+        ELSE 1 END) AS INVALID_DATE_LASTUPDT,
+        (CASE WHEN
+            (is_date(DATE_FILED) AND DATE_FILED::date > '1990-01-01'::date)
+            OR DATE_FILED IS NULL THEN 0
+        ELSE 1 END) AS INVALID_DATE_FILED,
+        (CASE WHEN
+            (is_date(DATE_STATUSD) AND DATE_STATUSD::date > '1990-01-01'::date)
+            OR DATE_STATUSD IS NULL THEN 0
+        ELSE 1 END) AS INVALID_DATE_STATUSD,
+        (CASE WHEN
+            (is_date(DATE_STATUSP) AND DATE_STATUSP::date > '1990-01-01'::date)
+            OR DATE_STATUSP IS NULL THEN 0
+        ELSE 1 END) AS INVALID_DATE_STATUSP,
+        (CASE WHEN
+            (is_date(DATE_STATUSR) AND DATE_STATUSR::date > '1990-01-01'::date)
+            OR DATE_STATUSR IS NULL THEN 0
+        ELSE 1 END) AS INVALID_DATE_STATUSR,
+        (CASE WHEN
+            (is_date(DATE_STATUSX) AND DATE_STATUSX::date > '1990-01-01'::date)
+            OR DATE_STATUSX IS NULL THEN 0
+        ELSE 1 END) AS INVALID_DATE_STATUSX
+    FROM _INIT_DEVDB
+),
 
 -- identify admin jobs
-JOBNUMBER_admin_nowork as (
-	SELECT job_number
-	FROM _INIT_devdb
-	WHERE upper(job_desc) LIKE '%NO WORK%'
-	OR ((upper(job_desc) LIKE '%ADMINISTRATIVE%'
-		AND job_type <> 'New Building')
-	OR (upper(job_desc) LIKE '%ADMINISTRATIVE%'
-		AND upper(job_desc) NOT LIKE '%ERECT%'
-		AND job_type = 'New Building'))
-	OR upper(desc_other) LIKE '%NO WORK%'
-	OR ((upper(desc_other) LIKE '%ADMINISTRATIVE%'
-		AND job_type <> 'New Building')
-	OR (upper(desc_other) LIKE '%ADMINISTRATIVE%'
-		AND upper(desc_other) NOT LIKE '%ERECT%'
-		AND job_type = 'New Building'))
+JOBNUMBER_ADMIN_NOWORK AS (
+    SELECT JOB_NUMBER
+    FROM _INIT_DEVDB
+    WHERE
+        upper(JOB_DESC) LIKE '%NO WORK%'
+        OR ((
+            upper(JOB_DESC) LIKE '%ADMINISTRATIVE%'
+            AND JOB_TYPE != 'New Building'
+        )
+        OR (
+            upper(JOB_DESC) LIKE '%ADMINISTRATIVE%'
+            AND upper(JOB_DESC) NOT LIKE '%ERECT%'
+            AND JOB_TYPE = 'New Building'
+        ))
+        OR upper(DESC_OTHER) LIKE '%NO WORK%'
+        OR ((
+            upper(DESC_OTHER) LIKE '%ADMINISTRATIVE%'
+            AND JOB_TYPE != 'New Building'
+        )
+        OR (
+            upper(DESC_OTHER) LIKE '%ADMINISTRATIVE%'
+            AND upper(DESC_OTHER) NOT LIKE '%ERECT%'
+            AND JOB_TYPE = 'New Building'
+        ))
 )
 
-SELECT a.*,
-	(CASE 
-	 	WHEN job_number IN (SELECT job_number FROM JOBNUMBER_admin_nowork) THEN 1
-	 	ELSE 0
-	END) as no_work_job
-INTO _INIT_qaqc
-FROM JOBNUMBER_invalid_dates a
-;
+SELECT
+    A.*,
+    (CASE
+        WHEN JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_ADMIN_NOWORK) THEN 1
+        ELSE 0
+    END) AS NO_WORK_JOB
+INTO _INIT_QAQC
+FROM JOBNUMBER_INVALID_DATES AS A;

@@ -3,7 +3,7 @@ DESCRIPTION:
     1. Assigning missing geoms for _GEO_devdb and create GEO_devdb
     2. Apply research corrections on (longitude, latitude, geom)
 
-INPUTS: 
+INPUTS:
     _INIT_devdb (
         * uid,
         ...
@@ -19,7 +19,7 @@ INPUTS:
         geom
     )
 
-OUTPUT 
+OUTPUT
     corrections_geom (
         job_number,
         field,
@@ -56,7 +56,7 @@ OUTPUT
         geomsource text
     )
 
-IN PREVIOUS VERSION: 
+IN PREVIOUS VERSION:
     geo_merge.sql
     geoaddress.sql
     geombbl.sql
@@ -64,191 +64,204 @@ IN PREVIOUS VERSION:
     dedupe_job_number.sql
     dropmillionbin.sql
 */
-DROP INDEX IF EXISTS GEO_devdb_geom_idx;
-DROP TABLE IF EXISTS GEO_devdb;
+DROP INDEX IF EXISTS GEO_DEVDB_GEOM_IDX;
+DROP TABLE IF EXISTS GEO_DEVDB;
 WITH
-DRAFT as (
-    SELECT
-        distinct
-        a.uid,
-        a.job_number,
-		a.bbl,
+DRAFT AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        A.BBL,
         -- a.bin,
-        (CASE 
-            WHEN RIGHT(a.bin,6) = '000000' THEN NULL
-            ELSE a.bin
-        END) as bin,
-        a.date_lastupdt,
-        a.job_desc,
-        b.geo_bbl,
-        (CASE 
-            WHEN RIGHT(b.geo_bin,6) = '000000' THEN NULL
-            ELSE b.geo_bin
-        END) as geo_bin,
-        b.geo_address_numbr,
-        b.geo_address_street,
-        concat(
-            trim(b.geo_address_numbr),' ',
-            trim(b.geo_address_street)
-        )as geo_address,
-        b.geo_zipcode,
-        COALESCE(REPLACE(b.geo_boro,'0', LEFT(b.geo_bin, 1)), a.boro) as geo_boro, 
-        b.geo_cd,
-        b.geo_council,
-        b.geo_nta2020, 
-        b.geo_cb2020, 
-        b.geo_ct2020,
-        b.geo_cdta2020,
-        b.geo_csd,
-        b.geo_policeprct,
-        b.geo_firedivision,
-        b.geo_firebattalion,
-        b.geo_firecompany,
-        b.latitude::double precision as geo_latitude,
-        b.longitude::double precision as geo_longitude,
-        b.mode
-	FROM _INIT_devdb a
-	LEFT JOIN _GEO_devdb b
-	ON (CASE 
-            WHEN source = 'bis' THEN b.uid::text
-            ELSE (b.uid::integer + (SELECT MAX(_INIT_BIS_devdb.uid::integer) FROM _INIT_BIS_devdb))::text
-        END)::text = a.uid::text
+        A.DATE_LASTUPDT,
+        A.JOB_DESC,
+        B.GEO_BBL,
+        B.GEO_ADDRESS_NUMBR,
+        B.GEO_ADDRESS_STREET,
+        B.GEO_ZIPCODE,
+        B.GEO_CD,
+        B.GEO_COUNCIL,
+        B.GEO_NTA2020,
+        B.GEO_CB2020,
+        B.GEO_CT2020,
+        B.GEO_CDTA2020,
+        B.GEO_CSD,
+        B.GEO_POLICEPRCT,
+        B.GEO_FIREDIVISION,
+        B.GEO_FIREBATTALION,
+        B.GEO_FIRECOMPANY,
+        B.LATITUDE::double precision AS GEO_LATITUDE,
+        B.LONGITUDE::double precision AS GEO_LONGITUDE,
+        B.MODE,
+        (CASE
+            WHEN RIGHT(A.BIN, 6) = '000000' THEN NULL
+            ELSE A.BIN
+        END) AS BIN,
+        (CASE
+            WHEN RIGHT(B.GEO_BIN, 6) = '000000' THEN NULL
+            ELSE B.GEO_BIN
+        END) AS GEO_BIN,
+        CONCAT(
+            TRIM(B.GEO_ADDRESS_NUMBR), ' ',
+            TRIM(B.GEO_ADDRESS_STREET)
+        ) AS GEO_ADDRESS,
+        COALESCE(REPLACE(B.GEO_BORO, '0', LEFT(B.GEO_BIN, 1)), A.BORO) AS GEO_BORO
+    FROM _INIT_DEVDB AS A
+    LEFT JOIN _GEO_DEVDB AS B
+        ON (CASE
+            WHEN SOURCE = 'bis' THEN B.UID::text
+            ELSE (B.UID::integer + (SELECT MAX(_INIT_BIS_DEVDB.UID::integer) FROM _INIT_BIS_DEVDB))::text
+        END)::text = A.UID::text
 ),
-GEOM_dob_bin_bldgfootprints as (
-    SELECT distinct
-        a.uid,
-        a.job_number,
-		a.bbl,
-        a.bin,
-        a.geo_bbl,
-        a.geo_bin,
-        a.geo_latitude,
-        a.geo_longitude,
-        ST_Centroid(b.wkb_geometry) as geom,
-        (CASE WHEN b.wkb_geometry IS NOT NULL 
-		 	THEN 'BIN DOB buildingfootprints' 
-        END) as geomsource
-    FROM DRAFT a
-    LEFT JOIN doitt_buildingfootprints b
-    ON a.bin::text = b.bin::numeric::bigint::text
-    -- WHERE RIGHT(b.bin::text, 6) != '000000'
+
+GEOM_DOB_BIN_BLDGFOOTPRINTS AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        A.BBL,
+        A.BIN,
+        A.GEO_BBL,
+        A.GEO_BIN,
+        A.GEO_LATITUDE,
+        A.GEO_LONGITUDE,
+        ST_CENTROID(B.WKB_GEOMETRY) AS GEOM,
+        (CASE
+            WHEN B.WKB_GEOMETRY IS NOT NULL
+                THEN 'BIN DOB buildingfootprints'
+        END) AS GEOMSOURCE
+    FROM DRAFT AS A
+    LEFT JOIN DOITT_BUILDINGFOOTPRINTS AS B
+        ON A.BIN::text = B.BIN::numeric::bigint::text
+-- WHERE RIGHT(b.bin::text, 6) != '000000'
 ),
-GEOM_geo_bin_bldgfootprints as (
-	SELECT distinct
-        a.uid,
-        a.job_number,
-		a.bbl,
-        a.bin,
-        a.geo_bbl,
-        a.geo_bin,
-        a.geo_latitude,
-        a.geo_longitude,
-        coalesce(a.geom, ST_Centroid(b.wkb_geometry)) as geom,
-        (CASE 
-          WHEN a.geomsource IS NOT NULL 
-            THEN a.geomsource 
-          WHEN a.geom IS NULL 
-            AND b.wkb_geometry IS NOT NULL 
-            THEN 'BIN DCP geosupport'
-		END) as geomsource
-    FROM GEOM_dob_bin_bldgfootprints a
-    LEFT JOIN doitt_buildingfootprints b
-    ON a.geo_bin::text = b.bin::numeric::bigint::text
-    -- WHERE RIGHT(b.bin::text, 6) != '000000'
+
+GEOM_GEO_BIN_BLDGFOOTPRINTS AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        A.BBL,
+        A.BIN,
+        A.GEO_BBL,
+        A.GEO_BIN,
+        A.GEO_LATITUDE,
+        A.GEO_LONGITUDE,
+        COALESCE(A.GEOM, ST_CENTROID(B.WKB_GEOMETRY)) AS GEOM,
+        (CASE
+            WHEN A.GEOMSOURCE IS NOT NULL
+                THEN A.GEOMSOURCE
+            WHEN
+                A.GEOM IS NULL
+                AND B.WKB_GEOMETRY IS NOT NULL
+                THEN 'BIN DCP geosupport'
+        END) AS GEOMSOURCE
+    FROM GEOM_DOB_BIN_BLDGFOOTPRINTS AS A
+    LEFT JOIN DOITT_BUILDINGFOOTPRINTS AS B
+        ON A.GEO_BIN::text = B.BIN::numeric::bigint::text
+-- WHERE RIGHT(b.bin::text, 6) != '000000'
 ),
-GEOM_geosupport as (
-    SELECT distinct
-        a.uid,
-        a.job_number,
-		a.bbl,
-        a.bin,
-        a.geo_bbl,
-        a.geo_bin,
-        coalesce(
-            a.geom, 
-            ST_SetSRID(ST_Point(a.geo_longitude,a.geo_latitude),4326)
-        ) as geom,
-        (CASE 
-          WHEN a.geomsource IS NOT NULL 
-            THEN a.geomsource 
-          WHEN a.geom IS NULL 
-            AND a.geo_longitude IS NOT NULL 
-            THEN 'Lat/Lon geosupport'
-		END) as geomsource
-    FROM GEOM_dob_bin_bldgfootprints a
+
+GEOM_GEOSUPPORT AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        A.BBL,
+        A.BIN,
+        A.GEO_BBL,
+        A.GEO_BIN,
+        COALESCE(
+            A.GEOM,
+            ST_SETSRID(ST_POINT(A.GEO_LONGITUDE, A.GEO_LATITUDE), 4326)
+        ) AS GEOM,
+        (CASE
+            WHEN A.GEOMSOURCE IS NOT NULL
+                THEN A.GEOMSOURCE
+            WHEN
+                A.GEOM IS NULL
+                AND A.GEO_LONGITUDE IS NOT NULL
+                THEN 'Lat/Lon geosupport'
+        END) AS GEOMSOURCE
+    FROM GEOM_DOB_BIN_BLDGFOOTPRINTS AS A
 ),
-GEOM_dob_bbl_mappluto as (
-	SELECT distinct
-        a.uid,
-        a.job_number,
-		a.bbl,
-        a.bin,
-        a.geo_bbl,
-        coalesce(a.geom, ST_Centroid(b.wkb_geometry)) as geom,
-        (CASE 
-          WHEN a.geomsource IS NOT NULL 
-            THEN a.geomsource 
-          WHEN a.geom IS NULL 
-		 		AND b.wkb_geometry IS NOT NULL 
-		 		THEN 'BBL DOB MapPLUTO'
-		END) as geomsource
-    FROM GEOM_geosupport a
-    LEFT JOIN dcp_mappluto b
-    ON a.bbl = b.bbl::numeric::bigint::text
-), 
-buildingfootprints_historical as (
-    SELECT 
-        bin, 
-        ST_Union(wkb_geometry) as wkb_geometry
-    FROM doitt_buildingfootprints_historical
-    GROUP BY bin
+
+GEOM_DOB_BBL_MAPPLUTO AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        A.BBL,
+        A.BIN,
+        A.GEO_BBL,
+        COALESCE(A.GEOM, ST_CENTROID(B.WKB_GEOMETRY)) AS GEOM,
+        (CASE
+            WHEN A.GEOMSOURCE IS NOT NULL
+                THEN A.GEOMSOURCE
+            WHEN
+                A.GEOM IS NULL
+                AND B.WKB_GEOMETRY IS NOT NULL
+                THEN 'BBL DOB MapPLUTO'
+        END) AS GEOMSOURCE
+    FROM GEOM_GEOSUPPORT AS A
+    LEFT JOIN DCP_MAPPLUTO AS B
+        ON A.BBL = B.BBL::numeric::bigint::text
 ),
-GEOM_dob_bin_bldgfp_historical as (
-    SELECT distinct
-        a.uid,
-        a.job_number,
-        coalesce(a.geom, ST_Centroid(b.wkb_geometry)) as geom,
-        (CASE 
-		 	WHEN a.geomsource IS NOT NULL 
-		 		THEN a.geomsource 
-		 	WHEN a.geom IS NULL 
-		 		AND b.wkb_geometry IS NOT NULL 
-		 		THEN 'BIN DOB buildingfootprints (historical)'
-		END) as geomsource
-    FROM GEOM_dob_bbl_mappluto a
-    LEFT JOIN buildingfootprints_historical b
-    ON a.bin::text = b.bin::text
+
+BUILDINGFOOTPRINTS_HISTORICAL AS (
+    SELECT
+        BIN,
+        ST_UNION(WKB_GEOMETRY) AS WKB_GEOMETRY
+    FROM DOITT_BUILDINGFOOTPRINTS_HISTORICAL
+    GROUP BY BIN
 ),
-GEOM_dob_latlon as (
-    SELECT distinct
-        a.uid,
-        a.job_number,
-        coalesce(
-            a.geom, 
-            b.dob_geom
-        ) as geom,
-        (CASE 
-		 	WHEN a.geomsource IS NOT NULL 
-		 		THEN a.geomsource 
-		 	WHEN a.geom IS NULL 
-		 		AND b.dob_geom IS NOT NULL 
-		 		THEN 'Lat/Lon DOB'
-		END) as geomsource
-    FROM GEOM_dob_bin_bldgfp_historical a
-    LEFT JOIN _INIT_devdb b
-    ON a.job_number = b.job_number
+
+GEOM_DOB_BIN_BLDGFP_HISTORICAL AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        COALESCE(A.GEOM, ST_CENTROID(B.WKB_GEOMETRY)) AS GEOM,
+        (CASE
+            WHEN A.GEOMSOURCE IS NOT NULL
+                THEN A.GEOMSOURCE
+            WHEN
+                A.GEOM IS NULL
+                AND B.WKB_GEOMETRY IS NOT NULL
+                THEN 'BIN DOB buildingfootprints (historical)'
+        END) AS GEOMSOURCE
+    FROM GEOM_DOB_BBL_MAPPLUTO AS A
+    LEFT JOIN BUILDINGFOOTPRINTS_HISTORICAL AS B
+        ON A.BIN::text = B.BIN::text
+),
+
+GEOM_DOB_LATLON AS (
+    SELECT DISTINCT
+        A.UID,
+        A.JOB_NUMBER,
+        COALESCE(
+            A.GEOM,
+            B.DOB_GEOM
+        ) AS GEOM,
+        (CASE
+            WHEN A.GEOMSOURCE IS NOT NULL
+                THEN A.GEOMSOURCE
+            WHEN
+                A.GEOM IS NULL
+                AND B.DOB_GEOM IS NOT NULL
+                THEN 'Lat/Lon DOB'
+        END) AS GEOMSOURCE
+    FROM GEOM_DOB_BIN_BLDGFP_HISTORICAL AS A
+    LEFT JOIN _INIT_DEVDB AS B
+        ON A.JOB_NUMBER = B.JOB_NUMBER
 )
-SELECT
-    distinct a.*,
-    ST_Y(b.geom) as latitude,
-    ST_X(b.geom) as longitude,
-    b.geom,
-    b.geomsource
-INTO GEO_devdb
-FROM DRAFT a
-LEFT JOIN GEOM_dob_latlon b
-ON a.uid = b.uid;
+
+SELECT DISTINCT
+    A.*,
+    B.GEOM,
+    B.GEOMSOURCE,
+    ST_Y(B.GEOM) AS LATITUDE,
+    ST_X(B.GEOM) AS LONGITUDE
+INTO GEO_DEVDB
+FROM DRAFT AS A
+LEFT JOIN GEOM_DOB_LATLON AS B
+    ON A.UID = B.UID;
 
 -- Create index
-CREATE INDEX GEO_devdb_geom_idx ON GEO_devdb 
-USING GIST (geom gist_geometry_ops_2d);
+CREATE INDEX GEO_DEVDB_GEOM_IDX ON GEO_DEVDB
+USING GIST (GEOM GIST_GEOMETRY_OPS_2D);

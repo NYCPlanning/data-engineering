@@ -2,41 +2,52 @@
 GEO SPATIAL QAQC
 */
 
-DROP TABLE IF EXISTS GEO_qaqc;
+DROP TABLE IF EXISTS GEO_QAQC;
 SELECT
-    job_number,
-    CASE WHEN in_water(geom)
-        THEN 1 ELSE 0 END
-    AS geo_water,
-    CASE 
-        WHEN get_bbl(geom) IS NULL 
-        THEN 1 ELSE 0 END 
-    AS geo_taxlot,
-    CASE 
-        WHEN longitude is null 
-            OR latitude is null 
-            THEN 1 else 0 end 
-    AS geo_null_latlong,
-    CASE 
-        WHEN geo_zipcode IS NULL OR
-            geo_boro IS NULL OR
-            geo_cd IS NULL OR
-            geo_council IS NULL OR
-            geo_nta2020 IS NULL OR
-            geo_ntaname2020 IS NULL OR
-            geo_cb2020 IS NULL OR
-            geo_ct2020 IS NULL OR
-            geo_cdta2020 IS NULL OR
-            geo_cdtaname2020 IS NULL OR
-            geo_csd IS NULL OR
-            geo_policeprct IS NULL OR
-            geo_firedivision IS NULL OR
-            geo_firebattalion IS NULL OR
-            geo_firecompany IS NULL OR
-            geo_schoolelmntry IS NULL OR
-            geo_schoolmiddle IS NULL OR
-            geo_schoolsubdist IS NULL
-        THEN 1 ELSE 0 END 
-    AS geo_null_boundary
-INTO GEO_qaqc
-FROM MID_devdb;
+    JOB_NUMBER,
+    CASE
+        WHEN in_water(GEOM)
+            THEN 1
+        ELSE 0
+    END
+    AS GEO_WATER,
+    CASE
+        WHEN get_bbl(GEOM) IS NULL
+            THEN 1
+        ELSE 0
+    END
+    AS GEO_TAXLOT,
+    CASE
+        WHEN
+            LONGITUDE IS NULL
+            OR LATITUDE IS NULL
+            THEN 1
+        ELSE 0
+    END
+    AS GEO_NULL_LATLONG,
+    CASE
+        WHEN
+            GEO_ZIPCODE IS NULL
+            OR GEO_BORO IS NULL
+            OR GEO_CD IS NULL
+            OR GEO_COUNCIL IS NULL
+            OR GEO_NTA2020 IS NULL
+            OR GEO_NTANAME2020 IS NULL
+            OR GEO_CB2020 IS NULL
+            OR GEO_CT2020 IS NULL
+            OR GEO_CDTA2020 IS NULL
+            OR GEO_CDTANAME2020 IS NULL
+            OR GEO_CSD IS NULL
+            OR GEO_POLICEPRCT IS NULL
+            OR GEO_FIREDIVISION IS NULL
+            OR GEO_FIREBATTALION IS NULL
+            OR GEO_FIRECOMPANY IS NULL
+            OR GEO_SCHOOLELMNTRY IS NULL
+            OR GEO_SCHOOLMIDDLE IS NULL
+            OR GEO_SCHOOLSUBDIST IS NULL
+            THEN 1
+        ELSE 0
+    END
+    AS GEO_NULL_BOUNDARY
+INTO GEO_QAQC
+FROM MID_DEVDB;

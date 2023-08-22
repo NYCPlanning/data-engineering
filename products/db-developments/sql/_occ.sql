@@ -8,12 +8,12 @@ DESCRIPTION:
 
 INPUTS:
     INIT_devdb (
-        job_number text, 
+        job_number text,
         job_type text,
         _occ_initial text,
         _occ_proposed text,
     )
-    
+
 	lookup_occ (
 		* dob_occ text,
 		occ text
@@ -21,32 +21,34 @@ INPUTS:
 
 OUTPUTS:
     OCC_devdb (
-        * job_number text, 
+        * job_number text,
         occ_initial text,
         occ_proposed text
     )
 
-IN PREVIOUS VERSION: 
+IN PREVIOUS VERSION:
     occ_.sql
 */
 
-DROP TABLE IF EXISTS OCC_devdb CASCADE;
-SELECT 
-	job_number,
-	(CASE WHEN job_type = 'New Building' THEN 'Empty Site'
-		ELSE occ_translate(_occ_initial) 
-	END) as occ_initial,
-	(CASE WHEN job_type = 'Demolition' THEN 'Empty Site'
-		ELSE occ_translate(_occ_proposed) 
-	END) as occ_proposed
-INTO OCC_devdb
-FROM INIT_devdb;
+DROP TABLE IF EXISTS OCC_DEVDB CASCADE;
+SELECT
+    JOB_NUMBER,
+    (CASE
+        WHEN JOB_TYPE = 'New Building' THEN 'Empty Site'
+        ELSE occ_translate(_OCC_INITIAL)
+    END) AS OCC_INITIAL,
+    (CASE
+        WHEN JOB_TYPE = 'Demolition' THEN 'Empty Site'
+        ELSE occ_translate(_OCC_PROPOSED)
+    END) AS OCC_PROPOSED
+INTO OCC_DEVDB
+FROM INIT_DEVDB;
 
 /*
 CORRECTIONS
 	occ_initial
 	occ_proposed
 */
-CREATE INDEX OCC_devdb_job_number_idx ON OCC_devdb(job_number);
-CALL apply_correction(:'build_schema', 'OCC_devdb', '_manual_corrections', 'occ_initial');
-CALL apply_correction(:'build_schema', 'OCC_devdb', '_manual_corrections', 'occ_proposed');
+CREATE INDEX OCC_DEVDB_JOB_NUMBER_IDX ON OCC_DEVDB (JOB_NUMBER);
+CALL apply_correction(: 'build_schema', 'OCC_devdb', '_manual_corrections', 'occ_initial');
+CALL apply_correction(: 'build_schema', 'OCC_devdb', '_manual_corrections', 'occ_proposed');

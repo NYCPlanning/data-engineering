@@ -2,5 +2,5 @@
 products/db-checkbook/sql/
 products/db-cpdb/sql/projectscategorization.sql
 
-# Ignore files generated via pg_dump
+# Ignore files generated via pg_dump and failing to be parsed
 products/db-cpdb/sql/sprints.sql

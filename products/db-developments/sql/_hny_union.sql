@@ -6,34 +6,34 @@ DESCRIPTION:
 
 -- HPD units data
 ALTER TABLE hpd_hny_units_by_building ADD COLUMN ogc_fid_text text;
-UPDATE hpd_hny_units_by_building SET ogc_fid_text = 'hny'||'-'||CAST(ogc_fid as text);
+UPDATE hpd_hny_units_by_building SET ogc_fid_text = 'hny' || '-' || CAST(ogc_fid AS text);
 ALTER TABLE hpd_hny_units_by_building DROP COLUMN ogc_fid;
 ALTER TABLE hpd_hny_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
 
-ALTER TABLE _INIT_HPD_historical_units_by_building ADD COLUMN ogc_fid_text text;
-UPDATE _INIT_HPD_historical_units_by_building SET ogc_fid_text = 'historical'||'-'||CAST(ogc_fid as text);
-ALTER TABLE _INIT_HPD_historical_units_by_building DROP COLUMN ogc_fid;
-ALTER TABLE _INIT_HPD_historical_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
+ALTER TABLE _init_hpd_historical_units_by_building ADD COLUMN ogc_fid_text text;
+UPDATE _init_hpd_historical_units_by_building SET ogc_fid_text = 'historical' || '-' || CAST(ogc_fid AS text);
+ALTER TABLE _init_hpd_historical_units_by_building DROP COLUMN ogc_fid;
+ALTER TABLE _init_hpd_historical_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
 
-DROP TABLE IF EXISTS HPD_units_by_building;
-CREATE TABLE HPD_units_by_building AS
+DROP TABLE IF EXISTS hpd_units_by_building;
+CREATE TABLE hpd_units_by_building AS
 SELECT * FROM hpd_hny_units_by_building
 UNION
-SELECT * FROM _INIT_HPD_historical_units_by_building;
+SELECT * FROM _init_hpd_historical_units_by_building;
 
 -- geocoded HPD units data
 ALTER TABLE hny_geocode_results ADD COLUMN uid_text text;
-UPDATE hny_geocode_results SET uid_text = 'hny'||'-'||CAST(uid as text);
+UPDATE hny_geocode_results SET uid_text = 'hny' || '-' || CAST(uid AS text);
 ALTER TABLE hny_geocode_results DROP COLUMN uid;
 ALTER TABLE hny_geocode_results RENAME COLUMN uid_text TO uid;
 
 ALTER TABLE hpd_historical_geocode_results ADD COLUMN uid_text text;
-UPDATE hpd_historical_geocode_results SET uid_text = 'historical'||'-'||CAST(uid as text);
+UPDATE hpd_historical_geocode_results SET uid_text = 'historical' || '-' || CAST(uid AS text);
 ALTER TABLE hpd_historical_geocode_results DROP COLUMN uid;
 ALTER TABLE hpd_historical_geocode_results RENAME COLUMN uid_text TO uid;
 
-DROP TABLE IF EXISTS HPD_geocode_results;
-CREATE TABLE HPD_geocode_results AS
+DROP TABLE IF EXISTS hpd_geocode_results;
+CREATE TABLE hpd_geocode_results AS
 SELECT * FROM hny_geocode_results
 UNION
 SELECT * FROM hpd_historical_geocode_results;

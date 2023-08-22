@@ -3,31 +3,37 @@
     partially_complete
 **/
 
-DROP TABLE IF EXISTS STATUS_qaqc;
-WITH 
-JOBNUMBER_inactive_update AS(
-    SELECT job_number
-    FROM STATUS_devdb
-    WHERE date_lastupdt > :'CAPTURE_DATE_PREV'::date
-    AND job_number IN (SELECT job_number
-        FROM _manual_corrections
-        WHERE field = 'job_inactive'
-        AND new_value ~* 'Inactive')
+DROP TABLE IF EXISTS STATUS_QAQC;
+WITH
+JOBNUMBER_INACTIVE_UPDATE AS (
+    SELECT JOB_NUMBER
+    FROM STATUS_DEVDB
+    WHERE
+        DATE_LASTUPDT >: 'CAPTURE_DATE_PREV'::date
+        AND JOB_NUMBER IN (
+            SELECT JOB_NUMBER
+            FROM _MANUAL_CORRECTIONS
+            WHERE
+                FIELD = 'job_inactive'
+                AND NEW_VALUE ~* 'Inactive'
+        )
 ),
-JOBNUMBER_partially_complete AS(
-    SELECT job_number
-    FROM STATUS_devdb
-    WHERE job_status = '4. Partially Completed Construction'
+
+JOBNUMBER_PARTIALLY_COMPLETE AS (
+    SELECT JOB_NUMBER
+    FROM STATUS_DEVDB
+    WHERE JOB_STATUS = '4. Partially Completed Construction'
 )
 
-SELECT a.*,
-    (CASE 
-	 	WHEN a.job_number IN (SELECT job_number FROM JOBNUMBER_inactive_update) THEN 1
-	 	ELSE 0
-	END) as inactive_with_update,
-    (CASE 
-	 	WHEN a.job_number IN (SELECT job_number FROM JOBNUMBER_partially_complete) THEN 1
-	 	ELSE 0
-	END) as partially_complete
-INTO STATUS_qaqc
-FROM UNITS_qaqc a;
+SELECT
+    A.*,
+    (CASE
+        WHEN A.JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_INACTIVE_UPDATE) THEN 1
+        ELSE 0
+    END) AS INACTIVE_WITH_UPDATE,
+    (CASE
+        WHEN A.JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_PARTIALLY_COMPLETE) THEN 1
+        ELSE 0
+    END) AS PARTIALLY_COMPLETE
+INTO STATUS_QAQC
+FROM UNITS_QAQC AS A;

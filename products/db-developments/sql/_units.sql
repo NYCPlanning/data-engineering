@@ -1,11 +1,10 @@
-
 /*
 DESCRIPTION:
     This script assigns units fields for devdb
 	1. Assign _classa_init and classa_prop
 	2. Apply corrections to _classa_init and classa_prop
 	3. Assign _classa_net
-INPUTS: 
+INPUTS:
 	INIT_devdb (
 		job_number text,
 		job_type text,
@@ -19,7 +18,7 @@ INPUTS:
 	)
 OUTPUTS:
 	UNITS_devdb (
-		job_number text, 
+		job_number text,
 		classa_init numeric,
 		classa_prop numeric,
 		hotel_init numeric,
@@ -29,39 +28,35 @@ OUTPUTS:
 		classa_net numeric,
 		resid_flag text
 	)
-IN PREVIOUS VERSION: 
+IN PREVIOUS VERSION:
     units_.sql
 	units_net.sql
 */
-DROP TABLE IF EXISTS _UNITS_devdb_raw CASCADE;
+DROP TABLE IF EXISTS _UNITS_DEVDB_RAW CASCADE;
 SELECT DISTINCT
-	a.job_number,
-	a.job_type,
-	a.job_desc,
-	b.occ_proposed,
-	b.occ_initial,
-	a.classa_init,
-	a.classa_prop,
-	(CASE
-		WHEN a.job_type = 'New Building' THEN 0
-		ELSE NULL
-	END) as hotel_init,
-	(CASE
-		WHEN a.job_type = 'Demolition' THEN 0
-		ELSE NULL
-	END) as hotel_prop,
-	(CASE
-		WHEN a.job_type = 'New Building' THEN 0
-		ELSE NULL
-	END) as otherb_init,
-	(CASE
-		WHEN a.job_type = 'Demolition' THEN 0
-		ELSE NULL
-	END) as otherb_prop
-INTO _UNITS_devdb_raw
-FROM INIT_devdb a
-LEFT JOIN OCC_devdb b
-ON a.job_number = b.job_number;
+    A.JOB_NUMBER,
+    A.JOB_TYPE,
+    A.JOB_DESC,
+    B.OCC_PROPOSED,
+    B.OCC_INITIAL,
+    A.CLASSA_INIT,
+    A.CLASSA_PROP,
+    (CASE
+        WHEN A.JOB_TYPE = 'New Building' THEN 0
+    END) AS HOTEL_INIT,
+    (CASE
+        WHEN A.JOB_TYPE = 'Demolition' THEN 0
+    END) AS HOTEL_PROP,
+    (CASE
+        WHEN A.JOB_TYPE = 'New Building' THEN 0
+    END) AS OTHERB_INIT,
+    (CASE
+        WHEN A.JOB_TYPE = 'Demolition' THEN 0
+    END) AS OTHERB_PROP
+INTO _UNITS_DEVDB_RAW
+FROM INIT_DEVDB AS A
+LEFT JOIN OCC_DEVDB AS B
+    ON A.JOB_NUMBER = B.JOB_NUMBER;
 
 /*
 CORRECTIONS
@@ -75,118 +70,119 @@ Note that hotel/otherb corrections match old_value with
 the associated classa field. As a result, these corrections
 get applied prior to the classa corrections.
 */
-CREATE INDEX _UNITS_devdb_raw_job_number_idx ON _UNITS_devdb_raw(job_number);
-CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'hotel_init', 'classa_init');
-CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'hotel_prop', 'classa_prop');
-CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'otherb_init', 'classa_init');
-CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'otherb_prop', 'classa_prop');
-CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'classa_init');
-CALL apply_correction(:'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'classa_prop');
+CREATE INDEX _UNITS_DEVDB_RAW_JOB_NUMBER_IDX ON _UNITS_DEVDB_RAW (JOB_NUMBER);
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'hotel_init', 'classa_init');
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'hotel_prop', 'classa_prop');
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'otherb_init', 'classa_init');
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'otherb_prop', 'classa_prop');
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'classa_init');
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_raw', '_manual_corrections', 'classa_prop');
 
 /*
-Using corrected classa, hotel, and otherb unit fields, 
+Using corrected classa, hotel, and otherb unit fields,
 calculate and then manually correct resid_flag
 */
-DROP TABLE IF EXISTS _UNITS_devdb_resid_flag;
+DROP TABLE IF EXISTS _UNITS_DEVDB_RESID_FLAG;
 SELECT
-	*,
-	(CASE 
-		WHEN (hotel_init IS NOT NULL AND hotel_init <> '0')
-			OR (hotel_prop IS NOT NULL AND hotel_prop <> '0')
-			OR (otherb_init IS NOT NULL AND otherb_init <> '0')
-			OR (otherb_prop IS NOT NULL AND otherb_prop <> '0')
-			OR (classa_init IS NOT NULL AND classa_init <> '0')
-			OR (classa_prop IS NOT NULL AND classa_prop <> '0')
-			THEN 'Residential' 
-	END) as resid_flag
-INTO _UNITS_devdb_resid_flag
-FROM _UNITS_devdb_raw
-;
+    *,
+    (CASE
+        WHEN
+            (HOTEL_INIT IS NOT NULL AND HOTEL_INIT != '0')
+            OR (HOTEL_PROP IS NOT NULL AND HOTEL_PROP != '0')
+            OR (OTHERB_INIT IS NOT NULL AND OTHERB_INIT != '0')
+            OR (OTHERB_PROP IS NOT NULL AND OTHERB_PROP != '0')
+            OR (CLASSA_INIT IS NOT NULL AND CLASSA_INIT != '0')
+            OR (CLASSA_PROP IS NOT NULL AND CLASSA_PROP != '0')
+            THEN 'Residential'
+    END) AS RESID_FLAG
+INTO _UNITS_DEVDB_RESID_FLAG
+FROM _UNITS_DEVDB_RAW;
 
-DROP TABLE _UNITS_devdb_raw CASCADE;
+DROP TABLE _UNITS_DEVDB_RAW CASCADE;
 
 /*
 CORRECTIONS
 	resid_flag
 */
-CALL apply_correction(:'build_schema', '_UNITS_devdb_resid_flag', '_manual_corrections', 'resid_flag');
+CALL apply_correction(: 'build_schema', '_UNITS_devdb_resid_flag', '_manual_corrections', 'resid_flag');
 
 /*
-Separate A2 job types from other types of records with units 
+Separate A2 job types from other types of records with units
 */
-DROP TABLE IF EXISTS EXPORT_A2_devdb;
-SELECT * INTO EXPORT_A2_devdb 
-FROM _UNITS_devdb_resid_flag WHERE job_type = 'Alteration (A2)';
+DROP TABLE IF EXISTS EXPORT_A2_DEVDB;
+SELECT * INTO EXPORT_A2_DEVDB
+FROM _UNITS_DEVDB_RESID_FLAG WHERE JOB_TYPE = 'Alteration (A2)';
 
-DROP TABLE IF EXISTS _UNITS_devdb;
-SELECT 
-	job_number,
-	job_type,
-	occ_proposed,
-	occ_initial,
-	classa_init,
-	classa_prop,
-	hotel_init,
-	hotel_prop,
-	otherb_init,
-	otherb_prop, 
-	resid_flag
- INTO _UNITS_devdb 
-FROM _UNITS_devdb_resid_flag 
-WHERE job_number NOT IN  (SELECT job_number FROM EXPORT_A2_devdb);
+DROP TABLE IF EXISTS _UNITS_DEVDB;
+SELECT
+    JOB_NUMBER,
+    JOB_TYPE,
+    OCC_PROPOSED,
+    OCC_INITIAL,
+    CLASSA_INIT,
+    CLASSA_PROP,
+    HOTEL_INIT,
+    HOTEL_PROP,
+    OTHERB_INIT,
+    OTHERB_PROP,
+    RESID_FLAG
+INTO _UNITS_DEVDB
+FROM _UNITS_DEVDB_RESID_FLAG
+WHERE JOB_NUMBER NOT IN (SELECT JOB_NUMBER FROM EXPORT_A2_DEVDB);
 
-DROP TABLE _UNITS_devdb_resid_flag CASCADE;
+DROP TABLE _UNITS_DEVDB_RESID_FLAG CASCADE;
 
 /*
 NULL out units fields where corrected resid_flag is NULL.
 ASSIGN classa_net based on corrected classa_init and classa_prop.
 */
-DROP TABLE IF EXISTS UNITS_devdb;
-WITH NULL_nonres AS (
-	SELECT
-		job_number,
-		job_type,
-		occ_proposed,
-		occ_initial,
-		(CASE
-			WHEN resid_flag IS NULL THEN NULL
-			ELSE classa_init
-		END) as classa_init,
-		(CASE
-			WHEN resid_flag IS NULL THEN NULL
-			ELSE classa_prop
-		END) as classa_prop,
-		(CASE
-			WHEN resid_flag IS NULL THEN NULL
-			ELSE hotel_init
-		END) as hotel_init,
-		(CASE
-			WHEN resid_flag IS NULL THEN NULL
-			ELSE hotel_prop
-		END) as hotel_prop,
-		(CASE
-			WHEN resid_flag IS NULL THEN NULL
-			ELSE otherb_init
-		END) as otherb_init,
-		(CASE
-			WHEN resid_flag IS NULL THEN NULL
-			ELSE otherb_prop
-		END) as otherb_prop,
-		resid_flag
-	FROM _UNITS_devdb
+DROP TABLE IF EXISTS UNITS_DEVDB;
+WITH NULL_NONRES AS (
+    SELECT
+        JOB_NUMBER,
+        JOB_TYPE,
+        OCC_PROPOSED,
+        OCC_INITIAL,
+        RESID_FLAG,
+        (CASE
+            WHEN RESID_FLAG IS NULL THEN NULL
+            ELSE CLASSA_INIT
+        END) AS CLASSA_INIT,
+        (CASE
+            WHEN RESID_FLAG IS NULL THEN NULL
+            ELSE CLASSA_PROP
+        END) AS CLASSA_PROP,
+        (CASE
+            WHEN RESID_FLAG IS NULL THEN NULL
+            ELSE HOTEL_INIT
+        END) AS HOTEL_INIT,
+        (CASE
+            WHEN RESID_FLAG IS NULL THEN NULL
+            ELSE HOTEL_PROP
+        END) AS HOTEL_PROP,
+        (CASE
+            WHEN RESID_FLAG IS NULL THEN NULL
+            ELSE OTHERB_INIT
+        END) AS OTHERB_INIT,
+        (CASE
+            WHEN RESID_FLAG IS NULL THEN NULL
+            ELSE OTHERB_PROP
+        END) AS OTHERB_PROP
+    FROM _UNITS_DEVDB
 )
+
 SELECT
-	*,
-	(CASE
-		WHEN job_type = 'Demolition' 
-			THEN classa_init * -1
-		WHEN job_type = 'New Building' 
-			THEN classa_prop
-		WHEN job_type LIKE '%Alteration' 
-			AND classa_init IS NOT NULL 
-			AND classa_prop IS NOT NULL 
-			THEN classa_prop - classa_init
-		ELSE NULL
-	END) as classa_net
-INTO UNITS_devdb
-FROM NULL_nonres;
+    *,
+    (CASE
+        WHEN JOB_TYPE = 'Demolition'
+            THEN CLASSA_INIT * -1
+        WHEN JOB_TYPE = 'New Building'
+            THEN CLASSA_PROP
+        WHEN
+            JOB_TYPE LIKE '%Alteration'
+            AND CLASSA_INIT IS NOT NULL
+            AND CLASSA_PROP IS NOT NULL
+            THEN CLASSA_PROP - CLASSA_INIT
+    END) AS CLASSA_NET
+INTO UNITS_DEVDB
+FROM NULL_NONRES;
