@@ -3,28 +3,28 @@ DROP TABLE IF EXISTS _hra_jobcenters;
 SELECT
     uid,
     source,
-    facility_name as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
-    street_address as address,
+    facility_name AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
+    street_address AS address,
     city,
-    post_code as zipcode,
-    borough as boro,
-    LEFT(bin::text, 1) as borocode,
+    post_code AS zipcode,
+    borough AS boro,
     bin,
     bbl,
-    'Jobs and Service Center' as factype,
-    'Workforce Development' as facsubgrp,
-    'NYC Human Resources Administration' as opname,
-    'NYCHRA' as opabbrev,
-    'NYCHRA' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    'Jobs and Service Center' AS factype,
+    'Workforce Development' AS facsubgrp,
+    'NYC Human Resources Administration' AS opname,
+    'NYCHRA' AS opabbrev,
+    'NYCHRA' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
     geo_bl,
-    geo_bn
+    geo_bn,
+    LEFT(bin::text, 1) AS borocode
 INTO _hra_jobcenters
 FROM hra_jobcenters;
 
-CALL append_to_facdb_base('_hra_jobcenters');
+CALL APPEND_TO_FACDB_BASE('_hra_jobcenters');

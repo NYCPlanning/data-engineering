@@ -2,33 +2,33 @@ DROP TABLE IF EXISTS _nysparks_parks;
 SELECT
     uid,
     source,
-    name as facname,
-    NULL as addressnum,
-    NULL as streetname,
-    NULL as address,
-    NULL as city,
-    NULL as zipcode,
-    county as boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
-    category as factype,
+    name AS facname,
+    NULL AS addressnum,
+    NULL AS streetname,
+    NULL AS address,
+    NULL AS city,
+    NULL AS zipcode,
+    county AS boro,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
+    category AS factype,
+    'The New York State Office of Parks, Recreation and Historic Preservation' AS opname,
+    'NYSOPRHP' AS opabbrev,
+    'NYSOPRHP' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
+    NULL AS geo_1b,
+    NULL AS geo_bl,
+    NULL AS geo_bn,
     (
         CASE
-        WHEN category LIKE '%Preserve%'
-        THEN 'Preserves and Conservation Areas'
-        ELSE 'Parks'
-	    END
-    ) as facsubgrp,
-    'The New York State Office of Parks, Recreation and Historic Preservation' as opname,
-    'NYSOPRHP' as opabbrev,
-    'NYSOPRHP' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
-    NULL geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn
+            WHEN category LIKE '%Preserve%'
+                THEN 'Preserves and Conservation Areas'
+            ELSE 'Parks'
+        END
+    ) AS facsubgrp
 INTO _nysparks_parks
 FROM nysparks_parks;
 

@@ -2,33 +2,30 @@ DROP TABLE IF EXISTS _dcla_culturalinstitutions;
 SELECT
     uid,
     source,
-    initcap(organization_name) as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
-    cleaned_address as address,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
+    cleaned_address AS address,
     city,
     zipcode,
-    borough as boro,
-    NULL as borocode,
+    borough AS boro,
+    NULL AS borocode,
     bin,
     bbl,
-    (CASE
-        WHEN discipline IS NOT NULL THEN discipline
-        ELSE 'Unspecified Discipline'
-    END) as factype,
+    organization_name AS opname,
+    'Non-public' AS opabbrev,
+    'NYCDCLA' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
+    geo_1b,
+    geo_bl,
+    geo_bn,
+    initcap(organization_name) AS facname,
+    (coalesce(discipline, 'Unspecified Discipline')) AS factype,
     (CASE
         WHEN discipline LIKE '%Museum%' THEN 'Museums'
         ELSE 'Other Cultural Institutions'
-    END) as facsubgrp,
-    organization_name as opname,
-    'Non-public' as opabbrev,
-    'NYCDCLA' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
-    geo_1b,
-    geo_bl,
-    geo_bn
+    END) AS facsubgrp
 INTO _dcla_culturalinstitutions
 FROM dcla_culturalinstitutions;
 

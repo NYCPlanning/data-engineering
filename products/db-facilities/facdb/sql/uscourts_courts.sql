@@ -2,31 +2,31 @@ DROP TABLE IF EXISTS _uscourts_courts;
 SELECT
     uid,
     source,
-    buildingname as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
-    buildingaddress as address,
-    buildingcity as city,
+    buildingname AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
+    buildingaddress AS address,
+    buildingcity AS city,
     zipcode,
-    buildingcity as boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
-    courttype as factype,
-    (CASE
-		WHEN upper(courttype) LIKE '%COURT%'
-        THEN 'Courthouses and Judicial'
-		ELSE 'Legal and Intervention Services'
-	END) as facsubgrp,
-    officename as opname,
-    NULL as opabbrev,
-    'USCOURTS' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    buildingcity AS boro,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
+    courttype AS factype,
+    officename AS opname,
+    NULL AS opabbrev,
+    'USCOURTS' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
-    NULL geo_bl,
-    NULL geo_bn
+    NULL AS geo_bl,
+    NULL AS geo_bn,
+    (CASE
+        WHEN upper(courttype) LIKE '%COURT%'
+            THEN 'Courthouses and Judicial'
+        ELSE 'Legal and Intervention Services'
+    END) AS facsubgrp
 INTO _uscourts_courts
 FROM uscourts_courts
 WHERE buildingcity IN ('New York', 'Brooklyn');

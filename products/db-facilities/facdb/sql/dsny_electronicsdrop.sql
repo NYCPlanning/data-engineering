@@ -1,28 +1,29 @@
 DROP TABLE IF EXISTS _dsny_electronicsdrop;
-SELECT uid,
+SELECT
+    uid,
     source,
-    CONCAT(dropoff_sitename, ' Electronics Drop-off Site') as facname,
-    NULL as addressnum,
-    NULL as streetname,
+    NULL AS addressnum,
+    NULL AS streetname,
     address,
-    NULL as city,
+    NULL AS city,
     zipcode,
-    LEFT(censustract, 1) as boro,
-    NULL as borocode,
+    NULL AS borocode,
     bin,
     bbl,
-    'Electronics' as factype,
-    'DSNY Drop-off Facility' as facsubgrp,
-    dropoff_sitename as opname,
-    NULL as opabbrev,
-    'NYCDSNY' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    'Electronics' AS factype,
+    'DSNY Drop-off Facility' AS facsubgrp,
+    dropoff_sitename AS opname,
+    NULL AS opabbrev,
+    'NYCDSNY' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
     geo_bl,
-    geo_bn
+    geo_bn,
+    CONCAT(dropoff_sitename, ' Electronics Drop-off Site') AS facname,
+    LEFT(censustract, 1) AS boro
 INTO _dsny_electronicsdrop
 FROM dsny_electronicsdrop;
 
-CALL append_to_facdb_base('_dsny_electronicsdrop');
+CALL APPEND_TO_FACDB_BASE('_dsny_electronicsdrop');
