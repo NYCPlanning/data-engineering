@@ -68,7 +68,6 @@ run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Computing zoning fields'
 run_sql_file sql/zoning_create_priority.sql
-run_sql_file sql/zoning_zoningdistrict_create.sql
 run_sql_file sql/zoning_zoningdistrict.sql
 run_sql_file sql/zoning_commercialoverlay.sql
 run_sql_file sql/zoning_specialdistrict.sql
