@@ -23,15 +23,9 @@ jobs:
       - name: Check python files
         run: black --diff --color --check .
 
-      # ! temporary until packages added to build-base image
-      - name: Install extra python packages
+      - name: Check sql files in products
         run: |
-          pip install sqlfluff
-
-      - name: Check sql files
-        run: |
-          # ! temporarily limit to a single data product
-          sqlfluff lint products/db-knownprojects/
+          sqlfluff lint products/
 
   check_changes:
     name: Check changed files
