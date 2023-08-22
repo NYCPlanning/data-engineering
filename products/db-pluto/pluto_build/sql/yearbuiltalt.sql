@@ -14,8 +14,9 @@
 
 UPDATE pluto_allocated
 SET yearbuilt = '0'
-WHERE yearbuilt IS NULL 
-OR yearbuilt::integer = 0;
+WHERE
+    yearbuilt IS NULL
+    OR yearbuilt::integer = 0;
 
 -- yearalter1
 -- UPDATE pluto_allocated
@@ -32,8 +33,9 @@ OR yearbuilt::integer = 0;
 
 UPDATE pluto_allocated
 SET yearalter1 = '0'
-WHERE yearalter1 IS NULL
-OR yearalter1::integer = 0;
+WHERE
+    yearalter1 IS NULL
+    OR yearalter1::integer = 0;
 
 -- yearalter2
 -- UPDATE pluto_allocated
@@ -50,5 +52,6 @@ OR yearalter1::integer = 0;
 
 UPDATE pluto_allocated
 SET yearalter2 = '0'
-WHERE yearalter2 IS NULL
-OR yearalter2::integer = 0;
+WHERE
+    yearalter2 IS NULL
+    OR yearalter2::integer = 0;

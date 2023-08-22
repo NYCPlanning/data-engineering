@@ -15,17 +15,18 @@
 -- values can overwrite each other
 UPDATE pluto
 SET plutomapid = '1'
-WHERE geom IS NOT NULL
-AND plutomapid IS NULL;
+WHERE
+    geom IS NOT NULL
+    AND plutomapid IS NULL;
 
 UPDATE pluto
 SET plutomapid = '2'
 WHERE geom IS NULL;
 
 DROP TABLE IF EXISTS dof_shoreline_subdivide;
-select ST_SubDivide(ST_MakeValid(geom), 100) as geom 
-into dof_shoreline_subdivide  
-from (
-    SELECT ST_Union(geom) as geom
+SELECT ST_SUBDIVIDE(ST_MAKEVALID(geom), 100) AS geom
+INTO dof_shoreline_subdivide
+FROM (
+    SELECT ST_UNION(geom) AS geom
     FROM dof_shoreline
-) a;
+) AS a;

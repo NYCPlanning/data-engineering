@@ -21,14 +21,14 @@ CREATE TABLE pluto_input_landuse_bldgclass (
 
 DROP TABLE IF EXISTS pluto_input_condolot_descriptiveattributes;
 CREATE TABLE pluto_input_condolot_descriptiveattributes (
-    CondNO text,
-    Boro text,
-    PARID text,
-    BC text,
-    TC text,
-    LandSize text,
-    Story text,
-    YearBuilt text
+    condno text,
+    boro text,
+    parid text,
+    bc text,
+    tc text,
+    landsize text,
+    story text,
+    yearbuilt text
 );
 \COPY pluto_input_condolot_descriptiveattributes FROM 'data/pluto_input_condolot_descriptiveattributes.csv' DELIMITER ',' CSV HEADER;
 

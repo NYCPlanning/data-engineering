@@ -1,23 +1,26 @@
 -- Take the owner name from the normalized list
 -- Insert records into pluto_input_corrections
 INSERT INTO pluto_changes_applied
-SELECT DISTINCT a.bbl, 
-	'ownername' as field, 
-	a.ownername as old_value, 
-	b.new_value as new_value,
-	b.type as type,
-	b.reason as reason,
-	b.version as version
-FROM pluto a, pluto_input_research b
-WHERE a.ownername = b.old_value
-	AND a.bbl NOT IN (SELECT bbl FROM pluto_changes_applied WHERE field = 'ownername');
+SELECT DISTINCT
+    a.bbl,
+    'ownername' AS field,
+    a.ownername AS old_value,
+    b.new_value AS new_value,
+    b.type AS type,
+    b.reason AS reason,
+    b.version AS version
+FROM pluto AS a, pluto_input_research AS b
+WHERE
+    a.ownername = b.old_value
+    AND a.bbl NOT IN (SELECT bbl FROM pluto_changes_applied WHERE field = 'ownername');
 
 INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research b, pluto a
-WHERE b.bbl=a.bbl 
-	AND b.field='ownername' 
-	AND b.old_value <> a.ownername;
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'ownername'
+    AND b.old_value != a.ownername;
 
 -- INSERT INTO pluto_corrections_applied
 -- SELECT DISTINCT b.*
@@ -25,14 +28,16 @@ WHERE b.bbl=a.bbl
 -- WHERE b.bbl=a.bbl 
 -- 	AND b.field='ownername' 
 -- 	AND b.old_value = a.ownername;
-	
+
 -- Apply correction to PLUTO
 UPDATE pluto a
-SET ownername = b.new_value,
-	dcpedited = 't'
-FROM pluto_input_research b
-WHERE a.ownername = b.old_value
-AND b.field = 'ownername';
+SET
+    ownername = b.new_value,
+    dcpedited = 't'
+FROM pluto_input_research AS b
+WHERE
+    a.ownername = b.old_value
+    AND b.field = 'ownername';
 
 -- -- logic for creating normalzied value and old value lookup table
 -- -- create temp table
