@@ -71,7 +71,7 @@ mkdir -p output
     mkdir -p project_level_internal
     (
         cd project_level_internal
-        for table in HousingDB_post2010 HousingDB_post2010_completed_jobs HousingDB_post2010_incomplete_jobs HousingDB_post2010_inactive_jobs HousingDB_post2010_inactive_included
+        for table in HousingDB_post2010 HousingDB_post2010_inactive_included
         do
             csv_export_drop_columns ${table}_internal "'geom'" $table &
             shp_export ${table}_internal POINT -f $table -t_srs "EPSG:2263" &
@@ -82,7 +82,7 @@ mkdir -p output
     mkdir -p project_level_external
     (
         cd project_level_external
-        for table in HousingDB_post2010 HousingDB_post2010_completed_jobs HousingDB_post2010_incomplete_jobs HousingDB_post2010_inactive_jobs HousingDB_post2010_inactive_included
+        for table in HousingDB_post2010 HousingDB_post2010_inactive_included
         do
             csv_export_drop_columns ${table}_external "'geom'" $table &
             shp_export ${table}_external POINT -f $table -t_srs "EPSG:2263" &

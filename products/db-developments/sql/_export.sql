@@ -149,57 +149,22 @@ WHERE "ResidFlag" = 'Residential';
 
 -- internal project-level files
 -- created for distribution on m drive
-CREATE VIEW HousingDB_post2010_all_internal AS 
+CREATE VIEW HousingDB_post2010_inactive_included_internal AS 
 SELECT :internal_columns
 FROM shp_housing
 WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::DATE >= '2010-01-01');
 
 CREATE VIEW HousingDB_post2010_internal AS
 SELECT *
-FROM HousingDB_post2010_all_internal
+FROM HousingDB_post2010_inactive_included
 WHERE "Job_Inactv" IS NULL;
-
-CREATE VIEW HousingDB_post2010_completed_jobs_internal AS
-SELECT *
-FROM HousingDB_post2010_internal
-WHERE "CompltYear"::integer >= '2010'::integer;
-
-CREATE VIEW HousingDB_post2010_incomplete_jobs_internal AS
-SELECT *
-FROM HousingDB_post2010_internal
-WHERE "CompltYear" IS NULL;
-
-CREATE VIEW HousingDB_post2010_inactive_jobs_internal AS
-SELECT *
-FROM HousingDB_post2010_all_internal
-WHERE "Job_Inactv" IS NOT NULL;
-
-CREATE VIEW HousingDB_post2010_inactive_included_internal AS
-SELECT *
-FROM HousingDB_post2010_all_internal;
 
 
 -- external project-level files
 -- created for distribution via BYTES by GIS team
-CREATE VIEW HousingDB_post2010_all_external AS 
-SELECT :external_columns
-FROM HousingDB_post2010_all_internal;
-
 CREATE VIEW HousingDB_post2010_external AS
 SELECT :external_columns
 FROM HousingDB_post2010_internal;
-
-CREATE VIEW HousingDB_post2010_completed_jobs_external AS
-SELECT :external_columns
-FROM HousingDB_post2010_completed_jobs_internal;
-
-CREATE VIEW HousingDB_post2010_incomplete_jobs_external AS
-SELECT :external_columns
-FROM HousingDB_post2010_incomplete_jobs_internal;
-
-CREATE VIEW HousingDB_post2010_inactive_jobs_external AS
-SELECT :external_columns
-FROM HousingDB_post2010_inactive_jobs_internal;
 
 CREATE VIEW HousingDB_post2010_inactive_included_external AS
 SELECT :external_columns
