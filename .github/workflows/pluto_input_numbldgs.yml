@@ -11,7 +11,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
     container: 
       image: nycplanning/build-geosupport:latest
     env:
@@ -34,7 +34,7 @@ jobs:
         id: pluto_input_numbldgs
         with:
           name: pluto_input_numbldgs
-          path: products/db-pluto/pluto_build/templates/pluto_input_numbldgs.yml
+          path: products/pluto/pluto_build/templates/pluto_input_numbldgs.yml
           s3: true
           latest: true
           output_format: pgdump csv

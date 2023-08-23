@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
     container: 
       image: nycplanning/build-geosupport:latest
     env:
@@ -76,7 +76,7 @@ jobs:
         id: pluto_pts
         with:
           name: pluto_pts
-          path: products/db-pluto/pluto_build/templates/pluto_pts.yml
+          path: products/pluto/pluto_build/templates/pluto_pts.yml
           s3: true
           latest: true
           compress: true
@@ -89,7 +89,7 @@ jobs:
         id: pluto_input_geocodes
         with:
           name: pluto_input_geocodes
-          path: products/db-pluto/pluto_build/templates/pluto_input_geocodes.yml
+          path: products/pluto/pluto_build/templates/pluto_input_geocodes.yml
           s3: true
           latest: true
           compress: true

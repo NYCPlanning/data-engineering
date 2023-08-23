@@ -1,10 +1,7 @@
 # PLUTO and MapPLUTO 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/NYCPlanning/db-pluto?label=latest%20code%20release)<br/>
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/NYCPlanning/db-pluto/run.yml?branch=main&label=CI%20Run%20-%20main)<br/>
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/NYCPlanning/db-pluto/input_cama.yml?branch=main&label=CAMA%20Processing)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/NYCPlanning/db-pluto/input_pts.yml?branch=main&label=PTS%20Processing)
-<!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CAMA%20Processing?label=CAMA) -->
-<!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/PTS%20processing?label=PTS) -->
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/NYCPlanning/data-engineering/pluto_build.yml?branch=main)<br/>
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/NYCPlanning/data-engineering/pluto_input_cama.yml?branch=main)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/NYCPlanning/data-engineering/pluto_input_pts.yml?branch=main)
 
 Please note that we're still working on this repo as we optimize the build processes, update the sources for the raw data inputs, and implement better technologies.  We're excited that PLUTO users can now look under the hood and begin exploring how PLUTO is built and each of its individual fields are calculated. If you have suggestions or find any problems, please open an issue, or if you have questions please reach out to us directly.
 
@@ -51,7 +48,7 @@ Lean more about PLUTO, its idiosyncrasies and limitations in [PLUTO's Read Me an
 
 ## __How you can help__
 
-We want to make PLUTO most useful and accurate for its users, so open an [issue](https://github.com/NYCPlanning/db-pluto/issues) to report an error or suggest how we can improve PLUTO.
+We want to make PLUTO most useful and accurate for its users, so open an [issue](https://github.com/NYCPlanning/data-engineering/issues) to report an error or suggest how we can improve PLUTO.
 
 ## Data Build Instructions
 

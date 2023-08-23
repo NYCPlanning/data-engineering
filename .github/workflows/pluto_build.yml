@@ -20,7 +20,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       is_minor_version: ${{ steps.check_minor_version.outputs.is_minor_version }}
@@ -54,7 +54,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
     container:
       image: nycplanning/build-base:latest
     env:

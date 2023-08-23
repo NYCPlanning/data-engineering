@@ -15,7 +15,7 @@ PLUTO uses version numbering YYvMAJOR.MINOR
 2. MINOR version for using the latest versions of particular input data
 
 Make sure version name (and previous) is updated in this file
-- [ ] <https://github.com/NYCPlanning/db-pluto/blob/main/pluto_build/version.env>
+- [ ] <https://github.com/NYCPlanning/data-engineering/blob/main/products/pluto/pluto_build/version.env>
 
 Other variables in this file are not used in a major build and can be left alone 
 
@@ -41,10 +41,10 @@ Other variables in this file are not used in a major build and can be left alone
 
 #### DOF Automated Pull and Number of Buildings
 
-- [ ] **pluto_pts** (Check [here](https://github.com/NYCPlanning/db-pluto/actions/workflows/input_pts.yml))
-- [ ] **pluto_input_geocodes** (Check [here](https://github.com/NYCPlanning/db-pluto/actions/workflows/input_pts.yml))
-- [ ] **pluto_input_cama_dof** (Check [here](https://github.com/NYCPlanning/db-pluto/actions/workflows/input_cama.yml))
-- [ ] **pluto_input_numbldgs** (Check [here](https://github.com/NYCPlanning/db-pluto/actions/workflows/input_numbldgs.yml))
+- [ ] **pluto_pts** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_pts.yml))
+- [ ] **pluto_input_geocodes** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_pts.yml))
+- [ ] **pluto_input_cama_dof** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_cama.yml))
+- [ ] **pluto_input_numbldgs** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_numbldgs.yml))
 
 ### Updated with Quarterly updates (check [here](https://github.com/NYCPlanning/db-data-library/actions/workflows/quaterly-updates.yml))
 

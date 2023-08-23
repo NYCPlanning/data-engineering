@@ -15,7 +15,7 @@ PLUTO uses version numbering YYvMAJOR.MINOR
 2. MINOR version for using the latest versions of particular input data
 
 Make sure version name is updated in this file
-- [ ] <https://github.com/NYCPlanning/db-pluto/blob/main/pluto_build/version.env>
+- [ ] <https://github.com/NYCPlanning/data-engineering/blob/main/products/pluto/pluto_build/version.env>
 
 In that file, the following are also specified. These versions are to be help constant with what was used in the last major pluto update.
 They are not used by the main/major data loading script, so they are only updated at the first minor release of each major release.
