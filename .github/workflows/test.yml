@@ -48,8 +48,8 @@ jobs:
               - products/cbbr/**
             checkbook:
               - products/checkbook/**
-            qaqc:
-              - apps/qaqc/**
+            qa:
+              - apps/qa/**
             zap:
               - .github/workflows/zap_test.yml
               - .github/workflows/build.yml
@@ -79,10 +79,10 @@ jobs:
     if: contains(needs.check_changes.outputs.path_filters, 'checkbook')
     uses: ./.github/workflows/checkbook_test.yml
     secrets: inherit
-  qaqc:
+  qa:
     needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'qaqc')
-    uses: ./.github/workflows/qaqc_test.yml
+    if: contains(needs.check_changes.outputs.path_filters, 'qa')
+    uses: ./.github/workflows/qa_test.yml
     secrets: inherit
   zap:
     needs: confirm_changes

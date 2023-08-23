@@ -1,4 +1,4 @@
-name: QAQC - Deploy Streamlit App to Droplet
+name: QA App - Deploy Streamlit App to Droplet
 
 on: 
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Build and Push
-        run: apps/qaqc/bash/docker_build_and_publish.sh
+        run: apps/qa/bash/docker_build_and_publish.sh
 
   deploy:
     runs-on: ubuntu-22.04
@@ -25,30 +25,30 @@ jobs:
       run:
         shell: bash
     env: 
-      QAQC_DROPLET_SSH_PRIVATE_KEY: ${{ secrets.QAQC_DROPLET_SSH_PRIVATE_KEY }}
-      QAQC_DROPLET_SSH_HOST: ${{ secrets.QAQC_DROPLET_SSH_HOST }}
+      QA_DROPLET_SSH_PRIVATE_KEY: ${{ secrets.QA_DROPLET_SSH_PRIVATE_KEY }}
+      QA_DROPLET_SSH_HOST: ${{ secrets.QA_DROPLET_SSH_HOST }}
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      SQL_ENGINE_EDM_DATA: ${{ secrets.EDM_DATA_QAQC_ENGINE }}
+      SQL_ENGINE_EDM_DATA: ${{ secrets.EDM_DATA_QA_ENGINE }}
       GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
-      DOCKER_IMAGE_NAME: nycplanning/qaqc:latest
+      DOCKER_IMAGE_NAME: nycplanning/qa-streamlit:latest
     steps:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "$QAQC_DROPLET_SSH_PRIVATE_KEY" > ~/.ssh/qaqc.key
-          chmod 400 ~/.ssh/qaqc.key
+          echo "$QA_DROPLET_SSH_PRIVATE_KEY" > ~/.ssh/qa.key
+          chmod 400 ~/.ssh/qa.key
           cat >> ~/.ssh/config <<EOF
-          Host qaqc
-            HostName $QAQC_DROPLET_SSH_HOST
+          Host qa
+            HostName $QA_DROPLET_SSH_HOST
             User root
-            IdentityFile ~/.ssh/qaqc.key
+            IdentityFile ~/.ssh/qa.key
             StrictHostKeyChecking no
           EOF
       - name: Deploy
         run: |
-          ssh qaqc "\
+          ssh qa "\
             docker pull $DOCKER_IMAGE_NAME
             pid=\"\$(docker ps -a -q)\"
             if [[ \$pid ]]; then
