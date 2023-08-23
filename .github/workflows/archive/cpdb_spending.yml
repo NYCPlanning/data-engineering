@@ -12,7 +12,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./products/db-cpdb
+        working-directory: ./products/cpdb
     container: 
       image: nycplanning/base:latest
       env:
