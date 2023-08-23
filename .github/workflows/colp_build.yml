@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-colp
+        working-directory: products/colp
     container: 
       image: nycplanning/build-geosupport:latest
     env:
