@@ -13,7 +13,7 @@ attrs==23.1.0
 babel==2.12.1
     # via agate
 black==23.7.0
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 cachetools==5.3.1
     # via google-auth
 certifi==2023.7.22
@@ -47,7 +47,7 @@ cryptography==41.0.3
     #   msal
     #   pyjwt
 dbt-bigquery==1.6.1
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 dbt-core==1.6.0
     # via dbt-bigquery
 dbt-extractor==0.4.1
@@ -146,7 +146,7 @@ minimal-snowplow-tracker==0.0.2
 more-itertools==8.14.0
     # via dbt-semantic-interfaces
 msal==1.23.0
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 msgpack==1.0.5
     # via mashumaro
 mypy-extensions==1.0.0
@@ -164,11 +164,11 @@ packaging==23.1
     #   google-cloud-bigquery
     #   pytest
 pandas==2.0.3
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 parsedatetime==2.6
     # via agate
 pathlib==1.0.1
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 pathspec==0.11.2
     # via
     #   black
@@ -183,7 +183,7 @@ pluggy==1.2.0
     #   diff-cover
     #   pytest
 pre-commit==3.3.3
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 proto-plus==1.22.3
     # via
     #   google-cloud-bigquery
@@ -199,7 +199,7 @@ protobuf==4.24.0
     #   grpcio-status
     #   proto-plus
 psycopg2-binary==2.9.7
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 pyasn1==0.5.0
     # via
     #   pyasn1-modules
@@ -218,11 +218,11 @@ pyrsistent==0.19.3
     # via jsonschema
 pytest==7.4.0
     # via
-    #   db-zap-opendata (pyproject.toml)
+    #   zap-opendata (pyproject.toml)
     #   pytest-cov
     #   sqlfluff
 pytest-cov==4.1.0
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 python-dateutil==2.8.2
     # via
     #   dbt-semantic-interfaces
@@ -230,7 +230,7 @@ python-dateutil==2.8.2
     #   hologram
     #   pandas
 python-dotenv==1.0.0
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 python-slugify==8.0.1
     # via agate
 pytimeparse==1.1.8
@@ -266,9 +266,9 @@ six==1.16.0
     #   minimal-snowplow-tracker
     #   python-dateutil
 sqlalchemy==2.0.20
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 sqlfluff==2.3.0
-    # via db-zap-opendata (pyproject.toml)
+    # via zap-opendata (pyproject.toml)
 sqlparse==0.4.4
     # via dbt-core
 tblib==2.0.0

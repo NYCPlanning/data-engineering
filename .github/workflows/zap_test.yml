@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-zap-opendata
+        working-directory: products/zap-opendata
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -40,7 +40,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-zap-opendata
+        working-directory: products/zap-opendata
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
@@ -69,7 +69,7 @@ jobs:
       - name: Build and run dev container task
         uses: devcontainers/ci@v0.3
         with:
-          subFolder: products/db-zap-opendata
+          subFolder: products/zap-opendata
           runCmd: |
             echo "Dev Container is in CI? $CI"
             gcloud version

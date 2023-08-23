@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-zap-opendata
+        working-directory: products/zap-opendata
     env:
       CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
       SECRET: ${{ secrets.ZAP_CRM_SECRET }}
