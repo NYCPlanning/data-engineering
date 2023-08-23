@@ -1,23 +1,23 @@
 DROP TABLE IF EXISTS corrections_applied;
 CREATE TABLE corrections_applied (
-	record_id 		text,
-	field 	  		text,
-	current_value 	text,
-	old_value 		text,
-	new_value 		text
+    record_id text,
+    field text,
+    current_value text,
+    old_value text,
+    new_value text
 );
 
 DROP TABLE IF EXISTS corrections_not_applied;
 CREATE TABLE corrections_not_applied (
-	record_id 		text,
-	field 	  		text,
-	current_value 	text,
-	old_value 		text,
-	new_value 		text
+    record_id text,
+    field text,
+    current_value text,
+    old_value text,
+    new_value text
 );
 
 DROP PROCEDURE IF EXISTS correction;
-CREATE OR REPLACE PROCEDURE correction (
+CREATE OR REPLACE PROCEDURE correction(
     _table text,
     _record_id text,
     _field text,
@@ -65,8 +65,8 @@ $BODY$ LANGUAGE plpgsql;
 
 
 DROP PROCEDURE IF EXISTS apply_correction;
-CREATE OR REPLACE PROCEDURE apply_correction (
-    _table text, 
+CREATE OR REPLACE PROCEDURE apply_correction(
+    _table text,
     _corrections text
 ) AS $BODY$
 DECLARE 

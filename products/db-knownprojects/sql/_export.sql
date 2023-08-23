@@ -1,13 +1,13 @@
 /*
 DESCRIPTION:
-    Map KPDB data into final schema for export. 
+    Map KPDB data into final schema for export.
     Translate array from _review_dob to string for export.
 
-INPUTS: 
+INPUTS:
     _kpdb
     _review_dob
 
-OUTPUTS: 
+OUTPUTS:
     kpdb
     review_dob
 */
@@ -41,29 +41,29 @@ INTO kpdb
 FROM _kpdb;
 
 DROP TABLE IF EXISTS review_dob;
-SELECT 
+SELECT
     v,
-	source,
-	record_id,
-	record_name,
-	status,
-	type,
-	units_gross,
-	date,
-	date_type,
-	inactive,
-	no_classa,
-	array_to_string(project_record_ids, ',') as project_record_ids,
-	classa_init,
-	classa_prop,
-	otherb_init,
-	otherb_prop,
-	date_filed,
-	date_lastupdt,
-	date_complete,
-	dob_multimatch,
-	project_has_dob_multi,
-	no_geom,
-	geom
+    source,
+    record_id,
+    record_name,
+    status,
+    type,
+    units_gross,
+    date,
+    date_type,
+    inactive,
+    no_classa,
+    classa_init,
+    classa_prop,
+    otherb_init,
+    otherb_prop,
+    date_filed,
+    date_lastupdt,
+    date_complete,
+    dob_multimatch,
+    project_has_dob_multi,
+    no_geom,
+    geom,
+    array_to_string(project_record_ids, ',') AS project_record_ids
 INTO review_dob
 FROM _review_dob;
