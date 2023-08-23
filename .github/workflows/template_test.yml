@@ -11,7 +11,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-template
+        working-directory: products/template
     steps:
       - uses: actions/checkout@v3
 
@@ -32,7 +32,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-template
+        working-directory: products/template
     steps:
       - uses: actions/checkout@v3
 
