@@ -43,7 +43,7 @@ jobs:
             template:
               - .github/workflows/tests.yml
               - .github/workflows/build.yml
-              - products/db-template/**
+              - products/template/**
             cbbr:
               - products/cbbr/**
             checkbook:
