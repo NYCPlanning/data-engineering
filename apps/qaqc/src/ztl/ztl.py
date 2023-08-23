@@ -6,7 +6,7 @@ from src.constants import DATASET_NAMES
 from src.components.sources_report import sources_report
 from src.ztl.components.outputs_report import output_report
 
-DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
+DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots/"
 REFERENCE_VESION = "2023-04-01"
 STAGING_VERSION = None
 

@@ -62,7 +62,7 @@ Other variables in this file are not used in a major build and can be left alone
 
 ### Updated with Zoning Taxlots 
 
-(check [here](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/dataloading.yml) for latest run).
+(check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/zoningtaxlots_dataloading.yml) for latest run).
 
 These are all produced by GIS, who typically update them sometime in the first week of each month.
 Check in with them before archiving with data library

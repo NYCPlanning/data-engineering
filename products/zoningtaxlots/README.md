@@ -1,4 +1,4 @@
-# NYC Zoning Tax Lot Database [![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml)
+# NYC Zoning Tax Lot Database [![Build](https://github.com/NYCPlanning/data-engineering/actions/workflows/zoningtaxlots_build.yml/badge.svg)](https://github.com/NYCPlanning/data-engineering/actions/workflows/zoningtaxlots_build.yml)
 
 The Zoning Tax Lot Database includes the zoning designations and zoning map associated with a specific tax lot.  Using the tax lots in the Department of Finance Digital Tax Map, zoning features from the Department of City Planning NYC GIS Zoning Features, and spatial analysis tools DCP assigns
 a zoning district (includes commercial overlays, special districts, and limited height districts) to a tax lot if 10% or more of the tax lot is covered by the zoning feature and/or 50% or more of the zoning feature is within a tax lot.
@@ -26,7 +26,7 @@ QAQC metrics comparing versions of ZTL can be found on the [Data Engineering QAQ
 ### Build instructions
 1. Clone the repo and create `.env`
 2. Open the repo in the defined devcontainer in VS Code
-3. Run the following commands at the root directory of the Zoning Tax Lot Database product (`/db-zoningtaxlots`):
+3. Run the following commands at the root directory of the Zoning Tax Lot Database product (`/zoningtaxlots`):
 ```bash
 ./ztl.sh dataloading
 ./ztl.sh build
