@@ -23,9 +23,10 @@ jobs:
       - name: Check python files
         run: black --diff --color --check .
 
-      # TODO add sql formatting check
-      # - name: Check sql files
-      #   run: sqlfluff ...
+      - name: Check sql files in products
+        run: |
+          # TODO: Gradually expand this to cover more products
+          sqlfluff lint products/db-knownprojects/
 
   check_changes:
     name: Check changed files

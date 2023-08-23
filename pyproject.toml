@@ -1,0 +1,37 @@
+[tool.sqlfluff.core]
+dialect = "postgres"
+
+# Comma separated list of rules to exclude, or None
+exclude_rules = [
+    "ambiguous.column_count",
+    "references.qualification",
+    "structure.unused_cte",
+    "references.keywords",
+    "references.consistent",
+]
+
+# The standard max_line_length is 80 in line with the convention of
+# other tools and several style guides. Many projects however prefer
+# something a little longer.
+# Set to zero or negative to disable checks.
+max_line_length = 120
+
+# CPU processes to use while linting.
+# The default is "single threaded" to allow easy debugging, but this
+# is often undesirable at scale.
+# If positive, just implies number of processes.
+# If negative or zero, implies number_of_cpus - specified_number.
+# e.g. -1 means use all processors but one. 0 means all cpus.
+processes = -1
+
+[tool.sqlfluff.rules.layout.long_lines]
+ignore_comment_lines = true
+ignore_comment_clauses = true
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "upper"
+
+[tool.pydocstyle]
+ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
+
+[tool.black]
