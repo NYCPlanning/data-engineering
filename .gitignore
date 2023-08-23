@@ -140,3 +140,6 @@ dmypy.json
 
 # sqlite files 
 *.db**
+
+products/*/*.lock.yml
+products/*/source_data_versions.csv

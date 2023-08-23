@@ -1,7 +1,9 @@
 import argparse
 import copy
+import csv
 import json
 from pathlib import Path
+import shutil
 import sys
 import yaml
 
@@ -68,6 +70,7 @@ def import_recipe(
     *,
     version="latest",
     local_library_dir=LIBRARY_DEFAULT_PATH,
+    import_table_name: str = None,
 ):
     """Import a recipe to local data library folder and build engine."""
     config = get_config(recipe_name, version)
@@ -87,8 +90,15 @@ def import_recipe(
 
         con.commit()
 
+        if import_table_name is not None:
+            logger.info(f"Renaming table {recipe_name} to {import_table_name}")
+            con.execute(
+                text(f"ALTER TABLE {recipe_name} RENAME TO {import_table_name};")
+            )
+            con.commit()
 
-def plan_build_versions(build_file: Path, *, branch="main") -> dict:
+
+def plan_build_versions(build_file: Path) -> dict:
     """Plan build versions for a product release.
 
     Similar to pip freeze, determines recipe versions to use for a build.
@@ -104,9 +114,11 @@ def plan_build_versions(build_file: Path, *, branch="main") -> dict:
     if "version_strategy" in merged_build:
         strat = merged_build["version_strategy"]
         if strat == "bump_latest_release":
-            v = publishing.get_latest_version(merged_build["product"], branch=branch)
+            prev_version = publishing.get_latest_version(
+                merged_build["product"], branch="main"
+            )
             merged_build["version"] = versions.bump(
-                v, bumped_part=merged_build["version_type"]
+                prev_version, bumped_part=merged_build["version_type"]
             )
         else:
             raise Exception(f"Invalid 'missing_version_strategy': {strat}")
@@ -149,25 +161,88 @@ def import_build_datasets(build):
     # create_source_data_table()
     for rec in build["recipe"]["inputs"]:
         # import_recipe(rec['name'], version=rec['version'], set_version=True)
-        import_recipe(rec["name"], version=rec["version"])
+        import_recipe(
+            rec["name"], version=rec["version"], import_table_name=rec.get("import_as")
+        )
+
+
+def purge_recipe_cache(local_library_dir=LIBRARY_DEFAULT_PATH):
+    """Delete locally stored recipes."""
+    shutil.rmtree(local_library_dir)
+
+
+def get_source_data_versions(build):
+    """Get source data versions table in form of [schema_name, v]."""
+    return [["schema_name", "v"]] + [
+        [x["name"], x["version"]] for x in build["recipe"]["inputs"]
+    ]
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "import":
-        flags_parser = argparse.ArgumentParser()
-        flags_parser.add_argument("cmd")
+    flags_parser = argparse.ArgumentParser()
+    flags_parser.add_argument("cmd")
+
+    if sys.argv[1] == "plan":
+        logger.info("Planning build")
         flags_parser.add_argument(
-            "-f", "--file", help="Requirements filepath", type=Path
+            "-f", "--build-file", help="Build file path", type=Path
         )
-        flags_parser.add_argument("-b", "--branch", help="Branch")
+        flags_parser.add_argument(
+            "-o",
+            "--lock-file",
+            help="Lockfile path",
+            type=Path,
+            required=False,
+        )
         flags = flags_parser.parse_args()
 
-        logger.info("Planning build")
-        build = plan_build_versions(Path(flags.file), branch=flags.branch)
-        lock_file_path = flags.file.parent / "build.lock.yml"
-        logger.info("Writing build lockfile")
-        with open(lock_file_path, "w", encoding="utf-8") as f:
-            yaml.dump(build, f)
+        build = plan_build_versions(Path(flags.build_file))
+        if flags.lock_file is not None:
+            with open(flags.lock_file, "w", encoding="utf-8") as f:
+                logger.info(
+                    f"Writing build lockfile to {str(flags.lock_file.absolute())}"
+                )
+                yaml.dump(build, f)
+        else:
+            print(build)
 
-        logger.info("Importing build datasets")
+    elif sys.argv[1] == "import":
+        flags_parser.add_argument(
+            "-f", "--build-file", help="Build file path", type=Path
+        )
+        flags = flags_parser.parse_args()
+
+        with open(flags.build_file, "r", encoding="utf-8") as f:
+            build = yaml.safe_load(f)
+        logger.info("Importing Recipes")
         import_build_datasets(build)
+
+    elif sys.argv[1] == "purge-recipe-cache":
+        logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
+        purge_recipe_cache()
+
+    elif sys.argv[1] == "write-source-data-versions":
+        flags_parser.add_argument(
+            "-f", "--build-file", help="Build file path", type=Path
+        )
+        flags = flags_parser.parse_args()
+
+        with open(flags.build_file, "r", encoding="utf-8") as f:
+            build = yaml.safe_load(f)
+        source_data_versions_path = flags.build_file.parent / "source_data_versions.csv"
+        logger.info(f"Writing source data versions to {source_data_versions_path}")
+
+        sdv = get_source_data_versions(build)
+        unresolved_versions = [[k, v] for k, v in sdv if v == "latest"]
+        if len(unresolved_versions) > 0:
+            exception = (
+                "Build has unresolved versions! Can't write source "
+                + f"data versions {unresolved_versions}"
+            )
+            logger.error(exception)
+            raise Exception(exception)
+
+        with open(source_data_versions_path, "w", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            for key, value in sdv:
+                writer.writerow([key, value])

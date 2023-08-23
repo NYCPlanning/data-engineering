@@ -1,5 +1,5 @@
 name: Pluto Major
-version_type: major
+version: 23v2
 product: db-pluto
 recipe:
   missing_versions_strategy: use_latest
@@ -18,6 +18,8 @@ recipe:
     - name: dcp_healthareas
     - name: dcp_healthcenters
     - name: dcp_limitedheight
+    - name: dcp_pluto
+      import_as: previous_pluto
     - name: dcp_policeprecincts
     - name: dcp_school_districts
     - name: dcp_specialpurpose
