@@ -6,12 +6,12 @@ The Community Board Budget Requests Database is a way to quickly and easily expl
 
 ## Output files (FY2024)
 
-- [cbbr_submissions.csv](https://raw.githubusercontent.com/NYCPlanning/db-cbbr/master/cbbr_build/output/FY2024/cbbr_export.csv)
-- [cbbr_submissions_needgeoms.csv](https://raw.githubusercontent.com/NYCPlanning/db-cbbr/master/cbbr_build/output/FY2024/cbbr_submissions_needgeoms.csv)
-- [cbbr_submissions_poly.csv](https://raw.githubusercontent.com/NYCPlanning/db-cbbr/master/cbbr_build/output/FY2024/cbbr_submissions_poly.csv)
-- [cbbr_submissions_pts.csv](https://raw.githubusercontent.com/NYCPlanning/db-cbbr/master/cbbr_build/output/FY2024/cbbr_submissions_pts.csv)
-- [cbbr_submissions_poly_shapefile.zip](https://raw.githubusercontent.com/NYCPlanning/db-cbbr/master/cbbr_build/output/FY2024/cbbr_submissions_poly_shapefile.zip)
-- [cbbr_submissions_pts_shapefile.zip](https://raw.githubusercontent.com/NYCPlanning/db-cbbr/master/cbbr_build/output/FY2024/cbbr_submissions_pts_shapefile.zip)
+- [cbbr_submissions.csv](https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/cbbr/cbbr_build/output/FY2024/cbbr_export.csv)
+- [cbbr_submissions_needgeoms.csv](https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/cbbr/cbbr_build/output/FY2024/cbbr_submissions_needgeoms.csv)
+- [cbbr_submissions_poly.csv](https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/cbbr/cbbr_build/output/FY2024/cbbr_submissions_poly.csv)
+- [cbbr_submissions_pts.csv](https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/cbbr/cbbr_build/output/FY2024/cbbr_submissions_pts.csv)
+- [cbbr_submissions_poly_shapefile.zip](https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/cbbr/cbbr_build/output/FY2024/cbbr_submissions_poly_shapefile.zip)
+- [cbbr_submissions_pts_shapefile.zip](https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/cbbr/cbbr_build/output/FY2024/cbbr_submissions_pts_shapefile.zip)
 
 ### Limitations
 
@@ -59,8 +59,8 @@ CBBR is primarily built for planning coordination and information purposes only
 
     ```bash
     docker run -it --rm \
-        -v $(pwd):/home/db-cbbr \
-        -w /home/db-cbbr \
+        -v $(pwd):/home/cbbr \
+        -w /home/cbbr \
         --env-file .env \
         --network="host" \
         nycplanning/docker-geosupport:latest bash
@@ -84,5 +84,5 @@ In order to properly preprocess these corrections to the existing CBBR data, the
     a. Right Click the file you want to export: `Export` -> `Save Features As…` 
     b. Create file name for each individual file (e.g. `cbbr_line_corrections`)
     c. Select `Layer Options` -> `Geometry` - `AS_WKT`
-    d. Save the file(s) into the `db-cbbr/cbbr_build/cbbr_geom_corrections/processed/` folder 
+    d. Save the file(s) into the `cbbr/build/cbbr_geom_corrections/processed/` folder 
 5. Once that is done, the creation of the corrections files takes place programmatically.
