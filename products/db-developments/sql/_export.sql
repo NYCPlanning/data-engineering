@@ -156,7 +156,7 @@ WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "Dat
 
 CREATE VIEW HousingDB_post2010_internal AS
 SELECT *
-FROM HousingDB_post2010_inactive_included
+FROM HousingDB_post2010_inactive_included_internal
 WHERE "Job_Inactv" IS NULL;
 
 
