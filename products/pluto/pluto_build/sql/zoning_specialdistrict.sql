@@ -1,12 +1,10 @@
 -- calculate how much (total area and percentage) of each lot is covered by a special purpose district
 -- assign the special purpose district(s) to each tax lot
 -- the order special purpose districts are assigned is based on which district covers the majority of the lot
--- a district is only assigned if more than 10% of the district covers the lot
--- OR more than a specified area of the lot if covered by the district
-DROP TABLE IF EXISTS specialpurposeperorder;
-CREATE TABLE specialpurposeperorder AS (
-WITH 
-specialpurposeper AS (
+-- a district is only assigned if more than 10% of the lot is covered by the district
+-- OR if no lot meets the 10% threshold, than the lot with the highest percentage of the special district is assigned it
+DROP TABLE IF EXISTS specialpurposeper;
+CREATE TABLE specialpurposeper AS 
 SELECT p.bbl, n.sdlbl,
   (ST_Area(CASE 
     WHEN ST_CoveredBy(p.geom, n.geom) 
@@ -28,60 +26,77 @@ SELECT p.bbl, n.sdlbl,
   ST_Area(n.geom) as allzonegeom
  FROM pluto AS p 
    INNER JOIN dcp_specialpurpose AS n 
-    ON ST_Intersects(p.geom, n.geom)
+    ON ST_Intersects(p.geom, n.geom);
+
+DROP TABLE IF EXISTS specialpurposeperorder;
+CREATE TABLE specialpurposeperorder AS 
+WITH specialpurposeperorder_init AS (
+    SELECT
+        bbl, 
+        sdlbl, 
+        segbblgeom, 
+        (segbblgeom/allbblgeom)*100 as perbblgeom, 
+        (segzonegeom/allzonegeom)*100 as perzonegeom, 
+        -- per sp district type, rank by 
+        --   1) if lot meets 10% coverage by sp district threshold
+        --   2) area of coverage
+        -- This is to get cases where special sp district may only be assigned to one lot. 
+        -- 1) is to cover edge case where largest section of specific large (but common) sp district that happens to have largest area on small fraction of huge lot
+        -- See BBL 1013730001 in ZoLa - largest section of special district but should not be assigned spdist SRI
+        ROW_NUMBER() OVER (PARTITION BY sdlbl ORDER BY (segbblgeom/allbblgeom)*100 < 10, segzonegeom DESC) AS sd_row_number
+    FROM specialpurposeper
 )
-SELECT bbl, sdlbl, segbblgeom, (segbblgeom/allbblgeom)*100 as perbblgeom, (segzonegeom/allzonegeom)*100 as perzonegeom, ROW_NUMBER()
-    	OVER (PARTITION BY bbl
-      	ORDER BY segbblgeom DESC) AS row_number
-  		FROM specialpurposeper
-);
+SELECT 
+    bbl, 
+    sdlbl, 
+    segbblgeom, 
+    ROW_NUMBER() OVER (PARTITION BY bbl ORDER BY segbblgeom, sdlbl DESC) AS row_number
+FROM specialpurposeperorder_init
+    WHERE perbblgeom >= 10
+        OR sd_row_number = 1;
 
 UPDATE pluto a
 SET spdist1 = sdlbl
 FROM specialpurposeperorder b
 WHERE a.bbl=b.bbl 
-AND row_number = 1
-AND perbblgeom >= 10;
+AND row_number = 1;
 
 UPDATE pluto a
 SET spdist2 = sdlbl
 FROM specialpurposeperorder b
 WHERE a.bbl=b.bbl 
-AND row_number = 2
-AND perbblgeom >= 10;
+AND row_number = 2;
 
 UPDATE pluto a
 SET spdist3 = sdlbl
 FROM specialpurposeperorder b
 WHERE a.bbl=b.bbl 
-AND row_number = 3
-AND perbblgeom >= 10;
-
-DROP TABLE specialpurposeperorder;
+AND row_number = 3;
 
 -- set the order of special districts 
 UPDATE pluto
 SET spdist1 = 'CL',
-  spdist2 = 'MiD'
+    spdist2 = 'MiD'
 WHERE spdist1 = 'MiD'
-  AND spdist2 = 'CL';
+    AND spdist2 = 'CL';
 UPDATE pluto
 SET spdist1 = 'MiD',
-  spdist2 = 'TA'
+    spdist2 = 'TA'
 WHERE spdist1 = 'TA'
-  AND spdist2 = 'MiD';
+    AND spdist2 = 'MiD';
 UPDATE pluto
 SET spdist1 = '125th',
-  spdist2 = 'TA'
+    spdist2 = 'TA'
 WHERE spdist1 = 'TA'
-  AND spdist2 = '125th';
+    AND spdist2 = '125th';
 UPDATE pluto
 SET spdist1 = 'EC-5',
-  spdist2 = 'MX-16'
+    spdist2 = 'MX-16'
 WHERE spdist1 = 'MX-16'
-  AND spdist2 = 'EC-5';
+    AND spdist2 = 'EC-5';
 UPDATE pluto
 SET spdist1 = 'EC-6',
-  spdist2 = 'MX-16'
+    spdist2 = 'MX-16'
 WHERE spdist1 = 'MX-16'
-  AND spdist2 = 'EC-6';
+    AND spdist2 = 'EC-6';
+-- missing EHC/TA, G/MX-1
