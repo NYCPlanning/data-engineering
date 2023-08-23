@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-cbbr/cbbr_build
+        working-directory: products/cbbr/cbbr_build
     container:
       image: nycplanning/build-geosupport:latest
     env:

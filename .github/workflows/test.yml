@@ -45,7 +45,7 @@ jobs:
               - .github/workflows/build.yml
               - products/db-template/**
             cbbr:
-              - products/db-cbbr/**
+              - products/cbbr/**
             checkbook:
               - products/db-checkbook/**
             qaqc:
