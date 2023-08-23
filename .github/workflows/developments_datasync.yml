@@ -32,7 +32,7 @@ jobs:
         with:
           # name of the dataset
           name: ${{ matrix.dataset }}
-          path: products/db-developments/templates/${{ matrix.dataset }}.yml
+          path: products/developments/templates/${{ matrix.dataset }}.yml
           s3: true
           latest: true
           compress: true
@@ -57,7 +57,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-developments
+        working-directory: products/developments
     env:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}

@@ -59,7 +59,7 @@ readme_markdown_text = """### Source Data Info
 + **`dcp_saf`**: Uploaded to edm-publishing data staging by GIS. These files get read directly from the upload location, and are not loaded to data-library.
 + Requires manual reloading to data-library
 + **`doitt_buildingfootprints`**: Pulled from [OpenData](https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh) and parsed through a [python script](https://github.com/NYCPlanning/db-data-library/blob/main/library/script/doitt_buildingfootprints.py). Due to instability, this data update is not get included in the batch update workflow.
-+ **`dcp_developments`**: Gets published to data-library upon rebuilding using a [workflow](https://github.com/NYCPlanning/db-developments/blob/main/.github/workflows/publish.yml) in the db-developments repo. No other update necessary.
++ **`dcp_developments`**: Gets published to data-library upon rebuilding using a [workflow](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/developments_publish.yml) in the db-developments repo. No other update necessary.
 
 ### PAD checks
 
