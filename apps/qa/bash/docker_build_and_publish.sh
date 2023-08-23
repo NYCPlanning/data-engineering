@@ -3,7 +3,7 @@
 set -e
 FILE_DIR=$(dirname "$(readlink -f "$0")")
 
-DOCKER_IMAGE_NAME=nycplanning/qaqc
+DOCKER_IMAGE_NAME=nycplanning/qa-streamlit
 echo $FILE_DIR
 cp -r $FILE_DIR/../../../dcpy $FILE_DIR/../src/
 

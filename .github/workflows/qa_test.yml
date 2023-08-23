@@ -1,11 +1,11 @@
-name: QAQC App - Test
+name: QA App - Test
 
 on:
   workflow_call:
 
 jobs:
   test:
-    name: QAQC Tests
+    name: QA Tests
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-base:latest
@@ -18,5 +18,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: pytest
-      working-directory: apps/qaqc
+      working-directory: apps/qa
       run: python3 -m pytest
