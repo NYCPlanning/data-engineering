@@ -12,7 +12,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -32,7 +32,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
     env:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}

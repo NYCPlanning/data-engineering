@@ -50,5 +50,5 @@ jobs:
           export_default_credentials: true
 
       - name: Upload to BigQuery
-        working-directory: products/db-pluto/pluto_build
+        working-directory: products/pluto/pluto_build
         run: ./pluto bq publish_historical dcp_mappluto ${{ github.event.inputs.version }}
