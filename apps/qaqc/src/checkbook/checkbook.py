@@ -8,7 +8,7 @@ def checkbook():
         body="""
         ### About
 
-        The [Capital Spending Database](https://github.com/NYCPlanning/data-engineering/tree/main/products/db-checkbook) (db-checkbook), a data product produced by the New York City (NYC) Department of City Planning (DCP) Data Engineering team, presents the first-ever spatialized view of historical liquidations of the NYC capital budget. 
+        The [Capital Spending Database](https://github.com/NYCPlanning/data-engineering/tree/main/products/checkbook) (db-checkbook), a data product produced by the New York City (NYC) Department of City Planning (DCP) Data Engineering team, presents the first-ever spatialized view of historical liquidations of the NYC capital budget. 
         Each row in the dataset corresponds to a unique capital project and captures vital information such as the sum of all checks disbursed for the project, a list of agencies associated with the project, a category assignment based on keywords in project text fields (‘Fixed Asset’, ‘Lump Sum’, or ‘ITT, Vehicles, and Equipment’), and most importantly, geospatial information associated with the project when possible. 
         Currently, the dataset is created from two source datasets: Checkbook NYC and the Capital Projects Database (CPDB). Checkbook NYC provides the information related to historical liquidations of the capital budget at the capital project level, while CPDB provides geospatial information for those projects. 
         Checkbook NYC is an open-source dataset and tool from the NYC Comptroller’s Office that publishes every check disbursed by the city. For the Historical Liquidations dataset, we limited the scope of this data source to only those checks pertaining to capital spending, as defined by Checkbook NYC. 

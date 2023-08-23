@@ -46,7 +46,7 @@ Currently, roughly 25% of capital projects in Checkbook NYC can be assigned geom
 4. Run the following command(s) from a terminal
 
     ```bash
-    cd projects/db-checkbook
+    cd products/checkbook
     python3 -m build_scripts.dataloading
     python3 -m build_scripts.build
     python3 -m build_scripts.export

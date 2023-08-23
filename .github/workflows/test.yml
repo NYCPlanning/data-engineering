@@ -47,7 +47,7 @@ jobs:
             cbbr:
               - products/cbbr/**
             checkbook:
-              - products/db-checkbook/**
+              - products/checkbook/**
             qaqc:
               - apps/qaqc/**
             zap:
