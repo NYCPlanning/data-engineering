@@ -13,7 +13,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/db-cpdb
+        working-directory: products/cpdb
     container: 
       image: nycplanning/build-geosupport:latest
       env:
