@@ -26,7 +26,7 @@ jobs:
       - name: Check sql files in products
         run: |
           # TODO: Gradually expand this to cover more products
-          sqlfluff lint products/db-knownprojects/
+          sqlfluff lint products/knownprojects/
 
   check_changes:
     name: Check changed files
