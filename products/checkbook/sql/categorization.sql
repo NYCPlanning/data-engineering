@@ -1,6 +1,6 @@
 -- categorize Checkbook NYC records using the same logic as in CPDB
 -- Order: Fixed Asset, ITT, Vehicles and Equipment, Lump Sum
--- source: /db-cpdb/sql/projectscategorization.sql 
+-- source: /cpdb/sql/projectscategorization.sql 
 
 -- step 1: assign projects as fixed asset
 
