@@ -16,8 +16,8 @@ from dcpy.utils.logging import logger
 from dcpy.utils import postgres
 from dcpy.utils import versions
 
-# In order to keep things sane, we should allow recipes to import publishing
-# but not the other way around
+# In order to keep things sane, maybe we should allow recipes to import
+# publishing but not the other way around?
 from . import publishing
 
 BUCKET = "edm-recipes"
@@ -157,17 +157,14 @@ def plan_build_versions(build_file: Path) -> dict:
 
 def import_build_datasets(build):
     """Import all datasets specified in a build."""
-    # TODO was version setting important?
-    # create_source_data_table()
     for rec in build["recipe"]["inputs"]:
-        # import_recipe(rec['name'], version=rec['version'], set_version=True)
         import_recipe(
             rec["name"], version=rec["version"], import_table_name=rec.get("import_as")
         )
 
 
 def purge_recipe_cache(local_library_dir=LIBRARY_DEFAULT_PATH):
-    """Delete locally stored recipes."""
+    """Delete locally stored recipe files."""
     shutil.rmtree(local_library_dir)
 
 
@@ -181,8 +178,9 @@ def get_source_data_versions(build):
 if __name__ == "__main__":
     flags_parser = argparse.ArgumentParser()
     flags_parser.add_argument("cmd")
+    cmd = sys.argv[1]
 
-    if sys.argv[1] == "plan":
+    if cmd == "plan":
         logger.info("Planning build")
         flags_parser.add_argument(
             "-f", "--build-file", help="Build file path", type=Path
@@ -206,7 +204,7 @@ if __name__ == "__main__":
         else:
             print(build)
 
-    elif sys.argv[1] == "import":
+    elif cmd == "import":
         flags_parser.add_argument(
             "-f", "--build-file", help="Build file path", type=Path
         )
@@ -217,11 +215,11 @@ if __name__ == "__main__":
         logger.info("Importing Recipes")
         import_build_datasets(build)
 
-    elif sys.argv[1] == "purge-recipe-cache":
+    elif cmd == "purge-recipe-cache":
         logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
         purge_recipe_cache()
 
-    elif sys.argv[1] == "write-source-data-versions":
+    elif cmd == "write-source-data-versions":
         flags_parser.add_argument(
             "-f", "--build-file", help="Build file path", type=Path
         )

@@ -3,6 +3,7 @@ import re
 
 def parse(v: str):
     """Parse a version from our standard format, e.g '23v2.11'."""
+    # TODO: implement other version types.
     reg = re.compile(r"(\d{2})v\d.*")
     if reg.match(v) is not None:
         year, rst = v.split("v")
