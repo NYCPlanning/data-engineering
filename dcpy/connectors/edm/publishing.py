@@ -66,39 +66,27 @@ def get_source_data_versions(
 
 
 def upload(
-    output: Path,
-    publishing_folder: str,
-    version: str,
+    output_path: Path,
+    product: str,
+    build: str,
     acl: str,
     *,
-    s3_subpath: str = None,
-    latest: bool = True,
-    include_foldername: bool = False,
     max_files: int = 20,
 ):
-    if s3_subpath is None:
-        prefix = Path(publishing_folder)
-    else:
-        prefix = Path(publishing_folder) / s3_subpath
-    version_folder = prefix / version
-    key = version_folder / output.name
-    if output.is_dir():
+    folder_key = f"{product}/draft/{build}"
+    if output_path.is_dir():
         s3.upload_folder(
             BUCKET,
-            output,
-            key,
+            output_path,
+            folder_key,
             acl,
-            include_foldername=include_foldername,
+            include_foldername=False,
             max_files=max_files,
         )
-        if latest:
-            ## much faster than uploading again
-            s3.copy_folder(BUCKET, version_folder, prefix / "latest", acl, max_files)
     else:
-        s3.upload_file("edm-publishing", output, str(key), "public-read")
-        if latest:
-            ## much faster than uploading again
-            s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
+        s3.upload_file(
+            "edm-publishing", output_path, f"{folder_key}/{output_path.name}", acl
+        )
 
 
 def read_csv(dataset, version, filepath, **kwargs):
