@@ -1,827 +1,1112 @@
 [
     {
-        "pff_variable": "GeogType",
-        "base_variable": null,
-        "category": null
-    },
-    {
-        "pff_variable": "Year",
-        "base_variable": null,
-        "category": null
-    },
-    {
-        "pff_variable": "GeoID",
-        "base_variable": null,
-        "category": null
-    },
-    {
         "pff_variable": "Pop1",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Male ",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Fem",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "PopU5",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop5t9",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop10t14",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop15t19",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop20t24",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop25t29",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop30t34",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop35t39",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop40t44",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop45t49",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop50t54",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop55t59",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop60t64",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop65t69",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop70t74",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop75t79",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop80t84",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop85pl",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MdAge",
         "base_variable": "median",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "PopU18",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop65pl",
         "base_variable": "Pop1",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "AgDpdRt",
         "base_variable": "rate",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OdAgDpdRt",
         "base_variable": "rate",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ChldDpdRt",
         "base_variable": "rate",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "PopAcre",
         "base_variable": "ratio",
-        "category": "POPULATION, SEX, AGE, AND DENSITY"
+        "category": "POPULATION, SEX, AGE, AND DENSITY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop2",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Hsp1",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "WNH",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "BNH",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ANH",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ONH",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "TwoPlNH",
         "base_variable": "Pop2",
-        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN"
+        "category": "MUTUALLY EXCLUSIVE RACE / HISPANIC ORIGIN",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop3",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "PopInHH_1",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HHldr",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "Spouse",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "OpSxS",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "SmSxS",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "UMrdPtnr",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "OpSxUMrd",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "SmSxUMrd",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "Child",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "ChildU18",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "GrndCh",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "GrndChU18",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "OthrRel",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "NonRel",
+        "base_variable": "Pop3",
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "InGrpQtrs",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Institlzd",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQCrctl",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQJuv",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQNrsng",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQOInst",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "NoInstlzd",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQClgHsg",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQMltry",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "GQONInst",
         "base_variable": "Pop3",
-        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)"
+        "category": "RELATIONSHIP TO HEAD OF HOUSEHOLD (HOUSEHOLDER)",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH_1",
         "base_variable": "HH_1",
-        "category": "HOUSEHOLD TYPE "
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "Fam",
+        "base_variable": "HH_1",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "NFamHH",
+        "base_variable": "HH_1",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "NFmHHU65",
+        "base_variable": "HH_1",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
     },
     {
         "pff_variable": "NFmLvgAln",
         "base_variable": "HH_1",
-        "category": "HOUSEHOLD TYPE "
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
     },
     {
         "pff_variable": "NFLvA65pl",
         "base_variable": "HH_1",
-        "category": "HOUSEHOLD TYPE "
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH_2",
         "base_variable": "HH_2",
-        "category": "HOUSEHOLD TYPE "
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "MrdCplHH",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "MrdCh18",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "CoCplHH",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "CoCplCh18",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "MaleHHNS",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "MnSPChU18",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "FemHHNS",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
+    },
+    {
+        "pff_variable": "FnSPChU18",
+        "base_variable": "HH_2",
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HHwU18",
         "base_variable": "HH_2",
-        "category": "HOUSEHOLD TYPE "
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HHw65pl",
         "base_variable": "HH_2",
-        "category": "HOUSEHOLD TYPE "
+        "category": "HOUSEHOLD TYPE ",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HUnits",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OcHU_1",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VacHUs",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHUFRnt",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHURNOc",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHUFSlO",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHUSNOc",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHUFSRoOU",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHUMigWrk",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VHUOthVc",
         "base_variable": "HUnits",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HmOwnVcRt",
         "base_variable": "rate",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "RntVcRt",
         "base_variable": "rate",
-        "category": "HOUSING OCCUPANCY"
+        "category": "HOUSING OCCUPANCY",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OcHU_2",
         "base_variable": "OcHU_2",
-        "category": "HOUSING TENURE"
+        "category": "HOUSING TENURE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHU_1",
         "base_variable": "OcHU_2",
-        "category": "HOUSING TENURE"
+        "category": "HOUSING TENURE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHU_1",
         "base_variable": "OcHU_2",
-        "category": "HOUSING TENURE"
+        "category": "HOUSING TENURE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OcHU_3",
         "base_variable": "OcHU_3",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH1person",
         "base_variable": "OcHU_3",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH2ppl",
         "base_variable": "OcHU_3",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH3ppl",
         "base_variable": "OcHU_3",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH4ppl",
         "base_variable": "OcHU_3",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH5plPpl",
         "base_variable": "OcHU_3",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "AvgHHSz",
         "base_variable": "mean",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHU_2",
         "base_variable": "OOcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHH1",
         "base_variable": "OOcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHH2",
         "base_variable": "OOcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHH3",
         "base_variable": "OOcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHH4",
         "base_variable": "OOcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OOcHH5pl",
         "base_variable": "OOcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHU_2",
         "base_variable": "ROcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHH1",
         "base_variable": "ROcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHH2",
         "base_variable": "ROcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHH3",
         "base_variable": "ROcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHH4",
         "base_variable": "ROcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "ROcHH5pl",
         "base_variable": "ROcHU_2",
-        "category": "HOUSEHOLD SIZE"
+        "category": "HOUSEHOLD SIZE",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop4",
         "base_variable": "PopAcre",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "LandAcres",
         "base_variable": "PopAcre",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "PopInHH_2",
         "base_variable": "AvgHHSz",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HH_3",
         "base_variable": "AvgHHSz",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "AgeU5",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age5t9",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age10t14",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age15t17",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age18t19",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age20",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age21",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age22t24",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age25t29",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age30t34",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age35t39",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age40t44",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age45t49",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age50t54",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age55t59",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age60t61",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age62t64",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age65t66",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age67t69",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age70t74",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age75t79",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age80t84",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Age85pl",
         "base_variable": "MdAge",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "AgU1865pl",
         "base_variable": "AgDpdRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Ag18t64",
         "base_variable": "AgDpdRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OdAg65pl",
         "base_variable": "OdAgDpdRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "OdAg18t64",
         "base_variable": "OdAgDpdRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "CDpdU18",
         "base_variable": "ChldDpdRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "CDpd18t64",
         "base_variable": "ChldDpdRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "HOVacU",
         "base_variable": "HmOwnrVcRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VacSale",
         "base_variable": "HmOwnrVcRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "RntVacU",
         "base_variable": "RntVcRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "VacRnt",
         "base_variable": "RntVcRt",
-        "category": "Special Variable"
+        "category": "Special Variable",
+        "domain": "decennial"
     },
     {
         "pff_variable": "Pop5",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop0t5",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop5t9",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop10t14",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop15t19",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop20t24",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop25t29",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop30t34",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop35t39",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop40t44",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop45t49",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop50t54",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop55t59",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop60t64",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop65t69",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop70t74",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop75t79",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop80t84",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "MPop85pl",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop0t5",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop5t9",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop10t14",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop15t19",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop20t24",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop25t29",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop30t34",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop35t39",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop40t44",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop45t49",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop50t54",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop55t59",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop60t64",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop65t69",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop70t74",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop75t79",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop80t84",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     },
     {
         "pff_variable": "FPop85pl",
         "base_variable": "Pop5",
-        "category": "PopPyramid Only"
+        "category": "PopPyramid Only",
+        "domain": "decennial"
     }
 ]

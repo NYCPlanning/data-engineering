@@ -2,7 +2,6 @@ from pathlib import Path
 import pandas as pd
 
 from dcpy.utils.json import df_to_json
-from pipelines import PRODUCT_PATH
 from pipelines.utils import parse_args, download_manual_update, s3_upload, DATA_PATH
 
 
@@ -63,7 +62,7 @@ def process_data_sheet(excel_file, year, sheet_name):
 def process_metadata(excel_file):
     df = pd.read_excel(excel_file, sheet_name="Data Dictionary", skiprows=3)
     df = df.dropna(subset=["Category"])
-    df["year"] = df["Dataset"].str.split(", ")
+    df["year"] = df["Dataset"].astype(str).str.split(", ")
     df = df.explode("year")
     columns = {
         "VariableName": "pff_variable",
