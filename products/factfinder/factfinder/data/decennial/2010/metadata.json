@@ -6,7 +6,7 @@
         "domain": "decennial"
     },
     {
-        "pff_variable": "Male ",
+        "pff_variable": "Male",
         "base_variable": "Pop1",
         "category": "POPULATION, SEX, AGE, AND DENSITY",
         "domain": "decennial"

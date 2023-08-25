@@ -22,6 +22,8 @@ YEAR_CONFIG = pd.DataFrame(
 
 PIVOT_COLUMNS = ["year", "geoid"]
 
+COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
+
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # clean community districts
@@ -39,6 +41,7 @@ def process_data_sheet(excel_file, year, sheet_name):
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_excel(excel_file, sheet_name=sheet_name)
+    df.rename(columns=COLUMN_CLEANUP, inplace=True)
     df.columns = df.columns.str.lower()
     df["geoid"] = df["geoid"].astype(str)
 
@@ -62,6 +65,7 @@ def process_data_sheet(excel_file, year, sheet_name):
 def process_metadata(excel_file):
     df = pd.read_excel(excel_file, sheet_name="Data Dictionary", skiprows=3)
     df = df.dropna(subset=["Category"])
+    df["VariableName"] = df["VariableName"].apply(lambda c: COLUMN_CLEANUP.get(c, c))
     df["year"] = df["Dataset"].astype(str).str.split(", ")
     df = df.explode("year")
     columns = {
