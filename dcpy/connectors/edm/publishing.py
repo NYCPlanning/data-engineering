@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 import requests
 from zipfile import ZipFile
@@ -128,3 +129,11 @@ def get_zip(dataset, version, filepath):
     stream = s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}")
     zip = ZipFile(stream)
     return zip
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 6:
+        raise Exception("Not enough arguments")
+    if sys.argv[1] != "publish":
+        raise Exception("Only 'publish' command currently implemented")
+    publish(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
