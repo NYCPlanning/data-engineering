@@ -89,6 +89,24 @@ def upload(
         )
 
 
+def publish(
+    product: str,
+    build: str,
+    publishing_version: str,  ## TODO - ideally this is optional, and we have mechanisms for determining programmatically
+    acl: str,
+    *,
+    keep_draft: bool = True,
+    max_files: int = 30,
+):
+    """Publishes a specific draft build of a data product
+    By default, deletes draft output folder"""
+    source = f"{product}/draft/{build}/"
+    target = f"{product}/publish/{publishing_version}/"
+    s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+    if not keep_draft:
+        s3.delete(BUCKET, source)
+
+
 def read_csv(dataset, version, filepath, **kwargs):
     """Reads csv into pandas dataframe from edm-publishing
     'version' currently must be a path from root dataset folder in edm-publishing to output folder

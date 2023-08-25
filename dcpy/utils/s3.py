@@ -48,6 +48,7 @@ def client(
 
 
 def list_objects(bucket: str, prefix: str):
+    """Lists all objects with given prefix within bucket"""
     objects = []
     prefix = _make_folder(prefix)
     try:
@@ -213,6 +214,17 @@ def copy_folder(
         key = obj["Key"].replace(source, "")
         if key and (key[-1] != "/"):
             copy_file(bucket, obj["Key"], f"{target}{key}", acl)
+
+
+def delete(bucket: str, path: str):
+    """Deletes from s3 given path and bucket
+    if slash is final character of path, assumed to be folder
+    otherwise, assumed to be file"""
+    client_ = client()
+    if path[-1] == "/":
+        for object in list_objects(bucket, path):
+            client_.delete_object(Bucket=bucket, Key=object["Key"])
+    client_.delete_object(Bucket=bucket, Key=path)
 
 
 def get_filenames(bucket, prefix):
