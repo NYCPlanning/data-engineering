@@ -3,12 +3,10 @@ DROP TABLE IF EXISTS EXPORT_devdb CASCADE;
 SELECT * 
 INTO EXPORT_devdb
 FROM FINAL_devdb
-WHERE (Date_Complete::date <=  :'CAPTURE_DATE'
-    OR (Date_Complete IS NULL  
-        AND Date_Permittd::date <=  :'CAPTURE_DATE')
-    OR (Date_Complete IS NULL 
-        AND Date_Permittd IS NULL 
-        AND Date_Filed::date <=  :'CAPTURE_DATE'));
+WHERE 
+    Date_Filed::date <= :'CAPTURE_DATE'
+    OR Date_Permittd::date <= :'CAPTURE_DATE'
+    OR Date_Complete::date <= :'CAPTURE_DATE';
 
 -- EXPORT HousingDB
 CREATE VIEW export_housing AS 
