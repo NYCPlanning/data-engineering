@@ -7,18 +7,19 @@ echo "Vacuuming build DB"
 run_sql_command "VACUUM (FULL, ANALYZE, VERBOSE)"
 
 mkdir -p output
-cp ../source_data_versions.csv ./output/
 
 cd output
-    
-echo "version: ${VERSION}" > version.txt
-echo "date: ${DATE}" >> version.txt
-# csv_export ${BUILD-ENGINE} pluto_changes
+
 csv_export pluto_removed_records
 csv_export pluto_changes_not_applied
 csv_export pluto_changes_applied
 zip pluto_changes.zip *
 ls | grep -v pluto_changes.zip | xargs rm
+
+cp ../../source_data_versions.csv ./
+
+echo "version: ${VERSION}" > version.txt
+echo "date: ${DATE}" >> version.txt
 
 echo "Exporting gdbs and shapefiles"
 
