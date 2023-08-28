@@ -15,11 +15,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
         working-directory: products/zap-opendata
+    container:
+      image: nycplanning/build-base:latest
     env:
       CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
       SECRET: ${{ secrets.ZAP_CRM_SECRET }}
@@ -34,12 +36,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-        with:
-          python-version: "3.9"
 
-      - name: Install Dependencies
-        run: ./bash/setup_build_env.sh
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Set Version info
         id: version

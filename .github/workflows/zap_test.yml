@@ -1,7 +1,7 @@
 name: ZAP - Tests
 run-name: Tests (${{ github.event_name }})
 
-on: 
+on:
   workflow_call:
 
 env:
@@ -20,15 +20,14 @@ jobs:
       run:
         shell: bash
         working-directory: products/zap-opendata
+    container:
+      image: nycplanning/build-base:latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-        with:
-          python-version: 3.9
 
-      - name: Setup build environment
-        run: |
-          ./bash/setup_build_env.sh
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Run python unit tests
         run: |
@@ -41,37 +40,21 @@ jobs:
       run:
         shell: bash
         working-directory: products/zap-opendata
+    container:
+      image: nycplanning/build-base:latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
-      with:
-        python-version: 3.9
+      - uses: actions/checkout@v3
 
-    - name: Setup build environment
-      run: |
-        ./bash/setup_build_env.sh
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
-    - name: Run python integration tests
-      run: |
-        echo "🚨 These tests may take ~5 minutes"
-        python3 -m pytest -m "integration" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
+      - name: Run python integration tests
+        run: |
+          echo "🚨 These tests may take ~5 minutes"
+          python3 -m pytest -m "integration" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
 
   branch_build_mapzap_tests:
     name: Build MapZAP test run
     uses: ./.github/workflows/zap_build_mapzap.yml
     secrets: inherit
-
-  branch_dev_container_tests:
-    name: Dev container tests
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build and run dev container task
-        uses: devcontainers/ci@v0.3
-        with:
-          subFolder: products/zap-opendata
-          runCmd: |
-            echo "Dev Container is in CI? $CI"
-            gcloud version
-            python3 --version
-            pip list
