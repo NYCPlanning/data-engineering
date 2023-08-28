@@ -52,7 +52,9 @@ jobs:
               - apps/qa/**
             zap:
               - .github/workflows/zap_test.yml
-              - .github/workflows/build.yml
+              - .github/workflows/zap_build_mapzap.yml
+              - .github/workflows/zap_export.yml
+              - .github/workflows/zap_single_visible.yml
               - products/zap-opendata/**
 
   confirm_changes:
