@@ -16,6 +16,7 @@ on:
           - cpdb
           - devdb
           - facilities
+          - knownprojects
           - pluto
           - ztl
       logging_level:
@@ -89,6 +90,12 @@ jobs:
   facilities:
     if: inputs.dataset_name == 'facilities'
     uses: ./.github/workflows/facilities_build.yml
+    secrets: inherit
+    with:
+      run_export: ${{ inputs.run_export }}
+  knownprojects:
+    if: inputs.dataset_name == 'knownprojects'
+    uses: ./.github/workflows/knownprojects_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
