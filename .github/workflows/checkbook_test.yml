@@ -45,5 +45,5 @@ jobs:
     name: Build test run
     uses: ./.github/workflows/checkbook_build.yml
     with:
-      run_export: true
+      run_export: false
     secrets: inherit
