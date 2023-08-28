@@ -2,8 +2,6 @@ import os
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
-from zipfile import ZipFile
-import pandas as pd
 import boto3
 from botocore.client import Config
 
@@ -166,8 +164,7 @@ def download_folder(
         key = obj["Key"].replace(prefix, "") if include_prefix_in_export else obj["Key"]
         if key and (key != prefix) and (key[-1] != "/"):
             key_directory = Path(key).parent
-            if not (export_path / key_directory).exists():
-                os.makedirs(export_path / key_directory)
+            (export_path / key_directory).mkdir(parents=True, exist_ok=True)
             download_file(bucket, obj["Key"], export_path / key)
 
 
@@ -189,10 +186,11 @@ def upload_folder(
             f"{len(files)} found in folder '{local_folder_path}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
     for file in files:
+        relative_filepath = file.relative_to(local_folder_path)
         key = (
-            upload_path / file
+            upload_path / local_folder_path.name / relative_filepath
             if include_foldername
-            else upload_path / Path(*file.parts[2:])
+            else upload_path / relative_filepath
         )
         upload_file(bucket, file, str(key), acl=acl)
 
