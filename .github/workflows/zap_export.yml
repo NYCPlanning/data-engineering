@@ -1,4 +1,4 @@
-name: ZAP - Weekly Export from CRM to BigQuery
+name: ZAP - Weekly Export from CRM
 
 on:
   schedule:
@@ -50,9 +50,6 @@ jobs:
       - name: Install Dependencies
         run: ./bash/setup_build_env.sh
 
-      - name: Get ${{ matrix.entity }}
-        run: python3 -m src.runner ${{ matrix.entity }} $EDM_DATA_ZAP_SCHEMA
-
       - name: Set Version info
         id: version
         run: |
@@ -73,6 +70,9 @@ jobs:
           chmod +x mc
           sudo mv ./mc /usr/bin
           mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: Get ${{ matrix.entity }}
+        run: python3 -m src.runner ${{ matrix.entity }} $EDM_DATA_ZAP_SCHEMA
 
       # NOTE disabling all use of BigQuery
       # - name: Archive to BigQuery
@@ -116,11 +116,14 @@ jobs:
             -v $(pwd)/.output:/.output\
             nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
 
-      - name: Export open data to edm-publishing
+      - name: Export to edm-private and edm-publishing
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
+          ./zap.sh upload_crm_do ${{ matrix.entity }} $VERSION
+
           if ${{ matrix.open }};
           then
-          ./zap.sh upload_do ${{ matrix.entity }} $VERSION
+          ./zap.sh upload_internal_do ${{ matrix.entity }} $VERSION
+          ./zap.sh upload_visible_do ${{ matrix.entity }} $VERSION
           fi

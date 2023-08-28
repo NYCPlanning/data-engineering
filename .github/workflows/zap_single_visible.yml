@@ -4,14 +4,14 @@ run-name: Export ${{ inputs.dataset }}
 on:
   workflow_dispatch:
     inputs:
-        dataset:
-          description: 'Name of the dataset'
-          required: true
-          type: choice
-          default: dcp_projects
-          options:
-            - dcp_projects
-            - dcp_projectbbls
+      dataset:
+        description: "Name of the dataset"
+        required: true
+        type: choice
+        default: dcp_projects
+        options:
+          - dcp_projects
+          - dcp_projectbbls
 
 jobs:
   build:
@@ -62,4 +62,6 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "exporting ${{ github.event.inputs.dataset }} with version $VERSION"
-          ./zap.sh upload_do ${{ github.event.inputs.dataset }} $VERSION
+          ./zap.sh upload_crm_do ${{ matrix.entity }} $VERSION
+          ./zap.sh upload_internal_do ${{ matrix.entity }} $VERSION
+          ./zap.sh upload_visible_do ${{ matrix.entity }} $VERSION

@@ -1,6 +1,6 @@
 #!/bin/bash
 VERSION=$(date +%Y%m%d)
-location=US
+LOCATION=US
 
 function upload_to_big_query {
     dataset=${2}
@@ -16,10 +16,10 @@ function upload_to_big_query {
 
     gsutil cp $output_filepath $google_storage_filepath
 
-    bq show $dataset || bq mk --location=$location --dataset $dataset
+    bq show $dataset || bq mk --location=$LOCATION --dataset $dataset
     bq show $tablename || bq mk $tablename
     bq load \
-        --location=$location \
+        --location=$LOCATION \
         --source_format=CSV \
         --autodetect \
         --quote '"' \
@@ -29,10 +29,25 @@ function upload_to_big_query {
         $google_storage_filepath
 }
 
+function upload_to_digital_ocean {
+    dataset=${1}
+    version=${2}
+    output_suffix=${3}
+    do_bucket=${4}
+
+    filename=${dataset}_${output_suffix}.csv
+    output_filepath=.output/${dataset}/${filename}
+    do_directory="spaces/${do_bucket}/db-zap-opendata"
+
+    mc cp ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
+    mc cp ${output_filepath} ${do_directory}/latest/${dataset}/${filename}
+}
+
 case $1 in
     download ) 
         python3 -m src.runner $2
     ;;
+
     upload_crm_bq )
         # crm version
         dataset=$2
@@ -42,24 +57,29 @@ case $1 in
     upload_internal_bq )
         # internal version
         dataset=$2
-        VERSION=${3:-$VERSION}
+        version=${3:-$VERSION}
         upload_to_big_query ${dataset} ${version} "internal"
     ;;
     upload_visible_bq )
         # visible version
         dataset=$2
-        VERSION=${3:-$VERSION}
-        # internal version
+        version=${3:-$VERSION}
         upload_to_big_query ${dataset} ${version} "visible"
-
     ;;
-    upload_do )
-        dataset=$2
-        VERSION=$3
-        SPACES="spaces/edm-publishing/db-zap"
-        output_filepath=".output/$dataset/${dataset}_visible.csv"
-        mc cp ${output_filepath} $SPACES/$VERSION/$dataset/$dataset.csv
-        mc cp ${output_filepath} $SPACES/latest/$dataset/$dataset.csv
 
+    upload_crm_do )
+        dataset=$2
+        version=${3:-$VERSION}
+        upload_to_digital_ocean ${dataset} ${version} "crm" "edm-private"
+    ;;
+    upload_internal_do )
+        dataset=$2
+        version=${3:-$VERSION}
+        upload_to_digital_ocean ${dataset} ${version} "internal" "edm-private"
+    ;;
+    upload_visible_do )
+        dataset=$2
+        version=${3:-$VERSION}
+        upload_to_digital_ocean ${dataset} ${version} "visible" "edm-publishing"
 
 esac

@@ -50,7 +50,7 @@ class Runner:
             f.write(content)
         return os.path.isfile(f"{self.cache_dir}/{filename}")
 
-    def sql_to_csv(self, table_name, output_file):
+    def sql_to_csv(self, table_name, output_filename):
         print("pd.read_sql ...")
         df = pd.read_sql(
             "select * from %(name)s" % {"name": table_name}, con=self.engine
@@ -63,9 +63,8 @@ class Runner:
                 .str.split(".", expand=True)[0]
                 .astype(int, errors="ignore")
             )
-
-        print("df.to_csv ...")
-        df.to_csv(f"{output_file}.csv", index=False)
+        print(f"sql_to_csv from {table_name} to {output_filename} ...")
+        df.to_csv(f"{output_filename}", index=False)
 
     def download(self):
         print(f"downloading {self.name} from ZAP CRM ...")
@@ -206,52 +205,43 @@ class Runner:
             print(f"No IDs to recode in dataset {self.name}")
 
     def export(self):
-        output_file_internal = f"{self.output_dir}/{self.name}_internal"
-        output_file_data_library = f"{self.output_dir}/{self.name}"
+        output_filename_data_library = f"{self.output_dir}/{self.name}.csv"
+
+        # export of raw CRM data
+        source_table_name = f"{self.name}_crm"
+        output_filename_crm = f"{self.output_dir}/{self.name}_crm.csv"
+        self.sql_to_csv(
+            source_table_name,
+            output_filename_crm,
+        )
 
         if not self.open_dataset:
-            source_table_name = f"{self.name}_crm"
-
-            print(f"self.sql_to_csv for {source_table_name} ...")
+            # export for EDM recipes
             self.sql_to_csv(
                 source_table_name,
-                output_file_internal,
-            )
-            print(
-                f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ..."
-            )
-            self.sql_to_csv(
-                source_table_name,
-                output_file_data_library,
+                output_filename_data_library,
             )
         else:
+            # export for internal use and EDM recipes
             source_table_name = f"{self.name}_recoded"
-
-            print(
-                f"self.sql_to_csv from {source_table_name} to {output_file_internal} ..."
+            output_filename_internal = f"{self.output_dir}/{self.name}_internal.csv"
+            self.sql_to_csv(
+                source_table_name,
+                output_filename_internal,
             )
             self.sql_to_csv(
                 source_table_name,
-                output_file_internal,
-            )
-            print(
-                f"self.sql_to_csv from {source_table_name} to {output_file_data_library} ..."
-            )
-            self.sql_to_csv(
-                source_table_name,
-                output_file_data_library,
+                output_filename_data_library,
             )
 
+            # export for Opendata
             source_table_name = f"{self.name}_visible"
-            output_file_visible = f"{self.output_dir}/{self.name}_visible"
+            output_filename_visible = f"{self.output_dir}/{self.name}_visible.csv"
 
-            print(
-                f"self.sql_to_csv from {source_table_name} to {output_file_visible} ..."
-            )
             make_open_data_table(self.engine, self.name)
             self.sql_to_csv(
                 source_table_name,
-                output_file_visible,
+                output_filename_visible,
             )
 
     def __call__(self):
