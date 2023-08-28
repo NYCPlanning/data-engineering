@@ -24,6 +24,8 @@ PIVOT_COLUMNS = ["year", "geoid"]
 
 COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
 
+OUTPUT_FOLDER = DATA_PATH / ".output" / "decennial"
+
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # clean community districts
@@ -37,7 +39,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def process_data_sheet(excel_file, year, sheet_name):
     print(f"Processing data for decennial year {year} using sheet '{sheet_name}'")
-    output_file = Path(".output/decennial") / year / "decennial.csv"
+    output_file = OUTPUT_FOLDER / year / "decennial.csv"
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_excel(excel_file, sheet_name=sheet_name)
@@ -78,7 +80,8 @@ def process_metadata(excel_file):
     for year, year_df in df.groupby("year"):
         year_df = year_df[columns.values()]
         year_df["domain"] = "decennial"
-        file = DATA_PATH / "decennial" / year / "metadata.json"
+        file = OUTPUT_FOLDER / year / "metadata.json"
+        file.parent.mkdir(parents=True, exist_ok=True)
         with open(file, "w") as outfile:
             outfile.write(df_to_json(year_df))
         files[year] = file
@@ -98,9 +101,6 @@ if __name__ == "__main__":
         if not input_year or (input_year == year["year"]):
             output_file = process_data_sheet(excel, year["year"], year["sheet_name"])
             print(f"Finished decennial year {year['year']}")
-
-            output_file = Path(".output/decennial") / year["year"] / "decennial.csv"
-            output_file.parent.mkdir(parents=True, exist_ok=True)
 
             if upload:
                 print(f"Uploading {output_file}")
