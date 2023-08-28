@@ -1,13 +1,11 @@
 name: KPDB - 🏗️ Build
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      will_export:
-        description: 'Export outputs to a private S3 bucket?'
+      run_export:
         type: boolean
         required: true
-        default: false
 
 jobs:
   build:
@@ -51,7 +49,9 @@ jobs:
         run: ./bash/02_build.sh
       
       # TODO upload outputs to a private S3 bucket
-      # - name: 3. export ...
-      #   id: export
-      #   if: inputs.will_export
-      #   run: ./kpdb.sh export ${{ github.event.sender.login }}
+      - name: 3. export ...
+        id: export
+        if: inputs.run_export
+        run: |
+          echo "PLACEHOLDER EXPORT"
+          # ./kpdb.sh export ${{ github.event.sender.login }}
