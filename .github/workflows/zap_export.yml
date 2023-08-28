@@ -7,11 +7,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
         working-directory: products/zap-opendata
+    container:
+      image: nycplanning/build-base:latest
     env:
       ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
       TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
@@ -22,7 +24,7 @@ jobs:
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-      AWS_S3_LIBRARY_BUCKET: edm-recipes
+      AWS_S3_BUCKET: edm-recipes
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -43,12 +45,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-        with:
-          python-version: "3.9"
 
-      - name: Install Dependencies
-        run: ./bash/setup_build_env.sh
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Set Version info
         id: version
@@ -63,13 +63,6 @@ jobs:
       #     project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
       #     service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
       #     export_default_credentials: true
-
-      - name: Set up Mini IO
-        run: |
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
 
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }} $EDM_DATA_ZAP_SCHEMA
@@ -88,33 +81,16 @@ jobs:
       #   run: |
       #     ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
 
-      - name: Archive to data library - PGdump
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          echo "exporting ${{ matrix.entity }}.sql"
-          docker run --rm \
-            -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
-            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
-            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-            -e AWS_S3_BUCKET=$AWS_S3_LIBRARY_BUCKET\
-            -v $(pwd)/templates:/templates\
-            -v $(pwd)/.output:/.output\
-            nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o pgdump --compress
-
-      - name: Archive to data library - CSV
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          echo "exporting ${{ matrix.entity }}.csv"
-          docker run --rm \
-            -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
-            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
-            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-            -e AWS_S3_BUCKET=$AWS_S3_LIBRARY_BUCKET\
-            -v $(pwd)/templates:/templates\
-            -v $(pwd)/.output:/.output\
-            nycplanning/library:ubuntu-01d9e5eddf65dbdea3eb0c500314963b5ec6246a library archive -f /templates/${{ matrix.entity }}.yml -v $VERSION -s -l -o csv --compress
+      - name: Archive to data library
+        uses: NYCPlanning/action-library-archive@v1.1
+        with:
+          name: ${{ matrix.entity }}
+          path: products/zap-opendata/templates/${{ matrix.entity }}.yml
+          version: $VERSION
+          s3: true
+          latest: true
+          compress: true
+          output_format: pgdump csv
 
       - name: Export to edm-private and edm-publishing
         env:

@@ -52,9 +52,10 @@ class Runner:
 
     def sql_to_csv(self, table_name, output_filename):
         print("pd.read_sql ...")
-        df = pd.read_sql(
-            "select * from %(name)s" % {"name": table_name}, con=self.engine
-        )
+        with self.engine.begin() as conn:
+            df = pd.read_sql(
+                text("select * from %(name)s" % {"name": table_name}), conn
+            )
         if self.name == "dcp_projectbbls" and "timezoneruleversionnumber" in df.columns:
             # written because sql int to csv writes with decimal and big query wants int
             print("export cleaning ...")
@@ -128,13 +129,16 @@ class Runner:
 
         print("pd.read_sql ...")
         source_table_name = f"{self.name}_staging"
-        df = pd.read_sql(
-            "select * from %(name)s"
-            % {
-                "name": source_table_name,
-            },
-            con=self.engine,
-        )
+        with self.engine.begin() as conn:
+            df = pd.read_sql(
+                text(
+                    "select * from %(name)s"
+                    % {
+                        "name": source_table_name,
+                    }
+                ),
+                conn,
+            )
 
         print("open_data_recode ...")
         df = open_data_recode(self.name, df, self.headers)
@@ -184,13 +188,17 @@ class Runner:
             recode_table_name = f"{self.name}_recoded"
 
             print("pd.read_sql ...")
-            df = pd.read_sql(
-                "select * from %(name)s"
-                % {
-                    "name": recode_table_name,
-                },
-                con=self.engine,
-            )
+            with self.engine.begin() as conn:
+                df = pd.read_sql(
+                    text(
+                        "select * from %(name)s"
+                        % {
+                            "name": recode_table_name,
+                        }
+                    ),
+                    conn,
+                )
+
             df = recode_id(df)
 
             print("df.to_sql ...")
