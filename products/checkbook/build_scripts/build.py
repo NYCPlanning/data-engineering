@@ -1,11 +1,9 @@
 import pandas as pd
 import geopandas as gpd
 import re
-import os
 from pathlib import Path
 from sqlalchemy import create_engine, text
 from dcpy.utils.postgres import execute_file_via_shell
-import geoalchemy2
 
 from . import (
     LIB_DIR,

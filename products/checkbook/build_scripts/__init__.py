@@ -22,8 +22,5 @@ SUMMARY_STATS_LOG_FILENAME = "build_summarization.log"
 
 BUILD_ENGINE_RAW = os.environ["BUILD_ENGINE"]
 
-if not os.path.isdir(LIB_DIR):
-    os.makedirs(LIB_DIR)
-
-if not os.path.isdir(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
+LIB_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
