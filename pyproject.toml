@@ -35,3 +35,6 @@ capitalisation_policy = "upper"
 ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 
 [tool.black]
+
+[tool.mypy]
+ignore_missing_imports = true

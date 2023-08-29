@@ -1,7 +1,7 @@
 import os
 from io import BytesIO
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 import boto3
 from botocore.client import Config
 
@@ -45,9 +45,9 @@ def client(
     )
 
 
-def list_objects(bucket: str, prefix: str):
+def list_objects(bucket: str, prefix: str) -> list[dict[str, Any]]:
     """Lists all objects with given prefix within bucket"""
-    objects = []
+    objects: list[dict[str, Any]] = []
     prefix = _make_folder(prefix)
     try:
         paginator = client().get_paginator("list_objects_v2")
@@ -116,7 +116,7 @@ def upload_file(
         task = progress.add_task(
             f"[green]Uploading [bold]{path.name}[/bold]", total=size
         )
-        extra_args = {"ACL": acl}
+        extra_args: dict[Any, Any] = {"ACL": acl}
         if metadata:
             extra_args["Metadata"] = metadata
         response = client().upload_file(
@@ -130,7 +130,11 @@ def upload_file(
 
 
 def copy_file(
-    bucket: str, source_key: str, target_key: str, acl: str, target_bucket: str = None
+    bucket: str,
+    source_key: str,
+    target_key: str,
+    acl: str,
+    target_bucket: Optional[str] = None,
 ):
     if target_bucket is None:
         target_bucket = bucket
@@ -171,7 +175,7 @@ def download_folder(
 def upload_folder(
     bucket: str,
     local_folder_path: Path,
-    upload_path: str,
+    upload_path: Path,
     acl: str,
     *,
     max_files: int = 20,
