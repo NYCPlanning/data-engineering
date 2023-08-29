@@ -138,7 +138,7 @@ def publish(
     max_files: int = 30,
 ):
     """Publishes a specific draft build of a data product
-    By default, deletes draft output folder"""
+    By default, keeps draft output folder"""
     source = f"{product}/draft/{build}/"
     target = f"{product}/publish/{publishing_version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
