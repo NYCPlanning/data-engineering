@@ -2,17 +2,17 @@
 
 *** PLANNED DEPRECATION ***
 
-in 20v5, the inwood rezoning field will 
-be kept and left as NULL for all records. 
-For future releases, this field would be 
+in 20v5, the inwood rezoning field will
+be kept and left as NULL for all records.
+For future releases, this field would be
 completely removed.
 
 */
 
 -- add a notes column
-ALTER TABLE pluto 
+ALTER TABLE pluto
 DROP COLUMN IF EXISTS notes;
-ALTER TABLE pluto 
+ALTER TABLE pluto
 ADD COLUMN notes text;
 
 -- populate notes with 1 where lot interesects inwood rezoning area

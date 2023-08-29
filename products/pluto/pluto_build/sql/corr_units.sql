@@ -16,26 +16,30 @@
 
 INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research b, pluto a
-WHERE b.bbl=a.bbl 
-	AND b.field='unitstotal' 
-	AND b.old_value <> a.unitstotal;
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'unitstotal'
+    AND b.old_value != a.unitstotal;
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research b, pluto a
-WHERE b.bbl=a.bbl 
-	AND b.field='unitstotal' 
-	AND b.old_value = a.unitstotal;
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'unitstotal'
+    AND b.old_value = a.unitstotal;
 
 -- Apply correction to PLUTO
 UPDATE pluto a
-SET unitstotal = b.new_value,
-	dcpedited = 't'
-FROM pluto_input_research b
-WHERE a.bbl = b.bbl
-	AND b.field = 'unitstotal'
-	AND a.unitstotal=b.old_value;
+SET
+    unitstotal = b.new_value,
+    dcpedited = 't'
+FROM pluto_input_research AS b
+WHERE
+    a.bbl = b.bbl
+    AND b.field = 'unitstotal'
+    AND a.unitstotal = b.old_value;
 
 -- Take the unitsres value from research table
 -- Insert records into pluto_corrections
@@ -55,23 +59,27 @@ WHERE a.bbl = b.bbl
 
 INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research b, pluto a
-WHERE b.bbl=a.bbl 
-	AND b.field='unitsres' 
-	AND b.old_value <> a.unitsres;
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'unitsres'
+    AND b.old_value != a.unitsres;
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research b, pluto a
-WHERE b.bbl=a.bbl 
-	AND b.field='unitsres' 
-	AND b.old_value = a.unitsres;
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'unitsres'
+    AND b.old_value = a.unitsres;
 
 -- Apply correction to PLUTO
 UPDATE pluto a
-SET unitsres = b.new_value,
-	dcpedited = 't'
-FROM pluto_input_research b
-WHERE a.bbl = b.bbl
-	AND b.field = 'unitsres'
-	AND a.unitsres=b.old_value;
+SET
+    unitsres = b.new_value,
+    dcpedited = 't'
+FROM pluto_input_research AS b
+WHERE
+    a.bbl = b.bbl
+    AND b.field = 'unitsres'
+    AND a.unitsres = b.old_value;

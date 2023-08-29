@@ -3,49 +3,83 @@ DELETE FROM qaqc_expected
 WHERE v = :'VERSION';
 
 INSERT INTO qaqc_expected (
-select :'VERSION' as v, jsonb_agg(t) as expected
-from (
-	select jsonb_agg(zonedist1) as values, 'zonedist1' as field
-	from (select distinct zonedist1 from archive_pluto) a
-	union
-	select jsonb_agg(zonedist2) as values, 'zonedist2' as field
-	from (select distinct zonedist2 from archive_pluto) a
-	union
-	select jsonb_agg(zonedist3) as values, 'zonedist3' as field
-	from (select distinct zonedist3 from archive_pluto) a
-	union
-	select jsonb_agg(zonedist4) as values, 'zonedist4' as field
-	from (select distinct zonedist4 from archive_pluto) a
-	union
-	select jsonb_agg(overlay1) as values, 'overlay1' as field
-	from (select distinct overlay1 from archive_pluto) a
-	union
-	select jsonb_agg(overlay2) as values, 'overlay2' as field
-	from (select distinct overlay2 from archive_pluto) a
-	union
-	select jsonb_agg(spdist1) as values, 'spdist1' as field
-	from (select distinct spdist1 from archive_pluto) a
-	union
-	select jsonb_agg(spdist2) as values, 'spdist2' as field
-	from (select distinct spdist2 from archive_pluto) a
-	union
-	select jsonb_agg(spdist3) as values, 'spdist3' as field
-	from (select distinct spdist3 from archive_pluto) a
-	union
-	select jsonb_agg(ext) as values, 'ext' as field
-	from (select distinct ext from archive_pluto) a
-	union
-	select jsonb_agg(proxcode) as values, 'proxcode' as field
-	from (select distinct proxcode from archive_pluto) a
-	union
-	select jsonb_agg(irrlotcode) as values, 'irrlotcode' as field
-	from (select distinct irrlotcode from archive_pluto) a
-	union
-	select jsonb_agg(lottype) as values, 'lottype' as field
-	from (select distinct lottype from archive_pluto) a
-	union
-	select jsonb_agg(bsmtcode) as values, 'bsmtcode' as field
-	from (select distinct bsmtcode from archive_pluto) a
-	union 
-	select jsonb_agg(bldgclasslanduse) as values, 'bldgclasslanduse' as field
-	from (select distinct bldgclass||'/'||landuse as bldgclasslanduse  from archive_pluto) a) t);
+    SELECT
+        :'VERSION' AS v,
+        jsonb_agg(t) AS expected
+    FROM (
+        SELECT
+            jsonb_agg(zonedist1) AS values,
+            'zonedist1' AS field
+        FROM (SELECT DISTINCT zonedist1 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(zonedist2) AS values,
+            'zonedist2' AS field
+        FROM (SELECT DISTINCT zonedist2 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(zonedist3) AS values,
+            'zonedist3' AS field
+        FROM (SELECT DISTINCT zonedist3 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(zonedist4) AS values,
+            'zonedist4' AS field
+        FROM (SELECT DISTINCT zonedist4 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(overlay1) AS values,
+            'overlay1' AS field
+        FROM (SELECT DISTINCT overlay1 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(overlay2) AS values,
+            'overlay2' AS field
+        FROM (SELECT DISTINCT overlay2 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(spdist1) AS values,
+            'spdist1' AS field
+        FROM (SELECT DISTINCT spdist1 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(spdist2) AS values,
+            'spdist2' AS field
+        FROM (SELECT DISTINCT spdist2 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(spdist3) AS values,
+            'spdist3' AS field
+        FROM (SELECT DISTINCT spdist3 FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(ext) AS values,
+            'ext' AS field
+        FROM (SELECT DISTINCT ext FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(proxcode) AS values,
+            'proxcode' AS field
+        FROM (SELECT DISTINCT proxcode FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(irrlotcode) AS values,
+            'irrlotcode' AS field
+        FROM (SELECT DISTINCT irrlotcode FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(lottype) AS values,
+            'lottype' AS field
+        FROM (SELECT DISTINCT lottype FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(bsmtcode) AS values,
+            'bsmtcode' AS field
+        FROM (SELECT DISTINCT bsmtcode FROM archive_pluto) AS a
+        UNION
+        SELECT
+            jsonb_agg(bldgclasslanduse) AS values,
+            'bldgclasslanduse' AS field
+        FROM (SELECT DISTINCT bldgclass || '/' || landuse AS bldgclasslanduse FROM archive_pluto) AS a
+    ) AS t
+);

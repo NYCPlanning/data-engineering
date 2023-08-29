@@ -18,7 +18,7 @@ run_sql_file sql/create_allocated.sql
 run_sql_file sql/yearbuiltalt.sql
 
 echo 'Creating base PLUTO table'
-run_sql_file sql/create.sql -v version=${VERSION}
+run_sql_file sql/create.sql -v VERSION=${VERSION}
 run_sql_file sql/bbl.sql
 
 echo 'Adding on RPAD data attributes'
