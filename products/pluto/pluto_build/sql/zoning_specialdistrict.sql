@@ -99,4 +99,13 @@ SET spdist1 = 'EC-6',
     spdist2 = 'MX-16'
 WHERE spdist1 = 'MX-16'
     AND spdist2 = 'EC-6';
--- missing EHC/TA, G/MX-1
+UPDATE pluto
+SET spdist1 = 'EHC',
+    spdist2 = 'TA'
+WHERE spdist1 = 'TA'
+    AND spdist2 = 'EHC';
+UPDATE pluto
+SET spdist1 = 'MX-1',
+    spdist2 = 'G'
+WHERE spdist1 = 'G'
+    AND spdist2 = 'MX-1';
