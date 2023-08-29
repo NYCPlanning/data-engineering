@@ -4,7 +4,7 @@ from typing import Tuple
 from pathlib import Path
 
 from dcpy.utils import s3
-from dcpy.connectors.edm.publishing import upload
+from dcpy.connectors.edm import publishing
 from dcpy.utils.git import git_branch
 
 from pipelines import PRODUCT_PATH
@@ -67,7 +67,7 @@ def s3_upload(file: Path, latest=True):
     else:
         export_type = file.stem
     year = file.parent.name
-    upload(
+    publishing.legacy_upload(
         output=file,
         publishing_folder="db-factfinder",
         version=str(date.today()),

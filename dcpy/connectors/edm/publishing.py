@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 import requests
 from zipfile import ZipFile
@@ -74,6 +73,7 @@ def upload(
     *,
     max_files: int = 20,
 ):
+    """Upload build output(s) to draft folder in edm-publishing"""
     folder_key = f"{product}/draft/{build}"
     if output_path.is_dir():
         s3.upload_folder(
@@ -88,6 +88,44 @@ def upload(
         s3.upload_file(
             "edm-publishing", output_path, f"{folder_key}/{output_path.name}", acl
         )
+
+
+def legacy_upload(
+    output: Path,
+    publishing_folder: str,
+    version: str,
+    acl: str,
+    *,
+    s3_subpath: str = None,
+    latest: bool = True,
+    include_foldername: bool = False,
+    max_files: int = 20,
+):
+    """Upload file or folder to publishing, with more flexibility around s3 subpath
+    Currently used only by db-factfinder"""
+    if s3_subpath is None:
+        prefix = Path(publishing_folder)
+    else:
+        prefix = Path(publishing_folder) / s3_subpath
+    version_folder = prefix / version
+    key = version_folder / output.name
+    if output.is_dir():
+        s3.upload_folder(
+            BUCKET,
+            output,
+            key,
+            acl,
+            include_foldername=include_foldername,
+            max_files=max_files,
+        )
+        if latest:
+            ## much faster than uploading again
+            s3.copy_folder(BUCKET, version_folder, prefix / "latest", acl, max_files)
+    else:
+        s3.upload_file("edm-publishing", output, str(key), "public-read")
+        if latest:
+            ## much faster than uploading again
+            s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
 
 
 def publish(
@@ -129,11 +167,3 @@ def get_zip(dataset, version, filepath):
     stream = s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}")
     zip = ZipFile(stream)
     return zip
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 6:
-        raise Exception("Not enough arguments")
-    if sys.argv[1] != "publish":
-        raise Exception("Only 'publish' command currently implemented")
-    publish(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
