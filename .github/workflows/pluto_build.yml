@@ -13,9 +13,9 @@ on:
         type: boolean
         required: true
         default: false
-      build_file:
+      recipe_file:
         type: string
-        default: build.yml
+        default: recipe.yml
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -56,6 +56,7 @@ jobs:
         run: |
           apt install wget
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+          pip install cerberus
 
       - name: clean out shared libs
         run: |
@@ -66,17 +67,15 @@ jobs:
 
       - name: Plan Build
         working-directory: ./
-        run: python3 -m dcpy.connectors.edm.recipes plan -f ./products/pluto/${{ inputs.build_file }} -o ./products/pluto/build.lock.yml
-
-      - name: Write source versions csv
-        working-directory: ./
-        run: python3 -m dcpy.connectors.edm.recipes write-source-data-versions -f ./products/pluto/build.lock.yml
+        run: |
+          python3 -m dcpy.connectors.edm.recipes plan -f ./products/pluto/${{ inputs.recipe_file }} -o ./products/pluto/recipe.lock.yml
+          python3 -m dcpy.connectors.edm.recipes write-source-data-versions -f ./products/pluto/recipe.lock.yml
 
       - name: Set versions env vars
         working-directory: products/pluto/
         run: |
-          echo VERSION=$(yq .version build.lock.yml) >> "$GITHUB_ENV" && \
-          echo VERSION_PREV=$(yq '.recipe.inputs.[] | select(.name == "dcp_pluto") | .version' build.lock.yml) >> "$GITHUB_ENV"
+          echo VERSION=$(yq .version recipe.lock.yml) >> "$GITHUB_ENV" && \
+          echo VERSION_PREV=$(yq '.inputs.datasets.[] | select(.name == "dcp_pluto") | .version' recipe.lock.yml) >> "$GITHUB_ENV"
 
       - name: Data setup
         run: ./00_setup.sh
@@ -86,7 +85,7 @@ jobs:
 
       - name: Load Recipes
         working-directory: ./
-        run: python3 -m dcpy.connectors.edm.recipes import -f ./products/pluto/build.lock.yml
+        run: python3 -m dcpy.connectors.edm.recipes import -f ./products/pluto/recipe.lock.yml
 
       - name: clean out raw source data
         working-directory: ./

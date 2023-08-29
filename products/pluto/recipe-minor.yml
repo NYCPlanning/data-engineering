@@ -1,11 +1,11 @@
 name: Pluto Minor
-base_build: build.yml
+base_recipe: recipe.yml
 version_type: minor
 version_strategy: bump_latest_release
 product: db-pluto
-recipe:
-  missing_versions_strategy: use_latest_release
-  inputs:
+inputs:
+  missing_versions_strategy: copy_latest_release
+  datasets:
     - name: dcp_edesignation
       version: latest
     - name: dcp_commercialoverlay

@@ -28,8 +28,10 @@ def get_latest_version(dataset: str, *, branch: str):
     """Given dataset name, gets latest version
     Assumes that dataset follows standard folder structure of {dataset}/{version}/output/version.txt
     """
+    path = f"{get_dataset_path(dataset=dataset, version='latest', branch=branch)}/version.txt"
+    print(path)
     return requests.get(
-        f"{get_dataset_path(dataset=dataset, version='latest', branch=branch)}/version.txt",
+        path,
         timeout=10,
     ).text.splitlines()[0]
 

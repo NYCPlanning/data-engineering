@@ -1,5 +1,5 @@
 import argparse
-import copy
+import cerberus
 import csv
 import json
 from pathlib import Path
@@ -23,6 +23,35 @@ from . import publishing
 BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
+
+RECIPE_FILE_SCHEMA = {
+    "name": {"type": "string", "required": True},
+    "product": {"type": "string", "required": True},
+    "base_recipe": {"type": "string"},
+    "version_type": {"type": "string", "allowed": ["major", "minor"]},
+    "version_strategy": {"type": "string", "allowed": ["bump_latest_release"]},
+    "version": {"type": "string"},
+    "inputs": {
+        "type": "dict",
+        "schema": {
+            "missing_versions_strategy": {
+                "type": "string",
+                "allowed": ["copy_latest_release", "find_latest"],
+            },
+            "datasets": {
+                "type": "list",
+                "schema": {
+                    "type": "dict",
+                    "schema": {
+                        "name": {"type": "string"},
+                        "version": {"type": "string"},
+                        "import_as": {"type": "string"},
+                    },
+                },
+            },
+        },
+    },
+}
 
 
 def get_dataset_sql_path(dataset: str, version: str = "latest"):
@@ -65,7 +94,7 @@ def fetch_sql(name: str, version: str, local_library_dir):
     return target_file_path
 
 
-def import_recipe(
+def import_recipe_dataset(
     recipe_name: str,
     *,
     version="latest",
@@ -98,67 +127,68 @@ def import_recipe(
             con.commit()
 
 
-def plan_build_versions(build_file: Path) -> dict:
-    """Plan build versions for a product release.
+def _recipe_datasets(recipe):
+    return recipe.get("inputs", {}).get("datasets", []) or []
+
+
+def plan_recipe(recipe_path: Path) -> dict:
+    """Plan recipe versions for a product.
 
     Similar to pip freeze, determines recipe versions to use for a build.
-    A base_build may be specified, in which case it's important to note that
+    A base_recipe may be specified, in which case it's important to note that
     the missing versions strategy will be applied AFTER the recipe inputs are
     merged with the base.
     """
-    with open(build_file, "r", encoding="utf-8") as f:
-        build = yaml.safe_load(f)
-    build_input_names = {i["name"] for i in build["recipe"]["inputs"]}
-    merged_build = copy.deepcopy(build)
+    recipe = recipe_from_yaml(recipe_path)
 
-    if "version_strategy" in merged_build:
-        strat = merged_build["version_strategy"]
+    if "version_strategy" in recipe:
+        strat = recipe["version_strategy"]
         if strat == "bump_latest_release":
             prev_version = publishing.get_latest_version(
-                merged_build["product"], branch="main"
+                recipe["product"], branch="main"
             )
-            merged_build["version"] = versions.bump(
-                prev_version, bumped_part=merged_build["version_type"]
+            print(prev_version)
+            recipe["version"] = versions.bump(
+                prev_version, bumped_part=recipe["version_type"]
             )
-        else:
-            raise Exception(f"Invalid 'missing_version_strategy': {strat}")
 
-    # merge in base build's recipe inputs
-    base_build = {}
-    if "base_build" in build:
-        with open(build_file.parent / build["base_build"], "r", encoding="utf-8") as f:
-            base_build = yaml.safe_load(f)
+    # merge in base recipe inputs
+    base_recipe = (
+        recipe_from_yaml(recipe_path.parent / recipe["base_recipe"])
+        if "base_recipe" in recipe
+        else {}
+    )
 
-    for rec in base_build.get("recipe", {}).get("inputs", []):
-        if rec["name"] not in build_input_names:
-            merged_build["recipe"]["inputs"].append(rec)
+    input_dataset_names = {i["name"] for i in _recipe_datasets(recipe)}
+    for ds in _recipe_datasets(base_recipe):
+        if ds["name"] not in input_dataset_names:
+            recipe["inputs"]["datasets"].append(ds)
 
     # Fill in omitted versions
     previous_versions = {}
-    recipe = merged_build["recipe"]
-    if recipe["missing_versions_strategy"] == "use_latest_release":
+    missing_version_strat = recipe["inputs"].get("missing_versions_strategy")
+    if missing_version_strat == "copy_latest_release":
         previous_versions = publishing.get_source_data_versions(
-            merged_build["product"], branch="main"
+            recipe["product"], branch="main"
         ).to_dict()["version"]
 
-    for rec in recipe["inputs"]:
-        if "version" not in rec:
-            if recipe["missing_versions_strategy"] == "use_latest_release":
-                rec["version"] = previous_versions[rec["name"]]
+    for ds in _recipe_datasets(recipe):
+        if "version" not in ds:
+            if missing_version_strat == "copy_latest_release":
+                ds["version"] = previous_versions[ds["name"]]
             else:
-                rec["version"] = "latest"
+                ds["version"] = "latest"
 
-    for rec in recipe["inputs"]:
-        if rec["version"] == "latest":
-            rec["version"] = get_config(rec["name"], "latest")["dataset"]["version"]
+        if ds["version"] == "latest":
+            ds["version"] = get_config(ds["name"], "latest")["dataset"]["version"]
 
-    return merged_build
+    return recipe
 
 
-def import_build_datasets(build):
-    """Import all datasets specified in a build."""
-    for rec in build["recipe"]["inputs"]:
-        import_recipe(
+def import_recipe_datasets(recipe):
+    """Import all datasets specified in a recipe."""
+    for rec in recipe["inputs"]["datasets"]:
+        import_recipe_dataset(
             rec["name"], version=rec["version"], import_table_name=rec.get("import_as")
         )
 
@@ -168,11 +198,22 @@ def purge_recipe_cache(local_library_dir=LIBRARY_DEFAULT_PATH):
     shutil.rmtree(local_library_dir)
 
 
-def get_source_data_versions(build):
+def get_source_data_versions(recipe):
     """Get source data versions table in form of [schema_name, v]."""
     return [["schema_name", "v"]] + [
-        [x["name"], x["version"]] for x in build["recipe"]["inputs"]
+        [d["name"], d["version"]] for d in _recipe_datasets(recipe)
     ]
+
+
+def recipe_from_yaml(path: Path):
+    """Import a recipe file from yaml, and validate schema."""
+    v = cerberus.Validator(RECIPE_FILE_SCHEMA)
+    with open(path, "r", encoding="utf-8") as f:
+        s = yaml.safe_load(f)
+    if v.validate(s):
+        return s
+    else:
+        raise Exception(f"Invalid recipe file: {path}. {v.errors}")
 
 
 if __name__ == "__main__":
@@ -181,9 +222,9 @@ if __name__ == "__main__":
     cmd = sys.argv[1]
 
     if cmd == "plan":
-        logger.info("Planning build")
+        logger.info("Planning recipe")
         flags_parser.add_argument(
-            "-f", "--build-file", help="Build file path", type=Path
+            "-f", "--recipe-file", help="Recipe file path", type=Path
         )
         flags_parser.add_argument(
             "-o",
@@ -194,26 +235,26 @@ if __name__ == "__main__":
         )
         flags = flags_parser.parse_args()
 
-        build = plan_build_versions(Path(flags.build_file))
+        recipe = plan_recipe(Path(flags.recipe_file))
         if flags.lock_file is not None:
             with open(flags.lock_file, "w", encoding="utf-8") as f:
                 logger.info(
-                    f"Writing build lockfile to {str(flags.lock_file.absolute())}"
+                    f"Writing recipe lockfile to {str(flags.lock_file.absolute())}"
                 )
-                yaml.dump(build, f)
+                yaml.dump(recipe, f)
         else:
-            print(build)
+            print(recipe)
 
     elif cmd == "import":
         flags_parser.add_argument(
-            "-f", "--build-file", help="Build file path", type=Path
+            "-f", "--recipe-file", help="Recipe file path", type=Path
         )
         flags = flags_parser.parse_args()
 
-        with open(flags.build_file, "r", encoding="utf-8") as f:
-            build = yaml.safe_load(f)
+        with open(flags.recipe_file, "r", encoding="utf-8") as f:
+            recipe = yaml.safe_load(f)
         logger.info("Importing Recipes")
-        import_build_datasets(build)
+        import_recipe_datasets(recipe)
 
     elif cmd == "purge-recipe-cache":
         logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
@@ -221,20 +262,21 @@ if __name__ == "__main__":
 
     elif cmd == "write-source-data-versions":
         flags_parser.add_argument(
-            "-f", "--build-file", help="Build file path", type=Path
+            "-f", "--recipe-file", help="Recipe file path", type=Path
         )
         flags = flags_parser.parse_args()
 
-        with open(flags.build_file, "r", encoding="utf-8") as f:
-            build = yaml.safe_load(f)
-        source_data_versions_path = flags.build_file.parent / "source_data_versions.csv"
+        recipe = recipe_from_yaml(flags.recipe_file)
+        source_data_versions_path = (
+            flags.recipe_file.parent / "source_data_versions.csv"
+        )
         logger.info(f"Writing source data versions to {source_data_versions_path}")
 
-        sdv = get_source_data_versions(build)
+        sdv = get_source_data_versions(recipe)
         unresolved_versions = [[k, v] for k, v in sdv if v == "latest"]
         if len(unresolved_versions) > 0:
             exception = (
-                "Build has unresolved versions! Can't write source "
+                "Recipe has unresolved versions! Can't write source "
                 + f"data versions {unresolved_versions}"
             )
             logger.error(exception)
