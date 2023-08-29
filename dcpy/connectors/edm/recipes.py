@@ -65,7 +65,7 @@ def import_recipe(
     recipe_version = config["dataset"]["version"]
     sql_script_path = fetch_sql(recipe_name, recipe_version, local_library_dir)
 
-    postgres.exec_file_via_shell(postgres.BUILD_ENGINE_RAW, sql_script_path)
+    postgres.execute_file_via_shell(postgres.BUILD_ENGINE_RAW, sql_script_path)
 
     with postgres.build_engine.connect() as con:
         con.execute(

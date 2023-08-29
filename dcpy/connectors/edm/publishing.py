@@ -2,6 +2,7 @@ from pathlib import Path
 import requests
 from zipfile import ZipFile
 import pandas as pd
+from typing import Optional
 import geopandas as gpd
 
 from dcpy.utils import s3
@@ -79,7 +80,7 @@ def upload(
         s3.upload_folder(
             BUCKET,
             output_path,
-            folder_key,
+            Path(folder_key),
             acl,
             include_foldername=False,
             max_files=max_files,
@@ -96,7 +97,7 @@ def legacy_upload(
     version: str,
     acl: str,
     *,
-    s3_subpath: str = None,
+    s3_subpath: Optional[str] = None,
     latest: bool = True,
     include_foldername: bool = False,
     max_files: int = 20,
@@ -120,7 +121,13 @@ def legacy_upload(
         )
         if latest:
             ## much faster than uploading again
-            s3.copy_folder(BUCKET, version_folder, prefix / "latest", acl, max_files)
+            s3.copy_folder(
+                BUCKET,
+                str(version_folder),
+                str(prefix / "latest"),
+                acl,
+                max_files=max_files,
+            )
     else:
         s3.upload_file("edm-publishing", output, str(key), "public-read")
         if latest:

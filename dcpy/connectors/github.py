@@ -1,6 +1,7 @@
 import os
 import requests
 from dateutil.parser import parse
+from typing import Optional
 
 ORG = "NYCPlanning"
 PERSONAL_TOKEN = os.environ["GHP_TOKEN"]
@@ -27,7 +28,7 @@ def get_default_branch(repo: str):
     return response["default_branch"]
 
 
-def get_branches(repo: str, branches_blacklist: list = None):
+def get_branches(repo: str, branches_blacklist: Optional[list] = None):
     url = f"https://api.github.com/repos/nycplanning/{repo}/branches"
     response = requests.get(url).json()
     all_branches = [branch_info["name"] for branch_info in response]

@@ -5,20 +5,23 @@ import os
 import pandas as pd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text
+from typing import Optional
 
 
 BUILD_ENGINE_RAW = os.environ["BUILD_ENGINE"]
 build_engine = create_engine(BUILD_ENGINE_RAW)
 
 
-def execute_query(query: str, placeholders: dict = None) -> None:
+def execute_query(query: str, placeholders: Optional[dict] = None) -> None:
     if placeholders is None:
         placeholders = {}
     with build_engine.connect() as connection:
-        connection.execute(statement=text(query), params=placeholders)
+        connection.execute(statement=text(query), parameters=placeholders)
 
 
-def execute_select_query(query: str, placeholders: dict = None) -> pd.DataFrame:
+def execute_select_query(
+    query: str, placeholders: Optional[dict] = None
+) -> pd.DataFrame:
     if placeholders is None:
         placeholders = {}
     with build_engine.connect() as sql_conn:
@@ -141,11 +144,11 @@ def load_data_from_sql_dump(
     table_schema: str,
     dataset_by_version: str,
     dataset_name: str,
-) -> list:
+):
     print(f"Loading data into table {table_schema}.{dataset_name} ...")
-    file_name = f"{dataset_by_version}.sql"
+    file_name = Path(f"{dataset_by_version}.sql")
     # run sql dump file to create initial table
-    execute_file_via_shell(filename=file_name)
+    execute_file_via_shell(build_engine=BUILD_ENGINE_RAW, path=file_name)
     # copy inital data to a new table in the dataset-specific schema
     execute_query(
         """
