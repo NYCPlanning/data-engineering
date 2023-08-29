@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS validzones;
 CREATE TABLE validzones AS (
 SELECT 
     CASE
-        WHEN zonedist = ANY('{"BALL FIELD", "PLAYGROUND", "PUBLIC SPACE"}') THEN 'PARK'
+        WHEN zonedist = ANY('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'
         ELSE zonedist
     END AS zonedist, 
     ST_MakeValid(geom) AS geom  
