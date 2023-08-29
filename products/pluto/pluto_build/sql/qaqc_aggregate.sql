@@ -1,27 +1,30 @@
 DELETE FROM qaqc_aggregate
-WHERE v = :'VERSION'
-AND CONDO::boolean = :CONDO
-AND MAPPED::boolean = :MAPPED;
+WHERE
+    v = :'VERSION'
+    AND condo::boolean = :CONDO
+    AND mapped::boolean = :MAPPED;
 
 INSERT INTO qaqc_aggregate (
-SELECT  :'VERSION' as v, 
-	    :CONDO as condo,
-        :MAPPED as mapped,
-        sum(UnitsRes::numeric)::bigint as UnitsRes,
-        sum(LotArea::numeric)::bigint as LotArea,
-        sum(BldgArea::numeric)::bigint as BldgArea,
-        sum(ComArea::numeric)::bigint as ComArea,
-        sum(ResArea::numeric)::bigint as ResArea,
-        sum(OfficeArea::numeric)::bigint as OfficeArea,
-        sum(RetailArea::numeric)::bigint as RetailArea,
-        sum(GarageArea::numeric)::bigint as GarageArea,
-        sum(StrgeArea::numeric)::bigint as StrgeArea,
-        sum(FactryArea::numeric)::bigint as FactryArea,
-        sum(OtherArea::numeric)::bigint as OtherArea,
-        sum(AssessLand::numeric)::bigint as AssessLand,
-        sum(AssessTot::numeric)::bigint as AssessTot,
-        sum(ExemptTot::numeric)::bigint as ExemptTot,
-        sum(FIRM07_FLAG::numeric)::bigint as FIRM07_FLAG,
-        sum(PFIRM15_FLAG::numeric)::bigint as PFIRM15_FLAG
-FROM archive_pluto a
-:CONDITION);
+    SELECT
+        :'VERSION' AS v,
+        :CONDO AS condo,
+        :MAPPED AS mapped,
+        sum(unitsres::numeric)::bigint AS unitsres,
+        sum(lotarea::numeric)::bigint AS lotarea,
+        sum(bldgarea::numeric)::bigint AS bldgarea,
+        sum(comarea::numeric)::bigint AS comarea,
+        sum(resarea::numeric)::bigint AS resarea,
+        sum(officearea::numeric)::bigint AS officearea,
+        sum(retailarea::numeric)::bigint AS retailarea,
+        sum(garagearea::numeric)::bigint AS garagearea,
+        sum(strgearea::numeric)::bigint AS strgearea,
+        sum(factryarea::numeric)::bigint AS factryarea,
+        sum(otherarea::numeric)::bigint AS otherarea,
+        sum(assessland::numeric)::bigint AS assessland,
+        sum(assesstot::numeric)::bigint AS assesstot,
+        sum(exempttot::numeric)::bigint AS exempttot,
+        sum(firm07_flag::numeric)::bigint AS firm07_flag,
+        sum(pfirm15_flag::numeric)::bigint AS pfirm15_flag
+    FROM archive_pluto AS a
+    :CONDITION
+);

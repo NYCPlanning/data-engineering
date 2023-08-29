@@ -27,7 +27,7 @@ function cama {
         sed -i 's/\"//g' pluto_input_cama_dof.csv
 
         # Load to psql
-        cat pluto_input_cama_dof.csv | psql $RECIPE_ENGINE -v NAME=$NAME -f $DIR/sql/_load_cama.sql
+        cat pluto_input_cama_dof.csv | psql $RECIPE_ENGINE -v TABLE=$NAME -f $DIR/sql/_load_cama.sql
         rm pluto_input_cama_dof.csv
 
         # Create Outputs in preparation for data library
