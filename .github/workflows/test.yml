@@ -48,6 +48,8 @@ jobs:
               - products/cbbr/**
             checkbook:
               - products/checkbook/**
+            dcpy:
+              - dcpy/**
             qa:
               - apps/qa/**
             zap:
@@ -90,4 +92,9 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'zap')
     uses: ./.github/workflows/zap_test.yml
+    secrets: inherit
+  dcpy:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.path_filters, 'dcpy')
+    uses: ./.github/workflows/dcpy_test.yml
     secrets: inherit
