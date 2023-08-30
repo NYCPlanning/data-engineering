@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, Optional
 import boto3
 from botocore.client import Config
-
 from rich.progress import (
     BarColumn,
     Progress,
@@ -66,38 +65,38 @@ def download_file(
 ):
     """Downloads a file from S3"""
     with _progress() as progress:
-        client_ = client()
-        size = client_.head_object(Bucket=bucket, Key=key)["ContentLength"]
+        size = get_metadata(bucket, key)["content-length"]
         task = progress.add_task(
             f"[green]Downloading [bold]{Path(key).name}[/bold]", total=size
         )
-        client_.download_file(
+        client().download_file(
             Bucket=bucket,
             Key=key,
             Filename=str(path),
             Callback=lambda bytes: progress.update(task, advance=bytes),
         )
+
+
+def get_metadata(bucket: str, key: str) -> dict:
+    """Gets custom metadata as well as three standard s3 fields"""
+    response = client().head_object(Bucket=bucket, Key=key)
+    metadata = response["Metadata"]
+    metadata["last-modified"] = response["LastModified"]
+    metadata["content-length"] = response["ContentLength"]
+    metadata["content-type"] = response["ContentType"]
+    return metadata
 
 
 def get_file(
     bucket: str,
     key: str,
-    path: Path,
 ):
     """Downloads a file from S3"""
-    with _progress() as progress:
-        client_ = client()
-        size = client_.head_object(Bucket=bucket, Key=key)["ContentLength"]
-        task = progress.add_task(
-            f"[green]Downloading [bold]{Path(key).name}[/bold]", total=size
-        )
-        obj = client_.get_object(
-            Bucket=bucket,
-            Key=key,
-            Filename=str(path),
-            Callback=lambda bytes: progress.update(task, advance=bytes),
-        )
-        return obj["Body"]
+    obj = client().get_object(
+        Bucket=bucket,
+        Key=key,
+    )
+    return obj["Body"]
 
 
 def upload_file(
@@ -134,24 +133,26 @@ def copy_file(
     source_key: str,
     target_key: str,
     acl: str,
+    *,
     target_bucket: Optional[str] = None,
+    metadata: Optional[dict] = None,
 ):
+    """Copies a file from from one location in S3 to another"""
     if target_bucket is None:
         target_bucket = bucket
-    """Copies a file from from one location in S3 to another"""
-    with _progress() as progress:
-        client_ = client()
-        size = client_.head_object(Bucket=bucket, Key=source_key)["ContentLength"]
-        task = progress.add_task(
-            f"[green]Copying [bold]{Path(source_key).name}[/bold]", total=size
-        )
-        client_.copy(
-            CopySource={"Bucket": bucket, "Key": source_key},
-            Bucket=target_bucket,
-            Key=target_key,
-            ExtraArgs={"ACL": acl},
-            Callback=lambda bytes: progress.update(task, advance=bytes),
-        )
+    client_ = client()
+    all_metadata = client_.head_object(Bucket=bucket, Key=source_key)
+    meta = all_metadata.get("Metadata", {})
+    if metadata is not None:
+        meta.update(metadata)
+    client_.copy_object(
+        CopySource={"Bucket": bucket, "Key": source_key},
+        Bucket=target_bucket,
+        Key=target_key,
+        ACL=acl,
+        Metadata=meta,
+        MetadataDirective="REPLACE",
+    )
 
 
 def download_folder(
@@ -180,6 +181,7 @@ def upload_folder(
     *,
     max_files: int = 20,
     include_foldername: bool = True,
+    metadata: Optional[dict] = None,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
@@ -196,11 +198,17 @@ def upload_folder(
             if include_foldername
             else upload_path / relative_filepath
         )
-        upload_file(bucket, file, str(key), acl=acl)
+        upload_file(bucket, file, str(key), acl=acl, metadata=metadata)
 
 
 def copy_folder(
-    bucket: str, source: str, target: str, acl: str, *, max_files: int = 20
+    bucket: str,
+    source: str,
+    target: str,
+    acl: str,
+    *,
+    max_files: int = 20,
+    metadata: Optional[dict] = None,
 ):
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
@@ -215,7 +223,7 @@ def copy_folder(
     for obj in objects:
         key = obj["Key"].replace(source, "")
         if key and (key[-1] != "/"):
-            copy_file(bucket, obj["Key"], f"{target}{key}", acl)
+            copy_file(bucket, obj["Key"], f"{target}{key}", acl, metadata=metadata)
 
 
 def delete(bucket: str, path: str):
