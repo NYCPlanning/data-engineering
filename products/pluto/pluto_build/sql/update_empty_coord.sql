@@ -15,7 +15,7 @@ WITH update_table AS (
             ST_POINTONSURFACE(p.geom) AS point_surface
         FROM pluto AS p
         WHERE p.geom IS NOT NULL AND p.xcoord IS NULL
-    )
+    ) AS tmp
 )
 
 UPDATE pluto b
