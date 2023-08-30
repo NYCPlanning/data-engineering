@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import shutil
 import sys
+from typing import Optional
 import yaml
 
 from sqlalchemy import text, update, Table, MetaData
@@ -99,7 +100,7 @@ def import_recipe_dataset(
     *,
     version="latest",
     local_library_dir=LIBRARY_DEFAULT_PATH,
-    import_table_name: str = None,
+    import_table_name: Optional[str] = None,
 ):
     """Import a recipe to local data library folder and build engine."""
     config = get_config(recipe_name, version)

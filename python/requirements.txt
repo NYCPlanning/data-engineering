@@ -24,15 +24,15 @@ black==23.1.0
     # via -r ./python/requirements.in
 blinker==1.6.2
     # via streamlit
-boto3==1.28.37
+boto3==1.28.38
     # via -r ./python/requirements.in
-boto3-stubs==1.28.37
+boto3-stubs==1.28.38
     # via -r ./python/requirements.in
-botocore==1.31.37
+botocore==1.31.38
     # via
     #   boto3
     #   s3transfer
-botocore-stubs==1.31.37
+botocore-stubs==1.31.38
     # via
     #   -r ./python/requirements.in
     #   boto3-stubs
@@ -450,6 +450,8 @@ types-python-dateutil==2.8.19.14
     # via -r ./python/requirements.in
 types-pytz==2023.3.0.1
     # via pandas-stubs
+types-pyyaml==6.0.12.11
+    # via -r ./python/requirements.in
 types-requests==2.31.0.2
     # via -r ./python/requirements.in
 types-s3transfer==0.6.2

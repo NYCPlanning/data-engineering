@@ -25,6 +25,7 @@ pytest==7.3.0
 pytest-cov==4.0.0
 python-dotenv==0.20.0
 PyYAML>=5.4.1
+types-PyYAML>=5.4.1
 rich>=13.4.2
 sqlalchemy==2.0.15
 sqlfluff==2.3.0
