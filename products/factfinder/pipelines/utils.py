@@ -3,9 +3,8 @@ from datetime import date
 from typing import Tuple
 from pathlib import Path
 
-from dcpy.utils import s3
+from dcpy.utils import s3, git
 from dcpy.connectors.edm import publishing
-from dcpy.utils.git import git_branch
 
 from pipelines import PRODUCT_PATH
 
@@ -72,6 +71,6 @@ def s3_upload(file: Path, latest=True):
         publishing_folder="db-factfinder",
         version=str(date.today()),
         acl="public-read",
-        s3_subpath=Path(git_branch()) / export_type / year,
+        s3_subpath=Path(git.branch()) / export_type / year,
         latest=latest,
     )
