@@ -1,0 +1,25 @@
+name: DCPY Tests
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  type_check:
+    name: Type Checking With mypy
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install mypy
+        run: pip install mypy
+
+      - name: (Temp) Install stubs
+        run: pip install -r python/requirements.txt
+
+      - name: mypy Type check
+        run: mypy ./dcpy
