@@ -6,6 +6,7 @@ from typing import Optional
 import geopandas as gpd
 
 from dcpy.utils import s3
+from dcpy.connectors.edm import metadata
 
 BUCKET = "edm-publishing"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
@@ -80,6 +81,7 @@ def upload(
 ):
     """Upload build output(s) to draft folder in edm-publishing"""
     folder_key = f"{product}/draft/{build}"
+    meta = metadata.generate()
     if output_path.is_dir():
         s3.upload_folder(
             BUCKET,
@@ -88,10 +90,15 @@ def upload(
             acl,
             include_foldername=False,
             max_files=max_files,
+            metadata=meta,
         )
     else:
         s3.upload_file(
-            "edm-publishing", output_path, f"{folder_key}/{output_path.name}", acl
+            "edm-publishing",
+            output_path,
+            f"{folder_key}/{output_path.name}",
+            acl,
+            metadata=meta,
         )
 
 
@@ -114,6 +121,7 @@ def legacy_upload(
         prefix = Path(publishing_folder) / s3_subpath
     version_folder = prefix / version
     key = version_folder / output.name
+    meta = metadata.generate()
     if output.is_dir():
         s3.upload_folder(
             BUCKET,
@@ -122,6 +130,7 @@ def legacy_upload(
             acl,
             include_foldername=include_foldername,
             max_files=max_files,
+            metadata=meta,
         )
         if latest:
             ## much faster than uploading again
@@ -133,7 +142,7 @@ def legacy_upload(
                 max_files=max_files,
             )
     else:
-        s3.upload_file("edm-publishing", output, str(key), "public-read")
+        s3.upload_file("edm-publishing", output, str(key), "public-read", metadata=meta)
         if latest:
             ## much faster than uploading again
             s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
