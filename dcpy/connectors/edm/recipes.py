@@ -145,9 +145,8 @@ def plan_recipe(recipe_path: Path) -> dict:
         strat = recipe["version_strategy"]
         if strat == "bump_latest_release":
             prev_version = publishing.get_latest_version(
-                recipe["product"], branch="main"
+                recipe["product"], published=True
             )
-            print(prev_version)
             recipe["version"] = versions.bump(
                 prev_version, bumped_part=recipe["version_type"]
             )
@@ -169,7 +168,7 @@ def plan_recipe(recipe_path: Path) -> dict:
     missing_version_strat = recipe["inputs"].get("missing_versions_strategy")
     if missing_version_strat == "copy_latest_release":
         previous_versions = publishing.get_source_data_versions(
-            recipe["product"], branch="main"
+            recipe["product"], published=True
         ).to_dict()["version"]
 
     for ds in _recipe_datasets(recipe):

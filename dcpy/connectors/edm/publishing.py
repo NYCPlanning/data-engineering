@@ -14,22 +14,26 @@ BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
 ## TODO - these functions need some cleaning
 ## ideally they don't need to called individually, but we either have consistent folder structure
 ## Or have metadata in json/etc about structure of outputs per dataset
-def get_dataset_path(dataset: str, *, branch: str, version="latest"):
+def get_dataset_path(dataset: str, *, branch: str, version="latest", published=False):
     """Construct s3 path for a published dataset."""
     return (
-        f"{BASE_URL}/{dataset}/"
-        + (branch + "/" if branch is not None else "")
-        + version
-        + "/output"
+        (
+            f"{BASE_URL}/{dataset}/"
+            + (branch + "/" if branch is not None else "")
+            + version
+            + "/output"
+        )
+        if not published
+        else (f"{BASE_URL}/{dataset}/" + "publish/" + version)
     )
 
 
-def get_latest_version(dataset: str, *, branch: str):
+def get_latest_version(dataset: str, *, branch: str = "", published=False):
     """Given dataset name, gets latest version
     Assumes that dataset follows standard folder structure of {dataset}/{version}/output/version.txt
     """
-    path = f"{get_dataset_path(dataset=dataset, version='latest', branch=branch)}/version.txt"
-    print(path)
+    path = f"{get_dataset_path(dataset=dataset,version='latest', branch=branch, published=published)}/version.txt"
+    print(f"finding latest version from {path}")
     return requests.get(
         path,
         timeout=10,
@@ -37,12 +41,15 @@ def get_latest_version(dataset: str, *, branch: str):
 
 
 def get_source_data_versions(
-    dataset: str, version: str = "latest", branch=None
+    dataset: str, version: str = "latest", branch=None, published=False
 ) -> pd.DataFrame:
     """Given dataset name, gets source data versions
     Assumes that dataset follows standard folder structure of {dataset}/{version}/output/
     """
-    output_url = get_dataset_path(dataset=dataset, branch=branch, version=version)
+    output_url = get_dataset_path(
+        dataset=dataset, branch=branch, version=version, published=published
+    )
+
     source_data_versions = pd.read_csv(
         f"{output_url}/source_data_versions.csv",
         index_col=False,
