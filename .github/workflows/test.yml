@@ -27,6 +27,7 @@ jobs:
         run: |
           # TODO: Gradually expand this to cover more products
           sqlfluff lint products/knownprojects/
+          sqlfluff lint products/pluto/pluto_build/sql
 
   check_changes:
     name: Check changed files
