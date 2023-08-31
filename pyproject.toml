@@ -9,6 +9,7 @@ exclude_rules = [
     "structure.unused_cte",
     "references.keywords",
     "references.consistent",
+    "references.special_chars",
 ]
 
 # The standard max_line_length is 80 in line with the convention of
@@ -26,7 +27,7 @@ max_line_length = 120
 processes = -1
 
 [tool.sqlfluff.templater.placeholder]
-param_regex = "(?<![:\\w\\x5c]):(['\\\"]?)(?P<param_name>[\\w_]+)\\1"
+param_style = "colon_optional_quotes"
 TABLE = "dummy_table_name"
 VERSION = "2023-01-01"
 VERSION_PREV = "2022-01-01"
