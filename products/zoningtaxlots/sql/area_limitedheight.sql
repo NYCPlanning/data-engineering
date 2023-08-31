@@ -6,42 +6,55 @@
 
 DROP TABLE IF EXISTS limitedheightperorder;
 CREATE TABLE limitedheightperorder AS (
-WITH 
-limitedheightper AS (
-SELECT p.bbl, n.lhlbl, 
-  (ST_Area(CASE 
-    WHEN ST_CoveredBy(p.geom, n.geom) 
-    THEN p.geom 
-    ELSE 
-    ST_Multi(
-      ST_Intersection(p.geom,n.geom)
-      ) 
-    END)) as segbblgeom,
-  ST_Area(p.geom) as allbblgeom,
-  (ST_Area(CASE 
-    WHEN ST_CoveredBy(n.geom, p.geom) 
-    THEN n.geom 
-    ELSE 
-    ST_Multi(
-      ST_Intersection(n.geom,p.geom)
-      ) 
-    END)) as segzonegeom,
-  ST_Area(n.geom) as allzonegeom
- FROM dof_dtm AS p 
-   INNER JOIN dcp_limitedheight AS n 
-    ON ST_Intersects(p.geom, n.geom)
-)
-SELECT bbl, lhlbl, segbblgeom, (segbblgeom/allbblgeom)*100 as perbblgeom, (segzonegeom/allzonegeom)*100 as perzonegeom, ROW_NUMBER()
-    	OVER (PARTITION BY bbl
-      	ORDER BY segbblgeom DESC) AS row_number
-  		FROM limitedheightper
+    WITH
+    limitedheightper AS (
+        SELECT
+            p.bbl,
+            n.lhlbl,
+            (ST_AREA(CASE
+                WHEN ST_COVEREDBY(p.geom, n.geom)
+                    THEN p.geom
+                ELSE
+                    ST_MULTI(
+                        ST_INTERSECTION(p.geom, n.geom)
+                    )
+            END)) AS segbblgeom,
+            ST_AREA(p.geom) AS allbblgeom,
+            (ST_AREA(CASE
+                WHEN ST_COVEREDBY(n.geom, p.geom)
+                    THEN n.geom
+                ELSE
+                    ST_MULTI(
+                        ST_INTERSECTION(n.geom, p.geom)
+                    )
+            END)) AS segzonegeom,
+            ST_AREA(n.geom) AS allzonegeom
+        FROM dof_dtm AS p
+        INNER JOIN dcp_limitedheight AS n
+            ON ST_INTERSECTS(p.geom, n.geom)
+    )
+
+    SELECT
+        bbl,
+        lhlbl,
+        segbblgeom,
+        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
+        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+        ROW_NUMBER()
+            OVER (
+                PARTITION BY bbl
+                ORDER BY segbblgeom DESC
+            )
+        AS row_number
+    FROM limitedheightper
 );
 
 UPDATE dcp_zoning_taxlot a
 SET limitedheightdistrict = lhlbl
-FROM limitedheightperorder b
-WHERE a.bbl::TEXT=b.bbl::TEXT
-AND perbblgeom >= 10;
+FROM limitedheightperorder AS b
+WHERE
+    a.bbl::TEXT = b.bbl::TEXT
+    AND perbblgeom >= 10;
 
 --\copy (SELECT * FROM limitedheightperorder ORDER BY bbl) TO '/prod/db-zoningtaxlots/zoningtaxlots_build/output/intermediate_limitedheightperorder.csv' DELIMITER ',' CSV HEADER;
 --

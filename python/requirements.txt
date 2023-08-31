@@ -24,15 +24,15 @@ black==23.1.0
     # via -r ./python/requirements.in
 blinker==1.6.2
     # via streamlit
-boto3==1.28.37
+boto3==1.28.38
     # via -r ./python/requirements.in
-boto3-stubs==1.28.37
+boto3-stubs==1.28.38
     # via -r ./python/requirements.in
-botocore==1.31.37
+botocore==1.31.38
     # via
     #   boto3
     #   s3transfer
-botocore-stubs==1.31.37
+botocore-stubs==1.31.38
     # via
     #   -r ./python/requirements.in
     #   boto3-stubs
@@ -386,7 +386,7 @@ sqlalchemy==2.0.15
     # via
     #   -r ./python/requirements.in
     #   geoalchemy2
-sqlfluff==2.3.0
+sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
     # via -r ./python/requirements.in
 stack-data==0.6.2
     # via ipython

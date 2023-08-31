@@ -1,15 +1,18 @@
-delete from dcp_zoningtaxlots.qaqc_bbl
-where version = :'VERSION'; 
+DELETE FROM dcp_zoningtaxlots.qaqc_bbl
+WHERE version = :'VERSION';
 
-insert into dcp_zoningtaxlots.qaqc_bbl (
-select 
-    sum(case when bblnew is null then 1 else 0 end) as removed,
-    sum(case when bblold is null then 1 else 0 end) as added,
-    :'VERSION' as version,
-    :'VERSION_PREV' as version_prev
-FROM (
-    SELECT a.bbl as bblnew, b.bbl as bblold
-    FROM dcp_zoningtaxlots.:"VERSION" a
-    FULL OUTER JOIN dcp_zoningtaxlots.:"VERSION_PREV" b
-    ON b.bbl=a.bbl) c
+INSERT INTO dcp_zoningtaxlots.qaqc_bbl (
+    SELECT
+        sum(CASE WHEN bblnew IS null THEN 1 ELSE 0 END) AS removed,
+        sum(CASE WHEN bblold IS null THEN 1 ELSE 0 END) AS added,
+        :'VERSION' AS version,
+        :'VERSION_PREV' AS version_prev
+    FROM (
+        SELECT
+            a.bbl AS bblnew,
+            b.bbl AS bblold
+        FROM dcp_zoningtaxlots.:"VERSION" AS a
+        FULL OUTER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
+            ON a.bbl = b.bbl
+    ) AS c
 );

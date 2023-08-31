@@ -4,48 +4,50 @@
 -- a district is only assigned if more than 10% of the district covers the lot
 
 DROP TABLE IF EXISTS mihperorder;
-CREATE TABLE mihperorder AS (
-WITH 
-mihper AS (
-SELECT p.bbl, n.mih_option, 
-  (ST_Area(CASE 
-    WHEN ST_CoveredBy(p.geom, n.geom) 
-    THEN p.geom 
-    ELSE 
-    ST_Multi(
-      ST_Intersection(p.geom,n.geom)
-      ) 
-    END)) as segbblgeom,
-  ST_Area(p.geom) as allbblgeom,
-  (ST_Area(CASE 
-    WHEN ST_CoveredBy(n.geom, p.geom) 
-    THEN n.geom 
-    ELSE 
-    ST_Multi(
-      ST_Intersection(n.geom,p.geom)
-      ) 
-    END)) as segzonegeom,
-  ST_Area(n.geom) as allzonegeom
- FROM dof_dtm AS p 
-   INNER JOIN dcp_mih AS n 
-    ON ST_Intersects(p.geom, n.geom)
+CREATE TABLE mihperorder AS
+WITH mihper AS (
+    SELECT
+        p.bbl,
+        n.mih_option,
+        ST_AREA(
+            CASE
+                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+            END
+        ) AS segbblgeom,
+        ST_AREA(p.geom) AS allbblgeom,
+        ST_AREA(
+            CASE
+                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+            END
+        ) AS segzonegeom,
+        ST_AREA(n.geom) AS allzonegeom
+    FROM dof_dtm AS p
+    INNER JOIN dcp_mih AS n
+        ON ST_INTERSECTS(p.geom, n.geom)
 )
-SELECT bbl, mih_option, segbblgeom, (segbblgeom/allbblgeom)*100 as perbblgeom, (segzonegeom/allzonegeom)*100 as perzonegeom, ROW_NUMBER()
-  OVER (PARTITION BY bbl
-  ORDER BY segbblgeom DESC) AS row_number
-  FROM mihper
-);
 
+SELECT
+    bbl,
+    mih_option,
+    segbblgeom,
+    (segbblgeom / allbblgeom) * 100 AS perbblgeom,
+    (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+    ROW_NUMBER()
+        OVER (
+            PARTITION BY bbl
+            ORDER BY segbblgeom DESC
+        )
+    AS row_number
+FROM mihper;
 
-UPDATE dcp_zoning_taxlot a 
-SET 
-mihflag =
-(CASE WHEN perbblgeom >= 10 THEN TRUE
-ELSE FALSE
-END),
-mihoption =
-(CASE WHEN perbblgeom >= 10 THEN mih_option
-ELSE NULL
-END)
-FROM mihperorder b
-WHERE a.bbl::TEXT=b.bbl::TEXT;
+UPDATE dcp_zoning_taxlot a
+SET
+    mihflag = (COALESCE(perbblgeom >= 10, FALSE)),
+    mihoption
+    = CASE
+        WHEN perbblgeom >= 10 THEN mih_option
+    END
+FROM mihperorder AS b
+WHERE a.bbl::TEXT = b.bbl::TEXT;
