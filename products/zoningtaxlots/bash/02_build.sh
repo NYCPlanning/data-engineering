@@ -3,16 +3,15 @@ source bash/config.sh
 
 echo "Run build"
 
-run_sql_file sql/create_priority.sql &
+run_sql_file sql/create_priority.sql
 run_sql_file sql/create.sql
 run_sql_file sql/preprocessing.sql
 run_sql_file sql/bbl.sql
 
 wait
-run_sql_file sql/area_zoningdistrict_create.sql &
-run_sql_file sql/area_commercialoverlay.sql &
-run_sql_file sql/area_specialdistrict.sql &
-run_sql_file sql/area_limitedheight.sql &
+run_sql_file sql/area_commercialoverlay.sql
+run_sql_file sql/area_specialdistrict.sql
+run_sql_file sql/area_limitedheight.sql
 run_sql_file sql/area_zoningmap.sql
 
 wait
