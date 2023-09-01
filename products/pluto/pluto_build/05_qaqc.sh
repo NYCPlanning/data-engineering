@@ -2,10 +2,6 @@
 source ./bash/config.sh
 set_error_traps
 
-# import previous version of pluto
-import_recipe dcp_pluto $(echo ${VERSION_PREV} | tr . _)
-run_sql_command "ALTER TABLE IF EXISTS dcp_pluto RENAME to previous_pluto"
-
 # Download Existing QAQC from DO
 import_qaqc qaqc_expected main &
 import_qaqc qaqc_aggregate main &

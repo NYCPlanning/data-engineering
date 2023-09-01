@@ -1,0 +1,24 @@
+name: Pluto Minor
+base_recipe: recipe.yml
+version_type: minor
+version_strategy: bump_latest_release
+product: db-pluto
+inputs:
+  missing_versions_strategy: copy_latest_release
+  datasets:
+    - name: dcp_edesignation
+      version: latest
+    - name: dcp_commercialoverlay
+      version: latest
+    - name: dcp_limitedheight
+      version: latest
+    - name: dcp_zoningdistricts
+      version: latest
+    - name: dcp_specialpurpose
+      version: latest
+    - name: dcp_specialpurposesubdistricts
+      version: latest
+    - name: dcp_zoningmapamendments
+      version: latest
+    - name: dcp_zoningmapindex
+      version: latest

@@ -49,5 +49,5 @@ ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 [tool.black]
 
 [[tool.mypy.overrides]]
-module = "geopandas.*" # no stubs available
+module = "geopandas.*,cerberus.*" # no stubs available
 ignore_missing_imports = true

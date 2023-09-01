@@ -13,43 +13,11 @@ on:
         type: boolean
         required: true
         default: false
+      recipe_file:
+        type: string
+        default: recipe.yml
 jobs:
-  version:
-    name: check version
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash
-        working-directory: products/pluto/pluto_build
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-      is_minor_version: ${{ steps.check_minor_version.outputs.is_minor_version }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Check Version
-        id: get_version
-        run: |
-          source version.env
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version is $VERSION"
-      - name: Check for minor version
-        id: check_minor_version
-        run: |
-          source version.env
-          SUBSTRING="."
-
-          if [[ "$VERSION" =~ .*"$SUBSTRING".* ]];
-          then
-            is_minor_version=true
-            echo "$VERSION is a minor version"
-          else
-            is_minor_version=false
-            echo "$VERSION is a major version"
-          fi
-          echo "is_minor_version=$is_minor_version" >> $GITHUB_OUTPUT
   build:
-    needs: [version]
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -79,11 +47,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Check is_minor, finish container setup
+      - name: Finish container setup
         working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      # Temp. Getting this working, then we can add to the docker image
+      - name: Install yq
         run: |
-          echo "is_minor: ${{ needs.version.outputs.is_minor_version }}"
-          ./bash/docker_container_setup.sh
+          apt install wget
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+          pip install cerberus
 
       - name: clean out shared libs
         run: |
@@ -92,16 +65,31 @@ jobs:
           rm -rf "/usr/local/share/boost"
           rm -rf "$AGENT_TOOLSDIRECTORY"
 
-      - name: dataloading (major) ..
-        run: ./01_dataloading.sh
-        if: needs.version.outputs.is_minor_version == 'false'
+      - name: Plan Build
+        working-directory: ./
+        run: |
+          python3 -m dcpy.connectors.edm.recipes plan -f ./products/pluto/${{ inputs.recipe_file }} -o ./products/pluto/recipe.lock.yml
+          python3 -m dcpy.connectors.edm.recipes write-source-data-versions -f ./products/pluto/recipe.lock.yml
 
-      - name: dataloading (minor) ..
-        run: ./01_dataloading_minor.sh
-        if: needs.version.outputs.is_minor_version == 'true'
+      - name: Set versions env vars
+        working-directory: products/pluto/
+        run: |
+          echo VERSION=$(yq .version recipe.lock.yml) >> "$GITHUB_ENV" && \
+          echo VERSION_PREV=$(yq '.inputs.datasets.[] | select(.name == "dcp_pluto") | .version' recipe.lock.yml) >> "$GITHUB_ENV"
 
-      - name: clean out raw source data 
-        run: rm -rf .library
+      - name: Data setup
+        run: ./00_setup.sh
+
+      - name: Load Local Data
+        run: ./01_load_local_csvs.sh
+
+      - name: Load Recipes
+        working-directory: ./
+        run: python3 -m dcpy.connectors.edm.recipes import -f ./products/pluto/recipe.lock.yml
+
+      - name: clean out raw source data
+        working-directory: ./
+        run: python3 -m dcpy.connectors.edm.recipes purge-recipe-cache
 
       - name: building ...
         run: ./02_build.sh

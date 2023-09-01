@@ -1,0 +1,43 @@
+name: Pluto Major
+version: 23v2
+product: db-pluto
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+    - name: dcp_councildistricts_wi
+      version: 22c
+    - name: dcp_cb2010_wi
+    - name: dcp_cb2020_wi
+    - name: dcp_cdboundaries_wi
+    - name: dcp_colp
+    - name: dcp_commercialoverlay
+    - name: dcp_ct2010_wi
+    - name: dcp_ct2020_wi
+    - name: dcp_edesignation
+    - name: dcp_firecompanies
+    - name: dcp_healthareas
+    - name: dcp_healthcenters
+    - name: dcp_limitedheight
+    - name: dcp_pluto
+      import_as: previous_pluto
+    - name: dcp_policeprecincts
+    - name: dcp_school_districts
+    - name: dcp_specialpurpose
+    - name: dcp_specialpurposesubdistricts
+    - name: dcp_zoningdistricts
+    - name: dcp_zoningmapamendments
+    - name: dcp_zoningmapindex
+    - name: dof_condo
+    - name: dof_dtm
+    - name: dof_shoreline
+    - name: doitt_zipcodeboundaries
+    - name: dpr_greenthumb
+    - name: dsny_frequencies
+    - name: fema_firms2007_100yr
+    - name: fema_pfirms2015_100yr
+    - name: lpc_historic_districts
+    - name: lpc_landmarks
+    - name: pluto_input_cama_dof
+    - name: pluto_input_geocodes
+    - name: pluto_input_numbldgs
+    - name: pluto_pts
