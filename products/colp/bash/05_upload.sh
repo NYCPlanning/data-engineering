@@ -1,9 +1,7 @@
 #!/bin/bash
+source bash/config.sh
 
-DATE=$(date "+%Y-%m-%d")
-
-upload db-colp latest &
-upload db-colp ${DATE}
+upload db-colp public-read
 
 wait 
 echo "Upload Complete"

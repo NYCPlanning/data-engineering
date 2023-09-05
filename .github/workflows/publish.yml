@@ -54,7 +54,7 @@ jobs:
       - name: publish
         run: |
           python3 -m dcpy.connectors.edm.publishing publish \
-            db-${{ inputs.product }} \
-            ${{ inputs.draft_build }} \
-            ${{ inputs.publishing_version }} \
-            ${{ inputs.product_acl }}
+            -p db-${{ inputs.product }} \
+            -b ${{ inputs.draft_build }} \
+            -v ${{ inputs.publishing_version }} \
+            -a ${{ inputs.product_acl }}

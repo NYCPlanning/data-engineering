@@ -1,4 +1,5 @@
 #!/bin/bash
+source bash/config.sh
 
 create_source_data_table
 

@@ -4,6 +4,9 @@ DATE=$(date "+%Y-%m-%d")
 recipes_bucket=edm-recipes
 publishing_bucket=edm-publishing
 recipes_url=${AWS_S3_ENDPOINT}/${recipes_bucket}
+UTILS_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+ROOT_DIR=$(dirname ${UTILS_DIR})
+export PYTHONPATH=$ROOT_DIR
 
 
 # Pretty print messages
@@ -292,12 +295,10 @@ function compress {
 
 function upload {
     local dataset_name=${1}
-    local subfolder=${2} # typically version
+    local acl=${2}
     local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-    local top_level_folder=${3:-${branchname}}
-    local path="spaces/${publishing_bucket}/${dataset_name}/${top_level_folder}/${subfolder}"
-    mc rm -r --force ${path}
-    mc cp -r output ${path}
+    local build=${3:-${branchname}}
+    python3 -m dcpy.connectors.edm.publishing upload -p $dataset_name -o output -b $build -a $acl
 }
 
 
