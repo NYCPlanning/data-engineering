@@ -24,20 +24,10 @@ function facdb_archive {
     esac
 }
 
-function facdb_export {
-    ./facdb/bash/export.sh
-}
-
-function facdb_upload {
-    DATE=$(date "+%Y-%m-%d")
-    upload "db-facilities" "latest"
-    upload "db-facilities" ${DATE}
-}
-
 case $1 in
     init) init ;;
-    upload) facdb_upload ;;
+    upload) upload "db-facilities" "public-read" ;;
     archive) facdb_archive $@ ;;
-    export) facdb_export $@ ;;
+    export) ./facdb/bash/export.sh ;;
     *) facdb_execute $@ ;;
 esac

@@ -1,4 +1,5 @@
 #!/bin/bash
+source bash/config.sh
 
 echo "Running QAQC"
 

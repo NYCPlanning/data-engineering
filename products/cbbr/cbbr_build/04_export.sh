@@ -26,11 +26,12 @@ csv_export cbbr_export_pts cbbr_submissions_pts
 echo "Exporting output geometry tables to zip shapefiles ..."
 shp_export cbbr_export_poly MULTIPOLYGON -f cbbr_submissions_poly_shapefile
 shp_export cbbr_export_pts MULTIPOINT -f cbbr_submissions_pts_shapefile
+echo $VERSION >> version.txt
+
 cd ..
 
 echo "Upload Output to DigitalOcean" 
 
-upload db-cbbr $VERSION
-upload db-cbbr "latest"
+upload db-cbbr public-read
 
 echo "Done!"

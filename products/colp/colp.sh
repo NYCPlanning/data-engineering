@@ -1,5 +1,4 @@
 #!/bin/bash
-source bash/config.sh
 
 case $1 in 
     dataloading ) ./bash/01_dataloading.sh ;;
