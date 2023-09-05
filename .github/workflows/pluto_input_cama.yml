@@ -15,7 +15,7 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      RECIPE_ENGINE: postgresql://postgres:postgres@localhost:5432/postgis
+      RECIPE_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
