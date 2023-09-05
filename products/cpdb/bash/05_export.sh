@@ -23,6 +23,7 @@ mkdir -p output && (
     csv_export cpdb_opendata_commitments &
     csv_export geospatial_check &
     csv_export source_data_versions &
+    echo $DATE > version.txt
     wait 
     echo 
     echo "export complete"

@@ -1,4 +1,5 @@
 #!/bin/bash
+source bash/config.sh
 
 run_sql_file sql/load_modifications.sql  
 

@@ -37,16 +37,6 @@ function cpdb_archive {
     esac
 }
 
-function cpdb_upload {
-    local branchname=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-    local DATE=$(date "+%Y-%m-%d")
-    local SPACES="spaces/edm-publishing/db-cpdb/$branchname"
-    mc rm -r --force $SPACES/latest
-    mc rm -r --force $SPACES/$DATE
-    mc cp --attr acl=private -r output $SPACES/latest
-    mc cp --attr acl=private -r output $SPACES/$DATE
-}
-
 function share {
     shift;
     case $1 in
@@ -73,7 +63,7 @@ case $1 in
     analysis ) ./bash/04_analysis.sh ;;
     export ) ./bash/05_export.sh ;;
     archive ) cpdb_archive $@ ;;
-    upload ) cpdb_upload ;;
+    upload ) upload db-cpdb private ;;
     share ) share $@ ;;
     sql) sql $@;;
 esac

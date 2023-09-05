@@ -1,4 +1,5 @@
 #!/bin/bash
+source bash/config.sh
 
 rm -rf output
 mkdir -p output && (
