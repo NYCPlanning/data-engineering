@@ -51,13 +51,6 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      # Temp. Getting this working, then we can add to the docker image
-      - name: Install yq
-        run: |
-          apt install wget
-          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
-          pip install cerberus
-
       - name: clean out shared libs
         run: |
           rm -rf /usr/share/dotnet
