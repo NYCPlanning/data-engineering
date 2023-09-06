@@ -33,7 +33,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     services:
       postgis:
-        image: postgis/postgis:14-3.3-alpine
+        image: postgis/postgis:15-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
