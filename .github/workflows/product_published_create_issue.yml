@@ -1,0 +1,26 @@
+name: Create `Product Published` Issue
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: name of the project
+        required: true
+      version:
+        description: version name of the release
+        required: true
+
+permissions:
+  contents: read
+  issues: write
+jobs:
+  create_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRODUCT: Pluto
+          VERSION: 23v2.x
+        with:
+          filename: .github/ISSUE_TEMPLATE/product_auto_published_notice.md

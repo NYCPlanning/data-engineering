@@ -12,6 +12,9 @@ on:
       run_export:
         type: boolean
         required: true
+      create_issue:
+        type: boolean
+        default: false
 
 env:
   LOGGING_LEVEL: ${{ inputs.logging_level }}
