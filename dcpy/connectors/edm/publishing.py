@@ -1,3 +1,5 @@
+import sys
+import argparse
 from pathlib import Path
 import requests
 from zipfile import ZipFile
@@ -6,6 +8,7 @@ from typing import Optional
 import geopandas as gpd
 
 from dcpy.utils import s3
+from dcpy.utils.logging import logger
 from dcpy.connectors.edm import metadata
 
 BUCKET = "edm-publishing"
@@ -187,3 +190,81 @@ def get_zip(dataset, version, filepath):
     stream = s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}")
     zip = ZipFile(stream)
     return zip
+
+
+def publish_add_created_date(
+    product: str,
+    source: str,
+    acl: str,
+    *,
+    publishing_version: Optional[str] = None,
+    file_for_creation_date: str = "version.txt",
+    max_files: int = 30,
+):
+    """Publishes a specific draft build of a data product
+    By default, keeps draft output folder"""
+    if publishing_version is None:
+        with s3.get_file(BUCKET, f"{source}version.txt") as f:
+            publishing_version = f.read()
+    print(publishing_version)
+    old_metadata = s3.get_metadata(BUCKET, f"{source}{file_for_creation_date}")
+    target = f"{product}/publish/{publishing_version}/"
+    s3.copy_folder(
+        BUCKET,
+        source,
+        target,
+        acl,
+        max_files=max_files,
+        metadata={
+            "date_created": old_metadata["last-modified"].strftime("%Y-%m-%d %H:%M:%S")
+        },
+    )
+    return {"date_created": old_metadata["last-modified"].strftime("%Y-%m-%d %H:%M:%S")}
+
+
+if __name__ == "__main__":
+    flags_parser = argparse.ArgumentParser()
+    flags_parser.add_argument("cmd")
+    cmd = sys.argv[1]
+
+    if cmd == "upload":
+        logger.info("Uploading dataset")
+        flags_parser.add_argument(
+            "-o", "--output-path", help="Path to local output folder", type=Path
+        )
+        flags_parser.add_argument(
+            "-p",
+            "--product",
+            help="Name of data product (publishing folder in s3)",
+            type=str,
+        )
+        flags_parser.add_argument("-b", "--build", help="Label of build", type=str)
+        flags_parser.add_argument(
+            "-a", "--acl", help="Access level of file in s3", type=str
+        )
+        flags = flags_parser.parse_args()
+        logger.info(
+            f'Uploading {flags.output_path} to {flags.product}/draft/{flags.build} with ACL "{flags.acl}"'
+        )
+        upload(Path(flags.output_path), flags.product, flags.build, flags.acl)
+
+    if cmd == "publish":
+        logger.info("Publishing dataset")
+        flags_parser.add_argument(
+            "-p",
+            "--product",
+            help="Name of data product (publishing folder in s3)",
+            type=str,
+        )
+        flags_parser.add_argument("-b", "--build", help="Label of build", type=str)
+        flags_parser.add_argument(
+            "-v", "--publishing-version", help="Version ", type=Path
+        )
+        flags_parser.add_argument(
+            "-a", "--acl", help="Access level of file in s3", type=str
+        )
+        flags = flags_parser.parse_args()
+        logger.info(
+            f'Publishing {flags.product}/draft/{flags.build} to {flags.product}/publish/{flags.publishing_version} with ACL "{flags.acl}"'
+        )
+        publish(flags.product, flags.build, flags.publishing_version, flags.acl)
