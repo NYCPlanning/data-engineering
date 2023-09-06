@@ -1,7 +1,7 @@
 FROM nycplanning/docker-geosupport:latest
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install postgresql-client libpq-dev jq bash-completion gdal-bin
+    && apt-get -y install postgresql-client libpq-dev jq yq bash-completion gdal-bin
 
 RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
     && chmod +x mc \

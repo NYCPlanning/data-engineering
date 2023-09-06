@@ -1,7 +1,7 @@
 FROM ghcr.io/osgeo/gdal:ubuntu-small-3.6.4
 
 RUN apt update && export DEBIAN_FRONTEND=noninteractive \
-    && apt -y install postgresql-client python3-pip python3-distutils jq zip unzip git bash-completion locales
+    && apt -y install postgresql-client python3-pip python3-distutils jq yq zip unzip git bash-completion locales
 
 RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
     && chmod +x mc \
