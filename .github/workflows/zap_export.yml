@@ -86,7 +86,7 @@ jobs:
         with:
           name: ${{ matrix.entity }}
           path: products/zap-opendata/templates/${{ matrix.entity }}.yml
-          version: $VERSION
+          version: ${{ steps.version.outputs.version }}
           s3: true
           latest: true
           compress: true
@@ -96,6 +96,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
+          echo "exporting ${{ matrix.entity }} with version $VERSION"
           ./zap.sh upload_crm_do ${{ matrix.entity }} $VERSION
 
           if ${{ matrix.open }};

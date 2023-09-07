@@ -37,7 +37,7 @@ function upload_to_digital_ocean {
 
     filename=${dataset}_${output_suffix}.csv
     output_filepath=.output/${dataset}/${filename}
-    do_directory="spaces/${do_bucket}/db-zap-opendata"
+    do_directory="spaces/${do_bucket}/db-zap"
 
     mc cp ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
     mc cp ${output_filepath} ${do_directory}/latest/${dataset}/${filename}

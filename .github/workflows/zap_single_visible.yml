@@ -47,21 +47,25 @@ jobs:
           DATE=$(date +%Y%m%d)
           echo "version=$DATE" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Mini IO
-        run: |
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-
       - name: Get ${{ github.event.inputs.dataset }}
         run: python3 -m src.runner ${{ github.event.inputs.dataset }} $EDM_DATA_ZAP_SCHEMA
 
-      - name: Export open data to edm-publishing
+      - name: Archive to data library
+        uses: NYCPlanning/action-library-archive@v1.1
+        with:
+          name: ${{ github.event.inputs.dataset }}
+          path: products/zap-opendata/templates/${{ github.event.inputs.dataset }}.yml
+          version: $VERSION
+          s3: true
+          latest: true
+          compress: true
+          output_format: pgdump csv
+
+      - name: Export to edm-private and edm-publishing
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           echo "exporting ${{ github.event.inputs.dataset }} with version $VERSION"
-          ./zap.sh upload_crm_do ${{ matrix.entity }} $VERSION
-          ./zap.sh upload_internal_do ${{ matrix.entity }} $VERSION
-          ./zap.sh upload_visible_do ${{ matrix.entity }} $VERSION
+          ./zap.sh upload_crm_do ${{ github.event.inputs.dataset }} $VERSION
+          ./zap.sh upload_internal_do ${{ github.event.inputs.dataset }} $VERSION
+          ./zap.sh upload_visible_do ${{ github.event.inputs.dataset }} $VERSION
