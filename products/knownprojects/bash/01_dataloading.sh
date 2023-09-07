@@ -3,6 +3,13 @@ source ../../bash/utils.sh
 set_error_traps
 max_bg_procs 5
 
+if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
+    echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
+    run_sql_command "DROP SCHEMA IF EXISTS ${BUILD_ENGINE_SCHEMA} CASCADE;"
+    run_sql_command "VACUUM (ANALYZE);"
+    run_sql_command "CREATE SCHEMA ${BUILD_ENGINE_SCHEMA};"
+fi
+
 # Load source data
 # TODO create data folder and populate it with data from S3 rather than a copy of the data repo
 rm -rf data

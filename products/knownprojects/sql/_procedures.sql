@@ -43,7 +43,6 @@ BEGIN
     $n$, current_val, _old_val, field_type) INTO applicable;
 
     IF applicable THEN 
-        RAISE NOTICE 'Applying Correction';
         EXECUTE format($n$
             UPDATE %1$I SET %2$I = %3$L::%4$s WHERE record_id = %5$L;
             $n$, _table, _field, _new_val, field_type, _record_id);
@@ -53,7 +52,7 @@ BEGIN
             INSERT INTO corrections_applied VALUES (%1$L, %2$L, %3$L, %4$L, %5L);
             $n$, _record_id, _field, current_val, _old_val, _new_val);
     ELSE 
-        RAISE NOTICE 'Cannot Apply Correction';
+        RAISE NOTICE 'Cannot Apply Correction for field %', _field;
         EXECUTE format($n$
             DELETE FROM corrections_not_applied WHERE record_id = %1$L AND field = %2$L;
             INSERT INTO corrections_not_applied VALUES (%1$L, %2$L, %3$L, %4$L, %5L);
@@ -66,6 +65,7 @@ $BODY$ LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS apply_correction;
 CREATE OR REPLACE PROCEDURE apply_correction(
+    _schema text,
     _table text,
     _corrections text
 ) AS $BODY$
@@ -76,8 +76,10 @@ DECLARE
     _new_value text;
     _valid_fields text[];
 BEGIN
+    RAISE NOTICE 'Attempting to apply corrections for field % to %.%', _field, _schema, _table;
+    
     SELECT array_agg(column_name) FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = _table INTO _valid_fields;
+    WHERE table_schema = _schema AND table_name = _table INTO _valid_fields;
 
     FOR _record_id, _field, _old_value, _new_value IN 
         EXECUTE FORMAT($n$
