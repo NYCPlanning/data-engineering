@@ -1,12 +1,15 @@
 import pandas as pd
 from itertools import groupby
 import re
+import streamlit as st
+
 from dcpy.utils import s3
+from dcpy.connectors import github
 from dcpy.connectors.edm import publishing
 from src.constants import BUCKET_NAME
 
 REPO_NAME = "db-equitable-development-tool"
-DATASET = "db-eddt"
+PRODUCT = "db-eddt"
 
 demographic_categories = ["demographics", "economics"]
 
@@ -19,13 +22,25 @@ other_categories = [
 geographies = ["citywide", "borough", "puma"]
 
 
+## phased out for other data products, eventually should use edm.publishing instead of s3
+@st.cache_data
+def get_active_s3_folders(repo: str, s3_folder: str = None):
+    default_branch = github.get_default_branch(repo=repo)
+    all_branches = github.get_branches(repo=repo, branches_blacklist=[])
+    all_folders = s3.get_subfolders(BUCKET_NAME, (s3_folder or repo))
+    folders = sorted(list(set(all_folders).intersection(set(all_branches))))
+    folders.remove(default_branch)
+    folders = [default_branch] + folders
+    return folders
+
+
 ## TODO - this needs cleaning ideally to get rid of s3 reference, but EDDE needs some rework in versioning, data export
 def get_demographics_data(branch: str, version: str):
     data = {}
     for category in demographic_categories:
         category_data = {}
         files = s3.get_filenames(
-            BUCKET_NAME, f"{DATASET}/{branch}/{version}/{category}"
+            BUCKET_NAME, f"{PRODUCT}/{branch}/{version}/{category}"
         )
         matches = [
             re.match(
@@ -42,8 +57,8 @@ def get_demographics_data(branch: str, version: str):
             category_data[geography] = {}
             for match in matches:
                 year = match.group(2)
-                category_data[geography][year] = publishing.read_csv(
-                    DATASET,
+                category_data[geography][year] = publishing.read_csv_legacy(
+                    PRODUCT,
                     f"{branch}/{version}",
                     f"{category}/{category}_{year}_{geography}.csv",
                 )
@@ -58,8 +73,8 @@ def get_other_data(branch: str, version: str):
     for category in other_categories:
         category_data = {}
         for geography in geographies:
-            category_data[geography] = publishing.read_csv(
-                DATASET,
+            category_data[geography] = publishing.read_csv_legacy(
+                PRODUCT,
                 f"{branch}/{version}",
                 f"{category}/{category}_{geography}.csv",
             )

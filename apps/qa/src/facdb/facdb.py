@@ -2,8 +2,8 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 from src.constants import COLOR_SCHEME
-from src.facdb.helpers import get_latest_data, REPO_NAME, DATASET
-from src.components.sidebar import branch_selectbox
+from src.facdb.helpers import get_latest_data, PRODUCT
+from src.components import sidebar
 
 
 def facdb():
@@ -36,13 +36,12 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    branch = branch_selectbox(repo=REPO_NAME, s3_folder=DATASET)
+    output_type, output_label = sidebar.data_selection(PRODUCT)
 
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):
         st.cache_data.clear()
-        get_latest_data(branch)
 
     general_or_classification = st.sidebar.selectbox(
         "Would you like to review general QAQC or changes by classification?",
@@ -50,7 +49,7 @@ def facdb():
     )
     st.subheader(general_or_classification)
 
-    qc_tables, qc_diff, qc_mapped = get_latest_data(branch)
+    qc_tables, qc_diff, qc_mapped = get_latest_data(output_type, output_label)
 
     def count_comparison(df, width=1000, height=1000):
         fig = go.Figure()

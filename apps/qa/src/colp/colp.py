@@ -1,10 +1,6 @@
-from src.colp.components.usetype_version_comparison_report import (
-    UsetypeVersionComparisonReport,
-)
-
-
 def colp():
     import streamlit as st
+    from src.components import sidebar
     from src.colp.helpers import get_data
     from src.colp.components.agency_usetype_report import (
         RecordsByAgency,
@@ -14,9 +10,12 @@ def colp():
     from src.colp.components.outlier_report import OutlierReport
     from src.colp.components.manual_correction_report import ManualCorrection
     from src.colp.components.geospatial_check import GeospatialCheck
+    from src.colp.components.usetype_version_comparison_report import (
+        UsetypeVersionComparisonReport,
+    )
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
+    draft, selection = sidebar.data_selection("db-colp")
 
     st.markdown(
         body="""
@@ -31,7 +30,7 @@ def colp():
         """
     )
 
-    data = get_data(branch)
+    data = get_data(draft, selection)
 
     RecordsByAgency(records_by_agency=data["records_by_agency"])()
     RecordsByUsetype(records_by_usetype=data["records_by_usetype"])()

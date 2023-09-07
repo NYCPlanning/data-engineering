@@ -1,26 +1,22 @@
 import streamlit as st
+from typing import Optional
 
-from dcpy.utils import s3
-from src.constants import BUCKET_NAME
-from src.digital_ocean_utils import get_active_s3_folders
+from dcpy.connectors.edm import publishing
 
 
-def branch_selectbox(repo, *, label="Select a branch", default=None, s3_folder=None):
-    branches = get_active_s3_folders(repo=repo, s3_folder=s3_folder)
-    if default:
-        index = branches.index(default)
+def data_selection(product: str, section_label: Optional[str] = None):
+    if section_label is not None:
+        st.sidebar.title(section_label)
+    publish_or_draft = st.sidebar.selectbox(
+        "Published version or draft?",
+        ["Published", "Draft"],
+        key=f"{section_label}_type",
+    )
+    if publish_or_draft == "Draft":
+        label = "Select a build"
+        options = publishing.get_draft_builds(product)
     else:
-        index = 0  ## default arg for index in selectbox
-    return st.sidebar.selectbox(
-        label,
-        branches,
-        index=index,
-    )
-
-
-def output_selectbox(repo, branch, label="Select an export for comparison"):
-    return st.sidebar.selectbox(
-        label,
-        s3.get_subfolders(BUCKET_NAME, f"{repo}/{branch}"),
-        ##todo - all other than latest if same branch, or latest if other branch?
-    )
+        label = "Select a version"
+        options = publishing.get_published_versions(product)
+    select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
+    return publish_or_draft, select
