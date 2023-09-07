@@ -1,7 +1,8 @@
 def pluto():
     import streamlit as st
 
-    from src.pluto.helpers import get_s3_folders, get_data, get_past_versions
+    from src.components import sidebar
+    from src.pluto.helpers import get_data, PRODUCT
     from src.pluto.components.changes_report import ChangesReport
     from src.pluto.components.mismatch_report import MismatchReport
     from src.pluto.components.null_graph import NullReport
@@ -16,22 +17,17 @@ def pluto():
 
     st.title("PLUTO QAQC")
 
-    branches = get_s3_folders()
-    branch = st.sidebar.selectbox(
-        "Choose a build name (S3 folder)",
-        branches,
-        index=branches.index("main"),
-    )
+    output_type, output_label = sidebar.data_selection(PRODUCT)
 
     report_type = st.sidebar.selectbox(
         "Choose a Report Type",
         ["Compare with Previous Version", "Review Manual Changes"],
     )
 
-    data = get_data(branch)
+    data = get_data(output_type, output_label)
 
     def version_comparison_report(data):
-        versions = get_past_versions()
+        versions = sorted(data["df_aggregate"]["v"].unique(), reverse=True)
 
         v1 = st.sidebar.selectbox(
             "Choose a version of PLUTO",
@@ -41,11 +37,13 @@ def pluto():
             "Choose a Previous version of PLUTO",
             versions,
             versions.index(v1) + 1,
+            disabled=True,
         )
         v3 = st.sidebar.selectbox(
             "Choose a Previous Previous of PLUTO",
             versions,
             versions.index(v1) + 2,
+            disabled=True,
         )
 
         condo = st.sidebar.checkbox("condo only")
@@ -63,8 +61,8 @@ def pluto():
         st.markdown(
             f"""
             This series of reports compares two pairs of PLUTO versions using two colors in graphs:
-            - blue: the Celected and the Previous versions ({v1} and {v2})
-            - gold: the previous two versions ({v2} and {v3})
+            - blue: the Celected and the Previous versions ({v1})
+            - gold: the previous two versions ({v2})
 
             The graphs report the number of records that have a different value in a given field but share the same BBL between versions.
 

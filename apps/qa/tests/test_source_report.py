@@ -4,11 +4,11 @@ from dcpy.connectors.edm import publishing
 from src.constants import DATASET_NAMES
 from src.source_report_utils import (
     get_source_dataset_names,
-    get_latest_source_data_versions,
     compare_source_data_columns,
     compare_source_data_row_count,
 )
-from src.ztl.ztl import REFERENCE_VESION
+
+REFERENCE_VESION = "2023-04-01"
 
 TEST_DATASET_NAME = DATASET_NAMES["ztl"]
 TEST_DATASET_REFERENCE_VERSION = REFERENCE_VESION
@@ -35,7 +35,7 @@ TEST_SOURCE_REPORT_RESULTS = {
 
 def test_get_source_data_versions_from_build():
     source_data_versions = publishing.get_source_data_versions(
-        dataset=TEST_DATASET_NAME, version=TEST_DATASET_REFERENCE_VERSION
+        product=TEST_DATASET_NAME, version=TEST_DATASET_REFERENCE_VERSION
     )
     assert isinstance(source_data_versions, pd.DataFrame)
     assert (
@@ -56,7 +56,7 @@ def test_get_source_data_versions_from_build():
 
 def test_get_source_dataset_names():
     source_dataset_names = get_source_dataset_names(
-        dataset=TEST_DATASET_NAME, version=REFERENCE_VESION
+        product=TEST_DATASET_NAME, version=REFERENCE_VESION
     )
     assert source_dataset_names == TEST_DATA_SOURCE_NAMES
 

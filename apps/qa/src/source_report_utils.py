@@ -19,39 +19,53 @@ def dataframe_style_source_report_results(value: bool):
     return f"background-color: {color}"
 
 
-def get_source_dataset_names(dataset: str, version: str) -> pd.DataFrame:
-    """Gets names of source datasets used in build
+def get_source_dataset_names(product: str, version: str) -> pd.DataFrame:
+    """Gets names of source products used in build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(dataset, version)
+    source_data_versions = publishing.get_source_data_versions(product, version)
     return sorted(source_data_versions.index.values.tolist())
 
 
-def get_latest_source_data_versions(dataset: str) -> pd.DataFrame:
+def get_latest_source_data_versions(product: str) -> pd.DataFrame:
     """Gets latest available versions of source datasets for specific data product
     Does NOT return versions used in any specific build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(dataset, "latest")
+    source_data_versions = publishing.get_source_data_versions(product, "latest")
     source_data_versions["version"] = source_data_versions.index.map(
         recipes.get_latest_version
     )
     return source_data_versions
 
 
+def _get_source_data_versions(
+    product: str,
+    type: str,
+    label: str,
+):
+    func = (
+        publishing.get_draft_source_data_versions
+        if type == "Draft"
+        else publishing.get_source_data_versions
+    )
+    return func(product, label)
+
+
 def get_source_data_versions_to_compare(
-    dataset: str, reference_version: str, staging_version: str
+    product: str,
+    reference_type: str,
+    reference_label: str,
+    staging_type: str,
+    staging_label: str,
 ):
     # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = publishing.get_source_data_versions(
-        dataset, reference_version
+    reference_source_data_versions = _get_source_data_versions(
+        product, reference_type, reference_label
     )
-    if not staging_version:
-        latest_source_data_versions = get_latest_source_data_versions(dataset=dataset)
-    else:
-        latest_source_data_versions = publishing.get_source_data_versions(
-            dataset, staging_version
-        )
+    latest_source_data_versions = _get_source_data_versions(
+        product, staging_type, staging_label
+    )
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,
         left_index=True,

@@ -1,6 +1,7 @@
 def checkbook():
     import streamlit as st
-    from checkbook.helpers import get_data
+    from src.publishing import read_csv_cached
+    from src.components import sidebar
     from checkbook.components import output_map
 
     st.title("Capital Spending Database")
@@ -32,7 +33,8 @@ def checkbook():
         ),
     )
 
-    data = get_data()
+    draft, selection = sidebar.data_selection("db-checkbook")
+    data = read_csv_cached("db-checkbook", draft, selection)
 
     if agency != "All":
         agency_data = data[data["agency"].str.contains(agency)]

@@ -4,7 +4,7 @@ def cpdb():
     import plotly.graph_objects as go
 
     from src.cpdb.helpers import (
-        DATASET,
+        PRODUCT,
         get_data,
         get_commit_cols,
         get_diff_dataframe,
@@ -13,24 +13,22 @@ def cpdb():
         VIZKEY,
     )
     from src.constants import COLOR_SCHEME
-    from dcpy.connectors.github import get_default_branch
     from src.cpdb.components.geometry_visualization_report import (
         geometry_visualization_report,
     )
     from src.cpdb.components.adminbounds import adminbounds
     from src.cpdb.components.withinNYC_check import withinNYC_check
-    from src.components.sidebar import branch_selectbox, output_selectbox
+    from src.components import sidebar
 
     st.title("Capital Projects Database QAQC")
 
-    default_branch = get_default_branch(DATASET)
-    branch = branch_selectbox(
-        DATASET,
-        label="Select a branch (latest build will be used)",
-        default=default_branch,
+    primary_draft, primary_output = sidebar.data_selection(
+        PRODUCT, "Choose a dataset for qa"
     )
 
-    previous_version = output_selectbox(DATASET, default_branch)
+    reference_draft, reference_output = sidebar.data_selection(
+        PRODUCT, "Choose a reference dataset"
+    )
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
@@ -52,7 +50,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(branch, default_branch, previous_version)
+    data = get_data(primary_draft, primary_output, reference_draft, reference_output)
 
     st.markdown(
         body="""

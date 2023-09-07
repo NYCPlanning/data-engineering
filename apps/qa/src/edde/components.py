@@ -1,4 +1,7 @@
 import streamlit as st
+
+from dcpy.utils import s3
+from apps.qa.src.publishing import get_active_s3_folders
 from src.edde.helpers import compare_columns
 
 
@@ -33,3 +36,25 @@ def column_comparison_table(old_data, new_data):
             with col2:
                 if i < len(added):
                     st.success(added[i])
+
+
+## TODO when edde outputs are refactored, remove references to s3 and use edm.publishing instead
+def branch_selectbox(repo, *, label="Select a branch", default=None, s3_folder=None):
+    branches = get_active_s3_folders(repo=repo, s3_folder=s3_folder)
+    if default:
+        index = branches.index(default)
+    else:
+        index = 0  ## default arg for index in selectbox
+    return st.sidebar.selectbox(
+        label,
+        branches,
+        index=index,
+    )
+
+
+def output_selectbox(repo, branch, label="Select an export for comparison"):
+    return st.sidebar.selectbox(
+        label,
+        s3.get_subfolders("edm-publishing", f"{repo}/{branch}"),
+        ##todo - all other than latest if same branch, or latest if other branch?
+    )

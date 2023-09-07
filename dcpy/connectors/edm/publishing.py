@@ -15,28 +15,19 @@ BUCKET = "edm-publishing"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
 
 
-## TODO - these functions need some cleaning
-## ideally they don't need to called individually, but we either have consistent folder structure
-## Or have metadata in json/etc about structure of outputs per dataset
-def get_dataset_path(dataset: str, *, branch: str, version="latest", published=False):
-    """Construct s3 path for a published dataset."""
-    return (
-        (
-            f"{BASE_URL}/{dataset}/"
-            + (branch + "/" if branch is not None else "")
-            + version
-            + "/output"
-        )
-        if not published
-        else (f"{BASE_URL}/{dataset}/" + "publish/" + version)
-    )
+def _get_publish_path(product: str, version: str) -> str:
+    return f"{BASE_URL}/{product}/publish/{version}"
 
 
-def get_latest_version(dataset: str, *, branch: str = "", published=False):
-    """Given dataset name, gets latest version
-    Assumes that dataset follows standard folder structure of {dataset}/{version}/output/version.txt
+def _get_draft_path(product: str, build: str) -> str:
+    return f"{BASE_URL}/{product}/draft/{build}"
+
+
+def get_latest_version(product: str) -> str:
+    """Given product name, gets latest version
+    Assumes existence of version.txt in output folder
     """
-    path = f"{get_dataset_path(dataset=dataset,version='latest', branch=branch, published=published)}/version.txt"
+    path = _get_publish_path(product, "latest") + "/version.txt"
     print(f"finding latest version from {path}")
     return requests.get(
         path,
@@ -44,18 +35,29 @@ def get_latest_version(dataset: str, *, branch: str = "", published=False):
     ).text.splitlines()[0]
 
 
-def get_source_data_versions(
-    dataset: str, version: str = "latest", branch=None, published=False
-) -> pd.DataFrame:
-    """Given dataset name, gets source data versions
-    Assumes that dataset follows standard folder structure of {dataset}/{version}/output/
-    """
-    output_url = get_dataset_path(
-        dataset=dataset, branch=branch, version=version, published=published
-    )
+def get_published_versions(product: str) -> list[str]:
+    return sorted(s3.get_subfolders(BUCKET, f"{product}/publish/"), reverse=True)
 
+
+def get_draft_builds(product: str) -> list[str]:
+    return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
+
+
+def get_draft_version(product: str, build: str) -> str:
+    """Given product name and draft build anme, gets version
+    Assumes existence of version.txt in output folder
+    """
+    path = _get_draft_path(product, build) + "/version.txt"
+    print(f"finding latest version from {path}")
+    return requests.get(
+        path,
+        timeout=10,
+    ).text.splitlines()[0]
+
+
+def _get_source_data_versions_helper(path):
     source_data_versions = pd.read_csv(
-        f"{output_url}/source_data_versions.csv",
+        f"{path}/source_data_versions.csv",
         index_col=False,
         dtype=str,
     )
@@ -72,6 +74,18 @@ def get_source_data_versions(
     ).reset_index(drop=True, inplace=True)
     source_data_versions.set_index("datalibrary_name", inplace=True)
     return source_data_versions
+
+
+def get_source_data_versions(product: str, version: str = "latest") -> pd.DataFrame:
+    """Given product name, gets source data versions of published version"""
+    output_url = _get_publish_path(product=product, version=version)
+    return _get_source_data_versions_helper(output_url)
+
+
+def get_draft_source_data_versions(product: str, build: str) -> pd.DataFrame:
+    """Given product name, gets source data versions of published version"""
+    output_url = _get_draft_path(product=product, build=build)
+    return _get_source_data_versions_helper(output_url)
 
 
 def upload(
@@ -154,14 +168,16 @@ def legacy_upload(
 def publish(
     product: str,
     build: str,
-    publishing_version: str,  ## TODO - ideally this is optional, and we have mechanisms for determining programmatically
-    acl: str,
     *,
+    acl: str,
+    publishing_version: Optional[str] = None,
     keep_draft: bool = True,
     max_files: int = 30,
 ):
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
+    if publishing_version is None:
+        publishing_version = get_draft_version(product, build)
     source = f"{product}/draft/{build}/"
     target = f"{product}/publish/{publishing_version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
@@ -169,25 +185,54 @@ def publish(
         s3.delete(BUCKET, source)
 
 
-def read_csv(dataset, version, filepath, **kwargs):
-    """Reads csv into pandas dataframe from edm-publishing
-    'version' currently must be a path from root dataset folder in edm-publishing to output folder
+def _read_data_helper(path: str, filereader, **kwargs):
+    with s3.get_file_as_stream(BUCKET, path) as stream:
+        data = filereader(stream, **kwargs)
+    return data
+
+
+def read_csv(product: str, version: str, filepath: str, **kwargs):
+    """Reads published csv into pandas dataframe from edm-publishing
     Works for zipped or standard csvs
     """
-    print(f"{dataset}/{version}/{filepath}")
+    return _read_data_helper(
+        f"{product}/publish/{version}/{filepath}", pd.read_csv, **kwargs
+    )
+
+
+def read_draft_csv(product: str, build: str, filepath: str, **kwargs):
+    """Reads draft csv into pandas dataframe from edm-publishing
+    Works for zipped or standard csvs
+    """
+    return _read_data_helper(
+        f"{product}/draft/{build}/{filepath}", pd.read_csv, **kwargs
+    )
+
+
+def read_csv_legacy(dataset, version, filepath, **kwargs):
     with s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}") as stream:
         df = pd.read_csv(stream, **kwargs)
     return df
 
 
-def read_shapefile(dataset, version, filepath):
-    with s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}") as stream:
-        gdf = gpd.read_file(stream)
-    return gdf
+def read_shapefile(product: str, version: str, filepath: str):
+    """Reads published shapefile into geopandas dataframe from edm-publishing"""
+    return _read_data_helper(f"{product}/publish/{version}/{filepath}", gpd.read_file)
 
 
-def get_zip(dataset, version, filepath):
-    stream = s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}")
+def read_draft_shapefile(product: str, build: str, filepath: str):
+    """Reads published shapefile into geopandas dataframe from edm-publishing"""
+    return _read_data_helper(f"{product}/draft/{build}/{filepath}", gpd.read_file)
+
+
+def get_zip(product: str, version: str, filepath: str):
+    stream = s3.get_file_as_stream(BUCKET, f"{product}/publish/{version}/{filepath}")
+    zip = ZipFile(stream)
+    return zip
+
+
+def get_draft_zip(product: str, build: str, filepath: str):
+    stream = s3.get_file_as_stream(BUCKET, f"{product}/draft/{build}/{filepath}")
     zip = ZipFile(stream)
     return zip
 
@@ -228,7 +273,7 @@ if __name__ == "__main__":
     cmd = sys.argv[1]
 
     if cmd == "upload":
-        logger.info("Uploading dataset")
+        logger.info("Uploading product")
         flags_parser.add_argument(
             "-o", "--output-path", help="Path to local output folder", type=Path
         )
@@ -249,7 +294,7 @@ if __name__ == "__main__":
         upload(Path(flags.output_path), flags.product, flags.build, flags.acl)
 
     if cmd == "publish":
-        logger.info("Publishing dataset")
+        logger.info("Publishing product")
         flags_parser.add_argument(
             "-p",
             "--product",
@@ -265,6 +310,11 @@ if __name__ == "__main__":
         )
         flags = flags_parser.parse_args()
         logger.info(
-            f'Publishing {flags.product}/draft/{flags.build} to {flags.product}/publish/{flags.publishing_version} with ACL "{flags.acl}"'
+            f'Publishing {flags.product}/draft/{flags.build} with ACL "{flags.acl}"'
         )
-        publish(flags.product, flags.build, flags.publishing_version, flags.acl)
+        publish(
+            flags.product,
+            flags.build,
+            acl=flags.acl,
+            publishing_version=flags.get("publishing_version"),
+        )

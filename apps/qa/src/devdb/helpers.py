@@ -1,9 +1,9 @@
 import json
 import pandas as pd
 
-from dcpy.connectors.edm import publishing
+from src import publishing
 
-DATASET = "db-developments"
+PRODUCT = "db-developments"
 
 QAQC_CHECK_SECTIONS = {
     "Class B": "These checks are related to class A and class B unit distinctions.",
@@ -167,25 +167,27 @@ QAQC_CHECK_DICTIONARY = {
 }
 
 
-def get_latest_data(branch) -> dict[str, pd.DataFrame]:
+def get_latest_data(output_type, output_label) -> dict[str, pd.DataFrame]:
     rv = {}
-    version = f"{branch}/latest/output"
 
     rv["qaqc_app"] = publishing.read_csv(
-        DATASET, version, "qaqc_app.csv", dtype={"job_number": "str"}
+        PRODUCT, output_type, output_label, "qaqc_app.csv", dtype={"job_number": "str"}
     )
 
-    rv["qaqc_historic"] = publishing.read_csv(DATASET, version, "qaqc_historic.csv")
+    rv["qaqc_historic"] = publishing.read_csv(
+        PRODUCT, output_type, output_label, "qaqc_historic.csv"
+    )
 
     rv["qaqc_field_distribution"] = publishing.read_csv(
-        DATASET,
-        version,
+        PRODUCT,
+        output_type,
+        output_label,
         "qaqc_field_distribution.csv",
         converters={"result": json.loads},
     )
 
     rv["qaqc_quarter_check"] = publishing.read_csv(
-        DATASET, version, "qaqc_quarter_check.csv"
+        PRODUCT, output_type, output_label, "qaqc_quarter_check.csv"
     )
 
     return rv
