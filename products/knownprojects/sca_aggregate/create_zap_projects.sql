@@ -2,10 +2,10 @@
 DROP TABLE IF EXISTS dcp_projectbbl_subset;
 CREATE TABLE dcp_projectbbl_subset AS
 SELECT
-    -- Extract the first 9 characters of the "dcp_name" column and rename it as "dcp_name" to match 
-    dcp_bblnumber AS bbl,
     -- Rename dcp_bblnumber to bbl 
-    SUBSTRING(dcp_name FROM 1 FOR 9) AS dcp_name
+    bbl,
+    -- Extract the first 9 characters of the "dcp_name" column and rename it as "dcp_name" to match 
+    SUBSTRING(project_id FROM 1 FOR 9) AS dcp_name
 FROM dcp_projectbbls;
 
 -- Get dcp_name/record_ids that have multiple bbls assoicated with them 
