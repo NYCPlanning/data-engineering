@@ -52,6 +52,8 @@ jobs:
               - products/checkbook/**
             dcpy:
               - dcpy/**
+            knownprojects:
+              - products/knownprojects/**
             qa:
               - apps/qa/**
             zap:
@@ -84,6 +86,11 @@ jobs:
     needs: confirm_changes
     if: contains(needs.check_changes.outputs.path_filters, 'checkbook')
     uses: ./.github/workflows/checkbook_test.yml
+    secrets: inherit
+  knownprojects:
+    needs: confirm_changes
+    if: contains(needs.check_changes.outputs.path_filters, 'knownprojects')
+    uses: ./.github/workflows/knownprojects_test.yml
     secrets: inherit
   qa:
     needs: confirm_changes
