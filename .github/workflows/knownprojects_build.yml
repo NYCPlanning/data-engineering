@@ -47,7 +47,7 @@ jobs:
         run: ./bash/02_build.sh
 
       # TODO fix SCA aggregation
-      # - name: 3. aggregate SCA ...
+      # - name: aggregate SCA ...
       #   run: |
       #     ./kpdb.sh sca
 
@@ -55,4 +55,4 @@ jobs:
         id: export
         if: inputs.run_export
         run: |
-          ./kpdb.sh export ${{ github.event.sender.login }}
+          ./kpdb.sh export

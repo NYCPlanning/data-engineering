@@ -11,13 +11,15 @@ _proj_root = _product_path.parent.parent
 # Make `dcpy` available
 sys.path.append(str(_proj_root))
 
-S3_SOURCE_BUCKET = "edm-private"
+S3_BUCKET = "edm-private"
 S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects"
+S3_OUTPUT_DIR = "db-kpdb"
 
 DATA_PATH = _product_path / "data"
 RAW_DATA_PATH = DATA_PATH / "raw"
 PROCESSED_DATA_PATH = DATA_PATH / "processed"
 CORRECTIONS_DATA_PATH = DATA_PATH / "corrections"
+OUTPUT_DIR = _product_path / "output"
 
 DCP_HOUSING_DATA_FILENAMES = {
     "esd_projects": "2021.2.10 State Developments for Housing Pipeline.xlsx",
@@ -29,6 +31,7 @@ DCP_HOUSING_DATA_FILENAMES = {
     "hpd_rfp": "20221122_HPD_RFPs.xlsx",
     "hpd_pc": "2022_11_23 DCP_SCA Pipeline.xlsx",
     "dcp_planneradded": "dcp_planneradded_2023_03_21.csv",
+    "dcp_knownprojects": "kpdb_20211006_shapefiles.zip",
 }
 DCP_HOUSING_CORRECTIONS_FILENAMES = {
     "corrections_dob": "corrections_dob.csv",
@@ -45,10 +48,3 @@ DATE = datetime.today().strftime("%Y-%m-%d")
 # Load environmental variables
 load_dotenv()
 BUILD_ENGINE = os.environ["BUILD_ENGINE"]
-
-# Create temporary output directories
-current_dir = os.getcwd()
-output_dir = f"{current_dir}/.output"
-
-if not os.path.isdir(output_dir):
-    os.makedirs(output_dir, exist_ok=True)

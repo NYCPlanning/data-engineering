@@ -225,6 +225,7 @@ function shp_export {
     else
         local schema="public"
     fi
+    echo "attempting to export table ${schema}.${table} to ${filename}.shp.zip with ${geomtype} geometries ..."
     mkdir -p ${filename} &&(
         cd ${filename}
         ogr2ogr -progress -f "ESRI Shapefile" ${filename}.shp \

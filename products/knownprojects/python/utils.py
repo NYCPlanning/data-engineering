@@ -140,9 +140,6 @@ def ETL(func) -> callable:
                     )
                 )
             # df.to_csv(f"{output_dir}/{name}.csv", index=False)
-        os.system(
-            f"pg_dump {BUILD_ENGINE} -O -c --if-exists -t {name} > {PROCESSED_DATA_PATH}/{name}.sql"
-        )
         print("🎉 done!")
         return None
 
