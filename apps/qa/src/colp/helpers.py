@@ -1,17 +1,16 @@
 import streamlit as st
 
-from dcpy.connectors.edm import publishing
+from src.publishing import read_csv
 
-DATASET = "db-colp"
+PRODUCT = "db-colp"
 
 
-def get_data(branch):
+def get_data(output_type, label):
     rv = {}
-    version = f"{branch}/latest/output/qaqc"
 
-    def csv_from_DO(file, **kwargs):
+    def csv_from_DO(file):
         try:
-            return publishing.read_csv(DATASET, version, file, **kwargs)
+            return read_csv(PRODUCT, output_type, label, "qaqc/" + file)
         except:
             st.warning(f"{file} not found")
 

@@ -10,7 +10,13 @@ from src.source_report_utils import (
 )
 
 
-def sources_report(dataset: str, reference_version: str, staging_version: str):
+def sources_report(
+    product: str,
+    reference_type: str,
+    reference_label: str,
+    staging_type: str,
+    staging_label: str,
+):
     print("STARTING Source Data Review")
     st.header("Source Data Review")
     st.markdown(
@@ -18,15 +24,17 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
     This page reviews the status of all source data used to build this dataset.
     It compares the latest versions of source data to those used in the build of a reference version of this dataset.
     
-    The reference dataset version is `{reference_version}`.
+    The reference dataset version is `{reference_label}`.
     """
     )
 
     st.subheader("Compare source data versions")
     source_data_versions = get_source_data_versions_to_compare(
-        dataset=dataset,
-        reference_version=reference_version,
-        staging_version=staging_version,
+        product=product,
+        reference_type=reference_type,
+        reference_label=reference_label,
+        staging_type=staging_type,
+        staging_label=staging_label,
     )
 
     st.dataframe(source_data_versions)

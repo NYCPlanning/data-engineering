@@ -1,11 +1,8 @@
-from src.devdb.components.field_distribution_report import FieldDistributionReport
-
-
 def devdb():
     import streamlit as st
     from src.devdb.helpers import (
         get_latest_data,
-        DATASET,
+        PRODUCT,
         QAQC_CHECK_DICTIONARY,
         QAQC_CHECK_SECTIONS,
     )
@@ -14,7 +11,8 @@ def devdb():
         QAQCVersionHistoryReport,
     )
     from src.devdb.components.complete_quarters_report import CompleteQuartersReport
-    from src.components.sidebar import branch_selectbox
+    from src.devdb.components.field_distribution_report import FieldDistributionReport
+    from src.components import sidebar
 
     st.title("Developments Database QAQC")
     st.markdown(
@@ -38,8 +36,8 @@ def devdb():
         """
     )
 
-    branch = branch_selectbox(DATASET)
-    data = get_latest_data(branch)
+    output_type, output_label = sidebar.data_selection(PRODUCT)
+    data = get_latest_data(output_type, output_label)
 
     QAQCVersionHistoryReport(
         data=data,

@@ -4,7 +4,7 @@ from dcpy.connectors.github import get_default_branch
 from src.constants import COLOR_SCHEME
 from src.edde.helpers import (
     REPO_NAME,
-    DATASET,
+    PRODUCT,
     demographic_categories,
     other_categories,
     geographies,
@@ -21,18 +21,18 @@ def edde():
     default_branch = get_default_branch(REPO_NAME)
     branch = branch_selectbox(
         repo=REPO_NAME,
-        s3_folder=DATASET,
+        s3_folder=PRODUCT,
         label="Select a branch (will use latest)",
         default=default_branch,
     )
     branch_for_comp = branch_selectbox(
         repo=REPO_NAME,
-        s3_folder=DATASET,
+        s3_folder=PRODUCT,
         label="Select a branch for comparison",
         default=default_branch,
     )
 
-    date_for_comp = output_selectbox(repo=DATASET, branch=branch_for_comp)
+    date_for_comp = output_selectbox(repo=PRODUCT, branch=branch_for_comp)
 
     category_type = st.sidebar.selectbox(
         "Select category type", ["Demographics", "Housing/Quality of Life"]

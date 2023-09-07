@@ -3,7 +3,10 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from dcpy.connectors.edm import publishing
-from src.constants import DATASET_NAMES, COLOR_SCHEME
+from src.constants import COLOR_SCHEME
+from src.publishing import read_csv
+
+PRODUCT = "db-zoningtaxlots"
 
 ZONING_FIELD_CATEGORIES = {
     "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
@@ -36,26 +39,26 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 
-def output_report():
-    dataset = DATASET_NAMES["ztl"]
-    data_url = publishing.get_dataset_path(dataset=dataset, version="latest")
+def output_report(output_type, output_label):
+    def read_ztl_csv(file, **kwargs):
+        return read_csv(PRODUCT, output_type, output_label, file, **kwargs)
 
-    bbldiff = pd.read_csv(
-        f"{data_url}/qc_bbldiffs.csv",
+    bbldiff = read_ztl_csv(
+        "qc_bbldiffs.csv",
         dtype=str,
         index_col=False,
     )
     bbldiff = bbldiff.fillna("NULL")
-    qaqc_mismatch = pd.read_csv(
-        f"{data_url}/qaqc_mismatch.csv",
+    qaqc_mismatch = read_ztl_csv(
+        "qaqc_mismatch.csv",
         index_col=False,
     )
-    qaqc_bbl = pd.read_csv(
-        f"{data_url}/qaqc_bbl.csv",
+    qaqc_bbl = read_ztl_csv(
+        "qaqc_bbl.csv",
         index_col=False,
     )
-    qaqc_null = pd.read_csv(
-        f"{data_url}/qaqc_null.csv",
+    qaqc_null = read_ztl_csv(
+        "qaqc_null.csv",
         index_col=False,
     )
 
@@ -170,7 +173,7 @@ def output_report():
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
     source_data_versions = publishing.get_source_data_versions(
-        dataset=dataset, version="latest"
+        product=PRODUCT, version="latest"
     )
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================

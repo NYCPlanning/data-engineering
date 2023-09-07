@@ -1,6 +1,7 @@
 import pandas as pd
 from dotenv import load_dotenv
 from dcpy.connectors.edm import publishing
+from src.publishing import read_csv
 
 load_dotenv()
 
@@ -11,7 +12,7 @@ cpdb_published_versions = [
 ]
 
 
-DATASET = "db-cpdb"
+PRODUCT = "db-cpdb"
 
 VIZKEY = {
     "all categories": {
@@ -28,14 +29,15 @@ VIZKEY = {
 where would this list comes from? """
 
 
-def get_geometries(branch, table) -> dict:
-    gdf = publishing.read_shapefile(
-        DATASET, f"{branch}/latest/output", f"{table}.shp.zip"
-    )
+def get_geometries(draft, output, table) -> dict:
+    if draft == "Draft":
+        gdf = publishing.read_draft_shapefile(PRODUCT, output, f"{table}.shp.zip")
+    else:
+        gdf = publishing.read_shapefile(PRODUCT, output, f"{table}.shp.zip")
     return gdf
 
 
-def get_data(branch, previous_branch, previous_version) -> dict:
+def get_data(primary_draft, primary_output, reference_draft, reference_output) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
@@ -45,22 +47,20 @@ def get_data(branch, previous_branch, previous_version) -> dict:
     }
 
     for t in tables["analysis"]:
-        rv[t] = publishing.read_csv(
-            DATASET, f"{branch}/latest/output", f"analysis/{t}.csv"
-        )
-        rv["pre_" + t] = publishing.read_csv(
-            DATASET, f"{previous_branch}/{previous_version}/output", f"analysis/{t}.csv"
+        rv[t] = read_csv(PRODUCT, primary_draft, primary_output, f"analysis/{t}.csv")
+        rv["pre_" + t] = read_csv(
+            PRODUCT, reference_draft, reference_output, f"analysis/{t}.csv"
         )
 
     for t in tables["others"]:
-        rv[t] = publishing.read_csv(DATASET, f"{branch}/latest/output", f"{t}.csv")
-        rv["pre_" + t] = publishing.read_csv(
-            DATASET, f"{previous_branch}/{previous_version}/output", f"{t}.csv"
+        rv[t] = read_csv(PRODUCT, primary_draft, primary_output, f"{t}.csv")
+        rv["pre_" + t] = read_csv(
+            PRODUCT, reference_draft, reference_output, f"{t}.csv"
         )
     for t in tables["no_version_compare"]:
-        rv[t] = publishing.read_csv(DATASET, f"{branch}/latest/output", f"{t}.csv")
+        rv[t] = read_csv(PRODUCT, primary_draft, primary_output, f"{t}.csv")
     for t in tables["geometries"]:
-        rv[t] = get_geometries(branch, table=t)
+        rv[t] = get_geometries(primary_draft, primary_output, table=t)
     return rv
 
 

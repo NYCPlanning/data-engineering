@@ -1,18 +1,16 @@
 import pytest
-import pandas as pd
 from src.pluto.helpers import get_data
 from src.pluto.components.expected_value_differences_report import (
     ExpectedValueDifferencesReport,
 )
 
-TEST_S3_BUILD_FOLDER = "main"
-TEST_VERSION_1 = "22v3.1"
-TEST_VERSION_2 = "22v3"
+TEST_VERSION_1 = "23v2.1"
+TEST_VERSION_2 = "23v2"
 
 
 @pytest.fixture
 def example_ExpectedValueDifferencesReport():
-    data = get_data(TEST_S3_BUILD_FOLDER)
+    data = get_data("Publish", TEST_VERSION_1)
     return ExpectedValueDifferencesReport(
         data=data["df_expected"],
         v1=TEST_VERSION_1,
@@ -41,8 +39,8 @@ def test_values_by_field(
         "C1-1",
         "C1-5",
         "C2-4",
-        "C2-5",
         "C1-4",
+        "C2-5",
         "C1-3",
     ]
     v1_expected_records = example_ExpectedValueDifferencesReport.v1_expected_records
@@ -66,20 +64,20 @@ def test_values_by_fields(
         "C1-1",
         "C1-5",
         "C2-4",
-        "C2-5",
         "C1-4",
+        "C2-5",
         "C1-3",
         None,
+        "C2-2",
+        "C2-4",
+        "C1-4",
+        "C2-1",
+        "C1-1",
+        "C1-3",
+        "C2-5",
         "C1-2",
         "C2-3",
-        "C2-1",
-        "C2-2",
-        "C1-1",
         "C1-5",
-        "C2-4",
-        "C2-5",
-        "C1-4",
-        "C1-3",
     ]
     v1_expected_records = example_ExpectedValueDifferencesReport.v1_expected_records
     actual_values = example_ExpectedValueDifferencesReport.values_by_fields(
@@ -93,7 +91,7 @@ def test_value_differences_across_versions(
     example_ExpectedValueDifferencesReport: ExpectedValueDifferencesReport,
 ):
     comparison_name = "zoning"
-    expeted_in1not2 = ["M1-4/R9", "M1-4/R7-3", "M1-4/R9", "M1-4/R7-3"]
+    expeted_in1not2 = ["M1-4/R6"]
     expeted_in2not1 = []
     (
         in1not2,
@@ -101,5 +99,7 @@ def test_value_differences_across_versions(
     ) = example_ExpectedValueDifferencesReport.value_differences_across_versions(
         comparison_name
     )
+    print(in1not2)
+    print(in2not1)
     assert in1not2 == expeted_in1not2
     assert in2not1 == expeted_in2not1
