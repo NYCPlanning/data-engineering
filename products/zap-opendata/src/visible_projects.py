@@ -41,6 +41,7 @@ def make_staging_table(sql_engine, dataset_name) -> None:
                     dcp_projectname as project_name,
                     dcp_projectid as crm_project_id,
                     dcp_projectbrief as project_brief,
+                    dcp_projectdescription,
                     dcp_visibility,
                     dcp_leaddivision as lead_division,
                     dcp_femafloodzonev as fema_flood_zone_v,
@@ -78,7 +79,16 @@ def make_staging_table(sql_engine, dataset_name) -> None:
                     dcp_createmodifymihareaoption2 as mih_option2, 
                     dcp_createmodifymihareaworkforceoption as mih_workforce,
                     dcp_createmodifymihareadeepaffordabilityoptio as mih_deepaffordability, 
-                    dcp_mihmappedbutnotproposed as mih_mapped_no_res
+                    dcp_mihmappedbutnotproposed as mih_mapped_no_res,
+                    dcp_projectphase,
+                    dcp_residentialsqft,
+                    dcp_totalnoofdusinprojecd,
+                    dcp_dcptargetcertificationdate,
+                    dcp_mihdushighernumber,
+                    dcp_mihduslowernumber,
+                    dcp_numberofnewdwellingunits,
+                    dcp_noofvoluntaryaffordabledus
+
                 from
                     %(source_table_name)s);
                 COMMIT;
@@ -92,6 +102,7 @@ def make_staging_table(sql_engine, dataset_name) -> None:
             DROP TABLE IF EXISTS %(staging_table_name)s;
             CREATE TABLE %(staging_table_name)s as 
             (SELECT %(source_table_name)s.dcp_name as project_id,
+                    %(source_table_name)s.statuscode as project_status,
                     %(source_table_name)s.dcp_bblnumber as bbl,
                     %(source_table_name)s.dcp_validatedborough as validated_borough,
                     %(source_table_name)s.dcp_validatedblock as validated_block,
