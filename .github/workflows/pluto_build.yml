@@ -6,6 +6,9 @@ on:
       run_export:
         type: boolean
         required: true
+      recipe_file:
+        type: string
+        default: recipe.yml
   workflow_dispatch:
     inputs:
       run_export:
