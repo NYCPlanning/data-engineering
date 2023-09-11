@@ -1,0 +1,76 @@
+<mxfile host="65bd71144e" scale="1" border="40">
+    <diagram id="ZGiubuzTnFsMa45nnlA5" name="Page-1">
+        <mxGraphModel dx="1298" dy="816" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" background="#4D4D4D" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="410" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="457" y="468" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="411" value="" style="group" parent="410" vertex="1" connectable="0">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="412" value="Data Engineering" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;" parent="411" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="413" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.user_group;fontFamily=Helvetica;fontSize=11;fontColor=default;aspect=fixed;" parent="411" vertex="1">
+                    <mxGeometry x="60" y="63" width="80" height="59.2" as="geometry"/>
+                </mxCell>
+                <mxCell id="414" value="city&lt;br&gt;agencies" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="62" y="281" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="415" value="the world" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="62" y="361" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="416" value="DCP" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" parent="1" vertex="1">
+                    <mxGeometry x="62" y="201" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="417" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="393" y="267" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="418" value="" style="group" parent="417" vertex="1" connectable="0">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="419" value="GIS" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;" parent="418" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="420" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.user_group;fontFamily=Helvetica;fontSize=11;fontColor=default;aspect=fixed;" parent="418" vertex="1">
+                    <mxGeometry x="60" y="63" width="80" height="59.2" as="geometry"/>
+                </mxCell>
+                <mxCell id="421" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="348" y="83" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="422" value="" style="group" parent="421" vertex="1" connectable="0">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="423" value="GRU" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;" parent="422" vertex="1">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="424" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.user_group;fontFamily=Helvetica;fontSize=11;fontColor=default;aspect=fixed;" parent="422" vertex="1">
+                    <mxGeometry x="60" y="63" width="80" height="59.2" as="geometry"/>
+                </mxCell>
+                <mxCell id="425" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="793" y="468" width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="426" value="" style="group" vertex="1" connectable="0" parent="425">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="427" value="Application Engineering&lt;br&gt;(AE)" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=16;fontColor=default;align=center;strokeColor=#23445d;fillColor=#bac8d3;fillStyle=solid;verticalAlign=top;spacing=10;" vertex="1" parent="426">
+                    <mxGeometry width="200" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="428" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.user_group;fontFamily=Helvetica;fontSize=11;fontColor=default;aspect=fixed;" vertex="1" parent="426">
+                    <mxGeometry x="60" y="63" width="80" height="59.2" as="geometry"/>
+                </mxCell>
+                <mxCell id="430" value="DCP" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" vertex="1" parent="1">
+                    <mxGeometry x="1101" y="269" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="431" value="NYC&lt;br&gt;Open Data" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" vertex="1" parent="1">
+                    <mxGeometry x="1105" y="364" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="432" value="BYTES" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fontSize=15;fillColor=#bac8d3;strokeColor=#23445d;fontFamily=Roboto;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DRoboto;" vertex="1" parent="1">
+                    <mxGeometry x="1107" y="468" width="120" height="80" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
