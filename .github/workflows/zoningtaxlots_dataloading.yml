@@ -2,6 +2,10 @@ name: Zoning Tax lots - 📁 DataLoading
 
 on:
   workflow_dispatch:
+    inputs:
+      build_pluto_minor:
+        type: boolean
+        default: false
 
 jobs:
   dataloading:
@@ -34,3 +38,14 @@ jobs:
           s3: true
           compress: true
           output_format: pgdump shapefile
+
+  pluto_minor:
+    needs: [dataloading]
+    name: Build Pluto Minor
+    if: inputs.build_pluto_minor
+    uses: ./.github/workflows/pluto_build.yml
+    secrets: inherit
+    with:
+      run_export: true
+      create_issue: true
+      recipe_file: recipe-minor.yml

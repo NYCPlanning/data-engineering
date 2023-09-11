@@ -1,14 +1,14 @@
+---
+name: "New Product Build"
+about: Notification For New Attempted Build of Product
+title: "New Product Build - {{ env.PRODUCT }}:{{ env.PRODUCT_VERSION }}: {{ env.SUMMARY_NOTE }}"
+labels: ["data update"]
+assignees: []
 
 ---
-name: {{ env.PRODUCT }} - New Draft Available
-about: Notification For New Draft of Product
-title: {{ env.PRODUCT }} - New Draft Available
-labels: ["", "data update"]
-assignees:
 
----
+# New Product Build - {{ env.PRODUCT }}:{{ env.PRODUCT_VERSION }}: {{ env.SUMMARY_NOTE }}
 
-# Draft Version of {{ env.PRODUCT }}:{{ env.PRODUCT_VERSION }} is Available
+Action Required: {{ env.REQUIRED_ACTION }}
 
-Some action may be required...
-
+Link to build is [here]({{ env.BUILD_URL }})
