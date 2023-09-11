@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import pytz
 
@@ -11,10 +12,7 @@ def generate() -> dict[str, str]:
             "%Y-%m-%d %H:%M:%S %z"
         )
     }
-    commit = git.commit_hash()
-    if commit:
-        metadata["commit"] = commit
-    action_url = git.action_url()
-    if action_url:
-        metadata["run_url"] = action_url
+    metadata["commit"] = git.commit_hash()
+    if os.environ.get("CI"):
+        metadata["run_url"] = git.action_url()
     return metadata
