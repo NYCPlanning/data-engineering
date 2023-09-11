@@ -3,61 +3,49 @@ import subprocess
 from typing import Optional
 
 
-def username() -> Optional[str]:
+def username() -> str:
     if os.environ.get("CI"):
         return os.environ.get("GITHUB_ACTOR_ID", "CI")
     else:
-        try:
-            return (
-                subprocess.run(["git", "config", "user.name"], stdout=subprocess.PIPE)
-                .stdout.strip()
-                .decode()
-            )
-        except:
-            return None
+        return (
+            subprocess.run(["git", "config", "user.name"], stdout=subprocess.PIPE)
+            .stdout.strip()
+            .decode()
+        )
 
 
-def branch() -> Optional[str]:
+def branch() -> str:
     if os.environ.get("CI"):
         ## REF_NAME - for push/workflow_dispatch
         ## HEAD_REF - for pull request triggers
-        return os.environ.get("GITHUB_REF_NAME", os.environ.get("GITHUB_HEAD_REF"))
+        return os.environ.get("GITHUB_REF_NAME", os.environ["GITHUB_HEAD_REF"])
     else:
-        try:
-            return (
-                subprocess.run(
-                    [
-                        "git",
-                        "rev-parse",
-                        "--symbolic-full-name",
-                        "--abbrev-ref",
-                        "HEAD",
-                    ],
-                    stdout=subprocess.PIPE,
-                )
-                .stdout.strip()
-                .decode()
+        return (
+            subprocess.run(
+                [
+                    "git",
+                    "rev-parse",
+                    "--symbolic-full-name",
+                    "--abbrev-ref",
+                    "HEAD",
+                ],
+                stdout=subprocess.PIPE,
             )
-        except:
-            return None
+            .stdout.strip()
+            .decode()
+        )
 
 
-def commit_hash() -> Optional[str]:
+def commit_hash() -> str:
     if os.environ.get("CI"):
-        return os.environ.get("GITHUB_SHA")
+        return os.environ["GITHUB_SHA"]
     else:
-        try:
-            return (
-                subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
-                .stdout.decode("ascii")
-                .strip()
-            )
-        except:
-            return None
+        return (
+            subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+            .stdout.decode("ascii")
+            .strip()
+        )
 
 
-def action_url() -> Optional[str]:
-    if os.environ.get("CI"):
-        return f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-    else:
-        return None
+def action_url() -> str:
+    return f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
