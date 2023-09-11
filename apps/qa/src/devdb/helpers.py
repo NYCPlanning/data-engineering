@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-from src import publishing
+from dcpy.connectors.edm import publishing
 
 PRODUCT = "db-developments"
 
@@ -167,27 +167,23 @@ QAQC_CHECK_DICTIONARY = {
 }
 
 
-def get_latest_data(output_type, output_label) -> dict[str, pd.DataFrame]:
+def get_latest_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     rv = {}
 
     rv["qaqc_app"] = publishing.read_csv(
-        PRODUCT, output_type, output_label, "qaqc_app.csv", dtype={"job_number": "str"}
+        product_key, "qaqc_app.csv", dtype={"job_number": "str"}
     )
 
-    rv["qaqc_historic"] = publishing.read_csv(
-        PRODUCT, output_type, output_label, "qaqc_historic.csv"
-    )
+    rv["qaqc_historic"] = publishing.read_csv(product_key, "qaqc_historic.csv")
 
     rv["qaqc_field_distribution"] = publishing.read_csv(
-        PRODUCT,
-        output_type,
-        output_label,
+        product_key,
         "qaqc_field_distribution.csv",
         converters={"result": json.loads},
     )
 
     rv["qaqc_quarter_check"] = publishing.read_csv(
-        PRODUCT, output_type, output_label, "qaqc_quarter_check.csv"
+        product_key, "qaqc_quarter_check.csv"
     )
 
     return rv

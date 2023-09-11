@@ -4,19 +4,17 @@ import json
 from typing import Dict
 
 from dcpy.connectors.edm import publishing
-from apps.qa.src.publishing import read_csv, unzip_csv
+from apps.qa.src.publishing import unzip_csv
 
 PRODUCT = "db-pluto"
 
 
-def get_data(output_type, output_label) -> Dict[str, pd.DataFrame]:
+def get_data(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
     data = {}
 
     def read_pluto_csv(qaqc_type, **kwargs):
-        return read_csv(
-            PRODUCT,
-            output_type,
-            output_label,
+        return publishing.read_csv(
+            product_key,
             f"qaqc/qaqc_{qaqc_type}.csv",
             true_values=["t"],
             false_values=["f"],
@@ -31,10 +29,10 @@ def get_data(output_type, output_label) -> Dict[str, pd.DataFrame]:
     )
     data["df_outlier"] = read_pluto_csv("outlier", converters={"outlier": json.loads})
 
-    data = data | get_changes(output_type, output_label)
+    data = data | get_changes(product_key)
 
-    data["source_data_versions"] = read_csv(
-        PRODUCT, output_type, output_label, "source_data_versions.csv"
+    data["source_data_versions"] = publishing.read_csv(
+        product_key, "source_data_versions.csv"
     )
 
     data["version_text"] = data["source_data_versions"]
@@ -54,16 +52,9 @@ def get_data(output_type, output_label) -> Dict[str, pd.DataFrame]:
     return data
 
 
-def get_changes(output_type, output_label) -> Dict[str, pd.DataFrame]:
+def get_changes(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
     changes = {}
-    if output_type == "Draft":
-        pluto_changes_zip = publishing.get_draft_zip(
-            PRODUCT, output_label, "pluto_changes.zip"
-        )
-    else:
-        pluto_changes_zip = publishing.get_zip(
-            PRODUCT, output_label, "pluto_changes.zip"
-        )
+    pluto_changes_zip = publishing.get_zip(product_key, "pluto_changes.zip")
     changes["pluto_changes_applied"] = unzip_csv(
         csv_filename="pluto_changes_applied.csv",
         zipfile=pluto_changes_zip,

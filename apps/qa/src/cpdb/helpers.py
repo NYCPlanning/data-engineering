@@ -1,7 +1,6 @@
 import pandas as pd
 from dotenv import load_dotenv
 from dcpy.connectors.edm import publishing
-from src.publishing import read_csv
 
 load_dotenv()
 
@@ -29,15 +28,10 @@ VIZKEY = {
 where would this list comes from? """
 
 
-def get_geometries(draft, output, table) -> dict:
-    if draft == "Draft":
-        gdf = publishing.read_draft_shapefile(PRODUCT, output, f"{table}.shp.zip")
-    else:
-        gdf = publishing.read_shapefile(PRODUCT, output, f"{table}.shp.zip")
-    return gdf
-
-
-def get_data(primary_draft, primary_output, reference_draft, reference_output) -> dict:
+def get_data(
+    staging_product_key: publishing.ProductKey,
+    reference_product_key: publishing.ProductKey,
+) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
@@ -47,20 +41,16 @@ def get_data(primary_draft, primary_output, reference_draft, reference_output) -
     }
 
     for t in tables["analysis"]:
-        rv[t] = read_csv(PRODUCT, primary_draft, primary_output, f"analysis/{t}.csv")
-        rv["pre_" + t] = read_csv(
-            PRODUCT, reference_draft, reference_output, f"analysis/{t}.csv"
-        )
+        rv[t] = publishing.read_csv(staging_product_key, f"analysis/{t}.csv")
+        rv["pre_" + t] = publishing.read_csv(reference_product_key, f"analysis/{t}.csv")
 
     for t in tables["others"]:
-        rv[t] = read_csv(PRODUCT, primary_draft, primary_output, f"{t}.csv")
-        rv["pre_" + t] = read_csv(
-            PRODUCT, reference_draft, reference_output, f"{t}.csv"
-        )
+        rv[t] = publishing.read_csv(staging_product_key, f"{t}.csv")
+        rv["pre_" + t] = publishing.read_csv(reference_product_key, f"{t}.csv")
     for t in tables["no_version_compare"]:
-        rv[t] = read_csv(PRODUCT, primary_draft, primary_output, f"{t}.csv")
+        rv[t] = publishing.read_csv(staging_product_key, f"{t}.csv")
     for t in tables["geometries"]:
-        rv[t] = get_geometries(primary_draft, primary_output, table=t)
+        rv[t] = publishing.read_shapefile(staging_product_key, f"{t}.shp.zip")
     return rv
 
 

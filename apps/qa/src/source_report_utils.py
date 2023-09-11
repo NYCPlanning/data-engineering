@@ -19,11 +19,11 @@ def dataframe_style_source_report_results(value: bool):
     return f"background-color: {color}"
 
 
-def get_source_dataset_names(product: str, version: str) -> pd.DataFrame:
+def get_source_dataset_names(product_key: publishing.ProductKey) -> pd.DataFrame:
     """Gets names of source products used in build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(product, version)
+    source_data_versions = publishing.get_source_data_versions(product_key)
     return sorted(source_data_versions.index.values.tolist())
 
 
@@ -39,32 +39,16 @@ def get_latest_source_data_versions(product: str) -> pd.DataFrame:
     return source_data_versions
 
 
-def _get_source_data_versions(
-    product: str,
-    type: str,
-    label: str,
-):
-    func = (
-        publishing.get_draft_source_data_versions
-        if type == "Draft"
-        else publishing.get_source_data_versions
-    )
-    return func(product, label)
-
-
 def get_source_data_versions_to_compare(
-    product: str,
-    reference_type: str,
-    reference_label: str,
-    staging_type: str,
-    staging_label: str,
+    reference_product_key: publishing.ProductKey,
+    staging_product_key: publishing.ProductKey,
 ):
     # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = _get_source_data_versions(
-        product, reference_type, reference_label
+    reference_source_data_versions = publishing.get_source_data_versions(
+        reference_product_key
     )
-    latest_source_data_versions = _get_source_data_versions(
-        product, staging_type, staging_label
+    latest_source_data_versions = publishing.get_source_data_versions(
+        staging_product_key
     )
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,

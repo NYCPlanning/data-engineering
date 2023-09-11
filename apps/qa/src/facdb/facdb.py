@@ -36,7 +36,7 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    output_type, output_label = sidebar.data_selection(PRODUCT)
+    product_key = sidebar.data_selection(PRODUCT)
 
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
@@ -49,7 +49,7 @@ def facdb():
     )
     st.subheader(general_or_classification)
 
-    qc_tables, qc_diff, qc_mapped = get_latest_data(output_type, output_label)
+    qc_tables, qc_diff, qc_mapped = get_latest_data(product_key)
 
     def count_comparison(df, width=1000, height=1000):
         fig = go.Figure()

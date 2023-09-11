@@ -22,11 +22,9 @@ def cpdb():
 
     st.title("Capital Projects Database QAQC")
 
-    primary_draft, primary_output = sidebar.data_selection(
-        PRODUCT, "Choose a dataset for qa"
-    )
+    staging_product_key = sidebar.data_selection(PRODUCT, "Choose a dataset for qa")
 
-    reference_draft, reference_output = sidebar.data_selection(
+    reference_product_key = sidebar.data_selection(
         PRODUCT, "Choose a reference dataset"
     )
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
@@ -50,7 +48,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(primary_draft, primary_output, reference_draft, reference_output)
+    data = get_data(staging_product_key, reference_product_key)
 
     st.markdown(
         body="""

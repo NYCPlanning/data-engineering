@@ -1,10 +1,8 @@
 import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
 
 from dcpy.connectors.edm import publishing
 from src.constants import COLOR_SCHEME
-from src.publishing import read_csv
 
 PRODUCT = "db-zoningtaxlots"
 
@@ -39,9 +37,9 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 
-def output_report(output_type, output_label):
+def output_report(product_key: publishing.ProductKey):
     def read_ztl_csv(file, **kwargs):
-        return read_csv(PRODUCT, output_type, output_label, file, **kwargs)
+        return publishing.read_csv(product_key, file, **kwargs)
 
     bbldiff = read_ztl_csv(
         "qc_bbldiffs.csv",

@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from dcpy.connectors.edm import publishing
 from src.source_report_utils import (
     get_source_data_versions_to_compare,
     create_source_data_schema,
@@ -11,11 +12,8 @@ from src.source_report_utils import (
 
 
 def sources_report(
-    product: str,
-    reference_type: str,
-    reference_label: str,
-    staging_type: str,
-    staging_label: str,
+    reference_product_key: publishing.ProductKey,
+    staging_product_key: publishing.ProductKey,
 ):
     print("STARTING Source Data Review")
     st.header("Source Data Review")
@@ -24,17 +22,13 @@ def sources_report(
     This page reviews the status of all source data used to build this dataset.
     It compares the latest versions of source data to those used in the build of a reference version of this dataset.
     
-    The reference dataset version is `{reference_label}`.
+    The reference dataset version is `{reference_product_key.label}`.
     """
     )
 
     st.subheader("Compare source data versions")
     source_data_versions = get_source_data_versions_to_compare(
-        product=product,
-        reference_type=reference_type,
-        reference_label=reference_label,
-        staging_type=staging_type,
-        staging_label=staging_label,
+        reference_product_key, staging_product_key
     )
 
     st.dataframe(source_data_versions)

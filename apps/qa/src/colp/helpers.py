@@ -1,16 +1,17 @@
 import streamlit as st
+import pandas as pd
 
-from src.publishing import read_csv
+from dcpy.connectors.edm import publishing
 
 PRODUCT = "db-colp"
 
 
-def get_data(output_type, label):
+def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     rv = {}
 
     def csv_from_DO(file):
         try:
-            return read_csv(PRODUCT, output_type, label, "qaqc/" + file)
+            return publishing.read_csv(product_key, "qaqc/" + file)
         except:
             st.warning(f"{file} not found")
 
