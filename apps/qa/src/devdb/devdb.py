@@ -36,8 +36,8 @@ def devdb():
         """
     )
 
-    output_type, output_label = sidebar.data_selection(PRODUCT)
-    data = get_latest_data(output_type, output_label)
+    product_key = sidebar.data_selection(PRODUCT)
+    data = get_latest_data(product_key)
 
     QAQCVersionHistoryReport(
         data=data,

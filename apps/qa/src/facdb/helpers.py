@@ -1,17 +1,15 @@
 import pandas as pd
 from typing import Union
-from src import publishing
+from dcpy.connectors.edm import publishing
 
 PRODUCT = "db-facilities"
 REPO_NAME = "data-engineering"
 
 
 def get_latest_data(
-    output_type, output_label
+    product_key: publishing.ProductKey,
 ) -> tuple[dict[str, dict[str, Union[pd.DataFrame, str]]], pd.DataFrame, pd.DataFrame]:
-    read_csv = lambda csv: publishing.read_csv(
-        PRODUCT, output_type, output_label, f"{csv}.csv"
-    )
+    read_csv = lambda csv: publishing.read_csv(product_key, f"{csv}.csv")
 
     qc_diff = read_csv("qc_diff")
     qc_captype = read_csv("qc_captype")

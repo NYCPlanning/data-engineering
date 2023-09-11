@@ -17,14 +17,14 @@ def pluto():
 
     st.title("PLUTO QAQC")
 
-    output_type, output_label = sidebar.data_selection(PRODUCT)
+    product_key = sidebar.data_selection(PRODUCT)
 
     report_type = st.sidebar.selectbox(
         "Choose a Report Type",
         ["Compare with Previous Version", "Review Manual Changes"],
     )
 
-    data = get_data(output_type, output_label)
+    data = get_data(product_key)
 
     def version_comparison_report(data):
         versions = sorted(data["df_aggregate"]["v"].unique(), reverse=True)

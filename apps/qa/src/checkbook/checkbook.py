@@ -33,8 +33,8 @@ def checkbook():
         ),
     )
 
-    draft, selection = sidebar.data_selection("db-checkbook")
-    data = read_csv_cached("db-checkbook", draft, selection)
+    product_key = sidebar.data_selection("db-checkbook")
+    data = read_csv_cached(product_key, "historical_spend.csv")
 
     if agency != "All":
         agency_data = data[data["agency"].str.contains(agency)]
