@@ -2,10 +2,11 @@ import sys
 import argparse
 from pathlib import Path
 import requests
-from zipfile import ZipFile
 import pandas as pd
-from typing import Optional
 import geopandas as gpd
+from io import BytesIO
+from zipfile import ZipFile
+from typing import Dict, Optional, Callable, TypeVar
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -42,7 +43,7 @@ class DraftKey(ProductKey):
         return self.__getattribute__(name)
 
     @cached_property
-    def __version(self):
+    def __version(self) -> str:
         url = _get_product_url(self) + "/version.txt"
         print(f"finding latest version from {url}")
         return requests.get(
@@ -86,7 +87,7 @@ def get_draft_builds(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
 
 
-def _get_source_data_versions_helper(url):
+def _get_source_data_versions_helper(url) -> pd.DataFrame:
     source_data_versions = pd.read_csv(
         f"{url}/source_data_versions.csv",
         index_col=False,
@@ -119,7 +120,7 @@ def upload(
     *,
     acl: str,
     max_files: int = 20,
-):
+) -> None:
     """Upload build output(s) to draft folder in edm-publishing"""
     draft_path = _get_product_path(draft_key)
     meta = build_metadata.generate()
@@ -153,7 +154,7 @@ def legacy_upload(
     latest: bool = True,
     include_foldername: bool = False,
     max_files: int = 20,
-):
+) -> None:
     """Upload file or folder to publishing, with more flexibility around s3 subpath
     Currently used only by db-factfinder"""
     if s3_subpath is None:
@@ -196,7 +197,7 @@ def publish(
     publishing_version: Optional[str] = None,
     keep_draft: bool = True,
     max_files: int = 30,
-):
+) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if publishing_version is None:
@@ -208,33 +209,62 @@ def publish(
         s3.delete(BUCKET, source)
 
 
-def _read_data_helper(path: str, filereader, **kwargs):
+T = TypeVar("T")
+
+
+def _read_data_helper(path: str, filereader: Callable[[BytesIO], T], **kwargs) -> T:
     with s3.get_file_as_stream(BUCKET, path) as stream:
         data = filereader(stream, **kwargs)
     return data
 
 
-def read_csv(product_key: ProductKey, filepath: str, **kwargs):
+def read_csv(product_key: ProductKey, filepath: str, **kwargs) -> pd.DataFrame:
     """Reads csv into pandas dataframe from edm-publishing
     Works for zipped or standard csvs
+
+    Keyword arguments:
+    product_key -- a key to find a specific instance of a data product
+    filepath -- the filepath of the desired csv in the output folder
     """
     output_path = _get_product_path(product_key)
     return _read_data_helper(f"{output_path}/{filepath}", pd.read_csv, **kwargs)
 
 
-def read_csv_legacy(dataset, version, filepath, **kwargs):
-    with s3.get_file_as_stream(BUCKET, f"{dataset}/{version}/{filepath}") as stream:
+def read_csv_legacy(
+    product: str, version: str, filepath: str, **kwargs
+) -> pd.DataFrame:
+    """Legacy function which reads csv into pandas dataframe from edm-publishing
+    Works for zipped or standard csvs
+    Replaced by read_csv which assumes outputs are in "publish" or "draft" folders in s3
+
+    Keyword arguments:
+    product -- the name of the data product
+    version -- a specific version of a product
+    filepath -- the filepath of the desired csv in the output folder
+    """
+    with s3.get_file_as_stream(BUCKET, f"{product}/{version}/{filepath}") as stream:
         df = pd.read_csv(stream, **kwargs)
     return df
 
 
-def read_shapefile(product_key: ProductKey, filepath: str):
-    """Reads published shapefile into geopandas dataframe from edm-publishing"""
+def read_shapefile(product_key: ProductKey, filepath: str) -> gpd.GeoDataFrame:
+    """Reads published shapefile into geopandas dataframe from edm-publishing
+
+    Keyword arguments:
+    product_key -- a key to find a specific instance of a data product
+    filepath -- the filepath of the desired csv in the output folder
+    """
     output_path = _get_product_path(product_key)
     return _read_data_helper(f"{output_path}/{filepath}", gpd.read_file)
 
 
-def get_zip(product_key: ProductKey, filepath: str):
+def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
+    """Reads zip file into ZipFile object from edm-publishing
+
+    Keyword arguments:
+    product_key -- a key to find a specific instance of a data product
+    filepath -- the filepath of the desired csv in the output folder
+    """
     output_path = _get_product_path(product_key)
     stream = s3.get_file_as_stream(BUCKET, f"{output_path}/{filepath}")
     zip = ZipFile(stream)
@@ -249,7 +279,7 @@ def publish_add_created_date(
     publishing_version: Optional[str] = None,
     file_for_creation_date: str = "version.txt",
     max_files: int = 30,
-):
+) -> Dict[str, str]:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if publishing_version is None:
