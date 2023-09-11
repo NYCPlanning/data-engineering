@@ -8,7 +8,7 @@ def generate() -> dict[str, str]:
     """Generates "standard" s3 metadata for our files"""
     metadata = {
         "date_created": datetime.now(pytz.timezone("America/New_York")).strftime(
-            "%Y-%m-%d %H:%M:%S"
+            "%Y-%m-%d %H:%M:%S %z"
         )
     }
     commit = git.commit_hash()
