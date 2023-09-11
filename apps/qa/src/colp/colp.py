@@ -15,7 +15,7 @@ def colp():
     )
 
     st.title("City Owned and Leased Properties QAQC")
-    draft, selection = sidebar.data_selection("db-colp")
+    product_key = sidebar.data_selection("db-colp")
 
     st.markdown(
         body="""
@@ -30,7 +30,7 @@ def colp():
         """
     )
 
-    data = get_data(draft, selection)
+    data = get_data(product_key)
 
     RecordsByAgency(records_by_agency=data["records_by_agency"])()
     RecordsByUsetype(records_by_usetype=data["records_by_usetype"])()

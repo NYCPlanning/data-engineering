@@ -10,13 +10,6 @@ def unzip_csv(csv_filename: str, zipfile: ZipFile):
         return pd.read_csv(csv, true_values=["t"], false_values=["f"])
 
 
-def read_csv(product, draft_or_publish, label, file, **kwargs):
-    if draft_or_publish == "Draft":
-        return publishing.read_draft_csv(product, label, file, **kwargs)
-    else:
-        return publishing.read_csv(product, label, file, **kwargs)
-
-
 @st.cache_data(ttl=600)
-def read_csv_cached(product, draft_or_publish, label, file, **kwargs):
-    return read_csv(product, draft_or_publish, label, file, **kwargs)
+def read_csv_cached(product_key: publishing.ProductKey, file: str, **kwargs):
+    return publishing.read_csv(product_key, file, **kwargs)

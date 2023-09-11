@@ -167,7 +167,7 @@ def plan_recipe(recipe_path: Path) -> dict:
     missing_version_strat = recipe["inputs"].get("missing_versions_strategy")
     if missing_version_strat == "copy_latest_release":
         previous_versions = publishing.get_source_data_versions(
-            recipe["product"]
+            publishing.ProductKey(recipe["product"], "latest")
         ).to_dict()["version"]
 
     for ds in _recipe_datasets(recipe):
