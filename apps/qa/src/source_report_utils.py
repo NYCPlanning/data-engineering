@@ -19,20 +19,18 @@ def dataframe_style_source_report_results(value: bool):
     return f"background-color: {color}"
 
 
-def get_source_dataset_names(product_key: publishing.ProductKey) -> pd.DataFrame:
+def get_source_dataset_names(product_key: publishing.Product) -> pd.DataFrame:
     """Gets names of source products used in build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(product_key)
-    return sorted(source_data_versions.index.values.tolist())
+    return sorted(product_key.source_data_versions.index.values.tolist())
 
 
 def get_latest_source_data_versions(product: str) -> pd.DataFrame:
     """Gets latest available versions of source datasets for specific data product
     Does NOT return versions used in any specific build
-    TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(product, "latest")
+    source_data_versions = publishing.get_latest_source_versions(product)
     source_data_versions["version"] = source_data_versions.index.map(
         recipes.get_latest_version
     )
@@ -40,18 +38,12 @@ def get_latest_source_data_versions(product: str) -> pd.DataFrame:
 
 
 def get_source_data_versions_to_compare(
-    reference_product_key: publishing.ProductKey,
-    staging_product_key: publishing.ProductKey,
-):
+    reference_product_key: publishing.Product,
+    staging_product_key: publishing.Product,
+) -> pd.DataFrame:
     # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = publishing.get_source_data_versions(
-        reference_product_key
-    )
-    latest_source_data_versions = publishing.get_source_data_versions(
-        staging_product_key
-    )
-    source_data_versions = reference_source_data_versions.merge(
-        latest_source_data_versions,
+    source_data_versions = reference_product_key.source_data_versions.merge(
+        staging_product_key.source_data_versions,
         left_index=True,
         right_index=True,
         suffixes=("_reference", "_latest"),

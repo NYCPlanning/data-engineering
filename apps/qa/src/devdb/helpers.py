@@ -167,23 +167,18 @@ QAQC_CHECK_DICTIONARY = {
 }
 
 
-def get_latest_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
+def get_latest_data(product_key: publishing.Product) -> dict[str, pd.DataFrame]:
     rv = {}
 
-    rv["qaqc_app"] = publishing.read_csv(
-        product_key, "qaqc_app.csv", dtype={"job_number": "str"}
-    )
+    rv["qaqc_app"] = product_key.read_csv("qaqc_app.csv", dtype={"job_number": "str"})
 
-    rv["qaqc_historic"] = publishing.read_csv(product_key, "qaqc_historic.csv")
+    rv["qaqc_historic"] = product_key.read_csv("qaqc_historic.csv")
 
-    rv["qaqc_field_distribution"] = publishing.read_csv(
-        product_key,
+    rv["qaqc_field_distribution"] = product_key.read_csv(
         "qaqc_field_distribution.csv",
         converters={"result": json.loads},
     )
 
-    rv["qaqc_quarter_check"] = publishing.read_csv(
-        product_key, "qaqc_quarter_check.csv"
-    )
+    rv["qaqc_quarter_check"] = product_key.read_csv("qaqc_quarter_check.csv")
 
     return rv

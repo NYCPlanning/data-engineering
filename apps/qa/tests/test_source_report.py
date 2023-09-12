@@ -34,9 +34,9 @@ TEST_SOURCE_REPORT_RESULTS = {
 
 
 def test_get_source_data_versions_from_build():
-    source_data_versions = publishing.get_source_data_versions(
-        publishing.ProductKey(TEST_DATASET_NAME, TEST_DATASET_REFERENCE_VERSION)
-    )
+    source_data_versions = publishing.Product(
+        TEST_DATASET_NAME, TEST_DATASET_REFERENCE_VERSION
+    ).source_data_versions
     assert isinstance(source_data_versions, pd.DataFrame)
     assert (
         source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
@@ -56,7 +56,7 @@ def test_get_source_data_versions_from_build():
 
 def test_get_source_dataset_names():
     source_dataset_names = get_source_dataset_names(
-        publishing.ProductKey(TEST_DATASET_NAME, REFERENCE_VESION)
+        publishing.Product(TEST_DATASET_NAME, REFERENCE_VESION)
     )
     assert source_dataset_names == TEST_DATA_SOURCE_NAMES
 

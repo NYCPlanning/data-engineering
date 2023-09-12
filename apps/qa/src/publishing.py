@@ -11,5 +11,5 @@ def unzip_csv(csv_filename: str, zipfile: ZipFile):
 
 
 @st.cache_data(ttl=600)
-def read_csv_cached(product_key: publishing.ProductKey, file: str, **kwargs):
-    return publishing.read_csv(product_key, file, **kwargs)
+def read_csv_cached(product_key: publishing.Product, file: str, **kwargs):
+    return product_key.read_csv(file, **kwargs)

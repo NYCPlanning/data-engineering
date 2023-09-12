@@ -11,7 +11,7 @@ TEST_VERSION_2 = "23v2"
 
 @pytest.fixture
 def example_ExpectedValueDifferencesReport():
-    data = get_data(publishing.ProductKey(PRODUCT, TEST_VERSION_1))
+    data = get_data(publishing.Product(PRODUCT, TEST_VERSION_1))
     return ExpectedValueDifferencesReport(
         data=data["df_expected"],
         v1=TEST_VERSION_1,

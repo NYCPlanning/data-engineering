@@ -29,8 +29,8 @@ where would this list comes from? """
 
 
 def get_data(
-    staging_product_key: publishing.ProductKey,
-    reference_product_key: publishing.ProductKey,
+    staging_product_key: publishing.Product,
+    reference_product_key: publishing.Product,
 ) -> dict:
     rv = {}
     tables = {
@@ -41,16 +41,16 @@ def get_data(
     }
 
     for t in tables["analysis"]:
-        rv[t] = publishing.read_csv(staging_product_key, f"analysis/{t}.csv")
-        rv["pre_" + t] = publishing.read_csv(reference_product_key, f"analysis/{t}.csv")
+        rv[t] = staging_product_key.read_csv(f"analysis/{t}.csv")
+        rv["pre_" + t] = reference_product_key.read_csv(f"analysis/{t}.csv")
 
     for t in tables["others"]:
-        rv[t] = publishing.read_csv(staging_product_key, f"{t}.csv")
-        rv["pre_" + t] = publishing.read_csv(reference_product_key, f"{t}.csv")
+        rv[t] = staging_product_key.read_csv(f"{t}.csv")
+        rv["pre_" + t] = reference_product_key.read_csv(f"{t}.csv")
     for t in tables["no_version_compare"]:
-        rv[t] = publishing.read_csv(staging_product_key, f"{t}.csv")
+        rv[t] = staging_product_key.read_csv(f"{t}.csv")
     for t in tables["geometries"]:
-        rv[t] = publishing.read_shapefile(staging_product_key, f"{t}.shp.zip")
+        rv[t] = staging_product_key.read_shapefile(f"{t}.shp.zip")
     return rv
 
 

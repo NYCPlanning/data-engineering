@@ -12,8 +12,8 @@ from src.source_report_utils import (
 
 
 def sources_report(
-    reference_product_key: publishing.ProductKey,
-    staging_product_key: publishing.ProductKey,
+    reference_product_key: publishing.Product,
+    staging_product_key: publishing.Product,
 ):
     print("STARTING Source Data Review")
     st.header("Source Data Review")

@@ -9,12 +9,11 @@ from apps.qa.src.publishing import unzip_csv
 PRODUCT = "db-pluto"
 
 
-def get_data(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
+def get_data(product_key: publishing.Product) -> Dict[str, pd.DataFrame]:
     data = {}
 
     def read_pluto_csv(qaqc_type, **kwargs):
-        return publishing.read_csv(
-            product_key,
+        return product_key.read_csv(
             f"qaqc/qaqc_{qaqc_type}.csv",
             true_values=["t"],
             false_values=["f"],
@@ -31,9 +30,7 @@ def get_data(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
 
     data = data | get_changes(product_key)
 
-    data["source_data_versions"] = publishing.read_csv(
-        product_key, "source_data_versions.csv"
-    )
+    data["source_data_versions"] = product_key.read_csv("source_data_versions.csv")
 
     data["version_text"] = data["source_data_versions"]
 
@@ -52,9 +49,9 @@ def get_data(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
     return data
 
 
-def get_changes(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
+def get_changes(product_key: publishing.Product) -> Dict[str, pd.DataFrame]:
     changes = {}
-    pluto_changes_zip = publishing.get_zip(product_key, "pluto_changes.zip")
+    pluto_changes_zip = product_key.get_zip("pluto_changes.zip")
     changes["pluto_changes_applied"] = unzip_csv(
         csv_filename="pluto_changes_applied.csv",
         zipfile=pluto_changes_zip,

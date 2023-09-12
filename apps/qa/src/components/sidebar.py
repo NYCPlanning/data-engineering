@@ -6,7 +6,7 @@ from dcpy.connectors.edm import publishing
 
 def data_selection(
     product: str, section_label: Optional[str] = None
-) -> publishing.ProductKey:
+) -> publishing.Product:
     if section_label is not None:
         st.sidebar.title(section_label)
     publish_or_draft = st.sidebar.selectbox(
@@ -23,6 +23,6 @@ def data_selection(
         options = publishing.get_published_versions(product)
     select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
     if is_draft:
-        return publishing.DraftKey(product, select)
+        return publishing.Draft(product, select)
     else:
-        return publishing.ProductKey(product, select)
+        return publishing.Product(product, select)

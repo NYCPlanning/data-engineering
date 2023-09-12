@@ -6,12 +6,12 @@ from dcpy.connectors.edm import publishing
 PRODUCT = "db-colp"
 
 
-def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
+def get_data(product_key: publishing.Product) -> dict[str, pd.DataFrame]:
     rv = {}
 
     def csv_from_DO(file):
         try:
-            return publishing.read_csv(product_key, "qaqc/" + file)
+            return product_key.read_csv("qaqc/" + file)
         except:
             st.warning(f"{file} not found")
 

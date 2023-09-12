@@ -37,25 +37,22 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 
-def output_report(product_key: publishing.ProductKey):
-    def read_ztl_csv(file, **kwargs):
-        return publishing.read_csv(product_key, file, **kwargs)
-
-    bbldiff = read_ztl_csv(
+def output_report(product_key: publishing.Product):
+    bbldiff = product_key.read_csv(
         "qc_bbldiffs.csv",
         dtype=str,
         index_col=False,
     )
     bbldiff = bbldiff.fillna("NULL")
-    qaqc_mismatch = read_ztl_csv(
+    qaqc_mismatch = product_key.read_csv(
         "qaqc_mismatch.csv",
         index_col=False,
     )
-    qaqc_bbl = read_ztl_csv(
+    qaqc_bbl = product_key.read_csv(
         "qaqc_bbl.csv",
         index_col=False,
     )
-    qaqc_null = read_ztl_csv(
+    qaqc_null = product_key.read_csv(
         "qaqc_null.csv",
         index_col=False,
     )
@@ -170,8 +167,6 @@ def output_report(product_key: publishing.ProductKey):
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    source_data_versions = publishing.get_source_data_versions(
-        product=PRODUCT, version="latest"
-    )
+    source_data_versions = publishing.Product(PRODUCT, "latest").source_data_versions
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================
