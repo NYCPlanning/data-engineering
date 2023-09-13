@@ -4,11 +4,10 @@ import json
 from pathlib import Path
 from pydantic import BaseModel
 import shutil
+from sqlalchemy import text, update, Table, MetaData
 import typer
 from typing import Optional, List
 import yaml
-
-from sqlalchemy import text, update, Table, MetaData
 
 
 from dcpy import DCPY_ROOT_PATH
@@ -101,35 +100,29 @@ def fetch_sql(name: str, version: str, local_library_dir):
     return target_file_path
 
 
-def import_recipe_dataset(
-    recipe_name: str,
-    *,
-    version="latest",
-    local_library_dir=LIBRARY_DEFAULT_PATH,
-    import_table_name: Optional[str] = None,
-):
+def import_dataset(dataset: Dataset, *, local_library_dir=LIBRARY_DEFAULT_PATH):
     """Import a recipe to local data library folder and build engine."""
-    config = get_config(recipe_name, version)
+    config = get_config(dataset.name, dataset.version)
     recipe_version = config["dataset"]["version"]
-    sql_script_path = fetch_sql(recipe_name, recipe_version, local_library_dir)
+    sql_script_path = fetch_sql(dataset.name, recipe_version, local_library_dir)
 
     postgres.execute_file_via_shell(postgres.BUILD_ENGINE_RAW, sql_script_path)
 
     with postgres.build_engine.connect() as con:
         con.execute(
-            text(f"ALTER TABLE {recipe_name} ADD COLUMN data_library_version text;")
+            text(f"ALTER TABLE {dataset.name} ADD COLUMN data_library_version text;")
         )
         con.commit()
 
-        recipes_table = Table(recipe_name, MetaData(), autoload_with=con)
-        con.execute(update(recipes_table).values(data_library_version=version))
+        recipes_table = Table(dataset.name, MetaData(), autoload_with=con)
+        con.execute(update(recipes_table).values(data_library_version=recipe_version))
 
         con.commit()
 
-        if import_table_name is not None:
-            logger.info(f"Renaming table {recipe_name} to {import_table_name}")
+        if dataset.import_as is not None:
+            logger.info(f"Renaming table {dataset.name} to {dataset.import_as}")
             con.execute(
-                text(f"ALTER TABLE {recipe_name} RENAME TO {import_table_name};")
+                text(f"ALTER TABLE {dataset.name} RENAME TO {dataset.import_as};")
             )
             con.commit()
 
@@ -191,14 +184,6 @@ def plan_recipe(recipe_path: Path) -> Recipe:
     return recipe
 
 
-def import_recipe_datasets(recipe: Recipe):
-    """Import all datasets specified in a recipe."""
-    for ds in recipe.inputs.datasets:
-        import_recipe_dataset(
-            ds.name, version=ds.version, import_table_name=ds.import_as
-        )
-
-
 def get_source_data_versions(recipe: Recipe):
     """Get source data versions table in form of [schema_name, v]."""
     return [["schema_name", "v"]] + [
@@ -243,8 +228,9 @@ def plan(
 
 @app.command("import")
 def import_datasets(recipe_file: Path = _typer_recipe_file_opt):
-    logger.info("Importing Recipes")
-    import_recipe_datasets(recipe_from_yaml(recipe_file))
+    logger.info("Importing Recipe Datasets")
+    recipe = recipe_from_yaml(recipe_file)
+    [import_dataset(ds) for ds in recipe.inputs.datasets]
 
 
 @app.command()
