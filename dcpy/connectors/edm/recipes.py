@@ -1,11 +1,10 @@
-import argparse
 import csv
 from enum import Enum
 import json
 from pathlib import Path
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 import shutil
-import sys
+import typer
 from typing import Optional, List
 import yaml
 
@@ -192,17 +191,12 @@ def plan_recipe(recipe_path: Path) -> Recipe:
     return recipe
 
 
-def import_recipe_datasets(recipe):
+def import_recipe_datasets(recipe: Recipe):
     """Import all datasets specified in a recipe."""
     for ds in recipe.inputs.datasets:
         import_recipe_dataset(
             ds.name, version=ds.version, import_table_name=ds.import_as
         )
-
-
-def purge_recipe_cache(local_library_dir=LIBRARY_DEFAULT_PATH):
-    """Delete locally stored recipe files."""
-    shutil.rmtree(local_library_dir)
 
 
 def get_source_data_versions(recipe: Recipe):
@@ -219,73 +213,68 @@ def recipe_from_yaml(path: Path) -> Recipe:
     return Recipe(**s)
 
 
+app = typer.Typer(add_completion=False)
+
+_typer_recipe_file_opt = typer.Option(
+    None, "--recipe-file", "-f", help="Recipe file path"
+)
+
+
+@app.command()
+def plan(
+    recipe_file: Path = _typer_recipe_file_opt,
+    lock_file: Path = typer.Option(
+        None,
+        "-o",
+        "--lock-file",
+        help="Lockfile path",
+    ),
+):
+    logger.info("Planning recipe")
+
+    recipe = plan_recipe(recipe_file)
+    if lock_file is not None:
+        with open(lock_file, "w", encoding="utf-8") as f:
+            logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
+            yaml.dump(recipe.model_dump(), f)
+    else:
+        print(recipe)
+
+
+@app.command("import")
+def import_datasets(recipe_file: Path = _typer_recipe_file_opt):
+    logger.info("Importing Recipes")
+    import_recipe_datasets(recipe_from_yaml(recipe_file))
+
+
+@app.command()
+def purge_recipe_cache():
+    """Delete locally stored recipe files."""
+    logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
+    shutil.rmtree(LIBRARY_DEFAULT_PATH)
+
+
+@app.command()
+def write_source_data_versions(recipe_file: Path = _typer_recipe_file_opt):
+    recipe = recipe_from_yaml(recipe_file)
+    source_data_versions_path = recipe_file.parent / "source_data_versions.csv"
+    logger.info(f"Writing source data versions to {source_data_versions_path}")
+
+    sdv = get_source_data_versions(recipe)
+    unresolved_versions = [[k, v] for k, v in sdv if v == "latest"]
+    if len(unresolved_versions) > 0:
+        exception = (
+            "Recipe has unresolved versions! Can't write source "
+            + f"data versions {unresolved_versions}"
+        )
+        logger.error(exception)
+        raise Exception(exception)
+
+    with open(source_data_versions_path, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        for key, value in sdv:
+            writer.writerow([key, value])
+
+
 if __name__ == "__main__":
-    flags_parser = argparse.ArgumentParser()
-    flags_parser.add_argument("cmd")
-    cmd = sys.argv[1]
-
-    if cmd == "plan":
-        logger.info("Planning recipe")
-        flags_parser.add_argument(
-            "-f", "--recipe-file", help="Recipe file path", type=Path
-        )
-        flags_parser.add_argument(
-            "-o",
-            "--lock-file",
-            help="Lockfile path",
-            type=Path,
-            required=False,
-        )
-        flags = flags_parser.parse_args()
-
-        recipe = plan_recipe(Path(flags.recipe_file))
-        if flags.lock_file is not None:
-            with open(flags.lock_file, "w", encoding="utf-8") as f:
-                logger.info(
-                    f"Writing recipe lockfile to {str(flags.lock_file.absolute())}"
-                )
-                yaml.dump(recipe.model_dump(), f)
-        else:
-            print(recipe)
-
-    elif cmd == "import":
-        flags_parser.add_argument(
-            "-f", "--recipe-file", help="Recipe file path", type=Path
-        )
-        flags = flags_parser.parse_args()
-
-        with open(flags.recipe_file, "r", encoding="utf-8") as f:
-            recipe = yaml.safe_load(f)
-        logger.info("Importing Recipes")
-        import_recipe_datasets(recipe)
-
-    elif cmd == "purge-recipe-cache":
-        logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
-        purge_recipe_cache()
-
-    elif cmd == "write-source-data-versions":
-        flags_parser.add_argument(
-            "-f", "--recipe-file", help="Recipe file path", type=Path
-        )
-        flags = flags_parser.parse_args()
-
-        recipe = recipe_from_yaml(flags.recipe_file)
-        source_data_versions_path = (
-            flags.recipe_file.parent / "source_data_versions.csv"
-        )
-        logger.info(f"Writing source data versions to {source_data_versions_path}")
-
-        sdv = get_source_data_versions(recipe)
-        unresolved_versions = [[k, v] for k, v in sdv if v == "latest"]
-        if len(unresolved_versions) > 0:
-            exception = (
-                "Recipe has unresolved versions! Can't write source "
-                + f"data versions {unresolved_versions}"
-            )
-            logger.error(exception)
-            raise Exception(exception)
-
-        with open(source_data_versions_path, "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            for key, value in sdv:
-                writer.writerow([key, value])
+    app()
