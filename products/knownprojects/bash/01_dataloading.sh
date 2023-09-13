@@ -6,13 +6,15 @@ max_bg_procs 5
 if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
     echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
     run_sql_command "DROP SCHEMA IF EXISTS ${BUILD_ENGINE_SCHEMA} CASCADE;"
-    run_sql_command "VACUUM (FULL);"
+    # run_sql_command "VACUUM (FULL);"
     run_sql_command "CREATE SCHEMA ${BUILD_ENGINE_SCHEMA};"
 fi
 
 # Load source data
 rm -rf data
 mkdir -p data
+
+create_source_data_table
 
 # download data/raw
 # download data/corrections
@@ -29,8 +31,6 @@ python3 -m python.extractors hpd_rfp
 python3 -m python.extractors hpd_pc
 python3 -m python.extractors dcp_planneradded
 python3 -m python.extractors dcp_knownprojects
-
-create_source_data_table
 
 # Load ZAP tables
 import_recipe dcp_projects
