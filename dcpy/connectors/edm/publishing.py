@@ -1,7 +1,6 @@
 import sys
 import argparse
 from pathlib import Path
-import requests
 import pandas as pd
 import geopandas as gpd
 from io import BytesIO
@@ -27,6 +26,12 @@ class ProductKey:
     def label(self):
         return f"{self.product} - {self.version}"
 
+    @cached_property
+    def logged_version(self) -> str:
+        return s3.get_file_as_text(
+            BUCKET, f"{self.product_path}/version.txt"
+        ).splitlines()[0]
+
 
 @dataclass
 class DraftKey(ProductKey):
@@ -38,45 +43,27 @@ class DraftKey(ProductKey):
 
     def __getattr__(self, name):
         if name == "version":
-            return self.__version
+            return self.logged_version
 
         return self.__getattribute__(name)
-
-    @cached_property
-    def __version(self) -> str:
-        url = _get_product_url(self) + "/version.txt"
-        print(f"finding latest version from {url}")
-        return requests.get(
-            url,
-            timeout=10,
-        ).text.splitlines()[0]
 
     @property
     def label(self):
         return f"{self.product} - {self.version} - {self.build}"
 
 
-def _get_product_path(product_key: ProductKey) -> str:
+def __get_product_path(product_key: ProductKey) -> str:
     if isinstance(product_key, DraftKey):
         return f"{product_key.product}/draft/{product_key.build}"
     else:
         return f"{product_key.product}/publish/{product_key.version}"
 
 
-def _get_product_url(product_key: ProductKey) -> str:
-    return f"{BASE_URL}/{_get_product_path(product_key)}"
-
-
 def get_latest_version(product: str) -> str:
     """Given product name, gets latest version
     Assumes existence of version.txt in output folder
     """
-    url = _get_product_url(ProductKey(product, "latest")) + "/version.txt"
-    print(f"finding latest version from {url}")
-    return requests.get(
-        url,
-        timeout=10,
-    ).text.splitlines()[0]
+    return ProductKey(product, "latest").logged_version
 
 
 def get_published_versions(product: str) -> list[str]:
@@ -87,12 +74,9 @@ def get_draft_builds(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
 
 
-def _get_source_data_versions_helper(url) -> pd.DataFrame:
-    source_data_versions = pd.read_csv(
-        f"{url}/source_data_versions.csv",
-        index_col=False,
-        dtype=str,
-    )
+def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
+    """Given product name, gets source data versions of published version"""
+    source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
     source_data_versions.rename(
         columns={
             "schema_name": "datalibrary_name",
@@ -108,12 +92,6 @@ def _get_source_data_versions_helper(url) -> pd.DataFrame:
     return source_data_versions
 
 
-def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
-    """Given product name, gets source data versions of published version"""
-    output_url = _get_product_url(product_key)
-    return _get_source_data_versions_helper(output_url)
-
-
 def upload(
     output_path: Path,
     draft_key: DraftKey,
@@ -122,7 +100,7 @@ def upload(
     max_files: int = 20,
 ) -> None:
     """Upload build output(s) to draft folder in edm-publishing"""
-    draft_path = _get_product_path(draft_key)
+    draft_path = __get_product_path(draft_key)
     meta = build_metadata.generate()
     if output_path.is_dir():
         s3.upload_folder(
@@ -202,7 +180,7 @@ def publish(
     By default, keeps draft output folder"""
     if publishing_version is None:
         publishing_version = draft_key.version
-    source = _get_product_path(draft_key)
+    source = __get_product_path(draft_key)
     target = f"{draft_key.product}/publish/{publishing_version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
     if not keep_draft:
@@ -226,7 +204,7 @@ def read_csv(product_key: ProductKey, filepath: str, **kwargs) -> pd.DataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = _get_product_path(product_key)
+    output_path = __get_product_path(product_key)
     return _read_data_helper(f"{output_path}/{filepath}", pd.read_csv, **kwargs)
 
 
@@ -254,7 +232,7 @@ def read_shapefile(product_key: ProductKey, filepath: str) -> gpd.GeoDataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = _get_product_path(product_key)
+    output_path = __get_product_path(product_key)
     return _read_data_helper(f"{output_path}/{filepath}", gpd.read_file)
 
 
@@ -265,7 +243,7 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = _get_product_path(product_key)
+    output_path = __get_product_path(product_key)
     stream = s3.get_file_as_stream(BUCKET, f"{output_path}/{filepath}")
     zip = ZipFile(stream)
     return zip
