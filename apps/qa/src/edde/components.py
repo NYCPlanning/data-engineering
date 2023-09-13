@@ -1,7 +1,7 @@
 import streamlit as st
 
 from dcpy.utils import s3
-from apps.qa.src.publishing import get_active_s3_folders
+from src.publishing import get_active_s3_folders
 from src.edde.helpers import compare_columns
 
 
