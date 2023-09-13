@@ -44,11 +44,16 @@ import_recipe dcp_boroboundaries
 import_recipe dcp_housing
 import_recipe dcp_zoningmapamendments
 
-# Add SCA Geometry Aggregate Tables
+# Load SCA Geometry Aggregate Tables
 import_recipe doe_eszones
 import_recipe doe_school_subdistricts
 import_recipe dcp_school_districts
-wait
+
+# Load geographic boundaries Aggregate Tables
+import_recipe dcp_ct2020_wi
+import_recipe dcp_nta2020
+import_recipe dcp_cdta2020
+import_recipe dcp_cdboundaries_wi
 
 # Load corrections tables
 run_sql_file sql/create_corrections.sql
