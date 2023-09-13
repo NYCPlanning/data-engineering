@@ -46,13 +46,12 @@ jobs:
       - name: build ...
         run: ./bash/02_build.sh
 
-      # TODO fix SCA aggregation
-      # - name: aggregate SCA ...
-      #   run: |
-      #     ./kpdb.sh sca
+      - name: aggregate ...
+        run: ./bash/03_aggregate.sh
 
       - name: export ...
-        id: export
+        run: ./bash/04_export.sh
+
+      - name: upload ...
         if: inputs.run_export
-        run: |
-          ./kpdb.sh export
+        run: python3 -m python.upload
