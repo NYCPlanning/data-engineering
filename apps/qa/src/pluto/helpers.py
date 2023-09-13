@@ -4,7 +4,7 @@ import json
 from typing import Dict
 
 from dcpy.connectors.edm import publishing
-from apps.qa.src.publishing import unzip_csv
+from src.publishing import unzip_csv
 
 PRODUCT = "db-pluto"
 
