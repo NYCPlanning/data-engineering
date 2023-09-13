@@ -262,8 +262,12 @@ def get_subfolders(bucket: str, prefix: str, index=1):
     return list(subfolders)
 
 
-def get_file_as_stream(bucket, path):
+def get_file_as_stream(bucket: str, path: str) -> BytesIO:
     stream = BytesIO()
     client().download_fileobj(Bucket=bucket, Key=path, Fileobj=stream)
     stream.seek(0)
     return stream
+
+
+def get_file_as_text(bucket: str, path: str) -> str:
+    return client().get_object(Bucket=bucket, Key=path).get("Body").read().decode()
