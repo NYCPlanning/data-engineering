@@ -8,5 +8,5 @@ jobs:
     name: Build test run
     uses: ./.github/workflows/knownprojects_build.yml
     with:
-      run_export: false
+      run_export: true
     secrets: inherit
