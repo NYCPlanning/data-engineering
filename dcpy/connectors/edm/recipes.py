@@ -1,11 +1,12 @@
 import argparse
-import cerberus
 import csv
+from enum import Enum
 import json
 from pathlib import Path
+from pydantic import BaseModel, ConfigDict
 import shutil
 import sys
-from typing import Optional
+from typing import Optional, List
 import yaml
 
 from sqlalchemy import text, update, Table, MetaData
@@ -25,34 +26,40 @@ BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
 
-RECIPE_FILE_SCHEMA = {
-    "name": {"type": "string", "required": True},
-    "product": {"type": "string", "required": True},
-    "base_recipe": {"type": "string"},
-    "version_type": {"type": "string", "allowed": ["major", "minor"]},
-    "version_strategy": {"type": "string", "allowed": ["bump_latest_release"]},
-    "version": {"type": "string"},
-    "inputs": {
-        "type": "dict",
-        "schema": {
-            "missing_versions_strategy": {
-                "type": "string",
-                "allowed": ["copy_latest_release", "find_latest"],
-            },
-            "datasets": {
-                "type": "list",
-                "schema": {
-                    "type": "dict",
-                    "schema": {
-                        "name": {"type": "string"},
-                        "version": {"type": "string"},
-                        "import_as": {"type": "string"},
-                    },
-                },
-            },
-        },
-    },
-}
+
+class RecipeInputsVersionStrategy(str, Enum):
+    find_latest = "find_latest"
+    copy_latest_release = "copy_latest_release"
+
+
+class VersionStrategy(str, Enum):
+    bump_latest_release = "bump_latest_release"
+
+
+class Dataset(BaseModel, use_enum_values=True):
+    name: str
+    version: Optional[str] = None
+    import_as: Optional[str] = None
+
+
+class RecipeInputs(BaseModel, use_enum_values=True):
+    missing_versions_strategy: Optional[RecipeInputsVersionStrategy]
+    datasets: List[Dataset] = []
+
+
+class DatasetVersionType(str, Enum):
+    major = "major"
+    minor = "minor"
+
+
+class Recipe(BaseModel, use_enum_values=True):
+    name: str
+    product: str
+    base_recipe: Optional[str] = None
+    version_type: Optional[DatasetVersionType] = None
+    version_strategy: Optional[VersionStrategy] = None
+    version: Optional[str] = None
+    inputs: RecipeInputs
 
 
 def get_dataset_sql_path(dataset: str, version: str = "latest"):
@@ -128,11 +135,7 @@ def import_recipe_dataset(
             con.commit()
 
 
-def _recipe_datasets(recipe):
-    return recipe.get("inputs", {}).get("datasets", []) or []
-
-
-def plan_recipe(recipe_path: Path) -> dict:
+def plan_recipe(recipe_path: Path) -> Recipe:
     """Plan recipe versions for a product.
 
     Similar to pip freeze, determines recipe versions to use for a build.
@@ -140,54 +143,60 @@ def plan_recipe(recipe_path: Path) -> dict:
     the missing versions strategy will be applied AFTER the recipe inputs are
     merged with the base.
     """
-    recipe = recipe_from_yaml(recipe_path)
+    recipe: Recipe = recipe_from_yaml(recipe_path)
 
-    if "version_strategy" in recipe:
-        strat = recipe["version_strategy"]
-        if strat == "bump_latest_release":
-            prev_version = publishing.get_latest_version(recipe["product"])
-            recipe["version"] = versions.bump(
-                prev_version, bumped_part=recipe["version_type"]
+    # Determine the recipe version
+    if recipe.version is None and recipe.version_strategy is not None:
+        if recipe.version_strategy == VersionStrategy.bump_latest_release:
+            prev_version = publishing.get_latest_version(recipe.product)
+            recipe.version = versions.bump(
+                prev_version, bumped_part=recipe.version_type
             )
 
     # merge in base recipe inputs
     base_recipe = (
-        recipe_from_yaml(recipe_path.parent / recipe["base_recipe"])
-        if "base_recipe" in recipe
-        else {}
+        recipe_from_yaml(recipe_path.parent / recipe.base_recipe)
+        if recipe.base_recipe is not None
+        else None
     )
 
-    input_dataset_names = {i["name"] for i in _recipe_datasets(recipe)}
-    for ds in _recipe_datasets(base_recipe):
-        if ds["name"] not in input_dataset_names:
-            recipe["inputs"]["datasets"].append(ds)
+    input_dataset_names = {d.name for d in recipe.inputs.datasets}
+    if base_recipe is not None:
+        for base_ds in base_recipe.inputs.datasets:
+            if base_ds.name not in input_dataset_names:
+                recipe.inputs.datasets.append(base_ds)
 
     # Fill in omitted versions
     previous_versions = {}
-    missing_version_strat = recipe["inputs"].get("missing_versions_strategy")
-    if missing_version_strat == "copy_latest_release":
+    if (
+        recipe.inputs.missing_versions_strategy
+        == RecipeInputsVersionStrategy.copy_latest_release
+    ):
         previous_versions = publishing.get_source_data_versions(
-            publishing.PublishKey(recipe["product"], "latest")
+            publishing.PublishKey(recipe.product, "latest")
         ).to_dict()["version"]
 
-    for ds in _recipe_datasets(recipe):
-        if "version" not in ds:
-            if missing_version_strat == "copy_latest_release":
-                ds["version"] = previous_versions[ds["name"]]
+    for ds in recipe.inputs.datasets:
+        if ds.version is None:
+            if (
+                recipe.inputs.missing_versions_strategy
+                == RecipeInputsVersionStrategy.copy_latest_release
+            ):
+                ds.version = previous_versions[ds.name]
             else:
-                ds["version"] = "latest"
+                ds.version = "latest"
 
-        if ds["version"] == "latest":
-            ds["version"] = get_config(ds["name"], "latest")["dataset"]["version"]
+        if ds.version == "latest":
+            ds.version = get_config(ds.name, "latest")["dataset"]["version"]
 
     return recipe
 
 
 def import_recipe_datasets(recipe):
     """Import all datasets specified in a recipe."""
-    for rec in recipe["inputs"]["datasets"]:
+    for ds in recipe.inputs.datasets:
         import_recipe_dataset(
-            rec["name"], version=rec["version"], import_table_name=rec.get("import_as")
+            ds.name, version=ds.version, import_table_name=ds.import_as
         )
 
 
@@ -196,22 +205,18 @@ def purge_recipe_cache(local_library_dir=LIBRARY_DEFAULT_PATH):
     shutil.rmtree(local_library_dir)
 
 
-def get_source_data_versions(recipe):
+def get_source_data_versions(recipe: Recipe):
     """Get source data versions table in form of [schema_name, v]."""
     return [["schema_name", "v"]] + [
-        [d["name"], d["version"]] for d in _recipe_datasets(recipe)
+        [d.name, d.version] for d in recipe.inputs.datasets
     ]
 
 
-def recipe_from_yaml(path: Path):
+def recipe_from_yaml(path: Path) -> Recipe:
     """Import a recipe file from yaml, and validate schema."""
-    v = cerberus.Validator(RECIPE_FILE_SCHEMA)
     with open(path, "r", encoding="utf-8") as f:
         s = yaml.safe_load(f)
-    if v.validate(s):
-        return s
-    else:
-        raise Exception(f"Invalid recipe file: {path}. {v.errors}")
+    return Recipe(**s)
 
 
 if __name__ == "__main__":
@@ -239,7 +244,7 @@ if __name__ == "__main__":
                 logger.info(
                     f"Writing recipe lockfile to {str(flags.lock_file.absolute())}"
                 )
-                yaml.dump(recipe, f)
+                yaml.dump(recipe.model_dump(), f)
         else:
             print(recipe)
 
