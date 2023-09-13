@@ -486,3 +486,9 @@ FROM
             record_name ASC,
             status ASC
     ) AS x;
+
+-- Drop intermediate tables
+DROP TABLE IF EXISTS aggregated_es_zone;
+DROP TABLE IF EXISTS ungeocoded_projects_es_zone;
+DROP TABLE IF EXISTS aggregated_es_zone_longform;
+DROP TABLE IF EXISTS aggregated_es_zone_project_level;
