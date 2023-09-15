@@ -1,0 +1,6 @@
+pandas
+sqlalchemy
+psycopg2-binary 
+usaddress 
+jinja2
+requests
