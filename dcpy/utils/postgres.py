@@ -88,14 +88,22 @@ def get_schemas() -> list:
 
 
 def get_schema_tables(table_schema: str) -> list:
-    table_names = execute_select_query(
+    select_table_names = execute_select_query(
         """
         SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
         """,
         {"table_schema": table_schema},
     )
-
-    return sorted(table_names["table_name"].to_list())
+    all_table_names = sorted(select_table_names["table_name"].to_list())
+    postgis_tables = [
+        "spatial_ref_sys",
+        "geography_columns",
+        "geometry_columns",
+    ]
+    table_names = [
+        table_name for table_name in all_table_names if table_name not in postgis_tables
+    ]
+    return table_names
 
 
 def create_sql_schema(table_schema: str) -> pd.DataFrame:

@@ -33,6 +33,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: products/template
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine
@@ -47,41 +48,32 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v3
-      - name: Check inputs
+      - name: Health check
         run: |
           python --version
           echo "Hello build note: ${{ inputs.build_note }}"
           echo "Hello logging level: ${{ inputs.logging_level }} (directly from action inputs)"
           echo "Hello logging level: $LOGGING_LEVEL (from envar from action inputs)"
           echo "Running python.run_logging ..."
-          python -m products.template.python.run_logging
+          python -m python.run_logging
 
-      - name: Setup build environment
+      - name: Load
+        run: |
+          python3 -m build_scripts.load
+
+      - name: Source data versions
         working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
-      - name: 1) Data loading
         run: |
-          echo "PLACEHOLDER running Data loading"
+          python3 -m dcpy.connectors.edm.recipes write-source-data-versions -f ./products/template/recipe.lock.yml
 
-      - name: 2) Preprocessing
+      - name: Transform
         run: |
-          echo "PLACEHOLDER running Preprocessing"
+          echo "PLACEHOLDER"
 
-      - name: 3) Build
-        run: |
-          echo "PLACEHOLDER running Build"
-
-      - name: 4) Export for QAQC
-        run: |
-          echo "PLACEHOLDER running Export for QAQC"
-
-      - name: 5) Export for production
-        if: inputs.run_export
+      - name: Export
         run: |
           echo "PLACEHOLDER"
 
       - name: Run end-to-end tests
-        working-directory: products/template
         run: |
           python3 -m pytest -m "end_to_end" -s --verbose --verbose
