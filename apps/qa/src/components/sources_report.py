@@ -22,7 +22,7 @@ def sources_report(
     This page reviews the status of all source data used to build this dataset.
     It compares the latest versions of source data to those used in the build of a reference version of this dataset.
     
-    The reference dataset version is `{reference_product_key.label}`.
+    The reference dataset version is `{reference_product_key}`.
     """
     )
 
