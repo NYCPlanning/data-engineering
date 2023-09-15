@@ -1,0 +1,21 @@
+name: Template DB
+product: template
+version: 0.0.1
+inputs:
+  datasets:
+  - name: dcp_councildistricts_wi
+    version: 22c
+  - name: dcp_cb2020_wi
+    version: 23b
+  - name: dcp_cdboundaries_wi
+    version: 23b
+  - name: dcp_facilities
+    version: '20230430'
+  - name: dpr_greenthumb
+    version: '20230906'
+  - name: dof_shoreline
+    version: '20230912'
+  - name: lpc_historic_districts
+    version: '20230227'
+  - name: lpc_landmarks
+  missing_versions_strategy: find_latest
