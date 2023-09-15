@@ -14,8 +14,12 @@ on:
         required: true
 
 env:
+  TOY_SECRET: ${{ secrets.TOY_SECRET }}
   LOGGING_LEVEL: ${{ inputs.logging_level }}
-  BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
+  BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+  AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   DO_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
   DO_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
   DO_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
@@ -29,9 +33,8 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/template
     services:
-      postgres:
+      postgis:
         image: postgis/postgis:15-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
@@ -51,7 +54,7 @@ jobs:
           echo "Hello logging level: ${{ inputs.logging_level }} (directly from action inputs)"
           echo "Hello logging level: $LOGGING_LEVEL (from envar from action inputs)"
           echo "Running python.run_logging ..."
-          python -m python.run_logging
+          python -m products.template.python.run_logging
 
       - name: Setup build environment
         working-directory: ./
