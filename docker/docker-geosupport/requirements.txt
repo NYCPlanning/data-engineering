@@ -1,6 +1,7 @@
-pandas
-sqlalchemy
-psycopg2-binary 
-usaddress 
 jinja2
+pandas
+psycopg2-binary
+python-geosupport
 requests
+sqlalchemy
+usaddress

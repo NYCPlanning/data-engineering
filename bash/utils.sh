@@ -335,3 +335,33 @@ function archive {
     pg_dump ${BUILD_ENGINE} -t ${src} -O -c | sed "s/${src}/${dst}/g" | psql ${EDM_DATA}
     psql ${EDM_DATA} -c "COMMENT ON TABLE ${dst} IS '${DATE} ${commit}'"
 }
+
+
+function docker_login() {
+    echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
+}
+
+
+function docker_tag_exists() {
+    docker manifest inspect $1:$2 >/dev/null
+}
+
+
+function build_and_publish_docker_image {
+    local image_name=${1}
+    local version=${2} 
+    shift 2
+    if docker_tag_exists $image_name $version; then
+        echo "$image_name:$version already exist"
+    else
+        # State version name
+        echo "publishing $image_name:$version"
+
+        # Build image
+        docker build --tag $image_name:$version "$@"
+        # Update Dockerhub
+        docker push $image_name:$version
+        docker tag $image_name:$version $image_name:latest
+        docker push $image_name:latest    
+    fi
+}
