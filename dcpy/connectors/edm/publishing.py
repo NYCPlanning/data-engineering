@@ -22,8 +22,7 @@ class ProductKey:
     product: str
     version: str
 
-    @property
-    def label(self):
+    def __str__(self):
         return f"{self.product} - {self.version}"
 
     @cached_property
@@ -51,8 +50,7 @@ class DraftKey(ProductKey):
 
         return self.__getattribute__(name)
 
-    @property
-    def label(self):
+    def __str__(self):
         return f"{self.product} - {self.version} - {self.build}"
 
     @property
