@@ -33,19 +33,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup build environment
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
       - name: Run python tests
         run: |
-          python3 -m pytest --verbose --verbose --cov-config=pyproject.toml --cov .
+          python3 -m pytest -m "not end_to_end" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
 
-  branch_build_tests:
-    name: Build test run
+  build:
     uses: ./.github/workflows/template_build.yml
     with:
       run_export: false
       logging_level: DEBUG
       build_note: a test build
     secrets: inherit
+
+  # * end-to-end test must run in build workflow until persistent DB is used
+  # end_to_end_tests:
+  #   name: Run end-to-end tests
