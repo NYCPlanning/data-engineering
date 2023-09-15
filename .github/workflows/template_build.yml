@@ -26,7 +26,7 @@ env:
 
 jobs:
   build:
-    name: Build Dataset
+    name: Build and end-to-end tests
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
@@ -79,4 +79,9 @@ jobs:
       - name: 5) Export for production
         if: inputs.run_export
         run: |
-          echo "PLACEHOLDER running Export for production"
+          echo "PLACEHOLDER"
+
+      - name: Run end-to-end tests
+        working-directory: products/template
+        run: |
+          python3 -m pytest -m "end_to_end" -s --verbose --verbose

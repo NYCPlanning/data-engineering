@@ -2,6 +2,7 @@
 xfail_strict = true
 addopts = "--strict-markers"
 markers =[
+    "end_to_end",
     "slow_test", # marks tests as slow (deselect with '-m "not slow_test"')
 ]
 
