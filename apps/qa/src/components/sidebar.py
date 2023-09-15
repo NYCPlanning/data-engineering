@@ -25,4 +25,4 @@ def data_selection(
     if is_draft:
         return publishing.DraftKey(product, select)
     else:
-        return publishing.ProductKey(product, select)
+        return publishing.PublishKey(product, select)

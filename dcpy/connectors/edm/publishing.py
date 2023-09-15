@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import sys
 import argparse
 from pathlib import Path
@@ -7,7 +8,6 @@ from io import BytesIO
 from zipfile import ZipFile
 from typing import Dict, Optional, Callable, TypeVar
 from dataclasses import dataclass
-from functools import cached_property
 
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
@@ -17,52 +17,55 @@ BUCKET = "edm-publishing"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
 
 
+class ProductKey(ABC):
+    product: str
+
+    @property
+    @abstractmethod
+    def path(self) -> str:
+        raise NotImplementedError("ProductKey is an abstract class")
+
+
 @dataclass
-class ProductKey:
+class PublishKey(ProductKey):
     product: str
     version: str
 
     def __str__(self):
         return f"{self.product} - {self.version}"
 
-    @cached_property
-    def logged_version(self) -> str:
-        return s3.get_file_as_text(
-            BUCKET, f"{self.product_path}/version.txt"
-        ).splitlines()[0]
-
     @property
-    def product_path(self) -> str:
+    def path(self) -> str:
         return f"{self.product}/publish/{self.version}"
 
 
 @dataclass
 class DraftKey(ProductKey):
+    product: str
     build: str
 
-    def __init__(self, product: str, build: str):
-        self.product = product
-        self.build = build
-
-    def __getattr__(self, name):
-        if name == "version":
-            return self.logged_version
-
-        return self.__getattribute__(name)
-
     def __str__(self):
-        return f"{self.product} - {self.version} - {self.build}"
+        return f"Draft: {self.product} - {self.build}"
 
     @property
-    def product_path(self) -> str:
+    def path(self) -> str:
         return f"{self.product}/draft/{self.build}"
+
+
+def get_version(product_key: ProductKey) -> str:
+    """Given product key, gets version
+    Assumes existence of version.txt in output folder
+    """
+    return s3.get_file_as_text(BUCKET, f"{product_key.path}/version.txt").splitlines()[
+        0
+    ]
 
 
 def get_latest_version(product: str) -> str:
     """Given product name, gets latest version
     Assumes existence of version.txt in output folder
     """
-    return ProductKey(product, "latest").logged_version
+    return get_version(PublishKey(product, "latest"))
 
 
 def get_published_versions(product: str) -> list[str]:
@@ -99,7 +102,7 @@ def upload(
     max_files: int = 20,
 ) -> None:
     """Upload build output(s) to draft folder in edm-publishing"""
-    draft_path = draft_key.product_path
+    draft_path = draft_key.path
     meta = build_metadata.generate()
     if output_path.is_dir():
         s3.upload_folder(
@@ -178,8 +181,8 @@ def publish(
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if publishing_version is None:
-        publishing_version = draft_key.version
-    source = draft_key.product_path
+        publishing_version = get_version(draft_key)
+    source = draft_key.path
     target = f"{draft_key.product}/publish/{publishing_version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
     if not keep_draft:
@@ -203,7 +206,7 @@ def read_csv(product_key: ProductKey, filepath: str, **kwargs) -> pd.DataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = product_key.product_path
+    output_path = product_key.path
     return _read_data_helper(f"{output_path}/{filepath}", pd.read_csv, **kwargs)
 
 
@@ -231,7 +234,7 @@ def read_shapefile(product_key: ProductKey, filepath: str) -> gpd.GeoDataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = product_key.product_path
+    output_path = product_key.path
     return _read_data_helper(f"{output_path}/{filepath}", gpd.read_file)
 
 
@@ -242,7 +245,7 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = product_key.product_path
+    output_path = product_key.path
     stream = s3.get_file_as_stream(BUCKET, f"{output_path}/{filepath}")
     zip = ZipFile(stream)
     return zip
