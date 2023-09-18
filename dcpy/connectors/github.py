@@ -55,7 +55,9 @@ def _get_workflow_runs_helper(url, params=None):
 
 def get_workflow_runs(
     repo, workflow_name=None, items_per_page=100, total_items=100, page_start=0
-):  ## 100 is to be max
+):
+    if items_per_page > 100:
+        raise ValueError("github api does not support greater than 100 items per page")
     if workflow_name:
         url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/runs"
     else:
@@ -63,9 +65,10 @@ def get_workflow_runs(
     workflows = []
     page = page_start
     res = []
-    while (total_items is None and (page == 0 or len(res) != 0)) or (
-        total_items is not None and len(workflows) < total_items
-    ):
+    while (
+        (total_items is None)
+        or (total_items is not None and len(workflows) < total_items)
+    ) and (page == page_start or len(res) != 0):
         page += 1
         res = _get_workflow_runs_helper(
             url, params={"per_page": items_per_page, "page": page}
