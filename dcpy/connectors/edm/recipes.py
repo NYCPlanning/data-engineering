@@ -144,7 +144,7 @@ def plan_recipe(recipe_path: Path) -> Recipe:
                 raise Exception("Recipe needs a 'version_type' to bump")
             prev_version = publishing.get_latest_version(recipe.product)
             recipe.version = versions.bump(
-                prev_version, bumped_part=str(recipe.version_type)
+                prev_version, bumped_part=recipe.version_type
             )
 
     # merge in base recipe inputs
