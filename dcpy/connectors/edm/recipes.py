@@ -102,9 +102,11 @@ def fetch_sql(name: str, version: str, local_library_dir):
 
 def import_dataset(dataset: Dataset, *, local_library_dir=LIBRARY_DEFAULT_PATH):
     """Import a recipe to local data library folder and build engine."""
-    config = get_config(dataset.name, dataset.version)
-    recipe_version = config["dataset"]["version"]
-    sql_script_path = fetch_sql(dataset.name, recipe_version, local_library_dir)
+    if dataset.version == "latest" or dataset.version is None:
+        raise Exception(
+            f"Cannot import a dataset without a resolved version: {dataset}"
+        )
+    sql_script_path = fetch_sql(dataset, local_library_dir)
 
     postgres.execute_file_via_shell(postgres.BUILD_ENGINE_RAW, sql_script_path)
 
@@ -115,7 +117,7 @@ def import_dataset(dataset: Dataset, *, local_library_dir=LIBRARY_DEFAULT_PATH):
         con.commit()
 
         recipes_table = Table(dataset.name, MetaData(), autoload_with=con)
-        con.execute(update(recipes_table).values(data_library_version=recipe_version))
+        con.execute(update(recipes_table).values(data_library_version=dataset.version))
 
         con.commit()
 
