@@ -65,13 +65,11 @@ def get_qaqc_runs(geosupport_version):
     workflows = {}
     raw_workflow_runs = []
     page = 0
-    while len(workflows) != 7:
+    while len(workflows) != 7 and (page == 0 or (len(raw_workflow_runs) > 0)):
         raw_workflow_runs = github.get_workflow_runs(
             "db-gru-qaqc",
             "main.yml",
-            items_per_page=30,
-            total_items=30,
-            page_start=page,
+            page_start=page,  ## specifies manually so we can exit sooner if requirements met
         )
         if len(raw_workflow_runs) == 0:
             break
