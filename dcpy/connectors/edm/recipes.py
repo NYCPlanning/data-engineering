@@ -82,19 +82,19 @@ def get_latest_version(name):
     return get_config(name)["dataset"]["version"]
 
 
-def fetch_sql(name: str, version: str, local_library_dir):
+def fetch_sql(ds: Dataset, local_library_dir):
     """Retrieve SQL dump file from edm-recipes. Returns fetched file's path."""
-    target_dir = local_library_dir / "datasets" / name / version
-    target_file_path = target_dir / (name + ".sql")
+    target_dir = local_library_dir / "datasets" / ds.name / ds.version
+    target_file_path = target_dir / (ds.name + ".sql")
     if (target_file_path).exists():
-        print(f"✅ {name}.sql exists in cache")
+        print(f"✅ {ds.name}.sql exists in cache")
     else:
         if not target_dir.exists():
             target_dir.mkdir(parents=True)
-        print(f"🛠 {name}.sql doesn't exists in cache, downloading")
+        print(f"🛠 {ds.name}.sql doesn't exists in cache, downloading")
         s3.download_file(
             bucket=BUCKET,
-            key=f"datasets/{name}/{version}/{name}.sql",
+            key=f"datasets/{ds.name}/{ds.version}/{ds.name}.sql",
             path=target_file_path,
         )
     return target_file_path
