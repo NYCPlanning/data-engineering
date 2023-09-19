@@ -1,8 +1,12 @@
-FROM nycplanning/build-base:latest
+FROM python:3.11-slim
 
 WORKDIR /app
 
 COPY . .
+
+RUN python3 -m pip install -r requirements.txt -c constraints.txt
+
+RUN rm -rf dcpy
 
 EXPOSE 8501
 
