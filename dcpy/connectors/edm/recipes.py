@@ -39,9 +39,12 @@ class Dataset(BaseModel, use_enum_values=True):
     version: Optional[str] = None
     import_as: Optional[str] = None
 
+    def is_resolved(self):
+        return self.version is not None and self.version != "latest"
+
 
 class RecipeInputs(BaseModel, use_enum_values=True):
-    missing_versions_strategy: Optional[RecipeInputsVersionStrategy]
+    missing_versions_strategy: Optional[RecipeInputsVersionStrategy] = None
     datasets: List[Dataset] = []
 
 
@@ -58,6 +61,12 @@ class Recipe(BaseModel, use_enum_values=True):
     version_strategy: Optional[VersionStrategy] = None
     version: Optional[str] = None
     inputs: RecipeInputs
+
+    def is_resolved(self):
+        return self.version is not None and (
+            len(self.inputs.datasets) == 0
+            or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
+        )
 
 
 def get_dataset_sql_path(dataset: str, version: str = "latest"):
@@ -231,9 +240,14 @@ def plan(
 
 
 @app.command("import")
-def import_datasets(recipe_file: Path = _typer_recipe_file_opt):
+def import_datasets(planned_recipe_file: Path = _typer_recipe_file_opt):
+    """Import all datasets from a recipe.
+
+    Note, the recipe's datasets must not have unresolved versions, ie either
+    'latest' or None.
+    """
     logger.info("Importing Recipe Datasets")
-    recipe = recipe_from_yaml(recipe_file)
+    recipe = recipe_from_yaml(planned_recipe_file)
     [import_dataset(ds) for ds in recipe.inputs.datasets]
 
 
