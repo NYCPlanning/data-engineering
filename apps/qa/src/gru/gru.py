@@ -31,7 +31,7 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     st.header("Latest Source Data")
     source_table()
 
-    st.header("QAQC Checks")
+    st.header(f"QAQC Checks - Geosupport {geosupport_version}")
     workflows = get_qaqc_runs(geosupport_version)
     not_running_workflows = [
         action_name
