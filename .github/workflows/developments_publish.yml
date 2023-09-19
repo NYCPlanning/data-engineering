@@ -1,16 +1,18 @@
 name: DevDB - 🚀 Publish
 
 on:
-#  release:
-#    types:
-#      - published
   workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        required: True
 
 jobs:
   publish:
     name: Publishing ...
     runs-on: ubuntu-22.04
     env:
+      VERSION: ${{ inputs.version }}
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
@@ -18,40 +20,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get Version
-        id: version
-        run: |
-          source version.env
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version is $VERSION"
-
       - uses: NYCPlanning/action-library-archive@v1.1
         id: dcp_housing
         with:
-          path: templates/dcp_housing.yml
+          path: products/developments/templates/dcp_housing.yml
           s3: true
           latest: true
           compress: true
           output_format: shapefile csv pgdump
-          version: ${{ steps.version.outputs.version }}
+          version: ${{ inputs.version }}
 
       - uses: NYCPlanning/action-library-archive@v1.1
         id: dcp_developments
         with:
-          path: templates/dcp_developments.yml
+          path: products/developments/templates/dcp_developments.yml
           s3: true
           latest: true
           compress: true
           output_format: shapefile csv pgdump
-          version: ${{ steps.version.outputs.version }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID_DATA_ENGINEERING }}
-          service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
-          export_default_credentials: true
-
-      - name: Archive to BigQuery
-        working-directory: products/developments
-        run: ./devdb.sh bq
+          version: ${{ inputs.version }}
