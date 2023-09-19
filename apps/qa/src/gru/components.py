@@ -53,39 +53,46 @@ def check_table(workflows, geosupport_version):
 
     for _, test in tests.iterrows():
         action_name = test["action_name"]
+        if action_name in workflows:
+            name, sources, outputs, status, run = st.columns(column_widths)
 
-        name, sources, outputs, status, run = st.columns(column_widths)
+            name.write(test["display_name"])
 
-        name.write(test["display_name"])
+            folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
 
-        folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
+            with sources:
+                try:
+                    versions = pd.read_csv(f"{folder}/versions.csv")
+                    st.download_button(
+                        label="\n".join(test["sources"]),
+                        data=versions.to_csv(index=False).encode("utf-8"),
+                        file_name="versions.csv",
+                        mime="text/csv",
+                        help=versions.to_markdown(index=False),
+                    )
+                except:
+                    st.error("Not found")
 
-        with sources:
-            try:
-                versions = pd.read_csv(f"{folder}/versions.csv")
-                st.download_button(
-                    label="\n".join(test["sources"]),
-                    data=versions.to_csv(index=False).encode("utf-8"),
-                    file_name="versions.csv",
-                    mime="text/csv",
-                    help=versions.to_markdown(index=False),
-                )
-            except:
-                pass
+            files = "  \n".join(
+                [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
+            )
+            outputs.write(files)
 
-        files = "  \n".join(
-            [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
-        )
-        outputs.write(files)
+            running = workflow_is_running(workflows.get(action_name, {}))
 
-        running = workflow_is_running(workflows.get(action_name, {}))
-
-        with status:
-            if action_name in workflows:
+            with status:
                 workflow = workflows[action_name]
                 status_details(workflow)
-            else:
-                st.info(format("No past run found"))
+
+        else:
+            name, column, run = st.columns((3, 10, 2))
+            name.write(test["display_name"])
+            with column:
+                st.info(
+                    format(
+                        f"Check has not been run yet for Geosupport {geosupport_version}"
+                    )
+                )
 
         with run:
             dispatch_workflow_button(
