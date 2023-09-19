@@ -11,7 +11,11 @@ _proj_root = _product_path.parent.parent
 # Make `dcpy` available
 sys.path.append(str(_proj_root))
 
-BUILD_SCHEMA = "public"  # the default postgres schema
-
 RECIPE_PATH = _product_path / "recipe.yml"
 RECIPE_LOCK_PATH = _product_path / "recipe.lock.yml"
+
+SQL_QUERY_DIR = _product_path / "sql"
+
+BUILD_ENGINE_SERVER = os.environ["BUILD_ENGINE_SERVER"]
+BUILD_ENGINE_DB = os.environ["BUILD_ENGINE_DB"]
+# BUILD_SCHEMA = "public"  # the default postgres schema
