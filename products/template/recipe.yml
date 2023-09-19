@@ -16,6 +16,6 @@ inputs:
   - name: dof_shoreline
     version: '20230912'
   - name: lpc_historic_districts
-    version: '20230227'
   - name: lpc_landmarks
+    import_as: nyc_landmarks
   missing_versions_strategy: find_latest

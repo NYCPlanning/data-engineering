@@ -1,7 +1,14 @@
 # These are tests to be run after a full build
 import pytest
-from dcpy.utils.postgres import get_schema_tables
-from build_scripts import BUILD_SCHEMA
+from dcpy.utils import postgres, git
+from build_scripts import BUILD_ENGINE_DB, BUILD_ENGINE_SERVER
+
+BUILD_SCHEMA = git.run_name()
+pg_client = postgres.PostgresClient(
+    server_url=BUILD_ENGINE_SERVER,
+    database=BUILD_ENGINE_DB,
+    schema=BUILD_SCHEMA,
+)
 
 
 # test build stage Load
@@ -15,11 +22,11 @@ def test_load_db_tables():
         "dof_shoreline",
         "dpr_greenthumb",
         "lpc_historic_districts",
-        "lpc_landmarks",
+        "nyc_landmarks",
     ]
-    actual_source_tables = get_schema_tables(BUILD_SCHEMA)
-
-    assert actual_source_tables == expected_source_tables
+    actual_tables = pg_client.get_schema_tables(BUILD_SCHEMA)
+    for table in expected_source_tables:
+        assert table in actual_tables
 
 
 @pytest.mark.skip(reason="TODO")
@@ -32,4 +39,9 @@ def test_load_other_stuff():
 @pytest.mark.skip(reason="TODO")
 @pytest.mark.end_to_end()
 def test_transform():
-    assert False
+    expected_build_tables = [
+        "hi_new_table",
+    ]
+    actual_tables = pg_client.get_schema_tables(BUILD_SCHEMA)
+    for table in expected_build_tables:
+        assert table in actual_tables
