@@ -1,4 +1,4 @@
-FROM nycplanning/build-geosupport:latest
+FROM nycplanning/dev:latest
 
 ENV PYTHONUNBUFFERED 1
 

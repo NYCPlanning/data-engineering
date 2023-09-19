@@ -348,20 +348,35 @@ function docker_tag_exists() {
 
 
 function build_and_publish_docker_image {
-    local image_name=${1}
-    local version=${2} 
-    shift 2
-    if docker_tag_exists $image_name $version; then
-        echo "$image_name:$version already exist"
-    else
+    local path_to_docker_file=$1
+    local image_name=$2
+    local version=$3
+    shift 3
+    echo "publishing $image_name:$version"
+
+    # Build image
+    docker build --tag $image_name:$version "$@" $path_to_docker_file
+    # Update Dockerhub
+    docker push $image_name:$version
+}
+
+
+function build_and_publish_versioned_docker_image {
+    local path_to_docker_file=$1
+    local image_name=$2
+    local version=$3
+    shift 3
+    #if docker_tag_exists $image_name $version; then
+    #    echo "$image_name:$version already exist"
+    #else
         # State version name
         echo "publishing $image_name:$version"
 
         # Build image
-        docker build --tag $image_name:$version "$@"
+        docker build --tag $image_name:$version "$@" $path_to_docker_file
         # Update Dockerhub
         docker push $image_name:$version
         docker tag $image_name:$version $image_name:latest
-        docker push $image_name:latest    
-    fi
+        docker push $image_name:latest
+    #fi
 }
