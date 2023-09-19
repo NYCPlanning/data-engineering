@@ -8,39 +8,161 @@ from sqlalchemy import create_engine, text
 from typing import Optional
 
 
-BUILD_ENGINE_RAW = os.environ["BUILD_ENGINE"]
-build_engine = create_engine(BUILD_ENGINE_RAW)
+def generate_engine_uri(server_url: str, database: str, schema: Optional[str] = None):
+    schemas = "public" if not schema else f"{schema},public"
+    schemas = schemas.replace("-", "_")  # no dashes in postgres schema names
+    options = f"?options=--search_path%3D{schemas}"
+    return server_url + "/" + database + options
 
 
-def execute_query(query: str, placeholders: Optional[dict] = None) -> None:
-    if placeholders is None:
-        placeholders = {}
-    with build_engine.connect() as connection:
-        connection.execute(statement=text(query), parameters=placeholders)
-
-
-def execute_select_query(
-    query: str, placeholders: Optional[dict] = None
-) -> pd.DataFrame:
-    if placeholders is None:
-        placeholders = {}
-    with build_engine.connect() as sql_conn:
-        select_records = pd.read_sql(sql=text(query), con=sql_conn, params=placeholders)
-    return select_records
-
-
-def execute_file_via_shell(build_engine: str, path: Path):
+def execute_file_via_shell(engine_uri: str, path: Path):
     """Execute .sql script at given path."""
-    cmd = f"psql {build_engine} -v ON_ERROR_STOP=1 -f {path}"
+    cmd = f"psql {engine_uri} -v ON_ERROR_STOP=1 -f {path}"
     if os.system(cmd) != 0:
         raise Exception(f"{path} has errors!")
 
 
-def execute_via_shell(build_engine: str, sql_statement):
+def execute_query_via_shell(engine_uri: str, sql_statement):
     """Execute sql via psql shell."""
-    cmd = f"psql {build_engine} -v ON_ERROR_STOP=1 {sql_statement}"
+    cmd = f"psql {engine_uri} -v ON_ERROR_STOP=1 {sql_statement}"
     if os.system(cmd) != 0:
         raise Exception(f"Command has errors! {cmd}")
+
+
+class PostgresClient:
+    def __init__(self, server_url: str, database: str, schema: str):
+        self.server_url = server_url
+        self.database = database
+        self.schema = schema.replace("-", "_")  # no dashes in postgres schema names
+        self.engine_uri = generate_engine_uri(
+            server_url=server_url, database=database, schema=schema
+        )
+        self.engine = create_engine(
+            self.engine_uri,
+            isolation_level="AUTOCOMMIT",
+        )
+        self.create_schema(self.schema)
+
+    def execute_query(self, query: str, placeholders: Optional[dict] = None) -> None:
+        if placeholders is None:
+            placeholders = {}
+        with self.engine.connect() as connection:
+            connection.execute(statement=text(query), parameters=placeholders)
+
+    def execute_select_query(
+        self,
+        query: str,
+        placeholders: Optional[dict] = None,
+    ) -> pd.DataFrame:
+        if placeholders is None:
+            placeholders = {}
+        with self.engine.connect() as sql_conn:
+            select_records = pd.read_sql(
+                sql=text(query), con=sql_conn, params=placeholders
+            )
+        return select_records
+
+    def create_postigs_extension(self) -> None:
+        self.execute_query("CREATE EXTENSION POSTGIS")
+
+    def vacuum_database(self) -> None:
+        self.execute_query("VACUUM (ANALYZE)")
+
+    def drop_schema(self, schema_name: str) -> None:
+        self.execute_query(
+            "DROP SCHEMA IF EXISTS :schema_name CASCADE",
+            {"schema_name": AsIs(schema_name)},
+        )
+
+    def create_schema(self, schema_name: str) -> None:
+        self.execute_query(
+            "CREATE SCHEMA IF NOT EXISTS :schema_name",
+            {"schema_name": AsIs(schema_name)},
+        )
+
+    def get_schemas(self) -> list:
+        schema_names = self.execute_select_query(
+            """
+            SELECT schema_name FROM information_schema.schemata
+            """
+        )
+        return sorted(schema_names["schema_name"].to_list())
+
+    def get_schema_tables(self, table_schema: str) -> list:
+        select_table_names = self.execute_select_query(
+            """
+            SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
+            """,
+            {"table_schema": table_schema},
+        )
+        all_table_names = sorted(select_table_names["table_name"].to_list())
+        postgis_tables = [
+            "spatial_ref_sys",
+            "geography_columns",
+            "geometry_columns",
+        ]
+        table_names = [
+            table_name
+            for table_name in all_table_names
+            if table_name not in postgis_tables
+        ]
+        return table_names
+
+    # def get_table_columns(self, table_schema: str, table_name: str) -> list:
+    #     column_names = self.execute_select_query(
+    #         """
+    #         SELECT column_name FROM information_schema.columns
+    #         WHERE table_schema = ':table_schema'
+    #         AND table_name   = ':table_name';
+    #         """,
+    #         {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+    #     )
+    #     return sorted(column_names["column_name"])
+
+    # def get_table_row_count(self, table_schema: str, table_name: str) -> int:
+    #     row_counts = self.execute_select_query(
+    #         """
+    #         SELECT c.reltuples::bigint AS row_count
+    #         FROM pg_class c
+    #         JOIN pg_namespace n ON n.oid = c.relnamespace
+    #         WHERE c.relname = ':table_name'
+    #         AND n.nspname = ':table_schema';
+    #         """,
+    #         {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+    #     )
+    #     return int(row_counts["row_count"][0])
+
+    # def load_data_from_sql_dump(
+    #     self,
+    #     table_schema: str,
+    #     dataset_by_version: str,
+    #     dataset_name: str,
+    # ):
+    #     print(f"Loading data into table {table_schema}.{dataset_name} ...")
+    #     file_name = Path(f"{dataset_by_version}.sql")
+    #     # run sql dump file to create initial table
+    #     execute_file_via_shell(build_engine_uri=BUILD_ENGINE_URI, path=file_name)
+    #     # copy inital data to a new table in the dataset-specific schema
+    #     self.execute_query(
+    #         """
+    #         CREATE TABLE :table_schema.:dataset_by_version AS TABLE :dataset_name
+    #         """,
+    #         {
+    #             "table_schema": AsIs(table_schema),
+    #             "dataset_by_version": AsIs(dataset_by_version),
+    #             "dataset_name": AsIs(dataset_name),
+    #         },
+    #     )
+    #     # copy inital data to a new table in the dataset-specific schema
+    #     self.execute_query(
+    #         """
+    #         DROP TABLE IF EXISTS :dataset_name CASCADE
+    #         """,
+    #         {
+    #             "dataset_name": AsIs(dataset_name),
+    #         },
+    #     )
+    #     self.vacuum_database()
 
 
 def insert_copy(table, conn, keys, data_iter):
@@ -68,113 +190,3 @@ def insert_copy(table, conn, keys, data_iter):
 
         sql = "COPY {} ({}) FROM STDIN WITH CSV".format(table_name, columns)
         cur.copy_expert(sql=sql, file=s_buf)
-
-
-def create_postigs_extension() -> None:
-    execute_query("CREATE EXTENSION POSTGIS")
-
-
-def vacuum_database() -> None:
-    execute_query("VACUUM (ANALYZE)")
-
-
-def get_schemas() -> list:
-    schema_names = execute_select_query(
-        """
-        SELECT schema_name FROM information_schema.schemata
-        """
-    )
-    return sorted(schema_names["schema_name"].to_list())
-
-
-def get_schema_tables(table_schema: str) -> list:
-    select_table_names = execute_select_query(
-        """
-        SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
-        """,
-        {"table_schema": table_schema},
-    )
-    all_table_names = sorted(select_table_names["table_name"].to_list())
-    postgis_tables = [
-        "spatial_ref_sys",
-        "geography_columns",
-        "geometry_columns",
-    ]
-    table_names = [
-        table_name for table_name in all_table_names if table_name not in postgis_tables
-    ]
-    return table_names
-
-
-def create_sql_schema(table_schema: str) -> pd.DataFrame:
-    execute_query(
-        "DROP SCHEMA IF EXISTS :table_schema CASCADE",
-        {"table_schema": AsIs(table_schema)},
-    )
-    execute_query("CREATE SCHEMA :table_schema", {"table_schema": AsIs(table_schema)})
-    table_schema_name = execute_select_query(
-        """
-        SELECT schema_name
-        FROM :table_schema.schemata;
-        """,
-        {"table_schema": AsIs("information_schema")},
-    )
-    return table_schema_name
-
-
-def get_table_columns(table_schema: str, table_name: str) -> list:
-    column_names = execute_select_query(
-        """
-        SELECT column_name FROM information_schema.columns
-        WHERE table_schema = ':table_schema'
-        AND table_name   = ':table_name';
-        """,
-        {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
-    )
-    return sorted(column_names["column_name"])
-
-
-def get_table_row_count(table_schema: str, table_name: str) -> int:
-    row_counts = execute_select_query(
-        """
-        SELECT c.reltuples::bigint AS row_count
-        FROM pg_class c
-        JOIN pg_namespace n ON n.oid = c.relnamespace
-        WHERE c.relname = ':table_name'
-        AND n.nspname = ':table_schema';
-        """,
-        {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
-    )
-    return int(row_counts["row_count"][0])
-
-
-def load_data_from_sql_dump(
-    table_schema: str,
-    dataset_by_version: str,
-    dataset_name: str,
-):
-    print(f"Loading data into table {table_schema}.{dataset_name} ...")
-    file_name = Path(f"{dataset_by_version}.sql")
-    # run sql dump file to create initial table
-    execute_file_via_shell(build_engine=BUILD_ENGINE_RAW, path=file_name)
-    # copy inital data to a new table in the dataset-specific schema
-    execute_query(
-        """
-        CREATE TABLE :table_schema.:dataset_by_version AS TABLE :dataset_name
-        """,
-        {
-            "table_schema": AsIs(table_schema),
-            "dataset_by_version": AsIs(dataset_by_version),
-            "dataset_name": AsIs(dataset_name),
-        },
-    )
-    # copy inital data to a new table in the dataset-specific schema
-    execute_query(
-        """
-        DROP TABLE IF EXISTS :dataset_name CASCADE
-        """,
-        {
-            "dataset_name": AsIs(dataset_name),
-        },
-    )
-    vacuum_database()

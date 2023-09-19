@@ -1,25 +1,25 @@
 import os
 import subprocess
-from typing import Optional
+
+
+def event_name() -> str:
+    if os.environ.get("CI"):
+        return os.environ["GITHUB_EVENT_NAME"]
+    return "local"
 
 
 def username() -> str:
-    if os.environ.get("CI"):
-        return os.environ.get("GITHUB_ACTOR_ID", "CI")
-    else:
+    if event_name() == "local":
         return (
             subprocess.run(["git", "config", "user.name"], stdout=subprocess.PIPE)
             .stdout.strip()
             .decode()
         )
+    return os.environ.get("GITHUB_ACTOR_ID", "CI")
 
 
 def branch() -> str:
-    if os.environ.get("CI"):
-        ## REF_NAME - for push/workflow_dispatch
-        ## HEAD_REF - for pull request triggers
-        return os.environ.get("GITHUB_REF_NAME", os.environ["GITHUB_HEAD_REF"])
-    else:
+    if event_name() == "local":
         return (
             subprocess.run(
                 [
@@ -34,18 +34,33 @@ def branch() -> str:
             .stdout.strip()
             .decode()
         )
+    elif event_name() == "pull_request":
+        # use <pr_number> from <pr_number>/merge
+        return os.environ["GITHUB_REF_NAME"].split("/")[0]
+    else:
+        return os.environ["GITHUB_REF_NAME"]
 
 
 def commit_hash() -> str:
-    if os.environ.get("CI"):
-        return os.environ["GITHUB_SHA"]
-    else:
+    if event_name() == "local":
         return (
             subprocess.run(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
             .stdout.decode("ascii")
             .strip()
         )
+    return os.environ["GITHUB_SHA"]
 
 
 def action_url() -> str:
+    if event_name() == "local":
+        return f"local_{branch}_{username}"
     return f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+
+
+def run_name() -> str:
+    if event_name() == "pull_request":
+        prefix = "pr"
+    else:
+        prefix = "build"
+    suffix = branch().replace("-", "_")
+    return f"{prefix}_{suffix}"

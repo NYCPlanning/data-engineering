@@ -1,3 +1,4 @@
+import os
 import csv
 from enum import Enum
 import json
@@ -12,9 +13,10 @@ import yaml
 
 from dcpy import DCPY_ROOT_PATH
 from dcpy.utils import s3
-from dcpy.utils.logging import logger
 from dcpy.utils import postgres
+from dcpy.utils import git
 from dcpy.utils import versions
+from dcpy.utils.logging import logger
 
 # In order to keep things sane, maybe we should allow recipes to import
 # publishing but not the other way around?
@@ -109,33 +111,39 @@ def fetch_sql(ds: Dataset, local_library_dir):
     return target_file_path
 
 
-def import_dataset(dataset: Dataset, *, local_library_dir=LIBRARY_DEFAULT_PATH):
+def import_dataset(
+    dataset: Dataset,
+    pg_client: postgres.PostgresClient,
+    *,
+    local_library_dir=LIBRARY_DEFAULT_PATH,
+):
     """Import a recipe to local data library folder and build engine."""
+    logger.info(
+        f"Importing {dataset.name} into {pg_client.database}.{pg_client.schema}"
+    )
     if dataset.version == "latest" or dataset.version is None:
         raise Exception(
             f"Cannot import a dataset without a resolved version: {dataset}"
         )
     sql_script_path = fetch_sql(dataset, local_library_dir)
 
-    postgres.execute_file_via_shell(postgres.BUILD_ENGINE_RAW, sql_script_path)
+    postgres.execute_file_via_shell(pg_client.engine_uri, sql_script_path)
 
-    with postgres.build_engine.connect() as con:
+    with pg_client.engine.begin() as con:
+        con.execute(text(f"ALTER TABLE {dataset.name} SET SCHEMA {pg_client.schema};"))
+
         con.execute(
             text(f"ALTER TABLE {dataset.name} ADD COLUMN data_library_version text;")
         )
-        con.commit()
 
         recipes_table = Table(dataset.name, MetaData(), autoload_with=con)
         con.execute(update(recipes_table).values(data_library_version=dataset.version))
-
-        con.commit()
 
         if dataset.import_as is not None:
             logger.info(f"Renaming table {dataset.name} to {dataset.import_as}")
             con.execute(
                 text(f"ALTER TABLE {dataset.name} RENAME TO {dataset.import_as};")
             )
-            con.commit()
 
 
 def plan_recipe(recipe_path: Path) -> Recipe:
@@ -248,7 +256,12 @@ def import_datasets(planned_recipe_file: Path = _typer_recipe_file_opt):
     """
     logger.info("Importing Recipe Datasets")
     recipe = recipe_from_yaml(planned_recipe_file)
-    [import_dataset(ds) for ds in recipe.inputs.datasets]
+    pg_client = postgres.PostgresClient(
+        server_url=os.environ["BUILD_ENGINE_SERVER"],
+        database=os.environ["BUILD_ENGINE_DB"],
+        schema=git.run_name(),
+    )
+    [import_dataset(ds, pg_client) for ds in recipe.inputs.datasets]
 
 
 @app.command()
