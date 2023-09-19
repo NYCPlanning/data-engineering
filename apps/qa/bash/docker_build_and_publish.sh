@@ -1,16 +1,17 @@
 #!/bin/bash
 
-set -e
 FILE_DIR=$(dirname "$(readlink -f "$0")")
+PROJECT_DIR=$(dirname $FILE_DIR)
+ROOT_DIR=$PROJECT_DIR/../..
 
-DOCKER_IMAGE_NAME=nycplanning/qa-streamlit
-echo $FILE_DIR
-cp -r $FILE_DIR/../../../dcpy $FILE_DIR/../src/
+source $ROOT_DIR/bash/utils.sh
+set_error_traps
 
-echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
+cp -r $ROOT_DIR/dcpy .
+cp -r $ROOT_DIR/python/constraints.txt $PROJECT_DIR
+
 # Build image - Once we reach some sort of MVP, maybe worth starting versioning. For now, just latest
-docker build \
-    --tag $DOCKER_IMAGE_NAME:latest $FILE_DIR/..
-docker push $DOCKER_IMAGE_NAME:latest
+docker_login
+build_and_publish_docker_image $PROJECT_DIR nycplanning/qa-streamlit latest
 
 rm -rf ./dcpy

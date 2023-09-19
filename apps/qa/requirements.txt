@@ -1,0 +1,10 @@
+./dcpy
+folium
+geoalchemy2
+mapclassify
+matplotlib
+numerize
+plotly
+streamlit
+streamlit-aggrid
+streamlit-folium
