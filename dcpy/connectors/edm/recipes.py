@@ -38,6 +38,7 @@ class VersionStrategy(str, Enum):
 class Dataset(BaseModel, use_enum_values=True):
     name: str
     version: str | None = None
+    version_env_var: str | None = None
     import_as: str | None = None
 
     def is_resolved(self):
@@ -194,7 +195,14 @@ def plan_recipe(recipe_path: Path) -> Recipe:
 
     for ds in recipe.inputs.datasets:
         if ds.version is None:
-            if (
+            if ds.version_env_var is not None:
+                version = os.getenv(ds.version_env_var)
+                if version is None:
+                    raise Exception(
+                        f"Dataset {ds.name} requires version env var: {ds.version_env_var}"
+                    )
+                ds.version = version
+            elif (
                 recipe.inputs.missing_versions_strategy
                 == RecipeInputsVersionStrategy.copy_latest_release
             ):

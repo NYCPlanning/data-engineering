@@ -1,0 +1,21 @@
+name: Facilities
+version: 23v2
+product: db-facilities
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_facilities_with_unmapped
+    version_env_var: VERSION_PREV
+  - name: dcp_mappluto_wi
+  - name: dcp_boroboundaries_wi
+  - name: dcp_ct2010
+  - name: dcp_ct2020
+  - name: dcp_councildistricts
+    version: 22c
+  - name: dcp_cdboundaries
+  - name: dcp_nta2010
+  - name: dcp_nta2020
+  - name: dcp_policeprecincts
+  - name: doitt_zipcodeboundaries
+  - name: doitt_buildingfootprints
+  - name: dcp_school_districts

@@ -5,12 +5,18 @@ from typing import List, Optional
 
 import typer
 
+from dcpy.connectors.edm import recipes
 from dcpy.utils import postgres
 from .utility.prepare import read_datasets_yml, prepare
 from .utility.metadata import dump_metadata
 from .utility.export import export
 
-from facdb import SQL_PATH, BASH_PATH, BUILD_ENGINE, CACHE_PATH, VERSION_PREV
+from facdb import (
+    SQL_PATH,
+    BUILD_ENGINE,
+    CACHE_PATH,
+    PRODUCT_PATH,
+)
 
 if not CACHE_PATH.exists():
     CACHE_PATH.mkdir()
@@ -45,7 +51,10 @@ def dataloading():
     """
     Load SQL dump datasets from data library e.g. dcp_mappluto_wi, doitt_buildingcentroids
     """
-    os.system(BASH_PATH / f"dataloading.sh {VERSION_PREV}")
+    lockfile_path = PRODUCT_PATH / "recipe.lock.yml"
+    recipes.plan(PRODUCT_PATH / "recipe.yml", lockfile_path)
+    recipes.import_datasets(lockfile_path)
+    recipes.write_source_data_versions(lockfile_path)
 
 
 @app.command()
