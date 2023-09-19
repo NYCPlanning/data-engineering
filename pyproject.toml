@@ -51,3 +51,33 @@ ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 [[tool.mypy.overrides]]
 module = "geopandas.*,cerberus.*" # no stubs available
 ignore_missing_imports = true
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy"
+version = "0.0.1"
+description = "DCP Data Engineering's internal python package"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3",
+    "botocore",
+    "geopandas",
+    "pandas",
+    "psycopg2_binary",
+    "pydantic",
+    "python-dotenv",
+    "python_dateutil",
+    "pytz",
+    "PyYAML",
+    "rich",
+    "setuptools",
+    "SQLAlchemy",
+    "typer"
+]
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+exclude = ["dcpy.test*"]

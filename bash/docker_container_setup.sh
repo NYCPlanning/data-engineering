@@ -6,6 +6,9 @@ if [[ -z "$CI" ]]; then
     workspace=/workspace
 else
     workspace=/__w/data-engineering/data-engineering
+    option="-e"
 fi 
 
 git config --global --add safe.directory $workspace
+
+python3 -m pip install $option . -c ./python/constraints.txt
