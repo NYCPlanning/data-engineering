@@ -38,5 +38,6 @@ tqdm>=4.59.0
 typer==0.8.0
 types-python-dateutil
 types-requests
+types-setuptools
 us==2.0.2
 usaddress==0.5.10
