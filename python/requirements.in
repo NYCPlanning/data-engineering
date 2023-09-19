@@ -19,6 +19,7 @@ openpyxl==3.1.2
 pandas==1.5.3
 pandas-stubs==1.5.3.230321
 plotly==5.*
+pydantic==2.3.0
 psycopg2-binary==2.9.5
 types-psycopg2
 pytest==7.3.0

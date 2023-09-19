@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
-import sys
-import argparse
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
 from io import BytesIO
 from zipfile import ZipFile
+import typer
 from typing import Dict, Optional, Callable, TypeVar
 from dataclasses import dataclass
 
@@ -281,55 +280,47 @@ def publish_add_created_date(
     return {"date_created": old_metadata["last-modified"].strftime("%Y-%m-%d %H:%M:%S")}
 
 
+app = typer.Typer(add_completion=False)
+
+
+@app.command("upload")
+def _cli_wrapper_upload(
+    output_path: Path = typer.Option(
+        None, "-o", "--output-path", help="Path to local output folder"
+    ),
+    product: str = typer.Option(
+        None,
+        "-p",
+        "--product",
+        help="Name of data product (publishing folder in s3)",
+    ),
+    build: str = typer.Option(None, "-b", "--build", help="Label of build"),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+):
+    logger.info(f'Uploading {output_path} to {product}/draft/{build} with ACL "{acl}"')
+    upload(output_path, DraftKey(product, build), acl=acl)
+
+
+@app.command("publish")
+def _cli_wrapper_publish(
+    product: str = typer.Option(
+        None,
+        "-p",
+        "--product",
+        help="Name of data product (publishing folder in s3)",
+    ),
+    build: str = typer.Option(None, "-b", "--build", help="Label of build"),
+    publishing_version: str = typer.Option(
+        None,
+        "-v",
+        "--publishing-version",
+        help="Version ",
+    ),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+):
+    logger.info(f'Publishing {product}/draft/{build} with ACL "{acl}"')
+    publish(DraftKey(product, build), acl=acl, publishing_version=publishing_version)
+
+
 if __name__ == "__main__":
-    flags_parser = argparse.ArgumentParser()
-    flags_parser.add_argument("cmd")
-    cmd = sys.argv[1]
-
-    if cmd == "upload":
-        logger.info("Uploading product")
-        flags_parser.add_argument(
-            "-o", "--output-path", help="Path to local output folder", type=Path
-        )
-        flags_parser.add_argument(
-            "-p",
-            "--product",
-            help="Name of data product (publishing folder in s3)",
-            type=str,
-        )
-        flags_parser.add_argument("-b", "--build", help="Label of build", type=str)
-        flags_parser.add_argument(
-            "-a", "--acl", help="Access level of file in s3", type=str
-        )
-        flags = flags_parser.parse_args()
-        logger.info(
-            f'Uploading {flags.output_path} to {flags.product}/draft/{flags.build} with ACL "{flags.acl}"'
-        )
-        upload(
-            Path(flags.output_path), DraftKey(flags.product, flags.build), acl=flags.acl
-        )
-
-    if cmd == "publish":
-        logger.info("Publishing product")
-        flags_parser.add_argument(
-            "-p",
-            "--product",
-            help="Name of data product (publishing folder in s3)",
-            type=str,
-        )
-        flags_parser.add_argument("-b", "--build", help="Label of build", type=str)
-        flags_parser.add_argument(
-            "-v", "--publishing-version", help="Version ", type=Path
-        )
-        flags_parser.add_argument(
-            "-a", "--acl", help="Access level of file in s3", type=str
-        )
-        flags = flags_parser.parse_args()
-        logger.info(
-            f'Publishing {flags.product}/draft/{flags.build} with ACL "{flags.acl}"'
-        )
-        publish(
-            DraftKey(flags.product, flags.build),
-            acl=flags.acl,
-            publishing_version=flags.get("publishing_version"),
-        )
+    app()

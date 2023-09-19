@@ -136,7 +136,9 @@ def load_source_data_to_compare(
 
 
 def load_source_data(dataset: str, version: str) -> str:
-    recipes.fetch_sql(dataset, version, SQL_FILE_DIRECTORY)
+    recipes.fetch_sql(
+        recipes.Dataset(name=dataset, version=version), SQL_FILE_DIRECTORY
+    )
 
     dataset_by_version = construct_dataset_by_version(dataset, version)
     schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
