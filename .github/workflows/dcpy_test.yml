@@ -15,8 +15,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: (Temp) Install stubs # can remove once these make it into base docker image
-        run: pip install -r python/requirements.txt
-
       - name: Static Type Check (mypy)
         run: mypy ./dcpy
+
+  unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run python tests
+        run: |
+          python3 -m pytest ./dcpy/test/ -s --verbose --verbose --cov-config=pyproject.toml --cov .
