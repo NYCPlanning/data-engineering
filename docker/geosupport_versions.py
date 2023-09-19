@@ -97,4 +97,5 @@ if __name__ == "__main__":
             raise ValueError(f"Got release string with unexpected length: {release=}")
 
     version_string = f"RELEASE={versions['RELEASE']} MAJOR={versions['MAJOR']} MINOR={versions['MINOR']} PATCH={versions['PATCH']}"
+    logging.info(f"Geosupport VERSIONSTRING from is {version_string}")
     print(version_string, file=sys.stdout)

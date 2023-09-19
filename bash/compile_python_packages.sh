@@ -19,4 +19,4 @@ echo -e "🛠 compiling from ${path_to_requirements}/requirements.in"
 CUSTOM_COMPILE_COMMAND="./${RELATIVE_SCRIPTPATH} ${path_to_requirements}" python3 -m piptools compile --output-file=${path_to_requirements}/requirements.txt ${path_to_requirements}/requirements.in
 echo -e "✅ done compiling ${path_to_requirements}/requirements.txt"
 
-sed -e 's/\[[^][]*\]//g' $path_to_requirements/requirements.txt > constraints.txt
+sed -e 's/\[[^][]*\]//g' $path_to_requirements/requirements.txt > ${path_to_requirements}/constraints.txt

@@ -9,10 +9,6 @@ ARG PATCH
 ENV GEOFILES=/geocode/version-${RELEASE}_${MAJOR}.${MINOR}/fls/
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/geocode/version-${RELEASE}_${MAJOR}.${MINOR}/lib/
 
-WORKDIR /geocode
-
-COPY . . 
+COPY . .
 
 RUN ./setup.sh
-
-WORKDIR /
