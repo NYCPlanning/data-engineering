@@ -8,15 +8,8 @@ from sqlalchemy import create_engine, text
 from typing import Optional
 
 
-def _format_schema_name(schema: Optional[str] = None):
-    return (
-        "public" if not schema else schema.replace("-", "_")
-    )  # no dashes in postgres schema names
-
-
 def generate_engine_uri(server_url: str, database: str, schema: Optional[str] = None):
-    schema = _format_schema_name(schema)
-    schemas = schema if schema == "public" else f"{schema},public"
+    schemas = "public" if (not schema or schema == "public") else f"{schema},public"
     options = f"?options=--search_path%3D{schemas}"
     return server_url + "/" + database + options
 
@@ -44,7 +37,7 @@ class PostgresClient:
     ):
         self.server_url = server_url
         self.database = database
-        self.schema = _format_schema_name(schema)
+        self.schema = schema
         self.engine_uri = generate_engine_uri(
             server_url=server_url, database=database, schema=schema
         )
