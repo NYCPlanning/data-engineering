@@ -1,17 +1,14 @@
 # functions used to generate source data reports
 import pandas as pd
 from dcpy.connectors.edm import recipes, publishing
-from dcpy.utils.postgres import (
-    create_sql_schema,
-    load_data_from_sql_dump,
-    get_schemas,
-    get_schema_tables,
-    get_table_columns,
-    get_table_row_count,
-)
+from dcpy.utils import postgres
 from src.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
 
 from . import QAQC_DB_SCHEMA_SOURCE_DATA
+
+pg_client = postgres.PostgresClient(
+    schema=QAQC_DB_SCHEMA_SOURCE_DATA,
+)
 
 
 def dataframe_style_source_report_results(value: bool):
@@ -69,10 +66,10 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
         latest_table = construct_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
-        reference_columns = get_table_columns(
+        reference_columns = pg_client.get_table_columns(
             table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=reference_table
         )
-        latest_columns = get_table_columns(
+        latest_columns = pg_client.get_table_columns(
             table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=latest_table
         )
         source_report_results[dataset_name]["same_columns"] = (
@@ -89,10 +86,10 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
         latest_table = construct_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
-        reference_row_count = get_table_row_count(
+        reference_row_count = pg_client.get_table_row_count(
             table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=reference_table
         )
-        latest_row_count = get_table_row_count(
+        latest_row_count = pg_client.get_table_row_count(
             table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=latest_table
         )
         source_report_results[dataset_name]["same_row_count"] = (
@@ -102,9 +99,9 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
 
 
 def create_source_data_schema() -> None:
-    schema_names = get_schemas()
+    schema_names = pg_client.get_schemas()
     if QAQC_DB_SCHEMA_SOURCE_DATA not in schema_names:
-        schema_names = create_sql_schema(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+        schema_names = pg_client.create_schema(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
     print("DEV schemas in DB EDM_DATA/edm-qaqc:")
     print(f"{schema_names}")
 
@@ -136,20 +133,15 @@ def load_source_data_to_compare(
 
 
 def load_source_data(dataset: str, version: str) -> str:
-    recipes.fetch_sql(
-        recipes.Dataset(name=dataset, version=version), SQL_FILE_DIRECTORY
-    )
+    dataset = recipes.Dataset(name=dataset, version=version)
+    recipes.fetch_sql(dataset, SQL_FILE_DIRECTORY)
 
     dataset_by_version = construct_dataset_by_version(dataset, version)
-    schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+    schema_tables = pg_client.get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
 
     status_message = None
     if not dataset_by_version in schema_tables:
-        load_data_from_sql_dump(
-            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA,
-            dataset_by_version=dataset_by_version,
-            dataset_name=dataset,
-        )
+        recipes.import_dataset(dataset, pg_client, SQL_FILE_DIRECTORY)
         status_message = f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
     else:
         status_message = (

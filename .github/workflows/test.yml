@@ -42,21 +42,22 @@ jobs:
         id: filter
         with:
           filters: |
+            dcpy:
+              - dcpy/**
             build:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
               - dcpy/**
               - products/template/**
+            qa:
+              - dcpy/**
+              - apps/qa/**
             cbbr:
               - products/cbbr/**
             checkbook:
               - products/checkbook/**
-            dcpy:
-              - dcpy/**
             knownprojects:
               - products/knownprojects/**
-            qa:
-              - apps/qa/**
             zap:
               - .github/workflows/zap_test.yml
               - .github/workflows/zap_build_mapzap.yml
