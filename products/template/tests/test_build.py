@@ -1,12 +1,9 @@
 # These are tests to be run after a full build
 import pytest
 from dcpy.utils import postgres, git
-from build_scripts import BUILD_ENGINE_DB, BUILD_ENGINE_SERVER
 
 BUILD_SCHEMA = git.run_name()
 pg_client = postgres.PostgresClient(
-    server_url=BUILD_ENGINE_SERVER,
-    database=BUILD_ENGINE_DB,
     schema=BUILD_SCHEMA,
 )
 
