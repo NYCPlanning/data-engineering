@@ -1,5 +1,5 @@
 # test s3 and sql data IO
-from dcpy.utils.postgres import get_table_columns
+from dcpy.utils.postgres import PostgresClient
 from dcpy.connectors.edm.recipes import get_config
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
 
@@ -17,6 +17,8 @@ TEST_DATA_SOURCE_COLUMNS = [
     "wkb_geometry",
 ]
 
+pg_client = PostgresClient(schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+
 
 def test_dataset_config():
     dataset_confg = get_config(TEST_DATA_SOURCE_NAME, TEST_DATA_SOURCE_VERSION)
@@ -25,8 +27,8 @@ def test_dataset_config():
     assert dataset_confg["dataset"]["version"] == TEST_DATA_SOURCE_VERSION
 
 
-def test_get_table_columns():
-    columns = get_table_columns(
+def test_source_data_columns():
+    columns = pg_client.get_table_columns(
         table_schema=QAQC_DB_SCHEMA_SOURCE_DATA,
         table_name=f"{TEST_DATA_SOURCE_NAME}_{TEST_DATA_SOURCE_VERSION}",
     )
