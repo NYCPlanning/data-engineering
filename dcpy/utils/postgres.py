@@ -52,11 +52,9 @@ class PostgresClient:
             self.engine_uri,
             isolation_level="AUTOCOMMIT",
         )
-        self.create_schema(self.schema)
+        self.create_schema()
 
     def execute_query(self, query: str, placeholders: Optional[dict] = None) -> None:
-        if placeholders is None:
-            placeholders = {}
         with self.engine.connect() as connection:
             connection.execute(statement=text(query), parameters=placeholders)
 
@@ -65,8 +63,6 @@ class PostgresClient:
         query: str,
         placeholders: Optional[dict] = None,
     ) -> pd.DataFrame:
-        if placeholders is None:
-            placeholders = {}
         with self.engine.connect() as sql_conn:
             select_records = pd.read_sql(
                 sql=text(query), con=sql_conn, params=placeholders
@@ -79,16 +75,16 @@ class PostgresClient:
     def vacuum_database(self) -> None:
         self.execute_query("VACUUM (ANALYZE)")
 
-    def drop_schema(self, schema_name: str) -> None:
+    def drop_schema(self) -> None:
         self.execute_query(
             "DROP SCHEMA IF EXISTS :schema_name CASCADE",
-            {"schema_name": AsIs(schema_name)},
+            {"schema_name": AsIs(self.schema)},
         )
 
-    def create_schema(self, schema_name: str) -> None:
+    def create_schema(self) -> None:
         self.execute_query(
             "CREATE SCHEMA IF NOT EXISTS :schema_name",
-            {"schema_name": AsIs(schema_name)},
+            {"schema_name": AsIs(self.schema)},
         )
 
     def get_schemas(self) -> list:
@@ -99,12 +95,12 @@ class PostgresClient:
         )
         return sorted(schema_names["schema_name"].to_list())
 
-    def get_schema_tables(self, table_schema: str) -> list:
+    def get_schema_tables(self) -> list:
         select_table_names = self.execute_select_query(
             """
             SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
             """,
-            {"table_schema": table_schema},
+            {"table_schema": self.schema},
         )
         all_table_names = sorted(select_table_names["table_name"].to_list())
         postgis_tables = [
@@ -119,18 +115,18 @@ class PostgresClient:
         ]
         return table_names
 
-    def get_table_columns(self, table_schema: str, table_name: str) -> list:
+    def get_table_columns(self, table_name: str) -> list:
         column_names = self.execute_select_query(
             """
             SELECT column_name FROM information_schema.columns
             WHERE table_schema = ':table_schema'
             AND table_name   = ':table_name';
             """,
-            {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+            {"table_schema": AsIs(self.schema), "table_name": AsIs(table_name)},
         )
         return sorted(column_names["column_name"])
 
-    def get_table_row_count(self, table_schema: str, table_name: str) -> int:
+    def get_table_row_count(self, table_name: str) -> int:
         row_counts = self.execute_select_query(
             """
             SELECT c.reltuples::bigint AS row_count
@@ -139,7 +135,7 @@ class PostgresClient:
             WHERE c.relname = ':table_name'
             AND n.nspname = ':table_schema';
             """,
-            {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+            {"table_schema": AsIs(self.schema), "table_name": AsIs(table_name)},
         )
         return int(row_counts["row_count"][0])
 
