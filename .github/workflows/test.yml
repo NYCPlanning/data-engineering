@@ -6,6 +6,9 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: "0 0 * * *"
+  
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
@@ -16,7 +19,7 @@ jobs:
     name: Check formatting of files
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/dev:latest
     steps:
       - uses: actions/checkout@v3
 
@@ -39,6 +42,7 @@ jobs:
       path_filters: ${{ steps.filter.outputs.changes }}
     steps:
       - uses: dorny/paths-filter@v2
+        if: github.event_name == 'pull_request'
         id: filter
         with:
           filters: |
@@ -64,48 +68,41 @@ jobs:
               - .github/workflows/zap_export.yml
               - .github/workflows/zap_single_visible.yml
               - products/zap-opendata/**
-
-  confirm_changes:
-    name: Confirm changes to relevant files
-    runs-on: ubuntu-22.04
-    needs: check_changes
-    if: ${{ needs.check_changes.outputs.path_filters != '' && toJson(fromJson(needs.check_changes.outputs.path_filters)) != '[]' }}
-    steps:
-      - name: Output if files have changed
+      - name: Confirm changes
         run: |
-          echo "path filters with changed files: ${{ needs.check_changes.outputs.path_filters }}"
+          echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
 
   template:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'build')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'build')
     uses: ./.github/workflows/template_test.yml
     secrets: inherit
   cbbr:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'cbbr')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'cbbr')
     uses: ./.github/workflows/cbbr_test.yml
   checkbook:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'checkbook')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')
     uses: ./.github/workflows/checkbook_test.yml
     secrets: inherit
   knownprojects:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'knownprojects')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'knownprojects')
     uses: ./.github/workflows/knownprojects_test.yml
     secrets: inherit
   qa:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'qa')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'qa')
     uses: ./.github/workflows/qa_test.yml
     secrets: inherit
   zap:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'zap')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'zap')
     uses: ./.github/workflows/zap_test.yml
     secrets: inherit
   dcpy:
-    needs: confirm_changes
-    if: contains(needs.check_changes.outputs.path_filters, 'dcpy')
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'dcpy')
     uses: ./.github/workflows/dcpy_test.yml
     secrets: inherit

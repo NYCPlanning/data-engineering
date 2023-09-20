@@ -8,7 +8,7 @@ jobs:
     name: QA Tests
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/dev:latest
     env:
       BUILD_ENGINE: ${{ secrets.EDM_DATA_QAQC_ENGINE }}
       BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}

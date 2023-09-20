@@ -7,7 +7,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/dev:latest
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
