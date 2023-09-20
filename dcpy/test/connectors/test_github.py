@@ -1,6 +1,6 @@
 from dcpy.connectors.github import get_default_branch, get_branches
 
-TEST_REPO = "data-engineering-qaqc"
+TEST_REPO = "data-engineering"
 
 
 ## TODO - these tests don't belong here since this functionality has been moved to dcpy

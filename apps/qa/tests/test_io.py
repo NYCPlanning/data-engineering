@@ -29,7 +29,6 @@ def test_dataset_config():
 
 def test_source_data_columns():
     columns = pg_client.get_table_columns(
-        table_schema=QAQC_DB_SCHEMA_SOURCE_DATA,
         table_name=f"{TEST_DATA_SOURCE_NAME}_{TEST_DATA_SOURCE_VERSION}",
     )
     assert columns == TEST_DATA_SOURCE_COLUMNS

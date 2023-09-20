@@ -13,8 +13,8 @@ pg_client = postgres.PostgresClient(
 
 
 def setup_build_db():
-    pg_client.drop_schema(BUILD_SCHEMA)
-    pg_client.create_schema(BUILD_SCHEMA)
+    pg_client.drop_schema()
+    pg_client.create_schema()
 
 
 def load_source_data():
