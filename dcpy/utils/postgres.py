@@ -143,39 +143,6 @@ class PostgresClient:
         )
         return int(row_counts["row_count"][0])
 
-    # ! DEPRECATED in favor of dcpy.connectors.recipes
-    # def load_data_from_sql_dump(
-    #     self,
-    #     table_schema: str,
-    #     dataset_by_version: str,
-    #     dataset_name: str,
-    # ):
-    #     print(f"Loading data into table {table_schema}.{dataset_name} ...")
-    #     file_name = Path(f"{dataset_by_version}.sql")
-    #     # run sql dump file to create initial table
-    #     execute_file_via_shell(build_engine_uri=BUILD_ENGINE_URI, path=file_name)
-    #     # copy inital data to a new table in the dataset-specific schema
-    #     self.execute_query(
-    #         """
-    #         CREATE TABLE :table_schema.:dataset_by_version AS TABLE :dataset_name
-    #         """,
-    #         {
-    #             "table_schema": AsIs(table_schema),
-    #             "dataset_by_version": AsIs(dataset_by_version),
-    #             "dataset_name": AsIs(dataset_name),
-    #         },
-    #     )
-    #     # copy inital data to a new table in the dataset-specific schema
-    #     self.execute_query(
-    #         """
-    #         DROP TABLE IF EXISTS :dataset_name CASCADE
-    #         """,
-    #         {
-    #             "dataset_name": AsIs(dataset_name),
-    #         },
-    #     )
-    #     self.vacuum_database()
-
 
 def insert_copy(table, conn, keys, data_iter):
     """
