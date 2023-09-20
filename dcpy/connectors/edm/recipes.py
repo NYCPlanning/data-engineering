@@ -257,8 +257,6 @@ def import_datasets(planned_recipe_file: Path = _typer_recipe_file_opt):
     logger.info("Importing Recipe Datasets")
     recipe = recipe_from_yaml(planned_recipe_file)
     pg_client = postgres.PostgresClient(
-        server_url=os.environ["BUILD_ENGINE_SERVER"],
-        database=os.environ["BUILD_ENGINE_DB"],
         schema=git.run_name(),
     )
     [import_dataset(ds, pg_client) for ds in recipe.inputs.datasets]
