@@ -30,7 +30,13 @@ def execute_query_via_shell(engine_uri: str, sql_statement):
 
 
 class PostgresClient:
-    def __init__(self, server_url: str, database: str, schema: str):
+    def __init__(
+        self,
+        schema: str,
+        *,
+        database: str = os.environ["BUILD_ENGINE_DB"],
+        server_url: str = os.environ["BUILD_ENGINE_SERVER"],
+    ):
         self.server_url = server_url
         self.database = database
         self.schema = schema.replace("-", "_")  # no dashes in postgres schema names

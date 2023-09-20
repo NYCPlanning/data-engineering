@@ -6,12 +6,8 @@ from dcpy.connectors.edm import recipes
 from . import RECIPE_PATH, RECIPE_LOCK_PATH
 
 build_schema = git.run_name()
-build_engine_server = os.environ["BUILD_ENGINE_SERVER"]
-build_engine_db = os.environ["BUILD_ENGINE_DB"]
 
 pg_client = postgres.PostgresClient(
-    server_url=build_engine_server,
-    database=build_engine_db,
     schema=build_schema,
 )
 
