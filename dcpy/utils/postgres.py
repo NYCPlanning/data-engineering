@@ -114,30 +114,31 @@ class PostgresClient:
         ]
         return table_names
 
-    # def get_table_columns(self, table_schema: str, table_name: str) -> list:
-    #     column_names = self.execute_select_query(
-    #         """
-    #         SELECT column_name FROM information_schema.columns
-    #         WHERE table_schema = ':table_schema'
-    #         AND table_name   = ':table_name';
-    #         """,
-    #         {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
-    #     )
-    #     return sorted(column_names["column_name"])
+    def get_table_columns(self, table_schema: str, table_name: str) -> list:
+        column_names = self.execute_select_query(
+            """
+            SELECT column_name FROM information_schema.columns
+            WHERE table_schema = ':table_schema'
+            AND table_name   = ':table_name';
+            """,
+            {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+        )
+        return sorted(column_names["column_name"])
 
-    # def get_table_row_count(self, table_schema: str, table_name: str) -> int:
-    #     row_counts = self.execute_select_query(
-    #         """
-    #         SELECT c.reltuples::bigint AS row_count
-    #         FROM pg_class c
-    #         JOIN pg_namespace n ON n.oid = c.relnamespace
-    #         WHERE c.relname = ':table_name'
-    #         AND n.nspname = ':table_schema';
-    #         """,
-    #         {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
-    #     )
-    #     return int(row_counts["row_count"][0])
+    def get_table_row_count(self, table_schema: str, table_name: str) -> int:
+        row_counts = self.execute_select_query(
+            """
+            SELECT c.reltuples::bigint AS row_count
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relname = ':table_name'
+            AND n.nspname = ':table_schema';
+            """,
+            {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+        )
+        return int(row_counts["row_count"][0])
 
+    # ! DEPRECATED in favor of dcpy.connectors.recipes
     # def load_data_from_sql_dump(
     #     self,
     #     table_schema: str,
