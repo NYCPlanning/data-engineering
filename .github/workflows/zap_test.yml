@@ -16,12 +16,12 @@ jobs:
   branch_unit_tests:
     name: Unit tests
     runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
     defaults:
       run:
         shell: bash
         working-directory: products/zap-opendata
-    container:
-      image: nycplanning/build-base:latest
     steps:
       - uses: actions/checkout@v3
 
@@ -41,7 +41,7 @@ jobs:
         shell: bash
         working-directory: products/zap-opendata
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/dev:latest
     steps:
       - uses: actions/checkout@v3
 

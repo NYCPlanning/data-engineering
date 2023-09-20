@@ -8,7 +8,7 @@ jobs:
     name: Static Type Check (mypy)
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/dev:latest
     defaults:
       run:
         shell: bash
@@ -22,7 +22,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/dev:latest
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
     defaults:

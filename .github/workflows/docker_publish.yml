@@ -1,4 +1,4 @@
-name: Publish Build Docker Images
+name: Docker Images - Build and Publish
 on:
   workflow_dispatch:
     inputs:
