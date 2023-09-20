@@ -27,7 +27,7 @@ jobs:
     name: Build and end-to-end tests
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/dev:latest
     defaults:
       run:
         shell: bash
@@ -55,6 +55,10 @@ jobs:
           echo "Hello logging level: $LOGGING_LEVEL (from envar from action inputs)"
           echo "Running python.run_logging ..."
           python -m python.run_logging
+
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Load
         run: |
