@@ -98,26 +98,6 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
     return source_report_results
 
 
-def create_source_data_schema() -> None:
-    schema_names = pg_client.get_schemas()
-    if QAQC_DB_SCHEMA_SOURCE_DATA not in schema_names:
-        schema_names = pg_client.create_schema(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
-    print("DEV schemas in DB EDM_DATA/edm-qaqc:")
-    print(f"{schema_names}")
-
-
-# def load_all_source_data(
-#     dataset_names: list[str], source_data_versions: pd.DataFrame
-# ) -> list:
-#     pool = multiprocessing.Pool(processes=4)
-#     pool.starmap(
-#         load_source_data_to_compare,
-#         zip(dataset_names, itertools.repeat(source_data_versions)),
-#     )
-#     table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
-#     return table_names
-
-
 def load_source_data_to_compare(
     dataset: str, source_data_versions: pd.DataFrame
 ) -> list[str]:
