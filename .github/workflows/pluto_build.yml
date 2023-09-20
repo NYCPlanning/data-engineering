@@ -38,6 +38,8 @@ jobs:
       image: nycplanning/build-base:latest
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+      BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
+      BUILD_ENGINE_DB: postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
