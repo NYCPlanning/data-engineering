@@ -21,7 +21,7 @@ def test_load_db_tables():
         "lpc_historic_districts",
         "nyc_landmarks",
     ]
-    actual_tables = pg_client.get_schema_tables(BUILD_SCHEMA)
+    actual_tables = pg_client.get_schema_tables()
     for table in expected_source_tables:
         assert table in actual_tables
 
@@ -39,6 +39,6 @@ def test_transform():
     expected_build_tables = [
         "hi_new_table",
     ]
-    actual_tables = pg_client.get_schema_tables(BUILD_SCHEMA)
+    actual_tables = pg_client.get_schema_tables()
     for table in expected_build_tables:
         assert table in actual_tables

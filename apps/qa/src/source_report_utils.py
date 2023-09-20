@@ -66,12 +66,8 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
         latest_table = construct_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
-        reference_columns = pg_client.get_table_columns(
-            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=reference_table
-        )
-        latest_columns = pg_client.get_table_columns(
-            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=latest_table
-        )
+        reference_columns = pg_client.get_table_columns(table_name=reference_table)
+        latest_columns = pg_client.get_table_columns(table_name=latest_table)
         source_report_results[dataset_name]["same_columns"] = (
             reference_columns == latest_columns
         )
@@ -86,12 +82,8 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
         latest_table = construct_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
-        reference_row_count = pg_client.get_table_row_count(
-            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=reference_table
-        )
-        latest_row_count = pg_client.get_table_row_count(
-            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=latest_table
-        )
+        reference_row_count = pg_client.get_table_row_count(table_name=reference_table)
+        latest_row_count = pg_client.get_table_row_count(table_name=latest_table)
         source_report_results[dataset_name]["same_row_count"] = (
             reference_row_count == latest_row_count
         )
@@ -117,7 +109,7 @@ def load_source_data(dataset: str, version: str) -> str:
     recipes.fetch_sql(dataset, SQL_FILE_DIRECTORY)
 
     dataset_by_version = construct_dataset_by_version(dataset, version)
-    schema_tables = pg_client.get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+    schema_tables = pg_client.get_schema_tables()
 
     status_message = None
     if not dataset_by_version in schema_tables:
