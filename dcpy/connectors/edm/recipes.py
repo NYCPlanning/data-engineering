@@ -26,6 +26,8 @@ BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
 
+BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA")
+
 
 class RecipeInputsVersionStrategy(str, Enum):
     find_latest = "find_latest"
@@ -257,7 +259,7 @@ def import_datasets(planned_recipe_file: Path = _typer_recipe_file_opt):
     logger.info("Importing Recipe Datasets")
     recipe = recipe_from_yaml(planned_recipe_file)
     pg_client = postgres.PostgresClient(
-        schema=git.run_name(),
+        schema=BUILD_SCHEMA,
     )
     [import_dataset(ds, pg_client) for ds in recipe.inputs.datasets]
 
