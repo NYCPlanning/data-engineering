@@ -3,7 +3,6 @@ import streamlit as st
 from dcpy.connectors.edm import publishing
 from src.source_report_utils import (
     get_source_data_versions_to_compare,
-    create_source_data_schema,
     load_source_data_to_compare,
     compare_source_data_columns,
     compare_source_data_row_count,
@@ -61,7 +60,6 @@ def sources_report(
     )
 
     data_loading_expander = st.expander("Data loading status")
-    create_source_data_schema()
     with data_loading_expander:
         for dataset in source_dataset_names:
             with st.spinner(f"⏳ Loading {dataset} versions ..."):
