@@ -24,7 +24,7 @@ BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
 
-BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA")
+BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA", postgres.DEFAULT_POSTGRES_SCHEMA)
 
 
 class RecipeInputsVersionStrategy(str, Enum):
@@ -130,7 +130,11 @@ def import_dataset(
     postgres.execute_file_via_shell(pg_client.engine_uri, sql_script_path)
 
     with pg_client.engine.begin() as con:
-        con.execute(text(f"ALTER TABLE {dataset.name} SET SCHEMA {pg_client.schema};"))
+        con.execute(
+            text(
+                f"ALTER TABLE {postgres.DEFAULT_POSTGRES_SCHEMA}.{dataset.name} SET SCHEMA {pg_client.schema};"
+            )
+        )
 
         con.execute(
             text(f"ALTER TABLE {dataset.name} ADD COLUMN data_library_version text;")
