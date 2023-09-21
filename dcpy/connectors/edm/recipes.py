@@ -10,11 +10,9 @@ import typer
 from typing import Optional, List
 import yaml
 
-
 from dcpy import DCPY_ROOT_PATH
 from dcpy.utils import s3
 from dcpy.utils import postgres
-from dcpy.utils import git
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
 
