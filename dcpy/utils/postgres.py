@@ -7,9 +7,18 @@ from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text
 from typing import Optional
 
+DEFAULT_POSTGRES_SCHEMA = "public"
 
-def generate_engine_uri(server_url: str, database: str, schema: Optional[str] = None):
-    schemas = "public" if (not schema or schema == "public") else f"{schema},public"
+
+def generate_engine_uri(
+    server_url: str, database: str, schema: str = DEFAULT_POSTGRES_SCHEMA
+):
+    # the default postgres schema must always be in the search_path
+    schemas = (
+        f"{schema},{DEFAULT_POSTGRES_SCHEMA}"
+        if schema != DEFAULT_POSTGRES_SCHEMA
+        else schema
+    )
     options = f"?options=--search_path%3D{schemas}"
     return server_url + "/" + database + options
 
@@ -31,7 +40,8 @@ def execute_query_via_shell(engine_uri: str, sql_statement):
 class PostgresClient:
     def __init__(
         self,
-        schema: Optional[str] = None,
+        schema: str,
+        *,
         database: str = os.environ["BUILD_ENGINE_DB"],
         server_url: str = os.environ["BUILD_ENGINE_SERVER"],
     ):

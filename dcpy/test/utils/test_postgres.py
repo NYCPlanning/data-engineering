@@ -6,7 +6,7 @@ from dcpy.utils import postgres
     "test_inputs, expected_uri",
     [
         (
-            ("local@local.local://person:pass", "db-1", None),
+            ("local@local.local://person:pass", "db-1", "public"),
             "local@local.local://person:pass/db-1?options=--search_path%3Dpublic",
         ),
         (
