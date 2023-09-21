@@ -25,8 +25,6 @@ jobs:
       image: nycplanning/build-geosupport:latest
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
-      BUILD_ENGINE_DB: PLACEHOLDER_VALUE
-      BUILD_ENGINE_SERVER: PLACEHOLDER_VALUE
     defaults:
       run:
         shell: bash

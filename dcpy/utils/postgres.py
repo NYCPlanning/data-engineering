@@ -42,15 +42,16 @@ class PostgresClient:
         self,
         schema: str,
         *,
-        database: str = os.environ["BUILD_ENGINE_DB"],
-        server_url: str = os.environ["BUILD_ENGINE_SERVER"],
+        database: Optional[str] = None,
+        server_url: Optional[str] = None,
     ):
-        self.server_url = server_url
-        self.database = database
         self.schema = schema
-        self.engine_uri = generate_engine_uri(
-            server_url=server_url, database=database, schema=schema
+        self.database = database if database else os.environ["BUILD_ENGINE_DB"]
+        self.server_url = (
+            server_url if server_url else os.environ["BUILD_ENGINE_SERVER"]
         )
+
+        self.engine_uri = generate_engine_uri(self.server_url, self.database, schema)
         self.engine = create_engine(
             self.engine_uri,
             isolation_level="AUTOCOMMIT",
