@@ -24,7 +24,7 @@ jobs:
       GINGER_USER: ${{ secrets.GINGER_USER }}
       GINGER_HOST: ${{ secrets.GINGER_HOST }}
     services:
-      postgres:
+      postgis:
         image: postgis/postgis:15-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
