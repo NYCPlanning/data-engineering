@@ -1,11 +1,12 @@
 boto3
-cached_property
 census
 contextily
+geoalchemy2
 geopandas
 Jinja2
 msal
 numpy
+openpyxl
 pandas
 pathos
 psycopg2_binary
