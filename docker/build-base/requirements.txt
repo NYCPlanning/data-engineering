@@ -1,5 +1,4 @@
 boto3
-cached_property
 census
 contextily
 geoalchemy2

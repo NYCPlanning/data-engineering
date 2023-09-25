@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from cached_property import cached_property
+from functools import cached_property
 
 from . import agg_moe
 
