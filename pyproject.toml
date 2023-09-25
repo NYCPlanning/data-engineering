@@ -8,6 +8,7 @@ exclude_rules = [
     "references.qualification",
     "structure.unused_cte",
     "structure.column_order",
+    "structure.subquery",
     "references.keywords",
     "references.consistent",
     "references.special_chars",
@@ -27,6 +28,8 @@ max_line_length = 120
 # e.g. -1 means use all processors but one. 0 means all cpus.
 processes = -1
 
+large_file_skip_byte_limit = 40000
+
 [tool.sqlfluff.templater.placeholder]
 param_style = "colon_optional_quotes"
 TABLE = "dummy_table_name"
@@ -36,6 +39,8 @@ CONDO = "true"
 MAPPED = "true"
 CONDITION = "WHERE a.geom IS NOT NULL"
 GEOM = "geom_2263"
+ccp_v = "fisa_2000"
+build_schema = "public"
 
 [tool.sqlfluff.templater.jinja]
 apply_dbt_builtins = true

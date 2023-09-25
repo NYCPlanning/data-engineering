@@ -30,9 +30,10 @@ jobs:
         run: |
           # TODO: Gradually expand this to cover more products
           sqlfluff lint products/template/
+          sqlfluff lint products/cpdb/sql/
           sqlfluff lint products/knownprojects/
-          sqlfluff lint products/pluto/pluto_build/sql
-          sqlfluff lint products/zoningtaxlots/sql
+          sqlfluff lint products/pluto/pluto_build/sql/
+          sqlfluff lint products/zoningtaxlots/sql/
 
   check_changes:
     name: Check changed files
