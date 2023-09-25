@@ -2,7 +2,7 @@
 import pytest
 
 # ensure imports or project modules work
-from src.constants import DATASET_PAGES
+from src.constants import PAGES
 
 
 def test_always_passes():

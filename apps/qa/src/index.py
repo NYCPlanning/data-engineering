@@ -1,7 +1,7 @@
 import importlib
 import streamlit as st
 
-from src.constants import DATASET_PAGES
+from src.constants import PAGES
 
 
 def run():
@@ -16,7 +16,7 @@ def run():
         unsafe_allow_html=True,
     )
 
-    datasets_list = list(DATASET_PAGES.keys())
+    datasets_list = list(PAGES.keys())
     query_params = st.experimental_get_query_params()
 
     if query_params:
@@ -31,10 +31,8 @@ def run():
 
     st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
 
-    dataset_module = importlib.import_module(
-        f"src.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}"
-    )
-    dataset_page = getattr(dataset_module, DATASET_PAGES[name])
+    dataset_module = importlib.import_module(f"src.{PAGES[name]}.{PAGES[name]}")
+    dataset_page = getattr(dataset_module, PAGES[name])
     dataset_page()
 
 

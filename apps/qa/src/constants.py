@@ -7,8 +7,9 @@ BUCKET_NAME = "edm-publishing"
 
 SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
 
-DATASET_PAGES = {
+PAGES = {
     "Home": "home",
+    "Source Data": "source_data",
     "Capital Projects DB": "cpdb",
     "City Owned and Leased Properties": "colp",
     "Developments DB": "devdb",

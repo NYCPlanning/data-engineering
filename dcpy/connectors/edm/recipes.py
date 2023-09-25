@@ -78,18 +78,20 @@ def get_dataset_config_path(dataset: str, version: str = "latest"):
     return f"{BASE_URL}/{dataset}/{version}/config.json"
 
 
-def get_config(name, version="latest"):
+def get_config(name: str, version="latest"):
     """Retrieve a recipe config from s3."""
-    obj = s3.client().get_object(
-        Bucket=BUCKET, Key=f"datasets/{name}/{version}/config.json"
-    )
-    file_content = str(obj["Body"].read(), "utf-8")
+    file_content = s3.get_file_as_text(BUCKET, f"datasets/{name}/{version}/config.json")
     return json.loads(file_content)
 
 
 def get_latest_version(name):
-    """Retrieve a recipe config from s3."""
+    """Get the latest version of a recipe dataset"""
     return get_config(name)["dataset"]["version"]
+
+
+def get_all_versions(name):
+    """Get all versions of a specific recipe dataset"""
+    return s3.get_subfolders(BUCKET, f"datasets/{name}/")
 
 
 def fetch_sql(ds: Dataset, local_library_dir):
