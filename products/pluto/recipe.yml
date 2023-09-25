@@ -1,5 +1,5 @@
 name: Pluto Major
-version: 23v2
+version: 23v3
 product: db-pluto
 inputs:
   missing_versions_strategy: find_latest
