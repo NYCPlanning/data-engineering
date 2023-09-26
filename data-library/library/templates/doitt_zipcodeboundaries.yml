@@ -1,0 +1,32 @@
+dataset:
+  name: &name doitt_zipcodeboundaries
+  version: "20180910"
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-recipes/tmp/doitt_zipcodeboundaries.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"  
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+  
+  info:
+    description: |
+      ### Zipcode Boundary
+      Updated September 10, 2018
+    url: https://data.cityofnewyork.us/Business/Zip-Code-Boundaries/i8iw-xf4u
+    dependents: []

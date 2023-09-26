@@ -1,0 +1,39 @@
+dataset:
+  name: &name foodbankny_foodbanks
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: "library/tmp/Food_Bank_For_NYC_Open_Members_as_of_{{ version }}.csv"
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      > Map results of soup kitchen, food pantry, senior center, or SNAP enrollment site locactions
+      ## Update Instructions
+      1. head to http://www.foodbanknyc.org/get-help/
+      2. navigate to the map and make a copy of the map
+      3. After making a copy, click on the three dots next to the target layer 
+      and click "Export Data" and export as a csv 
+      4. Rename the file (still as a csv) to match Food_Bank_For_NYC_Open_Members_as_of_DATE(YYYYMMDD). You will need to convert the existing date format MMDDYY to YYYYMMDD so that the version matches existing date format standard in data library.
+      5. place it at the library/tmp folder 
+      6. then run library archive --name foodbankny_foodbanks with the -version flag set to the DATE in the file path
+    url: "http://www.foodbanknyc.org/get-help/"
+    dependents: []

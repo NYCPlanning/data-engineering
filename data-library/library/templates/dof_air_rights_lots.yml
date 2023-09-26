@@ -1,0 +1,32 @@
+dataset:
+  name: &name dof_air_rights_lots
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://edm-publishing.nyc3.digitaloceanspaces.com/datasets/dof_dtm_air_rights_lots/staging/dof_dtm_air_rights_lots.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DOF's Air Rights Lots Table
+      Received through EDM>GIS
+    url: "http://gis.nyc.gov/taxmap/"
+    dependents: []

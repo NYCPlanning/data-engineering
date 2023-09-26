@@ -1,0 +1,35 @@
+dataset:
+  name: &name fbop_corrections
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/fbop_corrections.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude"
+      - "Y_POSSIBLE_NAMES=latitude"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## Federal Bureau of Prisons Locations
+      Hand-check for updates.
+    url: https://www.bop.gov/locations/list.jsp
+    dependents: []

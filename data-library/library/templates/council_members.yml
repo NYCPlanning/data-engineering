@@ -1,0 +1,32 @@
+dataset:
+  name: &name council_members
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: uvw5-9znb
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Council Members
+      This list contains information on Council Members
+    url: https://data.cityofnewyork.us/City-Government/Council-Members/uvw5-9znb
+    dependents: []

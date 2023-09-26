@@ -1,0 +1,93 @@
+,lon,lat,name,zipcode,address,locality,region
+0,-73.9532,40.8028,Harry Belafonte 115th Street Library,10026,203 West 115th Street,New York,NY
+1,-73.9354,40.8034,125th Street Library,10035,224 East 125th Street,New York,NY
+2,-73.9691,40.7619,58th Street Library,10022,127 East 58th Street,New York,NY
+3,-73.9601,40.7652,67th Street Library,10065,328 East 67th Street,New York,NY
+4,-73.9522,40.7863,96th Street Library,10128,112 East 96th Street,New York,NY
+5,-73.9436,40.7943,Aguilar Library,10029,174 East 110th Street,New York,NY
+6,-73.8632,40.866,Allerton Library,10467,2740 Barnes Avenue,Bronx,NY
+7,-73.993,40.7404,Andrew Heiskell Braille and Talking Book Library,10011,40 West 20th Street,New York,NY
+8,-73.8305,40.8711,Baychester Library,10475,2049 Asch Loop North,Bronx,NY
+9,-73.8877,40.8544,Belmont Library and Enrico Fermi Cultural Center,10458,610 E. 186th Street,Bronx,NY
+10,-73.9671,40.796,Bloomingdale Library,10025,150 West 100th Street,New York,NY
+11,-73.8944,40.8634,Bronx Library Center,10458,310 East Kingsbridge Road,Bronx,NY
+12,-73.8499,40.8264,Castle Hill Library,10473,947 Castle Hill Avenue,Bronx,NY
+13,-73.9725,40.7568,Terence Cardinal Cooke-Cathedral Library,10022,560 Lexington Avenue,New York,NY
+14,-73.9965,40.7134,Chatham Square Library,10002,33 East Broadway,New York,NY
+15,-73.7865,40.8477,City Island Library,10464,320 City Island Avenue,Bronx,NY
+16,-73.8748,40.8299,Clason's Point Library,10472,1215 Morrison Avenue,Bronx,NY
+17,-73.9914,40.765,Columbus Library,10019,742 10th Avenue,New York,NY
+18,-73.9408,40.8148,Countee Cullen Library,10030,104 West 136th Street,New York,NY
+19,-74.101,40.5906,Dongan Hills Library,10304,1617 Richmond Road,Staten Island,NY
+20,-73.8454,40.8702,Eastchester Library,10469,1385 East Gun Hill Road,Bronx,NY
+21,-73.8409,40.8888,Edenwald Library,10466,1255 East 233rd Street,Bronx,NY
+22,-73.9827,40.7385,Epiphany Library,10010,228 East 23rd Street,New York,NY
+23,-73.9337,40.8478,Fort Washington Library,10033,535 West 179th Street,New York,NY
+24,-73.9095,40.8574,Francis Martin Library,10453,2150 University Avenue,Bronx,NY
+25,-73.957,40.8139,George Bruce Library,10027,518 West 125th Street,New York,NY
+26,-73.9101,40.8439,Grand Concourse Library,10457,155 East 173rd Street,Bronx,NY
+27,-74.151,40.5524,Great Kills Library,10308,56 Giffords Lane,Staten Island,NY
+28,-73.9791,40.7199,Hamilton Fish Park Library,10002,415 East Houston Street,New York,NY
+29,-73.9477,40.8255,Hamilton Grange Library,10031,503 West 145th Street,New York,NY
+30,-73.9431,40.8061,Harlem Library,10027,9 West 124th Street,New York,NY
+31,-73.9235,40.838,High Bridge Library,10452,78 West 168th Street,Bronx,NY
+32,-74.0053,40.73,Hudson Park Library,10014,66 Leroy Street,New York,NY
+33,-74.1933,40.5345,Huguenot Park Library,10312,830 Huguenot Avenue,Staten Island,NY
+34,-73.9822,40.7532,Stephen A. Schwarzman Building,10018,476 Fifth Avenue (42nd St and Fifth Ave),New York,NY
+35,-73.8939,40.8187,Hunts Point Library,10459,877 Southern Boulevard,Bronx,NY
+36,-73.9257,40.866,Inwood Library,10034,4790 Broadway,New York,NY
+37,-73.999,40.7347,Jefferson Market Library,10011,425 Avenue of the Americas,New York,NY
+38,-73.9012,40.8691,Jerome Park Library,10468,118 Eames Place,Bronx,NY
+39,-73.908,40.8805,Kingsbridge Library,10463,291 West 231st Street,Bronx,NY
+40,-73.9797,40.7438,Kips Bay Library,10016,446 Third Avenue,New York,NY
+41,-73.938,40.825,Macomb's Bridge Library,10039,"2633 Adam Clayton Powell, Jr. Blvd.",New York,NY
+42,-73.9177,40.8267,Melrose Library,10451,910 Morris Avenue,Bronx,NY
+43,-73.9822,40.7532,Mid-Manhattan Library at 42nd Street,10018,476 Fifth Avenue (42nd Street Entrance),New York,NY
+44,-73.965,40.8062,Morningside Heights Library,10025,2900 Broadway,New York,NY
+45,-73.9013,40.8316,Morrisania Library,10456,610 East 169th Street,Bronx,NY
+46,-73.8784,40.8744,Mosholu Library,10467,285 East 205th Street,Bronx,NY
+47,-73.9243,40.8116,Mott Haven Library,10454,321 East 140th Street,Bronx,NY
+48,-73.9961,40.7444,Muhlenberg Library,10011,209 West 23rd Street,New York,NY
+49,-74.0078,40.7134,New Amsterdam Library,10007,9 Murray Street,New York,NY
+50,-74.1123,40.572,New Dorp Library,10306,309 New Dorp Lane,Staten Island,NY
+51,-73.9848,40.7735,"New York Public Library for the Performing Arts, Dorothy and Lewis B. Cullman Center",10023,40 Lincoln Center Plaza (65th St and Columbus Ave),New York,NY
+52,-73.9877,40.7288,Ottendorfer Library,10003,135 Second Avenue,New York,NY
+53,-73.8593,40.8336,Parkchester Library,10462,1985 Westchester Avenue,Bronx,NY
+54,-73.828,40.8444,Pelham Bay Library,10461,3060 Middletown Road,Bronx,NY
+55,-74.1322,40.638,Port Richmond Library,10302,75 Bennett Street,Staten Island,NY
+56,-74.1381,40.5668,Richmondtown Library,10306,200 Clarke Avenue,Staten Island,NY
+57,-73.9037,40.9029,Riverdale Library,10471,5540 Mosholu Avenue,Bronx,NY
+58,-73.9844,40.7743,Riverside Library,10023,127 Amsterdam Avenue,New York,NY
+59,-73.9506,40.7609,Roosevelt Island Library,10044,524 Main Street,New York,NY
+60,-73.941,40.8144,Schomburg Center for Research in Black Culture,10037,515 Malcolm X Boulevard (135th St and Malcolm X Blvd),New York,NY
+61,-73.983,40.748,"Science, Industry and Business Library (SIBL)",10016,188 Madison Avenue (34th St and Madison Ave),New York,NY
+62,-73.9184,40.8496,Sedgwick Library,10453,"1701 Martin Luther King, Jr. Blvd.",Bronx,NY
+63,-73.9884,40.7144,Seward Park Library,10002,192 East Broadway,New York,NY
+64,-73.8625,40.8182,Soundview Library,10473,660 Soundview Avenue,Bronx,NY
+65,-74.0631,40.5959,South Beach Library,10305,21-25 Robin Road,Staten Island,NY
+66,-73.9144,40.8863,Spuyten Duyvil Library,10463,650 W. 235th St.,Bronx,NY
+67,-73.9773,40.7848,St. Agnes Library,10024,444 Amsterdam Avenue (between West 81st and West 82nd Streets),New York,NY
+68,-74.0768,40.6419,St. George Library Center,10301,5 Central Avenue,Staten Island,NY
+69,-74.0779,40.6263,Stapleton Library,10304,132 Canal St.,Staten Island,NY
+70,-73.8188,40.8219,Throg's Neck Library,10465,3025 Cross Bronx Expressway Extension,Bronx,NY
+71,-74.148,40.6098,Todt Hill-Westerleigh Library,10314,2550 Victory Boulevard,Staten Island,NY
+72,-73.9806,40.7273,Tompkins Square Library,10009,331 East 10th Street,New York,NY
+73,-74.244,40.5098,Tottenville Library,10307,7430 Amboy Road,Staten Island,NY
+74,-73.8984,40.8461,Tremont Library,10457,1866 Washington Avenue,Bronx,NY
+75,-73.8945,40.8836,Van Cortlandt Library,10463,3882 Cannon Place,Bronx,NY
+76,-73.8637,40.8551,Pelham Parkway-Van Nest Library,10462,2147 Barnes Avenue,Bronx,NY
+77,-73.8596,40.8912,Wakefield Library,10466,4100 Lowerre Place,Bronx,NY
+78,-73.9399,40.8346,Washington Heights Library,10032,1000 St. Nicholas Avenue,New York,NY
+79,-73.9512,40.7707,Webster Library,10075,1465 York Avenue,New York,NY
+80,-73.8828,40.8448,West Farms Library,10460,2085 Honeywell Avenue,Bronx,NY
+81,-74.1152,40.6346,West New Brighton Library,10310,976 Castleton Avenue,Staten Island,NY
+82,-73.8469,40.8407,Westchester Square Library,10461,2521 Glebe Avenue,Bronx,NY
+83,-73.8679,40.9005,Woodlawn Heights Library,10470,4355 Katonah Avenue,Bronx,NY
+84,-73.9046,40.8205,Woodstock Library,10456,761 East 160th Street,Bronx,NY
+85,-73.9569,40.774,Yorkville Library,10075,222 East 79th Street,New York,NY
+86,-73.9956,40.7242,Mulberry Street Library,10012,10 Jersey Street,New York,NY
+87,-73.8558,40.8467,Morris Park Library,10462,985 Morris Park Avenue,Bronx,NY
+88,-73.974,40.7539,Grand Central Library,10017,135 East 46th Street,New York,NY
+89,-74.0157,40.7155,Battery Park City Library,10282,175 North End Avenue,New York,NY
+90,-74.1665,40.6348,Mariners Harbor Library,10303,206 South Ave,Staten Island,NY
+91,-73.9773,40.7608,53rd Street Library,10019,18 West 53rd Street,New York,NY

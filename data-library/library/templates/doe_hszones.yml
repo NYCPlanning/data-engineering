@@ -1,0 +1,32 @@
+dataset:
+  name: &name doe_hszones
+  version: "2019-2020"
+  acl: public-read
+  source:
+    socrata:
+      uid: g844-z9rd
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### 2019-2020 School Zones (High School)
+      Polygon boundaries of school zones used for school assignment and access.
+    url: https://data.cityofnewyork.us/Education/2019-2020-School-Zones-High-School-/g844-z9rd
+    dependents: []

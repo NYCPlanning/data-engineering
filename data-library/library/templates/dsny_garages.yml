@@ -1,0 +1,34 @@
+dataset:
+  name: &name dsny_garages
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: xw3j-2yxf
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=point"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DSNY Garages
+      Location of DSNY garages. Essential to DSNY operations are our 59 garages across the five boroughs. This structure enables the Department’s uniformed personnel to efficiently perform regular duties – and quickly execute emergency response. For more information about DSNY garages, see: https://www1.nyc.gov/assets/dsny/site/about/dsny-garage-locations
+    url: "https://data.cityofnewyork.us/Environment/DSNY-Garages/xw3j-2yxf"
+    dependents: []

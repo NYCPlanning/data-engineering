@@ -1,0 +1,92 @@
+name: Update Docker Hub Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        type: choice
+        description: Name of release
+        required: true
+        options:
+          - ubuntu-staging
+          - ubuntu-latest
+  push:
+    branches: main
+
+jobs:
+  update_image:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          username: ${{ secrets.AW_Docker_Username }}
+          password: ${{ secrets.AW_Docker_Password }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          push: true
+          tags: nycplanning/library:${{ github.event.inputs.image_tag || 'ubuntu-latest' }}
+
+  update_docs:
+    needs: update_image
+    runs-on: ubuntu-20.04
+    container: osgeo/gdal:ubuntu-small-3.6.1
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up GDAL and poetry
+      run: |
+        apt update
+        apt install -y git python3-pip
+
+    - name: Install Python dependencies, create docs
+      run: |
+        python3.10 -m pip install --upgrade pip
+        python3.10 -m pip install .
+        python3.10 -m pip install pdoc3
+        python3.10 -m pdoc -f -o docs --html library
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: docs
+        path: docs/library
+        
+  commit:
+    runs-on: ubuntu-20.04
+    needs: update_docs
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/download-artifact@v3
+      with:
+        name: docs
+        path: docs/library
+
+    - name: Commit files
+      continue-on-error: true
+      id: commit
+      run: |
+        ls -l docs/
+        ls -l docs/library
+        git status
+
+        DATE=$(date)
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/
+        git commit -m "🎉 Update Docs $DATE" -a
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      continue-on-error: true
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}

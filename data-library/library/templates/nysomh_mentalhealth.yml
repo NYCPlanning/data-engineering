@@ -1,0 +1,32 @@
+dataset:
+  name: &name nysomh_mentalhealth
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://data.ny.gov/api/views/6nvr-tbv8/rows.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## Local Mental Health Programs
+      Includes programs that are licensed by the Office of Mental Health (OMH) and programs that are funded by OMH but do not need a license to operate.
+    url: https://data.ny.gov/Human-Services/Local-Mental-Health-Programs/6nvr-tbv8
+    dependents: []

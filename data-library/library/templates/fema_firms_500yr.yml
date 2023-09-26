@@ -1,0 +1,32 @@
+dataset:
+  name: &name fema_firms_500yr
+  version: "20181219"
+  acl: public-read
+  source:
+    url:
+      path: fema_firms_500yr.zip
+      subpath: ''
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### FIRM PFIRM 500 Year Merged.lyr
+      taken from SDE
+    url:
+    dependents: []

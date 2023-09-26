@@ -1,0 +1,33 @@
+dataset:
+  name: &name test_none
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://nyc.digitaloceanspaces.com/edm-publishing/datasets/commercial_overlays/staging/gis_commercial_overlays.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+  sql: null
+
+  info:
+    description: |
+      ### DCP NYC Commercial Overlay District
+      Polygon features representing the within-tax-block limits for commercial overlay districts,
+      as shown on the DCP zoning maps. Commercial overlay district designations are indicated in the OVERLAY attribute.
+    url: null
+    dependents: []

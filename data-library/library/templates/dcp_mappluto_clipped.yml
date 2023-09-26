@@ -1,0 +1,55 @@
+dataset:
+  name: &name dcp_mappluto_clipped
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nyc_mappluto_{{ version }}_shp.zip
+      subpath: MapPLUTO.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      # MapPLUTO - shoreline clippped
+      `dcp_mappluto` is supposed to be shoreline clipped, but for now
+      it will be water included instead because we are still in the process
+      of switching over from `dcp_mappluto` to `dcp_mappluto_wi` in our codebase. 
+      Once the transition is complete, we will switch over the source url.
+      so we will use `dcp_mappluto_clipped` for now
+    url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page
+    dependents:
+      - pluto_corrections
+      - pluto_input_numbldgs
+      - dcp_edesignation
+      - dcp_colp
+      - lpc_historic_districts
+      - lpc_landmarks
+      - dcp_cdboundaries_wi
+      - dcp_censustracts
+      - dcp_censusblocks
+      - dcp_school_districts
+      - dcp_councildistricts_wi
+      - doitt_zipcodeboundaries
+      - dcp_firecompanies
+      - dcp_policeprecincts
+      - dcp_healthareas
+      - dcp_healthcenters
+      - dsny_frequencies
+      - dpr_greenthumb

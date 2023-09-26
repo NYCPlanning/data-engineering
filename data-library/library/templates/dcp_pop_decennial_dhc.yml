@@ -1,0 +1,30 @@
+dataset:
+  name: &name dcp_pop_decennial_dhc
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/dhc_{{ version }}.xlsx
+      subpath: ""
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## ACS Demographic and Housing Characteristics file from Population
+      This file is produced internally by the Population division. It contains data from multiple versions of the 
+      Census Demographic and Housing Characteristics (DHC) file with updated estimates for the current year. 
+      
+      It is received via email or file transfer from the DCP Population division
+      
+    url: null
+    dependents: []

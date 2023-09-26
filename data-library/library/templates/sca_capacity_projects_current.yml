@@ -1,0 +1,32 @@
+dataset:
+  name: &name sca_capacity_projects_current
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/sca_capacity_projects_current.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC School Construction Authority - Capacity Projects in Progress
+      Provided by DCP Capital Planning team as an excel file.
+    url: ""
+    dependents: []

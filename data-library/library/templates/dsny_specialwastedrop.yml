@@ -1,0 +1,34 @@
+dataset:
+  name: &name dsny_specialwastedrop
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: 242c-ru4i
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=point"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DSNY Special Waste Drop-off Sites
+      Location of DSNY Special Waste Drop-Off Sites. Please note that starting on March 20, 2020, DSNY suspended some services to limit person-to-person contact and to enable our workforce to refocus on core operations. Suspended services include Special Waste Drop-off sites which will be closed until further notice. Residents should not illegally dump waste at these locations. Visit https://www1.nyc.gov/assets/dsny/site/services/harmful-products for updates.
+    url: "https://data.cityofnewyork.us/Environment/DSNY-Special-Waste-Drop-off-Sites/242c-ru4i"
+    dependents: []

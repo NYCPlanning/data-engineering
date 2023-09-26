@@ -1,0 +1,51 @@
+dataset:
+  name: &name dcp_mappluto_wi
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_mappluto_{{ version }}_unclipped_shp.zip
+      subpath: MapPLUTO_UNCLIPPED.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      # MapPLUTO - Water Included
+      `dcp_mappluto_wi` is **Water Included**
+    url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page
+    dependents:
+      - pluto_corrections
+      - pluto_input_numbldgs
+      - dcp_edesignation
+      - dcp_colp
+      - lpc_historic_districts
+      - lpc_landmarks
+      - dcp_cdboundaries_wi
+      - dcp_censustracts
+      - dcp_censusblocks
+      - dcp_school_districts
+      - dcp_councildistricts_wi
+      - doitt_zipcodeboundaries
+      - dcp_firecompanies
+      - dcp_policeprecincts
+      - dcp_healthareas
+      - dcp_healthcenters
+      - dsny_frequencies
+      - dpr_greenthumb

@@ -1,0 +1,32 @@
+dataset:
+  name: &name dcp_censusdata
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    path: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc_decennialcensusdata_2010_2020_change-core-geographies.xlsx
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  Census
+      Decennial - high chance that 2030 will not follow same conventions
+      Currently has export with both data, 2010 or 2020 must be specified as version to determine which set of columns to use
+      This version contains data at the citywide, boro, community district, 2013 council district, 2020 NTA, and 2020 census track levels (no census blocks or CDTAs)
+    url: "https://www.nyc.gov/site/planning/planning-level/nyc-population/2020-census.page"
+    dependents: []

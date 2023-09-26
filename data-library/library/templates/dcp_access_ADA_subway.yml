@@ -1,0 +1,34 @@
+dataset:
+  name: &name dcp_access_ada_subway
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/dcp_access_ADA_subway.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  DCP Transportation Access to Subway or SBS
+      Input for EDDT. Captures percent of residents within 1/4 mile of
+       ADA accessible subway stations
+
+    url:
+    dependents: []

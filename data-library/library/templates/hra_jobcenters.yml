@@ -1,0 +1,35 @@
+dataset:
+  name: &name hra_jobcenters
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: 9d9t-bmk7
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude,Longitude"
+      - "Y_POSSIBLE_NAMES=latitude,Latitude"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Directory Of Job Centers
+      List of Job Centers that offer temporary financial assistance, SNAP, and Medicaid to eligible individuals.
+    url: "https://data.cityofnewyork.us/Business/Directory-Of-Job-Centers/9d9t-bmk7"
+    dependents: []

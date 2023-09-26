@@ -1,0 +1,32 @@
+dataset:
+  name: &name fema_pfirms2015_100yr
+  version: "20181219"
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-recipes/tmp/PFIRM2015.zip
+      subpath: PFIRM_s_fld_haz_ar.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+  
+  info:
+    description: |
+      ### FEMA 100 year firms - 2015
+      taken from FTP
+    url: 
+    dependents: []

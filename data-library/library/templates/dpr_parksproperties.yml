@@ -1,0 +1,36 @@
+dataset:
+  name: &name dpr_parksproperties
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: enfh-gkve
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+
+  info:
+    description: |
+      This dataset identifies property managed partially or solely by NYC Parks.
+      This data has been produced in whole or part using secondary data.
+      Data accuracy is limited by the scale and accuracy of the original sources.
+      Site-specific conditions should be field-verified.
+      Records are added as more land is designated under NYC Parks’ jurisdiction.
+      Each record represents an acquisition.
+      User Guide: https://docs.google.com/document/d/1NExNJF5YKID04oOopi0fHainRuGG3Pz_jKSrMujPsPk/edit?usp=sharing
+      Data Dictionary: https://docs.google.com/spreadsheets/d/1Q4DBWu7riNFxWvy1vnTJHoOI3r2L9oW6eCN56jCNyCw/edit?usp=sharing
+    url: https://data.cityofnewyork.us/Recreation/Parks-Properties/enfh-gkve

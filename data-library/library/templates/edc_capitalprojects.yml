@@ -1,0 +1,35 @@
+dataset:
+  name: &name edc_capitalprojects
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: library/tmp/EDCCapital.zip
+      subpath: EDCCapital.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:3857
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### EDC Capital Projects
+      Received via email - NOTE: source data geometry can change frequently, make sure to review output 
+      and the geometry (srs-epsg) matches a nyc lat/long. The shapefile can be brought into a GIS software
+      before ingestion to doublecheck correct source epsg.
+    url:
+    dependents: []

@@ -1,0 +1,37 @@
+dataset:
+  name: &name dcp_electiondistricts_wi
+  version: "{{ version }}"
+  acl: public-read
+
+  source:
+    url:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyedwi_{{ version }}.zip
+      subpath: nyedwi_{{ version }}/nyedwi.shp
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options: 
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### ESRI Shapefile
+      New York City Board of Elections election districts for the City of New York
+      (Water areas included). These district boundaries represent the redistricting
+      as of the US Census 2010. Source will be updated once the boundaries get redistricted as response
+      to the 2020 Census.
+    url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+    dependents: []    
+

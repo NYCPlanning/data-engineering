@@ -1,0 +1,30 @@
+dataset:
+  name: &name dcp_pop_acs
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/acs_{{ version }}.xlsx
+      subpath: ""
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## ACS file from Population
+      This file is produced internally by the Population division. It contains data from the American Community Survey (ACS) 
+      with transformations made for it to be ingested by PFF pipeline (acs manual update)
+
+      It is received via email from the DCP Population division.
+      
+    url: null
+    dependents: []

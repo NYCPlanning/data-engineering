@@ -1,0 +1,35 @@
+name: 📁 Open Data Routine Updates
+
+on:
+  schedule:
+    # Weekly Cron job
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  dataloading:
+    runs-on: ubuntu-20.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+    strategy:
+      matrix:
+        dataset:
+          - doitt_buildingfootprints
+          - lpc_historic_districts
+          - lpc_landmarks
+          - dpr_greenthumb
+          - dpr_parksproperties
+          - dsny_frequencies
+          - dpr_park_access_zone
+    steps:
+      - uses: actions/checkout@v3
+      - uses: NYCPlanning/action-library-archive@v1.1
+        with:
+          name: ${{ matrix.dataset }}
+          latest: true
+          s3: true
+          compress: true
+          output_format: pgdump shapefile csv

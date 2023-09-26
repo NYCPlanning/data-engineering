@@ -1,0 +1,33 @@
+dataset:
+  name: &name usdot_ports
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://services7.arcgis.com/n1YM8pTrFmm7L4hs/ArcGIS/rest/services/ndc/FeatureServer/2/query?outFields=*&where=1%3D1&f=geojson
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## Ports
+      The Ports dataset is part of the U.S. Department of Transportation (USDOT)/Bureau of Transportation Statistics's (BTS's) National Transportation Atlas Database (NTAD). Contains physical information on commercial facilities at U.S. Coastal, Great Lakes and Inland Ports. The data consists of location description, street address, city, county name, congressional district FIPS code, type of construction, cargo-handling equipment, water depth alongside the facility, facility type ( dock, fleeting area, lock and/or dam) berthing space, latitude, longitude, current operators and owner's information, list of commodities handled at facility, road/railway connections, equipment available at facility, storage facilities, cranes, transit sheds, grain elevators, marine repair plants, fleeting areas, and docking, and facility start/stop date.
+    url: https://hub.arcgis.com/datasets/usdot::ports
+    dependents: []
