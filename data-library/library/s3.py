@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 import boto3
 from botocore.client import Config
@@ -113,7 +114,7 @@ class S3:
         acl: str = "public-read",
         metadata: dict = {},
         info: bool = False,
-    ) -> dict:
+    ) -> Optional[dict]:
         """
         Copy a file to a new path within the same bucket
 
@@ -134,11 +135,12 @@ class S3:
             )
             if info:
                 return self.info(key=dest_key)
-            return
+            else:
+                return None
         except ParamValidationError as e:
             raise ValueError(f"Copy {source_key} -> {dest_key} failed: {e}") from e
 
-    def rm(self, *keys) -> dict:
+    def rm(self, *keys) -> Optional[dict]:
         """
         Removes a files within the bucket
         sample usage:
@@ -159,7 +161,7 @@ class S3:
         acl: str = "public-read",
         metadata: dict = {},
         info: bool = False,
-    ):
+    ) -> Optional[dict]:
         """
         Move a file to a new path within the same bucket.
         Calls cp then rm
@@ -179,4 +181,5 @@ class S3:
         response = self.rm(source_key)
         if info:
             return self.info(key=dest_key)
-        return
+        else:
+            return None

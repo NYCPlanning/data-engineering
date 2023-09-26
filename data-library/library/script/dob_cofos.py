@@ -11,9 +11,10 @@ class Scriptor(ScriptorInterface):
 
     @property
     def previous_version(self) -> str:
-        return self.config["dataset"]["info"]["previous_version"]
+        return self.__dict__["config"]["dataset"]["info"]["previous_version"]
 
     def ingest(self) -> pd.DataFrame:
+        print(self.previous_version)
         df = pd.read_csv(self.path, dtype=str)
         df.insert(0, "v", self.version)
         # add the extra column and assign the missing columns to None

@@ -15,7 +15,7 @@ class Scriptor(ScriptorInterface):
         df = df[["TrackerID", "FMSID", "Title", "TotalFunding", "Locations"]]
         df["Locations"] = df["Locations"].apply(lambda x: x.get("Location"))
         df2 = df.drop(columns=["Locations"]).join(df["Locations"].explode().to_frame())
-        horiz_exploded = pd.json_normalize(df2["Locations"])
+        horiz_exploded = pd.json_normalize(df2["Locations"].to_list())
         horiz_exploded.index = df2.index
         df3 = pd.concat([df2, horiz_exploded], axis=1).drop(columns=["Locations"])
         df3 = df3.rename(

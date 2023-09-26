@@ -48,9 +48,11 @@ class Scriptor(ScriptorInterface):
         r = requests.post(
             "https://www.nycenet.edu/PublicApps/LCGMS.aspx", data=body, headers=headers
         )
-        df = pd.read_html(r.text)
-        df = df[0]  # first page of worksheet
-        df.columns = df.iloc[0].str.replace("\t", " ")  # First row as column names
+        dfs = pd.read_html(r.text)
+        df = dfs[0]  # first page of worksheet
+        df = df.set_axis(
+            df.iloc[0].str.replace("\t", " "), axis="columns"
+        )  # First row as column names
         df = df[1:]
         return df
 
