@@ -1,9 +1,8 @@
-from typing import List, Literal
-
+from typing import List, Literal, Optional
 from pydantic import BaseModel, ValidationError, Extra
 
-VALID_ACL_VALUES = ("public-read", "private")
-VALID_GEOMETRY_TYPES = (
+ValidAclValues = Literal["public-read", "private"]
+ValidGeomTypes = Literal[
     "NONE",
     "GEOMETRY",
     "POINT",
@@ -18,32 +17,30 @@ VALID_GEOMETRY_TYPES = (
     "CURVEPOLYGON",
     "MULTICURVE",
     "MULTISURFACE",
-)
-VALID_SOCRATA_FORMATS = ("csv", "geojson", "shapefile")
+]
+ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
 
 
 # Create schema
 class GeometryType(BaseModel):
-    SRS: str = None
-    type: Literal[VALID_GEOMETRY_TYPES]
+    SRS: Optional[str] = None
+    type: ValidGeomTypes
 
 
 class Url(BaseModel):
     path: str  # Specify field name and data type
-    subpath: str = None  # Set default value
+    subpath: Optional[str] = None  # Set default value
 
 
 class Socrata(BaseModel):
     uid: str
-    format: Literal[
-        VALID_SOCRATA_FORMATS
-    ]  # Use Literal[tuple(dtype)] to define specific, valid values
+    format: ValidSocrataFormats
 
 
 class SourceSection(BaseModel):
-    url: Url = None  # Pass another schema as a data type
-    socrata: Socrata = None
-    script: str = None
+    url: Optional[Url] = None  # Pass another schema as a data type
+    socrata: Optional[Socrata] = None
+    script: Optional[str] = None
     geometry: GeometryType
     options: List[str] = []  # Use List[dtype] for a list field value
 
@@ -53,13 +50,13 @@ class DestinationSection(BaseModel):
     geometry: GeometryType
     options: List[str] = []
     fields: List[str] = []
-    sql: str = None
+    sql: Optional[str] = None
 
 
 class InfoSection(BaseModel):
-    info: str = None
-    url: str = None
-    dependents: List[str] = None
+    info: Optional[str] = None
+    url: Optional[str] = None
+    dependents: Optional[List[str]] = None
 
     class Config:
         extra = Extra.allow
@@ -68,10 +65,10 @@ class InfoSection(BaseModel):
 class Dataset(BaseModel):
     name: str
     version: str
-    acl: Literal[VALID_ACL_VALUES]
+    acl: ValidAclValues
     source: SourceSection
     destination: DestinationSection
-    info: InfoSection = None
+    info: Optional[InfoSection] = None
 
 
 class Validator:

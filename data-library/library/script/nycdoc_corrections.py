@@ -66,7 +66,7 @@ class Scriptor(ScriptorInterface):
                 )
                 data.append(result)
 
-        df = pd.DataFrame.from_dict(data, orient="columns")
+        df = pd.DataFrame.from_records(data)
         return df
 
     def runner(self) -> str:

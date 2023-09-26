@@ -22,7 +22,7 @@ class Scriptor(ScriptorInterface):
                 region=i["region"],
             )
             data.append(parsed)
-        df = pd.DataFrame.from_dict(data, orient="columns")
+        df = pd.DataFrame.from_records(data)
         return df
 
     def runner(self) -> str:

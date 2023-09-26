@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Optional
 
 from . import (
     aws_access_key_id,
@@ -25,12 +26,12 @@ class Archive:
 
     def __call__(
         self,
-        path: str = None,
+        path: Optional[str] = None,
         output_format: str = "pgdump",
         push: bool = False,
         clean: bool = False,
         latest: bool = False,
-        name: str = None,
+        name: Optional[str] = None,
         *args,
         **kwargs,
     ):
@@ -76,14 +77,18 @@ class Archive:
         )
         ```
         """
-        # If name specified, no template path is needed
-        assert (
-            path or name
-        ), "Please specify either name of the dataset or path to the config file"
 
         _path = f"{Path(__file__).parent}/templates/{name}.yml"
-        path = _path if name and os.path.isfile(_path) else path
-        name = os.path.basename(path).split(".")[0]
+        if name and os.path.isfile(_path):
+            name = name
+            path = _path
+        elif path:
+            name = os.path.basename(path).split(".")[0]
+            path = path
+        else:
+            raise Exception(
+                "Please specify either name of the dataset or path to the config file"
+            )
 
         # Get ingestor by format
         ingestor_of_format = getattr(self.ingestor, output_format)

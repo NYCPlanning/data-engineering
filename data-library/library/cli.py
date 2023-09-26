@@ -136,3 +136,7 @@ def show(
 def run() -> None:
     """Run commands."""
     app()
+
+
+if __name__ == "__main__":
+    run()
