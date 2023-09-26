@@ -1,0 +1,35 @@
+dataset:
+  name: &name dob_cofos
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    path: library/tmp/dob_cofos.csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      # DOB Certificate of Occupancies
+      We get this file from DOB via email, records are 
+      appended to previous `latest` file. Make sure you 
+      place the new file in the library/tmp folder of the db-data-library
+      repo named `dob_cofos.csv` so that the script runner can 
+      run successfully.
+    url: ""
+    dependents: []
+    previous_version: 20220819

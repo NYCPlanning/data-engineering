@@ -1,0 +1,37 @@
+dataset:
+  name: &name lpc_historic_district_areas
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: carn-tkei
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=the_geom"
+    geometry:
+      SRS: EPSG:4326
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### LPC Individual Landmark and Historic District Building Database
+      This dataset contains boundaries and associated attribute information for all 
+      designated historic districts or areas under consideration for historic district 
+      designation (i.e. calendared) by the New York City Landmarks Preservation 
+      Commission (LPC), including items that may have been denied designation or 
+      overturned.
+    url: "https://data.cityofnewyork.us/Housing-Development/Historic-Districts/xbvj-gfnw"
+    dependents: []

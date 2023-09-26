@@ -1,0 +1,86 @@
+dataset:
+  ## Name value is the same for the file
+  # Name format should be "Agency initials"_"Dataset name"
+  # i.e. For the community centers dataset from the NYC Housing authority, name should be nycha_communitycenters
+  # save name value in &name alias
+  name: &name agencyinitials_datasetname  
+  # {{ version }} variable will get its value from either manual input or default formatting 
+  version: "{{ version }}"  
+  # "public-read" for publicly available datasets. Otherwise, it would be "private".
+  acl: public-read | private
+  
+  source:
+    ## Data can come from different types of sources
+    # If data comes from the NYC open data site, then use the socrata field, specifying the uid and file formar
+    # i.e for data available at https://data.cityofnewyork.us/api/views/crns-fw6u/rows.csv
+    # uid: crns-fw6u
+    # format: csv
+    socrata:
+      uid: 
+      format: csv | geojson 
+
+    ## For data coming from the BYTES page from City Planning and other sources. Then use the url field
+    # path is the complete link to the file
+    # if it is a .zip file, then fill the subpath with the relative path to the desired file
+    # if version is included anywhere on the file name, replace version value with {{ version }}
+    # i.e for https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nybbwi_20d.zip
+    # path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nybbwi_{{ version }}.zip
+    # subpath: nybbwi_{{ version }}/nybbwi.shp
+    url:
+      path:
+      subpath:
+
+    ## Some datasets are scraped from the web of obtained through a script saved on library/script
+    # such scripts will have the same name formatting as this file and the name field. Therefore,
+    # use a reference of the name alias with &name 
+    script: *name
+  
+    # Geometry data parameters
+    # Examples:
+    # SRS: EPSG:4326
+    # type: MULTIPOLYGON
+    geometry:
+      # Usual values:
+      # For data from OpenData (socrata) => EPSG:4326
+      # For data from BYTES site =>  EPSG:2263
+      SRS:
+      type:
+
+    # Options needed to open the source data
+    # Default values are below
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+  
+  destination:
+    # New dataset will keep the same name. Reference the name alias with *
+    name: *name
+
+    # Geometry data for new dataset. might be the same values from above or different.
+    # Examples:
+    # SRS: EPSG:4326
+    # type: MULTIPOLYGON 
+    geometry:
+      # Default SRS is EPSG:4326 (For internal use), unless directed otherwise
+      SRS:
+      type:
+    
+    # Layer creation options. Default values are below.
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+
+    # If fields will be renamed, they are added as a list. If not, value is an empty list.
+    fields: []
+
+    sql: null
+
+  # Metadata
+  info:  
+    description:
+
+    # If data is dependent on other sources, they are added as a list. If not, value is an empty list.
+    dependents: []
+
+
+    

@@ -1,0 +1,35 @@
+dataset:
+  name: &name usnps_parks
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/nps_boundary.zip
+      subpath: nps_boundary/nps_boundary.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4269
+      type: POLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## USNPS Authoritative Land Status Data
+      NPS Director's Order #25 states: "Land status maps will be prepared to identify the ownership of the lands within the authorized boundaries of the park unit. These maps, showing ownership and acreage, are the 'official record' of the acreage of Federal and non-federal lands within the park boundaries. While these maps are the official record of the lands and acreage within the unit's authorized boundaries, they are not of survey quality and not intended to be used for survey purposes." As such this data is intended for use as a tool for GIS analysis. It is in no way intended for engineering or legal purposes. The data accuracy is checked against best available sources which may be dated and vary by location. NPS assumes no liability for use of this data. The boundary polygons LRD creates represent the current legislated boundary of a given NPS unit. NPS does not necessarily have full fee ownership or hold another interest (easement, right of way, etc...) in all parcels contained within this boundary. Equivalently NPS may own or have an interest in parcels outside the legislated boundary of a given unit. In order to obtain complete information about current NPS interests both inside and outside the units legislated boundary, the tracts file created by LRD should be used in conjunction with this boundary file created by LRD.
+
+      DATA IS UPDATED ON A QUARTERLY BASIS
+    url: https://irma.nps.gov/DataStore/Reference/Profile/2225713
+    dependents: []

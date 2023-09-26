@@ -1,0 +1,32 @@
+dataset:
+  name: &name dcp_sfpsd
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/facilities_csv_201901.zip
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=the_geom"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Static Facilities
+      These records will never change, no updates needed
+    url: ""
+    dependents: []

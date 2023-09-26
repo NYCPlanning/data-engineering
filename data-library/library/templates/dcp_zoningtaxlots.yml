@@ -1,0 +1,45 @@
+dataset:
+  name: &name dcp_zoningtaxlots
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyczoningtaxlotdb_{{ version }}.zip
+      subpath: "NY_ZoningTaxLotDB{{ version }}.csv"
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## NYC Zoning Tax Lot Database
+      The Zoning Tax Lot Database is a comma–separated values (CSV) file format that contains up-to-date zoning by parcel.
+      The Database includes the zoning designations and zoning map associated with a specific tax block and lot.
+      The Database is updated on a monthly basis to reflect rezoning and corrections to the file.
+      The downloadable zoning data will be updated on a monthly basis or as needed.
+      Updates will include recent zoning changes adopted by the City Council.
+    url: "https://www1.nyc.gov/site/planning/data-maps/open-data.page#geocoding_application"
+    dependents:
+      - dcp_commercialoverlay
+      - dcp_limitedheight
+      - dcp_mih
+      - dcp_specialpurpose
+      - dcp_specialpurposesubdistricts
+      - dcp_zoningmapamendments
+      - dcp_zoningmapindex
+      - dof_dtm
+      - dcp_zoningdistricts

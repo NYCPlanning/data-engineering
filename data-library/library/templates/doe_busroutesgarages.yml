@@ -1,0 +1,38 @@
+dataset:
+  name: &name doe_busroutesgarages
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: 8yac-vygm
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=XCoordinates,xcoordinates"
+      - "Y_POSSIBLE_NAMES=YCoordinates,ycoordinates"
+    geometry:
+      SRS: EPSG:2263
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DOE Bus Routes
+      One of OPT’s main functions is to plan efficient and fiscally responsible school bus routes. OPT staff use a variety of systems to generate and share bus route information with bus vendors and the public. Specific bus route paths cannot be publicly disclosed because they could reveal personally identifiable information about individual students. In this dataset, OPT has provided all the route information that does not risk disclosing personally identifiable information.
+      School-age service for students in grades K through 12 are contracted with bus vendors on a per route basis. OPT also manages bus service for Pre-K students who require curb-to-curb service as per a student’s Individualized Education Plan (IEP). This Pre-K bus service is contracted on a per student basis, instead of per route. As a consequence of this difference, OPT does not design bus routes for Pre-K service, so those routes are not included in this dataset.
+      There are a variety of different vehicles used on routes that serve students requiring curb-to-curb service because an Individualized Education Plan (IEP) indicates specific transportation needs. The standard bus is the only vehicle used for general education routes with students eligible for bus service but who do not have an IEP.
+      Users may occasionally see a route without a garage assignment. Because this dataset is derived from a snapshot of a transactional system, there may be routes that are in the process of being assigned to a garage. In those cases, the garage information will appear as NULL until the assignment is complete.
+    url: "https://data.cityofnewyork.us/Transportation/Routes/8yac-vygm"
+    dependents: []

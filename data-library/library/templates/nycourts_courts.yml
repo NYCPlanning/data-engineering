@@ -1,0 +1,32 @@
+dataset:
+  name: &name nycourts_courts
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/nycourts_courts.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## New York City Court Information by County
+      Hand-check for updates.
+    url: http://ww2.nycourts.gov/COURTS/nyc/criminal/generalinfo.shtml
+    dependents: []

@@ -1,0 +1,36 @@
+dataset:
+  name: &name doe_pepmeetingurls
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Panel for Educational Policy SharePoint URLs
+      The Panel for Educational Policy (PEP) consists of 15 appointed members and the Chancellor.
+      Each borough president appoints one member, CEC Presidents elect one member,
+      and the mayor appoints the remaining nine members.
+      The Chancellor serves as an ex-officio non-voting member.
+      The PEP is responsible for electing a chairperson from among the voting members.
+
+      This dataset is used for developing `doe_siginificant_utilizations` for CEQR
+    url: "https://www.schools.nyc.gov/about-us/leadership/panel-for-education-policy"
+    dependents: []

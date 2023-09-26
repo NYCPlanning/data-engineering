@@ -1,0 +1,64 @@
+dataset:
+  name: &name dcp_mappluto
+  version: "{{ version }}"
+  acl: public-read
+  # Source definition
+  source:
+    url:
+      # The url or local path for this data source
+      path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nyc_mappluto_{{ version }}_unclipped_shp.zip
+      # For zipped files, specify subpath to help gdal locate data
+      subpath: nyc_mappluto_{{ version }}_unclipped/nyc_mappluto_{{ version }}.shp
+    options: #srcOpenOptions
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  # Destination definition
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options: #layerCreationOptions
+      - "OVERWRITE=YES"
+    fields: []
+
+    # If there's a SQL statement we would like to perform
+    # @filename syntax can be used to indicate that the content
+    # is in the pointed filename.
+    sql: |
+      SELECT * FROM @filename LIMIT 5
+
+  # The info field is a free-formed field to include any other additional info
+  info:
+    # some simple description here
+    description: |
+      dcp_mappluto is the shoreline clipped, grabbed from bytes
+      more information here, if ">" is used then it means that
+      newlines are not preserved. if "|" is used then it means
+      that newline will be preserved
+    # A url that doesn't lead directly to the data file but a
+    # human readable website url would be useful here
+    url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page
+    dependents:
+      - pluto_corrections
+      - pluto_input_numbldgs
+      - dcp_edesignation
+      - dcp_colp
+      - lpc_historic_districts
+      - lpc_landmarks
+      - dcp_cdboundaries
+      - dcp_censustracts
+      - dcp_censusblocks
+      - dcp_school_districts
+      - dcp_councildistricts
+      - doitt_zipcodeboundaries
+      - dcp_firecompanies
+      - dcp_policeprecincts
+      - dcp_healthareas
+      - dcp_healthcenters
+      - dsny_frequencies
+      - dpr_greenthumb

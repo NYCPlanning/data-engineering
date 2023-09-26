@@ -1,0 +1,29 @@
+dataset:
+  name: &name hra_centers
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  HRA Location Map Points
+      Map locations scraped from embedded Google Map from the HRA locations page
+    url: "https://www1.nyc.gov/site/hra/locations/locations.page"
+    dependents: []

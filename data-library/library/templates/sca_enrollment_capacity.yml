@@ -1,0 +1,32 @@
+dataset:
+  name: &name sca_enrollment_capacity
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: 8b9a-pywy
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Enrollment Capacity And Utilization Reports - Target by Organization
+      Enrollment, target capacity and utilization data for every building and schools in those buildings, by school
+    url: "https://data.cityofnewyork.us/Education/Enrollment-Capacity-And-Utilization-Reports-Target/8b9a-pywy"
+    dependents: []

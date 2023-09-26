@@ -1,0 +1,35 @@
+dataset:
+  name: &name dcp_zoningdistricts
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-publishing/datasets/dcp_zoning_districts/staging/dcp_zoning_districts.zip
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC Zoning Districts
+      Polygon features representing the zoning districts.
+      These features are continuous over the entire city.
+      They extend to the city limits on land and out to the US Army Corps of Engineers Pierhead lines over water.
+      Zoning district designations are indicated in the ZONEDIST attribute.
+    url: "https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata"
+    dependents: []

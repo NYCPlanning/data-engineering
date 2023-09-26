@@ -1,0 +1,33 @@
+dataset:
+  name: &name doe_school_subdistricts
+  version: "2017"
+  acl: public-read
+  source:
+    url:
+      path: doe_school_subdistricts.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=geom"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DOE School Subdistricts 
+      This file is provided by capital planning
+    url: ""
+    dependents: []

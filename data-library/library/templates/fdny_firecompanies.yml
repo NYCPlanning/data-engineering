@@ -1,0 +1,34 @@
+dataset:
+  name: &name fdny_firecompanies
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: iiv7-jaj9
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### FDNY Fire Companies
+      GIS data: Boundaries of Fire Companies.
+      All previously released versions of this data are available at BYTES of the BIG APPLE- Archive
+    url: "https://data.cityofnewyork.us/Public-Safety/Fire-Companies/iiv7-jaj9"
+    dependents: []

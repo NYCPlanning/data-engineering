@@ -1,0 +1,34 @@
+dataset:
+  name: &name dsny_electronicsdrop
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: wshr-5vic
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=point"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Electronics Drop Off Locations in NYC
+      A list of locations where NYC residents can drop off unwanted electronics. It’s illegal in New York State to include electronic devices with trash or recycling. For more information on how to handle unwanted electronics in NYC, see: https://www1.nyc.gov/assets/dsny/site/services/electronics
+    url: "https://data.cityofnewyork.us/Environment/Electronics-Drop-Off-Locations-in-NYC/wshr-5vic"
+    dependents: []

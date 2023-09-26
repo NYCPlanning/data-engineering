@@ -1,0 +1,35 @@
+dataset:
+  name: &name hpd_historical_units_by_building
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    path: library/tmp/HPD_FROM_DCP_HOUSING/06_20_2023_Lookback Legislation.xlsx
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Historical Units by Project
+      The Department of Housing Preservation and Development (HPD) reports on buildings, units, 
+      and projects that began after January 1, 2014 and are counted towards the Housing New York plan. 
+      The Historical Units by Project file presents the pre-2014 data by project, and includes project-level data, 
+      such as senior units, but does not include building-level data. 
+      The unit counts are provided for each project, rather than by building. 
+    url: null
+    dependents: []

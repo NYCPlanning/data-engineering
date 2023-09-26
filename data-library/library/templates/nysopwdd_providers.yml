@@ -1,0 +1,43 @@
+dataset:
+  name: &name nysopwdd_providers
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://data.ny.gov/api/views/ieqx-cqyk/rows.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## Directory of Developmental Disabilities Service Provider Agencies
+      The dataset contains the address and phone number information for Voluntary Sector providers of the following OPWDD supports and services:
+      + INTERMEDIATE CARE FACILITIES (ICF);
+      + INDIVIDUAL RESIDENTIAL ALTERNATIVE (IRA);
+      + FAMILY CARE;
+      + SELF-DIRECTION SERVICES;
+      + INDIVIDUAL SUPPORT SERVICES (ISS);
+      + DAY HABILITATION;
+      + PREVOCATIONAL;
+      + SUPPORTED EMPLOYMENT ENROLLMENTS;
+      + COMMUNITY HABILITATION;
+      + FAMILY SUPPORT SERVICES;
+      + DEVELOPMENTAL CENTERS AND SPECIAL POPULATION SERVICES.
+    url: https://data.ny.gov/Human-Services/Directory-of-Developmental-Disabilities-Service-Pr/ieqx-cqyk
+    dependents: []

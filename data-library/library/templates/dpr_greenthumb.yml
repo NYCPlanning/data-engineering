@@ -1,0 +1,30 @@
+dataset:
+  name: &name dpr_greenthumb
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: p78i-pat6
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+
+  info:
+    description: |
+      ### GreenThumb Garden Info
+      GreenThumb provides programming and material support to over 550 community gardens in New York City.
+      The data contains garden information and is part of the GreenThumb Gardens Data Collection.
+    url: https://data.cityofnewyork.us/dataset/GreenThumb-Garden-Info/p78i-pat6

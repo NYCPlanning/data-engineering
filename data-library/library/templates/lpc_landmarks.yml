@@ -1,0 +1,34 @@
+dataset:
+  name: &name lpc_landmarks
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: ncre-qhxs
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=the_geom"
+    geometry:
+      SRS: EPSG:4326
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### LPC Landmark Sites
+      This dataset contains site boundaries for all designated individual
+      landmarks as well as administrative information such as site boundary description and designation date.
+    url: "https://data.cityofnewyork.us/Housing-Development/Individual-Landmark-Sites/ts56-fkf5"
+    dependents: []

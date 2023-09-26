@@ -1,0 +1,31 @@
+dataset:
+  name: &name nysdoccs_corrections
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/nysdoccs_corrections_20200323.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  Correction Facilities Locations
+      Addresses previously scraped from the facility location page of NYSDOCCS website. Now check for updates against map.
+    url: "https://doccs.ny.gov/system/files/documents/2021/04/facility-map-040821.pdf"
+    dependents: []

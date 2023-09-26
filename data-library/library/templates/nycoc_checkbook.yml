@@ -1,0 +1,50 @@
+dataset:
+  name: &name nycoc_checkbook
+  version: "{{ version }}"
+  acl: public-read 
+  
+  source:
+    url:
+      path: .library/datasources/checkbook_citywide_agencies.csv
+      subpath: ""
+
+    geometry:
+      SRS: null
+      type: NONE
+
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+
+  destination: 
+    name: *name
+
+    geometry:
+      SRS: null
+      type: NONE
+
+    options: 
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+
+    fields: []
+    sql: null 
+
+  info:
+    description: |
+      The NYC Office of the Comptroller Checkbook dataset was created by EDM DE Fellows in response 
+      to a request from Capital Planning to explore the feasibility of creating a data product 
+      focused on connecting geospatial data to historical liquidations data to better inform 
+      future spending decisions at the community level. 
+
+      The spending data comes from Checkbook NYC and captures all Capital Project 
+      spending 2010 - present (data collected May 31, 2023). The geospatial data comes
+      from Capital Projects Database, a data product built and maintained by EDM DE.
+      Specifically, the geospatial data comes from points and polygons geometries
+      for all accepted versions of CPDB 2017-2022, for which the last versions of the
+      points and polygons shape files built each year were downloaded from Digital 
+      Ocean, and the executive (latest) version of CPDB from 2023.
+
+      Checkbook NYC Spending API: https://www.checkbooknyc.com/spending-api
+      CPDB in DE monorepo: https://github.com/NYCPlanning/data-engineering/tree/main/db-cpdb
+    dependents: []

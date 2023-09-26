@@ -1,0 +1,34 @@
+dataset:
+  name: &name dot_projects_intersections
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: 97nd-ff3i
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=the_geom"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Street and Highway Capital Reconstruction Projects - Intersection
+      This data is a spatial representation of street construction projects. Street and Highway capital projects are major street reconstruction projects, ranging from general street resurfacing projects to full reconstruction of the roadbed, sidewalks, sewer and water pipes and other utilities. Capital projects are essential to keep the City's infrastructure in a state of good repair.
+    url: "https://data.cityofnewyork.us/Transportation/Street-and-Highway-Capital-Reconstruction-Projects/97nd-ff3i"
+    dependents: []
