@@ -5,10 +5,11 @@ import requests
 import yaml
 from jinja2 import Template
 import os
+from typing import Optional, Tuple
+from functools import cached_property
 
 from .utils import format_url, get_execution_details
 from .validator import Validator
-from functools import cached_property
 
 
 # Custom dumper created for list indentation
@@ -24,7 +25,7 @@ class Config:
     file to pass into the Ingestor
     """
 
-    def __init__(self, path: str, version: str = None):
+    def __init__(self, path: str, version: Optional[str] = None):
         self.path = path
         self.version = version
 
@@ -181,7 +182,7 @@ class Config:
         )
 
     @property
-    def compute_parsed(self) -> (dict, dict, dict, dict):
+    def compute_parsed(self) -> Tuple[dict, dict, dict, dict]:
         config = self.compute
         dataset = config["dataset"]
         source = dataset["source"]

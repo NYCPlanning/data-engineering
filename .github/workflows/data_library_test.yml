@@ -2,9 +2,25 @@ name: Data Library - Pytest
 
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
-  test:
+  type_check:
+    name: Static Type Check (mypy)
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Static Type Check (mypy)
+        run: mypy ./data-library/library
+
+  unit_tests:
+    name: Unit Tests
     runs-on: ubuntu-22.04
     container: python:3.11-slim
     defaults:

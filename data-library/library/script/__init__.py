@@ -11,7 +11,7 @@ def df_to_tempfile(df: pd.DataFrame) -> str:
     return f.name
 
 
-def get_json_content(url: str) -> str:
+def get_json_content(url: str):
     """
     Gets content of a JSON file from a URL.
     url: URL of JSON file
