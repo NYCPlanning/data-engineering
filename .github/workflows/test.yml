@@ -48,6 +48,10 @@ jobs:
           filters: |
             dcpy:
               - dcpy/**
+            data-library:
+              - data-library/**.py
+              - data-library/**.toml
+              - data-library/**.yml
             build:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
@@ -105,4 +109,9 @@ jobs:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'dcpy')
     uses: ./.github/workflows/dcpy_test.yml
+    secrets: inherit
+  data-library:
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'data-library')
+    uses: ./.github/workflows/data_library_test.yml
     secrets: inherit

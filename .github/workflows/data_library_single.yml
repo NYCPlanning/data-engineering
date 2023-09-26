@@ -1,5 +1,5 @@
-name: 📁 Update a Single Dataset
-run-name: "📁 Update a Single Dataset: ${{ inputs.dataset }}"
+name: Data Library - 📁 Update a Single Dataset
+run-name: "Data Library - 📁 Update a Single Dataset: ${{ inputs.dataset }}"
 
 on:
   workflow_dispatch:
@@ -27,14 +27,18 @@ on:
 
 jobs:
   dataloading:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       image: osgeo/gdal:ubuntu-small-3.6.1
-      env:
-        AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
-        AWS_S3_BUCKET: edm-recipes
+    defaults:
+      run:
+        shell: bash
+        working-directory: data-library
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
     steps:
       - uses: actions/checkout@v3
       - name: env setup
@@ -52,4 +56,3 @@ jobs:
           poetry run library archive --name ${{ github.event.inputs.dataset }} -o pgdump $export $compress $latest $version
           poetry run library archive --name ${{ github.event.inputs.dataset }} -o shapefile $export $compress $latest $version
           poetry run library archive --name ${{ github.event.inputs.dataset }} -o csv $export $compress $latest $version
-          
