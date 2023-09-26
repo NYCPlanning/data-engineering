@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BUILD_APT_PACKAGES="postgresql-client-15 libpq-dev curl jq wget gdal-bin jq zip unzip git locales"
-DEV_APT_PACKAGES="postgresql-client-15 libpq-dev curl jq wget bash-completion gdal-bin jq zip unzip git locales"
+DEV_APT_PACKAGES="postgresql-client-15 libpq-dev curl jq wget bash-completion gdal-bin jq zip unzip git locales graphviz xdg-utils"
 
 function install_yq {
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq \

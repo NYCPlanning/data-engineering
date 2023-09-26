@@ -1,4 +1,4 @@
-name: Update Docker Hub Image
+name: Data Library - Update Docker Hub Image
 
 on:
   workflow_dispatch:
@@ -11,11 +11,18 @@ on:
           - ubuntu-staging
           - ubuntu-latest
   push:
-    branches: main
+    branches: 
+    - main
+    paths:
+    - data-library/**
 
 jobs:
   update_image:
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: data-library
     steps:
       - uses: actions/checkout@v3
       - name: Log in to Docker Hub
@@ -26,14 +33,18 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          context: .
+          context: data-library
           push: true
           tags: nycplanning/library:${{ github.event.inputs.image_tag || 'ubuntu-latest' }}
 
   update_docs:
     needs: update_image
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container: osgeo/gdal:ubuntu-small-3.6.1
+    defaults:
+      run:
+        shell: bash
+        working-directory: data-library
     env:
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -50,10 +61,10 @@ jobs:
 
     - name: Install Python dependencies, create docs
       run: |
-        python3.10 -m pip install --upgrade pip
-        python3.10 -m pip install .
-        python3.10 -m pip install pdoc3
-        python3.10 -m pdoc -f -o docs --html library
+        python3 -m pip install --upgrade pip
+        python3 -m pip install .
+        python3 -m pip install pdoc3
+        python3 -m pdoc -f -o docs --html library
 
     - name: Archive artifacts
       uses: actions/upload-artifact@v3
@@ -62,7 +73,11 @@ jobs:
         path: docs/library
         
   commit:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: data-library
     needs: update_docs
     steps:
     - uses: actions/checkout@v3
