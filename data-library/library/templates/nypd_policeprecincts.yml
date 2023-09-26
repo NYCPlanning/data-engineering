@@ -1,0 +1,33 @@
+dataset:
+  name: &name nypd_policeprecincts
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: 78dh-3ptz
+      format: geojson
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYPD Police Precincts
+      GIS data: Boundaries of Police Precincts
+    url: "https://data.cityofnewyork.us/Public-Safety/Police-Precincts/78dh-3ptz"
+    dependents: []

@@ -1,0 +1,32 @@
+dataset:
+  name: &name ddc_capitalprojects_publicbuildings
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: library/tmp/PBProjects.zip
+      subpath: PBProjects.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DDC Public Building Projects
+    url:
+    dependents: []

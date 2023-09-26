@@ -1,0 +1,34 @@
+dataset:
+  name: &name dcp_proximity_establishments
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/AUE_Data_20230425.zip
+      subpath: AUE_allowed_lots_updated_20230425_how53mx.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Proximity-restricted establishments
+      A subset of PLUTO tax lots where establishments could appear in the future.
+      Provided by DCP GIS team as a zipped shapfile.
+    url: ""
+    dependents: []

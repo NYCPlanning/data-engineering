@@ -1,0 +1,32 @@
+dataset:
+  name: &name dcp_censusdata_blocks
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    path: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc-decennialcensusdata_2010_2020_census-blocks.xlsx
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  Census
+      Decennial - high chance that 2030 will not follow same conventions
+      Currently has export with both data, 2010 or 2020 must be specified as version to determine which set of columns to use
+      This version contains data only at the city, boro, and census block level. See other census dataset for other geographies
+    url: "https://www.nyc.gov/site/planning/planning-level/nyc-population/2020-census.page"
+    dependents: []

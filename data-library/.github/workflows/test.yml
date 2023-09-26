@@ -1,0 +1,32 @@
+name: Pytest
+
+on:
+  push:
+    paths:
+      - "**.py"
+      - "**.toml"
+      - "**.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    container: osgeo/gdal:ubuntu-small-3.6.1
+    env:
+      RECIPE_ENGINE: ${{ secrets.RECIPE_ENGINE }}
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: | 
+        apt update && apt install -y python3-pip python3-distutils git
+        python3 -m pip install poetry
+        poetry install
+
+    - name: Pytest
+      shell: bash
+      run: |
+        poetry run pytest -s

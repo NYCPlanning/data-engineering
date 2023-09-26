@@ -1,0 +1,34 @@
+dataset:
+  name: &name dcp_municipalcourtdistricts_wi
+  version: "{{ version }}"
+  acl: public-read
+
+  source:
+    url:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nymcwi_{{ version }}.zip
+      subpath: nymcwi_{{ version }}/nymcwi.shp
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+  
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### ESRI Shapefile
+      The New York City Municipal Court boundaries (Water included).
+    url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+    dependents: []
+

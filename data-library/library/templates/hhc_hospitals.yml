@@ -1,0 +1,35 @@
+dataset:
+  name: &name hhc_hospitals
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: f7b6-v6v3
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude,Longitude,Lon,lon,x"
+      - "Y_POSSIBLE_NAMES=latitude,Latitude,Lat,lat,y"
+    geometry:
+      SRS: EPSG:4326
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC Health + Hospitals patient care locations - 2011
+      NYC Health + Hospitals is the largest municipal health care system in the country serving more than one million New Yorkers every year. The City’s public health care delivery system provides trauma, emergency, medical, mental health and substance abuse services across the five boroughs. This is a list of the public hospitals, skilled nursing facilities, and some of the community-based health centers that are part of the NYC Health + Hospitals system as of 2011.
+    url: "https://data.cityofnewyork.us/Health/NYC-Health-Hospitals-patient-care-locations-2011/f7b6-v6v3"
+    dependents: []

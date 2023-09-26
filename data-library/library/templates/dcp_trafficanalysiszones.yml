@@ -1,0 +1,32 @@
+dataset:
+  name: &name dcp_trafficanalysiszones
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: dcp_trafficanalysiszones.csv
+      subpath: ""
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=geom"
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DCP Traffic analysis zones
+      this dataset is almost never updated
+    url: ""
+    dependents: []

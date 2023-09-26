@@ -1,0 +1,31 @@
+dataset:
+  name: &name nysed_activeinstitutions
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/All_Institutions_by_County.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  NYSED Active Institutions
+      All Institutions: Active Institutions with GIS coordinates and OITS Accuracy Code - Selected by County (CSV version)
+    url: "https://eservices.nysed.gov/sedreports/list?id=1"
+    dependents: []

@@ -1,0 +1,33 @@
+dataset:
+  name: &name dep_wwtc
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: library/tmp/dep_wwtc.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## New York City Court Wastewater Treatment Plants
+      New York City’s 14 Wastewater Treatment Plants together treat 1.3 billion gallons of wastewater daily. Each person can help our wastewater treatment system run better by conserving water, disposing of garbage and household chemicals properly and being concerned about water quality in the New York City’s waterways. To learn more about how you can help protect our sewer system and local waterways, visit Safe Disposal of Harmful Products. To learn more about the types of sewer systems that serve New York City, visit Sewer System.
+      Hand check for updates.
+    url: https://www1.nyc.gov/site/dep/water/wastewater-treatment-plants.page
+    dependents: []

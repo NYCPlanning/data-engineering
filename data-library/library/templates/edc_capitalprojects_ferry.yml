@@ -1,0 +1,33 @@
+dataset:
+  name: &name edc_capitalprojects_ferry
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: edc_capitalprojects_ferry.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=geom"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTILINESTRING
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTILINESTRING
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### EDC Ferry capital projects
+      this dataset almost never changes
+    url:
+    dependents: []

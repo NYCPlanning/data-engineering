@@ -1,0 +1,35 @@
+dataset:
+  name: &name dcp_zoningmapindex
+  version: "20190701"
+  acl: public-read
+  source:
+    url:
+      path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nyczoningmapindex_shp_201907.zip
+      subpath: "quartersection_zoning_map_index.shp"
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC Zoning Map Index
+      The NYC Zoning Map index is used to determine which zoning map is related to a specific geographic
+      area in New York City. Zoning maps show the boundaries of zoning districts throughout the city.
+      This data is available as shapefiles or a file geodatabase and contains two features,
+      sections and quartersections.
+    url: "https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-zoning-map-index.page"
+    dependents: []

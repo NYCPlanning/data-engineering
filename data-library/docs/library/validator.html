@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>library.validator API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>library.validator</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from functools import cached_property
+from typing import List, Literal
+
+import yaml
+from pydantic import BaseModel, ValidationError
+
+VALID_ACL_VALUES = (&#34;public-read&#34;, &#34;private&#34;)
+VALID_GEOMETRY_TYPES = (
+    &#34;NONE&#34;,
+    &#34;GEOMETRY&#34;,
+    &#34;POINT&#34;,
+    &#34;LINESTRING&#34;,
+    &#34;POLYGON&#34;,
+    &#34;GEOMETRYCOLLECTION&#34;,
+    &#34;MULTIPOINT&#34;,
+    &#34;MULTIPOLYGON&#34;,
+    &#34;MULTILINESTRING&#34;,
+    &#34;CIRCULARSTRING&#34;,
+    &#34;COMPOUNDCURVE&#34;,
+    &#34;CURVEPOLYGON&#34;,
+    &#34;MULTICURVE&#34;,
+)
+VALID_SOCRATA_FORMATS = (&#34;csv&#34;, &#34;geojson&#34;)
+
+# Create schema
+class GeometryType(BaseModel):
+    SRS: str
+    type: Literal[VALID_GEOMETRY_TYPES]
+
+
+class Url(BaseModel):
+    path: str  # Specify field name and data type
+    subpath: str = &#34;&#34;  # Set default value
+
+
+class Socrata(BaseModel):
+    uid: str
+    format: Literal[
+        VALID_SOCRATA_FORMATS
+    ]  # Use Literal[tuple(dtype)] to define specific, valid values
+
+
+class SourceSection(BaseModel):
+    url: Url = None  # Pass another schema as a data type
+    socrata: Socrata = None
+    script: str = None
+    geometry: GeometryType
+    options: List[str] = []  # Use List[dtype] for a list field value
+
+
+class DestinationSection(BaseModel):
+    name: str
+    geometry: GeometryType
+    options: List[str] = []
+    fields: List[str] = []
+    sql: str = None
+
+
+class InfoSection(BaseModel):
+    info: str = None
+    url: str = None
+    dependents: List[str] = None
+
+
+class Dataset(BaseModel):
+    name: str
+    version: str
+    acl: Literal[VALID_ACL_VALUES]
+    source: SourceSection
+    destination: DestinationSection
+    info: InfoSection = None
+
+
+class Validator:
+    &#34;&#34;&#34;
+    Validator takes as input the path of a configuration file
+    and will run the necessary checks to determine wether the structure
+    and values of the files are valid according to the requirements of
+    the library.
+    &#34;&#34;&#34;
+
+    def __init__(self, path):
+        # Abort if file path is not valid
+        if not self.__check_extension(path):
+            raise Exception(&#34;File path must point to a .yml or .yaml file&#34;)
+
+        self.path = path
+        self.fname = path.split(&#34;/&#34;)[-1].split(&#34;.&#34;)[0]
+
+    def __check_extension(self, path):
+        # Check if path ends with a .yml file
+        extension = path.split(&#34;/&#34;)[-1].split(&#34;.&#34;)[-1]
+        return extension in [&#34;yml&#34;, &#34;yaml&#34;]
+
+    @cached_property
+    def __file(self):
+        with open(self.path, &#34;r&#34;) as stream:
+            y = yaml.load(stream, Loader=yaml.FullLoader)
+            return y
+
+    def __call__(self):
+        assert self.tree_is_valid, &#34;Some fields are not valid. Please review your file&#34;
+        assert (
+            self.dataset_name_matches
+        ), &#34;Dataset name must match file and destination name&#34;
+        assert (
+            self.has_only_one_source
+        ), &#34;Source can only have one property from either url, socrata or script&#34;
+
+        return True
+
+    @property
+    def tree_is_valid(self) -&gt; bool:
+        if self.__file[&#34;dataset&#34;] == None:
+            return False
+
+        try:
+            input_ds = Dataset(**self.__file[&#34;dataset&#34;])
+
+        except ValidationError as e:
+            print(e.json())
+            return False
+
+        return True
+
+    # Check that source name matches filename and destination
+    @property
+    def dataset_name_matches(self) -&gt; bool:
+        dataset = self.__file[&#34;dataset&#34;]
+        return (dataset[&#34;name&#34;] == self.fname) and (
+            dataset[&#34;name&#34;] == dataset[&#34;destination&#34;][&#34;name&#34;]
+        )
+
+    # Check that source has only one source from either url, socrata or script
+    @property
+    def has_only_one_source(self):
+        dataset = self.__file[&#34;dataset&#34;]
+        source_fields = list(dataset[&#34;source&#34;].keys())
+        # In other words: if url is in source, socrata or script cannot be.
+        # If url is NOT in source. Only one from socrata or url can be. (XOR operator ^)
+        return (
+            ((&#34;socrata&#34; not in source_fields) and (&#34;script&#34; not in source_fields))
+            if (&#34;url&#34; in source_fields)
+            else ((&#34;socrata&#34; in source_fields) ^ (&#34;script&#34; in source_fields))
+        )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="library.validator.Dataset"><code class="flex name class">
+<span>class <span class="ident">Dataset</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Dataset(BaseModel):
+    name: str
+    version: str
+    acl: Literal[VALID_ACL_VALUES]
+    source: SourceSection
+    destination: DestinationSection
+    info: InfoSection = None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.Dataset.acl"><code class="name">var <span class="ident">acl</span> : Literal['public-read', 'private']</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Dataset.destination"><code class="name">var <span class="ident">destination</span> : <a title="library.validator.DestinationSection" href="#library.validator.DestinationSection">DestinationSection</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Dataset.info"><code class="name">var <span class="ident">info</span> : <a title="library.validator.InfoSection" href="#library.validator.InfoSection">InfoSection</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Dataset.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Dataset.source"><code class="name">var <span class="ident">source</span> : <a title="library.validator.SourceSection" href="#library.validator.SourceSection">SourceSection</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Dataset.version"><code class="name">var <span class="ident">version</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.DestinationSection"><code class="flex name class">
+<span>class <span class="ident">DestinationSection</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DestinationSection(BaseModel):
+    name: str
+    geometry: GeometryType
+    options: List[str] = []
+    fields: List[str] = []
+    sql: str = None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.DestinationSection.fields"><code class="name">var <span class="ident">fields</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.DestinationSection.geometry"><code class="name">var <span class="ident">geometry</span> : <a title="library.validator.GeometryType" href="#library.validator.GeometryType">GeometryType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.DestinationSection.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.DestinationSection.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.DestinationSection.sql"><code class="name">var <span class="ident">sql</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.GeometryType"><code class="flex name class">
+<span>class <span class="ident">GeometryType</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GeometryType(BaseModel):
+    SRS: str
+    type: Literal[VALID_GEOMETRY_TYPES]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.GeometryType.SRS"><code class="name">var <span class="ident">SRS</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.GeometryType.type"><code class="name">var <span class="ident">type</span> : Literal['NONE', 'GEOMETRY', 'POINT', 'LINESTRING', 'POLYGON', 'GEOMETRYCOLLECTION', 'MULTIPOINT', 'MULTIPOLYGON', 'MULTILINESTRING', 'CIRCULARSTRING', 'COMPOUNDCURVE', 'CURVEPOLYGON', 'MULTICURVE']</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.InfoSection"><code class="flex name class">
+<span>class <span class="ident">InfoSection</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class InfoSection(BaseModel):
+    info: str = None
+    url: str = None
+    dependents: List[str] = None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.InfoSection.dependents"><code class="name">var <span class="ident">dependents</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.InfoSection.info"><code class="name">var <span class="ident">info</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.InfoSection.url"><code class="name">var <span class="ident">url</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.Socrata"><code class="flex name class">
+<span>class <span class="ident">Socrata</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Socrata(BaseModel):
+    uid: str
+    format: Literal[
+        VALID_SOCRATA_FORMATS
+    ]  # Use Literal[tuple(dtype)] to define specific, valid values</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.Socrata.format"><code class="name">var <span class="ident">format</span> : Literal['csv', 'geojson']</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Socrata.uid"><code class="name">var <span class="ident">uid</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.SourceSection"><code class="flex name class">
+<span>class <span class="ident">SourceSection</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SourceSection(BaseModel):
+    url: Url = None  # Pass another schema as a data type
+    socrata: Socrata = None
+    script: str = None
+    geometry: GeometryType
+    options: List[str] = []  # Use List[dtype] for a list field value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.SourceSection.geometry"><code class="name">var <span class="ident">geometry</span> : <a title="library.validator.GeometryType" href="#library.validator.GeometryType">GeometryType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.SourceSection.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.SourceSection.script"><code class="name">var <span class="ident">script</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.SourceSection.socrata"><code class="name">var <span class="ident">socrata</span> : <a title="library.validator.Socrata" href="#library.validator.Socrata">Socrata</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.SourceSection.url"><code class="name">var <span class="ident">url</span> : <a title="library.validator.Url" href="#library.validator.Url">Url</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.Url"><code class="flex name class">
+<span>class <span class="ident">Url</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Url(BaseModel):
+    path: str  # Specify field name and data type
+    subpath: str = &#34;&#34;  # Set default value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="library.validator.Url.path"><code class="name">var <span class="ident">path</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="library.validator.Url.subpath"><code class="name">var <span class="ident">subpath</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="library.validator.Validator"><code class="flex name class">
+<span>class <span class="ident">Validator</span></span>
+<span>(</span><span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Validator takes as input the path of a configuration file
+and will run the necessary checks to determine wether the structure
+and values of the files are valid according to the requirements of
+the library.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Validator:
+    &#34;&#34;&#34;
+    Validator takes as input the path of a configuration file
+    and will run the necessary checks to determine wether the structure
+    and values of the files are valid according to the requirements of
+    the library.
+    &#34;&#34;&#34;
+
+    def __init__(self, path):
+        # Abort if file path is not valid
+        if not self.__check_extension(path):
+            raise Exception(&#34;File path must point to a .yml or .yaml file&#34;)
+
+        self.path = path
+        self.fname = path.split(&#34;/&#34;)[-1].split(&#34;.&#34;)[0]
+
+    def __check_extension(self, path):
+        # Check if path ends with a .yml file
+        extension = path.split(&#34;/&#34;)[-1].split(&#34;.&#34;)[-1]
+        return extension in [&#34;yml&#34;, &#34;yaml&#34;]
+
+    @cached_property
+    def __file(self):
+        with open(self.path, &#34;r&#34;) as stream:
+            y = yaml.load(stream, Loader=yaml.FullLoader)
+            return y
+
+    def __call__(self):
+        assert self.tree_is_valid, &#34;Some fields are not valid. Please review your file&#34;
+        assert (
+            self.dataset_name_matches
+        ), &#34;Dataset name must match file and destination name&#34;
+        assert (
+            self.has_only_one_source
+        ), &#34;Source can only have one property from either url, socrata or script&#34;
+
+        return True
+
+    @property
+    def tree_is_valid(self) -&gt; bool:
+        if self.__file[&#34;dataset&#34;] == None:
+            return False
+
+        try:
+            input_ds = Dataset(**self.__file[&#34;dataset&#34;])
+
+        except ValidationError as e:
+            print(e.json())
+            return False
+
+        return True
+
+    # Check that source name matches filename and destination
+    @property
+    def dataset_name_matches(self) -&gt; bool:
+        dataset = self.__file[&#34;dataset&#34;]
+        return (dataset[&#34;name&#34;] == self.fname) and (
+            dataset[&#34;name&#34;] == dataset[&#34;destination&#34;][&#34;name&#34;]
+        )
+
+    # Check that source has only one source from either url, socrata or script
+    @property
+    def has_only_one_source(self):
+        dataset = self.__file[&#34;dataset&#34;]
+        source_fields = list(dataset[&#34;source&#34;].keys())
+        # In other words: if url is in source, socrata or script cannot be.
+        # If url is NOT in source. Only one from socrata or url can be. (XOR operator ^)
+        return (
+            ((&#34;socrata&#34; not in source_fields) and (&#34;script&#34; not in source_fields))
+            if (&#34;url&#34; in source_fields)
+            else ((&#34;socrata&#34; in source_fields) ^ (&#34;script&#34; in source_fields))
+        )</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="library.validator.Validator.dataset_name_matches"><code class="name">var <span class="ident">dataset_name_matches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def dataset_name_matches(self) -&gt; bool:
+    dataset = self.__file[&#34;dataset&#34;]
+    return (dataset[&#34;name&#34;] == self.fname) and (
+        dataset[&#34;name&#34;] == dataset[&#34;destination&#34;][&#34;name&#34;]
+    )</code></pre>
+</details>
+</dd>
+<dt id="library.validator.Validator.has_only_one_source"><code class="name">var <span class="ident">has_only_one_source</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def has_only_one_source(self):
+    dataset = self.__file[&#34;dataset&#34;]
+    source_fields = list(dataset[&#34;source&#34;].keys())
+    # In other words: if url is in source, socrata or script cannot be.
+    # If url is NOT in source. Only one from socrata or url can be. (XOR operator ^)
+    return (
+        ((&#34;socrata&#34; not in source_fields) and (&#34;script&#34; not in source_fields))
+        if (&#34;url&#34; in source_fields)
+        else ((&#34;socrata&#34; in source_fields) ^ (&#34;script&#34; in source_fields))
+    )</code></pre>
+</details>
+</dd>
+<dt id="library.validator.Validator.tree_is_valid"><code class="name">var <span class="ident">tree_is_valid</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def tree_is_valid(self) -&gt; bool:
+    if self.__file[&#34;dataset&#34;] == None:
+        return False
+
+    try:
+        input_ds = Dataset(**self.__file[&#34;dataset&#34;])
+
+    except ValidationError as e:
+        print(e.json())
+        return False
+
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="library" href="index.html">library</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="library.validator.Dataset" href="#library.validator.Dataset">Dataset</a></code></h4>
+<ul class="two-column">
+<li><code><a title="library.validator.Dataset.acl" href="#library.validator.Dataset.acl">acl</a></code></li>
+<li><code><a title="library.validator.Dataset.destination" href="#library.validator.Dataset.destination">destination</a></code></li>
+<li><code><a title="library.validator.Dataset.info" href="#library.validator.Dataset.info">info</a></code></li>
+<li><code><a title="library.validator.Dataset.name" href="#library.validator.Dataset.name">name</a></code></li>
+<li><code><a title="library.validator.Dataset.source" href="#library.validator.Dataset.source">source</a></code></li>
+<li><code><a title="library.validator.Dataset.version" href="#library.validator.Dataset.version">version</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.DestinationSection" href="#library.validator.DestinationSection">DestinationSection</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.DestinationSection.fields" href="#library.validator.DestinationSection.fields">fields</a></code></li>
+<li><code><a title="library.validator.DestinationSection.geometry" href="#library.validator.DestinationSection.geometry">geometry</a></code></li>
+<li><code><a title="library.validator.DestinationSection.name" href="#library.validator.DestinationSection.name">name</a></code></li>
+<li><code><a title="library.validator.DestinationSection.options" href="#library.validator.DestinationSection.options">options</a></code></li>
+<li><code><a title="library.validator.DestinationSection.sql" href="#library.validator.DestinationSection.sql">sql</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.GeometryType" href="#library.validator.GeometryType">GeometryType</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.GeometryType.SRS" href="#library.validator.GeometryType.SRS">SRS</a></code></li>
+<li><code><a title="library.validator.GeometryType.type" href="#library.validator.GeometryType.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.InfoSection" href="#library.validator.InfoSection">InfoSection</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.InfoSection.dependents" href="#library.validator.InfoSection.dependents">dependents</a></code></li>
+<li><code><a title="library.validator.InfoSection.info" href="#library.validator.InfoSection.info">info</a></code></li>
+<li><code><a title="library.validator.InfoSection.url" href="#library.validator.InfoSection.url">url</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.Socrata" href="#library.validator.Socrata">Socrata</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.Socrata.format" href="#library.validator.Socrata.format">format</a></code></li>
+<li><code><a title="library.validator.Socrata.uid" href="#library.validator.Socrata.uid">uid</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.SourceSection" href="#library.validator.SourceSection">SourceSection</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.SourceSection.geometry" href="#library.validator.SourceSection.geometry">geometry</a></code></li>
+<li><code><a title="library.validator.SourceSection.options" href="#library.validator.SourceSection.options">options</a></code></li>
+<li><code><a title="library.validator.SourceSection.script" href="#library.validator.SourceSection.script">script</a></code></li>
+<li><code><a title="library.validator.SourceSection.socrata" href="#library.validator.SourceSection.socrata">socrata</a></code></li>
+<li><code><a title="library.validator.SourceSection.url" href="#library.validator.SourceSection.url">url</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.Url" href="#library.validator.Url">Url</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.Url.path" href="#library.validator.Url.path">path</a></code></li>
+<li><code><a title="library.validator.Url.subpath" href="#library.validator.Url.subpath">subpath</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="library.validator.Validator" href="#library.validator.Validator">Validator</a></code></h4>
+<ul class="">
+<li><code><a title="library.validator.Validator.dataset_name_matches" href="#library.validator.Validator.dataset_name_matches">dataset_name_matches</a></code></li>
+<li><code><a title="library.validator.Validator.has_only_one_source" href="#library.validator.Validator.has_only_one_source">has_only_one_source</a></code></li>
+<li><code><a title="library.validator.Validator.tree_is_valid" href="#library.validator.Validator.tree_is_valid">tree_is_valid</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

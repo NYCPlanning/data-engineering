@@ -1,0 +1,32 @@
+dataset:
+  name: &name nysdec_solidwaste
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    url:
+      path: https://data.ny.gov/api/views/2fni-raj8/rows.csv
+      subpath: ""
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## Solid Waste Management Facilities
+      Active Solid Waste Management Facilities
+    url: https://data.ny.gov/Energy-Environment/Solid-Waste-Management-Facilities/2fni-raj8
+    dependents: []

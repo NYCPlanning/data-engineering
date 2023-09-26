@@ -1,0 +1,35 @@
+dataset:
+  name: &name hra_medicaid
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: ibs4-k445
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude,Longitude"
+      - "Y_POSSIBLE_NAMES=latitude,Latitude"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Medicaid Offices
+      This table represents the details of the Medicaid Offices distributed by Borough along with their address and phone number detail.
+    url: "https://data.cityofnewyork.us/City-Government/Medicaid-Offices/ibs4-k445"
+    dependents: []

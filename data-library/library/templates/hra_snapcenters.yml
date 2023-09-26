@@ -1,0 +1,35 @@
+dataset:
+  name: &name hra_snapcenters
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    socrata:
+      uid: tc6u-8rnp
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude,Longitude"
+      - "Y_POSSIBLE_NAMES=latitude,Latitude"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Directory of SNAP Centers
+      List of SNAP Centers in New York City by Borough
+    url: "https://data.cityofnewyork.us/Social-Services/Directory-of-SNAP-Centers/tc6u-8rnp"
+    dependents: []

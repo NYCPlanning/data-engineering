@@ -1,0 +1,33 @@
+dataset:
+  name: &name dot_projects_bridges
+  version: "{{ version }}"
+  acl: private
+  source:
+    url:
+      path: library/tmp/DOTBridges.zip
+      subpath: DOTBridges.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ###  DOT Bridges
+      Recieved from DOT via email update
+    url:
+    dependents: []
