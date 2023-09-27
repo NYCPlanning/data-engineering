@@ -176,6 +176,7 @@ def publish(
     publishing_version: Optional[str] = None,
     keep_draft: bool = True,
     max_files: int = 30,
+    target_bucket: Optional[str] = None,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
@@ -183,7 +184,9 @@ def publish(
         publishing_version = get_version(draft_key)
     source = draft_key.path
     target = f"{draft_key.product}/publish/{publishing_version}/"
-    s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+    s3.copy_folder(
+        BUCKET, source, target, acl, max_files=max_files, target_bucket=target_bucket
+    )
     if not keep_draft:
         s3.delete(BUCKET, source)
 
@@ -205,8 +208,7 @@ def read_csv(product_key: ProductKey, filepath: str, **kwargs) -> pd.DataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = product_key.path
-    return _read_data_helper(f"{output_path}/{filepath}", pd.read_csv, **kwargs)
+    return _read_data_helper(f"{product_key.path}/{filepath}", pd.read_csv, **kwargs)
 
 
 def read_csv_legacy(
@@ -233,8 +235,7 @@ def read_shapefile(product_key: ProductKey, filepath: str) -> gpd.GeoDataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = product_key.path
-    return _read_data_helper(f"{output_path}/{filepath}", gpd.read_file)
+    return _read_data_helper(f"{product_key.path}/{filepath}", gpd.read_file)
 
 
 def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
@@ -244,10 +245,18 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    output_path = product_key.path
-    stream = s3.get_file_as_stream(BUCKET, f"{output_path}/{filepath}")
+    stream = s3.get_file_as_stream(BUCKET, f"{product_key.path}/{filepath}")
     zip = ZipFile(stream)
     return zip
+
+
+def download_file(
+    product_key: ProductKey, filepath: str, output_dir: Optional[Path] = None
+) -> Path:
+    output_dir = output_dir or Path(".")
+    output_filepath = output_dir / Path(filepath).name
+    s3.download_file(BUCKET, f"{product_key.path}/{filepath}", output_filepath)
+    return output_filepath
 
 
 def publish_add_created_date(
@@ -317,9 +326,36 @@ def _cli_wrapper_publish(
         help="Version ",
     ),
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    target_bucket: str = typer.Option(
+        None, "-t", "--target-bucket", help="Target bucket to publish to"
+    ),
 ):
     logger.info(f'Publishing {product}/draft/{build} with ACL "{acl}"')
-    publish(DraftKey(product, build), acl=acl, publishing_version=publishing_version)
+    publish(
+        DraftKey(product, build),
+        acl=acl,
+        publishing_version=publishing_version,
+        target_bucket=target_bucket,
+    )
+
+
+@app.command("download_file")
+def _cli_wrapper_download_file(
+    product: str = typer.Option(
+        None,
+        "-p",
+        "--product",
+        help="Name of data product (publishing folder in s3)",
+    ),
+    version: str = typer.Option(None, "-v", "--version", help="Product version"),
+    filepath: str = typer.Option(
+        None, "-f", "--filepath", help="Filepath within s3 output folder"
+    ),
+    output_dir: Path = typer.Option(
+        None, "-o", "--output-dir", help="Folder to download file to"
+    ),
+):
+    download_file(PublishKey(product, version), filepath, output_dir)
 
 
 if __name__ == "__main__":
