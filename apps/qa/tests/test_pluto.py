@@ -5,8 +5,8 @@ from src.pluto.components.expected_value_differences_report import (
     ExpectedValueDifferencesReport,
 )
 
-TEST_VERSION_1 = "23v2.1"
-TEST_VERSION_2 = "23v2"
+TEST_VERSION_1 = "23v1"
+TEST_VERSION_2 = "22v3"
 
 
 @pytest.fixture
@@ -72,13 +72,13 @@ def test_values_by_fields(
         "C2-2",
         "C2-4",
         "C1-4",
-        "C2-1",
-        "C1-1",
         "C1-3",
         "C2-5",
         "C1-2",
         "C2-3",
+        "C2-1",
         "C1-5",
+        "C1-1",
     ]
     v1_expected_records = example_ExpectedValueDifferencesReport.v1_expected_records
     actual_values = example_ExpectedValueDifferencesReport.values_by_fields(
@@ -92,7 +92,7 @@ def test_value_differences_across_versions(
     example_ExpectedValueDifferencesReport: ExpectedValueDifferencesReport,
 ):
     comparison_name = "zoning"
-    expeted_in1not2 = ["M1-4/R6"]
+    expeted_in1not2 = ["M1-4/R9", "M1-4/R7-3", "M1-4/R9", "M1-4/R7-3"]
     expeted_in2not1 = []
     (
         in1not2,
@@ -100,7 +100,5 @@ def test_value_differences_across_versions(
     ) = example_ExpectedValueDifferencesReport.value_differences_across_versions(
         comparison_name
     )
-    print(in1not2)
-    print(in2not1)
     assert in1not2 == expeted_in1not2
     assert in2not1 == expeted_in2not1
