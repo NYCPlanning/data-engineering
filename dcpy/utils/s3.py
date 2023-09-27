@@ -1,6 +1,7 @@
 import os
 from io import BytesIO
 from pathlib import Path
+import typer
 from typing import Any, Optional
 import boto3
 from botocore.client import Config
@@ -209,6 +210,7 @@ def copy_folder(
     *,
     max_files: int = 20,
     metadata: Optional[dict] = None,
+    target_bucket: Optional[str] = None,
 ):
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
@@ -216,14 +218,21 @@ def copy_folder(
     target = _make_folder(target)
 
     objects = list_objects(bucket, source)
-    if len(objects) > max_files:
+    if max_files and (len(objects) > max_files):
         raise Exception(
             f"{len(objects)} found in folder '{source}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
     for obj in objects:
         key = obj["Key"].replace(source, "")
         if key and (key[-1] != "/"):
-            copy_file(bucket, obj["Key"], f"{target}{key}", acl, metadata=metadata)
+            copy_file(
+                bucket,
+                obj["Key"],
+                f"{target}{key}",
+                acl,
+                metadata=metadata,
+                target_bucket=target_bucket,
+            )
 
 
 def delete(bucket: str, path: str):
@@ -271,3 +280,41 @@ def get_file_as_stream(bucket: str, path: str) -> BytesIO:
 
 def get_file_as_text(bucket: str, path: str) -> str:
     return client().get_object(Bucket=bucket, Key=path).get("Body").read().decode()
+
+
+app = typer.Typer(add_completion=False)
+
+
+@app.command("upload_folder")
+def _cli_wrapper_upload_folder(
+    bucket: str = typer.Option(None, "-b", "--bucket", help="S3 bucket"),
+    local_path: Path = typer.Option(
+        None, "--folder-path", help="Path to local output folder"
+    ),
+    s3_path: Path = typer.Option(None, "--s3-path", help="Path to s3 output folder"),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    max_files: int = typer.Option(
+        20, "--max-files", help="Maximum number of files to upload"
+    ),
+    copy_contents: bool = typer.Option(
+        None,
+        "--copy-contents",
+        help="If true, uploads local folder into target folder. If false, uploads contents of local folder instead",
+    ),
+):
+    if copy_contents is not None:
+        include_foldername = not copy_contents
+    else:
+        include_foldername = None
+    upload_folder(
+        bucket,
+        local_path,
+        s3_path,
+        acl=acl,
+        max_files=max_files,
+        include_foldername=include_foldername,
+    )
+
+
+if __name__ == "__main__":
+    app()

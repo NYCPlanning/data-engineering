@@ -1,0 +1,66 @@
+name: 🚀 Generate MVT for a published dataset
+run-name: "🚀 Generate MVT: ${{ inputs.product }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Which product to publish"
+        type: choice
+        required: true
+        options:
+          - cbbr
+          - checkbook
+          - colp
+          - cpdb
+          - developments
+          - facilities
+          - pluto
+          - zoningtaxlots
+      version:
+        description: "Published version"
+        type: string
+        required: true
+      filepath_to_shapefile:
+        description: "Filepath within output folder to shapefile to convert"
+        type: string
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/dev:latest 
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: 'dcpy'
+
+      - name: Download file
+        run: |
+          python3 -m dcpy.connectors.edm.publishing download_file \
+            -p db-${{ inputs.product }} \
+            -v ${{ inputs.version }} \
+            -f ${{ inputs.filepath_to_shapefile }}
+
+      - name: Generate MVT
+        run: | 
+          python3 -m dcpy.utils.geospatial \
+            -i $(basename ${{ inputs.filepath_to_shapefile }}) \
+            -o ${{ inputs.product }}_mvt
+
+      - name: Publish MVT
+        run: | 
+          python3 -m dcpy.utils.s3 \
+            -b de-sandbox \
+            --folder-path ${{ inputs.product }}_mvt \
+            --s3-path mvt/${{ inputs.product }}/${{inputs.version}}/ \
+            --acl private \
+            --copy-contents
