@@ -5,14 +5,14 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8.0"
+python = "3.11.*"
 typer = "^0.3.2"
 PyYAML = "^6.0.1"
 Jinja2 = "^3.1.0"
 requests = "^2.25.1"
 boto3 = "^1.16.58"
 python-dotenv = "^0.15.0"
-GDAL = "^3.6.0"
+GDAL = "3.6.2"
 pandas = "^1.5.0"
 beautifulsoup4 = "^4.9.3"
 rich = "^9.10.0"

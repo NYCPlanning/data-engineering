@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-22.04
-    container: osgeo/gdal:ubuntu-small-3.6.1
+    container: python:3.11-slim
     defaults:
       run:
         shell: bash
@@ -21,12 +21,8 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install Dependencies
-      run: | 
-        apt update && apt install -y python3-pip python3-distutils git
-        python3 -m pip install poetry
-        poetry install
+      run: ./library.sh setup dev
 
     - name: Pytest
       shell: bash
-      run: |
-        poetry run pytest -s
+      run: poetry run pytest -s
