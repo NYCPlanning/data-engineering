@@ -61,14 +61,16 @@ class Ingestor:
             folder_path = f"{self.base_path}/datasets/{name}/{version}"
 
             if not output_suffix and not output_format:
-                output_suffix = pathlib.Path(source["url"]["gdalpath"]).suffix.strip(".")
+                output_suffix = pathlib.Path(source["url"]["gdalpath"]).suffix.strip(
+                    "."
+                )
 
             if output_suffix:
                 destination_path = f"{folder_path}/{name}.{output_suffix}"
                 output_files.append(destination_path)
             else:
                 destination_path = None
-            
+
             # Create output folder and output config
             if folder_path and output_suffix:
                 os.makedirs(folder_path, exist_ok=True)
@@ -132,7 +134,6 @@ class Ingestor:
                     and Path(dstDS).exists()
                 ):
                     Path(dstDS).unlink()
-
 
                 gdal.VectorTranslate(
                     dstDS,
@@ -261,6 +262,6 @@ class Ingestor:
 
     @translator
     def as_is(
-        self, path: str, compress: bool = False, inplace: bool= False, *args, **kwargs
+        self, path: str, compress: bool = False, inplace: bool = False, *args, **kwargs
     ):
         return None, None, None, compress, inplace

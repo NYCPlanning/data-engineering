@@ -33,7 +33,9 @@ class Scriptor(ScriptorInterface):
         return df
 
     def previous(self) -> pd.DataFrame:
-        url = f"s3://edm-recipes/datasets/dob_cofos/{self.previous_version}/dob_cofos.csv"
+        url = (
+            f"s3://edm-recipes/datasets/dob_cofos/{self.previous_version}/dob_cofos.csv"
+        )
         return pd.read_csv(url, dtype=str)
 
     def runner(self) -> str:

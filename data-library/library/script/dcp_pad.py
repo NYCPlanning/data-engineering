@@ -11,7 +11,7 @@ from .scriptor import ScriptorInterface
 class Scriptor(ScriptorInterface):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        
+
     def ingest(self) -> pd.DataFrame:
         r = requests.get(self.path, stream=True)
         with open(f"pad{self.version}.zip", "wb") as fd:

@@ -9,4 +9,3 @@ class ScriptorInterface:
     @property
     def path(self):
         return self.config["dataset"]["source"]["path"]
-    
