@@ -12,9 +12,9 @@ from diagrams.aws.general import InternetAlt1
 
 from library import config
 
-Socrata = lambda name: Custom(name, './data_flow_diagrams/resources/socrata.jpeg')
+Socrata = lambda name: Custom(name, "./data_flow_diagrams/resources/socrata.jpeg")
 
-all_sources = [filename[:-4] for filename in os.listdir('./library/templates')]
+all_sources = [filename[:-4] for filename in os.listdir("./library/templates")]
 
 cbbr = [
     "cbbr_submissions",
@@ -66,15 +66,12 @@ pluto = [
     "dof_condo",
 ]
 
-source_list = {
-    "cbbr": cbbr,
-    "ztl": ztl,
-    "pluto": pluto
-}
+source_list = {"cbbr": cbbr, "ztl": ztl, "pluto": pluto}
 
 overrides = {}
 
 path = lambda name: f"./library/templates/{name}.yml"
+
 
 class source:
     def __init__(self, name):
@@ -83,30 +80,35 @@ class source:
         self.name = name
         config_obj = config.Config(path(name))
         raw_template = config_obj.parsed_rendered_template()
-        #computed_template = config_obj.compute
+        # computed_template = config_obj.compute
         self.config = raw_template
         self.source_type = raw_template["dataset"]["source"]
 
     def source(self):
-        if "url" in self.source_type or "path" in self.source_type: 
-            if "url" in self.source_type: path = self.source_type["url"]["path"]
-            else: path = self.source_type["path"]
-            if path.startswith('http'): 
-                split_path=path.split("//")[1].split("/")
+        if "url" in self.source_type or "path" in self.source_type:
+            if "url" in self.source_type:
+                path = self.source_type["url"]["path"]
+            else:
+                path = self.source_type["path"]
+            if path.startswith("http"):
+                split_path = path.split("//")[1].split("/")
                 self.last_node = InternetAlt1(split_path[0] + "\n" + split_path[-1])
-            elif path.startswith('library'): self.last_node = client.User(path[12:])
-            elif path.startswith('s3'): 
+            elif path.startswith("library"):
+                self.last_node = client.User(path[12:])
+            elif path.startswith("s3"):
                 s3path = path[5:]
-                split_path = s3path.split('/')
+                split_path = s3path.split("/")
                 self.last_node = storage.Volume(split_path[0] + "\n" + split_path[2])
-            else: self.last_node = client.User(path)
+            else:
+                self.last_node = client.User(path)
         elif "local_path" in self.source_type:
             self.last_node = client.User()
         elif "script" in self.source_type:
-            self.last_node = language.Python(self.name + '.py')
+            self.last_node = language.Python(self.name + ".py")
         elif "socrata" in self.source_type:
-            self.last_node = Socrata(self.name) ## todo needs some more logic
-        else: raise Exception(f"No found source for {self.name}")
+            self.last_node = Socrata(self.name)  ## todo needs some more logic
+        else:
+            raise Exception(f"No found source for {self.name}")
 
     def processing(self):
         if "script" in self.source_type:
@@ -123,44 +125,56 @@ class source:
         self.last_node = node
         self.do_node = node
 
+
 def create_specific_diagram(name, sources):
-    sources = [ source(s) for s in sources ]
-    with Diagram(name, filename=f'./data_flow_diagrams/outputs/{name}'):
-        for s in sources: s.source()
+    sources = [source(s) for s in sources]
+    with Diagram(name, filename=f"./data_flow_diagrams/outputs/{name}"):
+        for s in sources:
+            s.source()
 
         with Cluster("Library Archive"):
-            for s in sources: s.processing()
+            for s in sources:
+                s.processing()
 
         with Cluster("Digital Ocean"):
             with Cluster("edm-recipes"):
-                #do = storage.Volume('edm-recipes')
-                for s in sources: s.do()
-        
+                # do = storage.Volume('edm-recipes')
+                for s in sources:
+                    s.do()
+
         data_product = SQL(name)
-        for s in sources: s.do_node >> data_product
+        for s in sources:
+            s.do_node >> data_product
+
 
 def create_grand_diagram(names):
     sources = set([i for name in names for i in source_list[name]])
-    sources = [ source(s) for s in sources ]
-    with Diagram("", direction="LR", filename='./data_flow_diagrams/outputs/full_diagram'):
-        for s in sources: s.source()
+    sources = [source(s) for s in sources]
+    with Diagram(
+        "", direction="LR", filename="./data_flow_diagrams/outputs/full_diagram"
+    ):
+        for s in sources:
+            s.source()
 
         with Cluster("Library Archive"):
-            for s in sources: s.processing()
+            for s in sources:
+                s.processing()
 
         with Cluster("Digital Ocean"):
             with Cluster("edm-recipes"):
-                #do = storage.Volume('edm-recipes')
-                for s in sources: s.do()
-        
+                # do = storage.Volume('edm-recipes')
+                for s in sources:
+                    s.do()
+
         for name in names:
             data_product = SQL(name)
             for s in sources:
                 if s.name in source_list[name]:
                     s.do_node >> data_product
 
+
 create_specific_diagram("cbbr", cbbr)
 create_specific_diagram("pluto", pluto)
 create_specific_diagram("ztl", ztl)
 
-#create_grand_diagram(["cbbr", "ztl"])
+# create_grand_diagram(["cbbr", "ztl"])

@@ -21,6 +21,7 @@ VALID_GEOMETRY_TYPES = (
 )
 VALID_SOCRATA_FORMATS = ("csv", "geojson", "shapefile")
 
+
 # Create schema
 class GeometryType(BaseModel):
     SRS: str = None
@@ -59,6 +60,7 @@ class InfoSection(BaseModel):
     info: str = None
     url: str = None
     dependents: List[str] = None
+
     class Config:
         extra = Extra.allow
 

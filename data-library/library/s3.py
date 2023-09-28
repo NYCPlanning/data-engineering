@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 import boto3
-from botocore.client import Config 
+from botocore.client import Config
 from botocore.exceptions import ClientError, ParamValidationError
 from rich.progress import (
     BarColumn,
@@ -30,7 +30,7 @@ class S3:
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
             endpoint_url=aws_s3_endpoint,
-            config=config
+            config=config,
         )
         self.bucket = aws_s3_bucket
 

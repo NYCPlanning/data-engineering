@@ -7,9 +7,9 @@ from .scriptor import ScriptorInterface
 
 class Scriptor(ScriptorInterface):
     """
-    NOTE: 
+    NOTE:
     Dec 23, 2022 the ingest() has since being deprecated because the request endpoints and params are not stable.
-    New ingest_csv() takes the static csv and created according to the documentation in the yml template is used 
+    New ingest_csv() takes the static csv and created according to the documentation in the yml template is used
     for data library.
 
     May 6, 2022 The request body for downloading the spreadsheet has not been stable from one year to the next.
@@ -53,7 +53,7 @@ class Scriptor(ScriptorInterface):
         df.columns = df.iloc[0].str.replace("\t", " ")  # First row as column names
         df = df[1:]
         return df
-    
+
     def ingest_csv(self):
         df = pd.read_csv(self.path, encoding="utf-8")
         return df
