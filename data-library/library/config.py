@@ -10,6 +10,7 @@ from .utils import format_url, get_execution_details
 from .validator import Validator
 from functools import cached_property
 
+
 # Custom dumper created for list indentation
 class Dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
@@ -148,7 +149,7 @@ class Config:
                 local_path = f"library/tmp/{config['dataset']['name']}.zip"
                 url = f"https://data.cityofnewyork.us/api/geospatial/{_uid}?method=export&format=Shapefile"
                 os.system("mkdir -p library/tmp")
-                os.system(f"curl -o {local_path} \"{url}\"")
+                os.system(f'curl -o {local_path} "{url}"')
                 url = local_path
 
             options = config["dataset"]["source"]["options"]
