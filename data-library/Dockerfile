@@ -1,13 +1,11 @@
-FROM osgeo/gdal:ubuntu-small-3.6.1
+FROM python:3.11-slim
 
 COPY . /library/
 
 WORKDIR /library/
 
-RUN apt update && apt install -y python3-pip python3-distutils
+RUN ./library.sh setup
 
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.3.2
-
-RUN export PATH="/root/.local/bin:$PATH" &&\
-    poetry config virtualenvs.create false --local &&\
-    poetry install --no-dev
+# GDAL for python required env variables
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
