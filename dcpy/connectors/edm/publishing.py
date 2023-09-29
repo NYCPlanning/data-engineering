@@ -109,7 +109,7 @@ def upload(
             output_path,
             Path(draft_path),
             acl,
-            include_foldername=False,
+            contents_only=False,
             max_files=max_files,
             metadata=meta,
         )
@@ -131,7 +131,7 @@ def legacy_upload(
     *,
     s3_subpath: Optional[str] = None,
     latest: bool = True,
-    include_foldername: bool = False,
+    contents_only: bool = False,
     max_files: int = 20,
 ) -> None:
     """Upload file or folder to publishing, with more flexibility around s3 subpath
@@ -149,7 +149,7 @@ def legacy_upload(
             output,
             key,
             acl,
-            include_foldername=include_foldername,
+            contents_only=contents_only,
             max_files=max_files,
             metadata=meta,
         )

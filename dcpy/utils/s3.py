@@ -181,7 +181,7 @@ def upload_folder(
     acl: str,
     *,
     max_files: int = 20,
-    include_foldername: bool = True,
+    contents_only: bool = False,
     metadata: Optional[dict] = None,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
@@ -195,9 +195,9 @@ def upload_folder(
     for file in files:
         relative_filepath = file.relative_to(local_folder_path)
         key = (
-            upload_path / local_folder_path.name / relative_filepath
-            if include_foldername
-            else upload_path / relative_filepath
+            upload_path / relative_filepath
+            if contents_only
+            else upload_path / local_folder_path.name / relative_filepath
         )
         upload_file(bucket, file, str(key), acl=acl, metadata=metadata)
 
@@ -296,23 +296,19 @@ def _cli_wrapper_upload_folder(
     max_files: int = typer.Option(
         20, "--max-files", help="Maximum number of files to upload"
     ),
-    copy_contents: bool = typer.Option(
-        None,
-        "--copy-contents",
+    contents_only: bool = typer.Option(
+        False,
+        "--contents-only",
         help="If true, uploads local folder into target folder. If false, uploads contents of local folder instead",
     ),
 ):
-    if copy_contents is not None:
-        include_foldername = not copy_contents
-    else:
-        include_foldername = None
     upload_folder(
         bucket,
         local_path,
         s3_path,
         acl=acl,
         max_files=max_files,
-        include_foldername=include_foldername,
+        contents_only=contents_only,
     )
 
 
