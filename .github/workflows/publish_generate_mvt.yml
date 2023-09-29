@@ -63,4 +63,4 @@ jobs:
             --folder-path ${{ inputs.product }}_mvt \
             --s3-path mvt/${{ inputs.product }}/${{inputs.version}}/ \
             --acl private \
-            --copy-contents
+            --contents-only
