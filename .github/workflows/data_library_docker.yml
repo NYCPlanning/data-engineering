@@ -37,6 +37,11 @@ jobs:
     needs: update_image
     runs-on: ubuntu-22.04
     container: nycplanning/dev:latest
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: edm-recipes
     defaults:
       run:
         shell: bash
