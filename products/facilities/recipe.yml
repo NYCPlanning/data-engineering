@@ -6,16 +6,30 @@ inputs:
   datasets:
   - name: dcp_facilities_with_unmapped
     version_env_var: VERSION_PREV
+    file_type: pg_dump
   - name: dcp_mappluto_wi
+    file_type: pg_dump
   - name: dcp_boroboundaries_wi
+    file_type: pg_dump
   - name: dcp_ct2010
+    file_type: pg_dump
   - name: dcp_ct2020
+    file_type: pg_dump
   - name: dcp_councildistricts
+    file_type: pg_dump
     version: 22c
+    file_type: pg_dump
   - name: dcp_cdboundaries
+    file_type: pg_dump
   - name: dcp_nta2010
+    file_type: pg_dump
   - name: dcp_nta2020
+    file_type: pg_dump
   - name: dcp_policeprecincts
+    file_type: pg_dump
   - name: doitt_zipcodeboundaries
+    file_type: pg_dump
   - name: doitt_buildingfootprints
+    file_type: pg_dump
   - name: dcp_school_districts
+    file_type: pg_dump
