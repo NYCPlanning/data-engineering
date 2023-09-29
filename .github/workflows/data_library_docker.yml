@@ -40,68 +40,22 @@ jobs:
   update_docs:
     needs: update_image
     runs-on: ubuntu-22.04
-    container: osgeo/gdal:ubuntu-small-3.6.1
+    container: nycplanning/dev:latest
     defaults:
       run:
         shell: bash
         working-directory: data-library
-    env:
-      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET: edm-recipes
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up GDAL and poetry
+    - name: Create docs
       run: |
-        apt update
-        apt install -y git python3-pip
-
-    - name: Install Python dependencies, create docs
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install .
         python3 -m pip install pdoc3
-        python3 -m pdoc -f -o docs --html library
+        python3 -m pdoc -f -o ../docs --html library
 
-    - name: Archive artifacts
-      uses: actions/upload-artifact@v3
+    - name: Create PR
+      uses: peter-evans/create-pull-request@v5
       with:
-        name: docs
-        path: docs/library
-        
-  commit:
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash
-        working-directory: data-library
-    needs: update_docs
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
-      with:
-        name: docs
-        path: docs/library
-
-    - name: Commit files
-      continue-on-error: true
-      id: commit
-      run: |
-        ls -l docs/
-        ls -l docs/library
-        git status
-
-        DATE=$(date)
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add docs/
-        git commit -m "🎉 Update Docs $DATE" -a
-
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      continue-on-error: true
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update data library docs via workflow run"
+        add-paths: docs/
