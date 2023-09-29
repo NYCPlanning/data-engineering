@@ -11,10 +11,6 @@ on:
           - ubuntu-staging
           - ubuntu-latest
   push:
-    branches: 
-    - main
-    paths:
-    - data-library/**
 
 jobs:
   update_image:
@@ -35,7 +31,7 @@ jobs:
         with:
           context: data-library
           push: true
-          tags: nycplanning/library:${{ github.event.inputs.image_tag || 'ubuntu-latest' }}
+          tags: nycplanning/library:${{ github.event.inputs.image_tag || 'ubuntu-staging' }}
 
   update_docs:
     needs: update_image
