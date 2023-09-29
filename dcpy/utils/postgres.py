@@ -4,7 +4,8 @@ import csv
 import os
 import pandas as pd
 from psycopg2.extensions import AsIs
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, dialects
+from typing import Optional
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -172,6 +173,20 @@ class PostgresClient:
             con=self.engine,
             index=False,
             if_exists="replace",
+            method=insert_copy,
+        )
+
+    def insert_dataframe(self, df: pd.DataFrame, table_name: str):
+        df.to_sql(
+            table_name,
+            con=self.engine,
+            if_exists="replace",
+            index=False,
+            dtype={
+                "geo_1b": dialects.postgresql.JSON,
+                "geo_bl": dialects.postgresql.JSON,
+                "geo_bn": dialects.postgresql.JSON,
+            },
             method=insert_copy,
         )
 
