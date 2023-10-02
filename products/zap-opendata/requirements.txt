@@ -42,7 +42,7 @@ colorama==0.4.6
     #   sqlfluff
 coverage[toml]==7.3.0
     # via pytest-cov
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   msal
     #   pyjwt
