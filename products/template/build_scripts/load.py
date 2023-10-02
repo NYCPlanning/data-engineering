@@ -1,20 +1,12 @@
-import os
 from pathlib import Path
-from dcpy.utils import git, postgres
 from dcpy.connectors.edm import recipes
 
-from . import RECIPE_PATH, RECIPE_LOCK_PATH
-
-BUILD_SCHEMA = git.run_name()
-
-pg_client = postgres.PostgresClient(
-    schema=BUILD_SCHEMA,
-)
+from . import RECIPE_PATH, RECIPE_LOCK_PATH, PG_CLIENT
 
 
 def setup_build_db():
-    pg_client.drop_schema()
-    pg_client.create_schema()
+    PG_CLIENT.drop_schema()
+    PG_CLIENT.create_schema()
 
 
 def load_source_data():
@@ -23,7 +15,14 @@ def load_source_data():
         Path(RECIPE_LOCK_PATH),
     )
     recipe = recipes.recipe_from_yaml(Path(RECIPE_LOCK_PATH))
-    [recipes.import_dataset(ds, pg_client) for ds in recipe.inputs.datasets]
+    recipes.write_source_data_versions(recipe_file=Path(RECIPE_LOCK_PATH))
+
+    [recipes.import_dataset(dataset, PG_CLIENT) for dataset in recipe.inputs.datasets]
+
+    PG_CLIENT.create_table_from_csv(
+        "source_data_versions",
+        RECIPE_LOCK_PATH.parent / "source_data_versions.csv",
+    )
 
 
 if __name__ == "__main__":
