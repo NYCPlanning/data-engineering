@@ -29,6 +29,7 @@ jobs:
       - name: Check sql files in products
         run: |
           # TODO: Gradually expand this to cover more products
+          sqlfluff lint products/template/
           sqlfluff lint products/knownprojects/
           sqlfluff lint products/pluto/pluto_build/sql
           sqlfluff lint products/zoningtaxlots/sql

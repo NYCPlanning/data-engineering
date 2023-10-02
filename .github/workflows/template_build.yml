@@ -51,14 +51,9 @@ jobs:
         run: |
           python3 -m build_scripts.load
 
-      - name: Source data versions
-        working-directory: ./
-        run: |
-          python3 -m dcpy.connectors.edm.recipes write-source-data-versions -f ./products/template/recipe.lock.yml
-
       - name: Transform
         run: |
-          echo "PLACEHOLDER"
+          python3 -m build_scripts.transform
 
       - name: Export
         run: |
