@@ -1,6 +1,4 @@
 import re
-from functools import wraps
-
 import usaddress
 
 
@@ -41,32 +39,15 @@ def quick_clean(address):
     return re.sub(r"[,\%\$\#\@\!\_\.\?\`\"\(\)\ï\¿\½\�]", "", " ".join(result))
 
 
-def ParseAddress(function: callable = None, raw_address_field: str = None):
-    def _ParseAddress(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            df = func()
-            df["raw_address"] = df[raw_address_field]
-            df["cleaned_address"] = df.raw_address.apply(quick_clean)
-            df["parsed_hnum"] = df.cleaned_address.apply(get_hnum)
-            df["parsed_sname"] = df.cleaned_address.apply(get_sname)
-            return df
-
-        return wrapper
-
-    if function:
-        return _ParseAddress(function)
-    return _ParseAddress
+def parse_address(df, raw_address_field: str = None):
+    df["raw_address"] = df[raw_address_field]
+    df["cleaned_address"] = df.raw_address.apply(quick_clean)
+    df["parsed_hnum"] = df.cleaned_address.apply(get_hnum)
+    df["parsed_sname"] = df.cleaned_address.apply(get_sname)
+    return df
 
 
-def UseAirportName(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        df = func()
-
-        df["parsed_sname"] = df.apply(axis=1, func=find_sname)
-        return df
-
+def use_airport_name(df):
     def find_sname(row):
         if row["parsed_sname"] != "":
             return row["parsed_sname"]
@@ -74,4 +55,5 @@ def UseAirportName(func):
             return row["airport_name"]
         return row["manager_address"]
 
-    return wrapper
+    df["parsed_sname"] = df.apply(axis=1, func=find_sname)
+    return df

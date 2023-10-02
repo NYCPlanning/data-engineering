@@ -7,49 +7,41 @@ import pandas as pd
 from .geocode.function1B import Function1B
 from .geocode.functionBL import FunctionBL
 from .geocode.functionBN import FunctionBN
-from .geocode.parseAddress import ParseAddress, UseAirportName
+from .geocode.parseAddress import parse_address, use_airport_name
 from .utility.export import export
 from .utility.prepare import prepare
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def bpl_libraries(df: pd.DataFrame = None):
     df = prepare("bpl_libraries")
     df["longitude"] = df.position.apply(lambda x: x.split(",")[1].strip())
     df["latitude"] = df.position.apply(lambda x: x.split(",")[0].strip())
     df["zipcode"] = df.address.apply(lambda x: x[-6:])
     df["borough"] = "Brooklyn"
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="locality",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def nypl_libraries(df: pd.DataFrame = None):
     df = prepare("nypl_libraries")
     df["latitude"] = df.lat
     df["longitude"] = df.lon
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="locality",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="address_street_name",
-    house_number_field="address_building",
-    borough_field="address_borough",
-    zipcode_field="address_zip",
-)
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def dca_operatingbusinesses(df: pd.DataFrame = None):
     df = prepare("dca_operatingbusinesses")
     industry = [
@@ -68,44 +60,52 @@ def dca_operatingbusinesses(df: pd.DataFrame = None):
     df = df.loc[((df.license_expiration_date >= today) & (df.industry == "Scrap Metal Processor"))|((df.license_expiration_date >= covid_freeze) & (df.industry != "Scrap Metal Processor")), :]\
         .loc[df.industry.isin(industry), :]
     # fmt:on
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="address_street_name",
+        house_number_field="address_building",
+        borough_field="address_borough",
+        zipcode_field="address_zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def dcla_culturalinstitutions(df: pd.DataFrame = None):
     df = prepare("dcla_culturalinstitutions")
     df["zipcode"] = df.postcode.apply(lambda x: x[:5])
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
     export(df)
 
 
-@FunctionBL(bbl_field="bbl")
-@Function1B(
-    street_name_field="sname", house_number_field="hnum", borough_field="borough"
-)
 def dcp_colp(df: pd.DataFrame = None):
     df = prepare("dcp_colp")
     df["bbl"] = df.bbl.str.split(pat=".").str[0]
+    df = Function1B(
+        street_name_field="sname", house_number_field="hnum", borough_field="borough"
+    ).geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street_name",
-    house_number_field="address_number",
-    borough_field="borough_name",
-    zipcode_field="zip_code",
-)
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def dcp_pops(df: pd.DataFrame = None):
     df = prepare("dcp_pops")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="street_name",
+        house_number_field="address_number",
+        borough_field="borough_name",
+        zipcode_field="zip_code",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
@@ -114,62 +114,55 @@ def dcp_sfpsd(df: pd.DataFrame = None):
     export(df)
 
 
-@Function1B(
-    street_name_field="street_name",
-    house_number_field="house_number",
-    zipcode_field="zipcode",
-)
 def dep_wwtc(df: pd.DataFrame = None):
     df = prepare("dep_wwtc")
+    df = Function1B(
+        street_name_field="street_name",
+        house_number_field="house_number",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    zipcode_field="program_zipcode",
-)
-@ParseAddress(raw_address_field="program_address")
 def dfta_contracts(df: pd.DataFrame = None):
     df = prepare("dfta_contracts")
+    df = parse_address(df, raw_address_field="program_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        zipcode_field="program_zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="garage_city",
-    zipcode_field="garage_zip",
-)
-@ParseAddress(raw_address_field="garage__street_address")
 def doe_busroutesgarages(df: pd.DataFrame = None):
     df = prepare("doe_busroutesgarages")
     # SCHOOL_YEAR = f"{datetime.date.today().year-1}-{datetime.date.today().year}"
     SCHOOL_YEAR = "2019-2020"  # No records from 2020-2021 school year
     df = df.loc[df.school_year == SCHOOL_YEAR, :]
+    df = parse_address(df, raw_address_field="garage__street_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="garage_city",
+        zipcode_field="garage_zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="city",
-    zipcode_field="zip",
-)
-@FunctionBL(bbl_field="borough_block_lot")
-@ParseAddress(raw_address_field="primary_address")
 def doe_lcgms(df: pd.DataFrame = None):
     df = prepare("doe_lcgms")
+    df = parse_address(df, raw_address_field="primary_address")
+    df = FunctionBL(bbl_field="borough_block_lot").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="city",
+        zipcode_field="zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boro",
-    zipcode_field="zip",
-)
-@ParseAddress(raw_address_field="address")
 def doe_universalprek(df: pd.DataFrame = None):
     df = prepare("doe_universalprek")
     df["boro"] = df.borough.map(
@@ -181,57 +174,64 @@ def doe_universalprek(df: pd.DataFrame = None):
             "R": "Staten Island",
         }
     )
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boro",
+        zipcode_field="zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street",
-    house_number_field="building",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@FunctionBN(bin_field="building_identification_number")
 def dohmh_daycare(df: pd.DataFrame = None):
     df = prepare("dohmh_daycare")
+    df = FunctionBN(bin_field="building_identification_number").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="street",
+        house_number_field="building",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boroname",
-)
-@ParseAddress(raw_address_field="site")
 def dot_bridgehouses(df: pd.DataFrame = None):
     df = prepare("dot_bridgehouses")
     df["address"] = df.address.astype(str).replace("n/a", None)
+    df = parse_address(df, raw_address_field="site")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boroname",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boroname",
-)
-@FunctionBL(bbl_field="bbl")
-@ParseAddress(raw_address_field="address")
 def dot_ferryterminals(df: pd.DataFrame = None):
     df = prepare("dot_ferryterminals")
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
+    df = parse_address(df, raw_address_field="address")
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boroname",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boroname",
-)
-@FunctionBL(bbl_field="bbl")
-@ParseAddress(raw_address_field="address")
 def dot_mannedfacilities(df: pd.DataFrame = None):
     df = prepare("dot_mannedfacilities")
     df["address"] = df.address.astype(str)
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
+    df = parse_address(df, raw_address_field="address")
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boroname",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
@@ -240,27 +240,20 @@ def dot_pedplazas(df: pd.DataFrame = None):
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boroname",
-)
-@FunctionBL(bbl_field="bbl")
-@ParseAddress(raw_address_field="address")
 def dot_publicparking(df: pd.DataFrame = None):
     df = prepare("dot_publicparking")
     df["address"] = df.address.astype(str)
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
+    df = parse_address(df, raw_address_field="address")
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boroname",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boro",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def dpr_parksproperties(df: pd.DataFrame = None):
     df = prepare("dpr_parksproperties")
     df["zipcode"] = df.zipcode.astype(str).apply(lambda x: x[:5])
@@ -273,41 +266,43 @@ def dpr_parksproperties(df: pd.DataFrame = None):
             "R": "Staten Island",
         }
     )
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boro",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boro",
-    zipcode_field="zip",
-)
-@ParseAddress(raw_address_field="address")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def dsny_garages(df: pd.DataFrame = None):
     df = prepare("dsny_garages")
     df["address"] = df.address.astype(str)
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boro",
+        zipcode_field="zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="boro",
-    zipcode_field="zip",
-)
-@ParseAddress(raw_address_field="address")
 def dsny_specialwastedrop(df: pd.DataFrame = None):
     df = prepare("dsny_specialwastedrop")
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="boro",
+        zipcode_field="zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street", house_number_field="number", borough_field="borough"
-)
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def dsny_donatenycdirectory(df: pd.DataFrame = None):
     df = prepare("dsny_donatenycdirectory")
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
@@ -315,31 +310,29 @@ def dsny_donatenycdirectory(df: pd.DataFrame = None):
         df["categoriesaccepted"].notna()
         & df["categoriesaccepted"].str.contains("Clothing")
     ]
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="street", house_number_field="number", borough_field="borough"
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def dsny_leafdrop(df: pd.DataFrame = None):
     df = prepare("dsny_leafdrop")
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="zip_code",
-)
-@ParseAddress(raw_address_field="location")
 def dsny_fooddrop(df: pd.DataFrame = None):
     df = prepare("dsny_fooddrop")
 
@@ -348,32 +341,30 @@ def dsny_fooddrop(df: pd.DataFrame = None):
         return location_str[:-5] if location_str[:-5].isnumeric() else None
 
     df["zip_code"] = df["location"].apply(_loc_to_zipcode)
+    df = parse_address(df, raw_address_field="location")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="zip_code",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street",
-    house_number_field="number",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def dsny_electronicsdrop(df: pd.DataFrame = None):
     df = prepare("dsny_electronicsdrop")
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="street",
+        house_number_field="number",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough__community",
-    zipcode_field="zipcode",
-)
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
-@ParseAddress(raw_address_field="address")
 def dycd_afterschoolprograms(df: pd.DataFrame = None):
     df = prepare("dycd_afterschoolprograms")
     df["address"] = df.location_1.apply(
@@ -388,30 +379,30 @@ def dycd_afterschoolprograms(df: pd.DataFrame = None):
     df["spatial"] = df.spatial.apply(lambda x: x.replace("(", "").replace(")", ""))
     df["longitude"] = df.spatial.apply(lambda x: x.split(",")[-1])
     df["latitude"] = df.spatial.apply(lambda x: x.split(",")[0])
+    df = parse_address(df, raw_address_field="address")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough__community",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="city",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def fbop_corrections(df: pd.DataFrame = None):
     df = prepare("fbop_corrections")
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="city",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
-@ParseAddress(raw_address_field="cleaned_address")
 def fdny_firehouses(df: pd.DataFrame = None):
     df = prepare("fdny_firehouses")
     df["cleaned_address"] = df["facilityaddress"].map(
@@ -431,89 +422,89 @@ def fdny_firehouses(df: pd.DataFrame = None):
         df_research.facilityname.isin(df.facilityname),
         ["facilityaddress", "borough", "postcode", "wkt"],
     ].values
+    df = parse_address(df, raw_address_field="cleaned_address")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    zipcode_field="zip_code",
-)
-@ParseAddress(raw_address_field="address")
 def foodbankny_foodbanks(df: pd.DataFrame = None):
     df = prepare("foodbankny_foodbanks")
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        zipcode_field="zip_code",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@ParseAddress(raw_address_field="location_1")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def hhc_hospitals(df: pd.DataFrame = None):
     df = prepare("hhc_hospitals")
     df["spatial"] = df.location_1.apply(lambda x: x.split("(")[-1].replace(")", ""))
     df["longitude"] = df.spatial.apply(lambda x: x.split(",")[-1])
     df["latitude"] = df.spatial.apply(lambda x: x.split(",")[0])
     df.location_1 = df.location_1.apply(lambda x: x.replace("\n", " "))
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="location_1")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@ParseAddress(raw_address_field="street_address")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def hra_snapcenters(df: pd.DataFrame = None):
     df = prepare("hra_snapcenters")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="street_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@ParseAddress(raw_address_field="street_address")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def hra_jobcenters(df: pd.DataFrame = None):
     df = prepare("hra_jobcenters")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="street_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@ParseAddress(raw_address_field="office_address")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def hra_medicaid(df: pd.DataFrame = None):
     df = prepare("hra_medicaid")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="office_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@ParseAddress(raw_address_field="address_1")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def moeo_socialservicesitelocations(df: pd.DataFrame = None):
     df = prepare("moeo_socialservicesitelocations")
     df["borough"] = df.borough.str.upper()
@@ -522,53 +513,62 @@ def moeo_socialservicesitelocations(df: pd.DataFrame = None):
     df["bin"] = df.bin.fillna(0).astype(float).astype(int)
     df["postcode"] = df.bbl.fillna(0).astype(float).astype(int)
     df["postcode"] = df.postcode.astype(str).apply(lambda x: x[:5])
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="address_1")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street_name",
-    house_number_field="house_number",
-    zipcode_field="zipcode",
-)
 def nycdoc_corrections(df: pd.DataFrame = None):
     df = prepare("nycdoc_corrections")
+    df = Function1B(
+        street_name_field="street_name",
+        house_number_field="house_number",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-)
-@ParseAddress(raw_address_field="address")
-@FunctionBL(bbl_field="bbl")
-@FunctionBN(bin_field="bin")
 def nycha_communitycenters(df: pd.DataFrame = None):
     df = prepare("nycha_communitycenters")
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def nycha_policeservice(df: pd.DataFrame = None):
     df = prepare("nycha_policeservice")
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="address")
 def nycourts_courts(df: pd.DataFrame = None):
     df = prepare("nycourts_courts")
+    df = parse_address(df, raw_address_field="address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
@@ -578,58 +578,58 @@ def nysdec_lands(df: pd.DataFrame = None):
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="county",
-    zipcode_field="zip_code",
-)
-@ParseAddress(raw_address_field="location_address")
 def nysdec_solidwaste(df: pd.DataFrame = None):
     df = prepare("nysdec_solidwaste")
     df = df[df.county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])]
+    df = parse_address(df, raw_address_field="location_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="county",
+        zipcode_field="zip_code",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street_name",
-    house_number_field="house_number",
-    borough_field="county",
-    zipcode_field="zipcode",
-)
 def nysdoccs_corrections(df: pd.DataFrame = None):
     df = prepare("nysdoccs_corrections")
     df["zipcode"] = df.zipcode.apply(lambda x: x[:5])
     df = df[df.county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])]
+    df = Function1B(
+        street_name_field="street_name",
+        house_number_field="house_number",
+        borough_field="county",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="facility_county",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="facility_address_1")
 def nysdoh_healthfacilities(df: pd.DataFrame = None):
     df = prepare("nysdoh_healthfacilities")
     df = df.loc[
         df.facility_county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"]), :
     ].copy()
     df["zipcode"] = df.facility_zip_code.apply(lambda x: x[:5])
+    df = parse_address(df, raw_address_field="facility_address_1")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="facility_county",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="county",
-    zipcode_field="zip",
-)
-@ParseAddress(raw_address_field="street_address")
 def nysdoh_nursinghomes(df: pd.DataFrame = None):
     df = prepare("nysdoh_nursinghomes")
     df = df[df.county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])]
+    df = parse_address(df, raw_address_field="street_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="county",
+        zipcode_field="zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
@@ -643,61 +643,61 @@ def sca_enrollment_capacity(df: pd.DataFrame = None):
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="county_description",
-    zipcode_field="physical_zipcd5",
-)
-@ParseAddress(raw_address_field="physical_address_line1")
 def nysed_activeinstitutions(df: pd.DataFrame = None):
     df = prepare("nysed_activeinstitutions")
     df = df[
         df.county_description.isin(["NEW YORK", "KINGS", "BRONX", "QUEENS", "RICHMOND"])
     ]
+    df = parse_address(df, raw_address_field="physical_address_line1")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="county_description",
+        zipcode_field="physical_zipcd5",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="provider_county",
-    zipcode_field="provider_zip_code",
-)
-@ParseAddress(raw_address_field="provider_street")
 def nysoasas_programs(df: pd.DataFrame = None):
     df = prepare("nysoasas_programs")
     df = df[
         df.provider_county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])
     ]
+    df = parse_address(df, raw_address_field="provider_street")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="provider_county",
+        zipcode_field="provider_zip_code",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="program_county",
-    zipcode_field="program_zip",
-)
-@ParseAddress(raw_address_field="program_address_1")
 def nysomh_mentalhealth(df: pd.DataFrame = None):
     df = prepare("nysomh_mentalhealth")
     df = df[
         df.program_county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])
     ]
+    df = parse_address(df, raw_address_field="program_address_1")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="program_county",
+        zipcode_field="program_zip",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="county",
-    zipcode_field="zip_code",
-)
-@ParseAddress(raw_address_field="street_address")
 def nysopwdd_providers(df: pd.DataFrame = None):
     df = prepare("nysopwdd_providers")
     df = df[df.county.isin(["BRONX", "NEW YORK", "KINGS", "QUEENS", "RICHMOND"])]
+    df = parse_address(df, raw_address_field="street_address")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="county",
+        zipcode_field="zip_code",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
@@ -713,53 +713,45 @@ def nysparks_parks(df: pd.DataFrame = None):
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@FunctionBN(bin_field="bin")
-@FunctionBL(bbl_field="bbl")
-@ParseAddress(raw_address_field="address")
 def qpl_libraries(df: pd.DataFrame = None):
     df = prepare("qpl_libraries")
+    df = parse_address(df, raw_address_field="address")
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="street",
-    house_number_field="number",
-    borough_field="borough",
-    zipcode_field="postcode",
-)
-@FunctionBN(bin_field="bin")
-@FunctionBL(bbl_field="bbl")
 def sbs_workforce1(df: pd.DataFrame = None):
     df = prepare("sbs_workforce1")
+    df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
+    df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
+    df = Function1B(
+        street_name_field="street",
+        house_number_field="number",
+        borough_field="borough",
+        zipcode_field="postcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    zipcode_field="zipcode",
-)
-@ParseAddress(raw_address_field="buildingaddress")
 def uscourts_courts(df: pd.DataFrame = None):
     df = prepare("uscourts_courts")
     df["zipcode"] = df.buildingzip.apply(lambda x: x[:5])
+    df = parse_address(df, raw_address_field="buildingaddress")
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
-@Function1B(
-    street_name_field="parsed_sname",
-    house_number_field="parsed_hnum",
-    borough_field="county",
-    zipcode_field="zipcode",
-)
-@UseAirportName
-@ParseAddress(raw_address_field="manager_address")
 def usdot_airports(df: pd.DataFrame = None):
     df = prepare("usdot_airports")
     df = df.loc[
@@ -774,6 +766,14 @@ def usdot_airports(df: pd.DataFrame = None):
         df.name == "JOHN F KENNEDY INTL", "airport_name"
     ] = "JOHN F KENNEDY INTL AIRPORT"
     df.loc[df.name == "LAGUARDIA", "airport_name"] = "LAGUARDIA AIRPORT"
+    df = parse_address(df, raw_address_field="manager_address")
+    df = use_airport_name(df)
+    df = Function1B(
+        street_name_field="parsed_sname",
+        house_number_field="parsed_hnum",
+        borough_field="county",
+        zipcode_field="zipcode",
+    ).geocode_a_dataframe(df)
     export(df)
 
 
