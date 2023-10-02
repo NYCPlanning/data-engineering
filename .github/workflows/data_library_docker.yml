@@ -36,33 +36,3 @@ jobs:
           context: data-library
           push: true
           tags: nycplanning/library:${{ github.event.inputs.image_tag || 'ubuntu-latest' }}
-
-  update_docs:
-    needs: update_image
-    runs-on: ubuntu-22.04
-    container: nycplanning/dev:latest
-    if: github.event_name == 'push' || (github.event.inputs.image_tag == 'ubuntu-latest')
-    env:
-      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET: edm-recipes
-    defaults:
-      run:
-        shell: bash
-        working-directory: data-library
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Create docs
-      run: |
-        python3 -m pip install pdoc3
-        python3 -m pdoc -f -o ../docs --html library
-
-    - name: Create PR
-      uses: peter-evans/create-pull-request@v5
-      with:
-        commit-message: "Update data library docs via workflow run"
-        add-paths: docs/
-        title: "Update data library docs"
