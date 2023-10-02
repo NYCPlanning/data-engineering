@@ -57,7 +57,7 @@ jobs:
 
       - name: Export
         run: |
-          echo "PLACEHOLDER"
+          python3 -m build_scripts.export
 
       - name: Run end-to-end tests
         run: |
