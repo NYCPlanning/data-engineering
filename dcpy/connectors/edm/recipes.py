@@ -42,12 +42,12 @@ class DatasetType(str, Enum):
     csv = "csv"
 
 
-class DataPreprocessor(BaseModel, use_enum_values=True):
+class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
     module: str
     function: str
 
 
-class Dataset(BaseModel, use_enum_values=True):
+class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     name: str
     version: str | None = None
     version_env_var: str | None = None
@@ -84,7 +84,7 @@ class DatasetVersionType(str, Enum):
     minor = "minor"
 
 
-class Recipe(BaseModel, use_enum_values=True):
+class Recipe(BaseModel, use_enum_values=True, extra="forbid"):
     name: str
     product: str
     base_recipe: str | None = None
