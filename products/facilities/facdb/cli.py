@@ -6,8 +6,9 @@ from typing import List, Optional
 import typer
 
 from dcpy.utils import postgres
-from .utility.prepare import read_datasets_yml
+from .utility.prepare import read_datasets_yml, prepare
 from .utility.metadata import dump_metadata
+from .utility.export import export
 
 from facdb import SQL_PATH, BASH_PATH, BUILD_ENGINE, CACHE_PATH, VERSION_PREV
 
@@ -113,9 +114,11 @@ def run(
         dataset = next(filter(lambda x: x["name"] == name, datasets), None)
         scripts = dataset.get("scripts", None)
         if python:
+            dataset = prepare(name)
             pipelines = importlib.import_module("facdb.pipelines")
             pipeline = getattr(pipelines, name)
-            pipeline()
+            dataset = pipeline(dataset)
+            export(dataset)
 
         if scripts and sql:
             for script in scripts:
