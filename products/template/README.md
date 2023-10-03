@@ -1,4 +1,4 @@
-# Dataset Name
+# Template Database (TDB)
 
 This repo is a way for the Data Engineering team to work out and declare it's ideal file structures, code styles, and workflows to be used in other repos. This is new and evolving. Nothing here *must* be done in another repo.
 
@@ -18,20 +18,20 @@ This repo is a way for the Data Engineering team to work out and declare it's id
 
 ---
 
-## Source data
-
-- dcp_xxx
-- dcp_yyy
-- dof_xxx
-
-> [notes or table about source data]
-
 ## Output files
 
 - File Name A
 - File Name B
 
 > [notes or table about output files]
+
+## Source data
+
+- dpr_parksproperties
+- dcp_yyy
+- dof_xxx
+
+> [notes or table about source data]
 
 ## Data Dictionary
 
@@ -72,31 +72,21 @@ Please refer to the [EDM QAQC web application](https://edm-data-engineering.nycp
 
 > [notes about build logic]
 
-## Development
+## Approach Details
 
-### Setup
+[Explain unique/non-trivial methods]
 
-1. Clone the repo locally
+[Details about the purpose of this dataset and why any noteworthy decisions were made]
 
-2. Open the repo in a `Remote Window` in VS Code to utilize this repo's dev container
-    > Ensure Docker Desktop is running. Start dev container either when prompted or via the green icon at the bottom left).
+[Details about alternative approaches and why they weren't chosen]
 
-3. Confirm setup is working by running a script in the dev container terminal (e.g. `./bash/config.sh`)
+---
 
-### Edit python package requirements
+## Dev notes
 
-1. Edit package list and/or versions in `requirement.in`
-
-2. Run `./bash.dev_pip_compile.sh` to compile and install packages
-
-### Notes
-
-> Only `main` has branch protection rules. This means that tests are allowed to fail on `dev` branches.
+> This fictional data product is meant to be
 >
-> If using VS Code's `Format on Save`, ensure the Python formatting provider is set to `black`
+> - an end-to-end test of our data platform
+> - an example of the approaches we'd like to use in all data products
 
-### Approach Motivations
-
-Details about the purpose of this dataset and why any noteworthy decisions were made
-
-Details about alternative approaches and why they weren't chosen
+...

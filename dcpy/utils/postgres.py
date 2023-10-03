@@ -119,6 +119,14 @@ class PostgresClient:
         ]
         return table_names
 
+    def get_table(self, table_name: str) -> pd.DataFrame:
+        return self.execute_select_query(
+            """
+            SELECT * FROM :table_name;
+            """,
+            {"table_name": AsIs(table_name)},
+        )
+
     def get_table_columns(self, table_name: str) -> list:
         column_names = self.execute_select_query(
             """
@@ -142,6 +150,15 @@ class PostgresClient:
             {"table_schema": AsIs(self.schema), "table_name": AsIs(table_name)},
         )
         return int(row_counts["row_count"][0])
+
+    def create_table_from_csv(self, table_name: str, file_path: Path):
+        pd.read_csv(file_path).to_sql(
+            name=table_name,
+            con=self.engine,
+            index=False,
+            if_exists="replace",
+            method=insert_copy,
+        )
 
 
 def insert_copy(table, conn, keys, data_iter):

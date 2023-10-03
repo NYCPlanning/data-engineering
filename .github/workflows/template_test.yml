@@ -10,8 +10,8 @@ jobs:
       image: nycplanning/dev:latest
     env:
       TOY_SECRET: ${{ secrets.TOY_SECRET }}
-      BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
-      BUILD_ENGINE_DB: postgres
+      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+      BUILD_ENGINE_DB: db-template
       AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -19,18 +19,6 @@ jobs:
       run:
         shell: bash
         working-directory: products/template
-    services:
-      postgis:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
       - uses: actions/checkout@v3
 
@@ -46,6 +34,6 @@ jobs:
       build_note: a test build
     secrets: inherit
 
-  # * end-to-end test must run in build workflow until persistent DB is used
+  # TODO move end-to-end test from build workflow now that persistent DB is used
   # end_to_end_tests:
   #   name: Run end-to-end tests

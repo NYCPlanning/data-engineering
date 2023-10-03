@@ -1,44 +1,83 @@
 # These are tests to be run after a full build
 import pytest
-from dcpy.utils import postgres, git
+from dcpy.utils import s3
+from dcpy.connectors.edm import publishing
 
-BUILD_SCHEMA = git.run_name()
-pg_client = postgres.PostgresClient(
-    schema=BUILD_SCHEMA,
-)
+from build_scripts import PRODUCT_S3_NAME, BUILD_NAME, PG_CLIENT
 
 
-# test build stage Load
+# * test Load stage
 @pytest.mark.end_to_end()
 def test_load_db_tables():
     expected_source_tables = [
-        "dcp_cb2020_wi",
-        "dcp_cdboundaries_wi",
-        "dcp_councildistricts_wi",
-        "dcp_facilities",
-        "dof_shoreline",
+        "nypl_libraries",
+        "bpl_libraries",
+        "qpl_libraries",
+        "dpr_parksproperties",
         "dpr_greenthumb",
-        "lpc_historic_districts",
-        "nyc_landmarks",
+        "lpc_landmarks",
     ]
-    actual_tables = pg_client.get_schema_tables()
+    actual_tables = PG_CLIENT.get_schema_tables()
     for table in expected_source_tables:
         assert table in actual_tables
 
 
-@pytest.mark.skip(reason="TODO")
+# * test Transform stage
 @pytest.mark.end_to_end()
-def test_load_other_stuff():
-    assert False
-
-
-# test build stage Transform
-@pytest.mark.skip(reason="TODO")
-@pytest.mark.end_to_end()
-def test_transform():
+def test_transform_staging():
     expected_build_tables = [
-        "hi_new_table",
+        "stg_nypl_libraries",
+        "stg_bpl_libraries",
+        "stg_qpl_libraries",
+        "stg_dpr_parksproperties",
+        "stg_dpr_greenthumb",
+        "boroughs",
     ]
-    actual_tables = pg_client.get_schema_tables()
+    actual_tables = PG_CLIENT.get_schema_tables()
     for table in expected_build_tables:
         assert table in actual_tables
+
+
+@pytest.mark.end_to_end()
+def test_transform_outputs():
+    expected_build_tables = [
+        "libraries",
+        "green_spaces",
+        "historic_landmarks",
+        "templatedb",
+    ]
+    actual_tables = PG_CLIENT.get_schema_tables()
+    for table in expected_build_tables:
+        assert table in actual_tables
+
+
+@pytest.mark.end_to_end()
+def test_transform_aggregations():
+    expected_build_tables = [
+        "templatedb_boroughs",
+    ]
+    actual_tables = PG_CLIENT.get_schema_tables()
+    for table in expected_build_tables:
+        assert table in actual_tables
+
+
+# * test Export stage
+@pytest.mark.end_to_end()
+def test_export_draft():
+    expected_build_name = BUILD_NAME
+    actual_build_name = publishing.get_draft_builds(product=PRODUCT_S3_NAME)
+
+    assert expected_build_name in actual_build_name
+
+
+@pytest.mark.end_to_end()
+def test_export_files():
+    expected_export_file_names = [
+        "source_data_versions.csv",
+        "templatedb.csv",
+    ]
+    actual_files = s3.get_filenames(
+        publishing.BUCKET, f"{PRODUCT_S3_NAME}/draft/{BUILD_NAME}/output"
+    )
+    for file_name in expected_export_file_names:
+        assert file_name in actual_files
