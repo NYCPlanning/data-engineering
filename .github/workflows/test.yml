@@ -48,6 +48,7 @@ jobs:
           filters: |
             dcpy:
               - dcpy/**
+              - pyproject.toml
             data-library:
               - data-library/**.py
               - data-library/**.toml
