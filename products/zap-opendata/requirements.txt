@@ -295,7 +295,7 @@ typing-extensions==4.7.1
     #   sqlfluff
 tzdata==2023.3
     # via pandas
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   dbt-core
     #   google-auth
