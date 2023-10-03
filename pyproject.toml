@@ -36,6 +36,9 @@ MAPPED = "true"
 CONDITION = "WHERE a.geom IS NOT NULL"
 GEOM = "geom_2263"
 
+[tool.sqlfluff.templater.jinja]
+apply_dbt_builtins = true
+
 [tool.sqlfluff.rules.layout.long_lines]
 ignore_comment_lines = true
 ignore_comment_clauses = true
@@ -51,6 +54,24 @@ ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 [[tool.mypy.overrides]]
 module = "geopandas.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*" # no stubs available
 ignore_missing_imports = true
+
+[tool.coverage.run]
+# Measure branch coverage (https://coverage.readthedocs.io/en/latest/branch.html)
+branch = true
+omit = [
+    "dcpy/test/*",
+]
+
+[tool.coverage.report]
+include_namespace_packages = true
+show_missing = true
+# Regexes for lines to exclude from consideration
+exclude_lines =[
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+    # Don't complain if non-runnable code isn't run:
+    "if __name__ == .__main__.:",
+]
 
 [build-system]
 requires = ["setuptools", "setuptools-scm"]

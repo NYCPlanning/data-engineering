@@ -33,4 +33,4 @@ jobs:
 
       - name: Run python tests
         run: |
-          python3 -m pytest ./dcpy/test/ -s --verbose --verbose --cov-config=pyproject.toml --cov .
+          python3 -m pytest ./dcpy/test/ -s --verbose --verbose --cov-config=pyproject.toml --cov ./dcpy/
