@@ -57,8 +57,5 @@ def prepare(name: str) -> pd.DataFrame:
         print("reading from cached data")
         df = pd.read_pickle(pkl_path)
 
-    # Apply custom wrangler
     df["source"] = name
-    df = df.replace({np.nan: None})
-    df = df.drop_duplicates()
     return df
