@@ -64,7 +64,7 @@ jobs:
         run: python -m facdb.cli dataloading
 
       - name: Run Pipelines
-        run: python -m facdb.cli run --all
+        run: python -m facdb.cli run --sql
 
       - name: Build facdb
         run: python -m facdb.cli build

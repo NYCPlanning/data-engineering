@@ -1,4 +1,5 @@
 import datetime
+import importlib
 import re
 from io import StringIO
 
@@ -8,7 +9,7 @@ from .geocode.function1B import Function1B
 from .geocode.functionBL import FunctionBL
 from .geocode.functionBN import FunctionBN
 from .geocode.parseAddress import parse_address, use_airport_name
-from facdb.utility.utils import sanitize_df
+from facdb.utility.utils import sanitize_df, format_field_names, hash_each_row
 
 
 def bpl_libraries(df: pd.DataFrame):
@@ -789,3 +790,11 @@ def usnps_parks(df: pd.DataFrame):
     df = df[df.state == "NY"]
     df = sanitize_df(df)
     return df
+
+
+def dispatch(name: str, df: pd.DataFrame):
+    """Dispatch a pipeline defined in this module."""
+    pipelines = importlib.import_module(__name__)
+    pipeline = getattr(pipelines, name)
+
+    return df.pipe(hash_each_row).pipe(format_field_names).pipe(pipeline)

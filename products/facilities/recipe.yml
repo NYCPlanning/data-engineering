@@ -4,6 +4,9 @@ product: db-facilities
 inputs:
   dataset_defaults:
     file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
   missing_versions_strategy: find_latest
   datasets:
   - name: dcp_facilities_with_unmapped
