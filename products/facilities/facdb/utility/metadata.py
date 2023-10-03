@@ -1,9 +1,8 @@
-import os
 from pathlib import Path
 
 import yaml
 
-metadata = {"datasets": []}
+metadata: dict = {"datasets": []}
 
 
 class MyDumper(yaml.Dumper):

@@ -39,7 +39,7 @@ def quick_clean(address):
     return re.sub(r"[,\%\$\#\@\!\_\.\?\`\"\(\)\ï\¿\½\�]", "", " ".join(result))
 
 
-def parse_address(df, raw_address_field: str = None):
+def parse_address(df, raw_address_field: str):
     df["raw_address"] = df[raw_address_field]
     df["cleaned_address"] = df.raw_address.apply(quick_clean)
     df["parsed_hnum"] = df.cleaned_address.apply(get_hnum)

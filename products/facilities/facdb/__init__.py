@@ -19,5 +19,5 @@ BASH_PATH = _module_top_path / "bash"
 CACHE_PATH = _product_path / ".cache"
 BASE_URL = "https://nyc3.digitaloceanspaces.com/edm-recipes/datasets"
 
-BUILD_ENGINE = os.environ.get("BUILD_ENGINE")
+BUILD_ENGINE = os.environ.get("BUILD_ENGINE", "")
 assert BUILD_ENGINE

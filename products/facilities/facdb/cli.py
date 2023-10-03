@@ -112,7 +112,7 @@ def run(
         sql = True
     for name in dataset_names:
         dataset = next(filter(lambda x: x["name"] == name, datasets), None)
-        scripts = dataset.get("scripts", None)
+        scripts = dataset.get("scripts") if dataset is not None else []
         if python:
             dataset = prepare(name)
             pipelines = importlib.import_module("facdb.pipelines")
@@ -143,7 +143,7 @@ def sql(
     """
     if scripts:
         for script in scripts:
-            postgres.execute_file_via_shell(script)
+            postgres.execute_file_via_shell(BUILD_ENGINE, script)
 
 
 @app.command()
