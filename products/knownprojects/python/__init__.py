@@ -14,7 +14,7 @@ sys.path.append(str(_proj_root))
 DATE = datetime.today().strftime("%Y-%m-%d")
 
 S3_BUCKET = "edm-private"
-S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20230725"
+S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20231002"
 S3_OUTPUT_DIR = "db-kpdb"
 
 DATA_PATH = _product_path / "data"
@@ -28,7 +28,7 @@ DCP_HOUSING_DATA_FILENAMES = {
     "edc_projects": "2022.11.18 EDC inputs for DCP housing projections.xlsx",
     "edc_dcp_inputs": "edc_shapefile_20221118.zip",
     "dcp_n_study": "nstudy_rezoning_commitments_shapefile_20221017.zip",
-    "dcp_n_study_future": "future_nstudy_shapefile_20221017.zip",
+    "dcp_n_study_future": "future_nstudy_shapefile_20230928.zip",
     "dcp_n_study_projected": "PastNeighborhoodStudies_20221019.zip",
     "hpd_rfp": "20221122_HPD_RFPs.xlsx",
     "hpd_pc": "2022_11_23 DCP_SCA Pipeline.xlsx",
