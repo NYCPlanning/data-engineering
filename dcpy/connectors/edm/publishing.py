@@ -98,7 +98,7 @@ def upload(
     draft_key: DraftKey,
     *,
     acl: s3.ACL,
-    max_files: int = 20,
+    max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
     """Upload build output(s) to draft folder in edm-publishing"""
     draft_path = draft_key.path
@@ -132,7 +132,7 @@ def legacy_upload(
     s3_subpath: str | None = None,
     latest: bool = True,
     contents_only: bool = False,
-    max_files: int = 20,
+    max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
     """Upload file or folder to publishing, with more flexibility around s3 subpath
     Currently used only by db-factfinder"""
@@ -175,8 +175,8 @@ def publish(
     acl: s3.ACL,
     publishing_version: str | None = None,
     keep_draft: bool = True,
-    max_files: int = 30,
     target_bucket: str | None = None,
+    max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
@@ -266,7 +266,7 @@ def publish_add_created_date(
     *,
     publishing_version: str | None = None,
     file_for_creation_date: str = "version.txt",
-    max_files: int = 30,
+    max_files: int = s3.MAX_FILE_COUNT,
 ) -> dict[str, str]:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""

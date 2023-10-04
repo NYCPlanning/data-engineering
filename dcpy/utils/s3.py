@@ -28,6 +28,7 @@ ACL = Literal[
     "public-read",
     "public-read-write",
 ]
+MAX_FILE_COUNT = 50
 
 
 def string_as_acl(s: str) -> ACL:
@@ -201,7 +202,7 @@ def upload_folder(
     upload_path: Path,
     acl: ACL,
     *,
-    max_files: int = 20,
+    max_files: int = MAX_FILE_COUNT,
     contents_only: bool = False,
     metadata: dict[str, Any] | None = None,
 ) -> None:
@@ -229,7 +230,7 @@ def copy_folder(
     target: str,
     acl: ACL,
     *,
-    max_files: int = 20,
+    max_files: int = MAX_FILE_COUNT,
     metadata: dict[str, Any] | None = None,
     target_bucket: str | None = None,
 ) -> None:
