@@ -414,208 +414,26 @@ FROM (
         NULL::numeric AS inactive,
         NULL::text AS no_classa
     FROM (
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _dcp_application
+        SELECT * FROM _dcp_application
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _edc_projects
+        SELECT * FROM _edc_projects
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _dcp_planneradded
+        SELECT * FROM _dcp_planneradded
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _dcp_n_study
+        SELECT * FROM _dcp_n_study
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _dcp_n_study_future
+        SELECT * FROM _dcp_n_study_future
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _dcp_n_study_projected
+        SELECT * FROM _dcp_n_study_projected
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _esd_projects
+        SELECT * FROM _esd_projects
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _hpd_pc
+        SELECT * FROM _hpd_pc
         UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _hpd_rfp
+        SELECT * FROM _hpd_rfp
     ) AS a
     UNION
-    SELECT
-        source,
-        record_id,
-        record_name,
-        status,
-        type,
-        units_gross,
-        date,
-        date_type,
-        prop_within_5_years,
-        prop_5_to_10_years,
-        prop_after_10_years,
-        phasing_known,
-        nycha,
-        classb,
-        senior_housing,
-        record_id_input,
-        st_makevalid(geom) AS geom,
-        inactive,
-        no_classa
-    FROM _dcp_housing
+    SELECT * FROM _dcp_housing
 ) AS a
 WHERE record_id NOT IN (
     SELECT record_id FROM corrections_main
