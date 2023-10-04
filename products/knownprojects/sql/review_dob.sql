@@ -43,10 +43,16 @@ stand_alone_projects AS (
 ),
 
 b AS (
-    SELECT *
+    SELECT
+        record_id,
+        project_record_ids,
+        project_id
     FROM overlap_projects
     UNION
-    SELECT *
+    SELECT
+        project_record_id,
+        project_record_ids,
+        project_id
     FROM stand_alone_projects
 ),
 
