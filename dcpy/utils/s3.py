@@ -6,6 +6,7 @@ from typing import Any, Literal, TYPE_CHECKING
 import boto3
 from botocore.response import StreamingBody
 from botocore.client import Config
+
 if TYPE_CHECKING:
     from mypy_boto3_s3.client import S3Client
 else:
