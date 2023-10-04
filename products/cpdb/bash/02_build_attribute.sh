@@ -7,7 +7,7 @@ run_sql_file sql/commitments_fisa.sql
 
 # create the table
 echo 'Creating Attributes Table'
-run_sql_file sql/attributes.sql
+run_sql_file sql/attributes.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 
 # categorize the projects
 echo 'Categorizing projects'

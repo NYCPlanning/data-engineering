@@ -14,5 +14,5 @@ ADD datasource text;
 ALTER TABLE cpdb_dcpattributes
 ADD datadate timestamp;
 
-SELECT AddGeometryColumn ('public','cpdb_dcpattributes','geom',4326,'Geometry',2);
+SELECT AddGeometryColumn (:'build_schema','cpdb_dcpattributes','geom',4326,'Geometry',2);
 --------------------------------------------------------
