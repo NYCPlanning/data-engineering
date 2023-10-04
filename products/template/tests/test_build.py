@@ -77,7 +77,7 @@ def test_export_files():
         "templatedb.csv",
     ]
     actual_files = s3.get_filenames(
-        publishing.BUCKET, f"{PRODUCT_S3_NAME}/draft/{BUILD_NAME}/output"
+        publishing.BUCKET, f"{PRODUCT_S3_NAME}/draft/{BUILD_NAME}/"
     )
     for file_name in expected_export_file_names:
         assert file_name in actual_files
