@@ -109,7 +109,7 @@ def upload(
             output_path,
             Path(draft_path),
             acl,
-            contents_only=False,
+            contents_only=True,
             max_files=max_files,
             metadata=meta,
         )
