@@ -1,24 +1,24 @@
 DROP TABLE IF EXISTS review_project;
 WITH dcp_planner AS (
     SELECT
-        project_id,
+        dcp_name,
         ARRAY_TO_STRING(ARRAY_AGG(DISTINCT planner), ' ,') AS dcp_plannernames
     FROM (
         SELECT
             a.dcp_name AS planner,
-            b.project_id AS project_id
+            b.dcp_name
         FROM dcp_dcpprojectteams AS a LEFT JOIN dcp_projects AS b
-            ON SPLIT_PART(a.dcp_dmsourceid, '_', 1) = b.project_id
-    ) AS a GROUP BY project_id
+            ON SPLIT_PART(a.dcp_dmsourceid, '_', 1) = b.dcp_name
+    ) AS a GROUP BY dcp_name
 )
 
 SELECT
     a.source,
     a.record_id,
     a.record_name,
-    dcp_projects.project_brief,
+    dcp_projects.dcp_projectbrief,
     dcp_planner.dcp_plannernames,
-    -- dcp_projects.dcp_communitydistricts,
+    dcp_projects.dcp_communitydistricts,
     a.status,
     a.type,
     a.units_gross,
@@ -34,11 +34,7 @@ SELECT
     (CARDINALITY(b.project_record_ids) > 1)::integer AS multirecord_project,
     b.dummy_id,
     (a.geom IS NULL)::integer AS no_geom,
-    CASE
-        WHEN ST_ISEMPTY(geom) THEN NULL
-        WHEN GEOMETRYTYPE(geom) = 'GEOMETRYCOLLECTION' THEN ST_MAKEVALID(ST_COLLECTIONEXTRACT(a.geom, 3))
-        ELSE ST_MAKEVALID(geom)
-    END AS geom,
+    a.geom,
     NOW() AS v,
     ARRAY_TO_STRING(b.project_record_ids, ',') AS project_record_ids,
     CARDINALITY(b.project_record_ids) AS records_in_project,
@@ -57,8 +53,8 @@ LEFT JOIN (
     FROM _project_record_ids
 ) AS b
     ON a.record_id = b.record_id
-LEFT JOIN dcp_planner ON a.record_id = dcp_planner.project_id
-LEFT JOIN dcp_projects ON a.record_id = dcp_projects.project_id
+LEFT JOIN dcp_planner ON a.record_id = dcp_planner.dcp_name
+LEFT JOIN dcp_projects ON a.record_id = dcp_projects.dcp_name
 WHERE
     a.source NOT IN (
         'DOB',

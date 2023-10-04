@@ -17,15 +17,49 @@ DROP TABLE IF EXISTS _dcp_application;
 WITH
 zap_translated AS (
     SELECT
-        project_id AS dcp_name,
-        project_name AS dcp_projectname,
-        project_brief AS dcp_projectbrief,
-        applicant_type AS dcp_applicanttype,
-        dcp_visibility,
-        borough AS dcp_borough,
-        project_status AS statuscode,
-        public_status AS dcp_publicstatus,
+        dcp_name,
+        dcp_projectname,
+        dcp_projectbrief,
         dcp_projectdescription,
+        (CASE
+            WHEN dcp_applicanttype::numeric = 717170000 THEN 'DCP'
+            WHEN
+                dcp_applicanttype::numeric = 717170001
+                THEN 'Other Public Agency'
+            WHEN dcp_applicanttype::numeric = 717170002 THEN 'Private'
+        END) AS dcp_applicanttype,
+        (CASE
+            WHEN dcp_visibility::numeric = 717170002 THEN 'Applicant Only'
+            WHEN dcp_visibility::numeric = 717170001 THEN 'CPC Only'
+            WHEN dcp_visibility::numeric = 717170003 THEN 'General Public'
+            WHEN dcp_visibility::numeric = 717170000 THEN 'Internal DCP Only'
+            WHEN dcp_visibility::numeric = 717170004 THEN 'LUP'
+        END) AS dcp_visibility,
+        (CASE
+            WHEN dcp_borough::numeric = 717170000 THEN 'Bronx'
+            WHEN dcp_borough::numeric = 717170002 THEN 'Brooklyn'
+            WHEN dcp_borough::numeric = 717170001 THEN 'Manhattan'
+            WHEN dcp_borough::numeric = 717170004 THEN 'Staten Island'
+            WHEN dcp_borough::numeric = 717170005 THEN 'Citywide'
+            WHEN dcp_borough::numeric = 717170003 THEN 'Queens'
+        END) AS dcp_borough,
+        (CASE
+            WHEN statuscode::numeric = 1 THEN 'Active'
+            WHEN statuscode::numeric = 717170000 THEN 'On-Hold'
+            WHEN statuscode::numeric = 707070003 THEN 'Record Closed'
+            WHEN statuscode::numeric = 707070000 THEN 'Complete'
+            WHEN statuscode::numeric = 707070002 THEN 'Terminated'
+            WHEN
+                statuscode::numeric = 707070001
+                THEN 'Withdrawn-Applicant Unresponsive'
+            WHEN statuscode::numeric = 717170001 THEN 'Withdrawn-Other'
+        END) AS statuscode,
+        (CASE
+            WHEN dcp_publicstatus::numeric = 717170000 THEN 'Filed'
+            WHEN dcp_publicstatus::numeric = 717170001 THEN 'In Public Review'
+            WHEN dcp_publicstatus::numeric = 717170002 THEN 'Completed'
+            WHEN dcp_publicstatus::numeric = 717170005 THEN 'Noticed'
+        END) AS dcp_publicstatus,
         (CASE
             WHEN dcp_projectphase::numeric = 717170000 THEN 'Study'
             WHEN dcp_projectphase::numeric = 717170001 THEN 'Pre-Pas'
@@ -35,23 +69,23 @@ zap_translated AS (
             WHEN dcp_projectphase::numeric = 717170005 THEN 'Initiation'
         END) AS dcp_projectphase,
         (CASE
+            WHEN dcp_projectcompleted IS NULL THEN NULL
+            ELSE TO_CHAR(dcp_projectcompleted::timestamp, 'YYYY/MM/DD')
+        END) AS dcp_projectcompleted,
+        (CASE
             WHEN
                 COALESCE(
-                    certified_referred, dcp_dcptargetcertificationdate
+                    dcp_certifiedreferred, dcp_dcptargetcertificationdate
                 ) IS NULL
                 THEN NULL
             ELSE
                 TO_CHAR(
                     COALESCE(
-                        certified_referred, dcp_dcptargetcertificationdate
+                        dcp_certifiedreferred, dcp_dcptargetcertificationdate
                     )::timestamp,
                     'YYYY/MM/DD'
                 )
         END) AS dcp_certifiedreferred,
-        (CASE
-            WHEN completed_date IS NULL THEN NULL
-            ELSE TO_CHAR(completed_date::timestamp, 'YYYY/MM/DD')
-        END) AS completed_date,
         COALESCE(
             dcp_totalnoofdusinprojecd::numeric, 0
         ) AS dcp_totalnoofdusinprojecd,
@@ -92,9 +126,9 @@ year_filter AS (
     SELECT dcp_name
     FROM zap_translated
     WHERE (
-        EXTRACT(YEAR FROM completed_date::date) >= 2010
+        EXTRACT(YEAR FROM dcp_projectcompleted::date) >= 2010
         OR EXTRACT(YEAR FROM dcp_certifiedreferred::date) >= 2010
-        OR (completed_date IS NULL AND dcp_certifiedreferred IS NULL)
+        OR (dcp_projectcompleted IS NULL AND dcp_certifiedreferred IS NULL)
     )
 ),
 
@@ -298,11 +332,11 @@ geom_pluto AS (
     FROM (
         SELECT
             a.record_id,
-            b.bbl AS bbl
+            b.dcp_bblnumber AS bbl
         FROM _dcp_application AS a
         LEFT JOIN dcp_projectbbls AS b
-            ON a.record_id = TRIM(SPLIT_PART(b.project_id, '-', 1))
-        WHERE b.project_status != '2'
+            ON a.record_id = TRIM(SPLIT_PART(b.dcp_name, '-', 1))
+        WHERE b.statuscode != '2'
     ) AS a LEFT JOIN dcp_mappluto_wi AS b
         ON a.bbl::numeric = b.bbl::numeric
     GROUP BY a.record_id
@@ -339,12 +373,12 @@ geom_ulurp AS (
             SELECT
                 a.record_id,
                 a.geom,
-                b.crm_project_id
+                b.dcp_projectid
             FROM geom_kpdb AS a
             LEFT JOIN dcp_projects AS b
-                ON a.record_id = b.project_name
+                ON a.record_id = b.dcp_name
         ) AS a LEFT JOIN dcp_projectactions AS b
-            ON a.crm_project_id = b._dcp_project_value
+            ON a.dcp_projectid = b._dcp_project_value
     ) AS a LEFT JOIN dcp_zoningmapamendments AS b
         ON a.dcp_ulurpnumber = b.ulurpno
     GROUP BY a.record_id, a.geom

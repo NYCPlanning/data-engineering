@@ -21,7 +21,7 @@ WITH overlap_projects AS (
 stand_alone_projects AS (
     -- Stand-alone records
     SELECT
-        record_id,
+        record_id AS project_record_id,
         ARRAY[]::text [] || record_id AS project_record_ids,
         row_number() OVER (ORDER BY record_id)
         + (SELECT max(project_id) FROM overlap_projects
@@ -43,16 +43,10 @@ stand_alone_projects AS (
 ),
 
 b AS (
-    SELECT
-        project_id,
-        record_id,
-        project_record_ids
+    SELECT *
     FROM overlap_projects
     UNION
-    SELECT
-        project_id,
-        record_id,
-        project_record_ids
+    SELECT *
     FROM stand_alone_projects
 ),
 
@@ -183,7 +177,7 @@ SELECT
         a.project_id IN (SELECT project_id FROM multimatchproject)
     )::integer AS project_has_dob_multi,
     (a.geom IS NULL)::integer AS no_geom,
-    st_collectionextract(a.geom, 3) AS geom,
+    a.geom,
     now() AS v
 INTO _review_dob
 FROM combined_dob AS a
