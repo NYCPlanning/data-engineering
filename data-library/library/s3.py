@@ -1,11 +1,17 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Any, TYPE_CHECKING, cast
 
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError, ParamValidationError
+
+if TYPE_CHECKING:
+    from mypy_boto3_s3.type_defs import ObjectIdentifierTypeDef
+else:
+    ObjectIdentifierTypeDef = object
+
 from rich.progress import (
     BarColumn,
     Progress,
@@ -15,6 +21,17 @@ from rich.progress import (
 )
 
 from . import pp
+
+# TODO - remove this when data-library moved to dcpy s3 functionality
+ACL = Literal[
+    "authenticated-read",
+    "aws-exec-read",
+    "bucket-owner-full-control",
+    "bucket-owner-read",
+    "private",
+    "public-read",
+    "public-read-write",
+]
 
 
 class S3:
@@ -35,18 +52,23 @@ class S3:
         )
         self.bucket = aws_s3_bucket
 
-    def upload_file(self, name: str, version: str, path: str, acl: str = "public-read"):
+    def upload_file(
+        self, name: str, version: str, path: str, acl: ACL = "public-read"
+    ) -> None:
         """
         https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
         """
         suffix = Path(path).suffix
         key = f"{name}/{version}/{name}{suffix}"
-        response = self.put(path, key, acl)
-        return response
+        self.put(path, key, acl)
 
     def put(
-        self, path: str, key: str, acl: str = "public-read", metadata: dict = {}
-    ) -> dict:
+        self,
+        path: str,
+        key: str,
+        acl: ACL = "public-read",
+        metadata: dict | None = None,
+    ) -> None:
         with Progress(
             SpinnerColumn(spinner_name="earth"),
             TextColumn("[progress.description]{task.description}"),
@@ -63,18 +85,20 @@ class S3:
             def update_progress(bytes):
                 progress.update(task, advance=bytes)
 
+            extraArgs: dict[str, Any] = {"ACL": acl}
+            if metadata:
+                extraArgs["Metadata"] = metadata
+
             try:
-                response = self.client.upload_file(
+                self.client.upload_file(
                     path,
                     self.bucket,
                     key,
-                    ExtraArgs={"ACL": acl, "Metadata": metadata},
+                    ExtraArgs=extraArgs,
                     Callback=update_progress,
                 )
             except ClientError as e:
                 logging.error(e)
-                return {}
-        return response
 
     def exists(self, key: str):
         try:
@@ -96,25 +120,28 @@ class S3:
 
     # https://s3fs.readthedocs.io/en/latest/api.html?highlight=listdir#s3fs.core.S3FileSystem.info
 
-    def info(self, key: str) -> dict:
+    def info(self, key: str) -> dict[str, Any]:
         """
         Get header info for a given file
         """
         response = self.client.head_object(Bucket=self.bucket, Key=key)
         # Set custom metadata keys to lowercase for compatibility with both
         # DigitalOcean and minio standards
-        meta_lower = {k.lower(): v for k, v in response.get("Metadata").items()}
-        response.update({"Metadata": meta_lower})
-        return response
+        if "Metadata" in response:
+            meta_lower = {k.lower(): v for k, v in response["Metadata"].items()}
+            response.update({"Metadata": meta_lower})
+            return cast(dict[str, Any], response)
+        else:
+            return {}
 
     def cp(
         self,
         source_key: str,
         dest_key: str,
-        acl: str = "public-read",
+        acl: ACL = "public-read",
         metadata: dict = {},
         info: bool = False,
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """
         Copy a file to a new path within the same bucket
 
@@ -126,7 +153,7 @@ class S3:
         metadata: dictionary to save as custom s3 metadata
         """
         try:
-            response = self.client.copy_object(
+            self.client.copy_object(
                 Bucket=self.bucket,
                 Key=dest_key,
                 CopySource={"Bucket": self.bucket, "Key": source_key},
@@ -140,7 +167,7 @@ class S3:
         except ParamValidationError as e:
             raise ValueError(f"Copy {source_key} -> {dest_key} failed: {e}") from e
 
-    def rm(self, *keys) -> Optional[dict]:
+    def rm(self, *keys) -> dict:
         """
         Removes a files within the bucket
         sample usage:
@@ -148,20 +175,20 @@ class S3:
         s3.rm('file1', 'file2', 'file3')
         s3.rm(*['file1', 'file2', 'file3'])
         """
-        objects = [{"Key": k} for k in keys]
+        objects: list[ObjectIdentifierTypeDef] = [{"Key": k} for k in keys]
         response = self.client.delete_objects(
             Bucket=self.bucket, Delete={"Objects": objects, "Quiet": False}
         )
-        return response
+        return cast(dict[str, Any], response)
 
     def mv(
         self,
         source_key: str,
         dest_key: str,
-        acl: str = "public-read",
+        acl: ACL = "public-read",
         metadata: dict = {},
         info: bool = False,
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """
         Move a file to a new path within the same bucket.
         Calls cp then rm
@@ -175,10 +202,8 @@ class S3:
         info: if true, get info for file in its new location
         """
 
-        response = self.cp(
-            source_key=source_key, dest_key=dest_key, acl=acl, metadata=metadata
-        )
-        response = self.rm(source_key)
+        self.cp(source_key=source_key, dest_key=dest_key, acl=acl, metadata=metadata)
+        self.rm(source_key)
         if info:
             return self.info(key=dest_key)
         else:

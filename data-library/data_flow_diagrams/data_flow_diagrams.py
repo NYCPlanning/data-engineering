@@ -68,7 +68,7 @@ pluto = [
 
 source_list = {"cbbr": cbbr, "ztl": ztl, "pluto": pluto}
 
-overrides = {}
+overrides: dict = {}
 
 path = lambda name: f"./library/templates/{name}.yml"
 
