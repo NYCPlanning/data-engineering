@@ -2,6 +2,7 @@ import pandas as pd
 from itertools import groupby
 import re
 import streamlit as st
+from typing import Dict, Optional
 
 from dcpy.utils import s3
 from dcpy.connectors import github
@@ -24,7 +25,7 @@ geographies = ["citywide", "borough", "puma"]
 
 ## phased out for other data products, eventually should use edm.publishing instead of s3
 @st.cache_data
-def get_active_s3_folders(repo: str, s3_folder: str = None):
+def get_active_s3_folders(repo: str, s3_folder: Optional[str] = None):
     default_branch = github.get_default_branch(repo=repo)
     all_branches = github.get_branches(repo=repo, branches_blacklist=[])
     all_folders = s3.get_subfolders(BUCKET_NAME, (s3_folder or repo))
@@ -38,24 +39,21 @@ def get_active_s3_folders(repo: str, s3_folder: str = None):
 def get_demographics_data(branch: str, version: str):
     data = {}
     for category in demographic_categories:
-        category_data = {}
+        category_data: Dict[str, Dict[str, pd.DataFrame]] = {}
         files = s3.get_filenames(
             BUCKET_NAME, f"{PRODUCT}/{branch}/{version}/{category}"
         )
-        matches = [
-            re.match(
-                "^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$", file
-            )
-            for file in files
-        ]
+        pattern = "^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$"
+        match_objs = [re.match(pattern, file) for file in files]
+        matches = [match for match in match_objs if match]
         key = lambda m: (m.group(1), m.group(3))
-        for (category_match, geography), matches in groupby(
+        for (category_match, geography), grouped_matches in groupby(
             sorted(matches, key=key), key=key
         ):
             if category_match != category:
                 raise Exception(f'Unknown demographics category "{category_match}"')
             category_data[geography] = {}
-            for match in matches:
+            for match in grouped_matches:
                 year = match.group(2)
                 category_data[geography][year] = publishing.read_csv_legacy(
                     PRODUCT,

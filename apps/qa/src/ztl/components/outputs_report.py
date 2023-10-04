@@ -171,7 +171,7 @@ def output_report(product_key: publishing.ProductKey):
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
     source_data_versions = publishing.get_source_data_versions(
-        product=PRODUCT, version="latest"
+        publishing.PublishKey(PRODUCT, "latest")
     )
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================

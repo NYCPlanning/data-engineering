@@ -28,16 +28,21 @@ def ztl():
         ),
     )
     staging_product_key = sidebar.data_selection(PRODUCT, "Choose an output to QA")
-
-    if report_type == "Sources":
-        reference_product_key = sidebar.data_selection(
-            PRODUCT, "Choose a staging version"
-        )
-        sources_report(
-            reference_product_key=reference_product_key,
-            staging_product_key=staging_product_key,
-        )
-    elif report_type == "Outputs":
-        output_report(staging_product_key)
+    if not staging_product_key:
+        st.header("Select a version.")
     else:
-        raise KeyError(f"Invalid ZTL report type {report_type}")
+        if report_type == "Sources":
+            reference_product_key = sidebar.data_selection(
+                PRODUCT, "Choose a staging version"
+            )
+            if not reference_product_key:
+                st.header("Select a reference version.")
+            else:
+                sources_report(
+                    reference_product_key=reference_product_key,
+                    staging_product_key=staging_product_key,
+                )
+        elif report_type == "Outputs":
+            output_report(staging_product_key)
+        else:
+            raise KeyError(f"Invalid ZTL report type {report_type}")

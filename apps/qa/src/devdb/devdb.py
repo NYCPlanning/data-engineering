@@ -37,16 +37,19 @@ def devdb():
     )
 
     product_key = sidebar.data_selection(PRODUCT)
-    data = get_latest_data(product_key)
+    if not product_key:
+        st.header("Select a version.")
+    else:
+        data = get_latest_data(product_key)
 
-    QAQCVersionHistoryReport(
-        data=data,
-        qaqc_check_dict=QAQC_CHECK_DICTIONARY,
-        qaqc_check_sections=QAQC_CHECK_SECTIONS,
-    )()
+        QAQCVersionHistoryReport(
+            data=data,
+            qaqc_check_dict=QAQC_CHECK_DICTIONARY,
+            qaqc_check_sections=QAQC_CHECK_SECTIONS,
+        )()
 
-    FieldDistributionReport(data=data)()
+        FieldDistributionReport(data=data)()
 
-    CompleteQuartersReport(data=data)()
+        CompleteQuartersReport(data=data)()
 
-    FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
+        FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()

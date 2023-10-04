@@ -1,12 +1,11 @@
 import streamlit as st
-from typing import Optional
 
 from dcpy.connectors.edm import publishing
 
 
 def data_selection(
-    product: str, section_label: Optional[str] = None
-) -> publishing.ProductKey:
+    product: str, section_label: str | None = None
+) -> publishing.ProductKey | None:
     if section_label is not None:
         st.sidebar.title(section_label)
     publish_or_draft = st.sidebar.selectbox(
@@ -22,7 +21,10 @@ def data_selection(
         label = "Select a version"
         options = publishing.get_published_versions(product)
     select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
-    if is_draft:
-        return publishing.DraftKey(product, select)
+    if select:
+        if is_draft:
+            return publishing.DraftKey(product, select)
+        else:
+            return publishing.PublishKey(product, select)
     else:
-        return publishing.PublishKey(product, select)
+        return None

@@ -4,6 +4,20 @@ on:
   workflow_call:
 
 jobs:
+  type_check:
+    name: Static Type Check (mypy)
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Static Type Check (mypy)
+        run: mypy ./apps/qa/src
+
   test:
     name: QA Tests
     runs-on: ubuntu-22.04

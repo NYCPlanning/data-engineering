@@ -11,12 +11,12 @@ pg_client = postgres.PostgresClient(
 )
 
 
-def dataframe_style_source_report_results(value: bool):
+def dataframe_style_source_report_results(value) -> str:
     color = "rgba(0,155,0,.2)" if value else "rgba(155,0,0,.2)"
     return f"background-color: {color}"
 
 
-def get_source_dataset_names(product_key: publishing.ProductKey) -> pd.DataFrame:
+def get_source_dataset_names(product_key: publishing.ProductKey) -> list[str]:
     """Gets names of source products used in build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
@@ -29,7 +29,9 @@ def get_latest_source_data_versions(product: str) -> pd.DataFrame:
     Does NOT return versions used in any specific build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(product, "latest")
+    source_data_versions = publishing.get_source_data_versions(
+        publishing.PublishKey(product, "latest")
+    )
     source_data_versions["version"] = source_data_versions.index.map(
         recipes.get_latest_version
     )
@@ -94,18 +96,18 @@ def load_source_data_to_compare(
     dataset: str, source_data_versions: pd.DataFrame
 ) -> list[str]:
     status_messages = []
-    version_reference = source_data_versions.loc[dataset, "version_reference"]
-    version_staging = source_data_versions.loc[dataset, "version_latest"]
+    version_reference = source_data_versions.loc[dataset]["version_reference"]
+    version_staging = source_data_versions.loc[dataset]["version_latest"]
     print(f"⏳ Loading {dataset} ({version_reference}, {version_staging}) ...")
     for version in [version_reference, version_staging]:
-        status_message = load_source_data(dataset=dataset, version=version)
+        status_message = load_source_data(dataset_name=dataset, version=version)
         status_messages.append(status_message)
 
     return status_messages
 
 
-def load_source_data(dataset: str, version: str) -> str:
-    dataset = recipes.Dataset(name=dataset, version=version)
+def load_source_data(dataset_name: str, version: str) -> str:
+    dataset = recipes.Dataset(name=dataset_name, version=version)
     recipes.fetch_sql(dataset, SQL_FILE_DIRECTORY)
 
     dataset_by_version = construct_dataset_by_version(dataset, version)
@@ -113,7 +115,7 @@ def load_source_data(dataset: str, version: str) -> str:
 
     status_message = None
     if not dataset_by_version in schema_tables:
-        recipes.import_dataset(dataset, pg_client, SQL_FILE_DIRECTORY)
+        recipes.import_dataset(dataset, pg_client, local_library_dir=SQL_FILE_DIRECTORY)
         status_message = f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
     else:
         status_message = (

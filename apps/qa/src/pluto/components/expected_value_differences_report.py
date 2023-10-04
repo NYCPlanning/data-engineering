@@ -98,21 +98,21 @@ class ExpectedValueDifferencesReport:
         return self.df[self.df["v"].isin([self.v1, self.v2])].to_dict("records")
 
     @property
-    def v1_expected_records(self) -> list:
+    def v1_expected_records(self) -> dict:
         return self.expected_records_by_version(self.v1)
 
     @property
-    def v2_expected_records(self) -> list:
+    def v2_expected_records(self) -> dict:
         return self.expected_records_by_version(self.v2)
 
-    def expected_records_by_version(self, version) -> list:
+    def expected_records_by_version(self, version) -> dict:
         return [i["expected"] for i in self.expected_records if i["v"] == version][0]
 
-    def values_by_field(self, df, field) -> list:
+    def values_by_field(self, df: dict, field: str) -> list:
         return [i["values"] for i in df if i["field"] == field][0]
 
-    def values_by_fields(self, df: pd.DataFrame, fields: list) -> list:
-        values = []
+    def values_by_fields(self, df: dict, fields: list[str]) -> list:
+        values: list = []
         for field in fields:
             values = values + self.values_by_field(df, field)
         return values
