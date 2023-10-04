@@ -1,4 +1,5 @@
 import os
+from sqlalchemy import text
 
 from library.ingest import Ingestor
 
@@ -16,20 +17,20 @@ from . import (
 def test_ingest_postgres():
     ingestor = Ingestor()
     ingestor.postgres(TEST_DATASET_CONFIG_FILE, postgres_url=recipe_engine)
-    for version in [TEST_DATASET_VERSION, "latest"]:
-        sql = f"""
-        SELECT EXISTS (
-            SELECT FROM information_schema.tables
-            WHERE  table_schema = '{TEST_DATASET_NAME}'
-            AND    table_name   = '{version}'
-        );
-        """
-        result = pg.execute(sql).fetchall()
-        assert result[0][
-            0
-        ], f"{TEST_DATASET_NAME}.{version} is not in postgres database yet"
-
-    pg.execute(f"DROP SCHEMA IF EXISTS {TEST_DATASET_NAME} CASCADE;")
+    with pg.connect() as conn:
+        for version in [TEST_DATASET_VERSION, "latest"]:
+            sql = f"""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE  table_schema = '{TEST_DATASET_NAME}'
+                AND    table_name   = '{version}'
+            );
+            """
+            result = conn.execute(text(sql)).fetchall()
+            assert result[0][
+                0
+            ], f"{TEST_DATASET_NAME}.{version} is not in postgres database yet"
+        conn.execute(text(f"DROP SCHEMA IF EXISTS {TEST_DATASET_NAME} CASCADE;"))
 
 
 def test_ingest_csv():
