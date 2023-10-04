@@ -30,24 +30,27 @@ def colp():
         """
     )
 
-    data = get_data(product_key)
-
-    RecordsByAgency(records_by_agency=data["records_by_agency"])()
-    RecordsByUsetype(records_by_usetype=data["records_by_usetype"])()
-    RecordsByAgencyUsetype(
-        records_by_agency_usetype=data["records_by_agency_usetype"]
-    )()
-    OutlierReport(data=data)()
-    ManualCorrection(data=data)()
-    GeospatialCheck(data=data)()
-
-    usetype_changes = data["usetype_changes"]
-    if usetype_changes is None:
-        version_for_comparison = None
+    if not product_key:
+        st.header("Select a version.")
     else:
-        version_for_comparison = st.sidebar.selectbox(
-            "Select a Version for Comparison", usetype_changes.v_current.unique()
-        )
-    UsetypeVersionComparisonReport(
-        usetype_changes=usetype_changes, version=version_for_comparison
-    )()
+        data = get_data(product_key)
+
+        RecordsByAgency(records_by_agency=data["records_by_agency"])()
+        RecordsByUsetype(records_by_usetype=data["records_by_usetype"])()
+        RecordsByAgencyUsetype(
+            records_by_agency_usetype=data["records_by_agency_usetype"]
+        )()
+        OutlierReport(data=data)()
+        ManualCorrection(data=data)()
+        GeospatialCheck(data=data)()
+
+        usetype_changes = data["usetype_changes"]
+        if usetype_changes is None:
+            version_for_comparison = None
+        else:
+            version_for_comparison = st.sidebar.selectbox(
+                "Select a Version for Comparison", usetype_changes.v_current.unique()
+            )
+        UsetypeVersionComparisonReport(
+            usetype_changes=usetype_changes, version=version_for_comparison
+        )()

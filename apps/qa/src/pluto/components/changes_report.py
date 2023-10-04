@@ -64,7 +64,7 @@ class ChangesSection(ABC):
     def __init__(self, changes, version) -> None:
         super().__init__()
         self.changes = self.filter_by_version(changes, version)
-        self.version_text = self.version_text(version)
+        self.version_text = self.get_version_text(version)
 
     def filter_by_version(self, df, version):
         if version == "All":
@@ -72,7 +72,7 @@ class ChangesSection(ABC):
         else:
             return df.loc[df["version"] == version]
 
-    def version_text(self, version):
+    def get_version_text(self, version):
         return "All Versions" if version == "All" else f"Version {version}"
 
     def display_changes_figures(self, df, title):

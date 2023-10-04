@@ -11,8 +11,11 @@ from src.edde.helpers import (
     get_demographics_data,
     get_other_data,
 )
-from src.components.sidebar import branch_selectbox, output_selectbox
-from src.edde.components import column_comparison_table
+from src.edde.components import (
+    column_comparison_table,
+    branch_selectbox,
+    output_selectbox,
+)
 
 
 def edde():

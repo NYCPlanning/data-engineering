@@ -6,33 +6,26 @@ import streamlit as st
 import requests
 import re
 
+from dcpy.utils import s3
 from dcpy.connectors import github
 from dcpy.connectors.edm import recipes
 from .constants import tests
 
 
-def get_source_version(dataset):
+def get_source_version(dataset: str) -> dict[str, str]:
     if dataset == "dcp_saf":
         bucket = "edm-publishing"
         prefix = "gru/dcp_saf/"
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
-        )
-        folders = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")[
-            "CommonPrefixes"
-        ]
+        folders = s3.get_subfolders(bucket, prefix)
         folders = [
             folder["Prefix"].split("/")[-2]
             for folder in folders
             if "latest" not in folder["Prefix"]
         ]
         latest_version = max(folders)
-        timestamp = s3.list_objects(
-            Bucket=bucket, Prefix=f"{prefix}{latest_version}/dcp_saf.zip"
-        )["Contents"][0]["LastModified"]
+        timestamp = s3.get_metadata(bucket, f"{prefix}{latest_version}/dcp_saf.zip")[
+            "last-modified"
+        ]
         return {
             "version": latest_version.lower(),
             "date": timestamp.strftime("%Y-%m-%d"),
@@ -49,21 +42,21 @@ def get_source_version(dataset):
 
 
 @st.cache_data(ttl=120)
-def get_source_versions():
+def get_source_versions() -> dict[str, dict[str, str]]:
     versions = {}
     for dataset in [source for sources in tests["sources"] for source in sources]:
         versions[dataset] = get_source_version(dataset)
     return versions
 
 
-def map_geosupport_version(patched_version):
+def map_geosupport_version(patched_version: str) -> str:
     major, minor, _ = patched_version.split(".")
     return f"{major}{chr(int(minor)+96)}"  ## converts 1 to 'a', 2 to 'b', etc
 
 
-def get_qaqc_runs(geosupport_version):
-    workflows = {}
-    raw_workflow_runs = []
+def get_qaqc_runs(geosupport_version: str) -> dict[str, dict]:
+    workflows: dict[str, dict] = {}
+    raw_workflow_runs: list[dict] = []
     page = 0
     while len(workflows) != 7 and (page == 0 or (len(raw_workflow_runs) > 0)):
         raw_workflow_runs = github.get_workflow_runs(
@@ -89,7 +82,7 @@ def get_qaqc_runs(geosupport_version):
     return workflows
 
 
-def run_all_workflows(actions, geosupport_version):
+def run_all_workflows(actions: list[str], geosupport_version: str) -> bool:
     def on_click():
         for action in actions:
             github.dispatch_workflow(
@@ -104,7 +97,7 @@ def run_all_workflows(actions, geosupport_version):
 
 
 @st.cache_data(ttl=600)
-def get_geosupport_versions():
+def get_geosupport_versions() -> dict[str, str]:
     images = requests.get(
         "https://hub.docker.com/v2/repositories/nycplanning/docker-geosupport/tags?page_size=1000"
     ).json()["results"]

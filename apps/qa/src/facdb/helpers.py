@@ -8,7 +8,7 @@ REPO_NAME = "data-engineering"
 
 def get_latest_data(
     product_key: publishing.ProductKey,
-) -> tuple[dict[str, dict[str, Union[pd.DataFrame, str]]], pd.DataFrame, pd.DataFrame]:
+) -> tuple[dict[str, dict[str, object]], pd.DataFrame, pd.DataFrame]:
     read_csv = lambda csv: publishing.read_csv(product_key, f"{csv}.csv")
 
     qc_diff = read_csv("qc_diff")

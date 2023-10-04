@@ -48,8 +48,6 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(staging_product_key, reference_product_key)
-
     st.markdown(
         body="""
         
@@ -84,169 +82,173 @@ def cpdb():
         """
     )
 
-    df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_cpdb_summarystats_" + agency_type].set_index(
-        agency_type + "acro"
-    )
-    if view_type == "commitments":
-        st.header(
-            f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
-        )
-        df = df[get_commit_cols(df)]
-        df_pre = df_pre[get_commit_cols(df_pre)]
+    if not (staging_product_key and reference_product_key):
+        st.header("Select a version.")
     else:
-        st.header(
-            f"Number of Projects by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
+        data = get_data(staging_product_key, reference_product_key)
+        df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
+        df_pre = data["pre_cpdb_summarystats_" + agency_type].set_index(
+            agency_type + "acro"
         )
-        df.drop(labels=get_commit_cols(df), axis=1, inplace=True)
-        df_pre.drop(labels=get_commit_cols(df_pre), axis=1, inplace=True)
+        if view_type == "commitments":
+            st.header(
+                f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
+            )
+            df = df[get_commit_cols(df)]
+            df_pre = df_pre[get_commit_cols(df_pre)]
+        else:
+            st.header(
+                f"Number of Projects by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
+            )
+            df.drop(labels=get_commit_cols(df), axis=1, inplace=True)
+            df_pre.drop(labels=get_commit_cols(df_pre), axis=1, inplace=True)
 
-    # sort the values based on projects/commitments and get the top ten agencies
-    df_bar = sort_base_on_option(
-        df, subcategory, view_type, map_option=0, ascending=False
-    )
-    # print(df_bar.index)
-    fig1 = px.bar(
-        df_bar,
-        x=df_bar.index,
-        y=VIZKEY[subcategory][view_type]["values"],
-        labels=dict(sagencyacro="Sponsoring Agency", magencyacro="Managing Agency"),
-        barmode="group",
-        width=1000,
-        color_discrete_sequence=COLOR_SCHEME,
-    )
+        # sort the values based on projects/commitments and get the top ten agencies
+        df_bar = sort_base_on_option(
+            df, subcategory, view_type, map_option=0, ascending=False
+        )
+        # print(df_bar.index)
+        fig1 = px.bar(
+            df_bar,
+            x=df_bar.index,
+            y=VIZKEY[subcategory][view_type]["values"],
+            labels=dict(sagencyacro="Sponsoring Agency", magencyacro="Managing Agency"),
+            barmode="group",
+            width=1000,
+            color_discrete_sequence=COLOR_SCHEME,
+        )
 
-    fig1.update_yaxes(title=view_type_unit)
+        fig1.update_yaxes(title=view_type_unit)
 
-    fig1.update_layout(legend_title_text="Variable")
+        fig1.update_layout(legend_title_text="Variable")
 
-    st.plotly_chart(fig1)
+        st.plotly_chart(fig1)
 
-    st.caption(
-        f"""This graph reports the {view_type_unit} (both mapped and unmapped) by {agency_type_title} for {subcategory}. 
-        Typically, large city agencies including DPR (Dept. Parks and Rec.), DEP (Dept. of Environmental Protection), DOT (Dept. of Transportation), and DCAS (Dept of Citywide Admin. Services) have the largest count of projects and, generally, the highest capital expenditure.
-        Some agencies (e.g. HPD [Housing Preservation & Development]) often have fewer total projects but high capital expenditure because of the nature of their projects which are related to building housing across NYC.
-        The purpose of this graph is to get an overview of the distribution of projets or commitments by agency, and a sense of what portion of these are mapped."""
-    )
+        st.caption(
+            f"""This graph reports the {view_type_unit} (both mapped and unmapped) by {agency_type_title} for {subcategory}. 
+            Typically, large city agencies including DPR (Dept. Parks and Rec.), DEP (Dept. of Environmental Protection), DOT (Dept. of Transportation), and DCAS (Dept of Citywide Admin. Services) have the largest count of projects and, generally, the highest capital expenditure.
+            Some agencies (e.g. HPD [Housing Preservation & Development]) often have fewer total projects but high capital expenditure because of the nature of their projects which are related to building housing across NYC.
+            The purpose of this graph is to get an overview of the distribution of projets or commitments by agency, and a sense of what portion of these are mapped."""
+        )
 
-    # ----- 2nd Graph
-    st.header(
-        f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
-    )
+        # ----- 2nd Graph
+        st.header(
+            f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
+        )
 
-    map_options = {0: f"all {view_type}", 1: f"mapped {view_type} only"}
-    map_option = st.radio(
-        label=f"Choose to compare either all {view_type} or mapped {view_type} only.",
-        options=[0, 1],
-        format_func=lambda x: map_options.get(x),
-    )
-    map_title_text = "Mapped and Unmapped" if map_option == 0 else "Mapped Only"
-    # get the difference dataframe
-    diff = get_diff_dataframe(df, df_pre)
-    df_bar_diff = sort_base_on_option(
-        diff, subcategory, view_type, map_option=map_option
-    )
-    fig2 = go.Figure(
-        [
-            go.Bar(
-                name="Difference",
-                x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]],
-                y=df_bar_diff.index,
-                orientation="h",
-            ),
-            go.Bar(
-                name="Latest Version",
-                x=df[VIZKEY[subcategory][view_type]["values"][map_option]],
-                y=df.index,
-                orientation="h",
-                visible="legendonly",
-            ),
-            go.Bar(
-                name="Previous Version",
-                x=df_pre[VIZKEY[subcategory][view_type]["values"][map_option]],
-                y=df_pre.index,
-                orientation="h",
-                visible="legendonly",
-            ),
-        ]
-    )
-    fig2.update_layout(
-        barmode="group",
-        width=1000,
-        height=1000,
-        title_text=f"Total {view_type_unit} by Version and {agency_type_title} ({map_title_text})",
-        colorway=COLOR_SCHEME,
-    )
+        map_options = {0: f"all {view_type}", 1: f"mapped {view_type} only"}
+        map_option = st.radio(
+            label=f"Choose to compare either all {view_type} or mapped {view_type} only.",
+            options=[0, 1],
+            format_func=lambda x: map_options.get(x),
+        )
+        map_title_text = "Mapped and Unmapped" if map_option == 0 else "Mapped Only"
+        # get the difference dataframe
+        diff = get_diff_dataframe(df, df_pre)
+        df_bar_diff = sort_base_on_option(
+            diff, subcategory, view_type, map_option=map_option
+        )
+        fig2 = go.Figure(
+            [
+                go.Bar(
+                    name="Difference",
+                    x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]],
+                    y=df_bar_diff.index,
+                    orientation="h",
+                ),
+                go.Bar(
+                    name="Latest Version",
+                    x=df[VIZKEY[subcategory][view_type]["values"][map_option]],
+                    y=df.index,
+                    orientation="h",
+                    visible="legendonly",
+                ),
+                go.Bar(
+                    name="Previous Version",
+                    x=df_pre[VIZKEY[subcategory][view_type]["values"][map_option]],
+                    y=df_pre.index,
+                    orientation="h",
+                    visible="legendonly",
+                ),
+            ]
+        )
+        fig2.update_layout(
+            barmode="group",
+            width=1000,
+            height=1000,
+            title_text=f"Total {view_type_unit} by Version and {agency_type_title} ({map_title_text})",
+            colorway=COLOR_SCHEME,
+        )
 
-    fig2.update_xaxes(title=f"Total {view_type_unit} ({map_title_text})")
+        fig2.update_xaxes(title=f"Total {view_type_unit} ({map_title_text})")
 
-    fig2.update_yaxes(title=agency_type_title)
+        fig2.update_yaxes(title=agency_type_title)
 
-    st.plotly_chart(fig2)
+        st.plotly_chart(fig2)
 
-    st.caption(
-        f"""  
-        This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between the current (aka latest) and the previous version of CPDB. 
-        While the underlying Capital Commitment Plan data changes between versions, any drastic changes between CPDB versions that are illustrated by this graph can indicate if there is a specific agency or source dataset to look into further that may have introduced these anomalies.
-        Anomalies include, but are not limited to, no projects being mapped for a given agency when there were mapped projects in the previous version, the number of projects doubling for an agency between versions, or the total sum of commitments halving for an agency between versions.
-        This chart also gives the viewer the flexibility to change between all projects by Number of Projects (both mapped and unmapped) along with an option to just view the mapped (geolocated) projects. Click the "Latest Version" and "Previous Version" labels in the legend to display the total Number of Projects for each.
-        """
-    )
+        st.caption(
+            f"""  
+            This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between the current (aka latest) and the previous version of CPDB. 
+            While the underlying Capital Commitment Plan data changes between versions, any drastic changes between CPDB versions that are illustrated by this graph can indicate if there is a specific agency or source dataset to look into further that may have introduced these anomalies.
+            Anomalies include, but are not limited to, no projects being mapped for a given agency when there were mapped projects in the previous version, the number of projects doubling for an agency between versions, or the total sum of commitments halving for an agency between versions.
+            This chart also gives the viewer the flexibility to change between all projects by Number of Projects (both mapped and unmapped) along with an option to just view the mapped (geolocated) projects. Click the "Latest Version" and "Previous Version" labels in the legend to display the total Number of Projects for each.
+            """
+        )
 
-    #### ----- 3rd Graph
-    st.header(
-        f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
-    )
+        #### ----- 3rd Graph
+        st.header(
+            f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
+        )
 
-    diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
+        diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
 
-    fig3 = go.Figure(
-        [
-            go.Bar(
-                name="Difference",
-                x=diff_perc.diff_percent_mapped,
-                y=diff_perc.index,
-                orientation="h",
-            ),
-            go.Bar(
-                name="Latest Version",
-                x=diff_perc.percent_mapped,
-                y=diff_perc.index,
-                orientation="h",
-                visible="legendonly",
-            ),
-            go.Bar(
-                name="Previous Version",
-                x=diff_perc.pre_percent_mapped,
-                y=diff_perc.index,
-                orientation="h",
-                visible="legendonly",
-            ),
-        ]
-    )
+        fig3 = go.Figure(
+            [
+                go.Bar(
+                    name="Difference",
+                    x=diff_perc.diff_percent_mapped,
+                    y=diff_perc.index,
+                    orientation="h",
+                ),
+                go.Bar(
+                    name="Latest Version",
+                    x=diff_perc.percent_mapped,
+                    y=diff_perc.index,
+                    orientation="h",
+                    visible="legendonly",
+                ),
+                go.Bar(
+                    name="Previous Version",
+                    x=diff_perc.pre_percent_mapped,
+                    y=diff_perc.index,
+                    orientation="h",
+                    visible="legendonly",
+                ),
+            ]
+        )
 
-    fig3.update_layout(
-        width=1000,
-        height=1000,
-        title_text=f"Percentage of {view_type_title} Mapped by Version and {agency_type_title}",
-        colorway=COLOR_SCHEME,
-    )
+        fig3.update_layout(
+            width=1000,
+            height=1000,
+            title_text=f"Percentage of {view_type_title} Mapped by Version and {agency_type_title}",
+            colorway=COLOR_SCHEME,
+        )
 
-    fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
-    fig3.update_yaxes(title=agency_type_title)
-    st.plotly_chart(fig3)
+        fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
+        fig3.update_yaxes(title=agency_type_title)
+        st.plotly_chart(fig3)
 
-    st.caption(
-        f"""
-        This graph shows another important cut of the data in which we higlight the percentage of {view_type} succesfully mapped (geocoded) by {agency_type_title} between the last two verions of CPDB along with the pct. difference between those verions. 
-        Typically, we'd expect a similar pct. of records to be mapped by {agency_type_title} between versions and any significant change should be looked at more closely.
-        Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
-        
-        """
-    )
+        st.caption(
+            f"""
+            This graph shows another important cut of the data in which we higlight the percentage of {view_type} succesfully mapped (geocoded) by {agency_type_title} between the last two verions of CPDB along with the pct. difference between those verions. 
+            Typically, we'd expect a similar pct. of records to be mapped by {agency_type_title} between versions and any significant change should be looked at more closely.
+            Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
+            
+            """
+        )
 
-    adminbounds(data)
+        adminbounds(data)
 
-    withinNYC_check(data)
+        withinNYC_check(data)
 
-    geometry_visualization_report(data)
+        geometry_visualization_report(data)

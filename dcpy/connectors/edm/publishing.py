@@ -5,7 +5,7 @@ import geopandas as gpd
 from io import BytesIO
 from zipfile import ZipFile
 import typer
-from typing import Dict, Optional, Callable, TypeVar
+from typing import Callable, TypeVar
 from dataclasses import dataclass
 
 from dcpy.utils import s3
@@ -97,7 +97,7 @@ def upload(
     output_path: Path,
     draft_key: DraftKey,
     *,
-    acl: str,
+    acl: s3.ACL,
     max_files: int = 20,
 ) -> None:
     """Upload build output(s) to draft folder in edm-publishing"""
@@ -127,9 +127,9 @@ def legacy_upload(
     output: Path,
     publishing_folder: str,
     version: str,
-    acl: str,
+    acl: s3.ACL,
     *,
-    s3_subpath: Optional[str] = None,
+    s3_subpath: str | None = None,
     latest: bool = True,
     contents_only: bool = False,
     max_files: int = 20,
@@ -172,11 +172,11 @@ def legacy_upload(
 def publish(
     draft_key: DraftKey,
     *,
-    acl: str,
-    publishing_version: Optional[str] = None,
+    acl: s3.ACL,
+    publishing_version: str | None = None,
     keep_draft: bool = True,
     max_files: int = 30,
-    target_bucket: Optional[str] = None,
+    target_bucket: str | None = None,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
@@ -251,7 +251,7 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
 
 
 def download_file(
-    product_key: ProductKey, filepath: str, output_dir: Optional[Path] = None
+    product_key: ProductKey, filepath: str, output_dir: Path | None = None
 ) -> Path:
     output_dir = output_dir or Path(".")
     output_filepath = output_dir / Path(filepath).name
@@ -262,17 +262,17 @@ def download_file(
 def publish_add_created_date(
     product: str,
     source: str,
-    acl: str,
+    acl: s3.ACL,
     *,
-    publishing_version: Optional[str] = None,
+    publishing_version: str | None = None,
     file_for_creation_date: str = "version.txt",
     max_files: int = 30,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if publishing_version is None:
         with s3.get_file(BUCKET, f"{source}version.txt") as f:
-            publishing_version = f.read()
+            publishing_version = str(f.read())
     print(publishing_version)
     old_metadata = s3.get_metadata(BUCKET, f"{source}{file_for_creation_date}")
     target = f"{product}/publish/{publishing_version}/"
@@ -304,7 +304,7 @@ def _cli_wrapper_upload(
         help="Name of data product (publishing folder in s3)",
     ),
     build: str = typer.Option(None, "-b", "--build", help="Label of build"),
-    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    acl: s3.ACL = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
 ):
     logger.info(f'Uploading {output_path} to {product}/draft/{build} with ACL "{acl}"')
     upload(output_path, DraftKey(product, build), acl=acl)
@@ -325,7 +325,7 @@ def _cli_wrapper_publish(
         "--publishing-version",
         help="Version ",
     ),
-    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    acl: s3.ACL = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
     target_bucket: str = typer.Option(
         None, "-t", "--target-bucket", help="Target bucket to publish to"
     ),

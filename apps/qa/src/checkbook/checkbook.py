@@ -2,7 +2,7 @@ def checkbook():
     import streamlit as st
     from src.publishing import read_csv_cached
     from src.components import sidebar
-    from checkbook.components import output_map
+    from src.checkbook.components import output_map
 
     st.title("Capital Spending Database")
     st.markdown(
@@ -34,24 +34,27 @@ def checkbook():
     )
 
     product_key = sidebar.data_selection("db-checkbook")
-    data = read_csv_cached(product_key, "historical_spend.csv")
-
-    if agency != "All":
-        agency_data = data[data["agency"].str.contains(agency)]
+    if not product_key:
+        st.header("Select a version.")
     else:
-        agency_data = data
+        data = read_csv_cached(product_key, "historical_spend.csv")
 
-    grouped_by_category = agency_data.groupby("final_category", as_index=False).sum(
-        numeric_only=True
-    )
-    grouped_by_geometry = agency_data.groupby("has_geometry", as_index=False).sum(
-        numeric_only=True
-    )
+        if agency != "All":
+            agency_data = data[data["agency"].str.contains(agency)]
+        else:
+            agency_data = data
 
-    st.header("Check Amounts Per Category")
-    st.bar_chart(grouped_by_category, x="final_category", y="check_amount")
+        grouped_by_category = agency_data.groupby("final_category", as_index=False).sum(
+            numeric_only=True
+        )
+        grouped_by_geometry = agency_data.groupby("has_geometry", as_index=False).sum(
+            numeric_only=True
+        )
 
-    st.header("Check Amounts Represented by Geometries")
-    st.bar_chart(grouped_by_geometry, x="has_geometry", y="check_amount")
+        st.header("Check Amounts Per Category")
+        st.bar_chart(grouped_by_category, x="final_category", y="check_amount")
 
-    output_map(data)
+        st.header("Check Amounts Represented by Geometries")
+        st.bar_chart(grouped_by_geometry, x="has_geometry", y="check_amount")
+
+        output_map(data)

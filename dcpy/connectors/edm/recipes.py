@@ -7,7 +7,6 @@ from pydantic import BaseModel
 import shutil
 from sqlalchemy import text, update, Table, MetaData
 import typer
-from typing import Optional, List
 import yaml
 
 from dcpy import DCPY_ROOT_PATH
@@ -38,16 +37,16 @@ class VersionStrategy(str, Enum):
 
 class Dataset(BaseModel, use_enum_values=True):
     name: str
-    version: Optional[str] = None
-    import_as: Optional[str] = None
+    version: str | None = None
+    import_as: str | None = None
 
     def is_resolved(self):
         return self.version is not None and self.version != "latest"
 
 
 class RecipeInputs(BaseModel, use_enum_values=True):
-    missing_versions_strategy: Optional[RecipeInputsVersionStrategy] = None
-    datasets: List[Dataset] = []
+    missing_versions_strategy: RecipeInputsVersionStrategy | None = None
+    datasets: list[Dataset] = []
 
 
 class DatasetVersionType(str, Enum):
@@ -58,10 +57,10 @@ class DatasetVersionType(str, Enum):
 class Recipe(BaseModel, use_enum_values=True):
     name: str
     product: str
-    base_recipe: Optional[str] = None
-    version_type: Optional[DatasetVersionType] = None
-    version_strategy: Optional[VersionStrategy] = None
-    version: Optional[str] = None
+    base_recipe: str | None = None
+    version_type: DatasetVersionType | None = None
+    version_strategy: VersionStrategy | None = None
+    version: str | None = None
     inputs: RecipeInputs
 
     def is_resolved(self):

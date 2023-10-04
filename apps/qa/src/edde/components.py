@@ -1,8 +1,7 @@
 import streamlit as st
 
 from dcpy.utils import s3
-from src.publishing import get_active_s3_folders
-from src.edde.helpers import compare_columns
+from src.edde.helpers import compare_columns, get_active_s3_folders
 
 
 def column_comparison_table(old_data, new_data):
