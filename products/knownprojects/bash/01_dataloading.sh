@@ -38,27 +38,28 @@ run_sql_file sql/create_corrections.sql
 # * Versions pinned for Capital Plannings team's mid-schedule enhancements release
 geosupport_version=23a
 # Load ZAP tables
-import_recipe dcp_projects
-import_recipe dcp_projectactions
-import_recipe dcp_projectbbls
-import_recipe dcp_dcpprojectteams
+zap_version=20230213
+import_recipe dcp_projects ${zap_version}
+import_recipe dcp_projectactions ${zap_version}
+import_recipe dcp_projectbbls ${zap_version}
+import_recipe dcp_dcpprojectteams ${zap_version}
 
 # Load other tables
-import_recipe dcp_mappluto_wi
-import_recipe dcp_boroboundaries
-import_recipe dcp_housing
-import_recipe dcp_zoningmapamendments
+import_recipe dcp_mappluto_wi 22v3
+import_recipe dcp_boroboundaries ${geosupport_version}
+import_recipe dcp_housing 22Q2
+import_recipe dcp_zoningmapamendments 20230321
 
 # Load SCA Geometry Aggregate Tables
-import_recipe doe_eszones
-import_recipe doe_school_subdistricts
-import_recipe dcp_school_districts
+import_recipe doe_eszones 2019-2020
+import_recipe doe_school_subdistricts 2017
+import_recipe dcp_school_districts ${geosupport_version}
 
 # Load geographic boundaries Aggregate Tables
-import_recipe dcp_ct2020_wi
-import_recipe dcp_nta2020
-import_recipe dcp_cdta2020
-import_recipe dcp_cdboundaries_wi
+import_recipe dcp_ct2020_wi ${geosupport_version}
+import_recipe dcp_nta2020 ${geosupport_version}
+import_recipe dcp_cdta2020 ${geosupport_version}
+import_recipe dcp_cdboundaries_wi ${geosupport_version}
 
 echo
 echo "data loading complate"
