@@ -5,14 +5,13 @@ import os
 import pandas as pd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text
-from typing import Optional
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 
 
 def generate_engine_uri(
     server_url: str, database: str, schema: str = DEFAULT_POSTGRES_SCHEMA
-):
+) -> str:
     # the default postgres schema must always be in the search_path
     schemas = (
         f"{schema},{DEFAULT_POSTGRES_SCHEMA}"
@@ -23,14 +22,14 @@ def generate_engine_uri(
     return server_url + "/" + database + options
 
 
-def execute_file_via_shell(engine_uri: str, path: Path):
+def execute_file_via_shell(engine_uri: str, path: Path) -> None:
     """Execute .sql script at given path."""
     cmd = f"psql {engine_uri} -v ON_ERROR_STOP=1 -f {path}"
     if os.system(cmd) != 0:
         raise Exception(f"{path} has errors!")
 
 
-def execute_query_via_shell(engine_uri: str, sql_statement):
+def execute_query_via_shell(engine_uri: str, sql_statement) -> None:
     """Execute sql via psql shell."""
     cmd = f"psql {engine_uri} -v ON_ERROR_STOP=1 {sql_statement}"
     if os.system(cmd) != 0:
@@ -42,8 +41,8 @@ class PostgresClient:
         self,
         schema: str,
         *,
-        database: Optional[str] = None,
-        server_url: Optional[str] = None,
+        database: str | None = None,
+        server_url: str | None = None,
     ):
         self.schema = schema
         self.database = database if database else os.environ["BUILD_ENGINE_DB"]
@@ -58,14 +57,14 @@ class PostgresClient:
         )
         self.create_schema()
 
-    def execute_query(self, query: str, placeholders: Optional[dict] = None) -> None:
+    def execute_query(self, query: str, placeholders: dict | None = None) -> None:
         with self.engine.connect() as connection:
             connection.execute(statement=text(query), parameters=placeholders)
 
     def execute_select_query(
         self,
         query: str,
-        placeholders: Optional[dict] = None,
+        placeholders: dict | None = None,
     ) -> pd.DataFrame:
         with self.engine.connect() as sql_conn:
             select_records = pd.read_sql(
@@ -91,7 +90,7 @@ class PostgresClient:
             {"schema_name": AsIs(self.schema)},
         )
 
-    def get_schemas(self) -> list:
+    def get_schemas(self) -> list[str]:
         schema_names = self.execute_select_query(
             """
             SELECT schema_name FROM information_schema.schemata
@@ -99,7 +98,7 @@ class PostgresClient:
         )
         return sorted(schema_names["schema_name"].to_list())
 
-    def get_schema_tables(self) -> list:
+    def get_schema_tables(self) -> list[str]:
         select_table_names = self.execute_select_query(
             """
             SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
@@ -127,7 +126,7 @@ class PostgresClient:
             {"table_name": AsIs(table_name)},
         )
 
-    def get_table_columns(self, table_name: str) -> list:
+    def get_table_columns(self, table_name: str) -> list[str]:
         column_names = self.execute_select_query(
             """
             SELECT column_name FROM information_schema.columns
@@ -151,7 +150,7 @@ class PostgresClient:
         )
         return int(row_counts["row_count"][0])
 
-    def create_table_from_csv(self, table_name: str, file_path: Path):
+    def create_table_from_csv(self, table_name: str, file_path: Path) -> None:
         pd.read_csv(file_path).to_sql(
             name=table_name,
             con=self.engine,

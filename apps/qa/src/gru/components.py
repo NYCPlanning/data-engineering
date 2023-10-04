@@ -9,7 +9,7 @@ from src.gru.constants import tests
 from src.gru.helpers import get_source_versions, get_geosupport_versions
 
 
-def status_details(workflow):
+def status_details(workflow: dict):
     timestamp = (
         workflow["timestamp"]
         .astimezone(pytz.timezone("US/Eastern"))
@@ -30,7 +30,7 @@ def status_details(workflow):
             st.write(workflow["conclusion"])
 
 
-def source_table():
+def source_table() -> None:
     column_widths = (4, 5, 3)
     cols = st.columns(column_widths)
     fields = ["Name", "Latest version archived by DE", "Date of archival"]

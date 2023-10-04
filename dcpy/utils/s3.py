@@ -2,8 +2,10 @@ import os
 from io import BytesIO
 from pathlib import Path
 import typer
-from typing import Any, Optional
+from typing import Any, Literal
 import boto3
+from mypy_boto3_s3.client import S3Client
+from botocore.response import StreamingBody
 from botocore.client import Config
 from rich.progress import (
     BarColumn,
@@ -12,6 +14,16 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+
+ACL = Literal[
+    "authenticated-read",
+    "aws-exec-read",
+    "bucket-owner-full-control",
+    "bucket-owner-read",
+    "private",
+    "public-read",
+    "public-read-write",
+]
 
 
 def _make_folder(s: str):
@@ -33,7 +45,7 @@ def client(
     aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
     aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
     endpoint_url=os.environ["AWS_S3_ENDPOINT"],
-):
+) -> S3Client:
     """Returns a client for S3."""
     config = Config(read_timeout=120)
     return boto3.client(
@@ -45,9 +57,9 @@ def client(
     )
 
 
-def list_objects(bucket: str, prefix: str) -> list[dict[str, Any]]:
+def list_objects(bucket: str, prefix: str) -> list:
     """Lists all objects with given prefix within bucket"""
-    objects: list[dict[str, Any]] = []
+    objects: list = []
     prefix = _make_folder(prefix)
     try:
         paginator = client().get_paginator("list_objects_v2")
@@ -63,7 +75,7 @@ def download_file(
     bucket: str,
     key: str,
     path: Path,
-):
+) -> None:
     """Downloads a file from S3"""
     with _progress() as progress:
         size = get_metadata(bucket, key)["content-length"]
@@ -78,10 +90,10 @@ def download_file(
         )
 
 
-def get_metadata(bucket: str, key: str) -> dict:
+def get_metadata(bucket: str, key: str) -> dict[str, Any]:
     """Gets custom metadata as well as three standard s3 fields"""
     response = client().head_object(Bucket=bucket, Key=key)
-    metadata = response["Metadata"]
+    metadata: dict[str, Any] = response["Metadata"]
     metadata["last-modified"] = response["LastModified"]
     metadata["content-length"] = response["ContentLength"]
     metadata["content-type"] = response["ContentType"]
@@ -91,7 +103,7 @@ def get_metadata(bucket: str, key: str) -> dict:
 def get_file(
     bucket: str,
     key: str,
-):
+) -> StreamingBody:
     """Downloads a file from S3"""
     obj = client().get_object(
         Bucket=bucket,
@@ -104,10 +116,10 @@ def upload_file(
     bucket: str,
     path: Path,
     key: str,
-    acl: str,
+    acl: ACL,
     *,
-    metadata: Optional[dict] = None,
-) -> dict:
+    metadata: dict[str, Any] | None = None,
+) -> None:
     """Uploads a single file to AWS S3.
     adapted from data library
     https://github.com/NYCPlanning/db-data-library/blob/main/library/s3.py#L37"""
@@ -119,25 +131,24 @@ def upload_file(
         extra_args: dict[Any, Any] = {"ACL": acl}
         if metadata:
             extra_args["Metadata"] = metadata
-        response = client().upload_file(
-            path,
+        client().upload_file(
+            str(path),
             bucket,
             key,
             ExtraArgs=extra_args,
             Callback=lambda bytes: progress.update(task, advance=bytes),
         )
-    return response
 
 
 def copy_file(
     bucket: str,
     source_key: str,
     target_key: str,
-    acl: str,
+    acl: ACL,
     *,
-    target_bucket: Optional[str] = None,
-    metadata: Optional[dict] = None,
-):
+    target_bucket: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> None:
     """Copies a file from from one location in S3 to another"""
     if target_bucket is None:
         target_bucket = bucket
@@ -178,11 +189,11 @@ def upload_folder(
     bucket: str,
     local_folder_path: Path,
     upload_path: Path,
-    acl: str,
+    acl: ACL,
     *,
     max_files: int = 20,
     contents_only: bool = False,
-    metadata: Optional[dict] = None,
+    metadata: dict[str, Any] | None = None,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
@@ -206,12 +217,12 @@ def copy_folder(
     bucket: str,
     source: str,
     target: str,
-    acl: str,
+    acl: ACL,
     *,
     max_files: int = 20,
-    metadata: Optional[dict] = None,
-    target_bucket: Optional[str] = None,
-):
+    metadata: dict[str, Any] | None = None,
+    target_bucket: str | None = None,
+) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
@@ -235,7 +246,7 @@ def copy_folder(
             )
 
 
-def delete(bucket: str, path: str):
+def delete(bucket: str, path: str) -> None:
     """Deletes from s3 given path and bucket
     if slash is final character of path, assumed to be folder
     otherwise, assumed to be file"""
@@ -246,7 +257,7 @@ def delete(bucket: str, path: str):
     client_.delete_object(Bucket=bucket, Key=path)
 
 
-def get_filenames(bucket, prefix):
+def get_filenames(bucket: str, prefix: str) -> set[str]:
     return {
         obj["Key"].split("/")[-1]
         for obj in list_objects(bucket, prefix)
@@ -279,7 +290,11 @@ def get_file_as_stream(bucket: str, path: str) -> BytesIO:
 
 
 def get_file_as_text(bucket: str, path: str) -> str:
-    return client().get_object(Bucket=bucket, Key=path).get("Body").read().decode()
+    resp = client().get_object(Bucket=bucket, Key=path).get("Body")
+    if resp:
+        return resp.read().decode()
+    else:
+        raise Exception(f"No body found for file '{path}' in bucket '{bucket}'.")
 
 
 app = typer.Typer(add_completion=False)
@@ -292,7 +307,7 @@ def _cli_wrapper_upload_folder(
         None, "--folder-path", help="Path to local output folder"
     ),
     s3_path: Path = typer.Option(None, "--s3-path", help="Path to s3 output folder"),
-    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    acl: ACL = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
     max_files: int = typer.Option(
         20, "--max-files", help="Maximum number of files to upload"
     ),

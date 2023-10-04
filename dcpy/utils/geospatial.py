@@ -8,10 +8,11 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
-import os
 
 
-def translate_shp_to_mvt(input_path, output_path, min_zoom=0, max_zoom=5):
+def translate_shp_to_mvt(
+    input_path: str, output_path: str, min_zoom: int = 0, max_zoom: int = 5
+) -> None:
     """Keeping scope of this very limited - should be refactored once data library is fully brought in"""
     with Progress(
         SpinnerColumn(spinner_name="earth"),

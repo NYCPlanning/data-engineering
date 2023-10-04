@@ -9,7 +9,7 @@ from src.publishing import unzip_csv
 PRODUCT = "db-pluto"
 
 
-def get_data(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
+def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     data = {}
 
     def read_pluto_csv(qaqc_type, **kwargs):
@@ -52,7 +52,7 @@ def get_data(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
     return data
 
 
-def get_changes(product_key: publishing.ProductKey) -> Dict[str, pd.DataFrame]:
+def get_changes(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     changes = {}
     pluto_changes_zip = publishing.get_zip(product_key, "pluto_changes.zip")
     changes["pluto_changes_applied"] = unzip_csv(

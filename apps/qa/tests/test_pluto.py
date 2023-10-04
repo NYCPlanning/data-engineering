@@ -93,7 +93,7 @@ def test_value_differences_across_versions(
 ):
     comparison_name = "zoning"
     expeted_in1not2 = ["M1-4/R9", "M1-4/R7-3", "M1-4/R9", "M1-4/R7-3"]
-    expeted_in2not1 = []
+    expeted_in2not1: list[str] = []
     (
         in1not2,
         in2not1,

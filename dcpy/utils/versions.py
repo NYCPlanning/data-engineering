@@ -1,7 +1,7 @@
 import re
 
 
-def parse(v: str):
+def parse(v: str) -> dict[str, str]:
     """Parse a version from our standard format, e.g '23v2.11'."""
     # TODO: implement other version types.
     reg = re.compile(r"(\d{2})v\d.*")
@@ -20,7 +20,7 @@ def parse(v: str):
         )
 
 
-def bump(v: str, bumped_part: str):
+def bump(v: str, bumped_part: str) -> str:
     """Bump a specific part of a version. e.g major, minor or year."""
     parsed = parse(v)
     to_bump = int(parsed.get(bumped_part, 0))
@@ -31,5 +31,5 @@ def bump(v: str, bumped_part: str):
         parsed["year"]
         + "v"
         + parsed.get("major", "")
-        + ("." + parsed.get("minor") if parsed.get("minor") is not None else "")
+        + ("." + parsed["minor"] if "minor" in parsed else "")
     )
