@@ -196,7 +196,6 @@ function csv_export_drop_columns {
         local schema="public"
     fi
     
-    # TODO schema isn't always public
     local select_columns=$(run_sql_command \
         "\COPY (SELECT '\"' || STRING_AGG(attname, '\",\"' ORDER BY attnum) || '\"'\
         FROM pg_attribute\
