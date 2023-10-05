@@ -624,10 +624,9 @@ WHERE record_id NOT IN (
 
 UPDATE combined
 SET geom = CASE
-    WHEN st_isempty(
-        st_collectionextract(geom, 3)
-    ) THEN NULL
-    ELSE st_makevalid(st_collectionextract(geom, 3))
+    WHEN st_isempty(geom) THEN NULL
+    WHEN geometrytype(geom) = 'GEOMETRYCOLLECTION' THEN st_makevalid(st_collectionextract(geom, 3))
+    ELSE st_makevalid(geom)
 END;
 
 CREATE INDEX combined_geom_idx ON combined USING gist (geom);
