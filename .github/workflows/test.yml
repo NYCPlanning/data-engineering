@@ -50,30 +50,49 @@ jobs:
             dcpy:
               - dcpy/**
               - pyproject.toml
+              - python/**
             data-library:
               - data-library/**.py
               - data-library/**.toml
               - data-library/**.yml
+              - docker/**
+              - python/**
             build:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
               - dcpy/**
               - products/template/**
+              - docker/**
+              - python/**
             qa:
               - dcpy/**
               - apps/qa/**
+              - docker/**
+              - python/**
             cbbr:
               - products/cbbr/**
+              - dcpy/**
+              - docker/**
+              - python/**
             checkbook:
               - products/checkbook/**
+              - dcpy/**
+              - docker/**
+              - python/**
             knownprojects:
               - products/knownprojects/**
+              - dcpy/**
+              - docker/**
+              - python/**
             zap:
               - .github/workflows/zap_test.yml
               - .github/workflows/zap_build_mapzap.yml
               - .github/workflows/zap_export.yml
               - .github/workflows/zap_single_visible.yml
               - products/zap-opendata/**
+              - dcpy/**
+              - docker/**
+              - python/**
       - name: Confirm changes
         run: |
           echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
