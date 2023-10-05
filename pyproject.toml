@@ -7,6 +7,7 @@ exclude_rules = [
     "ambiguous.column_count",
     "references.qualification",
     "structure.unused_cte",
+    "structure.column_order",
     "references.keywords",
     "references.consistent",
     "references.special_chars",

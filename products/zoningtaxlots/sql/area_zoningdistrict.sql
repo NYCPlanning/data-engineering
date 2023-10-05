@@ -8,6 +8,7 @@
 DROP TABLE IF EXISTS validdtm;
 CREATE TABLE validdtm AS (
     SELECT
+        id AS dtm_id,
         bbl,
         ST_MAKEVALID(geom) AS geom
     FROM dof_dtm
@@ -36,7 +37,8 @@ ANALYZE validzones;
 DROP TABLE IF EXISTS lotzoneper;
 CREATE TABLE lotzoneper AS
 SELECT
-    p.bbl,
+    p.dtm_id,
+    bbl,
     n.zonedist,
     ST_AREA(
         CASE
@@ -66,6 +68,7 @@ ANALYZE lotzoneper;
 DROP TABLE IF EXISTS lotzoneper_grouped;
 CREATE TABLE lotzoneper_grouped AS
 SELECT
+    dtm_id,
     bbl,
     zonedist,
     allbblgeom,
@@ -73,13 +76,14 @@ SELECT
     SUM(segzonegeom) AS segzonegeom,
     SUM(allzonegeom) AS allzonegeom
 FROM lotzoneper
-GROUP BY bbl, allbblgeom, zonedist;
+GROUP BY dtm_id, bbl, allbblgeom, zonedist;
 
 -- ordered zonedists per lot before applying tie-breaking logic from zonedist_priority
 DROP TABLE IF EXISTS lotzoneperorder_init;
 CREATE TABLE lotzoneperorder_init AS
 WITH initial_rankings AS (
     SELECT
+        dtm_id,
         bbl,
         zonedist,
         segbblgeom,
@@ -89,7 +93,7 @@ WITH initial_rankings AS (
         (segbblgeom / allbblgeom) * 100 AS perbblgeom,
         (segzonegeom / allzonegeom) * 100 AS perzonegeom,
         -- zone districts per lot ranked by percent of lot covered
-        ROW_NUMBER() OVER (PARTITION BY bbl ORDER BY segbblgeom DESC) AS bbl_row_number,
+        ROW_NUMBER() OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) AS lot_row_number,
         -- per zoning district type, rank by 
         --   1) if lot meets 10% coverage by zoning district threshold
         --   2) area of coverage
@@ -102,6 +106,7 @@ WITH initial_rankings AS (
 )
 
 SELECT
+    dtm_id,
     bbl,
     zonedist,
     segbblgeom,
@@ -110,18 +115,18 @@ SELECT
     segzonegeom,
     allzonegeom,
     perzonegeom,
-    ROW_NUMBER() OVER (PARTITION BY bbl ORDER BY segbblgeom DESC) AS row_number,
+    ROW_NUMBER() OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) AS row_number,
     -- identifying whether zone of rank n for a lot is within 0.01 sq m of zone of rank (n-1) for same lot for tie-breaking logic in next query
     CASE
         WHEN
-            ROW_NUMBER() OVER (PARTITION BY bbl ORDER BY segbblgeom DESC) = 1
-            OR LAG(segbblgeom, 1, segbblgeom) OVER (PARTITION BY bbl ORDER BY segbblgeom DESC) - segbblgeom > 0.01
+            ROW_NUMBER() OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) = 1
+            OR LAG(segbblgeom, 1, segbblgeom) OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) - segbblgeom > 0.01
             THEN 1
         ELSE 0
     END AS group_start
 FROM initial_rankings
 WHERE
-    bbl_row_number = 1
+    lot_row_number = 1
     OR perbblgeom >= 10
     OR zonedist_row_number = 1;
 
@@ -132,30 +137,30 @@ DROP TABLE IF EXISTS lotzoneperorder;
 CREATE TABLE lotzoneperorder AS
 WITH group_column_added AS (
     SELECT
-        bbl,
+        dtm_id,
         -- this is not summing by any sql grouping, but rather summing in a window function as the rows are iterated through
         -- output column ends up being a grouping of lot/zone pairings that are "tied" within some limit and should be reordered
         --     based on ranking in zonedist_priority
         zonedist,
         row_number,
-        SUM(group_start) OVER (PARTITION BY bbl ORDER BY row_number) AS reorder_group
+        SUM(group_start) OVER (PARTITION BY dtm_id ORDER BY row_number) AS reorder_group
     FROM lotzoneperorder_init
 ),
 
 reorder_groups AS (
     SELECT
-        bbl,
+        dtm_id,
         reorder_group,
         MIN(row_number) - 1 AS order_start, -- starting point for re-ordering in "new_order" CTE down below
         ARRAY_AGG(zonedist) AS zonedist
     FROM group_column_added
-    GROUP BY bbl, reorder_group
+    GROUP BY dtm_id, reorder_group
     HAVING COUNT(*) > 1 -- Filter to actual groups and not just individual rows
 ),
 
 rows_to_reorder AS (
     SELECT
-        bbl,
+        dtm_id,
         reorder_group,
         order_start,
         UNNEST(zonedist) AS zonedist
@@ -164,14 +169,15 @@ rows_to_reorder AS (
 
 new_order AS (
     SELECT
-        g.bbl,
+        g.dtm_id,
         g.zonedist,
-        ROW_NUMBER() OVER (PARTITION BY bbl, reorder_group ORDER BY priority ASC) + g.order_start AS row_number
+        ROW_NUMBER() OVER (PARTITION BY dtm_id, reorder_group ORDER BY priority ASC) + g.order_start AS row_number
     FROM rows_to_reorder AS g
     INNER JOIN zonedist_priority AS zdp ON g.zonedist = zdp.zonedist
 )
 
 SELECT
+    a.dtm_id,
     a.bbl,
     a.zonedist,
     segbblgeom,
@@ -182,32 +188,32 @@ SELECT
     perzonegeom,
     COALESCE(new.row_number, a.row_number) AS row_number
 FROM lotzoneperorder_init AS a
-LEFT JOIN new_order AS new ON a.bbl = new.bbl AND a.zonedist = new.zonedist;
+LEFT JOIN new_order AS new ON a.dtm_id = new.dtm_id AND a.zonedist = new.zonedist;
 
 UPDATE dcp_zoning_taxlot a
 SET zoningdistrict1 = zonedist
 FROM lotzoneperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.dtm_id = b.dtm_id
     AND row_number = 1;
 
 UPDATE dcp_zoning_taxlot a
 SET zoningdistrict2 = zonedist
 FROM lotzoneperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.dtm_id = b.dtm_id
     AND row_number = 2;
 
 UPDATE dcp_zoning_taxlot a
 SET zoningdistrict3 = zonedist
 FROM lotzoneperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.dtm_id = b.dtm_id
     AND row_number = 3;
 
 UPDATE dcp_zoning_taxlot a
 SET zoningdistrict4 = zonedist
 FROM lotzoneperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.dtm_id = b.dtm_id
     AND row_number = 4;

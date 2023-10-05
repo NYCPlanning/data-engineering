@@ -1,5 +1,6 @@
 -- insert unique bbls into table
 INSERT INTO dcp_zoning_taxlot (
+    dtm_id,
     bbl,
     boroughcode,
     taxblock,
@@ -7,13 +8,13 @@ INSERT INTO dcp_zoning_taxlot (
     area
 )
 SELECT
+    id,
     bbl,
     boro,
     block,
     lot,
-    ST_AREA(ST_MULTI(ST_UNION(geom))::geography) AS area
-FROM dof_dtm
-GROUP BY bbl, boro, block, lot;
+    ST_AREA(geom) AS area
+FROM dof_dtm;
 -- populate bbl field if it's NULL
 UPDATE dcp_zoning_taxlot
 SET bbl = boroughcode || LPAD(taxblock, 5, '0') || LPAD(taxlot, 4, '0')::text
