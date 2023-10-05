@@ -26,7 +26,7 @@ run_sql_command "
         geomsource text, 
         geom geometry)"
 
-run_sql_file sql/sprints.sql
+run_sql_file data/sprints.sql
 
 # update cpdb_dcpattributes with geoms from sprints
 echo 'Updating geometries from old sprints'
