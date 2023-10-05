@@ -35,6 +35,8 @@ python3 -m python.extractors dcp_knownprojects
 # Load corrections tables
 run_sql_file sql/create_corrections.sql
 
+# * Versions pinned for Capital Plannings team's mid-schedule enhancements release
+geosupport_version=23a
 # Load ZAP tables
 import_recipe dcp_projects
 import_recipe dcp_projectactions
