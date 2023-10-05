@@ -7,7 +7,8 @@ DROP TABLE IF EXISTS mihperorder;
 CREATE TABLE mihperorder AS
 WITH mihper AS (
     SELECT
-        p.bbl,
+        p.id AS dtm_id,
+        bbl,
         n.mih_option,
         ST_AREA(
             CASE
@@ -29,14 +30,14 @@ WITH mihper AS (
 )
 
 SELECT
-    bbl,
+    dtm_id,
     mih_option,
     segbblgeom,
     (segbblgeom / allbblgeom) * 100 AS perbblgeom,
     (segzonegeom / allzonegeom) * 100 AS perzonegeom,
     ROW_NUMBER()
         OVER (
-            PARTITION BY bbl
+            PARTITION BY dtm_id
             ORDER BY segbblgeom DESC
         )
     AS row_number
@@ -50,4 +51,4 @@ SET
         WHEN perbblgeom >= 10 THEN mih_option
     END
 FROM mihperorder AS b
-WHERE a.bbl::TEXT = b.bbl::TEXT;
+WHERE a.dtm_id = b.dtm_id;

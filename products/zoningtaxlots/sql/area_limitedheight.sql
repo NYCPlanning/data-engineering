@@ -6,28 +6,24 @@
 
 DROP TABLE IF EXISTS limitedheightperorder;
 CREATE TABLE limitedheightperorder AS (
-    WITH
-    limitedheightper AS (
+    WITH limitedheightper AS (
         SELECT
+            p.id AS dtm_id,
             p.bbl,
             n.lhlbl,
-            (ST_AREA(CASE
-                WHEN ST_COVEREDBY(p.geom, n.geom)
-                    THEN p.geom
-                ELSE
-                    ST_MULTI(
-                        ST_INTERSECTION(p.geom, n.geom)
-                    )
-            END)) AS segbblgeom,
+            ST_AREA(
+                CASE
+                    WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                    ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                END
+            ) AS segbblgeom,
             ST_AREA(p.geom) AS allbblgeom,
-            (ST_AREA(CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom)
-                    THEN n.geom
-                ELSE
-                    ST_MULTI(
-                        ST_INTERSECTION(n.geom, p.geom)
-                    )
-            END)) AS segzonegeom,
+            ST_AREA(
+                CASE
+                    WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                    ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                END
+            ) AS segzonegeom,
             ST_AREA(n.geom) AS allzonegeom
         FROM dof_dtm AS p
         INNER JOIN dcp_limitedheight AS n
@@ -35,6 +31,7 @@ CREATE TABLE limitedheightperorder AS (
     )
 
     SELECT
+        dtm_id,
         bbl,
         lhlbl,
         segbblgeom,
@@ -42,7 +39,7 @@ CREATE TABLE limitedheightperorder AS (
         (segzonegeom / allzonegeom) * 100 AS perzonegeom,
         ROW_NUMBER()
             OVER (
-                PARTITION BY bbl
+                PARTITION BY dtm_id
                 ORDER BY segbblgeom DESC
             )
         AS row_number
@@ -53,9 +50,5 @@ UPDATE dcp_zoning_taxlot a
 SET limitedheightdistrict = lhlbl
 FROM limitedheightperorder AS b
 WHERE
-    a.bbl::TEXT = b.bbl::TEXT
+    a.dtm_id = b.dtm_id
     AND perbblgeom >= 10;
-
---\copy (SELECT * FROM limitedheightperorder ORDER BY bbl) TO '/prod/db-zoningtaxlots/zoningtaxlots_build/output/intermediate_limitedheightperorder.csv' DELIMITER ',' CSV HEADER;
---
---DROP TABLE limitedheightperorder;
