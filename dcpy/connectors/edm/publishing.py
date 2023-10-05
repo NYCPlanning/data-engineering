@@ -304,10 +304,11 @@ def _cli_wrapper_upload(
         help="Name of data product (publishing folder in s3)",
     ),
     build: str = typer.Option(None, "-b", "--build", help="Label of build"),
-    acl: s3.ACL = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
 ):
+    acl_literal = s3.string_as_acl(acl)
     logger.info(f'Uploading {output_path} to {product}/draft/{build} with ACL "{acl}"')
-    upload(output_path, DraftKey(product, build), acl=acl)
+    upload(output_path, DraftKey(product, build), acl=acl_literal)
 
 
 @app.command("publish")
@@ -325,15 +326,16 @@ def _cli_wrapper_publish(
         "--publishing-version",
         help="Version ",
     ),
-    acl: s3.ACL = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
     target_bucket: str = typer.Option(
         None, "-t", "--target-bucket", help="Target bucket to publish to"
     ),
 ):
+    acl_literal = s3.string_as_acl(acl)
     logger.info(f'Publishing {product}/draft/{build} with ACL "{acl}"')
     publish(
         DraftKey(product, build),
-        acl=acl,
+        acl=acl_literal,
         publishing_version=publishing_version,
         target_bucket=target_bucket,
     )

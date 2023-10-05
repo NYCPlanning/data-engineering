@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 from pathlib import Path
 import typer
-from typing import Any, Literal, TYPE_CHECKING
+from typing import Any, Literal, TYPE_CHECKING, cast, get_args
 import boto3
 from botocore.response import StreamingBody
 from botocore.client import Config
@@ -28,6 +28,12 @@ ACL = Literal[
     "public-read",
     "public-read-write",
 ]
+
+
+def string_as_acl(s: str) -> ACL:
+    if not s in get_args(ACL):
+        raise ValueError(f"String '{s}' is not a valid literal 'ACL'")
+    return cast(ACL, s)
 
 
 def _make_folder(s: str):
