@@ -79,6 +79,11 @@ jobs:
               - dcpy/**
               - docker/**
               - python/**
+            facilities:
+              - products/facilities/**
+              - dcpy/**
+              - docker/**
+              - python/**
             knownprojects:
               - products/knownprojects/**
               - dcpy/**
@@ -110,6 +115,11 @@ jobs:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')
     uses: ./.github/workflows/checkbook_test.yml
+    secrets: inherit
+  facilities:
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'facilities')
+    uses: ./.github/workflows/facilities_test.yml
     secrets: inherit
   knownprojects:
     needs: check_changes
