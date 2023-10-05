@@ -32,6 +32,9 @@ python3 -m python.extractors hpd_pc
 python3 -m python.extractors dcp_planneradded
 python3 -m python.extractors dcp_knownprojects
 
+# Load corrections tables
+run_sql_file sql/create_corrections.sql
+
 # Load ZAP tables
 import_recipe dcp_projects
 import_recipe dcp_projectactions
@@ -54,9 +57,6 @@ import_recipe dcp_ct2020_wi
 import_recipe dcp_nta2020
 import_recipe dcp_cdta2020
 import_recipe dcp_cdboundaries_wi
-
-# Load corrections tables
-run_sql_file sql/create_corrections.sql
 
 echo
 echo "data loading complate"
