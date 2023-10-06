@@ -1,5 +1,4 @@
 import json
-from functools import wraps
 
 import pandas as pd
 from tqdm.contrib.concurrent import process_map
@@ -8,7 +7,7 @@ from . import GeosupportError, g
 
 
 class FunctionBL:
-    def __init__(self, bbl_field: str = None):
+    def __init__(self, bbl_field: str):
         self.bbl_field = bbl_field
 
     def geocode_a_dataframe(self, df: pd.DataFrame):

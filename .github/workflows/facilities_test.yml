@@ -1,0 +1,16 @@
+name: Facilities DB - Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: mypy
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: mypy
+      run: python3 -m mypy ./products/facilities/facdb

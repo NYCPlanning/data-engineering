@@ -30,13 +30,13 @@ blinker==1.6.2
     # via streamlit
 boto3==1.28.60
     # via -r ./python/requirements.in
-boto3-stubs==1.28.59
+boto3-stubs==1.28.60
     # via -r ./python/requirements.in
 botocore==1.31.60
     # via
     #   boto3
     #   s3transfer
-botocore-stubs==1.31.59
+botocore-stubs==1.31.60
     # via
     #   -r ./python/requirements.in
     #   boto3-stubs
@@ -373,7 +373,7 @@ rich==13.6.0
     # via
     #   -r ./python/requirements.in
     #   streamlit
-rpds-py==0.10.3
+rpds-py==0.10.4
     # via
     #   jsonschema
     #   referencing
@@ -470,6 +470,8 @@ types-s3transfer==0.7.0
     # via boto3-stubs
 types-setuptools==68.2.0.0
     # via -r ./python/requirements.in
+types-tqdm==4.66.0.2
+    # via -r ./python/requirements.in
 types-urllib3==1.26.25.14
     # via types-requests
 typing-extensions==4.8.0
@@ -500,7 +502,7 @@ wcwidth==0.2.8
     # via prompt-toolkit
 xlrd==2.0.1
     # via -r ./python/requirements.in
-xyzservices==2023.7.0
+xyzservices==2023.10.0
     # via contextily
 zipp==3.17.0
     # via importlib-metadata

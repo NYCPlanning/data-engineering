@@ -1,5 +1,4 @@
 import json
-from functools import wraps
 
 import pandas as pd
 from tqdm.contrib.concurrent import process_map
@@ -10,10 +9,10 @@ from . import GeosupportError, g
 class Function1B:
     def __init__(
         self,
-        street_name_field: str = None,
-        house_number_field: str = None,
-        borough_field: str = None,
-        zipcode_field: str = None,
+        street_name_field: str | None = None,
+        house_number_field: str | None = None,
+        borough_field: str | None = None,
+        zipcode_field: str | None = None,
     ):
         self.street_name_field = street_name_field
         self.house_number_field = house_number_field

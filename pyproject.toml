@@ -52,7 +52,7 @@ ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 [tool.black]
 
 [[tool.mypy.overrides]]
-module = "geopandas.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*" # no stubs available
+module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*" # no stubs available
 ignore_missing_imports = true
 
 [tool.coverage.run]

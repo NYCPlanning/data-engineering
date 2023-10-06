@@ -1,6 +1,4 @@
-import json
 import os
-from functools import wraps
 from pathlib import Path
 
 import numpy as np
@@ -43,30 +41,21 @@ def version_from_config(name, read_version):
     add_version(dataset=name, version=version)
 
 
-def Prepare(func) -> callable:
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> pd.DataFrame:
-        name = func.__name__
-        pkl_path = CACHE_PATH / f"{name}.pkl"
-        if not os.path.isfile(pkl_path):
-            # pull from data library
-            print(f"pulling from {name} data library")
-            # fmt:off
-            df = read_from_S3(name)\
-                .pipe(hash_each_row)\
-                .pipe(format_field_names)
-            df.to_pickle(pkl_path)
-            # fmt:on
-        else:
-            # read from cache
-            print("reading from cached data")
-            df = pd.read_pickle(pkl_path)
+def prepare(name: str) -> pd.DataFrame:
+    pkl_path = CACHE_PATH / f"{name}.pkl"
+    if not os.path.isfile(pkl_path):
+        # pull from data library
+        print(f"pulling from {name} data library")
+        # fmt:off
+        df = read_from_S3(name)\
+            .pipe(hash_each_row)\
+            .pipe(format_field_names)
+        df.to_pickle(pkl_path)
+        # fmt:on
+    else:
+        # read from cache
+        print("reading from cached data")
+        df = pd.read_pickle(pkl_path)
 
-        # Apply custom wrangler
-        df = func(df)
-        df["source"] = name
-        df = df.replace({np.nan: None})
-        df = df.drop_duplicates()
-        return df
-
-    return wrapper
+    df["source"] = name
+    return df

@@ -1,9 +1,6 @@
-import csv
 import hashlib
-import os
+import numpy as np
 import re
-from functools import wraps
-from io import StringIO
 
 import pandas as pd
 
@@ -38,4 +35,10 @@ def format_field_names(df: pd.DataFrame) -> pd.DataFrame:
         return re.sub(r"\W+", "", x.lower().strip().replace("-", "_").replace(" ", "_"))
 
     df.columns = df.columns.map(format_func)
+    return df
+
+
+def sanitize_df(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.replace({np.nan: None})
+    df = df.drop_duplicates()
     return df
