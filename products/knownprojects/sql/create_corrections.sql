@@ -36,17 +36,17 @@ CREATE TABLE corrections_main (
 -- side effects on a short timeline
 SELECT * INTO corrections_borough FROM corrections_main WHERE field = 'borough';
 
--- corrections zap table -> indicating if each record should be added / removed from kpdb
-DROP TABLE IF EXISTS corrections_zap;
-CREATE TABLE corrections_zap (
-    record_id text,
-    action text,
-    editor text,
-    date text,
-    notes text
-);
+-- -- corrections zap table -> indicating if each record should be added / removed from kpdb
+-- DROP TABLE IF EXISTS corrections_zap;
+-- CREATE TABLE corrections_zap (
+--     record_id text,
+--     action text,
+--     editor text,
+--     date text,
+--     notes text
+-- );
 
-\COPY corrections_zap FROM 'data/corrections/corrections_zap.csv' DELIMITER ',' CSV HEADER;
+-- \COPY corrections_zap FROM 'data/corrections/corrections_zap.csv' DELIMITER ',' CSV HEADER;
 
 DROP TABLE IF EXISTS zap_record_ids;
 CREATE TABLE zap_record_ids (
