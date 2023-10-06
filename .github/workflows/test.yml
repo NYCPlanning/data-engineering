@@ -86,9 +86,9 @@ jobs:
               - python/**
             knownprojects:
               - products/knownprojects/**
-              - dcpy/**
-              - docker/**
-              - python/**
+              # - dcpy/**
+              # - docker/**
+              # - python/**
             zap:
               - .github/workflows/zap_test.yml
               - .github/workflows/zap_build_mapzap.yml
