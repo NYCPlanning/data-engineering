@@ -50,10 +50,6 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: Install python deps
-        working-directory: ./
-        run: pip install -r ./python/requirements.txt
-
       - name: Initialize
         run: python -m facdb.cli init
 
