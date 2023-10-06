@@ -49,7 +49,7 @@ jobs:
 
       - name: Load
         run: |
-          python3 -m build_scripts.load
+          python3 -m dcpy.builds.load -p template
 
       - name: Transform
         run: |
