@@ -6,11 +6,11 @@ from dcpy.connectors.edm import recipes
 def load_source_data(
     pg_client: postgres.PostgresClient,
     recipe_path: Path,
-    recipe_lock_path: Path,
 ):
+    recipe_lock_path = recipe_path.parent / "recipe.lock.yml"
     recipes.plan(
-        Path(recipe_path),
-        Path(recipe_lock_path),
+        recipe_path,
+        recipe_lock_path,
     )
     recipe = recipes.recipe_from_yaml(Path(recipe_lock_path))
     recipes.write_source_data_versions(recipe_file=Path(recipe_lock_path))

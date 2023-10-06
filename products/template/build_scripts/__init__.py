@@ -15,7 +15,6 @@ sys.path.append(str(_proj_root))
 PRODUCT_S3_NAME = "db-template"
 
 RECIPE_PATH = _product_path / "recipe.yml"
-RECIPE_LOCK_PATH = _product_path / "recipe.lock.yml"
 
 SQL_QUERY_DIR = _product_path / "sql"
 OUTPUT_DIR = _product_path / "output"
