@@ -1,0 +1,35 @@
+dataset:
+  name: &name fisa_dailybudget
+  version: "{{ version }}"
+  acl: private
+  source:
+    script: *name
+    path: library/tmp/fisa_dailybudget/
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    name: *name
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### FISA Daily Budget Export
+      received from OMB/Capital Planning via ftp
+      currently, script assumes ALL historical files are in folder. At some point it'd make sense to
+      - try to get ftp working programatically
+      - only grab new data
+      But right now it's simple enough to grab it all manually and run it through the script
+    url:
+    dependents: []
