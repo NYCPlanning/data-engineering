@@ -32,7 +32,7 @@ mkdir -p output
         csv_export review_dob &
         csv_export corrections_applied &
         csv_export corrections_not_applied &
-        csv_export corrections_zap &
+        # csv_export corrections_zap &
         csv_export corrections_dob_match &
         csv_export corrections_project &
         csv_export corrections_main
