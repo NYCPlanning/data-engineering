@@ -61,6 +61,6 @@ def run_name() -> str:
     if event_name() == "pull_request":
         prefix = "pr"
     else:
-        prefix = "build"
+        prefix = "run"
     suffix = branch().replace("-", "_")
     return f"{prefix}_{suffix}"
