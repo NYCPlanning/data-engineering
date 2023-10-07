@@ -1,7 +1,6 @@
 #!/bin/bash
 source bash/config.sh
 
-# TODO mimic template.load
 # Reference tables
 echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
 # create build schema

@@ -40,7 +40,9 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: 01 dataloading
-        run: ./cpdb.sh dataloading
+        run: |
+          # TODO create a recipe for cpdb
+          ./cpdb.sh dataloading
 
       - name: 02 Build Attribute
         run: ./cpdb.sh attribute
