@@ -8,23 +8,20 @@ DROP TABLE IF EXISTS commoverlayperorder;
 CREATE TABLE commoverlayperorder AS
 WITH commoverlayper AS (
     SELECT
+        p.id,
         p.bbl,
         n.overlay,
         ST_AREA(
             CASE
-                WHEN ST_COVEREDBY(p.geom, n.geom)
-                    THEN p.geom
-                ELSE
-                    ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
             END
         ) AS segbblgeom,
         ST_AREA(p.geom) AS allbblgeom,
         ST_AREA(
             CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom)
-                    THEN n.geom
-                ELSE
-                    ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
             END
         ) AS segzonegeom,
         ST_AREA(n.geom) AS allzonegeom
@@ -34,6 +31,7 @@ WITH commoverlayper AS (
 )
 
 SELECT
+    id,
     bbl,
     overlay,
     segbblgeom,
@@ -41,7 +39,7 @@ SELECT
     (segzonegeom / allzonegeom) * 100 AS perzonegeom,
     ROW_NUMBER()
         OVER (
-            PARTITION BY bbl
+            PARTITION BY id
             ORDER BY segbblgeom DESC, segzonegeom DESC
         )
     AS row_number
@@ -51,7 +49,7 @@ UPDATE pluto a
 SET overlay1 = overlay
 FROM commoverlayperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 1
     AND (
         perbblgeom >= 10
@@ -62,7 +60,7 @@ UPDATE pluto a
 SET overlay2 = overlay
 FROM commoverlayperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 2
     AND (
         perbblgeom >= 10

@@ -8,23 +8,20 @@ CREATE TABLE zoningmapperorder AS (
     WITH
     zoningmapper AS (
         SELECT
+            p.id,
             p.bbl,
             n.zoning_map,
             ST_AREA(
                 CASE
-                    WHEN ST_COVEREDBY(ST_MAKEVALID(p.geom), n.geom)
-                        THEN p.geom
-                    ELSE
-                        ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
+                    WHEN ST_COVEREDBY(ST_MAKEVALID(p.geom), n.geom) THEN p.geom
+                    ELSE ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
                 END
             ) AS segbblgeom,
             ST_AREA(p.geom) AS allbblgeom,
             ST_AREA(
                 CASE
-                    WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom))
-                        THEN n.geom
-                    ELSE
-                        ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
+                    WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom)) THEN n.geom
+                    ELSE ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
                 END
             ) AS segzonegeom,
             ST_AREA(n.geom) AS allzonegeom
@@ -34,6 +31,7 @@ CREATE TABLE zoningmapperorder AS (
     )
 
     SELECT
+        id,
         bbl,
         zoning_map,
         segbblgeom,
@@ -41,7 +39,7 @@ CREATE TABLE zoningmapperorder AS (
         (segzonegeom / allzonegeom) * 100 AS perzonegeom,
         ROW_NUMBER()
             OVER (
-                PARTITION BY bbl
+                PARTITION BY id
                 ORDER BY segbblgeom DESC
             )
         AS row_number
@@ -52,7 +50,7 @@ UPDATE pluto a
 SET zonemap = LOWER(zoning_map)
 FROM zoningmapperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 1
     AND perbblgeom >= 10;
 
@@ -61,7 +59,7 @@ UPDATE pluto a
 SET zmcode = 'Y'
 FROM zoningmapperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 2;
 
 DROP TABLE zoningmapperorder;

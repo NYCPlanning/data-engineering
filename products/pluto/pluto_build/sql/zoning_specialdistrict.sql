@@ -6,23 +6,20 @@
 DROP TABLE IF EXISTS specialpurposeper;
 CREATE TABLE specialpurposeper AS
 SELECT
+    p.id,
     p.bbl,
     n.sdlbl,
     ST_AREA(
         CASE
-            WHEN ST_COVEREDBY(p.geom, n.geom)
-                THEN p.geom
-            ELSE
-                ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+            WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+            ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
         END
     ) AS segbblgeom,
     ST_AREA(p.geom) AS allbblgeom,
     ST_AREA(
         CASE
-            WHEN ST_COVEREDBY(n.geom, p.geom)
-                THEN n.geom
-            ELSE
-                ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+            WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+            ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
         END
     ) AS segzonegeom,
     ST_AREA(n.geom) AS allzonegeom
@@ -34,6 +31,7 @@ DROP TABLE IF EXISTS specialpurposeperorder;
 CREATE TABLE specialpurposeperorder AS
 WITH specialpurposeperorder_init AS (
     SELECT
+        id,
         bbl,
         sdlbl,
         segbblgeom,
@@ -52,10 +50,11 @@ WITH specialpurposeperorder_init AS (
 )
 
 SELECT
+    id,
     bbl,
     sdlbl,
     segbblgeom,
-    ROW_NUMBER() OVER (PARTITION BY bbl ORDER BY segbblgeom ASC, sdlbl DESC) AS row_number
+    ROW_NUMBER() OVER (PARTITION BY id ORDER BY segbblgeom ASC, sdlbl DESC) AS row_number
 FROM specialpurposeperorder_init
 WHERE
     perbblgeom >= 10
@@ -65,21 +64,21 @@ UPDATE pluto a
 SET spdist1 = sdlbl
 FROM specialpurposeperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 1;
 
 UPDATE pluto a
 SET spdist2 = sdlbl
 FROM specialpurposeperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 2;
 
 UPDATE pluto a
 SET spdist3 = sdlbl
 FROM specialpurposeperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND row_number = 3;
 
 -- set the order of special districts 
