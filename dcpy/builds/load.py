@@ -2,20 +2,24 @@ from pathlib import Path
 import typer
 
 from dcpy import REPO_ROOT_PATH
-from dcpy.utils import git, postgres
+from dcpy.utils import postgres, s3
 from dcpy.utils.logging import logger
-from dcpy.connectors.edm import recipes
+from dcpy.connectors.edm import build_metadata, recipes, publishing
 
 
-def setup_environment(pg_client: postgres.PostgresClient):
+def setup_build_environments(pg_client: postgres.PostgresClient):
     pg_client.drop_schema()
     pg_client.create_schema()
-    # TODO delete draft S3 folder
+    s3.delete(
+        bucket=publishing.BUCKET,
+        path=f"{pg_client.database}/draft/{pg_client.schema}",
+    )
 
 
 def load_source_data(product: str):
     product_path = REPO_ROOT_PATH / f"products/{product}"
-    build_name = git.run_name()
+    build_name = build_metadata.build_name()
+
     pg_client = postgres.PostgresClient(
         schema=build_name,
         database=f"db-{product}",
@@ -31,7 +35,7 @@ def load_source_data(product: str):
     recipe = recipes.recipe_from_yaml(Path(recipe_lock_path))
     recipes.write_source_data_versions(recipe_file=Path(recipe_lock_path))
 
-    setup_environment(pg_client)
+    setup_build_environments(pg_client)
 
     [recipes.import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]
 
