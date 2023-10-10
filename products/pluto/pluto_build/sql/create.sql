@@ -1,6 +1,7 @@
 --Create empty PLUTO table
 DROP TABLE IF EXISTS pluto CASCADE;
 CREATE TABLE pluto (
+    id serial PRIMARY KEY,
     borough text,
     block text,
     lot text,

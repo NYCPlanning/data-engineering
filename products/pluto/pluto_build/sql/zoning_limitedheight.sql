@@ -9,23 +9,20 @@ CREATE TABLE limitedheightperorder AS (
     WITH
     limitedheightper AS (
         SELECT
+            p.id,
             p.bbl,
             n.lhlbl,
             ST_AREA(
                 CASE
-                    WHEN ST_COVEREDBY(p.geom, n.geom)
-                        THEN p.geom
-                    ELSE
-                        ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                    WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                    ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
                 END
             ) AS segbblgeom,
             ST_AREA(p.geom) AS allbblgeom,
             ST_AREA(
                 CASE
-                    WHEN ST_COVEREDBY(n.geom, p.geom)
-                        THEN n.geom
-                    ELSE
-                        ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                    WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                    ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
                 END
             ) AS segzonegeom,
             ST_AREA(n.geom) AS allzonegeom
@@ -35,6 +32,7 @@ CREATE TABLE limitedheightperorder AS (
     )
 
     SELECT
+        id,
         bbl,
         lhlbl,
         segbblgeom,
@@ -42,7 +40,7 @@ CREATE TABLE limitedheightperorder AS (
         (segzonegeom / allzonegeom) * 100 AS perzonegeom,
         ROW_NUMBER()
             OVER (
-                PARTITION BY bbl
+                PARTITION BY id
                 ORDER BY segbblgeom DESC
             )
         AS row_number
@@ -53,7 +51,7 @@ UPDATE pluto a
 SET ltdheight = lhlbl
 FROM limitedheightperorder AS b
 WHERE
-    a.bbl = b.bbl
+    a.id = b.id
     AND perbblgeom >= 10;
 
 DROP TABLE IF EXISTS limitedheightperorder;
