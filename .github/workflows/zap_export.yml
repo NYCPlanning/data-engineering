@@ -21,9 +21,6 @@ jobs:
       SECRET: ${{ secrets.ZAP_CRM_SECRET }}
       ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
       EDM_DATA_ZAP_SCHEMA: weekly_export_${{ github.event_name }}_${{ github.ref_name }}
-      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
       AWS_S3_BUCKET: edm-recipes
     strategy:
       fail-fast: false
@@ -45,6 +42,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
       - name: Run Container Setup
         working-directory: ./
