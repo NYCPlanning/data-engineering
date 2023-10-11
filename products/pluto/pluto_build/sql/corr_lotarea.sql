@@ -91,3 +91,61 @@ WHERE
     lotarea != '0'
     AND lotarea IS NOT NULL
     AND bbl IN (SELECT bbl FROM pluto_changes_applied WHERE field = 'lotarea' OR field = 'bldgarea');
+
+
+-- lot frontage
+INSERT INTO pluto_changes_not_applied
+SELECT DISTINCT b.*
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'lotfront'
+    AND b.old_value::numeric != a.lotfront::numeric;
+
+INSERT INTO pluto_changes_applied
+SELECT DISTINCT b.*
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'lotfront'
+    AND b.old_value::numeric = a.lotfront::numeric;
+
+-- Apply correction to PLUTO
+UPDATE pluto a
+SET
+    lotfront = b.new_value,
+    dcpedited = 't'
+FROM pluto_changes_applied AS b
+WHERE
+    a.bbl = b.bbl
+    AND b.field = 'lotfront'
+    AND a.lotfront::numeric = b.old_value::numeric;
+
+
+-- lot depth
+INSERT INTO pluto_changes_not_applied
+SELECT DISTINCT b.*
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'lotdepth'
+    AND b.old_value::numeric != a.lotdepth::numeric;
+
+INSERT INTO pluto_changes_applied
+SELECT DISTINCT b.*
+FROM pluto_input_research AS b, pluto AS a
+WHERE
+    b.bbl = a.bbl
+    AND b.field = 'lotdepth'
+    AND b.old_value::numeric = a.lotdepth::numeric;
+
+-- Apply correction to PLUTO
+UPDATE pluto a
+SET
+    lotdepth = b.new_value,
+    dcpedited = 't'
+FROM pluto_changes_applied AS b
+WHERE
+    a.bbl = b.bbl
+    AND b.field = 'lotdepth'
+    AND a.lotdepth::numeric = b.old_value::numeric;
