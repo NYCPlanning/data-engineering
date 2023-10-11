@@ -52,7 +52,7 @@ rm -rf output && mkdir -p output
     FROM qc_bbldiffs
     ) TO STDOUT DELIMITER ',' CSV HEADER;" > qc_bbldiffs.csv &
 
-    shp_export qc_bbldiffs MULTIPOLYGON
+    shp_export qc_bbldiffs MULTIPOLYGON -t_srs "EPSG:2263"
 
     echo "${DATE}" > version.txt
     wait
