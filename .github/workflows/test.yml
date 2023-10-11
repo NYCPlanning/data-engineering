@@ -74,6 +74,11 @@ jobs:
               - dcpy/**
               - docker/**
               - python/**
+            cpdb:
+              - .github/workflows/cpdb_build.yml
+              - products/cpdb/**
+              - docker/**
+              - python/**
             checkbook:
               - products/checkbook/**
               - dcpy/**
@@ -101,7 +106,6 @@ jobs:
       - name: Confirm changes
         run: |
           echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
-
   template:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'build')
@@ -111,6 +115,14 @@ jobs:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'cbbr')
     uses: ./.github/workflows/cbbr_test.yml
+    secrets: inherit
+  cpdb:
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'cpdb')
+    uses: ./.github/workflows/cpdb_build.yml
+    with:
+      run_export: true
+    secrets: inherit
   checkbook:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')

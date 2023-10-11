@@ -14,9 +14,9 @@ def generate_engine_uri(
 ) -> str:
     # the default postgres schema must always be in the search_path
     schemas = (
-        f"{schema},{DEFAULT_POSTGRES_SCHEMA}"
-        if schema != DEFAULT_POSTGRES_SCHEMA
-        else schema
+        schema
+        if schema == DEFAULT_POSTGRES_SCHEMA
+        else f"{schema},{DEFAULT_POSTGRES_SCHEMA}"
     )
     options = f"?options=--search_path%3D{schemas}"
     return server_url + "/" + database + options

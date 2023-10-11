@@ -2,8 +2,15 @@
 source bash/config.sh
 
 # Reference tables
-run_sql_file "sql/_create.sql"
+echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
+# create build schema
+run_sql_command \
+    "
+    DROP SCHEMA IF EXISTS ${BUILD_ENGINE_SCHEMA} CASCADE;
+    CREATE SCHEMA ${BUILD_ENGINE_SCHEMA};
+    "
 create_source_data_table
+run_sql_file "sql/_create.sql"
 
 # Spatial boundaries
 import_recipe dcp_boroboundaries_wi &

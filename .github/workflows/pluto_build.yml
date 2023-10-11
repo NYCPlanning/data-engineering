@@ -37,7 +37,6 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
       BUILD_ENGINE_DB: postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}
@@ -72,11 +71,19 @@ jobs:
           rm -rf "/usr/local/share/boost"
           rm -rf "$AGENT_TOOLSDIRECTORY"
 
+      - name: Set build environment variables
+        run: |
+          # replace dashes with underscores to create a valid postgres schema name
+          BUILD_ENGINE_SCHEMA=$(echo ${BUILD_ENGINE_SCHEMA} | tr - _)
+          echo "BUILD_ENGINE_SCHEMA=$BUILD_ENGINE_SCHEMA" >> "$GITHUB_ENV"
+          # set postgres schema search path to prioritize BUILD_ENGINE_SCHEMA
+          BUILD_ENGINE=${BUILD_ENGINE_DATABASE}?options=--search_path%3D${BUILD_ENGINE_SCHEMA},public
+          echo "BUILD_ENGINE=$BUILD_ENGINE" >> "$GITHUB_ENV"
+
       - name: Plan Build
         working-directory: ./
         run: |
-          python3 -m dcpy.connectors.edm.recipes plan -f ./products/pluto/${{ inputs.recipe_file }} -o ./products/pluto/recipe.lock.yml
-          python3 -m dcpy.connectors.edm.recipes write-source-data-versions -f ./products/pluto/recipe.lock.yml
+          python3 -m dcpy.builds.load pluto
 
       - name: Set versions env vars
         working-directory: products/pluto/
@@ -89,10 +96,6 @@ jobs:
 
       - name: Load Local Data
         run: ./01_load_local_csvs.sh
-
-      - name: Load Recipes
-        working-directory: ./
-        run: python3 -m dcpy.connectors.edm.recipes import -f ./products/pluto/recipe.lock.yml
 
       - name: clean out raw source data
         working-directory: ./
