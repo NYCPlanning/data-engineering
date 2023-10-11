@@ -27254,5 +27254,6 @@ bbl,field,old_value,new_value,Type,reason,version
 ,ownername,NEW YORK STATE DEPARTMENT OF TRANSPORTAT,NYS DEPARTMENT OF TRANSPORTATION,1,Normalized owner name,23v2
 ,ownername,NYS COMPTROLLER OFFICE,NYS COMPTROLLER'S OFFICE,1,Normalized owner name,23v2
 ,ownername,NYS DEPT OF TRANSPORTATIO,NYS DEPARTMENT OF TRANSPORTATION,1,Normalized owner name,23v2
-4158620001,zonedist2,,M1-4/R6,2,issue calculating zoning distrcts,23v2
-4158620001,spdist1,,MX-21,2,issue calculating zoning distrcts,23v2
+3014980035,lotfront,67.25,120,2,Lot frontage is incorrect,23v3
+3014980035,lotdepth,52.75,100,2,Lot depth is incorrect,23v3
+3014980035,lotarea,3547,12000,2,Lot area is incorrect,23v3
