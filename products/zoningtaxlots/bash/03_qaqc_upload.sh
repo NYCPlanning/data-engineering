@@ -19,6 +19,9 @@ psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/out_bbldiffs.sql | 
     psql ${BUILD_ENGINE} -f sql/qaqc/in_bbldiffs.sql
 
+## remove dtm_id column from archive because it isn't a true id but rather one we generate during build
+psql $EDM_DATA -c "ALTER TABLE dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\" DROP COLUMN dtm_id;"
+
 rm -rf output && mkdir -p output
 (
     cd output
