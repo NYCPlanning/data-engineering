@@ -53,9 +53,9 @@ def _progress():
 
 
 def client(
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-    endpoint_url=os.environ["AWS_S3_ENDPOINT"],
+    aws_access_key_id: str | None = None,
+    aws_secret_access_key: str | None = None,
+    endpoint_url: str | None = None,
 ) -> S3Client:
     """Returns a client for S3."""
     config = Config(read_timeout=120)
