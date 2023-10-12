@@ -19,6 +19,14 @@ on:
           - knownprojects
           - pluto
           - ztl
+      recipe_file:
+        description: "Filename of recipe to use"
+        type: choice
+        required: true
+        default: recipe
+        options:
+          - recipe
+          - recipe-minor
       logging_level:
         description: "Logging level"
         type: choice
@@ -52,6 +60,7 @@ jobs:
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
+      recipe_file: ${{ inputs.recipe_file }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
       run_export: ${{ inputs.run_export }}
@@ -104,6 +113,7 @@ jobs:
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
+      recipe_file: ${{ inputs.recipe_file }}
       run_export: ${{ inputs.run_export }}
   ztl:
     if: inputs.dataset_name == 'ztl'

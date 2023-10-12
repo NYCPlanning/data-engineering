@@ -3,6 +3,9 @@ name: Template - Build
 on:
   workflow_call:
     inputs:
+      recipe_file:
+        type: string
+        required: true
       logging_level:
         type: string
         required: true
@@ -57,7 +60,7 @@ jobs:
 
       - name: Load
         run: |
-          python3 -m dcpy.builds.load -p template
+          python3 -m dcpy.builds.load --recipe_path ./${{ inputs.recipe_file }}.yml
 
       - name: Transform
         run: |

@@ -8,21 +8,25 @@ on:
         required: true
       recipe_file:
         type: string
-        default: recipe.yml
+        required: true
       create_issue:
         type: boolean
-        description: Create GH Issue for build?
         default: false
   workflow_dispatch:
     inputs:
       run_export:
-        description: "Run Export Step and Upload to DO"
         type: boolean
+        description: "Run Export Step and Upload to DO"
         required: true
         default: false
       recipe_file:
-        type: string
-        default: recipe.yml
+        description: "Name of recipe file to use"
+        type: choice
+        required: true
+        default: recipe
+        options:
+          - recipe
+          - recipe-minor
       create_issue:
         type: boolean
         description: Create GH Issue for build?
@@ -87,16 +91,13 @@ jobs:
       - name: Load data
         working-directory: products/pluto
         run: |
-          python3 -m dcpy.builds.load --product pluto
+          python3 -m dcpy.builds.load --recipe_path ./${{ inputs.recipe_file }}.yml
 
       - name: Set versions env vars
         working-directory: products/pluto
         run: |
           echo VERSION=$(yq .version recipe.lock.yml) >> "$GITHUB_ENV" && \
           echo VERSION_PREV=$(yq '.inputs.datasets.[] | select(.name == "dcp_pluto") | .version' recipe.lock.yml) >> "$GITHUB_ENV"
-
-      # - name: Data setup
-      #   run: ./00_setup.sh
 
       - name: Load Local Data
         run: ./01_load_local_csvs.sh
