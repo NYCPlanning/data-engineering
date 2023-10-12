@@ -1,6 +1,7 @@
 -- output a diff file with bbls that have changed in any field
 CREATE TEMP TABLE bbldiffs AS (
     SELECT
+        a.dtm_id,
         a.boroughcode,
         a.taxblock,
         a.taxlot,
@@ -34,7 +35,10 @@ CREATE TEMP TABLE bbldiffs AS (
         b.zoningmapcode AS zmcprev
     FROM dcp_zoningtaxlots.:"VERSION" AS a, dcp_zoningtaxlots.:"VERSION_PREV" AS b
     WHERE
-        a.bbl::text = b.bbl::text
+        a.bbl = b.bbl
+        AND a.boroughcode = b.boroughcode
+        AND a.taxblock = b.taxblock
+        AND a.taxlot = b.taxlot
         AND (
             a.zoningdistrict1 != b.zoningdistrict1
             OR a.zoningdistrict2 != b.zoningdistrict2
@@ -73,4 +77,4 @@ CREATE TEMP TABLE bbldiffs AS (
         )
 );
 
-\COPY bbldiffs TO PSTDOUT DELIMITER ',' CSV HEADER;
+\COPY bbldiffs TO PSTDOUT DELIMITER ',' CSV;
