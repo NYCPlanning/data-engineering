@@ -20,10 +20,7 @@ def load_source_data(product: str):
     product_path = REPO_ROOT_PATH / f"products/{product}"
     build_name = build_metadata.build_name()
 
-    pg_client = postgres.PostgresClient(
-        schema=build_name,
-        database=f"db-{product}",
-    )
+    pg_client = postgres.PostgresClient(schema=build_name)
 
     recipe_path = product_path / "recipe.yml"
     recipe_lock_path = recipe_path.parent / "recipe.lock.yml"
