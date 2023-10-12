@@ -79,10 +79,11 @@ class PostgresClient:
         self.execute_query("VACUUM (ANALYZE)")
 
     def drop_schema(self) -> None:
-        self.execute_query(
-            "DROP SCHEMA IF EXISTS :schema_name CASCADE",
-            {"schema_name": AsIs(self.schema)},
-        )
+        if self.schema != DEFAULT_POSTGRES_SCHEMA:
+            self.execute_query(
+                "DROP SCHEMA IF EXISTS :schema_name CASCADE",
+                {"schema_name": AsIs(self.schema)},
+            )
 
     def create_schema(self) -> None:
         self.execute_query(
