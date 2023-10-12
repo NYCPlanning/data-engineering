@@ -4,6 +4,7 @@ source bash/config.sh
 echo "Archive final output"
 
 pg_dump -d ${BUILD_ENGINE} -t dcp_zoning_taxlot --no-owner --clean | psql ${EDM_DATA}
+
 psql ${EDM_DATA} -c "
   CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
   ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;

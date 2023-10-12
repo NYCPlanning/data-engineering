@@ -1,5 +1,6 @@
 -- output a diff file with bbls that have changed in any field
 CREATE TEMP TABLE tmp (
+    dtm_id int,
     boroughcode text,
     taxblock text,
     taxlot text,
@@ -37,9 +38,39 @@ CREATE TEMP TABLE tmp (
 
 DROP TABLE IF EXISTS qc_bbldiffs;
 SELECT
-    a.*,
+    a.boroughcode,
+    a.taxblock,
+    a.taxlot,
+    a.bblnew,
+    a.zd1new,
+    a.zd2new,
+    a.zd3new,
+    a.zd4new,
+    a.co1new,
+    a.co2new,
+    a.sd1new,
+    a.sd2new,
+    a.sd3new,
+    a.lhdnew,
+    a.zmnnew,
+    a.zmcnew,
+    a.area,
+    a.inzonechange,
+    a.bblprev,
+    a.zd1prev,
+    a.zd2prev,
+    a.zd3prev,
+    a.zd4prev,
+    a.co1prev,
+    a.co2prev,
+    a.sd1prev,
+    a.sd2prev,
+    a.sd3prev,
+    a.lhdprev,
+    a.zmnprev,
+    a.zmcprev,
     b.geom
 INTO qc_bbldiffs
 FROM tmp AS a
 INNER JOIN dof_dtm AS b
-    ON a.bblnew::text = b.bbl::text;
+    ON a.dtm_id = b.id
