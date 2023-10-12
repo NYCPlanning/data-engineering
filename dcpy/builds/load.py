@@ -16,30 +16,28 @@ def setup_build_environments(pg_client: postgres.PostgresClient):
     )
 
 
-def load_source_data(product: str):
-    product_path = REPO_ROOT_PATH / f"products/{product}"
-    build_name = build_metadata.build_name()
-
-    pg_client = postgres.PostgresClient(schema=build_name)
-
-    recipe_path = product_path / "recipe.yml"
-    recipe_lock_path = recipe_path.parent / "recipe.lock.yml"
+def load_source_data(recipe_path: Path):
+    recipe_lock_path = recipe_path.parent / f"{recipe_path}.lock.yml"
 
     recipes.plan(
         recipe_path,
         recipe_lock_path,
     )
-    recipe = recipes.recipe_from_yaml(Path(recipe_lock_path))
     recipes.write_source_data_versions(recipe_file=Path(recipe_lock_path))
+    recipe = recipes.recipe_from_yaml(Path(recipe_lock_path))
 
+    logger.info(f"Loading source data for {recipe.name} build")
+
+    build_name = build_metadata.build_name()
+    pg_client = postgres.PostgresClient(schema=build_name)
     setup_build_environments(pg_client)
-
-    [recipes.import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]
 
     pg_client.create_table_from_csv(
         "source_data_versions",
         recipe_lock_path.parent / "source_data_versions.csv",
     )
+
+    [recipes.import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]
 
 
 app = typer.Typer(add_completion=False)
@@ -47,15 +45,14 @@ app = typer.Typer(add_completion=False)
 
 @app.command("load")
 def _cli_wrapper_load(
-    product: str = typer.Option(
-        None,
-        "-p",
-        "--product",
-        help="Name of data product (products subfolder in repo)",
+    recipe_path: Path = typer.Option(
+        "./recipe.yml",
+        "-r",
+        "--recipe_path",
+        help="Path of recipe file to use",
     ),
 ):
-    logger.info(f"Loading {product} source data")
-    load_source_data(product)
+    load_source_data(recipe_path)
 
 
 if __name__ == "__main__":

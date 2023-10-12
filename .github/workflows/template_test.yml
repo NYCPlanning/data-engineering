@@ -29,6 +29,7 @@ jobs:
   build:
     uses: ./.github/workflows/template_build.yml
     with:
+      recipe_file: recipe
       run_export: false
       logging_level: DEBUG
       build_note: a test build
