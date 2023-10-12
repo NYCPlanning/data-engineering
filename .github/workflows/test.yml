@@ -60,6 +60,7 @@ jobs:
             build:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
+              - .github/workflows/template_test.yml
               - dcpy/**
               - products/template/**
               - docker/**
