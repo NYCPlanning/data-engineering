@@ -3,10 +3,9 @@ import geopandas as gpd
 import pandas as pd
 import pytest
 
-from python.utils import load_data_file, load_geodata_url, load_shapefile
+from . import TEST_DATA_PATH, TOY_SECRET
 
-TOY_SECRET = os.environ["TOY_SECRET"]
-TEST_DATA_PATH = "tests/test_data"
+from python.utils import load_data_file, load_geodata_url, load_shapefile
 
 
 def test_use_of_github_secret():

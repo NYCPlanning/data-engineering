@@ -19,12 +19,6 @@ def test_expect_failing_test():
     assert False
 
 
-@pytest.mark.slow_test()
-def test_slow_test():
-    # can be skipped via pytest ... -m "not slow_test"
-    assert True
-
-
 @pytest.mark.parametrize("test_input", [0, 1])
 def test_parametrize_input(test_input):
     assert test_input >= 0

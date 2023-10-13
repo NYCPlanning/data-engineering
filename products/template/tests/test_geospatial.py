@@ -1,5 +1,5 @@
+from . import TEST_DATA_PATH
 import geopandas as gpd
-import pytest
 
 from python.geospatial import (
     NYC_PROJECTION,
@@ -8,8 +8,6 @@ from python.geospatial import (
     reproject_geometry,
 )
 from python.utils import load_data_file
-
-TEST_DATA_PATH = "tests/test_data"
 
 
 def test_convert_to_geodata():

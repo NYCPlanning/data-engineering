@@ -1,6 +1,11 @@
 name: Template - Tests
-on: 
+on:
   workflow_call:
+
+env:
+  TOY_SECRET: ${{ secrets.TOY_SECRET }}
+  BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+  BUILD_ENGINE_DB: db-template
 
 jobs:
   unit_tests:
@@ -8,14 +13,6 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:latest
-    env:
-      TOY_SECRET: ${{ secrets.TOY_SECRET }}
-      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
-      BUILD_ENGINE_DB: db-template
-    defaults:
-      run:
-        shell: bash
-        working-directory: products/template
     steps:
       - uses: actions/checkout@v3
 
@@ -31,7 +28,7 @@ jobs:
 
       - name: Run python tests
         run: |
-          python3 -m pytest -m "not end_to_end" -s --verbose --verbose --durations=0 --cov-config=pyproject.toml --cov .
+          python3 -m pytest ./products/template -m "not end_to_end" -s --verbose --verbose
 
   build:
     uses: ./.github/workflows/template_build.yml
@@ -42,6 +39,25 @@ jobs:
       build_note: a test build
     secrets: inherit
 
-  # TODO move end-to-end test from build workflow now that persistent DB is used
-  # end_to_end_tests:
-  #   name: Run end-to-end tests
+  e2e_tests:
+    name: End-to-End (E2E) tests
+    needs: build
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Run end-to-end tests
+        run: |
+          python3 -m pytest ./products/template -m "end_to_end" -s --verbose --verbose
