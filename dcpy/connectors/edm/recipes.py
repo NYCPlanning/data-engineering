@@ -222,58 +222,20 @@ def recipe_from_yaml(path: Path) -> Recipe:
     return Recipe(**s)
 
 
-app = typer.Typer(add_completion=False)
-
-_typer_recipe_file_opt = typer.Option(
-    None, "--recipe-file", "-f", help="Recipe file path"
-)
-
-
-@app.command()
-def plan(
-    recipe_file: Path = _typer_recipe_file_opt,
-    lock_file: Path = typer.Option(
-        None,
-        "-o",
-        "--lock-file",
-        help="Lockfile path",
-    ),
-):
+def plan(recipe_file: Path) -> Path:
     logger.info("Planning recipe")
+    lock_file = recipe_file.parent / f"{recipe_file.stem}.lock.yml"
 
     recipe = plan_recipe(recipe_file)
-    if lock_file is not None:
-        with open(lock_file, "w", encoding="utf-8") as f:
-            logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
-            yaml.dump(recipe.model_dump(), f)
-    else:
-        print(recipe)
+
+    with open(lock_file, "w", encoding="utf-8") as f:
+        logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
+        yaml.dump(recipe.model_dump(), f)
+
+    return lock_file
 
 
-@app.command("import")
-def import_datasets(planned_recipe_file: Path = _typer_recipe_file_opt):
-    """Import all datasets from a recipe.
-
-    Note, the recipe's datasets must not have unresolved versions, ie either
-    'latest' or None.
-    """
-    logger.info("Importing Recipe Datasets")
-    recipe = recipe_from_yaml(planned_recipe_file)
-    pg_client = postgres.PostgresClient(
-        schema=BUILD_SCHEMA,
-    )
-    [import_dataset(ds, pg_client) for ds in recipe.inputs.datasets]
-
-
-@app.command()
-def purge_recipe_cache():
-    """Delete locally stored recipe files."""
-    logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
-    shutil.rmtree(LIBRARY_DEFAULT_PATH)
-
-
-@app.command()
-def write_source_data_versions(recipe_file: Path = _typer_recipe_file_opt):
+def write_source_data_versions(recipe_file: Path):
     recipe = recipe_from_yaml(recipe_file)
     source_data_versions_path = recipe_file.parent / "source_data_versions.csv"
     logger.info(f"Writing source data versions to {source_data_versions_path}")
@@ -292,6 +254,16 @@ def write_source_data_versions(recipe_file: Path = _typer_recipe_file_opt):
         writer = csv.writer(csvfile)
         for key, value in sdv:
             writer.writerow([key, value])
+
+
+app = typer.Typer(add_completion=False)
+
+
+@app.command()
+def purge_recipe_cache():
+    """Delete locally stored recipe files."""
+    logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
+    shutil.rmtree(LIBRARY_DEFAULT_PATH)
 
 
 if __name__ == "__main__":
