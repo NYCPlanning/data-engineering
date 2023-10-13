@@ -47,17 +47,6 @@ def init():
 
 
 @app.command()
-def dataloading():
-    """
-    Load SQL dump datasets from data library e.g. dcp_mappluto_wi, doitt_buildingcentroids
-    """
-    lockfile_path = PRODUCT_PATH / "recipe.lock.yml"
-    recipes.plan(PRODUCT_PATH / "recipe.yml", lockfile_path)
-    recipes.import_datasets(lockfile_path)
-    recipes.write_source_data_versions(lockfile_path)
-
-
-@app.command()
 def build():
     """
     Building facdb based on facdb_base
