@@ -10,9 +10,10 @@ def s3_test(s3_client):
 
 
 def test_list_buckets(s3_client, s3_test):
-    print(f'env variable: {os.environ["AWS_ACCESS_KEY_ID"]}')
     buckets = s3_client.list_buckets()['Buckets'][0]['Name']
     assert buckets == TEST_BUCKET_NAME
+
+
 
 # def test_create_bucket(s3_client):
 #     # s3_client is a fixture defined above that yields a boto3 s3 client.

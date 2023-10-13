@@ -7,7 +7,7 @@ from dcpy.utils.s3 import client
 
 TEST_BUCKET_NAME = "my-bucket"
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
     os.environ["AWS_ACCESS_KEY_ID"] = "testing"
@@ -19,5 +19,6 @@ def aws_credentials():
 
 @pytest.fixture(scope="function")
 def s3_client(aws_credentials):
+    """Mocked S3 client."""
     with mock_s3():
         yield client()
