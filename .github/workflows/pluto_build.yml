@@ -95,10 +95,6 @@ jobs:
       - name: Load Local Data
         run: ./01_load_local_csvs.sh
 
-      - name: clean out raw source data
-        working-directory: ./
-        run: python3 -m dcpy.connectors.edm.recipes purge-recipe-cache
-
       - name: building ...
         run: ./02_build.sh
 

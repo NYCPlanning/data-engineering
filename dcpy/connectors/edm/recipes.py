@@ -256,15 +256,7 @@ def write_source_data_versions(recipe_file: Path):
             writer.writerow([key, value])
 
 
-app = typer.Typer(add_completion=False)
-
-
-@app.command()
 def purge_recipe_cache():
     """Delete locally stored recipe files."""
     logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
     shutil.rmtree(LIBRARY_DEFAULT_PATH)
-
-
-if __name__ == "__main__":
-    app()
