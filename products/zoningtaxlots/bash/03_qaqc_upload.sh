@@ -1,5 +1,6 @@
 #!/bin/bash
 source bash/config.sh
+set_error_traps
 
 echo "Archive final output"
 
