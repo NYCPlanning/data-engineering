@@ -33,6 +33,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install Dependencies
+      run: ./library.sh setup dev
+
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
       with:
@@ -42,9 +45,6 @@ jobs:
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-
-    - name: Install Dependencies
-      run: ./library.sh setup dev
 
     - name: Pytest
       shell: bash

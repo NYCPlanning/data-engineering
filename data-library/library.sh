@@ -18,7 +18,7 @@ function library_execute {
 
 function setup {
     apt update
-    apt-get install -y python3-pip python3-distutils gdal-bin libgdal-dev curl git
+    apt-get install -y python3-pip python3-distutils gdal-bin libgdal-dev curl git unzip
     apt-get -y install --reinstall build-essential
 
     python3 -m pip install poetry
