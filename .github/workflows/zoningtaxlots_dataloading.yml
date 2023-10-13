@@ -3,13 +3,18 @@ name: Zoning Tax lots - 📁 DataLoading
 on:
   workflow_dispatch:
     inputs:
+      build_ztl:
+        description: "Build Zoning Tax Lots after dataloading is complete"
+        type: boolean
+        default: false
       build_pluto_minor:
+        description: "Build Pluto (minor) after dataloading is complete"
         type: boolean
         default: false
 
 jobs:
   dataloading:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       AWS_S3_BUCKET: edm-recipes
     strategy:
@@ -46,6 +51,15 @@ jobs:
           s3: true
           compress: true
           output_format: pgdump shapefile
+
+  build_ztl:
+    needs: [dataloading]
+    name: Build Ztl
+    if: inputs.build_ztl
+    uses: ./.github/workflows/zoningtaxlots_build.yml
+    secrets: inherit
+    with:
+      run_export: true
 
   pluto_minor:
     needs: [dataloading]
