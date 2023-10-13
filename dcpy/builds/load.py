@@ -1,7 +1,6 @@
 from pathlib import Path
 import typer
 
-from dcpy import REPO_ROOT_PATH
 from dcpy.utils import postgres, s3
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import build_metadata, recipes, publishing

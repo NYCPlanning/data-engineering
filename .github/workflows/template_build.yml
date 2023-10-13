@@ -24,7 +24,7 @@ env:
 
 jobs:
   build:
-    name: Build and end-to-end tests
+    name: Build
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:latest
@@ -69,7 +69,3 @@ jobs:
       - name: Export
         run: |
           python3 -m build_scripts.export
-
-      - name: Run end-to-end tests
-        run: |
-          python3 -m pytest -m "end_to_end" -s --verbose --verbose

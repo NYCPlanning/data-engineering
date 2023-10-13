@@ -1,11 +1,9 @@
-import sys
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_product_path = Path(__file__).resolve().parent.parent
-_proj_root = _product_path.parent.parent
+TOY_SECRET = os.environ["TOY_SECRET"]
 
-# Make `dcpy` available
-sys.path.append(str(_proj_root))
+TEST_DATA_PATH = Path(__file__).resolve().parent / "test_data"
