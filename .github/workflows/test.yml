@@ -51,6 +51,14 @@ jobs:
               - dcpy/**
               - pyproject.toml
               - python/**
+            build:
+              - .github/workflows/test.yml
+              - .github/workflows/build.yml
+              - .github/workflows/template_test.yml
+              - products/template/**
+              - dcpy/**
+              - docker/**
+              - python/**
             data-library:
               - .github/workflows/data_library_test.yml
               - data-library/**.py
@@ -58,60 +66,46 @@ jobs:
               - data-library/**.yml
               - docker/**
               - python/**
-            build:
-              - .github/workflows/test.yml
-              - .github/workflows/build.yml
-              - .github/workflows/template_test.yml
-              - dcpy/**
-              - products/template/**
-              - docker/**
-              - python/**
             qa:
-              - dcpy/**
               - apps/qa/**
+              - dcpy/**
               - docker/**
               - python/**
             cbbr:
               - products/cbbr/**
-              - dcpy/**
-              - docker/**
               - python/**
             cpdb:
-              - .github/workflows/cpdb_build.yml
               - products/cpdb/**
-              - docker/**
               - python/**
             checkbook:
               - products/checkbook/**
-              - dcpy/**
-              - docker/**
               - python/**
             facilities:
               - products/facilities/**
-              - dcpy/**
-              - docker/**
               - python/**
             knownprojects:
               - products/knownprojects/**
-              # - dcpy/**
-              # - docker/**
-              # - python/**
+              - python/**
             zap:
-              - .github/workflows/zap_test.yml
-              - .github/workflows/zap_build_mapzap.yml
-              - .github/workflows/zap_export.yml
-              - .github/workflows/zap_single_visible.yml
               - products/zap-opendata/**
-              - dcpy/**
-              - docker/**
               - python/**
       - name: Confirm changes
         run: |
           echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
-  template:
+  dcpy:
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'dcpy')
+    uses: ./.github/workflows/dcpy_test.yml
+    secrets: inherit
+  build:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'build')
     uses: ./.github/workflows/template_test.yml
+    secrets: inherit
+  data-library:
+    needs: check_changes
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'data-library')
+    uses: ./.github/workflows/data_library_test.yml
     secrets: inherit
   cbbr:
     needs: check_changes
@@ -149,14 +143,4 @@ jobs:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'zap')
     uses: ./.github/workflows/zap_test.yml
-    secrets: inherit
-  dcpy:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'dcpy')
-    uses: ./.github/workflows/dcpy_test.yml
-    secrets: inherit
-  data-library:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'data-library')
-    uses: ./.github/workflows/data_library_test.yml
     secrets: inherit
