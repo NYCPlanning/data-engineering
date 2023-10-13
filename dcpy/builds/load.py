@@ -17,18 +17,13 @@ def setup_build_environments(pg_client: postgres.PostgresClient):
 
 
 def load_source_data(recipe_path: Path):
-    recipe_lock_path = recipe_path.parent / f"{recipe_path}.lock.yml"
-
-    recipes.plan(
-        recipe_path,
-        recipe_lock_path,
-    )
+    recipe_lock_path = recipes.plan(recipe_path)
     recipes.write_source_data_versions(recipe_file=Path(recipe_lock_path))
     recipe = recipes.recipe_from_yaml(Path(recipe_lock_path))
 
-    logger.info(f"Loading source data for {recipe.name} build")
-
     build_name = build_metadata.build_name()
+    logger.info(f"Loading source data for {recipe.name} build named {build_name}")
+
     pg_client = postgres.PostgresClient(schema=build_name)
     setup_build_environments(pg_client)
 
