@@ -5,7 +5,6 @@ import os
 import pandas as pd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text, dialects
-from typing import Optional
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [

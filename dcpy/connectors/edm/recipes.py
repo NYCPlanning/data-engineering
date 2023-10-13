@@ -52,7 +52,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     version: str | None = None
     version_env_var: str | None = None
     import_as: str | None = None
-    file_type: DatasetType = None
+    file_type: DatasetType | None = None
     preprocessor: DataPreprocessor | None = None
 
     def is_resolved(self):
@@ -76,7 +76,7 @@ class DatasetDefaults(BaseModel, use_enum_values=True):
 class RecipeInputs(BaseModel, use_enum_values=True):
     missing_versions_strategy: RecipeInputsVersionStrategy | None = None
     datasets: List[Dataset] = []
-    dataset_defaults: DatasetDefaults = None
+    dataset_defaults: DatasetDefaults | None = None
 
 
 class DatasetVersionType(str, Enum):
@@ -261,10 +261,13 @@ def get_source_data_versions(recipe: Recipe):
     ]
 
 
-def _apply_recipe_defaults(recipe: Recipe) -> Recipe:
+def _apply_recipe_defaults(recipe: Recipe):
+    if recipe.inputs.dataset_defaults is None:
+        return
+
     for ds in recipe.inputs.datasets:
-        ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
         ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
+        ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
 
 
 def recipe_from_yaml(path: Path) -> Recipe:
