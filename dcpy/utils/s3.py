@@ -38,7 +38,10 @@ def string_as_acl(s: str) -> ACL:
 
 
 def _make_folder(s: str):
-    return s if s[-1] == "/" else s + "/"
+    if s != "":
+        return s if s[-1] == "/" else s + "/"
+    else:
+        return s
 
 
 def _progress():
@@ -59,7 +62,6 @@ def client(
 ) -> S3Client:
     """Returns a client for S3."""
     config = Config(read_timeout=120)
-    print(os.environ.get("AWS_ACCESS_KEY_ID"))
     return boto3.client(
         "s3",
         aws_access_key_id=aws_access_key_id,
