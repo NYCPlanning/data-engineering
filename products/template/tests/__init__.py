@@ -6,4 +6,4 @@ load_dotenv()
 
 TOY_SECRET = os.environ["TOY_SECRET"]
 
-TEST_DATA_PATH = Path(__file__).resolve().parent / "test_data"
+TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
