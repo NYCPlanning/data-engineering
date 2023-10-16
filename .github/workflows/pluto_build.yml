@@ -43,7 +43,7 @@ jobs:
     env:
       BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
       BUILD_ENGINE_DB: db-pluto
-      BUILD_ENGINE_SCHEMA: public
+      BUILD_ENGINE_SCHEMA: build_${{ github.event.pull_request.number || github.ref_name }}
       EDM_DATA: ${{ secrets.EDM_DATA }}
       BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
@@ -71,9 +71,8 @@ jobs:
           rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Set build environment variables
-        run: |
-          BUILD_ENGINE=${BUILD_ENGINE_SERVER}/${BUILD_ENGINE_DB}
-          echo "BUILD_ENGINE=$BUILD_ENGINE" >> "$GITHUB_ENV"
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
       - name: Load data
         working-directory: products/pluto
