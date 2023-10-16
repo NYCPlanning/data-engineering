@@ -41,24 +41,11 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
-      BUILD_ENGINE_DB: postgres
+      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+      BUILD_ENGINE_DB: db-pluto
       BUILD_ENGINE_SCHEMA: public
       EDM_DATA: ${{ secrets.EDM_DATA }}
       BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-    services:
-      postgis:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --shm-size=4gb
-        ports:
-          - 5432:5432
     steps:
       - uses: actions/checkout@v3
 
