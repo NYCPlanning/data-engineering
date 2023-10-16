@@ -182,7 +182,7 @@ def publish(
     By default, keeps draft output folder"""
     if publishing_version is None:
         publishing_version = get_version(draft_key)
-    source = draft_key.path
+    source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{publishing_version}/"
     s3.copy_folder(
         BUCKET, source, target, acl, max_files=max_files, target_bucket=target_bucket
