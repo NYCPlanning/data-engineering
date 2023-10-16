@@ -12,7 +12,7 @@ function import_qaqc {
     name=${1}
     DO_folder=${2}
     target_dir=./.library/qaqc
-    qaqc_do_url=https://nyc3.digitaloceanspaces.com/edm-publishing/db-pluto/publish/${DO_folder}/latest/output/qaqc
+    qaqc_do_url=https://nyc3.digitaloceanspaces.com/edm-publishing/db-pluto/publish/${DO_folder}/qaqc
     if [ -f ${target_dir}/${name}.sql ]; then
       echo "✅ ${name}.sql exists in cache"
     else
