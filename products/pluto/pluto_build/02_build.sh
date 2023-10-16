@@ -57,7 +57,7 @@ run_sql_file sql/address.sql
 echo 'Create base DTM'
 run_sql_file sql/dedupecondotable.sql
 run_sql_file sql/dtmmergepolygons.sql
-run_sql_file sql/plutogeoms.sql
+run_sql_file sql/plutogeoms.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 
 echo 'Adding in geometries that are in the DTM but not in RPAD'
 run_sql_file sql/dtmgeoms.sql
