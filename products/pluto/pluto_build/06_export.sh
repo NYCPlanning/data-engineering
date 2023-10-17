@@ -77,7 +77,7 @@ mkdir -p qaqc &&
       run_sql_command "\COPY ( 
           SELECT * FROM ${table}
         ) TO STDOUT DELIMITER ',' CSV HEADER;" > ${table}.csv
-      pg_dump -d ${BUILD_ENGINE} -t ${table} -f ${table}.sql  
+      pg_dump --no-owner -d ${BUILD_ENGINE} -t ${table} -f ${table}.sql
     done
 
   )
