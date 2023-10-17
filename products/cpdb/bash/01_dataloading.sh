@@ -34,6 +34,7 @@ import_recipe doitt_buildingfootprints &
 # Projects
 import_recipe cpdb_capital_spending &
 import_recipe fisa_capitalcommitments &
+import_recipe fisa_dailybudget &
 import_recipe dot_projects_intersections &
 import_recipe dot_projects_streets &
 import_recipe dot_projects_bridges &

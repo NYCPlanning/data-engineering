@@ -5,7 +5,7 @@ SELECT
     b.sagencyacro,
     c.typc,
     c.typcname
-FROM cpdb_projects_combined AS a
+FROM cpdb_projects AS a
 -- arrays of project types and sponsor agency acronyms
 LEFT JOIN (
     SELECT

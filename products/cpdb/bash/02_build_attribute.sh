@@ -1,9 +1,11 @@
 #!/bin/bash
 source bash/config.sh
 
+
 run_sql_file sql/ccp_commitments.sql
 run_sql_file sql/ccp_budgets.sql
 run_sql_file sql/ccp_projects.sql
+run_sql_file sql/budget_data.sql
 
 # create the table
 echo 'Creating Attributes Table'
@@ -154,4 +156,4 @@ run_sql_command "\COPY cpdb_badgeoms FROM './data/cpdb_geomsremove.csv' DELIMITE
 run_sql_file sql/attributes_badgeoms.sql	
 
 # create final table
-run_sql_file sql/projects_combined.sql -v ccp_v=$ccp_v
+run_sql_file sql/projects.sql -v ccp_v=$ccp_v
