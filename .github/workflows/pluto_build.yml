@@ -63,13 +63,6 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: clean out shared libs
-        run: |
-          rm -rf /usr/share/dotnet
-          rm -rf /opt/ghc
-          rm -rf "/usr/local/share/boost"
-          rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - name: Set build environment variables
         working-directory: ./
         run: ./bash/build_env_setup.sh
@@ -93,9 +86,6 @@ jobs:
 
       - name: apply corrections
         run: ./03_corrections.sh
-
-      - name: clean out database
-        run: ./pluto db clean
 
       - name: Archive
         run: ./04_archive.sh
