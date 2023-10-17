@@ -25,3 +25,10 @@ def s3_client(aws_credentials):
     """Mocked S3 client."""
     with mock_s3():
         yield client()
+
+
+@pytest.fixture
+def create_bucket(s3_client):
+    """Creates a test S3 bucket."""
+    s3_client.create_bucket(Bucket=TEST_BUCKET_NAME)
+    yield
