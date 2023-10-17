@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+
 DROP TABLE IF EXISTS dcp_projecttypes_agencies CASCADE;
 CREATE TABLE dcp_projecttypes_agencies (
     projecttype text,
