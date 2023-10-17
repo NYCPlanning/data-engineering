@@ -1,9 +1,7 @@
 #!/bin/bash
 source bash/config.sh
 
-# cpdb_dcpattributes
 run_sql_file sql/_create_export.sql -v ccp_v=$ccp_v
-run_sql_file sql/attributes_combined_fisa.sql -v ccp_v=$ccp_v
 run_sql_file sql/opendata.sql -v ccp_v=$ccp_v
 python3 python/projects_spending_byyear.py
 

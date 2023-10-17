@@ -1,9 +1,9 @@
 #!/bin/bash
 source bash/config.sh
 
-run_sql_file sql/projects_fisa.sql
-run_sql_file sql/budget_fisa.sql
-run_sql_file sql/commitments_fisa.sql
+run_sql_file sql/projects.sql
+run_sql_file sql/budgets.sql
+run_sql_file sql/commitments.sql
 
 # create the table
 echo 'Creating Attributes Table'
@@ -11,7 +11,7 @@ run_sql_file sql/attributes.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 
 # categorize the projects
 echo 'Categorizing projects'
-run_sql_file sql/projectscategorization.sql
+run_sql_file sql/attributes_typecategory.sql
 
 ## Geometries
 ### Old values can be overwritten later
@@ -47,7 +47,7 @@ run_sql_command "
       AND b.geom IS NOT NULL;
       "
 echo 'Loading geometries from id->bin->footprint mapping'
-run_sql_file sql/geom_from_id_bin_map.sql
+run_sql_file sql/attributes_id_bin_map.sql
 
 # Create 2020 manual geometry table
 
@@ -152,3 +152,6 @@ echo 'Removing bad geometries'
 run_sql_command "DROP TABLE IF EXISTS cpdb_badgeoms; CREATE TABLE cpdb_badgeoms (maprojid text);"
 run_sql_command "\COPY cpdb_badgeoms FROM './data/cpdb_geomsremove.csv' DELIMITER ',' CSV;"
 run_sql_file sql/attributes_badgeoms.sql	
+
+# create final table
+run_sql_file sql/projects_combined.sql -v ccp_v=$ccp_v
