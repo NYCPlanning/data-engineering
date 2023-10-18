@@ -16,7 +16,12 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Static Type Check (mypy)
-        run: mypy ./dcpy
+        run: |
+          # TODO: Gradually expand this to cover more products
+          mypy ./dcpy
+          mypy ./data-library
+          mypy ./apps/qa/src
+          mypy ./products/facilities/facdb
 
   unit_tests:
     name: Unit tests
