@@ -51,6 +51,7 @@ jobs:
               - dcpy/**
               - pyproject.toml
               - python/**
+              - .github/workflows/dcpy_test.yml
             data-library:
               - .github/workflows/data_library_test.yml
               - data-library/**.py
