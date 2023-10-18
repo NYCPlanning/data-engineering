@@ -52,6 +52,7 @@ jobs:
               - dcpy/**
               - pyproject.toml
               - python/**
+              - .github/workflows/dcpy_test.yml
             build:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
