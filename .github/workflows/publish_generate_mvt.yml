@@ -37,7 +37,8 @@ on:
         default: '5'
 
 jobs:
-  publish:
+  build:
+    name: Build MVT files
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -59,24 +60,27 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: Download file
+      - name: Download source file
         run: |
           python3 -m dcpy.connectors.edm.publishing download_file \
-            -p db-${{ inputs.product }} \
-            -v ${{ inputs.version }} \
-            -f ${{ inputs.filepath_to_shapefile }}
+            --product db-${{ inputs.product }} \
+            --version ${{ inputs.version }} \
+            --filepath ${{ inputs.filepath_to_shapefile }}
 
       - name: Generate MVT
         run: | 
           python3 -m dcpy.utils.geospatial \
-            -i $(basename ${{ inputs.filepath_to_shapefile }}) \
-            -o ${{ inputs.product }}_mvt
+            --product ${{ inputs.product }} \
+            --input-path $(basename ${{ inputs.filepath_to_shapefile }}) \
+            --min-zoom ${{ inputs.min_zoom }} \
+            --max-zoom ${{ inputs.max_zoom }}
 
-      - name: Publish MVT
+      - name: Upload MVT
         run: | 
           python3 -m dcpy.utils.s3 \
-            -b de-sandbox \
+            --bucket de-sandbox \
             --folder-path ${{ inputs.product }}_mvt \
             --s3-path mvt/${{ inputs.product }}/${{inputs.version}}/ \
             --acl private \
+            --max-files 800000 \
             --contents-only
