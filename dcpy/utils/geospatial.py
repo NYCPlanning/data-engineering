@@ -30,6 +30,7 @@ def translate_shp_to_mvt(
         def update_progress(complete, message, unknown):
             progress.update(task, completed=floor(complete * 1000))
 
+        gdal.UseExceptions()
         gdal.VectorTranslate(
             output_path,
             f"/vsizip/{input_path}",
