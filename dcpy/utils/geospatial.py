@@ -11,9 +11,10 @@ from rich.progress import (
 
 
 def translate_shp_to_mvt(
-    input_path: str, output_path: str, min_zoom: int = 0, max_zoom: int = 5
+    product: str, input_path: str, min_zoom: int = 0, max_zoom: int = 5
 ) -> None:
     """Keeping scope of this very limited - should be refactored once data library is fully brought in"""
+    output_path = f"{product}_mvt"
     with Progress(
         SpinnerColumn(spinner_name="earth"),
         TextColumn("[progress.description]{task.description}"),
@@ -44,17 +45,17 @@ def translate_shp_to_mvt(
 app = typer.Typer(add_completion=False)
 
 
-@app.command("translate")
+@app.command()
 def _cli_wrapper_translate(
+    product: str = typer.Option(
+        None,
+        "-p",
+        "--product",
+    ),
     input_path: str = typer.Option(
         None,
         "-i",
         "--input-path",
-    ),
-    output_path: str = typer.Option(
-        None,
-        "-o",
-        "--output-path",
     ),
     min_zoom: int = typer.Option(
         None,
@@ -65,7 +66,7 @@ def _cli_wrapper_translate(
         "--max-zoom",
     ),
 ):
-    translate_shp_to_mvt(input_path, output_path, min_zoom, max_zoom)
+    translate_shp_to_mvt(product, input_path, min_zoom, max_zoom)
 
 
 if __name__ == "__main__":
