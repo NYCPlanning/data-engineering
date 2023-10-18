@@ -311,6 +311,7 @@ def get_file_as_text(bucket: str, path: str) -> str:
 app = typer.Typer(add_completion=False)
 
 
+# ? deprecate this CLI in favor of connectors.edm modules?
 @app.command("upload_folder")
 def _cli_wrapper_upload_folder(
     bucket: str = typer.Option(None, "-b", "--bucket", help="S3 bucket"),
@@ -318,7 +319,7 @@ def _cli_wrapper_upload_folder(
         None, "--folder-path", help="Path to local output folder"
     ),
     s3_path: Path = typer.Option(None, "--s3-path", help="Path to s3 output folder"),
-    acl: ACL = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
     max_files: int = typer.Option(
         20, "--max-files", help="Maximum number of files to upload"
     ),
@@ -328,11 +329,12 @@ def _cli_wrapper_upload_folder(
         help="If true, uploads local folder into target folder. If false, uploads contents of local folder instead",
     ),
 ):
+    acl_literal = string_as_acl(acl)
     upload_folder(
         bucket,
         local_path,
         s3_path,
-        acl=acl,
+        acl=acl_literal,
         max_files=max_files,
         contents_only=contents_only,
     )
