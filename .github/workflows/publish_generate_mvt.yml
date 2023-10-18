@@ -25,6 +25,16 @@ on:
         description: "Filepath within output folder to shapefile to convert"
         type: string
         required: true
+      min_zoom:
+        description: "Minimum zoom level"
+        type: string
+        required: true
+        default: '0'
+      max_zoom:
+        description: "Maximum zoom level"
+        type: string
+        required: true
+        default: '5'
 
 jobs:
   publish:
