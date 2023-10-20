@@ -10,6 +10,7 @@ TEST_DIR_NAME_1 = "test-dir-1"
 TEST_DIR_NAME_2 = "test-dir-2"
 TEST_FILE_NAME = "test-file"
 
+
 @pytest.fixture(scope="module")
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
