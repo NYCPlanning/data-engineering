@@ -55,17 +55,11 @@ def _progress():
     )
 
 
-def client(
-    aws_access_key_id: str | None = None,
-    aws_secret_access_key: str | None = None,
-    endpoint_url: str | None = None,
-) -> S3Client:
+def client(endpoint_url: str | None = None) -> S3Client:
     """Returns a client for S3."""
     config = Config(read_timeout=120)
     return boto3.client(
         "s3",
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
         endpoint_url=endpoint_url,
         config=config,
     )
