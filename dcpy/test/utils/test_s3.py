@@ -1,7 +1,12 @@
 import pytest
 import os
-from conftest import TEST_BUCKET_NAME, TEST_DIR_NAME_1, TEST_DIR_NAME_2, TEST_FILE_NAME
 from dcpy.utils.s3 import list_objects
+
+
+TEST_BUCKET_NAME = "test-bucket"
+TEST_DIR_NAME_1 = "test-dir-1"
+TEST_DIR_NAME_2 = "test-dir-2"
+TEST_FILE_NAME = "test-file"
 
 
 def test_list_buckets(s3_client, create_bucket):

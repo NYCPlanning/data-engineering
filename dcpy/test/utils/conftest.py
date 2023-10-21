@@ -1,14 +1,11 @@
 import boto3
 import os
 import pytest
-
 from moto import mock_s3
 from dcpy.utils.s3 import client
 
+
 TEST_BUCKET_NAME = "test-bucket"
-TEST_DIR_NAME_1 = "test-dir-1"
-TEST_DIR_NAME_2 = "test-dir-2"
-TEST_FILE_NAME = "test-file"
 
 
 @pytest.fixture(scope="module")
