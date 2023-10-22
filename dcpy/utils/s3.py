@@ -39,8 +39,8 @@ def string_as_acl(s: str) -> ACL:
 
 def _folderize(s: str):
     """
-    Converts a non-empty string into a directory. Note, empty string 
-      shouldn't be converted as it refers to a root directory.
+    Converts a non-empty string into a directory. Note, empty string
+    shouldn't be converted as it refers to a root directory.
     """
     if s != "":
         return s if s[-1] == "/" else s + "/"
@@ -61,9 +61,13 @@ def _progress():
 
 def client() -> S3Client:
     """Returns a client for S3."""
+    aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+    aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
     config = Config(read_timeout=120)
     return boto3.client(
         "s3",
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
         config=config,
     )
 
