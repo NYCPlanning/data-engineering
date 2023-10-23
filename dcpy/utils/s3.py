@@ -63,7 +63,7 @@ def client() -> S3Client:
     """Returns a client for S3."""
     aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
     aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-    endpoint_url=os.environ.get("AWS_S3_ENDPOINT", None)
+    endpoint_url = os.environ.get("AWS_S3_ENDPOINT", None)
     config = Config(read_timeout=120)
     return boto3.client(
         "s3",
