@@ -79,7 +79,7 @@ class Archive:
         """
 
         _path = f"{Path(__file__).parent}/templates/{name}.yml"
-        if name and os.path.isfile(_path):
+        if name:
             name = name
             path = _path
         elif path:
@@ -89,6 +89,9 @@ class Archive:
             raise Exception(
                 "Please specify either name of the dataset or path to the config file"
             )
+
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f'Template file "{path}" not found.')
 
         # Get ingestor by format
         ingestor_of_format = getattr(self.ingestor, output_format)

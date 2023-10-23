@@ -28,8 +28,7 @@ on:
 jobs:
   dataloading:
     runs-on: ubuntu-22.04
-    container:
-      image: osgeo/gdal:ubuntu-small-3.6.1
+    container: python:3.11-slim
     defaults:
       run:
         shell: bash
@@ -38,6 +37,9 @@ jobs:
       AWS_S3_BUCKET: edm-recipes
     steps:
       - uses: actions/checkout@v3
+
+      - name: env setup
+        run: ./library.sh setup ../python/constraints.txt
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
@@ -49,11 +51,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: env setup
-        run: | 
-          apt update && apt install -y python3-pip python3-distutils git
-          python3 -m pip install poetry
-          poetry install
       - name: Archive ${{ github.event.inputs.dataset }}
         env:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
@@ -61,6 +58,6 @@ jobs:
           export: ${{ github.event.inputs.export == 'true' && '--s3' || '' }}
           compress: ${{ github.event.inputs.compress == 'true' && '--compress' || '' }}
         run: |
-          poetry run library archive --name ${{ github.event.inputs.dataset }} -o pgdump $export $compress $latest $version
-          poetry run library archive --name ${{ github.event.inputs.dataset }} -o shapefile $export $compress $latest $version
-          poetry run library archive --name ${{ github.event.inputs.dataset }} -o csv $export $compress $latest $version
+          library archive --name ${{ github.event.inputs.dataset }} -o pgdump $export $compress $latest $version
+          library archive --name ${{ github.event.inputs.dataset }} -o shapefile $export $compress $latest $version
+          library archive --name ${{ github.event.inputs.dataset }} -o csv $export $compress $latest $version

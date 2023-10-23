@@ -12,7 +12,7 @@ geopandas==0.12.2
 geoalchemy2==0.14.1
 graphviz>=0.20.1
 ipykernel==6.22.0
-Jinja2==3.1.2
+Jinja2>=3.1.2
 lxml>=4.6.2
 mapclassify==2.5.0
 matplotlib==3.7.1
@@ -29,7 +29,7 @@ types-psycopg2
 pydantic==2.3.0
 pytest==7.3.0
 pytest-cov==4.0.0
-python-dotenv==0.20.0
+python-dotenv>=0.20.0
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
 pytz>=2023.3
 PyYAML>=6.0.1
@@ -43,11 +43,12 @@ streamlit-folium==0.*
 tabulate==0.9.0
 tqdm>=4.59.0
 types-tqdm==4.66.0.2
-typer==0.8.0
+typer>=0.8.0
 types-beautifulsoup4
 types-python-dateutil
 types-requests
 types-setuptools
+urllib3>=1.26.18
 us==2.0.2
 usaddress>=0.5.10
 xlrd>=2.0.1
