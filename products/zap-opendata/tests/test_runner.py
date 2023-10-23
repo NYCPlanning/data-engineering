@@ -1,7 +1,6 @@
 import os
 import pytest
 from collections import namedtuple
-import pandas as pd
 
 from src.runner import Runner
 
@@ -42,7 +41,7 @@ test_datasets = [
 ]
 
 
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_validate_expected_test_data(test_dataset):
     runner = Runner(name=test_dataset.table_name, schema=test_schema_expected)
@@ -56,7 +55,7 @@ def test_validate_expected_test_data(test_dataset):
     assert len(test_data_expected) == test_dataset.expected_row_count
 
 
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_download(test_dataset):
     runner = Runner(
@@ -66,7 +65,7 @@ def test_runner_download(test_dataset):
     runner.download()
 
 
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_combine(test_dataset):
     runner = Runner(
@@ -100,7 +99,7 @@ def test_runner_combine(test_dataset):
     # pd.testing.assert_frame_equal(test_data_actual, test_data_expected)
 
 
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_recode(test_dataset):
     runner = Runner(
@@ -110,7 +109,7 @@ def test_runner_recode(test_dataset):
     runner.recode()
 
 
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 # HACK skipping dcp_projects because Runner.recode_id() takes ~1 hour
 # @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_recode_id(test_dataset=test_datasets[1]):
@@ -122,7 +121,7 @@ def test_runner_recode_id(test_dataset=test_datasets[1]):
     # TODO assert things
 
 
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_export(test_dataset):
     runner = Runner(
@@ -134,7 +133,7 @@ def test_runner_export(test_dataset):
 
 
 @pytest.mark.skip(reason="Runner.recode_id() takes ~1 hour")
-@pytest.mark.integration()
+@pytest.mark.end_to_end()
 @pytest.mark.parametrize("test_dataset", test_datasets)
 def test_runner_main(test_dataset):
     runner = Runner(
