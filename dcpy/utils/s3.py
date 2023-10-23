@@ -37,8 +37,15 @@ def string_as_acl(s: str) -> ACL:
     return cast(ACL, s)
 
 
-def _make_folder(s: str):
-    return s if s[-1] == "/" else s + "/"
+def _folderize(s: str):
+    """
+    Converts a non-empty string into a directory. Note, empty string
+    shouldn't be converted as it refers to a root directory.
+    """
+    if s != "":
+        return s if s[-1] == "/" else s + "/"
+    else:
+        return s
 
 
 def _progress():
@@ -52,12 +59,11 @@ def _progress():
     )
 
 
-def client(
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-    endpoint_url=os.environ["AWS_S3_ENDPOINT"],
-) -> S3Client:
+def client() -> S3Client:
     """Returns a client for S3."""
+    aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+    aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+    endpoint_url = os.environ.get("AWS_S3_ENDPOINT")
     config = Config(read_timeout=120)
     return boto3.client(
         "s3",
@@ -71,7 +77,7 @@ def client(
 def list_objects(bucket: str, prefix: str) -> list:
     """Lists all objects with given prefix within bucket"""
     objects: list = []
-    prefix = _make_folder(prefix)
+    prefix = _folderize(prefix)
     try:
         paginator = client().get_paginator("list_objects_v2")
         for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
@@ -237,7 +243,7 @@ def copy_folder(
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
-    target = _make_folder(target)
+    target = _folderize(target)
 
     objects = list_objects(bucket, source)
     if max_files and (len(objects) > max_files):
@@ -277,7 +283,7 @@ def get_filenames(bucket: str, prefix: str) -> set[str]:
 
 
 def get_subfolders(bucket: str, prefix: str, index=1):
-    prefix = _make_folder(prefix)
+    prefix = _folderize(prefix)
     prefix_path = Path(prefix)
     subfolders = set()
     try:
