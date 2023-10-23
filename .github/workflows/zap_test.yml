@@ -53,8 +53,3 @@ jobs:
         run: |
           echo "🚨 These tests may take ~5 minutes"
           python3 -m pytest -m "end_to_end" -s --verbose --verbose --durations=0 --cov .
-
-  branch_build_mapzap_tests:
-    name: Build MapZAP test run
-    uses: ./.github/workflows/zap_build_mapzap.yml
-    secrets: inherit
