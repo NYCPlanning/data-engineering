@@ -25,11 +25,17 @@ jobs:
         working-directory: data-library
     steps:
       - uses: actions/checkout@v3
+
+      - name: Copy constraints into data-library folder
+        working-directory: ./
+        run: cp python/constraints.txt data-library/
+        
       - name: Log in to Docker Hub
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:

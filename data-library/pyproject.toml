@@ -1,41 +1,32 @@
-[tool.poetry]
+[project]
 name = "library"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "DCP Data Engineering's tool for archiving source data"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4",
+    "boto3",
+    "diagrams",
+    "GDAL",
+    "graphviz",
+    "Jinja2",
+    "lxml",
+    "openpyxl",
+    "pandas",
+    "pydantic",
+    "python-dotenv",
+    "pytz",
+    "PyYAML",
+    "requests",
+    "rich",
+    "typer",
+    "urllib3",
+    "usaddress",
+    "xlrd",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-typer = "^0.8.0"
-PyYAML = "^6.0.1"
-Jinja2 = "^3.1.0"
-boto3 = "^1.28"
-python-dotenv = "^0.20.0"
-GDAL = "3.6.2"
-pandas = "^1.5.0"
-beautifulsoup4 = "^4.9.3"
-rich = "^13.4"
-lxml = "^4.6.2"
-pydantic = "^2.3"
-usaddress = "^0.5.10"
-xlrd = "^2.0.1"
-openpyxl = "^3.0.7"
-diagrams = "^0.23.3"
-graphviz = "^0.20.1"
-pytz = "^2023.3"
-urllib3 = "^1.26.18"
-
-[tool.poetry.dev-dependencies]
-pytest = "^7.3"
-pre-commit = "^2.9.3"
-pdoc3 = "^0.9.2"
-SQLAlchemy = "^2.0"
-psycopg2-binary = "^2.8.6"
-black = {version = "^23.1.0", allow-prereleases = true}
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
+[project.scripts]
 library = "library.cli:run"
+
+[tool.setuptools.packages.find]
+include = ["library*"]

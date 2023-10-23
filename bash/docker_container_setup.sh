@@ -7,6 +7,7 @@ if [[ -z "$CI" ]]; then
 else
     workspace=/__w/data-engineering/data-engineering
     option="-e"
+    python3 -m pip install -e data-library -c ./python/constraints.txt
 fi 
 
 git config --global --add safe.directory $workspace

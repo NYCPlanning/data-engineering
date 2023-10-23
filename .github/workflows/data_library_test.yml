@@ -22,19 +22,15 @@ jobs:
   unit_tests:
     name: Unit Tests
     runs-on: ubuntu-22.04
-    container: python:3.11-slim
+    container: nycplanning/dev:latest
     defaults:
       run:
         shell: bash
-        working-directory: data-library
     env:
       RECIPE_ENGINE: ${{ secrets.RECIPE_ENGINE }}
       AWS_S3_BUCKET: edm-recipes
     steps:
     - uses: actions/checkout@v3
-
-    - name: Install Dependencies
-      run: ./library.sh setup dev
 
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
@@ -47,5 +43,5 @@ jobs:
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
     - name: Pytest
-      shell: bash
-      run: poetry run pytest -s
+      working-directory: data-library/
+      run: pytest -s
