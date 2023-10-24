@@ -797,4 +797,5 @@ def dispatch(name: str, df: pd.DataFrame):
     pipelines = importlib.import_module(__name__)
     pipeline = getattr(pipelines, name)
 
+    df["source"] = name  # legacy column. Easier to add here than modify SQL files
     return df.pipe(hash_each_row).pipe(format_field_names).pipe(pipeline)
