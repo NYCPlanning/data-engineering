@@ -69,7 +69,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
 
 class DatasetDefaults(BaseModel, use_enum_values=True):
-    file_type: DatasetType | None = None
+    file_type: DatasetType = DatasetType.pg_dump
     preprocessor: DataPreprocessor | None = None
 
 
@@ -262,8 +262,7 @@ def get_source_data_versions(recipe: Recipe):
 
 
 def _apply_recipe_defaults(recipe: Recipe):
-    if recipe.inputs.dataset_defaults is None:
-        return
+    recipe.inputs.dataset_defaults = recipe.inputs.dataset_defaults or DatasetDefaults()
 
     for ds in recipe.inputs.datasets:
         ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
