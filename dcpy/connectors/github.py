@@ -37,6 +37,12 @@ def get_branches(repo: str, branches_blacklist: List[str] | None = None):
     return [b for b in all_branches if b not in branches_blacklist]
 
 
+def get_pull_requests(repo: str) -> list[str]:
+    url = f"https://api.github.com/repos/nycplanning/{repo}/pulls?state=open"
+    response = requests.get(url).json()
+    return [str(pr_info["number"]) for pr_info in response]
+
+
 def get_workflow(repo: str, name: str):
     url = f"{BASE_URL}/{repo}/actions/workflows/{name}"
     r = requests.get(url, headers=headers)
