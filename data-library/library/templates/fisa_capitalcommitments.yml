@@ -3,9 +3,8 @@ dataset:
   version: "{{ version }}"
   acl: private
   source:
-    url:
-      path: library/tmp/AICP_OREQ_CAPPLN_PJCP.csv
-      subpath: ""
+    script: *name
+    path: library/tmp/AICP_OREQ_CAPPLN_PJCP.asc
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -21,7 +20,7 @@ dataset:
     options:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
-    fields: ['cycle_fy', 'cycle_name', 'budget_proj_type', 'budget_line_id', 'agency_class_cd', 'unit_of_appr', 'budget_line_descr', 'managing_agcy_cd', 'project_id', 'short_descr', 'object', 'object_name', 'fcst_cnx_amt', 'fcst_cex_amt', 'fcst_st_amt', 'fcst_fd_amt', 'fcst_pv_amt', 'planned_commit_date', 'typ_category', 'typ_category_name']
+    fields: []
     sql: null
 
   info:
