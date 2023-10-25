@@ -7,6 +7,11 @@ from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text
 
 DEFAULT_POSTGRES_SCHEMA = "public"
+PROTECTED_POSTGRES_SCHEMAS = [
+    DEFAULT_POSTGRES_SCHEMA,
+    "information_schema",
+    "pg_catalog",
+]
 
 
 def generate_engine_uri(
@@ -78,12 +83,16 @@ class PostgresClient:
     def vacuum_database(self) -> None:
         self.execute_query("VACUUM (ANALYZE)")
 
-    def drop_schema(self) -> None:
-        if self.schema != DEFAULT_POSTGRES_SCHEMA:
-            self.execute_query(
-                "DROP SCHEMA IF EXISTS :schema_name CASCADE",
-                {"schema_name": AsIs(self.schema)},
+    def drop_schema(self, schema_name: str | None = None) -> None:
+        schema_name = self.schema if not schema_name else schema_name
+        if schema_name in PROTECTED_POSTGRES_SCHEMAS:
+            raise ValueError(
+                f"Cannot delete the protected postgres schema '{schema_name}'"
             )
+        self.execute_query(
+            "DROP SCHEMA IF EXISTS :schema_name CASCADE",
+            {"schema_name": AsIs(schema_name)},
+        )
 
     def create_schema(self) -> None:
         self.execute_query(
@@ -91,13 +100,19 @@ class PostgresClient:
             {"schema_name": AsIs(self.schema)},
         )
 
-    def get_schemas(self) -> list[str]:
+    def get_build_schemas(self) -> list[str]:
         schema_names = self.execute_select_query(
             """
             SELECT schema_name FROM information_schema.schemata
             """
         )
-        return sorted(schema_names["schema_name"].to_list())
+        return sorted(
+            [
+                schema
+                for schema in schema_names["schema_name"].to_list()
+                if schema not in PROTECTED_POSTGRES_SCHEMAS
+            ]
+        )
 
     def get_schema_tables(self) -> list[str]:
         select_table_names = self.execute_select_query(

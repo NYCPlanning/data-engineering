@@ -14,10 +14,11 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
+      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
     steps:
       - uses: actions/checkout@v3
       - name: Delete build artifacts
         run: |
-          # TODO add functionality
-          # python3 -m dcpy.builds.clean_artifacts
-          echo "TODO add functionality"
+          python3 -m dcpy.builds.clean_artifacts
