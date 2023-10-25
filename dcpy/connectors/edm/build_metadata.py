@@ -5,10 +5,18 @@ import pytz
 from dcpy.utils import git
 
 
-def build_name() -> str:
+def build_name(event: str | None = None, branch: str | None = None) -> str:
     if os.environ.get("BUILD_ENGINE_SCHEMA"):
         return os.environ["BUILD_ENGINE_SCHEMA"]
-    return git.run_name()
+
+    event = git.event_name() if not event else event
+    branch = git.branch() if not branch else branch
+    if event == "pull_request":
+        prefix = "pr"
+    else:
+        prefix = "run"
+    suffix = branch.replace("-", "_")
+    return f"{prefix}_{suffix}"
 
 
 def generate() -> dict[str, str]:

@@ -55,12 +55,3 @@ def action_url() -> str:
     if event_name() == "local":
         return f"local_{branch}_{username}"
     return f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-
-
-def run_name() -> str:
-    if event_name() == "pull_request":
-        prefix = "pr"
-    else:
-        prefix = "run"
-    suffix = branch().replace("-", "_")
-    return f"{prefix}_{suffix}"
