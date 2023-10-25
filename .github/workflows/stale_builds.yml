@@ -1,0 +1,23 @@
+name: 🧹 Clean stale build artifacts
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * SUN"
+
+jobs:
+  clean:
+    name: Clean
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+      - name: Delete build artifacts
+        run: |
+          # TODO add functionality
+          # python3 -m dcpy.builds.clean_artifacts
+          echo "TODO add functionality"
