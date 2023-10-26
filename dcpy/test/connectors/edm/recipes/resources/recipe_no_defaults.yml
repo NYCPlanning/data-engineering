@@ -1,0 +1,7 @@
+name: Tester
+version: 23v1
+product: db-test
+inputs:
+  datasets:
+  - name: has_no_version_or_type
+    version: "123"
