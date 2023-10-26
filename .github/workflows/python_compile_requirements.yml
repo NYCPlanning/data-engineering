@@ -20,7 +20,7 @@ jobs:
       - name: Install latest gdal to pin python version
         run: |
           export DEBIAN_FRONTEND=noninteractive
-          apt-get update && apt-get -y install libgdal-dev
+          apt-get update && apt-get -y install libgdal-dev git
 
       - name: Compile requirements
         run: ./bash/compile_python_packages.sh
