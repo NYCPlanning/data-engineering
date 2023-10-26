@@ -9,8 +9,6 @@ jobs:
   compile_requirements:
     name: Compile requirements and commit changes
     runs-on: ubuntu-22.04
-    container:
-      image: python:3.11-slim
     defaults:
       run:
         shell: bash
@@ -19,8 +17,9 @@ jobs:
 
       - name: Install latest gdal to pin python version
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update && apt-get -y install libgdal-dev git
+          sudo add-apt-repository ppa:ubuntugis/ppa
+          sudo apt-get update
+          sudo apt-get install libgdal-dev
 
       - name: Compile requirements
         run: ./bash/compile_python_packages.sh
