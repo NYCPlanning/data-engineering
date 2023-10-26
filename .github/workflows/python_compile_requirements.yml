@@ -15,12 +15,12 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v3
-
       - name: Install latest gdal to pin python version
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update && apt-get -y install libgdal-dev git
+
+      - uses: actions/checkout@v3
 
       - name: chk 
         run: git status
