@@ -3,6 +3,7 @@ on:
   schedule: 
     - cron: 00 00 * * *
   workflow_dispatch:
+  push:
 
 jobs:
   compile_requirements:
@@ -31,3 +32,4 @@ jobs:
           add-paths: python/
           title: Compile python requirements
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          assignees: fvankrieken, damonmcc, alexrichey, sf-dcp
