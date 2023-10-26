@@ -2,7 +2,7 @@
 #
 # Dev script to compile python packages from a requirements.in file to a requirements.txt file.
 set -e
-path_to_requirements="${1:-"."}"
+path_to_requirements="python"
 RELATIVE_SCRIPTPATH=$(realpath --relative-to="${PWD}" "$0")
 
 # Update and install packages used to compile requirements
