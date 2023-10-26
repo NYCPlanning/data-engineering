@@ -3,6 +3,7 @@ on:
   schedule: 
     - cron: 00 00 * * *
   workflow_dispatch:
+  push:
 
 jobs:
   compile_requirements:
@@ -30,4 +31,4 @@ jobs:
           commit-message: automated compiling of python requirements
           add-paths: python/
           title: Compile python requirements
-          author: GitHub <noreply@github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
