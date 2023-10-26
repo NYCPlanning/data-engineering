@@ -1,0 +1,33 @@
+name: Compile python requirements
+on:
+  schedule: 
+    - cron: 00 00 * * *
+  workflow_dispatch:
+
+jobs:
+  compile_requirements:
+    name: Compile requirements and commit changes
+    runs-on: ubuntu-22.04
+    container:
+      image: python:3.11-slim
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Install latest gdal to pin python version, setup git
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update && apt-get -y install libgdal-dev git
+
+      - uses: actions/checkout@v4
+
+      - name: Compile requirements
+        run: ./bash/compile_python_packages.sh
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: automated compiling of python requirements
+          add-paths: python/
+          title: Compile python requirements
+          author: GitHub <noreply@github.com>
