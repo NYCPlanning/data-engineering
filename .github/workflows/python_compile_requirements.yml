@@ -28,6 +28,7 @@ jobs:
       - name: Create PR
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: "automated compiling of python requirements"
+          commit-message: automated compiling of python requirements
           add-paths: python/
-          title: "Compile python requirements"
+          title: Compile python requirements
+          author: GitHub <noreply@github.com>
