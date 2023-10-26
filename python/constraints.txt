@@ -430,7 +430,7 @@ sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
     # via -r python/requirements.in
 stack-data==0.6.3
     # via ipython
-streamlit==1.27.2
+streamlit==1.28.0
     # via
     #   -r python/requirements.in
     #   streamlit-aggrid
