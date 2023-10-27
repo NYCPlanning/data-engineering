@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: dcp_zoning_taxlot_export
+    description: "ZTL taxlot details"
+    columns:
+      - name: BBL
+        description: '{{ doc("project_bbls") }}'
+        tests:
+          - unique
+          - not_null
+      - name: Borough Code
+      - name: Tax Lot
+      - name: Zoning District 1
+      - name: Zoning District 2
+      - name: Zoning District 3
+      - name: Zoning District 4
+      - name: Commercial Overlay 1
+      - name: Commercial Overlay 2
+      - name: Special District 1
+      - name: Special District 2
+      - name: Special District 3
+      - name: Limited Height District
+      - name: Zoning Map Number
+      - name: Zoning Map Code
+      - name: Tax Bloc
