@@ -5,17 +5,14 @@ from typing import List, Optional
 
 import typer
 
-from dcpy.connectors.edm import recipes
 from dcpy.utils import postgres
-from .utility.prepare import read_datasets_yml, prepare
+from .utility.prepare import read_datasets_yml
 from .utility.metadata import dump_metadata
-from .utility.export import export
 
 from facdb import (
     SQL_PATH,
     BUILD_ENGINE,
     CACHE_PATH,
-    PRODUCT_PATH,
 )
 
 if not CACHE_PATH.exists():
