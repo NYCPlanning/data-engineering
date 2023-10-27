@@ -293,7 +293,7 @@ def plan(recipe_file: Path) -> Path:
 
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
-        yaml.dump(recipe.model_dump(), f)
+        yaml.dump(recipe.dict(), f)
 
     return lock_file
 
