@@ -1,11 +1,5 @@
 -- create staging versions of source data
 
-CREATE TABLE stg_nypl_libraries AS SELECT
-    name AS library_name,
-    locality AS borough,
-    wkb_geometry
-FROM nypl_libraries;
-
 CREATE TABLE stg_bpl_libraries AS SELECT
     title AS library_name,
     wkb_geometry
@@ -32,11 +26,3 @@ CREATE TABLE stg_lpc_landmarks AS SELECT
     bbl,
     wkb_geometry
 FROM lpc_landmarks;
-
-CREATE TABLE boroughs (
-    name text,
-    name_short text,
-    bbl_code text
-);
-
-\COPY boroughs FROM 'seeds/boroughs.csv' DELIMITER ',' CSV;
