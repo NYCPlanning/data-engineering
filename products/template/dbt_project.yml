@@ -1,0 +1,12 @@
+name: "dbt_template"
+
+profile: "dcp-de"
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+docs-paths: ["docs"]
+
+tests:
+  +store_failures: true
+  +schema: test_results

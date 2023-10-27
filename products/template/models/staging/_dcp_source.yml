@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: dcp_de__data_library
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: nypl_libraries

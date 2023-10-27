@@ -1,4 +1,4 @@
-import sys
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -17,6 +17,8 @@ SQL_QUERY_DIR = _product_path / "sql"
 OUTPUT_DIR = _product_path / "output"
 
 BUILD_NAME = build_metadata.build_name()
+
+os.environ["BUILD_ENGINE_SCHEMA"] = BUILD_NAME
 
 PG_CLIENT = postgres.PostgresClient(
     schema=BUILD_NAME,
