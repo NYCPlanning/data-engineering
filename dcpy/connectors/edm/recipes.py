@@ -11,7 +11,6 @@ from sqlalchemy import text, update, Table, MetaData
 from typing import List
 import yaml
 
-from dcpy import DCPY_ROOT_PATH
 from dcpy.utils import s3
 from dcpy.utils import postgres
 from dcpy.utils import versions
@@ -23,7 +22,9 @@ from . import publishing
 
 BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
-LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
+LIBRARY_DEFAULT_PATH = (
+    os.environ.get("PROJECT_ROOT_PATH") or Path(os.getcwd())
+) / ".library"
 
 BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA", postgres.DEFAULT_POSTGRES_SCHEMA)
 
