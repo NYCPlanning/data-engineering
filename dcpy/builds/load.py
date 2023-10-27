@@ -31,7 +31,7 @@ def load_source_data(recipe_path: Path):
         recipe_lock_path.parent / "source_data_versions.csv",
     )
 
-    [recipes.import_dataset(dataset) for dataset in recipe.inputs.datasets]
+    [recipes.import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]
 
     recipes.purge_recipe_cache()
 

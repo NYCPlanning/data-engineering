@@ -145,13 +145,11 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
 
 def import_dataset(
     ds: Dataset,
+    pg_client: postgres.PostgresClient,
     *,
     local_library_dir=LIBRARY_DEFAULT_PATH,
 ):
     """Import a recipe to local data library folder and build engine."""
-    pg_client = postgres.PostgresClient(
-        schema=BUILD_SCHEMA,
-    )
     logger.info(f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}")
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
