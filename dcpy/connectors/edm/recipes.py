@@ -42,6 +42,9 @@ class DatasetType(str, Enum):
     csv = "csv"
 
 
+_file_extensions_by_type = {"pg_dump": "sql", "csv": "csv"}
+
+
 class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
     module: str
     function: str
@@ -60,8 +63,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     @property
     def file_name(self) -> str:
-        suffix = "sql" if self.file_type == DatasetType.pg_dump else self.file_type
-        return f"{self.name}.{suffix}"
+        return f"{self.name}.{_file_extensions_by_type[self.file_type]}"
 
     @property
     def s3_key(self) -> str:
