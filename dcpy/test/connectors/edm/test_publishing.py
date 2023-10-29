@@ -2,7 +2,9 @@ import pytest
 from pathlib import Path
 import os
 import shutil
-import uuid # for generating a unique directory name
+import uuid  # for generating a unique directory name
+import csv
+import pandas as pd
 from dcpy.connectors.edm import publishing
 
 TEST_ACL = "bucket-owner-read"
@@ -13,10 +15,12 @@ TEST_VERSION = "v001"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / str(uuid.uuid4())
 TEST_FILE = "file.csv"
+TEST_DATA = [{"drink": "coffee", "like": "yes"}, {"drink": "tea", "like": "maybe"}]
+TEST_DATA_FIELDS = ["drink", "like"]
 TEST_VERSION_FILE = "version.txt"
 
 DraftKey = publishing.DraftKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
-PUBLISH_KEY = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
+PublishKey = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
 
 
 @pytest.fixture(scope="module")
@@ -32,10 +36,12 @@ def create_temp_filesystem():
     try:
         txt_file_path = os.path.join(TEST_DATA_DIR, TEST_VERSION_FILE)
         csv_file_path = os.path.join(TEST_DATA_DIR, TEST_FILE)
-        with open(txt_file_path, 'w') as txt_file:
-            txt_file.write(f"version: {TEST_VERSION}")
-        with open(csv_file_path, 'w') as csv_file:
-            pass
+        with open(txt_file_path, "w") as txt_file:
+            txt_file.write(TEST_VERSION)
+        with open(csv_file_path, "w", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=TEST_DATA_FIELDS)
+            writer.writeheader()
+            writer.writerows(TEST_DATA)
         print("Created test filesystem ✅")
     except Exception as exc:
         print("❌ Exception occured while creating test files. Deleting test dir...")
@@ -53,19 +59,27 @@ def create_temp_filesystem():
 
 
 def test_bucket_empty(create_bucket):
-    """Sanity check there are no draft or publish versions from previous tests 
+    """Sanity check there are no draft or publish versions from previous tests
     or actual data."""
     assert publishing.get_draft_builds(product=TEST_PRODUCT_NAME) == []
     assert publishing.get_published_versions(product=TEST_PRODUCT_NAME) == []
-    
+
 
 def test_upload(create_bucket, create_temp_filesystem):
     publishing.upload(output_path=TEST_DATA_DIR, draft_key=DraftKey, acl=TEST_ACL)
     assert TEST_BUILD in publishing.get_draft_builds(product=TEST_PRODUCT_NAME)
-    assert publishing.get_version(product_key=DraftKey) == f"version: {TEST_VERSION}"
+    assert publishing.get_version(product_key=DraftKey) == TEST_VERSION
 
 
 def test_publish(create_bucket, create_temp_filesystem):
-    publishing.publish(draft_key=DraftKey, acl=TEST_ACL, publishing_version=None, keep_draft=False)
+    publishing.publish(
+        draft_key=DraftKey, acl=TEST_ACL, publishing_version=None, keep_draft=False
+    )
     assert publishing.get_draft_builds(product=DraftKey.product) == []
-    assert set(["latest", TEST_VERSION]) == set(publishing.get_published_versions(product=TEST_PRODUCT_NAME))
+    assert [TEST_VERSION] == publishing.get_published_versions(
+        product=TEST_PRODUCT_NAME
+    )
+
+    test_data = pd.DataFrame(data=TEST_DATA, columns=TEST_DATA_FIELDS)
+    published_data = publishing.read_csv(product_key=PublishKey, filepath=TEST_FILE)
+    assert published_data.equals(test_data)
