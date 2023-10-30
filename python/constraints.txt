@@ -28,20 +28,20 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.6.3
     # via streamlit
-boto3==1.28.72
+boto3==1.28.73
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs==1.28.72
+boto3-stubs==1.28.73
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-botocore==1.31.72
+botocore==1.31.73
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.31.72
+botocore-stubs==1.31.73
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -115,7 +115,7 @@ diff-cover==8.0.0
     # via sqlfluff
 et-xmlfile==1.1.0
     # via openpyxl
-executing==2.0.0
+executing==2.0.1
     # via stack-data
 fiona==1.9.5
     # via geopandas
@@ -215,7 +215,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mercantile==1.2.1
     # via contextily
-moto==4.2.6
+moto==4.2.7
     # via -r python/requirements.in
 msal==1.23.0
     # via -r python/requirements.in
@@ -229,7 +229,7 @@ mypy-extensions==1.0.0
     #   mypy
 nest-asyncio==1.5.8
     # via ipykernel
-networkx==3.2
+networkx==3.2.1
     # via mapclassify
 numerize==0.12
     # via -r python/requirements.in
@@ -311,7 +311,7 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-py-partiql-parser==0.4.0
+py-partiql-parser==0.4.1
     # via moto
 pyarrow==13.0.0
     # via streamlit
@@ -474,13 +474,13 @@ typed-ast==1.5.5
     # via diagrams
 typer==0.9.0
     # via -r python/requirements.in
-types-awscrt==0.19.3
+types-awscrt==0.19.6
     # via botocore-stubs
-types-beautifulsoup4==4.12.0.6
+types-beautifulsoup4==4.12.0.7
     # via -r python/requirements.in
 types-html5lib==1.1.11.15
     # via types-beautifulsoup4
-types-psycopg2==2.9.21.14
+types-psycopg2==2.9.21.15
     # via -r python/requirements.in
 types-python-dateutil==2.8.19.14
     # via -r python/requirements.in
