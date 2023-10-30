@@ -30,3 +30,6 @@ library = "library.cli:run"
 
 [tool.setuptools.packages.find]
 include = ["library*"]
+
+[tool.setuptools.package-data]
+library = ["templates/*.yml"]

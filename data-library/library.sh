@@ -21,7 +21,7 @@ function setup {
     apt-get install -y python3-pip python3-distutils gdal-bin libgdal-dev curl git unzip
     apt-get -y install --reinstall build-essential
     
-    pip install -e . -c ${1:-constraints.txt}
+    pip install . -c ${1:-constraints.txt}
 
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
