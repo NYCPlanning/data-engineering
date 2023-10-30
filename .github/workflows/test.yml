@@ -63,10 +63,7 @@ jobs:
               - python/**
             data-library:
               - .github/workflows/data_library_test.yml
-              - data-library/**.py
-              - data-library/**.toml
-              - data-library/**.yml
-              - docker/**
+              - data-library/**
               - python/**
             qa:
               - apps/qa/**
