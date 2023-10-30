@@ -78,20 +78,19 @@ class Archive:
         ```
         """
 
-        _path = f"{Path(__file__).parent}/templates/{name}.yml"
-        if name:
-            name = name
-            path = _path
-        elif path:
-            name = os.path.basename(path).split(".")[0]
-            path = path
+        if path:
+            name = name or os.path.basename(path).split(".")[0]
+        elif name:
+            path = f"{Path(__file__).parent}/templates/{name}.yml"
         else:
             raise Exception(
                 "Please specify either name of the dataset or path to the config file"
             )
 
         if not os.path.isfile(path):
-            raise FileNotFoundError(f'Template file "{path}" not found.')
+            raise FileNotFoundError(
+                f"Template file '{path}' not found. Try providing path explicitly if you've only provided name"
+            )
 
         # Get ingestor by format
         ingestor_of_format = getattr(self.ingestor, output_format)
