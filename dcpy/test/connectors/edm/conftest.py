@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-import uuid  # for generating a unique temp directory name
 import os
 import shutil
 import csv
@@ -10,7 +9,7 @@ from dcpy.connectors.edm import publishing
 @pytest.fixture(scope="module")
 def mock_data_constants():
     constants = {
-        "TEST_DATA_DIR": Path(__file__).resolve().parent / str(uuid.uuid4()),
+        "TEST_DATA_DIR": Path(__file__).resolve().parent / "test_data",
         "TEST_VERSION": "v001",
         "TEST_VERSION_FILE": "version.txt",
         "TEST_FILE": "file.csv",
@@ -35,6 +34,9 @@ def create_temp_filesystem(mock_data_constants):
     file_columns = mock_data_constants["TEST_DATA_FIELDS"]
     file_data = mock_data_constants["TEST_DATA"]
 
+    if data_path.exists():
+        shutil.rmtree(data_path)
+
     try:
         data_path.mkdir(parents=False, exist_ok=False)
     except Exception as err:
@@ -42,8 +44,8 @@ def create_temp_filesystem(mock_data_constants):
         raise err
 
     try:
-        txt_file_path = os.path.join(data_path, version_file)
-        csv_file_path = os.path.join(data_path, test_file)
+        txt_file_path = data_path / version_file
+        csv_file_path = data_path / test_file
         with open(txt_file_path, "w") as txt_file:
             txt_file.write(version)
         with open(csv_file_path, "w", newline="") as csv_file:
