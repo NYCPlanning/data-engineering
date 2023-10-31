@@ -5,7 +5,7 @@ from moto import mock_s3
 from dcpy.utils.s3 import client
 
 
-TEST_BUCKET_NAME = "test-bucket"
+TEST_BUCKET_NAME = "edm-publishing"
 
 
 @pytest.fixture(scope="module")
