@@ -1,9 +1,9 @@
 #!/bin/bash
 source bash/config.sh
 
-run_sql_file sql/projects.sql
-run_sql_file sql/budgets.sql
-run_sql_file sql/commitments.sql
+run_sql_file sql/ccp_commitments.sql
+run_sql_file sql/ccp_budgets.sql
+run_sql_file sql/ccp_projects.sql
 
 # create the table
 echo 'Creating Attributes Table'

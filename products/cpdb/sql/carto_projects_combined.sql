@@ -22,6 +22,6 @@ LEFT JOIN (
         maprojid,
         array_agg(DISTINCT typc) AS typc,
         array_agg(DISTINCT typcname) AS typcname
-    FROM cpdb_commitments
+    FROM ccp_commitments
     GROUP BY maprojid
 ) AS c ON a.maprojid = c.maprojid

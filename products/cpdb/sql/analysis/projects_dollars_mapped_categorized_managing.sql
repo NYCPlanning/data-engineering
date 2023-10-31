@@ -4,9 +4,9 @@ CREATE TABLE cpdb_summarystats_magency AS
 WITH projects AS (
     SELECT
         a.*,
-        b.totalcost
+        b.plannedcommit_total AS totalcommit
     FROM cpdb_dcpattributes AS a
-    LEFT JOIN cpdb_projects AS b
+    LEFT JOIN ccp_projects AS b
         ON a.maprojid = b.maprojid
 ),
 
@@ -14,7 +14,7 @@ total_counts AS (
     SELECT
         magencyacro,
         COUNT(*) AS totalcount,
-        SUM(totalcost) AS totalcommit
+        SUM(totalcommit) AS totalcommit
     FROM projects
     GROUP BY magencyacro
 )
@@ -53,7 +53,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory = 'Fixed Asset'
     GROUP BY magencyacro
@@ -64,7 +64,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory = 'Lump Sum'
     GROUP BY magencyacro
@@ -75,7 +75,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory = 'ITT, Vehicles, and Equipment'
     GROUP BY magencyacro
@@ -86,7 +86,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE geom IS NOT NULL
     GROUP BY magencyacro
@@ -97,7 +97,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory = 'Fixed Asset'
@@ -110,7 +110,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory = 'Lump Sum'
@@ -123,7 +123,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory = 'ITT, Vehicles, and Equipment'
@@ -136,7 +136,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory IS NULL
     GROUP BY magencyacro
@@ -147,7 +147,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory IS NULL
@@ -160,7 +160,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE (
         geomsource = 'ddc'
@@ -178,7 +178,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE (
         geomsource = 'Facilities database'
@@ -193,7 +193,7 @@ LEFT JOIN (
     SELECT
         magencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE (
         geomsource = 'DCP Sprint'

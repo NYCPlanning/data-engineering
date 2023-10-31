@@ -8,7 +8,7 @@ CREATE TABLE cpdb_dcpattributes AS (
         magencyacro,
         projectid,
         description
-    FROM cpdb_projects
+    FROM ccp_projects
 );
 ALTER TABLE cpdb_dcpattributes
 ADD typecategory text;
