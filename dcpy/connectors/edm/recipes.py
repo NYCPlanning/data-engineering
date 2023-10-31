@@ -23,8 +23,8 @@ from . import publishing
 BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = (
-    os.environ.get("PROJECT_ROOT_PATH") or Path(os.getcwd())
-) / ".library"
+    Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
+)
 
 BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA", postgres.DEFAULT_POSTGRES_SCHEMA)
 
