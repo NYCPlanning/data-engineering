@@ -5,14 +5,14 @@ WITH projects AS (
     SELECT
         a.*,
         b.sagencyacro,
-        b.totalcost::double precision
+        b.totalcommit
     FROM cpdb_dcpattributes AS a
     LEFT JOIN (
         SELECT
             maprojid,
             sagencyacro,
-            SUM(totalcost::double precision) AS totalcost
-        FROM cpdb_budgets
+            SUM(plannedcommit_total::double precision) AS totalcommit
+        FROM ccp_budgets
         GROUP BY maprojid, sagencyacro
     ) AS b
         ON a.maprojid = b.maprojid
@@ -22,7 +22,7 @@ total_counts AS (
     SELECT
         sagencyacro,
         COUNT(*) AS totalcount,
-        SUM(totalcost) AS totalcommit
+        SUM(totalcommit) AS totalcommit
     FROM projects
     GROUP BY sagencyacro
 )
@@ -61,7 +61,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory = 'Fixed Asset'
     GROUP BY sagencyacro
@@ -72,7 +72,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory = 'Lump Sum'
     GROUP BY sagencyacro
@@ -83,7 +83,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory = 'ITT, Vehicles, and Equipment'
     GROUP BY sagencyacro
@@ -94,7 +94,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE geom IS NOT NULL
     GROUP BY sagencyacro
@@ -105,7 +105,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory = 'Fixed Asset'
@@ -118,7 +118,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory = 'Lump Sum'
@@ -131,7 +131,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory = 'ITT, Vehicles, and Equipment'
@@ -144,7 +144,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE typecategory IS NULL
     GROUP BY sagencyacro
@@ -155,7 +155,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE
         typecategory IS NULL
@@ -168,7 +168,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE (
         geomsource = 'ddc'
@@ -187,7 +187,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE (
         geomsource = 'Facilities database'
@@ -203,7 +203,7 @@ LEFT JOIN (
     SELECT
         sagencyacro,
         COUNT(*) AS count,
-        SUM(totalcost) AS sum
+        SUM(totalcommit) AS sum
     FROM projects
     WHERE (
         geomsource = 'DCP Sprint'

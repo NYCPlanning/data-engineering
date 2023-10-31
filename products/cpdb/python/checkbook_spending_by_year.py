@@ -11,7 +11,7 @@ current_year = datetime.today().year
 
 # SQL Template
 sql = """
-DROP TABLE IF EXISTS cpdb_projects_spending_byyear;
+DROP TABLE IF EXISTS checkbook_spending_by_year;
 SELECT 
     TRIM(LEFT(capital_project,12)) AS maprojid,
     {%- for year in years %}
@@ -23,9 +23,9 @@ SELECT
         , 
     {%- endif -%}
     {% endfor %}
-INTO cpdb_projects_spending_byyear
+INTO checkbook_spending_by_year
 FROM capital_spending
-WHERE TRIM(LEFT(capital_project,12)) in (SELECT DISTINCT maprojid FROM cpdb_projects)
+WHERE TRIM(LEFT(capital_project,12)) in (SELECT DISTINCT maprojid FROM ccp_projects)
 GROUP BY TRIM(LEFT(capital_project,12));
 """
 

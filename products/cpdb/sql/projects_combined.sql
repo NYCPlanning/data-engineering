@@ -10,21 +10,21 @@ CREATE TABLE cpdb_projects_combined AS (
         a.magencyname,
         a.description,
         a.projectid,
-        a.ccnonexempt,
-        a.ccexempt,
-        a.citycost AS totalcityplannedcommit,
-        a.nccstate,
-        a.nccfederal,
-        a.nccother,
-        a.noncitycost AS totalnoncityplannedcommit,
-        a.totalcost AS totalplannedcommit,
+        a.plannedcommit_ccnonexempt,
+        a.plannedcommit_ccexempt,
+        a.plannedcommit_citycost,
+        a.plannedcommit_nccstate,
+        a.plannedcommit_nccfederal,
+        a.plannedcommit_nccother,
+        a.plannedcommit_noncitycost,
+        a.plannedcommit_total,
         c.mindate,
         c.maxdate,
         c.totalcommitspend,
         c.totalcommit,
         c.totalspend,
         d.typecategory
-    FROM cpdb_projects AS a
+    FROM ccp_projects AS a
     -- spending, commitments, earliest commit or spend, latest commit or spend
     LEFT JOIN (
         SELECT
