@@ -42,13 +42,8 @@ class DatasetType(str, Enum):
     pg_dump = "pg_dump"
     csv = "csv"
 
-    @property
-    def extension(self):
-        match self:
-            case DatasetType.pg_dump:
-                return "sql"
-            case DatasetType.csv:
-                return "csv"
+
+_dataset_extensions = {"pg_dump": "sql", "csv": "csv"}
 
 
 class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
@@ -69,7 +64,11 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     @property
     def file_name(self) -> str:
-        return f"{self.name}.{self.file_type.extension}"
+        return (
+            f"{self.name}.{_dataset_extensions[self.file_type]}"
+            if self.file_type is not None
+            else ""
+        )
 
     @property
     def s3_key(self) -> str:
@@ -77,7 +76,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
 
 class DatasetDefaults(BaseModel, use_enum_values=True):
-    file_type: DatasetType = DatasetType.pg_dump
+    file_type: DatasetType | None = None
     preprocessor: DataPreprocessor | None = None
 
 
@@ -268,7 +267,9 @@ def get_source_data_versions(recipe: Recipe):
 
 
 def _apply_recipe_defaults(recipe: Recipe):
-    recipe.inputs.dataset_defaults = recipe.inputs.dataset_defaults or DatasetDefaults()
+    recipe.inputs.dataset_defaults = recipe.inputs.dataset_defaults or DatasetDefaults(
+        file_type=DatasetType.pg_dump
+    )
 
     for ds in recipe.inputs.datasets:
         ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor

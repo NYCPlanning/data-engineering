@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
+import pytest
 from unittest import TestCase
 from unittest.mock import MagicMock
 from dcpy.connectors.edm import recipes
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
-RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe.yml"
+RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"
+RECIPE_NO_DEFAULTS_LOCK_PATH = RESOURCES_DIR / "recipe_no_defaults.lock.yml"
 
 REQUIRED_VERSION_ENV_VAR = "VERSION_PREV"
 
@@ -16,6 +18,14 @@ recipes.get_config = MagicMock(
 )
 
 
+@pytest.fixture
+def file_cleanup():
+    RECIPE_NO_DEFAULTS_LOCK_PATH.unlink(missing_ok=True)
+    yield
+    RECIPE_NO_DEFAULTS_LOCK_PATH.unlink(missing_ok=True)
+
+
+@pytest.mark.usefixtures("file_cleanup")
 class TestRecipesWithDefaults(TestCase):
     def test_plan_recipe_failing_env_var(self):
         """One of the datasets requires a REQUIRED_VERSION_ENV_VAR environment variable for the version.
@@ -46,11 +56,16 @@ class TestRecipesWithDefaults(TestCase):
         ), "The datatype should default to a csv, as specified in the dataset_defaults"
 
 
+@pytest.mark.usefixtures("file_cleanup")
 class TestRecipesNoDefaults(TestCase):
     def test_plan_recipe_default_type(self):
         """Tests that default type is pg_dump when not otherwise specified."""
-        DS_VERSION = "v123"
-        os.environ[REQUIRED_VERSION_ENV_VAR] = DS_VERSION
-
         planned = recipes.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
+        ds = planned.inputs.datasets[0]
+        assert ds.file_name == f"{ds.name}.sql"
         assert planned.inputs.datasets[0].file_type == recipes.DatasetType.pg_dump
+
+    def test_serializing_and_deserializing(self):
+        """Deserializing python models is a minefield."""
+        lock_file = recipes.plan(RECIPE_NO_DEFAULTS_PATH)
+        recipes.recipe_from_yaml(lock_file)
