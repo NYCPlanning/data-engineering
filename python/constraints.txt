@@ -218,7 +218,9 @@ moto==4.2.7
 msal==1.23.0
     # via -r python/requirements.in
 mypy==1.5.1
-    # via -r python/requirements.in
+    # via
+    #   -r python/requirements.in
+    #   sqlalchemy-stubs
 mypy-boto3-s3==1.28.55
     # via boto3-stubs
 mypy-extensions==1.0.0
@@ -422,6 +424,8 @@ sqlalchemy==2.0.15
     # via
     #   -r python/requirements.in
     #   geoalchemy2
+sqlalchemy-stubs==0.4
+    # via -r python/requirements.in
 sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
     # via -r python/requirements.in
 stack-data==0.6.3
@@ -502,6 +506,7 @@ typing-extensions==4.8.0
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
+    #   sqlalchemy-stubs
     #   sqlfluff
     #   streamlit
     #   typer

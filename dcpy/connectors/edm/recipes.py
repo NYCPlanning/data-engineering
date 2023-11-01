@@ -1,15 +1,16 @@
 import os
 import csv
 from enum import Enum
+import importlib
 import json
+import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
 import shutil
 from sqlalchemy import text, update, Table, MetaData
-import typer
+from typing import List
 import yaml
 
-from dcpy import DCPY_ROOT_PATH
 from dcpy.utils import s3
 from dcpy.utils import postgres
 from dcpy.utils import versions
@@ -21,7 +22,9 @@ from . import publishing
 
 BUCKET = "edm-recipes"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
-LIBRARY_DEFAULT_PATH = DCPY_ROOT_PATH.parent / ".library"
+LIBRARY_DEFAULT_PATH = (
+    Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
+)
 
 BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA", postgres.DEFAULT_POSTGRES_SCHEMA)
 
@@ -35,18 +38,52 @@ class VersionStrategy(str, Enum):
     bump_latest_release = "bump_latest_release"
 
 
-class Dataset(BaseModel, use_enum_values=True):
+class DatasetType(str, Enum):
+    pg_dump = "pg_dump"
+    csv = "csv"
+
+
+_dataset_extensions = {"pg_dump": "sql", "csv": "csv"}
+
+
+class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
+    module: str
+    function: str
+
+
+class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     name: str
     version: str | None = None
+    version_env_var: str | None = None
     import_as: str | None = None
+    file_type: DatasetType | None = None
+    preprocessor: DataPreprocessor | None = None
 
     def is_resolved(self):
         return self.version is not None and self.version != "latest"
 
+    @property
+    def file_name(self) -> str:
+        return (
+            f"{self.name}.{_dataset_extensions[self.file_type]}"
+            if self.file_type is not None
+            else ""
+        )
+
+    @property
+    def s3_key(self) -> str:
+        return f"datasets/{self.name}/{self.version}/{self.file_name}"
+
+
+class DatasetDefaults(BaseModel, use_enum_values=True):
+    file_type: DatasetType | None = None
+    preprocessor: DataPreprocessor | None = None
+
 
 class RecipeInputs(BaseModel, use_enum_values=True):
     missing_versions_strategy: RecipeInputsVersionStrategy | None = None
-    datasets: list[Dataset] = []
+    datasets: List[Dataset] = []
+    dataset_defaults: DatasetDefaults | None = None
 
 
 class DatasetVersionType(str, Enum):
@@ -54,7 +91,7 @@ class DatasetVersionType(str, Enum):
     minor = "minor"
 
 
-class Recipe(BaseModel, use_enum_values=True):
+class Recipe(BaseModel, use_enum_values=True, extra="forbid"):
     name: str
     product: str
     base_recipe: str | None = None
@@ -92,61 +129,68 @@ def get_latest_version(name):
     return get_config(name)["dataset"]["version"]
 
 
-def fetch_sql(ds: Dataset, local_library_dir):
-    """Retrieve SQL dump file from edm-recipes. Returns fetched file's path."""
+def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
+    """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
     target_dir = local_library_dir / "datasets" / ds.name / ds.version
-    target_file_path = target_dir / (ds.name + ".sql")
+    target_file_path = target_dir / ds.file_name
     if (target_file_path).exists():
-        print(f"✅ {ds.name}.sql exists in cache")
+        print(f"✅ {ds.file_name} exists in cache")
     else:
         if not target_dir.exists():
             target_dir.mkdir(parents=True)
-        print(f"🛠 {ds.name}.sql doesn't exists in cache, downloading")
+        print(f"🛠 {ds.file_name} doesn't exists in cache, downloading")
+
         s3.download_file(
             bucket=BUCKET,
-            key=f"datasets/{ds.name}/{ds.version}/{ds.name}.sql",
+            key=ds.s3_key,
             path=target_file_path,
         )
     return target_file_path
 
 
 def import_dataset(
-    dataset: Dataset,
+    ds: Dataset,
     pg_client: postgres.PostgresClient,
     *,
     local_library_dir=LIBRARY_DEFAULT_PATH,
 ):
     """Import a recipe to local data library folder and build engine."""
-    logger.info(
-        f"Importing {dataset.name} into {pg_client.database}.{pg_client.schema}"
-    )
-    if dataset.version == "latest" or dataset.version is None:
-        raise Exception(
-            f"Cannot import a dataset without a resolved version: {dataset}"
-        )
-    sql_script_path = fetch_sql(dataset, local_library_dir)
+    logger.info(f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}")
+    if ds.version == "latest" or ds.version is None:
+        raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
 
-    postgres.execute_file_via_shell(pg_client.engine_uri, sql_script_path)
+    local_dataset_path = fetch_dataset(ds, local_library_dir)
+
+    match ds.file_type:
+        case DatasetType.pg_dump:
+            postgres.execute_file_via_shell(pg_client.engine_uri, local_dataset_path)
+        case DatasetType.csv:
+            df = pd.read_csv(local_dataset_path, dtype=str)
+            if ds.preprocessor is not None:
+                preproc_mod = importlib.import_module(ds.preprocessor.module)
+                preproc_func = getattr(preproc_mod, ds.preprocessor.function)
+                df = preproc_func(ds.name, df)
+            table_name = ds.import_as or ds.name
+            logger.info(f"Inserting dataframe into {table_name}")
+            pg_client.insert_dataframe(df, table_name)
 
     with pg_client.engine.begin() as con:
         con.execute(
             text(
-                f"ALTER TABLE {postgres.DEFAULT_POSTGRES_SCHEMA}.{dataset.name} SET SCHEMA {pg_client.schema};"
+                f"ALTER TABLE {postgres.DEFAULT_POSTGRES_SCHEMA}.{ds.name} SET SCHEMA {pg_client.schema};"
             )
         )
 
         con.execute(
-            text(f"ALTER TABLE {dataset.name} ADD COLUMN data_library_version text;")
+            text(f"ALTER TABLE {ds.name} ADD COLUMN data_library_version text;")
         )
 
-        recipes_table = Table(dataset.name, MetaData(), autoload_with=con)
-        con.execute(update(recipes_table).values(data_library_version=dataset.version))
+        recipes_table = Table(ds.name, MetaData(), autoload_with=con)
+        con.execute(update(recipes_table).values(data_library_version=ds.version))
 
-        if dataset.import_as is not None:
-            logger.info(f"Renaming table {dataset.name} to {dataset.import_as}")
-            con.execute(
-                text(f"ALTER TABLE {dataset.name} RENAME TO {dataset.import_as};")
-            )
+        if ds.import_as is not None:
+            logger.info(f"Renaming table {ds.name} to {ds.import_as}")
+            con.execute(text(f"ALTER TABLE {ds.name} RENAME TO {ds.import_as};"))
 
 
 def plan_recipe(recipe_path: Path) -> Recipe:
@@ -194,7 +238,14 @@ def plan_recipe(recipe_path: Path) -> Recipe:
 
     for ds in recipe.inputs.datasets:
         if ds.version is None:
-            if (
+            if ds.version_env_var is not None:
+                version = os.getenv(ds.version_env_var)
+                if version is None:
+                    raise Exception(
+                        f"Dataset {ds.name} requires version env var: {ds.version_env_var}"
+                    )
+                ds.version = version
+            elif (
                 recipe.inputs.missing_versions_strategy
                 == RecipeInputsVersionStrategy.copy_latest_release
             ):
@@ -215,11 +266,23 @@ def get_source_data_versions(recipe: Recipe):
     ]
 
 
+def _apply_recipe_defaults(recipe: Recipe):
+    recipe.inputs.dataset_defaults = recipe.inputs.dataset_defaults or DatasetDefaults(
+        file_type=DatasetType.pg_dump
+    )
+
+    for ds in recipe.inputs.datasets:
+        ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
+        ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
+
+
 def recipe_from_yaml(path: Path) -> Recipe:
     """Import a recipe file from yaml, and validate schema."""
     with open(path, "r", encoding="utf-8") as f:
         s = yaml.safe_load(f)
-    return Recipe(**s)
+        recipe = Recipe(**s)
+        _apply_recipe_defaults(recipe)
+        return recipe
 
 
 def plan(recipe_file: Path) -> Path:

@@ -25,7 +25,10 @@ jobs:
     container:
       image: nycplanning/build-geosupport:latest
       env:
-        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres # TODO: address this duplication
+        BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
+        BUILD_ENGINE_DB: postgres
+        BUILD_ENGINE_SCHEMA: public
         EDM_DATA: ${{ secrets.EDM_DATA }}
     services:
       postgis:
@@ -57,14 +60,17 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
+      - name: Set Product Env Vars
+        run: cat version.env >> "$GITHUB_ENV"
+
       - name: Initialize
         run: python -m facdb.cli init
 
       - name: Dataloading
-        run: python -m facdb.cli dataloading
+        run: python -m dcpy.builds.load
 
       - name: Run Pipelines
-        run: python -m facdb.cli run --all
+        run: python -m facdb.cli run --sql
 
       - name: Build facdb
         run: python -m facdb.cli build

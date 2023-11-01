@@ -6,11 +6,14 @@ from typing import List, Optional
 import typer
 
 from dcpy.utils import postgres
-from .utility.prepare import read_datasets_yml, prepare
+from .utility.prepare import read_datasets_yml
 from .utility.metadata import dump_metadata
-from .utility.export import export
 
-from facdb import SQL_PATH, BASH_PATH, BUILD_ENGINE, CACHE_PATH, VERSION_PREV
+from facdb import (
+    SQL_PATH,
+    BUILD_ENGINE,
+    CACHE_PATH,
+)
 
 if not CACHE_PATH.exists():
     CACHE_PATH.mkdir()
@@ -38,14 +41,6 @@ def init():
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
-
-
-@app.command()
-def dataloading():
-    """
-    Load SQL dump datasets from data library e.g. dcp_mappluto_wi, doitt_buildingcentroids
-    """
-    os.system(BASH_PATH / f"dataloading.sh {VERSION_PREV}")
 
 
 @app.command()
@@ -92,35 +87,13 @@ def run(
         None, "--all", help="Execute all datasets, both python and sql"
     ),
 ):
-    """
-    This function is used to execute the python portion of a pipeline,
-    if there's a scripts section in datasets.yml under this dataset, the
-    sql script will also be executed.
-    facdb run -n {{ name }} to run both python and sql part\n
-    facdb run -n {{ name }} --python to run the python part only\n
-    facdb run -n {{ name }} --sql to run the sql part only\n
-    facdb run --all\n
-    """
+    """ """
     datasets = read_datasets_yml()
-    dataset_names = (
-        [name] if not all_datasets else [dataset["name"] for dataset in datasets]
-    )
-    if not python and not sql:
-        # if both unspecified, we should
-        # execute both python and sql
-        python = True
-        sql = True
-    for name in dataset_names:
+    for name in [dataset["name"] for dataset in datasets]:
         dataset = next(filter(lambda x: x["name"] == name, datasets), None)
         scripts = dataset.get("scripts") if dataset is not None else []
-        if python:
-            dataset = prepare(name)
-            pipelines = importlib.import_module("facdb.pipelines")
-            pipeline = getattr(pipelines, name)
-            dataset = pipeline(dataset)
-            export(dataset)
 
-        if scripts and sql:
+        if scripts:
             for script in scripts:
                 postgres.execute_file_via_shell(
                     BUILD_ENGINE, Path(__file__).parent / "sql" / script

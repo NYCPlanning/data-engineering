@@ -1,0 +1,104 @@
+name: Facilities
+version: 23v2
+product: db-facilities
+inputs:
+  dataset_defaults:
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_facilities_with_unmapped
+    version_env_var: VERSION_PREV
+    file_type: pg_dump
+  - name: dcp_mappluto_wi
+    file_type: pg_dump
+  - name: dcp_boroboundaries_wi
+    file_type: pg_dump
+  - name: dcp_ct2010
+    file_type: pg_dump
+  - name: dcp_ct2020
+    file_type: pg_dump
+  - name: dcp_councildistricts
+    file_type: pg_dump
+    version: 22c
+    file_type: pg_dump
+  - name: dcp_cdboundaries
+    file_type: pg_dump
+  - name: dcp_nta2010
+    file_type: pg_dump
+  - name: dcp_nta2020
+    file_type: pg_dump
+  - name: dcp_policeprecincts
+    file_type: pg_dump
+  - name: doitt_zipcodeboundaries
+    file_type: pg_dump
+  - name: doitt_buildingfootprints
+    file_type: pg_dump
+  - name: dcp_school_districts
+    file_type: pg_dump
+
+  # CSVs
+  - name: nypl_libraries
+  - name: bpl_libraries
+  - name: dcp_colp
+  - name: dca_operatingbusinesses
+  - name: dcla_culturalinstitutions
+  - name: dcp_sfpsd
+    version: "20210409"
+  # TODO: revisit this pin
+  - name: dcp_pops
+    version: "20230320"
+  - name: dsny_garages
+  - name: dsny_specialwastedrop
+  - name: dsny_donatenycdirectory
+  - name: dsny_leafdrop
+  - name: dsny_fooddrop
+  - name: dsny_electronicsdrop
+  - name: hra_snapcenters
+  - name: hra_jobcenters
+  - name: hra_medicaid
+  - name: nycha_communitycenters
+  - name: nycha_policeservice
+  - name: nycourts_courts
+  - name: nysdec_lands
+  - name: dot_bridgehouses
+  - name: dot_ferryterminals
+  - name: dot_mannedfacilities
+  - name: dot_pedplazas
+  - name: dot_publicparking
+  - name: qpl_libraries
+  - name: sbs_workforce1
+  - name: uscourts_courts
+  - name: usdot_airports
+  - name: usdot_ports
+  - name: usnps_parks
+  - name: nysdec_solidwaste
+  - name: nysdoh_healthfacilities
+  - name: nysdoh_nursinghomes
+  - name: nysdoccs_corrections
+  - name: nysed_nonpublicenrollment
+  - name: nysed_activeinstitutions
+  - name: nysomh_mentalhealth
+  - name: dpr_parksproperties
+  - name: dycd_afterschoolprograms
+  - name: fbop_corrections
+  - name: fdny_firehouses
+  - name: nysomh_mentalhealth
+  - name: dep_wwtc
+    version: "20210413"
+  - name: dfta_contracts
+  - name: doe_busroutesgarages
+  - name: sca_enrollment_capacity
+  - name: doe_lcgms
+  - name: doe_universalprek
+  - name: dohmh_daycare
+  - name: foodbankny_foodbanks
+  - name: hhc_hospitals
+  - name: moeo_socialservicesitelocations
+  - name: nycdoc_corrections
+  - name: nysopwdd_providers
+  - name: nysparks_historicplaces
+  - name: nysparks_parks
+  - name: nysoasas_programs

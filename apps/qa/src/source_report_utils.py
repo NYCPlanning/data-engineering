@@ -108,7 +108,7 @@ def load_source_data_to_compare(
 
 def load_source_data(dataset_name: str, version: str) -> str:
     dataset = recipes.Dataset(name=dataset_name, version=version)
-    recipes.fetch_sql(dataset, SQL_FILE_DIRECTORY)
+    recipes.fetch_dataset(dataset, SQL_FILE_DIRECTORY)
 
     dataset_by_version = construct_dataset_by_version(dataset, version)
     schema_tables = pg_client.get_schema_tables()
