@@ -81,7 +81,7 @@ function psql_count_and_ddl {
 function parse_connection_string {
     local connection_string=${1}
     local proto="$(echo ${connection_string} | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-    local url=$(echo ${connection_string} | sed -e s,${proto},,g)
+    local url=$(echo ${connection_string} | sed -e s,${proto},,g | sed -e 's/\?options.*$//g')
     local userpass="$(echo ${url} | grep @ | cut -d@ -f1)"
     BUILD_PWD=`echo ${userpass} | grep : | cut -d: -f2`
     BUILD_USER=`echo ${userpass} | grep : | cut -d: -f1`
@@ -284,6 +284,19 @@ function fgdb_export {
     local filename=${3:-$table}
     fgdb_export_partial ${filename} ${geomtype} ${table} ${table}
     fgdb_export_cleanup ${filename}
+}
+
+
+function mvt_export {
+    local dir=$1
+    local conffile=$2
+    shift 2
+    rm -rf $dir
+    echo "attempting to export tables \"$@\" to mvts in ${dir}..."
+    ogr2ogr -progress -f MVT $dir \
+        -dsco CONF=$conffile \
+        "PG:${BUILD_ENGINE}" \
+        "$@" -dsco COMPRESS=NO
 }
 
 

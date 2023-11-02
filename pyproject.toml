@@ -12,6 +12,7 @@ exclude_rules = [
     "references.keywords",
     "references.consistent",
     "references.special_chars",
+    "layout.cte_newline",
 ]
 
 # The standard max_line_length is 80 in line with the convention of
