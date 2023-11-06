@@ -52,26 +52,12 @@ import_recipe dcp_censusdata_blocks 2020 &
 ## Geocode results shares index with _geo_devdb
 run_sql_command "DROP TABLE IF EXISTS _geo_devdb;"
 
-import_recipe dob_permitissuance &
-import_recipe dob_jobapplications &
-import_recipe dob_geocode_results &
-
-# case $MODE in
-# weekly)
-#     import_recipe dob_permitissuance &
-#     import_recipe dob_jobapplications &
-#     import_recipe dob_geocode_results &
-#     ;;
-# *)
-#     import_recipe dob_permitissuance $DOB_DATA_DATE &
-#     import_recipe dob_jobapplications $DOB_DATA_DATE &
-#     import_recipe dob_geocode_results $DOB_DATA_DATE &
-#     ;;
-# esac
+import_recipe dob_permitissuance $DOB_DATA_DATE &
+import_recipe dob_jobapplications $DOB_DATA_DATE &
+import_recipe dob_geocode_results $DOB_DATA_DATE &
 
 run_sql_file sql/_create.sql
 
-wait
 display "data loading is complete"
 
 run_sql_command "
