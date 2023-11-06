@@ -23,6 +23,7 @@ dependencies = [
     "urllib3",
     "usaddress",
     "xlrd",
+    "pyarrow",
 ]
 
 [project.scripts]
