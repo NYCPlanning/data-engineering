@@ -148,6 +148,22 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     return target_file_path
 
 
+def read_csv(
+    ds: Dataset, local_cache_dir: Path | None = None, **kwargs
+) -> pd.DataFrame:
+    if ds.file_type != DatasetType.csv:
+        raise Exception(
+            "csv output is currently only format that recipes.read_csv is implemented for"
+        )
+    if local_cache_dir:
+        path = fetch_dataset(ds, local_library_dir=local_cache_dir)
+        return pd.read_csv(path, **kwargs)
+    else:
+        with s3.get_file_as_stream(BUCKET, ds.s3_key) as stream:
+            data = pd.read_csv(stream, **kwargs)
+        return data
+
+
 def import_dataset(
     ds: Dataset,
     pg_client: postgres.PostgresClient,

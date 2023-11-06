@@ -32,4 +32,6 @@ dataset:
       run successfully.
     url: ""
     dependents: []
-    previous_version: 20220819
+    ## This field must be updated manually when archiving. Should eventually be refactored out of here
+    ## Do not check in a specific version, leave blank version check in - this has led to issues in the past
+    previous_version: 

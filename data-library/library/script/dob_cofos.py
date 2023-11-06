@@ -4,17 +4,20 @@ import pandas as pd
 from . import df_to_tempfile
 from .scriptor import ScriptorInterface
 
+from dcpy.connectors.edm import recipes
+
 
 class Scriptor(ScriptorInterface):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
     @property
     def previous_version(self) -> str:
-        return self.__dict__["config"]["dataset"]["info"]["previous_version"]
+        version = self.config["dataset"]["info"]["previous_version"]
+        if version is None:
+            raise Exception(
+                "Cofos requires a previous version specified in its yml input."
+            )
+        return str(version)
 
     def ingest(self) -> pd.DataFrame:
-        print(self.previous_version)
         df = pd.read_csv(self.path, dtype=str)
         df.insert(0, "v", self.version)
         # add the extra column and assign the missing columns to None
@@ -34,14 +37,16 @@ class Scriptor(ScriptorInterface):
         return df
 
     def previous(self) -> pd.DataFrame:
-        url = (
-            f"s3://edm-recipes/datasets/dob_cofos/{self.previous_version}/dob_cofos.csv"
+        previous_dataset = recipes.Dataset(
+            name=self.name,
+            version=self.previous_version,
+            file_type=recipes.DatasetType.csv,
         )
-        return pd.read_csv(url, dtype=str)
+        return recipes.read_csv(previous_dataset, dtype=str)
 
     def runner(self) -> str:
-        new = self.ingest()
         previous = self.previous()
+        new = self.ingest()
         new.columns = previous.columns
         df = pd.concat([previous, new])
         df = df.drop_duplicates()
