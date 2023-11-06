@@ -1,11 +1,12 @@
-from typing import Union
+# from typing import Union
 
 import contextily as cx
 import geopandas as gpd
 import pandas as pd
-from folium.folium import Map, TileLayer
+from folium.folium import Map
 from matplotlib.axes import Axes
-from xyzservices import TileProvider
+
+# from xyzservices import TileProvider
 
 NYC_PROJECTION = "EPSG:2263"
 WKT_PROJECTION = "EPSG:4326"
@@ -70,23 +71,23 @@ def pad_map_bounds(
     return axes
 
 
-def map_simple(
-    data: gpd.GeoDataFrame,
-    projection: str = NYC_PROJECTION,
-    basemap: Union[str, TileProvider] = DEFAULT_BASEMAP,
-    map_config: dict = DEFAULT_MATPLOTLIB_MAP_CONFIG,
-) -> Axes:
-    axes = data.plot(
-        **map_config,
-    )
-    cx.add_basemap(
-        axes,
-        crs=projection,
-        source=basemap,
-    )
-    axes.set_axis_off()
+# def map_simple(
+#     data: gpd.GeoDataFrame,
+#     projection: str = NYC_PROJECTION,
+#     basemap: Union[str, TileProvider] = DEFAULT_BASEMAP,
+#     map_config: dict = DEFAULT_MATPLOTLIB_MAP_CONFIG,
+# ) -> Axes:
+#     axes = data.plot(
+#         **map_config,
+#     )
+#     cx.add_basemap(
+#         axes,
+#         crs=projection,
+#         source=basemap,
+#     )
+#     axes.set_axis_off()
 
-    return axes
+#     return axes
 
 
 def map_folium(
