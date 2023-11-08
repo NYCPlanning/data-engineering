@@ -5,9 +5,6 @@ from .scriptor import ScriptorInterface
 
 
 class Scriptor(ScriptorInterface):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
     def ingest(self) -> pd.DataFrame:
         version_in_xlsx_tab = self.version[2:]  # e.g. "2022-23" -> "22-23"
         return pd.read_excel(
