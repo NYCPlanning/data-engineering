@@ -55,10 +55,11 @@ jobs:
 
       - name: aggregate ...
         run: ./bash/03_aggregate.sh
+      
+      # HACK disable to optimize
+      # - name: export ...
+      #   run: ./bash/04_export.sh
 
-      - name: export ...
-        run: ./bash/04_export.sh
-
-      - name: upload ...
-        if: inputs.run_export
-        run: python3 -m python.upload
+      # - name: upload ...
+      #   if: inputs.run_export
+      #   run: python3 -m python.upload
