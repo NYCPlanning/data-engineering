@@ -70,4 +70,4 @@ jobs:
     with:
       run_export: true
       create_issue: true
-      recipe_file: recipe-minor.yml
+      recipe_file: recipe-minor
