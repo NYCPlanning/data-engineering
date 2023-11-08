@@ -38,7 +38,7 @@ DCP_HOUSING_CORRECTIONS_FILENAMES = {
     "corrections_dob": "corrections_dob.csv",
     "corrections_main": "corrections_main.csv",
     "corrections_project": "corrections_project.csv",
-    "zap_record_ids": "zap_record_ids_20231005.csv",
+    "zap_record_ids": "zap_record_ids.csv",
 }
 
 # Load environmental variables
