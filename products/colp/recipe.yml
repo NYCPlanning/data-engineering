@@ -1,0 +1,13 @@
+name: COLP
+version: "202311"
+product: db-colp
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_pluto
+    version: "23v3"
+  - name: dcp_colp
+    version: "202305"
+  - name: dcas_ipis
+  - name: dof_air_rights_lots
+  - name: dcp_boroboundaries_wi
