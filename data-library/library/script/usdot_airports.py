@@ -5,9 +5,6 @@ from .scriptor import ScriptorInterface
 
 
 class Scriptor(ScriptorInterface):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
     def ingest(self) -> pd.DataFrame:
         df = pd.read_excel(self.path, sheet_name="Airports")
         return df

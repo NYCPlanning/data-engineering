@@ -5,9 +5,6 @@ from .scriptor import ScriptorInterface
 
 
 class Scriptor(ScriptorInterface):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
     @property
     def get_columns(self):
         if self.version == "2010":
