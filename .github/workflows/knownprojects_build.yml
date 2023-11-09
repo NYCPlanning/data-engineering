@@ -18,6 +18,8 @@ jobs:
         shell: bash
         working-directory: ./products/knownprojects
     env:
+      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+      BUILD_ENGINE_DB: kpdb
       BUILD_ENGINE_DATABASE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/kpdb
       BUILD_ENGINE_SCHEMA: build_${{ github.event.pull_request.number || github.ref_name }}
       EDM_DATA: ${{ secrets.EDM_DATA }}
@@ -34,18 +36,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: Set build environment variables
-        run: |
-          # # replace dashes with underscores to create a valid postgres schema name
-          BUILD_ENGINE_SCHEMA=$(echo ${BUILD_ENGINE_SCHEMA} | tr - _)
-          echo "BUILD_ENGINE_SCHEMA=$BUILD_ENGINE_SCHEMA" >> "$GITHUB_ENV"
-          # set postgres schema search path to prioritize BUILD_ENGINE_SCHEMA
-          BUILD_ENGINE=${BUILD_ENGINE_DATABASE}?options=--search_path%3D${BUILD_ENGINE_SCHEMA},public
-          echo "BUILD_ENGINE=$BUILD_ENGINE" >> "$GITHUB_ENV"
-
-      - name: Setup build environment
+      - name: Finish container setup
         working-directory: ./
         run: ./bash/docker_container_setup.sh
+
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
       - name: dataloading ..
         run: ./bash/01_dataloading.sh
