@@ -56,6 +56,8 @@ import_recipe dob_permitissuance $DOB_DATA_DATE &
 import_recipe dob_jobapplications $DOB_DATA_DATE &
 import_recipe dob_geocode_results $DOB_DATA_DATE &
 
+wait
+
 run_sql_file sql/_create.sql
 
 display "data loading is complete"
