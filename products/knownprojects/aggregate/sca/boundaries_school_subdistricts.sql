@@ -5,6 +5,7 @@ OUTPUT: longform_subdist_output_cp_assumptions
 
 *******************************************************************************************************************************************/
 
+DROP TABLE IF EXISTS kpdb_subdist;
 DROP TABLE IF EXISTS aggregated_boundaries_subdist;
 
 DROP TABLE IF EXISTS aggregated_subdist_cp_assumptions;
@@ -16,44 +17,51 @@ DROP TABLE IF EXISTS longform_subdist_output_cp_assumptions;
 
 -- HACK this query takes the longest: ~3m
 SELECT *
+INTO kpdb_subdist
+SELECT
+    --	a.cartodb_id,
+    a.geometry,
+    --	a.geometry_webmercator,
+    a.project_id,
+    a.source,
+    a.record_id,
+    a.record_name,
+    a.borough,
+    a.status,
+    a.type,
+    a.date,
+    a.date_type,
+    a.units_gross,
+    a.units_net,
+    a.prop_within_5_years,
+    a.prop_5_to_10_years,
+    a.prop_after_10_years,
+    a.within_5_years,
+    a.from_5_to_10_years,
+    a.after_10_years,
+    a.phasing_rationale,
+    a.phasing_known,
+    a.nycha,
+    a.classb,
+    a.senior_housing,
+    a.inactive,
+    b.geometry AS subdist_geom,
+    b.district AS distzone,
+    b.subdistrict AS subdistzone,
+    b.name AS a_dist_zone_name,
+    st_distance(
+        a.geometry::geography, b.geometry::geography
+    ) AS subdist_distance
+FROM
+    _kpdb AS a;
+
+SELECT *
 INTO aggregated_boundaries_subdist
 FROM (
         SELECT
-            --	a.cartodb_id,
-            a.geometry,
-            --	a.geometry_webmercator,
-            a.project_id,
-            a.source,
-            a.record_id,
-            a.record_name,
-            a.borough,
-            a.status,
-            a.type,
-            a.date,
-            a.date_type,
-            a.units_gross,
-            a.units_net,
-            a.prop_within_5_years,
-            a.prop_5_to_10_years,
-            a.prop_after_10_years,
-            a.within_5_years,
-            a.from_5_to_10_years,
-            a.after_10_years,
-            a.phasing_rationale,
-            a.phasing_known,
-            a.nycha,
-            a.classb,
-            a.senior_housing,
-            a.inactive,
-            b.geometry AS subdist_geom,
-            b.district AS distzone,
-            b.subdistrict AS subdistzone,
-            b.name AS a_dist_zone_name,
-            st_distance(
-                a.geometry::geography, b.geometry::geography
-            ) AS subdist_distance
+            *
         FROM
-            _kpdb AS a
+            kpdb_subdist AS a
         LEFT JOIN
             doe_school_subdistricts AS b
             ON
@@ -311,8 +319,6 @@ FROM (
 
 
 -- HACK queries below take <1s each
-
-DROP TABLE IF EXISTS aggregated_subdist_longform_cp_assumptions;
 
 SELECT *
 INTO
