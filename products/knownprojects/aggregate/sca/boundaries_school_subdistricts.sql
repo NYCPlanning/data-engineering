@@ -5,17 +5,19 @@ OUTPUT: longform_subdist_output_cp_assumptions
 
 *******************************************************************************************************************************************/
 
+DROP TABLE IF EXISTS aggregated_boundaries_subdist;
+
 DROP TABLE IF EXISTS aggregated_subdist_cp_assumptions;
 DROP TABLE IF EXISTS ungeocoded_projects_subdist_cp_assumptions;
 DROP TABLE IF EXISTS aggregated_subdist_longform_cp_assumptions;
 DROP TABLE IF EXISTS aggregated_subdist_project_level_cp_assumptions;
 DROP TABLE IF EXISTS longform_subdist_output_cp_assumptions;
+-- NOTE all query execution time estimates are based on using EXPLAIN (ANALYZE, FORMAT JSON)
 
+-- HACK this query takes the longest: ~3m
 SELECT *
-INTO
-aggregated_subdist_cp_assumptions
+INTO aggregated_boundaries_subdist
 FROM (
-    WITH aggregated_boundaries_subdist AS (
         SELECT
             --	a.cartodb_id,
             a.geometry,
@@ -55,6 +57,7 @@ FROM (
         LEFT JOIN
             doe_school_subdistricts AS b
             ON
+                /*Only matching if at least 10% of the polygon is in the boundary. Otherwise, the polygon will be apportioned to its other boundaries only*/
                 CASE
                     /*Treating large developments as polygons*/
                     WHEN
@@ -144,10 +147,14 @@ FROM (
                     ELSE
                         st_intersects(a.geometry, b.geometry)
                 END
-    /*Only matching if at least 10% of the polygon is in the boundary. Otherwise, the polygon will be apportioned to its other boundaries only*/
-    ),
+    )
+as _temp_table_1;
 
-    multi_geocoded_projects AS (
+SELECT *
+INTO
+aggregated_subdist_cp_assumptions
+FROM (
+    WITH multi_geocoded_projects AS (
         SELECT
             source,
             record_id
@@ -229,6 +236,7 @@ FROM (
 ) AS _1;
 
 
+-- HACK this query may take ~15s
 
 /*Identify projects which did not geocode to any Subdistrict*/
 
@@ -302,6 +310,7 @@ FROM (
 ) AS _2;
 
 
+-- HACK queries below take <1s each
 
 DROP TABLE IF EXISTS aggregated_subdist_longform_cp_assumptions;
 
