@@ -147,3 +147,9 @@ products/*/source_data_versions.csv
 .config
 
 tmp/
+
+# dbt files
+target/
+dbt_packages/
+logs/
+.user.yml
