@@ -45,6 +45,6 @@ echo "SCA sggregations are complete"
 
 # echo "Other aggregations are complete"
 
-run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geometry TO geom;"
+# run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geometry TO geom;"
 
-echo "All aggregations are complete"
+# echo "All aggregations are complete"
