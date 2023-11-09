@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS longform_subdist_output_cp_assumptions;
 -- HACK this query takes the longest: ~3m
 SELECT *
 INTO kpdb_subdist
+FROM (
 SELECT
     --	a.cartodb_id,
     a.geometry,
@@ -53,7 +54,8 @@ SELECT
         a.geometry::geography, b.geometry::geography
     ) AS subdist_distance
 FROM
-    _kpdb AS a;
+    _kpdb
+) AS _temp_table_1;
 
 SELECT *
 INTO aggregated_boundaries_subdist
@@ -156,7 +158,7 @@ FROM (
                         st_intersects(a.geometry, b.geometry)
                 END
     )
-as _temp_table_1;
+as _temp_table_2;
 
 SELECT *
 INTO
