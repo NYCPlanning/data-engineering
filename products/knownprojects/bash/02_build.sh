@@ -31,14 +31,17 @@ run_sql_file sql/review_dob.sql
 run_sql_file sql/project_record_ids.sql 
 run_sql_command "VACUUM ANALYZE project_record_ids;"
 
-# Dedup units
+# Duplicate units
 python3 -m python.dedup_units
 run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'deduped_units', 'corrections_main');"
 run_sql_command "VACUUM ANALYZE deduped_units;"
 
-# Join to boro, clean duplicates
+# Join to boro
 run_sql_file sql/join_boroughs.sql
 run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'combined', 'corrections_borough');"
 
 # Create KPDB
 run_sql_file sql/create_kpdb.sql
+
+# Duplicate projects
+python3 -m python.dedup_projects
