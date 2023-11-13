@@ -1,5 +1,6 @@
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
+from psycopg2.extensions import AsIs
 
 from . import BUILD_ENGINE_SCHEMA
 
@@ -33,3 +34,14 @@ if __name__ == "__main__":
 
     logger.info(f"Creating table '{OUTPUT_TABLE}' ...")
     pg_client.insert_dataframe(df=kpdb_no_duplicates, table_name=OUTPUT_TABLE)
+    pg_client.execute_query(
+        """
+        ALTER TABLE :table_name
+        ALTER COLUMN :geometry_col type Geometry
+        USING ST_SetSRID(:geometry_col, 4326);
+        """,
+        placeholders={
+            "table_name": AsIs(OUTPUT_TABLE),
+            "geometry_col": AsIs("geom"),
+        },
+    )
