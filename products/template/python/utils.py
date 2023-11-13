@@ -28,33 +28,6 @@ def load_geodata_url(url: str) -> gpd.GeoDataFrame:
     return gpd.read_file(url)
 
 
-def execute_sql_command(command: str) -> None:
-    sql_engine = create_engine(os.environ["BUILD_ENGINE"])
-    with Session(sql_engine) as session:
-        session.execute(text(command))
-        session.commit()
-
-
-def execute_sql_file(filename: str) -> None:
-    print(f"Executing {SQL_FILE_DIRECTORY}/{filename} ...")
-    sql_file = open(f"{SQL_FILE_DIRECTORY}/{filename}", "r")
-    sql_command = ""
-    for line in sql_file:
-        # ignore comment lines
-        if line.strip("\n") and not line.startswith("--"):
-            # append line to the command string
-            sql_command += line.strip("\n")
-            # if the command string ends with ';', it is a full statement
-            if sql_command.endswith(";"):
-                execute_sql_command(command=sql_command)
-                sql_command = ""
-            else:
-                # continue parsing multi-line statement
-                sql_command += " "
-        else:
-            continue
-
-
 def query_sql_records(command: str) -> pd.DataFrame:
     sql_engine = create_engine(os.environ["BUILD_ENGINE"])
     with sql_engine.begin() as connection:

@@ -37,7 +37,7 @@ def compare_data(old_data: pd.DataFrame, new_data: pd.DataFrame) -> None:
             """
         )
         compare_result = compare_result.set_index(
-            compare_result.index.set_levels(["old_data", "new_data"], level=1)
+            compare_result.index.set_names(["old_data", "new_data"], level=1)
         )
         print("exporting comparison results to csv\n")
         compare_result.to_csv(OUTPUT_FILE_PATH)
@@ -47,7 +47,7 @@ def compare_data(old_data: pd.DataFrame, new_data: pd.DataFrame) -> None:
 
 def limit_rows_to_compare_simple(
     data: pd.DataFrame, index_column: str, common_indices: set
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> pd.DataFrame:
     return data[data[index_column].isin(common_indices)].reset_index(drop=True)
 
 
