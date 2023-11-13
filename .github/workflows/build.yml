@@ -45,6 +45,21 @@ on:
         type: boolean
         required: true
         default: false
+  workflow_call:
+    inputs:
+      dataset_name:
+        type: string
+        required: true
+      build_note:
+        type: string
+        required: false
+      run_export:
+        type: boolean
+        required: true
+        default: true
+      recipe_file:
+        type: string
+        required: true
 
 jobs:
   health_check:

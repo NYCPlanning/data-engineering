@@ -48,9 +48,3 @@ jobs:
         run: |
           python3 -m test.test_build_output
 
-  branch_test_build:
-    name: Build test run
-    uses: ./.github/workflows/checkbook_build.yml
-    with:
-      run_export: false
-    secrets: inherit
