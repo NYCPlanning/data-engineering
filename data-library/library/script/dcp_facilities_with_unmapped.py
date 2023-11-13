@@ -13,8 +13,8 @@ class Scriptor(ScriptorInterface):
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
         with ZipFile(f"dcp_facilities_with_unmapped{self.version}.zip", "r") as zip:
-            zip.extract(f"Facilities_{self.version}.csv")
-            df = pd.read_csv(f"Facilities_{self.version}.csv", encoding="ISO-8859-1")
+            zip.extract(f"facilities_{self.version}.csv")
+            df = pd.read_csv(f"facilities_{self.version}.csv", encoding="ISO-8859-1")
         return df
 
     def runner(self) -> str:
