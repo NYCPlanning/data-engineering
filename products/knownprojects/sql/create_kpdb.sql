@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS _kpdb;
+DROP TABLE IF EXISTS _kpdb_projects_projects;
 SELECT
     a.*,
     b.project_id,
@@ -13,13 +14,13 @@ SELECT
     ROUND(
         COALESCE(a.prop_after_10_years::decimal, 0) * b.units_net::decimal
     ) AS after_10_years
-INTO _kpdb
+INTO _kpdb_projects
 FROM combined AS a
 LEFT JOIN deduped_units AS b
     ON a.record_id = b.record_id
 WHERE a.no_classa = '0' OR a.no_classa IS NULL;
 
-UPDATE _kpdb a
+UPDATE _kpdb_projects a
 SET
     borough
     = CASE
