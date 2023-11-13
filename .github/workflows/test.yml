@@ -3,11 +3,10 @@ run-name: 🧪 Tests (${{ github.event_name }})
 
 on:
   workflow_dispatch:
+  workflow_call:
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: "0 0 * * *"
   
 
 concurrency:
@@ -35,9 +34,24 @@ jobs:
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
 
+  mypy:
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check python files
+        run: |
+          mypy dcpy
+          mypy apps/qa/src
+          mypy data-library/library
+          mypy products/facilities
+          mypy products/template
+
   check_changes:
     name: Check changed files
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       pull-requests: read
     outputs:
@@ -53,7 +67,7 @@ jobs:
               - pyproject.toml
               - python/**
               - .github/workflows/dcpy_test.yml
-            build:
+            template:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
               - .github/workflows/template_test.yml
@@ -73,17 +87,8 @@ jobs:
             cbbr:
               - products/cbbr/**
               - python/**
-            cpdb:
-              - products/cpdb/**
-              - python/**
             checkbook:
               - products/checkbook/**
-              - python/**
-            facilities:
-              - products/facilities/**
-              - python/**
-            knownprojects:
-              - products/knownprojects/**
               - python/**
             zap:
               - products/zap-opendata/**
@@ -111,27 +116,10 @@ jobs:
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'cbbr')
     uses: ./.github/workflows/cbbr_test.yml
     secrets: inherit
-  cpdb:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'cpdb')
-    uses: ./.github/workflows/cpdb_build.yml
-    with:
-      run_export: true
-    secrets: inherit
   checkbook:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')
     uses: ./.github/workflows/checkbook_test.yml
-    secrets: inherit
-  facilities:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'facilities')
-    uses: ./.github/workflows/facilities_test.yml
-    secrets: inherit
-  knownprojects:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'knownprojects')
-    uses: ./.github/workflows/knownprojects_test.yml
     secrets: inherit
   qa:
     needs: check_changes
