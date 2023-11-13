@@ -3,8 +3,10 @@ from pathlib import Path
 import csv
 import os
 import pandas as pd
+import geopandas as gpd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text, dialects
+from geoalchemy2 import Geometry
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -70,11 +72,21 @@ class PostgresClient:
         self,
         query: str,
         placeholders: dict | None = None,
-    ) -> pd.DataFrame:
+        geometry_col: str | None = None,
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         with self.engine.connect() as sql_conn:
-            select_records = pd.read_sql(
-                sql=text(query), con=sql_conn, params=placeholders
-            )
+            if geometry_col:
+                select_records = gpd.read_postgis(
+                    text(query),
+                    con=sql_conn,
+                    geom_col=geometry_col,
+                    params=placeholders,
+                )
+            else:
+                select_records = pd.read_sql(
+                    sql=text(query), con=sql_conn, params=placeholders
+                )
+
         return select_records
 
     def create_postigs_extension(self) -> None:
@@ -134,12 +146,15 @@ class PostgresClient:
         ]
         return table_names
 
-    def get_table(self, table_name: str) -> pd.DataFrame:
+    def get_table(
+        self, table_name: str, geometry_col: str | None = None
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         return self.execute_select_query(
             """
             SELECT * FROM :table_name;
             """,
             {"table_name": AsIs(table_name)},
+            geometry_col,
         )
 
     def get_table_columns(self, table_name: str) -> list[str]:
@@ -175,13 +190,15 @@ class PostgresClient:
             method=insert_copy,
         )
 
-    def insert_dataframe(self, df: pd.DataFrame, table_name: str):
+    def insert_dataframe(self, df: pd.DataFrame | gpd.GeoDataFrame, table_name: str):
         df.to_sql(
             table_name,
             con=self.engine,
             if_exists="replace",
             index=False,
             dtype={
+                "geom": Geometry,
+                "geometry": Geometry,
                 "geo_1b": dialects.postgresql.JSON,
                 "geo_bl": dialects.postgresql.JSON,
                 "geo_bn": dialects.postgresql.JSON,
