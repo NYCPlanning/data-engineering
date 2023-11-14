@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
@@ -56,7 +55,9 @@ jobs:
       pull-requests: read
     outputs:
       path_filters: ${{ steps.filter.outputs.changes }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         if: github.event_name == 'pull_request'
         id: filter
@@ -66,7 +67,6 @@ jobs:
               - dcpy/**
               - pyproject.toml
               - python/**
-              - .github/workflows/dcpy_test.yml
             template:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
@@ -76,7 +76,6 @@ jobs:
               - docker/**
               - python/**
             data-library:
-              - .github/workflows/data_library_test.yml
               - data-library/**
               - python/**
             qa:
@@ -93,41 +92,104 @@ jobs:
             zap:
               - products/zap-opendata/**
               - python/**
-      - name: Confirm changes
+      - name: Confirm changes and set matrix
+        id: set-matrix
         run: |
           echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
-  dcpy:
+          filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
+          matrix=$(cat .github/workflows/data/pytest.json | jq "map(. | select(.name|IN(${filter})))")
+          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
+  
+  template-db:
     needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'dcpy')
-    uses: ./.github/workflows/dcpy_test.yml
-    secrets: inherit
-  build:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'build')
+    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'template')
     uses: ./.github/workflows/template_test.yml
     secrets: inherit
-  data-library:
+
+  pytest:
+    name: Pytest - ${{ matrix.name }}
     needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'data-library')
-    uses: ./.github/workflows/data_library_test.yml
-    secrets: inherit
-  cbbr:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'cbbr')
-    uses: ./.github/workflows/cbbr_test.yml
-    secrets: inherit
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.check_changes.outputs.matrix) }}
+    container: nycplanning/dev:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ matrix.working-directory || '.' }}
+    env:
+      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
+      RECIPE_ENGINE: ${{ secrets.RECIPE_ENGINE }}
+      AWS_S3_BUCKET: edm-recipes
+      BUILD_ENGINE: ${{ secrets.EDM_DATA_QAQC_ENGINE }}
+      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+      BUILD_ENGINE_DB: edm-qaqc
+      ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
+      TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
+      CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
+      SECRET: ${{ secrets.ZAP_CRM_SECRET }}
+      ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
+      TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
+    steps:    
+    - uses: actions/checkout@v3
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+    - name: Run Container Setup
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
+
+    - name: Pytest
+      run: |
+        echo '${{ toJson(matrix.calls) }}' \
+          | sed '$ d;1d;s/^[[:space:]]*\"//;s/\",\{0,1\}[[:space:]]*$//'\
+          | while read call; do
+          python3 -m pytest $call
+        done
+  
   checkbook:
     needs: check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')
-    uses: ./.github/workflows/checkbook_test.yml
-    secrets: inherit
-  qa:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'qa')
-    uses: ./.github/workflows/qa_test.yml
-    secrets: inherit
-  zap:
-    needs: check_changes
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'zap')
-    uses: ./.github/workflows/zap_test.yml
-    secrets: inherit
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+    services:
+      postgis:
+        image: postgis/postgis:15-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/checkbook
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Run python tests
+        run: python3 -m pytest test/test_build_output.py
