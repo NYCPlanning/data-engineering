@@ -5,17 +5,18 @@ import pytz
 from dcpy.utils import git
 
 
-def build_name(event: str | None = None, branch: str | None = None) -> str:
+def build_name(event: str | None = None, source: str | None = None) -> str:
     if os.environ.get("BUILD_ENGINE_SCHEMA"):
         return os.environ["BUILD_ENGINE_SCHEMA"]
 
     event = git.event_name() if not event else event
-    branch = git.branch() if not branch else branch
     if event == "pull_request":
         prefix = "pr"
     else:
         prefix = "run"
-    suffix = branch.replace("-", "_")
+
+    source = git.branch() if not source else source
+    suffix = source.replace("-", "_")
     return f"{prefix}_{suffix}"
 
 
