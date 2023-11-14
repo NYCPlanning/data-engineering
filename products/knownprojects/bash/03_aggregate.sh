@@ -20,14 +20,15 @@ run_sql_file aggregate/sca/preprocessing.sql
 # echo "Build Elementary School Zones Aggregate Table"
 # run_sql_file aggregate/sca/boundaries_es_zone.sql
 
-# # Aggregate KPDB projects to School District Zones
-# echo "Build School Districts aggregate table"
-# run_sql_file aggregate/sca/boundaries_school_districts.sql
+# HACK optimize these
+# Aggregate KPDB projects to School District Zones
+echo "Build School Districts aggregate table"
+run_sql_file aggregate/sca/boundaries_school_districts.sql &
 
-# HACK optimize this query
 # Aggregate KPDB projects to School Subdistrict Zones
 echo "Build School Subdistricts aggregate tables"
 run_sql_file aggregate/sca/boundaries_school_subdistricts.sql
+wat
 
 echo "SCA sggregations are complete"
 
