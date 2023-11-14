@@ -9,7 +9,7 @@ env:
 
 jobs:
   unit_tests:
-    name: Unit tests
+    name: Template DB Unit tests
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:latest
@@ -31,6 +31,7 @@ jobs:
           python3 -m pytest ./products/template -m "not end_to_end" -s --verbose --verbose
 
   build:
+    name: Tempalte DB Build
     uses: ./.github/workflows/template_build.yml
     with:
       recipe_file: recipe
@@ -40,7 +41,7 @@ jobs:
     secrets: inherit
 
   e2e_tests:
-    name: End-to-End (E2E) tests
+    name: Template DB End-to-End (E2E) tests
     needs: build
     runs-on: ubuntu-22.04
     container:
