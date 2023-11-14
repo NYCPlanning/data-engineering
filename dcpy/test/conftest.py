@@ -2,22 +2,24 @@ import boto3
 import os
 import pytest
 from moto import mock_s3
-from dcpy.utils.s3 import client
+from dcpy.utils import s3
 
 
 TEST_BUCKET_NAME = "edm-publishing"
 
 
-@pytest.fixture(scope="module")
-def s3_client():
-    """Mocked S3 client. Note, mock_s3() takes care of updating
-    env variables for fake AWS credentials."""
-    with mock_s3():
-        yield client()
+@pytest.fixture(scope="session")
+def aws_credentials():
+    """Mocked AWS Credentials for moto."""
+    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    if "AWS_S3_ENDPOINT" in os.environ:
+        os.environ.pop("AWS_S3_ENDPOINT")
 
 
 @pytest.fixture(scope="module")
-def create_bucket(s3_client):
+def create_bucket(aws_credentials):
     """Creates a test S3 bucket."""
-    s3_client.create_bucket(Bucket=TEST_BUCKET_NAME)
-    yield
+    with mock_s3():
+        s3.client().create_bucket(Bucket=TEST_BUCKET_NAME)
+        yield  ## the yield within the mock_s3() is key to persisting the mocked session
