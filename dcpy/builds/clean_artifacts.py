@@ -7,19 +7,27 @@ from . import BUILD_REPO, BUILD_DBS
 
 
 def get_active_build_names() -> list:
-    # all remote branches
-    branches = github.get_branches(repo=BUILD_REPO)
+    # use the hard-coded "build_" prefix from github action workflow files
+    # and the event-based prefixes from build_metadata.build_name
+    branches = github.get_branches(repo=BUILD_REPO)  # all remote branches
     branch_build_names = sorted(
-        [build_metadata.build_name("branch", branch) for branch in branches]
+        [
+            build_metadata.build_name(event="branch", source=branch)
+            for branch in branches
+        ]
+        + ["build_" + branch for branch in branches]
     )
-    logger.info(f"Valid branch build names: {branch_build_names}")
+    logger.info(f"Potential active branch build names: {branch_build_names}")
 
-    # all open PR numbers
-    pull_requests = github.get_pull_requests(repo=BUILD_REPO)
+    pull_requests = github.get_pull_requests(repo=BUILD_REPO)  # all open PR numbers
     pr_build_names = sorted(
-        [build_metadata.build_name("pull_request", pr) for pr in pull_requests]
+        [
+            build_metadata.build_name(event="pull_request", source=pr)
+            for pr in pull_requests
+        ]
+        + ["build_" + pr for pr in pull_requests]
     )
-    logger.info(f"Valid PR build names: {pr_build_names}")
+    logger.info(f"Potential active PR build names: {pr_build_names}")
 
     return pr_build_names + branch_build_names
 
