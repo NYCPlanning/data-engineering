@@ -7,8 +7,9 @@ from dcpy.connectors.edm import build_metadata, recipes, publishing
 
 
 def setup_build_environments(pg_client: postgres.PostgresClient):
-    pg_client.drop_schema()
-    pg_client.create_schema()
+    if pg_client.schema != "public":
+        pg_client.drop_schema()
+        pg_client.create_schema()
     s3.delete(
         bucket=publishing.BUCKET,
         path=f"{pg_client.database}/draft/{pg_client.schema}",
