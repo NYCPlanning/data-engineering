@@ -1,14 +1,19 @@
 import os
+from pandas import DataFrame as df
 from pathlib import Path
 import pytest
+import shutil
 from unittest import TestCase
 from unittest.mock import MagicMock
+
+import dcpy
 from dcpy.connectors.edm import recipes
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
 RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"
 RECIPE_NO_DEFAULTS_LOCK_PATH = RESOURCES_DIR / "recipe_no_defaults.lock.yml"
+TEMP_DATA_PATH = RESOURCES_DIR.parent / "temp"
 
 REQUIRED_VERSION_ENV_VAR = "VERSION_PREV"
 
@@ -19,13 +24,20 @@ recipes.get_config = MagicMock(
 
 
 @pytest.fixture
-def file_cleanup():
+def file_setup_teardown():
     RECIPE_NO_DEFAULTS_LOCK_PATH.unlink(missing_ok=True)
+    TEMP_DATA_PATH.mkdir(exist_ok=True)
     yield
     RECIPE_NO_DEFAULTS_LOCK_PATH.unlink(missing_ok=True)
+    shutil.rmtree(TEMP_DATA_PATH)
 
 
-@pytest.mark.usefixtures("file_cleanup")
+def setup():
+    # TEMP_DATA_PATH.mkdir(exist_ok=True)
+    os.environ[REQUIRED_VERSION_ENV_VAR] = "v123"
+
+
+@pytest.mark.usefixtures("file_setup_teardown")
 class TestRecipesWithDefaults(TestCase):
     def test_plan_recipe_failing_env_var(self):
         """One of the datasets requires a REQUIRED_VERSION_ENV_VAR environment variable for the version.
@@ -38,9 +50,7 @@ class TestRecipesWithDefaults(TestCase):
 
     def test_plan_recipe_defaults(self):
         """Tests that defaults are set correctly when a recipe is planned."""
-        DS_VERSION = "v123"
-        os.environ[REQUIRED_VERSION_ENV_VAR] = DS_VERSION
-
+        setup()
         planned = recipes.plan_recipe(RECIPE_PATH)
 
         had_no_version_or_type = [
@@ -56,10 +66,11 @@ class TestRecipesWithDefaults(TestCase):
         ), "The datatype should default to a csv, as specified in the dataset_defaults"
 
 
-@pytest.mark.usefixtures("file_cleanup")
+@pytest.mark.usefixtures("file_setup_teardown")
 class TestRecipesNoDefaults(TestCase):
     def test_plan_recipe_default_type(self):
         """Tests that default type is pg_dump when not otherwise specified."""
+        setup()
         planned = recipes.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
         ds = planned.inputs.datasets[0]
         assert ds.file_name == f"{ds.name}.sql"
@@ -69,3 +80,48 @@ class TestRecipesNoDefaults(TestCase):
         """Deserializing python models is a minefield."""
         lock_file = recipes.plan(RECIPE_NO_DEFAULTS_PATH)
         recipes.recipe_from_yaml(lock_file)
+
+
+_test_df = df([["1", "2"], ["3", "4"]], columns=["a", "b"])
+
+
+def _mock_preprocessor(name, df):
+    df["name"] = name
+    return df
+
+
+def _mock_fetch_dataset(ds, _):
+    out_path = TEMP_DATA_PATH / f"{ds.name}.csv"
+    _test_df.to_csv(out_path, index=False)
+    return out_path
+
+
+@pytest.mark.usefixtures("file_setup_teardown")
+class TestImportDatasets(TestCase):
+    # TODO: move this functionality into an integration test with an actual database
+
+    def set_mocks(self):
+        # Mock out fetch_dataset to download a mocked csv
+        recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_dataset)
+        # Mocking out a preprocessor for our datasets. Sticking it on `dcpy` for ease
+        dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
+
+    def test_import_dataset(self):
+        self.set_mocks()
+        pg_mock = MagicMock()
+        ds = recipes.Dataset(
+            name="test",
+            version="1",
+            import_as="new_table_name",
+            file_type=recipes.DatasetType.csv,
+            preprocessor=recipes.DataPreprocessor(module="dcpy", function="preproc"),
+        )
+        recipes.import_dataset(ds, pg_mock)
+
+        # Verify the values that PostgresClient.insert_dataframe was called with
+        (
+            df_inserted_actual,
+            table_insert_name_actual,
+        ) = pg_mock.insert_dataframe.call_args_list[0][0]
+        assert df_inserted_actual.equals(_mock_preprocessor(ds.name, _test_df))
+        assert table_insert_name_actual == ds.import_as

@@ -7,7 +7,6 @@ import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
 import shutil
-from sqlalchemy import text, update, Table, MetaData
 from typing import List
 import yaml
 
@@ -171,42 +170,39 @@ def import_dataset(
     local_library_dir=LIBRARY_DEFAULT_PATH,
 ):
     """Import a recipe to local data library folder and build engine."""
-    logger.info(f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}")
+    ds_table_name = ds.import_as or ds.name
+    logger.info(
+        f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
+    )
+
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
+    if ds.preprocessor is not None and ds.file_type != DatasetType.csv:
+        raise Exception("Preprocessor can only be specified for csv datasets")
 
     local_dataset_path = fetch_dataset(ds, local_library_dir)
 
     match ds.file_type:
         case DatasetType.pg_dump:
-            postgres.execute_file_via_shell(pg_client.engine_uri, local_dataset_path)
+            pg_client.import_pg_dump(
+                local_dataset_path,
+                pg_dump_table_name=ds.name,
+                target_table_name=ds_table_name,
+            )
         case DatasetType.csv:
             df = pd.read_csv(local_dataset_path, dtype=str)
             if ds.preprocessor is not None:
                 preproc_mod = importlib.import_module(ds.preprocessor.module)
                 preproc_func = getattr(preproc_mod, ds.preprocessor.function)
                 df = preproc_func(ds.name, df)
-            table_name = ds.import_as or ds.name
-            logger.info(f"Inserting dataframe into {table_name}")
-            pg_client.insert_dataframe(df, table_name)
+            pg_client.insert_dataframe(df, ds_table_name)
 
-    with pg_client.engine.begin() as con:
-        con.execute(
-            text(
-                f"ALTER TABLE {postgres.DEFAULT_POSTGRES_SCHEMA}.{ds.name} SET SCHEMA {pg_client.schema};"
-            )
-        )
-
-        con.execute(
-            text(f"ALTER TABLE {ds.name} ADD COLUMN data_library_version text;")
-        )
-
-        recipes_table = Table(ds.name, MetaData(), autoload_with=con)
-        con.execute(update(recipes_table).values(data_library_version=ds.version))
-
-        if ds.import_as is not None:
-            logger.info(f"Renaming table {ds.name} to {ds.import_as}")
-            con.execute(text(f"ALTER TABLE {ds.name} RENAME TO {ds.import_as};"))
+    pg_client.add_table_column(
+        ds_table_name,
+        col_name="data_library_version",
+        col_type="text",
+        default_value=ds.version,
+    )
 
 
 def plan_recipe(recipe_path: Path) -> Recipe:
