@@ -134,6 +134,24 @@ class PostgresClient:
         ]
         return table_names
 
+    def set_table_schema(self, table, *, old_schema, new_schema):
+        """Set the schema for a table."""
+        self.execute_query(
+            "ALTER TABLE :table_with_schema SET SCHEMA :new_schema;",
+            {
+                "table_with_schema": AsIs(f"{old_schema}.{table}"),
+                "new_schema": AsIs(new_schema),
+            },
+        )
+
+    def rename_table(self, *, old_name: str, new_name: str):
+        return self.execute_query(
+            """
+            ALTER TABLE :old_name RENAME TO :new_name;
+            """,
+            {"old_name": AsIs(old_name), "new_name": AsIs(new_name)},
+        )
+
     def get_table(self, table_name: str) -> pd.DataFrame:
         return self.execute_select_query(
             """
@@ -152,6 +170,19 @@ class PostgresClient:
             {"table_schema": AsIs(self.schema), "table_name": AsIs(table_name)},
         )
         return sorted(column_names["column_name"])
+
+    def add_table_column(
+        self,
+        table_name: str,
+        *,
+        col_name: str,
+        col_type: str,
+        default_value: str = "",
+    ):
+        q = f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}"
+        if default_value:
+            q += f" DEFAULT {default_value}"
+        self.execute_query(q + ";")
 
     def get_table_row_count(self, table_name: str) -> int:
         row_counts = self.execute_select_query(
@@ -175,9 +206,35 @@ class PostgresClient:
             method=insert_copy,
         )
 
+    def import_pg_dump(
+        self,
+        pg_dump_path: Path,
+        *,
+        pg_dump_table_name: str,
+        target_table_name: str | None = None,
+    ):
+        """Import a pg_dump file into the specified schema.
+
+        NOTE: supplying the pg_dump_table_name is a really unfortunate hack.
+        We could potentially parse the pg_dump for table_name.
+        ----------
+        pg_dump_table_name : name of the table, as specified pg_dump file
+        """
+        execute_file_via_shell(self.engine_uri, pg_dump_path)
+        if self.schema != DEFAULT_POSTGRES_SCHEMA:
+            self.set_table_schema(
+                pg_dump_table_name,
+                old_schema=DEFAULT_POSTGRES_SCHEMA,
+                new_schema=self.schema,
+            )
+
+        if target_table_name is not None and target_table_name != pg_dump_table_name:
+            self.rename_table(old_name=pg_dump_table_name, new_name=target_table_name)
+
     def insert_dataframe(self, df: pd.DataFrame, table_name: str):
         df.to_sql(
             table_name,
+            schema=self.schema,
             con=self.engine,
             if_exists="replace",
             index=False,
