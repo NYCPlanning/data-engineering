@@ -211,7 +211,6 @@ function csv_export_drop_columns {
 
 
 function shp_export {
-    # parse_connection_string ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
     case $3 in
@@ -243,7 +242,6 @@ function shp_export {
 
 
 function fgdb_export_partial {
-    # parse_connection_string ${BUILD_ENGINE}
     local filename=${1}
     local geomtype=${2}
     local nln=${3}
@@ -281,7 +279,6 @@ function fgdb_export_cleanup {
 
 
 function fgdb_export { 
-    # parse_connection_string ${BUILD_ENGINE}
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
