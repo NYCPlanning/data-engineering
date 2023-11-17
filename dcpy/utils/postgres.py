@@ -181,7 +181,7 @@ class PostgresClient:
     ):
         q = f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}"
         if default_value:
-            q += f" DEFAULT {default_value}"
+            q += f" DEFAULT '{default_value}'"
         self.execute_query(q + ";")
 
     def get_table_row_count(self, table_name: str) -> int:
