@@ -1,5 +1,5 @@
 dataset:
-  name: &name test_dcpe_script
+  name: &name test_dcpde_script
   version: "{{ version }}"
   acl: public-read
   source:
