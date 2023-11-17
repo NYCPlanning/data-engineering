@@ -24,4 +24,5 @@ class Scriptor(ScriptorInterface):
         df = self.ingest()
         logger.info(f"Ingested data with shape {df.shape}")
         local_path = df_to_tempfile(df)
+        raise NotImplemented
         return local_path
