@@ -1,0 +1,29 @@
+dataset:
+  name: &name test_dcpe_script
+  version: "{{ version }}"
+  acl: public-read
+  source:
+    script: *name
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    name: *name
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      DCP DE Script is a fake dataset used to test
+      Data Library's use of a python script to extract data
+    url: "https://github.com/NYCPlanning/data-engineering/wiki"
+    dependents: []
