@@ -35,8 +35,7 @@ def branch() -> str:
             .decode()
         )
     elif event_name() == "pull_request":
-        # use <pr_number> from <pr_number>/merge
-        return os.environ["GITHUB_REF_NAME"].split("/")[0]
+        return os.environ["GITHUB_HEAD_REF"]
     else:
         return os.environ["GITHUB_REF_NAME"]
 
