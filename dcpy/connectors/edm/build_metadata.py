@@ -5,19 +5,13 @@ import pytz
 from dcpy.utils import git
 
 
-def build_name(event: str | None = None, source: str | None = None) -> str:
+def build_name(name: str | None = None) -> str:
     if os.environ.get("BUILD_ENGINE_SCHEMA"):
         return os.environ["BUILD_ENGINE_SCHEMA"]
 
-    event = git.event_name() if not event else event
-    if event == "pull_request":
-        prefix = "pr"
-    else:
-        prefix = "run"
-
-    source = git.branch() if not source else source
-    suffix = source.replace("-", "_")
-    return f"{prefix}_{suffix}"
+    name = git.branch() if not name else name
+    # DB schema names can't use dashes
+    return name.replace("-", "_")
 
 
 def generate() -> dict[str, str]:
