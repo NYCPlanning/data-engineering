@@ -1,0 +1,16 @@
+name: 🚀 Socrata - Publish a Dataset
+run-name: "🚀 Socrata - Publish a Dataset"
+
+on:
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-base:latest
+    steps:
+      - uses: actions/checkout@v3
+
