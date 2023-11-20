@@ -1,10 +1,7 @@
 [
     {
         "name": "dcpy",
-        "calls": [
-            "dcpy/test -s --verbose --verbose --cov-config=pyproject.toml --cov dcpy",
-            "dcpy/test -s --verbose --verbose --cov-config=pyproject.toml --cov dcpy"
-        ]
+        "calls": ["dcpy/test -s --verbose --verbose --cov-config=pyproject.toml --cov=dcpy"]
     },
     {
         "name": "data-library",
