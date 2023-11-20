@@ -56,6 +56,7 @@ jobs:
     outputs:
       path_filters: ${{ steps.filter.outputs.changes }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix_raw: ${{ steps.set-matrix.outputs.matrix_raw }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -96,8 +97,13 @@ jobs:
         id: set-matrix
         run: |
           echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
-          filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
-          matrix=$(cat .github/workflows/data/pytest.json | jq "map(. | select(.name|IN(${filter})))")
+          if [[ -z "${{ steps.filter.outputs.changes }}" ]]; then
+            matrix=$(cat .github/workflows/data/pytest.json | jq -cr)
+          else
+            filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
+            matrix=$(cat .github/workflows/data/pytest.json | jq -cr "map(. | select(.name|IN(${filter})))")
+          fi
+          echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
   
   template-db:
@@ -110,6 +116,7 @@ jobs:
     name: Pytest - ${{ matrix.name }}
     needs: check_changes
     runs-on: ubuntu-22.04
+    if: needs.check_changes.outputs.matrix_raw != '[]' 
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check_changes.outputs.matrix) }}
@@ -147,11 +154,12 @@ jobs:
       run: ./bash/docker_container_setup.sh
 
     - name: Pytest
+      env:
+        calls: ${{ toJSON(matrix.calls) }}
       run: |
-        echo '${{ toJson(matrix.calls) }}' \
-          | sed '$ d;1d;s/^[[:space:]]*\"//;s/\",\{0,1\}[[:space:]]*$//'\
-          | while read call; do
-          python3 -m pytest $call
+        echo "$calls" | jq -cr ".[]" | while read call; do
+          IFS=$'\n' arr=( $(xargs -n1 <<<"$call") )
+          python3 -m pytest ${arr[@]}
         done
   
   checkbook:
