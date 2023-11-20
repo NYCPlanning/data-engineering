@@ -1,7 +1,7 @@
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 from dcpy.connectors import github
-from dcpy.connectors.edm import build_metadata
+from dcpy.builds import metadata
 
 from . import BUILD_REPO, BUILD_DBS
 
@@ -9,7 +9,7 @@ from . import BUILD_REPO, BUILD_DBS
 def get_active_build_names() -> list:
     branches = github.get_branches(repo=BUILD_REPO)  # all remote branches
     branch_build_names = sorted(
-        [build_metadata.build_name(name=branch) for branch in branches]
+        [metadata.build_name(name=branch) for branch in branches]
     )
     return branch_build_names
 

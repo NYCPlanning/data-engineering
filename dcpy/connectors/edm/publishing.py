@@ -1,7 +1,10 @@
+import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
+from datetime import datetime
+import pytz
 from io import BytesIO
 from zipfile import ZipFile
 import typer
@@ -9,8 +12,8 @@ from typing import Callable, TypeVar
 from dataclasses import dataclass
 
 from dcpy.utils import s3
+from dcpy.utils import git
 from dcpy.utils.logging import logger
-from dcpy.connectors.edm import build_metadata
 
 BUCKET = "edm-publishing"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
@@ -93,6 +96,19 @@ def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
     return source_data_versions
 
 
+def generate_metadata() -> dict[str, str]:
+    """Generates "standard" s3 metadata for our files"""
+    metadata = {
+        "date_created": datetime.now(pytz.timezone("America/New_York")).strftime(
+            "%Y-%m-%d %H:%M:%S %z"
+        )
+    }
+    metadata["commit"] = git.commit_hash()
+    if os.environ.get("CI"):
+        metadata["run_url"] = git.action_url()
+    return metadata
+
+
 def upload(
     output_path: Path,
     draft_key: DraftKey,
@@ -102,7 +118,7 @@ def upload(
 ) -> None:
     """Upload build output(s) to draft folder in edm-publishing"""
     draft_path = draft_key.path
-    meta = build_metadata.generate()
+    meta = generate_metadata()
     if output_path.is_dir():
         s3.upload_folder(
             BUCKET,
@@ -142,7 +158,7 @@ def legacy_upload(
         prefix = Path(publishing_folder) / s3_subpath
     version_folder = prefix / version
     key = version_folder / output.name
-    meta = build_metadata.generate()
+    meta = generate_metadata()
     if output.is_dir():
         s3.upload_folder(
             BUCKET,
