@@ -58,6 +58,10 @@ jobs:
       working-directory: ./
       run: ./bash/docker_container_setup.sh
 
+    - name: Set build environment variables
+      working-directory: ./
+      run: ./bash/build_env_setup.sh
+
     - name: Dataloading ...
       run: python -m dcpy.builds.load
 
