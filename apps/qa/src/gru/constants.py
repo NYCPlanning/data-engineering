@@ -1,6 +1,6 @@
 import pandas as pd
 
-tests = pd.DataFrame(
+qa_checks = pd.DataFrame(
     [
         (
             "Address Points vs PAD",

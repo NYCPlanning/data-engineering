@@ -3,31 +3,29 @@ import pandas as pd
 import streamlit as st
 import time
 
-from dcpy.connectors.github import workflow_is_running
+from dcpy.connectors.github import WorkflowRun
 from src.github import dispatch_workflow_button
-from src.gru.constants import tests
+from src.gru.constants import qa_checks
 from src.gru.helpers import get_source_versions, get_geosupport_versions
 
 
-def status_details(workflow: dict):
-    timestamp = (
-        workflow["timestamp"]
-        .astimezone(pytz.timezone("US/Eastern"))
-        .strftime("%Y-%m-%d %H:%M")
+def status_details(workflow_run: WorkflowRun) -> None:
+    timestamp = workflow_run.timestamp.astimezone(pytz.timezone("US/Eastern")).strftime(
+        "%Y-%m-%d %H:%M"
     )
-    format = lambda status: f"{status}  \n[{timestamp}]({workflow['url']})"
-    if workflow["status"] in ["queued", "in_progress"]:
-        st.warning(format(workflow["status"].capitalize().replace("_", " ")))
+    format = lambda status: f"{status}  \n[{timestamp}]({workflow_run.url})"
+    if workflow_run.is_running:
+        st.warning(format(workflow_run.status.capitalize().replace("_", " ")))
         st.spinner()
-    elif workflow["status"] == "completed":
-        if workflow["conclusion"] == "success":
+    elif workflow_run.status == "completed":
+        if workflow_run.conclusion == "success":
             st.success(format("Success"))
-        elif workflow["conclusion"] == "cancelled":
+        elif workflow_run.conclusion == "cancelled":
             st.info(format("Cancelled"))
-        elif workflow["conclusion"] == "failure":
+        elif workflow_run.conclusion == "failure":
             st.error(format("Failed"))
         else:
-            st.write(workflow["conclusion"])
+            st.write(workflow_run.conclusion)
 
 
 def source_table() -> None:
@@ -44,49 +42,52 @@ def source_table() -> None:
         col3.write(source_versions[source]["date"])
 
 
-def check_table(workflows, geosupport_version):
+def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> None:
     column_widths = (3, 3, 4, 3, 2)
     cols = st.columns(column_widths)
-    fields = ["Name", "Sources", "Latest results", "Status", "Run Check"]
-    for col, field_name in zip(cols, fields):
-        col.write(f"**{field_name}**")
+    fields = ["Name", "Sources", "Latest results", "Status"]
+    for i, field in enumerate(fields):
+        cols[i].write(f"**{field}**")
 
-    for _, test in tests.iterrows():
-        action_name = test["action_name"]
+    for _, check in qa_checks.iterrows():
+        action_name = check["action_name"]
         if action_name in workflows:
             name, sources, outputs, status, run = st.columns(column_widths)
+            workflow_run = workflows[action_name]
+            running = workflow_run.is_running
 
-            name.write(test["display_name"])
+            name.write(check["display_name"])
 
             folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
 
-            with sources:
-                try:
-                    versions = pd.read_csv(f"{folder}/versions.csv")
-                    st.download_button(
-                        label="\n".join(test["sources"]),
-                        data=versions.to_csv(index=False).encode("utf-8"),
-                        file_name="versions.csv",
-                        mime="text/csv",
-                        help=versions.to_markdown(index=False),
-                    )
-                except:
-                    st.error("Not found")
+            if not running:
+                with sources:
+                    try:
+                        versions = pd.read_csv(f"{folder}/versions.csv")
+                        st.download_button(
+                            label="\n".join(check["sources"]),
+                            data=versions.to_csv(index=False).encode("utf-8"),
+                            file_name="versions.csv",
+                            mime="text/csv",
+                            help=versions.to_markdown(index=False),
+                        )
+                    except:
+                        st.error("Not found")
 
-            files = "  \n".join(
-                [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
-            )
-            outputs.write(files)
-
-            running = workflow_is_running(workflows.get(action_name, {}))
+                files = "  \n".join(
+                    [
+                        f"[{filename}]({folder}/{filename}.csv)"
+                        for filename in check["files"]
+                    ]
+                )
+                outputs.write(files)
 
             with status:
-                workflow = workflows[action_name]
-                status_details(workflow)
+                status_details(workflow_run)
 
         else:
             name, column, run = st.columns((3, 10, 2))
-            name.write(test["display_name"])
+            name.write(check["display_name"])
             with column:
                 st.info(
                     format(
@@ -100,8 +101,8 @@ def check_table(workflows, geosupport_version):
                 "db-gru-qaqc",
                 "main.yml",
                 disabled=running,
-                key=test["action_name"],
-                name=test["action_name"],
+                key=check["action_name"],
+                name=check["action_name"],
                 geosupport_version=get_geosupport_versions()[geosupport_version],
                 run_after=lambda: time.sleep(2),
             )  ## refresh after 2 so that status has hopefully

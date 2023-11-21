@@ -1,7 +1,10 @@
+from __future__ import annotations
 import os
 import requests
-from dateutil.parser import parse
+from datetime import datetime
+from dateutil.parser import parse as datetime_parse
 from typing import List, Dict, Any
+from dataclasses import dataclass
 
 ORG = "NYCPlanning"
 PERSONAL_TOKEN = os.environ["GHP_TOKEN"]
@@ -9,17 +12,28 @@ headers = {"Authorization": "Bearer %s" % PERSONAL_TOKEN}
 BASE_URL = f"https://api.github.com/repos/{ORG}"
 
 
-def parse_workflow(workflow: Dict) -> Dict:  ## json input
-    return {
-        "status": workflow["status"],
-        "conclusion": workflow["conclusion"],
-        "timestamp": parse(workflow["updated_at"], fuzzy=True),
-        "url": workflow["html_url"],
-    }
+@dataclass(frozen=True)
+class WorkflowRun:
+    name: str
+    status: str
+    conclusion: str
+    timestamp: datetime
+    url: str
 
+    @classmethod
+    def parse_from_github(cls, workflow: dict) -> WorkflowRun:
+        """parses json from GitHub into typed class with just what we're interested in"""
+        return WorkflowRun(
+            name=workflow["name"],
+            status=workflow["status"],
+            conclusion=workflow["conclusion"],
+            timestamp=datetime_parse(workflow["updated_at"], fuzzy=True),
+            url=workflow["html_url"],
+        )
 
-def workflow_is_running(workflow: Dict) -> bool:
-    return workflow.get("status") in ["queued", "in_progress"]
+    @property
+    def is_running(self) -> bool:
+        return self.status in ["queued", "in_progress"]
 
 
 def get_default_branch(repo: str) -> str:
@@ -51,7 +65,7 @@ def get_workflow(repo: str, name: str):
 
 def _get_workflow_runs_helper(
     url: str, params: Dict[str, Any] | None = None
-) -> List[Dict]:
+) -> list[dict]:
     response = requests.get(url, headers=headers, params=params).json()
     if "workflow_runs" in response:
         return response["workflow_runs"]
@@ -67,7 +81,7 @@ def get_workflow_runs(
     items_per_page: int = 100,
     total_items: int = 100,
     page_start: int = 0,
-) -> List[Dict]:
+) -> list[WorkflowRun]:
     if items_per_page > 100:
         raise ValueError("github api does not support greater than 100 items per page")
     if workflow_name:
@@ -88,7 +102,7 @@ def get_workflow_runs(
         workflows += res
         if total_items is not None and len(workflows) < total_items:
             workflows = workflows[:total_items]
-    return workflows
+    return [WorkflowRun.parse_from_github(workflow) for workflow in workflows]
 
 
 def dispatch_workflow(

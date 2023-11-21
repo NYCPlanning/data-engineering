@@ -1,6 +1,4 @@
 import time
-import os
-import boto3
 from datetime import datetime
 import streamlit as st
 import requests
@@ -9,7 +7,7 @@ import re
 from dcpy.utils import s3
 from dcpy.connectors import github
 from dcpy.connectors.edm import recipes
-from .constants import tests
+from .constants import qa_checks
 
 
 def get_source_version(dataset: str) -> dict[str, str]:
@@ -17,11 +15,8 @@ def get_source_version(dataset: str) -> dict[str, str]:
         bucket = "edm-publishing"
         prefix = "gru/dcp_saf/"
         folders = s3.get_subfolders(bucket, prefix)
-        folders = [
-            folder["Prefix"].split("/")[-2]
-            for folder in folders
-            if "latest" not in folder["Prefix"]
-        ]
+        if "latest" in folders:
+            folders.remove("latest")
         latest_version = max(folders)
         timestamp = s3.get_metadata(bucket, f"{prefix}{latest_version}/dcp_saf.zip")[
             "last-modified"
@@ -44,7 +39,7 @@ def get_source_version(dataset: str) -> dict[str, str]:
 @st.cache_data(ttl=120)
 def get_source_versions() -> dict[str, dict[str, str]]:
     versions = {}
-    for dataset in [source for sources in tests["sources"] for source in sources]:
+    for dataset in [source for sources in qa_checks["sources"] for source in sources]:
         versions[dataset] = get_source_version(dataset)
     return versions
 
@@ -54,11 +49,14 @@ def map_geosupport_version(patched_version: str) -> str:
     return f"{major}{chr(int(minor)+96)}"  ## converts 1 to 'a', 2 to 'b', etc
 
 
-def get_qaqc_runs(geosupport_version: str) -> dict[str, dict]:
-    workflows: dict[str, dict] = {}
-    raw_workflow_runs: list[dict] = []
+def get_qaqc_runs(geosupport_version: str) -> dict[str, github.WorkflowRun]:
+    qa_check_names = qa_checks["action_name"].values
+    workflow_runs: dict[str, github.WorkflowRun] = {}
+    raw_workflow_runs: list[github.WorkflowRun] = []
     page = 0
-    while len(workflows) != 7 and (page == 0 or (len(raw_workflow_runs) > 0)):
+    while len(workflow_runs) != len(qa_checks) and (
+        page == 0 or (len(raw_workflow_runs) > 0)
+    ):
         raw_workflow_runs = github.get_workflow_runs(
             "db-gru-qaqc",
             "main.yml",
@@ -67,19 +65,19 @@ def get_qaqc_runs(geosupport_version: str) -> dict[str, dict]:
         if len(raw_workflow_runs) == 0:
             break
         for run in raw_workflow_runs:
-            match = re.match("^(\d+\.\d+\.\d+)\_(.+)$", run["name"])
+            match = re.match("^(\d+\.\d+\.\d+)\_(.+)$", run.name)
             if match:
                 gs_version, name = map_geosupport_version(match.group(1)), match.group(
                     2
                 )
                 if (
-                    name in tests["action_name"].values
+                    name in qa_check_names
                     and (gs_version == geosupport_version)
-                    and (name not in workflows)
+                    and (name not in workflow_runs)
                 ):
-                    workflows[name] = github.parse_workflow(run)
+                    workflow_runs[name] = run
         page += 1
-    return workflows
+    return workflow_runs
 
 
 def run_all_workflows(actions: list[str], geosupport_version: str) -> bool:
