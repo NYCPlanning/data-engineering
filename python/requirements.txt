@@ -26,20 +26,20 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.29.3
+boto3==1.29.4
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.29.3
+boto3-stubs[s3]==1.29.4
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-botocore==1.32.3
+botocore==1.32.4
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.32.3
+botocore-stubs==1.32.4
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -121,7 +121,7 @@ folium==0.14.0
     # via
     #   -r python/requirements.in
     #   streamlit-folium
-fonttools==4.44.3
+fonttools==4.45.0
     # via matplotlib
 future==0.18.3
     # via usaddress
@@ -395,7 +395,7 @@ rich==13.7.0
     # via
     #   -r python/requirements.in
     #   streamlit
-rpds-py==0.13.0
+rpds-py==0.13.1
     # via
     #   jsonschema
     #   referencing
