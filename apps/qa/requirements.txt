@@ -1,4 +1,3 @@
-./dcpy
 folium
 geoalchemy2
 mapclassify
