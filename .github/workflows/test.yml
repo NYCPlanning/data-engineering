@@ -99,6 +99,8 @@ jobs:
           echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
           if [[ -z "${{ steps.filter.outputs.changes }}" ]]; then
             matrix=$(cat .github/workflows/data/pytest.json | jq -cr)
+          elif [[ "[]" = "${{ steps.filter.outputs.changes }}" ]]; then
+            matrix="[]"
           else
             filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
             matrix=$(cat .github/workflows/data/pytest.json | jq -cr "map(. | select(.name|IN(${filter})))")
