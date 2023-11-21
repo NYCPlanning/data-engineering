@@ -1,8 +1,7 @@
 def gru():
     import streamlit as st
     import time
-    from dcpy.connectors.github import workflow_is_running
-    from src.gru.constants import readme_markdown_text, tests
+    from src.gru.constants import readme_markdown_text, qa_checks
     from src.gru.helpers import (
         get_qaqc_runs,
         run_all_workflows,
@@ -35,9 +34,8 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     workflows = get_qaqc_runs(geosupport_version)
     not_running_workflows = [
         action_name
-        for action_name in tests["action_name"]
-        if action_name not in workflows
-        or (workflows[action_name]["status"] not in ["queued", "in_progress"])
+        for action_name in qa_checks["action_name"]
+        if action_name not in workflows or (not workflows[action_name].is_running)
     ]
     run_all_workflows(not_running_workflows, geosupport_version)
     check_table(workflows, geosupport_version=geosupport_version)
@@ -46,6 +44,6 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     st.markdown(readme_markdown_text)
 
     # this state gets set when an action is triggered, set to false once it's complete
-    while any([workflow_is_running(workflow) for workflow in workflows.values()]):
+    while any([workflow.is_running for workflow in workflows.values()]):
         time.sleep(5)
-        st.experimental_rerun()
+        st.rerun()

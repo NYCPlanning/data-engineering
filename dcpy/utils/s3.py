@@ -282,7 +282,7 @@ def get_filenames(bucket: str, prefix: str) -> set[str]:
     }
 
 
-def get_subfolders(bucket: str, prefix: str, index=1):
+def get_subfolders(bucket: str, prefix: str, index=1) -> list[str]:
     prefix = _folderize(prefix)
     prefix_path = Path(prefix)
     subfolders = set()
