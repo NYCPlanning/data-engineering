@@ -93,6 +93,7 @@ def check_table(workflows, geosupport_version):
                         f"Check has not been run yet for Geosupport {geosupport_version}"
                     )
                 )
+            running = False
 
         with run:
             dispatch_workflow_button(
