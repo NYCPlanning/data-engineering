@@ -61,8 +61,8 @@ jobs:
       - name: Set versions env vars
         working-directory: products/pluto
         run: |
-          echo VERSION=$(yq .version recipe.lock.yml) >> "$GITHUB_ENV" && \
-          echo VERSION_PREV=$(yq '.inputs.datasets.[] | select(.name == "dcp_pluto") | .version' recipe.lock.yml) >> "$GITHUB_ENV"
+          echo VERSION=$(yq .version ${{ inputs.recipe_file }}.lock.yml) >> "$GITHUB_ENV" && \
+          echo VERSION_PREV=$(yq '.inputs.datasets.[] | select(.name == "dcp_pluto") | .version' ${{ inputs.recipe_file }}.lock.yml) >> "$GITHUB_ENV"
 
       - name: Load Local Data
         run: ./01_load_local_csvs.sh

@@ -2,14 +2,11 @@
 source ./bash/config.sh
 set_error_traps
 
-# Download Existing QAQC from DO
-# HACK due to change in build DB, dm_temp_for_edm_db must be used rather than latest
-# until PLUTO 23v3 is published
-import_qaqc qaqc_expected dm_temp_for_edm_db
-import_qaqc qaqc_aggregate dm_temp_for_edm_db
-import_qaqc qaqc_mismatch dm_temp_for_edm_db
-import_qaqc qaqc_null dm_temp_for_edm_db
-import_qaqc qaqc_outlier dm_temp_for_edm_db
+import_qaqc qaqc_expected $VERSION_PREV
+import_qaqc qaqc_aggregate $VERSION_PREV
+import_qaqc qaqc_mismatch $VERSION_PREV
+import_qaqc qaqc_null $VERSION_PREV
+import_qaqc qaqc_outlier $VERSION_PREV
 
 wait
 
