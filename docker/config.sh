@@ -17,7 +17,7 @@ function install_mc {
 function install_geosupport {
     mkdir -p /geocode && (
         cd /geocode
-        FILE_NAME=linux_geo${RELEASE}_${MAJOR}_${MINOR}.zip
+        FILE_NAME=linux_geo${RELEASE}_${MAJOR}.${MINOR}.zip
         echo $FILE_NAME
         curl -O https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/$FILE_NAME
         unzip *.zip
