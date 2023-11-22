@@ -22,3 +22,6 @@ inputs:
       version: latest
     - name: dcp_zoningmapindex
       version: latest
+    - name: dcp_pluto
+      version: latest
+      import_as: previous_pluto
