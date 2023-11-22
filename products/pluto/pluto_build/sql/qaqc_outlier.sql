@@ -1,11 +1,3 @@
--- -v VERSION=$VERSION
-CREATE TABLE IF NOT EXISTS qaqc_outlier (
-    v character varying,
-    condo character varying,
-    mapped character varying,
-    outlier character varying
-);
-
 DELETE FROM qaqc_outlier
 WHERE
     v = :'VERSION'
