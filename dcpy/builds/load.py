@@ -29,8 +29,7 @@ def load_source_data(recipe_path: Path):
     setup_build_environments(pg_client)
 
     pg_client.create_table_from_csv(
-        "source_data_versions",
-        recipe_lock_path.parent / "source_data_versions.csv",
+        recipe_lock_path.parent / "source_data_versions.csv"
     )
 
     [recipes.import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]

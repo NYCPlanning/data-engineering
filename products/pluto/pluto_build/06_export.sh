@@ -43,44 +43,40 @@ wait
 echo "Exporting pluto csv"
 
 # Pluto
-mkdir -p pluto &&
-  (cd pluto
+mkdir -p pluto && (
+    cd pluto
     rm -f pluto.zip
     run_sql_command "\COPY ( 
-          SELECT * FROM export_pluto
+            SELECT * FROM export_pluto
         ) TO STDOUT DELIMITER ',' CSV HEADER;" > pluto.csv
     echo "${VERSION}" > version.txt
     echo "$(wc -l pluto.csv)" >> version.txt
     zip pluto.zip *
     ls | grep -v pluto.zip | xargs rm
-  )
+)
 
 echo "Exporting DOF"
 # BBL and Council info for DOF
-mkdir -p dof && 
-  (cd dof
+mkdir -p dof && (
+    cd dof
     rm -f bbl_council.zip
     run_sql_command "\COPY ( 
-          SELECT bbl, council FROM export_pluto
-          WHERE bbl is not null
+            SELECT bbl, council FROM export_pluto
+            WHERE bbl is not null
         ) TO STDOUT DELIMITER ',' CSV HEADER;" > bbl_council.csv
     echo "${VERSION}" > version.txt
     zip bbl_council.zip *
     ls | grep -v bbl_council.zip | xargs rm
-  )
+)
 
 echo "Exporting QAQC"
-mkdir -p qaqc && 
-  (cd qaqc
+mkdir -p qaqc && (
+    cd qaqc
     for table in qaqc_aggregate qaqc_expected qaqc_mismatch qaqc_null qaqc_outlier
     do
-      run_sql_command "\COPY ( 
-          SELECT * FROM ${table}
-        ) TO STDOUT DELIMITER ',' CSV HEADER;" > ${table}.csv
-      pg_dump --no-owner -d ${BUILD_ENGINE} -t ${table} -f ${table}.sql
+        csv_export $table
     done
-
-  )
+)
 
 wait 
 cd ..

@@ -5,6 +5,7 @@ import os
 import pandas as pd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text, dialects
+import typer
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -46,17 +47,17 @@ def execute_query_via_shell(engine_uri: str, sql_statement) -> None:
 class PostgresClient:
     def __init__(
         self,
-        schema: str,
         *,
+        schema: str | None = None,
         database: str | None = None,
         server_url: str | None = None,
     ):
-        self.schema = schema
+        self.schema = schema if schema else os.environ["BUILD_ENGINE_SCHEMA"]
         self.database = database if database else os.environ["BUILD_ENGINE_DB"]
         self.engine_uri = generate_engine_uri(
             server_url if server_url else os.environ["BUILD_ENGINE_SERVER"],
             self.database,
-            schema,
+            self.schema,
         )
         self.engine = create_engine(
             self.engine_uri,
@@ -217,7 +218,10 @@ class PostgresClient:
         )
         return int(row_counts["row_count"][0])
 
-    def create_table_from_csv(self, table_name: str, file_path: Path) -> None:
+    def create_table_from_csv(
+        self, file_path: Path, table_name: str | None = None
+    ) -> None:
+        table_name = table_name or file_path.stem
         pd.read_csv(file_path).to_sql(
             name=table_name,
             con=self.engine,
@@ -292,3 +296,26 @@ def insert_copy(table, conn, keys, data_iter):
 
         sql = "COPY {} ({}) FROM STDIN WITH CSV".format(table_name, columns)
         cur.copy_expert(sql=sql, file=s_buf)
+
+
+app = typer.Typer(add_completion=False)
+
+
+@app.command("import_pg_dump")
+def _cli_wrapper_import_pg_dump(
+    file_path: Path = typer.Argument(),
+    table_name: str = typer.Argument(),
+) -> None:
+    PostgresClient().import_pg_dump(file_path, pg_dump_table_name=table_name)
+
+
+@app.command("import_csv")
+def _cli_wrapper_create_table_from_csv(
+    file_path: Path = typer.Argument(),
+    table_name: str = typer.Option(None, "-t", "--table-name"),
+) -> None:
+    PostgresClient().create_table_from_csv(file_path, table_name)
+
+
+if __name__ == "__main__":
+    app()
