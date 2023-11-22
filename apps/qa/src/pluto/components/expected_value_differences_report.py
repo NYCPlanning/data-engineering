@@ -60,7 +60,7 @@ class ExpectedValueDifferencesReport:
         st.dataframe(
             FIELDS_OF_INTEREST,
             column_config={
-                "relevant fields": st.column_config.listColumn(
+                "relevant fields": st.column_config.ListColumn(
                     width="large",
                 ),
             },
@@ -87,7 +87,7 @@ class ExpectedValueDifferencesReport:
                 st.dataframe(
                     value_differences,
                     column_config={
-                        "relevant fields": st.column_config.listColumn(
+                        "relevant fields": st.column_config.ListColumn(
                             width="large",
                         ),
                     },
