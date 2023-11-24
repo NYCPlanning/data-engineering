@@ -26,20 +26,20 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.29.4
+boto3==1.29.6
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.29.4
+boto3-stubs[s3]==1.29.6
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-botocore==1.32.4
+botocore==1.32.6
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.32.4
+botocore-stubs==1.32.6
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -121,7 +121,7 @@ folium==0.14.0
     # via
     #   -r python/requirements.in
     #   streamlit-folium
-fonttools==4.45.0
+fonttools==4.45.1
     # via matplotlib
 future==0.18.3
     # via usaddress
@@ -133,7 +133,7 @@ geographiclib==2.0
     # via geopy
 geopandas==0.12.2
     # via -r python/requirements.in
-geopy==2.4.0
+geopy==2.4.1
     # via contextily
 gitdb==4.0.11
     # via gitpython
@@ -221,7 +221,7 @@ mypy==1.5.1
     # via
     #   -r python/requirements.in
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.29.3
+mypy-boto3-s3==1.29.5
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via
@@ -321,7 +321,7 @@ pydantic-core==2.6.3
     # via pydantic
 pydeck==0.8.1b0
     # via streamlit
-pygments==2.17.1
+pygments==2.17.2
     # via
     #   diff-cover
     #   ipython
@@ -525,7 +525,7 @@ validators==0.22.0
     # via streamlit
 watchdog==3.0.0
     # via streamlit
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via prompt-toolkit
 werkzeug==3.0.1
     # via moto
