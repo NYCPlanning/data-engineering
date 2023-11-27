@@ -1,6 +1,10 @@
 name: Template - Tests
 on:
   workflow_call:
+    inputs:
+      image_tag:
+        type: string
+        required: true
 
 env:
   TOY_SECRET: ${{ secrets.TOY_SECRET }}
@@ -12,7 +16,7 @@ jobs:
     name: Template DB Unit tests
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:latest
+      image: nycplanning/dev:${{ inputs.image_tag || 'latest'}}
     steps:
       - uses: actions/checkout@v3
 
@@ -38,6 +42,7 @@ jobs:
       run_export: false
       logging_level: DEBUG
       build_note: a test build
+      image_tag: ${{ inputs.image_tag || 'latest' }}
     secrets: inherit
 
   e2e_tests:
@@ -45,7 +50,7 @@ jobs:
     needs: build
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:latest
+      image: nycplanning/dev:${{ inputs.image_tag || 'latest' }}
     steps:
       - uses: actions/checkout@v3
 

@@ -20,5 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Delete build artifacts
-        run: |
-          python3 -m dcpy.builds.clean_artifacts
+        run: python3 -m dcpy.builds.clean_artifacts
+      - name: Delete docker images
+        run: echo "TODO"
