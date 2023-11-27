@@ -13,13 +13,104 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check_changes:
+    name: Check changed files
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: read
+    outputs:
+      path_filters: ${{ steps.filter.outputs.changes }}
+      matrix: ${{ steps.set-pytest-matrix.outputs.matrix }}
+      matrix_raw: ${{ steps.set-pytest-matrix.outputs.matrix_raw }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        if: github.event_name == 'pull_request'
+        id: filter
+        with:
+          filters: |
+            dcpy:
+              - dcpy/**
+              - pyproject.toml
+              - python/**
+              - docker/**
+            template:
+              - .github/workflows/test.yml
+              - .github/workflows/build.yml
+              - .github/workflows/template_test.yml
+              - products/template/**
+              - dcpy/**
+              - docker/**
+              - python/**
+            data-library:
+              - data-library/**
+              - python/**
+              - docker/**
+            qa:
+              - apps/qa/**
+              - dcpy/**
+              - python/**
+              - docker/**
+            cbbr:
+              - products/cbbr/**
+              - python/**
+              - docker/**
+            checkbook:
+              - products/checkbook/**
+              - python/**
+              - docker/**
+            zap:
+              - products/zap-opendata/**
+              - python/**
+              - docker/**
+            docker:
+              - python/**
+              - docker/**
+              
+      - name: Confirm changes and set matrix for pytest
+        id: set-pytest-matrix
+        run: |
+          echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
+          if [[ -z "${{ steps.filter.outputs.changes }}" ]]; then
+            matrix=$(cat .github/workflows/data/pytest.json | jq -cr)
+          elif [[ "[]" = "${{ steps.filter.outputs.changes }}" ]]; then
+            matrix="[]"
+          else
+            filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
+            matrix=$(cat .github/workflows/data/pytest.json | jq -cr "map(. | select(.name|IN(${filter})))")
+          fi
+          echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
+          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
+
+  build_docker_images:
+    needs: check_changes
+    runs-on: ubuntu-22.04
+    outputs:
+      tag: dev-${{ github.head_ref || 'latest' }}
+    env:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    strategy: 
+      matrix: 
+        image:
+          - build-base
+          - build-geosupport
+          - dev
+    steps:
+      - uses: actions/checkout@v4
+      - name: publish images
+        if: contains(needs.check_changes.outputs.path_filters, 'docker')
+        working-directory: docker
+        run: ./publish.sh "${{ matrix.image }}" "dev-${{ github.head_ref || 'latest' }}"
+
   check_formatting:
+    needs: build_docker_images
     name: Check formatting of files
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:latest
+      image: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Check python files
         run: black --diff --color --check .
@@ -34,11 +125,12 @@ jobs:
           sqlfluff lint products/zoningtaxlots/sql/
 
   mypy:
+    needs: build_docker_images
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:latest
+      image: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Check python files
         run: |
@@ -47,82 +139,28 @@ jobs:
           mypy data-library/library
           mypy products/facilities
           mypy products/template
-
-  check_changes:
-    name: Check changed files
-    runs-on: ubuntu-22.04
-    permissions:
-      pull-requests: read
-    outputs:
-      path_filters: ${{ steps.filter.outputs.changes }}
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      matrix_raw: ${{ steps.set-matrix.outputs.matrix_raw }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
-        if: github.event_name == 'pull_request'
-        id: filter
-        with:
-          filters: |
-            dcpy:
-              - dcpy/**
-              - pyproject.toml
-              - python/**
-            template:
-              - .github/workflows/test.yml
-              - .github/workflows/build.yml
-              - .github/workflows/template_test.yml
-              - products/template/**
-              - dcpy/**
-              - docker/**
-              - python/**
-            data-library:
-              - data-library/**
-              - python/**
-            qa:
-              - apps/qa/**
-              - dcpy/**
-              - docker/**
-              - python/**
-            cbbr:
-              - products/cbbr/**
-              - python/**
-            checkbook:
-              - products/checkbook/**
-              - python/**
-            zap:
-              - products/zap-opendata/**
-              - python/**
-      - name: Confirm changes and set matrix
-        id: set-matrix
-        run: |
-          echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
-          if [[ -z "${{ steps.filter.outputs.changes }}" ]]; then
-            matrix=$(cat .github/workflows/data/pytest.json | jq -cr)
-          elif [[ "[]" = "${{ steps.filter.outputs.changes }}" ]]; then
-            matrix="[]"
-          else
-            filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
-            matrix=$(cat .github/workflows/data/pytest.json | jq -cr "map(. | select(.name|IN(${filter})))")
-          fi
-          echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
-          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
   
   template-db:
-    needs: check_changes
+    needs: 
+      - build_docker_images
+      - check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'template')
     uses: ./.github/workflows/template_test.yml
+    with:
+      image_tag: ${{ needs.build_docker_images.outputs.tag }}
     secrets: inherit
 
   pytest:
     name: Pytest - ${{ matrix.name }}
-    needs: check_changes
+    needs: 
+      - build_docker_images
+      - check_changes
     runs-on: ubuntu-22.04
     if: needs.check_changes.outputs.matrix_raw != '[]' 
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check_changes.outputs.matrix) }}
-    container: nycplanning/dev:latest
+    container: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
     defaults:
       run:
         shell: bash
@@ -141,7 +179,7 @@ jobs:
       ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
       TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
     steps:    
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
       with:
@@ -165,11 +203,13 @@ jobs:
         done
   
   checkbook:
-    needs: check_changes
+    needs: 
+      - build_docker_images
+      - check_changes
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:latest
+      image: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
     services:
@@ -189,7 +229,7 @@ jobs:
         shell: bash
         working-directory: products/checkbook
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1

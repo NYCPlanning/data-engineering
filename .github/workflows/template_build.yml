@@ -15,6 +15,9 @@ on:
       run_export:
         type: boolean
         required: true
+      image_tag:
+        type: string
+        required: false
 
 env:
   TOY_SECRET: ${{ secrets.TOY_SECRET }}
@@ -27,7 +30,7 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:latest
+      image: nycplanning/dev:${{ inputs.image_tag || 'latest' }}
     defaults:
       run:
         shell: bash

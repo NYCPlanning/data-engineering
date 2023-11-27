@@ -1,5 +1,8 @@
 #!/bin/bash
 
+image=$1
+tag=$2
+
 PYTHON_VERSION="3.11"
 
 DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
@@ -12,7 +15,7 @@ pip3 install requests beautifulsoup4
 
 function export_geosupport_versions {
     VERSIONSTRING=$(python3 geosupport_versions.py)
-
+    echo $VERSIONSTRING
     export $(echo "$VERSIONSTRING" | sed 's/#.*//g' | xargs)
     export VERSION=$MAJOR.$MINOR.$PATCH
 
@@ -20,32 +23,42 @@ function export_geosupport_versions {
 }
 
 function common {
-    DOCKER_IMAGE_NAME=nycplanning/$1
-    cp $ROOT_DIR/python/constraints.txt $1
-    cp -r $ROOT_DIR/dcpy $1
-    cp $DIR/config.sh $1
+    DOCKER_IMAGE_NAME=nycplanning/$image
+    cp $ROOT_DIR/python/constraints.txt $image
+    cp -r $ROOT_DIR/dcpy $image
+    cp $DIR/config.sh $image
 
     docker_login
+
+    if [[ -z $tag ]]; then
+        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME latest --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+        GEO_COMMAND="build_and_publish_versioned_docker_image $image $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+    else
+        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+        echo "$COMMAND"
+        GEO_COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+    fi
 }
 
-case $1 in
+
+case $image in
     dev)
-        common $1
+        export_geosupport_versions
+        common
         cp $ROOT_DIR/python/requirements.txt $1
-        export_geosupport_versions
-        build_and_publish_versioned_docker_image $1 $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION;;
+        $GEO_COMMAND;;
     build-base) 
-        common $1
-        build_and_publish_docker_image $1 $DOCKER_IMAGE_NAME latest --build-arg PYTHON_VERSION=$PYTHON_VERSION;;
+        common
+        $COMMAND;;
     build-geosupport) 
-        common $1
         export_geosupport_versions
-        build_and_publish_versioned_docker_image $1 $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION;;
+        common
+        $GEO_COMMAND;;
     docker-geosupport)
-        common $1
         export_geosupport_versions
-        build_and_publish_versioned_docker_image $1 $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION;;
+        common
+        $GEO_COMMAND;;
     *)
-        echo "${1} is not an valid Dockerfile." 
+        echo "$image is not an valid Dockerfile." 
         exit 1;;
 esac
