@@ -67,7 +67,7 @@ jobs:
         run: python -m facdb.cli init
 
       - name: Dataloading
-        run: python -m dcpy.builds.load
+        run: python -m dcpy.builds.load recipe
 
       - name: Run Pipelines
         run: python -m facdb.cli run --sql

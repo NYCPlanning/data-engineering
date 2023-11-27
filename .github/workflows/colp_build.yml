@@ -63,7 +63,7 @@ jobs:
       run: ./bash/build_env_setup.sh
 
     - name: Dataloading ...
-      run: python -m dcpy.builds.load
+      run: python -m dcpy.builds.load recipe
 
     - name: Build COLP ...
       run: ./colp.sh build

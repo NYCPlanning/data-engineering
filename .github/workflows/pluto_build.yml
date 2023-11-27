@@ -70,7 +70,7 @@ jobs:
       - name: Load data
         working-directory: products/pluto
         run: |
-          python3 -m dcpy.builds.load --recipe_path ./${{ inputs.recipe_file }}.yml
+          python3 -m dcpy.builds.load recipe --recipe_path ./${{ inputs.recipe_file }}.yml
 
       - name: Set versions env vars
         working-directory: products/pluto

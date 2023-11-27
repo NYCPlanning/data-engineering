@@ -41,7 +41,7 @@ def load_source_data(recipe_path: Path):
 app = typer.Typer(add_completion=False)
 
 
-@app.command("load")
+@app.command("recipe")
 def _cli_wrapper_load(
     recipe_path: Path = typer.Option(
         "./recipe.yml",
@@ -51,6 +51,39 @@ def _cli_wrapper_load(
     ),
 ):
     load_source_data(recipe_path)
+
+
+@app.command("dataset")
+def _import_dataset(
+    dataset_name: str = typer.Option(
+        None,
+        "-n",
+        "--dataset_name",
+        help="Name of the dataset",
+    ),
+    version: str = typer.Option(
+        None,
+        "-v",
+        "--version",
+        help="Dataset version to import",
+    ),
+    dataset_type: recipes.DatasetType = typer.Option(
+        recipes.DatasetType.pg_dump,
+        "-t",
+        "--type",
+        help="Dataset type",
+    ),
+    database_schema: str = typer.Option(
+        "postgres",
+        "-s",
+        "--schema",
+        help="Database Schema",
+    ),
+):
+    recipes.import_dataset(
+        recipes.Dataset(name=dataset_name, version=version, file_type=dataset_type),
+        postgres.PostgresClient(schema=database_schema),
+    )
 
 
 if __name__ == "__main__":
