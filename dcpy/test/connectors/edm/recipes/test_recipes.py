@@ -118,7 +118,38 @@ class TestImportDatasets(TestCase):
         )
         recipes.import_dataset(ds, pg_mock)
 
+        assert (
+            pg_mock.insert_dataframe.called
+        ), "PostgresClient.insert_dataframe should be called"
+
         # Verify the values that PostgresClient.insert_dataframe was called with
+        (
+            df_inserted_actual,
+            table_insert_name_actual,
+        ) = pg_mock.insert_dataframe.call_args_list[0][0]
+        assert df_inserted_actual.equals(_mock_preprocessor(ds.name, _test_df))
+        assert table_insert_name_actual == ds.import_as
+
+    def test_import_parquet(self):
+        self.set_mocks()
+        pg_mock = MagicMock()
+        ds = recipes.Dataset(
+            name="test",
+            version="1",
+            import_as="new_table_name",
+            file_type=recipes.DatasetType.parquet,
+            preprocessor=recipes.DataPreprocessor(module="dcpy", function="preproc"),
+        )
+
+        def _mock_fetch_parquet(ds, _):
+            out_path = TEMP_DATA_PATH / f"{ds.name}.parquet"
+            _test_df.to_parquet(out_path, index=False)
+            return out_path
+
+        recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
+
+        recipes.import_dataset(ds, pg_mock)
+
         (
             df_inserted_actual,
             table_insert_name_actual,

@@ -40,9 +40,10 @@ class VersionStrategy(str, Enum):
 class DatasetType(str, Enum):
     pg_dump = "pg_dump"
     csv = "csv"
+    parquet = "parquet"
 
 
-_dataset_extensions = {"pg_dump": "sql", "csv": "csv"}
+_dataset_extensions = {"pg_dump": "sql", "csv": "csv", "parquet": "parquet"}
 
 
 class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
@@ -177,25 +178,33 @@ def import_dataset(
 
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
-    if ds.preprocessor is not None and ds.file_type != DatasetType.csv:
-        raise Exception("Preprocessor can only be specified for csv datasets")
+    if ds.preprocessor is not None and ds.file_type not in (
+        DatasetType.csv,
+        DatasetType.parquet,
+    ):
+        raise Exception(
+            "Preprocessor can only be specified for csv or parquet datasets"
+        )
 
     local_dataset_path = fetch_dataset(ds, local_library_dir)
 
-    match ds.file_type:
-        case DatasetType.pg_dump:
-            pg_client.import_pg_dump(
-                local_dataset_path,
-                pg_dump_table_name=ds.name,
-                target_table_name=ds_table_name,
-            )
-        case DatasetType.csv:
-            df = pd.read_csv(local_dataset_path, dtype=str)
-            if ds.preprocessor is not None:
-                preproc_mod = importlib.import_module(ds.preprocessor.module)
-                preproc_func = getattr(preproc_mod, ds.preprocessor.function)
-                df = preproc_func(ds.name, df)
-            pg_client.insert_dataframe(df, ds_table_name)
+    if ds.file_type == DatasetType.pg_dump:
+        pg_client.import_pg_dump(
+            local_dataset_path,
+            pg_dump_table_name=ds.name,
+            target_table_name=ds_table_name,
+        )
+    elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
+        df = (
+            pd.read_csv(local_dataset_path, dtype=str)
+            if ds.file_type == DatasetType.csv
+            else pd.read_parquet(local_dataset_path)
+        )
+        if ds.preprocessor is not None:
+            preproc_mod = importlib.import_module(ds.preprocessor.module)
+            preproc_func = getattr(preproc_mod, ds.preprocessor.function)
+            df = preproc_func(ds.name, df)
+        pg_client.insert_dataframe(df, ds_table_name)
 
     pg_client.add_table_column(
         ds_table_name,
