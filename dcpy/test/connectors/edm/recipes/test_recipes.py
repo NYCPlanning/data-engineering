@@ -90,9 +90,15 @@ def _mock_preprocessor(name, df):
     return df
 
 
-def _mock_fetch_dataset(ds, _):
+def _mock_fetch_csv(ds, _):
     out_path = TEMP_DATA_PATH / f"{ds.name}.csv"
     _test_df.to_csv(out_path, index=False)
+    return out_path
+
+
+def _mock_fetch_parquet(ds, _):
+    out_path = TEMP_DATA_PATH / f"{ds.name}.parquet"
+    _test_df.to_parquet(out_path, index=False)
     return out_path
 
 
@@ -100,14 +106,10 @@ def _mock_fetch_dataset(ds, _):
 class TestImportDatasets(TestCase):
     # TODO: move this functionality into an integration test with an actual database
 
-    def set_mocks(self):
-        # Mock out fetch_dataset to download a mocked csv
-        recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_dataset)
-        # Mocking out a preprocessor for our datasets. Sticking it on `dcpy` for ease
-        dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
+    def test_import_csv(self):
+        recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_csv)
 
-    def test_import_dataset(self):
-        self.set_mocks()
+        dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
         ds = recipes.Dataset(
             name="test",
@@ -131,7 +133,9 @@ class TestImportDatasets(TestCase):
         assert table_insert_name_actual == ds.import_as
 
     def test_import_parquet(self):
-        self.set_mocks()
+        recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
+
+        dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
         ds = recipes.Dataset(
             name="test",
@@ -140,11 +144,6 @@ class TestImportDatasets(TestCase):
             file_type=recipes.DatasetType.parquet,
             preprocessor=recipes.DataPreprocessor(module="dcpy", function="preproc"),
         )
-
-        def _mock_fetch_parquet(ds, _):
-            out_path = TEMP_DATA_PATH / f"{ds.name}.parquet"
-            _test_df.to_parquet(out_path, index=False)
-            return out_path
 
         recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
 
