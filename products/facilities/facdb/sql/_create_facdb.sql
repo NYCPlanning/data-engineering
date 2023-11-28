@@ -65,4 +65,4 @@ INSERT INTO corrections_not_applied (uid, field)
 DELETE FROM facdb
 WHERE uid IN (SELECT uid FROM corrections_applied WHERE field = 'remove');
 
-CALL apply_correction('facdb', 'manual_corrections');
+CALL apply_correction(:'build_schema', 'facdb', 'manual_corrections');

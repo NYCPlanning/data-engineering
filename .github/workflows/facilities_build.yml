@@ -21,24 +21,9 @@ jobs:
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
       env:
-        BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres # TODO: address this duplication
-        BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
-        BUILD_ENGINE_DB: postgres
-        BUILD_ENGINE_SCHEMA: public
-        EDM_DATA: ${{ secrets.EDM_DATA }}
-    services:
-      postgis:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --shm-size=2gb
-        ports:
-          - 5432:5432
+        BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+        BUILD_ENGINE_DB: db-facilities
+        BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
     steps:
       - uses: actions/checkout@v3
 
@@ -52,18 +37,22 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: Run Container Setup
+      - name: Run container setup
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: Set Product Env Vars
-        run: cat version.env >> "$GITHUB_ENV"
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
-      - name: Initialize
-        run: python -m facdb.cli init
+      - name: Set product environment variables
+        run: cat version.env >> "$GITHUB_ENV"
 
       - name: Dataloading
         run: python -m dcpy.builds.load recipe
+
+      - name: Initialize
+        run: python -m facdb.cli init
 
       - name: Run Pipelines
         run: python -m facdb.cli run --sql
