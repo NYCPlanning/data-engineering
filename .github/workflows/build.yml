@@ -124,6 +124,7 @@ jobs:
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
+      recipe_file: ${{ inputs.recipe_file }}
       run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
   devdb:

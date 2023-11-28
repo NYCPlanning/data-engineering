@@ -9,6 +9,9 @@ on:
       image_tag:
         type: string
         required: false
+      recipe_file:
+        type: string
+        required: true
         
 jobs:
   build:
@@ -45,24 +48,5 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
-      - name: 01 dataloading
-        run: |
-          # TODO create a recipe for cpdb
-          ./cpdb.sh dataloading
-
-      - name: 02 Build Attribute
-        run: ./cpdb.sh attribute
-
-      - name: 03 Adminbounds
-        run: ./cpdb.sh adminbounds
-
-      - name: 04 Analysis
-        run: ./cpdb.sh analysis
-
-      - name: 05 Export
-        if: inputs.run_export
-        run: ./cpdb.sh export
-
-      - name: 06 Upload to DigitalOcean
-        if: inputs.run_export
-        run: ./cpdb.sh upload
+      - name: Build
+        run: ./cpdb.sh build ${{ inputs.recipe_file }}

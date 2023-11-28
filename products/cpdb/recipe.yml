@@ -1,0 +1,37 @@
+name: CPDB
+product: db-cpdb
+version: 23adopt
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+    - name: dcp_boroboundaries_wi
+    - name: dcp_stateassemblydistricts
+    - name: dcp_ct2020
+    - name: dcp_congressionaldistricts
+    - name: dcp_cdboundaries
+    - name: dcp_statesenatedistricts
+    - name: dcp_municipalcourtdistricts
+    - name: dcp_school_districts
+    - name: dcp_trafficanalysiszones
+    - name: dcp_councildistricts
+    - name: nypd_policeprecincts
+    - name: fdny_firecompanies
+
+# Building and lot-level info
+    - name: dcp_mappluto_wi
+    - name: dcp_facilities
+    - name: doitt_buildingfootprints
+
+# Projects
+    - name: cpdb_capital_spending
+    - name: fisa_capitalcommitments
+    - name: fisa_dailybudget
+    - name: dot_projects_intersections
+    - name: dot_projects_streets
+    - name: dot_projects_bridges
+    - name: dpr_capitalprojects
+    - name: dpr_parksproperties
+    - name: edc_capitalprojects_ferry
+    - name: edc_capitalprojects
+    - name: ddc_capitalprojects_infrastructure
+    - name: ddc_capitalprojects_publicbuildings
