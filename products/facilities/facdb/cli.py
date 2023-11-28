@@ -11,6 +11,7 @@ from .utility.metadata import dump_metadata
 
 from facdb import (
     SQL_PATH,
+    BUILD_NAME,
     BUILD_ENGINE,
     CACHE_PATH,
 )
@@ -60,7 +61,11 @@ def build():
         BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql"
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_agency.sql")
-    postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb.sql")
+    postgres.execute_file_via_shell(
+        BUILD_ENGINE,
+        SQL_PATH / "_create_facdb.sql",
+        build_schema=BUILD_NAME,
+    )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
 
 

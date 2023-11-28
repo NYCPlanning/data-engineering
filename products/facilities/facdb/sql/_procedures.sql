@@ -112,6 +112,7 @@ $BODY$ LANGUAGE plpgsql;
 
 DROP PROCEDURE IF EXISTS apply_correction;
 CREATE OR REPLACE PROCEDURE apply_correction (
+    _schema text,
     _table text,
     _corrections text
 ) AS $BODY$
@@ -122,8 +123,9 @@ DECLARE
     _new_value text;
     _valid_fields text[];
 BEGIN
+    RAISE NOTICE 'Attempting to apply corrections for field % to %.%', _field, _schema, _table;
     SELECT array_agg(column_name) FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = _table INTO _valid_fields;
+    WHERE table_schema = _schema AND table_name = lower(_table) INTO _valid_fields;
 
     FOR _uid, _field, _old_value, _new_value IN
         EXECUTE FORMAT($n$
