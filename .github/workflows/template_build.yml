@@ -60,7 +60,7 @@ jobs:
 
       - name: Load
         run: |
-          python3 -m dcpy.builds.load --recipe_path ./${{ inputs.recipe_file }}.yml
+          python3 -m dcpy.builds.load recipe --recipe_path ./${{ inputs.recipe_file }}.yml
 
       - name: Transform
         run: |
