@@ -21,7 +21,7 @@ mkdir -p output && (
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
 
-    echo $DATE > version.txt
+    echo $VERSION > version.txt
     wait 
 
     echo 

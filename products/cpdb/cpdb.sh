@@ -57,8 +57,9 @@ function share {
 }
 
 case $1 in 
-    dataloading ) ./bash/01_dataloading.sh ;;
-    attribute ) ./bash/02_build_attribute.sh ;;
+    dataloading ) python3 -m dcpy.builds.load recipe --recipe_path ./${2:-"recipe"}.yml ;;
+    preprocessing ) ./bash/01_preprocessing.sh ;;
+    attribute ) ./bash/02_build.sh ;;
     adminbounds ) ./bash/03_adminbounds.sh ;;
     analysis ) ./bash/04_analysis.sh ;;
     export ) ./bash/05_export.sh ;;
@@ -66,4 +67,13 @@ case $1 in
     upload ) upload db-cpdb private ;;
     share ) share $@ ;;
     sql) sql $@;;
+    build)
+        python3 -m dcpy.builds.load recipe --recipe_path ./${2:-"recipe"}.yml
+        export VERSION=$(yq .version recipe.lock.yml)
+        ./bash/01_preprocessing.sh
+        ./bash/02_build.sh
+        ./bash/03_adminbounds.sh
+        ./bash/04_analysis.sh
+        ./bash/05_export.sh
+        upload db-cpdb private
 esac
