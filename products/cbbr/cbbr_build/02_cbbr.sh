@@ -2,6 +2,10 @@
 source config.sh
 
 echo "CBBR Version ${VERSION} : 02 CBBR"
+
+echo "Create Manually Mapped Corrections table..."
+run_sql_file sql/create_corrections.sql
+
 # TODO delete tables that are created by this stage
 echo "Create build tables to modify ..."
 run_sql_file sql/preprocessing.sql
