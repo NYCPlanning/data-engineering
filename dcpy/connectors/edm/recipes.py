@@ -178,17 +178,14 @@ def import_dataset(
 
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
-    if ds.preprocessor is not None and ds.file_type not in (
-        DatasetType.csv,
-        DatasetType.parquet,
-    ):
-        raise Exception(
-            "Preprocessor can only be specified for csv or parquet datasets"
-        )
 
     local_dataset_path = fetch_dataset(ds, local_library_dir)
 
     if ds.file_type == DatasetType.pg_dump:
+        if ds.preprocessor is not None:
+            logger.warning(
+                f"Preprocessor {ds.preprocessor.module} cannot be applied to pg_dump dataset {ds.name}."
+            )
         pg_client.import_pg_dump(
             local_dataset_path,
             pg_dump_table_name=ds.name,
