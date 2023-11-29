@@ -27,9 +27,11 @@ def generate_engine_uri(
     return server_url + "/" + database + options
 
 
-def execute_file_via_shell(engine_uri: str, path: Path) -> None:
-    """Execute .sql script at given path."""
-    cmd = f"psql {engine_uri} -v ON_ERROR_STOP=1 -f {path}"
+def execute_file_via_shell(engine_uri: str, path: Path, **kwargs) -> None:
+    """Execute a .sql script at given path using psql CLI and kwargs to set variables."""
+    psql_vars = [f"--variable {name}={value}" for (name, value) in kwargs.items()]
+    psql_vars_text = " ".join(psql_vars)
+    cmd = f"psql {engine_uri} --variable ON_ERROR_STOP=1 {psql_vars_text} -f {path}"
     if os.system(cmd) != 0:
         raise Exception(f"{path} has errors!")
 
