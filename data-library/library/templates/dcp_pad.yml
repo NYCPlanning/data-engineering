@@ -4,7 +4,7 @@ dataset:
   acl: public-read
   source:
     script: *name
-    path: "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_{{ version }}.zip"
+    path: "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad{{ version }}.zip"
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
