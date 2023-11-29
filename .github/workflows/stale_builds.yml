@@ -17,9 +17,12 @@ jobs:
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
       BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
       - uses: actions/checkout@v3
       - name: Delete build artifacts
-        run: python3 -m dcpy.builds.clean_artifacts
+        run: python3 -m dcpy.builds.clean_artifacts schemas
       - name: Delete docker images
-        run: echo "TODO"
+        run: python3 -m dcpy.builds.clean_artifacts dockerhub_tags
+          
