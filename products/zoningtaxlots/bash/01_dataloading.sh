@@ -1,6 +1,14 @@
 #!/bin/bash
 source bash/config.sh
 
+echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
+# create build schema
+run_sql_command \
+    "
+    DROP SCHEMA IF EXISTS ${BUILD_ENGINE_SCHEMA} CASCADE;
+    CREATE SCHEMA ${BUILD_ENGINE_SCHEMA};
+    "
+
 create_source_data_table
 
 # Import Data
