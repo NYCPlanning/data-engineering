@@ -15,29 +15,7 @@ on:
       image_tag:
         type: string
         required: false
-  workflow_dispatch:
-    inputs:
-      run_export:
-        type: boolean
-        description: "Run Export Step and Upload to DO"
-        required: true
-        default: false
-      recipe_file:
-        description: "Name of recipe file to use"
-        type: choice
-        required: true
-        default: recipe
-        options:
-          - recipe
-          - recipe-minor
-      create_issue:
-        type: boolean
-        description: Create GH Issue for build?
-        default: false
-      image_tag:
-        description: "Tag of build docker image to use"
-        type: string
-        required: false
+
 jobs:
   build:
     runs-on: ubuntu-22.04
