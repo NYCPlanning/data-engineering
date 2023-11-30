@@ -26,7 +26,9 @@ jobs:
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
-      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
+      BUILD_ENGINE_DB: db-cbbr
+      BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
       EDM_DATA: ${{ secrets.EDM_DATA }}
     services:
       postgis:
@@ -55,9 +57,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: Run Container Setup
+      - name: Finish container setup ...
         working-directory: ./
         run: ./bash/docker_container_setup.sh
+
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
       - name: Dataloading ...
         run: ./01_dataloading.sh
@@ -70,8 +76,4 @@ jobs:
 
       - name: Export CBBR Output to DO (edm-publishing)
         run: ./04_export.sh
-        if: inputs.run_export
-
-      - name: Archive CBBR to EDM-DATA
-        run: ./05_archive.sh
         if: inputs.run_export
