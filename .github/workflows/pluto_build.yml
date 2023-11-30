@@ -12,6 +12,9 @@ on:
       create_issue:
         type: boolean
         default: false
+      image_tag:
+        type: string
+        required: false
   workflow_dispatch:
     inputs:
       run_export:
@@ -31,6 +34,10 @@ on:
         type: boolean
         description: Create GH Issue for build?
         default: false
+      image_tag:
+        description: "Tag of build docker image to use"
+        type: string
+        required: false
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -39,7 +46,7 @@ jobs:
         shell: bash
         working-directory: products/pluto/pluto_build
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
       BUILD_ENGINE_DB: db-pluto

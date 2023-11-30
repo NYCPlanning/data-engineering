@@ -12,6 +12,9 @@ on:
       run_export:
         type: boolean
         required: true
+      image_tag:
+        type: string
+        required: false
 
 jobs:
   build:
@@ -21,7 +24,7 @@ jobs:
         shell: bash
         working-directory: products/cbbr/cbbr_build
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}

@@ -6,7 +6,10 @@ on:
       run_export:
         type: boolean
         required: true
-
+      image_tag:
+        type: string
+        required: false
+        
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -15,7 +18,7 @@ jobs:
         shell: bash
         working-directory: products/cpdb
     container: 
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
       BUILD_ENGINE_DB: db-cpdb
