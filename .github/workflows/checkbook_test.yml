@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:latest
-    env:
-      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine
