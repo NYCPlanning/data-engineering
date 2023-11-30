@@ -2,7 +2,7 @@
 
 This web application displays charts and tables to assess the consistency, quality and completeness of a particular build of one of data engineering's data products.
 
-The deployed app is at [edm-data-engineering.nycplanningdigital.com](https://edm-data-engineering.nycplanningdigital.com/?page=Home)
+The deployed app is at [edm-data-engineering.nycplanningdigital.com](https://de-qaqc.nycplanningdigital.com/?page=Home)
 
 It's written in Python using the [streamlit](https://streamlit.io/) framework.
 
