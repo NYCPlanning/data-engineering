@@ -9,17 +9,6 @@ on:
       image_tag:
         type: string
         required: false
-  workflow_dispatch:
-    inputs:
-      run_export:
-        description: "Run Export Step and Upload to DO"
-        type: boolean
-        required: true
-        default: false
-      image_tag:
-        description: "Tag of build docker image to use"
-        type: string
-        required: false
 
 jobs:
   build:
