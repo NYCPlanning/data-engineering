@@ -7,6 +7,9 @@ on:
         type: boolean
         required: true
         default: false
+      image_tag:
+        type: string
+        required: false
 
 jobs:
   build:
@@ -16,7 +19,7 @@ jobs:
         shell: bash
         working-directory: products/developments
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
       env:
         BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
         BUILD_ENGINE_DB: db-devdb

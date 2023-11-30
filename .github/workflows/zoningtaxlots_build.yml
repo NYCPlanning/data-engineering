@@ -6,6 +6,9 @@ on:
       run_export:
         type: boolean
         required: true
+      image_tag:
+        type: string
+        required: false
 
 jobs:
   build:
@@ -16,7 +19,7 @@ jobs:
         shell: bash
         working-directory: products/zoningtaxlots
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine

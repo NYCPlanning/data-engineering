@@ -6,6 +6,9 @@ on:
       run_export:
         type: boolean
         required: true
+      image_tag:
+        type: string
+        required: false
   workflow_dispatch:
     inputs:
       run_export:
@@ -13,6 +16,10 @@ on:
         type: boolean
         required: true
         default: false
+      image_tag:
+        description: "Tag of build docker image to use"
+        type: string
+        required: false
 
 jobs:
   build:
@@ -23,7 +30,7 @@ jobs:
         shell: bash
         working-directory: products/facilities
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
       env:
         BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres # TODO: address this duplication
         BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432

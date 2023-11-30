@@ -45,6 +45,11 @@ on:
         type: boolean
         required: true
         default: false
+      dev_image: 
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
   workflow_call:
     inputs:
       dataset_name:
@@ -60,17 +65,24 @@ on:
       recipe_file:
         type: string
         required: true
+      dev_image:
+        type: boolean
+        default: false
 
 jobs:
   health_check:
     name: Health Check
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     steps:
       - name: Check inputs
         run: |
+          echo "running with image tag ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}"
           echo "Workflow inputs are:"
           echo "${{ toJSON(github.event.inputs) }}"
   template:
+    needs: health_check
     if: inputs.dataset_name == 'template'
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
@@ -79,7 +91,9 @@ jobs:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   cbbr:
+    needs: health_check
     if: inputs.dataset_name == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
@@ -87,52 +101,69 @@ jobs:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   checkbook:
+    needs: health_check
     if: inputs.dataset_name == 'checkbook'
     uses: ./.github/workflows/checkbook_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   colp:
+    needs: health_check
     if: inputs.dataset_name == 'colp'
     uses: ./.github/workflows/colp_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   cpdb:
+    needs: health_check
     if: inputs.dataset_name == 'cpdb'
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   devdb:
+    needs: health_check
     if: inputs.dataset_name == 'devdb'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   facilities:
+    needs: health_check
     if: inputs.dataset_name == 'facilities'
     uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   knownprojects:
+    needs: health_check
     if: inputs.dataset_name == 'knownprojects'
     uses: ./.github/workflows/knownprojects_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   pluto:
+    needs: health_check
     if: inputs.dataset_name == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
       recipe_file: ${{ inputs.recipe_file }}
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}
   ztl:
+    needs: health_check
     if: inputs.dataset_name == 'ztl'
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
       run_export: ${{ inputs.run_export }}
+      image_tag: ${{ needs.health_check.outputs.tag }}

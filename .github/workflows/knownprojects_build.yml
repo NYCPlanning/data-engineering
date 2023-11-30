@@ -6,13 +6,16 @@ on:
       run_export:
         type: boolean
         required: true
+      image_tag:
+        type: string
+        required: false
 
 jobs:
   build:
     name: build
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.image_tag }}
     defaults:
       run:
         shell: bash
