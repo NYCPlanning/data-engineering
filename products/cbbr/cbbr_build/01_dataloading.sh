@@ -28,6 +28,14 @@ echo "Load data into the container ..."
 # "
 # psql $BUILD_ENGINE -f sql/preprocessing.sql
 
+echo "Dropping and creating build schema '$BUILD_ENGINE_SCHEMA'"
+# create build schema
+run_sql_command \
+    "
+    DROP SCHEMA IF EXISTS ${BUILD_ENGINE_SCHEMA} CASCADE;
+    CREATE SCHEMA ${BUILD_ENGINE_SCHEMA};
+    "
+
 create_source_data_table
 
 ## REPLACES python3 python/dataloading.py in cook image
