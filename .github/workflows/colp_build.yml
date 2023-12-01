@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    name: Build COLP
     runs-on: ubuntu-22.04
     defaults:
       run:

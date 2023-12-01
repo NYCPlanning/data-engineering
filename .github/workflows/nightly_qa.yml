@@ -7,65 +7,15 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test_helper.yml
     secrets: inherit
-  # This is largely copied and pasted from build.yml
-  # Eventually should likely call build.yml, but for now that results in 70 cancelled jobs in the workflow
-  # Once build calls are simplified and build.yml doesn't need all the if clauses, this should call it with a matrix instead
-  cbbr:
-    name: Build cbbr
-    uses: ./.github/workflows/cbbr_build.yml
+  
+  build:
+    uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
+      dataset_name: all
+      build_note: nightly qa
       run_export: true
-      logging_level: WARNING
-  checkbook:
-    name: Build checkbook
-    uses: ./.github/workflows/checkbook_build.yml
-    secrets: inherit
-    with:
-      run_export: true
-  colp:
-    name: Build colp
-    uses: ./.github/workflows/colp_build.yml
-    secrets: inherit
-    with:
-      run_export: true
-  cpdb:
-    name: Build cpdb
-    uses: ./.github/workflows/cpdb_build.yml
-    secrets: inherit
-    with:
-      run_export: true
-  devdb:
-    name: Build devdb
-    uses: ./.github/workflows/developments_build.yml
-    secrets: inherit
-    with:
-      run_export: true
-  facilities:
-    name: Build facilities
-    uses: ./.github/workflows/facilities_build.yml
-    secrets: inherit
-    with:
-      run_export: true
-  knownprojects:
-    name: Build knownprojects
-    uses: ./.github/workflows/knownprojects_build.yml
-    secrets: inherit
-    with:
-      run_export: true
-  pluto:
-    name: Build pluto
-    uses: ./.github/workflows/pluto_build.yml
-    secrets: inherit
-    with:
       recipe_file: recipe
-      run_export: true
-      create_issue: false
-  ztl:
-    name: Build ztl
-    uses: ./.github/workflows/zoningtaxlots_build.yml
-    secrets: inherit
-    with:
-      run_export: true
+      dev_image: false

@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: build
+    name: Build KPDB
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}

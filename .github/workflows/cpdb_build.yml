@@ -12,6 +12,7 @@ on:
         
 jobs:
   build:
+    name: Build CPDB
     runs-on: ubuntu-22.04
     defaults:
       run:
