@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from build_scripts.build import (
     _group_checkbook,
