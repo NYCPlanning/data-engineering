@@ -9,10 +9,6 @@ from dcpy.builds import metadata
 load_dotenv()
 
 _product_path = Path(__file__).resolve().parent.parent
-_proj_root = _product_path.parent.parent
-
-# Make `dcpy` available
-sys.path.append(str(_proj_root))
 
 LIB_DIR = _product_path / ".library"
 OUTPUT_DIR = _product_path / ".output"
