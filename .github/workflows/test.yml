@@ -82,11 +82,25 @@ jobs:
           echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
 
-  build_docker_images:
+  set_docker_image_tag:
+    name: Set docker image tag
     needs: check_changes
     runs-on: ubuntu-22.04
     outputs:
-      tag: dev-${{ github.head_ref || 'latest' }}
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: set image tag
+        id: tag
+        run: |
+          tag="${{ contains(needs.check_changes.outputs.path_filters, 'docker') && format('dev-{0}', github.head_ref || github.ref_name) || 'latest'}}"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+  build_docker_images:
+    name: docker image ${{ matrix.image }}:${{ needs.set_docker_image_tag.outputs.tag }}
+    needs: 
+      - check_changes
+      - set_docker_image_tag
+    runs-on: ubuntu-22.04
     env:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -98,17 +112,20 @@ jobs:
           - dev
     steps:
       - uses: actions/checkout@v4
+        if: contains(needs.check_changes.outputs.path_filters, 'docker')
       - name: publish images
         if: contains(needs.check_changes.outputs.path_filters, 'docker')
         working-directory: docker
-        run: ./publish.sh "${{ matrix.image }}" "dev-${{ github.head_ref || 'latest' }}"
+        run: ./publish.sh "${{ matrix.image }}" "${{ needs.set_docker_image_tag.outputs.tag }}"
 
   check_formatting:
-    needs: build_docker_images
+    needs: 
+      - set_docker_image_tag
+      - build_docker_images
     name: Check formatting of files
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
+      image: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -125,10 +142,12 @@ jobs:
           sqlfluff lint products/zoningtaxlots/sql/
 
   mypy:
-    needs: build_docker_images
+    needs: 
+      - set_docker_image_tag
+      - build_docker_images
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
+      image: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -142,25 +161,27 @@ jobs:
   
   template-db:
     needs: 
-      - build_docker_images
       - check_changes
+      - set_docker_image_tag
+      - build_docker_images
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'template')
     uses: ./.github/workflows/template_test.yml
     with:
-      image_tag: ${{ needs.build_docker_images.outputs.tag }}
+      image_tag: ${{ needs.set_docker_image_tag.outputs.tag }}
     secrets: inherit
 
   pytest:
     name: Pytest - ${{ matrix.name }}
     needs: 
       - build_docker_images
+      - set_docker_image_tag
       - check_changes
     runs-on: ubuntu-22.04
     if: needs.check_changes.outputs.matrix_raw != '[]' 
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check_changes.outputs.matrix) }}
-    container: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
+    container: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
     defaults:
       run:
         shell: bash
@@ -204,12 +225,13 @@ jobs:
   
   checkbook:
     needs: 
-      - build_docker_images
       - check_changes
+      - set_docker_image_tag
+      - build_docker_images
     if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'checkbook')
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:${{ needs.build_docker_images.outputs.tag }}
+      image: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
     services:
