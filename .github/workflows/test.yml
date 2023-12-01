@@ -20,8 +20,6 @@ jobs:
       pull-requests: read
     outputs:
       path_filters: ${{ steps.filter.outputs.changes }}
-      matrix: ${{ steps.set-pytest-matrix.outputs.matrix }}
-      matrix_raw: ${{ steps.set-pytest-matrix.outputs.matrix_raw }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
@@ -66,21 +64,6 @@ jobs:
             docker:
               - python/**
               - docker/**
-              
-      - name: Confirm changes and set matrix for pytest
-        id: set-pytest-matrix
-        run: |
-          echo "path filters with changed files: ${{ steps.filter.outputs.changes }}"
-          if [[ -z "${{ steps.filter.outputs.changes }}" ]]; then
-            matrix=$(cat .github/workflows/data/pytest.json | jq -cr)
-          elif [[ "[]" = "${{ steps.filter.outputs.changes }}" ]]; then
-            matrix="[]"
-          else
-            filter=$(echo '${{ steps.filter.outputs.changes }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
-            matrix=$(cat .github/workflows/data/pytest.json | jq -cr "map(. | select(.name|IN(${filter})))")
-          fi
-          echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
-          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
 
   set_docker_image_tag:
     name: Set docker image tag
@@ -118,107 +101,26 @@ jobs:
         working-directory: docker
         run: ./publish.sh "${{ matrix.image }}" "${{ needs.set_docker_image_tag.outputs.tag }}"
 
-  check_formatting:
-    needs: 
-      - set_docker_image_tag
-      - build_docker_images
-    name: Check formatting of files
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check python files
-        run: black --diff --color --check .
-
-      - name: Check sql files in products
-        run: |
-          # TODO: Gradually expand this to cover more products
-          sqlfluff lint products/template/
-          sqlfluff lint products/cpdb/sql/
-          sqlfluff lint products/knownprojects/
-          sqlfluff lint products/pluto/pluto_build/sql/
-          sqlfluff lint products/zoningtaxlots/sql/
-
-  mypy:
-    needs: 
-      - set_docker_image_tag
-      - build_docker_images
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check python files
-        run: |
-          mypy dcpy
-          mypy apps/qa/src
-          mypy data-library/library
-          mypy products/facilities
-          mypy products/template
-  
-  template-db:
+  test:
+    uses: ./.github/workflows/test_helper.yml
     needs: 
       - check_changes
       - set_docker_image_tag
       - build_docker_images
-    if: github.event_name != 'pull_request' || contains(needs.check_changes.outputs.path_filters, 'template')
-    uses: ./.github/workflows/template_test.yml
     with:
       image_tag: ${{ needs.set_docker_image_tag.outputs.tag }}
+      path_filter: ${{ needs.check_changes.outputs.path_filters }}
     secrets: inherit
 
-  pytest:
-    name: Pytest - ${{ matrix.name }}
-    needs: 
-      - build_docker_images
-      - set_docker_image_tag
-      - check_changes
-    runs-on: ubuntu-22.04
-    if: needs.check_changes.outputs.matrix_raw != '[]' 
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.check_changes.outputs.matrix) }}
-    container: nycplanning/dev:${{ needs.set_docker_image_tag.outputs.tag }}
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ matrix.working-directory || '.' }}
-    env:
-      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
-      RECIPE_ENGINE: ${{ secrets.RECIPE_ENGINE }}
-      AWS_S3_BUCKET: edm-recipes
-      BUILD_ENGINE: "dummy"
-      BUILD_ENGINE_SERVER: "dummy"
-      BUILD_ENGINE_DB: "dummy"
-      ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
-      TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
-      CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
-      SECRET: ${{ secrets.ZAP_CRM_SECRET }}
-      ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
-      TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
-    steps:    
-    - uses: actions/checkout@v4
-    - name: Load Secrets
-      uses: 1password/load-secrets-action@v1
-      with:
-        export-env: true
-      env:
-        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-    - name: Run Container Setup
-      working-directory: ./
-      run: ./bash/docker_container_setup.sh
-
-    - name: Pytest
-      env:
-        calls: ${{ toJSON(matrix.calls) }}
-      run: |
-        echo "$calls" | jq -cr ".[]" | while read call; do
-          IFS=$'\n' arr=( $(xargs -n1 <<<"$call") )
-          python3 -m pytest ${arr[@]}
-        done
+  build:
+    needs: build_docker_images
+    # only run build as part of tests in the case of the PRs generated by python_compile_requirements.yml
+    if: ${{ github.head_ref == 'compile_python_reqs' }}
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      dataset_name: all
+      build_note: check newly compiled python requirements
+      run_export: true
+      recipe_file: recipe
+      dev_image: true

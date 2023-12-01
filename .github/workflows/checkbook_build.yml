@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Build Dataset
+    name: Build Checkbook
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}

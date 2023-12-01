@@ -18,6 +18,7 @@ on:
 
 jobs:
   build:
+    name: Build CBBR
     runs-on: ubuntu-22.04
     defaults:
       run:

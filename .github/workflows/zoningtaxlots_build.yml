@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: Building ...
+    name: Build ZTL
     runs-on: ubuntu-22.04
     defaults:
       run:

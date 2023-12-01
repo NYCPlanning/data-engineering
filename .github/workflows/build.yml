@@ -94,7 +94,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   cbbr:
     needs: health_check
-    if: inputs.dataset_name == 'cbbr'
+    if: inputs.dataset_name == 'cbbr' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
     with:
@@ -104,7 +104,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   checkbook:
     needs: health_check
-    if: inputs.dataset_name == 'checkbook'
+    if: inputs.dataset_name == 'checkbook' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/checkbook_build.yml
     secrets: inherit
     with:
@@ -112,7 +112,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   colp:
     needs: health_check
-    if: inputs.dataset_name == 'colp'
+    if: inputs.dataset_name == 'colp' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/colp_build.yml
     secrets: inherit
     with:
@@ -120,7 +120,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   cpdb:
     needs: health_check
-    if: inputs.dataset_name == 'cpdb'
+    if: inputs.dataset_name == 'cpdb' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
@@ -128,7 +128,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   devdb:
     needs: health_check
-    if: inputs.dataset_name == 'devdb'
+    if: inputs.dataset_name == 'devdb' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
@@ -136,7 +136,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   facilities:
     needs: health_check
-    if: inputs.dataset_name == 'facilities'
+    if: inputs.dataset_name == 'facilities' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
@@ -144,7 +144,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   knownprojects:
     needs: health_check
-    if: inputs.dataset_name == 'knownprojects'
+    if: inputs.dataset_name == 'knownprojects' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/knownprojects_build.yml
     secrets: inherit
     with:
@@ -152,7 +152,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   pluto:
     needs: health_check
-    if: inputs.dataset_name == 'pluto'
+    if: inputs.dataset_name == 'pluto' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
@@ -161,7 +161,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
   ztl:
     needs: health_check
-    if: inputs.dataset_name == 'ztl'
+    if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
