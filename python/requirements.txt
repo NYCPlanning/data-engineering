@@ -26,20 +26,20 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.33.1
+boto3==1.33.6
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.29.7
+boto3-stubs[s3]==1.33.6
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-botocore==1.33.1
+botocore==1.33.6
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.33.1
+botocore-stubs==1.33.6
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -121,7 +121,7 @@ folium==0.14.0
     # via
     #   -r python/requirements.in
     #   streamlit-folium
-fonttools==4.45.1
+fonttools==4.46.0
     # via matplotlib
 future==0.18.3
     # via usaddress
@@ -147,7 +147,7 @@ greenlet==3.0.1
     # via sqlalchemy
 idna==3.6
     # via requests
-importlib-metadata==6.8.0
+importlib-metadata==6.9.0
     # via streamlit
 iniconfig==2.0.0
     # via pytest
@@ -181,7 +181,7 @@ joblib==1.3.2
     #   scikit-learn
 jsonschema==4.20.0
     # via altair
-jsonschema-specifications==2023.11.1
+jsonschema-specifications==2023.11.2
     # via jsonschema
 jupyter-client==8.6.0
     # via ipykernel
@@ -213,7 +213,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mercantile==1.2.1
     # via contextily
-moto[s3]==4.2.10
+moto[s3]==4.2.11
     # via -r python/requirements.in
 msal==1.23.0
     # via -r python/requirements.in
@@ -221,7 +221,7 @@ mypy==1.5.1
     # via
     #   -r python/requirements.in
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.29.7
+mypy-boto3-s3==1.33.2
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via
@@ -377,7 +377,7 @@ pyzmq==25.1.1
     #   jupyter-client
 rasterio==1.3.9
     # via contextily
-referencing==0.31.0
+referencing==0.31.1
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -397,11 +397,11 @@ rich==13.7.0
     # via
     #   -r python/requirements.in
     #   streamlit
-rpds-py==0.13.1
+rpds-py==0.13.2
     # via
     #   jsonschema
     #   referencing
-s3transfer==0.8.0
+s3transfer==0.8.2
     # via boto3
 scikit-learn==1.3.2
     # via mapclassify
@@ -432,7 +432,7 @@ sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
     # via -r python/requirements.in
 stack-data==0.6.3
     # via ipython
-streamlit==1.28.2
+streamlit==1.29.0
     # via
     #   -r python/requirements.in
     #   streamlit-aggrid
@@ -455,7 +455,7 @@ toml==0.10.2
     # via streamlit
 toolz==0.12.0
     # via altair
-tornado==6.3.3
+tornado==6.4
     # via
     #   ipykernel
     #   jupyter-client
@@ -476,13 +476,13 @@ typed-ast==1.5.5
     # via diagrams
 typer==0.9.0
     # via -r python/requirements.in
-types-awscrt==0.19.17
+types-awscrt==0.19.19
     # via botocore-stubs
 types-beautifulsoup4==4.12.0.7
     # via -r python/requirements.in
 types-html5lib==1.1.11.15
     # via types-beautifulsoup4
-types-psycopg2==2.9.21.18
+types-psycopg2==2.9.21.19
     # via -r python/requirements.in
 types-python-dateutil==2.8.19.14
     # via -r python/requirements.in
@@ -492,9 +492,9 @@ types-pyyaml==6.0.12.12
     # via -r python/requirements.in
 types-requests==2.31.0.10
     # via -r python/requirements.in
-types-s3transfer==0.7.0
+types-s3transfer==0.8.2
     # via boto3-stubs
-types-setuptools==68.2.0.2
+types-setuptools==69.0.0.0
     # via -r python/requirements.in
 types-tqdm==4.66.0.2
     # via -r python/requirements.in
