@@ -141,7 +141,13 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
     df["bc_category"] = None
     df["cp_category"] = None
 
-    df.to_sql("capital_projects", ENGINE, if_exists="replace", index=False)
+    df.to_sql(
+        "capital_projects",
+        ENGINE,
+        schema=PG_CLIENT.schema,
+        if_exists="replace",
+        index=False,
+    )
     with ENGINE.connect() as conn:
         for k, v in target_cols.items():
             with open(sql_dir / "categorization.sql", "r") as query_file:
@@ -152,7 +158,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
             for q in queries:
                 conn.execute(text(q))
 
-        ret = pd.read_sql_table("capital_projects", conn)
+        ret = pd.read_sql_table("capital_projects", conn, schema=PG_CLIENT.schema)
 
     return ret
 
@@ -227,9 +233,11 @@ def _layer_parks_geoms(csdb: gpd.GeoDataFrame, parks: gpd.GeoDataFrame) -> pd.Da
     return: geopandas gdf with parks properties geoms
     layered onto rows without a geometry
     """
-    csdb.to_postgis("csdb", ENGINE, schema=BUILD_NAME, if_exists="replace", index=False)
+    csdb.to_postgis(
+        "csdb", ENGINE, schema=PG_CLIENT.schema, if_exists="replace", index=False
+    )
     parks.to_postgis(
-        "parks", ENGINE, schema=BUILD_NAME, if_exists="replace", index=False
+        "parks", ENGINE, schema=PG_CLIENT.schema, if_exists="replace", index=False
     )
     execute_file_via_shell(PG_CLIENT.engine_uri, SQL_QUERY_DIR / "parks.sql")
     with ENGINE.connect() as conn:
