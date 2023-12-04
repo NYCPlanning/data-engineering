@@ -10,6 +10,7 @@
     },
     {
         "name": "checkbook",
+        "db": "db-checkbook",
         "calls": ["./products/checkbook -s --verbose --verbose"]
     },
     {
@@ -28,6 +29,7 @@
     {
         "name": "qa",
         "working-directory": "apps/qa",
+        "db": "edm-qaqc",
         "calls": ["."]
     }
 ]
