@@ -3,9 +3,12 @@ source bash/config.sh
 set_error_traps
 
 echo "Archive final output"
+echo "Copy dcp_zoning_taxlot to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.dcp_zoning_taxlot AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.dcp_zoning_taxlot;"
+pg_dump ${BUILD_ENGINE} -t public.dcp_zoning_taxlot --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.dcp_zoning_taxlot;"
 
-pg_dump -d ${BUILD_ENGINE} -t dcp_zoning_taxlot --no-owner --clean | psql ${EDM_DATA}
-
+echo "Change defaultdb.public.dcp_zoningtaxlots table's schema to dcp_zoningtaxlots and name to ${VERSION_SQL_TABLE} ..."
 psql ${EDM_DATA} -c "
   CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
   ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;
@@ -13,16 +16,18 @@ psql ${EDM_DATA} -c "
   ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION_SQL_TABLE}\";
 "
 
+echo "Run export and qaqc scripts ..."
 run_sql_file sql/export.sql
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -f sql/qaqc/frequency.sql
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/bbl.sql
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/mismatch.sql
 psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/out_bbldiffs.sql | 
-    psql ${BUILD_ENGINE} -f sql/qaqc/in_bbldiffs.sql
+    psql ${EDM_DATA} -f sql/qaqc/in_bbldiffs.sql
 
 ## remove dtm_id column from archive because it isn't a true id but rather one we generate during build
 psql $EDM_DATA -c "ALTER TABLE dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\" DROP COLUMN dtm_id;"
 
+echo "Generate csvs and shapefiles ..."
 rm -rf output && mkdir -p output
 (
     cd output
@@ -69,4 +74,5 @@ psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PR
 psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} \
     -f sql/qaqc/null.sql > output/qaqc_null.csv
 
+echo "Upload outpits ..."
 upload db-zoningtaxlots public-read
