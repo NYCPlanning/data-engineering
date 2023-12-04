@@ -9,6 +9,10 @@
         "calls": ["-s"]
     },
     {
+        "name": "checkbook",
+        "calls": ["./products/checkbook -s --verbose --verbose"]
+    },
+    {
         "name": "cbbr",
         "working-directory": "products/cbbr/cbbr_build",
         "calls": ["."]
