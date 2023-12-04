@@ -15,7 +15,7 @@ jobs:
     name: build
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:${{ inputs.image_tag }}
+      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     defaults:
       run:
         shell: bash
