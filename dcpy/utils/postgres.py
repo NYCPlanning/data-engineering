@@ -4,7 +4,7 @@ import csv
 import os
 import pandas as pd
 from psycopg2.extensions import AsIs
-from sqlalchemy import create_engine, text, dialects
+from sqlalchemy import create_engine, text, dialects, engine
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -64,9 +64,25 @@ class PostgresClient:
         )
         self.create_schema()
 
-    def execute_query(self, query: str, placeholders: dict | None = None) -> None:
-        with self.engine.connect() as connection:
-            connection.execute(statement=text(query), parameters=placeholders)
+    def connect(self) -> engine.Connection:
+        return self.engine.connect()
+
+    def execute_query(
+        self,
+        query: str,
+        *,
+        placeholders: dict | None = None,
+        conn: engine.Connection | None = None,
+    ) -> None:
+        if conn is None:
+            with self.connect() as connection:
+                connection.execute(statement=text(query), parameters=placeholders)
+        else:
+            conn.execute(statement=text(query), parameters=placeholders)
+
+    def execute_file(self, path: Path, **kwargs) -> None:
+        """Execute a .sql script at given path using psql CLI and kwargs to set variables."""
+        execute_file_via_shell(self.engine_uri, path, **kwargs)
 
     def execute_select_query(
         self,
