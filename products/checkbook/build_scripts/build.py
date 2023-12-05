@@ -1,9 +1,6 @@
 import pandas as pd
 import geopandas as gpd
 import re
-from pathlib import Path
-from sqlalchemy import text
-from dcpy.utils.postgres import execute_file_via_shell
 
 from . import (
     LIB_DIR,
@@ -12,8 +9,6 @@ from . import (
     BUILD_OUTPUT_FILENAME,
     PG_CLIENT,
 )
-
-ENGINE = PG_CLIENT.engine
 
 
 def _read_all_cpdb_geoms(dir=LIB_DIR) -> list:
@@ -56,14 +51,6 @@ def _merge_cpdb_geoms(gdf_list: list[str]) -> gpd.GeoDataFrame:
     return all_cpdb_geoms
 
 
-def _read_csv_to_df(f: str, dir: Path = LIB_DIR):
-    """
-    :return: raw checkbook data as pd df
-    """
-    df = pd.read_csv(dir / f)
-    return df
-
-
 def _clean_checkbook(df: pd.DataFrame) -> pd.DataFrame:
     """
     :return: cleaned checkbook nyc data
@@ -73,16 +60,10 @@ def _clean_checkbook(df: pd.DataFrame) -> pd.DataFrame:
     # NOTE: This data cleaning is NOT complete, and we should investigate other cases where we should omit data
     df = df[df["check_amount"] < 99000000]
     df = df[df["check_amount"] >= 0]
-    # taking out white space from capital project for join with cpdb
-    """
-    remove last three digits and any trailing whitespace from `Capital Project`
-    Example: `Capital Project` = '998CAP2024  005' -> `FMS ID` = '998CAP2024'
-    \s*: matches zero or more whitespace characters
-    d+: matches one or more digits
-    $: assert position at the end of the string
-    """
+    # remove last three digits and any trailing whitespace from `Capital Project`
+    # Example: `Capital Project` = '998CAP2024  005' -> `FMS ID` = '998CAP2024'
     df["fms_id"] = df["capital_project"].str.replace(
-        r"\s*\d+$", ""
+        r"\s*\d+$", "", regex=True
     )  # QA this output because seems this causes an issue with SCA data
     return df
 
@@ -140,14 +121,14 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
     df["bc_category"] = None
     df["cp_category"] = None
 
-    df.to_sql(
-        "capital_projects",
-        ENGINE,
-        schema=PG_CLIENT.schema,
-        if_exists="replace",
-        index=False,
-    )
-    with ENGINE.begin() as conn:
+    with PG_CLIENT.connect() as conn:
+        df.to_sql(
+            "capital_projects",
+            conn,
+            if_exists="replace",
+            index=False,
+        )
+
         for k, v in target_cols.items():
             with open(sql_dir / "categorization.sql", "r") as query_file:
                 query = query_file.read()
@@ -155,11 +136,11 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
             query = query.replace("col_category", v)
             queries = [q.strip() for q in query.split(";") if q.strip()]
             for q in queries:
-                conn.execute(text(q))
+                PG_CLIENT.execute_query(q, conn=conn)
 
-        ret = pd.read_sql_table("capital_projects", conn, schema=PG_CLIENT.schema)
+        ret = pd.read_sql_table("capital_projects", conn)
 
-    return ret
+        return ret
 
 
 def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -232,14 +213,10 @@ def _layer_parks_geoms(csdb: gpd.GeoDataFrame, parks: gpd.GeoDataFrame) -> pd.Da
     return: geopandas gdf with parks properties geoms
     layered onto rows without a geometry
     """
-    csdb.to_postgis(
-        "csdb", ENGINE, schema=PG_CLIENT.schema, if_exists="replace", index=False
-    )
-    parks.to_postgis(
-        "parks", ENGINE, schema=PG_CLIENT.schema, if_exists="replace", index=False
-    )
-    execute_file_via_shell(PG_CLIENT.engine_uri, SQL_QUERY_DIR / "parks.sql")
-    with ENGINE.connect() as conn:
+    with PG_CLIENT.connect() as conn:
+        csdb.to_postgis("csdb", conn, if_exists="replace", index=False)
+        parks.to_postgis("parks", conn, if_exists="replace", index=False)
+        PG_CLIENT.execute_file(SQL_QUERY_DIR / "parks.sql", conn=conn)
         csdb_with_parks = gpd.read_postgis("csdb", conn, geom_col="geometry")
     return csdb_with_parks
 
@@ -249,11 +226,11 @@ def run_build() -> None:
     :return: historical spending data
     """
     print("read in source data...")
-    raw_checkbook = _read_csv_to_df("nycoc_checkbook.csv")
+    raw_checkbook = pd.read_csv(LIB_DIR / "nycoc_checkbook.csv")
     cpdb_list = _read_all_cpdb_geoms()
 
     # read in parks csv to gdf
-    parks = _read_csv_to_df("dpr_parksproperties.csv")
+    parks = pd.read_csv(LIB_DIR / "dpr_parksproperties.csv")
     parks_gs = gpd.GeoSeries.from_wkt(parks["WKT"])
     parks_gdf = gpd.GeoDataFrame(parks, geometry=parks_gs)
 
