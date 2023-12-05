@@ -4,7 +4,7 @@ import csv
 import os
 import pandas as pd
 from psycopg2.extensions import AsIs
-from sqlalchemy import create_engine, text, dialects, engine
+from sqlalchemy import create_engine, text, dialects
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -64,35 +64,38 @@ class PostgresClient:
         )
         self.create_schema()
 
-    def connect(self) -> engine.Connection:
+    def connect(self):
         return self.engine.connect()
 
-    def execute_query(
-        self,
-        query: str,
-        *,
-        placeholders: dict | None = None,
-        conn: engine.Connection | None = None,
-    ) -> None:
+    def execute_query(self, query: str, *, conn=None, **kwargs) -> None:
         if conn is None:
-            with self.connect() as connection:
-                connection.execute(statement=text(query), parameters=placeholders)
+            with self.connect() as conn:
+                conn.execute(statement=text(query), parameters=kwargs)
         else:
-            conn.execute(statement=text(query), parameters=placeholders)
+            conn.execute(statement=text(query), parameters=kwargs)
 
-    def execute_file(self, path: Path, **kwargs) -> None:
+    def execute_file(self, path: Path, *, conn=None, **kwargs) -> None:
+        """Execute a .sql script at given path using sqlalchemy and kwargs to set variables."""
+        with open(path) as query_file:
+            query = query_file.read()
+        self.execute_query(query, conn=conn, **kwargs)
+
+    def execute_file_via_shell(self, path: Path, **kwargs) -> None:
         """Execute a .sql script at given path using psql CLI and kwargs to set variables."""
         execute_file_via_shell(self.engine_uri, path, **kwargs)
 
     def execute_select_query(
         self,
         query: str,
-        placeholders: dict | None = None,
+        *,
+        conn=None,
+        **kwargs,
     ) -> pd.DataFrame:
-        with self.engine.connect() as sql_conn:
-            select_records = pd.read_sql(
-                sql=text(query), con=sql_conn, params=placeholders
-            )
+        if conn is None:
+            with self.engine.connect() as conn:
+                select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
+        else:
+            select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
         return select_records
 
     def create_postigs_extension(self) -> None:
@@ -108,14 +111,12 @@ class PostgresClient:
                 f"Cannot delete the protected postgres schema '{schema_name}'"
             )
         self.execute_query(
-            "DROP SCHEMA IF EXISTS :schema_name CASCADE",
-            {"schema_name": AsIs(schema_name)},
+            "DROP SCHEMA IF EXISTS :schema_name CASCADE", schema_name=AsIs(schema_name)
         )
 
     def create_schema(self) -> None:
         self.execute_query(
-            "CREATE SCHEMA IF NOT EXISTS :schema_name",
-            {"schema_name": AsIs(self.schema)},
+            "CREATE SCHEMA IF NOT EXISTS :schema_name", schema_name=AsIs(self.schema)
         )
 
     def get_build_schemas(self) -> list[str]:
@@ -137,7 +138,7 @@ class PostgresClient:
             """
             SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
             """,
-            {"table_schema": self.schema},
+            table_schema=self.schema,
         )
         all_table_names = sorted(select_table_names["table_name"].to_list())
         postgis_tables = [
@@ -156,10 +157,8 @@ class PostgresClient:
         """Set the schema for a table."""
         self.execute_query(
             "ALTER TABLE :table_with_schema SET SCHEMA :new_schema;",
-            {
-                "table_with_schema": AsIs(f"{old_schema}.{table}"),
-                "new_schema": AsIs(new_schema),
-            },
+            table_with_schema=AsIs(f"{old_schema}.{table}"),
+            new_schema=AsIs(new_schema),
         )
 
     def rename_table(self, *, old_name: str, new_name: str):
@@ -167,7 +166,8 @@ class PostgresClient:
             """
             ALTER TABLE :old_name RENAME TO :new_name;
             """,
-            {"old_name": AsIs(old_name), "new_name": AsIs(new_name)},
+            old_name=AsIs(old_name),
+            new_name=AsIs(new_name),
         )
 
     def get_table(self, table_name: str) -> pd.DataFrame:
@@ -175,7 +175,7 @@ class PostgresClient:
             """
             SELECT * FROM :table_name;
             """,
-            {"table_name": AsIs(table_name)},
+            table_name=AsIs(table_name),
         )
 
     def get_table_columns(self, table_name: str) -> list[str]:
@@ -185,7 +185,8 @@ class PostgresClient:
             WHERE table_schema = ':table_schema'
             AND table_name   = ':table_name';
             """,
-            {"table_schema": AsIs(self.schema), "table_name": AsIs(table_name)},
+            table_schema=AsIs(self.schema),
+            table_name=AsIs(table_name),
         )
         return sorted(column_names["column_name"])
 
@@ -211,7 +212,8 @@ class PostgresClient:
             WHERE c.relname = ':table_name'
             AND n.nspname = ':table_schema';
             """,
-            {"table_schema": AsIs(self.schema), "table_name": AsIs(table_name)},
+            table_schema=AsIs(self.schema),
+            table_name=AsIs(table_name),
         )
         return int(row_counts["row_count"][0])
 
