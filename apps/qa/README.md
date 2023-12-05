@@ -14,7 +14,7 @@ It's written in Python using the [streamlit](https://streamlit.io/) framework.
 
 To test changes, run the app locally using the devcontainer (especially via VS Code):
 
-1. From a dev container terminal, run `./entrypoint.sh`
+1. From a dev container terminal, navigate to `apps/qa/` and run `python3 -m streamlit run src/index.py`
 
 2. If in VS Code, a popup should appear with an option to navigate to the site in a browser
 
