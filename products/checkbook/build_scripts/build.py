@@ -10,7 +10,6 @@ from . import (
     OUTPUT_DIR,
     SQL_QUERY_DIR,
     BUILD_OUTPUT_FILENAME,
-    BUILD_NAME,
     PG_CLIENT,
 )
 
@@ -148,7 +147,7 @@ def _assign_checkbook_category(df: pd.DataFrame, sql_dir=SQL_QUERY_DIR) -> pd.Da
         if_exists="replace",
         index=False,
     )
-    with ENGINE.connect() as conn:
+    with ENGINE.begin() as conn:
         for k, v in target_cols.items():
             with open(sql_dir / "categorization.sql", "r") as query_file:
                 query = query_file.read()
