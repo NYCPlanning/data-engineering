@@ -21,7 +21,9 @@ attrs==23.1.0
     #   rasterio
     #   referencing
 beautifulsoup4==4.12.2
-    # via -r python/requirements.in
+    # via
+    #   -r python/requirements.in
+    #   gdown
 black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
@@ -43,9 +45,12 @@ botocore-stubs==1.33.6
     # via
     #   -r python/requirements.in
     #   boto3-stubs
+bqplot==0.12.42
+    # via leafmap
 branca==0.7.0
     # via
     #   folium
+    #   ipyleaflet
     #   streamlit-folium
 cached-property==1.5.2
     # via -r python/requirements.in
@@ -76,6 +81,7 @@ click==8.1.7
     #   sqlfluff
     #   streamlit
     #   typer
+    #   whitebox
 click-plugins==1.1.1
     # via
     #   fiona
@@ -86,8 +92,12 @@ cligj==0.7.2
     #   rasterio
 colorama==0.4.6
     # via sqlfluff
+colour==0.1.5
+    # via leafmap
 comm==0.2.0
-    # via ipykernel
+    # via
+    #   ipykernel
+    #   ipywidgets
 contextily==1.3.0
     # via -r python/requirements.in
 contourpy==1.2.0
@@ -111,15 +121,20 @@ diagrams==0.23.4
     # via -r python/requirements.in
 diff-cover==8.0.1
     # via sqlfluff
+duckdb==0.9.2
+    # via leafmap
 et-xmlfile==1.1.0
     # via openpyxl
 executing==2.0.1
     # via stack-data
+filelock==3.13.1
+    # via gdown
 fiona==1.9.5
     # via geopandas
 folium==0.14.0
     # via
     #   -r python/requirements.in
+    #   leafmap
     #   streamlit-folium
 fonttools==4.46.0
     # via matplotlib
@@ -127,10 +142,14 @@ future==0.18.3
     # via usaddress
 gdal==3.6.2
     # via -r python/requirements.in
+gdown==4.7.1
+    # via leafmap
 geoalchemy2==0.14.1
     # via -r python/requirements.in
 geographiclib==2.0
     # via geopy
+geojson==3.1.0
+    # via leafmap
 geopandas==0.12.2
     # via -r python/requirements.in
 geopy==2.4.1
@@ -151,10 +170,31 @@ importlib-metadata==6.9.0
     # via streamlit
 iniconfig==2.0.0
     # via pytest
+ipyevents==2.0.2
+    # via leafmap
+ipyfilechooser==0.6.0
+    # via
+    #   leafmap
+    #   whiteboxgui
 ipykernel==6.22.0
     # via -r python/requirements.in
-ipython==8.18.1
-    # via ipykernel
+ipyleaflet==0.17.4
+    # via leafmap
+ipython==8.17.2
+    # via
+    #   ipykernel
+    #   ipywidgets
+ipytree==0.2.2
+    # via whiteboxgui
+ipywidgets==8.1.1
+    # via
+    #   bqplot
+    #   ipyevents
+    #   ipyfilechooser
+    #   ipyleaflet
+    #   ipytree
+    #   leafmap
+    #   whiteboxgui
 jedi==0.19.1
     # via ipython
 jellyfish==0.6.1
@@ -180,8 +220,10 @@ joblib==1.3.2
     #   contextily
     #   scikit-learn
 jsonschema==4.20.0
-    # via altair
-jsonschema-specifications==2023.11.2
+    # via
+    #   altair
+    #   pystac
+jsonschema-specifications==2023.11.1
     # via jsonschema
 jupyter-client==8.6.0
     # via ipykernel
@@ -189,8 +231,12 @@ jupyter-core==5.5.0
     # via
     #   ipykernel
     #   jupyter-client
+jupyterlab-widgets==3.0.9
+    # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
+leafmap==0.29.1
+    # via -r python/requirements.in
 lxml==4.9.3
     # via -r python/requirements.in
 mapclassify==2.5.0
@@ -205,6 +251,7 @@ matplotlib==3.7.1
     # via
     #   -r python/requirements.in
     #   contextily
+    #   leafmap
 matplotlib-inline==0.1.6
     # via
     #   ipykernel
@@ -236,8 +283,10 @@ numerize==0.12
 numpy==1.26.2
     # via
     #   altair
+    #   bqplot
     #   contourpy
     #   folium
+    #   leafmap
     #   mapclassify
     #   matplotlib
     #   pandas
@@ -266,7 +315,9 @@ pandas==1.5.3
     # via
     #   -r python/requirements.in
     #   altair
+    #   bqplot
     #   geopandas
+    #   leafmap
     #   mapclassify
     #   streamlit
     #   streamlit-aggrid
@@ -290,7 +341,9 @@ platformdirs==4.0.0
     #   black
     #   jupyter-core
 plotly==5.18.0
-    # via -r python/requirements.in
+    # via
+    #   -r python/requirements.in
+    #   leafmap
 pluggy==1.3.0
     # via
     #   diff-cover
@@ -338,6 +391,16 @@ pyparsing==3.1.1
     #   snuggs
 pyproj==3.6.1
     # via geopandas
+pyshp==2.3.1
+    # via leafmap
+pysocks==1.7.1
+    # via requests
+pystac[validation]==1.9.0
+    # via
+    #   pystac
+    #   pystac-client
+pystac-client==0.7.5
+    # via leafmap
 pytest==7.3.0
     # via
     #   -r python/requirements.in
@@ -345,6 +408,8 @@ pytest==7.3.0
     #   sqlfluff
 pytest-cov==4.0.0
     # via -r python/requirements.in
+python-box==7.1.1
+    # via leafmap
 python-crfsuite==0.9.9
     # via usaddress
 python-dateutil==2.8.2
@@ -354,6 +419,8 @@ python-dateutil==2.8.2
     #   matplotlib
     #   moto
     #   pandas
+    #   pystac
+    #   pystac-client
     #   streamlit
 python-decouple==3.8
     # via streamlit-aggrid
@@ -383,12 +450,14 @@ referencing==0.31.1
     #   jsonschema-specifications
 regex==2023.10.3
     # via sqlfluff
-requests==2.31.0
+requests[socks]==2.31.0
     # via
     #   contextily
     #   folium
+    #   gdown
     #   moto
     #   msal
+    #   pystac-client
     #   responses
     #   streamlit
 responses==0.24.1
@@ -409,12 +478,15 @@ scipy==1.11.4
     # via
     #   mapclassify
     #   scikit-learn
+scooby==0.9.2
+    # via leafmap
 shapely==2.0.2
     # via geopandas
 six==1.16.0
     # via
     #   asttokens
     #   fiona
+    #   gdown
     #   python-dateutil
 smmap==5.0.1
     # via gitdb
@@ -463,15 +535,23 @@ tornado==6.4
 tqdm==4.66.1
     # via
     #   -r python/requirements.in
+    #   gdown
     #   sqlfluff
 traitlets==5.14.0
     # via
+    #   bqplot
     #   comm
     #   ipykernel
     #   ipython
+    #   ipywidgets
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
+    #   traittypes
+traittypes==0.2.1
+    # via
+    #   bqplot
+    #   ipyleaflet
 typed-ast==1.5.5
     # via diagrams
 typer==0.9.0
@@ -531,12 +611,21 @@ wcwidth==0.2.12
     # via prompt-toolkit
 werkzeug==3.0.1
     # via moto
+whitebox==2.3.1
+    # via whiteboxgui
+whiteboxgui==2.3.0
+    # via leafmap
+widgetsnbextension==4.0.9
+    # via ipywidgets
 xlrd==2.0.1
     # via -r python/requirements.in
 xmltodict==0.13.0
     # via moto
 xyzservices==2023.10.1
-    # via contextily
+    # via
+    #   contextily
+    #   ipyleaflet
+    #   leafmap
 zipp==3.17.0
     # via importlib-metadata
 
