@@ -18,11 +18,11 @@ psql ${EDM_DATA} -c "
 
 echo "Run export and qaqc scripts ..."
 run_sql_file sql/export.sql
-psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -f sql/qaqc/frequency.sql
-psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/bbl.sql
-psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/mismatch.sql
-psql ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/out_bbldiffs.sql | 
-    psql ${EDM_DATA} -f sql/qaqc/in_bbldiffs.sql
+psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -f sql/qaqc/frequency.sql
+psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/bbl.sql
+psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/mismatch.sql
+psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f sql/qaqc/out_bbldiffs.sql | 
+    psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 -f sql/qaqc/in_bbldiffs.sql
 
 ## remove dtm_id column from archive because it isn't a true id but rather one we generate during build
 psql $EDM_DATA -c "ALTER TABLE dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\" DROP COLUMN dtm_id;"
