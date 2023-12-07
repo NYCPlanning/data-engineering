@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 
 import dcpy
 from dcpy.connectors.edm import recipes
+from dcpy.builds import plan
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
@@ -45,13 +46,13 @@ class TestRecipesWithDefaults(TestCase):
         """
         os.environ.pop(REQUIRED_VERSION_ENV_VAR)
         with self.assertRaises(Exception) as e:
-            recipes.plan(RECIPE_PATH)
+            plan.plan(RECIPE_PATH)
         assert REQUIRED_VERSION_ENV_VAR in str(e.exception)
 
     def test_plan_recipe_defaults(self):
         """Tests that defaults are set correctly when a recipe is planned."""
         setup()
-        planned = recipes.plan_recipe(RECIPE_PATH)
+        planned = plan.plan_recipe(RECIPE_PATH)
 
         had_no_version_or_type = [
             ds for ds in planned.inputs.datasets if ds.name == "has_no_version_or_type"
@@ -71,14 +72,14 @@ class TestRecipesNoDefaults(TestCase):
     def test_plan_recipe_default_type(self):
         """Tests that default type is pg_dump when not otherwise specified."""
         setup()
-        planned = recipes.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
+        planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
         ds = planned.inputs.datasets[0]
         assert ds.file_name == f"{ds.name}.sql"
         assert planned.inputs.datasets[0].file_type == recipes.DatasetType.pg_dump
 
     def test_serializing_and_deserializing(self):
         """Deserializing python models is a minefield."""
-        lock_file = recipes.plan(RECIPE_NO_DEFAULTS_PATH)
+        lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         recipes.recipe_from_yaml(lock_file)
 
 
@@ -111,14 +112,14 @@ class TestImportDatasets(TestCase):
 
         dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
-        ds = recipes.Dataset(
+        ds = types.Dataset(
             name="test",
             version="1",
             import_as="new_table_name",
             file_type=recipes.DatasetType.csv,
-            preprocessor=recipes.DataPreprocessor(module="dcpy", function="preproc"),
+            preprocessor=types.DataPreprocessor(module="dcpy", function="preproc"),
         )
-        recipes.import_dataset(ds, pg_mock)
+        plan.import_dataset(ds, pg_mock)
 
         assert (
             pg_mock.insert_dataframe.called
@@ -137,17 +138,17 @@ class TestImportDatasets(TestCase):
 
         dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
-        ds = recipes.Dataset(
+        ds = plan.Dataset(
             name="test",
             version="1",
             import_as="new_table_name",
             file_type=recipes.DatasetType.parquet,
-            preprocessor=recipes.DataPreprocessor(module="dcpy", function="preproc"),
+            preprocessor=types.DataPreprocessor(module="dcpy", function="preproc"),
         )
 
         recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
 
-        recipes.import_dataset(ds, pg_mock)
+        plan.import_dataset(ds, pg_mock)
 
         (
             df_inserted_actual,

@@ -1,18 +1,21 @@
 import csv
 from enum import Enum
 import os
+import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
+import typer
 from typing import List
 import yaml
 
 from dcpy.utils import postgres
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
-
 from dcpy.connectors.edm import recipes, publishing
 
+DEFAULT_RECIPE = "recipe.yml"
 BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA", postgres.DEFAULT_POSTGRES_SCHEMA)
+LIBRARY_DEFAULT_PATH = recipes.LIBRARY_DEFAULT_PATH
 
 
 class RecipeInputsVersionStrategy(str, Enum):
@@ -84,7 +87,7 @@ class Recipe(BaseModel, use_enum_values=True, extra="forbid"):
         )
 
 
-def plan_recipe(recipe_path: Path) -> Recipe:
+def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     """Plan recipe versions for a product.
 
     Similar to pip freeze, determines recipe versions to use for a build.
@@ -95,8 +98,10 @@ def plan_recipe(recipe_path: Path) -> Recipe:
     recipe: Recipe = recipe_from_yaml(recipe_path)
 
     # Determine the recipe version
-    if recipe.version is None and recipe.version_strategy is not None:
-        if recipe.version_strategy == VersionStrategy.bump_latest_release:
+    if version is None:
+        if recipe.version_strategy is None and recipe.version is None:
+            raise Exception("No version provided")
+        elif recipe.version_strategy == VersionStrategy.bump_latest_release:
             if recipe.version_type is None:
                 raise Exception("Recipe needs a 'version_type' to bump")
             prev_version = publishing.get_latest_version(recipe.product)
@@ -105,6 +110,8 @@ def plan_recipe(recipe_path: Path) -> Recipe:
             )
         if recipe.version_strategy == VersionStrategy.first_of_month:
             recipe.version = versions.first_of_month()
+    else:
+        recipe.version = version
 
     # merge in base recipe inputs
     base_recipe = (
@@ -179,11 +186,60 @@ def recipe_from_yaml(path: Path) -> Recipe:
         return recipe
 
 
-def plan(recipe_file: Path) -> Path:
-    logger.info("Planning recipe")
-    lock_file = recipe_file.parent / f"{recipe_file.stem}.lock.yml"
+def repeat_recipe_from_source_data_versions(
+    version: str, source_data_versions: pd.DataFrame, template_recipe: Recipe
+) -> Recipe:
+    recipe = template_recipe.model_copy()
+    recipe.version = version
+    print(source_data_versions.columns)
+    version_by_source_data_name = {
+        name: row["version"] for name, row in source_data_versions.iterrows()
+    }
+    for ds in recipe.inputs.datasets:
+        if ds.name in version_by_source_data_name:
+            ds.version = version_by_source_data_name[ds.name]
+        else:
+            raise Exception(
+                "Dataset found in template recipe not found in historical source data versions, \
+                cannot repeat build."
+            )
 
-    recipe = plan_recipe(recipe_file)
+    return recipe
+
+
+def plan(recipe_file: Path, version: str | None = None, repeat: bool = False) -> Path:
+    lock_file = (
+        recipe_file.parent / f"{recipe_file.stem}.lock.yml"
+        if recipe_file
+        else Path("recipe.lock.yml")
+    )
+    if not repeat:
+        logger.info(f"Planning recipe from {recipe_file}")
+        recipe = plan_recipe(recipe_file, version)
+    else:
+        if version is None:
+            raise Exception("Version must be supplied if repeating a specific build")
+        template_recipe = recipe_from_yaml(recipe_file)
+        logger.info(f"Attempting to repeat recipe for {version}")
+        product_key = publishing.PublishKey(template_recipe.product, version)
+        if publishing.file_exists(product_key, "build_metadata.json"):
+            with publishing.get_file(product_key, "build_metadata.json") as file:
+                s = yaml.safe_load(file)["recipe"]
+                recipe = Recipe(**s)
+        elif publishing.file_exists(product_key, "source_data_versions.csv"):
+            if not recipe_file:
+                raise Exception(
+                    "Template recipe file must be provided to repeat build from existing source_data_versions.csv"
+                )
+            source_data_versions = publishing.get_source_data_versions(product_key)
+            recipe = repeat_recipe_from_source_data_versions(
+                version, source_data_versions, template_recipe
+            )
+
+        else:
+            raise Exception(
+                "Neither 'build_metadata.json' nor 'source_data_versions.csv' can be found. Build cannot be repeated"
+            )
 
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
@@ -211,3 +267,30 @@ def write_source_data_versions(recipe_file: Path):
         writer = csv.writer(csvfile)
         for key, value in sdv:
             writer.writerow([key, value])
+
+
+app = typer.Typer(add_completion=False)
+
+
+@app.command("recipe")
+def _cli_wrapper_plan_recipe(
+    recipe_path: Path = typer.Option(
+        Path(DEFAULT_RECIPE),
+        "--recipe-path",
+        "-r",
+        help="Path of recipe file to use",
+    ),
+    version=typer.Option(
+        None,
+        "-v",
+        help="Version of dataset being built",
+    ),
+    repeat: bool = typer.Option(
+        False, "--repeat", help="Repeat specific published build"
+    ),
+):
+    plan(recipe_path, version, repeat)
+
+
+if __name__ == "__main__":
+    app()

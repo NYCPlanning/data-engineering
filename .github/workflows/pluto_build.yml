@@ -15,6 +15,9 @@ on:
       image_tag:
         type: string
         required: false
+      version:
+        type: string
+        required: true
 
 jobs:
   build:
@@ -55,8 +58,9 @@ jobs:
 
       - name: Load data
         working-directory: products/pluto
-        run: |
-          python3 -m dcpy.builds.load recipe --recipe_path ./${{ inputs.recipe_file }}.yml
+        env:
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version
 
       - name: Set versions env vars
         working-directory: products/pluto

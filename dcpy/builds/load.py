@@ -7,8 +7,6 @@ from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.builds import metadata, plan
 
-DEFAULT_RECIPE = "recipe.yml"
-
 
 def setup_build_environments(pg_client: postgres.PostgresClient):
     if pg_client.schema != "public":
@@ -47,10 +45,15 @@ def import_dataset(
     )
 
 
-def load_source_data(recipe_path: Path):
-    recipe_lock_path = plan.plan(recipe_path)
+def load_source_data(
+    recipe_path: Path, version: str | None = None, repeat: bool = False
+):
+    recipe_lock_path = plan.plan(recipe_path, version, repeat)
     plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
+
+    plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
+    metadata.write_build_metadata(recipe, recipe_path.parent)
 
     build_name = metadata.build_name()
     logger.info(f"Loading source data for {recipe.name} build named {build_name}")
@@ -73,13 +76,22 @@ app = typer.Typer(add_completion=False)
 @app.command("recipe")
 def _cli_wrapper_load(
     recipe_path: Path = typer.Option(
-        "./recipe.yml",
+        Path(plan.DEFAULT_RECIPE),
+        "--recipe-path",
         "-r",
-        "--recipe_path",
         help="Path of recipe file to use",
     ),
+    version=typer.Option(
+        None,
+        "--version",
+        "-v",
+        help="Version of dataset being built",
+    ),
+    repeat: bool = typer.Option(
+        False, "--repeat", help="Repeat specific published build"
+    ),
 ):
-    load_source_data(recipe_path)
+    load_source_data(recipe_path, version, repeat)
 
 
 @app.command("dataset")
@@ -109,8 +121,8 @@ def _import_dataset(
         help="Database Schema",
     ),
 ):
-    recipes.import_dataset(
-        recipes.Dataset(name=dataset_name, version=version, file_type=dataset_type),
+    import_dataset(
+        plan.InputDataset(name=dataset_name, version=version, file_type=dataset_type),
         postgres.PostgresClient(schema=database_schema),
     )
 

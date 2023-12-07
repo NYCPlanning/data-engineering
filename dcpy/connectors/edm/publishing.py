@@ -83,6 +83,7 @@ def get_draft_builds(product: str) -> list[str]:
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
     """Given product name, gets source data versions of published version"""
     source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
+    print(source_data_versions)
     source_data_versions.rename(
         columns={
             "schema_name": "datalibrary_name",
@@ -209,6 +210,16 @@ def publish(
         s3.delete(BUCKET, source)
 
 
+def file_exists(product_key: ProductKey, filepath: str) -> bool:
+    """Returns true if given file exists within outputs for given product key"""
+    return s3.exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
+
+
+def get_file(product_key: ProductKey, filepath: str) -> BytesIO:
+    """Returns file as BytesIO given product key and path within output folder"""
+    return s3.get_file_as_stream(BUCKET, f"{product_key.path}/{filepath}")
+
+
 T = TypeVar("T")
 
 
@@ -301,10 +312,10 @@ def publish_add_created_date(
         acl,
         max_files=max_files,
         metadata={
-            "date_created": old_metadata["last-modified"].strftime("%Y-%m-%d %H:%M:%S")
+            "date_created": old_metadata.last_modified.strftime("%Y-%m-%d %H:%M:%S")
         },
     )
-    return {"date_created": old_metadata["last-modified"].strftime("%Y-%m-%d %H:%M:%S")}
+    return {"date_created": old_metadata.last_modified.strftime("%Y-%m-%d %H:%M:%S")}
 
 
 def get_data_directory_url(product_key: ProductKey) -> str:
