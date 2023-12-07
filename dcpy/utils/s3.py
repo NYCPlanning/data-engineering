@@ -1,16 +1,12 @@
-import os
-from io import BytesIO
-from pathlib import Path
-import typer
-from typing import Any, Literal, TYPE_CHECKING, cast, get_args
 import boto3
 from botocore.response import StreamingBody
 from botocore.client import Config
-
-if TYPE_CHECKING:
-    from mypy_boto3_s3.client import S3Client
-else:
-    S3Client = object
+from botocore.exceptions import ClientError
+from datetime import datetime
+from io import BytesIO
+import os
+from pathlib import Path
+import pytz
 from rich.progress import (
     BarColumn,
     Progress,
@@ -18,7 +14,18 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+import typer
+from typing import Any, Literal, TYPE_CHECKING, cast, get_args
+from dataclasses import dataclass
+
+from dcpy.utils import git
 from dcpy.utils.logging import logger
+
+if TYPE_CHECKING:
+    from mypy_boto3_s3.client import S3Client
+else:
+    S3Client = object
+
 
 ACL = Literal[
     "authenticated-read",
@@ -30,6 +37,29 @@ ACL = Literal[
     "public-read-write",
 ]
 MAX_FILE_COUNT = 50
+
+
+@dataclass
+class Metadata:
+    last_modified: datetime
+    content_length: int
+    content_type: str
+    custom: dict[str, Any]
+
+
+def generate_metadata():
+    metadata = {
+        "date_created": datetime.now(pytz.timezone("America/New_York")).strftime(
+            "%Y-%m-%dT%H:%M:%S%z"
+        )
+    }
+    try:
+        metadata["commit"] = git.commit_hash()
+    except Exception:
+        pass
+    if os.environ.get("CI"):
+        metadata["run_url"] = git.action_url()
+    return metadata
 
 
 def string_as_acl(s: str) -> ACL:
@@ -89,33 +119,26 @@ def list_objects(bucket: str, prefix: str) -> list:
     return objects
 
 
-def download_file(
-    bucket: str,
-    key: str,
-    path: Path,
-) -> None:
-    """Downloads a file from S3"""
-    with _progress() as progress:
-        size = get_metadata(bucket, key)["content-length"]
-        task = progress.add_task(
-            f"[green]Downloading [bold]{Path(key).name}[/bold]", total=size
-        )
-        client().download_file(
-            Bucket=bucket,
-            Key=key,
-            Filename=str(path),
-            Callback=lambda bytes: progress.update(task, advance=bytes),
-        )
+def exists(bucket: str, key: str) -> bool:
+    """Returns true if an object with given bucket and key exists"""
+    try:
+        client().head_object(Bucket=bucket, Key=key)
+        return True
+    except ClientError:
+        return False
 
 
-def get_metadata(bucket: str, key: str) -> dict[str, Any]:
+def get_metadata(bucket: str, key: str) -> Metadata:
     """Gets custom metadata as well as three standard s3 fields"""
     response = client().head_object(Bucket=bucket, Key=key)
-    metadata: dict[str, Any] = response["Metadata"]
-    metadata["last-modified"] = response["LastModified"]
-    metadata["content-length"] = response["ContentLength"]
-    metadata["content-type"] = response["ContentType"]
-    return metadata
+    metadata = response["Metadata"]
+    cleaned_metadata = {key.replace("-", "_"): metadata[key] for key in metadata}
+    return Metadata(
+        last_modified=response["LastModified"],
+        content_length=response["ContentLength"],
+        content_type=response["ContentType"],
+        custom=cleaned_metadata,
+    )
 
 
 def get_file(
@@ -128,6 +151,25 @@ def get_file(
         Key=key,
     )
     return obj["Body"]
+
+
+def download_file(
+    bucket: str,
+    key: str,
+    path: Path,
+) -> None:
+    """Downloads a file from S3"""
+    with _progress() as progress:
+        size = get_metadata(bucket, key).content_length
+        task = progress.add_task(
+            f"[green]Downloading [bold]{Path(key).name}[/bold]", total=size
+        )
+        client().download_file(
+            Bucket=bucket,
+            Key=key,
+            Filename=str(path),
+            Callback=lambda bytes: progress.update(task, advance=bytes),
+        )
 
 
 def upload_file(
@@ -146,9 +188,10 @@ def upload_file(
         task = progress.add_task(
             f"[green]Uploading [bold]{path.name}[/bold]", total=size
         )
-        extra_args: dict[Any, Any] = {"ACL": acl}
-        if metadata:
-            extra_args["Metadata"] = metadata
+        standard_metadata = generate_metadata()
+        metadata = metadata or {}
+        metadata.update(standard_metadata)
+        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
         client().upload_file(
             str(path),
             bucket,
@@ -171,16 +214,15 @@ def copy_file(
     if target_bucket is None:
         target_bucket = bucket
     client_ = client()
-    all_metadata = client_.head_object(Bucket=bucket, Key=source_key)
-    meta = all_metadata.get("Metadata", {})
+    existing_metadata = get_metadata(bucket, source_key).custom
     if metadata is not None:
-        meta.update(metadata)
+        existing_metadata.update(metadata)
     client_.copy_object(
         CopySource={"Bucket": bucket, "Key": source_key},
         Bucket=target_bucket,
         Key=target_key,
         ACL=acl,
-        Metadata=meta,
+        Metadata=existing_metadata,
         MetadataDirective="REPLACE",
     )
 

@@ -22,12 +22,9 @@ on:
           - all
       recipe_file:
         description: "Filename of recipe to use"
-        type: choice
+        type: string
         required: true
         default: recipe
-        options:
-          - recipe
-          - recipe-minor
       logging_level:
         description: "Logging level"
         type: choice
@@ -51,6 +48,10 @@ on:
         type: boolean
         required: true
         default: false
+      version:
+        description: "Version of dataset being built"
+        type: string
+        required: false
   workflow_call:
     inputs:
       dataset_name:
@@ -161,6 +162,7 @@ jobs:
       recipe_file: ${{ inputs.recipe_file }}
       run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      version: ${{ inputs.version }}
   ztl:
     needs: health_check
     if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'

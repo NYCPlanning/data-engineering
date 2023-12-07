@@ -18,12 +18,12 @@ def get_source_version(dataset: str) -> dict[str, str]:
         if "latest" in folders:
             folders.remove("latest")
         latest_version = max(folders)
-        timestamp = s3.get_metadata(bucket, f"{prefix}{latest_version}/dcp_saf.zip")[
-            "last-modified"
-        ]
+        timestamp = s3.get_metadata(
+            bucket, f"{prefix}{latest_version}/dcp_saf.zip"
+        ).last_modified.strftime("%Y-%m-%d")
         return {
             "version": latest_version.lower(),
-            "date": timestamp.strftime("%Y-%m-%d"),
+            "date": timestamp,
         }
     else:
         config = recipes.get_config(dataset)

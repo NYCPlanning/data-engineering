@@ -35,11 +35,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     @property
     def file_name(self) -> str:
-        return (
-            f"{self.name}.{_dataset_extensions[self.file_type]}"
-            if self.file_type is not None
-            else ""
-        )
+        return f"{self.name}.{_dataset_extensions[self.file_type]}"
 
     @property
     def s3_key(self) -> str:
