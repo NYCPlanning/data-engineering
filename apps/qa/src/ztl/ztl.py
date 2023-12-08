@@ -31,7 +31,7 @@ def ztl():
     if not staging_product_key:
         st.header("Select a version.")
     else:
-        build_outputs.data_directory_url(staging_product_key)
+        build_outputs.data_directory_link(staging_product_key)
 
         if report_type == "Sources":
             reference_product_key = sidebar.data_selection(

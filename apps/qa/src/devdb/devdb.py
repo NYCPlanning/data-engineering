@@ -20,7 +20,7 @@ def devdb():
     if not product_key:
         st.header("Select a version.")
     else:
-        build_outputs.data_directory_url(product_key)
+        build_outputs.data_directory_link(product_key)
 
         st.markdown(
             body="""

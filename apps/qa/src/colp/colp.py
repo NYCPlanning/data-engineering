@@ -17,7 +17,7 @@ def colp():
     st.title("City Owned and Leased Properties QAQC")
     product_key = sidebar.data_selection("db-colp")
 
-    build_outputs.data_directory_url(product_key)
+    build_outputs.data_directory_link(product_key)
 
     st.markdown(
         body="""
