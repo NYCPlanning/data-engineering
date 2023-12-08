@@ -1,6 +1,6 @@
 def colp():
     import streamlit as st
-    from src.components import sidebar
+    from src.components import sidebar, build_outputs
     from src.colp.helpers import get_data
     from src.colp.components.agency_usetype_report import (
         RecordsByAgency,
@@ -16,6 +16,8 @@ def colp():
 
     st.title("City Owned and Leased Properties QAQC")
     product_key = sidebar.data_selection("db-colp")
+
+    build_outputs.data_directory_link(product_key)
 
     st.markdown(
         body="""

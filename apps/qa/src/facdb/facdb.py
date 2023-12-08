@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from src.constants import COLOR_SCHEME
 from src.facdb.helpers import get_latest_data, PRODUCT
-from src.components import sidebar
+from src.components import sidebar, build_outputs
 
 
 def facdb():
@@ -47,11 +47,14 @@ def facdb():
         "Would you like to review general QAQC or changes by classification?",
         ("Review by classification level", "General review"),
     )
-    st.subheader(general_or_classification)
 
     if not product_key:
         st.header("Select a version.")
     else:
+        build_outputs.data_directory_link(product_key)
+
+        st.subheader(general_or_classification)
+
         qc_tables, qc_diff, qc_mapped = get_latest_data(product_key)
 
         def count_comparison(df, width=1000, height=1000):

@@ -1,6 +1,7 @@
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
+from urllib.parse import urlencode, urljoin
 import pandas as pd
 import geopandas as gpd
 from datetime import datetime
@@ -17,6 +18,7 @@ from dcpy.utils.logging import logger
 
 BUCKET = "edm-publishing"
 BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
+BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
 
 
 class ProductKey(ABC):
@@ -303,6 +305,18 @@ def publish_add_created_date(
         },
     )
     return {"date_created": old_metadata["last-modified"].strftime("%Y-%m-%d %H:%M:%S")}
+
+
+def get_data_directory_url(product_key: ProductKey) -> str:
+    """Returns url of the data directory in Digital Ocean."""
+
+    path = product_key.path
+    if not path.endswith("/"):
+        path += "/"
+    endpoint = urlencode({"path": path})
+    url = urljoin(BASE_DO_URL, "?" + endpoint)
+
+    return url
 
 
 app = typer.Typer(add_completion=False)
