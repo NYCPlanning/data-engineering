@@ -1,8 +1,7 @@
 def checkbook():
     import streamlit as st
     from src.publishing import read_csv_cached
-    from src.components import sidebar
-    from src.components.get_data_directory_url import get_data_directory_url
+    from src.components import sidebar, build_outputs
     from src.checkbook.components import output_map
 
     st.title("Capital Spending Database")
@@ -26,7 +25,7 @@ def checkbook():
     if not product_key:
         st.header("Select a version.")
     else:
-        get_data_directory_url(product_key)
+        build_outputs.get_data_directory_url(product_key)
 
         st.markdown(
             body="""

@@ -3,8 +3,7 @@ import pandas as pd
 
 from dcpy.connectors.edm import publishing
 from src.components.sources_report import sources_report
-from src.components.get_data_directory_url import get_data_directory_url
-from src.components import sidebar
+from src.components import sidebar, build_outputs
 from src.ztl.components.outputs_report import output_report, PRODUCT
 
 DATASET_REPO_URL = "https://github.com/NYCPlanning/data-engineering/"
@@ -32,7 +31,7 @@ def ztl():
     if not staging_product_key:
         st.header("Select a version.")
     else:
-        get_data_directory_url(staging_product_key)
+        build_outputs.get_data_directory_url(staging_product_key)
 
         if report_type == "Sources":
             reference_product_key = sidebar.data_selection(

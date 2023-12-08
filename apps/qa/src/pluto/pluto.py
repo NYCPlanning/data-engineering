@@ -1,8 +1,7 @@
 def pluto():
     import streamlit as st
 
-    from src.components import sidebar
-    from src.components.get_data_directory_url import get_data_directory_url
+    from src.components import sidebar, build_outputs
     from src.pluto.helpers import get_data, PRODUCT
     from src.pluto.components.changes_report import ChangesReport
     from src.pluto.components.mismatch_report import MismatchReport
@@ -53,7 +52,7 @@ def pluto():
             condo = st.sidebar.checkbox("condo only")
             mapped = st.sidebar.checkbox("mapped only")
 
-            get_data_directory_url(product_key)
+            build_outputs.get_data_directory_url(product_key)
 
             st.markdown(
                 f"""

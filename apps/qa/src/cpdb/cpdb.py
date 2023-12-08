@@ -18,8 +18,7 @@ def cpdb():
     )
     from src.cpdb.components.adminbounds import adminbounds
     from src.cpdb.components.withinNYC_check import withinNYC_check
-    from src.components import sidebar
-    from src.components.get_data_directory_url import get_data_directory_url
+    from src.components import sidebar, build_outputs
 
     st.title("Capital Projects Database QAQC")
 
@@ -49,7 +48,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    get_data_directory_url(staging_product_key)
+    build_outputs.get_data_directory_url(staging_product_key)
 
     st.markdown(
         body="""

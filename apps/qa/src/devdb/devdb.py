@@ -12,8 +12,7 @@ def devdb():
     )
     from src.devdb.components.complete_quarters_report import CompleteQuartersReport
     from src.devdb.components.field_distribution_report import FieldDistributionReport
-    from src.components import sidebar
-    from src.components.get_data_directory_url import get_data_directory_url
+    from src.components import sidebar, build_outputs
 
     st.title("Developments Database QAQC")
 
@@ -21,7 +20,7 @@ def devdb():
     if not product_key:
         st.header("Select a version.")
     else:
-        get_data_directory_url(product_key)
+        build_outputs.get_data_directory_url(product_key)
 
         st.markdown(
             body="""

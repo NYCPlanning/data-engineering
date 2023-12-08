@@ -3,8 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from src.constants import COLOR_SCHEME
 from src.facdb.helpers import get_latest_data, PRODUCT
-from src.components import sidebar
-from src.components.get_data_directory_url import get_data_directory_url
+from src.components import sidebar, build_outputs
 
 
 def facdb():
@@ -52,7 +51,7 @@ def facdb():
     if not product_key:
         st.header("Select a version.")
     else:
-        get_data_directory_url(product_key)
+        build_outputs.get_data_directory_url(product_key)
 
         st.subheader(general_or_classification)
 
