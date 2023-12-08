@@ -52,7 +52,7 @@ def pluto():
             condo = st.sidebar.checkbox("condo only")
             mapped = st.sidebar.checkbox("mapped only")
 
-            build_outputs.get_data_directory_url(product_key)
+            build_outputs.data_directory_url(product_key)
 
             st.markdown(
                 f"""

@@ -25,7 +25,7 @@ def checkbook():
     if not product_key:
         st.header("Select a version.")
     else:
-        build_outputs.get_data_directory_url(product_key)
+        build_outputs.data_directory_url(product_key)
 
         st.markdown(
             body="""

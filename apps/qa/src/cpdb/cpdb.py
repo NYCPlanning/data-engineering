@@ -48,7 +48,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    build_outputs.get_data_directory_url(staging_product_key)
+    build_outputs.data_directory_url(staging_product_key)
 
     st.markdown(
         body="""
