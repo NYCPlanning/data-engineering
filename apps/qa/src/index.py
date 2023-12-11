@@ -1,7 +1,7 @@
 import importlib
 import streamlit as st
 
-from src.constants import DATASET_PAGES
+from src.shared.constants import DATASET_PAGES
 
 
 def run():
@@ -32,7 +32,7 @@ def run():
     st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
 
     dataset_module = importlib.import_module(
-        f"src.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}"
+        f"pages.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}"
     )
     dataset_page = getattr(dataset_module, DATASET_PAGES[name])
     dataset_page()

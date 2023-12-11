@@ -1,8 +1,8 @@
 # test generation of source data reports
 import pandas as pd
 from dcpy.connectors.edm import publishing
-from src.constants import DATASET_NAMES
-from src.source_report_utils import (
+from src.shared.constants import DATASET_NAMES
+from src.shared.utils.source_report import (
     get_source_dataset_names,
     compare_source_data_columns,
     compare_source_data_row_count,

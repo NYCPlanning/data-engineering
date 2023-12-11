@@ -1,4 +1,4 @@
-from src.edde.helpers import compare_header
+from src.pages.edde.helpers import compare_header
 
 
 def test_compare_header():
