@@ -1,7 +1,7 @@
 import pytest
 from dcpy.connectors.edm import publishing
-from src.pluto.helpers import get_data, PRODUCT
-from src.pluto.components.expected_value_differences_report import (
+from src.pages.pluto.helpers import get_data, PRODUCT
+from src.pages.pluto.components.expected_value_differences_report import (
     ExpectedValueDifferencesReport,
 )
 
