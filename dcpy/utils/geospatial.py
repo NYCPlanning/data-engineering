@@ -76,10 +76,6 @@ def convert_to_geodata(
     return geo_data
 
 
-def reproject_geodata(data: gpd.GeoDataFrame, new_crs: str) -> gpd.GeoDataFrame:
-    return data.to_crs(new_crs)
-
-
 def generate_folium_map(gdf: gpd.GeoDataFrame) -> lmf.Map:
     basic_map = lmf.Map(
         center=NYC_CENTER_COORDS,

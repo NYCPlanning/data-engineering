@@ -29,13 +29,13 @@ def test_convert_to_geodata_wkb(data_wkb):
     assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
 
 
-def test_reproject_geodata(data_wkb):
+def test_projected_crs(data_wkb):
     new_crs = geospatial.GeometryCRS.ny_long_island.value
     geodata_source = geospatial.convert_to_geodata(
         data=data_wkb,
         geometry_format=geospatial.GeometryFormat.wkb,
         geometry_column="geom",
     )
-    geodata = geospatial.reproject_geodata(data=geodata_source, new_crs=new_crs)
+    geodata = geodata_source.to_crs(new_crs)
     assert geodata.crs == new_crs
     assert round(geodata.area.sum(), 2) == 126924.61  # sqft
