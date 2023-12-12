@@ -5,8 +5,6 @@ import streamlit as st
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 
-from src.constants import BUCKET_NAME
-
 
 def unzip_csv(csv_filename: str, zipfile: ZipFile):
     with zipfile.open(csv_filename) as csv:
@@ -14,7 +12,7 @@ def unzip_csv(csv_filename: str, zipfile: ZipFile):
 
 
 def read_file_metadata(product_key: publishing.ProductKey, filepath: str):
-    return s3.get_metadata(BUCKET_NAME, f"{product_key.path}/{filepath}")
+    return s3.get_metadata(publishing.BUCKET, f"{product_key.path}/{filepath}")
 
 
 @st.cache_data(ttl=600)
