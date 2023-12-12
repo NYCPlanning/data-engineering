@@ -1,9 +1,9 @@
 from numpy import floor
+from enum import Enum
 import pandas as pd
 import geopandas as gpd
 import shapely
 import leafmap.foliumap as lmf
-from osgeo import gdal
 import typer
 from rich.progress import (
     BarColumn,
@@ -15,15 +15,6 @@ from rich.progress import (
 
 from dcpy.utils.logging import logger
 
-GEOMETRY_FORMATS = {
-    "WKT": "EPSG:4326",
-    "WKB": "ESPG:3867",
-}
-PROJECTIONS = {
-    "NY_LONG_ISLAND": "EPSG:2263",
-    "WGS_84_DEG": "EPSG:4326",
-    "WGS_84_METERS": "EPSG:4087",
-}
 
 DEFAULT_MAP_SIZE = {"width": 900, "height": 700}
 DEFAULT_BASEMAP = "Stadia.AlidadeSmoothDark"
@@ -40,17 +31,28 @@ PRODUCT_MVT_FIELDS = {
 }
 
 
+class GeometryFormat(str, Enum):
+    wkt = "WKT"
+    wkb = "WKB"
+
+
+class GeometryCRS(str, Enum):
+    wgs_84_deg = "EPSG:4326"
+    wgs_84_meters = "EPSG:4087"
+    ny_long_island = "EPSG:2263"
+
+
 def convert_to_geodata(
     data: pd.DataFrame,
-    geometry_format: str,
+    geometry_format: GeometryFormat,
     geometry_column: str,
     new_geometry_column: str = "geometry",
 ) -> gpd.GeoDataFrame:
     data = data.copy()
     match geometry_format:
-        case "WKT":
+        case GeometryFormat.wkt:
             data[geometry_column] = gpd.GeoSeries.from_wkt(data[geometry_column])
-        case "WKB":
+        case GeometryFormat.wkb:
 
             def _try_wkb(wkb):
                 try:
@@ -63,13 +65,13 @@ def convert_to_geodata(
             )
         case _:
             raise NotImplementedError(
-                f"Unsupported geometry format {geometry_format:}. Must be one of the keys in the dict {GEOMETRY_FORMATS:}"
+                f"Unsupported geometry format {geometry_format:}. Must be one of {list(GeometryFormat)}"
             )
     data.drop([geometry_column], axis=1, inplace=True)
     geo_data = gpd.GeoDataFrame(
         data,
         geometry=new_geometry_column,
-        crs=PROJECTIONS["WGS_84_DEG"],
+        crs=GeometryCRS.wgs_84_deg.value,
     )
     return geo_data
 
@@ -110,6 +112,8 @@ def translate_shp_to_mvt(
     product: str, input_path: str, min_zoom: int = 0, max_zoom: int = 5
 ) -> None:
     """Keeping scope of this very limited - should be refactored once data library is fully brought in"""
+    from osgeo import gdal
+
     output_path = f"{product}_mvt"
     select_fields = (
         PRODUCT_MVT_FIELDS[product] if product in PRODUCT_MVT_FIELDS.keys() else None

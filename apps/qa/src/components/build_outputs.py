@@ -49,7 +49,7 @@ def load_build_outputs(product_key, csv_files) -> list[BuildOutput]:
 def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
     for build_output in build_outputs:
         # TODO generalize to work for files with different geometry formats and column names
-        geometry_format = "WKB"
+        geometry_format = geospatial.GeometryFormat.wkb
         geometry_column = "wkb_geometry"
         with st.spinner(f"Generating `{build_output.file_name}` GeoDataFrame ..."):
             if build_output.dataframe is None:

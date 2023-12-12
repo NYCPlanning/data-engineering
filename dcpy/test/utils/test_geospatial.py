@@ -1,5 +1,4 @@
 import pytest
-from unittest import TestCase
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
@@ -19,19 +18,23 @@ def data_wkb() -> pd.DataFrame:
 
 def test_convert_to_geodata_wkb(data_wkb):
     geodata = geospatial.convert_to_geodata(
-        data=data_wkb, geometry_format="WKB", geometry_column="geom"
+        data=data_wkb,
+        geometry_format=geospatial.GeometryFormat.wkb,
+        geometry_column="geom",
     )
 
     assert isinstance(geodata, gpd.GeoDataFrame)
     assert geodata.columns.to_list() == ["row_id", "geometry", "geometry_error"]
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
-    assert str(geodata.crs) == geospatial.PROJECTIONS["WGS_84_DEG"]
+    assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
 
 
 def test_reproject_geodata(data_wkb):
-    new_crs = geospatial.PROJECTIONS["NY_LONG_ISLAND"]
+    new_crs = geospatial.GeometryCRS.ny_long_island.value
     geodata_source = geospatial.convert_to_geodata(
-        data=data_wkb, geometry_format="WKB", geometry_column="geom"
+        data=data_wkb,
+        geometry_format=geospatial.GeometryFormat.wkb,
+        geometry_column="geom",
     )
     geodata = geospatial.reproject_geodata(data=geodata_source, new_crs=new_crs)
     assert geodata.crs == new_crs
