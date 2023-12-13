@@ -49,24 +49,27 @@ def convert_to_geodata(
     new_geometry_column: str = "geometry",
 ) -> gpd.GeoDataFrame:
     data = data.copy()
+
+    def _try_to_geoseries(geometry_column, to_geoseries_function):
+        # gpd.GeoSeries.from_wkb and from_wkt fail if any rows have no geometry
+        try:
+            return pd.Series([to_geoseries_function(geometry_column), None])
+        except Exception as e:
+            return pd.Series([None, str(e)])
+
     match geometry_format:
         case GeometryFormat.wkt:
-            data[geometry_column] = gpd.GeoSeries.from_wkt(data[geometry_column])
+            to_geoseries_function = shapely.from_wkt
         case GeometryFormat.wkb:
-            # gpd.GeoSeries.from_wkb fails if some rows have no geometry
-            def _try_wkb(wkb):
-                try:
-                    return pd.Series([shapely.from_wkb(wkb), None])
-                except Exception as e:
-                    return pd.Series([None, str(e)])
-
-            data[[new_geometry_column, "geometry_error"]] = data.apply(
-                lambda row: _try_wkb(row[geometry_column]), axis=1
-            )
+            to_geoseries_function = shapely.from_wkb
         case _:
             raise NotImplementedError(
-                f"Unsupported geometry format {geometry_format:}. Must be one of {list(GeometryFormat)}"
+                f"Geometry format {geometry_format:} has not been implemented."
             )
+    data[[new_geometry_column, "geometry_error"]] = data.apply(
+        lambda row: _try_to_geoseries(row[geometry_column], to_geoseries_function),
+        axis=1,
+    )
     data.drop([geometry_column], axis=1, inplace=True)
     geo_data = gpd.GeoDataFrame(
         data,
