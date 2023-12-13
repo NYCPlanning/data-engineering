@@ -63,8 +63,9 @@ def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
             else:
                 build_output.geodataframe = geospatial.convert_to_geodata(
                     build_output.dataframe,
-                    geometry_format=geometry_format,
                     geometry_column=geometry_column,
+                    geometry_format=geometry_format,
+                    crs=geospatial.GeometryCRS.wgs_84_deg,
                 )
                 build_output.geodataframe_for_display = (
                     build_output.geodataframe.astype(str)
