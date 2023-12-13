@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
+import shapely
 
 from dcpy.utils import geospatial
 
@@ -27,6 +28,13 @@ def test_convert_to_geodata_wkb(data_wkb):
     assert geodata.columns.to_list() == ["row_id", "geometry", "geometry_error"]
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
     assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
+
+
+def test_from_wkb_fails(data_wkb):
+    with pytest.raises(
+        shapely.errors.GEOSException, match=r"Unexpected EOF parsing WKB"
+    ):
+        data_wkb["new_geometry_column"] = gpd.GeoSeries.from_wkb(data_wkb["geom"])
 
 
 def test_projected_crs(data_wkb):
