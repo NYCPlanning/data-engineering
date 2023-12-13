@@ -53,7 +53,7 @@ def convert_to_geodata(
         case GeometryFormat.wkt:
             data[geometry_column] = gpd.GeoSeries.from_wkt(data[geometry_column])
         case GeometryFormat.wkb:
-
+            # gpd.GeoSeries.from_wkb fails if some rows have no geometry
             def _try_wkb(wkb):
                 try:
                     return pd.Series([shapely.from_wkb(wkb), None])
