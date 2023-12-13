@@ -27,12 +27,18 @@ def data_wkt() -> pd.DataFrame:
 def test_convert_to_geodata_wkb(data_wkb):
     geodata = geospatial.convert_to_geodata(
         data=data_wkb,
-        geometry_format=geospatial.GeometryFormat.wkb,
         geometry_column="geom",
+        geometry_format=geospatial.GeometryFormat.wkb,
+        crs=geospatial.GeometryCRS.wgs_84_deg,
     )
 
     assert isinstance(geodata, gpd.GeoDataFrame)
-    assert geodata.columns.to_list() == ["row_id", "geom", "geometry_generated", "geometry_error"]
+    assert geodata.columns.to_list() == [
+        "row_id",
+        "geom",
+        "geometry_generated",
+        "geometry_error",
+    ]
     assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
     assert geodata.iloc[2:]["geometry_error"].to_list() == [
@@ -47,12 +53,18 @@ def test_convert_to_geodata_wkb(data_wkb):
 def test_convert_to_geodata_wkt(data_wkt):
     geodata = geospatial.convert_to_geodata(
         data=data_wkt,
-        geometry_format=geospatial.GeometryFormat.wkt,
         geometry_column="geom",
+        geometry_format=geospatial.GeometryFormat.wkt,
+        crs=geospatial.GeometryCRS.wgs_84_deg,
     )
 
     assert isinstance(geodata, gpd.GeoDataFrame)
-    assert geodata.columns.to_list() == ["row_id", "geom", "geometry_generated", "geometry_error"]
+    assert geodata.columns.to_list() == [
+        "row_id",
+        "geom",
+        "geometry_generated",
+        "geometry_error",
+    ]
     assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
     assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
@@ -70,8 +82,9 @@ def test_projected_crs(data_wkb):
     new_crs = geospatial.GeometryCRS.ny_long_island.value
     geodata_source = geospatial.convert_to_geodata(
         data=data_wkb,
-        geometry_format=geospatial.GeometryFormat.wkb,
         geometry_column="geom",
+        geometry_format=geospatial.GeometryFormat.wkb,
+        crs=geospatial.GeometryCRS.wgs_84_deg,
     )
     geodata = geodata_source.to_crs(new_crs)
     assert geodata.crs == new_crs

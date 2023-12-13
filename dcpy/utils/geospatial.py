@@ -45,8 +45,9 @@ class GeometryCRS(str, Enum):
 
 def convert_to_geodata(
     data: pd.DataFrame,
-    geometry_format: GeometryFormat,
     geometry_column: str,
+    geometry_format: GeometryFormat,
+    crs: GeometryCRS,
 ) -> gpd.GeoDataFrame:
     data = data.copy()
     new_geometry_column = "geometry_generated"
@@ -76,7 +77,7 @@ def convert_to_geodata(
     geo_data = gpd.GeoDataFrame(
         data,
         geometry=new_geometry_column,
-        crs=GeometryCRS.wgs_84_deg.value,
+        crs=crs.value,
     )
     return geo_data
 
