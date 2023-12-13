@@ -1,5 +1,6 @@
 from numpy import floor
 from enum import Enum
+from typing import Callable
 import pandas as pd
 import geopandas as gpd
 import shapely
@@ -46,11 +47,13 @@ def convert_to_geodata(
     data: pd.DataFrame,
     geometry_format: GeometryFormat,
     geometry_column: str,
-    new_geometry_column: str = "geometry",
 ) -> gpd.GeoDataFrame:
     data = data.copy()
+    new_geometry_column = "geometry_generated"
 
-    def _try_to_geoseries(geometry_column, to_geoseries_function):
+    def _create_geometries(
+        geometry_column: str, to_geoseries_function: Callable
+    ) -> pd.Series:
         # gpd.GeoSeries.from_wkb and from_wkt fail if any rows have no geometry
         try:
             return pd.Series([to_geoseries_function(geometry_column), None])
@@ -67,10 +70,9 @@ def convert_to_geodata(
                 f"Geometry format {geometry_format:} has not been implemented."
             )
     data[[new_geometry_column, "geometry_error"]] = data.apply(
-        lambda row: _try_to_geoseries(row[geometry_column], to_geoseries_function),
+        lambda row: _create_geometries(row[geometry_column], to_geoseries_function),
         axis=1,
     )
-    data.drop([geometry_column], axis=1, inplace=True)
     geo_data = gpd.GeoDataFrame(
         data,
         geometry=new_geometry_column,

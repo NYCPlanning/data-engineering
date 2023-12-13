@@ -32,8 +32,8 @@ def test_convert_to_geodata_wkb(data_wkb):
     )
 
     assert isinstance(geodata, gpd.GeoDataFrame)
-    assert geodata.columns.to_list() == ["row_id", "geometry", "geometry_error"]
-    assert isinstance(geodata["geometry"], gpd.GeoSeries)
+    assert geodata.columns.to_list() == ["row_id", "geom", "geometry_generated", "geometry_error"]
+    assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
     assert geodata.iloc[2:]["geometry_error"].to_list() == [
         "ParseException: Unexpected EOF parsing WKB",
@@ -52,8 +52,8 @@ def test_convert_to_geodata_wkt(data_wkt):
     )
 
     assert isinstance(geodata, gpd.GeoDataFrame)
-    assert geodata.columns.to_list() == ["row_id", "geometry", "geometry_error"]
-    assert isinstance(geodata["geometry"], gpd.GeoSeries)
+    assert geodata.columns.to_list() == ["row_id", "geom", "geometry_generated", "geometry_error"]
+    assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
     assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
 
