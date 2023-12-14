@@ -28,20 +28,20 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.34.3
+boto3==1.34.7
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.34.3
+boto3-stubs[s3]==1.34.7
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-botocore==1.34.3
+botocore==1.34.7
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.34.3
+botocore-stubs==1.34.7
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -102,7 +102,7 @@ contextily==1.3.0
     # via -r python/requirements.in
 contourpy==1.2.0
     # via matplotlib
-coverage[toml]==7.3.3
+coverage[toml]==7.3.4
     # via
     #   coverage
     #   pytest-cov
@@ -162,7 +162,7 @@ graphviz==0.20.1
     # via
     #   -r python/requirements.in
     #   diagrams
-greenlet==3.0.2
+greenlet==3.0.3
     # via sqlalchemy
 idna==3.6
     # via requests
@@ -180,7 +180,7 @@ ipykernel==6.22.0
     # via -r python/requirements.in
 ipyleaflet==0.18.1
     # via leafmap
-ipython==8.18.1
+ipython==8.19.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -223,11 +223,11 @@ jsonschema==4.20.0
     # via
     #   altair
     #   pystac
-jsonschema-specifications==2023.11.2
+jsonschema-specifications==2023.12.1
     # via jsonschema
 jupyter-client==8.6.0
     # via ipykernel
-jupyter-core==5.5.1
+jupyter-core==5.6.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -235,7 +235,7 @@ jupyterlab-widgets==3.0.9
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-leafmap==0.29.7
+leafmap==0.30.0
     # via -r python/requirements.in
 lxml==4.9.4
     # via -r python/requirements.in
@@ -449,7 +449,7 @@ referencing==0.32.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-regex==2023.10.3
+regex==2023.12.25
     # via sqlfluff
 requests[socks]==2.31.0
     # via
@@ -460,6 +460,7 @@ requests[socks]==2.31.0
     #   msal
     #   pystac-client
     #   responses
+    #   socrata-py
     #   streamlit
 responses==0.24.1
     # via moto
@@ -471,7 +472,7 @@ rpds-py==0.15.2
     # via
     #   jsonschema
     #   referencing
-s3transfer==0.9.0
+s3transfer==0.10.0
     # via boto3
 scikit-learn==1.3.2
     # via mapclassify
@@ -493,6 +494,8 @@ smmap==5.0.1
     # via gitdb
 snuggs==1.4.7
     # via rasterio
+socrata-py==1.1.13
+    # via -r python/requirements.in
 soupsieve==2.5
     # via beautifulsoup4
 sqlalchemy==2.0.15
@@ -512,7 +515,7 @@ streamlit==1.29.0
     #   streamlit-folium
 streamlit-aggrid==0.3.4.post3
     # via -r python/requirements.in
-streamlit-folium==0.17.4
+streamlit-folium==0.18.0
     # via -r python/requirements.in
 tabulate==0.9.0
     # via -r python/requirements.in
@@ -573,7 +576,7 @@ types-pyyaml==6.0.12.12
     # via -r python/requirements.in
 types-requests==2.31.0.10
     # via -r python/requirements.in
-types-s3transfer==0.9.0
+types-s3transfer==0.10.0
     # via boto3-stubs
 types-setuptools==69.0.0.0
     # via -r python/requirements.in
