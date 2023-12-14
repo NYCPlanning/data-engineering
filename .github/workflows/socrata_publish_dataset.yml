@@ -3,6 +3,15 @@ run-name: "🚀 Socrata - Publish a Dataset"
 
 on:
   workflow_dispatch:
+    inputs:
+      DATASET_NAME:
+        description: "Name of the Socrata Dataset"
+        type: string
+        required: true
+      DATASET_VERSION:
+        description: "Version to push"
+        type: string
+        required: true
 jobs:
   publish:
     runs-on: ubuntu-22.04
@@ -14,3 +23,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
+          SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
+
+      - name: Finish container setup
+        run: ./bash/docker_container_setup.sh
+
+      - name: Temp install socrata-py
+        run: python3 -m pip install socrata-py
+
+      - name: Push to Socrata
+        run: |
+          python3 -m dcpy.connectors.socrata.publish push_shp_from_s3 \
+            --dataset ${{ inputs.DATASET_NAME }} \
+            --version ${{ inputs.DATASET_VERSION }}
