@@ -1,5 +1,8 @@
 name: Docker Images - Build and Publish
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       build-base:
@@ -30,7 +33,7 @@ env:
 jobs:
   build-base:
     runs-on: ubuntu-22.04
-    if: inputs.build-base
+    if: inputs.build-base || github.event_name == 'push'
     defaults:
       run:
         shell: bash
@@ -43,7 +46,7 @@ jobs:
 
   build-geosupport:
     runs-on: ubuntu-22.04
-    if: inputs.build-geosupport
+    if: inputs.build-geosupport || github.event_name == 'push'
     defaults:
       run:
         shell: bash
@@ -56,7 +59,7 @@ jobs:
 
   dev:
     runs-on: ubuntu-22.04
-    if: inputs.dev
+    if: inputs.dev || github.event_name == 'push'
     defaults:
       run:
         shell: bash
@@ -69,7 +72,7 @@ jobs:
 
   docker-geosupport:
     runs-on: ubuntu-22.04
-    if: inputs.docker-geosupport
+    if: inputs.docker-geosupport || github.event_name == 'push'
     defaults:
       run:
         shell: bash
