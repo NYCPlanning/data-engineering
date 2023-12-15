@@ -1,5 +1,6 @@
 folium
 geoalchemy2
+leafmap
 mapclassify
 matplotlib
 numerize
