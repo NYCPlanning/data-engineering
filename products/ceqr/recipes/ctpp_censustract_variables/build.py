@@ -83,28 +83,28 @@ def compute_moe(total_moe):
     trans_auto_total and trans_public_total
     """
     total_moe["trans_auto_carpool_total"] = (
-        total_moe.trans_auto_2 ** 2
-        + total_moe.trans_auto_3 ** 2
-        + total_moe.trans_auto_4 ** 2
-        + total_moe.trans_auto_5_or_6 ** 2
-        + total_moe.trans_auto_7_or_more ** 2
+        total_moe.trans_auto_2**2
+        + total_moe.trans_auto_3**2
+        + total_moe.trans_auto_4**2
+        + total_moe.trans_auto_5_or_6**2
+        + total_moe.trans_auto_7_or_more**2
     )
 
     total_moe["trans_auto_total"] = (
-        total_moe.trans_auto_solo ** 2
-        + total_moe.trans_auto_2 ** 2
-        + total_moe.trans_auto_3 ** 2
-        + total_moe.trans_auto_4 ** 2
-        + total_moe.trans_auto_5_or_6 ** 2
-        + total_moe.trans_auto_7_or_more ** 2
+        total_moe.trans_auto_solo**2
+        + total_moe.trans_auto_2**2
+        + total_moe.trans_auto_3**2
+        + total_moe.trans_auto_4**2
+        + total_moe.trans_auto_5_or_6**2
+        + total_moe.trans_auto_7_or_more**2
     )
 
     total_moe["trans_public_total"] = (
-        total_moe.trans_public_bus ** 2
-        + total_moe.trans_public_streetcar ** 2
-        + total_moe.trans_public_subway ** 2
-        + total_moe.trans_public_rail ** 2
-        + total_moe.trans_public_ferry ** 2
+        total_moe.trans_public_bus**2
+        + total_moe.trans_public_streetcar**2
+        + total_moe.trans_public_subway**2
+        + total_moe.trans_public_rail**2
+        + total_moe.trans_public_ferry**2
     )
 
     total_moe["trans_auto_carpool_total"] = total_moe.trans_auto_carpool_total.apply(
@@ -183,7 +183,7 @@ if __name__ == "__main__":
                 est AS value, moe 
             FROM ctpp_mode_split_ny."2012_2016"
         """,
-        con=create_engine(os.environ['RECIPE_ENGINE']),
+        con=create_engine(os.environ["RECIPE_ENGINE"]),
     )
 
     # clean value and moe
@@ -198,4 +198,4 @@ if __name__ == "__main__":
 
     # conduct data etl
     df = etl(df)
-    df.to_csv(sys.stdout, columns=[ "geoid","value","moe","variable"], index=False)
+    df.to_csv(sys.stdout, columns=["geoid", "value", "moe", "variable"], index=False)

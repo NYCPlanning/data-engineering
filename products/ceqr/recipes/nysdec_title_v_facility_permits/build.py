@@ -5,13 +5,24 @@ sys.path.insert(0, "..")
 import pandas as pd
 import numpy as np
 import re
-from _helper.geo import get_hnum, get_sname, clean_address, find_intersection, find_stretch, geocode, GEOSUPPORT_RETURN_CODE_REJECTION
+from _helper.geo import (
+    get_hnum,
+    get_sname,
+    clean_address,
+    find_intersection,
+    find_stretch,
+    geocode,
+    GEOSUPPORT_RETURN_CODE_REJECTION,
+)
 from multiprocessing import Pool, cpu_count
 
 URL_NYSDEC_TITLE_V_PERMITS = "https://data.ny.gov/resource/4n3a-en4b.csv"
 
 CORR = pd.read_csv("../_data/air_corr.csv", dtype=str, engine="c")
-CORR_DICT = CORR.loc[CORR.datasource == "nysdec_title_v_facility_permits", :].to_dict('records')
+CORR_DICT = CORR.loc[CORR.datasource == "nysdec_title_v_facility_permits", :].to_dict(
+    "records"
+)
+
 
 def _import() -> pd.DataFrame:
     """
@@ -23,7 +34,7 @@ def _import() -> pd.DataFrame:
     df (DataFrame): Contains fields facility_name,
         permit_id, url_to_permit_text, facility_location,
         facility_city, facility_state, zipcode, issue_date,
-        expiration_date, location, address, borough, 
+        expiration_date, location, address, borough,
         hnum, sname, streetname_1, streetname_2
     """
     cols = [
@@ -44,7 +55,7 @@ def _import() -> pd.DataFrame:
     df.columns = [i.lower().replace(" ", "_") for i in df.columns]
     for col in cols:
         assert col in df.columns, f"Missing {col} in input data"
-    df = df.rename(columns={"facility_zip": "zipcode", "georeference":"location"})
+    df = df.rename(columns={"facility_zip": "zipcode", "georeference": "location"})
 
     # Get borough and limit to NYC via city
     city_borough = pd.read_csv("../_data/city_boro.csv", dtype=str, engine="c")
@@ -59,20 +70,25 @@ def _import() -> pd.DataFrame:
 
     # Apply corrections to addresses
     for record in CORR_DICT:
-        if record['location'] != record['correction'].upper():
-            df.loc[(df['facility_location']==record['location']) & (
-                df['permit_id']==record['id']),'facility_location'] = record['correction'].upper()
-    
+        if record["location"] != record["correction"].upper():
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "facility_location",
+            ] = record["correction"].upper()
+
     # Extract first location
     df["address"] = df["facility_location"].astype(str).apply(clean_address)
 
     # Parse stretches
-    df[["streetname_1", "streetname_2","streetname_3"]] = df.apply(
-        lambda row: pd.Series(find_stretch(row['address'])), axis=1)
-    
+    df[["streetname_1", "streetname_2", "streetname_3"]] = df.apply(
+        lambda row: pd.Series(find_stretch(row["address"])), axis=1
+    )
+
     # Parse intersections
     df[["streetname_1", "streetname_2"]] = df.apply(
-        lambda row: pd.Series(find_intersection(row['address'])), axis=1)
+        lambda row: pd.Series(find_intersection(row["address"])), axis=1
+    )
 
     # Parse house numbers
     df["hnum"] = (
@@ -88,10 +104,10 @@ def _import() -> pd.DataFrame:
 
 
 def _geocode(df: pd.DataFrame) -> pd.DataFrame:
-    """ 
+    """
     Geocode cleaned nysdec title v data using helper/air_geocode()
 
-    Parameters: 
+    Parameters:
     df (DataFrame): Contains data  with
                     hnum and sname parsed
                     from address
@@ -117,19 +133,33 @@ def _geocode(df: pd.DataFrame) -> pd.DataFrame:
     )
     return df
 
+
 def correct_coords(df):
     for record in CORR_DICT:
-        if record['location'] == record['correction'].upper():
-            df.loc[(df['facility_location']==record['location']) & (df['permit_id']==record['id']),'geo_latitude'] = float(record['latitude'])
-            df.loc[(df['facility_location']==record['location']) & (df['permit_id']==record['id']),'geo_longitude'] = float(record['longitude'])
-            df.loc[(df['facility_location']==record['location']) & (df['permit_id']==record['id']),'geo_function'] = 'Manual Correction'
+        if record["location"] == record["correction"].upper():
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "geo_latitude",
+            ] = float(record["latitude"])
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "geo_longitude",
+            ] = float(record["longitude"])
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "geo_function",
+            ] = "Manual Correction"
     return df
 
+
 def _output(df):
-    """ 
+    """
     Output geocoded data to stdout for transfer to postgres
 
-    Parameters: 
+    Parameters:
     df (DataFrame): Contains input fields along
                     with geosupport fields
     """
@@ -163,8 +193,8 @@ def _output(df):
         "geo_y_coord",
         "geo_function",
     ]
-    df = df.rename(columns={"hnum":"housenum", "sname":"streetname"})
-    df[cols].to_csv('output/raw.csv', index=False)
+    df = df.rename(columns={"hnum": "housenum", "sname": "streetname"})
+    df[cols].to_csv("output/raw.csv", index=False)
     df[cols].to_csv(sys.stdout, index=False)
 
 

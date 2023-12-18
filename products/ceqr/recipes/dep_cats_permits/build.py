@@ -4,12 +4,21 @@ sys.path.insert(0, "..")
 import pandas as pd
 import numpy as np
 import re
-from _helper.geo import get_hnum, get_sname, clean_street, clean_house, clean_boro_name, \
-                        find_stretch, find_intersection, geocode
+from _helper.geo import (
+    get_hnum,
+    get_sname,
+    clean_street,
+    clean_house,
+    clean_boro_name,
+    find_stretch,
+    find_intersection,
+    geocode,
+)
 from multiprocessing import Pool, cpu_count
 import datetime as dt
 from jinja2 import Template
 import requests
+
 
 def _import() -> pd.DataFrame:
     """
@@ -21,9 +30,9 @@ def _import() -> pd.DataFrame:
 
     Returns:
     df (DataFrame): Contains fields requestid, applicationid,
-        requesttype, housenum, hnum, streetname, sname, borough, 
-        bin, block, lot, ownername, expiration_date, make, 
-        model, burnermake, burnermodel, primaryfuel, secondaryfuel, 
+        requesttype, housenum, hnum, streetname, sname, borough,
+        bin, block, lot, ownername, expiration_date, make,
+        model, burnermake, burnermodel, primaryfuel, secondaryfuel,
         quantity, issue_date, status, premisename, streetname_1,
         streetname_2
     """
@@ -49,7 +58,7 @@ def _import() -> pd.DataFrame:
         "quantity",
         "issuedate",
         "status",
-        "premisename"
+        "premisename",
     ]
 
     df = pd.read_csv(url, dtype=str, engine="c")
@@ -81,14 +90,16 @@ def _import() -> pd.DataFrame:
 
     # Concatenate house & street to form full address
     df["address"] = df.hnum + " " + df.sname
-    
+
     # Parse stretches
     df[["streetname_1", "streetname_2", "streetname_3"]] = df.apply(
-            lambda row: pd.Series(find_stretch(row['address'])), axis=1)
-    
+        lambda row: pd.Series(find_stretch(row["address"])), axis=1
+    )
+
     # Parse intersections
     df[["streetname_1", "streetname_2"]] = df.apply(
-            lambda row: pd.Series(find_intersection(row['address'])), axis=1)
+        lambda row: pd.Series(find_intersection(row["address"])), axis=1
+    )
 
     df["status"] = df["status"].apply(lambda x: x.strip())
 
@@ -96,10 +107,10 @@ def _import() -> pd.DataFrame:
 
 
 def _geocode(df: pd.DataFrame) -> pd.DataFrame:
-    """ 
+    """
     Geocode cleaned DEP CATS permit data using helper/geocode()
 
-    Parameters: 
+    Parameters:
     df (DataFrame): Contains data  with
                     hnum and sname parsed
                     from address
@@ -127,10 +138,10 @@ def _geocode(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _output(df: pd.DataFrame):
-    """ 
+    """
     Output geocoded data to stdout for transfer to postgres
 
-    Parameters: 
+    Parameters:
     df (DataFrame): Contains input fields along
                     with geosupport fields
     """
@@ -170,22 +181,26 @@ def _output(df: pd.DataFrame):
     ]
     df[cols].to_csv(sys.stdout, sep="|", index=False)
 
-def _readme():
-    date_last_update=dt.datetime.today().strftime("%B %d, %Y")
-    metadata=requests.get('https://data.cityofnewyork.us/api/views/f4rp-2kvy.json').json()
-    date_underlying_data=dt.datetime.fromtimestamp(metadata['rowsUpdatedAt']).strftime("%B %d, %Y")
 
-    with open('README.md', 'r') as readme:
+def _readme():
+    date_last_update = dt.datetime.today().strftime("%B %d, %Y")
+    metadata = requests.get(
+        "https://data.cityofnewyork.us/api/views/f4rp-2kvy.json"
+    ).json()
+    date_underlying_data = dt.datetime.fromtimestamp(
+        metadata["rowsUpdatedAt"]
+    ).strftime("%B %d, %Y")
+
+    with open("README.md", "r") as readme:
         template = Template(readme.read())
         rendered = template.render(
-            date_last_update=date_last_update, 
-            date_underlying_data=date_underlying_data
+            date_last_update=date_last_update, date_underlying_data=date_underlying_data
         )
-    with open('output/README.md', 'w') as _readme:
+    with open("output/README.md", "w") as _readme:
         _readme.write(rendered)
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     df = _import()
     df = _geocode(df)
     _readme()
