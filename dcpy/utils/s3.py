@@ -18,6 +18,7 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+from dcpy.utils.logging import logger
 
 ACL = Literal[
     "authenticated-read",
@@ -211,6 +212,7 @@ def upload_folder(
     max_files: int = MAX_FILE_COUNT,
     contents_only: bool = False,
     metadata: dict[str, Any] | None = None,
+    delete_existing: bool = True,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
@@ -220,6 +222,14 @@ def upload_folder(
         raise Exception(
             f"{len(files)} found in folder '{local_folder_path}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
+
+    if delete_existing:
+        logger.info(
+            f"Deleting any existing files in {upload_path} from bucket {bucket}"
+        )
+        delete(bucket, str(upload_path))
+
+    logger.info(f"Uploading {local_folder_path} to {upload_path} in bucket {bucket}")
     for file in files:
         relative_filepath = file.relative_to(local_folder_path)
         key = (
@@ -239,6 +249,7 @@ def copy_folder(
     max_files: int = MAX_FILE_COUNT,
     metadata: dict[str, Any] | None = None,
     target_bucket: str | None = None,
+    delete_existing: bool = True,
 ) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
@@ -250,6 +261,15 @@ def copy_folder(
         raise Exception(
             f"{len(objects)} found in folder '{source}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
+
+    target_bucket_ = target_bucket or bucket
+    if delete_existing:
+        logger.info(
+            f"Deleting any existing files in {target_bucket_}/{target} from bucket "
+        )
+        delete(bucket, target)
+
+    logger.info(f"Copying {bucket}/{source} to {target_bucket_}/{target}")
     for obj in objects:
         key = obj["Key"].replace(source, "")
         if key and (key[-1] != "/"):
