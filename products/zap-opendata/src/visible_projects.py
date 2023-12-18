@@ -101,7 +101,7 @@ def make_staging_table(sql_engine, dataset_name) -> None:
             BEGIN;
             DROP TABLE IF EXISTS %(staging_table_name)s;
             CREATE TABLE %(staging_table_name)s as 
-            (SELECT %(source_table_name)s.dcp_name as project_id,
+            (SELECT split_part(replace(%(source_table_name)s.dcp_name, ' ', ''), '-', 1) as project_id,
                     %(source_table_name)s.statuscode as project_status,
                     %(source_table_name)s.dcp_bblnumber as bbl,
                     %(source_table_name)s.dcp_validatedborough as validated_borough,
@@ -197,7 +197,7 @@ def make_open_data_table(sql_engine, dataset_name) -> None:
                     dcp_projectbbls_recoded.unverified_block as unverified_block,
                     dcp_projectbbls_recoded.unverified_lot as unverified_lot
              from dcp_projectbbls_recoded INNER JOIN dcp_projects_visible 
-            on SUBSTRING(dcp_projectbbls_recoded.project_id, 0,10) = dcp_projects_visible.project_id);
+            on dcp_projectbbls_recoded.project_id = dcp_projects_visible.project_id);
             COMMIT;
         """
         with sql_engine.begin() as sql_conn:
