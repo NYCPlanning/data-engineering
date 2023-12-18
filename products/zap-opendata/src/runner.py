@@ -8,9 +8,10 @@ from pathlib import Path
 import requests
 from sqlalchemy import text
 
+from dcpy.utils.postgres import insert_copy
+
 from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
 from .client import Client
-from .copy import psql_insert_copy
 from .pg import PG
 from .visible_projects import (
     OPEN_DATA,
@@ -115,7 +116,7 @@ class Runner:
                 con=self.engine,
                 index=False,
                 if_exists="append",
-                method=psql_insert_copy,
+                method=insert_copy,
             )
 
     def recode(self):
@@ -179,7 +180,7 @@ class Runner:
             con=self.engine,
             index=False,
             if_exists="replace",
-            method=psql_insert_copy,
+            method=insert_copy,
         )
 
     def recode_id(self):
@@ -207,7 +208,7 @@ class Runner:
                 con=self.engine,
                 index=False,
                 if_exists="replace",
-                method=psql_insert_copy,
+                method=insert_copy,
             )
         else:
             print(f"No IDs to recode in dataset {self.name}")
