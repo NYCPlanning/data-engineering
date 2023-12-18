@@ -1,10 +1,13 @@
+import importlib
 from pathlib import Path
 import typer
 
 from dcpy.utils import postgres, s3
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
-from dcpy.builds import metadata
+from dcpy.builds import metadata, plan
+
+DEFAULT_RECIPE = "recipe.yml"
 
 
 def setup_build_environments(pg_client: postgres.PostgresClient):
@@ -17,10 +20,37 @@ def setup_build_environments(pg_client: postgres.PostgresClient):
     )
 
 
+def import_dataset(
+    ds: plan.InputDataset,
+    pg_client: postgres.PostgresClient,
+):
+    """Import a recipe to local data library folder and build engine."""
+    ds_table_name = ds.import_as or ds.name
+    logger.info(
+        f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
+    )
+
+    if ds.version == "latest" or ds.version is None:
+        raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
+    if ds.preprocessor is not None:
+        preproc_mod = importlib.import_module(ds.preprocessor.module)
+        preproc_func = getattr(preproc_mod, ds.preprocessor.function)
+        if ds.file_type == recipes.DatasetType.pg_dump:
+            logger.warning(
+                f"Preprocessor {ds.preprocessor.module} cannot be applied to pg_dump dataset {ds.name}."
+            )
+    else:
+        preproc_func = None
+
+    recipes.import_dataset(
+        ds.dataset, pg_client, preprocessor=preproc_func, import_as=ds.import_as
+    )
+
+
 def load_source_data(recipe_path: Path):
-    recipe_lock_path = recipes.plan(recipe_path)
-    recipes.write_source_data_versions(recipe_file=Path(recipe_lock_path))
-    recipe = recipes.recipe_from_yaml(Path(recipe_lock_path))
+    recipe_lock_path = plan.plan(recipe_path)
+    plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
+    recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
     build_name = metadata.build_name()
     logger.info(f"Loading source data for {recipe.name} build named {build_name}")
@@ -32,7 +62,7 @@ def load_source_data(recipe_path: Path):
         recipe_lock_path.parent / "source_data_versions.csv"
     )
 
-    [recipes.import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]
+    [import_dataset(dataset, pg_client) for dataset in recipe.inputs.datasets]
 
     recipes.purge_recipe_cache()
 
