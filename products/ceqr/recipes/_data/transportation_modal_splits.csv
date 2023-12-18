@@ -1,0 +1,505 @@
+type,borough,transit zone,weekend,mode,percent
+Local Retail,Brooklyn,,,Auto,11.00%
+Local Retail,Brooklyn,,,Taxi,0.00%
+Local Retail,Brooklyn,,,Bus,2.00%
+Local Retail,Brooklyn,,,Subway,3.00%
+Local Retail,Brooklyn,,,Railroad,0.00%
+Local Retail,Brooklyn,,,Walk/Other,84.00%
+Local Retail,Brooklyn,,1,Auto,11.00%
+Local Retail,Brooklyn,,1,Taxi,0.00%
+Local Retail,Brooklyn,,1,Bus,2.00%
+Local Retail,Brooklyn,,1,Subway,3.00%
+Local Retail,Brooklyn,,1,Railroad,0.00%
+Local Retail,Brooklyn,,1,Walk/Other,84.00%
+Local Retail,Manhattan,,,Auto,6.00%
+Local Retail,Manhattan,,,Taxi,1.00%
+Local Retail,Manhattan,,,Bus,1.00%
+Local Retail,Manhattan,,,Subway,1.00%
+Local Retail,Manhattan,,,Railroad,0.00%
+Local Retail,Manhattan,,,Walk/Other,91.00%
+Local Retail,Manhattan,,1,Auto,6.00%
+Local Retail,Manhattan,,1,Taxi,1.00%
+Local Retail,Manhattan,,1,Bus,1.00%
+Local Retail,Manhattan,,1,Subway,1.00%
+Local Retail,Manhattan,,1,Railroad,0.00%
+Local Retail,Manhattan,,1,Walk/Other,91.00%
+Local Retail,Queens	,TZ,,Auto,11.00%
+Local Retail,Queens	,TZ,,Taxi,0.00%
+Local Retail,Queens	,TZ,,Bus,3.00%
+Local Retail,Queens	,TZ,,Subway,4.00%
+Local Retail,Queens	,TZ,,Railroad,0.00%
+Local Retail,Queens	,TZ,,Walk/Other,82.00%
+Local Retail,Queens	,TZ,1,Auto,8.00%
+Local Retail,Queens	,TZ,1,Taxi,0.00%
+Local Retail,Queens	,TZ,1,Bus,4.00%
+Local Retail,Queens	,TZ,1,Subway,7.00%
+Local Retail,Queens	,TZ,1,Railroad,0.00%
+Local Retail,Queens	,TZ,1,Walk/Other,81.00%
+Local Retail,Queens	,NTZ,,Auto,11.00%
+Local Retail,Queens	,NTZ,,Taxi,0.00%
+Local Retail,Queens	,NTZ,,Bus,2.00%
+Local Retail,Queens	,NTZ,,Subway,3.00%
+Local Retail,Queens	,NTZ,,Railroad,0.00%
+Local Retail,Queens	,NTZ,,Walk/Other,84.00%
+Local Retail,Queens	,NTZ,1,Auto,11.00%
+Local Retail,Queens	,NTZ,1,Taxi,0.00%
+Local Retail,Queens	,NTZ,1,Bus,2.00%
+Local Retail,Queens	,NTZ,1,Subway,3.00%
+Local Retail,Queens	,NTZ,1,Railroad,0.00%
+Local Retail,Queens	,NTZ,1,Walk/Other,84.00%
+Local Retail,Bronx        ,,,Auto,11.00%
+Local Retail,Bronx        ,,,Taxi,0.00%
+Local Retail,Bronx        ,,,Bus,2.00%
+Local Retail,Bronx        ,,,Subway,3.00%
+Local Retail,Bronx        ,,,Railroad,0.00%
+Local Retail,Bronx        ,,,Walk/Other,84.00%
+Local Retail,Bronx        ,,1,Auto,11.00%
+Local Retail,Bronx        ,,1,Taxi,0.00%
+Local Retail,Bronx        ,,1,Bus,2.00%
+Local Retail,Bronx        ,,1,Subway,3.00%
+Local Retail,Bronx        ,,1,Railroad,0.00%
+Local Retail,Bronx        ,,1,Walk/Other,84.00%
+Local Retail,Staten Island,St George,,Auto,18.00%
+Local Retail,Staten Island,St George,,Taxi,0.00%
+Local Retail,Staten Island,St George,,Bus,6.00%
+Local Retail,Staten Island,St George,,Subway,0.00%
+Local Retail,Staten Island,St George,,Railroad,0.00%
+Local Retail,Staten Island,St George,,Walk/Other,76.00%
+Local Retail,Staten Island,,,Auto,95.00%
+Local Retail,Staten Island,,,Taxi,1.50%
+Local Retail,Staten Island,,,Bus,2.50%
+Local Retail,Staten Island,,,Subway,0.00%
+Local Retail,Staten Island,,,Railroad,0.00%
+Local Retail,Staten Island,,,Walk/Other,1.00%
+Hotel (M1),Bronx        ,TZ,,Auto,28.00%
+Hotel (M1),Bronx        ,TZ,,Taxi,18.00%
+Hotel (M1),Bronx        ,TZ,,Bus,3.00%
+Hotel (M1),Bronx        ,TZ,,Subway,27.00%
+Hotel (M1),Bronx        ,TZ,,Railroad,1.00%
+Hotel (M1),Bronx        ,TZ,,Bike,0.00%
+Hotel (M1),Bronx        ,TZ,,Walk / Other,21.00%
+Hotel (M1),Bronx        ,TZ,,Shuttle,2.00%
+Hotel (M1),Bronx        ,TZ,,Ferry,0.00%
+Hotel (M1),Bronx        ,TZ,,Tour bus,0.00%
+Hotel (M1),Bronx        ,TZ,1,Auto,21.00%
+Hotel (M1),Bronx        ,TZ,1,Taxi,41.00%
+Hotel (M1),Bronx        ,TZ,1,Bus,1.00%
+Hotel (M1),Bronx        ,TZ,1,Subway,17.00%
+Hotel (M1),Bronx        ,TZ,1,Railroad,0.00%
+Hotel (M1),Bronx        ,TZ,1,Bike,0.00%
+Hotel (M1),Bronx        ,TZ,1,Walk / Other,17.00%
+Hotel (M1),Bronx        ,TZ,1,Shuttle,3.00%
+Hotel (M1),Bronx        ,TZ,1,Ferry,0.00%
+Hotel (M1),Bronx        ,TZ,1,Tour bus,0.00%
+Hotel (M1),Bronx        ,NTZ,,Auto,46.00%
+Hotel (M1),Bronx        ,NTZ,,Taxi,31.00%
+Hotel (M1),Bronx        ,NTZ,,Bus,8.00%
+Hotel (M1),Bronx        ,NTZ,,Subway,7.00%
+Hotel (M1),Bronx        ,NTZ,,Railroad,0.00%
+Hotel (M1),Bronx        ,NTZ,,Bike,0.00%
+Hotel (M1),Bronx        ,NTZ,,Walk / Other,7.00%
+Hotel (M1),Bronx        ,NTZ,,Shuttle,1.00%
+Hotel (M1),Bronx        ,NTZ,,Ferry,0.00%
+Hotel (M1),Bronx        ,NTZ,,Tour bus,0.00%
+Hotel (M1),Bronx        ,NTZ,1,Auto,53.00%
+Hotel (M1),Bronx        ,NTZ,1,Taxi,43.00%
+Hotel (M1),Bronx        ,NTZ,1,Bus,1.00%
+Hotel (M1),Bronx        ,NTZ,1,Subway,2.00%
+Hotel (M1),Bronx        ,NTZ,1,Railroad,0.00%
+Hotel (M1),Bronx        ,NTZ,1,Bike,0.00%
+Hotel (M1),Bronx        ,NTZ,1,Walk / Other,1.00%
+Hotel (M1),Bronx        ,NTZ,1,Shuttle,0.00%
+Hotel (M1),Bronx        ,NTZ,1,Ferry,0.00%
+Hotel (M1),Bronx        ,NTZ,1,Tour bus,0.00%
+Hotel (M1),Brooklyn,TZ,,Auto,15.00%
+Hotel (M1),Brooklyn,TZ,,Taxi,32.00%
+Hotel (M1),Brooklyn,TZ,,Bus,1.00%
+Hotel (M1),Brooklyn,TZ,,Subway,24.00%
+Hotel (M1),Brooklyn,TZ,,Railroad,1.00%
+Hotel (M1),Brooklyn,TZ,,Bike,0.00%
+Hotel (M1),Brooklyn,TZ,,Walk / Other,24.00%
+Hotel (M1),Brooklyn,TZ,,Shuttle,3.00%
+Hotel (M1),Brooklyn,TZ,,Ferry,0.00%
+Hotel (M1),Brooklyn,TZ,,Tour bus,0.00%
+Hotel (M1),Brooklyn,TZ,1,Auto,16.00%
+Hotel (M1),Brooklyn,TZ,1,Taxi,33.00%
+Hotel (M1),Brooklyn,TZ,1,Bus,2.00%
+Hotel (M1),Brooklyn,TZ,1,Subway,24.00%
+Hotel (M1),Brooklyn,TZ,1,Railroad,0.00%
+Hotel (M1),Brooklyn,TZ,1,Bike,0.00%
+Hotel (M1),Brooklyn,TZ,1,Walk / Other,18.00%
+Hotel (M1),Brooklyn,TZ,1,Shuttle,6.00%
+Hotel (M1),Brooklyn,TZ,1,Ferry,0.00%
+Hotel (M1),Brooklyn,TZ,1,Tour bus,0.00%
+Hotel (M1),Brooklyn,NTZ,,Auto,23.00%
+Hotel (M1),Brooklyn,NTZ,,Taxi,40.00%
+Hotel (M1),Brooklyn,NTZ,,Bus,3.00%
+Hotel (M1),Brooklyn,NTZ,,Subway,17.00%
+Hotel (M1),Brooklyn,NTZ,,Railroad,2.00%
+Hotel (M1),Brooklyn,NTZ,,Bike,0.00%
+Hotel (M1),Brooklyn,NTZ,,Walk / Other,13.00%
+Hotel (M1),Brooklyn,NTZ,,Shuttle,2.00%
+Hotel (M1),Brooklyn,NTZ,,Ferry,1.00%
+Hotel (M1),Brooklyn,NTZ,,Tour bus,0.00%
+Hotel (M1),Brooklyn,NTZ,1,Auto,25.00%
+Hotel (M1),Brooklyn,NTZ,1,Taxi,37.00%
+Hotel (M1),Brooklyn,NTZ,1,Bus,3.00%
+Hotel (M1),Brooklyn,NTZ,1,Subway,12.00%
+Hotel (M1),Brooklyn,NTZ,1,Railroad,1.00%
+Hotel (M1),Brooklyn,NTZ,1,Bike,1.00%
+Hotel (M1),Brooklyn,NTZ,1,Walk / Other,17.00%
+Hotel (M1),Brooklyn,NTZ,1,Shuttle,4.00%
+Hotel (M1),Brooklyn,NTZ,1,Ferry,0.00%
+Hotel (M1),Brooklyn,NTZ,1,Tour bus,0.00%
+Hotel (M1),Manhattan,TZ,,Auto,5.00%
+Hotel (M1),Manhattan,TZ,,Taxi,43.00%
+Hotel (M1),Manhattan,TZ,,Bus,2.00%
+Hotel (M1),Manhattan,TZ,,Subway,15.00%
+Hotel (M1),Manhattan,TZ,,Railroad,1.00%
+Hotel (M1),Manhattan,TZ,,Bike,0.00%
+Hotel (M1),Manhattan,TZ,,Walk / Other,29.00%
+Hotel (M1),Manhattan,TZ,,Shuttle,4.00%
+Hotel (M1),Manhattan,TZ,,Ferry,0.00%
+Hotel (M1),Manhattan,TZ,,Tour bus,0.00%
+Hotel (M1),Manhattan,TZ,1,Auto,6.00%
+Hotel (M1),Manhattan,TZ,1,Taxi,42.00%
+Hotel (M1),Manhattan,TZ,1,Bus,2.00%
+Hotel (M1),Manhattan,TZ,1,Subway,14.00%
+Hotel (M1),Manhattan,TZ,1,Railroad,1.00%
+Hotel (M1),Manhattan,TZ,1,Bike,0.00%
+Hotel (M1),Manhattan,TZ,1,Walk / Other,28.00%
+Hotel (M1),Manhattan,TZ,1,Shuttle,6.00%
+Hotel (M1),Manhattan,TZ,1,Ferry,0.00%
+Hotel (M1),Manhattan,TZ,1,Tour bus,0.00%
+Hotel (M1),Manhattan,NTZ,,Auto,15.00%
+Hotel (M1),Manhattan,NTZ,,Taxi,33.00%
+Hotel (M1),Manhattan,NTZ,,Bus,0.00%
+Hotel (M1),Manhattan,NTZ,,Subway,21.00%
+Hotel (M1),Manhattan,NTZ,,Railroad,0.00%
+Hotel (M1),Manhattan,NTZ,,Bike,1.00%
+Hotel (M1),Manhattan,NTZ,,Walk / Other,27.00%
+Hotel (M1),Manhattan,NTZ,,Shuttle,4.00%
+Hotel (M1),Manhattan,NTZ,,Ferry,0.00%
+Hotel (M1),Manhattan,NTZ,,Tour bus,0.00%
+Hotel (M1),Manhattan,NTZ,1,Auto,9.00%
+Hotel (M1),Manhattan,NTZ,1,Taxi,37.00%
+Hotel (M1),Manhattan,NTZ,1,Bus,1.00%
+Hotel (M1),Manhattan,NTZ,1,Subway,17.00%
+Hotel (M1),Manhattan,NTZ,1,Railroad,1.00%
+Hotel (M1),Manhattan,NTZ,1,Bike,1.00%
+Hotel (M1),Manhattan,NTZ,1,Walk / Other,33.00%
+Hotel (M1),Manhattan,NTZ,1,Shuttle,2.00%
+Hotel (M1),Manhattan,NTZ,1,Ferry,0.00%
+Hotel (M1),Manhattan,NTZ,1,Tour bus,0.00%
+Hotel (M1),Queens	,TZ,,Auto,16.00%
+Hotel (M1),Queens	,TZ,,Taxi,35.00%
+Hotel (M1),Queens	,TZ,,Bus,1.00%
+Hotel (M1),Queens	,TZ,,Subway,31.00%
+Hotel (M1),Queens	,TZ,,Railroad,1.00%
+Hotel (M1),Queens	,TZ,,Bike,0.00%
+Hotel (M1),Queens	,TZ,,Walk / Other,12.00%
+Hotel (M1),Queens	,TZ,,Shuttle,4.00%
+Hotel (M1),Queens	,TZ,,Ferry,0.00%
+Hotel (M1),Queens	,TZ,,Tour bus,0.00%
+Hotel (M1),Queens	,TZ,1,Auto,20.00%
+Hotel (M1),Queens	,TZ,1,Taxi,30.00%
+Hotel (M1),Queens	,TZ,1,Bus,2.00%
+Hotel (M1),Queens	,TZ,1,Subway,28.00%
+Hotel (M1),Queens	,TZ,1,Railroad,1.00%
+Hotel (M1),Queens	,TZ,1,Bike,0.00%
+Hotel (M1),Queens	,TZ,1,Walk / Other,13.00%
+Hotel (M1),Queens	,TZ,1,Shuttle,5.00%
+Hotel (M1),Queens	,TZ,1,Ferry,0.00%
+Hotel (M1),Queens	,TZ,1,Tour bus,0.00%
+Hotel (M1),Queens	,NTZ,,Auto,27.00%
+Hotel (M1),Queens	,NTZ,,Taxi,30.00%
+Hotel (M1),Queens	,NTZ,,Bus,2.00%
+Hotel (M1),Queens	,NTZ,,Subway,8.00%
+Hotel (M1),Queens	,NTZ,,Railroad,1.00%
+Hotel (M1),Queens	,NTZ,,Bike,0.00%
+Hotel (M1),Queens	,NTZ,,Walk / Other,6.00%
+Hotel (M1),Queens	,NTZ,,Shuttle,25.00%
+Hotel (M1),Queens	,NTZ,,Ferry,0.00%
+Hotel (M1),Queens	,NTZ,,Tour bus,1.00%
+Hotel (M1),Queens	,NTZ,1,Auto,21.00%
+Hotel (M1),Queens	,NTZ,1,Taxi,31.00%
+Hotel (M1),Queens	,NTZ,1,Bus,1.00%
+Hotel (M1),Queens	,NTZ,1,Subway,5.00%
+Hotel (M1),Queens	,NTZ,1,Railroad,1.00%
+Hotel (M1),Queens	,NTZ,1,Bike,0.00%
+Hotel (M1),Queens	,NTZ,1,Walk / Other,7.00%
+Hotel (M1),Queens	,NTZ,1,Shuttle,33.00%
+Hotel (M1),Queens	,NTZ,1,Ferry,0.00%
+Hotel (M1),Queens	,NTZ,1,Tour bus,0.00%
+Hotel (M1),Staten Island,NTZ,,Auto,69.00%
+Hotel (M1),Staten Island,NTZ,,Taxi,21.00%
+Hotel (M1),Staten Island,NTZ,,Bus,4.00%
+Hotel (M1),Staten Island,NTZ,,Subway,1.00%
+Hotel (M1),Staten Island,NTZ,,Railroad,0.00%
+Hotel (M1),Staten Island,NTZ,,Bike,0.00%
+Hotel (M1),Staten Island,NTZ,,Walk / Other,3.00%
+Hotel (M1),Staten Island,NTZ,,Shuttle,2.00%
+Hotel (M1),Staten Island,NTZ,,Ferry,0.00%
+Hotel (M1),Staten Island,NTZ,,Tour bus,0.00%
+Hotel (M1),Staten Island,NTZ,1,Auto,68.00%
+Hotel (M1),Staten Island,NTZ,1,Taxi,22.00%
+Hotel (M1),Staten Island,NTZ,1,Bus,2.00%
+Hotel (M1),Staten Island,NTZ,1,Subway,1.00%
+Hotel (M1),Staten Island,NTZ,1,Railroad,1.00%
+Hotel (M1),Staten Island,NTZ,1,Bike,0.00%
+Hotel (M1),Staten Island,NTZ,1,Walk / Other,4.00%
+Hotel (M1),Staten Island,NTZ,1,Shuttle,1.00%
+Hotel (M1),Staten Island,NTZ,1,Ferry,2.00%
+Hotel (M1),Staten Island,NTZ,1,Tour bus,1.00%
+Medical Office  < 15000,Brooklyn,TZ,,Auto,22.00%
+Medical Office  < 15000,Brooklyn,TZ,,Taxi,4.00%
+Medical Office  < 15000,Brooklyn,TZ,,Bus,13.00%
+Medical Office  < 15000,Brooklyn,TZ,,Subway,13.00%
+Medical Office  < 15000,Brooklyn,TZ,,Railroad,0.00%
+Medical Office  < 15000,Brooklyn,TZ,,Walk/Other,48.00%
+Medical Office  < 15000,Brooklyn,TZ,,Bike,0.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Auto,22.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Taxi,4.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Bus,13.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Subway,13.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Railroad,0.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Walk/Other,48.00%
+Medical Office  < 15000,Brooklyn,TZ,1,Bike,0.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Auto,53.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Taxi,14.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Bus,7.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Subway,6.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Railroad,0.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Walk/Other,18.00%
+Medical Office  < 15000,Brooklyn,NTZ,,Bike,2.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Auto,53.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Taxi,14.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Bus,7.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Subway,6.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Railroad,0.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Walk,18.00%
+Medical Office  < 15000,Brooklyn,NTZ,1,Bike/Other,2.00%
+Medical Office  < 15000,Manhattan,TZ,,Auto,1.00%
+Medical Office  < 15000,Manhattan,TZ,,Taxi,5.00%
+Medical Office  < 15000,Manhattan,TZ,,Bus,5.00%
+Medical Office  < 15000,Manhattan,TZ,,Subway,60.00%
+Medical Office  < 15000,Manhattan,TZ,,Railroad,0.00%
+Medical Office  < 15000,Manhattan,TZ,,Walk/Other,25.00%
+Medical Office  < 15000,Manhattan,TZ,,Bike,4.00%
+Medical Office  < 15000,Manhattan,TZ,1,Auto,1.00%
+Medical Office  < 15000,Manhattan,TZ,1,Taxi,5.00%
+Medical Office  < 15000,Manhattan,TZ,1,Bus,5.00%
+Medical Office  < 15000,Manhattan,TZ,1,Subway,60.00%
+Medical Office  < 15000,Manhattan,TZ,1,Railroad,0.00%
+Medical Office  < 15000,Manhattan,TZ,1,Walk/Other,25.00%
+Medical Office  < 15000,Manhattan,TZ,1,Bike,4.00%
+Medical Office  < 15000,Manhattan,NTZ,,Auto,8.00%
+Medical Office  < 15000,Manhattan,NTZ,,Taxi,6.00%
+Medical Office  < 15000,Manhattan,NTZ,,Bus,11.00%
+Medical Office  < 15000,Manhattan,NTZ,,Subway,22.00%
+Medical Office  < 15000,Manhattan,NTZ,,Railroad,2.00%
+Medical Office  < 15000,Manhattan,NTZ,,Walk/Other,49.00%
+Medical Office  < 15000,Manhattan,NTZ,,Bike,2.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Auto,8.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Taxi,6.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Bus,11.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Subway,22.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Railroad,2.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Walk/Other,49.00%
+Medical Office  < 15000,Manhattan,NTZ,1,Bike,2.00%
+Medical Office  < 15000,Queens	,TZ,,Auto,23.00%
+Medical Office  < 15000,Queens	,TZ,,Taxi,7.00%
+Medical Office  < 15000,Queens	,TZ,,Bus,26.00%
+Medical Office  < 15000,Queens	,TZ,,Subway,14.00%
+Medical Office  < 15000,Queens	,TZ,,Railroad,0.00%
+Medical Office  < 15000,Queens	,TZ,,Walk/Other,30.00%
+Medical Office  < 15000,Queens	,TZ,,Bike,0.00%
+Medical Office  < 15000,Queens	,TZ,1,Auto,23.00%
+Medical Office  < 15000,Queens	,TZ,1,Taxi,7.00%
+Medical Office  < 15000,Queens	,TZ,1,Bus,26.00%
+Medical Office  < 15000,Queens	,TZ,1,Subway,14.00%
+Medical Office  < 15000,Queens	,TZ,1,Railroad,0.00%
+Medical Office  < 15000,Queens	,TZ,1,Walk/Other,30.00%
+Medical Office  < 15000,Queens	,TZ,1,Bike,0.00%
+Medical Office  < 15000,Queens	,NTZ,,Auto,69.00%
+Medical Office  < 15000,Queens	,NTZ,,Taxi,7.00%
+Medical Office  < 15000,Queens	,NTZ,,Bus,6.00%
+Medical Office  < 15000,Queens	,NTZ,,Subway,2.00%
+Medical Office  < 15000,Queens	,NTZ,,Railroad,0.00%
+Medical Office  < 15000,Queens	,NTZ,,Walk/Other,15.00%
+Medical Office  < 15000,Queens	,NTZ,,Bike,1.00%
+Medical Office  < 15000,Queens	,NTZ,1,Auto,69.00%
+Medical Office  < 15000,Queens	,NTZ,1,Taxi,7.00%
+Medical Office  < 15000,Queens	,NTZ,1,Bus,6.00%
+Medical Office  < 15000,Queens	,NTZ,1,Subway,2.00%
+Medical Office  < 15000,Queens	,NTZ,1,Railroad,0.00%
+Medical Office  < 15000,Queens	,NTZ,1,Walk/Other,15.00%
+Medical Office  < 15000,Queens	,NTZ,1,Bike,1.00%
+Medical Office  < 15000,Bronx,TZ,,Auto,26.00%
+Medical Office  < 15000,Bronx,TZ,,Taxi,10.00%
+Medical Office  < 15000,Bronx,TZ,,Bus,23.00%
+Medical Office  < 15000,Bronx,TZ,,Subway,14.00%
+Medical Office  < 15000,Bronx,TZ,,Railroad,0.00%
+Medical Office  < 15000,Bronx,TZ,,Walk/Other,26.00%
+Medical Office  < 15000,Bronx,TZ,,Bike,1.00%
+Medical Office  < 15000,Bronx,TZ,1,Auto,26.00%
+Medical Office  < 15000,Bronx,TZ,1,Taxi,10.00%
+Medical Office  < 15000,Bronx,TZ,1,Bus,23.00%
+Medical Office  < 15000,Bronx,TZ,1,Subway,14.00%
+Medical Office  < 15000,Bronx,TZ,1,Railroad,0.00%
+Medical Office  < 15000,Bronx,TZ,1,Walk,26.00%
+Medical Office  < 15000,Bronx,TZ,1,Bike/Other,1.00%
+Medical Office  < 15000,Bronx,NTZ,,Auto,69.00%
+Medical Office  < 15000,Bronx,NTZ,,Taxi,7.00%
+Medical Office  < 15000,Bronx,NTZ,,Bus,6.00%
+Medical Office  < 15000,Bronx,NTZ,,Subway,2.00%
+Medical Office  < 15000,Bronx,NTZ,,Railroad,0.00%
+Medical Office  < 15000,Bronx,NTZ,,Walk/Other,15.00%
+Medical Office  < 15000,Bronx,NTZ,,Bike,1.00%
+Medical Office  < 15000,Bronx,NTZ,1,Auto,69.00%
+Medical Office  < 15000,Bronx,NTZ,1,Taxi,7.00%
+Medical Office  < 15000,Bronx,NTZ,1,Bus,6.00%
+Medical Office  < 15000,Bronx,NTZ,1,Subway,2.00%
+Medical Office  < 15000,Bronx,NTZ,1,Railroad,0.00%
+Medical Office  < 15000,Bronx,NTZ,1,Walk/Other,15.00%
+Medical Office  < 15000,Bronx,NTZ,1,Bike,1.00%
+Medical Office  < 15000,Staten Island,NTZ,,Auto,72.00%
+Medical Office  < 15000,Staten Island,NTZ,,Taxi,8.00%
+Medical Office  < 15000,Staten Island,NTZ,,Bus,8.00%
+Medical Office  < 15000,Staten Island,NTZ,,Subway,0.00%
+Medical Office  < 15000,Staten Island,NTZ,,Railroad,0.00%
+Medical Office  < 15000,Staten Island,NTZ,,Walk/Other,12.00%
+Medical Office  < 15000,Staten Island,NTZ,,Bike,0.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Auto,72.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Taxi,8.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Bus,8.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Subway,0.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Railroad,0.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Walk/Other,12.00%
+Medical Office  < 15000,Staten Island,NTZ,1,Bike,0.00%
+Medical Office  > 15000,Brooklyn,TZ,,Auto,22.00%
+Medical Office  > 15000,Brooklyn,TZ,,Taxi,4.00%
+Medical Office  > 15000,Brooklyn,TZ,,Bus,13.00%
+Medical Office  > 15000,Brooklyn,TZ,,Subway,13.00%
+Medical Office  > 15000,Brooklyn,TZ,,Railroad,0.00%
+Medical Office  > 15000,Brooklyn,TZ,,Walk/Other,48.00%
+Medical Office  > 15000,Brooklyn,TZ,,Bike,0.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Auto,22.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Taxi,4.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Bus,13.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Subway,13.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Railroad,0.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Walk/Other,48.00%
+Medical Office  > 15000,Brooklyn,TZ,1,Bike,0.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Auto,53.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Taxi,14.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Bus,7.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Subway,6.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Railroad,0.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Walk/Other,18.00%
+Medical Office  > 15000,Brooklyn,NTZ,,Bike,2.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Auto,53.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Taxi,14.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Bus,7.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Subway,6.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Railroad,0.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Walk,18.00%
+Medical Office  > 15000,Brooklyn,NTZ,1,Bike/Other,2.00%
+Medical Office  > 15000,Manhattan,TZ,,Auto,1.00%
+Medical Office  > 15000,Manhattan,TZ,,Taxi,5.00%
+Medical Office  > 15000,Manhattan,TZ,,Bus,5.00%
+Medical Office  > 15000,Manhattan,TZ,,Subway,60.00%
+Medical Office  > 15000,Manhattan,TZ,,Railroad,0.00%
+Medical Office  > 15000,Manhattan,TZ,,Walk/Other,25.00%
+Medical Office  > 15000,Manhattan,TZ,,Bike,4.00%
+Medical Office  > 15000,Manhattan,TZ,1,Auto,1.00%
+Medical Office  > 15000,Manhattan,TZ,1,Taxi,5.00%
+Medical Office  > 15000,Manhattan,TZ,1,Bus,5.00%
+Medical Office  > 15000,Manhattan,TZ,1,Subway,60.00%
+Medical Office  > 15000,Manhattan,TZ,1,Railroad,0.00%
+Medical Office  > 15000,Manhattan,TZ,1,Walk/Other,25.00%
+Medical Office  > 15000,Manhattan,TZ,1,Bike,4.00%
+Medical Office  > 15000,Manhattan,NTZ,,Auto,8.00%
+Medical Office  > 15000,Manhattan,NTZ,,Taxi,6.00%
+Medical Office  > 15000,Manhattan,NTZ,,Bus,11.00%
+Medical Office  > 15000,Manhattan,NTZ,,Subway,22.00%
+Medical Office  > 15000,Manhattan,NTZ,,Railroad,2.00%
+Medical Office  > 15000,Manhattan,NTZ,,Walk/Other,49.00%
+Medical Office  > 15000,Manhattan,NTZ,,Bike,2.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Auto,8.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Taxi,6.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Bus,11.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Subway,22.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Railroad,2.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Walk/Other,49.00%
+Medical Office  > 15000,Manhattan,NTZ,1,Bike,2.00%
+Medical Office  > 15000,Queens	,TZ,,Auto,23.00%
+Medical Office  > 15000,Queens	,TZ,,Taxi,7.00%
+Medical Office  > 15000,Queens	,TZ,,Bus,26.00%
+Medical Office  > 15000,Queens	,TZ,,Subway,14.00%
+Medical Office  > 15000,Queens	,TZ,,Railroad,0.00%
+Medical Office  > 15000,Queens	,TZ,,Walk/Other,30.00%
+Medical Office  > 15000,Queens	,TZ,,Bike,0.00%
+Medical Office  > 15000,Queens	,TZ,1,Auto,23.00%
+Medical Office  > 15000,Queens	,TZ,1,Taxi,7.00%
+Medical Office  > 15000,Queens	,TZ,1,Bus,26.00%
+Medical Office  > 15000,Queens	,TZ,1,Subway,14.00%
+Medical Office  > 15000,Queens	,TZ,1,Railroad,0.00%
+Medical Office  > 15000,Queens	,TZ,1,Walk/Other,30.00%
+Medical Office  > 15000,Queens	,TZ,1,Bike,0.00%
+Medical Office  > 15000,Queens	,NTZ,,Auto,69.00%
+Medical Office  > 15000,Queens	,NTZ,,Taxi,7.00%
+Medical Office  > 15000,Queens	,NTZ,,Bus,6.00%
+Medical Office  > 15000,Queens	,NTZ,,Subway,2.00%
+Medical Office  > 15000,Queens	,NTZ,,Railroad,0.00%
+Medical Office  > 15000,Queens	,NTZ,,Walk/Other,15.00%
+Medical Office  > 15000,Queens	,NTZ,,Bike,1.00%
+Medical Office  > 15000,Queens	,NTZ,1,Auto,69.00%
+Medical Office  > 15000,Queens	,NTZ,1,Taxi,7.00%
+Medical Office  > 15000,Queens	,NTZ,1,Bus,6.00%
+Medical Office  > 15000,Queens	,NTZ,1,Subway,2.00%
+Medical Office  > 15000,Queens	,NTZ,1,Railroad,0.00%
+Medical Office  > 15000,Queens	,NTZ,1,Walk/Other,15.00%
+Medical Office  > 15000,Queens	,NTZ,1,Bike,1.00%
+Medical Office  > 15000,Bronx,TZ,,Auto,26.00%
+Medical Office  > 15000,Bronx,TZ,,Taxi,10.00%
+Medical Office  > 15000,Bronx,TZ,,Bus,23.00%
+Medical Office  > 15000,Bronx,TZ,,Subway,14.00%
+Medical Office  > 15000,Bronx,TZ,,Railroad,0.00%
+Medical Office  > 15000,Bronx,TZ,,Walk/Other,26.00%
+Medical Office  > 15000,Bronx,TZ,,Bike,1.00%
+Medical Office  > 15000,Bronx,TZ,1,Auto,26.00%
+Medical Office  > 15000,Bronx,TZ,1,Taxi,10.00%
+Medical Office  > 15000,Bronx,TZ,1,Bus,23.00%
+Medical Office  > 15000,Bronx,TZ,1,Subway,14.00%
+Medical Office  > 15000,Bronx,TZ,1,Railroad,0.00%
+Medical Office  > 15000,Bronx,TZ,1,Walk,26.00%
+Medical Office  > 15000,Bronx,TZ,1,Bike/Other,1.00%
+Medical Office  > 15000,Bronx,NTZ,,Auto,69.00%
+Medical Office  > 15000,Bronx,NTZ,,Taxi,7.00%
+Medical Office  > 15000,Bronx,NTZ,,Bus,6.00%
+Medical Office  > 15000,Bronx,NTZ,,Subway,2.00%
+Medical Office  > 15000,Bronx,NTZ,,Railroad,0.00%
+Medical Office  > 15000,Bronx,NTZ,,Walk/Other,15.00%
+Medical Office  > 15000,Bronx,NTZ,,Bike,1.00%
+Medical Office  > 15000,Bronx,NTZ,1,Auto,69.00%
+Medical Office  > 15000,Bronx,NTZ,1,Taxi,7.00%
+Medical Office  > 15000,Bronx,NTZ,1,Bus,6.00%
+Medical Office  > 15000,Bronx,NTZ,1,Subway,2.00%
+Medical Office  > 15000,Bronx,NTZ,1,Railroad,0.00%
+Medical Office  > 15000,Bronx,NTZ,1,Walk/Other,15.00%
+Medical Office  > 15000,Bronx,NTZ,1,Bike,1.00%
+Medical Office  > 15000,Staten Island,NTZ,,Auto,72.00%
+Medical Office  > 15000,Staten Island,NTZ,,Taxi,8.00%
+Medical Office  > 15000,Staten Island,NTZ,,Bus,8.00%
+Medical Office  > 15000,Staten Island,NTZ,,Subway,0.00%
+Medical Office  > 15000,Staten Island,NTZ,,Railroad,0.00%
+Medical Office  > 15000,Staten Island,NTZ,,Walk/Other,12.00%
+Medical Office  > 15000,Staten Island,NTZ,,Bike,0.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Auto,72.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Taxi,8.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Bus,8.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Subway,0.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Railroad,0.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Walk/Other,12.00%
+Medical Office  > 15000,Staten Island,NTZ,1,Bike,0.00%
