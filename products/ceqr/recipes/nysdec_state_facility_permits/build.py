@@ -5,20 +5,21 @@ import numpy as np
 import re
 from multiprocessing import Pool, cpu_count
 
-#fmt: off
+# fmt: off
 sys.path.insert(0, "..")
 from _helper.geo import get_hnum, get_sname, clean_address, find_intersection, find_stretch, geocode, GEOSUPPORT_RETURN_CODE_REJECTION
 from _helper.utils import psql_insert_copy
 from _helper import EDM_DATA_SQL_ENGINE, DATE, execute_sql_query
-#fmt: on
+# fmt: on
 
 URL_NYSDEC_STATE_FACILITY_PERMITS = "https://data.ny.gov/resource/2wgt-bc53.csv"
 
 CORR = pd.read_csv("../_data/air_corr.csv", dtype=str, engine="c")
-CORR_DICT = CORR.loc[CORR.datasource ==
-                     "nysdec_state_facility_permits", :].to_dict('records')
+CORR_DICT = CORR.loc[CORR.datasource == "nysdec_state_facility_permits", :].to_dict(
+    "records"
+)
 
-NAME = 'nysdec_state_facility_permits'
+NAME = "nysdec_state_facility_permits"
 
 
 def _import() -> pd.DataFrame:
@@ -30,9 +31,9 @@ def _import() -> pd.DataFrame:
     Returns:
     df (DataFrame): Contains fields facility_name,
         permit_id, url_to_permit_text, facility_location,
-        facility_city, facility_state, zipcode, 
-        issue_date, expiration_date, location, 
-        address, borough, hnum, sname, 
+        facility_city, facility_state, zipcode,
+        issue_date, expiration_date, location,
+        address, borough, hnum, sname,
         streetname_1, streetname_2
     """
     cols = [
@@ -47,7 +48,9 @@ def _import() -> pd.DataFrame:
         "expire_date",
         "georeference",
     ]
-    df = pd.read_csv(URL_NYSDEC_STATE_FACILITY_PERMITS, dtype=str, engine="c", index_col=False)
+    df = pd.read_csv(
+        URL_NYSDEC_STATE_FACILITY_PERMITS, dtype=str, engine="c", index_col=False
+    )
     df.to_csv("output/raw.csv", index=False)
 
     # Check input columns and replace column names
@@ -55,9 +58,14 @@ def _import() -> pd.DataFrame:
     for col in cols:
         assert col in df.columns, f"Missing {col} in input data"
 
-    df = df.rename(columns={"expire_date": "expiration_date",
-                   "facility_zip": "zipcode", "georeference": "location"})
-    
+    df = df.rename(
+        columns={
+            "expire_date": "expiration_date",
+            "facility_zip": "zipcode",
+            "georeference": "location",
+        }
+    )
+
     # Get borough and limit to NYC via city
     city_borough = pd.read_csv("../_data/city_boro.csv", dtype=str, engine="c")
     df = pd.merge(
@@ -71,20 +79,25 @@ def _import() -> pd.DataFrame:
 
     # Apply corrections to addresses
     for record in CORR_DICT:
-        if record['location'] != record['correction'].upper():
-            df.loc[(df['facility_location'] == record['location']) & (
-                df['permit_id'] == record['id']), 'facility_location'] = record['correction'].upper()
+        if record["location"] != record["correction"].upper():
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "facility_location",
+            ] = record["correction"].upper()
 
     # Extract first location
     df["address"] = df["facility_location"].astype(str).apply(clean_address)
 
     # Parse stretches
     df[["streetname_1", "streetname_2", "streetname_3"]] = df.apply(
-        lambda row: pd.Series(find_stretch(row['address'])), axis=1)
+        lambda row: pd.Series(find_stretch(row["address"])), axis=1
+    )
 
     # Parse intersections
     df[["streetname_1", "streetname_2"]] = df.apply(
-        lambda row: pd.Series(find_intersection(row['address'])), axis=1)
+        lambda row: pd.Series(find_intersection(row["address"])), axis=1
+    )
 
     # Parse house numbers
     df["hnum"] = (
@@ -96,15 +109,15 @@ def _import() -> pd.DataFrame:
 
     # Parse street names
     df["sname"] = df["address"].astype(str).apply(get_sname)
-    df.to_csv('output/pre-geocoding.csv')
+    df.to_csv("output/pre-geocoding.csv")
     return df
 
 
 def _geocode(df: pd.DataFrame) -> pd.DataFrame:
-    """ 
+    """
     Geocode cleaned nysdec state facility permit data using helper/air_geocode()
 
-    Parameters: 
+    Parameters:
     df (DataFrame): Contains data  with
                     hnum and sname parsed
                     from address
@@ -133,20 +146,29 @@ def _geocode(df: pd.DataFrame) -> pd.DataFrame:
 
 def correct_coords(df):
     for record in CORR_DICT:
-        if record['location'] == record['correction'].upper():
-            df.loc[(df['facility_location'] == record['location']) & (
-                df['permit_id'] == record['id']), 'geo_latitude'] = float(record['latitude'])
-            df.loc[(df['facility_location'] == record['location']) & (
-                df['permit_id'] == record['id']), 'geo_longitude'] = float(record['longitude'])
-            df.loc[(df['facility_location'] == record['location']) & (
-                df['permit_id'] == record['id']), 'geo_function'] = 'Manual Correction'
+        if record["location"] == record["correction"].upper():
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "geo_latitude",
+            ] = float(record["latitude"])
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "geo_longitude",
+            ] = float(record["longitude"])
+            df.loc[
+                (df["facility_location"] == record["location"])
+                & (df["permit_id"] == record["id"]),
+                "geo_function",
+            ] = "Manual Correction"
     return df
 
 
 def _output(df):
-    """ 
+    """
     Output geocoded data to stdout for transfer to postgres
-    Parameters: 
+    Parameters:
     df (DataFrame): Contains input fields along
                     with geosupport fields
     """
@@ -186,7 +208,7 @@ def _output(df):
         con=EDM_DATA_SQL_ENGINE,
         if_exists="replace",
         index=False,
-        method=psql_insert_copy
+        method=psql_insert_copy,
     )
 
 
@@ -196,7 +218,8 @@ if __name__ == "__main__":
     df = _geocode(df)
     df = correct_coords(df)
     _output(df)
-    execute_sql_query(f'''
+    execute_sql_query(
+        f"""
             DROP TABLE IF EXISTS {NAME}."{DATE}" CASCADE;
             SELECT 
                 *,
@@ -223,6 +246,6 @@ if __name__ == "__main__":
                 FROM {NAME}."{DATE}"
             );
             DROP TABLE IF EXISTS {NAME}; 
-        '''
+        """
     )
     print("Done with build.py")

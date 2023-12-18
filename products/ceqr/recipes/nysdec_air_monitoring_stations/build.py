@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, "..")
 from _helper.geo import get_borocode
 
+
 def _import() -> pd.DataFrame:
     """
     Download and format nysdec air monitoring station data from open data API
@@ -63,7 +64,7 @@ def _import() -> pd.DataFrame:
 
 
 def _output(df):
-    """ 
+    """
     Output data to stdout for transfer to postgres
     """
     cols = [
