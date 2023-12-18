@@ -1,0 +1,74 @@
+name: Publish CEQR Data
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: 'Input the name of dataset you would like to publish'
+        required: true
+        default: 'dep_cats_permits'
+  
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: >- 
+      ( 
+        github.event_name == 'issue_comment' &&
+        contains(github.event.issue.title, '[publish]') && 
+        contains(github.event.comment.body, '[publish]') && (
+          github.event.comment.user.login == 'jpiacentinidcp'||
+          github.event.comment.user.login == 'ileoyu'||
+          github.event.comment.user.login == 'omarortiz1'||
+          github.event.comment.user.login == 'rtblair'||
+          github.event.comment.user.login == 'damonmcc'||
+          github.event.comment.author_association == 'MEMBER'
+        )
+      ) ||
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.event.inputs.dataset != ''
+      ) ||
+      contains(github.event.issue.labels.*.name, 'publish')
+
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Install dependencies
+        shell: bash
+        run: ./ceqr setup
+        
+      - name: Parse Name
+        if: github.event_name == 'issue_comment'
+        shell: python
+        id: parsing
+        run: |
+          import os
+          
+          title = '''${{ github.event.issue.title }}'''
+          title = title.replace('[publish] ', '').replace('\n', '')
+          os.system('echo "::set-output name=dataset::{0}"'.format(title))
+          
+      - name: Run publish (via issue comment)
+        if: github.event_name == 'issue_comment'
+        shell: bash
+        run: ./ceqr publish recipe ${{ steps.parsing.outputs.dataset }}
+      
+      - name: Run publish (via manual action run)
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: ./ceqr publish recipe ${{ github.event.inputs.dataset }}
+                
+      - name: Success Message
+        if: success() && github.event_name == 'issue_comment'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            ## Publish Complete!
+            for more details, check https://github.com/NYCPlanning/ceqr-app-data/actions/runs/${{ github.run_id }}
+          reactions: hooray
