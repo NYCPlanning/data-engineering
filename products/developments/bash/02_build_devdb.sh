@@ -1,6 +1,8 @@
 #!/bin/bash
 source bash/config.sh
 
+run_sql_file sql/_create.sql
+
 display "Starting to build Developments DB"
 run_sql_file sql/_function.sql
 run_sql_file sql/_procedures.sql -v build_schema=${BUILD_ENGINE_SCHEMA}

@@ -12,8 +12,7 @@ import typer
 from typing import Callable, TypeVar
 from dataclasses import dataclass
 
-from dcpy.utils import s3
-from dcpy.utils import git
+from dcpy.utils import s3, git, versions
 from dcpy.utils.logging import logger
 
 BUCKET = "edm-publishing"
@@ -78,6 +77,36 @@ def get_published_versions(product: str) -> list[str]:
 
 def get_draft_builds(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
+
+
+def previous(product: str, version: str | versions.Version) -> versions.Version:
+    match version:
+        case str():
+            version_obj = versions.parse(version)
+        case versions.Version():
+            version_obj = version
+
+    published_version_strings = get_published_versions(product)
+    published_versions = [versions.parse(v) for v in published_version_strings]
+    published_versions.sort()
+    if len(published_versions) == 0:
+        raise Exception(f"No published versions found for {product}")
+    if version_obj in published_versions:
+        index = published_versions.index(version_obj)
+        if index == 0:
+            raise Exception(
+                f"{product} - {version} is the oldest published version, and has no previous"
+            )
+        else:
+            return published_versions[published_versions.index(version_obj) - 1]
+    else:
+        latest = published_versions[-1]
+        if version_obj > latest:
+            return latest
+        else:
+            raise Exception(
+                f"{product} - {version} is not published and appears to be 'older' than latest published version. Cannot determine previous."
+            )
 
 
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:

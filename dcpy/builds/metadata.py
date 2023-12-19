@@ -19,7 +19,7 @@ class BuildMetadata(BaseModel, extra="forbid"):
 
     def __init__(self, **data):
         if "version" not in data:
-            recipe: Recipe = data["recipe"]
+            recipe = data["recipe"]
             if recipe.version is not None:
                 data["version"] = recipe.version
         super().__init__(**data)

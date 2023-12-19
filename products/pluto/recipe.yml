@@ -1,5 +1,6 @@
 name: Pluto Major
-version: 23v3
+version_strategy: bump_latest_release
+version_type: major
 product: db-pluto
 inputs:
   missing_versions_strategy: find_latest
