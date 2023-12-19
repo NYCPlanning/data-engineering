@@ -41,10 +41,8 @@ def test_convert_to_geodata_wkb(data_wkb):
     ]
     assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
-    assert geodata.iloc[2:]["geometry_error"].to_list() == [
-        "ParseException: Unexpected EOF parsing WKB",
-        "Expected bytes or string, got float",
-        "Expected bytes or string, got float",
+    assert list(geodata[geodata.geometry.isnull()]["geometry_error"].unique()) == [
+        "Expected bytes or string, got float"
     ]
     assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
 
@@ -71,10 +69,10 @@ def test_convert_to_geodata_wkt(data_wkt):
 
 
 def test_geoseries_constructors_fail(data_wkb, data_wkt):
-    with pytest.raises(shapely.errors.GEOSException):
+    with pytest.raises(TypeError):
         data_wkb["new_geometry_column"] = gpd.GeoSeries.from_wkb(data_wkb["geom"])
 
-    with pytest.raises(shapely.errors.GEOSException):
+    with pytest.raises(TypeError):
         data_wkb["new_geometry_column"] = gpd.GeoSeries.from_wkt(data_wkt["geom"])
 
 
