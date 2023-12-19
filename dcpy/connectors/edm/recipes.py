@@ -35,6 +35,7 @@ class RecipeInputsVersionStrategy(str, Enum):
 
 class VersionStrategy(str, Enum):
     bump_latest_release = "bump_latest_release"
+    first_of_month = "first_of_month"
 
 
 class DatasetType(str, Enum):
@@ -230,6 +231,8 @@ def plan_recipe(recipe_path: Path) -> Recipe:
             recipe.version = versions.bump(
                 prev_version, bumped_part=recipe.version_type
             )
+        if recipe.version_strategy == VersionStrategy.first_of_month:
+            recipe.version = versions.first_of_month()
 
     # merge in base recipe inputs
     base_recipe = (
