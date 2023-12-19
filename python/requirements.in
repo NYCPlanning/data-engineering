@@ -22,8 +22,8 @@ msal==1.23.0
 mypy==1.5.1
 numerize==0.*
 openpyxl==3.1.2
-pandas==1.5.3
-pandas-stubs==1.5.3.230321
+pandas
+pandas-stubs
 plotly==5.*
 psycopg2-binary==2.9.5
 types-psycopg2
