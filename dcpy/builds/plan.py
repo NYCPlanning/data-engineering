@@ -21,11 +21,6 @@ class RecipeInputsVersionStrategy(str, Enum):
     copy_latest_release = "copy_latest_release"
 
 
-class VersionStrategy(str, Enum):
-    bump_latest_release = "bump_latest_release"
-    first_of_month = "first_of_month"
-
-
 class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
     module: str
     function: str
@@ -64,17 +59,14 @@ class RecipeInputs(BaseModel, use_enum_values=True):
     dataset_defaults: InputDatasetDefaults | None = None
 
 
-class DatasetVersionType(str, Enum):
-    major = "major"
-    minor = "minor"
-
-
-class Recipe(BaseModel, use_enum_values=True, extra="forbid"):
+class Recipe(
+    BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
+):
     name: str
     product: str
     base_recipe: str | None = None
-    version_type: DatasetVersionType | None = None
-    version_strategy: VersionStrategy | None = None
+    version_type: versions.VersionSubType | None = None
+    version_strategy: versions.VersionStrategy | None = None
     version: str | None = None
     inputs: RecipeInputs
 
@@ -96,19 +88,24 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     recipe: Recipe = recipe_from_yaml(recipe_path)
 
     # Determine the recipe version
-    if version is None:
-        if recipe.version_strategy is None and recipe.version is None:
-            raise Exception("No version provided")
-        elif recipe.version_strategy == VersionStrategy.bump_latest_release:
-            if recipe.version_type is None:
-                raise Exception("Recipe needs a 'version_type' to bump")
-            prev_version = publishing.get_latest_version(recipe.product)
-            recipe.version = versions.bump(
-                prev_version, bumped_part=recipe.version_type
-            )
-        if recipe.version_strategy == VersionStrategy.first_of_month:
-            recipe.version = versions.first_of_month()
-    else:
+    if version is None and recipe.version is None:
+        match recipe.version_strategy:
+            case None:
+                raise Exception("No version provided")
+            case versions.SimpleVersionStrategy.first_of_month:
+                recipe.version = versions.FirstOfMonth.generate().label
+            case versions.SimpleVersionStrategy.bump_latest_release:
+                recipe.version = versions.bump(
+                    previous_version=publishing.get_latest_version(recipe.product),
+                    bump_type=recipe.version_type,
+                )
+            case versions.BumpLatestRelease() as bump:
+                recipe.version = versions.bump(
+                    previous_version=publishing.get_latest_version(recipe.product),
+                    bump_type=recipe.version_type,
+                    bump_by=bump.bump_latest_release,
+                )
+    elif version is not None:
         recipe.version = version
 
     # merge in base recipe inputs
