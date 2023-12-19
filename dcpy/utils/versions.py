@@ -1,3 +1,4 @@
+from datetime import date
 import re
 
 
@@ -33,3 +34,8 @@ def bump(v: str, bumped_part: str) -> str:
         + parsed.get("major", "")
         + ("." + parsed["minor"] if "minor" in parsed else "")
     )
+
+
+def first_of_month() -> str:
+    """Return a string representing the first of the current month."""
+    return date.today().strftime("%Y-%m-01")

@@ -47,7 +47,7 @@ jobs:
         run: ./bash/build_env_setup.sh
 
       - name: 1. dataloading ...
-        run: ./ztl.sh dataloading
+        run: python3 -m dcpy.builds.load recipe
 
       - name: 2. build ...
         run: ./ztl.sh build

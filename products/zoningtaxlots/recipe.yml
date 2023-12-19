@@ -1,0 +1,14 @@
+name: Zoning Tax Lots
+product: db-zoningtaxlots
+version_strategy: first_of_month
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+    - name: dcp_commercialoverlay
+    - name: dcp_limitedheight
+    - name: dcp_specialpurpose
+    - name: dcp_specialpurposesubdistricts
+    - name: dcp_zoningmapamendments
+    - name: dof_dtm
+    - name: dcp_zoningdistricts
+    - name: dcp_zoningmapindex
