@@ -14,6 +14,7 @@ def pluto():
     )
     from .components.outlier_report import OutlierReport
     from .components.aggregate_report import AggregateReport
+    from .components.bbl_diffs_report import BblDiffsReport
 
     st.title("PLUTO QAQC")
 
@@ -66,7 +67,7 @@ def pluto():
             st.markdown(
                 f"""
                 This series of reports compares two pairs of PLUTO versions using two colors in graphs:
-                - blue: the Celected and the Previous versions ({v1})
+                - blue: the Selected and the Previous versions ({v1})
                 - gold: the previous two versions ({v2})
 
                 The graphs report the number of records that have a different value in a given field but share the same BBL between versions.
@@ -117,6 +118,8 @@ def pluto():
             OutlierReport(
                 data=data["df_outlier"], v1=v1, v2=v2, condo=condo, mapped=mapped
             )()
+
+            BblDiffsReport(data=data.get("df_bbl_diffs", None))()
 
         if report_type == "Compare with Previous Version":
             version_comparison_report(data)
