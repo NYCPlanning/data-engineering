@@ -19,6 +19,7 @@ on:
           - knownprojects
           - pluto
           - ztl
+          - all
       recipe_file:
         description: "Filename of recipe to use"
         type: choice
