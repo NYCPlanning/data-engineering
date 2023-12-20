@@ -1,8 +1,9 @@
 #!/bin/bash
 
-BUILD_APT_PACKAGES="postgresql-client-15 libpq-dev curl jq wget gdal-bin jq zip unzip git locales"
-DEV_APT_PACKAGES="postgresql-client-15 libpq-dev curl jq wget gdal-bin jq zip unzip git locales bash-completion graphviz xdg-utils libgdal-dev"
-GEOSUPPORT_APT_PACKAGES="curl git unzip zip build-essential"
+COMMON_APT_PACKAGES="curl zip unzip git"
+GEOSUPPORT_APT_PACKAGES="${COMMON_APT_PACKAGES} build-essential"
+BUILD_APT_PACKAGES="${COMMON_APT_PACKAGES} postgresql-client-15 libpq-dev jq wget gdal-bin jq locales"
+DEV_APT_PACKAGES="${BUILD_APT_PACKAGES} bash-completion graphviz xdg-utils libgdal-dev"
 
 function install_yq {
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq \
