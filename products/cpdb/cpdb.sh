@@ -68,7 +68,9 @@ case $1 in
     share ) share $@ ;;
     sql) sql $@;;
     build)
-        python3 -m dcpy.builds.load recipe --recipe-path ./${2:-"recipe"}.yml
+        recipe=$2
+        shift 2
+        python3 -m dcpy.builds.load recipe --recipe-path ${recipe}.yml $@
         export VERSION=$(yq .version recipe.lock.yml)
         ./bash/01_preprocessing.sh
         ./bash/02_build.sh

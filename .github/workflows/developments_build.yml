@@ -3,10 +3,6 @@ name: DevDB - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      run_export:
-        type: boolean
-        required: true
-        default: false
       image_tag:
         type: string
         required: false
@@ -62,7 +58,6 @@ jobs:
         run: ./devdb.sh qaqc
 
       - name: 4. Export ...
-        if: inputs.run_export
         run: |
           ./devdb.sh export
           ./devdb.sh upload

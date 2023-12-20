@@ -3,21 +3,24 @@ name: Template - Build
 on:
   workflow_call:
     inputs:
-      recipe_file:
-        type: string
-        required: true
       logging_level:
         type: string
         required: true
       build_note:
         type: string
         required: false
-      run_export:
-        type: boolean
-        required: true
       image_tag:
         type: string
         required: false
+      recipe_file:
+        type: string
+        required: true
+      version:
+        type: string
+        required: false
+      repeat:
+        type: boolean
+        default: false
 
 env:
   TOY_SECRET: ${{ secrets.TOY_SECRET }}
@@ -62,8 +65,10 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Load
-        run: |
-          python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml
+        env:
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+          repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
+        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
       - name: Transform
         run: |

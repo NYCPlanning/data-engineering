@@ -22,9 +22,29 @@ on:
           - all
       recipe_file:
         description: "Filename of recipe to use"
-        type: string
+        type: choice
+        options:
+          - recipe
+          - recipe-minor
         required: true
         default: recipe
+      version:
+        description: "Version of dataset being built"
+        type: string
+        required: false
+      repeat:
+        description: "Repeat existing build?"
+        type: boolean
+        default: false
+      dev_image: 
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
+      build_note:
+        description: "A short note about this build (optional)"
+        type: string
+        required: false
       logging_level:
         description: "Logging level"
         type: choice
@@ -34,24 +54,6 @@ on:
           - WARNING
           - INFO
           - DEBUG
-      build_note:
-        description: "A short note about this build (optional)"
-        type: string
-        required: false
-      run_export:
-        description: "Export build outputs"
-        type: boolean
-        required: true
-        default: false
-      dev_image: 
-        description: "Use dev image specific to this branch? (If exists)"
-        type: boolean
-        required: true
-        default: false
-      version:
-        description: "Version of dataset being built"
-        type: string
-        required: false
   workflow_call:
     inputs:
       dataset_name:
@@ -60,10 +62,6 @@ on:
       build_note:
         type: string
         required: false
-      run_export:
-        type: boolean
-        required: true
-        default: true
       recipe_file:
         type: string
         required: true
@@ -89,11 +87,12 @@ jobs:
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
+      image_tag: ${{ needs.health_check.outputs.tag }}
       recipe_file: ${{ inputs.recipe_file }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-      run_export: ${{ inputs.run_export }}
-      image_tag: ${{ needs.health_check.outputs.tag }}
   cbbr:
     needs: health_check
     if: inputs.dataset_name == 'cbbr' || inputs.dataset_name  == 'all'
@@ -102,7 +101,6 @@ jobs:
     with:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
   checkbook:
     needs: health_check
@@ -110,7 +108,6 @@ jobs:
     uses: ./.github/workflows/checkbook_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
   colp:
     needs: health_check
@@ -118,24 +115,26 @@ jobs:
     uses: ./.github/workflows/colp_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
   cpdb:
     needs: health_check
     if: inputs.dataset_name == 'cpdb' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
-      recipe_file: ${{ inputs.recipe_file }}
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
   devdb:
     needs: health_check
     if: inputs.dataset_name == 'devdb' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
   facilities:
     needs: health_check
@@ -143,15 +142,16 @@ jobs:
     uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
   knownprojects:
     needs: health_check
     if: inputs.dataset_name == 'knownprojects' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/knownprojects_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
   pluto:
     needs: health_check
@@ -159,15 +159,17 @@ jobs:
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
-      recipe_file: ${{ inputs.recipe_file }}
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
   ztl:
     needs: health_check
     if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
-      run_export: ${{ inputs.run_export }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}

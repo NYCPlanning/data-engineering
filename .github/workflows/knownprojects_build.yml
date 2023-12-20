@@ -3,9 +3,6 @@ name: KPDB - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      run_export:
-        type: boolean
-        required: true
       image_tag:
         type: string
         required: false
@@ -59,5 +56,4 @@ jobs:
         run: ./bash/04_export.sh
 
       - name: upload ...
-        if: inputs.run_export
         run: python3 -m python.upload

@@ -59,7 +59,7 @@ jobs:
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
-      run_export: true
+      recipe_file: recipe
 
   pluto_minor:
     needs: [dataloading]
@@ -68,6 +68,5 @@ jobs:
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
-      run_export: true
       create_issue: true
       recipe_file: recipe-minor
