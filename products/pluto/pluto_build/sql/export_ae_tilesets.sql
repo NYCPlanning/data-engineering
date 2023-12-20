@@ -1,4 +1,3 @@
--- TODO - handle duplicates
 DROP TABLE IF EXISTS ae_tileset_taxlot_fill CASCADE;
 CREATE TABLE ae_tileset_taxlot_fill AS
 SELECT
@@ -20,6 +19,8 @@ SELECT
     t.borough,
     t.block,
     t.lot,
+    t.address,
+    t."landUseId",
     mic.center AS geom
 FROM ae_tileset_taxlot_fill AS t
 CROSS JOIN LATERAL ST_MAXIMUMINSCRIBEDCIRCLE(t.geom) AS mic;
@@ -52,6 +53,9 @@ CREATE VIEW ae_tileset_zoningdistrict_label AS
 SELECT
     t.id,
     t.district,
+    t.commercial,
+    t.manufacturing,
+    t.residential,
     mic.center AS geom
 FROM ae_tileset_zoningdistrict_fill AS t
 CROSS JOIN LATERAL ST_MAXIMUMINSCRIBEDCIRCLE(t.geom) AS mic;
