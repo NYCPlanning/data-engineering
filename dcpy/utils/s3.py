@@ -212,7 +212,7 @@ def upload_folder(
     max_files: int = MAX_FILE_COUNT,
     contents_only: bool = False,
     metadata: dict[str, Any] | None = None,
-    delete_existing: bool = True,
+    keep_existing: bool = False,
 ) -> None:
     """Given bucket, local folder path, and upload path, uploads contents of folder to s3 recursively"""
     if not local_folder_path.exists() or (not local_folder_path.is_dir()):
@@ -223,7 +223,7 @@ def upload_folder(
             f"{len(files)} found in folder '{local_folder_path}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
 
-    if delete_existing:
+    if not keep_existing:
         logger.info(
             f"Deleting any existing files in {upload_path} from bucket {bucket}"
         )
@@ -249,7 +249,7 @@ def copy_folder(
     max_files: int = MAX_FILE_COUNT,
     metadata: dict[str, Any] | None = None,
     target_bucket: str | None = None,
-    delete_existing: bool = True,
+    keep_existing: bool = False,
 ) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if source[-1] != "/":
@@ -263,7 +263,7 @@ def copy_folder(
         )
 
     target_bucket_ = target_bucket or bucket
-    if delete_existing:
+    if not keep_existing:
         logger.info(
             f"Deleting any existing files in {target_bucket_}/{target} from bucket "
         )
@@ -354,15 +354,20 @@ def _cli_wrapper_upload_folder(
         "--contents-only",
         help="If true, uploads local folder into target folder. If false, uploads contents of local folder instead",
     ),
+    keep_existing: bool = typer.Option(
+        False,
+        "--keep-existing",
+        help="If true, does not delete target folder in s3 prior to loading",
+    ),
 ):
-    acl_literal = string_as_acl(acl)
     upload_folder(
         bucket,
         local_path,
         s3_path,
-        acl=acl_literal,
+        acl=string_as_acl(acl),
         max_files=max_files,
         contents_only=contents_only,
+        keep_existing=keep_existing,
     )
 
 
