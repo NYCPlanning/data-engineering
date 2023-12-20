@@ -16,6 +16,5 @@ jobs:
     with:
       dataset_name: all
       build_note: nightly qa
-      run_export: true
       recipe_file: recipe
       dev_image: false

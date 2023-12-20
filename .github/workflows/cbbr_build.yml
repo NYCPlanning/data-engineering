@@ -9,9 +9,6 @@ on:
       build_note:
         type: string
         required: false
-      run_export:
-        type: boolean
-        required: true
       image_tag:
         type: string
         required: false
@@ -77,4 +74,3 @@ jobs:
 
       - name: Export CBBR Output to DO (edm-publishing)
         run: ./04_export.sh
-        if: inputs.run_export

@@ -2,12 +2,18 @@ name: COLP - 🏗️ Build
 on: 
   workflow_call:
     inputs:
-      run_export:
-        type: boolean
-        required: true
       image_tag:
         type: string
         required: false
+      recipe_file:
+        type: string
+        required: true
+      version:
+        type: string
+        required: false
+      repeat:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -58,7 +64,10 @@ jobs:
       run: ./bash/build_env_setup.sh
 
     - name: Dataloading ...
-      run: python -m dcpy.builds.load recipe
+      env:
+        version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+        repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
+      run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
     - name: Build COLP ...
       run: ./colp.sh build
@@ -67,9 +76,7 @@ jobs:
       run: ./colp.sh qaqc
 
     - name: Export COLP ...
-      if: inputs.run_export
       run: ./colp.sh export
 
     - name: Upload outputs to s3 ...
-      if: inputs.run_export
       run: ./colp.sh upload

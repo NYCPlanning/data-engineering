@@ -39,7 +39,6 @@ jobs:
     uses: ./.github/workflows/template_build.yml
     with:
       recipe_file: recipe
-      run_export: false
       logging_level: DEBUG
       build_note: a test build
       image_tag: ${{ inputs.image_tag || 'latest' }}

@@ -3,21 +3,21 @@ name: PLUTO - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      run_export:
-        type: boolean
-        required: true
-      recipe_file:
-        type: string
-        required: true
-      create_issue:
-        type: boolean
-        default: false
       image_tag:
         type: string
         required: false
-      version:
+      create_issue:
+        type: boolean
+        default: false
+      recipe_file:
         type: string
         required: true
+      version:
+        type: string
+        required: false
+      repeat:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -60,7 +60,8 @@ jobs:
         working-directory: products/pluto
         env:
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
-        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version
+          repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
+        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
       - name: Set versions env vars
         working-directory: products/pluto
@@ -79,15 +80,12 @@ jobs:
 
       - name: Archive
         run: ./04_archive.sh
-        if: inputs.run_export
 
       - name: QAQC
         run: ./05_qaqc.sh
-        if: inputs.run_export
 
       - name: Export and Upload
         run: ./06_export.sh
-        if: inputs.run_export
 
       - name: Create Issue - Pluto Draft Succeeded
         if: success() && inputs.create_issue

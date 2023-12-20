@@ -3,12 +3,18 @@ name: FacDB - 🏗️ Build
 on:
   workflow_call:
     inputs:
-      run_export:
-        type: boolean
-        required: true
       image_tag:
         type: string
         required: false
+      recipe_file:
+        type: string
+        required: true
+      version:
+        type: string
+        required: false
+      repeat:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -49,7 +55,10 @@ jobs:
         run: cat version.env >> "$GITHUB_ENV"
 
       - name: Dataloading
-        run: python -m dcpy.builds.load recipe
+        env:
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+          repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
+        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
       - name: Initialize
         run: python -m facdb.cli init

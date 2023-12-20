@@ -3,9 +3,6 @@ name: Checkbook - Build
 on:
   workflow_call:
     inputs:
-      run_export:
-        type: boolean
-        required: true
       image_tag:
         type: string
         required: false
@@ -50,6 +47,5 @@ jobs:
           python3 -m build_scripts.summarization
 
       - name: Run export
-        if: inputs.run_export
         run: |
           python3 -m build_scripts.export
