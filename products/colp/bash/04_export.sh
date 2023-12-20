@@ -10,6 +10,9 @@ mkdir -p output && (
     shp_export colp POINT
     fgdb_export colp POINT
 
+    cp ../source_data_versions.csv .
+    cp ../build_metadata.json .
+
     echo "[$(date)] ${DATE}" > version.txt
 )
 
@@ -32,7 +35,6 @@ mkdir -p output/qaqc && (
     csv_export records_by_agency
     csv_export records_by_usetype
     csv_export records_by_agency_usetype
-
 )
 
 zip -r output/output.zip output

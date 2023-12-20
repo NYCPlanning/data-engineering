@@ -16,7 +16,9 @@ mkdir -p output && (
     csv_export ccp_budgets cpdb_budgets &
     csv_export checkbook_spending_by_year &
     csv_export geospatial_check &
-    csv_export source_data_versions &
+
+    cp ../source_data_versions.csv ./
+    cp ../build_metadata.json ./
 
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
