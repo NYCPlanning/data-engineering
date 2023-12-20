@@ -1,0 +1,14 @@
+# Base Metadata attributes, generally applicable to all distributions
+attributes:
+  contact_email: "a@a.com"
+  each_row_is_a: "Mandatorily included house"
+  license:
+    name: "Open Data Commons Attribution License"
+    termsLink: "http://opendatacommons.org/licenses/by/1.0/"
+
+distributions:
+  socrata:
+    display_types:
+      - "table"
+      - "fatrow"
+      - "page"

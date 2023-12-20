@@ -1,0 +1,70 @@
+name: Mandatory Inclusionary Housing
+product: MIH_TEST
+
+# Base Metadata attributes, generally applicable to all distributions
+attributes:
+  each_row_is_a: "Mandatorily included house"
+  description: "Description for Mandatory Inclusionary Housing"
+  update_frequency: Monthly
+
+distributions:
+  socrata:
+    four_four: "p6cc-cxkc"
+    resource_name: MIH_TEST
+    category: "Housing & Development"
+    attachments: ["nycmih_metadata.pdf"]
+    original_publication_date: "12/01/2023"
+    display_types:
+      - "table"
+      - "fatrow"
+      - "page"
+    tags:
+      - "housing"
+      - "house"
+      - "building"
+      - "development"
+  bytes:
+    url: "TBD"
+    other_things_needed: "TBD"
+  arcgis:
+    arc_attributes: "TBD"
+
+columns:
+  - name: "boro"
+    display_name: "Boro"
+    type: "text"
+    constraints:
+      - not_null
+    description: |
+      "The NYC Borough where the Mandatory Inclusionary Housing (MIH) area is mapped. The boro code is a single digit identifier, indicating a particular borough (1 = Manhattan, 2 = Bronx, 3 = Brooklyn, 4 = Queens, 5 = Staten Island)."
+
+  - name: "the_geom"
+    short_name: "the_geom"
+    display_name: "the Geometry "
+    type: "multipolygon" # TODO: map internal types to external sources
+    description: "The ULURP number of the ULURP text amendment application."
+
+  - name: "shape_area"
+    display_name: "Shape Area"
+    type: "integer"
+    constraints:
+      - gt: 0
+      - lte: 100000000
+    description: "Area of feature in internal squared feet."
+
+  - name: "a_mostly_populated_field"
+    display_name: "A Mostly Populated Field"
+    type: text
+    agg_constraints:
+      pct_populated: 0.75 # <---- column should be %75 populated
+
+  - name: "bbl"
+    display_name: "BBL"
+    type: BBL  # <--- Internal DCP types
+
+  # Added short_names
+  - name: "zr_ulurpno_overly_long_name"
+    short_name: "zr_ulurpno" # <---- To help with Shapefile Limitations
+    display_name: "ZR_ULURP Number"
+    type: "text"
+    description: "The ULURP number of the ULURP text amendment application."
