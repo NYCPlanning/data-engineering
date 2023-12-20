@@ -8,7 +8,9 @@ max_bg_procs 5
 
 mkdir -p output && (
     cd output
-    cp ../facdb/metadata.yml .
+    cp ../facdb/metadata.yml ./
+    cp ../build_metadata.json ./
+    cp ../source_data_versions.csv ./
     csv_export facdb facilities &
     csv_export qc_operator &
     csv_export qc_oversight &

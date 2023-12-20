@@ -32,7 +32,8 @@ rm -rf output && mkdir -p output
 (
     cd output
 
-    csv_export source_data_versions &
+    cp ../source_data_versions.csv ./
+    cp ../build_metadata.json ./
     
     csv_export dcp_zoning_taxlot_export zoningtaxlot_db &
 
