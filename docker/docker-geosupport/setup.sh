@@ -3,7 +3,7 @@
 source config.sh
 set -e
 
-apt update && apt install -y curl git unzip zip build-essential
+apt update && apt install -y $GEOSUPPORT_APT_PACKAGES
 
 install_geosupport
 
