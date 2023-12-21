@@ -10,7 +10,7 @@ from sqlalchemy import text
 
 from dcpy.utils.postgres import insert_copy
 
-from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_ENGINE
+from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_DB_URL
 from .client import Client
 from .pg import PG
 from .visible_projects import (
@@ -36,7 +36,7 @@ class Runner:
         self.cache_dir = f".cache/{name}"
         self.headers = self.c.request_header
         self.schema = schema
-        self.pg = PG(ZAP_ENGINE, self.schema)
+        self.pg = PG(ZAP_DB_URL, self.schema)
         self.engine = self.pg.engine
         self.open_dataset = self.name in OPEN_DATA
 
