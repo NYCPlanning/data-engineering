@@ -1,0 +1,37 @@
+name: Product Update
+description: Track a data product update
+title: "Product Update - "
+labels: ["data update"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for updating a DCP Data Engineering data product!
+        
+        Once the issue is created, use the checkboxes below to track the state of the update.
+
+        - [ ] source data has been extracted
+        - [ ] ...
+        - [ ] new data has been distributed
+  - type: dropdown
+    attributes:
+      label: Product Name
+      description: Which product is being updated?
+      options:
+        - template
+        - cbbr
+        - checkbook
+        - colp
+        - cpdb
+        - devdb
+        - facilities
+        - knownprojects
+        - pluto
+        - ztl
+  - type: input
+    attributes:
+      label: Build Version
+      description: "Please provide the release version of this update."
+      placeholder: "23v1"
+    validations:
+      required: true
