@@ -16,11 +16,17 @@ jobs:
         shell: bash
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
-      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
       - uses: actions/checkout@v3
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
       - name: Delete build artifacts
         run: python3 -m dcpy.builds.clean_artifacts schemas
       - name: Delete docker images

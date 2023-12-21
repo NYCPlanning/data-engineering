@@ -39,10 +39,8 @@ jobs:
     container:
       image: nycplanning/build-base:latest 
     env:
-      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
       BUILD_ENGINE_DB: db-pluto
       BUILD_ENGINE_SCHEMA: ${{ inputs.schema }}
-      BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       MIN_ZOOM: ${{ inputs.min_zoom }}
       MAX_ZOOM: ${{ inputs.max_zoom }}
       TILE_SET: ${{ inputs.tileset }}
@@ -56,6 +54,7 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
       - uses: actions/checkout@v3
 
