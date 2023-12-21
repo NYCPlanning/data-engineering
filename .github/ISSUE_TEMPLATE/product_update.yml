@@ -1,6 +1,6 @@
 name: Product Update
 description: Track a data product update
-title: "Product Update - "
+title: "Product Update - PRODUCT_NAME"
 labels: ["data update"]
 body:
   - type: markdown
@@ -9,10 +9,6 @@ body:
         Thanks for updating a DCP Data Engineering data product!
         
         Once the issue is created, use the checkboxes below to track the state of the update.
-
-        - [ ] source data has been extracted
-        - [ ] ...
-        - [ ] new data has been distributed
   - type: dropdown
     attributes:
       label: Product Name
@@ -31,7 +27,16 @@ body:
   - type: input
     attributes:
       label: Build Version
-      description: "Please provide the release version of this update."
+      description: Please provide the release version of this update.
       placeholder: "23v1"
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: Status of Update
+      description: The rest of the body of the issue (intended to be modified after this form is submitted)
+      value: |
+          - [ ] source data has been extracted
+          - [ ] ...
+          - [ ] new data has been distributed
+      render: Markdown
