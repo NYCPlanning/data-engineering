@@ -17,9 +17,6 @@ jobs:
     env:
       RECIPE_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       AWS_S3_BUCKET: edm-recipes
-      SSH_PRIVATE_KEY_GINGER: ${{ secrets.SSH_PRIVATE_KEY_GINGER }}
-      GINGER_USER: ${{ secrets.GINGER_USER }}
-      GINGER_HOST: ${{ secrets.GINGER_HOST }}
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine
@@ -44,6 +41,9 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          SSH_PRIVATE_KEY_GINGER: "op://Data Engineering/DOF_SFTP/ssh_private_key"
+          GINGER_HOST: "op://Data Engineering/DOF_SFTP/url"
+          GINGER_USER: "op://Data Engineering/DOF_SFTP/username"
 
       - name: Run Container Setup
         working-directory: ./
