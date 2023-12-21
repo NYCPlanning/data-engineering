@@ -93,7 +93,6 @@ jobs:
         working-directory: ${{ matrix.working-directory || '.' }}
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
-      RECIPE_ENGINE: ${{ secrets.RECIPE_ENGINE }}
       AWS_S3_BUCKET: edm-recipes
       BUILD_ENGINE_DB: ${{ matrix.db }}
       ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
@@ -114,6 +113,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
         BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        RECIPE_ENGINE: "op://Data Engineering/EDM_DATA/defaultdb_url"
     - name: Run Container Setup
       working-directory: ./
       run: ./bash/docker_container_setup.sh
