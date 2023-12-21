@@ -9,12 +9,17 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: Build and Push
         run: apps/qa/bash/docker_build_and_publish.sh
 

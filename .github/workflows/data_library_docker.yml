@@ -26,6 +26,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
       - name: Copy constraints into data-library folder
         working-directory: ./
         run: cp python/constraints.txt data-library/
@@ -33,8 +42,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: $DOCKER_USERNAME
+          password: $DOCKER_PASSWORD
 
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4

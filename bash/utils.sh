@@ -353,7 +353,7 @@ function archive {
 
 
 function docker_login() {
-    echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USER --password-stdin
+    echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
 }
 
 

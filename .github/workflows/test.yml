@@ -84,9 +84,6 @@ jobs:
       - check_changes
       - set_docker_image_tag
     runs-on: ubuntu-22.04
-    env:
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
     strategy: 
       matrix: 
         image:
@@ -96,6 +93,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: contains(needs.check_changes.outputs.path_filters, 'docker')
+      - name: Load Secrets
+        if: contains(needs.check_changes.outputs.path_filters, 'docker')
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
         if: contains(needs.check_changes.outputs.path_filters, 'docker')
         working-directory: docker

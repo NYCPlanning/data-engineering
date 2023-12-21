@@ -26,10 +26,6 @@ on:
         required: true
         default: false
 
-env:
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  DOCKER_USER: ${{ secrets.DOCKER_USER }}
-
 jobs:
   build-base:
     runs-on: ubuntu-22.04
@@ -40,9 +36,17 @@ jobs:
         working-directory: docker
     steps:
       - uses: actions/checkout@v3
-        
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
       - name: Build and publish build-base
-        run: ./publish.sh build-base 
+        run: ./publish.sh build-base
 
   build-geosupport:
     runs-on: ubuntu-22.04
@@ -53,7 +57,15 @@ jobs:
         working-directory: docker
     steps:
       - uses: actions/checkout@v3
-        
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
       - name: Build and publish build-geosupport
         run: ./publish.sh build-geosupport
 
@@ -66,9 +78,17 @@ jobs:
         working-directory: docker
     steps:
       - uses: actions/checkout@v3
-        
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
       - name: Build and publish dev
-        run: ./publish.sh dev 
+        run: ./publish.sh dev
 
   docker-geosupport:
     runs-on: ubuntu-22.04
@@ -79,6 +99,14 @@ jobs:
         working-directory: docker
     steps:
       - uses: actions/checkout@v3
-        
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
       - name: Build and publish docker-geosupport
-        run: ./publish.sh docker-geosupport 
+        run: ./publish.sh docker-geosupport
