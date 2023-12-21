@@ -8,7 +8,7 @@ TAG="$2"
 login_data() {
 cat <<EOF
 {
-  "username": "$DOCKER_USER",
+  "username": "$DOCKER_USERNAME",
   "password": "$DOCKER_PASSWORD"
 }
 EOF
