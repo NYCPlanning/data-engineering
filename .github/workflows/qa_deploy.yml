@@ -32,7 +32,6 @@ jobs:
     env: 
       QA_DROPLET_SSH_PRIVATE_KEY: ${{ secrets.QA_DROPLET_SSH_PRIVATE_KEY }}
       QA_DROPLET_SSH_HOST: ${{ secrets.QA_DROPLET_SSH_HOST }}
-      SQL_ENGINE_EDM_DATA: ${{ secrets.EDM_DATA_QA_ENGINE }}
       GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
       DOCKER_IMAGE_NAME: nycplanning/qa-streamlit:latest
     steps:
@@ -71,7 +70,6 @@ jobs:
                 -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
                 -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
                 -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
-                -e BUILD_ENGINE=$SQL_ENGINE_EDM_DATA\
                 -e GHP_TOKEN=$GHP_TOKEN\
                 $DOCKER_IMAGE_NAME"
     

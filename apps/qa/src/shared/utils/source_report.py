@@ -4,9 +4,10 @@ from dcpy.connectors.edm import recipes, publishing
 from dcpy.utils import postgres
 from src.shared.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
 
-from src import QAQC_DB_SCHEMA_SOURCE_DATA
+from src import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
 
 pg_client = postgres.PostgresClient(
+    database=QAQC_DB,
     schema=QAQC_DB_SCHEMA_SOURCE_DATA,
 )
 
