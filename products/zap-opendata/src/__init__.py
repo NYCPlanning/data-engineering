@@ -10,7 +10,10 @@ TENANT_ID = os.environ["TENANT_ID"]
 ZAP_DOMAIN = os.environ["ZAP_DOMAIN"]
 CLIENT_ID = os.environ["CLIENT_ID"]
 SECRET = os.environ["SECRET"]
-ZAP_ENGINE = os.environ["ZAP_ENGINE"]
+
+BUILD_ENGINE_SERVER = os.environ["BUILD_ENGINE_SERVER"]
+ZAP_DB = "edm-zap"
+ZAP_DB_URL = f"{BUILD_ENGINE_SERVER}/{ZAP_DB}"
 
 base_path = ".output"
 if not os.path.isdir(base_path):

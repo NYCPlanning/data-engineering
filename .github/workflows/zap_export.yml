@@ -15,11 +15,6 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      ZAP_DOMAIN: ${{ secrets.ZAP_CRM_DOMAIN }}
-      TENANT_ID: ${{ secrets.ZAP_CRM_TENANT_ID }}
-      CLIENT_ID: ${{ secrets.ZAP_CRM_CLIENT_ID }}
-      SECRET: ${{ secrets.ZAP_CRM_SECRET }}
-      ZAP_ENGINE: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}/edm-zap
       EDM_DATA_ZAP_SCHEMA: weekly_export_${{ github.event_name }}_${{ github.ref_name }}
       AWS_S3_BUCKET: edm-recipes
     strategy:
@@ -52,6 +47,11 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          ZAP_DOMAIN: "op://Data Engineering/ZAP_CRM/DOMAIN"
+          TENANT_ID: "op://Data Engineering/ZAP_CRM/TENANT_ID"
+          CLIENT_ID: "op://Data Engineering/ZAP_CRM/CLIENT_ID"
+          SECRET: "op://Data Engineering/ZAP_CRM/SECRET"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
       - name: Run Container Setup
         working-directory: ./
