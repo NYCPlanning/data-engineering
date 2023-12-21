@@ -18,7 +18,6 @@ jobs:
         shell: bash
         working-directory: ./products/knownprojects
     env:
-      BUILD_ENGINE_SERVER: ${{ secrets.SQL_ENGINE_EDM_DATA_SERVER }}
       BUILD_ENGINE_DB: kpdb
       BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
       EDM_DATA: ${{ secrets.EDM_DATA }}
@@ -34,6 +33,7 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
       - name: Setup build environment
         working-directory: ./
