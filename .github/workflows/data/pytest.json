@@ -29,7 +29,6 @@
     {
         "name": "qa",
         "working-directory": "apps/qa",
-        "db": "edm-qaqc",
         "calls": ["."]
     }
 ]
