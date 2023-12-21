@@ -32,7 +32,6 @@ jobs:
     env:
       BUILD_ENGINE_DB: db-pluto
       BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
-      EDM_DATA: ${{ secrets.EDM_DATA }}
       BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v3
@@ -47,6 +46,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
 
       - name: Finish container setup
         working-directory: ./

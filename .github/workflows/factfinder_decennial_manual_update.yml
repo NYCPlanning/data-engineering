@@ -15,7 +15,6 @@ jobs:
       image: nycplanning/build-base:latest
     env:
       API_KEY: ${{ secrets.API_KEY }}
-      EDM_DATA: ${{ secrets.EDM_DATA }}
     steps:
       - uses: actions/checkout@v3
 
@@ -28,6 +27,7 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
 
       - name: Run Container Setup
         working-directory: ./
