@@ -10,6 +10,10 @@ import_qaqc qaqc_outlier $VERSION_PREV
 
 wait
 
+# QAQC NEW/VANISHED BBL ANALYSIS
+run_sql_file sql/qaqc_bbl_diffs.sql -v VERSION=${VERSION} -v VERSION_PREV=${VERSION_PREV}
+
+
 # QAQC EXPECTED VALUE ANALYSIS
 run_sql_file sql/qaqc_expected.sql -v VERSION=${VERSION}
 

@@ -73,7 +73,7 @@ mkdir -p dof && (
 echo "Exporting QAQC"
 mkdir -p qaqc && (
     cd qaqc
-    for table in qaqc_aggregate qaqc_expected qaqc_mismatch qaqc_null qaqc_outlier
+    for table in qaqc_aggregate qaqc_expected qaqc_mismatch qaqc_null qaqc_outlier qaqc_bbl_diffs
     do
         csv_export $table
     done

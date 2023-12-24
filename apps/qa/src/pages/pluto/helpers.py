@@ -28,6 +28,12 @@ def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     )
     data["df_outlier"] = read_pluto_csv("outlier", converters={"outlier": json.loads})
 
+    # only PLUTO 23v3+ versions are expected to have a bbl_diffs table
+    try:
+        data["df_bbl_diffs"] = read_pluto_csv("bbl_diffs")
+    except:
+        pass
+
     data = data | get_changes(product_key)
 
     data["source_data_versions"] = publishing.read_csv(
