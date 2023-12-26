@@ -383,7 +383,9 @@ def _cli_wrapper_publish(
     ),
 ):
     acl_literal = s3.string_as_acl(acl)
-    logger.info(f'Publishing {product}/draft/{build} with ACL "{acl}"')
+    logger.info(
+        f'Publishing {product}/draft/{build} as version {publishing_version} with ACL "{acl}"'
+    )
     publish(
         DraftKey(product, build),
         acl=acl_literal,
