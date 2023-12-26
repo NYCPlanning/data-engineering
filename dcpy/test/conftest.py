@@ -1,11 +1,19 @@
-import boto3
 import os
 import pytest
+from pathlib import Path
+import shutil
+import csv
 from moto import mock_s3
+
 from dcpy.utils import s3
+from dcpy.connectors.edm import publishing
 
 
-TEST_BUCKET_NAME = "edm-publishing"
+TEST_BUCKET = "test-bucket"
+TEST_BUCKETS = [
+    TEST_BUCKET,
+    publishing.BUCKET,
+]
 
 
 @pytest.fixture(scope="session")
@@ -18,8 +26,72 @@ def aws_credentials():
 
 
 @pytest.fixture(scope="module")
-def create_bucket(aws_credentials):
+def create_buckets(aws_credentials):
     """Creates a test S3 bucket."""
     with mock_s3():
-        s3.client().create_bucket(Bucket=TEST_BUCKET_NAME)
+        for bucket in TEST_BUCKETS:
+            s3.client().create_bucket(Bucket=bucket)
         yield  ## the yield within the mock_s3() is key to persisting the mocked session
+
+
+@pytest.fixture(scope="module")
+def mock_data_constants():
+    constants = {
+        "TEST_DATA_DIR": Path(__file__).resolve().parent / "test_data",
+        "TEST_VERSION": "v001",
+        "TEST_VERSION_FILE": "version.txt",
+        "TEST_FILE": "file.csv",
+        "TEST_DATA_FIELDS": ["drink", "like"],
+        "TEST_DATA": [
+            {"drink": "coffee", "like": "yes"},
+            {"drink": "tea", "like": "maybe"},
+        ],
+    }
+    yield constants
+
+
+@pytest.fixture(scope="module")
+def create_temp_filesystem(mock_data_constants):
+    """Creates a new directory with files and removes it upon test completion.
+    The directory is created and removed once per script ('module' scope)."""
+
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    version = mock_data_constants["TEST_VERSION"]
+    version_file = mock_data_constants["TEST_VERSION_FILE"]
+    test_file = mock_data_constants["TEST_FILE"]
+    file_columns = mock_data_constants["TEST_DATA_FIELDS"]
+    file_data = mock_data_constants["TEST_DATA"]
+
+    if data_path.exists():
+        shutil.rmtree(data_path)
+
+    try:
+        data_path.mkdir(parents=False, exist_ok=False)
+    except Exception as err:
+        print("❌ Unable to create test dir.")
+        raise err
+
+    try:
+        txt_file_path = data_path / version_file
+        csv_file_path = data_path / test_file
+        with open(txt_file_path, "w") as txt_file:
+            txt_file.write(version)
+        with open(csv_file_path, "w", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=file_columns)
+            writer.writeheader()
+            writer.writerows(file_data)
+        print("Created test filesystem ✅")
+
+    except Exception as exc:
+        print("❌ Exception occured while creating test files. Deleting test dir...")
+        shutil.rmtree(data_path)
+        raise exc
+
+    yield
+
+    try:
+        shutil.rmtree(data_path)
+        print("Removed test filesystem ✅")
+    except Exception as e:
+        f"❌ Unable to remove {data_path} after running tests"
+        raise e
