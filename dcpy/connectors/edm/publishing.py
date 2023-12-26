@@ -192,21 +192,18 @@ def publish(
     draft_key: DraftKey,
     *,
     acl: s3.ACL,
-    publishing_version: str | None = None,
+    version: str | None = None,
     keep_draft: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     latest: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
-    if publishing_version is None:
-        publishing_version = get_version(draft_key)
+    if version is None:
+        version = get_version(draft_key)
     source = draft_key.path + "/"
-    target = f"{draft_key.product}/publish/{publishing_version}/"
+    target = f"{draft_key.product}/publish/{version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
-    if latest:
-        target = f"{draft_key.product}/publish/latest/"
-        s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
     if not keep_draft:
         s3.delete(BUCKET, source)
 
@@ -305,18 +302,18 @@ def publish_add_created_date(
     source: str,
     acl: s3.ACL,
     *,
-    publishing_version: str | None = None,
+    version: str | None = None,
     file_for_creation_date: str = "version.txt",
     max_files: int = s3.MAX_FILE_COUNT,
 ) -> dict[str, str]:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
-    if publishing_version is None:
+    if version is None:
         with s3.get_file(BUCKET, f"{source}version.txt") as f:
-            publishing_version = str(f.read())
-    print(publishing_version)
+            version = str(f.read())
+    print(version)
     old_metadata = s3.get_metadata(BUCKET, f"{source}{file_for_creation_date}")
-    target = f"{product}/publish/{publishing_version}/"
+    target = f"{product}/publish/{version}/"
     s3.copy_folder(
         BUCKET,
         source,
@@ -379,14 +376,14 @@ def _cli_wrapper_publish(
         None,
         "-p",
         "--product",
-        help="Name of data product (publishing folder in s3)",
+        help="Data product name (folder name in S3 publishing bucket)",
     ),
     build: str = typer.Option(None, "-b", "--build", help="Label of build"),
-    publishing_version: str = typer.Option(
+    version: str = typer.Option(
         None,
         "-v",
-        "--publishing-version",
-        help="Version ",
+        "--version",
+        help="Data product release version",
     ),
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
     latest: bool = typer.Option(
@@ -395,12 +392,12 @@ def _cli_wrapper_publish(
 ):
     acl_literal = s3.string_as_acl(acl)
     logger.info(
-        f'Publishing {product}/draft/{build} as version {publishing_version} with ACL "{acl}"'
+        f'Publishing {product}/draft/{build} as version {version} with ACL "{acl}"'
     )
     publish(
         DraftKey(product, build),
         acl=acl_literal,
-        publishing_version=publishing_version,
+        version=version,
         latest=latest,
     )
 

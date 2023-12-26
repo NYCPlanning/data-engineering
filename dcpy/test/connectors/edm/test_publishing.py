@@ -31,7 +31,7 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
 
 def test_publish(create_buckets, create_temp_filesystem, mock_data_constants):
     publishing.publish(
-        draft_key=draft_key, acl=TEST_ACL, publishing_version=None, keep_draft=False
+        draft_key=draft_key, acl=TEST_ACL, version=None, keep_draft=False
     )
 
     assert publishing.get_draft_builds(product=draft_key.product) == []
