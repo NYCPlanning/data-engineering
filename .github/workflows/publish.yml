@@ -9,14 +9,14 @@ on:
         type: choice
         required: true
         options:
-          - cbbr
-          - checkbook
-          - colp
-          - cpdb
-          - developments
-          - facilities
-          - pluto
-          - zoningtaxlots
+          - db-cbbr
+          - db-checkbook
+          - db-colp
+          - db-cpdb
+          - db-developments
+          - db-facilities
+          - db-pluto
+          - db-zoningtaxlots
       draft_build:
         description: "Build folder in drafts to publish"
         type: string
@@ -74,8 +74,7 @@ jobs:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
         run: |
           python3 -m dcpy.connectors.edm.publishing publish \
-            -p db-${{ inputs.product }} \
-            -b ${{ inputs.draft_build }} \
-            -v ${{ inputs.publishing_version }} \
-            -a ${{ inputs.product_acl }} \
-            $latest
+            --product ${{ inputs.product }} \
+            --build ${{ inputs.draft_build }} \
+            --publishing-version ${{ inputs.publishing_version }} \
+            --acl ${{ inputs.product_acl }}
