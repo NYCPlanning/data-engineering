@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       product:
-        description: "Which product to publish"
+        description: "Data product name (folder name in S3 publishing bucket)"
         type: choice
         required: true
         options:
@@ -23,7 +23,7 @@ on:
         type: string
         required: true
       publishing_version:
-        description: "Version of official release"
+        description: "Data product release version"
         type: string
         required: true
       latest:
@@ -77,5 +77,6 @@ jobs:
           python3 -m dcpy.connectors.edm.publishing publish \
             --product ${{ inputs.product }} \
             --build ${{ inputs.draft_build }} \
-            --publishing-version ${{ inputs.publishing_version }} \
-            --acl ${{ inputs.product_acl }}
+            --version ${{ inputs.publishing_version }} \
+            --acl ${{ inputs.product_acl }} \
+            $latest
