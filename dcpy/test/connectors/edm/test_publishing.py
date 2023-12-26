@@ -11,7 +11,7 @@ draft_key = publishing.DraftKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
 publish_key = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
 
 
-def test_bucket_empty(create_bucket, mock_data_constants):
+def test_bucket_empty(create_buckets, mock_data_constants):
     """Sanity check there are no draft or publish versions from previous tests
     or actual data."""
 
@@ -19,7 +19,7 @@ def test_bucket_empty(create_bucket, mock_data_constants):
     assert publishing.get_published_versions(product=TEST_PRODUCT_NAME) == []
 
 
-def test_upload(create_bucket, create_temp_filesystem, mock_data_constants):
+def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
     """Checks build directory is found in draft builds.
     Tests version from version.txt file matches actual version."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
@@ -29,7 +29,7 @@ def test_upload(create_bucket, create_temp_filesystem, mock_data_constants):
     assert publishing.get_version(product_key=draft_key) == TEST_VERSION
 
 
-def test_publish(create_bucket, create_temp_filesystem, mock_data_constants):
+def test_publish(create_buckets, create_temp_filesystem, mock_data_constants):
     publishing.publish(
         draft_key=draft_key, acl=TEST_ACL, publishing_version=None, keep_draft=False
     )
