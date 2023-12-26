@@ -1,0 +1,59 @@
+name: 🚀 Package a Dataset
+run-name: "🚀 Package a Dataset: ${{ inputs.product }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Data product name (folder name in S3 publishing bucket)"
+        type: choice
+        required: true
+        options:
+          - db-cbbr
+          - db-checkbook
+          - db-colp
+          - db-cpdb
+          - db-developments
+          - db-facilities
+          - db-pluto
+          - db-zoningtaxlots
+      version:
+        description: "Data product release version"
+        type: string
+        required: true
+
+jobs:
+  package:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-base:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: |
+            dcpy 
+            bash
+            python
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: package
+        run: |
+          python3 -m dcpy.connectors.edm.packaging package \
+            --product ${{ inputs.product }} \
+            --version ${{ inputs.version }}
