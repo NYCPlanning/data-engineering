@@ -48,14 +48,13 @@ def templatedb(publish_key: publishing.PublishKey, package_key: PackageKey):
 
 @dataclass
 class PackageMetadata:
-    product: str
     packaged_name: str
     packaging_function: Callable
 
 
 DATASET_PACKAGE_METADATA = {
-    "db-colp": PackageMetadata("db-colp", "dcp_colp", colp),
-    "db-template": PackageMetadata("db-colp", "dcp_template_db", templatedb),
+    "db-colp": PackageMetadata("dcp_colp", colp),
+    "db-template": PackageMetadata("dcp_template_db", templatedb),
 }
 
 
