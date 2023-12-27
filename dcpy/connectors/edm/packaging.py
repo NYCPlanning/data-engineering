@@ -10,7 +10,7 @@ from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 
 BUCKET = "edm-distributions"
-BUCKET_ACL = s3.string_as_acl("public-read")
+BUCKET_ACL: s3.ACL = "public-read"
 
 DOWNLOAD_ROOT_PATH = Path(".publishing")
 OUTPUT_ROOT_PATH = Path(".output")
