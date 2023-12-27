@@ -308,14 +308,6 @@ function compress {
 }
 
 
-function upload {
-    local dataset_name=${1}
-    local acl=${2}
-    local build=${3:-$BUILD_NAME}
-    python3 -m dcpy.connectors.edm.publishing upload -p $dataset_name -o output -b $build -a $acl
-}
-
-
 # cpdb immediately calls with 5 as arg. Similar for devdb, facdb
 function max_bg_procs {
     if [[ $# -eq 0 ]] ; then
