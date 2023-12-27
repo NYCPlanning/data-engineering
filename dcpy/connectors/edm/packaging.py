@@ -59,14 +59,6 @@ DATASET_PACKAGE_METADATA = {
 }
 
 
-def download_published_version(publish_key: publishing.PublishKey) -> None:
-    published_versions = publishing.get_published_versions(product=publish_key.product)
-    assert (
-        publish_key.version in published_versions
-    ), f"{publish_key} not found in S3 bucket '{publishing.BUCKET}'. Published versions are {published_versions}"
-    s3.download_folder(publishing.BUCKET, f"{publish_key.path}/", DOWNLOAD_ROOT_PATH)
-
-
 def upload(package_key: PackageKey) -> None:
     local_folder_path = OUTPUT_ROOT_PATH / package_key.path
     meta = s3.generate_metadata()
@@ -105,7 +97,7 @@ def package(publish_key: publishing.PublishKey) -> None:
     logger.info(
         f"Downloading published build '{publish_key}' to {DOWNLOAD_ROOT_PATH.absolute()}"
     )
-    download_published_version(publish_key)
+    publishing.download_published_version(publish_key, DOWNLOAD_ROOT_PATH)
 
     # perform product-specific packaging steps
     package_metadata = DATASET_PACKAGE_METADATA[publish_key.product]

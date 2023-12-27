@@ -50,7 +50,7 @@ def test_package_stages(create_buckets, create_temp_filesystem, mock_data_consta
         version=mock_data_constants["TEST_VERSION"],
     )
 
-    packaging.download_published_version(publish_key)
+    publishing.download_published_version(publish_key, packaging.DOWNLOAD_ROOT_PATH)
     packaging.transform_for_packaging(
         publish_key,
         package_key,

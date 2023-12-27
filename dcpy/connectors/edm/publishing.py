@@ -211,6 +211,17 @@ def publish(
         s3.delete(BUCKET, source)
 
 
+def download_published_version(
+    publish_key: PublishKey, output_dir: Path | None = None
+) -> None:
+    output_dir = output_dir or Path(".")
+    published_versions = get_published_versions(product=publish_key.product)
+    assert (
+        publish_key.version in published_versions
+    ), f"{publish_key} not found in S3 bucket '{BUCKET}'. Published versions are {published_versions}"
+    s3.download_folder(BUCKET, f"{publish_key.path}/", output_dir)
+
+
 def file_exists(product_key: ProductKey, filepath: str) -> bool:
     """Returns true if given file exists within outputs for given product key"""
     return s3.exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
