@@ -7,14 +7,15 @@ body:
     attributes:
       value: |
         Thanks for updating a DCP Data Engineering data product!
-        
+
+        See our Data Catalog wiki page [here](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) for details on each data product.
+
         Once the issue is created, use the checkboxes below to track the state of the update.
   - type: dropdown
     attributes:
       label: Product Name
       description: Which product is being updated?
       options:
-        - template
         - cbbr
         - checkbook
         - colp
@@ -24,19 +25,22 @@ body:
         - knownprojects
         - pluto
         - ztl
+        - template
+    validations:
+      required: true
   - type: input
     attributes:
       label: Build Version
-      description: Please provide the release version of this update.
+      description: The release version of this data update
       placeholder: "23v1"
     validations:
       required: true
   - type: textarea
     attributes:
       label: Status of Update
-      description: The rest of the body of the issue (intended to be modified after this form is submitted)
+      description: The rest of the issue body (intended to be modified after this form is submitted)
       value: |
-          - [ ] source data has been extracted
-          - [ ] ...
-          - [ ] new data has been distributed
-      render: Markdown
+        - [ ] source data extracted
+        - [ ] draft build succeeded
+        - [ ] draft build passed QA
+        - [ ] data packaged and distributed
