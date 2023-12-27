@@ -17,6 +17,7 @@ on:
           - db-facilities
           - db-pluto
           - db-zoningtaxlots
+          - db-template
       draft_build:
         description: "Build folder in drafts to publish"
         type: string
