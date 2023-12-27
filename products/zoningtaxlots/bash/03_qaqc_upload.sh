@@ -76,4 +76,4 @@ psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PR
     -f sql/qaqc/null.sql > output/qaqc_null.csv
 
 echo "Upload outpits ..."
-upload db-zoningtaxlots public-read
+python3 -m dcpy.connectors.edm.publishing upload -p db-zoningtaxlots -a public-read

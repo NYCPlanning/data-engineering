@@ -82,4 +82,4 @@ mkdir -p qaqc && (
 wait 
 cd ..
 
-upload db-pluto public-read
+python3 -m dcpy.connectors.edm.publishing upload -p db-pluto -a public-read

@@ -24,7 +24,7 @@ function export {
 }
 
 function upload {
-    ./bash/06_upload.sh
+    python3 -m dcpy.connectors.edm.publishing upload -p db-developments -a public-read
 }
 
 function archive { 

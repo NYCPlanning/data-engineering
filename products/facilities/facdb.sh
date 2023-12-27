@@ -26,7 +26,7 @@ function facdb_archive {
 
 case $1 in
     init) init ;;
-    upload) upload "db-facilities" "public-read" ;;
+    upload) python3 -m dcpy.connectors.edm.publishing upload -p db-facilities -a public-read ;;
     archive) facdb_archive $@ ;;
     export) ./facdb/bash/export.sh ;;
     *) facdb_execute $@ ;;

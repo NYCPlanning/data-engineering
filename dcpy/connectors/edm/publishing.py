@@ -336,7 +336,7 @@ app = typer.Typer(add_completion=False)
 @app.command("upload")
 def _cli_wrapper_upload(
     output_path: Path = typer.Option(
-        None, "-o", "--output-path", help="Path to local output folder"
+        Path("output"), "-o", "--output-path", help="Path to local output folder"
     ),
     product: str = typer.Option(
         None,
@@ -348,8 +348,17 @@ def _cli_wrapper_upload(
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
 ):
     acl_literal = s3.string_as_acl(acl)
-    logger.info(f'Uploading {output_path} to {product}/draft/{build} with ACL "{acl}"')
-    upload(output_path, DraftKey(product, build), acl=acl_literal)
+    if not output_path.exists():
+        raise Exception(f"Path {output_path} does not exist")
+    build_name = build or os.environ.get("BUILD_NAME")
+    if build_name is None:
+        raise Exception(
+            "Build name must either be supplied via CLI or found in env var 'BUILD_NAME'."
+        )
+    logger.info(
+        f'Uploading {output_path} to {product}/draft/{build_name} with ACL "{acl}"'
+    )
+    upload(output_path, DraftKey(product, build_name), acl=acl_literal)
 
 
 @app.command("publish")
