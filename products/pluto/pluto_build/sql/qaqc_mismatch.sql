@@ -149,6 +149,7 @@ INSERT INTO qaqc_mismatch (
         ) AS facilfar,
         count(*) FILTER (WHERE a.borocode::numeric IS DISTINCT FROM b.borocode::numeric)
         AS borocode,
+        0 AS bbl, -- can't have bbl changes when we're joining on bbl. But included for backwards compatibility
         count(*) FILTER (WHERE a.condono::numeric IS DISTINCT FROM b.condono::numeric) AS condono,
         count(*) FILTER (WHERE a.tract2010 IS DISTINCT FROM b.tract2010) AS tract2010,
         count(*) FILTER (
