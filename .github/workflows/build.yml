@@ -68,6 +68,9 @@ on:
       dev_image:
         type: boolean
         default: false
+      repeat:
+        type: boolean
+        default: false
 
 jobs:
   health_check:
