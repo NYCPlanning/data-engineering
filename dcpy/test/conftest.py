@@ -6,13 +6,14 @@ import csv
 from moto import mock_s3
 
 from dcpy.utils import s3
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm import publishing, packaging
 
 
 TEST_BUCKET = "test-bucket"
 TEST_BUCKETS = [
     TEST_BUCKET,
     publishing.BUCKET,
+    packaging.BUCKET,
 ]
 
 
@@ -36,11 +37,35 @@ def create_buckets(aws_credentials):
 
 @pytest.fixture(scope="module")
 def mock_data_constants():
+    def _test_product(
+        publish_key: publishing.PublishKey, package_key: packaging.PackageKey
+    ) -> None:
+        output_path = packaging.OUTPUT_ROOT_PATH / package_key.path
+        shutil.copytree(
+            packaging.DOWNLOAD_ROOT_PATH / publish_key.path,
+            output_path,
+            dirs_exist_ok=True,
+        )
+        os.rename(
+            output_path / "file.csv",
+            output_path / f"file_{package_key.version}.csv",
+        )
+
+    test_product_name = "test-product"
+    test_version = "v001"
     constants = {
+        "TEST_PRODUCT_NAME": test_product_name,
+        "TEST_PACKAGE_METADATA": packaging.PackageMetadata(
+            test_product_name,
+            "dcp_test_product",
+            _test_product,
+        ),
         "TEST_DATA_DIR": Path(__file__).resolve().parent / "test_data",
-        "TEST_VERSION": "v001",
+        "TEST_BUILD": "build-branch",
+        "TEST_VERSION": test_version,
         "TEST_VERSION_FILE": "version.txt",
         "TEST_FILE": "file.csv",
+        "TEST_PACKAGED_FILE": f"file_{test_version}.csv",
         "TEST_DATA_FIELDS": ["drink", "like"],
         "TEST_DATA": [
             {"drink": "coffee", "like": "yes"},
