@@ -75,14 +75,6 @@ def get_packaged_versions(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/"), reverse=True)
 
 
-def transform_for_packaging(
-    publish_key: publishing.PublishKey,
-    package_key: PackageKey,
-    packaging_function: Callable,
-):
-    packaging_function(publish_key, package_key)
-
-
 def download_packaged_version(package_key: PackageKey) -> None:
     packaged_versions = get_packaged_versions(product=package_key.product)
     assert (
@@ -107,9 +99,7 @@ def package(publish_key: publishing.PublishKey) -> None:
     logger.info(
         f"Starting packaging for '{package_key}' to {OUTPUT_ROOT_PATH.absolute()}"
     )
-    transform_for_packaging(
-        publish_key, package_key, package_metadata.packaging_function
-    )
+    package_metadata.packaging_function(publish_key, package_key)
 
     # upload packaged build to bucket
     logger.info(f"Uploading packaged '{package_key}'")

@@ -51,10 +51,8 @@ def test_package_stages(create_buckets, create_temp_filesystem, mock_data_consta
     )
 
     publishing.download_published_version(publish_key, packaging.DOWNLOAD_ROOT_PATH)
-    packaging.transform_for_packaging(
-        publish_key,
-        package_key,
-        mock_data_constants["TEST_PACKAGE_METADATA"].packaging_function,
+    mock_data_constants["TEST_PACKAGE_METADATA"].packaging_function(
+        publish_key, package_key
     )
     packaging.upload(package_key)
 
