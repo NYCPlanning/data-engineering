@@ -48,7 +48,7 @@ jobs:
           mypy products/template
   
   template-db:
-    if: (needs.check_changes.outputs.path_filters == '') || contains(needs.check_changes.outputs.path_filters, 'template')
+    if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
     uses: ./.github/workflows/template_test.yml
     with:
       image_tag: ${{ inputs.image_tag }}
