@@ -2,6 +2,11 @@ name: ⚙️ Nightly QA
 
 on:
   workflow_dispatch:
+    inputs:
+      build_name:
+        description: Name of the build environment
+        type: string
+        default: nightly_qa
   schedule:
     - cron: "0 5 * * *"
 
@@ -18,3 +23,4 @@ jobs:
       build_note: nightly qa
       recipe_file: recipe
       dev_image: false
+      build_name: ${{ inputs.build_name || 'nightly_qa' }}

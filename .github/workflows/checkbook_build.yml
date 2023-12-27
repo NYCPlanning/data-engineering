@@ -6,6 +6,9 @@ on:
       image_tag:
         type: string
         required: false
+      build_name:
+        type: string
+        required: true
 
 jobs:
   build:
@@ -15,6 +18,7 @@ jobs:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: db-checkbook
+      BUILD_NAME: ${{ inputs.build_name }}
     defaults:
       run:
         shell: bash
@@ -36,6 +40,10 @@ jobs:
       - name: Setup build environment
         working-directory: ./
         run: ./bash/docker_container_setup.sh
+
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
       - name: Run dataloading and build
         run: |

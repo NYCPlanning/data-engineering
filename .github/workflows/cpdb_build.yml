@@ -6,6 +6,9 @@ on:
       image_tag:
         type: string
         required: false
+      build_name: 
+        type: string
+        required: true
       recipe_file:
         type: string
         required: true
@@ -28,7 +31,7 @@ jobs:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: db-cpdb
-      BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
+      BUILD_NAME: ${{ inputs.build_name }}
     steps:
       - uses: actions/checkout@v3
 
