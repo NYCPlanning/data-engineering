@@ -17,6 +17,7 @@ on:
           - db-facilities
           - db-pluto
           - db-zoningtaxlots
+          - db-template
       version:
         description: "Data product release version"
         type: string
