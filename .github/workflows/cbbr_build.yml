@@ -12,6 +12,9 @@ on:
       image_tag:
         type: string
         required: false
+      build_name: 
+        type: string
+        required: true
 
 jobs:
   build:
@@ -25,7 +28,7 @@ jobs:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: db-cbbr
-      BUILD_ENGINE_SCHEMA: cbbr_build
+      BUILD_NAME: ${{ inputs.build_name }}
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine

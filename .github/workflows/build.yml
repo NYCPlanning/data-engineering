@@ -71,6 +71,9 @@ on:
       repeat:
         type: boolean
         default: false
+      build_name:
+        type: string
+        required: false
 
 jobs:
   health_check:
@@ -78,6 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
     steps:
       - name: Check inputs
         run: |
@@ -91,6 +95,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}
@@ -105,6 +110,7 @@ jobs:
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
   checkbook:
     needs: health_check
     if: inputs.dataset_name == 'checkbook' || inputs.dataset_name  == 'all'
@@ -112,6 +118,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
   colp:
     needs: health_check
     if: inputs.dataset_name == 'colp' || inputs.dataset_name  == 'all'
@@ -119,6 +126,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}
@@ -129,6 +137,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}
@@ -139,6 +148,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
   facilities:
     needs: health_check
     if: inputs.dataset_name == 'facilities' || inputs.dataset_name  == 'all'
@@ -146,6 +156,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}
@@ -156,6 +167,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
   pluto:
     needs: health_check
     if: inputs.dataset_name == 'pluto' || inputs.dataset_name  == 'all'
@@ -163,6 +175,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}
@@ -173,6 +186,7 @@ jobs:
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}

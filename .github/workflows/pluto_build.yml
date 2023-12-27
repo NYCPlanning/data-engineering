@@ -6,6 +6,9 @@ on:
       image_tag:
         type: string
         required: false
+      build_name: 
+        type: string
+        required: true
       create_issue:
         type: boolean
         default: false
@@ -31,7 +34,7 @@ jobs:
       image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: db-pluto
-      BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
+      BUILD_NAME: ${{ inputs.build_name }}
       BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v3

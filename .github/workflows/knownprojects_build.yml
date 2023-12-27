@@ -6,6 +6,9 @@ on:
       image_tag:
         type: string
         required: false
+      build_name: 
+        type: string
+        required: true
 
 jobs:
   build:
@@ -19,7 +22,7 @@ jobs:
         working-directory: ./products/knownprojects
     env:
       BUILD_ENGINE_DB: kpdb
-      BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
+      BUILD_NAME: ${{ inputs.build_name }}
     steps:
       - uses: actions/checkout@v3
 

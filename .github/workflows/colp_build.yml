@@ -5,6 +5,9 @@ on:
       image_tag:
         type: string
         required: false
+      build_name: 
+        type: string
+        required: true
       recipe_file:
         type: string
         required: true
@@ -27,7 +30,7 @@ jobs:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: db-colp
-      BUILD_ENGINE_SCHEMA: ${{ github.head_ref || github.ref_name }}
+      BUILD_NAME: ${{ inputs.build_name }}
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine
