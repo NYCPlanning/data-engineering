@@ -56,7 +56,6 @@ def mock_data_constants():
     constants = {
         "TEST_PRODUCT_NAME": test_product_name,
         "TEST_PACKAGE_METADATA": packaging.PackageMetadata(
-            test_product_name,
             "dcp_test_product",
             _test_product,
         ),
