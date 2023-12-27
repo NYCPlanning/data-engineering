@@ -49,7 +49,7 @@ def templatedb(publish_key: publishing.PublishKey, package_key: PackageKey):
 @dataclass
 class PackageMetadata:
     packaged_name: str
-    packaging_function: Callable
+    packaging_function: Callable[[publishing.PublishKey, PackageKey], None]
 
 
 DATASET_PACKAGE_METADATA = {
