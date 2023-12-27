@@ -1,3 +1,5 @@
+import os
+import shutil
 from pathlib import Path
 from typing import Callable
 from dataclasses import dataclass
@@ -31,6 +33,19 @@ def colp(publish_key: publishing.PublishKey, package_key: PackageKey):
     raise NotImplementedError
 
 
+def templatedb(publish_key: publishing.PublishKey, package_key: PackageKey):
+    output_path = OUTPUT_ROOT_PATH / package_key.path
+    shutil.copytree(
+        DOWNLOAD_ROOT_PATH / publish_key.path,
+        output_path,
+        dirs_exist_ok=True,
+    )
+    shutil.copy(
+        output_path / "templatedb.csv",
+        output_path / "templatedb_packaged.csv",
+    )
+
+
 @dataclass
 class PackageMetadata:
     product: str
@@ -38,8 +53,9 @@ class PackageMetadata:
     packaging_function: Callable
 
 
-datasets = {
+DATASET_PACKAGE_METADATA = {
     "db-colp": PackageMetadata("db-colp", "dcp_colp", colp),
+    "db-template": PackageMetadata("db-colp", "dcp_template_db", templatedb),
 }
 
 
@@ -92,7 +108,7 @@ def package(publish_key: publishing.PublishKey) -> None:
     download_published_version(publish_key)
 
     # perform product-specific packaging steps
-    package_metadata = datasets[publish_key.product]
+    package_metadata = DATASET_PACKAGE_METADATA[publish_key.product]
     package_key = PackageKey(
         package_metadata.packaged_name,
         publish_key.version,
