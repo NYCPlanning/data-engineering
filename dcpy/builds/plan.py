@@ -8,13 +8,11 @@ import typer
 from typing import List
 import yaml
 
-from dcpy.utils import postgres
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
 
 DEFAULT_RECIPE = "recipe.yml"
-BUILD_SCHEMA = os.environ.get("BUILD_ENGINE_SCHEMA", postgres.DEFAULT_POSTGRES_SCHEMA)
 LIBRARY_DEFAULT_PATH = recipes.LIBRARY_DEFAULT_PATH
 
 
