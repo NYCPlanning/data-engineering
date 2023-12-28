@@ -29,6 +29,7 @@ on:
         description: "Publish to 'latest' folder?"
         type: boolean
         default: true
+        required: true
       product_acl:
         description: "Set access control list for output in DO"
         type: choice
