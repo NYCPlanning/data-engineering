@@ -71,7 +71,7 @@ jobs:
 
       - name: publish
         env:
-          latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
+          latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
         run: |
           python3 -m dcpy.connectors.edm.publishing publish \
             -p db-${{ inputs.product }} \
