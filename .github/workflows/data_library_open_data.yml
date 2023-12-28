@@ -41,3 +41,20 @@ jobs:
           s3: true
           compress: true
           output_format: pgdump shapefile csv
+
+  create_issue_on_failure:
+    runs-on: ubuntu-22.04
+    needs: dataloading
+    if: ${{ always() && (github.event_name == 'schedule') && contains(needs.dataloading.result, 'failure') }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: .github
+      - name: Create issue on failure
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTION: "Open Data Weekly Updates"
+          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/data_library_failure.md
