@@ -90,8 +90,9 @@ mkdir -p output
         wait
     )
 
-    display "Export source data versions"
+    display "Export source data versions and build metadata"
     csv_export source_data_versions
+    cp ../build_metadata.json ./
     echo "[$(date)] ${VERSION}" > version.txt
 
 )
