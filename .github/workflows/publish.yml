@@ -25,6 +25,10 @@ on:
         description: "Version of official release"
         type: string
         required: true
+      latest:
+        description: "Publish to 'latest' folder?"
+        type: boolean
+        default: true
       product_acl:
         description: "Set access control list for output in DO"
         type: choice
@@ -65,9 +69,12 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: publish
+        env:
+          latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
         run: |
           python3 -m dcpy.connectors.edm.publishing publish \
             -p db-${{ inputs.product }} \
             -b ${{ inputs.draft_build }} \
             -v ${{ inputs.publishing_version }} \
-            -a ${{ inputs.product_acl }}
+            -a ${{ inputs.product_acl }} \
+            $latest

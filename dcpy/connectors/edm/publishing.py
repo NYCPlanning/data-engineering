@@ -194,8 +194,8 @@ def publish(
     acl: s3.ACL,
     publishing_version: str | None = None,
     keep_draft: bool = True,
-    target_bucket: str | None = None,
     max_files: int = s3.MAX_FILE_COUNT,
+    latest: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
@@ -203,9 +203,10 @@ def publish(
         publishing_version = get_version(draft_key)
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{publishing_version}/"
-    s3.copy_folder(
-        BUCKET, source, target, acl, max_files=max_files, target_bucket=target_bucket
-    )
+    s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+    if latest:
+        target = f"{draft_key.product}/publish/latest/"
+        s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
     if not keep_draft:
         s3.delete(BUCKET, source)
 
@@ -377,8 +378,8 @@ def _cli_wrapper_publish(
         help="Version ",
     ),
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
-    target_bucket: str = typer.Option(
-        None, "-t", "--target-bucket", help="Target bucket to publish to"
+    latest: bool = typer.Option(
+        False, "-l", "--latest", help="Publish to latest folder as well?"
     ),
 ):
     acl_literal = s3.string_as_acl(acl)
@@ -387,7 +388,7 @@ def _cli_wrapper_publish(
         DraftKey(product, build),
         acl=acl_literal,
         publishing_version=publishing_version,
-        target_bucket=target_bucket,
+        latest=latest,
     )
 
 
