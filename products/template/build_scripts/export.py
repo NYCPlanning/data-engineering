@@ -1,18 +1,26 @@
-import os
+import shutil
 from dcpy.connectors.edm import publishing
 from dcpy.utils.logging import logger
 
 from . import PRODUCT_S3_NAME, BUILD_NAME, OUTPUT_DIR, PG_CLIENT
 
-OUTPUT_FILES = {
-    "source_data_versions": ["csv"],
+METADATA_FILES = [
+    "source_data_versions.csv",
+    "build_metadata.json",
+]
+BUILD_TABLES = {
     "templatedb": ["csv"],
 }
 
 
 def export():
     OUTPUT_DIR.mkdir(parents=True)
-    for table_name, file_types in OUTPUT_FILES.items():
+    # export metadata files
+    for filename in METADATA_FILES:
+        shutil.copy(OUTPUT_DIR.parent / filename, OUTPUT_DIR / filename)
+
+    # export builds tables
+    for table_name, file_types in BUILD_TABLES.items():
         data = PG_CLIENT.get_table(table_name)
         file_path = OUTPUT_DIR / table_name
         for file_type in file_types:
