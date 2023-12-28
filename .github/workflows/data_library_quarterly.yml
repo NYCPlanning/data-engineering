@@ -7,6 +7,10 @@ on:
         description: 'The quarterly version name (e.g. 21b, has to be all lower case)'
         required: true
         default: 21c
+      use_staging_image:
+        description: "Use staging docker image instead of latest"
+        type: boolean
+        default: false
 
 jobs:
   dataloading:
@@ -61,6 +65,17 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
       - uses: NYCPlanning/action-library-archive@v1.1
+        if: ${{ !(inputs.use_staging_image) }}
+        with:
+          name: ${{ matrix.dataset }}
+          version: ${{ github.event.inputs.version }}
+          latest: true
+          s3: true
+          compress: true
+          output_format: pgdump shapefile csv
+
+      - uses: NYCPlanning/action-library-archive@v1.2
+        if: ${{ inputs.use_staging_image }}
         with:
           name: ${{ matrix.dataset }}
           version: ${{ github.event.inputs.version }}
