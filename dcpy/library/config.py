@@ -94,7 +94,7 @@ class Config:
             _config = self.parsed_unrendered_template
 
             script_name = _config["dataset"]["source"]["script"]
-            module = importlib.import_module(f"library.script.{script_name}")
+            module = importlib.import_module(f"dcpy.library.script.{script_name}")
             scriptor = module.Scriptor(config=config)
             url = scriptor.runner()
 

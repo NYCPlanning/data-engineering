@@ -1,4 +1,4 @@
-from library.utils import format_url
+from dcpy.library.utils import format_url
 
 
 def test_format_url():

@@ -13,7 +13,7 @@ pg = create_engine(recipe_engine)
 
 console = Console()
 test_root_path = Path(__file__).parent
-template_path = f"{Path(__file__).parent.parent}/library/templates"
+template_path = f"{Path(__file__).parent.parent.parent}/library/templates"
 
 TEST_DATASET_NAME = "test_nypl_libraries"
 TEST_DATASET_VERSION = "20210122"

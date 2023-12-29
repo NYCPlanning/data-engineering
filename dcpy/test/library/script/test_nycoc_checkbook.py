@@ -1,5 +1,5 @@
 import pytest
-from library.script import nycoc_checkbook
+from dcpy.library.script import nycoc_checkbook
 
 
 @pytest.mark.parametrize(

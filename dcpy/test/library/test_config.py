@@ -1,5 +1,4 @@
-from pathlib import Path
-from library.config import Config
+from dcpy.library.config import Config
 
 from . import template_path, get_config_file
 

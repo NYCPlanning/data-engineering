@@ -97,9 +97,14 @@ version = "0.0.1"
 description = "DCP Data Engineering's internal python package"
 requires-python = ">=3.11"
 dependencies = [
+    "beautifulsoup4",
     "boto3",
     "botocore",
+    "GDAL",
     "geopandas",
+    "Jinja2",
+    "lxml",
+    "openpyxl",
     "pandas",
     "psycopg2_binary",
     "pydantic",
@@ -110,9 +115,19 @@ dependencies = [
     "rich",
     "setuptools",
     "SQLAlchemy",
-    "typer"
+    "typer",
+    "urllib3",
+    "usaddress",
+    "xlrd",
+    "pyarrow",
 ]
 
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 exclude = ["dcpy.test*"]
+
+[project.scripts]
+library = "dcpy.library.cli:run"
+
+[tool.setuptools.package-data]
+dcpy = ["library/templates/*.yml"]
