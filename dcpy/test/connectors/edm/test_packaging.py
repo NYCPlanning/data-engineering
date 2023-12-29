@@ -3,21 +3,9 @@ import os
 from dcpy.connectors.edm import publishing, packaging
 
 
-def test_bucket_empty(create_buckets, mock_data_constants):
-    """Sanity check that there are no packaged versions from previous tests
-    or actual data."""
-
-    assert (
-        packaging.get_packaged_versions(
-            product=mock_data_constants["TEST_PRODUCT_NAME"]
-        )
-        == []
-    )
-
-
 def test_package_fails(create_buckets, create_temp_filesystem, mock_data_constants):
     # packaging should fail when version is not published
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError, match=r"not found in S3 bucket"):
         packaging.package(
             publishing.PublishKey(
                 mock_data_constants["TEST_PRODUCT_NAME"],
@@ -27,6 +15,11 @@ def test_package_fails(create_buckets, create_temp_filesystem, mock_data_constan
 
 
 def test_package_stages(create_buckets, create_temp_filesystem, mock_data_constants):
+    # sanity check that there are no packaged versions from previous tests or builds
+    assert not packaging.get_packaged_versions(
+        product=mock_data_constants["TEST_PRODUCT_NAME"]
+    )
+
     # draft and publish mock data
     draft_key = publishing.DraftKey(
         product=mock_data_constants["TEST_PRODUCT_NAME"],
@@ -49,13 +42,13 @@ def test_package_stages(create_buckets, create_temp_filesystem, mock_data_consta
         product=mock_data_constants["TEST_PACKAGE_METADATA"].packaged_name,
         version=mock_data_constants["TEST_VERSION"],
     )
-
     publishing.download_published_version(publish_key, packaging.DOWNLOAD_ROOT_PATH)
     mock_data_constants["TEST_PACKAGE_METADATA"].packaging_function(
         publish_key, package_key
     )
     packaging.upload(package_key)
 
+    # check published versions
     assert packaging.get_packaged_versions(
         mock_data_constants["TEST_PACKAGE_METADATA"].packaged_name
     ) == [mock_data_constants["TEST_VERSION"]]
@@ -64,4 +57,5 @@ def test_package_stages(create_buckets, create_temp_filesystem, mock_data_consta
     packaging.download_packaged_version(package_key)
     filenames = [f for f in os.listdir(packaged_data_path)]
 
+    # check published files
     assert mock_data_constants["TEST_PACKAGED_FILE"] in filenames
