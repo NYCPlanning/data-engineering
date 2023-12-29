@@ -38,15 +38,15 @@ DEFAULT_END_PERIOD = dt.date.today().strftime(DEFAULT_DATE_FORMAT)
 
 DEFAULT_DATA_PATH = Path(__file__).resolve().parent / "capital_spending_data"
 
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
-]
+# USER_AGENTS = [
+#     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+#     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+#     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+#     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+#     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+#     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
+#     "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
+# ]
 # user_agent = random.choice(USER_AGENTS)   # TODO: uncomment or remove completely
 user_agent = None
 
@@ -122,7 +122,7 @@ class Scriptor:
                 df.to_parquet(filepath)
 
             # pausing before next request: we don't want to overload API
-            time.sleep(random.randint(10, 15))
+            time.sleep(5)
 
         try:
             data = read_parquet_files_to_df(data_dir)
@@ -194,7 +194,7 @@ def get_data(
             all_records = True
         else:
             records_from = str(int(records_from) + record_count)
-            time.sleep(random.randint(10, 15))
+            time.sleep(5)
 
     result_df = pd.concat(df_list)
 
@@ -241,7 +241,7 @@ def get_response(
                 f"\nException: {e}"
             )
             # pausing before next request: we don't want to overload API
-            time.sleep(random.randint(15, 20))
+            time.sleep(random.randint(10, 30))
 
     return response
 
