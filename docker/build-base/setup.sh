@@ -7,5 +7,6 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 install_yq
 install_mc
+install_gdal_python_reqs
 
 python3 -m pip install -r requirements.txt -c constraints.txt

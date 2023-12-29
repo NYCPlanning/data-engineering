@@ -2,8 +2,8 @@
 
 COMMON_APT_PACKAGES="curl zip unzip git"
 GEOSUPPORT_APT_PACKAGES="${COMMON_APT_PACKAGES} build-essential"
-BUILD_APT_PACKAGES="${COMMON_APT_PACKAGES} postgresql-client-15 libpq-dev jq wget gdal-bin jq locales"
-DEV_APT_PACKAGES="${BUILD_APT_PACKAGES} bash-completion graphviz xdg-utils libgdal-dev"
+BUILD_APT_PACKAGES="${COMMON_APT_PACKAGES} postgresql-client-15 libpq-dev jq wget gdal-bin jq locales libgdal-dev"
+DEV_APT_PACKAGES="${BUILD_APT_PACKAGES} bash-completion xdg-utils libgdal-dev"
 
 function install_yq {
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq \
@@ -14,6 +14,14 @@ function install_mc {
     curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
         && chmod +x mc \
         && mv ./mc /usr/bin/ 
+}
+
+function install_gdal_python_reqs {
+    apt-get install -y libgdal-dev \
+        && apt-get -y install --reinstall build-essential
+
+    export CPLUS_INCLUDE_PATH=/usr/include/gdal
+    export C_INCLUDE_PATH=/usr/include/gdal
 }
 
 function install_geosupport {

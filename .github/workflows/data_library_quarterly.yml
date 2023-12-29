@@ -7,12 +7,17 @@ on:
         description: 'The quarterly version name (e.g. 21b, has to be all lower case)'
         required: true
         default: 21c
+      dev_image: 
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   dataloading:
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
       AWS_S3_BUCKET: edm-recipes
     strategy:
