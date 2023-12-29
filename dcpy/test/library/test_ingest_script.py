@@ -1,6 +1,6 @@
 import os
 
-from library.ingest import Ingestor
+from dcpy.library.ingest import Ingestor
 
 from . import template_path
 

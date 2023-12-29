@@ -6,11 +6,11 @@ PARENT_DIR=$(dirname "$(readlink -f "$0")")
 
 if [[ -z "$CI" ]]; then
     export workspace=/workspace
-    python3 -m pip install -e . -c ./python/constraints.txt
-    python3 -m pip install -e data-library -c ./python/constraints.txt
+    option="-e"
 else
     export workspace=/__w/data-engineering/data-engineering
-    python3 -m pip install . -c ./python/constraints.txt
 fi 
+
+python3 -m pip install $option . -c ./python/constraints.txt
 
 git config --global --add safe.directory $workspace

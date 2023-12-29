@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import text
 
-from library.ingest import Ingestor
+from dcpy.library.ingest import Ingestor
 
 from . import (
     pg,

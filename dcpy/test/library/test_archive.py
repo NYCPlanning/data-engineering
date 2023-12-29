@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import text
 
-from library.archive import Archive
+from dcpy.library.archive import Archive
 from . import (
     pg,
     recipe_engine,
