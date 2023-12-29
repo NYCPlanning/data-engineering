@@ -40,10 +40,6 @@ jobs:
               - dcpy/**
               - docker/**
               - python/**
-            data-library:
-              - data-library/**
-              - python/**
-              - docker/**
             qa:
               - apps/qa/**
               - dcpy/**
