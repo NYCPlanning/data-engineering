@@ -4,11 +4,6 @@
         "calls": ["dcpy/test -s --verbose --verbose --cov-config=pyproject.toml --cov=dcpy"]
     },
     {
-        "name": "data-library",
-        "working-directory": "data-library",
-        "calls": ["-s"]
-    },
-    {
         "name": "checkbook",
         "db": "db-checkbook",
         "calls": ["./products/checkbook -s --verbose --verbose"]

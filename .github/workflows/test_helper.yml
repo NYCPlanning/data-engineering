@@ -43,7 +43,6 @@ jobs:
         run: |
           mypy dcpy
           mypy apps/qa/src
-          mypy data-library/library
           mypy products/facilities
           mypy products/template
   

@@ -7,14 +7,12 @@ on:
         description: 'The quarterly version name (e.g. 21b, has to be all lower case)'
         required: true
         default: 21c
-      use_staging_image:
-        description: "Use staging docker image instead of latest"
-        type: boolean
-        default: false
 
 jobs:
   dataloading:
     runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-base:latest
     env:
       AWS_S3_BUCKET: edm-recipes
     strategy:
@@ -64,22 +62,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - uses: NYCPlanning/action-library-archive@v1.1
-        if: ${{ !(inputs.use_staging_image) }}
-        with:
-          name: ${{ matrix.dataset }}
-          version: ${{ github.event.inputs.version }}
-          latest: true
-          s3: true
-          compress: true
-          output_format: pgdump shapefile csv
+      - name: Finish container setup ...
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
-      - uses: NYCPlanning/action-library-archive@v1.2
-        if: ${{ inputs.use_staging_image }}
-        with:
-          name: ${{ matrix.dataset }}
-          version: ${{ github.event.inputs.version }}
-          latest: true
-          s3: true
-          compress: true
-          output_format: pgdump shapefile csv
+      - name: Library Archive
+        run: library archive --name ${{ matrix.dataset }} --latest --s3
