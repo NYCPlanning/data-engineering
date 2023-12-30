@@ -138,3 +138,29 @@ BEGIN
     END LOOP;
 END
 $BODY$ LANGUAGE plpgsql;
+
+
+DROP PROCEDURE IF EXISTS replace_empty_strings;
+CREATE OR REPLACE PROCEDURE replace_empty_strings (
+    _schema text,
+    _table text
+) AS $BODY$
+DECLARE 
+    col text;
+BEGIN
+    -- extract list of columns of VARCHAR type from table
+    RAISE NOTICE 'Attempting to replace empty strings ('''' or '' '') with NULL in columns of VARCHAR type in %.% table', _schema, _table;
+    FOR col IN (
+        SELECT column_name 
+        FROM information_schema.columns
+        WHERE table_name = _table AND
+            table_schema = _schema AND
+            data_type = 'character varying'
+) 
+    LOOP
+        EXECUTE FORMAT($n$
+            UPDATE %I SET %I = NULLIF(TRIM(%I), '') WHERE %I = '' OR TRIM(%I) = ''; 
+            $n$, _table, col, col, col, col);
+    END LOOP;
+END
+$BODY$ LANGUAGE plpgsql;
