@@ -1,6 +1,6 @@
 name: Template DB
 product: template
-version: 0.0.1
+version: 0.0.2
 inputs:
   datasets:
     - name: nypl_libraries
