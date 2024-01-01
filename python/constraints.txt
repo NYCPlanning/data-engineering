@@ -6,10 +6,12 @@
 #
 affine==2.4.0
     # via rasterio
+agate==1.7.1
+    # via
+    #   dbt-core
+    #   dbt-postgres
 altair==5.2.0
     # via streamlit
-annotated-types==0.6.0
-    # via pydantic
 appdirs==1.4.4
     # via sqlfluff
 asttokens==2.4.1
@@ -20,6 +22,8 @@ attrs==23.2.0
     #   jsonschema
     #   rasterio
     #   referencing
+babel==2.14.0
+    # via agate
 beautifulsoup4==4.12.2
     # via
     #   -r python/requirements.in
@@ -63,7 +67,9 @@ certifi==2023.11.17
     #   rasterio
     #   requests
 cffi==1.16.0
-    # via cryptography
+    # via
+    #   cryptography
+    #   dbt-core
 chardet==5.2.0
     # via
     #   diff-cover
@@ -75,6 +81,8 @@ click==8.1.7
     #   black
     #   click-plugins
     #   cligj
+    #   dbt-core
+    #   dbt-semantic-interfaces
     #   fiona
     #   mercantile
     #   rasterio
@@ -91,7 +99,9 @@ cligj==0.7.2
     #   fiona
     #   rasterio
 colorama==0.4.6
-    # via sqlfluff
+    # via
+    #   dbt-core
+    #   sqlfluff
 colour==0.1.5
     # via leafmap
 comm==0.2.0
@@ -113,6 +123,14 @@ cryptography==41.0.7
     #   pyjwt
 cycler==0.12.1
     # via matplotlib
+dbt-core==1.7.4
+    # via dbt-postgres
+dbt-extractor==0.5.1
+    # via dbt-core
+dbt-postgres==1.7.4
+    # via -r python/requirements.in
+dbt-semantic-interfaces==0.4.2
+    # via dbt-core
 debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
@@ -165,9 +183,13 @@ graphviz==0.20.1
 greenlet==3.0.3
     # via sqlalchemy
 idna==3.6
-    # via requests
+    # via
+    #   dbt-core
+    #   requests
 importlib-metadata==6.11.0
-    # via streamlit
+    # via
+    #   dbt-semantic-interfaces
+    #   streamlit
 iniconfig==2.0.0
     # via pytest
 ipyevents==2.0.2
@@ -195,6 +217,10 @@ ipywidgets==8.1.1
     #   ipytree
     #   leafmap
     #   whiteboxgui
+isodate==0.6.1
+    # via
+    #   agate
+    #   dbt-core
 jedi==0.19.1
     # via ipython
 jellyfish==0.6.1
@@ -204,6 +230,8 @@ jinja2==3.1.2
     #   -r python/requirements.in
     #   altair
     #   branca
+    #   dbt-core
+    #   dbt-semantic-interfaces
     #   diagrams
     #   diff-cover
     #   folium
@@ -222,6 +250,8 @@ joblib==1.3.2
 jsonschema==4.20.0
     # via
     #   altair
+    #   dbt-core
+    #   dbt-semantic-interfaces
     #   pystac
 jsonschema-specifications==2023.12.1
     # via jsonschema
@@ -237,6 +267,10 @@ kiwisolver==1.4.5
     # via matplotlib
 leafmap==0.30.0
     # via -r python/requirements.in
+leather==0.3.4
+    # via agate
+logbook==1.5.3
+    # via dbt-core
 lxml==5.0.0
     # via -r python/requirements.in
 mapclassify==2.5.0
@@ -247,6 +281,10 @@ markupsafe==2.1.3
     # via
     #   jinja2
     #   werkzeug
+mashumaro==3.11
+    # via
+    #   dbt-core
+    #   mashumaro
 matplotlib==3.7.1
     # via
     #   -r python/requirements.in
@@ -260,10 +298,16 @@ mdurl==0.1.2
     # via markdown-it-py
 mercantile==1.2.1
     # via contextily
+minimal-snowplow-tracker==0.0.2
+    # via dbt-core
+more-itertools==10.1.0
+    # via dbt-semantic-interfaces
 moto==4.2.12
     # via -r python/requirements.in
 msal==1.23.0
     # via -r python/requirements.in
+msgpack==1.0.7
+    # via mashumaro
 mypy==1.5.1
     # via
     #   -r python/requirements.in
@@ -277,7 +321,9 @@ mypy-extensions==1.0.0
 nest-asyncio==1.5.8
     # via ipykernel
 networkx==3.2.1
-    # via mapclassify
+    # via
+    #   dbt-core
+    #   mapclassify
 numerize==0.12
     # via -r python/requirements.in
 numpy==1.26.2
@@ -305,6 +351,7 @@ packaging==23.2
     # via
     #   altair
     #   black
+    #   dbt-core
     #   geoalchemy2
     #   geopandas
     #   ipykernel
@@ -324,11 +371,14 @@ pandas==2.1.4
     #   streamlit-aggrid
 pandas-stubs==2.1.4.231227
     # via -r python/requirements.in
+parsedatetime==2.6
+    # via agate
 parso==0.8.3
     # via jedi
-pathspec==0.12.1
+pathspec==0.11.2
     # via
     #   black
+    #   dbt-core
     #   sqlfluff
 pexpect==4.9.0
     # via ipython
@@ -354,11 +404,15 @@ probableparsing==0.0.1
 prompt-toolkit==3.0.43
     # via ipython
 protobuf==4.25.1
-    # via streamlit
+    # via
+    #   dbt-core
+    #   streamlit
 psutil==5.9.7
     # via ipykernel
 psycopg2-binary==2.9.5
-    # via -r python/requirements.in
+    # via
+    #   -r python/requirements.in
+    #   dbt-postgres
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -371,10 +425,10 @@ pyarrow==14.0.2
     #   streamlit
 pycparser==2.21
     # via cffi
-pydantic==2.3.0
-    # via -r python/requirements.in
-pydantic-core==2.6.3
-    # via pydantic
+pydantic==1.10.13
+    # via
+    #   -r python/requirements.in
+    #   dbt-semantic-interfaces
 pydeck==0.8.1b0
     # via streamlit
 pygments==2.17.2
@@ -416,6 +470,7 @@ python-crfsuite==0.9.10
 python-dateutil==2.8.2
     # via
     #   botocore
+    #   dbt-semantic-interfaces
     #   jupyter-client
     #   matplotlib
     #   moto
@@ -429,13 +484,20 @@ python-dotenv==1.0.0
     # via -r python/requirements.in
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
     # via -r python/requirements.in
+python-slugify==8.0.1
+    # via agate
+pytimeparse==1.1.8
+    # via agate
 pytz==2023.3.post1
     # via
     #   -r python/requirements.in
+    #   dbt-core
     #   pandas
 pyyaml==6.0.1
     # via
     #   -r python/requirements.in
+    #   dbt-core
+    #   dbt-semantic-interfaces
     #   moto
     #   responses
     #   sqlfluff
@@ -454,8 +516,10 @@ regex==2023.12.25
 requests==2.31.0
     # via
     #   contextily
+    #   dbt-core
     #   folium
     #   gdown
+    #   minimal-snowplow-tracker
     #   moto
     #   msal
     #   pystac-client
@@ -489,6 +553,9 @@ six==1.16.0
     #   asttokens
     #   fiona
     #   gdown
+    #   isodate
+    #   leather
+    #   minimal-snowplow-tracker
     #   python-dateutil
 smmap==5.0.1
     # via gitdb
@@ -506,6 +573,8 @@ sqlalchemy-stubs==0.4
     # via -r python/requirements.in
 sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
     # via -r python/requirements.in
+sqlparse==0.4.4
+    # via dbt-core
 stack-data==0.6.3
     # via ipython
 streamlit==1.29.0
@@ -525,6 +594,8 @@ tenacity==8.2.3
     # via
     #   plotly
     #   streamlit
+text-unidecode==1.3
+    # via python-slugify
 threadpoolctl==3.2.0
     # via scikit-learn
 toml==0.10.2
@@ -574,7 +645,7 @@ types-pytz==2023.3.1.1
     # via pandas-stubs
 types-pyyaml==6.0.12.12
     # via -r python/requirements.in
-types-requests==2.31.0.20231231
+types-requests==2.31.0.6
     # via -r python/requirements.in
 types-s3transfer==0.10.0
     # via boto3-stubs
@@ -582,9 +653,14 @@ types-setuptools==69.0.0.0
     # via -r python/requirements.in
 types-tqdm==4.66.0.2
     # via -r python/requirements.in
+types-urllib3==1.26.25.14
+    # via types-requests
 typing-extensions==4.9.0
     # via
     #   boto3-stubs
+    #   dbt-core
+    #   dbt-semantic-interfaces
+    #   mashumaro
     #   mypy
     #   mypy-boto3-s3
     #   pydantic
@@ -598,13 +674,13 @@ tzdata==2023.4
     # via pandas
 tzlocal==5.2
     # via streamlit
-urllib3==2.0.7
+urllib3==1.26.18
     # via
     #   -r python/requirements.in
     #   botocore
+    #   dbt-core
     #   requests
     #   responses
-    #   types-requests
 us==2.0.2
     # via -r python/requirements.in
 usaddress==0.5.10
