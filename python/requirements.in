@@ -29,7 +29,7 @@ plotly==5.*
 psycopg2-binary==2.9.5
 types-psycopg2
 pyarrow
-pydantic==2.3.0
+pydantic
 pytest==7.3.0
 pytest-cov==4.0.0
 python-dotenv>=0.20.0
