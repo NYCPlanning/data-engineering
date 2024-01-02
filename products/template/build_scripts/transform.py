@@ -52,6 +52,7 @@ def product():
 
 
 def test():
+    _run_dbt_step(["deps"])
     _run_dbt_step(["debug"])
     _run_dbt_step(["test"])
 
