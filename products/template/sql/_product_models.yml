@@ -7,7 +7,7 @@ models:
       - name: place_name
         tests:
           - not_null
-          # - unique
+          - unique
       - name: place_type
       - name: borough
       - name: bbl
