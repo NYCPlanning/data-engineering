@@ -224,6 +224,19 @@ class Ingestor:
         return None, "CSV", "csv", compress, inplace
 
     @translator
+    def parquet(
+        self, path: str, compress: bool = False, inplace: bool = False, *args, **kwargs
+    ):
+        """
+        https://gdal.org/drivers/vector/parquet.html
+
+        path: path of the configuration file
+        compress: True if compression is needed
+        inplace: True if the compressed file will replace the original output
+        """
+        return None, "Parquet", "parquet", compress, inplace
+
+    @translator
     def pgdump(
         self, path: str, compress: bool = False, inplace: bool = False, *args, **kwargs
     ):
