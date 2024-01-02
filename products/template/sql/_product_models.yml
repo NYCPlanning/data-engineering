@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: templatedb
+    description: "Template DB place records"
+    columns:
+      - name: place_name
+        tests:
+          - not_null
+          # - unique
+      - name: place_type
+      - name: borough
+      - name: bbl
+      - name: wkb_geometry
