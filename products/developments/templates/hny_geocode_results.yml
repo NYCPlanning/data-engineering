@@ -4,7 +4,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: /library/hny_geocode_results.csv
+      path: hny_geocode_results.csv
       subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"

@@ -10,21 +10,21 @@ set_error_traps
 DATE=$(date "+%Y-%m-%d")
 
 function import_qaqc_historic {
-  local name="qaqc_historic"
-  target_dir=$(pwd)/.library/data/$VERSION
-  target_filename="${name}.csv"
-  qaqc_do_path=spaces/edm-publishing/db-developments/main/latest/output/${target_filename}
-  if [ -f ${target_dir}/${target_filename} ]; then
-    echo "✅ ${target_filename} exists in cache"
-  else
-    echo "🛠 ${target_filename} doesn't exists in cache, downloading ..."
-    mkdir -p $target_dir && (
-      cd $target_dir
-      mc cp $qaqc_do_path ${target_filename}
-    )
-  fi
-	run_sql_file sql/qaqc/_create_qaqc_historic.sql
-	run_sql_command "\COPY qaqc_historic FROM "${target_dir}/${target_filename}" DELIMITER ',' CSV HEADER;"
+    local name="qaqc_historic"
+    target_dir=$(pwd)/.library/data/$VERSION
+    target_filename="${name}.csv"
+    qaqc_do_path=spaces/edm-publishing/db-developments/main/latest/output/${target_filename}
+    if [ -f ${target_dir}/${target_filename} ]; then
+        echo "✅ ${target_filename} exists in cache"
+    else
+        echo "🛠 ${target_filename} doesn't exists in cache, downloading ..."
+        mkdir -p $target_dir && (
+        cd $target_dir
+        mc cp $qaqc_do_path ${target_filename}
+        )
+    fi
+        run_sql_file sql/qaqc/_create_qaqc_historic.sql
+        run_sql_command "\COPY qaqc_historic FROM "${target_dir}/${target_filename}" DELIMITER ',' CSV HEADER;"
 }
 
 function archive_devdb { ## different from "standard" archive slightly
@@ -39,13 +39,7 @@ function archive_devdb { ## different from "standard" archive slightly
 }
 
 function geocode {
-  docker run --network=host --rm\
-      -v $(pwd):/src\
-      -w /src\
-      -e BUILD_ENGINE=$BUILD_ENGINE\
-      nycplanning/docker-geosupport:$GEOSUPPORT_DOCKER_IMAGE_VERSION bash -c "
-        python3 python/geocode_hpd_hny.py
-        python3 python/geocode_hpd_historical.py
-        python3 python/geocode_dob.py
-      "
+    python3 python/geocode_hpd_hny.py
+    python3 python/geocode_hpd_historical.py
+    python3 python/geocode_dob.py
 }
