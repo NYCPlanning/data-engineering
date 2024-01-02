@@ -7,8 +7,16 @@ models:
       - name: place_name
         tests:
           - not_null
-          - unique
+      - name: bbl
       - name: place_type
       - name: borough
-      - name: bbl
       - name: wkb_geometry
+    tests:
+      - unique:
+          name: test_compound_key
+          column_name: "(place_name || '-' || bbl)"
+      - dbt_utils.unique_combination_of_columns:
+          name: test_compound_key_dbt_utils
+          combination_of_columns:
+            - place_name
+            - bbl
