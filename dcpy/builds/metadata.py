@@ -25,7 +25,7 @@ class BuildMetadata(BaseModel, extra="forbid"):
         super().__init__(**data)
 
     def dump(self):
-        json = self.model_dump(exclude_none=True)
+        json = self.dict(exclude_none=True)
         json["timestamp"] = self.timestamp.strftime("%Y-%m-%dT%H:%M:%S%z")
         return json
 
