@@ -140,7 +140,7 @@ dmypy.json
 *.DS_Store
 
 # sqlite files 
-*.db**
+*.db
 
 products/*/*.lock.yml
 products/*/source_data_versions.csv
@@ -148,3 +148,6 @@ products/*/source_data_versions.csv
 .config
 
 tmp/
+
+# dbt files 
+**/.user.yml
