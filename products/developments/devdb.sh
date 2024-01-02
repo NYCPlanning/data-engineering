@@ -36,7 +36,9 @@ function output {
 }
 
 function library_archive {
-    local version=$(get_version ${2})
+    set_error_traps
+    local latest_version=$(get_version ${2})
+    local version=${3:-$latest_version}
     echo "version of ${1} is ${version}"
     docker run --rm\
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
@@ -54,27 +56,9 @@ function library_archive {
     "
 }
 
-function library_archive_version {
-    local name=$1
-    local version=$2
-    docker run --rm\
-        -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
-        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
-        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-        -e AWS_S3_BUCKET=$recipes_bucket\
-        -v $(pwd)/templates/$name.yml:/library/$name.yml\
-        -v $(pwd)/$name.csv:/library/$name.csv\
-        -v $(pwd)/.library:/library/.library\
-    nycplanning/library:ubuntu-latest bash -c "
-        library archive -f $name.yml -s -l -o csv -v $version &
-        library archive -f $name.yml -s -l -o pgdump -v $version &
-        wait
-    "
-}
-
 function import {
     dataset=$1
-    version=$2
+    version=${2:-latest}
     import_recipe $dataset $version false
 }
 
@@ -108,7 +92,7 @@ command="$1"
 shift
 
 case "${command}" in
-    dataloading | build | qaqc | aggregate | export | upload | archive | clear | geocode | import | output | library_archive | library_archive_version) ${command} $@ ;;
+    dataloading | build | qaqc | aggregate | export | upload | archive | clear | geocode | import | output | library_archive) ${command} $@ ;;
     bq) upload_to_bq ;;
     *) echo "${command} not found" ;;
 esac

@@ -81,21 +81,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: Load to Database (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          ./devdb.sh import dob_jobapplications ${{  github.event.inputs.version }}
-          ./devdb.sh import hpd_hny_units_by_building latest
-          ./devdb.sh import hpd_historical_units_by_building latest
-          ./devdb.sh import dob_now_applications latest
-
       - name: Load to Database
-        if: github.event_name != 'workflow_dispatch'
         run: |
-          ./devdb.sh import hpd_hny_units_by_building latest
-          ./devdb.sh import hpd_historical_units_by_building latest
-          ./devdb.sh import dob_jobapplications latest
-          ./devdb.sh import dob_now_applications latest
+          ./devdb.sh import hpd_hny_units_by_building ${{ github.event.inputs.version }}
+          ./devdb.sh import hpd_historical_units_by_building
+          ./devdb.sh import dob_jobapplications
+          ./devdb.sh import dob_now_applications
 
       - name: Geocode
         # Also combines the imported DOB datasets
@@ -110,16 +101,8 @@ jobs:
       - name: Check file existence
         run: ls *.csv
 
-      - name: Archive to Data Library (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
-          ./devdb.sh library_archive hpd_historical_geocode_results hpd_historical_units_by_building
-          ./devdb.sh library_archive_version dob_geocode_results ${{  github.event.inputs.version }}
-
       - name: Archive to Data Library
-        if: github.event_name != 'workflow_dispatch'
         run: |
           ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
           ./devdb.sh library_archive hpd_historical_geocode_results hpd_historical_units_by_building
-          ./devdb.sh library_archive dob_geocode_results dob_jobapplications
+          ./devdb.sh library_archive dob_geocode_results dob_jobapplications ${{ github.event.inputs.version }}
