@@ -8,12 +8,17 @@ on:
       version:
         description: "Would you like to specify a version for dob_jobapplications?"
         required: false
-        default: "latest"
+      geosupport_docker_version:
+        description: "Geosupport docker version"
+        required: true
+        default: latest
 
 jobs:
   sync:
     name: syncing
     runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
     env:
       AWS_S3_BUCKET: edm-recipes
     strategy:
@@ -35,21 +40,28 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - uses: NYCPlanning/action-library-archive@v1.1
-        with:
-          # name of the dataset
-          name: ${{ matrix.dataset }}
-          path: products/developments/templates/${{ matrix.dataset }}.yml
-          s3: true
-          latest: true
-          compress: true
-          output_format: csv pgdump
+      - name: Finish container setup ...
+        run: ./bash/docker_container_setup.sh
+
+      - name: Library Archive
+        run: library archive --name ${{ matrix.dataset }} --latest --s3 --output-format pgdump --output-format csv
 
   geocode:
     name: geocoding
     needs: sync
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-geosupport:latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/developments
+    env:
+      AWS_S3_BUCKET: edm-recipes
+      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
+      GEOSUPPORT_DOCKER_IMAGE_VERSION: ${{ inputs.geosupport_docker_version || 'latest' }}
     services:
-      db:
+      postgis:
         image: postgis/postgis:15-3.3-alpine
         env:
           POSTGRES_PASSWORD: postgres
@@ -60,14 +72,6 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash
-        working-directory: products/developments
-    env:
-      AWS_S3_BUCKET: edm-recipes
-      BUILD_ENGINE: postgresql://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v3
 
@@ -80,6 +84,10 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup ...
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
 
       - name: Load to Database
         run: |

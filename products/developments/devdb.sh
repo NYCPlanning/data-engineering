@@ -1,5 +1,6 @@
 #!/bin/bash
 source bash/config.sh
+set_error_traps
 
 function build { 
     ./bash/02_build_devdb.sh 
@@ -40,20 +41,8 @@ function library_archive {
     local latest_version=$(get_version ${2})
     local version=${3:-$latest_version}
     echo "version of ${1} is ${version}"
-    docker run --rm\
-        -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
-        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
-        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-        -e AWS_S3_BUCKET=$recipes_bucket\
-        -e CI=$CI\
-        -v $(pwd)/templates/$1.yml:/library/$1.yml\
-        -v $(pwd)/$1.csv:/library/$1.csv\
-        -v $(pwd)/.library:/library/.library\
-    nycplanning/library:ubuntu-latest bash -c "
-        library archive -f $1.yml -s -l -o csv -v $version &
-        library archive -f $1.yml -s -l -o pgdump -v $version &
-        wait
-    "
+    
+    library archive -f templates/$1.yml -s -l -o csv -o pgdump -v $version
 }
 
 function import {
