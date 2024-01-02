@@ -67,7 +67,7 @@ jobs:
         run: |
           echo "path filters with changed files: ${{ inputs.path_filter }}"
           if [[ -z "${{ inputs.path_filter }}" ]]; then
-            matrix=$(cat .github/workflows/data/pytest.json | jq -cr)
+            matrix=$(cat .github/workflows/data/pytest.yml | yq -ro -json | jq -rc)
           elif [[ "[]" = "${{ inputs.path_filter }}" ]]; then
             matrix="[]"
           else
