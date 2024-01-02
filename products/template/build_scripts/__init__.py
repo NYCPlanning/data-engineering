@@ -1,11 +1,8 @@
-import sys
 from pathlib import Path
-from dotenv import load_dotenv
 
 from dcpy.utils import postgres
 from dcpy.builds import metadata
 
-load_dotenv()
 
 _product_path = Path(__file__).resolve().parent.parent
 

@@ -21,12 +21,12 @@ def intermediate():
     _run_step("historic_landmarks")
 
 
-def outputs():
+def product():
     _run_step("templatedb")
-    _run_step("aggregation/boroughs")
+    _run_step("aggregation/templatedb_boroughs")
 
 
 if __name__ == "__main__":
     staging()
     intermediate()
-    outputs()
+    product()
