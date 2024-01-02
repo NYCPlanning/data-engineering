@@ -187,7 +187,7 @@ def recipe_from_yaml(path: Path) -> Recipe:
 def repeat_recipe_from_source_data_versions(
     version: str, source_data_versions: pd.DataFrame, template_recipe: Recipe
 ) -> Recipe:
-    recipe = template_recipe.model_copy()
+    recipe = template_recipe.copy()
     recipe.version = version
     print(source_data_versions.columns)
     version_by_source_data_name = {
