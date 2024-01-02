@@ -17,11 +17,20 @@ function install_mc {
 }
 
 function install_gdal_python_reqs {
-    apt-get install -y libgdal-dev \
-        && apt-get -y install --reinstall build-essential
+    apt-get install -y -V libgdal-dev \
+        && apt-get -y -V install --reinstall build-essential
 
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
+}
+
+function install_arrow {
+    sudo apt-get install -y -V ca-certificates lsb-release wget
+    wget https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
+    sudo apt-get install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
+    sudo apt-get update
+    sudo apt-get install -y -V libarrow-dev
+    sudo apt-get install -y -V libparquet-dev
 }
 
 function install_geosupport {
