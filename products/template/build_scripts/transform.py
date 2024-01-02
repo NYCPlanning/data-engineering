@@ -20,9 +20,7 @@ def _run_dbt_step(run_args=list[str]):
     dbt_runner = dbtRunner()
     runner_result: dbtRunnerResult = dbt_runner.invoke(run_args)
 
-    if not runner_result.success:
-        logger.error(f"dbt step failed with invoke args: {dbt_cli_call}")
-
+    # dbtRunnerResult attributes https://docs.getdbt.com/reference/programmatic-invocations#dbtrunnerresult
     if runner_result.exception:
         raise RuntimeError(runner_result.exception)
 
@@ -30,6 +28,12 @@ def _run_dbt_step(run_args=list[str]):
         case RunExecutionResult():
             for r in runner_result.result:
                 logger.info(f"{r.node.name}: {r.status}")
+
+    if not runner_result.success:
+        logger.error(f"dbt error with args: {dbt_cli_call}")
+        raise RuntimeError(
+            "dbt invocation completed with at least one handled error (e.g. test failure, model build error)"
+        )
 
 
 def staging():
