@@ -80,16 +80,13 @@ jobs:
         id: processing
         run: ./pluto import cama
 
-      - uses: NYCPlanning/action-library-archive@v1.1
-        id: cama
-        with:
-          name: pluto_input_cama_dof
-          path: products/pluto/pluto_build/templates/pluto_input_cama_dof.yml
-          version: ${{ steps.processing.outputs.version }}
-          s3: true
-          latest: true
-          compress: true
-          output_format: pgdump csv
+      - name: Library Archive
+        run: |
+          library archive --name pluto_input_cama_dof \
+            --path templates/pluto_input_cama_dof.yml \
+            --version ${{ steps.processing.outputs.version }} \
+            --output-format pgdump --output-format csv \
+            --latest --s3 --compress
 
       - name: Clean CAMA
         run: ./pluto clean cama
