@@ -26,7 +26,7 @@ def export():
         for file_type in file_types:
             if file_type == "csv":
                 logger.info(
-                    f"Exporting table {table_name} as a {file_type} to {OUTPUT_DIR}"
+                    f"Exporting table\n\t{table_name}\n\tas a {file_type} to\n\t{OUTPUT_DIR}"
                 )
                 data.to_csv(file_path.with_suffix(".csv"), index=False)
             else:
