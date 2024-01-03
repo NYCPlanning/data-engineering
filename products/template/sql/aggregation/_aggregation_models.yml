@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: templatedb_boroughs
+    description: "Template DB place records grouped by borough"
+    columns:
+      - name: borough
+        tests:
+          - unique
+      - name: places_count
+      - name: library_count
+      - name: green_space_count
+      - name: historic_landmark_count
+      - name: places_without_bbl
+      - name: places_without_geometry

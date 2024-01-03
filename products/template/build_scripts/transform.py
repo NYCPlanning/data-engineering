@@ -54,7 +54,8 @@ def product():
 def test():
     _run_dbt_step(["deps"])
     _run_dbt_step(["debug"])
-    _run_dbt_step(["test"])
+    _run_dbt_step(["test", "--select", "templatedb"])
+    _run_dbt_step(["test", "--select", "aggregation"])
 
 
 if __name__ == "__main__":
