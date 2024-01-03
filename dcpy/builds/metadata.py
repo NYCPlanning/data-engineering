@@ -36,7 +36,7 @@ def build_name(name: str | None = None) -> str:
 
     name = git.branch() if not name else name
     # DB schema names can't use dashes
-    return name.replace("-", "_")
+    return name.lower().replace("-", "_")
 
 
 def write_build_metadata(recipe: Recipe, output_folder: Path):
