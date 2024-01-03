@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       AWS_S3_BUCKET: edm-recipes
-      BUILD_NAME: ${{ github.head_ref || github.ref_name }}
     strategy:
       matrix:
         dataset:
@@ -60,7 +59,7 @@ jobs:
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
-      build_name: ${{ env.BUILD_NAME }}
+      build_name: ${{ github.head_ref || github.ref_name }}
       recipe_file: recipe
 
   pluto_minor:
@@ -71,5 +70,5 @@ jobs:
     secrets: inherit
     with:
       create_issue: true
-      build_name: ${{ env.BUILD_NAME }}
+      build_name: ${{ github.head_ref || github.ref_name }}
       recipe_file: recipe-minor
