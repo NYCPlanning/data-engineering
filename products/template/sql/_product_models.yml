@@ -11,6 +11,9 @@ models:
       - name: place_type
       - name: borough
       - name: wkb_geometry
+        tests:
+          - not_null:
+              where: "bbl is not null"
     tests:
       - unique:
           name: test_unique_compound_key
