@@ -5,10 +5,13 @@ on:
       image_tag:
         type: string
         required: true
+      build_name:
+        type: string
 
 env:
   TOY_SECRET_GITHUB: ${{ secrets.TOY_SECRET }}
   BUILD_ENGINE_DB: db-template
+  BUILD_NAME: ${{ inputs.build_name || github.head_ref || github.ref_name }}
 
 jobs:
   unit_tests:
@@ -36,13 +39,14 @@ jobs:
           python3 -m pytest ./products/template -m "not end_to_end" -s --verbose --verbose
 
   build:
-    name: Tempalte DB Build
+    name: Template DB Build
     uses: ./.github/workflows/template_build.yml
     with:
       recipe_file: recipe
       logging_level: DEBUG
       build_note: a test build
       image_tag: ${{ inputs.image_tag || 'latest' }}
+      build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }} # can't pass env var here. Just not supported in GHA
     secrets: inherit
 
   e2e_tests:
@@ -65,6 +69,14 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           TOY_SECRET_1PASSWORD: "op://Data Engineering/TestSecretsFile/TOY_SECRET"
+
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
       - name: Run end-to-end tests
         run: |
