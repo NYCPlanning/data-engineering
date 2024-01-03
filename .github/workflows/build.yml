@@ -149,6 +149,9 @@ jobs:
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      recipe_file: ${{ inputs.recipe_file }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
   facilities:
     needs: health_check
     if: inputs.dataset_name == 'facilities' || inputs.dataset_name  == 'all'

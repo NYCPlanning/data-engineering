@@ -6,9 +6,18 @@ on:
       image_tag:
         type: string
         required: false
-      build_name: 
+      build_name:
         type: string
         required: true
+      recipe_file:
+        type: string
+        required: true
+      version:
+        type: string
+        required: false
+      repeat:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -46,8 +55,14 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
-      - name: 1. dataloading for EDM builds
-        run: ./devdb.sh dataloading edm && ls -l
+      - name: Set product environment variables
+        run: cat version.env >> "$GITHUB_ENV"
+
+      - name: 1. dataloading
+        env:
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+          repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
+        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
       - name: Clear cache
         run: rm -rf .library
