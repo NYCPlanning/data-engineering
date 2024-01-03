@@ -4,7 +4,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: s3://edm-publishing/datasets/mandatory_inclusionary_housing/staging/gis_mandatory_inclusionary_housing.zip
+      path: s3://edm-publishing/datasets/dcp_inclusionary_housing/staging/dcp_inclusionary_housing.zip
       subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
@@ -21,6 +21,7 @@ dataset:
     options:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
     fields: []
     sql: null
 
