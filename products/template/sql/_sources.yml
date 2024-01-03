@@ -2,6 +2,7 @@ version: 2
 
 sources:
   - name: tdb_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
       - name: dpr_greenthumb
         description: >
