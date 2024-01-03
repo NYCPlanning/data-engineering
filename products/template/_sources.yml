@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: tdb_sources
+    tables:
+      - name: dpr_greenthumb
+        description: >
+          NYC DPR Greenthumb locations
+        columns:
+          - name: gardenname
+            description: Primary key of the dpr_greenthumb table
+            tests:
+              - unique
+              - not_null
