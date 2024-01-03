@@ -4,7 +4,7 @@ dataset:
   acl: private
   source:
     url:
-      path: products/zap-opendata/.output/dcp_dcpprojectteams/dcp_dcpprojectteams.csv
+      path: .output/dcp_dcpprojectteams/dcp_dcpprojectteams.csv
       subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
