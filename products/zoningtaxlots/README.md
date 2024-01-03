@@ -34,3 +34,9 @@ QAQC metrics comparing versions of ZTL can be found on the [Data Engineering QAQ
 ```
 > 🚧 The dataloading step is currently failing in the monorepo.
 
+# Data update details
+
+- Make sure zoning shapefiles, DTM are up-to-date (check [recipe](https://github.com/NYCPlanning/recipes))
+- You can [create an issue](https://github.com/NYCPlanning/recipes/issues/new?assignees=aferrar%2C+croswell81&labels=dataloading&template=zoning-tax-lots-bulk-load.md&title=%5Bztl%5D+Zoning+Tax+Lots+Bulk+Load) to import source data
+  - Before opening this issue, please confirm that the source data is uploaded to `edm-publishing/datasets/<name>/staging` by GIS.
+- You will see source data versions in the issue comment when the action finishes running
