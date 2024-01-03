@@ -23,7 +23,7 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      AWS_S3_LIBRARY_BUCKET: edm-recipes
+      AWS_S3_BUCKET: edm-recipes
       EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
 
     steps:
@@ -57,16 +57,10 @@ jobs:
       - name: Get ${{ github.event.inputs.dataset }}
         run: python3 -m src.runner ${{ github.event.inputs.dataset }} $EDM_DATA_ZAP_SCHEMA
 
-      - name: Archive to data library
-        uses: NYCPlanning/action-library-archive@v1.1
-        with:
-          name: ${{ github.event.inputs.dataset }}
-          path: products/zap-opendata/templates/${{ github.event.inputs.dataset }}.yml
-          version: $VERSION
-          s3: true
-          latest: true
-          compress: true
-          output_format: pgdump csv
+      - name: Library Archive
+        run: |
+          library archive --name ${{ github.event.inputs.dataset }} --path templates/${{ github.event.inputs.dataset }}.yml \
+            --latest --s3 --compress --output-format pgdump --output-format csv
 
       - name: Export to edm-private and edm-publishing
         env:

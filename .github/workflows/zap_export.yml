@@ -88,16 +88,10 @@ jobs:
       #   run: |
       #     ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
 
-      - name: Archive to data library
-        uses: NYCPlanning/action-library-archive@v1.1
-        with:
-          name: ${{ matrix.entity }}
-          path: products/zap-opendata/templates/${{ matrix.entity }}.yml
-          version: ${{ steps.version.outputs.version }}
-          s3: true
-          latest: true
-          compress: true
-          output_format: pgdump csv
+      - name: Library Archive
+        run: |
+          library archive --name ${{ matrix.entity }} --path templates/${{ matrix.entity }}.yml \
+            --latest --s3 --compress --output-format pgdump --output-format csv
 
       - name: Export to edm-private and edm-publishing
         env:
