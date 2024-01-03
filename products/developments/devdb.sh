@@ -1,12 +1,6 @@
 #!/bin/bash
 source bash/config.sh
 
-function dataloading { 
-    MODE="${1:-edm}"
-    echo "mode: $MODE"
-    ./bash/01_dataloading.sh $1
-}
-
 function build { 
     ./bash/02_build_devdb.sh 
 }
