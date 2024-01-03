@@ -30,6 +30,7 @@ mkdir -p output
         csv_export combined &
         csv_export review_project &
         csv_export review_dob &
+        csv_export review_no_geometry &
         csv_export corrections_applied &
         csv_export corrections_not_applied &
         csv_export corrections_dob_match &

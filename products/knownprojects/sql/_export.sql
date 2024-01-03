@@ -9,6 +9,7 @@ INPUTS:
 
 OUTPUTS:
     kpdb
+    review_no_geometry
     review_dob
 */
 DROP TABLE IF EXISTS kpdb;
@@ -38,7 +39,10 @@ SELECT
     inactive,
     geom
 INTO kpdb
-FROM _kpdb;
+FROM _kpdb WHERE geom IS NOT NULL;
+
+DROP TABLE IF EXISTS review_no_geometry;
+SELECT * INTO review_no_geometry FROM _kpdb WHERE geom IS NULL;
 
 DROP TABLE IF EXISTS review_dob;
 SELECT
