@@ -92,6 +92,8 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         match recipe.version_strategy:
             case None:
                 raise Exception("No version provided")
+            case versions.SimpleVersionStrategy.today:
+                recipe.version = versions.Today.generate().label
             case versions.SimpleVersionStrategy.first_of_month:
                 recipe.version = versions.FirstOfMonth.generate().label
             case versions.SimpleVersionStrategy.bump_latest_release:

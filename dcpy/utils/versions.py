@@ -103,7 +103,7 @@ class FirstOfMonth(Version):
     ) -> FirstOfMonth:
         if version_subtype is not None:
             raise Exception(
-                f"Version subtype {version_subtype} not applicable for Quarterly versions"
+                f"Version subtype {version_subtype} not applicable for FirstOfMonth versions"
             )
         bump_by = bump_by or 1
         new_year = int(self.year + (self.month + bump_by - 1) / 12)
@@ -120,11 +120,47 @@ class FirstOfMonth(Version):
                 raise Exception("Version parsing failed")
 
 
+@dataclass(order=True)
+class Today(Version):
+    year: int
+    month: int
+    day: int
+
+    @property
+    def label(self) -> str:
+        return f"{self.year}-{self.month:02d}-{self.day:02d}"
+
+    def bump(
+        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
+    ) -> Today:
+        if version_subtype is not None:
+            raise Exception(
+                f"Version subtype {version_subtype} not applicable for Today versions"
+            )
+        bump_by = bump_by or 1
+        new_year = int(self.year + (self.month + bump_by - 1) / 12)
+        new_month = int(
+            self.month + (self.day + bump_by - 1) / 31
+        )  # not every month has 31 days!
+        new_day = ((self.day + bump_by - 1) % 31) + 1
+        return Today(year=new_year, month=new_month, day=new_day)
+
+    @staticmethod
+    def generate() -> Today:
+        version = parse(date.today().strftime("%Y-%m-%d"))
+        match version:
+            case Today():
+                return version
+            case _:
+                raise Exception("Version parsing failed")
+
+
 class BumpLatestRelease(BaseModel):
     bump_latest_release: int
 
 
 class SimpleVersionStrategy(str, Enum):
+    today = "today"
     first_of_month = "first_of_month"
     bump_latest_release = "bump_latest_release"
 
@@ -148,8 +184,10 @@ def parse(v: str) -> Version:
             return Quarter(year=int(m[1]), quarter=int(m[2]))
         case r"^(\d{4})-(\d{2})-01$" as m:
             return FirstOfMonth(year=int(m[1]), month=int(m[2]))
+        case r"^(\d{4})-(\d{2})-(\d{2})" as m:
+            return Today(year=int(m[1]), month=int(m[2]), day=int(m[3]))
         case _:
-            raise Exception(
+            raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
             )
 
