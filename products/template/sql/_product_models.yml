@@ -13,10 +13,28 @@ models:
       - name: wkb_geometry
     tests:
       - unique:
-          name: test_compound_key
+          name: test_unique_compound_key
           column_name: "(place_name || '-' || bbl)"
+          config:
+            severity: error
+            error_if: ">5000"
+            warn_if: ">0"
       - dbt_utils.unique_combination_of_columns:
-          name: test_compound_key_dbt_utils
+          name: test_unique_compound_key_dbt_utils_1
           combination_of_columns:
             - place_name
             - bbl
+          config:
+            severity: error
+            error_if: ">5000"
+            warn_if: ">0"
+      - dbt_utils.unique_combination_of_columns:
+          name: test_unique_compound_key_dbt_utils_2
+          combination_of_columns:
+            - place_name
+            - bbl
+            - wkb_geometry
+          config:
+            severity: error
+            error_if: ">500"
+            warn_if: ">0"
