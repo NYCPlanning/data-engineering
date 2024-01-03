@@ -36,15 +36,19 @@ python3 -m python.extractors dcp_knownprojects
 run_sql_file sql/create_corrections.sql
 
 # Load ZAP tables
-import_recipe dcp_projects
-import_recipe dcp_projectactions
-import_recipe dcp_projectbbls
-import_recipe dcp_dcpprojectteams
+# * Versions pinned for Housing team's Text Amendment model
+zap_version=20230905
+import_recipe dcp_projects ${zap_version}
+import_recipe dcp_projectactions ${zap_version}
+import_recipe dcp_projectbbls ${zap_version}
+import_recipe dcp_dcpprojectteams ${zap_version}
 
 # Load other tables
+# * Versions pinned for Housing team's Text Amendment model
+housingdb_verion=23Q2
 import_recipe dcp_mappluto_wi
 import_recipe dcp_boroboundaries
-import_recipe dcp_housing
+import_recipe dcp_housing ${housingdb_verion}
 import_recipe dcp_zoningmapamendments
 
 # Load SCA Geometry Aggregate Tables
