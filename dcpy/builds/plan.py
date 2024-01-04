@@ -68,6 +68,7 @@ class Recipe(
     version_type: versions.VersionSubType | None = None
     version_strategy: versions.VersionStrategy | None = None
     version: str | None = None
+    env: dict[str, str] | None = None
     inputs: RecipeInputs
 
     def is_resolved(self):
@@ -107,6 +108,19 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 )
     elif version is not None:
         recipe.version = version
+    assert recipe.version is not None
+
+    previous_recipe = publishing.try_get_previous_version(
+        recipe.product, recipe.version
+    )
+    if previous_recipe is not None:
+        if recipe.env is None:
+            recipe.env = {}
+        recipe.env["version_prev"] = previous_recipe.label
+
+    env = recipe.env or {}
+    for key in env:
+        os.environ[key] = env[key]
 
     # merge in base recipe inputs
     base_recipe = (

@@ -55,14 +55,17 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
-      - name: Set product environment variables
-        run: cat version.env >> "$GITHUB_ENV"
-
       - name: 1. dataloading
         env:
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
           repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
         run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
+
+      - name: Set versions env vars
+        working-directory: products/developments
+        run: |
+          echo VERSION=$(yq .version ${{ inputs.recipe_file }}.lock.yml) >> "$GITHUB_ENV" && \
+          echo VERSION_PREV=$(yq '.env.version_prev' ${{ inputs.recipe_file }}.lock.yml) >> "$GITHUB_ENV"
 
       - name: Clear cache
         run: rm -rf .library

@@ -2,6 +2,9 @@ name: Developments
 product: db-developments
 version_strategy: 
   bump_latest_release: 2
+env:
+  GEOSUPPORT_VERSION: 23d
+  DOB_DATA_DATE: "20230827"
 inputs:
   missing_versions_strategy: find_latest
   datasets:
