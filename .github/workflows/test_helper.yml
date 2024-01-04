@@ -67,12 +67,12 @@ jobs:
         run: |
           echo "path filters with changed files: ${{ inputs.path_filter }}"
           if [[ -z "${{ inputs.path_filter }}" ]]; then
-            matrix=$(cat .github/workflows/data/pytest.yml | yq -ro -json | jq -rc)
+            matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -rc)
           elif [[ "[]" = "${{ inputs.path_filter }}" ]]; then
             matrix="[]"
           else
             filter=$(echo '${{ inputs.path_filter }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
-            matrix=$(cat .github/workflows/data/pytest.json | jq -cr "map(. | select(.name|IN(${filter})))")
+            matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -cr "map(. | select(.name|IN(${filter})))")
           fi
           echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
