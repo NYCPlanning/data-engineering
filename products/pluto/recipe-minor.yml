@@ -23,5 +23,6 @@ inputs:
     - name: dcp_zoningmapindex
       version: latest
     - name: dcp_pluto
-      version: latest
+      # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
+      version_env_var: VERSION_PREV 
       import_as: previous_pluto

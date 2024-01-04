@@ -20,6 +20,8 @@ inputs:
     - name: dcp_healthcenters
     - name: dcp_limitedheight
     - name: dcp_pluto
+      # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
+      version_env_var: VERSION_PREV 
       import_as: previous_pluto
     - name: dcp_policeprecincts
     - name: dcp_school_districts

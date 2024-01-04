@@ -90,6 +90,6 @@ def test_previous(
     version,
     expected,
 ):
-    previous = publishing.previous(product, version).label
+    previous = publishing.get_previous_version(product, version).label
     if expected is not None:
         assert previous == expected
