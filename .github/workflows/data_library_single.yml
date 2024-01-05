@@ -60,4 +60,4 @@ jobs:
         env:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
-        run: library archive --name ${{ github.event.inputs.dataset }} --output ${{ github.event.inputs.format }} --s3 $latest $version
+        run: library archive --name ${{ github.event.inputs.dataset }} --output-format ${{ github.event.inputs.format }} --s3 $latest $version
