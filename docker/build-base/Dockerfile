@@ -1,5 +1,4 @@
-ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}-slim
+FROM nycplanning/base:latest
 
 COPY . .
 
