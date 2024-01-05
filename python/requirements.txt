@@ -158,7 +158,7 @@ fonttools==4.47.0
     # via matplotlib
 future==0.18.3
     # via usaddress
-gdal==3.6.2
+gdal==3.8.2
     # via -r python/requirements.in
 gdown==4.7.1
     # via leafmap
