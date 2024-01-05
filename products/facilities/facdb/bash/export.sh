@@ -11,7 +11,7 @@ mkdir -p output && (
     cp ../facdb/metadata.yml ./
     cp ../build_metadata.json ./
     cp ../source_data_versions.csv ./
-    csv_export facdb facilities &
+    csv_export facdb_without_geom_col facilities &
     csv_export qc_operator &
     csv_export qc_oversight &
     csv_export qc_classification &

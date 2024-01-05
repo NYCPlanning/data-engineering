@@ -265,6 +265,7 @@ function fgdb_export_partial {
             -nlt ${geomtype}\
             -t_srs ${target_projection}\
             "$@"
+        ogrinfo -al -so ${filename}.gdb
         rm -f ${filename}.gdb.zip
     )
 }
