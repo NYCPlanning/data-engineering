@@ -1,9 +1,10 @@
 #!/bin/bash
 
-COMMON_APT_PACKAGES="curl zip unzip git"
-GEOSUPPORT_APT_PACKAGES="${COMMON_APT_PACKAGES} build-essential"
-BUILD_APT_PACKAGES="${COMMON_APT_PACKAGES} postgresql-client-15 libpq-dev jq wget gdal-bin jq locales libgdal-dev"
-DEV_APT_PACKAGES="${BUILD_APT_PACKAGES} bash-completion xdg-utils libgdal-dev"
+# Logic in this file is used within builds of docker containers
+
+COMMON_APT_PACKAGES="curl zip unzip git wget ca-certificates lsb-release build-essential sudo postgresql-client-15 libpq-dev jq locales"
+GEOSUPPORT_APT_PACKAGES="curl git unzip zip build-essential"
+DEV_APT_PACKAGES="bash-completion xdg-utils"
 
 function install_yq {
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq \
@@ -16,12 +17,25 @@ function install_mc {
         && mv ./mc /usr/bin/ 
 }
 
-function install_gdal_python_reqs {
-    apt-get install -y libgdal-dev \
-        && apt-get -y install --reinstall build-essential
+function install_gdal {
+    wget https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
+    sudo apt-get install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
+    sudo apt-get update
 
-    export CPLUS_INCLUDE_PATH=/usr/include/gdal
-    export C_INCLUDE_PATH=/usr/include/gdal
+    sudo apt-get install -y -V libproj-dev libgeos-dev libarrow-dev libparquet-dev cmake
+
+    echo "installing gdal from source" && (
+        cd ~
+        wget download.osgeo.org/gdal/3.8.2/gdal382.zip
+        unzip gdal382.zip
+        cd gdal-3.8.2
+        mkdir build
+        cd build
+        sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
+        sudo cmake --build .
+        sudo cmake --build . --target install
+    )
+    echo "gdal installed successfully"
 }
 
 function install_geosupport {
