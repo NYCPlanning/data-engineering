@@ -31,6 +31,6 @@ jobs:
           add-paths: python/
           title: Compile python requirements
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          assignees: fvankrieken, damonmcc, alexrichey, sf-dcp
+          assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey, sf-dcp' || '' }}
           branch: compile_python_reqs
           token: ${{ secrets.GHP_TOKEN }}
