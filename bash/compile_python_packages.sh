@@ -15,7 +15,7 @@ echo -e "🛠 deleting ${path_to_requirements}/requirements.txt"
 rm --force ${path_to_requirements}/requirements.txt
 
 # Set GDAL verion
-sed -i -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" ${path_to_requirements}/requirements.in
+#sed -i -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" ${path_to_requirements}/requirements.in
 
 # Compile requirements
 echo -e "🛠 compiling from ${path_to_requirements}/requirements.in"
