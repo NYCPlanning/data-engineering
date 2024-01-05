@@ -9,15 +9,13 @@ jobs:
     name: Compile requirements and commit changes
     runs-on: ubuntu-22.04
     container:
-      image: python:3.11-slim
+      image: nycplanning/base:latest
     defaults:
       run:
         shell: bash
     steps:
-      - name: Install latest gdal to pin python version, setup git
-        run: |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update && apt-get -y install libgdal-dev git
+      - name: Install git
+        run: apt-get update && apt-get -y install git
 
       - uses: actions/checkout@v4
 
