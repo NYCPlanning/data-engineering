@@ -1,6 +1,5 @@
-ARG PYTHON_VERSION
-FROM python:${PYTHON_VERSION}-slim
+FROM nycplanning/base:latest
 
 COPY . .
 
-RUN ./setup.sh
+RUN python3 -m pip install -r requirements.txt -c constraints.txt
