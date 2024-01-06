@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     socrata:
-      uid: 6j6t-3ixh
+      uid: cqc8-am9x
       format: csv
     options:
       - "AUTODETECT_TYPE=NO"
@@ -26,5 +26,5 @@ dataset:
     description: |
       ### Department for the Aging (DFTA) All Contracted Providers
       Listing of all Senior Centers, Abuse Prevention Contracts, Home Care Contracts, Legal Services Contracts, NORC Contracts, Transportation Contracts, Case Mangement Contracts, Home Delivered Meal Contracts and Caregiver Contracts in all five boroughs.
-    url: "https://data.cityofnewyork.us/Social-Services/Department-for-the-Aging-DFTA-All-Contracted-Provi/6j6t-3ixh"
+    url: "https://data.cityofnewyork.us/Social-Services/Department-for-the-Aging-NYC-Aging-All-Contracted-/cqc8-am9x"
     dependents: []
