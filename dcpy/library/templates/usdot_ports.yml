@@ -26,5 +26,5 @@ dataset:
     description: |
       ## Ports
       The Ports dataset is part of the U.S. Department of Transportation (USDOT)/Bureau of Transportation Statistics's (BTS's) National Transportation Atlas Database (NTAD). Contains physical information on commercial facilities at U.S. Coastal, Great Lakes and Inland Ports. The data consists of location description, street address, city, county name, congressional district FIPS code, type of construction, cargo-handling equipment, water depth alongside the facility, facility type ( dock, fleeting area, lock and/or dam) berthing space, latitude, longitude, current operators and owner's information, list of commodities handled at facility, road/railway connections, equipment available at facility, storage facilities, cranes, transit sheds, grain elevators, marine repair plants, fleeting areas, and docking, and facility start/stop date.
-    url: https://hub.arcgis.com/datasets/usdot::ports
+    url: https://data-usdot.opendata.arcgis.com/datasets/usdot::docks/about
     dependents: []
