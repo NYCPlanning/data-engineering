@@ -37,6 +37,7 @@ def _invoke_dbt(run_args=list[str]):
 
 
 def staging():
+    _invoke_dbt(["test", "--select", "source:*"])
     _execute_sql_script("staging")
 
 
@@ -49,18 +50,13 @@ def intermediate():
 def product():
     _execute_sql_script("templatedb")
     _execute_sql_script("aggregation/templatedb_boroughs")
-
-
-def test():
-    _invoke_dbt(["deps"])
-    _invoke_dbt(["debug"])
-    _invoke_dbt(["test", "--select", "source:*"])
     _invoke_dbt(["test", "--select", "templatedb"])
     _invoke_dbt(["test", "--select", "aggregation"])
 
 
 if __name__ == "__main__":
+    _invoke_dbt(["deps"])
+    _invoke_dbt(["debug"])
     staging()
     intermediate()
     product()
-    test()
