@@ -4,7 +4,9 @@ version: 0.0.2
 inputs:
   datasets:
     - name: nypl_libraries
+      version: 20240105
     - name: bpl_libraries
+      version: 20240105
     - name: qpl_libraries
     - name: dpr_parksproperties
     - name: dpr_greenthumb
