@@ -1,5 +1,5 @@
 /*******************************************************************************************************************************************
-Sources: _kpdb - Finalized version of KPDB build
+Sources: kpdb - Finalized version of KPDB build
 		 doe_eszones
 
 OUTPUT: longform_es_zone_output
@@ -52,7 +52,7 @@ FROM
                     a.geometry::geography, b.geometry::geography
                 ) AS es_zone_distance
             FROM
-                _kpdb AS a
+                kpdb AS a
             LEFT JOIN
                 doe_eszones AS b
                 ON
@@ -374,7 +374,7 @@ FROM
                 a.units_net * b.proportion_in_es_zone_1
             ) AS units_net_in_es_zone
         FROM
-            _kpdb AS a
+            kpdb AS a
         LEFT JOIN
             all_projects_es_zone AS b
             ON

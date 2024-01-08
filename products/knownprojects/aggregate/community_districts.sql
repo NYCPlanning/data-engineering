@@ -1,5 +1,5 @@
 /**********************************************************************************************************************************************************************************
-Sources: _kpdb - finalized version of KPDB build
+Sources: kpdb - finalized version of KPDB build
          dcp_cdboundaries_wi
 OUTPUT: longform_cd_output
 *************************************************************************************************************************************************************************************/
@@ -48,7 +48,7 @@ FROM (
             ) AS cd_distance
         FROM
             -- capitalplanning.kpdb_2021_09_10_nonull a
-            _kpdb AS a
+            kpdb AS a
         LEFT JOIN
             dcp_cdboundaries_wi AS b
             ON
@@ -337,7 +337,7 @@ FROM (
         round(a.units_net * b.proportion_in_cd_1) AS units_net_in_cd
     FROM
         -- capitalplanning.kpdb_2021_09_10_nonull a 
-        _kpdb AS a
+        kpdb AS a
     LEFT JOIN
         all_projects_cd AS b
         ON

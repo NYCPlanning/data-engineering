@@ -3,7 +3,7 @@ source ../../bash/utils.sh
 set_error_traps
 
 echo "Preprocess for all aggregations"
-run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geom TO geometry;"
+run_sql_command "ALTER TABLE kpdb RENAME COLUMN geom TO geometry;"
 
 echo "Create ZAP Project Many BBLs table"
 run_sql_file aggregate/create_zap_projects.sql
@@ -42,6 +42,6 @@ run_sql_file aggregate/community_districts.sql
 
 echo "Other aggregations are complete"
 
-run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geometry TO geom;"
+run_sql_command "ALTER TABLE kpdb RENAME COLUMN geometry TO geom;"
 
 echo "All aggregations are complete"

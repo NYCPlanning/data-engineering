@@ -1,5 +1,5 @@
 /**********************************************************************************************************************************************************************************
-Sources: _kpdb - finalized version of KPDB build
+Sources: kpdb - finalized version of KPDB build
 		 doe_schoolsubdistricts
 OUTPUT: longform_subdist_output_cp_assumptions
 
@@ -51,7 +51,7 @@ FROM (
                 a.geometry::geography, b.geometry::geography
             ) AS subdist_distance
         FROM
-            _kpdb AS a
+            kpdb AS a
         LEFT JOIN
             doe_school_subdistricts AS b
             ON
@@ -338,7 +338,7 @@ FROM (
         b.proportion_in_subdist_1 AS proportion_in_subdist,
         round(a.units_net * b.proportion_in_subdist_1) AS units_net_in_subdist
     FROM
-        _kpdb AS a
+        kpdb AS a
     LEFT JOIN
         all_projects_subdist AS b
         ON

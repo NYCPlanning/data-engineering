@@ -42,3 +42,4 @@ run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'combined', 'co
 
 # Create KPDB
 run_sql_file sql/create_kpdb.sql
+run_sql_file sql/final_kpdb.sql
