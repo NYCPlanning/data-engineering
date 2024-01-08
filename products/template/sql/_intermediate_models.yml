@@ -7,9 +7,12 @@ models:
       - name: library_name
         tests:
           - not_null
-          - unique
       - name: borough
       - name: wkb_geometry
+    tests:
+      - unique:
+          name: libraries_unique_compound_key
+          column_name: "(library_name || '-' || borough)"
 
   - name: green_spaces
     description: "All green spaces in NYC"
@@ -17,8 +20,13 @@ models:
       - name: space_name
         tests:
           - not_null
-          - unique
       - name: wkb_geometry
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: green_spaces_unique_compound_key
+          combination_of_columns:
+            - space_name
+            - wkb_geometry
 
   - name: historic_landmarks
     description: "All historic landmarks in NYC"
@@ -26,7 +34,12 @@ models:
       - name: landmark_name
         tests:
           - not_null
-          - unique
       - name: borough
       - name: bbls
       - name: wkb_geometry
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: historic_landmarks_unique_compound_key
+          combination_of_columns:
+            - landmark_name
+            - wkb_geometry
