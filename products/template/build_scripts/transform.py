@@ -48,10 +48,10 @@ def intermediate():
 
 
 def product():
-    _execute_sql_script("templatedb")
-    _execute_sql_script("aggregation/templatedb_boroughs")
-    _invoke_dbt(["test", "--select", "templatedb"])
-    _invoke_dbt(["test", "--select", "aggregation"])
+    _execute_sql_script("product/templatedb")
+    _execute_sql_script("product/aggregation/templatedb_boroughs")
+    _invoke_dbt(["test", "--select", "product.templatedb"])
+    _invoke_dbt(["test", "--select", "product.aggregation"])
 
 
 if __name__ == "__main__":
