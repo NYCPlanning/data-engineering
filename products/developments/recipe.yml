@@ -42,6 +42,7 @@ inputs:
     - name: dob_now_applications
     - name: dob_now_permits
     - name: dob_cofos
+      file_type: parquet
     - name: doitt_buildingfootprints
     - name: doitt_buildingfootprints_historical
     - name: dcp_censusdata
