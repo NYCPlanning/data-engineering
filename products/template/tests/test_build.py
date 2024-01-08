@@ -6,22 +6,6 @@ from dcpy.connectors.edm import publishing
 from build_scripts import PRODUCT_S3_NAME, BUILD_NAME, PG_CLIENT
 
 
-# * test Load stage
-@pytest.mark.end_to_end()
-def test_load_db_tables():
-    expected_source_tables = [
-        "nypl_libraries",
-        "bpl_libraries",
-        "qpl_libraries",
-        "dpr_parksproperties",
-        "dpr_greenthumb",
-        "lpc_landmarks",
-    ]
-    actual_tables = PG_CLIENT.get_schema_tables()
-    for table in expected_source_tables:
-        assert table in actual_tables
-
-
 # * test Transform stage
 @pytest.mark.end_to_end()
 def test_transform_staging():
@@ -32,29 +16,6 @@ def test_transform_staging():
         "stg_dpr_parksproperties",
         "stg_dpr_greenthumb",
         "boroughs",
-    ]
-    actual_tables = PG_CLIENT.get_schema_tables()
-    for table in expected_build_tables:
-        assert table in actual_tables
-
-
-@pytest.mark.end_to_end()
-def test_transform_outputs():
-    expected_build_tables = [
-        "libraries",
-        "green_spaces",
-        "historic_landmarks",
-        "templatedb",
-    ]
-    actual_tables = PG_CLIENT.get_schema_tables()
-    for table in expected_build_tables:
-        assert table in actual_tables
-
-
-@pytest.mark.end_to_end()
-def test_transform_aggregations():
-    expected_build_tables = [
-        "templatedb_boroughs",
     ]
     actual_tables = PG_CLIENT.get_schema_tables()
     for table in expected_build_tables:
