@@ -10,9 +10,11 @@ models:
       - name: borough
       - name: wkb_geometry
     tests:
-      - unique:
+      - dbt_utils.unique_combination_of_columns:
           name: libraries_unique_compound_key
-          column_name: "(library_name || '-' || borough)"
+          combination_of_columns:
+            - library_name
+            - borough
 
   - name: green_spaces
     description: "All green spaces in NYC"

@@ -15,15 +15,8 @@ models:
           - not_null:
               where: "bbl is not null"
     tests:
-      - unique:
-          name: templatedb_unique_compound_key
-          column_name: "(place_name || '-' || bbl)"
-          config:
-            severity: error
-            error_if: ">5000"
-            warn_if: ">0"
       - dbt_utils.unique_combination_of_columns:
-          name: templatedb_unique_compound_key_dbt_utils_1
+          name: templatedb_unique_compound_key_1
           combination_of_columns:
             - place_name
             - bbl
@@ -32,7 +25,7 @@ models:
             error_if: ">5000"
             warn_if: ">0"
       - dbt_utils.unique_combination_of_columns:
-          name: templatedb_unique_compound_key_dbt_utils_2
+          name: templatedb_unique_compound_key_2
           combination_of_columns:
             - place_name
             - bbl
