@@ -27,6 +27,10 @@ models:
           combination_of_columns:
             - space_name
             - wkb_geometry
+          config:
+            severity: error
+            error_if: ">50"
+            warn_if: ">0"
 
   - name: historic_landmarks
     description: "All historic landmarks in NYC"
@@ -43,3 +47,7 @@ models:
           combination_of_columns:
             - landmark_name
             - wkb_geometry
+          config:
+            severity: error
+            error_if: ">50"
+            warn_if: ">0"
