@@ -6,7 +6,6 @@ inputs:
   missing_versions_strategy: find_latest
   datasets:
     - name: dcp_councildistricts_wi
-      version: 22c
     - name: dcp_cb2010_wi
     - name: dcp_cb2020_wi
     - name: dcp_cdboundaries_wi

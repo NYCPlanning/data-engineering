@@ -9,7 +9,7 @@ SET
     tract2010 = b.ct2010,
     cb2010 = b.cb2010,
     schooldist = b.schooldist,
-    -- council = ltrim(b.council, '0'),
+    council = ltrim(b.council, '0'),
     zipcode = b.zipcode,
     firecomp = b.firecomp,
     policeprct = ltrim(b.policeprct, '0'),
