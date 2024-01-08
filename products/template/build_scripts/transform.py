@@ -6,7 +6,7 @@ from dcpy.utils.logging import logger
 from build_scripts import SQL_QUERY_DIR, PG_CLIENT
 
 
-def _run_step(step_query=str):
+def _execute_sql_script(step_query=str):
     logger.info(f"Running transform step {step_query} ...")
     postgres.execute_file_via_shell(
         PG_CLIENT.engine_uri,
@@ -14,7 +14,7 @@ def _run_step(step_query=str):
     )
 
 
-def _run_dbt_step(run_args=list[str]):
+def _invoke_dbt(run_args=list[str]):
     dbt_cli_call = f"dbt {' '.join(run_args)}"
     logger.info(f"Running '{dbt_cli_call}' ...")
     dbt_runner = dbtRunner()
@@ -37,26 +37,26 @@ def _run_dbt_step(run_args=list[str]):
 
 
 def staging():
-    _run_step("staging")
+    _execute_sql_script("staging")
 
 
 def intermediate():
-    _run_step("libraries")
-    _run_step("green_spaces")
-    _run_step("historic_landmarks")
+    _execute_sql_script("libraries")
+    _execute_sql_script("green_spaces")
+    _execute_sql_script("historic_landmarks")
 
 
 def product():
-    _run_step("templatedb")
-    _run_step("aggregation/templatedb_boroughs")
+    _execute_sql_script("templatedb")
+    _execute_sql_script("aggregation/templatedb_boroughs")
 
 
 def test():
-    _run_dbt_step(["deps"])
-    _run_dbt_step(["debug"])
-    _run_dbt_step(["test", "--select", "source:*"])
-    _run_dbt_step(["test", "--select", "templatedb"])
-    _run_dbt_step(["test", "--select", "aggregation"])
+    _invoke_dbt(["deps"])
+    _invoke_dbt(["debug"])
+    _invoke_dbt(["test", "--select", "source:*"])
+    _invoke_dbt(["test", "--select", "templatedb"])
+    _invoke_dbt(["test", "--select", "aggregation"])
 
 
 if __name__ == "__main__":
