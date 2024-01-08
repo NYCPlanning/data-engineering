@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: libraries
+    description: "All libraries in NYC"
+    columns:
+      - name: library_name
+        tests:
+          - not_null
+          - unique
+      - name: borough
+      - name: wkb_geometry
+
+  - name: green_spaces
+    description: "All green spaces in NYC"
+    columns:
+      - name: space_name
+        tests:
+          - not_null
+          - unique
+      - name: wkb_geometry
+
+  - name: historic_landmarks
+    description: "All historic landmarks in NYC"
+    columns:
+      - name: landmark_name
+        tests:
+          - not_null
+          - unique
+      - name: borough
+      - name: bbls
+      - name: wkb_geometry

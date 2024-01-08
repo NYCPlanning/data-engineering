@@ -45,6 +45,7 @@ def intermediate():
     _execute_sql_script("libraries")
     _execute_sql_script("green_spaces")
     _execute_sql_script("historic_landmarks")
+    _invoke_dbt(["test", "--select", "libraries green_spaces historic_landmarks"])
 
 
 def product():
