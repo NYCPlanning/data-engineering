@@ -39,5 +39,5 @@ models:
             - wkb_geometry
           config:
             severity: error
-            error_if: ">500"
+            error_if: ">50"
             warn_if: ">0"
