@@ -83,6 +83,10 @@ jobs:
           repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
         run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
+      - name: Set recipe env vars
+        working-directory: ./
+        run: source ./bash/export_recipe_env.sh products/template/${{ inputs.recipe_file }}.lock.yml 
+
       - name: Transform
         run: |
           python3 -m build_scripts.transform

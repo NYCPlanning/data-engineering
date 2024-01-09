@@ -66,11 +66,9 @@ jobs:
           repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
         run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
-      - name: Set versions env vars
-        working-directory: products/pluto
-        run: |
-          echo VERSION=$(yq .version ${{ inputs.recipe_file }}.lock.yml) >> "$GITHUB_ENV" && \
-          echo VERSION_PREV=$(yq '.env.version_prev' ${{ inputs.recipe_file }}.lock.yml) >> "$GITHUB_ENV"
+      - name: Set recipe env vars
+        working-directory: ./
+        run: source ./bash/export_recipe_env.sh products/pluto/${{ inputs.recipe_file }}.lock.yml 
 
       - name: Load Local Data
         run: ./01_load_local_csvs.sh
