@@ -149,7 +149,7 @@ def parse(v: str) -> Version:
         case r"^(\d{4})-(\d{2})-01$" as m:
             return FirstOfMonth(year=int(m[1]), month=int(m[2]))
         case _:
-            raise Exception(
+            raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
             )
 
