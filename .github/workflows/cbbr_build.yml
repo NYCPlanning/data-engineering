@@ -66,9 +66,9 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
-      - name: Set Build Version
-        run: |
-          echo VERSION=$(yq .version recipe.yml) >> "$GITHUB_ENV"
+      - name: Set recipe env vars
+        working-directory: ./
+        run: source ./bash/export_recipe_env.sh products/cbbr/${{ inputs.recipe_file }}.lock.yml 
 
       - name: Dataloading
         run: python -m dcpy.builds.load recipe
