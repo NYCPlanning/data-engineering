@@ -109,6 +109,16 @@ def run(
 
 
 @app.command()
+def reformat_facdb():
+    """Update columns and data types in facdb table."""
+    postgres.execute_file_via_shell(
+        BUILD_ENGINE,
+        SQL_PATH / "_reformat_facdb.sql",
+        build_schema=BUILD_NAME,
+    )
+
+
+@app.command()
 def sql(
     scripts: Optional[List[Path]] = typer.Option(
         None, "-f", help="SQL Scripts to execute"

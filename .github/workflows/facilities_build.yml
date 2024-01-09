@@ -6,7 +6,7 @@ on:
       image_tag:
         type: string
         required: false
-      build_name: 
+      build_name:
         type: string
         required: true
       recipe_file:
@@ -74,6 +74,9 @@ jobs:
 
       - name: QAQC facdb
         run: python -m facdb.cli qaqc
+
+      - name: Modify facdb table
+        run: python -m facdb.cli reformat-facdb
 
       - name: Export facdb
         run: ./facdb.sh export

@@ -4,6 +4,7 @@ DATE=$(date "+%Y-%m-%d")
 recipes_bucket=edm-recipes
 publishing_bucket=edm-publishing
 recipes_url=${AWS_S3_ENDPOINT}/${recipes_bucket}
+default_srs=EPSG:2263
 UTILS_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 ROOT_DIR=$(dirname ${UTILS_DIR})
 export PYTHONPATH=$ROOT_DIR
@@ -246,7 +247,8 @@ function fgdb_export_partial {
     local geomtype=${2}
     local nln=${3}
     local table=${4}
-    shift 4
+    local target_projection=${5}
+    shift 5
     if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
         local schema=${BUILD_ENGINE_SCHEMA}
     else
@@ -261,7 +263,9 @@ function fgdb_export_partial {
             -lco GEOMETRY_NAME=Shape\
             -nln ${nln}\
             -nlt ${geomtype}\
+            -t_srs ${target_projection}\
             "$@"
+        ogrinfo -al -so ${filename}.gdb
         rm -f ${filename}.gdb.zip
     )
 }
@@ -282,7 +286,8 @@ function fgdb_export {
     local table=${1}
     local geomtype=${2}
     local filename=${3:-$table}
-    fgdb_export_partial ${filename} ${geomtype} ${table} ${table}
+    local target_projection=${4:-$default_srs}
+    fgdb_export_partial ${filename} ${geomtype} ${table} ${table} ${target_projection}
     fgdb_export_cleanup ${filename}
 }
 
