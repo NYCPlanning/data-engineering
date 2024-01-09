@@ -118,7 +118,7 @@ def try_get_previous_version(
 ) -> versions.Version | None:
     try:
         return get_previous_version(product, version)
-    except LookupError:
+    except (LookupError, ValueError):  # versions not found, or don't parse correctly
         return None
 
 
