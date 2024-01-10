@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/2021-22 Blue Book SV.csv
+      path: s3://edm-recipes/inbox/sca/{{ version }}/sca_bluebook.csv
     options:
       - AUTODETECT_TYPE=NO
       - EMPTY_STRING_AS_NULL=YES
@@ -18,36 +18,7 @@ dataset:
     options:
       - OVERWRITE=YES
       - PRECISION=NO
-    fields:
-      [
-        geo_dist,
-        org_id,
-        organization_name,
-        bldg_id,
-        bldg_excl.,
-        district,
-        subdistrict,
-        subdistrict_name,
-        incl._class,
-        bldg_name,
-        org_e,
-        org_target_cap,
-        org_target_util,
-        prek_cap_+,
-        no._of_cluster_/_spec_rms_reported_+,
-        no._of_cluster_rms_needed_+,
-        ps_%,
-        ms_%,
-        hs_%,
-        charter,
-        org_level,
-        pc,
-        ic,
-        hc,
-        x,
-        y,
-        address,
-      ]
+    fields: []
     sql: null
 
   info:
