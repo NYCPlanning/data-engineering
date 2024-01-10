@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/sca_capacity_projects_current.csv
+      path: s3://edm-recipes/inbox/sca/{{ version }}/sca_capacity_projects_current.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

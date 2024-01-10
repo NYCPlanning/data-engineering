@@ -2,8 +2,8 @@ dataset:
   name: doe_lcgms
   acl: public-read
   source:
-    script:
-      path: .library/upload/LCGMS_SchoolData_{{ version }}.csv
+    url:
+      path: s3://edm-recipes/inbox/sca/{{ version }}/doe_lcgms.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
