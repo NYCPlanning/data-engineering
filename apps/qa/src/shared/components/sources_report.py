@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from dcpy.utils import postgres
 from dcpy.connectors.edm import publishing
 from src.shared.utils.source_report import (
     get_source_data_versions_to_compare,
@@ -8,6 +9,8 @@ from src.shared.utils.source_report import (
     compare_source_data_row_count,
     dataframe_style_source_report_results,
 )
+
+from src import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
 
 
 def sources_report(
@@ -23,6 +26,10 @@ def sources_report(
     
     The reference dataset version is `{reference_product_key}`.
     """
+    )
+    pg_client = postgres.PostgresClient(
+        database=QAQC_DB,
+        schema=QAQC_DB_SCHEMA_SOURCE_DATA,
     )
 
     st.subheader("Compare source data versions")
@@ -64,7 +71,9 @@ def sources_report(
         for dataset in source_dataset_names:
             with st.spinner(f"⏳ Loading {dataset} versions ..."):
                 status_messages = load_source_data_to_compare(
-                    dataset=dataset, source_data_versions=source_data_versions
+                    dataset=dataset,
+                    source_data_versions=source_data_versions,
+                    pg_client=pg_client,
                 )
             success_message = "\n\n".join(status_messages)
             st.success(success_message)
@@ -72,9 +81,13 @@ def sources_report(
     # TODO (nice-to-have) consider adding table names to source_report_results
     st.subheader("Compare source data shapes")
     with st.spinner(f"⏳ Comparing columns ..."):
-        source_report_results = compare_source_data_columns(source_report_results)
+        source_report_results = compare_source_data_columns(
+            source_report_results, pg_client=pg_client
+        )
     with st.spinner(f"⏳ Comparing row counts ..."):
-        source_report_results = compare_source_data_row_count(source_report_results)
+        source_report_results = compare_source_data_row_count(
+            source_report_results, pg_client=pg_client
+        )
 
     df_source_report_results = pd.DataFrame.from_dict(
         source_report_results, orient="index"

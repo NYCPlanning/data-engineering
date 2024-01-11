@@ -1,5 +1,6 @@
 # test generation of source data reports
 import pandas as pd
+from dcpy.utils.postgres import PostgresClient
 from dcpy.connectors.edm import publishing
 from src.shared.constants import DATASET_NAMES
 from src.shared.utils.source_report import (
@@ -7,6 +8,7 @@ from src.shared.utils.source_report import (
     compare_source_data_columns,
     compare_source_data_row_count,
 )
+from src import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
 
 REFERENCE_VESION = "2023-04-01"
 
@@ -62,7 +64,10 @@ def test_get_source_dataset_names():
 
 
 def test_compare_source_data_columns():
-    source_report_results = compare_source_data_columns(TEST_SOURCE_REPORT_RESULTS)
+    pg_client = PostgresClient(database=QAQC_DB, schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+    source_report_results = compare_source_data_columns(
+        TEST_SOURCE_REPORT_RESULTS, pg_client=pg_client
+    )
     assert isinstance(
         source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"], bool
     )
@@ -70,7 +75,10 @@ def test_compare_source_data_columns():
 
 
 def test_compare_source_data_row_count():
-    source_report_results = compare_source_data_row_count(TEST_SOURCE_REPORT_RESULTS)
+    pg_client = PostgresClient(database=QAQC_DB, schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+    source_report_results = compare_source_data_row_count(
+        TEST_SOURCE_REPORT_RESULTS, pg_client=pg_client
+    )
     assert isinstance(
         source_report_results[TEST_DATA_SOURCE_NAME]["same_row_count"], bool
     )

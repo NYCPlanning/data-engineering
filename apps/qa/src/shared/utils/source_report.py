@@ -4,12 +4,7 @@ from dcpy.connectors.edm import recipes, publishing
 from dcpy.utils import postgres
 from src.shared.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
 
-from src import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
-
-pg_client = postgres.PostgresClient(
-    database=QAQC_DB,
-    schema=QAQC_DB_SCHEMA_SOURCE_DATA,
-)
+from src import QAQC_DB_SCHEMA_SOURCE_DATA
 
 
 def dataframe_style_source_report_results(value) -> str:
@@ -61,7 +56,7 @@ def get_source_data_versions_to_compare(
     return source_data_versions
 
 
-def compare_source_data_columns(source_report_results: dict) -> dict:
+def compare_source_data_columns(source_report_results: dict, pg_client) -> dict:
     for dataset_name in source_report_results:
         reference_table = construct_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_reference"]
@@ -77,7 +72,7 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
     return source_report_results
 
 
-def compare_source_data_row_count(source_report_results: dict) -> dict:
+def compare_source_data_row_count(source_report_results: dict, pg_client) -> dict:
     for dataset_name in source_report_results:
         reference_table = construct_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_reference"]
@@ -94,20 +89,22 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
 
 
 def load_source_data_to_compare(
-    dataset: str, source_data_versions: pd.DataFrame
+    dataset: str, source_data_versions: pd.DataFrame, pg_client
 ) -> list[str]:
     status_messages = []
     version_reference = source_data_versions.loc[dataset]["version_reference"]
     version_staging = source_data_versions.loc[dataset]["version_latest"]
     print(f"⏳ Loading {dataset} ({version_reference}, {version_staging}) ...")
     for version in [version_reference, version_staging]:
-        status_message = load_source_data(dataset_name=dataset, version=version)
+        status_message = load_source_data(
+            dataset_name=dataset, version=version, pg_client=pg_client
+        )
         status_messages.append(status_message)
 
     return status_messages
 
 
-def load_source_data(dataset_name: str, version: str) -> str:
+def load_source_data(dataset_name: str, version: str, pg_client) -> str:
     dataset = recipes.Dataset(
         name=dataset_name, version=version, file_type=recipes.DatasetType.pg_dump
     )
