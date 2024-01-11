@@ -37,7 +37,7 @@ OUTPUT:
 CREATE TEMP TABLE tmp as (
     SELECT 
 	    LEFT(year, 4) as year,
-	    REPLACE(district, ' HS', '') as borough,
+	    REPLACE(borough_or_district, ' HS', '') as borough,
 	    (
             REPLACE(grade_9, ',', '')::integer + 
             REPLACE(grade_10, ',', '')::integer + 
@@ -45,7 +45,7 @@ CREATE TEMP TABLE tmp as (
             REPLACE(grade_12, ',', '')::integer
         ) as hs
     FROM sca_e_projections.latest
-    WHERE district ~* 'HS'
+    WHERE borough_or_district ~* 'HS'
     ORDER BY year, borough
 );
 
