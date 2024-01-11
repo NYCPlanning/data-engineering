@@ -6,9 +6,9 @@ run_sql_file sql/_create.sql
 display "Starting to build Developments DB"
 run_sql_file sql/_function.sql
 run_sql_file sql/_procedures.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
-run_sql_file sql/bis/_init.sql
-run_sql_file sql/now/_init.sql
-run_sql_file sql/hpd/_init.sql
+run_sql_file sql/_bis.sql
+run_sql_file sql/_now.sql
+run_sql_file sql/_hpd.sql
 run_sql_file sql/_init.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 sql_table_summary _INIT_devdb
 
