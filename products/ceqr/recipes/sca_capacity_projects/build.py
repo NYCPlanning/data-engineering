@@ -44,6 +44,9 @@ def _import() -> pd.DataFrame:
     for record in cor_org_dict:
         df.loc[df["name"] == record["school"], "org_level"] = record["org_level"]
 
+    # Clean address column
+    df["address"] = df["address"].replace(np.nan, "")
+
     # Parse stretches
     df[["streetname_1", "streetname_2", "streetname_3"]] = df.apply(
         lambda row: pd.Series(find_stretch(row["address"])), axis=1
