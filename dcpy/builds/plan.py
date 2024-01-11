@@ -198,7 +198,7 @@ def recipe_from_yaml(path: Path) -> Recipe:
 def repeat_recipe_from_source_data_versions(
     version: str, source_data_versions: pd.DataFrame, template_recipe: Recipe
 ) -> Recipe:
-    recipe = template_recipe.copy()
+    recipe = template_recipe.model_copy()
     recipe.version = version
     print(source_data_versions.columns)
     version_by_source_data_name = {
@@ -252,7 +252,7 @@ def plan(recipe_file: Path, version: str | None = None, repeat: bool = False) ->
 
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
-        yaml.dump(recipe.dict(), f)
+        yaml.dump(recipe.model_dump(), f)
 
     return lock_file
 
