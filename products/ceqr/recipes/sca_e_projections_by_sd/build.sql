@@ -78,7 +78,27 @@ CREATE TEMP TABLE tmp as (
 		    
 		FROM (
 			SELECT row_to_json(row) as _col 
-			FROM (SELECT * FROM sca_e_projections.latest) row) a,
+			FROM (SELECT
+                borough_or_district as district,
+                data_type,
+                year,
+                pk,
+                k,
+                grade_1,
+                grade_2,
+                grade_3,
+                grade_4,
+                grade_5,
+                grade_6,
+                grade_7,
+                grade_8,
+                grade_9,
+                grade_10,
+                grade_11,
+                grade_12,
+                ged,
+                total
+            FROM sca_e_projections.latest) row) a,
 			json_each_text(_col) as b
 		WHERE b.key not in ('ogc_fid', 'district', 'data_type', 'year')),
 	MULTIPLY as (

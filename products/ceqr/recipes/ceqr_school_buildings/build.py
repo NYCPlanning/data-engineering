@@ -83,7 +83,7 @@ def _output(df):
         "org_level",
         "name",
         "address",
-        "org_e",
+        "enroll",
         "pc",
         "pe",
         "pe_seats_avail",

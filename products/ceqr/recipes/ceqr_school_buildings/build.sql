@@ -15,7 +15,7 @@ INPUTS:
         district,
         subdistrict,
         bldg_name,
-        org_e,
+        enroll,
         "ps_%" as ps_per,
         "ms_%" as ms_per,
         "hs_%" as hs_per,
@@ -66,14 +66,14 @@ OUTPUTS:
 CREATE TEMP TABLE tmp AS (
     WITH bluebook_filtered AS (
         SELECT
-            org_id,
+            org as org_id,
             organization_name,
             bldg_id,
-            "bldg_excl.",
-            district,
+            exclude,
+            geo_dist as district,
             subdistrict,
             bldg_name,
-            org_e,
+            enroll,
             "ps_%" AS ps_per,
             "ms_%" AS ms_per,
             "hs_%" AS hs_per,
@@ -82,16 +82,16 @@ CREATE TEMP TABLE tmp AS (
             x,
             y,
             address,
-            REPLACE(pc, ',', '') AS pc,
-            REPLACE(ic, ',', '') AS ic,
-            REPLACE(hc, ',', '') AS hc,
+            REPLACE(ps_capacity, ',', '') AS pc,
+            REPLACE(ms_capacity, ',', '') AS ic,
+            REPLACE(hs_capacity, ',', '') AS hc,
             CASE
-                WHEN org_id IN ('X695', 'M645')
+                WHEN org IN ('X695', 'M645')
                     THEN 'Orgid X695 OR M645'
-                WHEN org_id IN ('M539', 'M334', 'K686', 'Q300', 'M012', 'M485')
+                WHEN org IN ('M539', 'M334', 'K686', 'Q300', 'M012', 'M485')
                     THEN 'citywide gifted and talented schools'
                 WHEN
-                    org_id IN (
+                    org IN (
                         'X445',
                         'K449',
                         'K430',
@@ -109,9 +109,9 @@ CREATE TEMP TABLE tmp AS (
                 WHEN
                     organization_name ~* 'ALC'
                     OR organization_name ~* 'ALTERNATIVE LEARNING'
-                    OR org_id IN ('M973', 'Q950')
+                    OR org IN ('M973', 'Q950')
                     THEN
-                        'organization_name like ALC or ALTERNATIVE LEARNING or Restart org_id'
+                        'organization_name like ALC or ALTERNATIVE LEARNING or Restart org'
                 WHEN charter IS NOT NULL
                     THEN 'charter IS NOT NULL'
                 WHEN
@@ -119,8 +119,8 @@ CREATE TEMP TABLE tmp AS (
                     OR org_level = 'SPED'
                     OR org_level = 'OTHER'
                     THEN 'org_level IS NULL, SPED, or OTHER'
-                WHEN org_id IS NULL
-                    THEN 'org_id IS NULL'
+                WHEN org IS NULL
+                    THEN 'org IS NULL'
             END AS excluded
         FROM sca_bluebook.latest
     ),
@@ -192,7 +192,7 @@ CREATE TEMP TABLE tmp AS (
     SELECT
         b.district,
         b.subdistrict,
-        b."bldg_excl." AS excluded,
+        b.exclude AS excluded,
         --a.building_name as bldg_name,
         a.building_code AS bldg_id,
         a.location_code AS org_id,
@@ -200,18 +200,18 @@ CREATE TEMP TABLE tmp AS (
         a.location_name AS name,
         a.primary_address AS address,
         LEFT(a.borough_block_lot, 1) AS borocode,
-        b.org_e,
+        b.enroll,
         FLOOR(b.pc::numeric) AS pc,
         CEIL(
-            b.org_e::numeric * ROUND((b.ps_per::numeric), 5)
+            b.enroll::numeric * ROUND((b.ps_per::numeric), 5)
         ) AS pe,
         FLOOR(b.ic::numeric) AS ic,
         CEIL(
-            b.org_e::numeric * ROUND((b.ms_per::numeric), 5)
+            b.enroll::numeric * ROUND((b.ms_per::numeric), 5)
         ) AS ie,
         FLOOR(b.hc::numeric) AS hc,
         CEIL(
-            b.org_e::numeric * ROUND((b.hs_per::numeric), 5)
+            b.enroll::numeric * ROUND((b.hs_per::numeric), 5)
         ) AS he
     FROM lcgms_filtered AS a
     LEFT JOIN bluebook_filtered AS b
