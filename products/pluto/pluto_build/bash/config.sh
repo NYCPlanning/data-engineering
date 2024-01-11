@@ -42,7 +42,7 @@ function fgdb_export_pluto {
     (
         cd ${foldername}
         fgdb_export_partial ${filename} MULTIPOLYGON ${filename} ${filename} ${default_srs}
-        fgdb_export_partial ${filename} NONE NOT_MAPPED_LOTS unmapped -update
+        fgdb_export_partial ${filename} NONE NOT_MAPPED_LOTS unmapped ${default_srs} -update
         fgdb_export_cleanup ${filename}
     )
 }
