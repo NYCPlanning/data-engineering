@@ -26,9 +26,9 @@ function install_gdal {
 
     echo "installing gdal from source" && (
         cd ~
-        wget download.osgeo.org/gdal/3.8.3/gdal383.zip
-        unzip gdal383.zip
-        cd gdal-3.8.3
+        wget download.osgeo.org/gdal/3.6.2/gdal362.zip
+        unzip gdal362.zip
+        cd gdal-3.6.2
         mkdir build
         cd build
         sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
