@@ -401,7 +401,7 @@ def _cli_wrapper_upload(
     acl_literal = s3.string_as_acl(acl)
     if not output_path.exists():
         raise Exception(f"Path {output_path} does not exist")
-    build_name = build or os.environ.get("BUILD_NAME")
+    build_name = build or os.environ["BUILD_NAME"]
     if build_name is None:
         raise Exception(
             "Build name must either be supplied via CLI or found in env var 'BUILD_NAME'."

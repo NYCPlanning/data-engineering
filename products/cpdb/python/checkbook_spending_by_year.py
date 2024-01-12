@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 import os
 
 # connect to postgres db
-engine = create_engine(os.environ.get("BUILD_ENGINE", ""))
+engine = create_engine(os.environ["BUILD_ENGINE"])
 
 # Get current year
 current_year = datetime.today().year
