@@ -55,13 +55,13 @@ mkdir -p output
         csv_export_drop_columns aggregate_block "${columns_to_drop}" HousingDB_by_2020_CensusBlock &
         csv_export_drop_columns aggregate_tract "${columns_to_drop}" HousingDB_by_2020_CensusTract &
         csv_export_drop_columns aggregate_nta "${columns_to_drop}" HousingDB_by_2020_NTA &
-        csv_export_drop_columns aggregate_councildst "${columns_to_drop}" HousingDB_by_2013_CityCouncilDistrict &
+        csv_export_drop_columns aggregate_councildst "${columns_to_drop}" HousingDB_by_2023_CityCouncilDistrict &
         csv_export_drop_columns aggregate_commntydst "${columns_to_drop}" HousingDB_by_CommunityDistrict &
         csv_export_drop_columns aggregate_cdta "${columns_to_drop}" HousingDB_by_2020_CDTA &
         shp_export aggregate_block MULTIPOLYGON -f HousingDB_by_2020_CensusBlock -t_srs "EPSG:2263" &
         shp_export aggregate_tract MULTIPOLYGON -f HousingDB_by_2020_CensusTract -t_srs "EPSG:2263" &
         shp_export aggregate_nta MULTIPOLYGON -f HousingDB_by_2020_NTA -t_srs "EPSG:2263" &
-        shp_export aggregate_councildst MULTIPOLYGON -f HousingDB_by_2013_CityCouncilDistrict -t_srs "EPSG:2263" &
+        shp_export aggregate_councildst MULTIPOLYGON -f HousingDB_by_2023_CityCouncilDistrict -t_srs "EPSG:2263" &
         shp_export aggregate_commntydst MULTIPOLYGON -f HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
         shp_export aggregate_cdta MULTIPOLYGON -f HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
         wait

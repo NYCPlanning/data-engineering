@@ -5,23 +5,8 @@ from .scriptor import ScriptorInterface
 
 
 class Scriptor(ScriptorInterface):
-    @property
-    def get_columns(self):
-        if self.version == "2010":
-            return "A:AP"
-        if self.version == "2020":
-            return "A:H,AQ:BX"
-        raise ValueError(
-            "2010 and 2020 are only supported versions for decennial census data"
-        )
-
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_excel(
-            self.path,
-            sheet_name="2010, 2020, and Change",
-            usecols=self.get_columns,
-            skiprows=3,
-        )
+        df = pd.read_excel(self.path, sheet_name=self.version, usecols="A:HX")
         return df
 
     def runner(self) -> str:
