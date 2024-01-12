@@ -10,7 +10,7 @@ from utils import psql_insert_copy
 g = Geosupport()
 
 # connect to postgres db
-engine = create_engine(os.environ.get("BUILD_ENGINE", ""))
+engine = create_engine(os.environ["BUILD_ENGINE"])
 
 
 def quick_clean(address):

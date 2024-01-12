@@ -48,10 +48,10 @@ geoms = {
 if __name__ == "__main__":
     filename = sys.argv[1]
     decade = sys.argv[2]  # e.g. "10" or "20"
-    CAPTURE_DATE = os.environ.get("CAPTURE_DATE")
+    CAPTURE_DATE = os.environ["CAPTURE_DATE"]
 
     # Get current year
-    version = os.environ.get("VERSION")
+    version = os.environ["VERSION"]
     current_year = int(f"20{version[:2]}")
 
     # SQL Template
