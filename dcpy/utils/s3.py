@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 else:
     S3Client = object
 
-
 ACL = Literal[
     "authenticated-read",
     "aws-exec-read",
@@ -92,15 +91,15 @@ def _progress():
 
 def client() -> S3Client:
     """Returns a client for S3."""
+    aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
     aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
     aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-    endpoint_url = os.environ["AWS_S3_ENDPOINT"]
     config = Config(read_timeout=120)
     return boto3.client(
         "s3",
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
-        endpoint_url=endpoint_url,
+        endpoint_url=aws_s3_endpoint,
         config=config,
     )
 
