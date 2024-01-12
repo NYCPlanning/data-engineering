@@ -7,14 +7,14 @@ SELECT
     geotype,
     CASE 
         WHEN geotype = 'CT2020' THEN bct2020
-        WHEN geotype = 'CnclDist2013' THEN SUBSTRING(geoid, 9)
-        ELSE geoid 
+        WHEN geotype = 'CCD2023' THEN SUBSTRING(geoid, 9)
+        ELSE geoid
     END AS aggregate_join,
-    coalesce(hunits_20::int, 0) AS hunits
+    COALESCE(hunits::int, 0) AS hunits
 FROM dcp_censusdata
-WHERE geotype IN ('CT2020', 'CD', 'CnclDist2013', 'NTA2020')
-UNION ALL 
-SELECT 
+WHERE geotype IN ('CT2020', 'CD', 'CCD2023', 'NTA2020')
+UNION ALL
+SELECT
     geogtype AS geotype,
     geoid20 AS aggregate_join,
     coalesce("hunits.1"::int, 0) AS hunits
