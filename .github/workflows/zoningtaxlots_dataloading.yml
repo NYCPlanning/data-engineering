@@ -62,6 +62,7 @@ jobs:
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
+      image_tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
       build_name: ${{ github.head_ref || github.ref_name }}
       recipe_file: recipe
 
@@ -73,5 +74,6 @@ jobs:
     secrets: inherit
     with:
       create_issue: true
+      image_tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
       build_name: ${{ github.head_ref || github.ref_name }}
       recipe_file: recipe-minor
