@@ -26,9 +26,9 @@ function install_gdal {
 
     echo "installing gdal from source" && (
         cd ~
-        wget download.osgeo.org/gdal/3.8.0/gdal380.zip
-        unzip gdal380.zip
-        cd gdal-3.8.0
+        wget https://github.com/fvankrieken/gdal/archive/refs/heads/gdal-3.8-revert-null-date-behavior.zip
+        unzip gdal-3.8-revert-null-date-behavior.zip
+        cd gdal-3.8-revert-null-date-behavior
         mkdir build
         cd build
         sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
