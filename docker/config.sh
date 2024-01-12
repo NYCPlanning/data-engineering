@@ -26,8 +26,8 @@ function install_gdal {
 
     echo "installing gdal from source" && (
         cd ~
-        wget https://github.com/fvankrieken/gdal/archive/refs/heads/gdal-3.8-revert-null-date-behavior.zip
-        unzip gdal-3.8-revert-null-date-behavior.zip
+        wget https://github.com/fvankrieken/gdal/archive/refs/heads/3.8-revert-null-date-behavior.zip
+        unzip "3.8-revert-null-date-behavior.zip"
         cd gdal-3.8-revert-null-date-behavior
         mkdir build
         cd build
