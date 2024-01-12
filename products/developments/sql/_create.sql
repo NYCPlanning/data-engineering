@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS lookup_occ;
-CREATE TABLE lookup_occ(
+CREATE TABLE lookup_occ (
     dob_occ text,
     occ text
-); 
+);
 \COPY lookup_occ FROM 'data/lookup_occ.csv' DELIMITER ',' CSV HEADER;
 
 
@@ -27,8 +27,8 @@ CREATE TABLE _manual_corrections (
 );
 \COPY _manual_corrections FROM 'data/manual_corrections.csv' DELIMITER ',' CSV HEADER;
 
-DROP TABLE IF EXISTS CORR_hny_matches;
-CREATE TABLE CORR_hny_matches (
+DROP TABLE IF EXISTS corr_hny_matches;
+CREATE TABLE corr_hny_matches (
     hny_id text,
     job_number text,
     hny_project_id text,

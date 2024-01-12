@@ -1,18 +1,18 @@
 -- occ_translation functions
 CREATE OR REPLACE FUNCTION occ_translate(
-	_occ varchar
-) 
-  RETURNS varchar AS $$
+    _occ varchar
+)
+RETURNS varchar AS $$
   	SELECT occ FROM lookup_occ WHERE dob_occ = _occ
     ;
 $$ LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION ownership_translate(
-	_cityowned varchar,
-  _ownertype varchar,
-  _nonprofit varchar
-) 
-  RETURNS varchar AS $$
+    _cityowned varchar,
+    _ownertype varchar,
+    _nonprofit varchar
+)
+RETURNS varchar AS $$
   	select ownership 
     from lookup_ownership
     where COALESCE(_cityowned, 'NULL') = COALESCE(cityowned, 'NULL')
@@ -23,8 +23,8 @@ $$ LANGUAGE sql;
 -- check if date string is valid function
 CREATE OR REPLACE FUNCTION is_date(
     s varchar
-) 
-  RETURNS boolean AS $$
+)
+RETURNS boolean AS $$
     BEGIN
       perform s::date;
       RETURN true;
@@ -35,9 +35,9 @@ $$ LANGUAGE plpgsql;
 
 -- year quarter function
 CREATE OR REPLACE FUNCTION year_quarter(
-	_date date
-) 
-  RETURNS varchar AS $$
+    _date date
+)
+RETURNS varchar AS $$
   	select extract(year from _date)::text||'Q'
         ||EXTRACT(QUARTER FROM _date)::text
 $$ LANGUAGE sql;
@@ -46,8 +46,8 @@ $$ LANGUAGE sql;
 -- spatial join functions
 CREATE OR REPLACE FUNCTION get_zipcode(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.zipcode::varchar
       FROM doitt_zipcodeboundaries b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -56,8 +56,8 @@ CREATE OR REPLACE FUNCTION get_zipcode(
 
 CREATE OR REPLACE FUNCTION get_bbl(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.bbl::bigint::text
       FROM dcp_mappluto b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -66,8 +66,8 @@ CREATE OR REPLACE FUNCTION get_bbl(
 
 CREATE OR REPLACE FUNCTION get_boro(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.borocode::varchar
       FROM dcp_boroboundaries_wi b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -76,8 +76,8 @@ CREATE OR REPLACE FUNCTION get_boro(
 
 CREATE OR REPLACE FUNCTION get_csd(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT lpad(b.schooldist::text,2,'0')::varchar
       FROM dcp_school_districts b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -86,8 +86,8 @@ CREATE OR REPLACE FUNCTION get_csd(
 
 CREATE OR REPLACE FUNCTION get_cd(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT  borocd::varchar
       FROM dcp_cdboundaries b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -96,8 +96,8 @@ CREATE OR REPLACE FUNCTION get_cd(
 
 CREATE OR REPLACE FUNCTION get_council(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT lpad(b.coundist::text,2,'0')::varchar
       FROM dcp_councildistricts b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -106,8 +106,8 @@ CREATE OR REPLACE FUNCTION get_council(
 
 CREATE OR REPLACE FUNCTION get_ct2020(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.ct2020::varchar
       FROM dcp_ct2020 b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -116,8 +116,8 @@ CREATE OR REPLACE FUNCTION get_ct2020(
 
 CREATE OR REPLACE FUNCTION get_cb2020(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.cb2020::varchar
       FROM dcp_cb2020 b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -126,8 +126,8 @@ CREATE OR REPLACE FUNCTION get_cb2020(
 
 CREATE OR REPLACE FUNCTION get_policeprct(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.precinct::varchar
       FROM dcp_policeprecincts b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -136,8 +136,8 @@ CREATE OR REPLACE FUNCTION get_policeprct(
 
 CREATE OR REPLACE FUNCTION get_schooldist(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.schooldist::varchar
       FROM dcp_school_districts b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -146,8 +146,8 @@ CREATE OR REPLACE FUNCTION get_schooldist(
 
 CREATE OR REPLACE FUNCTION get_firecompany(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.firecotype||lpad(b.fireconum::varchar, 3, '0')
       FROM dcp_firecompanies b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -156,8 +156,8 @@ CREATE OR REPLACE FUNCTION get_firecompany(
 
 CREATE OR REPLACE FUNCTION get_firebattalion(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.firebn::varchar
       FROM dcp_firecompanies b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -166,18 +166,18 @@ CREATE OR REPLACE FUNCTION get_firebattalion(
 
 CREATE OR REPLACE FUNCTION get_firedivision(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.firediv::varchar
       FROM dcp_firecompanies b
       WHERE ST_Within(_geom, b.wkb_geometry)
       LIMIT 1
   $$ LANGUAGE sql;
-  
+
 CREATE OR REPLACE FUNCTION get_bin(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.bin::varchar
       FROM doitt_buildingfootprints b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -186,8 +186,8 @@ CREATE OR REPLACE FUNCTION get_bin(
 
 CREATE OR REPLACE FUNCTION get_base_bbl(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.base_bbl::varchar
       FROM doitt_buildingfootprints b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -196,8 +196,8 @@ CREATE OR REPLACE FUNCTION get_base_bbl(
 
 CREATE OR REPLACE FUNCTION get_schoolelmntry(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.esid_no::varchar
       FROM doe_eszones b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -207,8 +207,8 @@ CREATE OR REPLACE FUNCTION get_schoolelmntry(
 
 CREATE OR REPLACE FUNCTION get_schoolmiddle(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.msid_no::varchar
       FROM doe_mszones b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -217,8 +217,8 @@ CREATE OR REPLACE FUNCTION get_schoolmiddle(
 
 CREATE OR REPLACE FUNCTION get_schoolsubdist(
     _geom geometry
-  ) 
-    RETURNS varchar AS $$
+)
+RETURNS varchar AS $$
       SELECT b.district||'_'||b.subdistrict
       FROM doe_school_subdistricts b
       WHERE ST_Within(_geom, b.wkb_geometry)
@@ -228,16 +228,19 @@ CREATE OR REPLACE FUNCTION get_schoolsubdist(
 DROP TABLE IF EXISTS dof_shoreline_subdivide;
 DROP INDEX IF EXISTS dof_shoreline_subdivide_wkb_geometry_geom_idx;
 SELECT
-	ROW_NUMBER() OVER(order by wkb_geometry) as id,
-	st_makevalid(wkb_geometry) as wkb_geometry
+    row_number() OVER (ORDER BY wkb_geometry) AS id,
+    st_makevalid(wkb_geometry) AS wkb_geometry
 INTO dof_shoreline_subdivide
 FROM (
-  SELECT ST_SubDivide(wkb_geometry, 100) as wkb_geometry 
-  FROM dof_shoreline) a;
-CREATE INDEX dof_shoreline_subdivide_wkb_geometry_geom_idx ON dof_shoreline_subdivide USING GIST (wkb_geometry gist_geometry_ops_2d);
+    SELECT st_subdivide(wkb_geometry, 100) AS wkb_geometry
+    FROM dof_shoreline
+) AS a;
+CREATE INDEX dof_shoreline_subdivide_wkb_geometry_geom_idx ON dof_shoreline_subdivide USING gist (
+    wkb_geometry gist_geometry_ops_2d
+);
 
-CREATE OR REPLACE FUNCTION in_water(_geom geometry) 
-  RETURNS BOOLEAN
+CREATE OR REPLACE FUNCTION in_water(_geom geometry)
+RETURNS boolean
 AS $$
   SELECT EXISTS(
     SELECT id 
@@ -251,8 +254,8 @@ CREATE OR REPLACE FUNCTION flag_nonres(
     _job_description varchar,
     _occ_init varchar,
     _occ_prop varchar
-  ) 
-    RETURNS varchar AS $$     
+)
+RETURNS varchar AS $$     
     SELECT
     (CASE 
           WHEN _job_description ~* concat(
@@ -309,8 +312,8 @@ CREATE OR REPLACE FUNCTION flag_nonres(
     END)
   $$ LANGUAGE sql;
 
-CREATE OR REPLACE FUNCTION get_DDL(p_table_name varchar)
-  RETURNS text AS
+CREATE OR REPLACE FUNCTION get_ddl(p_table_name varchar)
+RETURNS text AS
 $BODY$
 DECLARE
     v_table_ddl   text;
@@ -380,4 +383,4 @@ BEGIN
     RETURN v_table_ddl;
 END;
 $BODY$
-  LANGUAGE 'plpgsql' COST 100.0 SECURITY INVOKER;
+LANGUAGE 'plpgsql' COST 100.0 SECURITY INVOKER;

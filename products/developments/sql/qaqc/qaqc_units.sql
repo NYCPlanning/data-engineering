@@ -5,70 +5,71 @@
     outlier_top_alt_increase
 **/
 
-DROP TABLE IF EXISTS UNITS_qaqc;
-WITH 
+DROP TABLE IF EXISTS UNITS_QAQC;
+WITH
 
-JOBNUMBER_large_alt AS(
-    SELECT job_number
-    FROM UNITS_devdb
+JOBNUMBER_LARGE_ALT AS (
+    SELECT JOB_NUMBER
+    FROM UNITS_DEVDB
     WHERE
-    job_type = 'Alteration'
-    AND classa_net::numeric < -5
+        JOB_TYPE = 'Alteration'
+        AND CLASSA_NET::numeric < -5
 ),
 
-JOBNUMBER_large_nb AS(
-    SELECT job_number
-    FROM UNITS_devdb
+JOBNUMBER_LARGE_NB AS (
+    SELECT JOB_NUMBER
+    FROM UNITS_DEVDB
     WHERE
-    job_type = 'New Building'
-    AND classa_prop::numeric > 499
+        JOB_TYPE = 'New Building'
+        AND CLASSA_PROP::numeric > 499
 ),
 
-JOBNUMBER_large_demo AS(
-    SELECT job_number
-    FROM UNITS_devdb
+JOBNUMBER_LARGE_DEMO AS (
+    SELECT JOB_NUMBER
+    FROM UNITS_DEVDB
     WHERE
-    job_type = 'Demolition'
-    AND classa_init::numeric > 19
+        JOB_TYPE = 'Demolition'
+        AND CLASSA_INIT::numeric > 19
 ),
 
-JOBNUMBER_top_alt_inc AS(
-    SELECT job_number
-    FROM UNITS_devdb
+JOBNUMBER_TOP_ALT_INC AS (
+    SELECT JOB_NUMBER
+    FROM UNITS_DEVDB
     WHERE
-    job_type = 'Alteration'
-    AND classa_net IS NOT NULL
-    ORDER BY classa_net DESC
+        JOB_TYPE = 'Alteration'
+        AND CLASSA_NET IS NOT NULL
+    ORDER BY CLASSA_NET DESC
     LIMIT 20
 ),
 
-JOBNUMBER_top_alt_dec AS(
-    SELECT job_number
-    FROM UNITS_devdb
+JOBNUMBER_TOP_ALT_DEC AS (
+    SELECT JOB_NUMBER
+    FROM UNITS_DEVDB
     WHERE
-    job_type = 'Alteration'
-    AND classa_net IS NOT NULL
-    ORDER BY classa_net ASC
+        JOB_TYPE = 'Alteration'
+        AND CLASSA_NET IS NOT NULL
+    ORDER BY CLASSA_NET ASC
     LIMIT 20
 )
 
-SELECT a.*,
-    (CASE 
-	 	WHEN a.job_number IN (SELECT job_number FROM JOBNUMBER_large_alt) THEN 1
-	 	ELSE 0
-	END) as b_large_alt_reduction,
-    (CASE 
-	 	WHEN a.job_number IN (SELECT job_number FROM JOBNUMBER_large_nb) THEN 1
-	 	ELSE 0
-	END) as outlier_nb_500plus,
-    (CASE 
-	 	WHEN a.job_number IN (SELECT job_number FROM JOBNUMBER_large_demo) THEN 1
-	 	ELSE 0
-	END) as outlier_demo_20plus,
-    (CASE 
-	 	WHEN a.job_number IN (SELECT job_number FROM JOBNUMBER_top_alt_inc) THEN 1
-	 	ELSE 0
-	END) as outlier_top_alt_increase
+SELECT
+    A.*,
+    (CASE
+        WHEN A.JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_LARGE_ALT) THEN 1
+        ELSE 0
+    END) AS B_LARGE_ALT_REDUCTION,
+    (CASE
+        WHEN A.JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_LARGE_NB) THEN 1
+        ELSE 0
+    END) AS OUTLIER_NB_500PLUS,
+    (CASE
+        WHEN A.JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_LARGE_DEMO) THEN 1
+        ELSE 0
+    END) AS OUTLIER_DEMO_20PLUS,
+    (CASE
+        WHEN A.JOB_NUMBER IN (SELECT JOB_NUMBER FROM JOBNUMBER_TOP_ALT_INC) THEN 1
+        ELSE 0
+    END) AS OUTLIER_TOP_ALT_INCREASE
 
-INTO UNITS_qaqc
-FROM _INIT_qaqc a;
+INTO UNITS_QAQC
+FROM _INIT_QAQC AS A;
