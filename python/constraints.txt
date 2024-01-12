@@ -160,7 +160,7 @@ fonttools==4.47.2
     # via matplotlib
 future==0.18.3
     # via usaddress
-gdal==3.8.3
+gdal==3.8.0
     # via -r python/requirements.in
 gdown==4.7.1
     # via leafmap
@@ -536,7 +536,7 @@ rich==13.7.0
     # via
     #   -r python/requirements.in
     #   streamlit
-rpds-py==0.16.2
+rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
