@@ -17,16 +17,16 @@ TEST_BUCKETS = [
 ]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
-    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     if "AWS_S3_ENDPOINT" in os.environ:
         os.environ.pop("AWS_S3_ENDPOINT")
+    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def create_buckets(aws_credentials):
     """Creates a test S3 bucket."""
     with mock_s3():

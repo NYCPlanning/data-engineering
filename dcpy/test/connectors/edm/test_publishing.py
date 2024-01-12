@@ -33,6 +33,8 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
 
 
 def test_publish(create_buckets, create_temp_filesystem, mock_data_constants):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
     publishing.publish(
         draft_key=draft_key, acl=TEST_ACL, version=None, keep_draft=False
     )
