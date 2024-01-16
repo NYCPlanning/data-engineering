@@ -54,6 +54,10 @@ on:
           - WARNING
           - INFO
           - DEBUG
+      build_name:
+        description: "Build name (defaults to branch name)"
+        type: string
+        required: false
   workflow_call:
     inputs:
       dataset_name:
