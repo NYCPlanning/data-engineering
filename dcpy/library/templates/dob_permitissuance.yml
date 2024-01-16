@@ -83,7 +83,7 @@ dataset:
       - CENSUSTRACT
       - NTANAME
     sql: |
-      SELECT
+      SELECT 
           jobnum,
           jobdocnum,
           jobtype,
