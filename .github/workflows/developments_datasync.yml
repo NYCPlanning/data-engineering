@@ -114,3 +114,20 @@ jobs:
           ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
           ./devdb.sh library_archive hpd_historical_geocode_results hpd_historical_units_by_building
           ./devdb.sh library_archive dob_geocode_results dob_jobapplications ${{ github.event.inputs.version }}
+
+  create_issue_on_failure:
+    needs: geocode
+    runs-on: ubuntu-22.04
+    if: ${{ failure() && (github.event_name == 'schedule') }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: .github
+      - name: Create issue on failure
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTION: ${{ github.workflow }}
+          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md

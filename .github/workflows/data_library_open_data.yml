@@ -50,9 +50,9 @@ jobs:
         run: library archive --name ${{ matrix.dataset }} --latest --s3
 
   create_issue_on_failure:
-    runs-on: ubuntu-22.04
     needs: dataloading
-    if: ${{ always() && (github.event_name == 'schedule') && contains(needs.dataloading.result, 'failure') }}
+    runs-on: ubuntu-22.04
+    if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -61,7 +61,7 @@ jobs:
         uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION: "Open Data Weekly Updates"
+          ACTION: ${{ github.workflow }}
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
-          filename: .github/ISSUE_TEMPLATE/data_library_failure.md
+          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md

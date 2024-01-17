@@ -90,3 +90,20 @@ jobs:
 
       - name: Clean CAMA
         run: ./pluto clean cama
+
+  create_issue_on_failure:
+    needs: process_cama
+    runs-on: ubuntu-22.04
+    if: ${{ failure() && (github.event_name == 'schedule') }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: .github
+      - name: Create issue on failure
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTION: ${{ github.workflow }}
+          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
