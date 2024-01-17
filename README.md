@@ -1,4 +1,4 @@
-# Data Engineering Team
+# Data Engineering Team ![CI](https://github.com/NYCPlanning/data-engineering/actions/workflows/nightly_qa.yml/badge.svg)
 
 This is the primary repository for the Data Engineering team at the NYC Department of City Planning (DCP).
 
