@@ -40,9 +40,8 @@ class Scriptor(ScriptorInterface):
         previous_dataset = recipes.Dataset(
             name=self.name,
             version=self.previous_version,
-            file_type=recipes.DatasetType.csv,
         )
-        return recipes.read_csv(previous_dataset, dtype=str)
+        return recipes.read_df(previous_dataset, dtype=str)
 
     def runner(self) -> str:
         previous = self.previous()
