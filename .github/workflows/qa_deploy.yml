@@ -44,6 +44,7 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
       - name: Setup SSH
         run: |
@@ -70,6 +71,7 @@ jobs:
                 -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
                 -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
                 -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
+                -e BUILD_ENGINE_SERVER=$BUILD_ENGINE_SERVER\
                 -e GHP_TOKEN=$GHP_TOKEN\
                 $DOCKER_IMAGE_NAME"
     
