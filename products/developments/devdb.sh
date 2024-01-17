@@ -42,7 +42,7 @@ function library_archive {
     local version=${3:-$latest_version}
     echo "version of ${1} is ${version}"
     
-    library archive -f templates/$1.yml -s -l -o csv -o pgdump -v $version
+    library archive -f templates/$1.yml -s -l -v $version
 }
 
 function import {

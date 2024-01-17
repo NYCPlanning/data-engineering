@@ -41,7 +41,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Library Archive
-        run: library archive --name ${{ matrix.dataset }} --latest --s3 --output-format pgdump --output-format csv
+        run: library archive --name ${{ matrix.dataset }} --latest --s3
 
   geocode:
     name: Geocode HPD Data

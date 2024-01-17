@@ -41,7 +41,6 @@ jobs:
         run: |
           library archive --name pluto_input_numbldgs \
             --path templates/pluto_input_numbldgs.yml \
-            --output-format pgdump --output-format csv \
             --latest --s3
 
       - name: clean numbldgs
