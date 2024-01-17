@@ -16,14 +16,6 @@ on:
       version:
         description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
         required: false
-      format:
-        type: choice
-        options:
-          - pgdump
-          - parquet
-          - csv
-          - shapefile
-        default: pgdump
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
@@ -61,4 +53,4 @@ jobs:
         env:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
-        run: library archive --name ${{ github.event.inputs.dataset }} --output-format ${{ github.event.inputs.format }} --s3 $latest $version
+        run: library archive --name ${{ github.event.inputs.dataset }} --s3 $latest $version

@@ -83,8 +83,7 @@ jobs:
         run: |
           library archive --name pluto_pts \
             --path templates/pluto_pts.yml \
-            --output-format pgdump --output-format csv \
-            --latest --s3 --compress
+            --latest --s3
 
       - name: geocode pts
         run: ./pluto geocode pts
@@ -93,8 +92,7 @@ jobs:
         run: |
           library archive --name pluto_input_geocodes \
             --path templates/pluto_input_geocodes.yml \
-            --output-format pgdump --output-format csv \
-            --latest --s3 --compress
+            --latest --s3
 
       - name: clean up pts
         run: ./pluto clean pts

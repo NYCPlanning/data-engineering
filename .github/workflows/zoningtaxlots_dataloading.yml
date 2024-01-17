@@ -56,9 +56,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Library Archive
-        run: |
-          library archive --name ${{ matrix.dataset }} --latest --s3 --compress \
-            --output-format pgdump --output-format shapefile
+        run: library archive --name ${{ matrix.dataset }} --latest --s3
 
   build_ztl:
     needs: [dataloading]

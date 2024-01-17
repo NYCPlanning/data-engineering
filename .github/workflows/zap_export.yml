@@ -91,7 +91,7 @@ jobs:
       - name: Library Archive
         run: |
           library archive --name ${{ matrix.entity }} --path templates/${{ matrix.entity }}.yml \
-            --latest --s3 --compress --output-format pgdump --output-format csv
+            --latest --s3
 
       - name: Export to edm-private and edm-publishing
         env:

@@ -85,8 +85,7 @@ jobs:
           library archive --name pluto_input_cama_dof \
             --path templates/pluto_input_cama_dof.yml \
             --version ${{ steps.processing.outputs.version }} \
-            --output-format pgdump --output-format csv \
-            --latest --s3 --compress
+            --latest --s3
 
       - name: Clean CAMA
         run: ./pluto clean cama
