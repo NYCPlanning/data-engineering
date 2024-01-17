@@ -191,6 +191,15 @@ class PostgresClient:
         )
         return sorted(column_names["column_name"])
 
+    def add_pk(self, table: str, id_column: str = "id"):
+        self.execute_query(
+            'ALTER TABLE ":schema".":table" ADD COLUMN ":id_column" SERIAL CONSTRAINT ":constraint" PRIMARY KEY;',
+            schema=AsIs(self.schema),
+            table=AsIs(table),
+            id_column=AsIs(id_column),
+            constraint=AsIs(f"{table}_pk"),
+        )
+
     def add_table_column(
         self,
         table_name: str,

@@ -23,10 +23,6 @@ def import_dataset(
     pg_client: postgres.PostgresClient,
 ):
     """Import a recipe to local data library folder and build engine."""
-    ds_table_name = ds.import_as or ds.name
-    logger.info(
-        f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
-    )
 
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
@@ -41,7 +37,10 @@ def import_dataset(
         preproc_func = None
 
     recipes.import_dataset(
-        ds.dataset, pg_client, preprocessor=preproc_func, import_as=ds.import_as
+        ds.dataset,
+        pg_client,
+        preprocessor=preproc_func,
+        import_as=ds.import_as,
     )
 
 

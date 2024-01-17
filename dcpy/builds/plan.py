@@ -40,8 +40,8 @@ class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     @property
     def dataset(self):
-        if self.version is None or self.file_type is None:
-            raise Exception(f"Dataset {self.name} requires both version and file_type")
+        if self.version is None:
+            raise Exception(f"Dataset {self.name} requires version")
 
         return recipes.Dataset(
             name=self.name, version=self.version, file_type=self.file_type
@@ -176,14 +176,12 @@ def get_source_data_versions(recipe: Recipe):
 
 
 def _apply_recipe_defaults(recipe: Recipe):
-    recipe.inputs.dataset_defaults = (
-        recipe.inputs.dataset_defaults
-        or InputDatasetDefaults(file_type=recipes.DatasetType.pg_dump)
-    )
-
-    for ds in recipe.inputs.datasets:
-        ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
-        ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
+    if recipe.inputs.dataset_defaults is not None:
+        for ds in recipe.inputs.datasets:
+            ds.preprocessor = (
+                ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
+            )
+            ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
 
 
 def recipe_from_yaml(path: Path) -> Recipe:

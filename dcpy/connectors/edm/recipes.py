@@ -31,23 +31,37 @@ _dataset_extensions = {"pg_dump": "sql", "csv": "csv", "parquet": "parquet"}
 class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     name: str
     version: str
-    file_type: DatasetType
+    file_type: DatasetType | None = None
 
     @property
     def file_name(self) -> str:
+        if self.file_type is None:
+            raise Exception("File type must be defined to get file name")
         return f"{self.name}.{_dataset_extensions[self.file_type]}"
 
     @property
+    def s3_folder(self) -> str:
+        return f"datasets/{self.name}/{self.version}"
+
+    @property
     def s3_key(self) -> str:
-        return f"datasets/{self.name}/{self.version}/{self.file_name}"
+        return f"{self.s3_folder}/{self.file_name}"
 
-
-def get_dataset_sql_path(dataset: str, version: str = "latest"):
-    return f"{BASE_URL}/{dataset}/{version}/{dataset}.sql"
-
-
-def get_dataset_config_path(dataset: str, version: str = "latest"):
-    return f"{BASE_URL}/{dataset}/{version}/config.json"
+    def assign_file_type(self, file_type_preferences: list[DatasetType]) -> DatasetType:
+        file_type: DatasetType | None = None
+        for _file_type in file_type_preferences:
+            if s3.exists(
+                BUCKET,
+                f"datasets/{self.name}/{self.version}/{self.name}.{_dataset_extensions[_file_type]}",
+            ):
+                file_type = _file_type
+                break
+        if file_type is None:
+            raise FileNotFoundError(
+                f"No datasets of types {file_type_preferences} found in {self.s3_folder}"
+            )
+        self.file_type = file_type
+        return file_type
 
 
 def get_config(name, version="latest"):
@@ -83,20 +97,27 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     return target_file_path
 
 
-def read_csv(
-    ds: Dataset, local_cache_dir: Path | None = None, **kwargs
-) -> pd.DataFrame:
-    """Read a recipe dataset csv as a pandas DataFrame."""
-    if ds.file_type != DatasetType.csv:
-        raise Exception(
-            "csv output is currently only format that recipes.read_csv is implemented for"
-        )
+def pd_reader(file_type: DatasetType):
+    match file_type:
+        case DatasetType.csv:
+            return pd.read_csv
+        case DatasetType.parquet:
+            return pd.read_parquet
+        case _:
+            raise Exception(f"Cannot read pandas dataframe from type {file_type}")
+
+
+def read_df(ds: Dataset, local_cache_dir: Path | None = None, **kwargs) -> pd.DataFrame:
+    """Read a recipe dataset parquet or csv file as a pandas DataFrame."""
+    if ds.file_type is None:
+        file_type = ds.assign_file_type([DatasetType.parquet, DatasetType.csv])
+    reader = pd_reader(file_type)
     if local_cache_dir:
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
-        return pd.read_csv(path, **kwargs)
+        return reader(path, **kwargs)
     else:
         with s3.get_file_as_stream(BUCKET, ds.s3_key) as stream:
-            data = pd.read_csv(stream, **kwargs)
+            data = reader(stream, **kwargs)
         return data
 
 
@@ -109,6 +130,9 @@ def import_dataset(
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
 ):
     """Import a recipe to local data library folder and build engine."""
+    if ds.file_type is None:
+        ds.assign_file_type([DatasetType.parquet, DatasetType.pg_dump, DatasetType.csv])
+
     ds_table_name = import_as or ds.name
     logger.info(
         f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
@@ -130,7 +154,14 @@ def import_dataset(
         )
         if preprocessor is not None:
             df = preprocessor(ds.name, df)
+
+        # make column names more sql-friendly
+        columns = {
+            column: column.replace("-", "_").replace("'", "_") for column in df.columns
+        }
+        df.rename(columns=columns, inplace=True)
         pg_client.insert_dataframe(df, ds_table_name)
+        pg_client.add_pk(ds_table_name, "ogc_fid")
 
     pg_client.add_table_column(
         ds_table_name,
