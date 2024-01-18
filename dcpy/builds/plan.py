@@ -209,8 +209,10 @@ def repeat_recipe_from_source_data_versions(
             ds.version = version_by_source_data_name[ds.name]
         else:
             raise Exception(
-                "Dataset found in template recipe not found in historical source data versions, \
-                cannot repeat build."
+                f"""
+                Dataset {ds} found in template recipe not found in historical source data versions, \
+                cannot repeat build.
+                """
             )
 
     return recipe
