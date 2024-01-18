@@ -1,5 +1,5 @@
 name: Facilities
-version: 23v2
+version: 24v1
 product: db-facilities
 inputs:
   dataset_defaults:
