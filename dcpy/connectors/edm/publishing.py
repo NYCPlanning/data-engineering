@@ -251,14 +251,22 @@ def publish(
 
 
 def download_published_version(
-    publish_key: PublishKey, output_dir: Path | None = None
+    publish_key: PublishKey,
+    output_dir: Path | None = None,
+    *,
+    include_prefix_in_export: bool = True,
 ) -> None:
     output_dir = output_dir or Path(".")
     published_versions = get_published_versions(product=publish_key.product)
     assert (
         publish_key.version in published_versions
     ), f"{publish_key} not found in S3 bucket '{BUCKET}'. Published versions are {published_versions}"
-    s3.download_folder(BUCKET, f"{publish_key.path}/", output_dir)
+    s3.download_folder(
+        BUCKET,
+        f"{publish_key.path}/",
+        output_dir,
+        include_prefix_in_export=include_prefix_in_export,
+    )
 
 
 def file_exists(product_key: ProductKey, filepath: str) -> bool:
