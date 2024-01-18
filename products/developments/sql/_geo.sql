@@ -5,12 +5,12 @@ DESCRIPTION:
 
 INPUTS: 
     _INIT_devdb (
-        * uid,
+        * id,
         ...
     )
 
     _GEO_devdb (
-        * uid,
+        * id,
         ...
     )
 
@@ -35,7 +35,7 @@ OUTPUT
     )
 
     GEO_devdb (
-        * uid,
+        * id,
         job_number
         geo_bbl text,
         geo_bin text,
@@ -66,11 +66,9 @@ IN PREVIOUS VERSION:
 */
 DROP INDEX IF EXISTS GEO_devdb_geom_idx;
 DROP TABLE IF EXISTS GEO_devdb;
-WITH
-DRAFT as (
+WITH DRAFT AS (
     SELECT
-        distinct
-        a.uid,
+        a.id,
         a.job_number,
 		a.bbl,
         -- a.bin,
@@ -104,19 +102,16 @@ DRAFT as (
         b.geo_firedivision,
         b.geo_firebattalion,
         b.geo_firecompany,
-        b.latitude::double precision as geo_latitude,
-        b.longitude::double precision as geo_longitude,
+        b.geo_latitude::double precision as geo_latitude,
+        b.geo_longitude::double precision as geo_longitude,
         b.mode
 	FROM _INIT_devdb a
 	LEFT JOIN _GEO_devdb b
-	ON (CASE 
-            WHEN source = 'bis' THEN b.uid::text
-            ELSE (b.uid::integer + (SELECT MAX(_INIT_BIS_devdb.uid::integer) FROM _INIT_BIS_devdb))::text
-        END)::text = a.uid::text
+	ON b.id= a.id
 ),
 GEOM_dob_bin_bldgfootprints as (
-    SELECT distinct
-        a.uid,
+    SELECT
+        a.id,
         a.job_number,
 		a.bbl,
         a.bin,
@@ -135,7 +130,7 @@ GEOM_dob_bin_bldgfootprints as (
 ),
 GEOM_geo_bin_bldgfootprints as (
 	SELECT distinct
-        a.uid,
+        a.id,
         a.job_number,
 		a.bbl,
         a.bin,
@@ -158,7 +153,7 @@ GEOM_geo_bin_bldgfootprints as (
 ),
 GEOM_geosupport as (
     SELECT distinct
-        a.uid,
+        a.id,
         a.job_number,
 		a.bbl,
         a.bin,
@@ -179,7 +174,7 @@ GEOM_geosupport as (
 ),
 GEOM_dob_bbl_mappluto as (
 	SELECT distinct
-        a.uid,
+        a.id,
         a.job_number,
 		a.bbl,
         a.bin,
@@ -205,7 +200,7 @@ buildingfootprints_historical as (
 ),
 GEOM_dob_bin_bldgfp_historical as (
     SELECT distinct
-        a.uid,
+        a.id,
         a.job_number,
         coalesce(a.geom, ST_Centroid(b.wkb_geometry)) as geom,
         (CASE 
@@ -221,7 +216,7 @@ GEOM_dob_bin_bldgfp_historical as (
 ),
 GEOM_dob_latlon as (
     SELECT distinct
-        a.uid,
+        a.id,
         a.job_number,
         coalesce(
             a.geom, 
@@ -247,7 +242,7 @@ SELECT
 INTO GEO_devdb
 FROM DRAFT a
 LEFT JOIN GEOM_dob_latlon b
-ON a.uid = b.uid;
+ON a.id = b.id;
 
 -- Create index
 CREATE INDEX GEO_devdb_geom_idx ON GEO_devdb 

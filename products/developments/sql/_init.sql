@@ -9,7 +9,7 @@ INPUTS:
 
 OUTPUTS:
 	_INIT_devdb (
-		uid text,
+		id int,
 		job_number text,
 		job_type text,
 		job_desc text,
@@ -82,6 +82,8 @@ FROM (
 	SELECT *, 'now' AS datasource
 	FROM _INIT_NOW_devdb
 ) t;
+
+ALTER TABLE _INIT_devdb ADD COLUMN "id" SERIAL CONSTRAINT "_init_devdb_pk" PRIMARY KEY;
 /*
 CORRECTIONS: 
 	stories_prop

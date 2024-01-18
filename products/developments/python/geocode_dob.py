@@ -10,23 +10,17 @@ g = Geosupport()
 
 
 def geocode(input):
-    # collect inputs
-    uid = input.get("uid", "")
-    hnum = input.get("house_number", "")
-    sname = input.get("street_name", "")
-    borough = input.get("borough", "")
-
     try:
         geo = g["1B"](
-            street_name=sname,
-            house_number=hnum,
-            borough=borough,
+            street_name=input["address_street"],
+            house_number=input["address_numbr"],
+            borough=input["boro"],
             mode="regular",
         )
         geo = parse_output(geo)
         geo.update(
             dict(
-                uid=uid,
+                id=input["id"],
                 mode="regular",
                 func="1B",
                 status="success",
@@ -35,15 +29,15 @@ def geocode(input):
     except GeosupportError:
         try:
             geo = g["1B"](
-                street_name=sname,
-                house_number=hnum,
-                borough=borough,
+                street_name=input["address_street"],
+                house_number=input["address_numbr"],
+                borough=input["boro"],
                 mode="tpad",
             )
             geo = parse_output(geo)
             geo.update(
                 dict(
-                    uid=uid,
+                    id=input["id"],
                     mode="tpad",
                     func="1B",
                     status="success",
@@ -52,7 +46,7 @@ def geocode(input):
         except GeosupportError as e:
             geo = parse_output(e.result)
             geo.update(
-                uid=uid,
+                id=input["id"],
                 mode="tpad",
                 func="1B",
                 status="failure",
@@ -68,8 +62,8 @@ def parse_output(geo):
         geo_address_street=geo.get("First Street Name Normalized", ""),
         geo_address_numbr=geo.get("House Number - Display Format", ""),
         # longitude and latitude of lot center
-        latitude=geo.get("Latitude", ""),
-        longitude=geo.get("Longitude", ""),
+        geo_latitude=geo.get("Latitude", ""),
+        geo_longitude=geo.get("Longitude", ""),
         # Some sample administrative areas:
         geo_bin=geo.get(
             "Building Identification Number (BIN) of Input Address or NAP", ""
@@ -115,32 +109,12 @@ if __name__ == "__main__":
     #       the most recent version of duplicate records
     select_query = """
             SELECT 
-                uid, 
-                regexp_replace(
-                    trim(house_number), 
-                    '(^|)0*', '', ''
-                ) as house_number,
-                REGEXP_REPLACE(street_name, '[\s]{2,}' ,' ' , 'g') as street_name, 
-                borough,
-                source
-            FROM (
-                SELECT 
-                    distinct ogc_fid as uid, 
-                    housenumber as house_number,
-                    streetname as street_name, 
-                    borough,
-                    'bis' as source
-                FROM dob_jobapplications 
-                where gid::text = '1'
-                UNION
-                SELECT 
-                    distinct ogc_fid as uid, 
-                    house_no as house_number,
-                    street_name as street_name, 
-                    borough,
-                    'now' as source
-                FROM dob_now_applications
-            ) a
+                id, 
+                address_numbr,
+                address_street,
+                boro,
+                datasource
+            FROM _init_devdb
             """
     with engine.begin() as conn:
         df = pd.read_sql(
@@ -159,7 +133,7 @@ if __name__ == "__main__":
     print("geocoding finished, dumping GEO_devdb postgres ...")
     df = pd.DataFrame(it)
     df.to_sql(
-        "dob_geocode_results",
+        "_geo_devdb",
         con=engine,
         if_exists="replace",
         index=False,

@@ -37,9 +37,3 @@ function archive_devdb { ## different from "standard" archive slightly
     psql $EDM_DATA -c "ALTER TABLE $2.$1 RENAME TO \"$DATE\";";
     psql $EDM_DATA -c "CREATE VIEW $2.latest AS (SELECT '$DATE' as v, * FROM $2.\"$DATE\");"
 }
-
-function geocode {
-    python3 python/geocode_hpd_hny.py
-    python3 python/geocode_hpd_historical.py
-    python3 python/geocode_dob.py
-}

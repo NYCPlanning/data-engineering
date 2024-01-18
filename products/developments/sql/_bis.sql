@@ -7,7 +7,6 @@ INPUTS:
 
 OUTPUTS:
 	_INIT_BIS_devdb (
-		uid text,
 		job_number text,
 		job_type text,
 		job_desc text,
@@ -64,26 +63,7 @@ OUTPUTS:
 
 
 DROP TABLE IF EXISTS _INIT_BIS_devdb;
-WITH
--- identify relevant_jobs
-JOBNUMBER_relevant as (
-	SELECT ogc_fid
-	FROM dob_jobapplications
-	WHERE jobdocnumber = '01'
-	AND
-	( 
-		jobtype ~* 'A1|DM|NB' 
-	OR
-		(jobtype = 'A2' 
-		AND sprinkler is NULL 
-		AND lower(jobdescription) LIKE '%combin%' 
-		AND lower(jobdescription) NOT LIKE '%sprinkler%' 
-		)
-	)
-	AND gid = 1
-) SELECT
-	distinct
-	ogc_fid::text as uid,
+SELECT
 	jobnumber::text as job_number,
 
     -- Job Type recoding
@@ -235,5 +215,13 @@ JOBNUMBER_relevant as (
 		latitude::double precision),4326) as dob_geom
 INTO _INIT_BIS_devdb
 FROM dob_jobapplications
-WHERE ogc_fid in (select ogc_fid from JOBNUMBER_relevant);
+WHERE 
+	jobdocnumber = '01' AND ( 
+		jobtype ~* 'A1|DM|NB' OR (
+			jobtype = 'A2' 
+			AND sprinkler is NULL 
+			AND lower(jobdescription) LIKE '%combin%' 
+			AND lower(jobdescription) NOT LIKE '%sprinkler%' 
+		)
+	) AND gid = 1;
 

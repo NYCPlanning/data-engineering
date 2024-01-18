@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS DRAFT_spatial CASCADE;
 CREATE TABLE DRAFT_spatial AS (
     SELECT
         distinct
-        a.uid,
+        a.id,
 
         -- geo_bbl
         (CASE WHEN a.geo_bbl IS NULL
@@ -136,13 +136,13 @@ CREATE TABLE DRAFT_spatial AS (
         geomsource
     FROM GEO_devdb a
 );
-DROP INDEX IF EXISTS DRAFT_spatial_uid_idx;
-CREATE INDEX DRAFT_spatial_uid_idx ON DRAFT_spatial(uid);
+DROP INDEX IF EXISTS DRAFT_spatial_id_idx;
+CREATE INDEX DRAFT_spatial_id_idx ON DRAFT_spatial(id);
 
 DROP TABLE IF EXISTS CENSUS_TRACT_BLOCK CASCADE;
 CREATE TABLE CENSUS_TRACT_BLOCK AS (
     SELECT
-        distinct uid,
+        distinct id,
         (CASE
             WHEN DRAFT_spatial.geo_boro = '1' THEN '36061'
             WHEN DRAFT_spatial.geo_boro = '2' THEN '36005'
@@ -155,15 +155,15 @@ CREATE TABLE CENSUS_TRACT_BLOCK AS (
     FROM DRAFT_spatial
 );
 
-DROP INDEX IF EXISTS CENSUS_TRACT_BLOCK_uid_idx;
+DROP INDEX IF EXISTS CENSUS_TRACT_BLOCK_id_idx;
 DROP INDEX IF EXISTS dcp_ct2020_boroct2020_idx;
-CREATE INDEX CENSUS_TRACT_BLOCK_uid_idx ON CENSUS_TRACT_BLOCK(uid);
+CREATE INDEX CENSUS_TRACT_BLOCK_id_idx ON CENSUS_TRACT_BLOCK(id);
 CREATE INDEX dcp_ct2020_boroct2020_idx ON dcp_ct2020(boroct2020);
 
 
 DROP TABLE IF EXISTS SPATIAL_devdb;
 SELECT
-    DRAFT_spatial.uid,
+    DRAFT_spatial.id,
     DRAFT_spatial.geo_bbl,
     DRAFT_spatial.geo_bin,
     DRAFT_spatial.geo_address_numbr,
@@ -197,7 +197,7 @@ SELECT
     dcp_ct2020.cdtaname as geo_cdtaname2020
 INTO SPATIAL_devdb
 FROM DRAFT_spatial
-LEFT JOIN CENSUS_TRACT_BLOCK ON DRAFT_spatial.uid = CENSUS_TRACT_BLOCK.uid
+LEFT JOIN CENSUS_TRACT_BLOCK ON DRAFT_spatial.id = CENSUS_TRACT_BLOCK.id
 LEFT JOIN dcp_ct2020 ON CENSUS_TRACT_BLOCK.bct2020 = boroct2020;
 
 DROP TABLE IF EXISTS DRAFT_spatial CASCADE;
