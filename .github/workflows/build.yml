@@ -20,6 +20,14 @@ on:
           - pluto
           - ztl
           - all
+      repeat:
+        description: "Repeat existing build?"
+        type: boolean
+        default: false
+      version:
+        description: "Version of dataset to build"
+        type: string
+        required: false
       recipe_file:
         description: "Filename of recipe to use"
         type: choice
@@ -28,14 +36,6 @@ on:
           - recipe-minor
         required: true
         default: recipe
-      version:
-        description: "Version of dataset being built"
-        type: string
-        required: false
-      repeat:
-        description: "Repeat existing build?"
-        type: boolean
-        default: false
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
