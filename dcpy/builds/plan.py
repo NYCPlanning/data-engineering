@@ -235,6 +235,13 @@ def plan(recipe_file: Path, version: str | None = None, repeat: bool = False) ->
             with publishing.get_file(product_key, "build_metadata.json") as file:
                 s = yaml.safe_load(file)["recipe"]
                 recipe = Recipe(**s)
+        elif publishing.file_exists(product_key, "metadata.yml"):
+            with publishing.get_file(product_key, "metadata.yml") as file:
+                datasets = yaml.safe_load(file.read())["datasets"]
+            source_data_versions = pd.DataFrame(datasets).set_index("name")
+            recipe = repeat_recipe_from_source_data_versions(
+                version, source_data_versions, template_recipe
+            )
         elif publishing.file_exists(product_key, "source_data_versions.csv"):
             if not recipe_file:
                 raise Exception(
@@ -247,7 +254,8 @@ def plan(recipe_file: Path, version: str | None = None, repeat: bool = False) ->
 
         else:
             raise Exception(
-                "Neither 'build_metadata.json' nor 'source_data_versions.csv' can be found. Build cannot be repeated"
+                f"Neither 'build_metadata.json', 'metadata.yml', nor 'source_data_versions.csv' can be found.\
+                Build version {version} cannot be repeated"
             )
 
     with open(lock_file, "w", encoding="utf-8") as f:
