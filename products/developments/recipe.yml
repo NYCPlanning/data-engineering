@@ -56,6 +56,3 @@ inputs:
       version_env_var: DOB_DATA_DATE
     - name: dob_jobapplications
       version_env_var: DOB_DATA_DATE
-    - name: dob_geocode_results
-      version_env_var: DOB_DATA_DATE
-      import_as: _geo_devdb

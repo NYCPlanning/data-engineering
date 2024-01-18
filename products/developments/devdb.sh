@@ -81,7 +81,7 @@ command="$1"
 shift
 
 case "${command}" in
-    dataloading | build | qaqc | aggregate | export | upload | archive | clear | geocode | import | output | library_archive) ${command} $@ ;;
+    dataloading | build | qaqc | aggregate | export | upload | archive | clear | import | output | library_archive) ${command} $@ ;;
     bq) upload_to_bq ;;
     *) echo "${command} not found" ;;
 esac

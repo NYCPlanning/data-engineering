@@ -13,6 +13,7 @@ run_sql_file sql/_init.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
 sql_table_summary _INIT_devdb
 
 display "Assign geoms to _GEO_devdb and create GEO_devdb"
+python3 python/geocode_dob.py
 run_sql_file sql/_geo.sql
 run_sql_file sql/_geo_corrections.sql
 sql_table_summary GEO_devdb

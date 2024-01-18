@@ -7,7 +7,6 @@ INPUTS:
 
 OUTPUTS:
 	_INIT_NOW_devdb (
-		uid text,
 		job_number text,
 		job_type text,
 		job_desc text,
@@ -71,15 +70,7 @@ OUTPUTS:
 */
 
 DROP TABLE IF EXISTS _INIT_NOW_devdb;
-WITH
-JOBNUMBER_relevant as (
-	SELECT ogc_fid
-	FROM dob_now_applications
-	WHERE jobtype ~* 'CO|New'
-	AND right(job_filing_number,2)='I1'
-) SELECT
-	distinct
-	(ogc_fid::integer + (SELECT MAX(uid::integer) FROM _INIT_BIS_devdb))::text as uid,
+SELECT
 	left(job_filing_number, strpos(job_filing_number, '-') - 1)::text as job_number,
 	(CASE 
 		WHEN jobtype = 'ALT-CO - New Building with Existing Elements to Remain' THEN 'Alteration'
@@ -229,4 +220,6 @@ JOBNUMBER_relevant as (
 		latitude::double precision),4326) as dob_geom
 INTO _INIT_NOW_devdb
 FROM dob_now_applications
-WHERE ogc_fid in (select ogc_fid from JOBNUMBER_relevant);
+WHERE 
+	jobtype ~* 'CO|New'
+	AND right(job_filing_number,2)='I1';

@@ -96,7 +96,7 @@ SELECT
 INTO INIT_devdb
 FROM SPATIAL_devdb a
 LEFT JOIN _INIT_devdb b
-ON a.uid = b.uid;
+ON a.id = b.id;
 
 -- Format dates in INIT_devdb where valid
 UPDATE INIT_devdb
