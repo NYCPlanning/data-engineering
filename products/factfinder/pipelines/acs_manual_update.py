@@ -1,9 +1,11 @@
 # This script transforms and uploads ACS data provided by the NYCDCP Population team
-from pathlib import Path
 import pandas as pd
 import re
+import shutil
 
-from .utils import parse_args, download_manual_update, s3_upload
+from dcpy.utils.json import df_to_json
+from dcpy.utils.string import camel_to_snake
+from .utils import parse_args, download_manual_update, s3_upload, DATA_PATH
 
 OUTPUT_SCHEMA_COLUMNS = [
     "census_geoid",
@@ -18,6 +20,10 @@ OUTPUT_SCHEMA_COLUMNS = [
     "z",
     "domain",
 ]
+
+PIVOT_COLUMNS = ["year", "geoid"]
+
+OUTPUT_FOLDER = DATA_PATH / ".output" / "acs"
 
 
 def pivot_field_name(df, field_name, domain):
@@ -40,7 +46,7 @@ def extract_field_names(df):
 
 
 def split_by_field_name(df, pff_field_name):
-    return df.filter(regex=f"^(GeoType|GeoID|{ pff_field_name }(E|M|C|P|Z))$")
+    return df.filter(regex=f"^(GeoType|GeoID|{ pff_field_name }(E|M|C|P|Z))$").copy()
 
 
 def strip_unnamed_columns(df):
@@ -51,17 +57,11 @@ def sheet_names(year):
     # NOTE: inflated sheet choices depend on which year's dollars the app should represent
     # Sheet name inflation suffixes are either "_Inflated" or "_NotInflated"
     # e.g. When building for the app in 2022 we want to use inflated 2010 data
-    if year == "2010":
-        sheet_name_suffix = "0610"
-        inflated = "_Inflated"
-    elif year == "2020":
-        sheet_name_suffix = "1620"
-        inflated = ""
-    elif year == "2021":
-        sheet_name_suffix = "1721"
-        inflated = ""
-    else:
-        raise ValueError("Unknown year '{year}'. Unable to determine sheet name suffix")
+    short_year = year[-2:]
+    start_year = int(short_year) - 4
+    sheet_name_suffix = f"{start_year:02}{short_year:02}"
+    inflated = "_Inflated" if year == "2010" else ""
+    print(f"Sheet name: '{sheet_name_suffix}'")
 
     domains_sheets = [
         {"domain": "demographic", "sheet_name": f"Dem{sheet_name_suffix}"},
@@ -96,12 +96,14 @@ def transform_all_dataframes(year):
     combined_df = pd.DataFrame()
 
     for domain_sheet in domains_sheets:
+        df = dfs[domain_sheet["sheet_name"]]
+        print(domain_sheet)
+        print(df.head())
+        transformed = transform_dataframe(df, domain_sheet["domain"])
         combined_df = pd.concat(
             [
                 combined_df,
-                transform_dataframe(
-                    dfs[domain_sheet["sheet_name"]], domain_sheet["domain"]
-                ),
+                transformed,
             ]
         )
         print(f"shape of {domain_sheet}: {combined_df.shape}")
@@ -111,11 +113,33 @@ def transform_all_dataframes(year):
     return combined_df
 
 
-def filter_by_metadata(df, year):
-    metadata_file = f"factfinder/data/acs/{year}/metadata.json"
-    acs_variable_mapping = pd.read_json(metadata_file)[["pff_variable"]]
-
-    return df.merge(acs_variable_mapping, how="inner", on="pff_variable")
+def process_metadata(excel_file):
+    df = pd.read_excel(excel_file, sheet_name="ACS Data Dictionary", skiprows=2)
+    df = df.dropna(subset=["Category"])
+    df["VariableName"] = df["VariableName"].str.lower()
+    df["year"] = df["Dataset"].astype(str).str.split(", ")
+    df = df.explode("year")
+    df["year"] = df["year"].astype(str).str.split("-").apply(lambda x: x[1])
+    columns = {column: camel_to_snake(column) for column in df.columns}
+    columns.update(
+        {
+            "VariableName": "pff_variable",
+            "Relation": "base_variable",
+            "Profile": "domain",
+        }
+    )
+    df.rename(columns=columns, inplace=True)
+    files = {}
+    for year, year_df in df.groupby("year"):
+        year_df = year_df[columns.values()]
+        df.drop(axis=1, labels=["year", "dataset", "new"])
+        file = OUTPUT_FOLDER / year / "metadata.json"
+        file.parent.mkdir(parents=True, exist_ok=True)
+        with open(file, "w") as outfile:
+            outfile.write(df_to_json(year_df))
+        files[year] = file
+    print(files)
+    return files
 
 
 def rename_columns(df):
@@ -130,15 +154,13 @@ if __name__ == "__main__":
     print("transform_all_dataframes ...")
     export_df = transform_all_dataframes(year)
 
-    print("filter_by_metadata ...")
-    export_df = filter_by_metadata(export_df, year)
-
     print("rename_columns ...")
     export_df = rename_columns(export_df)
 
-    output_file = Path(".output/acs") / year / "acs.csv"
+    output_file = OUTPUT_FOLDER / year / "acs.csv"
     output_file.parent.mkdir(parents=True, exist_ok=True)
     export_df.to_csv(output_file, index=False)
+    shutil.copy(DATA_PATH / "acs" / year / "metadata.json", OUTPUT_FOLDER / year)
 
     if upload:
         s3_upload(output_file)
