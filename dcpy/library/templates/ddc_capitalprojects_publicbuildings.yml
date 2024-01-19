@@ -3,7 +3,7 @@ dataset:
   acl: private
   source:
     url:
-      path: library/tmp/PBProjects.zip
+      path: .library/upload/PBProjects.zip
       subpath: PBProjects.shp
     options:
       - "AUTODETECT_TYPE=NO"

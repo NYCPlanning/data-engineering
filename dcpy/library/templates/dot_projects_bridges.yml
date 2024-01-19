@@ -3,7 +3,7 @@ dataset:
   acl: private
   source:
     url:
-      path: library/tmp/DOTBridges.zip
+      path: .library/upload/DOTBridges.zip
       subpath: DOTBridges.shp
     options:
       - "AUTODETECT_TYPE=NO"

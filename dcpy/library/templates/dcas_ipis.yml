@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     script:
-      path: library/tmp/dcas_ipis.csv
+      path: .library/upload/dcas_ipis.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/NYS_DEC_Lands.zip
+      path: .library/upload/NYS_DEC_Lands.zip
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

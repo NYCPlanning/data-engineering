@@ -3,7 +3,7 @@ dataset:
   acl: private
   source:
     url:
-      path: library/tmp/EDCCapital.zip
+      path: .library/upload/EDCCapital.zip
       subpath: EDCCapital.shp
     options:
       - "AUTODETECT_TYPE=NO"

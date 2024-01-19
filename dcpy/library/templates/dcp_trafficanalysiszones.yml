@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: dcp_trafficanalysiszones.csv
+      path: .library/upload/dcp_trafficanalysiszones.csv
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

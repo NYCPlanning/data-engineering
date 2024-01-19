@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/Manned_Facilities.zip
+      path: .library/upload/Manned_Facilities.zip
       subpath: Manned_Facilities/Manned_Facilities.shp
     options:
       - "AUTODETECT_TYPE=NO"

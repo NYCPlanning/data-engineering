@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/AUE_Data_20230425.zip
+      path: .library/upload/AUE_Data_20230425.zip
       subpath: AUE_allowed_lots_updated_20230425_how53mx.shp
     options:
       - "AUTODETECT_TYPE=NO"

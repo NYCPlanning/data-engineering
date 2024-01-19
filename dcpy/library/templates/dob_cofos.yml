@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     script:
-      path: library/tmp/dob_cofos.csv
+      path: .library/upload/dob_cofos.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
