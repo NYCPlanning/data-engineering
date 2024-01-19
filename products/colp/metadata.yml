@@ -15,7 +15,12 @@ columns:
       NYC borough – 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
       (Staten Island)
     data_type: text
-    example: 1
+    values:
+      - ["1", Manhattan]
+      - ["2", Bronx]
+      - ["3", Brooklyn]
+      - ["4", Queens]
+      - ["5", Staten Island]
 
   - field_name: BLOCK
     longform_name: Tax block
@@ -75,7 +80,7 @@ columns:
     longform_name: House number
     description: House number
     data_type: text
-    example: 1955
+    example: "1955"
 
   - field_name: SNAME
     longform_name: Street name
@@ -96,7 +101,7 @@ columns:
       to parcel names to improve readability. Some abbreviations are expanded
       programmatically. Other modifications are made after manual research. For
       the latter, DCPEDITED = “Y”.
-    data_type: Text
+    data_type: text
     example: AGUILAR BRANCH LIBRARY
 
   - field_name: AGENCY
@@ -104,7 +109,7 @@ columns:
     description: >-
       Abbreviation for agency or entity using the lot. See appendix A for a list
       of abbreviations with their full name.
-    data_type: Text
+    data_type: text
     example: NYPL
 
   - field_name: USECODE
@@ -112,8 +117,8 @@ columns:
     description: >-
       The use code indicates how the lot is being used by the agency. See
       Appendix B for a complete list of use codes and descriptions.
-    data_type: Text
-    example: 218
+    data_type: text
+    example: "218"
 
   - field_name: USETYPE
     longform_name: Use description
@@ -127,12 +132,11 @@ columns:
     longform_name: Owner type
     description: Type of owner
     data_type: text
-    Values: |
-      C – City owned
-      M – Mixed ownership
-      P – Private
-      O – Other/public authority (includes properties owned by federal and state
-      entities)
+    values:
+      - [C, City owned]
+      - [M, Mixed ownership]
+      - [P, Private]
+      - [O, Other/public authority (includes properties owned by federal and state entities)]
 
   - field_name: CATEGORY
     longform_name: Category
@@ -141,10 +145,10 @@ columns:
       Category classifies lots as non-residential properties with a current use,
       residential properties, or properties without a current use.
     data_type: integer
-    Values: |
-      1 – Non-residential properties with a current use
-      2 – Residential properties
-      3 – Properties with no current use
+    values:
+      - [1, Non-residential properties with a current use]
+      - [2, Residential properties]
+      - [3, Properties with no current use]
 
   - field_name: EXPANDCAT
     longform_name: Expanded category
@@ -153,16 +157,16 @@ columns:
       This categorization classifies records into broad groups based on use.
       Valid values are 1 – 9.
     data_type: integer
-    Description of values: |
-      1 – Office use
-      2 – Educational use
-      3 – Cultural & recreational use
-      4 – Public safety & criminal justice use
-      5 – Health & social service use
-      6 – Leased out to a private tenant
-      7 – Maintenance, storage & infrastructure
-      8 – Property with no use
-      9 – Property with a residential used
+    Description of values:
+      - [1, Office use]
+      - [2, Educational use]
+      - [3, Cultural & recreational use]
+      - [4, Public safety & criminal justice use]
+      - [5, Health & social service use]
+      - [6, Leased out to a private tenant]
+      - [7, Maintenance, storage & infrastructure]
+      - [8, Property with no use]
+      - [9, Property with a residential used]
 
   - field_name: EXCATDESC
     longform_name: Expanded category description
@@ -180,13 +184,17 @@ columns:
       status of specific lots, please contact DCAS at (212) 386-0622 or
       RESPlanning311@dcas.nyc.gov.
     data_type: text
-    Values: L or blank
+    is_nullable: True
+    values:
+      - L
 
   - field_name: FINALCOM
     longform_name: Final commitment
     description: A value of “D” indicates potential disposition by the City.
     data_type: text
-    Values: D or blank
+    is_nullable: True
+    values:
+      - D
 
   - field_name: AGREEMENT
     longform_name: Lease agreement
@@ -195,9 +203,10 @@ columns:
       indicates whether the agreement is short-term, long-term, or there are
       both short- and long-term agreements present.
     data_type: text
-    Values: >-
-      S – Short-term L – Long-term M – Mixed (there are both short- and
-      long-term agreements on the property)
+    values:
+      - [S, Short-term]
+      - [L, Long-term]
+      - [M, Mixed (there are both short- and long-term agreements on the property)]
 
   - field_name: XCOORD
     longform_name: X coordinate
@@ -246,7 +255,8 @@ columns:
       been manually modified, the original value can be found on GitHub in the
       modifications_applied.csv available in Outputs file series.
     data_type: text
-    example: 'Y'
+    values:
+      - [Y, Yes]
 
   - field_name: GEOM (csv file only)
     longform_name: Geometry
