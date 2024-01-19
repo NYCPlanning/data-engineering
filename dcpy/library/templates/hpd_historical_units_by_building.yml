@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     script:
-      path: library/tmp/HPD_FROM_DCP_HOUSING/06_20_2023_Lookback Legislation.xlsx
+      path: .library/upload/HPD_FROM_DCP_HOUSING/06_20_2023_Lookback Legislation.xlsx
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

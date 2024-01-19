@@ -3,7 +3,7 @@ dataset:
   acl: private
   source:
     url:
-      path: library/tmp/IFRProjects.zip
+      path: .library/upload/IFRProjects.zip
       subpath: IFRProjects.shp
     options:
       - "AUTODETECT_TYPE=NO"

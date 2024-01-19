@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/Bridge_Houses.zip
+      path: .library/upload/Bridge_Houses.zip
       subpath: Bridge_Houses/Bridge_Houses.shp
     options:
       - "AUTODETECT_TYPE=NO"

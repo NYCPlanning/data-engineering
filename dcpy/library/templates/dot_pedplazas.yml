@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/Plazas.zip
+      path: .library/upload/Plazas.zip
       subpath: Plazas/Plazas.shp
     options:
       - "AUTODETECT_TYPE=NO"

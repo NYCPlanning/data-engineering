@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/dhc_{{ version }}.xlsx
+      path: .library/upload/dhc_{{ version }}.xlsx
     geometry:
       SRS: null
       type: NONE
