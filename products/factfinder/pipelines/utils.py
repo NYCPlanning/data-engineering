@@ -6,7 +6,7 @@ from pathlib import Path
 from dcpy.utils import s3, git
 from dcpy.connectors.edm import publishing
 
-from pipelines import PRODUCT_PATH
+from . import PRODUCT_PATH
 
 
 DATA_PATH = PRODUCT_PATH / "factfinder" / "data"
@@ -20,7 +20,6 @@ def parse_args() -> Tuple[str, str, bool]:
         "--year",
         type=str,
         help="The ACS5 year, e.g. 2020 (2016-2020)",
-        choices=["2010", "2020", "2021"],
     )
     parser.add_argument(
         "-g",
