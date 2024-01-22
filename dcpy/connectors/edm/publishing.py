@@ -123,7 +123,7 @@ def try_get_previous_version(
 
 
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
-    """Given product name, gets source data versions of published version"""
+    """Gets source data versions of build via csv metadata"""
     source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
     print(source_data_versions)
     source_data_versions.rename(
