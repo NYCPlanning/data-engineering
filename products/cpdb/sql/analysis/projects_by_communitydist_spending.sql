@@ -5,7 +5,7 @@ CREATE TABLE projects_by_communitydist_spending AS (
         SELECT
             TRIM(LEFT(capital_project, 12)) AS maprojid,
             SUM(check_amount::double precision) AS total_spend
-        FROM capital_spending
+        FROM nycoc_checkbook
         -- WHERE LEFT(issue_date, 4)::double precision >= 2014
         GROUP BY TRIM(LEFT(capital_project, 12))
     ),
