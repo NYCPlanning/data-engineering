@@ -23,7 +23,8 @@ inputs:
     - name: doitt_buildingfootprints
 
 # Projects
-    - name: cpdb_capital_spending
+    - name: nycoc_checkbook
+      version: 2010-2023
     - name: fisa_capitalcommitments
     - name: fisa_dailybudget
     - name: dot_projects_intersections
