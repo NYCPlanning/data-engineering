@@ -37,9 +37,13 @@ class Socrata(BaseModel):
     format: ValidSocrataFormats
 
 
+class Script(BaseModel, extra="allow"):
+    name: str | None = None
+
+
 class SourceSection(BaseModel):
     url: Url | None = None
-    script: dict[str, str] | None = None
+    script: Script | None = None
     socrata: Socrata | None = None
     geometry: GeometryType | None = None
     options: list[str] | None = None

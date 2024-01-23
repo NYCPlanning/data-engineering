@@ -8,7 +8,7 @@ from .scriptor import ScriptorInterface
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        r = requests.get(self.path, stream=True)
+        r = requests.get(self.source["path"], stream=True)
         with open(f"dcp_facilities_with_unmapped{self.version}.zip", "wb") as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)

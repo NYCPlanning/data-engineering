@@ -78,9 +78,9 @@ class Config:
             version = self.version or _config.version or self.version_today
         config = self.parsed_rendered_template(version=version)
 
-        # need to be a bit explicit because of truthiness of empty dicts
-        if config.source.script is not None:
-            module = importlib.import_module(f"dcpy.library.script.{config.name}")
+        if config.source.script:
+            name = config.source.script.name or config.name
+            module = importlib.import_module(f"dcpy.library.script.{name}")
             scriptor = module.Scriptor(config=config.model_dump())
             path = scriptor.runner()
             config.source.gdalpath = format_url(path)

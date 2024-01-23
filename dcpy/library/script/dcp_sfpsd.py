@@ -6,7 +6,7 @@ from .scriptor import ScriptorInterface
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_csv(self.path)
+        df = pd.read_csv(self.source["path"])
         df = df[
             df.pgtable.str.contains(
                 "amtrak_facilities_sfpsd|bbpc_facilities_sfpsd|hrpt_facilities_sfpsd|"

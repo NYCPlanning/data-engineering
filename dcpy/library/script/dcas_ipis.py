@@ -10,7 +10,7 @@ load_dotenv()
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_csv(self.path, encoding="ISO-8859-1")
+        df = pd.read_csv(self.source["path"], encoding="ISO-8859-1")
         return df
 
     def runner(self) -> str:

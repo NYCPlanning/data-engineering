@@ -6,7 +6,7 @@ from .scriptor import ScriptorInterface
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        data = get_json_content(self.path)
+        data = get_json_content(self.source["path"])
 
         df = pd.DataFrame(data)
         df = df[["TrackerID", "FMSID", "Title", "TotalFunding", "Locations"]]

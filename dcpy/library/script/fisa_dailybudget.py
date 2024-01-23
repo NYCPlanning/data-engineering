@@ -57,7 +57,7 @@ class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
         df = pd.DataFrame(columns=HEADERS + ["fisa_version"])
         count = 0
-        path = Path(self.path)
+        path = Path(self.source["path"])
         if not path.is_dir():
             raise Exception(f"Directory '{path}' does not exist.")
         for file in path.glob("AIBL_DLY_BUD_96L1_*.asc"):

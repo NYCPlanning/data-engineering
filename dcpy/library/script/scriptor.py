@@ -13,5 +13,5 @@ class ScriptorInterface:
         return self.config["version"]
 
     @property
-    def path(self) -> str:
-        return self.config["source"]["script"]["path"]
+    def source(self) -> dict[str, str]:
+        return self.config["source"]["script"]

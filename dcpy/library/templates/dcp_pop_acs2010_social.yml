@@ -1,0 +1,28 @@
+dataset:
+  name: dcp_pop_acs2010_social
+  acl: public-read
+  source:
+    script: 
+      name: excel
+      path: https://nyc3.digitaloceanspaces.com/edm-recipes/inbox/dcp_pop_acs2010/{{ version }}/dcp_pop_acs.xlsx
+      sheet_name: Social0610
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## 2010 ACS file from Population
+      This file is produced internally by the Population division. 2010 version is used as a reference dataset
+      for the latest ACS data, and occasionally is modified so these different subsections are archived as their
+      own recipe datasets so that they can easily be updated individually
+      
+    url: null
+    dependents: []

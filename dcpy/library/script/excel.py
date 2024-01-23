@@ -5,11 +5,7 @@ from .scriptor import ScriptorInterface
 
 
 class Scriptor(ScriptorInterface):
-    def ingest(self) -> pd.DataFrame:
-        df = pd.read_excel(self.source["path"], sheet_name=self.version, usecols="A:HX")
-        return df
-
     def runner(self) -> str:
-        df = self.ingest()
+        df = pd.read_excel(self.source["path"], sheet_name=self.source["sheet_name"])
         local_path = df_to_tempfile(df)
         return local_path

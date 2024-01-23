@@ -57,7 +57,7 @@ class Scriptor(ScriptorInterface):
         return df
 
     def ingest_csv(self):
-        df = pd.read_csv(self.path, encoding="utf-8")
+        df = pd.read_csv(self.source["path"], encoding="utf-8")
         return df
 
     def runner(self) -> str:

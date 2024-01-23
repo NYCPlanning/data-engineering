@@ -25,7 +25,7 @@ class Scriptor(ScriptorInterface):
 
     def ingest(self) -> pd.DataFrame:
         hdr = {"User-Agent": "Mozilla/5.0"}
-        req = Request(self.path, headers=hdr)
+        req = Request(self.source["path"], headers=hdr)
         gcontext = ssl.SSLContext()
         page = urlopen(req, context=gcontext)
         soup = BeautifulSoup(page, features="html.parser")
