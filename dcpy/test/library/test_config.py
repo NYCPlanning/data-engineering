@@ -6,19 +6,20 @@ from . import template_path, get_config_file
 def test_config_parsed_rendered_template():
     c = Config(get_config_file("url"))
     rendered = c.parsed_rendered_template(version="20v7")
-    assert rendered["dataset"]["version"] == "20v7"
+    assert rendered.version == "20v7"
 
 
 def test_config_source_type():
-    c = Config(get_config_file("socrata"))
-    assert c.source_type == "socrata"
-    c = Config(get_config_file("url"))
-    assert c.source_type == "url"
+    c = Config(get_config_file("socrata")).compute
+    assert c.source.socrata
+    c = Config(get_config_file("url")).compute
+    assert c.source.url
 
 
 def test_config_version_socrata():
     c = Config(get_config_file("socrata"))
-    uid = c.parsed_unrendered_template["dataset"]["source"]["socrata"]["uid"]
+    assert c.parsed_unrendered_template.source.socrata
+    uid = c.parsed_unrendered_template.source.socrata.uid
     version = c.version_socrata(uid)
     assert len(version) == 8  # format: YYYYMMDD
     assert int(version[-2:]) <= 31  # check date
@@ -34,23 +35,13 @@ def test_config_version_today():
 
 
 def test_config_compute():
-    config = Config(get_config_file("socrata")).compute
-    assert type(config["dataset"]["source"]["url"]) == dict
-
-
-def test_config_compute_parsed():
-    dataset, source, destination, info = Config(
-        get_config_file("socrata")
-    ).compute_parsed
-    assert dataset["source"] == source
-    assert dataset["info"] == info
-    assert dataset["destination"] == destination
-    assert "url" in list(source.keys())
-    assert "options" in list(source.keys())
-    assert "geometry" in list(source.keys())
-    assert "fields" in list(destination.keys())
-    assert "options" in list(destination.keys())
-    assert "geometry" in list(destination.keys())
+    dataset = Config(get_config_file("socrata")).compute
+    assert dataset.source.gdalpath
+    assert dataset.source.options
+    assert dataset.source.geometry
+    assert dataset.destination.fields == []
+    assert dataset.destination.options
+    assert dataset.destination.geometry
 
 
 def test_config_script():

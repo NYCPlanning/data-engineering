@@ -1,21 +1,15 @@
-import importlib
-import json
 from datetime import datetime
-import requests
-import yaml
-from jinja2 import Template
-import os
-from typing import Optional, Tuple
 from functools import cached_property
+from jinja2 import Template
+import importlib
+import os
+import pytz
+import requests
+import subprocess
+import yaml
 
-from .utils import format_url, get_execution_details
-from .validator import Validator
-
-
-# Custom dumper created for list indentation
-class Dumper(yaml.Dumper):
-    def increase_indent(self, flow=False, indentless=False):
-        return super(Dumper, self).increase_indent(flow, False)
+from .utils import format_url
+from .validator import Validator, Dataset
 
 
 class Config:
@@ -25,7 +19,7 @@ class Config:
     file to pass into the Ingestor
     """
 
-    def __init__(self, path: str, version: Optional[str] = None):
+    def __init__(self, path: str, version: str | None = None):
         self.path = path
         self.version = version
 
@@ -36,21 +30,16 @@ class Config:
             return f.read()
 
     @property
-    def parsed_unrendered_template(self) -> dict:
+    def parsed_unrendered_template(self) -> Dataset:
         """parsing unrendered template into a dictionary"""
-        return yaml.safe_load(self.unparsed_unrendered_template)
+        return Dataset(**yaml.safe_load(self.unparsed_unrendered_template)["dataset"])
 
-    def parsed_rendered_template(self, **kwargs) -> dict:
+    def parsed_rendered_template(self, version: str) -> Dataset:
         """render template, then parse into a dictionary"""
         template = Template(self.unparsed_unrendered_template)
-        return yaml.safe_load(template.render(**kwargs))
-
-    @property
-    def source_type(self) -> str:
-        """determine the type of the source, either url, socrata or script"""
-        template = self.parsed_unrendered_template
-        source = template["dataset"]["source"]
-        return list(source.keys())[0]
+        loaded = yaml.safe_load(template.render(version=version))["dataset"]
+        loaded["version"] = version
+        return Dataset(**loaded)
 
     def version_socrata(self, uid: str) -> str:
         """using the socrata API, collect the 'data last update' date"""
@@ -66,10 +55,6 @@ class Config:
     #     # scrape from bytes to get a version
     #     return None
 
-    def valid_version(self, version: str) -> bool:
-        """check that a version name is valid"""
-        return "{" not in version and "}" not in version
-
     @property
     def version_today(self) -> str:
         """
@@ -79,113 +64,92 @@ class Config:
         return datetime.today().strftime("%Y%m%d")
 
     @cached_property
-    def compute(self) -> dict:
+    def compute(self) -> Dataset:
         """based on given yml file, compute the configuration"""
 
         # Validate unparsed, unrendered file
-        Validator(self.parsed_unrendered_template)()
+        Validator(yaml.safe_load(self.unparsed_unrendered_template))()
 
-        if self.source_type == "script":
-            if self.version:
-                version = self.version
-            else:
-                version = self.version_today
-            config = self.parsed_rendered_template(version=version)
-            _config = self.parsed_unrendered_template
+        _config = self.parsed_unrendered_template
+        if _config.source.socrata:
+            version = self.version_socrata(_config.source.socrata.uid)
+        else:
+            # backwards compatibility before templates were simplified
+            if _config.version == r"{{version}}":
+                _config.version = None
+            version = self.version or _config.version or self.version_today
+        config = self.parsed_rendered_template(version=version)
 
-            script_name = _config["dataset"]["source"]["script"]
-            module = importlib.import_module(f"dcpy.library.script.{script_name}")
-            scriptor = module.Scriptor(config=config)
-            url = scriptor.runner()
+        # need to be a bit explicit because of truthiness of empty dicts
+        if _config.source.script is not None:
+            module = importlib.import_module(f"dcpy.library.script.{_config.name}")
+            scriptor = module.Scriptor(config=config.model_dump())
+            path = scriptor.runner()
+            config.source.gdalpath = format_url(path)
 
-            options = config["dataset"]["source"]["options"]
-            geometry = config["dataset"]["source"]["geometry"]
-            config["dataset"]["source"] = {
-                "url": {"path": url, "subpath": ""},
-                "options": options,
-                "geometry": geometry,
-            }
-
-        if self.source_type == "url":
-            # Load unrendered template to check for yml-specified
-            # version (_version)
-            _config = self.parsed_unrendered_template
-            _version = _config["dataset"]["version"]
-
-            # If a custom version specified from CLI, take custom version
-            if self.version:
-                version = self.version
-
-            # If no custom version specified and version in config
-            # is valid, take config version (_version)
-            if not self.version and self.valid_version(_version):
-                version = _version
-
-            # If no custom version and no config version,
-            # assign today as version
-            if not self.version and not self.valid_version(_version):
-                version = self.version_today
-
-            # Render template
-            config = self.parsed_rendered_template(version=version)
-
-            # Force overwrite of yml version with appropriate version
-            config["dataset"]["version"] = version
-
-        if self.source_type == "socrata":
-            # For socrata we are computing the url and add the url object to the config file
-            _uid = self.parsed_unrendered_template["dataset"]["source"]["socrata"][
-                "uid"
-            ]
-            _format = self.parsed_unrendered_template["dataset"]["source"]["socrata"][
-                "format"
-            ]
-            config = self.parsed_rendered_template(version=self.version_socrata(_uid))
-
-            if _format == "csv":
-                url = f"https://data.cityofnewyork.us/api/views/{_uid}/rows.csv"
-            if _format == "geojson":
-                url = f"https://nycopendata.socrata.com/api/geospatial/{_uid}?method=export&format=GeoJSON"
-            if _format == "shapefile":
-                local_path = f"library/tmp/{config['dataset']['name']}.zip"
-                url = f"https://data.cityofnewyork.us/api/geospatial/{_uid}?method=export&format=Shapefile"
+        elif _config.source.socrata:
+            socrata = _config.source.socrata
+            if socrata.format == "csv":
+                path = f"https://data.cityofnewyork.us/api/views/{socrata.uid}/rows.csv"
+            elif socrata.format == "geojson":
+                path = f"https://nycopendata.socrata.com/api/geospatial/{socrata.uid}?method=export&format=GeoJSON"
+            elif socrata.format == "shapefile":
+                path = f"library/tmp/{config.name}.zip"
+                url = f"https://data.cityofnewyork.us/api/geospatial/{socrata.uid}?method=export&format=Shapefile"
                 os.system("mkdir -p library/tmp")
-                os.system(f'curl -o {local_path} "{url}"')
-                url = local_path
+                os.system(f'curl -o {path} "{url}"')
+            else:
+                raise Exception(
+                    "Socrata source format must be 'csv', 'geojson', or 'shapefile'."
+                )
+            config.source.gdalpath = format_url(path)
 
-            options = config["dataset"]["source"]["options"]
-            geometry = config["dataset"]["source"]["geometry"]
-            config["dataset"]["source"] = {
-                "url": {"path": url, "subpath": ""},
-                "options": options,
-                "geometry": geometry,
-            }
+        elif _config.source.url:
+            config.source.gdalpath = format_url(
+                _config.source.url.path, _config.source.url.subpath
+            )
 
-        path = config["dataset"]["source"]["url"]["path"]
-        subpath = config["dataset"]["source"]["url"]["subpath"]
-        config["dataset"]["source"]["url"]["gdalpath"] = format_url(path, subpath)
-        config["execution_details"] = get_execution_details()
+        else:
+            # this error should not be raised - call to Validator takes care of this
+            # however, mypy must be appeased
+            raise Exception(
+                "Either url, script source, or socrata source must be defined"
+            )
+
+        config.execution_details = get_execution_details()
         return config
 
-    @property
-    def compute_json(self) -> str:
-        return json.dumps(self.compute, indent=4)
 
-    @property
-    def compute_yml(self) -> str:
-        return yaml.dump(
-            self.compute,
-            Dumper=Dumper,
-            default_flow_style=False,
-            sort_keys=False,
-            indent=2,
+def get_execution_details() -> dict[str, str]:
+    def try_func(func):
+        try:
+            return func()
+        except:
+            return "could not parse"
+
+    timestamp = datetime.now(pytz.timezone("America/New_York")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    if os.environ.get("CI"):
+        return {
+            "type": "ci",
+            "dispatch_event": os.environ.get("GITHUB_EVENT_NAME", "could not parse"),
+            "url": try_func(
+                lambda: f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+            ),
+            "job": os.environ.get("GITHUB_JOB", "could not parse"),
+            "timestamp": timestamp,
+        }
+    else:
+        git_user = try_func(
+            lambda: subprocess.run(
+                ["git", "config", "user.name"], stdout=subprocess.PIPE
+            )
+            .stdout.strip()
+            .decode()
         )
-
-    @property
-    def compute_parsed(self) -> Tuple[dict, dict, dict, dict]:
-        config = self.compute
-        dataset = config["dataset"]
-        source = dataset["source"]
-        destination = dataset["destination"]
-        info = dataset["info"]
-        return dataset, source, destination, info
+        return {
+            "type": "manual",
+            "user": git_user,
+            "timestamp": timestamp,
+        }

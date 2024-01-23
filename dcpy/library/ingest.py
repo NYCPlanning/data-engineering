@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import pathlib
 import shutil
@@ -24,7 +25,7 @@ from .sources import generic_source, postgres_source
 
 def translator(func):
     @wraps(func)
-    def wrapper(self: "Ingestor", *args, **kwargs) -> Tuple[list[str], str, str]:
+    def wrapper(self: Ingestor, *args, **kwargs) -> Tuple[list[str], str, str]:
         # get relevant translator return values
         (dstDS, output_format, output_suffix, compress, inplace) = func(
             self, *args, **kwargs
@@ -33,18 +34,17 @@ def translator(func):
         output_files = []
         path = args[0]
         c = Config(path, kwargs.get("version", None))
-        dataset, source, destination, _ = c.compute_parsed
-        name = dataset["name"]
-        version = dataset["version"]
-        acl = dataset["acl"]
+        dataset = c.compute
+        assert dataset.source.gdalpath
+        assert dataset.version
         # initiate source and destination datasets
-        folder_path = f"{self.base_path}/datasets/{name}/{version}"
+        folder_path = f"{self.base_path}/datasets/{dataset.name}/{dataset.version}"
 
         if not output_suffix and not output_format:
-            output_suffix = pathlib.Path(source["url"]["gdalpath"]).suffix.strip(".")
+            output_suffix = pathlib.Path(dataset.source.gdalpath).suffix.strip(".")
 
         if output_suffix:
-            destination_path = f"{folder_path}/{name}.{output_suffix}"
+            destination_path = f"{folder_path}/{dataset.name}.{output_suffix}"
             output_files.append(destination_path)
         else:
             destination_path = None
@@ -52,43 +52,43 @@ def translator(func):
         # Create output folder and output config
         if folder_path and output_suffix:
             os.makedirs(folder_path, exist_ok=True)
-            self.write_config(f"{folder_path}/config.json", c.compute_json)
-            self.write_config(f"{folder_path}/config.yml", c.compute_yml)
+            self.write_config(
+                f"{folder_path}/config.json", dataset.model_dump_json(indent=4)
+            )
             output_files.append(f"{folder_path}/config.json")
-            output_files.append(f"{folder_path}/config.yml")
 
         if not output_format:
             if not destination_path:
                 raise Exception("TODO - fix logic around as-is output")
             else:
-                shutil.copy(source["url"]["gdalpath"], destination_path)
-                return output_files, version, acl
+                shutil.copy(dataset.source.gdalpath, destination_path)
+                return output_files, dataset.version, dataset.acl
 
         # Default dstDS is destination_path if no dstDS is specificed
         dstDS = destination_path if not dstDS else dstDS
         srcDS = generic_source(
-            path=source["url"]["gdalpath"],
-            options=source["options"],
-            fields=destination["fields"],
+            path=dataset.source.gdalpath,
+            options=dataset.source.options,
+            fields=dataset.destination.fields,
         )
 
         layerName = srcDS.GetLayer(0).GetName()
-        dataset_name = destination["name"]
-        sql = destination.get("sql", None)
-        sql = None if not sql else sql.replace("@filename", layerName)
+        sql = dataset.destination.sql
+        if sql:
+            sql = sql.replace("@filename", layerName)
 
         # Create postgres database schema and table version if needed
         if output_format == "PostgreSQL":
-            schema_name = dataset_name
+            schema_name = dataset.name
             dstDS.ExecuteSQL(f"CREATE SCHEMA IF NOT EXISTS {schema_name};")
             version = (
                 datetime.date.today().strftime("%Y/%m/%d")
-                if version == ""
-                else version.lower()
+                if dataset.version == ""
+                else dataset.version.lower()
             )
             layerName = f"{schema_name}.{version}"
         else:
-            layerName = dataset_name
+            layerName = dataset.name
 
         # Initiate vector translate
         with Progress(
@@ -100,7 +100,7 @@ def translator(func):
             transient=True,
         ) as progress:
             task = progress.add_task(
-                f"[green]Ingesting [bold]{dataset_name}[/bold]", total=1000
+                f"[green]Ingesting [bold]{dataset.name}[/bold]", total=1000
             )
 
             def update_progress(complete, message, unknown):
@@ -112,14 +112,16 @@ def translator(func):
             if type(dstDS) == str and dstDS.endswith(".csv") and Path(dstDS).exists():
                 Path(dstDS).unlink()
 
+            srcSRS = dataset.source.geometry.SRS if dataset.source.geometry else None
+
             gdal.VectorTranslate(
                 dstDS,
                 srcDS,
                 format=output_format,
-                layerCreationOptions=destination["options"],
-                dstSRS=destination["geometry"]["SRS"],
-                srcSRS=source["geometry"]["SRS"],
-                geometryType=destination["geometry"]["type"],
+                layerCreationOptions=dataset.destination.options,
+                dstSRS=dataset.destination.geometry.SRS,
+                srcSRS=srcSRS,
+                geometryType=dataset.destination.geometry.type,
                 layerName=layerName,
                 accessMode="overwrite",
                 makeValid=True,
@@ -158,7 +160,7 @@ def translator(func):
                 if inplace:
                     output_files.remove(destination_path)
                 output_files.append(f"{destination_path}.zip")
-        return output_files, version, acl
+        return output_files, dataset.version, dataset.acl
 
     return wrapper
 

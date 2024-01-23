@@ -33,10 +33,8 @@ def test_archive_1():
     s3_exist = [
         f"{TEST_DATASET_OUTPUT_PATH_S3}/{TEST_DATASET_NAME}.csv.zip",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv.zip",
-        f"{TEST_DATASET_OUTPUT_PATH_S3}/config.yml",
         f"{TEST_DATASET_OUTPUT_PATH_S3}/config.json",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv.zip",
-        f"datasets/{TEST_DATASET_NAME}/latest/config.yml",
         f"datasets/{TEST_DATASET_NAME}/latest/config.json",
     ]
     start_clean(local_not_exist, s3_exist)
@@ -58,16 +56,13 @@ def test_archive_1():
 def test_archive_2():
     s3_not_exist = [
         f"{TEST_DATASET_OUTPUT_PATH_S3}/{TEST_DATASET_NAME}.geojson.zip",
-        f"{TEST_DATASET_OUTPUT_PATH_S3}/config.yml",
         f"{TEST_DATASET_OUTPUT_PATH_S3}/config.json",
         f"{TEST_DATASET_OUTPUT_PATH_S3}/{TEST_DATASET_NAME}.geojson",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.geojson.zip",
-        f"datasets/{TEST_DATASET_NAME}/latest/config.yml",
         f"datasets/{TEST_DATASET_NAME}/latest/config.json",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.geojson",
     ]
     local_exist = [
-        f"{TEST_DATASET_OUTPUT_DIRECTORY}/config.yml",
         f"{TEST_DATASET_OUTPUT_DIRECTORY}/config.json",
         f"{TEST_DATASET_OUTPUT_PATH}.geojson.zip",
         f"{TEST_DATASET_OUTPUT_PATH}.geojson",
@@ -116,17 +111,14 @@ def test_archive_4():
         f"datasets/{TEST_DATASET_NAME}/testor/{TEST_DATASET_NAME}.csv.zip",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv.zip",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv",
-        f"datasets/{TEST_DATASET_NAME}/latest/config.yml",
         f"datasets/{TEST_DATASET_NAME}/latest/config.json",
     ]
     s3_exist = [
-        f"datasets/{TEST_DATASET_NAME}/testor/config.yml",
         f"datasets/{TEST_DATASET_NAME}/testor/config.json",
         f"datasets/{TEST_DATASET_NAME}/testor/{TEST_DATASET_NAME}.csv",
     ]
     local_exist = [
         f".library/datasets/{TEST_DATASET_NAME}/testor/{TEST_DATASET_NAME}.csv",
-        f".library/datasets/{TEST_DATASET_NAME}/testor/config.yml",
         f".library/datasets/{TEST_DATASET_NAME}/testor/config.json",
     ]
     local_not_exist = [
@@ -158,17 +150,14 @@ def test_archive_5():
         f"datasets/{TEST_DATASET_NAME}/testor/{TEST_DATASET_NAME}.csv.zip",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv.zip",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv",
-        f"datasets/{TEST_DATASET_NAME}/latest/config.yml",
         f"datasets/{TEST_DATASET_NAME}/latest/config.json",
     ]
     s3_exist = [
-        f"datasets/{TEST_DATASET_NAME}/testor/config.yml",
         f"datasets/{TEST_DATASET_NAME}/testor/config.json",
         f"datasets/{TEST_DATASET_NAME}/testor/{TEST_DATASET_NAME}.csv",
     ]
     local_exist = [
         f".library/datasets/{TEST_DATASET_NAME}/testor/{TEST_DATASET_NAME}.csv",
-        f".library/datasets/{TEST_DATASET_NAME}/testor/config.yml",
         f".library/datasets/{TEST_DATASET_NAME}/testor/config.json",
     ]
     local_not_exist = [
@@ -204,9 +193,7 @@ def test_archive_6():
     s3_exist = [
         f"{TEST_DATASET_OUTPUT_PATH_S3}/{TEST_DATASET_NAME}.shp.zip",
         f"datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.shp.zip",
-        f"{TEST_DATASET_OUTPUT_PATH_S3}/config.yml",
         f"{TEST_DATASET_OUTPUT_PATH_S3}/config.json",
-        f"datasets/{TEST_DATASET_NAME}/latest/config.yml",
         f"datasets/{TEST_DATASET_NAME}/latest/config.json",
     ]
     local_exist = [f"{TEST_DATASET_OUTPUT_PATH}.shp.zip"]

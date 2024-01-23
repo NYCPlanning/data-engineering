@@ -1,5 +1,6 @@
-from typing import List, Literal, Optional
-from pydantic import BaseModel, ValidationError, Extra
+from pydantic import BaseModel, ValidationError
+from typing import List, Literal
+
 
 ValidAclValues = Literal["public-read", "private"]
 ValidGeomTypes = Literal[
@@ -21,15 +22,14 @@ ValidGeomTypes = Literal[
 ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
 
 
-# Create schema
 class GeometryType(BaseModel):
-    SRS: Optional[str] = None
+    SRS: str | None = None
     type: ValidGeomTypes
 
 
 class Url(BaseModel):
-    path: str  # Specify field name and data type
-    subpath: Optional[str] = None  # Set default value
+    path: str
+    subpath: str = ""
 
 
 class Socrata(BaseModel):
@@ -38,37 +38,35 @@ class Socrata(BaseModel):
 
 
 class SourceSection(BaseModel):
-    url: Optional[Url] = None  # Pass another schema as a data type
-    socrata: Optional[Socrata] = None
-    script: Optional[str] = None
-    geometry: GeometryType
-    options: List[str] = []  # Use List[dtype] for a list field value
+    url: Url | None = None
+    script: dict[str, str] | None = None
+    socrata: Socrata | None = None
+    geometry: GeometryType | None = None
+    options: list[str] | None = None
+    gdalpath: str | None = None
 
 
 class DestinationSection(BaseModel):
-    name: str
     geometry: GeometryType
-    options: List[str] = []
-    fields: List[str] = []
-    sql: Optional[str] = None
+    options: list[str] | None = None
+    fields: list[str] | None = None
+    sql: str | None = None
 
 
 class InfoSection(BaseModel):
-    info: Optional[str] = None
-    url: Optional[str] = None
-    dependents: Optional[List[str]] = None
-
-    class Config:
-        extra = Extra.allow
+    info: str | None = None
+    url: str | None = None
+    dependents: List[str] | None = None
 
 
 class Dataset(BaseModel):
     name: str
-    version: str
+    version: str | None = None
     acl: ValidAclValues
     source: SourceSection
     destination: DestinationSection
-    info: Optional[InfoSection] = None
+    info: InfoSection | None = None
+    execution_details: dict[str, str] | None = None
 
 
 class Validator:
@@ -85,9 +83,6 @@ class Validator:
     def __call__(self):
         assert self.tree_is_valid, "Some fields are not valid. Please review your file"
         assert (
-            self.dataset_name_matches
-        ), "Dataset name must match file and destination name"
-        assert (
             self.has_only_one_source
         ), "Source can only have one property from either url, socrata or script"
 
@@ -102,12 +97,6 @@ class Validator:
             print(e.json())
             return False
         return True
-
-    # Check that the dataset name matches with destination name
-    @property
-    def dataset_name_matches(self):
-        dataset = self.__parsed_file["dataset"]
-        return dataset["name"] == dataset["destination"]["name"]
 
     # Check that source has only one source from either url, socrata or script
     @property
