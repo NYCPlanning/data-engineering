@@ -1,6 +1,5 @@
 dataset:
-  name: &name ddc_capitalprojects_infrastructure
-  version: "{{ version }}"
+  name: ddc_capitalprojects_infrastructure
   acl: private
   source:
     url:
@@ -14,7 +13,6 @@ dataset:
       type: MULTILINESTRING
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTILINESTRING

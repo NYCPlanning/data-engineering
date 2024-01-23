@@ -1,11 +1,9 @@
 dataset:
-  name: &name dcp_specialpurposesubdistricts
-  version: "{{ version }}"
+  name: dcp_specialpurposesubdistricts
   acl: public-read
   source:
     url:
       path: s3://edm-publishing/datasets/dcp_special_purpose_subdistricts/staging/dcp_special_purpose_subdistricts.zip
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

@@ -1,11 +1,9 @@
 dataset:
-  name: &name dcp_trafficanalysiszones
-  version: "{{ version }}"
+  name: dcp_trafficanalysiszones
   acl: public-read
   source:
     url:
       path: dcp_trafficanalysiszones.csv
-      subpath: ""
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON
@@ -14,7 +12,6 @@ dataset:
       - "EMPTY_STRING_AS_NULL=YES"
       - "GEOM_POSSIBLE_NAMES=geom"
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

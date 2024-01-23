@@ -1,11 +1,9 @@
 dataset:
-  name: &name nysopwdd_providers
-  version: "{{ version }}"
+  name: nysopwdd_providers
   acl: public-read
   source:
     url:
       path: https://data.ny.gov/api/views/ieqx-cqyk/rows.csv
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

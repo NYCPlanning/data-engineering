@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_mappluto_clipped
-  version: "{{ version }}"
+  name: dcp_mappluto_clipped
   acl: public-read
   source:
     url:
@@ -14,7 +13,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

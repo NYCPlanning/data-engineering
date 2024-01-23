@@ -1,11 +1,9 @@
 dataset:
-  name: &name edc_capitalprojects_ferry
-  version: "{{ version }}"
+  name: edc_capitalprojects_ferry
   acl: private
   source:
     url:
       path: edc_capitalprojects_ferry.csv
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -15,7 +13,6 @@ dataset:
       type: MULTILINESTRING
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTILINESTRING

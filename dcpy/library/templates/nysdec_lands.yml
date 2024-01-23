@@ -1,11 +1,9 @@
 dataset:
-  name: &name nysdec_lands
-  version: "{{ version }}"
+  name: nysdec_lands
   acl: public-read
   source:
     url:
       path: library/tmp/NYS_DEC_Lands.zip
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

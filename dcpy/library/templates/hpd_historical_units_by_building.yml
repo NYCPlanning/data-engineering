@@ -1,10 +1,9 @@
 dataset:
-  name: &name hpd_historical_units_by_building
-  version: "{{ version }}"
+  name: hpd_historical_units_by_building
   acl: public-read
   source:
-    script: *name
-    path: library/tmp/HPD_FROM_DCP_HOUSING/06_20_2023_Lookback Legislation.xlsx
+    script:
+      path: library/tmp/HPD_FROM_DCP_HOUSING/06_20_2023_Lookback Legislation.xlsx
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

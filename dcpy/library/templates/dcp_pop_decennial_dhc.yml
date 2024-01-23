@@ -1,17 +1,14 @@
 dataset:
-  name: &name dcp_pop_decennial_dhc
-  version: "{{ version }}"
+  name: dcp_pop_decennial_dhc
   acl: public-read
   source:
     url:
       path: library/tmp/dhc_{{ version }}.xlsx
-      subpath: ""
     geometry:
       SRS: null
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

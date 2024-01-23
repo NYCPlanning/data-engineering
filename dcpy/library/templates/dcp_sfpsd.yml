@@ -1,10 +1,9 @@
 dataset:
-  name: &name dcp_sfpsd
-  version: "{{ version }}"
+  name: dcp_sfpsd
   acl: public-read
   source:
-    script: *name
-    path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/facilities_csv_201901.zip
+    script:
+      path: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/facilities_csv_201901.zip
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +13,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

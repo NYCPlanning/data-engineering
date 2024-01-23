@@ -1,10 +1,9 @@
 dataset:
-  name: &name nysed_nonpublicenrollment
-  version: "{{ version }}"
+  name: nysed_nonpublicenrollment
   acl: public-read
   source:
-    script: *name
-    path: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
+    script:
+      path: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

@@ -1,6 +1,5 @@
 dataset:
-  name: &name lpc_historic_district_areas
-  version: "{{ version }}"
+  name: lpc_historic_district_areas
   acl: public-read
   source:
     socrata:
@@ -15,7 +14,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

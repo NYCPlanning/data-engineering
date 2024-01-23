@@ -1,9 +1,8 @@
 dataset:
-  name: &name dob_now_applications
-  version: "{{ version }}"
+  name: dob_now_applications
   acl: public-read
   source:
-    script: *name
+    script: {}
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -12,7 +11,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

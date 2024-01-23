@@ -1,5 +1,5 @@
 dataset:
-  name: &name dcp_cdboundaries_wi
+  name: dcp_cdboundaries_wi
   version: "{{ version}}"
   acl: public-read
 
@@ -15,7 +15,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

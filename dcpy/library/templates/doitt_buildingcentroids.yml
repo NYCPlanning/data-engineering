@@ -1,6 +1,5 @@
 dataset:
-  name: &name doitt_buildingcentroids
-  version: "{{ version }}"
+  name: doitt_buildingcentroids
   acl: public-read
   source:
     socrata:
@@ -15,7 +14,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

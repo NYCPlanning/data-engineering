@@ -1,6 +1,5 @@
 dataset:
-  name: &name dohmh_daycare
-  version: "{{ version }}"
+  name: dohmh_daycare
   acl: public-read
   source:
     socrata:
@@ -16,7 +15,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

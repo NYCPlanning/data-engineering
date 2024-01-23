@@ -1,10 +1,9 @@
 dataset:
-  name: &name fisa_dailybudget
-  version: "{{ version }}"
+  name: fisa_dailybudget
   acl: private
   source:
-    script: *name
-    path: library/tmp/fisa_dailybudget/
+    script:
+      path: library/tmp/fisa_dailybudget/
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

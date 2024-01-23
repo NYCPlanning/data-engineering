@@ -1,6 +1,5 @@
 dataset:
-  name: &name dob_jobapplications
-  version: "{{ version }}"
+  name: dob_jobapplications
   acl: public-read
   source:
     socrata:
@@ -14,7 +13,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

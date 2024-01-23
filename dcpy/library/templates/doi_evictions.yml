@@ -1,6 +1,5 @@
 dataset:
-  name: &name doi_evictions
-  version: "{{ version }}"
+  name: doi_evictions
   acl: public-read
   source:
     socrata:
@@ -14,7 +13,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

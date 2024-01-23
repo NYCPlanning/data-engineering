@@ -1,10 +1,9 @@
 dataset:
-  name: &name dcp_facilities_with_unmapped
-  version: "{{ version }}"
+  name: dcp_facilities_with_unmapped
   acl: public-read
   source:
-    script: *name
-    path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/facilities_{{ version }}_csv.zip
+    script:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/facilities_{{ version }}_csv.zip
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

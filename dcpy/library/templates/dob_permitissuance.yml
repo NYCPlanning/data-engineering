@@ -1,6 +1,5 @@
 dataset:
-  name: &name dob_permitissuance
-  version: "{{ version }}"
+  name: dob_permitissuance
   acl: public-read
   source:
     socrata:
@@ -14,7 +13,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

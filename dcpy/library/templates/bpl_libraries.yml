@@ -1,10 +1,9 @@
 dataset:
-  name: &name bpl_libraries
-  version: "{{ version }}"
+  name: bpl_libraries
   acl: public-read
   source:
-    script: *name
-    path: "https://www.bklynlibrary.org/locations/json"
+    script: 
+      path: "https://www.bklynlibrary.org/locations/json"
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -15,7 +14,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_cb2020_wi
-  version: "{{ version }}"
+  name: dcp_cb2020_wi
   acl: public-read
 
   source:
@@ -15,7 +14,6 @@ dataset:
       - "EMPTY_STRING_AS_NULL=YES"
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

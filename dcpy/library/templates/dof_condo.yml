@@ -1,11 +1,9 @@
 dataset:
-  name: &name dof_condo
-  version: "{{ version }}"
+  name: dof_condo
   acl: public-read
   source:
     url:
       path: s3://edm-publishing/datasets/dof_dtm_condo/staging/dof_dtm_condo.zip
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

@@ -1,6 +1,5 @@
 dataset:
-  name: &name usnps_parks
-  version: "{{ version }}"
+  name: usnps_parks
   acl: public-read
   source:
     url:
@@ -14,7 +13,6 @@ dataset:
       type: POLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POLYGON

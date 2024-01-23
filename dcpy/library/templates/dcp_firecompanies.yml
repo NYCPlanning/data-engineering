@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_firecompanies
-  version: "{{ version }}"
+  name: dcp_firecompanies
   acl: public-read
 
   source:
@@ -15,7 +14,6 @@ dataset:
       - "EMPTY_STRING_AS_NULL=YES"
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

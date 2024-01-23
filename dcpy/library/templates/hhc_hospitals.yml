@@ -1,6 +1,5 @@
 dataset:
-  name: &name hhc_hospitals
-  version: "{{ version }}"
+  name: hhc_hospitals
   acl: public-read
   source:
     socrata:
@@ -16,7 +15,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT
