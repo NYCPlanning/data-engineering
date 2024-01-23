@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_congressionaldistricts
-  version: "{{ version }}"
+  name: dcp_congressionaldistricts
   acl: public-read
 
   source:
@@ -14,7 +13,6 @@ dataset:
       - AUTODETECT_TYPE=NO
       - EMPTY_STRING_AS_NULL=YES
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

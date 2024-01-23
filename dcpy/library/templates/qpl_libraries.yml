@@ -1,6 +1,5 @@
 dataset:
-  name: &name qpl_libraries
-  version: "{{ version }}"
+  name: qpl_libraries
   acl: public-read
   source:
     socrata:
@@ -16,7 +15,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

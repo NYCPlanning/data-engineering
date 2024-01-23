@@ -1,6 +1,5 @@
 dataset:
-  name: &name hpd_hny_units_by_building
-  version: "{{ version }}"
+  name: hpd_hny_units_by_building
   acl: public-read
   source:
     socrata:
@@ -14,7 +13,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

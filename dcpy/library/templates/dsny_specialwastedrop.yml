@@ -1,6 +1,5 @@
 dataset:
-  name: &name dsny_specialwastedrop
-  version: "{{ version }}"
+  name: dsny_specialwastedrop
   acl: public-read
   source:
     socrata:
@@ -15,7 +14,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

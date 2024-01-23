@@ -1,6 +1,5 @@
 dataset:
-  name: &name dot_bridgehouses
-  version: "{{ version }}"
+  name: dot_bridgehouses
   acl: public-read
   source:
     url:
@@ -14,7 +13,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

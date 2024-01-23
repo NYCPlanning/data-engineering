@@ -1,10 +1,9 @@
 dataset:
-  name: &name doe_lcgms
-  version: "{{ version }}"
+  name: doe_lcgms
   acl: public-read
   source:
-    script: *name
-    path: "library/tmp/LCGMS_SchoolData_{{ version }}.csv"
+    script:
+      path: "library/tmp/LCGMS_SchoolData_{{ version }}.csv"
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

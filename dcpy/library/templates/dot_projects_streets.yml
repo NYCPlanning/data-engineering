@@ -1,6 +1,5 @@
 dataset:
-  name: &name dot_projects_streets
-  version: "{{ version }}"
+  name: dot_projects_streets
   acl: public-read
   source:
     socrata:
@@ -15,7 +14,6 @@ dataset:
       type: MULTILINESTRING
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTILINESTRING

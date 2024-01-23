@@ -1,9 +1,8 @@
 dataset:
-  name: &name uscourts_courts
-  version: "{{ version }}"
+  name: uscourts_courts
   acl: public-read
   source:
-    script: *name
+    script: {}
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +13,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

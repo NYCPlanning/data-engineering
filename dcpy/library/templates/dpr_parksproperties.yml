@@ -1,6 +1,5 @@
 dataset:
-  name: &name dpr_parksproperties
-  version: "{{ version }}"
+  name: dpr_parksproperties
   acl: public-read
   source:
     socrata:
@@ -14,7 +13,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

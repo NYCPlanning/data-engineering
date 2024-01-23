@@ -1,11 +1,9 @@
 dataset:
-  name: &name nysed_activeinstitutions
-  version: "{{ version }}"
+  name: nysed_activeinstitutions
   acl: public-read
   source:
     url:
       path: library/tmp/All_Institutions_by_County.csv
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

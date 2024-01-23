@@ -1,6 +1,5 @@
 dataset:
-  name: &name council_members
-  version: "{{ version }}"
+  name: council_members
   acl: public-read
   source:
     socrata:
@@ -14,7 +13,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

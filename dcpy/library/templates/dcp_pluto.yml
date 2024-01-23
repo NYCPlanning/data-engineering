@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_pluto
-  version: "{{ version }}"
+  name: dcp_pluto
   acl: public-read
   source:
     url:
@@ -16,7 +15,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

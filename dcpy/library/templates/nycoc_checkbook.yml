@@ -1,10 +1,9 @@
 dataset:
-  name: &name nycoc_checkbook
-  version: "{{ version }}"
+  name: nycoc_checkbook
   acl: public-read
 
   source:
-    script: *name
+    script: {}
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

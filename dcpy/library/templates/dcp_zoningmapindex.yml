@@ -1,5 +1,5 @@
 dataset:
-  name: &name dcp_zoningmapindex
+  name: dcp_zoningmapindex
   version: "20190701"
   acl: public-read
   source:
@@ -14,7 +14,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

@@ -1,6 +1,5 @@
 dataset:
-  name: &name hra_snapcenters
-  version: "{{ version }}"
+  name: hra_snapcenters
   acl: public-read
   source:
     socrata:
@@ -16,7 +15,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

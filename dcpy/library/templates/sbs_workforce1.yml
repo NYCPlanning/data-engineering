@@ -1,6 +1,5 @@
 dataset:
-  name: &name sbs_workforce1
-  version: "{{ version }}"
+  name: sbs_workforce1
   acl: public-read
   source:
     socrata:
@@ -16,7 +15,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

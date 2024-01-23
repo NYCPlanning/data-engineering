@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_stateassemblydistricts
-  version: "{{ version }}"
+  name: dcp_stateassemblydistricts
   acl: public-read
   source:
     url:
@@ -14,7 +13,6 @@ dataset:
       - "EMPTY_STRING_AS_NULL=YES"
 
   destination:
-    name: *name
     geometry: 
       SRS: EPSG:4326
       type: MULTIPOLYGON

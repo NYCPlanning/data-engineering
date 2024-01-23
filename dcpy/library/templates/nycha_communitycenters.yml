@@ -1,6 +1,5 @@
 dataset:
-  name: &name nycha_communitycenters
-  version: "{{ version }}"
+  name: nycha_communitycenters
   acl: public-read
   source:
     socrata:
@@ -16,7 +15,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

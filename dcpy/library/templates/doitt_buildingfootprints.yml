@@ -1,6 +1,5 @@
 dataset:
-  name: &name doitt_buildingfootprints
-  version: "{{ version }}"
+  name: doitt_buildingfootprints
   acl: public-read
   source:
     socrata:
@@ -15,7 +14,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

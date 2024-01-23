@@ -1,11 +1,9 @@
 dataset:
-  name: &name foodbankny_foodbanks
-  version: "{{ version }}"
+  name: foodbankny_foodbanks
   acl: public-read
   source:
     url:
       path: "library/tmp/Food_Bank_For_NYC_Open_Members_as_of_{{ version }}.csv"
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

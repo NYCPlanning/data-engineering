@@ -1,10 +1,9 @@
 dataset:
-  name: &name fisa_capitalcommitments
-  version: "{{ version }}"
+  name: fisa_capitalcommitments
   acl: private
   source:
-    script: *name
-    path: library/tmp/AICP_OREQ_CAPPLN_PJCP.asc
+    script:
+      path: library/tmp/AICP_OREQ_CAPPLN_PJCP.asc
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

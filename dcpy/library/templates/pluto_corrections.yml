@@ -1,6 +1,5 @@
 dataset:
-  name: &name pluto_corrections
-  version: "{{ version }}"
+  name: pluto_corrections
   acl: public-read
   source:
     url:
@@ -16,7 +15,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

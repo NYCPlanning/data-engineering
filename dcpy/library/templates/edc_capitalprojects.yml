@@ -1,6 +1,5 @@
 dataset:
-  name: &name edc_capitalprojects
-  version: "{{ version }}"
+  name: edc_capitalprojects
   acl: private
   source:
     url:
@@ -14,7 +13,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

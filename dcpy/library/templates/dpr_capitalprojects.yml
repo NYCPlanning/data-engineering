@@ -1,10 +1,9 @@
 dataset:
-  name: &name dpr_capitalprojects
-  version: "{{ version }}"
+  name: dpr_capitalprojects
   acl: public-read
   source:
-    script: *name
-    path: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
+    script:
+      path: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -16,7 +15,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT

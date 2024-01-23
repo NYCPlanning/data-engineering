@@ -1,5 +1,5 @@
 dataset:
-  name: &name fema_pfirms2015_100yr
+  name: fema_pfirms2015_100yr
   version: "20181219"
   acl: public-read
   source:
@@ -14,7 +14,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

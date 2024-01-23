@@ -1,11 +1,9 @@
 dataset:
-  name: &name dof_dtm
-  version: "{{ version }}"
+  name: dof_dtm
   acl: public-read
   source:
     url:
       path: s3://edm-publishing/datasets/dof_dtm_tax_lot_polygon/staging/dof_dtm_tax_lot_polygon.zip
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -16,7 +14,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

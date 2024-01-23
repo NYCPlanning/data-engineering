@@ -1,5 +1,5 @@
 dataset:
-  name: &name doe_eszones
+  name: doe_eszones
   version: "2019-2020"
   acl: public-read
   source:
@@ -14,7 +14,6 @@ dataset:
       type: MULTIPOLYGON
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

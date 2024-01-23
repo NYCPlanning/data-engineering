@@ -1,11 +1,9 @@
 dataset:
-  name: &name sca_bluebook
-  version: "{{ version }}"
+  name: sca_bluebook
   acl: public-read
   source:
     url:
       path: library/tmp/2021-22 Blue Book SV.csv
-      subpath: ""
     options:
       - AUTODETECT_TYPE=NO
       - EMPTY_STRING_AS_NULL=YES
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

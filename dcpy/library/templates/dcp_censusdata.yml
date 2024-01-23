@@ -1,10 +1,9 @@
 dataset:
-  name: &name dcp_censusdata
-  version: "{{ version }}"
+  name: dcp_censusdata
   acl: public-read
   source:
-    script: *name
-    path: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc_decennialcensusdata_2010_2020_change-core-geographies.xlsx
+    script:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc_decennialcensusdata_2010_2020_change-core-geographies.xlsx
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -13,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE
