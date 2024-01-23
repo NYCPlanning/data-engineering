@@ -6,12 +6,12 @@ class ScriptorInterface:
 
     @property
     def name(self) -> str:
-        return self.config["dataset"]["name"]
+        return self.config["name"]
 
     @property
     def version(self) -> str:
-        return self.config["dataset"]["version"]
+        return self.config["version"]
 
     @property
     def path(self) -> str:
-        return self.config["dataset"]["source"]["path"]
+        return self.config["source"]["script"]["path"]
