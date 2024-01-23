@@ -3,8 +3,8 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/nps_boundary.zip
-      subpath: nps_boundary/nps_boundary.shp
+      path: s3://edm-recipes/inbox/usnps/{{ version }}/Administrative_Boundaries_of_National_Park_System_Units.zip
+      subpath: Administrative_Boundaries_of_National_Park_System_Units/Administrative_Boundaries_of_National_Park_System_Units.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
