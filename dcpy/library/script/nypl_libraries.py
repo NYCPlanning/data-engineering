@@ -6,7 +6,7 @@ from .scriptor import ScriptorInterface
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        records = get_json_content(self.path)["locations"]
+        records = get_json_content(self.source["path"])["locations"]
         data = []
         for i in records:
             parsed = dict(

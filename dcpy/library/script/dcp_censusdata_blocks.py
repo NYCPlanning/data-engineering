@@ -17,7 +17,7 @@ class Scriptor(ScriptorInterface):
 
     def ingest(self) -> pd.DataFrame:
         df = pd.read_excel(
-            self.path,
+            self.source["path"],
             sheet_name="2010 and 2020 data in 2020 geog",
             usecols=self.get_columns,
             skiprows=1,

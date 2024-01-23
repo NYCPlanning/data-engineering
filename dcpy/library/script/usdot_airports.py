@@ -6,7 +6,7 @@ from .scriptor import ScriptorInterface
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_excel(self.path, sheet_name="Airports")
+        df = pd.read_excel(self.source["path"], sheet_name="Airports")
         return df
 
     def runner(self) -> str:

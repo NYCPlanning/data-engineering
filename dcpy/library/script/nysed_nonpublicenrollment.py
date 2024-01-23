@@ -8,7 +8,8 @@ class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
         version_in_xlsx_tab = self.version[2:]  # e.g. "2022-23" -> "22-23"
         return pd.read_excel(
-            self.path, sheet_name=f"NonPubEnroll_byGrade_{version_in_xlsx_tab}"
+            self.source["path"],
+            sheet_name=f"NonPubEnroll_byGrade_{version_in_xlsx_tab}",
         )
 
     def runner(self) -> str:

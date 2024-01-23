@@ -18,7 +18,7 @@ def myfunc(n):
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        r = requests.get(self.path, stream=True)
+        r = requests.get(self.source["path"], stream=True)
         with open(f"nyc_colp_csv_{self.version}.zip", "wb") as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)

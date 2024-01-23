@@ -18,7 +18,7 @@ class Scriptor(ScriptorInterface):
         return str(version)
 
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_csv(self.path, dtype=str)
+        df = pd.read_csv(self.source["path"], dtype=str)
         df.insert(0, "v", self.version)
         # add the extra column and assign the missing columns to None
         df.insert(df.shape[1], "docstatus", None)

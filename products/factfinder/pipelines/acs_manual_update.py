@@ -5,6 +5,7 @@ import shutil
 
 from dcpy.utils.json import df_to_json
 from dcpy.utils.string import camel_to_snake
+from dcpy.connectors.edm import recipes
 from .utils import parse_args, download_manual_update, s3_upload, DATA_PATH
 
 OUTPUT_SCHEMA_COLUMNS = [
@@ -24,6 +25,9 @@ OUTPUT_SCHEMA_COLUMNS = [
 PIVOT_COLUMNS = ["year", "geoid"]
 
 OUTPUT_FOLDER = DATA_PATH / ".output" / "acs"
+
+DOMAINS = ["demographic", "economic", "housing", "social"]
+ACS2010_DATASET_NAMES = {s: f"dcp_pop_acs2010_{s}" for s in DOMAINS}
 
 
 def pivot_field_name(df, field_name, domain):
@@ -54,20 +58,15 @@ def strip_unnamed_columns(df):
 
 
 def sheet_names(year):
-    # NOTE: inflated sheet choices depend on which year's dollars the app should represent
-    # Sheet name inflation suffixes are either "_Inflated" or "_NotInflated"
-    # e.g. When building for the app in 2022 we want to use inflated 2010 data
     short_year = year[-2:]
     start_year = int(short_year) - 4
     sheet_name_suffix = f"{start_year:02}{short_year:02}"
-    inflated = "_Inflated" if year == "2010" else ""
-    print(f"Sheet name: '{sheet_name_suffix}'")
 
     domains_sheets = [
         {"domain": "demographic", "sheet_name": f"Dem{sheet_name_suffix}"},
         {"domain": "social", "sheet_name": f"Social{sheet_name_suffix}"},
-        {"domain": "economic", "sheet_name": f"Econ{sheet_name_suffix}{inflated}"},
-        {"domain": "housing", "sheet_name": f"Housing{sheet_name_suffix}{inflated}"},
+        {"domain": "economic", "sheet_name": f"Econ{sheet_name_suffix}"},
+        {"domain": "housing", "sheet_name": f"Housing{sheet_name_suffix}"},
     ]
     return domains_sheets
 
@@ -113,6 +112,20 @@ def transform_all_dataframes(year):
     return combined_df
 
 
+def ingest_2010_data():
+    dfs = []
+    for domain in ACS2010_DATASET_NAMES:
+        dataset = recipes.Dataset(name=ACS2010_DATASET_NAMES[domain], version="latest")
+        df = recipes.read_df(dataset)
+        df = transform_dataframe(df, domain)
+        print(f"shape of {domain}: {df.shape}")
+        dfs.append(df)
+
+    df = pd.concat(dfs)
+    df.dropna(subset=["geotype"], inplace=True)
+    return df
+
+
 def process_metadata(excel_file):
     df = pd.read_excel(excel_file, sheet_name="ACS Data Dictionary", skiprows=2)
     df = df.dropna(subset=["Category"])
@@ -152,7 +165,10 @@ if __name__ == "__main__":
     year, _geography, upload = parse_args()
 
     print("transform_all_dataframes ...")
-    export_df = transform_all_dataframes(year)
+    if year == "2010":
+        export_df = ingest_2010_data()
+    else:
+        export_df = transform_all_dataframes(year)
 
     print("rename_columns ...")
     export_df = rename_columns(export_df)
