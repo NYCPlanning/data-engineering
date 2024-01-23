@@ -1,3 +1,14 @@
+name: COLP
+display_name: City Owned and Leased Property (COLP)
+summary: |
+  City Owned and Leased Properties (COLP) is published by the Department of City Planning (DCP) as required by chapter 204 of the City Charter. It includes the location and current use of all City-owned and leased properties.
+description: |
+  City Owned and Leased Properties (COLP) is published by the Department of City Planning (DCP) as required by chapter 204 of the City Charter. It includes the location and current use of all City-owned and leased properties. COLP is produced from an extract of the Integrated Property Information System (IPIS), a real estate database maintained by the Department of Citywide Administrative Services (DCAS). Except where indicated, the data provided is from IPIS.
+
+  Questions or feedback on errors within the City Owned and Leased Properties can be directed to DCAS Land Use Planning at (212) 386-0622 or RESPlanning311@dcas.nyc.gov.
+
+tags: [COLP, IPIS, city owned, leased, property, Department of Citywide Administrative Services, DCAS, Department of City Planning, DCP, New York City, NYC]
+
 columns:
   - name: uid
     display_name: Unique ID
