@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import shapely
 import yaml
 
 
@@ -100,8 +101,25 @@ def validate_csv(csv_path: Path, metadata_path: Path):
                         ]
                     )
 
-            case "geometry":
-                pass
+            case "wkb":
+
+                def is_wkb_valid(g):
+                    try:
+                        shapely.wkb.loads(g)
+                        return True
+                    except Exception:
+                        return False
+
+                invalids = csv_df[~csv_df[col_name].apply(is_wkb_valid)]
+                if not invalids.empty:
+                    sample = invalids.iloc[0][col_name]
+                    errors.append(
+                        [
+                            "INVALID_DATA",
+                            f"The {col_name} column contains {len(invalids)} invalid wkb value(s), for example: {sample}",
+                        ]
+                    )
+
             case "text":
                 pass
             case _:

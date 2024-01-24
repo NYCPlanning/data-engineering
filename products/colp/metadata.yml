@@ -278,4 +278,5 @@ columns:
     appears_in:
       - csv
     description: Point geometry type
-    data_type: geometry
+    data_type: wkb
+    data_readme_type: geometry
