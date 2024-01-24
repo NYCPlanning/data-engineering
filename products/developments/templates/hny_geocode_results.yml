@@ -1,11 +1,9 @@
 dataset:
-  name: &name hny_geocode_results
-  version: "{{ version }}"
+  name: hny_geocode_results
   acl: public-read
   source:
     url:
       path: hny_geocode_results.csv
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE

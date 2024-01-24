@@ -1,6 +1,5 @@
 dataset:
-  name: &name dcp_mappluto
-  version: "{{ version }}"
+  name: dcp_mappluto
   acl: public-read
   # Source definition
   source:
@@ -18,7 +17,6 @@ dataset:
 
   # Destination definition
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: MULTIPOLYGON

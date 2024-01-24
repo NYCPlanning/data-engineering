@@ -1,11 +1,9 @@
 dataset:
-  name: &name dcp_communityboarddispositions
-  version: "{{ version }}"
+  name: dcp_communityboarddispositions
   acl: private
   source:
     url:
       path: .output/dcp_communityboarddispositions/dcp_communityboarddispositions.csv
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -14,7 +12,6 @@ dataset:
       type: NONE
 
   destination:
-    name: *name
     geometry:
       SRS: null
       type: NONE
