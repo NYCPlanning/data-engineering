@@ -75,7 +75,7 @@ class Config:
             version = self.version_socrata(_config.source.socrata.uid)
         else:
             # backwards compatibility before templates were simplified
-            if _config.version == r"{{version}}":
+            if _config.version and _config.version.replace(" ", "") == r"{{version}}":
                 _config.version = None
             version = self.version or _config.version or self.version_today
         config = self.parsed_rendered_template(version=version)

@@ -1,5 +1,6 @@
 dataset:
-  name: bpl_libraries
+  name: &name bpl_libraries
+  version: "{{ version }}"
   acl: public-read
   source:
     script:
@@ -14,6 +15,7 @@ dataset:
       type: POINT
 
   destination:
+    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT
