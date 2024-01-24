@@ -21,6 +21,10 @@ VERSION=$DATE
             SELECT * FROM $NAME.\"$VERSION\"
         ) TO stdout DELIMITER ',' CSV HEADER;" > $NAME.csv
 
+        psql $EDM_DATA -c "\COPY (
+            SELECT * FROM $NAME.geo_rejects
+        ) TO stdout DELIMITER ',' CSV HEADER;" > geo_rejects.csv
+
         # Export to ShapeFile
         SHP_export $EDM_DATA $NAME.$VERSION POINT $NAME
 
