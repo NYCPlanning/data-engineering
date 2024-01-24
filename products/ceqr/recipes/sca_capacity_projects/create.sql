@@ -84,6 +84,13 @@ CREATE TEMP TABLE sca_capacity_projects (
 
 \COPY sca_capacity_projects FROM 'output/sca_capacity_projects.csv' DELIMITER ',' CSV HEADER;
 
+
+DROP TABLE IF EXISTS :NAME."geo_rejects";
+SELECT *
+INTO :NAME."geo_rejects"
+FROM sca_capacity_projects
+WHERE geo_xy_coord IS NULL and geo_x_coord IS NULL and geo_y_coord is NULL;
+
 DROP TABLE IF EXISTS :NAME.:"VERSION" CASCADE;
 SELECT 
     uid,
@@ -100,6 +107,7 @@ SELECT
     borough,
     address,
     geo_function,
+    geo_message,
     (CASE 
         -- Intersections: Create  geometry from x_coord and y_coord
         WHEN geo_function = 'Intersection'
@@ -119,12 +127,6 @@ SELECT
     END)::geometry(Point,4326) as geom
 INTO :NAME.:"VERSION"
 FROM sca_capacity_projects;
-
-DROP TABLE IF EXISTS :NAME."geo_rejects";
-SELECT *
-INTO :NAME."geo_rejects"
-FROM :NAME.:"VERSION"
-WHERE geom IS NULL;
 
 DELETE
 FROM :NAME.:"VERSION"
