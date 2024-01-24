@@ -10,13 +10,7 @@ VERSION=$DATE
     mkdir -p output
 
     psql $RECIPE_ENGINE --set ON_ERROR_STOP=1 --file build.sql
-
-    docker run --rm\
-        -v $(pwd)/../:/recipes\
-        -w /recipes/$NAME\
-        --user $UID\
-        -e EDM_DATA=$EDM_DATA\
-        nycplanning/docker-geosupport:latest bash -c "python3 build.py" | 
+    python3 build.py
     psql $EDM_DATA --set NAME=$NAME --set VERSION=$VERSION --set ON_ERROR_STOP=1 --file create.sql
 
     (

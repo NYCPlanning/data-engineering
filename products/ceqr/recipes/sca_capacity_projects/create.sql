@@ -82,7 +82,7 @@ CREATE TEMP TABLE sca_capacity_projects (
     geo_message text
 );
 
-\COPY sca_capacity_projects FROM PSTDIN DELIMITER '|' CSV HEADER;
+\COPY sca_capacity_projects FROM 'output/sca_capacity_projects.csv' DELIMITER ',' CSV HEADER;
 
 DROP TABLE IF EXISTS :NAME.:"VERSION" CASCADE;
 SELECT 
