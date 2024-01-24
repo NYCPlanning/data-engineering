@@ -1,5 +1,7 @@
 from urllib.parse import urlparse
 
+from . import TEMPLATE_DIR
+
 
 def parse_engine(url: str) -> str:
     """
@@ -43,3 +45,8 @@ def format_url(path: str, subpath: str = "") -> str:
         url = "/vsizip/" + url
 
     return url
+
+
+def get_all_templates():
+    """Get names of all dataset templates included in dcpy"""
+    return [file.stem for file in TEMPLATE_DIR.glob("*")]

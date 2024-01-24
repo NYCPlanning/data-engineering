@@ -1,8 +1,8 @@
-import os
-import pprint
-
 from dotenv import load_dotenv
+import os
 from osgeo import gdal
+from pathlib import Path
+import pprint
 from rich.traceback import install
 
 # Use rich to handle exceptions
@@ -31,6 +31,7 @@ gdal.SetConfigOption("AWS_ACCESS_KEY_ID", aws_access_key_id)
 
 # Create a local .library directory to store temporary files
 base_path = ".library"
+TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 if not os.path.isdir(base_path):
     os.makedirs(base_path, exist_ok=True)
