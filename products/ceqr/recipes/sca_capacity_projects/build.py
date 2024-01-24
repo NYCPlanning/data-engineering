@@ -30,19 +30,41 @@ def _import() -> pd.DataFrame:
     if len(df) == 0:
         raise ValueError("_sca_capacity_projects has no rows!")
 
+    def _apply_corrections(
+        data: pd.DataFrame, corrections: pd.DataFrame, field: str
+    ) -> pd.DataFrame:
+        print(f"Correcting field '{field}'")
+        data = data.copy()
+        cor_add_dict = corrections.to_dict("records")
+        for record in cor_add_dict:
+            old_values = data[data["name"] == record["school"]][field].to_list()
+            if not old_values:
+                raise KeyError(f"No school name found for '{record['school']}'")
+            if len(old_values) > 1:
+                raise ValueError(
+                    f"Multiple '{field}' values found for school '{record['school']}': {old_values}"
+                )
+            old_value = old_values[0]
+            print(
+                f"""Correcting '{field}' for school name
+                {record['school']}
+                from {old_value}
+                to {record[field].upper()}"""
+            )
+            data.loc[data["name"] == record["school"], field] = record[field].upper()
+        return data
+
     # Import csv to replace invalid addresses with manual corrections
-    cor_add_dict = pd.read_csv(
+    cor_add = pd.read_csv(
         "../_data/sca_capacity_address_cor.csv", dtype=str, engine="c"
-    ).to_dict("records")
-    for record in cor_add_dict:
-        df.loc[df["name"] == record["school"], "address"] = record["address"].upper()
+    )
+    df = _apply_corrections(df, cor_add, "address")
 
     # Import csv to replace org_levels with manual corrections
-    cor_org_dict = pd.read_csv(
+    cor_org = pd.read_csv(
         "../_data/sca_capacity_org_level_cor.csv", dtype=str, engine="c"
-    ).to_dict("records")
-    for record in cor_org_dict:
-        df.loc[df["name"] == record["school"], "org_level"] = record["org_level"]
+    )
+    df = _apply_corrections(df, cor_org, "org_level")
 
     # Clean address column
     df["address"] = df["address"].replace(np.nan, "")
