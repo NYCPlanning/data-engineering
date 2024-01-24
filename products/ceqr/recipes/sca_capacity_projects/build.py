@@ -57,6 +57,12 @@ def _import() -> pd.DataFrame:
         lambda row: pd.Series(find_intersection(row["address"])), axis=1
     )
 
+    """
+    # Clean inputs for geocoding
+    df['hnum'] = df.address.apply(get_hnum).apply(lambda x: clean_house(x))
+    df['sname'] = df.address.apply(get_sname).apply(lambda x: clean_street(x))
+    """
+
     # Parse house numbers
     df["hnum"] = (
         df["address"]
@@ -68,13 +74,6 @@ def _import() -> pd.DataFrame:
     # Parse street names
     df["sname"] = df["address"].astype(str).apply(get_sname)
 
-    """
-    # Clean inputs for geocoding
-    df['hnum'] = df.address.apply(get_hnum).apply(lambda x: clean_house(x))
-    df['sname'] = df.address.apply(get_sname).apply(lambda x: clean_street(x))
-    """
-
-    df.to_csv("output/_sca_capacity_project_corrected.csv")
     return df
 
 
@@ -150,7 +149,8 @@ def _output(df):
     df_filtered = df[
         (df["district"] != "75") & (df.org_level != "PK") & (df.org_level != "3K")
     ]
-    df_filtered[cols].to_csv(sys.stdout, sep="|", index=False)
+
+    df_filtered[cols].to_csv("output/sca_capacity_projects.csv", index=False)
 
 
 if __name__ == "__main__":
