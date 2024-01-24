@@ -47,3 +47,9 @@ def test_config_compute():
 def test_config_script():
     config = Config(f"{template_path}/bpl_libraries.yml").compute
     assert True
+
+
+def test_backwards_compatility_with_jinja_version():
+    config = Config(get_config_file("bpl_libraries_sql_deprecated"))
+    computed = config.compute
+    assert computed.version == config.version_today
