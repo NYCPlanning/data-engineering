@@ -37,21 +37,30 @@ def _import() -> pd.DataFrame:
         data = data.copy()
         cor_add_dict = corrections.to_dict("records")
         for record in cor_add_dict:
-            old_values = data[data["name"] == record["school"]][field].to_list()
+            # use school name and borough to find record to correct
+            old_values = data.loc[
+                (data["name"] == record["school"])
+                & (data["borough"] == record["borough"])
+            ][field].to_list()
             if not old_values:
-                raise KeyError(f"No school name found for '{record['school']}'")
+                raise KeyError(
+                    f"No school found with name and borough ('{record['school']}', '{record['borough']}')"
+                )
             if len(old_values) > 1:
                 raise ValueError(
                     f"Multiple '{field}' values found for school '{record['school']}': {old_values}"
                 )
             old_value = old_values[0]
             print(
-                f"""Correcting '{field}' for school name
-                {record['school']}
+                f"""Correcting '{field}' for school ('{record['school']}', ''{record['borough']}')
                 from {old_value}
                 to {record[field].upper()}"""
             )
-            data.loc[data["name"] == record["school"], field] = record[field].upper()
+            data.loc[
+                (data["name"] == record["school"])
+                & (data["borough"] == record["borough"]),
+                field,
+            ] = record[field].upper()
         return data
 
     # Import csv to replace invalid addresses with manual corrections
