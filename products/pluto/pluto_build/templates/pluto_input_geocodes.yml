@@ -1,11 +1,9 @@
 dataset:
-  name: &name pluto_input_geocodes
-  version: "{{ version }}"
+  name: pluto_input_geocodes
   acl: public-read
   source:
     url:
       path: s3://edm-recipes/tmp/pluto_input_geocodes.csv
-      subpath: ""
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -16,7 +14,6 @@ dataset:
       type: POINT
 
   destination:
-    name: *name
     geometry:
       SRS: EPSG:4326
       type: POINT
