@@ -82,7 +82,7 @@ CREATE TEMP TABLE tmp as (
     org_levels AS
         (SELECT 
             md5(CAST((c.*) AS text)) as uid,
-            c.name,
+            TRIM(c.name) as name,
             CASE
                 WHEN REGEXP_REPLACE(c.name, '[^\w]+','','g') LIKE '%3K%' THEN '3K'
                 WHEN REGEXP_REPLACE(c.name, '[^\w]+','','g') LIKE '%PK%' THEN 'PK'
