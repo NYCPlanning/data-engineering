@@ -81,14 +81,14 @@ class Config:
         config = self.parsed_rendered_template(version=version)
 
         # need to be a bit explicit because of truthiness of empty dicts
-        if _config.source.script is not None:
-            module = importlib.import_module(f"dcpy.library.script.{_config.name}")
+        if config.source.script is not None:
+            module = importlib.import_module(f"dcpy.library.script.{config.name}")
             scriptor = module.Scriptor(config=config.model_dump())
             path = scriptor.runner()
             config.source.gdalpath = format_url(path)
 
-        elif _config.source.socrata:
-            socrata = _config.source.socrata
+        elif config.source.socrata:
+            socrata = config.source.socrata
             if socrata.format == "csv":
                 path = f"https://data.cityofnewyork.us/api/views/{socrata.uid}/rows.csv"
             elif socrata.format == "geojson":
@@ -104,9 +104,9 @@ class Config:
                 )
             config.source.gdalpath = format_url(path)
 
-        elif _config.source.url:
+        elif config.source.url:
             config.source.gdalpath = format_url(
-                _config.source.url.path, _config.source.url.subpath
+                config.source.url.path, config.source.url.subpath
             )
 
         else:
