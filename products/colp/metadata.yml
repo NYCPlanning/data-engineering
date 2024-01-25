@@ -1,0 +1,282 @@
+name: COLP
+display_name: City Owned and Leased Property (COLP)
+summary: |
+  City Owned and Leased Properties (COLP) is published by the Department of City Planning (DCP) as required by chapter 204 of the City Charter. It includes the location and current use of all City-owned and leased properties.
+description: |
+  City Owned and Leased Properties (COLP) is published by the Department of City Planning (DCP) as required by chapter 204 of the City Charter. It includes the location and current use of all City-owned and leased properties. COLP is produced from an extract of the Integrated Property Information System (IPIS), a real estate database maintained by the Department of Citywide Administrative Services (DCAS). Except where indicated, the data provided is from IPIS.
+
+  Questions or feedback on errors within the City Owned and Leased Properties can be directed to DCAS Land Use Planning at (212) 386-0622 or RESPlanning311@dcas.nyc.gov.
+
+tags: [COLP, IPIS, city owned, leased, property, Department of Citywide Administrative Services, DCAS, Department of City Planning, DCP, New York City, NYC]
+
+columns:
+  - name: uid
+    display_name: Unique ID
+    data_source: Department of City Planning
+    description: >-
+      Unique identifier created from a hash of all fields for the record on the
+      IPIS source file. As long as no fields change on the record, this
+      identifier is static between versions of COLP.
+    data_type: text
+    example: cbe20732be28f6ab445289d7a67bb241
+
+  - name: BOROUGH
+    display_name: Borough
+    description: >-
+      NYC borough – 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
+      (Staten Island)
+    data_type: text
+    is_nullable: False
+    values:
+      - ["1", Manhattan]
+      - ["2", Bronx]
+      - ["3", Brooklyn]
+      - ["4", Queens]
+      - ["5", Staten Island]
+
+  - name: BLOCK
+    display_name: Tax block
+    description: >-
+      The tax block in which the tax lot is located. Each tax block is unique
+      within a borough.
+    data_type: integer
+    example: 1637
+
+  - name: LOT
+    display_name: Tax lot
+    description: The number of the tax lot. Each tax lot is unique within a tax block.
+    data_type: integer
+    example: 141
+
+  - name: BBL
+    display_name: BBL
+    description: >-
+      10-digit identifier for a tax lot, consisting of the borough code followed
+      by the tax block followed by the tax lot. The borough code is one numeric
+      digit. The tax block is one to five numeric digits, preceded with leading
+      zeros when the block is less than five digits. The tax lot is one to four
+      digits and is preceded with leading zeros when the lot is less than four
+      digits. For condominiums, this is usually the unit BBL.
+    data_type: bbl
+    data_readme_type: double
+    example: 1016370141
+
+  - name: MAPBBL
+    display_name: Mapped BBL
+    data_source: Department of City Planning - Geosupport
+    description: >-
+      The mapped BBL is the BBL used to map the record. For condominium lots,
+      the mapped BBL is the billing BBL, which is the 75nn-series record shown
+      on the tax map and in MapPLUTO. It is generally associated with the
+      condominium management organization. For air rights lots, the mapped BBL
+      is the donating BBL from the Air_Rights_Lot table in the Department of
+      Finance’s Digital Tax Map. If there is more than one donating BBL, the one
+      whose lot number most closely matches that of the air rights lot is used.
+      For all other lots, MAPBBL is the same as BBL.
+    data_type: bbl
+    data_readme_type: double
+    example: 1016370141
+
+  - name: CD
+    display_name: Community district
+    data_source: Department of City Planning
+    description: >-
+      The community district or joint interest area for the tax lot. The city is
+      divided into 59 community districts and 12 joint interest areas, which are
+      large parks or airports that are not considered part of any community
+      district. This field consists of three digits, the first of which is the
+      borough code. The second and third digits are the community district or
+      joint interest area number, whichever is applicable.
+    data_type: integer
+    example: 111
+
+  - name: HNUM
+    display_name: House number
+    description: House number
+    data_type: text
+    example: "1955"
+
+  - name: SNAME
+    display_name: Street name
+    description: Name of the street
+    data_type: text
+    example: Third Avenue
+
+  - name: ADDRESS
+    display_name: Address
+    description: House number and street name
+    data_type: text
+    example: 1955 Third Avenue
+
+  - name: PARCELNAME
+    display_name: Parcel name
+    description: >-
+      Name of the parcel or facility on the lot. DCP applies some modifications
+      to parcel names to improve readability. Some abbreviations are expanded
+      programmatically. Other modifications are made after manual research. For
+      the latter, DCPEDITED = “Y”.
+    data_type: text
+    example: AGUILAR BRANCH LIBRARY
+
+  - name: AGENCY
+    display_name: Agency
+    description: >-
+      Abbreviation for agency or entity using the lot. See appendix A for a list
+      of abbreviations with their full name.
+    data_type: text
+    example: NYPL
+
+  - name: USECODE
+    display_name: Use code
+    description: >-
+      The use code indicates how the lot is being used by the agency. See
+      Appendix B for a complete list of use codes and descriptions.
+    data_type: text
+    example: "218"
+
+  - name: USETYPE
+    display_name: Use description
+    description: >-
+      Description of how the lot is being used by the agency. See Appendix B for
+      a complete list of use codes and descriptions.
+    data_type: text
+    example: BRANCH LIBRARY
+
+  - name: OWNERSHIP
+    display_name: Owner type
+    description: Type of owner
+    data_type: text
+    is_nullable: False
+    values:
+      - [C, City owned]
+      - [M, Mixed ownership]
+      - [P, Private]
+      - [O, Other/public authority (includes properties owned by federal and state entities)]
+
+  - name: CATEGORY
+    display_name: Category
+    data_source: Department of City Planning
+    description: >-
+      Category classifies lots as non-residential properties with a current use,
+      residential properties, or properties without a current use.
+    data_type: integer
+    is_nullable: False
+    values:
+      - [1, Non-residential properties with a current use]
+      - [2, Residential properties]
+      - [3, Properties with no current use]
+
+  - name: EXPANDCAT
+    display_name: Expanded category
+    data_source: Department of City Planning
+    description: >-
+      This categorization classifies records into broad groups based on use.
+      Valid values are 1 – 9.
+    data_type: integer
+    is_nullable: False
+    values:
+      - [1, Office use]
+      - [2, Educational use]
+      - [3, Cultural & recreational use]
+      - [4, Public safety & criminal justice use]
+      - [5, Health & social service use]
+      - [6, Leased out to a private tenant]
+      - [7, Maintenance, storage & infrastructure]
+      - [8, Property with no use]
+      - [9, Property with a residential used]
+
+  - name: EXCATDESC
+    display_name: Expanded category description
+    data_source: Department of City Planning
+    description: >-
+      Descriptions for the expanded category values. See EXPANDCAT for the
+      domain values.
+    data_type: text
+
+  - name: LEASED
+    display_name: Leased
+    description: >-
+      A value of “L” indicates that the agency’s use of the property is
+      authorized through a lease. For questions about the lease or ownership
+      status of specific lots, please contact DCAS at (212) 386-0622 or
+      RESPlanning311@dcas.nyc.gov.
+    data_type: text
+    values:
+      - L
+
+  - name: FINALCOM
+    display_name: Final commitment
+    description: A value of “D” indicates potential disposition by the City.
+    data_type: text
+    values:
+      - D
+
+  - name: AGREEMENT
+    display_name: Lease agreement
+    description: >-
+      For City-owned properties that are leased to another entity, this field
+      indicates whether the agreement is short-term, long-term, or there are
+      both short- and long-term agreements present.
+    data_type: text
+    values:
+      - [S, Short-term]
+      - [L, Long-term]
+      - [M, Mixed (there are both short- and long-term agreements on the property)]
+
+  - name: XCOORD
+    display_name: X coordinate
+    data_source: Department of City Planning
+    description: >-
+      X coordinate based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD 1983 State Plane New York Long Island FIPS 3104
+      Feet.
+    data_type: integer
+    example: 999900
+
+  - name: YCOORD
+    display_name: Y coordinate
+    data_source: Department of City Planning
+    description: >-
+      Y coordinate based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD 1983 State Plane New York Long Island FIPS 3104
+      Feet.
+    data_type: integer
+    example: 228619
+
+  - name: LATITUDE
+    display_name: Latitude
+    data_source: Department of City Planning
+    description: >-
+      Latitude based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD_1983.
+    data_type: double
+    example: 40.794169
+
+  - name: LONGITUDE
+    display_name: Longitude
+    data_source: Department of City Planning
+    description: >-
+      Longitude based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD_1983.
+    data_type: double
+    example: -73.943479
+
+  - name: DCPEDITED
+    display_name: DCP Edited
+    data_source: Department of City Planning
+    description: >-
+      City Planning modifies some records to correct street names or normalize
+      parcel names when programmatic cleaning is insufficient. If a field has
+      been manually modified, the original value can be found on GitHub in the
+      modifications_applied.csv available in Outputs file series.
+    data_type: text
+    values:
+      - [Y, Yes]
+
+  - name: GEOM
+    display_name: Geometry
+    appears_in:
+      - csv
+    description: Point geometry type
+    data_type: wkb
+    data_readme_type: geometry

@@ -231,13 +231,13 @@ def download_folder(
     prefix: str,
     export_path: Path,
     *,
-    include_prefix_in_export: bool = False,
+    include_prefix_in_export: bool = True,
 ) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
     if prefix[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
     for obj in list_objects(bucket, prefix):
-        key = obj["Key"].replace(prefix, "") if include_prefix_in_export else obj["Key"]
+        key = obj["Key"] if include_prefix_in_export else obj["Key"].replace(prefix, "")
         if key and (key != prefix) and (key[-1] != "/"):
             key_directory = Path(key).parent
             (export_path / key_directory).mkdir(parents=True, exist_ok=True)
