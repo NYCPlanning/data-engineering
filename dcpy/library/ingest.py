@@ -7,6 +7,8 @@ import datetime
 from functools import wraps
 from typing import Optional, Tuple
 from math import floor
+import json
+import yaml
 
 from osgeo import gdal
 from pathlib import Path
@@ -52,10 +54,13 @@ def translator(func):
         # Create output folder and output config
         if folder_path and output_suffix:
             os.makedirs(folder_path, exist_ok=True)
-            self.write_config(
-                f"{folder_path}/config.json", dataset.model_dump_json(indent=4)
-            )
+            dumped = {"dataset": dataset.model_dump()}
+            with open(f"{folder_path}/config.json", "w") as f:
+                f.write(json.dumps(dumped, indent=4))
             output_files.append(f"{folder_path}/config.json")
+            with open(f"{folder_path}/config.yml", "w") as f:
+                yaml.dump(dumped, f)
+            output_files.append(f"{folder_path}/config.yml")
 
         if not output_format:
             if not destination_path:
@@ -181,10 +186,6 @@ class Ingestor:
                 else:
                     print(f"{f} does not exist!")
         return True
-
-    def write_config(self, path: str, config: str):
-        with open(path, "w") as f:
-            f.write(config)
 
     @translator
     def postgres(
