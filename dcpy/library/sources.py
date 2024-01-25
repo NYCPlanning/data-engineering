@@ -64,6 +64,7 @@ def generic_source(
         - https://some.website.com/file.csv
         - /local/fodler/abc.csv
     """
+    options = options or []
     allowed_drivers = get_allowed_drivers(path)
     dataset = gdal.OpenEx(
         path, gdal.OF_VECTOR, open_options=options, allowed_drivers=allowed_drivers
