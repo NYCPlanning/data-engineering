@@ -3,9 +3,7 @@ from functools import cached_property
 from jinja2 import Template
 import importlib
 import os
-import pytz
 import requests
-import subprocess
 import yaml
 
 from .utils import format_url
@@ -116,40 +114,4 @@ class Config:
                 "Either url, script source, or socrata source must be defined"
             )
 
-        config.execution_details = get_execution_details()
         return config
-
-
-def get_execution_details() -> dict[str, str]:
-    def try_func(func):
-        try:
-            return func()
-        except:
-            return "could not parse"
-
-    timestamp = datetime.now(pytz.timezone("America/New_York")).strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
-    if os.environ.get("CI"):
-        return {
-            "type": "ci",
-            "dispatch_event": os.environ.get("GITHUB_EVENT_NAME", "could not parse"),
-            "url": try_func(
-                lambda: f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-            ),
-            "job": os.environ.get("GITHUB_JOB", "could not parse"),
-            "timestamp": timestamp,
-        }
-    else:
-        git_user = try_func(
-            lambda: subprocess.run(
-                ["git", "config", "user.name"], stdout=subprocess.PIPE
-            )
-            .stdout.strip()
-            .decode()
-        )
-        return {
-            "type": "manual",
-            "user": git_user,
-            "timestamp": timestamp,
-        }

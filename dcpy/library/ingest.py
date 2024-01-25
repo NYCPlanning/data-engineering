@@ -23,6 +23,7 @@ from rich.progress import (
 from . import base_path
 from .config import Config
 from .sources import generic_source, postgres_source
+from .utils import get_execution_details
 
 
 def translator(func):
@@ -54,7 +55,10 @@ def translator(func):
         # Create output folder and output config
         if folder_path and output_suffix:
             os.makedirs(folder_path, exist_ok=True)
-            dumped = {"dataset": dataset.model_dump()}
+            dumped = {
+                "dataset": dataset.model_dump(),
+                "execution_details": get_execution_details(),
+            }
             with open(f"{folder_path}/config.json", "w") as f:
                 f.write(json.dumps(dumped, indent=4))
             output_files.append(f"{folder_path}/config.json")

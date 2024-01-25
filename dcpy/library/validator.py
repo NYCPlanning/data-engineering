@@ -66,7 +66,6 @@ class Dataset(BaseModel):
     source: SourceSection
     destination: DestinationSection
     info: InfoSection | None = None
-    execution_details: dict[str, str] | None = None
 
 
 class Validator:

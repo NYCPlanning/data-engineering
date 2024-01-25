@@ -1,3 +1,7 @@
+from datetime import datetime
+import os
+import pytz
+import subprocess
 from urllib.parse import urlparse
 
 from . import TEMPLATE_DIR
@@ -45,6 +49,41 @@ def format_url(path: str, subpath: str = "") -> str:
         url = "/vsizip/" + url
 
     return url
+
+
+def get_execution_details() -> dict[str, str]:
+    def try_func(func):
+        try:
+            return func()
+        except:
+            return "could not parse"
+
+    timestamp = datetime.now(pytz.timezone("America/New_York")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    if os.environ.get("CI"):
+        return {
+            "type": "ci",
+            "dispatch_event": os.environ.get("GITHUB_EVENT_NAME", "could not parse"),
+            "url": try_func(
+                lambda: f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+            ),
+            "job": os.environ.get("GITHUB_JOB", "could not parse"),
+            "timestamp": timestamp,
+        }
+    else:
+        git_user = try_func(
+            lambda: subprocess.run(
+                ["git", "config", "user.name"], stdout=subprocess.PIPE
+            )
+            .stdout.strip()
+            .decode()
+        )
+        return {
+            "type": "manual",
+            "user": git_user,
+            "timestamp": timestamp,
+        }
 
 
 def get_all_templates():
