@@ -4,6 +4,11 @@ import shapely
 import yaml
 
 
+def _csv_name(col_md):
+    csv_name = col_md.get("format_overrides", {}).get("csv", {}).get("name")
+    return csv_name or col_md["name"]
+
+
 def validate_csv(csv_path: Path, metadata_path: Path):
     """Validate a csv against a metadata file."""
     csv_df = pd.read_csv(csv_path, dtype=str)
@@ -16,9 +21,9 @@ def validate_csv(csv_path: Path, metadata_path: Path):
     # Find mismatched columns
     # Assumes that if `appears_in` isn't set, every filetype will contain the column
     metadata_column_names = {
-        x["name"]
-        for x in metadata["columns"]
-        if not x.get("appears_in") or "csv" in x.get("appears_in")
+        _csv_name(c)
+        for c in metadata["columns"]
+        if not c.get("appears_in") or "csv" in c.get("appears_in")
     }
     csv_headers = set(csv_df.columns)
 
@@ -42,7 +47,7 @@ def validate_csv(csv_path: Path, metadata_path: Path):
 
     # Validate Data in Columns
     for col in metadata["columns"]:
-        col_name = col["name"]
+        col_name = _csv_name(col)
         if col_name in not_found_in_csv:
             continue
 
