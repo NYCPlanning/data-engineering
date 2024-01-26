@@ -364,19 +364,14 @@ def dsny_electronicsdrop(df: pd.DataFrame):
     return df
 
 
-def dycd_afterschoolprograms(df: pd.DataFrame):
-    df["address"] = df.location_1.apply(
-        lambda x: str(x).replace("nan", "").split("\n")[0][:-5]
-    )
-    df["zipcode"] = df.location_1.apply(
-        lambda x: str(x).replace("nan", "").split("\n")[0][-5:]
-    )
-    df["spatial"] = df.location_1.apply(
-        lambda x: str(x).replace("nan", "").split("\n")[-1]
-    )
-    df["spatial"] = df.spatial.apply(lambda x: x.replace("(", "").replace(")", ""))
-    df["longitude"] = df.spatial.apply(lambda x: x.split(",")[-1])
-    df["latitude"] = df.spatial.apply(lambda x: x.split(",")[0])
+def dycd_service_sites(df: pd.DataFrame):
+    def _nan_to_string(value: object) -> str:
+        return str(value).replace("nan", "")
+
+    df["address"] = df["street_address"].apply(_nan_to_string)
+    df["zipcode"] = df["postcode"].apply(_nan_to_string)
+    df["latitude"] = df["latitude"].apply(_nan_to_string)
+    df["longitude"] = df["longitude"].apply(_nan_to_string)
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="address")
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)

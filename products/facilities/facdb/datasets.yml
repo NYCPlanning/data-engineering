@@ -156,9 +156,9 @@ datasets:
     scripts:
       - dpr_parksproperties.sql
 
-  - name: dycd_afterschoolprograms
+  - name: dycd_service_sites
     scripts:
-      -  dycd_afterschoolprograms.sql
+      -  dycd_service_sites.sql
 
   - name: fbop_corrections
     scripts:

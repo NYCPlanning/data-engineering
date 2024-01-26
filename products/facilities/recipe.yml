@@ -81,7 +81,7 @@ inputs:
     - name: nysed_activeinstitutions
     - name: nysomh_mentalhealth
     - name: dpr_parksproperties
-    - name: dycd_afterschoolprograms
+    - name: dycd_service_sites
     - name: fbop_corrections
     - name: fdny_firehouses
     - name: nysomh_mentalhealth
