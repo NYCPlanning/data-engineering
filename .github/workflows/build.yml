@@ -21,7 +21,7 @@ on:
           - ztl
           - all
       recipe_file:
-        description: "Filename of recipe to use"
+        description: "Recipe filename to use"
         type: choice
         options:
           - recipe
@@ -29,7 +29,7 @@ on:
         required: true
         default: recipe
       version:
-        description: "Version of dataset being built"
+        description: "Version of dataset being built (overrides version defined in recipe)"
         type: string
         required: false
       repeat:
@@ -37,25 +37,25 @@ on:
         type: boolean
         default: false
       dev_image: 
-        description: "Use dev image specific to this branch? (If exists)"
+        description: "Use dev image specific to this branch (if exists)"
         type: boolean
         required: true
         default: false
-      build_note:
-        description: "A short note about this build (optional)"
-        type: string
-        required: false
       logging_level:
         description: "Logging level"
         type: choice
         required: true
-        default: WARNING
+        default: INFO
         options:
           - WARNING
           - INFO
           - DEBUG
       build_name:
         description: "Build name (defaults to branch name)"
+        type: string
+        required: false
+      build_note:
+        description: "An optional note about this build"
         type: string
         required: false
   workflow_call:
