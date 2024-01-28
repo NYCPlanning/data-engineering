@@ -16,18 +16,21 @@ cat >> ~/.ssh/config <<EOF
     User root
     IdentityFile ~/.ssh/qa.key
     StrictHostKeyChecking no
+    ConnectTimeout 600
 EOF
 
 ssh qa "\
     set -e
     docker info
     docker images
+    docker system prune --force
     docker pull $DOCKER_IMAGE_NAME
     pid=\"\$(docker ps -a -q)\"
     if [[ \$pid ]]; then
         docker stop \"\$pid\"
         docker rm \"\$pid\"
     fi
+    docker images
     docker run -p 8501:8501 -d --restart always\
         -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
         -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
