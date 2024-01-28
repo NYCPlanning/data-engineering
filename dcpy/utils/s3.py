@@ -16,7 +16,7 @@ from rich.progress import (
 )
 import typer
 from typing import Any, Literal, TYPE_CHECKING, cast, get_args
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 from dcpy.utils import git
 from dcpy.utils.logging import logger
@@ -38,8 +38,7 @@ ACL = Literal[
 MAX_FILE_COUNT = 50
 
 
-@dataclass
-class Metadata:
+class Metadata(BaseModel):
     last_modified: datetime
     content_length: int
     content_type: str

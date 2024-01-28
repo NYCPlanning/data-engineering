@@ -34,7 +34,7 @@ def load_build_outputs(product_key, csv_files) -> list[BuildOutput]:
     loaded_data = []
     for file_name in csv_files:
         with st.spinner(f"Loading csv file `{file_name}` to DataFrame ..."):
-            metadata = read_file_metadata(product_key, file_name)
+            metadata = read_file_metadata(product_key, file_name).model_dump()
             df = read_csv_cached(product_key, file_name)
         loaded_data.append(
             BuildOutput(
