@@ -45,7 +45,7 @@ class Metadata(BaseModel):
     custom: dict[str, Any]
 
 
-def generate_metadata():
+def generate_metadata() -> dict[str, str]:
     metadata = {
         "date_created": datetime.now(pytz.timezone("America/New_York")).strftime(
             "%Y-%m-%dT%H:%M:%S%z"
