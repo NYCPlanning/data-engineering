@@ -20,7 +20,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
-      - name: Build and Push
+      - name: Build and Push docker image
         run: apps/qa/bash/docker_build_and_publish.sh
 
   deploy:
@@ -35,6 +35,8 @@ jobs:
       GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
       DOCKER_IMAGE_NAME: nycplanning/qa-streamlit:latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -46,32 +48,5 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "$QA_DROPLET_SSH_PRIVATE_KEY" > ~/.ssh/qa.key
-          chmod 400 ~/.ssh/qa.key
-          cat >> ~/.ssh/config <<EOF
-          Host qa
-            HostName $QA_DROPLET_SSH_HOST
-            User root
-            IdentityFile ~/.ssh/qa.key
-            StrictHostKeyChecking no
-          EOF
-      - name: Deploy
-        run: |
-          ssh qa "\
-            docker pull $DOCKER_IMAGE_NAME
-            pid=\"\$(docker ps -a -q)\"
-            if [[ \$pid ]]; then
-              docker stop \"\$pid\"
-              docker rm \"\$pid\"
-            fi
-            docker run -p 8501:8501 -d --restart always\
-                -e AWS_S3_ENDPOINT=$AWS_S3_ENDPOINT\
-                -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY\
-                -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
-                -e BUILD_ENGINE_SERVER=$BUILD_ENGINE_SERVER\
-                -e GHP_TOKEN=$GHP_TOKEN\
-                $DOCKER_IMAGE_NAME"
-    
+      - name: Deploy docker image
+        run: apps/qa/bash/docker_deploy.sh
