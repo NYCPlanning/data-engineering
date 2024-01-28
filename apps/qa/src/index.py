@@ -17,10 +17,10 @@ def run():
     )
 
     datasets_list = list(DATASET_PAGES.keys())
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params.to_dict()
 
     if query_params:
-        name = query_params["page"][0]
+        name = query_params["page"]
     else:
         name = "Home"
 
@@ -29,7 +29,7 @@ def run():
     )
     st.sidebar.divider()
 
-    st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
+    st.query_params["page"] = datasets_list[datasets_list.index(name)]
 
     dataset_module = importlib.import_module(
         f"pages.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}"

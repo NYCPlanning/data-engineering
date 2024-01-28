@@ -29,7 +29,6 @@ CSS = """
 
 @st.cache_data(ttl=30000)
 def retrieve_blog_posts():
-    print(requests.get(BLOG_URL, timeout=10).json())
     return requests.get(BLOG_URL, timeout=10).json()["items"]
 
 
