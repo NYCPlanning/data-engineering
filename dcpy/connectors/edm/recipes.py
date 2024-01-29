@@ -130,12 +130,9 @@ def import_dataset(
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
 ):
     """Import a recipe to local data library folder and build engine."""
-    if ds.file_type is None:
-        ds.assign_file_type([DatasetType.parquet, DatasetType.pg_dump, DatasetType.csv])
-
     ds_table_name = import_as or ds.name
     logger.info(
-        f"Importing {ds.name} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
+        f"Importing {ds.name} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
     )
 
     local_dataset_path = fetch_dataset(ds, local_library_dir)
