@@ -4,6 +4,45 @@ sources:
   - name: tdb_sources
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
+      - name: nypl_libraries
+        columns:
+          - name: name
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: bpl_libraries
+        columns:
+          - name: title
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: qpl_libraries
+        columns:
+          - name: name
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - dbt_utils.at_least_one
+
+      - name: dpr_parksproperties
+        columns:
+          - name: signname
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
       - name: dpr_greenthumb
         description: >
           NYC DPR Greenthumb locations
@@ -12,4 +51,16 @@ sources:
             description: Primary key of the dpr_greenthumb table
             tests:
               - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: lpc_landmarks
+        columns:
+          - name: lm_name
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
               - not_null
