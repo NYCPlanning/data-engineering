@@ -67,9 +67,14 @@ def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
                     geometry_format=geometry_format,
                     crs=geospatial.GeometryCRS.wgs_84_deg,
                 )
-                build_output.geodataframe_for_display = (
-                    build_output.geodataframe.astype(str)
+
+                build_output.geodataframe_for_display = build_output.geodataframe.copy()
+                # st.dataframe fails if a column is type gpd.GeoSeries
+                astype_str = pd.Series(
+                    build_output.geodataframe_for_display["geometry_generated"],
+                    dtype="string",
                 )
+                build_output.geodataframe_for_display["geometry_generated"] = astype_str
     return build_outputs
 
 
