@@ -154,7 +154,8 @@ def import_dataset(
 
         # make column names more sql-friendly
         columns = {
-            column: column.replace("-", "_").replace("'", "_") for column in df.columns
+            column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
+            for column in df.columns
         }
         df.rename(columns=columns, inplace=True)
         pg_client.insert_dataframe(df, ds_table_name)
