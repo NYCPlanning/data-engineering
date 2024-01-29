@@ -15,8 +15,8 @@ from dcpy.connectors.edm import recipes, publishing
 DEFAULT_RECIPE = "recipe.yml"
 LIBRARY_DEFAULT_PATH = recipes.LIBRARY_DEFAULT_PATH
 RECIPE_FILE_TYPE_PREFERENCE = [
-    recipes.DatasetType.parquet,
     recipes.DatasetType.pg_dump,
+    recipes.DatasetType.parquet,
     recipes.DatasetType.csv,
 ]
 
