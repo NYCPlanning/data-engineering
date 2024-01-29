@@ -174,12 +174,12 @@ def doe_universalprek(df: pd.DataFrame):
         }
     )
     df = sanitize_df(df)
-    df = parse_address(df, raw_address_field="address")
+    df = parse_address(df, raw_address_field="siteaddress")
     df = Function1B(
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",
         borough_field="boro",
-        zipcode_field="zip",
+        zipcode_field="state",
     ).geocode_a_dataframe(df)
     return df
 
