@@ -5,7 +5,7 @@ from osgeo import gdal
 from .utils import parse_engine
 
 
-def format_field_names(dataset: gdal.Dataset, fields: list):
+def format_field_names(dataset: gdal.Dataset, fields: list[str] | None = None):
     """
     dataset: Given source data source, usually a local file / s3 url
     fields: a list of predefined field names
@@ -14,6 +14,7 @@ def format_field_names(dataset: gdal.Dataset, fields: list):
     otherwise, change all field names to lower case connected by underscore
     """
     assert dataset, "dataset: gdal.Dataset shouldn't be None"
+    fields = fields or []
     layer = dataset.GetLayer(0)
     layerDefn = layer.GetLayerDefn()
 
@@ -70,6 +71,5 @@ def generic_source(
         path, gdal.OF_VECTOR, open_options=options, allowed_drivers=allowed_drivers
     )
     assert dataset, f"{path} is invalid"
-    if fields:
-        dataset = format_field_names(dataset, fields)
+    dataset = format_field_names(dataset, fields)
     return dataset
