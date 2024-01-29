@@ -14,6 +14,11 @@ from dcpy.connectors.edm import recipes, publishing
 
 DEFAULT_RECIPE = "recipe.yml"
 LIBRARY_DEFAULT_PATH = recipes.LIBRARY_DEFAULT_PATH
+RECIPE_FILE_TYPE_PREFERENCE = [
+    recipes.DatasetType.parquet,
+    recipes.DatasetType.pg_dump,
+    recipes.DatasetType.csv,
+]
 
 
 class RecipeInputsVersionStrategy(str, Enum):
@@ -79,9 +84,9 @@ class Recipe(
 
 
 def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
-    """Plan recipe versions for a product.
+    """Plan recipe versions and file types for a product.
 
-    Similar to pip freeze, determines recipe versions to use for a build.
+    Similar to pip freeze, determines recipe versions and file types to use for a build.
     A base_recipe may be specified, in which case it's important to note that
     the missing versions strategy will be applied AFTER the recipe inputs are
     merged with the base.
@@ -165,13 +170,19 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         if ds.version == "latest":
             ds.version = recipes.get_config(ds.name, "latest")["dataset"]["version"]
 
+    # Determine the recipe file type
+    for ds in recipe.inputs.datasets:
+        if ds.dataset.file_type is None:
+            ds.file_type = ds.dataset.assign_file_type(RECIPE_FILE_TYPE_PREFERENCE)
+        ds.file_type = ds.dataset.file_type
+
     return recipe
 
 
 def get_source_data_versions(recipe: Recipe):
-    """Get source data versions table in form of [schema_name, v]."""
-    return [["schema_name", "v"]] + [
-        [d.name, d.version] for d in recipe.inputs.datasets
+    """Get source data versions table in form of [schema_name, v, file_type]."""
+    return [["schema_name", "v", "file_type"]] + [
+        [d.name, d.version, d.file_type] for d in recipe.inputs.datasets
     ]
 
 
@@ -261,7 +272,7 @@ def write_source_data_versions(recipe_file: Path):
     logger.info(f"Writing source data versions to {source_data_versions_path}")
 
     sdv = get_source_data_versions(recipe)
-    unresolved_versions = [[k, v] for k, v in sdv if v == "latest"]
+    unresolved_versions = [[s, v, f] for s, v, f in sdv if v == "latest"]
     if len(unresolved_versions) > 0:
         exception = (
             "Recipe has unresolved versions! Can't write source "
@@ -272,8 +283,8 @@ def write_source_data_versions(recipe_file: Path):
 
     with open(source_data_versions_path, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        for key, value in sdv:
-            writer.writerow([key, value])
+        for s, v, f in sdv:
+            writer.writerow([s, v, f])
 
 
 app = typer.Typer(add_completion=False)
