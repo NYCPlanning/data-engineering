@@ -26,6 +26,8 @@ def import_dataset(
 
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
+    if ds.file_type is None:
+        raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
     if ds.preprocessor is not None:
         preproc_mod = importlib.import_module(ds.preprocessor.module)
         preproc_func = getattr(preproc_mod, ds.preprocessor.function)
