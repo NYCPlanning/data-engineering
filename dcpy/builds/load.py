@@ -48,7 +48,6 @@ def load_source_data(
     recipe_path: Path, version: str | None = None, repeat: bool = False
 ):
     recipe_lock_path = plan.plan(recipe_path, version, repeat)
-    plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
     plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
