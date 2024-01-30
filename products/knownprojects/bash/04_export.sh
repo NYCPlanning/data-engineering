@@ -2,10 +2,6 @@
 source ../../bash/utils.sh
 set_error_traps
 
-# Prepare output for export
-echo "Generate output tables"
-run_sql_file sql/_export.sql
-
 rm -rf output
 mkdir -p output
 (
