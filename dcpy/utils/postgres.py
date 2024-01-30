@@ -6,6 +6,7 @@ import pandas as pd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text, dialects
 import typer
+from typing import Literal
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -282,12 +283,18 @@ class PostgresClient:
         if target_table_name is not None and target_table_name != pg_dump_table_name:
             self.rename_table(old_name=pg_dump_table_name, new_name=target_table_name)
 
-    def insert_dataframe(self, df: pd.DataFrame, table_name: str):
+    def insert_dataframe(
+        self,
+        df: pd.DataFrame,
+        table_name: str,
+        schema: str | None = None,
+        if_exists: Literal["fail", "replace", "append"] = "replace",
+    ):
         df.to_sql(
             table_name,
-            schema=self.schema,
+            schema=schema or self.schema,
             con=self.engine,
-            if_exists="replace",
+            if_exists=if_exists,
             index=False,
             dtype={
                 "geo_1b": dialects.postgresql.JSON,

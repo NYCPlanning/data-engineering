@@ -10,7 +10,7 @@ from typing import Literal
 class CIRun(BaseModel):
     dispatch_event: str
     url: str
-    job: str
+    job: str | None = None
 
 
 class User(BaseModel):
@@ -21,6 +21,7 @@ class RunDetails(BaseModel):
     type: Literal["manual", "ci"]
     runner: CIRun | User
     timestamp: datetime
+    logged: bool = False
 
     def __init__(self, **kwargs):
         if "runner" not in kwargs:
@@ -37,6 +38,18 @@ class RunDetails(BaseModel):
     @field_serializer("timestamp")
     def serialize_timestamp(self, timestamp: datetime, _info) -> str:
         return timestamp.strftime("%Y-%m-%dT%H:%M:%S%z")
+
+    @property
+    def runner_string(self) -> str:
+        match self.runner:
+            case CIRun() as ci:
+                runner = ci.url
+            case User() as user:
+                if user.username:
+                    runner = f"Manual - {user.username}"
+                else:
+                    runner = "Manual"
+        return runner
 
 
 def get_run_details() -> RunDetails:

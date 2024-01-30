@@ -38,8 +38,8 @@ def source_table() -> None:
     for source in source_versions:
         col1, col2, col3 = st.columns(column_widths)
         col1.write(source)
-        col2.write(source_versions[source]["version"])
-        col3.write(source_versions[source]["date"])
+        col2.write(source_versions[source].version)
+        col3.write(source_versions[source].timestamp.strftime("%Y-%m-%d"))
 
 
 def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> None:

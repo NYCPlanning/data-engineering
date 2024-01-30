@@ -10,7 +10,7 @@ from dcpy.connectors.edm import recipes
 from .constants import qa_checks
 
 
-def get_source_version(dataset: str) -> dict[str, str]:
+def get_source_version(dataset: str) -> recipes.ArchivalMetadata:
     if dataset == "dcp_saf":
         bucket = "edm-publishing"
         prefix = "gru/dcp_saf/"
@@ -20,22 +20,16 @@ def get_source_version(dataset: str) -> dict[str, str]:
         latest_version = max(folders)
         timestamp = s3.get_metadata(
             bucket, f"{prefix}{latest_version}/dcp_saf.zip"
-        ).last_modified.strftime("%Y-%m-%d")
-        return {
-            "version": latest_version.lower(),
-            "date": timestamp,
-        }
+        ).last_modified
+        return recipes.ArchivalMetadata(
+            name="dcp_saf", version=latest_version, timestamp=timestamp
+        )
     else:
-        config = recipes.get_config(dataset)
-        if config.execution_details:
-            timestamp = config.execution_details.timestamp.strftime("%Y-%m-%d")
-        else:
-            timestamp = ""
-        return {"version": config.dataset.version, "date": timestamp}
+        return recipes.get_archival_metadata(dataset)
 
 
 @st.cache_data(ttl=120)
-def get_source_versions() -> dict[str, dict[str, str]]:
+def get_source_versions() -> dict[str, recipes.ArchivalMetadata]:
     versions = {}
     for dataset in [source for sources in qa_checks["sources"] for source in sources]:
         versions[dataset] = get_source_version(dataset)

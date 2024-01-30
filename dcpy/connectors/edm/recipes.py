@@ -1,4 +1,6 @@
 from __future__ import annotations
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 import os
 import pandas as pd
@@ -17,6 +19,9 @@ BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
+LOGGING_DB = "edm-qaqc"
+LOGGING_SCHEMA = "source_data"
+LOGGING_TABLE_NAME = "metadata_logging"
 
 ValidAclValues = Literal["public-read", "private"]
 ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
@@ -159,6 +164,23 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
         return next(t for t in preferences if t in file_types)
 
 
+@dataclass
+class ArchivalMetadata:
+    name: str
+    version: str
+    timestamp: datetime
+    config: Config | None = None
+    runner: str | None = None
+
+    def to_row(self) -> dict:
+        return {
+            "name": self.name,
+            "version": self.version,
+            "timestamp": self.timestamp,
+            "runner": self.runner,
+        }
+
+
 def get_config(name: str, version="latest") -> Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
@@ -171,6 +193,36 @@ def get_config(name: str, version="latest") -> Config:
 def get_latest_version(name: str) -> str:
     """Retrieve a recipe config from s3."""
     return get_config(name).dataset.version
+
+
+def get_all_versions(name: str) -> list[str]:
+    """Get all versions of a specific recipe dataset"""
+    return [
+        folder
+        for folder in s3.get_subfolders(BUCKET, f"datasets/{name}/")
+        if folder != "latest"
+    ]
+
+
+def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMetadata:
+    logger.info(f"looking up metadata for {name}/{version}")
+    if version is None:
+        version = get_latest_version(name)
+    config = get_config(name, version)
+    if config.execution_details:
+        timestamp = config.execution_details.timestamp
+        runner = config.execution_details.runner_string
+    else:
+        s3metadata = s3.get_metadata(BUCKET, f"datasets/{name}/{version}/config.json")
+        date_created = s3metadata.custom.get("date_created")
+        if date_created is None:
+            timestamp = s3metadata.last_modified
+        else:
+            timestamp = datetime.strptime(date_created, "%Y-%m-%dT%H:%M:%S%z")
+        runner = None
+    return ArchivalMetadata(
+        name=name, version=version, timestamp=timestamp, config=config, runner=runner
+    )
 
 
 def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
@@ -192,7 +244,7 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     return target_file_path
 
 
-def pd_reader(file_type: DatasetType):
+def _pd_reader(file_type: DatasetType):
     match file_type:
         case DatasetType.csv:
             return pd.read_csv
@@ -204,10 +256,10 @@ def pd_reader(file_type: DatasetType):
 
 def read_df(ds: Dataset, local_cache_dir: Path | None = None, **kwargs) -> pd.DataFrame:
     """Read a recipe dataset parquet or csv file as a pandas DataFrame."""
-    file_type = ds.file_type or ds.get_preferred_file_type(
+    ds.file_type = ds.file_type or ds.get_preferred_file_type(
         [DatasetType.parquet, DatasetType.csv]
     )
-    reader = pd_reader(file_type)
+    reader = _pd_reader(ds.file_type)
     if local_cache_dir:
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
         return reader(path, **kwargs)
@@ -226,6 +278,7 @@ def import_dataset(
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
 ) -> str:
     """Import a recipe to local data library folder and build engine."""
+    assert ds.file_type, f"Cannot import dataset {ds.name}, no file type defined."
     ds_table_name = import_as or ds.name
     logger.info(
         f"Importing {ds.name} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
@@ -271,3 +324,73 @@ def purge_recipe_cache():
     """Delete locally stored recipe files."""
     logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
     shutil.rmtree(LIBRARY_DEFAULT_PATH)
+
+
+def scrape_metadata(dataset: str) -> None:
+    """For a given recipes dataset, regenerates logs"""
+    logger.info(f"Re-scraping metadata for dataset {dataset}")
+    pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
+
+    ## remove records in db for this recipe dataset
+    try:
+        pg_client.execute_query(
+            f"""
+            DELETE FROM {LOGGING_TABLE_NAME}
+            WHERE name = :dataset AND event_source='scrape';""",
+            dataset=dataset,
+        )
+    except Exception as e:
+        logger.warn(f"Could not delete from table: {e}")
+
+    logged_metadata = get_logged_metadata([dataset])
+    logged_versions = {m["version"] for _, m in logged_metadata.iterrows()}
+
+    ## scrape metadata, insert into table
+    versions = get_all_versions(dataset)
+    metadata = [
+        get_archival_metadata(dataset, v).to_row()
+        for v in versions
+        if v not in logged_versions
+        ## Todo - find a more elegant solution than this. These are malformed
+        and v
+        not in [
+            "testor",
+            "2023_executive_points",
+            "2017_adopted_points",
+            "2017_adopted_polygons",
+        ]
+        and not (dataset == "doitt_buildingfootprints" and v == "20230414")
+        and not (dataset == "test_nypl_libraries")
+    ]
+    metadata_df = pd.DataFrame.from_records(metadata)
+    metadata_df["event_source"] = "scrape"
+    pg_client.insert_dataframe(
+        metadata_df, table_name=LOGGING_TABLE_NAME, if_exists="append"
+    )
+
+
+def scrape_all_metadata(rerun_existing=True) -> None:
+    datasets = s3.get_subfolders(BUCKET, "datasets")
+    pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
+    scraped = pg_client.execute_select_query(
+        f"select distinct name from {LOGGING_TABLE_NAME}"
+    )
+    for ds in datasets:
+        if rerun_existing or ds not in list(scraped["name"]):
+            scrape_metadata(ds)
+
+
+def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
+    pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
+    query = f"""
+        SELECT
+            name,
+            version,
+            timestamp,
+            runner
+        FROM
+            {LOGGING_TABLE_NAME}
+        WHERE
+            name = ANY(:datasets)
+    """
+    return pg_client.execute_select_query(query, datasets=datasets)
