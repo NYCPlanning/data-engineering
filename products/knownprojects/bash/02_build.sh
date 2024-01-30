@@ -42,3 +42,7 @@ run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'combined', 'co
 
 # Create KPDB
 run_sql_file sql/create_kpdb.sql
+
+echo "Generate output tables"
+run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geom TO geometry;"
+run_sql_file sql/_export.sql

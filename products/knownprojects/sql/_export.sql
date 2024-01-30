@@ -37,12 +37,12 @@ SELECT
     nycha,
     senior_housing,
     inactive,
-    geom
+    geometry
 INTO kpdb
-FROM _kpdb WHERE geom IS NOT NULL;
+FROM _kpdb WHERE geometry IS NOT NULL;
 
 DROP TABLE IF EXISTS review_no_geometry;
-SELECT * INTO review_no_geometry FROM _kpdb WHERE geom IS NULL;
+SELECT * INTO review_no_geometry FROM _kpdb WHERE geometry IS NULL;
 
 DROP TABLE IF EXISTS review_dob;
 SELECT
@@ -67,7 +67,7 @@ SELECT
     dob_multimatch,
     project_has_dob_multi,
     no_geom,
-    geom,
+    geom AS geometry,
     array_to_string(project_record_ids, ',') AS project_record_ids
 INTO review_dob
 FROM _review_dob;
