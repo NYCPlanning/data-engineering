@@ -1,0 +1,71 @@
+from __future__ import annotations
+from datetime import datetime
+import os
+from pydantic import BaseModel, field_serializer
+import pytz
+import subprocess
+from typing import Literal
+
+
+class CIRun(BaseModel):
+    dispatch_event: str
+    url: str
+    job: str
+
+
+class User(BaseModel):
+    username: str
+
+
+class RunDetails(BaseModel):
+    type: Literal["manual", "ci"]
+    runner: CIRun | User
+    timestamp: datetime
+
+    def __init__(self, **kwargs):
+        if "runner" not in kwargs:
+            if "dispatch_event" in kwargs:
+                kwargs["runner"] = CIRun(**kwargs)
+            elif "user" in kwargs:
+                kwargs["runner"] = User(username=kwargs["user"])
+            else:
+                raise Exception(
+                    f"Unexpected format of run/execution details:\n{kwargs}"
+                )
+        super().__init__(**kwargs)
+
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, timestamp: datetime, _info) -> str:
+        return timestamp.strftime("%Y-%m-%dT%H:%M:%S%z")
+
+
+def get_run_details() -> RunDetails:
+    def try_func(func):
+        try:
+            return func()
+        except:
+            return "could not parse"
+
+    timestamp = datetime.now(pytz.timezone("America/New_York")).replace(microsecond=0)
+
+    if os.environ.get("CI"):
+        type = "ci"
+        runner: CIRun | User = CIRun(
+            dispatch_event=os.environ.get("GITHUB_EVENT_NAME", "could not parse"),
+            url=try_func(
+                lambda: f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+            ),
+            job=os.environ.get("GITHUB_JOB", "could not parse"),
+        )
+    else:
+        type = "manual"
+        git_user = try_func(
+            lambda: subprocess.run(
+                ["git", "config", "user.name"], stdout=subprocess.PIPE
+            )
+            .stdout.strip()
+            .decode()
+        )
+        runner = User(username=git_user)
+
+    return RunDetails(type=type, runner=runner, timestamp=timestamp)
