@@ -21,6 +21,8 @@ from rich.progress import (
 )
 
 from dcpy.utils.metadata import get_run_details
+from dcpy.connectors.edm import recipes
+
 from . import base_path
 from .config import Config
 from .sources import generic_source, postgres_source
@@ -55,15 +57,15 @@ def translator(func):
         # Create output folder and output config
         if folder_path and output_suffix:
             os.makedirs(folder_path, exist_ok=True)
-            dumped = {
-                "dataset": dataset.model_dump(),
-                "execution_details": get_run_details().model_dump(),
-            }
+            config = recipes.Config(
+                dataset=dataset,
+                execution_details=get_run_details(),
+            ).model_dump()
             with open(f"{folder_path}/config.json", "w") as f:
-                f.write(json.dumps(dumped, indent=4))
+                f.write(json.dumps(config, indent=4))
             output_files.append(f"{folder_path}/config.json")
             with open(f"{folder_path}/config.yml", "w") as f:
-                yaml.dump(dumped, f)
+                yaml.dump(config, f)
             output_files.append(f"{folder_path}/config.yml")
 
         if not output_format:

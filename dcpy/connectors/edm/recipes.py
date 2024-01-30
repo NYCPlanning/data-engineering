@@ -1,14 +1,14 @@
+from __future__ import annotations
 from enum import Enum
-import json
 import os
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
 import shutil
-from typing import Callable
+from typing import Callable, Literal
+import yaml
 
-from dcpy.utils import s3
-from dcpy.utils import postgres
+from dcpy.utils import s3, postgres, metadata
 from dcpy.utils.logging import logger
 
 
@@ -17,6 +17,69 @@ BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
+
+ValidAclValues = Literal["public-read", "private"]
+ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
+
+
+class GeometryType(BaseModel):
+    SRS: str | None = None
+    type: Literal[
+        "NONE",
+        "GEOMETRY",
+        "POINT",
+        "LINESTRING",
+        "POLYGON",
+        "GEOMETRYCOLLECTION",
+        "MULTIPOINT",
+        "MULTIPOLYGON",
+        "MULTILINESTRING",
+        "CIRCULARSTRING",
+        "COMPOUNDCURVE",
+        "CURVEPOLYGON",
+        "MULTICURVE",
+        "MULTISURFACE",
+    ]
+
+
+class DatasetDefinition(BaseModel):
+    name: str
+    version: str
+    acl: ValidAclValues
+    source: SourceSection
+    destination: DestinationSection
+    info: InfoSection | None = None
+
+    class SourceSection(BaseModel):
+        url: Url | None = None
+        script: Script | None = None
+        socrata: Socrata | None = None
+        layer_name: str | None = None
+        geometry: GeometryType | None = None
+        options: list[str] | None = None
+        gdalpath: str | None = None
+
+        class Url(BaseModel):
+            path: str
+            subpath: str = ""
+
+        class Socrata(BaseModel):
+            uid: str
+            format: ValidSocrataFormats
+
+        class Script(BaseModel, extra="allow"):
+            name: str | None = None
+
+    class DestinationSection(BaseModel):
+        geometry: GeometryType
+        options: list[str] | None = None
+        fields: list[str] | None = None
+        sql: str | None = None
+
+    class InfoSection(BaseModel):
+        info: str | None = None
+        url: str | None = None
+        dependents: list[str] | None = None
 
 
 class DatasetType(str, Enum):
@@ -56,6 +119,11 @@ def _type_from_extension(s: str) -> DatasetType | None:
             return None
 
 
+class Config(BaseModel):
+    dataset: DatasetDefinition
+    execution_details: metadata.RunDetails | None = None
+
+
 class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     name: str
     version: str
@@ -91,18 +159,18 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
         return next(t for t in preferences if t in file_types)
 
 
-def get_config(name, version="latest"):
+def get_config(name: str, version="latest") -> Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"datasets/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
-    return json.loads(file_content)
+    return Config(**yaml.safe_load(file_content))
 
 
-def get_latest_version(name):
+def get_latest_version(name: str) -> str:
     """Retrieve a recipe config from s3."""
-    return get_config(name)["dataset"]["version"]
+    return get_config(name).dataset.version
 
 
 def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:

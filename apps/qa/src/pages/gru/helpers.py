@@ -27,13 +27,11 @@ def get_source_version(dataset: str) -> dict[str, str]:
         }
     else:
         config = recipes.get_config(dataset)
-        if "execution_details" in config:
-            timestamp = datetime.strptime(
-                config["execution_details"]["timestamp"], "%Y-%m-%d %H:%M:%S"
-            ).strftime("%Y-%m-%d")
+        if config.execution_details:
+            timestamp = config.execution_details.timestamp.strftime("%Y-%m-%d")
         else:
             timestamp = ""
-        return {"version": config["dataset"]["version"], "date": timestamp}
+        return {"version": config.dataset.version, "date": timestamp}
 
 
 @st.cache_data(ttl=120)
