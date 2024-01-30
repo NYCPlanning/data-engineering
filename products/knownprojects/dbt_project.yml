@@ -1,0 +1,9 @@
+name: "dbt_knownprojects"
+
+profile: "dcp-de-postgres"
+
+model-paths: ["sql"]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
