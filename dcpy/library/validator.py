@@ -1,76 +1,14 @@
 from pydantic import BaseModel, ValidationError
-from typing import List, Literal
-
-
-ValidAclValues = Literal["public-read", "private"]
-ValidGeomTypes = Literal[
-    "NONE",
-    "GEOMETRY",
-    "POINT",
-    "LINESTRING",
-    "POLYGON",
-    "GEOMETRYCOLLECTION",
-    "MULTIPOINT",
-    "MULTIPOLYGON",
-    "MULTILINESTRING",
-    "CIRCULARSTRING",
-    "COMPOUNDCURVE",
-    "CURVEPOLYGON",
-    "MULTICURVE",
-    "MULTISURFACE",
-]
-ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
-
-
-class GeometryType(BaseModel):
-    SRS: str | None = None
-    type: ValidGeomTypes
-
-
-class Url(BaseModel):
-    path: str
-    subpath: str = ""
-
-
-class Socrata(BaseModel):
-    uid: str
-    format: ValidSocrataFormats
-
-
-class Script(BaseModel, extra="allow"):
-    name: str | None = None
-
-
-class SourceSection(BaseModel):
-    url: Url | None = None
-    script: Script | None = None
-    socrata: Socrata | None = None
-    layer_name: str | None = None
-    geometry: GeometryType | None = None
-    options: list[str] | None = None
-    gdalpath: str | None = None
-
-
-class DestinationSection(BaseModel):
-    geometry: GeometryType
-    options: list[str] | None = None
-    fields: list[str] | None = None
-    sql: str | None = None
-
-
-class InfoSection(BaseModel):
-    info: str | None = None
-    url: str | None = None
-    dependents: List[str] | None = None
+from dcpy.connectors.edm.recipes import DatasetDefinition, ValidAclValues
 
 
 class Dataset(BaseModel):
     name: str
     version: str | None = None
     acl: ValidAclValues
-    source: SourceSection
-    destination: DestinationSection
-    info: InfoSection | None = None
+    source: DatasetDefinition.SourceSection
+    destination: DatasetDefinition.DestinationSection
+    info: DatasetDefinition.InfoSection | None = None
 
 
 class Validator:
