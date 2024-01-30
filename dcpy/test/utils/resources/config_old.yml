@@ -1,0 +1,11 @@
+ci:
+  type: ci
+  dispatch_event: a
+  url: b
+  job: c
+  timestamp: "2023-07-19 12:34:34"
+
+manual:
+  type: ci
+  user: user
+  timestamp: "2023-07-19T12:34:34-0500"

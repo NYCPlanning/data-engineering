@@ -1,0 +1,13 @@
+ci:
+  type: ci
+  runner:
+    dispatch_event: workflow_dispatch
+    url: https://github.com/NYCPlanning/db-data-library/actions/runs/5601725937
+    job: dataloading
+  timestamp: "2023-07-19T12:34:34-0500"
+
+manual:
+  type: ci
+  runner:
+    username: user
+  timestamp: "2023-07-19T12:34:34-0500"
