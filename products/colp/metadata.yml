@@ -10,47 +10,6 @@ description: |
 tags: [COLP, IPIS, city owned, leased, property, Department of Citywide Administrative Services, DCAS, Department of City Planning, DCP, New York City, NYC]
 each_row_is_a: City Owned or Leased Property
 
-
-package:
-  datasets:
-    - colp_shp.zip
-    - colp.csv
-    - colp.gdb.zip
-  attachments:
-    - colp_readme.pdf
-    - colp_metadata.pdf
-    - metadata.yml
-
-
-destinations:
-  - id: socrata_prod
-    type: socrata
-    four_four: "fn4k-qyk2"
-    datasets:
-      - "colp_shp.zip"
-    attachments:
-      -  "colp_readme.pdf"
-      -  "colp_metadata.pdf"
-
-  - id: colp_private_test
-    type: socrata
-    four_four: "vwz4-mzcn" #fake
-    datasets:
-      - "colp_shp.zip"
-    attachments:
-      -  "colp_readme.pdf"
-      -  "colp_metadata.pdf"
-
-  # FYI, not implemented.
-  - id: bytes
-    type: bytes
-    datasets:
-      - "colp_shp.zip"
-      - "colp.csv"
-      - "colp.gdb.zip"
-      # - "colp.xlsx" TODO: still required?
-
-
 columns:
   - name: uid
     display_name: Unique ID
@@ -396,9 +355,6 @@ columns:
     format_overrides:
       csv:
         name: XCOORD
-      socrata:
-        name: x_coordinate
-        display_name: X COORDINATE
 
   - name: ycoord
     display_name: Y coordinate
@@ -412,9 +368,6 @@ columns:
     format_overrides:
       csv:
         name: YCOORD
-      socrata:
-        name: y_coordinate
-        display_name: Y COORDINATE
 
   - name: latitude
     display_name: Latitude
@@ -427,8 +380,6 @@ columns:
     format_overrides:
       csv:
         name: LATITUDE
-      socrata:
-        display_name: LATITUDE
 
   - name: longitude
     display_name: Longitude
@@ -441,8 +392,6 @@ columns:
     format_overrides:
       csv:
         name: LONGITUDE
-      socrata:
-        display_name: LONGITUDE
 
   - name: dcpedited
     display_name: DCP Edited
@@ -455,25 +404,71 @@ columns:
     data_type: text
     values:
       - [Y, Yes]
-    format_overrides:
-      csv:
-        name: DCPEDITED
-      socrata:
-        omit: True
-        # display_name: DCP EDITED
 
   - name: geom
     display_name: Geometry
-    appears_in:
-      - csv
     description: Point geometry type
     data_type: wkb
     readme_data_type: geometry
-    format_overrides:
-      csv:
-        name: GEOM
-      shapefile:
-        name: the_geom
-      socrata:
-        name: the_geom
+
+dataset_package:
+  datasets:
+    - name: primary_shapefile
+      filename: colp_shp.zip
+      type: shapefile
+      overrides:
+        columns:
+          dcpedited:
+            name: DCPEDITED
+    - name: primary_csv
+      filename: colp.csv
+      type: csv
+      overrides:
+        omit_columns: [geom]
+        columns:
+          dcpedited:
+            name: DCPEDITED
+          geom:
+            name: GEOM
+    - name: primary_file_geodatabase
+      type: fgdb
+      filename: colp.gdb.zip
+  attachments:
+    - colp_readme.pdf
+    - colp_metadata.pdf
+    - metadata.yml
+
+destinations:
+  - id: socrata_prod
+    type: socrata
+    four_four: "fn4k-qyk2"
+    datasets:
+      - primary_shapefile
+    attachments:
+      -  "colp_readme.pdf"
+      -  "colp_metadata.pdf"
+    omit_columns: [dcpedited]
+    column_details:
+      xcoord:
+        api_name: x_coordinate
+        display_name: X COORDINATE
+      ycoord:
+        api_name: y_coordinate
+        display_name: Y COORDINATE
+      latitude:
+        display_name: LATITUDE
+      longitude:
+        display_name: LONGITUDE
+      geom:
+        api_name: the_geom
         display_name: GEOM
+
+
+  # FYI, not implemented.
+  - id: bytes
+    type: bytes
+    datasets:
+      - primary_shapefile
+      - primary_csv
+      - primary_file_geodatabase
+      # - "colp.xlsx" TODO: still required?

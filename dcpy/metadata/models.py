@@ -10,12 +10,14 @@ class BytesDestination(BaseModel, extra="forbid"):
     datasets: list[str]
 
 
-class SocrataDestination(BytesDestination, extra="forbid"):
+class SocrataDestination(BaseModel, extra="forbid"):
     id: str
     type: Literal["socrata"]
     four_four: str
     attachments: list[str] = []
     datasets: conlist(item_type=str, max_length=1)
+    omit_columns: list[str]
+    column_details: dict
 
 
 class Column(BaseModel, extra="forbid"):
@@ -35,9 +37,27 @@ class Column(BaseModel, extra="forbid"):
     values: list[tuple] = []
 
 
-class Package(BaseModel, extra="forbid"):
-    datasets: list[str]
+class DatasetOverrides(BaseModel, extra="forbid"):
+    omit_columns: list[str] = []
+    columns: dict = {}
+
+
+class Dataset(BaseModel, extra="forbid"):
+    name: str
+    type: str
+    filename: str
+    overrides: DatasetOverrides | None = None
+
+    def get_columns(self):
+        pass
+
+
+class DatasetPackage(BaseModel, extra="forbid"):
+    datasets: list[Dataset]
     attachments: list[str]
+
+    def get_dataset(ds_id: str):
+        pass
 
 
 class Metadata(BaseModel, extra="forbid"):
@@ -49,8 +69,8 @@ class Metadata(BaseModel, extra="forbid"):
     each_row_is_a: str
 
     destinations: list[BytesDestination | SocrataDestination]
-    package: Package
+    dataset_package: DatasetPackage
     columns: list[Column]
 
     def from_yaml(path: Path):
-        return Metadata(**yaml.safe_load(open(path, "rb")))
+        return Metadata(**yaml.safe_load(open(path, "r")))
