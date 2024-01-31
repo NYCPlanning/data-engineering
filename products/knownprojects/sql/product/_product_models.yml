@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: kpdb
+    description: "Known Projects DB project records"
+    columns:
+      - name: project_id
+      - name: source
+      - name: record_id
+        tests:
+          - not_null
+          - unique:
+              config:
+                severity: error
+                error_if: ">250"
+                warn_if: ">0"
+      - name: record_name
+      - name: borough
+      - name: status
+      - name: type
+      - name: date
+      - name: date_type
+      - name: units_gross
+      - name: units_net
+      - name: prop_within_5_years
+      - name: prop_5_to_10_years
+      - name: prop_after_10_years
+      - name: within_5_years
+      - name: from_5_to_10_years
+      - name: after_10_years
+      - name: phasing_rationale
+      - name: phasing_known
+      - name: classb
+      - name: nycha
+      - name: senior_housing
+      - name: inactive
+      - name: geometry
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: kpdb_compound_key
+          combination_of_columns:
+            - project_id
+            - record_id
+      # TODO investigate and fix these records
+      - dbt_utils.expression_is_true:
+          name: kpdb_sum_unit_year_buckets
+          expression: "units_net = within_5_years + from_5_to_10_years + after_10_years"
+          config:
+            severity: error
+            error_if: ">3000"
+            warn_if: ">0"

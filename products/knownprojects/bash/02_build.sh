@@ -45,4 +45,4 @@ run_sql_file sql/create_kpdb.sql
 
 echo "Generate output tables"
 run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geom TO geometry;"
-run_sql_file sql/_export.sql
+run_sql_file sql/product/kpdb.sql

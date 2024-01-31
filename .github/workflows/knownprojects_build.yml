@@ -60,6 +60,9 @@ jobs:
       - name: build ...
         run: ./bash/02_build.sh
 
+      - name: test build tables ...
+        run: dbt test --select kpdb
+
       - name: aggregate ...
         run: ./bash/03_aggregate.sh
 
