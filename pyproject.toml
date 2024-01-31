@@ -1,4 +1,5 @@
 [tool.sqlfluff.core]
+verbose = 1
 dialect = "postgres"
 templater = "placeholder"
 
