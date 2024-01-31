@@ -8,12 +8,11 @@ run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geom TO geometry;"
 echo "Create ZAP Project Many BBLs table"
 run_sql_file sql/aggregate/create_zap_projects.sql
 
+echo "Preprocess column names to standardize"
+run_sql_file sql/aggregate/preprocessing.sql
+
 ## Do SCA aggregation
 echo "Create the longfrom SCA Aggregate Tables..."
-
-# Preprocess the tables to standardize geometry column name 
-echo "Preprocess column names to standardize"
-run_sql_file sql/aggregate/sca/preprocessing.sql
 
 # Aggregate KPDB projects to Elementary School Zones 
 echo "Build Elementary School Zones Aggregate Table"
@@ -30,9 +29,6 @@ run_sql_file sql/aggregate/sca/boundaries_school_subdistricts.sql
 echo "SCA sggregations are complete"
 
 ## Do other aggregation
-echo "Preprocess column names to standardize"
-run_sql_file sql/aggregate/preprocessing.sql
-
 # Aggregate KPDB projects to Community Districts
 echo "Build Community Districts aggregate tables"
 run_sql_file sql/aggregate/census_tracts.sql
