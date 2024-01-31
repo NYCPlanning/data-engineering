@@ -29,8 +29,8 @@ echo "SCA sggregations are complete"
 # Aggregate KPDB projects to Community Districts
 echo "Build Community Districts aggregate tables"
 run_sql_file sql/aggregate/census_tracts.sql
-run_sql_file sql/aggregate/ntas.sql
-run_sql_file sql/aggregate/cdtas.sql
+run_sql_file sql/aggregate/longform_nta_output.sql
+run_sql_file sql/aggregate/longform_cdta_output.sql
 run_sql_file sql/aggregate/community_districts.sql
 
 echo "Other aggregations are complete"

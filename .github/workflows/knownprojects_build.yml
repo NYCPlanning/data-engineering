@@ -66,6 +66,9 @@ jobs:
       - name: aggregate ...
         run: ./bash/03_aggregate.sh
 
+      - name: test aggregate tables ...
+        run: dbt test --select aggregate
+
       - name: export ...
         run: ./bash/04_export.sh
 

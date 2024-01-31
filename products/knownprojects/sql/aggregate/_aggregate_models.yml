@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: longform_nta_output
+    description: "Known Projects DB project records split by NTA"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_nta_output_compound_key
+          combination_of_columns:
+            - record_id
+            - nta
+          config:
+            severity: error
+            error_if: ">250"
+            warn_if: ">0"
+
+  - name: longform_cdta_output
+    description: "Known Projects DB project records split by CDTA"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_cdta_output_compound_key
+          combination_of_columns:
+            - record_id
+            - cdta
+          config:
+            severity: error
+            error_if: ">250"
+            warn_if: ">0"
