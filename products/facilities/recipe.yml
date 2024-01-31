@@ -46,9 +46,7 @@ inputs:
     - name: dcla_culturalinstitutions
     - name: dcp_sfpsd
       version: "20210409"
-    # TODO: revisit this pin
     - name: dcp_pops
-      version: "20230320"
     - name: dsny_garages
     - name: dsny_specialwastedrop
     - name: dsny_donatenycdirectory
@@ -88,7 +86,6 @@ inputs:
     - name: dep_wwtc
       version: "20210413"
     - name: dfta_contracts
-      version: "20210423"
     - name: doe_busroutesgarages
     - name: sca_enrollment_capacity
     - name: doe_lcgms
