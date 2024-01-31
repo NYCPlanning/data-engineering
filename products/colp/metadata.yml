@@ -10,30 +10,45 @@ description: |
 tags: [COLP, IPIS, city owned, leased, property, Department of Citywide Administrative Services, DCAS, Department of City Planning, DCP, New York City, NYC]
 each_row_is_a: City Owned or Leased Property
 
-distributions:
-  - id: colp_prod
-    destination: socrata
+
+package:
+  datasets:
+    - colp_shp.zip
+    - colp.csv
+    - colp.gdb.zip
+  attachments:
+    - colp_readme.pdf
+    - colp_metadata.pdf
+    - metadata.yml
+
+
+destinations:
+  - id: socrata_prod
+    type: socrata
     four_four: "fn4k-qyk2"
-    dataset:
-      source_file_name: "colp_shp.zip"
-      dest_file_name: "colp_shp.zip"
+    datasets:
+      - "colp_shp.zip"
     attachments:
-      - source_file_name: "colp_readme.pdf"
-        dest_file_name: "colp_readme.pdf"
-      - source_file_name: "colp_metadata.pdf"
-        dest_file_name:  "colp_metadata.pdf"
+      -  "colp_readme.pdf"
+      -  "colp_metadata.pdf"
 
   - id: colp_private_test
-    destination: socrata
+    type: socrata
     four_four: "vwz4-mzcn" #fake
-    dataset:
-      source_file_name: "colp_shp.zip"
-      dest_file_name: "colp_shp.zip"
+    datasets:
+      - "colp_shp.zip"
     attachments:
-      - source_file_name: "colp_readme.pdf"
-        dest_file_name: "colp_test_readme.pdf"
-      - source_file_name: "colp_metadata.pdf"
-        dest_file_name:  "colp_test_metadata.pdf"
+      -  "colp_readme.pdf"
+      -  "colp_metadata.pdf"
+
+  # FYI, not implemented.
+  - id: bytes
+    type: bytes
+    datasets:
+      - "colp_shp.zip"
+      - "colp.csv"
+      - "colp.gdb.zip"
+      # - "colp.xlsx" TODO: still required?
 
 
 columns:
@@ -107,7 +122,7 @@ columns:
       digits and is preceded with leading zeros when the lot is less than four
       digits. For condominiums, this is usually the unit BBL.
     data_type: bbl
-    data_readme_type: double
+    readme_data_type: double
     example: 1016370141
     format_overrides:
       csv:
@@ -128,7 +143,7 @@ columns:
       whose lot number most closely matches that of the air rights lot is used.
       For all other lots, MAPBBL is the same as BBL.
     data_type: bbl
-    data_readme_type: double
+    readme_data_type: double
     example: 1016370141
     format_overrides:
       csv:
@@ -331,7 +346,7 @@ columns:
       RESPlanning311@dcas.nyc.gov.
     data_type: text
     values:
-      - L
+      - [L, Leased]
     format_overrides:
       csv:
         name: LEASED
@@ -344,7 +359,7 @@ columns:
     description: A value of “D” indicates potential disposition by the City.
     data_type: text
     values:
-      - D
+      - [D, Potential Disposition]
     format_overrides:
       csv:
         name: FINALCOM
@@ -453,7 +468,7 @@ columns:
       - csv
     description: Point geometry type
     data_type: wkb
-    data_readme_type: geometry
+    readme_data_type: geometry
     format_overrides:
       csv:
         name: GEOM
