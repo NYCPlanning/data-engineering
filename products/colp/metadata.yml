@@ -21,10 +21,6 @@ columns:
       identifier is static between versions of COLP.
     data_type: text
     example: cbe20732be28f6ab445289d7a67bb241
-    format_overrides:
-      socrata:
-        omit: True
-        # display_name: UID
 
   - name: borough
     display_name: Borough
@@ -39,11 +35,6 @@ columns:
       - ["3", Brooklyn]
       - ["4", Queens]
       - ["5", Staten Island]
-    format_overrides:
-      csv:
-        name: BOROUGH
-      socrata:
-        display_name: BOROUGH
 
   - name: block
     display_name: Tax block
@@ -52,24 +43,12 @@ columns:
       within a borough.
     data_type: integer
     example: 1637
-    format_overrides:
-      csv:
-        name: BLOCK
-      socrata:
-        name: tax_block
-        display_name: TAX BLOCK
 
   - name: lot
     display_name: Tax lot
     description: The number of the tax lot. Each tax lot is unique within a tax block.
     data_type: integer
     example: 141
-    format_overrides:
-      csv:
-        name: LOT
-      socrata:
-        name: tax_lot
-        display_name: TAX LOT
 
   - name: bbl
     display_name: BBL
@@ -83,11 +62,6 @@ columns:
     data_type: bbl
     readme_data_type: double
     example: 1016370141
-    format_overrides:
-      csv:
-        name: BBL
-      socrata:
-        display_name: BBL
 
   - name: mapbbl
     display_name: Mapped BBL
@@ -104,12 +78,6 @@ columns:
     data_type: bbl
     readme_data_type: double
     example: 1016370141
-    format_overrides:
-      csv:
-        name: MAPBBL
-      socrata:
-        name: billbbl
-        display_name: BILLBBL
 
   - name: cd
     display_name: Community district
@@ -123,46 +91,24 @@ columns:
       joint interest area number, whichever is applicable.
     data_type: integer
     example: 111
-    format_overrides:
-      csv:
-        name: CD
-      socrata:
-        display_name: CD
 
   - name: hnum
     display_name: House number
     description: House number
     data_type: text
     example: "1955"
-    format_overrides:
-      csv:
-        name: HNUM
-      socrata:
-        name: house_number
-        display_name: HOUSE NUMBER
 
   - name: sname
     display_name: Street name
     description: Name of the street
     data_type: text
     example: Third Avenue
-    format_overrides:
-      csv:
-        name: SNAME
-      socrata:
-        name: street_name
-        display_name: STREET NAME
 
   - name: address
     display_name: Address
     description: House number and street name
     data_type: text
     example: 1955 Third Avenue
-    format_overrides:
-      csv:
-        name: ADDRESS
-      socrata:
-        display_name: ADDRESS
 
   - name: parcelname
     display_name: Parcel name
@@ -173,12 +119,6 @@ columns:
       the latter, DCPEDITED = “Y”.
     data_type: text
     example: AGUILAR BRANCH LIBRARY
-    format_overrides:
-      csv:
-        name: PARCELNAME
-      socrata:
-        name: parcel_name
-        display_name: PARCEL NAME
 
   - name: agency
     display_name: Agency
@@ -187,11 +127,6 @@ columns:
       of abbreviations with their full name.
     data_type: text
     example: NYPL
-    format_overrides:
-      csv:
-        name: AGENCY
-      socrata:
-        display_name: AGENCY
 
   - name: usecode
     display_name: Use code
@@ -200,12 +135,6 @@ columns:
       Appendix B for a complete list of use codes and descriptions.
     data_type: text
     example: "218"
-    format_overrides:
-      csv:
-        name: USECODE
-      socrata:
-        name: use_code
-        display_name: USE CODE
 
   - name: usetype
     display_name: Use description
@@ -214,12 +143,6 @@ columns:
       a complete list of use codes and descriptions.
     data_type: text
     example: BRANCH LIBRARY
-    format_overrides:
-      csv:
-        name: USETYPE
-      socrata:
-        name: use_type
-        display_name: USE TYPE
 
   - name: ownership
     display_name: Owner type
@@ -231,12 +154,6 @@ columns:
       - [M, Mixed ownership]
       - [P, Private]
       - [O, Other/public authority (includes properties owned by federal and state entities)]
-    format_overrides:
-      csv:
-        name: OWNERSHIP
-      socrata:
-        name: non_city_ownership
-        display_name: OWNERSHIP
 
   - name: category
     display_name: Category
@@ -250,12 +167,6 @@ columns:
       - [1, Non-residential properties with a current use]
       - [2, Residential properties]
       - [3, Properties with no current use]
-    format_overrides:
-      csv:
-        name: CATEGORY
-      socrata:
-        name: category_code
-        display_name: CATEGORY
 
   - name: expandcat
     display_name: Expanded category
@@ -275,12 +186,6 @@ columns:
       - [7, Maintenance, storage & infrastructure]
       - [8, Property with no use]
       - [9, Property with a residential used]
-    format_overrides:
-      csv:
-        name: EXPANDCAT
-      socrata:
-        name: expanded_category_code
-        display_name: EXPANDED CATEGORY CODE
 
   - name: excatdesc
     display_name: Expanded category description
@@ -289,12 +194,6 @@ columns:
       Descriptions for the expanded category values. See EXPANDCAT for the
       domain values.
     data_type: text
-    format_overrides:
-      csv:
-        name: EXCATDESC
-      socrata:
-        name: excatdesc
-        display_name: EXPANDED CATEGORY DESCRIPTION
 
   - name: leased
     display_name: Leased
@@ -306,12 +205,6 @@ columns:
     data_type: text
     values:
       - [L, Leased]
-    format_overrides:
-      csv:
-        name: LEASED
-      socrata:
-        name: leased_properties
-        display_name: LEASED PROPERTIES
 
   - name: finalcom
     display_name: Final commitment
@@ -319,12 +212,6 @@ columns:
     data_type: text
     values:
       - [D, Potential Disposition]
-    format_overrides:
-      csv:
-        name: FINALCOM
-      socrata:
-        name: final_commitment
-        display_name: FINAL COMMITMENT
 
   - name: agreement
     display_name: Lease agreement
@@ -337,11 +224,6 @@ columns:
       - [S, Short-term]
       - [L, Long-term]
       - [M, Mixed (there are both short- and long-term agreements on the property)]
-    format_overrides:
-      csv:
-        name: AGREEMENT
-      socrata:
-        display_name: AGREEMENT
 
   - name: xcoord
     display_name: X coordinate
@@ -352,9 +234,6 @@ columns:
       Feet.
     data_type: integer
     example: 999900
-    format_overrides:
-      csv:
-        name: XCOORD
 
   - name: ycoord
     display_name: Y coordinate
@@ -365,9 +244,6 @@ columns:
       Feet.
     data_type: integer
     example: 228619
-    format_overrides:
-      csv:
-        name: YCOORD
 
   - name: latitude
     display_name: Latitude
@@ -377,9 +253,6 @@ columns:
       Coordinate system is NAD_1983.
     data_type: double
     example: 40.794169
-    format_overrides:
-      csv:
-        name: LATITUDE
 
   - name: longitude
     display_name: Longitude
@@ -389,9 +262,6 @@ columns:
       Coordinate system is NAD_1983.
     data_type: double
     example: -73.943479
-    format_overrides:
-      csv:
-        name: LONGITUDE
 
   - name: dcpedited
     display_name: DCP Edited
@@ -424,8 +294,56 @@ dataset_package:
       filename: colp.csv
       type: csv
       overrides:
-        omit_columns: [geom]
+        omit_columns: []
         columns:
+          borough:
+            name: BOROUGH
+          block:
+            name: BLOCK
+          lot:
+            name: LOT
+          bbl:
+            name: BBL
+          mapbbl:
+            name: MAPBBL
+          cd:
+            name: CD
+          hnum:
+            name: HNUM
+          sname:
+            name: SNAME
+          address:
+            name: ADDRESS
+          parcelname:
+            name: PARCELNAME
+          agency:
+            name: AGENCY
+          usecode:
+            name: USECODE
+          usetype:
+            name: USETYPE
+          ownership:
+            name: OWNERSHIP
+          category:
+            name: CATEGORY
+          expandcat:
+            name: EXPANDCAT
+          excatdesc:
+            name: EXCATDESC
+          leased:
+            name: LEASED
+          finalcom:
+            name: FINALCOM
+          agreement:
+            name: AGREEMENT
+          xcoord:
+            name: XCOORD
+          ycoord:
+            name: YCOORD
+          latitude:
+            name: LATITUDE
+          longitude:
+            name: LONGITUDE
           dcpedited:
             name: DCPEDITED
           geom:
@@ -447,8 +365,60 @@ destinations:
     attachments:
       -  "colp_readme.pdf"
       -  "colp_metadata.pdf"
-    omit_columns: [dcpedited]
+    omit_columns: [dcpedited, uid]
     column_details:
+      borough:
+        display_name: BOROUGH
+      block:
+        api_name: tax_block
+        display_name: TAX BLOCK
+      lot:
+        api_name: tax_lot
+        display_name: TAX LOT
+      mapbbl:
+        api_name: billbbl
+        display_name: BILLBBL
+      cd:
+        display_name: CD
+      hnum:
+        api_name: house_number
+        display_name: HOUSE NUMBER
+      sname:
+        api_name: street_name
+        display_name: STREET NAME
+      address:
+        display_name: ADDRESS
+      parcelname:
+        api_name: parcel_name
+        display_name: PARCEL NAME
+      agency:
+        display_name: AGENCY
+      usecode:
+        api_name: use_code
+        display_name: USE CODE
+      usetype:
+        api_name: use_type
+        display_name: USE TYPE
+      ownership:
+        api_name: non_city_ownership
+        display_name: OWNERSHIP
+      category:
+        api_name: category_code
+        display_name: CATEGORY
+      expandcat:
+        api_name: expanded_category_code
+        display_name: EXPANDED CATEGORY CODE
+      excatdesc:
+        api_name: excatdesc
+        display_name: EXPANDED CATEGORY DESCRIPTION
+      leased:
+        api_name: leased_properties
+        display_name: LEASED PROPERTIES
+      finalcom:
+        api_name: final_commitment
+        display_name: FINAL COMMITMENT
+      agreement:
+        display_name: AGREEMENT
       xcoord:
         api_name: x_coordinate
         display_name: X COORDINATE
