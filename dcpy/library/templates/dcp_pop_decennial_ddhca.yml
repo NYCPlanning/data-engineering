@@ -1,9 +1,9 @@
 dataset:
-  name: dcp_pop_decennial_dhc
+  name: dcp_pop_decennial_ddhca
   acl: public-read
   source:
     url:
-      path: .library/upload/dhc_{{ version }}.xlsx
+      path: .library/upload/ForDelivery_DDHCA2020_ForPFF.xlsx
     geometry:
       SRS: null
       type: NONE
@@ -17,9 +17,9 @@ dataset:
 
   info:
     description: |
-      ## Census Demographic and Housing Characteristics file from Population
+      ## Census Detailed Demographic and Housing Characteristics-A file from Population
       This file is produced internally by the Population division. It contains data from multiple versions of the 
-      Census Demographic and Housing Characteristics (DHC) file with updated estimates for the current year. 
+      Census Detailed Demographic and Housing Characteristics A (DDHCA) file with updated estimates for the current year. 
       
       It is received via email or file transfer from the DCP Population division
 
