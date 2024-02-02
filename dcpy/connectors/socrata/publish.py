@@ -350,6 +350,7 @@ def push_shp(
 
         elapsed_secs = 0
         while not rev.fetch_default_metadata().closed_at:
+            logger.info("Polling for completion.")
             time.sleep(5)
             elapsed_secs += 5
             if elapsed_secs > SOCRATA_REVISION_APPLY_TIMEOUT_SECS:
