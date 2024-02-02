@@ -70,7 +70,7 @@ class Dataset(BaseModel, extra="forbid"):
     name: str
     type: str
     filename: str
-    overrides: DatasetOverrides | None = None
+    overrides: DatasetOverrides = DatasetOverrides()
 
     def get_columns(self, metadata: Metadata) -> list[Column]:
         cols = []
