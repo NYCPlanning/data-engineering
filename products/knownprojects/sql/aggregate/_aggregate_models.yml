@@ -15,7 +15,7 @@ models:
             - nta
           config:
             severity: error
-            error_if: ">250"
+            error_if: ">{{ var('max_duplicate_project_records') }}"
             warn_if: ">0"
 
   - name: longform_cdta_output
@@ -32,7 +32,7 @@ models:
             - cdta
           config:
             severity: error
-            error_if: ">250"
+            error_if: ">{{ var('max_duplicate_project_records') }}"
             warn_if: ">0"
 
   - name: longform_cd_output
@@ -49,7 +49,7 @@ models:
             - cd
           config:
             severity: error
-            error_if: ">250"
+            error_if: ">{{ var('max_duplicate_project_records') }}"
             warn_if: ">0"
 
   - name: longform_ct_output
@@ -66,5 +66,5 @@ models:
             - ct
           config:
             severity: error
-            error_if: ">250"
+            error_if: ">{{ var('max_duplicate_project_records') }}"
             warn_if: ">0"

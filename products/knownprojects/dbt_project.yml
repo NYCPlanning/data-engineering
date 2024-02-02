@@ -7,3 +7,6 @@ model-paths: ["sql"]
 tests:
   +store_failures: true
   schema: "_tests"
+
+vars:
+  max_duplicate_project_records: 250

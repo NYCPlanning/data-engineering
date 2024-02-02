@@ -12,7 +12,7 @@ models:
           - unique:
               config:
                 severity: error
-                error_if: ">250"
+                error_if: ">{{ var('max_duplicate_project_records') }}"
                 warn_if: ">0"
       - name: record_name
       - name: borough
