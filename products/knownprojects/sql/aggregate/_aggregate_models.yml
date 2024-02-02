@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: longform_nta_output
-    description: "Known Projects DB project records split by NTA"
+    description: "Project records split by intersecting NTAs"
     columns:
       - name: record_id
         tests:
@@ -19,7 +19,7 @@ models:
             warn_if: ">0"
 
   - name: longform_cdta_output
-    description: "Known Projects DB project records split by CDTA"
+    description: "Project records split by intersecting CDTAs"
     columns:
       - name: record_id
         tests:
@@ -30,6 +30,40 @@ models:
           combination_of_columns:
             - record_id
             - cdta
+          config:
+            severity: error
+            error_if: ">250"
+            warn_if: ">0"
+
+  - name: longform_cd_output
+    description: "Project records split by intersecting community districts"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_cd_output_compound_key
+          combination_of_columns:
+            - record_id
+            - cd
+          config:
+            severity: error
+            error_if: ">250"
+            warn_if: ">0"
+
+  - name: longform_ct_output
+    description: "Project records split by intersecting census tracts"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_ct_output_compound_key
+          combination_of_columns:
+            - record_id
+            - ct
           config:
             severity: error
             error_if: ">250"
