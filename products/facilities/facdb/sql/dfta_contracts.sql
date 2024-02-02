@@ -1,41 +1,40 @@
 DROP TABLE IF EXISTS _dfta_contracts;
-SELECT uid,
+SELECT
+    uid,
     source,
-    initcap(sponsor_name) as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
-    program_address as address,
-    NULL as city,
-    program_zipcode as zipcode,
-    NULL as boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
+    initcap(sponsorname) AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
+    programaddress AS address,
+    NULL AS city,
+    postcode AS zipcode,
+    NULL AS boro,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
     (
         CASE
+            WHEN providertype LIKE '%OLDER ADULT CENTER%' THEN 'Senior Center'
             WHEN (
-                contract_type LIKE '%INNOVATIVE%'
-                AND RIGHT(provider_id, 2) <> '01'
+                providertype LIKE '%HOME DELIVERED MEAL%'
             )
             OR (
-                contract_type LIKE '%NEIGHBORHOOD%'
-                AND RIGHT(provider_id, 2) <> '01'
-            )
-            OR (contract_type LIKE '%INNOVATIVE%')
-            OR (contract_type LIKE '%NEIGHBORHOOD%') THEN 'Senior Center'
-            WHEN contract_type LIKE '%MEALS%' THEN initcap(contract_type)
+                providertype LIKE '%CITY MEALS ADMINISTRATIVE SERVICES%'
+                AND sponsorname LIKE '%CITYMEALS-ON-WHEELS%'
+            ) THEN 'Home Delivered Meals'
             ELSE 'Senior Services'
         END
-    ) as factype,
-    'Senior Services' as facsubgrp,
-    initcap(sponsor_name) as opname,
-    'Non-public' as opabbrev,
-    'NYCDFTA' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    NULL as wkb_geometry,
+    ) AS factype,
+    'Senior Services' AS facsubgrp,
+    initcap(sponsorname) AS opname,
+    'Non-public' AS opabbrev,
+    'NYCDFTA' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    NULL AS wkb_geometry,
     geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn INTO _dfta_contracts
+    NULL AS geo_bl,
+    NULL AS geo_bn
+INTO _dfta_contracts
 FROM dfta_contracts;
 CALL append_to_facdb_base('_dfta_contracts');

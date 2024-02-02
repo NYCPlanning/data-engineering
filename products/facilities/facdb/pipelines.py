@@ -126,7 +126,7 @@ def dep_wwtc(df: pd.DataFrame):
 
 def dfta_contracts(df: pd.DataFrame):
     df = sanitize_df(df)
-    df = parse_address(df, raw_address_field="program_address")
+    df = parse_address(df, raw_address_field="programaddress")
     df = Function1B(
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",
