@@ -52,6 +52,9 @@ jobs:
       - name: Finish container setup
         run: ./bash/docker_container_setup.sh
 
+      - name: Temp install socrata-py
+        run: python3 -m pip install socrata-py
+
       - name: Push to Socrata
         run: |
           python3 -m dcpy.distribute.socrata from_s3  \
