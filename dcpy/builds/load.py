@@ -11,6 +11,7 @@ from dcpy.builds import metadata, plan
 def setup_build_environments(pg_client: postgres.PostgresClient):
     if pg_client.schema != "public":
         pg_client.drop_schema()
+        pg_client.drop_schema(pg_client.schema_tests)
         pg_client.create_schema()
     s3.delete(
         bucket=publishing.BUCKET,
