@@ -22,10 +22,10 @@ run_sql_file sql/correct_projects.sql
 run_sql_command "VACUUM ANALYZE _project_record_ids;"
 
 # Output corrected projects for review
-run_sql_file sql/review_project.sql
+run_sql_file sql/review/review_project.sql
 
 # Find matches between DOB and non-DOB sources
-run_sql_file sql/review_dob.sql
+run_sql_file sql/review/review_dob.sql
 
 # Create project IDs and deduplicate units
 run_sql_file sql/project_record_ids.sql 
