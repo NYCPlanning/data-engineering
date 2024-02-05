@@ -1,4 +1,7 @@
+-- create _kpdb table
+DROP TABLE IF EXISTS _kpdb_combined_and_deduped;
 DROP TABLE IF EXISTS _kpdb;
+
 SELECT
     a.*,
     b.project_id,
@@ -13,12 +16,48 @@ SELECT
     ROUND(
         COALESCE(a.prop_after_10_years::decimal, 0) * b.units_net::decimal
     ) AS after_10_years
-INTO _kpdb
+INTO _kpdb_combined_and_deduped
 FROM combined AS a
 LEFT JOIN deduped_units AS b
     ON a.record_id = b.record_id
 WHERE a.no_classa = '0' OR a.no_classa IS NULL;
 
+-- fix +/-1 rounding error in calculation of units by year ranges
+--  for all rows with a rounding error
+WITH
+net_units_details AS (
+    SELECT
+        COALESCE(
+            NULLIF(prop_within_5_years, 0), NULLIF(prop_5_to_10_years, 0), NULLIF(prop_after_10_years, 0)
+        ) IS NOT NULL
+        AS has_future_units,
+        within_5_years + from_5_to_10_years + after_10_years AS net_units_sum,
+        units_net - (within_5_years + from_5_to_10_years + after_10_years) AS net_units_diff,
+        *
+    FROM _kpdb_combined_and_deduped
+)
+
+SELECT *
+INTO _kpdb
+FROM net_units_details;
+
+--  add the net unit difference (the rounding error) to the first phase with units
+UPDATE _kpdb SET
+    within_5_years = within_5_years + net_units_diff,
+    net_units_diff = 0
+WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_within_5_years, 0) IS NOT NULL;
+
+UPDATE _kpdb SET
+    from_5_to_10_years = from_5_to_10_years + net_units_diff,
+    net_units_diff = 0
+WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_5_to_10_years, 0) IS NOT NULL;
+
+UPDATE _kpdb SET
+    after_10_years = after_10_years + net_units_diff,
+    net_units_diff = 0
+WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_after_10_years, 0) IS NOT NULL;
+
+-- determine missing borough values
 UPDATE _kpdb a
 SET
     borough
