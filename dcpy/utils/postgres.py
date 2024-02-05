@@ -28,6 +28,10 @@ def generate_engine_uri(
     return server_url + "/" + database + options
 
 
+def generate_schema_tests_name(schema: str):
+    return schema + "__tests"
+
+
 def execute_file_via_shell(engine_uri: str, path: Path, **kwargs) -> None:
     """Execute a .sql script at given path using psql CLI and kwargs to set variables."""
     psql_vars = [f"--variable {name}={value}" for (name, value) in kwargs.items()]
@@ -53,6 +57,7 @@ class PostgresClient:
         server_url: str | None = None,
     ):
         self.schema = schema if schema else os.environ["BUILD_ENGINE_SCHEMA"]
+        self.schema_tests = generate_schema_tests_name(self.schema)
         self.database = database if database else os.environ["BUILD_ENGINE_DB"]
         self.engine_uri = generate_engine_uri(
             server_url if server_url else os.environ["BUILD_ENGINE_SERVER"],

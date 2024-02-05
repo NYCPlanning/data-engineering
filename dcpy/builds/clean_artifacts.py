@@ -35,11 +35,15 @@ def delete_stale_schemas(active_build_names: list[str]):
                 logger.info(f"No build schema named {database}.{active_name}")
 
         for build_schema in existing_build_schemas:
+            build_test_schema = metadata.build_tests_name(build_name=build_schema)
             if build_schema not in active_build_names:
                 logger.warning(f"Dropping schema {database}.{build_schema}")
                 pg_client_default.drop_schema(build_schema)
+                logger.warning(f"Dropping tests schema {database}.{build_test_schema}")
+                pg_client_default.drop_schema(build_test_schema)
             else:
                 logger.info(f"Keeping schema {database}.{build_schema}")
+                logger.info(f"Keeping tests schema {database}.{build_test_schema}")
 
 
 def delete_stale_image_tags(active_build_names: list[str]):
