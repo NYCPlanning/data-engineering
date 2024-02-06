@@ -27234,8 +27234,8 @@ bbl,field,old_value,new_value,Type,reason,version
 2023617501,unitstotal,869,281,2,PTS error - units,23v1
 4050157502,unitsres,484,22,2,PTS error - units,23v1
 4050157502,unitstotal,629,22,2,PTS error - units,23v1
-4019917501,unitsres,463,22,2,PTS error - units,23v1
-4019917501,unitstotal,467,26,2,PTS error - units,23v1
+4019917501,unitsres,442,22,2,PTS error - units,24v1
+4019917501,unitstotal,446,26,2,PTS error - units,24v1
 4004377502,unitsres,19201,802,2,PTS error - units,23v2
 4004377502,unitstotal,19203,804,2,PTS error - units,23v2
 4004377502,unitsres,19200,802,2,PTS error - units,23v2
@@ -27257,3 +27257,11 @@ bbl,field,old_value,new_value,Type,reason,version
 3014980035,lotfront,67.25,120,2,Lot frontage is incorrect,23v3
 3014980035,lotdepth,52.75,100,2,Lot depth is incorrect,23v3
 3014980035,lotarea,3547,12000,2,Lot area is incorrect,23v3
+3018407502,unitsres,1600,40,2,PTS error - units,24v1
+3018407502,unitstotal,1626,40,2,PTS error - units,24v1
+1019697501,unitsres,452,17,2,PTS error - units,24v1
+1019697501,unitstotal,452,17,2,PTS error - units,24v1
+1012277501,unitsres,361,19,2,PTS error - units,24v1
+1012277501,unitstotal,364,22,2,PTS error - units,24v1
+3024137502,unitsres,361,19,2,PTS error - units,24v1
+3024137502,unitstotal,361,19,2,PTS error - units,24v1
