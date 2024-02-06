@@ -124,6 +124,9 @@ To see if a dataset needs to be uploaded, check date last updated in open data/b
 - [ ] dfta_contracts https://data.cityofnewyork.us/Social-Services/Department-for-the-Aging-NYC-Aging-All-Contracted-/cqc8-am9x
   NOTE: `providertype` column has two types of meal categories. One of them, **CITY MEALS ADMINISTRATIVE SERVICES CONTRACTS**, should only have one record (city meals). If there are more records in this category, need to revise code in `dfta_contracts.sql`.
 - [ ] doe_busroutesgarages https://data.cityofnewyork.us/Transportation/Routes/8yac-vygm
+
+- [ ] dot_pedplazas https://data.cityofnewyork.us/Transportation/Routes/k5k6-6jex
+
 - [ ] sca_enrollment_capacity https://data.cityofnewyork.us/Education/Enrollment-Capacity-And-Utilization-Reports-Target/8b9a-pywy
 - [ ] dohmh_daycare https://data.cityofnewyork.us/Health/DOHMH-Childcare-Center-Inspections/dsg6-ifza
 - [ ] dpr_parksproperties https://nycopendata.socrata.com/Recreation/Parks-Properties/enfh-gkve
@@ -209,15 +212,10 @@ library archive --s3 --name foodbankny_foodbanks --latest --version 20240108 --o
 - [ ] dot_ferryterminals
 - [ ] dot_mannedfacilities
 - [ ] dot_publicparking
-- [ ] dot_pedplazas
 - [ ] doe_universalprek (https://maps.nyc.gov/prek/data/pka/pka.csv)
 
 ## Last step
 
 - [ ] dcp_pops
-  Source: Download from POPs app, available on DCP Commons. Be sure to only take the public version.
-  *Be sure to do this source last, as the OpenData release of POPs needs to be in sync*
-
-## TODO
-
-- Ped Plazas can now be pulled from open data via data-library (https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex)
+Source: Download from POPs app, available on DCP Commons. Be sure to only take the public version.
+*Be sure to do this source last, as the OpenData release of POPs needs to be in sync*
