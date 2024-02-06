@@ -22,6 +22,7 @@ models:
       - name: date_type
       - name: units_gross
       - name: units_net
+      - name: has_future_units
       - name: prop_within_5_years
       - name: prop_5_to_10_years
       - name: prop_after_10_years
