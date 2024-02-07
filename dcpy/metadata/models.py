@@ -18,11 +18,12 @@ class SocrataDestination(BaseModel, extra="forbid"):
     attachments: list[str] = []
     datasets: conlist(item_type=str, max_length=1)  # type:ignore
     omit_columns: list[str]
-    column_details: dict[str, SocrataColumn]
+    column_details: dict[str, SocrataColumn] = {}
 
     def destination_column_metadata(self, metadata: Metadata) -> list[SocrataColumn]:
         soc_cols = []
-        for col in metadata.columns:
+        dataset = metadata.dataset_package.get_dataset(self.datasets[0])
+        for col in dataset.get_columns(metadata):
             if col.name in self.omit_columns:
                 continue
             overrides = self.column_details.get(col.name, SocrataColumn())

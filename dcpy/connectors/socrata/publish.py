@@ -105,9 +105,15 @@ class Socrata:
                 self, socrata_dest: models.SocrataDestination, metadata: models.Metadata
             ):
                 # TODO: changing column types. Not strictly required yet, and could be tricky
-                logger.info(f"Updating Columns at {self._column_update_endpoint}")
                 dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
                 expected_api_names = [c.api_name for c in dest_col_metadata]
+
+                logger.info(
+                    f"""Updating Columns at {self._column_update_endpoint}
+                    Columns in uploaded data: {self.column_names}
+                    Columns from our metadata: {expected_api_names}
+                """
+                )
 
                 assert self.column_names == set(
                     expected_api_names
