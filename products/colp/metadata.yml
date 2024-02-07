@@ -42,12 +42,14 @@ columns:
       The tax block in which the tax lot is located. Each tax block is unique
       within a borough.
     data_type: integer
+    is_nullable: False
     example: 1637
 
   - name: lot
     display_name: Tax lot
     description: The number of the tax lot. Each tax lot is unique within a tax block.
     data_type: integer
+    is_nullable: False
     example: 141
 
   - name: bbl
@@ -61,6 +63,7 @@ columns:
       digits. For condominiums, this is usually the unit BBL.
     data_type: bbl
     readme_data_type: double
+    is_nullable: False
     example: 1016370141
 
   - name: mapbbl
