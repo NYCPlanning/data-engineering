@@ -1,0 +1,84 @@
+name: dcp_template_db
+display_name: Template DB
+summary: |
+  Template DB is a mock dataset created by the Data Engineering team at the Department of City Planning (DCP).
+description: |
+  Template DB is a mock dataset created by the Data Engineering team at the Department of City Planning (DCP).
+
+  More details are available at the DCP Data Engineering wiki [here](https://github.com/NYCPlanning/data-engineering/wiki/).
+tags: [Department of City Planning, DCP, New York City, NYC]
+each_row_is_a: Interesting place in NYC
+
+columns:
+  - name: place_name
+    description:  A Place Name
+    display_name: Place Name
+    data_type: text
+
+  - name: bbl
+    description: The BBL
+    display_name: BBL
+    data_type: bbl
+
+  - name: place_type
+    description: The type of the Place.
+    display_name: Place Type
+    data_type: text
+
+  - name: borough
+    description: The Borough
+    display_name: Borough
+    data_type: text
+
+  - name: wkb_geometry
+    description: The Geom
+    display_name: Geometry
+    data_type: wkb
+
+  - name: omit_me_from_shapefile
+    description: I shouldn't show up in the Shapefile
+    display_name: nope
+    data_type: wkb
+
+dataset_package:
+  datasets:
+    - name: primary_csv
+      filename: templatedb.csv
+      type: csv
+    - name: primary_shapefile
+      filename: template.shp.zip
+      type: shapefile
+      overrides:
+        omit_columns: [omit_me_from_shapefile]
+        columns:
+          wkb_geometry:
+            name: the_geom
+  attachments:
+    - metadata.yml
+    - source_data_versions.csv
+    - build_metadata.json
+
+destinations:
+  - id: socrata_shapefile
+    type: socrata
+    four_four: "b7pm-uzu7"
+    datasets:
+      - primary_shapefile
+    attachments:
+      - source_data_versions.csv
+    omit_columns: []
+    column_details:
+      the_geom:
+        api_name: the_geom_socrata
+
+  - id: socrata_csv
+    type: socrata
+    four_four: "b7pm-uzu7"
+    datasets:
+      - primary_csv
+    attachments:
+      - source_data_versions.csv
+    omit_columns: []
+    column_details:
+      the_geom:
+        api_name: the_geom_socrata
