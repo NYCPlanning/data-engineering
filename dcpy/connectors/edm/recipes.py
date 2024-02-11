@@ -15,7 +15,6 @@ from dcpy.utils.logging import logger
 
 
 BUCKET = "edm-recipes"
-BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com/datasets"
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
@@ -86,6 +85,10 @@ class DatasetDefinition(BaseModel):
         url: str | None = None
         dependents: list[str] | None = None
 
+    @property
+    def dataset(self) -> Dataset:
+        return Dataset(name=self.name, version=self.version)
+
 
 class DatasetType(str, Enum):
     pg_dump = "pg_dump"
@@ -124,9 +127,17 @@ def _type_from_extension(s: str) -> DatasetType | None:
             return None
 
 
-class Config(BaseModel):
+class Config(BaseModel, extra="forbid"):
     dataset: DatasetDefinition
     execution_details: metadata.RunDetails | None = None
+
+    @property
+    def version(self) -> str:
+        return self.dataset.version
+
+    @property
+    def sparse_dataset(self) -> Dataset:
+        return self.dataset.dataset
 
 
 class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
@@ -157,9 +168,9 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     def get_preferred_file_type(self, preferences: list[DatasetType]) -> DatasetType:
         file_types = self.get_file_types()
-        if len(file_types.union(preferences)) == 0:
-            raise Exception(
-                f"read_df expects parquet or csv to be available. Found filetypes for {self.name}: {file_types}"
+        if len(file_types.intersection(preferences)) == 0:
+            raise FileNotFoundError(
+                f"Dataset {self.name} could not find filetype of any of {preferences}. Found filetypes for {self.name}: {file_types}"
             )
         return next(t for t in preferences if t in file_types)
 
@@ -254,11 +265,18 @@ def _pd_reader(file_type: DatasetType):
             raise Exception(f"Cannot read pandas dataframe from type {file_type}")
 
 
-def read_df(ds: Dataset, local_cache_dir: Path | None = None, **kwargs) -> pd.DataFrame:
+def read_df(
+    ds: Dataset,
+    local_cache_dir: Path | None = None,
+    preferred_file_types: list[DatasetType] | None = None,
+    **kwargs,
+) -> pd.DataFrame:
     """Read a recipe dataset parquet or csv file as a pandas DataFrame."""
-    ds.file_type = ds.file_type or ds.get_preferred_file_type(
-        [DatasetType.parquet, DatasetType.csv]
-    )
+    preferred_file_types = preferred_file_types or [
+        DatasetType.parquet,
+        DatasetType.csv,
+    ]
+    ds.file_type = ds.file_type or ds.get_preferred_file_type(preferred_file_types)
     reader = _pd_reader(ds.file_type)
     if local_cache_dir:
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)

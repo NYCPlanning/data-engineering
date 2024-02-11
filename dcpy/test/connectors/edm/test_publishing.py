@@ -1,8 +1,7 @@
 import pytest
 import pandas as pd
-import boto3
 from botocore.exceptions import ClientError
-from dcpy.utils import versions, s3
+from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 
 TEST_PRODUCT_NAME = "test-product"

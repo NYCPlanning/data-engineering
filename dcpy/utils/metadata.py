@@ -13,7 +13,7 @@ class CIRun(BaseModel):
     job: str | None = None
 
 
-class User(BaseModel):
+class User(BaseModel, extra="forbid"):
     username: str
 
 
@@ -25,7 +25,7 @@ class RunDetails(BaseModel):
 
     def __init__(self, **kwargs):
         if "runner" not in kwargs:
-            if "dispatch_event" in kwargs:
+            if "type" in kwargs and kwargs["type"] == "ci":
                 kwargs["runner"] = CIRun(**kwargs)
             elif "user" in kwargs:
                 kwargs["runner"] = User(username=kwargs["user"])

@@ -6,15 +6,11 @@ import csv
 from moto import mock_aws
 
 from dcpy.utils import s3
-from dcpy.connectors.edm import publishing, packaging
+from dcpy.connectors.edm import recipes, publishing, packaging
 
 
 TEST_BUCKET = "test-bucket"
-TEST_BUCKETS = [
-    TEST_BUCKET,
-    publishing.BUCKET,
-    packaging.BUCKET,
-]
+TEST_BUCKETS = [TEST_BUCKET, publishing.BUCKET, packaging.BUCKET, recipes.BUCKET]
 
 
 @pytest.fixture(scope="function")
