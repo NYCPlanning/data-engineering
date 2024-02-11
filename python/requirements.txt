@@ -34,26 +34,26 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.34.23
+boto3==1.34.39
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.34.23
+boto3-stubs[s3]==1.34.39
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-botocore==1.34.23
+botocore==1.34.39
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.34.23
+botocore-stubs==1.34.39
     # via
     #   -r python/requirements.in
     #   boto3-stubs
 bqplot==0.12.42
     # via leafmap
-branca==0.7.0
+branca==0.7.1
     # via
     #   folium
     #   ipyleaflet
@@ -62,7 +62,7 @@ cached-property==1.5.2
     # via -r python/requirements.in
 cachetools==5.3.2
     # via streamlit
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   fiona
     #   pyproj
@@ -114,26 +114,26 @@ contextily==1.3.0
     # via -r python/requirements.in
 contourpy==1.2.0
     # via matplotlib
-coverage[toml]==7.4.0
+coverage[toml]==7.4.1
     # via
     #   coverage
     #   pytest-cov
-cryptography==41.0.7
+cryptography==42.0.2
     # via
     #   moto
     #   msal
     #   pyjwt
 cycler==0.12.1
     # via matplotlib
-dbt-core==1.7.5
+dbt-core==1.7.7
     # via dbt-postgres
 dbt-extractor==0.5.1
     # via dbt-core
-dbt-postgres==1.7.5
+dbt-postgres==1.7.7
     # via -r python/requirements.in
 dbt-semantic-interfaces==0.4.3
     # via dbt-core
-debugpy==1.8.0
+debugpy==1.8.1
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -156,13 +156,13 @@ folium==0.14.0
     #   -r python/requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.47.2
+fonttools==4.48.1
     # via matplotlib
 future==0.18.3
     # via usaddress
 gdal==3.8.3
     # via -r python/requirements.in
-gdown==5.0.0
+gdown==5.1.0
     # via leafmap
 geoalchemy2==0.14.1
     # via -r python/requirements.in
@@ -202,15 +202,15 @@ ipyfilechooser==0.6.0
     #   whiteboxgui
 ipykernel==6.22.0
     # via -r python/requirements.in
-ipyleaflet==0.18.1
+ipyleaflet==0.18.2
     # via leafmap
-ipython==8.20.0
+ipython==8.21.0
     # via
     #   ipykernel
     #   ipywidgets
 ipytree==0.2.2
     # via whiteboxgui
-ipywidgets==8.1.1
+ipywidgets==8.1.2
     # via
     #   bqplot
     #   ipyevents
@@ -263,11 +263,11 @@ jupyter-core==5.7.1
     # via
     #   ipykernel
     #   jupyter-client
-jupyterlab-widgets==3.0.9
+jupyterlab-widgets==3.0.10
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-leafmap==0.30.1
+leafmap==0.31.1
     # via -r python/requirements.in
 leather==0.3.4
     # via agate
@@ -279,11 +279,11 @@ mapclassify==2.5.0
     # via -r python/requirements.in
 markdown-it-py==3.0.0
     # via rich
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via
     #   jinja2
     #   werkzeug
-mashumaro[msgpack]==3.11
+mashumaro[msgpack]==3.12
     # via
     #   dbt-core
     #   mashumaro
@@ -304,7 +304,7 @@ minimal-snowplow-tracker==0.0.2
     # via dbt-core
 more-itertools==10.2.0
     # via dbt-semantic-interfaces
-moto[s3]==4.2.13
+moto[s3]==5.0.1
     # via -r python/requirements.in
 msal==1.23.0
     # via -r python/requirements.in
@@ -320,7 +320,7 @@ mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
-nest-asyncio==1.5.9
+nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.2.1
     # via
@@ -328,7 +328,7 @@ networkx==3.2.1
     #   mapclassify
 numerize==0.12
     # via -r python/requirements.in
-numpy==1.26.3
+numpy==1.26.4
     # via
     #   altair
     #   bqplot
@@ -389,7 +389,7 @@ pillow==10.2.0
     #   contextily
     #   matplotlib
     #   streamlit
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   black
     #   jupyter-core
@@ -397,7 +397,7 @@ plotly==5.18.0
     # via
     #   -r python/requirements.in
     #   leafmap
-pluggy==1.3.0
+pluggy==1.4.0
     # via
     #   diff-cover
     #   pytest
@@ -419,19 +419,19 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-py-partiql-parser==0.5.0
+py-partiql-parser==0.5.1
     # via moto
-pyarrow==14.0.2
+pyarrow==15.0.0
     # via
     #   -r python/requirements.in
     #   streamlit
 pycparser==2.21
     # via cffi
-pydantic==2.5.3
+pydantic==2.6.1
     # via
     #   -r python/requirements.in
     #   dbt-semantic-interfaces
-pydantic-core==2.14.6
+pydantic-core==2.16.2
     # via pydantic
 pydeck==0.8.1b0
     # via streamlit
@@ -484,15 +484,15 @@ python-dateutil==2.8.2
     #   streamlit
 python-decouple==3.8
     # via streamlit-aggrid
-python-dotenv==1.0.0
+python-dotenv==1.0.1
     # via -r python/requirements.in
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
     # via -r python/requirements.in
-python-slugify==8.0.1
+python-slugify==8.0.4
     # via agate
 pytimeparse==1.1.8
     # via agate
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r python/requirements.in
     #   dbt-core
@@ -511,7 +511,7 @@ pyzmq==25.1.2
     #   jupyter-client
 rasterio==1.3.9
     # via contextily
-referencing==0.32.1
+referencing==0.33.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -580,7 +580,7 @@ sqlparse==0.4.4
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.30.0
+streamlit==1.31.0
     # via
     #   -r python/requirements.in
     #   streamlit-aggrid
@@ -603,14 +603,14 @@ threadpoolctl==3.2.0
     # via scikit-learn
 toml==0.10.2
     # via streamlit
-toolz==0.12.0
+toolz==0.12.1
     # via altair
 tornado==6.4
     # via
     #   ipykernel
     #   jupyter-client
     #   streamlit
-tqdm==4.66.1
+tqdm==4.66.2
     # via
     #   -r python/requirements.in
     #   gdown
@@ -634,17 +634,17 @@ typed-ast==1.5.5
     # via diagrams
 typer==0.9.0
     # via -r python/requirements.in
-types-awscrt==0.20.0
+types-awscrt==0.20.3
     # via botocore-stubs
 types-beautifulsoup4==4.12.0.20240106
     # via -r python/requirements.in
 types-html5lib==1.1.11.20240106
     # via types-beautifulsoup4
-types-psycopg2==2.9.21.20240118
+types-psycopg2==2.9.21.20240201
     # via -r python/requirements.in
 types-python-dateutil==2.8.19.20240106
     # via -r python/requirements.in
-types-pytz==2023.3.1.1
+types-pytz==2024.1.0.20240203
     # via pandas-stubs
 types-pyyaml==6.0.12.12
     # via -r python/requirements.in
@@ -652,7 +652,7 @@ types-requests==2.31.0.6
     # via -r python/requirements.in
 types-s3transfer==0.10.0
     # via boto3-stubs
-types-setuptools==69.0.0.20240115
+types-setuptools==69.0.0.20240125
     # via -r python/requirements.in
 types-tqdm==4.66.0.2
     # via -r python/requirements.in
@@ -690,7 +690,7 @@ usaddress==0.5.10
     # via -r python/requirements.in
 validators==0.22.0
     # via streamlit
-watchdog==3.0.0
+watchdog==4.0.0
     # via streamlit
 wcwidth==0.2.13
     # via prompt-toolkit
@@ -700,7 +700,7 @@ whitebox==2.3.1
     # via whiteboxgui
 whiteboxgui==2.3.0
     # via leafmap
-widgetsnbextension==4.0.9
+widgetsnbextension==4.0.10
     # via ipywidgets
 xlrd==2.0.1
     # via -r python/requirements.in
