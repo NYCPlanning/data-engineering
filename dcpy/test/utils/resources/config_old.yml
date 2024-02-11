@@ -6,6 +6,6 @@ ci:
   timestamp: "2023-07-19 12:34:34"
 
 manual:
-  type: ci
+  type: manual
   user: user
   timestamp: "2023-07-19T12:34:34-0500"

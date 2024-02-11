@@ -1,0 +1,16 @@
+dataset:
+  name: test
+  acl: public-read
+  source:
+    url:
+      path: dcpy/test/connectors/edm/resources/test.csv
+
+  destination:
+    geometry:
+      SRS:
+      type: NONE
+
+  info:
+    description: ""
+    url: ""
+    dependents: []
