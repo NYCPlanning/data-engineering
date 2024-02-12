@@ -231,16 +231,25 @@ def download_folder(
     export_path: Path,
     *,
     include_prefix_in_export: bool = True,
-) -> None:
-    """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
+) -> list[dict]:
+    """Download contents of folder from s3 recursively.
+    Returns list of objects downloaded.
+    """
     if prefix[-1] != "/":
         raise NotADirectoryError("prefix must be a folder path, ending with '/'")
-    for obj in list_objects(bucket, prefix):
+
+    objs = list_objects(bucket, prefix)
+    if not objs:
+        raise Exception(
+            f"Empty listing returned for {bucket}/{prefix}. This might indicate that the path doesn't exist."
+        )
+    for obj in objs:
         key = obj["Key"] if include_prefix_in_export else obj["Key"].replace(prefix, "")
         if key and (key != prefix) and (key[-1] != "/"):
             key_directory = Path(key).parent
             (export_path / key_directory).mkdir(parents=True, exist_ok=True)
             download_file(bucket, obj["Key"], export_path / key)
+    return objs
 
 
 def upload_folder(

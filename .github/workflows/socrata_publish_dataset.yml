@@ -5,12 +5,26 @@ on:
   workflow_dispatch:
     inputs:
       DATASET_NAME:
-        description: "Name of the Socrata Dataset"
+        description: "Name of the dataset"
         type: string
         required: true
       DATASET_VERSION:
         description: "Version to push"
         type: string
+        required: true
+      DESTINATION_ID:
+        description: "Destination ID (e.g. `colp_socrata`)"
+        type: string
+        required: true
+      PUBLISH:
+        description: "Publish the revision? Or leave open"
+        type: boolean
+        default: false
+        required: true
+      IGNORE_VALIDATION_ERRORS:
+        description: "Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push"
+        type: boolean
+        default: false
         required: true
 jobs:
   publish:
@@ -43,6 +57,9 @@ jobs:
 
       - name: Push to Socrata
         run: |
-          python3 -m dcpy.connectors.socrata.publish push_shp_from_s3 \
-            --dataset ${{ inputs.DATASET_NAME }} \
-            --version ${{ inputs.DATASET_VERSION }}
+          python3 -m dcpy.distribute.socrata from_s3  \
+            --name ${{ inputs.DATASET_NAME }} \
+            --version ${{ inputs.DATASET_VERSION }} \
+            --dest ${{ inputs.DESTINATION_ID }} \
+            $(if [ ${{ inputs.PUBLISH }} = "true" ]; then echo "-p"; fi) \
+            $(if [ ${{ inputs.IGNORE_VALIDATION_ERRORS }} = "true" ]; then echo "-i"; fi)

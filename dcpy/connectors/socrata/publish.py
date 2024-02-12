@@ -16,17 +16,15 @@ from pathlib import Path
 import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
-import typer
+import time
 from typing import TypedDict, Literal
 
-from .metadata import datasets
-
 from dcpy.utils.logging import logger
-
-from dcpy.utils import s3
+from dcpy.metadata import models
 
 SOCRATA_USER = os.getenv("SOCRATA_USER")
 SOCRATA_PASSWORD = os.getenv("SOCRATA_PASSWORD")
+SOCRATA_REVISION_APPLY_TIMEOUT_SECS = 10 * 60  # Ten Mins
 
 SOCRATA_DOMAIN = "data.cityofnewyork.us"
 SOCRATA_API_EP = f"https://{SOCRATA_DOMAIN}/api"
@@ -79,6 +77,7 @@ class Socrata:
                 self.four_four = self._raw_resource_data["fourfour"]
                 self.metadata = self._raw_resource_data["metadata"]
                 self.attachments = self._raw_resource_data["attachments"]
+                self.closed_at = self._raw_resource_data["closed_at"]
 
         class RevisionDataSource:
             def __init__(self, socrata_source):
@@ -102,30 +101,43 @@ class Socrata:
             def column_names(self) -> set[str]:
                 return {c["field_name"] for c in self.soc_output_columns}
 
-            def update_column_metadata(self, dcp_cols):
+            def update_column_metadata(
+                self, socrata_dest: models.SocrataDestination, metadata: models.Metadata
+            ):
                 # TODO: changing column types. Not strictly required yet, and could be tricky
-                logger.info(f"Updating Columns at {self._column_update_endpoint}")
+                dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
+                expected_api_names = [c.api_name for c in dest_col_metadata]
 
-                dcp_cols_by_name = {c["field_name"]: c for c in dcp_cols}
-                dcp_col_names = [c["field_name"] for c in dcp_cols]
+                logger.info(
+                    f"""Updating Columns at {self._column_update_endpoint}
+                    Columns in uploaded data: {self.column_names}
+                    Columns from our metadata: {expected_api_names}
+                """
+                )
 
-                assert (
-                    dcp_cols_by_name.keys() == self.column_names
-                ), "The field names in the uploaded source must match \
-                    those in our metadata"
+                assert self.column_names == set(
+                    expected_api_names
+                ), f"""The field names in the uploaded data do not match our metadata.
+                - Present in our metadata, but not uploaded data: {set(expected_api_names) - self.column_names}
+                - Present in uploaded data, but not our metadata: {self.column_names - set(expected_api_names)}
+                """
 
-                for col in self.soc_output_columns:
+                for uploaded_col in self.soc_output_columns:
+                    # Take the Socrata metadata for columns that have been uploaded,
+                    # modify them to match our metadata, and post it back.
+
                     # Input columns need to be matched to what's been uploaded,
                     # via the `initial_output_column_id`. Otherwise update
                     # requests are ignored.
-                    col["initial_output_column_id"] = col["id"]
-                    col["position"] = dcp_col_names.index(col["field_name"]) + 1
+                    uploaded_col["initial_output_column_id"] = uploaded_col["id"]
+                    our_col_index = expected_api_names.index(uploaded_col["field_name"])
+                    our_col = dest_col_metadata[our_col_index]
 
-                    dcp_col = dcp_cols_by_name[col["field_name"]]
+                    uploaded_col["position"] = our_col_index + 1
 
-                    col["is_primary_key"] = dcp_col.get("is_primary_key") or False
-                    col["display_name"] = dcp_col["display_name"]
-                    col["description"] = dcp_col["description"]
+                    uploaded_col["is_primary_key"] = our_col.is_primary_key
+                    uploaded_col["display_name"] = our_col.display_name
+                    uploaded_col["description"] = our_col.description
 
                 return _socrata_request(
                     self._column_update_endpoint,
@@ -250,7 +262,10 @@ class Revision:
         return Socrata.Responses.RevisionDataSource(push_resp)
 
     def upload_attachment(
-        self, path: Path, *, file_name: str | None = None
+        self,
+        path: Path,
+        *,
+        dest_file_name: str,
     ) -> Socrata.Inputs.Attachment:
         """Upload an attachment to a revision.
 
@@ -267,7 +282,7 @@ class Revision:
                 f"{self.revision_endpoint}/attachment",
                 "POST",
                 headers={
-                    "X-File-Name": file_name or path.name,
+                    "X-File-Name": dest_file_name,
                     "Content-type": content_types[path.suffix],
                 },
                 data=f,
@@ -281,70 +296,72 @@ class Revision:
         )
 
 
-def push_shp_from_s3(dataset_name: str, version: str):
+def make_socrata_metadata(dcp_md: models.Metadata):
+    return {
+        "name": dcp_md.display_name,
+        # "resourceName": dcp_md.name,
+        "tags": dcp_md.tags,
+        "metadata": {"rowLabel": dcp_md.each_row_is_a},
+        "description": dcp_md.description,
+        "category": "city government",
+    }
+
+
+def push_shp(
+    metadata: models.Metadata,
+    dataset_destination_id: str,
+    dataset_package_path: Path,
+    *,
+    publish: bool,
+):
     """Push Shapefile from the distributions bucket to Socrata, and sync metadata."""
-    dataset_metadata: dict = datasets[dataset_name]
-    four_four: str = dataset_metadata["four_four"]
-    socrata_metadata = dataset_metadata["metadata"]
-    logger.info(
-        f"Syncing shapefile and metadata for {dataset_name}/{version} to Socrata {four_four}"
-    )
+    dest = metadata.get_destination(dataset_destination_id)
+    if type(dest) != models.SocrataDestination:
+        raise Exception("received a non-socrata type destination")
+    ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
+    shapefile_name = metadata.dataset_package.get_dataset(ds_name_to_push).filename
+    shape_file_path = dataset_package_path / shapefile_name
 
-    download_root_path = Path(".library")
-    dataset_path = download_root_path / dataset_name / version
-    logger.info(
-        f"Downloading shapefile from s3 dataset: {dataset_name} to {dataset_path.absolute()}"
-    )
+    dataset = Dataset(four_four=dest.four_four)
 
-    s3.download_folder(
-        DISTRIBUTIONS_BUCKET, f"{dataset_name}/{version}/", download_root_path
-    )
-
-    dataset = Dataset(four_four=four_four)
     dataset.discard_open_revisions()
 
     rev = dataset.create_replace_revision()
 
-    data_source = rev.push_shp(path=dataset_path / "shapefile.zip")
-    data_source.update_column_metadata(dcp_cols=dataset_metadata["columns"])
+    data_source = rev.push_shp(shape_file_path)
+
+    data_source.update_column_metadata(dest, metadata)
 
     attachments_metadata = [
-        rev.upload_attachment(dataset_path / "attachments" / attachment)
-        for attachment in dataset_metadata["attachments"]
+        rev.upload_attachment(
+            dataset_package_path / "attachments" / attachment,
+            dest_file_name=attachment,
+        )
+        for attachment in dest.attachments
     ]
 
-    rev.patch_metadata(attachments=attachments_metadata, metadata=socrata_metadata)
-    rev.apply()
-    logger.info("Finished syncing product to Socrata")
+    rev.patch_metadata(
+        attachments=attachments_metadata, metadata=make_socrata_metadata(metadata)
+    )
+    if not publish:
+        logger.info(
+            f"Finished syncing product to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually"
+        )
+    else:
+        logger.info("Publishing")
+        rev.apply()
+        logger.info(
+            "Revision Applied. Polling for publication completion (this can take minutes)."
+        )
 
-
-app = typer.Typer(add_completion=False)
-
-
-@app.command("push_shp_from_s3")
-def _push_shp_from_s3_cli(
-    dataset: str = typer.Option(
-        None,
-        "-d",
-        "--dataset",
-        help="Dataset name",
-    ),
-    version: str = typer.Option(
-        None,
-        "-v",
-        "--version",
-        help="Dataset version",
-    ),
-):
-    return push_shp_from_s3(dataset, version)
-
-
-@app.command("placeholder")
-def _placeholder():
-    # Adding a second command. If you only have one command defined,
-    # typer ignores the specified command name.
-    assert False, "Please don't invoke me."
-
-
-if __name__ == "__main__":
-    app()
+        elapsed_secs = 0
+        while not rev.fetch_default_metadata().closed_at:
+            logger.info("Polling for completion.")
+            time.sleep(5)
+            elapsed_secs += 5
+            if elapsed_secs > SOCRATA_REVISION_APPLY_TIMEOUT_SECS:
+                raise Exception(
+                    f"waited {SOCRATA_REVISION_APPLY_TIMEOUT_SECS} seconds for the Socrata \
+                revision to apply, but it didn't. Note: it may just be a very long running job. Please investigate manually."
+                )
+        logger.info("Job Finished Successfully")
