@@ -7,10 +7,9 @@ from . import models
 from dcpy.utils.logging import logger
 
 
-def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metadata):
-    """Validate a csv against a metadata file."""
-    csv_df = pd.read_csv(csv_path, dtype=str)
-    csv_df_non_null = csv_df.fillna("")
+def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Metadata):
+    """Validate a dataframe against a metadata file."""
+    df_non_null = df.fillna("")
 
     errors = []
 
@@ -18,34 +17,34 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
     dataset_column_names = {c.name for c in dataset_columns}
 
     # Find mismatched columns
-    csv_headers = set(csv_df.columns)
+    df_headers = set(df.columns)
 
-    extras_in_csv = csv_headers.difference(dataset_column_names)
-    if extras_in_csv:
+    extras_in_source = df_headers.difference(dataset_column_names)
+    if extras_in_source:
         errors.append(
             [
                 "COLUMN_MISMATCH",
-                f"Invalid column(s) found in source data: {extras_in_csv}.",
+                f"Invalid column(s) found in source data: {extras_in_source}.",
             ]
         )
 
-    not_found_in_csv = dataset_column_names.difference(csv_headers)
-    if not_found_in_csv:
+    not_found_in_source = dataset_column_names.difference(df_headers)
+    if not_found_in_source:
         errors.append(
             [
                 "COLUMN_MISMATCH",
-                f"Column(s) missing from source data: {not_found_in_csv}.",
+                f"Column(s) missing from source data: {not_found_in_source}.",
             ]
         )
 
     # Validate Data in Columns
     for col in dataset_columns:
-        if col.name in not_found_in_csv:
+        if col.name in not_found_in_source:
             continue
 
         match col.data_type:
             case "bbl":
-                with_invalid_bbl = csv_df[~csv_df["BBL"].str.match("^\d{10}$")]
+                with_invalid_bbl = df[~df["bbl"].str.match("^\d{10}$")]
                 if not with_invalid_bbl.empty:
                     errors.append(
                         [
@@ -63,9 +62,7 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
                         return s[1:].isdigit()
                     return s.isdigit()
 
-                invalids = csv_df_non_null[
-                    ~csv_df_non_null[col.name].apply(is_maybe_int)
-                ]
+                invalids = df_non_null[~df_non_null[col.name].apply(is_maybe_int)]
                 if not invalids.empty:
                     sample = invalids.iloc[0][col.name]
                     errors.append(
@@ -86,8 +83,8 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
                     except ValueError:
                         return False
 
-                invalids = csv_df_non_null[
-                    ~csv_df_non_null[col.name].apply(is_maybe_float_or_double)
+                invalids = df_non_null[
+                    ~df_non_null[col.name].apply(is_maybe_float_or_double)
                 ]
                 if not invalids.empty:
                     sample = invalids.iloc[0][col.name]
@@ -107,7 +104,7 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
                     except Exception:
                         return False
 
-                invalids = csv_df[~csv_df[col.name].apply(is_wkb_valid)]
+                invalids = df[~df[col.name].apply(is_wkb_valid)]
                 if not invalids.empty:
                     sample = invalids.iloc[0][col.name]
 
@@ -125,6 +122,19 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
                         ]
                     )
 
+            case "uid":
+                pass
+            case "boro_code":
+                pass
+            case "block":
+                pass
+            case "lot":
+                pass
+            case "latitude":
+                pass
+            case "longitude":
+                pass
+
             case "text":
                 pass
             case _:
@@ -140,7 +150,7 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
             accepted_values = {str(v[0]) for v in col.values} | {
                 ""
             }  # Adding empty str so we can do null-checking elsewhere (in just one place)
-            invalids = csv_df_non_null[~csv_df_non_null[col.name].isin(accepted_values)]
+            invalids = df_non_null[~df_non_null[col.name].isin(accepted_values)]
             if not invalids.empty:
                 invalid_counts = dict(invalids.groupby(by=col.name).size())
                 errors.append(
@@ -151,7 +161,7 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
                 )
 
         if col.is_nullable:
-            nulls = csv_df[csv_df[col.name].isnull()]
+            nulls = df[df[col.name].isnull()]
 
             if not nulls.empty:
                 errors.append(
@@ -162,6 +172,11 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
                 )
 
     return errors
+
+
+def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metadata):
+    df = pd.read_csv(csv_path, dtype=str)
+    return validate_df(df, dataset, metadata)
 
 
 def validate_package(package_path: Path, metadata: models.Metadata):
