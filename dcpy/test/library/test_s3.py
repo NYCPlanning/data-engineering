@@ -1,17 +1,11 @@
 from pathlib import Path
 
-from dcpy.library import (
-    aws_access_key_id,
-    aws_s3_bucket,
-    aws_s3_endpoint,
-    aws_secret_access_key,
-    pp,
-)
+from dcpy.library import pp
 from dcpy.library.s3 import S3
 
 from . import console
 
-s3 = S3(aws_access_key_id, aws_secret_access_key, aws_s3_endpoint, aws_s3_bucket)
+s3 = S3()
 version = "2021-01-22"
 
 

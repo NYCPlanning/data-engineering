@@ -20,7 +20,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from . import pp
+from . import pp, aws_s3_bucket
 
 # TODO - remove this when data-library moved to dcpy s3 functionality
 ACL = Literal[
@@ -37,12 +37,11 @@ ACL = Literal[
 class S3:
     def __init__(
         self,
-        aws_access_key_id: str,
-        aws_secret_access_key: str,
-        aws_s3_endpoint: str,
-        aws_s3_bucket: str,
     ):
         config = Config(read_timeout=120)
+        aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
+        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
         self.client = boto3.client(
             "s3",
             aws_access_key_id=aws_access_key_id,

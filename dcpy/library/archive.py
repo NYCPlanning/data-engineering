@@ -2,14 +2,8 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from . import (
-    aws_access_key_id,
-    aws_s3_bucket,
-    aws_s3_endpoint,
-    aws_secret_access_key,
-    base_path,
-    pp,
-)
+from dcpy.connectors.edm import recipes
+from . import base_path, pp
 from .ingest import Ingestor
 from .s3 import S3
 
@@ -20,9 +14,7 @@ class Archive:
         Initialize the Archive class instance
         """
         self.ingestor = Ingestor()
-        self.s3 = S3(
-            aws_access_key_id, aws_secret_access_key, aws_s3_endpoint, aws_s3_bucket
-        )
+        self.s3 = S3()
 
     def __call__(
         self,
@@ -96,7 +88,7 @@ class Archive:
         ingestor_of_format = getattr(self.ingestor, output_format)
 
         # Initiate ingestion
-        output_files, version, acl = ingestor_of_format(path, *args, **kwargs)
+        output_files, acl, version = ingestor_of_format(path, *args, **kwargs)
 
         # Write to s3
         for _file in output_files:
