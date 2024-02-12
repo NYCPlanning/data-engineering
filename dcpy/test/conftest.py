@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 import shutil
 import csv
-from moto import mock_s3
+from moto import mock_aws
 
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing, packaging
@@ -29,10 +29,10 @@ def aws_credentials():
 @pytest.fixture(scope="function")
 def create_buckets(aws_credentials):
     """Creates a test S3 bucket."""
-    with mock_s3():
+    with mock_aws():
         for bucket in TEST_BUCKETS:
             s3.client().create_bucket(Bucket=bucket)
-        yield  ## the yield within the mock_s3() is key to persisting the mocked session
+        yield  ## the yield within the mock_aws() is key to persisting the mocked session
 
 
 @pytest.fixture(scope="module")
