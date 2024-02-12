@@ -44,7 +44,7 @@ def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Meta
 
         match col.data_type:
             case "bbl":
-                with_invalid_bbl = df[~df["bbl"].str.match("^\d{10}$")]
+                with_invalid_bbl = df[~df["bbl"].str.match(r"^\d{10}$")]
                 if not with_invalid_bbl.empty:
                     errors.append(
                         [
