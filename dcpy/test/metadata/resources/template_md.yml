@@ -10,10 +10,26 @@ tags: [Department of City Planning, DCP, New York City, NYC]
 each_row_is_a: Interesting place in NYC
 
 columns:
-  - name: place_name
-    description:  A Place Name
-    display_name: Place Name
-    data_type: text
+  - name: my_uid
+    description:  The ID
+    display_name: UID
+    data_type: uid
+
+  - name: borough
+    description: The borough
+    display_name: BOROUGH
+    # is_nullable: False
+    data_type: boro_code
+
+  - name: block
+    description: The Block
+    display_name: Block
+    data_type: block
+
+  - name: lot
+    description: The Lot
+    display_name: Lot
+    data_type: lot
 
   - name: bbl
     description: The BBL
@@ -25,15 +41,25 @@ columns:
     display_name: Place Type
     data_type: text
 
-  - name: borough
-    description: The Borough
-    display_name: Borough
+  - name: borough_name
+    description: The Borough Name
+    display_name: Borough Name
     data_type: text
 
   - name: wkb_geometry
     description: The Geom
     display_name: Geometry
     data_type: wkb
+
+  - name: lat
+    description: Latitude
+    display_name: float
+    data_type: latitude
+
+  - name: long
+    description: Latitude
+    display_name: float
+    data_type: longitude
 
   - name: omit_me_from_shapefile
     description: I shouldn't show up in the Shapefile
