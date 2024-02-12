@@ -1,17 +1,17 @@
 import json
-
-import typer
+import os
 from rich import box
 from rich.console import Console
 from rich.table import Table
+import typer
 
-from . import aws_access_key_id, aws_s3_bucket, aws_s3_endpoint, aws_secret_access_key
+from . import aws_s3_bucket
 from .archive import Archive
 from .s3 import S3
 
 console = Console()
 app = typer.Typer()
-s3 = S3(aws_access_key_id, aws_secret_access_key, aws_s3_endpoint, aws_s3_bucket)
+s3 = S3()
 
 # fmt: off
 @app.command()
@@ -96,7 +96,7 @@ def show(
         info = s3.info(key)
         info.pop('ResponseMetadata')
         info['Key'] = key
-        info['Url'] = f'{aws_s3_endpoint}/{aws_s3_bucket}/{key}'
+        info['Url'] = f'{os.environ["AWS_S3_ENDPOINT"]}/{aws_s3_bucket}/{key}'
         info['LastModified'] = info['LastModified'].isoformat()[:10]
         _info.append(info)
 

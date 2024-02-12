@@ -5,7 +5,7 @@ import shutil
 import zipfile
 import datetime
 from functools import wraps
-from typing import Optional, Tuple
+from typing import Optional
 from math import floor
 import json
 import yaml
