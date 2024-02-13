@@ -26,9 +26,15 @@ class RecipeInputsVersionStrategy(str, Enum):
     copy_latest_release = "copy_latest_release"
 
 
-class DataPreprocessor(BaseModel, use_enum_values=True, extra="forbid"):
+class DataPreprocessor(BaseModel, extra="forbid"):
     module: str
     function: str
+
+
+class InputDatasetDestination(str, Enum):
+    postgres = "postgres"
+    df = "df"
+    file = "file"
 
 
 class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
@@ -38,6 +44,7 @@ class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
     version_env_var: str | None = None
     import_as: str | None = None
     preprocessor: DataPreprocessor | None = None
+    destination: InputDatasetDestination | None = None
 
     @property
     def is_resolved(self):
@@ -56,6 +63,7 @@ class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
 class InputDatasetDefaults(BaseModel, use_enum_values=True):
     file_type: recipes.DatasetType | None = None
     preprocessor: DataPreprocessor | None = None
+    destination: InputDatasetDestination | None = None
 
 
 class RecipeInputs(BaseModel, use_enum_values=True):
@@ -187,12 +195,14 @@ def get_source_data_versions(recipe: Recipe):
 
 
 def _apply_recipe_defaults(recipe: Recipe):
-    if recipe.inputs.dataset_defaults is not None:
-        for ds in recipe.inputs.datasets:
-            ds.preprocessor = (
-                ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
-            )
-            ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
+    recipe.inputs.dataset_defaults = (
+        recipe.inputs.dataset_defaults
+        or InputDatasetDefaults(destination=InputDatasetDestination.postgres)
+    )
+    for ds in recipe.inputs.datasets:
+        ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
+        ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
+        ds.destination = ds.destination or recipe.inputs.dataset_defaults.destination
 
 
 def recipe_from_yaml(path: Path) -> Recipe:
