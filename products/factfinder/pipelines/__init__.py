@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 PRODUCT_PATH = Path(__file__).parent.parent
 ROOT_PATH = PRODUCT_PATH.parent.parent
 BASE_PATH = PRODUCT_PATH / ".output"
+DATA_PATH = PRODUCT_PATH / "factfinder" / "data"
 
 if not os.path.isdir(BASE_PATH):
     os.makedirs(BASE_PATH, exist_ok=True)

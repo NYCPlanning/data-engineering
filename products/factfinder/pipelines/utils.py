@@ -6,11 +6,6 @@ from pathlib import Path
 from dcpy.connectors.edm import publishing
 from dcpy.builds import metadata
 
-from . import PRODUCT_PATH
-
-
-DATA_PATH = PRODUCT_PATH / "factfinder" / "data"
-
 
 def parse_args() -> Tuple[str, str, bool]:
     parser = argparse.ArgumentParser()
@@ -50,4 +45,5 @@ def s3_upload(folder: Path, latest=True):
         acl="public-read",
         s3_subpath=str(Path(metadata.build_name()) / output / year),
         latest=latest,
+        contents_only=True,
     )
