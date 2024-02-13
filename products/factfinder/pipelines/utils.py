@@ -3,8 +3,8 @@ from datetime import date
 from typing import Tuple
 from pathlib import Path
 
-from dcpy.utils import s3, git
 from dcpy.connectors.edm import publishing
+from dcpy.builds import metadata
 
 from . import PRODUCT_PATH
 
@@ -40,36 +40,14 @@ def parse_args() -> Tuple[str, str, bool]:
     return args.year, args.geography, args.upload
 
 
-def download_manual_update(update_type, version, overwrite=False):
-    recipe_names = {"acs": "dcp_pop_acs", "decennial": "dcp_pop_decennial_dhc"}
-    if update_type not in recipe_names:
-        raise ValueError("'update_type' must either be 'acs' or 'decennial'")
-    output_folder = DATA_PATH / f"{update_type}_manual_updates" / version
-    filepath = output_folder / f"{recipe_names[update_type]}.xlsx"
-    if not filepath.exists() or overwrite:
-        print(f"Downloading {update_type} manual update data ...")
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        s3.download_file(
-            "edm-recipes",
-            f"datasets/{recipe_names[update_type]}/{version}/{recipe_names[update_type]}.xlsx",
-            filepath,
-        )
-    else:
-        print(f"{update_type} manual update data already downloaded locally.")
-    return filepath
-
-
-def s3_upload(file: Path, latest=True):
-    if file.suffix == ".json":
-        export_type = file.parent.parent.name
-    else:
-        export_type = file.stem
-    year = file.parent.name
+def s3_upload(folder: Path, latest=True):
+    year = folder.name
+    output = folder.parent.name
     publishing.legacy_upload(
-        output=file,
+        output=folder,
         publishing_folder="db-factfinder",
         version=str(date.today()),
         acl="public-read",
-        s3_subpath=Path(git.branch()) / export_type / year,
+        s3_subpath=str(Path(metadata.build_name()) / output / year),
         latest=latest,
     )
