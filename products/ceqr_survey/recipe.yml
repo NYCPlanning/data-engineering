@@ -1,0 +1,16 @@
+name: CEQR Survey DB
+product: ceqr_survey
+version: 0.0.1
+inputs:
+  datasets:
+    # Zoning
+    - name: dcp_mappluto_wi
+    # Air
+    - name: dep_cats_permits
+    - name: nysdec_state_facility_permits
+    - name: nysdec_title_v_facility_permits
+    # - name: dcp_vent_towers Doesn't exist yet
+    # Noise
+    # - name: dcp_digital_city_map Doesn't exist yet
+    # - name: dcp_lion Doesn't exist yet
+  missing_versions_strategy: find_latest
