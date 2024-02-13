@@ -47,7 +47,9 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     def s3_key(self) -> str:
         return f"{self.s3_folder}/{self.file_name}"
 
-    def assign_file_type(self, file_type_preferences: list[DatasetType]) -> DatasetType:
+    def assign_file_type(
+        self, file_type_preferences: list[DatasetType], mutate=True
+    ) -> DatasetType:
         file_type: DatasetType | None = None
         for _file_type in file_type_preferences:
             if s3.exists(
@@ -60,7 +62,8 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
             raise FileNotFoundError(
                 f"No datasets of types {file_type_preferences} found in {self.s3_folder}"
             )
-        self.file_type = file_type
+        if mutate:
+            self.file_type = file_type
         return file_type
 
 
@@ -109,8 +112,9 @@ def pd_reader(file_type: DatasetType):
 
 def read_df(ds: Dataset, local_cache_dir: Path | None = None, **kwargs) -> pd.DataFrame:
     """Read a recipe dataset parquet or csv file as a pandas DataFrame."""
-    if ds.file_type is None:
-        file_type = ds.assign_file_type([DatasetType.parquet, DatasetType.csv])
+    file_type = ds.file_type or ds.assign_file_type(
+        [DatasetType.parquet, DatasetType.csv], mutate=False
+    )
     reader = pd_reader(file_type)
     if local_cache_dir:
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
