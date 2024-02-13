@@ -180,9 +180,10 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
-        if ds.dataset.file_type is None:
-            ds.file_type = ds.dataset.assign_file_type(RECIPE_FILE_TYPE_PREFERENCE)
-        ds.file_type = ds.dataset.file_type
+        ds.file_type = (
+            ds.file_type
+            or ds.dataset.get_preferred_file_type(RECIPE_FILE_TYPE_PREFERENCE).value
+        )
 
     return recipe
 

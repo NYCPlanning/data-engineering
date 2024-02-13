@@ -106,7 +106,6 @@ def client() -> S3Client:
 def list_objects(bucket: str, prefix: str) -> list:
     """Lists all objects with given prefix within bucket"""
     objects: list = []
-    prefix = _folderize(prefix)
     try:
         paginator = client().get_paginator("list_objects_v2")
         for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
