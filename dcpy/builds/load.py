@@ -5,7 +5,7 @@ from pathlib import Path
 from pydantic import BaseModel
 import typer
 
-from dcpy.utils import postgres, s3
+from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.builds import metadata, plan
@@ -36,15 +36,11 @@ class LoadResult(BaseModel, use_enum_values=True, extra="forbid"):
     datasets: dict[str, ImportedDataset]
 
 
-def setup_build_environments(pg_client: postgres.PostgresClient):
+def setup_build_pg_schema(pg_client: postgres.PostgresClient):
     if pg_client.schema != "public":
         pg_client.drop_schema()
         pg_client.drop_schema(pg_client.schema_tests)
         pg_client.create_schema()
-    s3.delete(
-        bucket=publishing.BUCKET,
-        path=f"{pg_client.database}/draft/{pg_client.schema}",
-    )
 
 
 def import_dataset(
@@ -106,7 +102,7 @@ def load_source_data(
         dataset.destination for dataset in recipe.inputs.datasets
     ]:
         pg_client = postgres.PostgresClient(schema=build_name)
-        setup_build_environments(pg_client)
+        setup_build_pg_schema(pg_client)
 
         pg_client.create_table_from_csv(
             recipe_lock_path.parent / "source_data_versions.csv"
