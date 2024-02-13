@@ -204,8 +204,6 @@ def legacy_upload(
     key = prefix / version
     meta = generate_metadata()
     if output.is_dir():
-        print(output)
-        print(key)
         s3.upload_folder(
             BUCKET,
             output,
