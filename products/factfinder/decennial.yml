@@ -1,0 +1,11 @@
+name: PFF - Decennial
+version: dummy
+product: db-factfinder
+inputs:
+  dataset_defaults:
+    file_type: xlsx
+    destination: file
+  datasets:
+    - name: dcp_pop_decennial_dhc
+    - name: dcp_pop_decennial_ddhca
+  missing_versions_strategy: find_latest
