@@ -40,7 +40,7 @@ def test_list_buckets(create_buckets):
     [
         ("", 2),
         (TEST_DIR_NAME_1, 1),
-        (TEST_DIR_NAME_2, 0),
+        (TEST_DIR_NAME_2, 1),
     ],
 )
 def test_list_objects(create_buckets, prefix, expected_num_objects):
@@ -49,4 +49,21 @@ def test_list_objects(create_buckets, prefix, expected_num_objects):
     for obj in objects_to_add:
         s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
     actual_objects = s3.list_objects(bucket=TEST_BUCKET, prefix=prefix)
+    assert len(actual_objects) == expected_num_objects
+
+
+@pytest.mark.parametrize(
+    "prefix, expected_num_objects",
+    [
+        ("", 2),
+        (TEST_DIR_NAME_1, 1),
+        (TEST_DIR_NAME_2, 0),
+    ],
+)
+def test_get_filenames(create_buckets, prefix, expected_num_objects):
+    """Tests total number of objects with given prefix."""
+    objects_to_add = [TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME, TEST_DIR_NAME_2]
+    for obj in objects_to_add:
+        s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
+    actual_objects = s3.get_filenames(bucket=TEST_BUCKET, prefix=prefix)
     assert len(actual_objects) == expected_num_objects
