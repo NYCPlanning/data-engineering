@@ -6,12 +6,10 @@ rm -rf output
 mkdir -p output
 (
     cd output
-
     csv_export source_data_versions
 
-    echo "Exporting review tables"
+    echo "Export review tables"
     mkdir -p review
-
     (
         cd review
         shp_export combined MULTIPOLYGON
@@ -33,14 +31,6 @@ mkdir -p output
         csv_export corrections_project &
         csv_export corrections_main
         wait
-        
-        echo "Compress large csvs"
-        zip -9 combined.zip combined.csv
-        rm combined.csv
-        zip -9 review_dob.zip review_dob.csv
-        rm review_dob.csv
-        zip -9 review_project.zip review_project.csv
-        rm review_project.csv
     )
     echo "Compress review folder"
     zip -r review.zip review/
@@ -54,9 +44,8 @@ mkdir -p output
         csv_export longform_subdist_output_cp_assumptions
         wait
     )
-    echo "Compress SCA folder"
+    echo "Compress SCA aggregation folder"
     zip -r sca_aggregation.zip sca_aggregation/
-    rm -rf sca_aggregation
 
     echo "Export aggregation tables"
     mkdir -p aggregation
@@ -66,15 +55,20 @@ mkdir -p output
         csv_export longform_nta_output
         csv_export longform_cdta_output
         csv_export longform_cd_output
+        wait
     )
     echo "Compress aggregation folder"
     zip -r aggregation.zip aggregation/
-    rm -rf aggregation
 
-    echo "Exporting output tables"
+    echo "Export summary tables"
+    mkdir -p summary
+    (   
+        cd summary
+        csv_export summary_record_phasing
+        wait
+    )
+
+    echo "Exporting primary product table"
     csv_export kpdb
-    zip -9 kpdb.zip kpdb.csv
-    rm kpdb.csv
     shp_export kpdb MULTIPOLYGON
-    csv_export summary_record_phasing
 )
