@@ -76,4 +76,5 @@ mkdir -p output
     zip -9 kpdb.zip kpdb.csv
     rm kpdb.csv
     shp_export kpdb MULTIPOLYGON
+    csv_export summary_record_phasing
 )
