@@ -25,6 +25,7 @@ SELECT
     date_type,
     units_gross,
     units_net,
+    has_project_phasing,
     has_future_units,
     prop_within_5_years,
     prop_5_to_10_years,

@@ -15,7 +15,11 @@ SELECT
     ) AS from_5_to_10_years,
     ROUND(
         COALESCE(a.prop_after_10_years::decimal, 0) * b.units_net::decimal
-    ) AS after_10_years
+    ) AS after_10_years,
+    COALESCE(
+        NULLIF(prop_within_5_years, 0), NULLIF(prop_5_to_10_years, 0), NULLIF(prop_after_10_years, 0)
+    ) IS NOT NULL
+    AS has_project_phasing
 INTO _kpdb_combined_and_deduped
 FROM combined AS a
 LEFT JOIN deduped_units AS b
@@ -27,13 +31,10 @@ WHERE a.no_classa = '0' OR a.no_classa IS NULL;
 WITH
 net_units_details AS (
     SELECT
-        COALESCE(
-            NULLIF(prop_within_5_years, 0), NULLIF(prop_5_to_10_years, 0), NULLIF(prop_after_10_years, 0)
-        ) IS NOT NULL
-        AS has_future_units,
+        *,
+        NULLIF(units_net, 0) IS NOT NULL AND has_project_phasing AS has_future_units,
         within_5_years + from_5_to_10_years + after_10_years AS net_units_sum,
-        units_net - (within_5_years + from_5_to_10_years + after_10_years) AS net_units_diff,
-        *
+        units_net - (within_5_years + from_5_to_10_years + after_10_years) AS net_units_diff
     FROM _kpdb_combined_and_deduped
 )
 

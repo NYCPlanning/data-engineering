@@ -22,6 +22,7 @@ models:
       - name: date_type
       - name: units_gross
       - name: units_net
+      - name: has_project_phasing
       - name: has_future_units
       - name: prop_within_5_years
       - name: prop_5_to_10_years
@@ -50,12 +51,11 @@ models:
           name: kpdb_sum_prop_year_buckets
           expression: round(prop_within_5_years + prop_5_to_10_years + prop_after_10_years) = 1
           config:
-            where: prop_within_5_years + prop_5_to_10_years + prop_after_10_years != 0
+            where: has_project_phasing
 
       # test the sum of project phase unit counts
       - dbt_utils.expression_is_true:
           name: kpdb_sum_units_year_buckets
           expression: units_net = within_5_years + from_5_to_10_years + after_10_years
           config:
-            where: |
-              coalesce(nullif(prop_within_5_years, 0), nullif(prop_5_to_10_years, 0), nullif(prop_after_10_years, 0)) is not null
+            where: has_future_units
