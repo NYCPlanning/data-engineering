@@ -1,12 +1,17 @@
 # This script transforms and uploads ACS data provided by the NYCDCP Population team
 import pandas as pd
+from pathlib import Path
 import re
 import shutil
 
-from dcpy.utils.json import df_to_json
-from dcpy.utils.string import camel_to_snake
-from dcpy.connectors.edm import recipes
-from .utils import parse_args, download_manual_update, s3_upload, DATA_PATH
+from dcpy.utils import json, string, logging
+from dcpy.builds import load
+
+from . import DATA_PATH
+from .utils import s3_upload
+
+OUTPUT_FOLDER = DATA_PATH / ".output" / "acs"
+DOMAINS = ["demographic", "economic", "housing", "social"]
 
 OUTPUT_SCHEMA_COLUMNS = [
     "census_geoid",
@@ -22,42 +27,41 @@ OUTPUT_SCHEMA_COLUMNS = [
     "domain",
 ]
 
-PIVOT_COLUMNS = ["year", "geoid"]
-
-OUTPUT_FOLDER = DATA_PATH / ".output" / "acs"
-
-DOMAINS = ["demographic", "economic", "housing", "social"]
-ACS2010_DATASET_NAMES = {s: f"dcp_pop_acs2010_{s}" for s in DOMAINS}
-
 
 def pivot_field_name(df, field_name, domain):
     field_name_df = split_by_field_name(df, field_name)
 
     field_name_df.rename(
         columns=lambda column_name: re.sub(
-            f"^{ field_name }(E|M|C|P|Z)$", r"\1", column_name
-        ).lower(),
+            f"^{ field_name }(e|m|c|p|z)$", r"\1", column_name
+        ),
         inplace=True,
     )
-    field_name_df["pff_variable"] = field_name.lower()
+    field_name_df["pff_variable"] = field_name
     field_name_df["domain"] = domain
 
     return field_name_df
 
 
-def extract_field_names(df):
-    return df.columns.drop(["GeoType", "GeoID"]).str[:-1].drop_duplicates()
+def extract_field_names(df: pd.DataFrame) -> set[str]:
+    return set(
+        [
+            column[:-1]
+            for column in df.columns.drop(["geotype", "geoid"])
+            if not column.endswith(".1")
+        ]
+    )
 
 
-def split_by_field_name(df, pff_field_name):
-    return df.filter(regex=f"^(GeoType|GeoID|{ pff_field_name }(E|M|C|P|Z))$").copy()
+def split_by_field_name(df: pd.DataFrame, pff_field_name: str):
+    return df.filter(regex=f"^(geotype|geoid|{ pff_field_name }(e|m|c|p|z))$").copy()
 
 
-def strip_unnamed_columns(df):
+def strip_unnamed_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.loc[:, ~df.columns.str.match("Unnamed")]
 
 
-def sheet_names(year):
+def sheet_names(year: str) -> dict[str, str]:
     short_year = year[-2:]
     start_year = int(short_year) - 4
     sheet_name_suffix = f"{start_year:02}{short_year:02}"
@@ -71,69 +75,14 @@ def sheet_names(year):
     return domains_sheets
 
 
-def transform_dataframe(df, domain):
-    df = strip_unnamed_columns(df)
-    pff_field_names = extract_field_names(df)
-    output_df = pd.DataFrame()
-
-    for field_name in pff_field_names:
-        new_df = pivot_field_name(df, field_name, domain)
-
-        if output_df.empty:
-            output_df = new_df
-        else:
-            output_df = pd.concat([output_df, new_df], ignore_index=True)
-    return output_df
-
-
-def transform_all_dataframes(year):
-    domains_sheets = sheet_names(year)
-
-    input_file = download_manual_update("acs", year)
-
-    dfs = pd.read_excel(input_file, sheet_name=None, engine="openpyxl")
-    combined_df = pd.DataFrame()
-
-    for domain_sheet in domains_sheets:
-        df = dfs[domain_sheet["sheet_name"]]
-        print(domain_sheet)
-        print(df.head())
-        transformed = transform_dataframe(df, domain_sheet["domain"])
-        combined_df = pd.concat(
-            [
-                combined_df,
-                transformed,
-            ]
-        )
-        print(f"shape of {domain_sheet}: {combined_df.shape}")
-
-    combined_df.dropna(subset=["geotype"], inplace=True)
-
-    return combined_df
-
-
-def ingest_2010_data():
-    dfs = []
-    for domain in ACS2010_DATASET_NAMES:
-        dataset = recipes.Dataset(name=ACS2010_DATASET_NAMES[domain], version="latest")
-        df = recipes.read_df(dataset)
-        df = transform_dataframe(df, domain)
-        print(f"shape of {domain}: {df.shape}")
-        dfs.append(df)
-
-    df = pd.concat(dfs)
-    df.dropna(subset=["geotype"], inplace=True)
-    return df
-
-
-def process_metadata(excel_file):
+def process_metadata(excel_file: Path) -> dict[str, Path]:
     df = pd.read_excel(excel_file, sheet_name="ACS Data Dictionary", skiprows=2)
     df = df.dropna(subset=["Category"])
     df["VariableName"] = df["VariableName"].str.lower()
     df["year"] = df["Dataset"].astype(str).str.split(", ")
     df = df.explode("year")
     df["year"] = df["year"].astype(str).str.split("-").apply(lambda x: x[1])
-    columns = {column: camel_to_snake(column) for column in df.columns}
+    columns = {column: string.camel_to_snake(column) for column in df.columns}
     columns.update(
         {
             "VariableName": "pff_variable",
@@ -149,34 +98,73 @@ def process_metadata(excel_file):
         file = OUTPUT_FOLDER / year / "metadata.json"
         file.parent.mkdir(parents=True, exist_ok=True)
         with open(file, "w") as outfile:
-            outfile.write(df_to_json(year_df))
+            outfile.write(json.df_to_json(year_df))
         files[year] = file
-    print(files)
     return files
 
 
-def rename_columns(df):
+def transform_dataframe(df: pd.DataFrame, domain: str) -> pd.DataFrame:
+    df = strip_unnamed_columns(df)
+    df.rename(columns=str.lower, inplace=True)
+    df.dropna(subset=["geotype"], inplace=True)
+
+    pff_field_names = extract_field_names(df)
+
+    output_df = pd.DataFrame()
+
+    for field_name in pff_field_names:
+        new_df = pivot_field_name(df, field_name, domain)
+
+        if output_df.empty:
+            output_df = new_df
+        else:
+            output_df = pd.concat([output_df, new_df], ignore_index=True)
+    output_df = rename_columns(output_df)
+    return output_df
+
+
+def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     df.rename(columns={"geotype": "labs_geotype", "geoid": "labs_geoid"}, inplace=True)
     return df.reindex(columns=OUTPUT_SCHEMA_COLUMNS)
 
 
-if __name__ == "__main__":
-    # Get ACS year
-    year, _geography, upload = parse_args()
-
-    print("transform_all_dataframes ...")
-    if year == "2010":
-        export_df = ingest_2010_data()
-    else:
-        export_df = transform_all_dataframes(year)
-
-    print("rename_columns ...")
-    export_df = rename_columns(export_df)
-
+def export_year(df: pd.DataFrame, year: str):
     output_file = OUTPUT_FOLDER / year / "acs.csv"
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    export_df.to_csv(output_file, index=False)
+    df.to_csv(output_file, index=False, mode="a", header=not output_file.is_file())
     shutil.copy(DATA_PATH / "acs" / year / "metadata.json", OUTPUT_FOLDER / year)
 
+
+def process_2010(load_result: load.LoadResult) -> pd.DataFrame:
+    for domain in DOMAINS:
+        logging.logger.info(f"Processing ACS year 2010 domain {domain}")
+        df = load.get_imported_df(load_result, f"dcp_pop_acs2010_{domain}")
+        df = transform_dataframe(df, domain)
+        export_year(df, "2010")
+
+
+def process_latest(file: Path, year: str):
+    domains_sheets = sheet_names(year)
+
+    for domain_sheet in domains_sheets:
+        logging.logger.info(
+            f"Processing ACS year {year} domain {domain_sheet['domain']}"
+        )
+        df = pd.read_excel(file, sheet_name=domain_sheet["sheet_name"])
+        df = transform_dataframe(df, domain_sheet["domain"])
+        export_year(df, year)
+
+
+def run(load_result: load.LoadResult, upload: bool = False):
+    if OUTPUT_FOLDER.is_dir():
+        shutil.rmtree(OUTPUT_FOLDER)
+    process_2010(load_result)
+
+    latest = load_result.datasets["dcp_pop_acs"]
+    assert isinstance(latest.destination, Path)
+    process_latest(latest.destination, latest.version)
+
     if upload:
-        s3_upload(output_file)
+        for year in ["2010", latest.version]:
+            shutil.copy("build_metadata.json", OUTPUT_FOLDER / year)
+            s3_upload(OUTPUT_FOLDER / year)

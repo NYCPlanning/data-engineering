@@ -1,0 +1,16 @@
+name: PFF - ACS
+version: dummy
+product: db-factfinder
+inputs:
+  dataset_defaults:
+    file_type: parquet
+    destination: df
+  datasets:
+    - name: dcp_pop_acs2010_demographic
+    - name: dcp_pop_acs2010_economic
+    - name: dcp_pop_acs2010_housing
+    - name: dcp_pop_acs2010_social
+    - name: dcp_pop_acs
+      destination: file
+      file_type: xlsx
+  missing_versions_strategy: find_latest
