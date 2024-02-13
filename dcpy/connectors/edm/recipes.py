@@ -26,12 +26,34 @@ class DatasetType(str, Enum):
     xlsx = "xlsx"  # needed for a few "legacy" products. Aim to phase out
 
 
-_dataset_extensions = {
-    "pg_dump": "sql",
-    "csv": "csv",
-    "parquet": "parquet",
-    "xlsx": "xlsx",
-}
+## would prefer to have these be class methods but enum_as_value treats StrEnums as strings
+## so class methods not usable
+def _type_to_extension(dst: DatasetType) -> str:
+    match dst:
+        case DatasetType.pg_dump:
+            return "sql"
+        case DatasetType.csv:
+            return "csv"
+        case DatasetType.parquet:
+            return "parquet"
+        case DatasetType.xlsx:
+            return "xlsx"
+        case _:
+            raise Exception(f"Unknown DatasetType '{dst}'")
+
+
+def _type_from_extension(s: str) -> DatasetType | None:
+    match s:
+        case "sql":
+            return DatasetType.pg_dump
+        case "csv":
+            return DatasetType.csv
+        case "parquet":
+            return DatasetType.parquet
+        case "xlsx":
+            return DatasetType.xlsx
+        case _:
+            return None
 
 
 class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
@@ -43,7 +65,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     def file_name(self) -> str:
         if self.file_type is None:
             raise Exception("File type must be defined to get file name")
-        return f"{self.name}.{_dataset_extensions[self.file_type]}"
+        return f"{self.name}.{_type_to_extension(self.file_type)}"
 
     @property
     def s3_folder(self) -> str:
@@ -53,24 +75,20 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
     def s3_key(self) -> str:
         return f"{self.s3_folder}/{self.file_name}"
 
-    def assign_file_type(
-        self, file_type_preferences: list[DatasetType], mutate=True
-    ) -> DatasetType:
-        file_type: DatasetType | None = None
-        for _file_type in file_type_preferences:
-            if s3.exists(
-                BUCKET,
-                f"datasets/{self.name}/{self.version}/{self.name}.{_dataset_extensions[_file_type]}",
-            ):
-                file_type = _file_type
-                break
-        if file_type is None:
-            raise FileNotFoundError(
-                f"No datasets of types {file_type_preferences} found in {self.s3_folder}"
+    def get_file_types(self) -> set[DatasetType]:
+        files = s3.get_filenames(bucket=BUCKET, prefix=f"{self.s3_folder}/{self.name}")
+        valid_types = {
+            _type_from_extension(Path(file).suffix.strip(".")) for file in files
+        }
+        return {t for t in valid_types if t is not None}
+
+    def get_preferred_file_type(self, preferences: list[DatasetType]) -> DatasetType:
+        file_types = self.get_file_types()
+        if len(file_types.union(preferences)) == 0:
+            raise Exception(
+                f"read_df expects parquet or csv to be available. Found filetypes for {self.name}: {file_types}"
             )
-        if mutate:
-            self.file_type = file_type
-        return file_type
+        return next(t for t in preferences if t in file_types)
 
 
 def get_config(name, version="latest"):
@@ -118,8 +136,8 @@ def pd_reader(file_type: DatasetType):
 
 def read_df(ds: Dataset, local_cache_dir: Path | None = None, **kwargs) -> pd.DataFrame:
     """Read a recipe dataset parquet or csv file as a pandas DataFrame."""
-    file_type = ds.file_type or ds.assign_file_type(
-        [DatasetType.parquet, DatasetType.csv], mutate=False
+    file_type = ds.file_type or ds.get_preferred_file_type(
+        [DatasetType.parquet, DatasetType.csv]
     )
     reader = pd_reader(file_type)
     if local_cache_dir:

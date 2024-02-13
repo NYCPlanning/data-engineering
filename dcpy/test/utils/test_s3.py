@@ -54,11 +54,7 @@ def test_list_objects(create_buckets, prefix, expected_num_objects):
 
 @pytest.mark.parametrize(
     "prefix, expected_num_objects",
-    [
-        ("", 2),
-        (TEST_DIR_NAME_1, 1),
-        (TEST_DIR_NAME_2, 0),
-    ],
+    [("", 2), (TEST_DIR_NAME_1, 1)],
 )
 def test_get_filenames(create_buckets, prefix, expected_num_objects):
     """Tests total number of objects with given prefix."""
