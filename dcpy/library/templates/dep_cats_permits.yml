@@ -1,0 +1,30 @@
+dataset:
+  name: dep_cats_permits
+  acl: public-read
+  source:
+    socrata:
+      uid: f4rp-2kvy
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Department of Environmental Protection (DEP)
+      Clean Air Tracking System (CATS) is online application with end-to-end process where NYC Residents can submit for New Boiler Registration, Boiler Registration Renewal, Affidavit, Amendment, Boiler Work Permits, Inspection requests, Emergency Engine, Generator Registration, Gas Stations, Industrial Work Permits. For additional context, please go to this link: https://a826-web01.nyc.gov/DEP.BoilerInformationExt/ as the external source to this dataset.
+    url: "https://data.cityofnewyork.us/Environment/Clean-Air-Tracking-System-CATS-Permits/f4rp-2kvy/"
+    dependents: []
