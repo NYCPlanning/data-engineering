@@ -104,6 +104,19 @@ class PostgresClient:
             select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
         return select_records
 
+    def read_sql_table(
+        self,
+        table_name: str,
+        *,
+        conn=None,
+        **kwargs,
+    ) -> pd.DataFrame:
+        if conn is None:
+            with self.engine.connect() as conn:
+                return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
+        else:
+            return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
+
     def create_postigs_extension(self) -> None:
         self.execute_query("CREATE EXTENSION POSTGIS")
 

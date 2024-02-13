@@ -157,6 +157,7 @@ def download_file(
     path: Path,
 ) -> None:
     """Downloads a file from S3"""
+    path.parent.mkdir(parents=True, exist_ok=True)
     with _progress() as progress:
         size = get_metadata(bucket, key).content_length
         task = progress.add_task(

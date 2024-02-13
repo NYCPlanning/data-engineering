@@ -23,9 +23,15 @@ class DatasetType(str, Enum):
     pg_dump = "pg_dump"
     csv = "csv"
     parquet = "parquet"
+    xlsx = "xlsx"  # needed for a few "legacy" products. Aim to phase out
 
 
-_dataset_extensions = {"pg_dump": "sql", "csv": "csv", "parquet": "parquet"}
+_dataset_extensions = {
+    "pg_dump": "sql",
+    "csv": "csv",
+    "parquet": "parquet",
+    "xlsx": "xlsx",
+}
 
 
 class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
@@ -132,7 +138,7 @@ def import_dataset(
     local_library_dir=LIBRARY_DEFAULT_PATH,
     import_as: str | None = None,
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
-):
+) -> str:
     """Import a recipe to local data library folder and build engine."""
     ds_table_name = import_as or ds.name
     logger.info(
@@ -171,6 +177,8 @@ def import_dataset(
         col_type="text",
         default_value=ds.version,
     )
+
+    return f"{pg_client.schema}.{ds_table_name}"
 
 
 def purge_recipe_cache():

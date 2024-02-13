@@ -201,10 +201,11 @@ def legacy_upload(
         prefix = Path(publishing_folder)
     else:
         prefix = Path(publishing_folder) / s3_subpath
-    version_folder = prefix / version
-    key = version_folder / output.name
+    key = prefix / version
     meta = generate_metadata()
     if output.is_dir():
+        print(output)
+        print(key)
         s3.upload_folder(
             BUCKET,
             output,
@@ -218,7 +219,7 @@ def legacy_upload(
             ## much faster than uploading again
             s3.copy_folder(
                 BUCKET,
-                str(version_folder),
+                str(key) + "/",
                 str(prefix / "latest"),
                 acl,
                 max_files=max_files,
