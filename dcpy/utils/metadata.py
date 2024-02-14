@@ -37,7 +37,7 @@ class RunDetails(BaseModel):
 
     @field_serializer("timestamp")
     def serialize_timestamp(self, timestamp: datetime, _info) -> str:
-        return timestamp.strftime("%Y-%m-%dT%H:%M:%S%z")
+        return timestamp.isoformat()
 
     @property
     def runner_string(self) -> str:
@@ -59,7 +59,7 @@ def get_run_details() -> RunDetails:
         except:
             return "could not parse"
 
-    timestamp = datetime.now(pytz.timezone("America/New_York")).replace(microsecond=0)
+    timestamp = datetime.now(pytz.timezone("America/New_York"))
 
     if os.environ.get("CI"):
         type = "ci"
