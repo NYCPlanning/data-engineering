@@ -5,10 +5,10 @@ import shutil
 from dcpy.utils.json import df_to_json
 from dcpy.utils.logging import logger
 from dcpy.builds import load
-from . import DATA_PATH
-from .utils import s3_upload
+from . import OUTPUT_FOLDER
+from .utils import export_df, s3_upload
 
-
+DATASET = "decennial"
 SHEET_CONFIG = {
     "dcp_pop_decennial_dhc": {
         "2010": "2010 (in 2020 Geogs)",
@@ -30,8 +30,6 @@ PIVOT_COLUMNS = ["year", "geoid"]
 
 COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
 
-OUTPUT_FOLDER = DATA_PATH / ".output" / "decennial"
-
 
 def clean_data(df: pd.DataFrame, geotype: str) -> pd.DataFrame:
     """Edits geoid column for community districts to avoid collisions with boros"""
@@ -49,8 +47,6 @@ def process_data_sheet(
     """Process single sheet of decennial data from population.
     Cleans column names and pivots wide to long based on geoid"""
     logger.info(f"Processing data for decennial year {year} using sheet '{sheet_name}'")
-    output_file = OUTPUT_FOLDER / year / "decennial.csv"
-    output_file.parent.mkdir(parents=True, exist_ok=True)
     df = pd.read_excel(excel_file, sheet_name=sheet_name)
     df.rename(columns=COLUMN_CLEANUP, inplace=True)
     df.columns = df.columns.str.lower()
@@ -60,11 +56,10 @@ def process_data_sheet(
     if "year" not in df.columns:
         df["year"] = year
     df = df.melt(id_vars=PIVOT_COLUMNS)
+    return df
 
-    df.to_csv(output_file, index=False, mode="a")
 
-
-def process_metadata(excel_file: Path, sheet_name: str, skiprows: int | None = None):
+def process_metadata(excel_file: Path, sheet_name: str, skiprows: int | None = None) -> dict[str, Path]:
     """From excel input file, convert Data Dictionary sheet to json files
     Generates one file per year, based on 'Dataset' column which specifies which datasets (2010, 2020, or both)
     the field is present in"""
@@ -79,11 +74,11 @@ def process_metadata(excel_file: Path, sheet_name: str, skiprows: int | None = N
         "Category": "category",
     }
     df.rename(columns=columns, inplace=True)
-    files = {}
+    files: dict[str, Path] = {}
     for year, year_df in df.groupby("year"):
         year_df = year_df[columns.values()]
-        year_df["domain"] = "decennial"
-        file = OUTPUT_FOLDER / year / "metadata.json"
+        year_df["domain"] = DATASET
+        file = OUTPUT_FOLDER / DATASET / year / "metadata.json"
         file.parent.mkdir(parents=True, exist_ok=True)
         with open(file, "a") as outfile:
             outfile.write(df_to_json(year_df))
@@ -96,12 +91,13 @@ def process_file(dataset: str, excel: Path):
     Assumes that 2010 and 2020 decennial data are both present as well as Data Dictionary sheet
     Generates one pivoted csv output, one metadata.json file per year"""
     for year in YEARS:
-        process_data_sheet(
+        df = process_data_sheet(
             excel,
             year,
             SHEET_CONFIG[dataset][year],
             SHEET_CONFIG[dataset]["geotype_column"],
         )
+        export_df(df, DATASET, year)
     process_metadata(
         excel,
         SHEET_CONFIG[dataset]["data_dictionary"],
@@ -117,6 +113,4 @@ def run(load_result: load.LoadResult, upload: bool = False):
         process_file(dataset, file_path)
 
     if upload:
-        for year in YEARS:
-            shutil.copy("build_metadata.json", OUTPUT_FOLDER / year)
-            s3_upload(OUTPUT_FOLDER / year)
+        s3_upload(DATASET, YEARS)
