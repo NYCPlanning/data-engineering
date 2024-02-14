@@ -47,9 +47,7 @@ class Metadata(BaseModel):
 
 def generate_metadata() -> dict[str, str]:
     metadata = {
-        "date_created": datetime.now(pytz.timezone("America/New_York")).strftime(
-            "%Y-%m-%dT%H:%M:%S%z"
-        )
+        "date_created": datetime.now(pytz.timezone("America/New_York")).isoformat()
     }
     try:
         metadata["commit"] = git.commit_hash()

@@ -26,7 +26,7 @@ class BuildMetadata(BaseModel, extra="forbid"):
 
     def dump(self):
         json = self.model_dump(exclude_none=True)
-        json["timestamp"] = self.timestamp.strftime("%Y-%m-%dT%H:%M:%S%z")
+        json["timestamp"] = self.timestamp.isoformat()
         return json
 
 

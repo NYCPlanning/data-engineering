@@ -218,7 +218,7 @@ def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMeta
         if date_created is None:
             timestamp = s3metadata.last_modified
         else:
-            timestamp = datetime.strptime(date_created, "%Y-%m-%dT%H:%M:%S%z")
+            timestamp = datetime.fromisoformat(date_created)
         runner = None
     return ArchivalMetadata(
         name=name, version=version, timestamp=timestamp, config=config, runner=runner
