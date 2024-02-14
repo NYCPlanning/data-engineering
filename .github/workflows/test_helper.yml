@@ -31,6 +31,7 @@ jobs:
           sqlfluff lint products/knownprojects/
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
+          sqlfluff lint products/ceqr_survey/models --templater=jinja
 
   mypy:
     runs-on: ubuntu-22.04
