@@ -1,18 +1,30 @@
-name: Population Fact Finder - Build Decennial Census Manual Update
+name: Population Fact Finder - Build
 
 on:
-  workflow_dispatch:
-
+  workflow_call:
+    inputs:
+      image_tag:
+        type: string
+        required: false
+      build_name: 
+        type: string
+        required: true
+      recipe_file:
+        type: string
+        required: true
+        
 jobs:
   build:
-    name: "Decennial Manual Update"
+    name: "Build ${{ github.event.inputs.recipe_file }}"
     runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
         working-directory: products/factfinder
     container: 
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
+    env:
+      BUILD_NAME: ${{ inputs.build_name }}
     steps:
       - uses: actions/checkout@v3
 
@@ -32,6 +44,9 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: run decennial manual update
-        run: |
-          python3 -m pipelines.decennial_manual_update --upload
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
+
+      - name: Build and export
+        run: python3 -m run ${{ github.event.inputs.recipe_file }} --upload

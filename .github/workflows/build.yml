@@ -17,13 +17,14 @@ on:
           - cpdb
           - devdb
           - facilities
+          - factfinder
           - knownprojects
           - pluto
           - ztl
           - all
       recipe_file:
         description: "Recipe filename to use"
-        type: choice
+        type: string
         options:
           - recipe
           - recipe-minor
@@ -179,6 +180,15 @@ jobs:
       recipe_file: ${{ inputs.recipe_file }}
       version: ${{ inputs.version }}
       repeat: ${{ inputs.repeat }}
+  factfinder:
+    needs: health_check
+    if: inputs.dataset_name == 'factfinder'
+    uses: ./.github/workflows/factfinder_build.yml
+    secrets: inherit
+    with:
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+      recipe_file: ${{ inputs.recipe_file }}
   knownprojects:
     needs: health_check
     if: inputs.dataset_name == 'knownprojects' || inputs.dataset_name  == 'all'
