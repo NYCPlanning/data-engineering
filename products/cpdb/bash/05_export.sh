@@ -3,7 +3,7 @@ source bash/config.sh
 
 set_error_traps
 
-run_sql_file sql/_create_export.sql -v ccp_v=$ccp_v
+run_sql_file sql/_create_export.sql
 python3 python/checkbook_spending_by_year.py
 
 mkdir -p output && (
@@ -20,6 +20,8 @@ mkdir -p output && (
     cp ../source_data_versions.csv ./
     cp ../build_metadata.json ./
 
+    shp_export cpdb_dcpattributes_pts MULTIPOINT &
+    shp_export cpdb_dcpattributes_poly MULTIPOLYGON &
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
 
