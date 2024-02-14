@@ -1,0 +1,19 @@
+version: 2
+
+seeds:
+  - name: ceqr_variables
+    columns:
+      - name: variable_name
+        tests:
+          - not_null
+          - unique
+      - name: variable_label
+        tests:
+          - not_null
+          - unique
+      - name: ceqr_category
+        tests:
+          - not_null
+      - name: type_ii_criteria
+        tests:
+          - not_null
