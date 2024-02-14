@@ -336,7 +336,13 @@ FROM (
         a.*,
         b.nta_1 AS nta,
         b.proportion_in_nta_1 AS proportion_in_nta,
-        round(a.units_net * b.proportion_in_nta_1) AS units_net_in_nta
+        round(a.units_net * b.proportion_in_nta_1) AS units_net_in_nta,
+        round(b.proportion_in_nta_1 * a.within_5_years::decimal
+        ) AS within_5_years_in_nta,
+        round(b.proportion_in_nta_1 * a.from_5_to_10_years::decimal
+        ) AS from_5_to_10_years_in_nta,
+        round(b.proportion_in_nta_1 * a.after_10_years::decimal
+        ) AS after_10_years_in_nta
     FROM
         -- capitalplanning.kpdb_2021_09_10_nonull a 
         kpdb AS a
