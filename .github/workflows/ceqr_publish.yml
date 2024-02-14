@@ -1,7 +1,7 @@
 name: Publish CEQR Data
 on:
-  issue_comment:
-    types: [created]
+  # issue_comment:
+  #   types: [created]
   workflow_dispatch:
     inputs:
       dataset:
