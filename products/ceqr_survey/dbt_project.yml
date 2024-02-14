@@ -1,0 +1,16 @@
+name: "dbt_ceqr_survey"
+
+profile: "dcp-de-postgres"
+
+model-paths: ["models"]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
+
+models:
+  dbt_ceqr_survey:
+    staging:
+      +materialized: view
+    product:
+      +materialized: table
