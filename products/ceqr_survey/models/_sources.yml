@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: ceqr_survey_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: dcp_mappluto_wi
+        columns:
+          - name: bbl
+              - unique
+              - not_null
+          - name: zonedist1
+          - name: zonedist2
+          - name: zonedist3
+          - name: zonedist4
+          - name: spdist1
+          - name: spdist2
+          - name: spdist3
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysdec_title_v_facility_permits
+        columns:
+          - name: permit_id
+            tests:
+              - unique
+              - not_null
+          - name: facility_name
+            tests:
+              - dbt_utils.at_least_one
+          - name: wkb_geometry
+            tests:
+              - dbt_utils.at_least_one
