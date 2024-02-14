@@ -133,6 +133,30 @@ SELECT
     spent_total_checkbooknyc
 FROM cpdb_projects_geom;
 
+DROP TABLE IF EXISTS cpdb_projects_without_budget_data;
+CREATE TABLE cpdb_projects_without_budget_data AS
+SELECT
+    ccpversion,
+    maprojid,
+    magencyacro,
+    magency,
+    magencyname,
+    description,
+    projectid,
+    mindate,
+    maxdate,
+    typecategory,
+    plannedcommit_ccnonexempt,
+    plannedcommit_ccexempt,
+    plannedcommit_citycost,
+    plannedcommit_nccstate,
+    plannedcommit_nccfederal,
+    plannedcommit_nccother,
+    plannedcommit_noncitycost,
+    plannedcommit_total
+FROM cpdb_projects
+WHERE adopt_total IS NULL;
+
 CREATE VIEW cpdb_projects_shp AS
 SELECT
     ccpversion,
