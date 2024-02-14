@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: ceqr_survey_bbls
+    description: "BBLs and their CEQR Type II variable checks"
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: bbl
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: variable_name
+        data_type: string
+      - name: variable_value
+        data_type: string
+      - name: variable_outcome
+        data_type: boolean
