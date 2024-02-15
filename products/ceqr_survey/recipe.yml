@@ -9,7 +9,7 @@ inputs:
     - name: dep_cats_permits
     - name: nysdec_state_facility_permits
     - name: nysdec_title_v_facility_permits
-    # - name: dcp_vent_towers Doesn't exist yet
+    - name: dcp_air_quality_vent_towers
     # Noise
     # - name: dcp_digital_city_map Doesn't exist yet
     # - name: dcp_lion Doesn't exist yet
