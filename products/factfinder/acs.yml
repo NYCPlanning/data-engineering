@@ -10,6 +10,7 @@ inputs:
     - name: dcp_pop_acs2010_economic
     - name: dcp_pop_acs2010_housing
     - name: dcp_pop_acs2010_social
+      file_type: csv
     - name: dcp_pop_acs
       destination: file
       file_type: xlsx
