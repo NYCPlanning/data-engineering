@@ -1,6 +1,7 @@
 import pytest
 import pandas as pd
 import boto3
+from botocore.exceptions import ClientError
 from dcpy.utils import versions, s3
 from dcpy.connectors.edm import publishing
 
@@ -35,14 +36,22 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
 def test_publish(create_buckets, create_temp_filesystem, mock_data_constants):
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(
-        draft_key=draft_key, acl=TEST_ACL, version=None, keep_draft=False
-    )
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL)
 
-    assert publishing.get_draft_builds(product=draft_key.product) == []
+    assert publishing.get_draft_builds(product=draft_key.product) == [TEST_BUILD]
     assert [TEST_VERSION] == publishing.get_published_versions(
         product=TEST_PRODUCT_NAME
     )
+
+    # assert that latest folder was not populated
+    with pytest.raises(ClientError) as e_info:
+        publishing.get_latest_version(TEST_PRODUCT_NAME)
+
+    # re-publish with latest flag, delete draft
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL, keep_draft=False, latest=True)
+
+    assert publishing.get_draft_builds(product=draft_key.product) == []
+    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == publish_key.version
 
     test_data = pd.DataFrame(
         data=mock_data_constants["TEST_DATA"],
