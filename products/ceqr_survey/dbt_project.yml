@@ -12,5 +12,7 @@ models:
   dbt_ceqr_survey:
     staging:
       +materialized: view
+    intermediate:
+      +materialized: view
     product:
       +materialized: table
