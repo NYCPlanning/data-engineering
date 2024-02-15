@@ -66,13 +66,9 @@ jobs:
           echo "Setup dbt"
           dbt deps
           dbt debug
+
           echo "Test source data"
           dbt test --select "source:*"
+
           echo "Build all tables"
           dbt build --full-refresh
-
-      - name: Package
-        run: echo "Package HERE"
-
-      - name: Distribute
-        run: echo "Package HERE"
