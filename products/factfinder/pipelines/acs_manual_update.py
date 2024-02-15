@@ -3,11 +3,16 @@ import pandas as pd
 from pathlib import Path
 import shutil
 
-from dcpy.utils import json, string, logging
+from dcpy.utils import logging
 from dcpy.builds import load
 
-from . import OUTPUT_FOLDER
-from .utils import export_df, s3_upload, pivot_factfinder_table
+from . import OUTPUT_FOLDER, DATA_PATH, PRODUCT_PATH
+from .utils import (
+    process_metadata,
+    pivot_factfinder_table,
+    export_df,
+    s3_upload,
+)
 
 DATASET = "acs"
 DOMAINS = ["demographic", "economic", "housing", "social"]
@@ -25,35 +30,6 @@ OUTPUT_SCHEMA_COLUMNS = [
     "z",
     "domain",
 ]
-
-
-def process_metadata(excel_file: Path) -> dict[str, Path]:
-    df = pd.read_excel(excel_file, sheet_name="ACS Data Dictionary", skiprows=2)
-    df = df.dropna(subset=["Category"])
-    df["VariableName"] = df["VariableName"].str.lower()
-    df["year"] = df["Dataset"].astype(str).str.split(", ")
-    df = df.explode("year")
-    df["year"] = df["year"].astype(str).str.split("-").apply(lambda x: x[1])
-    columns = {column: string.camel_to_snake(column) for column in df.columns}
-    columns.update(
-        {
-            "VariableName": "pff_variable",
-            "Relation": "base_variable",
-            "Profile": "domain",
-        }
-    )
-    df.rename(columns=columns, inplace=True)
-    files = {}
-    for year, year_df in df.groupby("year"):
-        year = str(year)
-        year_df = year_df[columns.values()]
-        df.drop(axis=1, labels=["year", "dataset", "new"])
-        file = OUTPUT_FOLDER / year / "metadata.json"
-        file.parent.mkdir(parents=True, exist_ok=True)
-        with open(file, "w") as outfile:
-            outfile.write(json.df_to_json(year_df))
-        files[year] = file
-    return files
 
 
 def sheet_names(year: str) -> dict[str, str]:
@@ -122,3 +98,13 @@ def run(load_result: load.LoadResult, upload: bool = False):
 
     if upload:
         s3_upload(DATASET, ["2010", latest.version])
+
+
+if __name__ == "__main__":
+    process_metadata(
+        DATASET,
+        PRODUCT_PATH / "Data Dictionary_2018-2022 ACS.xlsx",
+        "ACS Data Dictionary",
+        output_folder=DATA_PATH,
+        skiprows=2,
+    )
