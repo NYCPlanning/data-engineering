@@ -3,18 +3,18 @@ dataset:
   acl: public-read
   source:
     url:
-      path: https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/inbox/dcp_air_quality_vent_towers/{{ version }}/dcp_air_quality_vent_towers.csv
+      path: https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/inbox/dcp_air_quality_vent_towers/{{ version }}/vent_tower.zip
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
     geometry:
-      SRS: null
-      type: NONE
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
 
   destination:
     geometry:
-      SRS: null
-      type: NONE
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
     options:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
