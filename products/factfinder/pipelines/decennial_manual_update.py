@@ -2,11 +2,10 @@ import pandas as pd
 from pathlib import Path
 import shutil
 
-from dcpy.utils.json import df_to_json
 from dcpy.utils.logging import logger
 from dcpy.builds import load
 from . import OUTPUT_FOLDER
-from .utils import export_df, s3_upload
+from .utils import process_metadata, export_df, s3_upload
 
 DATASET = "decennial"
 SHEET_CONFIG = {
@@ -59,37 +58,16 @@ def process_data_sheet(
     return df
 
 
-def process_metadata(excel_file: Path, sheet_name: str, skiprows: int | None = None) -> dict[str, Path]:
-    """From excel input file, convert Data Dictionary sheet to json files
-    Generates one file per year, based on 'Dataset' column which specifies which datasets (2010, 2020, or both)
-    the field is present in"""
-    df = pd.read_excel(excel_file, sheet_name=sheet_name, skiprows=skiprows)
-    df = df.dropna(subset=["Category"])
-    df["VariableName"] = df["VariableName"].apply(lambda c: COLUMN_CLEANUP.get(c, c))
-    df["year"] = df["Dataset"].astype(str).str.split(", ")
-    df = df.explode("year")
-    columns = {
-        "VariableName": "pff_variable",
-        "Relation": "base_variable",
-        "Category": "category",
-    }
-    df.rename(columns=columns, inplace=True)
-    files: dict[str, Path] = {}
-    for year, year_df in df.groupby("year"):
-        year_df = year_df[columns.values()]
-        year_df["domain"] = DATASET
-        file = OUTPUT_FOLDER / DATASET / year / "metadata.json"
-        file.parent.mkdir(parents=True, exist_ok=True)
-        with open(file, "a") as outfile:
-            outfile.write(df_to_json(year_df))
-        files[year] = file
-    return files
-
-
 def process_file(dataset: str, excel: Path):
     """Process excel file from population
     Assumes that 2010 and 2020 decennial data are both present as well as Data Dictionary sheet
     Generates one pivoted csv output, one metadata.json file per year"""
+    process_metadata(
+        DATASET,
+        excel,
+        SHEET_CONFIG[dataset]["data_dictionary"],
+        skiprows=SHEET_CONFIG[dataset].get("skiprows"),
+    )
     for year in YEARS:
         df = process_data_sheet(
             excel,
@@ -98,11 +76,6 @@ def process_file(dataset: str, excel: Path):
             SHEET_CONFIG[dataset]["geotype_column"],
         )
         export_df(df, DATASET, year)
-    process_metadata(
-        excel,
-        SHEET_CONFIG[dataset]["data_dictionary"],
-        skiprows=SHEET_CONFIG[dataset].get("skiprows"),
-    )
 
 
 def run(load_result: load.LoadResult, upload: bool = False):

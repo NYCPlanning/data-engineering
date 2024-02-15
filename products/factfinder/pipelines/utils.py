@@ -8,7 +8,54 @@ import shutil
 
 from dcpy.connectors.edm import publishing
 from dcpy.builds import metadata
+from dcpy.utils import string, json
 from . import DATA_PATH, OUTPUT_FOLDER
+
+
+COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
+
+
+def process_metadata(
+    dataset: str,
+    excel_file: Path,
+    sheet_name: str,
+    skiprows: int = 0,
+    output_folder: Path = OUTPUT_FOLDER,
+) -> dict[str, Path]:
+    df = pd.read_excel(excel_file, sheet_name=sheet_name, skiprows=skiprows)
+    df = df.dropna(subset=["Category"])
+    df["VariableName"] = df["VariableName"].apply(lambda c: COLUMN_CLEANUP.get(c, c))
+    df["VariableName"] = df["VariableName"].str.lower()
+    df["year"] = df["Dataset"].astype(str).str.split(", ")
+    df = df.explode("year")
+    df["year"] = (
+        df["year"].astype(str).apply(lambda x: x.split("-")[1] if "-" in x else x)
+    )
+    columns = {column: string.camel_to_snake(column) for column in df.columns}
+    columns.update(
+        {
+            "VariableName": "pff_variable",
+            "Relation": "base_variable",
+            "Profile": "domain",
+        }
+    )
+    df.rename(columns=columns, inplace=True)
+
+    files: dict[str, Path] = {}
+    for year, year_df in df.groupby("year"):
+        year = str(year)
+        year_df.drop(
+            columns=["year", "dataset", "new", "notin_profile"],
+            errors="ignore",
+            inplace=True,
+        )
+        file = output_folder / dataset / year / "metadata.json"
+        file.parent.mkdir(parents=True, exist_ok=True)
+        with open(file, "w") as outfile:
+            outfile.write(json.df_to_json(year_df))
+        files[year] = file
+
+    return files
 
 
 def regex_or(l: list[str]) -> str:
