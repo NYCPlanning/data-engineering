@@ -246,6 +246,14 @@ def publish(
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+    if latest:
+        s3.copy_folder(
+            BUCKET,
+            source,
+            f"{draft_key.product}/publish/latest/",
+            acl,
+            max_files=max_files,
+        )
     if not keep_draft:
         s3.delete(BUCKET, source)
 
