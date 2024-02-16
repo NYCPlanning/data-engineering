@@ -11,7 +11,7 @@ _proj_root = _product_path.parent.parent
 # Make `dcpy` available
 sys.path.append(str(_proj_root))
 
-DATE = datetime.today().strftime("%Y-%m-%d")
+BUILD_DATETIME = datetime.today().strftime("%Y%m%d_%H:%M")
 
 S3_BUCKET = "edm-private"
 S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20240105"
