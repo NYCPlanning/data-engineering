@@ -12,5 +12,5 @@ inputs:
     # - name: dcp_vent_towers Doesn't exist yet
     # Noise
     # - name: dcp_digital_city_map Doesn't exist yet
-    # - name: dcp_lion Doesn't exist yet
+    - name: dcp_lion
   missing_versions_strategy: find_latest

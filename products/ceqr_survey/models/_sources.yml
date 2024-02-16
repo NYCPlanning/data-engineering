@@ -33,3 +33,16 @@ sources:
           - name: wkb_geometry
             tests:
               - dbt_utils.at_least_one
+
+      - name: dcp_lion
+        columns:
+          - name: street
+            tests:
+              - not_null
+          - name: row_type
+            tests:
+              - not_null
+          - name: shape
+            tests:
+              - not_null
+
