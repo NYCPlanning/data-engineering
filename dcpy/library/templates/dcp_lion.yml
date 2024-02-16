@@ -1,0 +1,31 @@
+dataset:
+  name: dcp_lion
+  acl: public-read
+  source:
+    url:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyclion_{{ version }}.zip
+      subpath: lion/lion.gdb
+    layer_name: lion
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTILINESTRING
+
+  destination:
+    geometry:
+      SRS: EPSG:2263
+      type: MULTILINESTRING
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### LION
+      A single line street base map representing the city's streets and other linear geographic features, 
+      along with feature names and address ranges for each addressable street segment
+    url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-lion.page

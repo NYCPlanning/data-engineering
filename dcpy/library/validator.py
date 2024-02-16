@@ -45,6 +45,7 @@ class SourceSection(BaseModel):
     url: Url | None = None
     script: Script | None = None
     socrata: Socrata | None = None
+    layer_name: str | None = None
     geometry: GeometryType | None = None
     options: list[str] | None = None
     gdalpath: str | None = None

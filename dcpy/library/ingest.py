@@ -81,10 +81,19 @@ def translator(func):
             fields=dataset.destination.fields,
         )
 
-        layerName = srcDS.GetLayer(0).GetName()
+        if srcDS.GetLayerCount() > 1:
+            if dataset.source.layer_name:
+                src_layer = dataset.source.layer_name
+            else:
+                raise Exception(
+                    "Multiple layers in source dataset found, must specify one in recipe."
+                )
+        else:
+            src_layer = srcDS.GetLayer(0).GetName()
+
         sql = dataset.destination.sql
         if sql:
-            sql = sql.replace("@filename", layerName)
+            sql = sql.replace("@filename", src_layer)
 
         # Create postgres database schema and table version if needed
         if output_format == "PostgreSQL":
@@ -131,6 +140,7 @@ def translator(func):
                 dstSRS=dataset.destination.geometry.SRS,
                 srcSRS=srcSRS,
                 geometryType=dataset.destination.geometry.type,
+                layers=[src_layer],
                 layerName=layerName,
                 accessMode="overwrite",
                 makeValid=True,
