@@ -6,9 +6,10 @@ WITH bbls AS (
 ceqr_survery_bbls AS (
     SELECT
         bbl,
-        null AS variable_name,
-        true AS variable_outcome,
-        null AS variable_value
+        0 AS zoning_districts_check,
+        null AS zoning_districts_values,
+        0 AS zoning_coastal_risk_districts_check,
+        null AS zoning_coastal_risk_districts_values
     FROM bbls
 )
 
