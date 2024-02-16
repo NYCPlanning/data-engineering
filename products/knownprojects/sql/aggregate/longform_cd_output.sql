@@ -1,5 +1,5 @@
 /**********************************************************************************************************************************************************************************
-Sources kpdb - finalized version of KPDB build
+Sources kpdb_deduplicated - finalized version of KPDB build with no duplicatre record_id values
          dcp_cdboundaries_wi
 OUTPUT: longform_cd_output
 *************************************************************************************************************************************************************************************/
@@ -50,7 +50,7 @@ FROM (
             ) AS cd_distance
         FROM
             -- capitalplanning.kpdb_2021_09_10_nonull a
-            kpdb AS a
+            kpdb_deduplicated AS a
         LEFT JOIN
             dcp_cdboundaries_wi AS b
             ON
@@ -345,7 +345,7 @@ FROM (
         ) AS after_10_years_in_cd
     FROM
         -- capitalplanning.kpdb_2021_09_10_nonull a 
-        kpdb AS a
+        kpdb_deduplicated AS a
     LEFT JOIN
         all_projects_cd AS b
         ON

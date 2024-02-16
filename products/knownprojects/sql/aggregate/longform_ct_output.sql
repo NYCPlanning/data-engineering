@@ -1,5 +1,5 @@
 /**********************************************************************************************************************************************************************************
-Sources kpdb - finalized version of KPDB build
+Sources kpdb_deduplicated - finalized version of KPDB build with no duplicatre record_id values
          dcp_ct2020_wi
 OUTPUT: longform_ct_output
 *************************************************************************************************************************************************************************************/
@@ -50,7 +50,7 @@ FROM (
             ) AS ct_distance
         FROM
             -- capitalplanning.kpdb_2021_09_10_nonull a
-            kpdb AS a
+            kpdb_deduplicated AS a
         LEFT JOIN
             dcp_ct2020_wi AS b
             ON
@@ -345,7 +345,7 @@ FROM (
         ) AS after_10_years_in_ct
     FROM
         -- capitalplanning.kpdb_2021_09_10_nonull a 
-        kpdb AS a
+        kpdb_deduplicated AS a
     LEFT JOIN
         all_projects_ct AS b
         ON

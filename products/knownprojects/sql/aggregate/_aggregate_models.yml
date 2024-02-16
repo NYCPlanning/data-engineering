@@ -13,10 +13,6 @@ models:
           combination_of_columns:
             - record_id
             - nta
-          config:
-            severity: error
-            error_if: ">{{ var('max_duplicate_project_records') }}"
-            warn_if: ">0"
 
   - name: longform_cdta_output
     description: "Project records split by intersecting CDTAs"
@@ -30,10 +26,6 @@ models:
           combination_of_columns:
             - record_id
             - cdta
-          config:
-            severity: error
-            error_if: ">{{ var('max_duplicate_project_records') }}"
-            warn_if: ">0"
 
   - name: longform_cd_output
     description: "Project records split by intersecting community districts"
@@ -47,10 +39,6 @@ models:
           combination_of_columns:
             - record_id
             - cd
-          config:
-            severity: error
-            error_if: ">{{ var('max_duplicate_project_records') }}"
-            warn_if: ">0"
 
   - name: longform_ct_output
     description: "Project records split by intersecting census tracts"
@@ -64,7 +52,3 @@ models:
           combination_of_columns:
             - record_id
             - ct
-          config:
-            severity: error
-            error_if: ">{{ var('max_duplicate_project_records') }}"
-            warn_if: ">0"

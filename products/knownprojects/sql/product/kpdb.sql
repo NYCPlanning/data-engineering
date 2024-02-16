@@ -9,6 +9,7 @@ INPUTS:
 
 OUTPUTS:
     kpdb
+    kpdb_deduplicated
     review_no_geometry
     review_dob
 */
@@ -45,6 +46,37 @@ FROM _kpdb WHERE geometry IS NOT NULL;
 
 DROP TABLE IF EXISTS review_no_geometry;
 SELECT * INTO review_no_geometry FROM _kpdb WHERE geometry IS NULL;
+
+DROP TABLE IF EXISTS kpdb_deduplicated;
+SELECT DISTINCT ON (record_id)
+    project_id,
+    source,
+    record_id,
+    record_name,
+    borough,
+    status,
+    type,
+    date,
+    date_type,
+    units_gross,
+    units_net,
+    has_project_phasing,
+    has_future_units,
+    prop_within_5_years,
+    prop_5_to_10_years,
+    prop_after_10_years,
+    within_5_years,
+    from_5_to_10_years,
+    after_10_years,
+    phasing_rationale,
+    phasing_known,
+    classb,
+    nycha,
+    senior_housing,
+    inactive,
+    geometry
+INTO kpdb_deduplicated
+FROM kpdb;
 
 DROP TABLE IF EXISTS review_dob;
 SELECT
