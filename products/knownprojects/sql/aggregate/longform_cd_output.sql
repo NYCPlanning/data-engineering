@@ -31,6 +31,7 @@ FROM (
             a.units_net,
             a.has_project_phasing,
             a.has_future_units,
+            a.future_units_without_phasing,
             a.prop_within_5_years,
             a.prop_5_to_10_years,
             a.prop_after_10_years,
@@ -337,6 +338,7 @@ FROM (
         b.cd_1 AS cd,
         b.proportion_in_cd_1 AS proportion_in_cd,
         round(a.units_net * b.proportion_in_cd_1) AS units_net_in_cd,
+        round(a.future_units_without_phasing * b.proportion_in_cd_1) AS future_units_without_phasing_in_cd,
         round(b.proportion_in_cd_1 * a.within_5_years::decimal
         ) AS within_5_years_in_cd,
         round(b.proportion_in_cd_1 * a.from_5_to_10_years::decimal

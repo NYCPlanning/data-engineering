@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: longform_nta_output
+    description: "Project records split by intersecting NTAs"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_nta_output_compound_key
+          combination_of_columns:
+            - record_id
+            - nta
+
+  - name: longform_cdta_output
+    description: "Project records split by intersecting CDTAs"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_cdta_output_compound_key
+          combination_of_columns:
+            - record_id
+            - cdta
+
+  - name: longform_cd_output
+    description: "Project records split by intersecting community districts"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_cd_output_compound_key
+          combination_of_columns:
+            - record_id
+            - cd
+
+  - name: longform_ct_output
+    description: "Project records split by intersecting census tracts"
+    columns:
+      - name: record_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_ct_output_compound_key
+          combination_of_columns:
+            - record_id
+            - ct

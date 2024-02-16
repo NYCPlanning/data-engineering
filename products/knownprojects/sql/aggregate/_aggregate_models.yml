@@ -1,54 +1,62 @@
 version: 2
 
 models:
-  - name: longform_nta_output
-    description: "Project records split by intersecting NTAs"
+  - name: future_units_by_nta
+    description: "Project records aggregated by Neighborhood Tabulation Areas (NTAs)"
     columns:
-      - name: record_id
+      - name: nta
         tests:
           - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: longform_nta_output_compound_key
-          combination_of_columns:
-            - record_id
-            - nta
+          - unique
+      - name: records_in_nta
+      - name: units_gross
+      - name: units_net
+      - name: within_5_years
+      - name: from_5_to_10_years
+      - name: after_10_years
+      - name: nta_geometry
 
-  - name: longform_cdta_output
-    description: "Project records split by intersecting CDTAs"
+  - name: future_units_by_cdta
+    description: "Project records aggregated by Community District Tabulation Areas (CDTAs)"
     columns:
-      - name: record_id
+      - name: cdta
         tests:
           - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: longform_cdta_output_compound_key
-          combination_of_columns:
-            - record_id
-            - cdta
+          - unique
+      - name: records_in_cdta
+      - name: units_gross
+      - name: units_net
+      - name: within_5_years
+      - name: from_5_to_10_years
+      - name: after_10_years
+      - name: cdta_geometry
 
-  - name: longform_cd_output
-    description: "Project records split by intersecting community districts"
+  - name: future_units_by_cd
+    description: "Project records aggregated by community districts"
     columns:
-      - name: record_id
+      - name: cd
         tests:
           - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: longform_cd_output_compound_key
-          combination_of_columns:
-            - record_id
-            - cd
+          - unique
+      - name: records_in_cd
+      - name: units_gross
+      - name: units_net
+      - name: within_5_years
+      - name: from_5_to_10_years
+      - name: after_10_years
+      - name: cd_geometry
 
-  - name: longform_ct_output
-    description: "Project records split by intersecting census tracts"
+  - name: future_units_by_ct
+    description: "Future housing units aggregated by census tract"
     columns:
-      - name: record_id
+      - name: ct
         tests:
           - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: longform_ct_output_compound_key
-          combination_of_columns:
-            - record_id
-            - ct
+          - unique
+      - name: borough
+      - name: records_in_ct
+      - name: units_gross
+      - name: units_net
+      - name: within_5_years
+      - name: from_5_to_10_years
+      - name: after_10_years

@@ -337,6 +337,7 @@ FROM (
         b.cdta_1 AS cdta,
         b.proportion_in_cdta_1 AS proportion_in_cdta,
         round(a.units_net * b.proportion_in_cdta_1) AS units_net_in_cdta,
+        round(a.future_units_without_phasing * b.proportion_in_cdta_1) AS future_units_without_phasing_in_cdta,
         round(b.proportion_in_cdta_1 * a.within_5_years::decimal
         ) AS within_5_years_in_cdta,
         round(b.proportion_in_cdta_1 * a.from_5_to_10_years::decimal

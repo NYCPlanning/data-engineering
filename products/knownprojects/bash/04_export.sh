@@ -52,9 +52,13 @@ mkdir -p output
     (
         cd aggregation
         csv_export longform_ct_output
+        csv_export future_units_by_ct
         csv_export longform_nta_output
+        csv_export future_units_by_nta
         csv_export longform_cdta_output
+        csv_export future_units_by_cdta
         csv_export longform_cd_output
+        csv_export future_units_by_cd
         wait
     )
     echo "Compress aggregation folder"
