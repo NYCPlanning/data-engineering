@@ -12,9 +12,13 @@ models:
         tests:
           - not_null
           - unique
-      - name: variable_name
+
+      - name: zoning_districts_check
+        data_type: int
+      - name: zoning_districts_values
         data_type: string
-      - name: variable_value
+
+      - name: zoning_coastal_risk_districts_check
+        data_type: int
+      - name: zoning_coastal_risk_districts_values
         data_type: string
-      - name: variable_outcome
-        data_type: boolean
