@@ -2,3 +2,25 @@ version: 2
 
 models:
   - name: int__elevated_railways
+
+  - name: int__all_buffers
+
+  - name: int__bbl_variable_outcomes
+    description: "Longform table of BBLs and their CEQR Type II outcomes"
+    columns:
+      - name: bbl
+        tests:
+          - unique
+      - name: variable_name
+        data_type: string
+      - name: variable_value
+        data_type: string
+      - name: variable_outcome
+        data_type: boolean
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: int__bbl_variable_outcomes_compound_key
+          combination_of_columns:
+            - bbl
+            - variable_name
+            - variable_value
