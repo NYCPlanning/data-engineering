@@ -38,7 +38,4 @@ echo "Build Community District aggregate table"
 run_sql_file sql/aggregate/longform_cd_output.sql
 echo "General aggregations are complete"
 
-## Do postprocessing
-run_sql_command "ALTER TABLE _kpdb RENAME COLUMN geometry TO geom;"
-
 echo "All aggregations are complete"
