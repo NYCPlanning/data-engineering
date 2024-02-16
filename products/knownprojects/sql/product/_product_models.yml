@@ -59,3 +59,13 @@ models:
           expression: units_net = within_5_years + from_5_to_10_years + after_10_years
           config:
             where: has_future_units
+
+  - name: kpdb_deduplicated
+    description: "Known Projects DB project records deduplicated by Record ID"
+    columns:
+      - name: project_id
+      - name: source
+      - name: record_id
+        tests:
+          - not_null
+          - unique

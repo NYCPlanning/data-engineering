@@ -1,0 +1,1 @@
+-- placeholder so dbt can test a table with this name
