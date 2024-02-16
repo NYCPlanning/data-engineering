@@ -3,19 +3,25 @@ dataset:
   acl: public-read
   source:
     url:
-      path: https://data.ny.gov/resource/4n3a-en4b.csv
+      # TODO: implement data ingestion directly from API
+      # path: https://data.ny.gov/resource/4n3a-en4b.csv
+      path: https://nyc3.digitaloceanspaces.com/edm-publishing/ceqr-app-data/nysdec_title_v_facility_permits/{{ version }}/nysdec_title_v_facility_permits.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
-      - "GEOM_POSSIBLE_NAMES=georeference"
+      # - "GEOM_POSSIBLE_NAMES=georeference"
     geometry:
-      SRS: EPSG:4326
-      type: POINT
+      SRS: null
+      type: NONE
+      # SRS: EPSG:4326
+      # type: POINT
 
   destination:
     geometry:
-      SRS: EPSG:4326
-      type: POINT
+      SRS: null
+      type: NONE
+      # SRS: EPSG:2263
+      # type: POINT
     options:
       - "OVERWRITE=YES"
       - "PRECISION=NO"
@@ -29,5 +35,7 @@ dataset:
       Owners or operators of emission sources that are subject to 6 NYCRR Subpart 201-6 must obtain a Title V facility permit. 
       Draft permits are official versions of permits whose initial development is complete, and that are being noticed and made available for public review and comment. 
       These permits are prepared by the Division of Air Resources regional staff.
+
+      # TODO: Implement ingestion via API and cleaning through data-library. In the meantime, we are ingesting clean data from edm-publishing bucket created during CEQR product build.
     url: "https://data.ny.gov/Energy-Environment/Issued-Title-V-Facility-Permits/4n3a-en4b/"
     dependents: []
