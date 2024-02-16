@@ -44,7 +44,7 @@ FROM (
             a.senior_housing,
             a.inactive,
             b.geometry AS ct_geom,
-            b.ct2020 AS ct,
+            b.boroct2020 AS ct,
             st_distance(
                 a.geometry::geography, b.geometry::geography
             ) AS ct_distance
@@ -247,7 +247,7 @@ FROM (
     WITH ungeocoded_projects_ct AS (
         SELECT
             a.*,
-            coalesce(a.ct, b.ct2020) AS ct_1,
+            coalesce(a.ct, b.boroct2020) AS ct_1,
             coalesce(
                 a.ct_distance,
                 st_distance(
@@ -441,7 +441,7 @@ FROM (
 -- quick fix on 3/29/23 to fix 43 records not matching. Verified via manual querying that this has desired outcome
 UPDATE aggregated_ct_longform a
 SET
-    ct = b.ct2020,
+    ct = b.boroct2020,
     proportion_in_ct = 1,
     units_net_in_ct = a.units_net
 FROM dcp_ct2020_wi AS b
