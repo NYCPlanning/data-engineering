@@ -24,6 +24,7 @@ models:
       - name: units_net
       - name: has_project_phasing
       - name: has_future_units
+      - name: future_units_without_phasing
       - name: prop_within_5_years
       - name: prop_5_to_10_years
       - name: prop_after_10_years
@@ -52,6 +53,13 @@ models:
           expression: units_net != 0
           config:
             where: has_future_units
+
+      # test the expectation of future_units_without_phasing
+      - dbt_utils.expression_is_true:
+          name: kpdb_future_units_without_phasing
+          expression: future_units_without_phasing = 0
+          config:
+            where: has_project_phasing
 
       # test the sum of all project phase proportions
       - dbt_utils.expression_is_true:
