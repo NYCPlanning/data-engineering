@@ -36,11 +36,23 @@ net_units_details AS (
         within_5_years + from_5_to_10_years + after_10_years AS net_units_sum,
         units_net - (within_5_years + from_5_to_10_years + after_10_years) AS net_units_diff
     FROM _kpdb_combined_and_deduped
+),
+
+future_units_details AS (
+    SELECT
+        *,
+        CASE
+            WHEN
+                has_future_units AND NOT has_project_phasing
+                THEN units_net
+            ELSE 0
+        END AS future_units_without_phasing
+    FROM net_units_details
 )
 
 SELECT *
 INTO _kpdb
-FROM net_units_details;
+FROM future_units_details;
 
 --  add the net unit difference (the rounding error) to the first phase with units
 UPDATE _kpdb SET
