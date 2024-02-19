@@ -66,3 +66,6 @@ jobs:
 
       - name: Export
         run: ./bash/export.sh
+
+      - name: Upload
+        run: python3 -m dcpy.connectors.edm.publishing upload --product db-ceqr-survey --acl public-read
