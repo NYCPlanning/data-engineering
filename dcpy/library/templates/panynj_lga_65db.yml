@@ -1,0 +1,29 @@
+dataset:
+  name: panynj_lga_65db
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-recipes/inbox/panynj_lga_65db/{{ version }}/lga_65db.csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      Continuous contour of the Day Night Average Sound Level (DNL) of at least 65 dB for LaGuardia Airport (LGA).
+
+      Data provided by the Port Authority of New York & New Jersey.
+    url: https://aircraftnoise.panynj.gov/
