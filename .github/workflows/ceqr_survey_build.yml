@@ -63,3 +63,6 @@ jobs:
 
       - name: Build
         run: ./bash/build.sh
+
+      - name: Export
+        run: ./bash/export.sh
