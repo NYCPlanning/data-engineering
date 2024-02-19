@@ -119,7 +119,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   ceqr_survey:
     needs: health_check
-    if: inputs.dataset_name == 'ceqr_survey' || inputs.dataset_name  == 'all'
+    if: inputs.dataset_name == 'ceqr_survey'
     uses: ./.github/workflows/ceqr_survey_build.yml
     secrets: inherit
     with:
