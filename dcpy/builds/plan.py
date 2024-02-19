@@ -3,7 +3,7 @@ from enum import Enum
 import os
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import typer
 from typing import List
 import yaml
@@ -63,7 +63,9 @@ class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
 class InputDatasetDefaults(BaseModel, use_enum_values=True):
     file_type: recipes.DatasetType | None = None
     preprocessor: DataPreprocessor | None = None
-    destination: InputDatasetDestination | None = None
+    destination: InputDatasetDestination = Field(
+        default=InputDatasetDestination.postgres, validate_default=True
+    )
 
 
 class RecipeInputs(BaseModel, use_enum_values=True):
@@ -197,8 +199,7 @@ def get_source_data_versions(recipe: Recipe):
 
 def _apply_recipe_defaults(recipe: Recipe):
     recipe.inputs.dataset_defaults = (
-        recipe.inputs.dataset_defaults
-        or InputDatasetDefaults(destination=InputDatasetDestination.postgres)
+        recipe.inputs.dataset_defaults or InputDatasetDefaults()
     )
     for ds in recipe.inputs.datasets:
         ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
