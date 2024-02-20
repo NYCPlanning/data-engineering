@@ -6,12 +6,12 @@ WITH mappluto_wi AS (
 
 final AS (
     SELECT
-        cast(bbl AS text) AS bbl,
+        CAST(bbl AS text) AS bbl,
         zonedist1,
         zonedist2,
         zonedist3,
         zonedist4,
-        wkb_geometry
+        ST_TRANSFORM(wkb_geometry, 2263) AS geom
     FROM mappluto_wi
 )
 
