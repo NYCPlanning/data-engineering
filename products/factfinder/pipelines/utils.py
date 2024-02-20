@@ -148,7 +148,8 @@ def pivot_factfinder_table(df: pd.DataFrame) -> pd.DataFrame:
 def export_df(df: pd.DataFrame, dataset: str, year: str, copy_metadata=False):
     output_file = OUTPUT_FOLDER / dataset / year / f"{dataset}.csv"
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_file, index=False, mode="a")
+    header = not output_file.exists()
+    df.to_csv(output_file, index=False, mode="a", header=header)
     if copy_metadata:
         shutil.copy(
             DATA_PATH / dataset / year / "metadata.json", OUTPUT_FOLDER / dataset / year
