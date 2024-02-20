@@ -1,0 +1,26 @@
+dataset:
+  name: dcm_arterial_highways
+  acl: public-read
+  source:
+    url:
+      path: https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/inbox/dcm_arterial_highways/{{ version }}/dcm_arterial_highways.zip
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTILINESTRING
+
+  destination:
+    geometry:
+      SRS: EPSG:2263
+      type: MULTILINESTRING
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      "Arterial Highways, from the the Digital City Map."
