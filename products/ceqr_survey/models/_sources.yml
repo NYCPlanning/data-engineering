@@ -4,6 +4,16 @@ sources:
   - name: ceqr_survey_sources
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
+      - name: dcm_arterial_highways
+        columns:
+          - name: name
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - unique
+              - not_null
       - name: dcp_air_quality_vent_towers
         columns:
           - name: bbl

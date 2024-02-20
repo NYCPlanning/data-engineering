@@ -9,4 +9,4 @@ SELECT
     name,
     wkb_geometry AS unbuffered_shape,
     ST_BUFFER(wkb_geometry, 75) AS buffered_shape
-FROM vents_raw;
+FROM vents_raw

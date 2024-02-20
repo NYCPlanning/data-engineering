@@ -12,6 +12,7 @@ inputs:
     - name: dcp_air_quality_vent_towers
     # Noise
     # - name: dcp_digital_city_map Doesn't exist yet
+    - name: dcm_arterial_highways
     - name: dcp_lion
     # Other
     - name: dcp_edesignation_csv
