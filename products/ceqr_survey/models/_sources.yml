@@ -16,6 +16,36 @@ sources:
               - unique
               - not_null
 
+      - name: dcp_edesignation_csv
+        columns:
+          - name: bbl
+            tests:
+              - not_null
+          - name: enumber
+            tests:
+              - not_null
+          - name: hazmat_code
+            tests:
+              - not_null
+          - name: air_code
+            tests:
+              - not_null
+          - name: noise_code
+            tests:
+              - not_null
+
+      - name: dcp_lion
+        columns:
+          - name: street
+            tests:
+              - not_null
+          - name: row_type
+            tests:
+              - not_null
+          - name: shape
+            tests:
+              - not_null
+
       - name: dcp_mappluto_wi
         columns:
           - name: bbl
@@ -45,16 +75,4 @@ sources:
           - name: wkb_geometry
             tests:
               - dbt_utils.at_least_one
-
-      - name: dcp_lion
-        columns:
-          - name: street
-            tests:
-              - not_null
-          - name: row_type
-            tests:
-              - not_null
-          - name: shape
-            tests:
-              - not_null
 
