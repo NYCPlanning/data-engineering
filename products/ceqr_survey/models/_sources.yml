@@ -20,12 +20,18 @@ sources:
         columns:
           - name: name
             tests:
-              - unique
               - not_null
           - name: wkb_geometry
             tests:
               - unique
               - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dcm_arterial_highways_compound_key
+              combination_of_columns:
+                - name
+                - wkb_geometry
+
       - name: dcp_air_quality_vent_towers
         columns:
           - name: bbl
@@ -97,4 +103,3 @@ sources:
           - name: wkb_geometry
             tests:
               - dbt_utils.at_least_one
-
