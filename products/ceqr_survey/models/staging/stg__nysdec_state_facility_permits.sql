@@ -10,7 +10,7 @@ final AS (
         'state_facility_permits' AS variable,
         permit_id,
         facility_name,
-        st_transform(geom::geometry, 2263) as geom
+        st_transform(geom::geometry, 2263) AS geom
     FROM source
 )
 

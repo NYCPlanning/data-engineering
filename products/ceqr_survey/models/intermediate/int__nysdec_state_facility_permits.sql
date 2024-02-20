@@ -3,8 +3,8 @@
 WITH state_facility_permits AS (
     SELECT
         variable,
-        permit_id as id,
-        geom as permit_geom
+        permit_id AS id,
+        geom AS permit_geom
     FROM
         {{ ref('stg__nysdec_state_facility_permits') }}
 ),

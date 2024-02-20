@@ -3,8 +3,8 @@
 WITH cats_permits AS (
     SELECT
         variable,
-        applicationid as id,
-        geom as permit_geom
+        applicationid AS id,
+        geom AS permit_geom
     FROM
         {{ ref('stg__dep_cats_permits') }}
 ),
