@@ -11,6 +11,9 @@ final AS (
         zonedist2,
         zonedist3,
         zonedist4,
+        spdist1,
+        spdist2,
+        spdist3,
         ST_TRANSFORM(wkb_geometry, 2263) AS geom
     FROM mappluto_wi
 )
