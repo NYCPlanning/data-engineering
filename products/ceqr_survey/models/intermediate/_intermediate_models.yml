@@ -1,8 +1,6 @@
 version: 2
 
 models:
-  - name: int__elevated_railways
-
   - name: int__all_buffers
 
   - name: int__bbl_variable_outcomes
@@ -24,3 +22,29 @@ models:
             - bbl
             - variable_name
             - variable_value
+
+  - name: int__edesignation_flags
+    description: Flags related to edesignation
+    columns: 
+      - name: bbl
+        tests:
+          - not_null
+      - name: variable
+        test: 
+          - not_null
+      - name: id
+        test:
+          - not_null
+
+  - name: int__elevated_railways
+    description: Buffered geometries for elevated/exposed railways
+    columns: 
+      - name: variable
+        test: 
+          - not_null
+      - name: id
+        test:
+          - not_null
+      - name: geom
+        tests:
+          - not_null

@@ -13,4 +13,6 @@ inputs:
     # Noise
     # - name: dcp_digital_city_map Doesn't exist yet
     - name: dcp_lion
+    # Other
+    - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
