@@ -12,6 +12,8 @@ inputs:
     - name: dcp_air_quality_vent_towers
     # Noise
     # - name: dcp_digital_city_map Doesn't exist yet
+    - name: panynj_jfk_65db
+    - name: panynj_lga_65db
     - name: dcm_arterial_highways
     - name: dcp_lion
     # Other
