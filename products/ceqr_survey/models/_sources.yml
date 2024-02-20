@@ -4,6 +4,18 @@ sources:
   - name: ceqr_survey_sources
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
+      - name: panynj_jfk_65db
+        columns:
+          - name: wkb_geometry
+            tests:
+              - unique
+              - not_null
+      - name: panynj_lga_65db
+        columns:
+          - name: wkb_geometry
+            tests:
+              - unique
+              - not_null
       - name: dcm_arterial_highways
         columns:
           - name: name
