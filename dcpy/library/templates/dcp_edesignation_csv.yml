@@ -1,0 +1,34 @@
+dataset:
+  name: dcp_edesignation_csv
+  acl: public-read
+  source:
+    socrata:
+      uid: hxm3-23vy
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### NYC (E) Designations
+      (E) Designations are established to provide notice of the presence of an environmental
+      requirement pertaining to potential hazardous materials contamination, high ambient noise
+      levels or air emission concerns on a particular tax lot. This includes CEQR Environment
+      Requirements and CEQR Restrictive Declarations, in Appendix C of the
+      Zoning Resolution.
+
+      Not all columns are currently included in shapefile, hence why we need this table.
+      This should be fixed sometime before 2024 Q3, and at that point this template can be archived
+    url: "https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/nyedes_metadata.pdf"
+    dependents: []
