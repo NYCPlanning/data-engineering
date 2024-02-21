@@ -10,11 +10,15 @@ panynj_airports_jfk AS (
 )
 
 SELECT
-    wkb_geometry,
-    'Laguardia Airport' AS "name"
+    wkb_geometry AS buffer,
+    wkb_geometry AS raw_geom,
+    'Laguardia Airport' AS variable_id,
+    'airport' AS variable_type
 FROM panynj_airports_lga
 UNION
 SELECT
-    wkb_geometry,
-    'John F. Kennedy Airport' AS "name"
+    wkb_geometry AS buffer,
+    wkb_geometry AS raw_geom,
+    'John F. Kennedy Airport' AS variable_id,
+    'airport' AS variable_type
 FROM panynj_airports_jfk

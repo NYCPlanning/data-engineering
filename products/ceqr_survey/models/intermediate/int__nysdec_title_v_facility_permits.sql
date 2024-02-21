@@ -2,9 +2,9 @@
 
 WITH title_v_facility_permits AS (
     SELECT
-        variable,
-        permit_id AS id,
-        geom AS permit_geom
+        variable_type,
+        permit_id,
+        permit_geom
     FROM
         {{ ref('stg__nysdec_title_v_facility_permits') }}
 ),
@@ -16,11 +16,9 @@ pluto AS (
 
 title_v_facility_permits_with_pluto AS (
     SELECT
-        t.variable,
-        t.id,
-        t.permit_geom,
-        p.geom AS bbl_geom
-
+        t.variable_type,
+        t.permit_id AS variable_id,
+        COALESCE(p.geom, t.permit_geom) AS raw_geom
     FROM title_v_facility_permits AS t
     LEFT JOIN pluto AS p ON ST_WITHIN(t.permit_geom, p.geom)
 
@@ -30,9 +28,10 @@ title_v_facility_permits_with_pluto AS (
 -- If tax lot is null, create buffer around point (geom column)
 final AS (
     SELECT
-        variable,
-        id,
-        ST_BUFFER(COALESCE(bbl_geom, permit_geom), 1000) AS geom
+        variable_type,
+        variable_id,
+        raw_geom,
+        ST_BUFFER(raw_geom, 1000) AS buffer
     FROM title_v_facility_permits_with_pluto
 )
 

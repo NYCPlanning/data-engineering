@@ -7,10 +7,9 @@ WITH source AS (
 
 final AS (
     SELECT
-        'title_v_facility_permits' AS variable,
+        'title_v_facility_permits' AS variable_type,
         permit_id,
-        facility_name,
-        st_transform(geom::geometry, 2263) AS geom
+        st_transform(geom::geometry, 2263) AS permit_geom
     FROM source
 )
 
