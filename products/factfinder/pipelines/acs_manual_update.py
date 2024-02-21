@@ -61,6 +61,8 @@ def transform_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df.dropna(subset=["geotype"], inplace=True)
 
     df = pivot_factfinder_table(df)
+    for column in ["c", "e", "m", "p", "z"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce")
     return df
 
 
