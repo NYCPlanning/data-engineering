@@ -7,13 +7,24 @@ seeds:
         tests:
           - not_null
           - unique
-      - name: variable_label
+      - name: label
         tests:
           - not_null
           - unique
       - name: ceqr_category
         tests:
           - not_null
+      - name: survey_question
+        tests:
+          - not_null
       - name: type_ii_criteria_description
         tests:
           - not_null
+
+  - name: ceqr_flags_long
+    columns:
+      - name: bbl
+        data_type: string
+      - name: variable_type
+      - name: variable_id
+      - name: distance_from

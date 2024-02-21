@@ -12,13 +12,28 @@ models:
         tests:
           - not_null
           - unique
-
-      - name: zoning_districts_check
-        data_type: int
-      - name: zoning_districts_values
+      - name: '"Zoning Districts"'
         data_type: string
-
-      - name: zoning_coastal_risk_districts_check
-        data_type: int
-      - name: zoning_coastal_risk_districts_values
+      - name: '"Special Coastal Risk Districts"'
         data_type: string
+      - name: '"CATS Permits"'
+        data_type: string
+      - name: '"State Facility Permits"'
+        data_type: string
+      - name: '"Clean Air Act Title V Permits"'
+        data_type: string
+      - name: '"Vent Towers"'
+        data_type: string
+      - name: '"(E) Designations - Air Quality"'
+        data_type: string
+      - name: '"(E) Designations - Noise"'
+        data_type: string
+      - name: '"Arterial Highways"'
+        data_type: string
+      - name: '"Elevated Railways"'
+        data_type: string
+      - name: '"Airport Contours"'
+        data_type: string
+      - name: '"(E) Designations - HazMat"'
+        data_type: string
+      - name: geom
