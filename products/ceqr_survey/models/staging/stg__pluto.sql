@@ -1,3 +1,10 @@
+{{ config(
+    materialized = 'table',
+    indexes=[
+      {'columns': ['geom'], 'type': 'gist'},
+    ]
+) }}
+
 WITH mappluto_wi AS (
 
     SELECT * FROM {{ source('ceqr_survey_sources', 'dcp_mappluto_wi') }}
