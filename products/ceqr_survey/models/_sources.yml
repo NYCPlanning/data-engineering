@@ -100,6 +100,32 @@ sources:
           - name: facility_name
             tests:
               - dbt_utils.at_least_one
-          - name: wkb_geometry
+          - name: geom
+            tests:
+              - not_null
+
+      - name: nysdec_state_facility_permits
+        columns:
+          - name: permit_id
+            tests:
+              - unique
+              - not_null
+          - name: facility_name
             tests:
               - dbt_utils.at_least_one
+          - name: geom
+            tests:
+              - not_null
+
+      - name: dep_cats_permits
+        columns:
+          - name: applicationid
+            tests:
+              - unique
+              - not_null
+          - name: status
+            tests:
+              - not_null
+          - name: geom
+            tests:
+              - not_null

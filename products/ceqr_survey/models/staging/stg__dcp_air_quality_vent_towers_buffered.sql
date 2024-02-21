@@ -1,6 +1,7 @@
 WITH vents_raw AS (
 
-    SELECT * FROM {{ source('ceqr_survey_sources', 'dcp_air_quality_vent_towers') }}
+    SELECT *
+    FROM {{ source('ceqr_survey_sources', 'dcp_air_quality_vent_towers') }}
 
 )
 
