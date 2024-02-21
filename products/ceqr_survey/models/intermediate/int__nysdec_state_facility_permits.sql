@@ -32,10 +32,7 @@ final AS (
     SELECT
         variable,
         id,
-        (CASE
-            WHEN bbl_geom IS NULL THEN ST_BUFFER(permit_geom, 1000)
-            ELSE ST_BUFFER(bbl_geom, 1000)
-        END) AS geom
+        ST_BUFFER(COALESCE(bbl_geom, permit_geom), 1000) AS geom
     FROM state_facility_permits_with_pluto
 )
 
