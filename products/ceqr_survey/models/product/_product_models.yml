@@ -2,38 +2,40 @@ version: 2
 
 models:
   - name: ceqr_survey_bbls
-    description: "BBLs and their CEQR Type II variable checks"
-    config:
-      contract:
-        enforced: true
+    description: BBLs and their CEQR Type II variable checks
+    ## enforced contract commented out as it doesn't support geom type at the moment
+    ## additionally, it requires column names with spaces being in nested quotes (i.e. `name: '"Zoning Districts"'`)
+    #config:
+    #  contract:
+    #    enforced: true
     columns:
       - name: bbl
         data_type: string
         tests:
           - not_null
           - unique
-      - name: '"Zoning Districts"'
+      - name: Zoning Districts
         data_type: string
-      - name: '"Special Coastal Risk Districts"'
+      - name: Special Coastal Risk Districts
         data_type: string
-      - name: '"CATS Permits"'
+      - name: CATS Permits
         data_type: string
-      - name: '"State Facility Permits"'
+      - name: State Facility Permits
         data_type: string
-      - name: '"Clean Air Act Title V Permits"'
+      - name: Clean Air Act Title V Permits
         data_type: string
-      - name: '"Vent Towers"'
+      - name: Vent Towers
         data_type: string
-      - name: '"(E) Designations - Air Quality"'
+      - name: (E) Designations - Air Quality
         data_type: string
-      - name: '"(E) Designations - Noise"'
+      - name: (E) Designations - Noise
         data_type: string
-      - name: '"Arterial Highways"'
+      - name: Arterial Highways
         data_type: string
-      - name: '"Elevated Railways"'
+      - name: Elevated Railways
         data_type: string
-      - name: '"Airport Contours"'
+      - name: Airport Contours
         data_type: string
-      - name: '"(E) Designations - HazMat"'
+      - name: (E) Designations - HazMat
         data_type: string
       - name: geom
