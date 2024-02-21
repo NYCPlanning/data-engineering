@@ -59,6 +59,7 @@ models:
       - name: variable_id
         test:
           - not_null
+          - unique
       - name: raw_geom
         tests:
           - not_null
@@ -75,6 +76,7 @@ models:
       - name: variable_id
         test:
           - not_null
+          - unique
       - name: raw_geom
         tests:
           - not_null
@@ -91,6 +93,7 @@ models:
       - name: variable_id
         test:
           - not_null
+          - unique
       - name: raw_geom
         tests:
           - not_null
