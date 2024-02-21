@@ -5,10 +5,10 @@ WITH source AS (
 
 final AS (
     SELECT
-        'state_facility_permits' AS variable,
-        permit_id,
+        'state_facility_permits' AS variable_type,
+        permit_id AS variable_id,
         facility_name,
-        ST_TRANSFORM(geom::geometry, 2263) AS geom
+        ST_TRANSFORM(geom::geometry, 2263) AS permit_geom
     FROM source
 )
 

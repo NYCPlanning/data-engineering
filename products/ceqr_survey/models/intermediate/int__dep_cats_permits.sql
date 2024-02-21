@@ -1,10 +1,8 @@
--- int__dep_cats_permits.sql
-
 WITH cats_permits AS (
     SELECT
-        variable,
-        applicationid AS id,
-        geom AS permit_geom
+        variable_type,
+        variable_id,
+        permit_geom
     FROM
         {{ ref('stg__dep_cats_permits') }}
 ),
@@ -16,8 +14,8 @@ pluto AS (
 
 cats_permits_with_pluto AS (
     SELECT
-        s.variable AS variable_type,
-        s.id AS variable_id,
+        s.variable_type,
+        s.variable_id,
         COALESCE(p.geom, s.permit_geom) AS raw_geom
     FROM cats_permits AS s
     LEFT JOIN pluto AS p ON ST_WITHIN(s.permit_geom, p.geom)

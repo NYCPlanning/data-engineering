@@ -1,9 +1,7 @@
--- int__nysdec_title_v_facility_permits.sql
-
 WITH title_v_facility_permits AS (
     SELECT
         variable_type,
-        permit_id,
+        variable_id,
         permit_geom
     FROM
         {{ ref('stg__nysdec_title_v_facility_permits') }}
@@ -17,7 +15,7 @@ pluto AS (
 title_v_facility_permits_with_pluto AS (
     SELECT
         t.variable_type,
-        t.permit_id AS variable_id,
+        t.variable_id,
         COALESCE(p.geom, t.permit_geom) AS raw_geom
     FROM title_v_facility_permits AS t
     LEFT JOIN pluto AS p ON ST_WITHIN(t.permit_geom, p.geom)

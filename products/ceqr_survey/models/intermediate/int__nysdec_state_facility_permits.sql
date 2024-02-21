@@ -2,9 +2,9 @@
 
 WITH state_facility_permits AS (
     SELECT
-        variable,
-        permit_id AS id,
-        geom AS permit_geom
+        variable_type,
+        variable_id,
+        permit_geom
     FROM
         {{ ref('stg__nysdec_state_facility_permits') }}
 ),
@@ -16,8 +16,8 @@ pluto AS (
 
 state_facility_permits_with_pluto AS (
     SELECT
-        s.variable AS variable_type,
-        s.id AS variable_id,
+        s.variable_type,
+        s.variable_id,
         COALESCE(p.geom, s.permit_geom) AS raw_geom
     FROM state_facility_permits AS s
     LEFT JOIN pluto AS p ON ST_WITHIN(s.permit_geom, p.geom)
