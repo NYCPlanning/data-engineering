@@ -27,10 +27,10 @@ models:
       - name: bbl
         tests:
           - not_null
-      - name: variable
+      - name: variable_type
         test:
           - not_null
-      - name: id
+      - name: variable_id
         test:
           - not_null
 
