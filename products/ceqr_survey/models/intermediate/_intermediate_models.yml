@@ -1,8 +1,6 @@
 version: 2
 
 models:
-  - name: int__all_buffers
-
   - name: int__bbl_variable_outcomes
     description: "Longform table of BBLs and their CEQR Type II outcomes"
     columns:
