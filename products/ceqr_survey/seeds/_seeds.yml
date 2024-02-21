@@ -3,7 +3,7 @@ version: 2
 seeds:
   - name: ceqr_variables
     columns:
-      - name: variable_name
+      - name: variable_type
         tests:
           - not_null
           - unique
@@ -14,6 +14,6 @@ seeds:
       - name: ceqr_category
         tests:
           - not_null
-      - name: type_ii_criteria
+      - name: type_ii_criteria_description
         tests:
           - not_null

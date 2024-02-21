@@ -1,2 +1,13 @@
-variable_name,variable_label,ceqr_category,type_ii_criteria
-zoning_districts,Zoning districts,Zoning,"R5-R10, R1-R4, or (C or M)"
+variable_type,variable_label,ceqr_category,type_ii_criteria_description
+zoning_districts,Zoning Districts,Zoning,"R5-R10, R1-R4, or (C or M)"
+coastal_risk_districts,Special Coastal Risk Districts,Zoning,"Any of 3 special purpose district fields in PLUTO contain a CR% value"
+e_designations_air,(E) Designations - air quality,(E) Designations,"Air Code = 1"
+e_designations_noise,(E) Designations - noise,(E) Designations,"Noise Code = 1"
+e_designations_hazmat,(E) Designations - hazmat,(E) Designations,"HazMat Code = 1"
+cats_permits,CATS Permits,Air Quality,"400 foot buffer of active and expired cats permits"
+state_facility_permits,State Facility Permits,Air Quality,"1,000 foot buffer"
+title_v_permits,Clean Air Act Title V Permits,Air Quality,"1,000 foot buffer"
+vent_towers,Vent Towers,Air Quality,"75 foot buffer"
+elevated_railways,Elevated Railways,Noise,"75 foot buffer"
+arterial_highways,Arterial Highways,Noise,"1,500 foot buffer"
+airport_contours,Airport Contours,Noise,"Intersects"
