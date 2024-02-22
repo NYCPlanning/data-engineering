@@ -12,7 +12,8 @@ filtered AS (
 )
 
 SELECT
-    'elevated_railway' AS variable,
-    street AS id,
-    ST_BUFFER(geom, 1500) AS geom
+    'elevated_railway' AS variable_type,
+    street AS variable_id,
+    geom AS raw_geom,
+    ST_BUFFER(geom, 1500) AS buffer
 FROM filtered

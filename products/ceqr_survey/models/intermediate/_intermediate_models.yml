@@ -1,8 +1,6 @@
 version: 2
 
 models:
-  - name: int__all_buffers
-
   - name: int__bbl_variable_outcomes
     description: "Longform table of BBLs and their CEQR Type II outcomes"
     columns:
@@ -39,54 +37,82 @@ models:
   - name: int__elevated_railways
     description: Buffered geometries for elevated/exposed railways
     columns:
-      - name: variable
+      - name: variable_type
         test:
           - not_null
-      - name: id
+      - name: variable_id
         test:
           - not_null
-      - name: geom
+      - name: raw_geom
+        tests:
+          - not_null
+      - name: buffer
         tests:
           - not_null
 
   - name: int__nysdec_state_facility_permits
     description: Buffered geometries for state facility permits
     columns:
-      - name: variable
+      - name: variable_type
         test:
           - not_null
-      - name: id
+      - name: variable_id
         test:
           - not_null
           - unique
-      - name: geom
+      - name: raw_geom
+        tests:
+          - not_null
+      - name: buffer
         tests:
           - not_null
 
   - name: int__nysdec_title_v_facility_permits
     description: Buffered geometries for title V facility permits
     columns:
-      - name: variable
+      - name: variable_type
         test:
           - not_null
-      - name: id
+      - name: variable_id
         test:
           - not_null
           - unique
-      - name: geom
+      - name: raw_geom
+        tests:
+          - not_null
+      - name: buffer
         tests:
           - not_null
 
-  - name: int__stg__dep_cats_permits
+  - name: int__dep_cats_permits
     description: Buffered geometries for cats permits
     columns:
-      - name: variable
+      - name: variable_type
         test:
           - not_null
-      - name: id
+      - name: variable_id
         test:
           - not_null
           - unique
-      - name: geom
+      - name: raw_geom
+        tests:
+          - not_null
+      - name: buffer
+        tests:
+          - not_null
+
+  - name: int__all_buffers
+    description: Union of all buffered flag tables
+    columns:
+      - name: variable_type
+        test:
+          - not_null
+      - name: variable_id
+        test:
+          - not_null
+      - name: raw_geom
+        tests:
+          - not_null
+      - name: buffer
         tests:
           - not_null
