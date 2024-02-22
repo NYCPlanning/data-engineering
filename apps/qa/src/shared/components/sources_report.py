@@ -93,7 +93,7 @@ def sources_report(
         source_report_results, orient="index"
     )
     st.dataframe(
-        df_source_report_results.style.applymap(
+        df_source_report_results.style.applymap(  # type: ignore
             dataframe_style_source_report_results,
             subset=["same_columns", "same_row_count"],
         )
