@@ -14,28 +14,64 @@ models:
         tests:
           - not_null
           - unique
-      - name: Zoning Districts
+      - name: '"Zoning Districts Flag"'
         data_type: string
-      - name: Special Coastal Risk Districts
+        tests: [not_null]
+      - name: '"Zoning Districts"'
         data_type: string
-      - name: CATS Permits
+      - name: '"Special Coastal Risk Districts Flag"'
         data_type: string
-      - name: State Facility Permits
+        tests: [not_null]
+      - name: '"Special Coastal Risk Districts"'
         data_type: string
-      - name: Clean Air Act Title V Permits
+      - name: '"CATS Permits Flag"'
         data_type: string
-      - name: Vent Towers
+        tests: [not_null]
+      - name: '"CATS Permits"'
         data_type: string
-      - name: (E) Designations - Air Quality
+      - name: '"State Facility Permits Flag"'
         data_type: string
-      - name: (E) Designations - Noise
+        tests: [not_null]
+      - name: '"State Facility Permits"'
         data_type: string
-      - name: Arterial Highways
+      - name: '"Clean Air Act Title V Permits Flag"'
         data_type: string
-      - name: Elevated Railways
+        tests: [not_null]
+      - name: '"Clean Air Act Title V Permits"'
         data_type: string
-      - name: Airport Contours
+      - name: '"Vent Towers Flag"'
         data_type: string
-      - name: (E) Designations - HazMat
+        tests: [not_null]
+      - name: '"Vent Towers"'
+        data_type: string
+      - name: '"(E) Designations - Air Quality Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"(E) Designations - Air Quality"'
+        data_type: string
+      - name: '"(E) Designations - Noise Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"(E) Designations - Noise"'
+        data_type: string
+      - name: '"Arterial Highways Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"Arterial Highways"'
+        data_type: string
+      - name: '"Elevated Railways Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"Elevated Railways"'
+        data_type: string
+      - name: '"Airport Contours Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"Airport Contours"'
+        data_type: string
+      - name: '"(E) Designations - HazMat Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"(E) Designations - HazMat"'
         data_type: string
       - name: geom
