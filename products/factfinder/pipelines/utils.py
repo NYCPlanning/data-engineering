@@ -40,6 +40,8 @@ def process_metadata(
         }
     )
     df.rename(columns=columns, inplace=True)
+    df["base_variable"] = df["base_variable"].str.lower()
+    df["domain"] = df["domain"].str.lower()
 
     files: dict[str, Path] = {}
     for year, year_df in df.groupby("year"):
