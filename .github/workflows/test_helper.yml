@@ -17,8 +17,29 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
+    env: 
+      BUILD_NAME: test
     steps:
       - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
+
+      - name: Set up dbt for sqlfluff templating
+        working-directory: ./
+        run: |
+          ./bash/build_env_setup.sh
+          cd products/ceqr_survey
+          dbt deps
 
       - name: Check python files
         run: black --diff --color --check .
@@ -31,7 +52,8 @@ jobs:
           sqlfluff lint products/knownprojects/ --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
-          sqlfluff lint products/ceqr_survey/models --templater=jinja
+          export BUILD_ENGINE_DB=db-ceqr-survey
+          sqlfluff lint products/ceqr_survey/models --templater=dbt
 
   mypy:
     runs-on: ubuntu-22.04

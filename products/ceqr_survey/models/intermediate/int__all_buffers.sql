@@ -1,4 +1,4 @@
-WITH all_buffers AS (  -- noqa: disable=all
+WITH all_buffers AS (
 {{ dbt_utils.union_relations(
     relations=[
         ref('int__elevated_railways'),
@@ -15,4 +15,9 @@ WITH all_buffers AS (  -- noqa: disable=all
 -- Note: without `column_override`, dbt throws an error trying to cast.
 -- e.g.: `cast("raw_geom" as USER-DEFINED) as "raw...`
 
-SELECT * FROM all_buffers
+SELECT
+    variable_type,
+    variable_id,
+    raw_geom,
+    buffer
+FROM all_buffers
