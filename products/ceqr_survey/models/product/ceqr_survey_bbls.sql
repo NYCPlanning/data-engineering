@@ -30,9 +30,7 @@ ceqr_flags_wide AS (
         {% for row in ceqr_variables -%}
             MAX(
                 CASE
-                    WHEN
-                        variable_type = '{{ row["variable_type"] }}'
-                        THEN variable_id
+                    WHEN variable_type = '{{ row["variable_type"] }}' THEN variable_id
                 END
             ) AS "{{ row['label'] }}",
         {% endfor %}
@@ -45,6 +43,10 @@ ceqr_flags_wide AS (
 SELECT
     pluto.bbl,
     {% for row in ceqr_variables -%}
+        CASE 
+            WHEN f."{{ row['label'] }}" IS NULL THEN 'No'
+            ELSE 'Yes' 
+        END AS "{{ row['label'] }} Flag",
         f."{{ row['label'] }}",
     {% endfor %}
     pluto.geom
