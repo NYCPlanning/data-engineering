@@ -6,14 +6,12 @@
 ) }}
 
 WITH mappluto_wi AS (
-
     SELECT * FROM {{ source('ceqr_survey_sources', 'dcp_mappluto_wi') }}
-
 ),
 
 final AS (
     SELECT
-        CAST(bbl AS text) AS bbl,
+        bbl::text,
         zonedist1,
         zonedist2,
         zonedist3,

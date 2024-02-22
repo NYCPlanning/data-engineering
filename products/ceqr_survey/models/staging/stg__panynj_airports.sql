@@ -1,12 +1,9 @@
 WITH panynj_airports_lga AS (
-
     SELECT * FROM {{ source('ceqr_survey_sources', 'panynj_lga_65db') }}
-
 ),
+
 panynj_airports_jfk AS (
-
     SELECT * FROM {{ source('ceqr_survey_sources', 'panynj_jfk_65db') }}
-
 )
 
 SELECT
