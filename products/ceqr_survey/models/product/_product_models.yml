@@ -64,10 +64,10 @@ models:
         tests: [not_null]
       - name: '"Elevated Railways"'
         data_type: string
-      - name: '"Airport Contours Flag"'
+      - name: '"Airport Flag"'
         data_type: string
         tests: [not_null]
-      - name: '"Airport Contours"'
+      - name: '"Airport"'
         data_type: string
       - name: '"(E) Designations - HazMat Flag"'
         data_type: string
