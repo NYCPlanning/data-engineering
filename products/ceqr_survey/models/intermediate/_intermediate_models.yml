@@ -150,3 +150,29 @@ models:
             - bbl
             - variable_type
             - variable_id
+
+  - name: int__zoning_flags
+    columns:
+      - name: bbl
+        data_type: string
+        test:
+          - not_null
+      - name: variable_type
+        data_type: string
+        test:
+          - not_null
+      - name: variable_id
+        data_type: string
+        test:
+          - not_null
+      - name: distance
+        data_type: float
+        test:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: int__zoning_flags_compound_key
+          combination_of_columns:
+            - bbl
+            - variable_type
+            - variable_id
