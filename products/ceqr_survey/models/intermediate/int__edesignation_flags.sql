@@ -4,21 +4,21 @@ WITH dcp_edesignation AS (
 
 SELECT
     bbl,
-    'edesignation_hazmat' AS variable_type,
+    'e_designations_hazmat' AS variable_type,
     enumber AS variable_id
 FROM dcp_edesignation
 WHERE hazmat_code = '1'
 UNION ALL
 SELECT
     bbl,
-    'edesignation_air' AS variable_type,
+    'e_designations_air' AS variable_type,
     enumber AS variable_id
 FROM dcp_edesignation
 WHERE air_code = '1'
 UNION ALL
 SELECT
     bbl,
-    'edesignation_noise' AS variable_type,
+    'e_designations_noise' AS variable_type,
     enumber AS variable_id
 FROM dcp_edesignation
 WHERE noise_code = '1'
