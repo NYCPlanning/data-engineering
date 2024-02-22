@@ -11,7 +11,7 @@ WITH pluto AS (
 ),
 
 ceqr_flags_long AS (
-    SELECT * FROM {{ ref('ceqr_flags_long') }}
+    SELECT * FROM {{ ref('int__flags') }}
 ),
 
 ceqr_flags_ranked AS (
@@ -20,7 +20,7 @@ ceqr_flags_ranked AS (
         variable_type,
         variable_id,
         ROW_NUMBER()
-            OVER (PARTITION BY bbl, variable_type ORDER BY distance_from)
+            OVER (PARTITION BY bbl, variable_type ORDER BY distance)
         AS row_number
     FROM ceqr_flags_long
 ),
@@ -36,7 +36,7 @@ ceqr_flags_wide AS (
                 END
             ) AS "{{ row['label'] }}",
         {% endfor %}
-        bbl::text -- TODO remove when not pulling long flags from seed table
+        bbl
     FROM ceqr_flags_ranked
     WHERE row_number = 1
     GROUP BY bbl
