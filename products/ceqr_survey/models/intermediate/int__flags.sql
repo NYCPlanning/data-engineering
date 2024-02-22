@@ -5,13 +5,18 @@
     ]
 ) }}
 
---todo - add in 'int__zoning_flags'
---UNION ALL
 SELECT
     bbl,
     variable_type,
     variable_id,
-    NULL AS distance
+    NULL::double precision AS distance
+FROM {{ ref('int__zoning_flags') }}
+UNION ALL
+SELECT
+    bbl,
+    variable_type,
+    variable_id,
+    NULL::double precision AS distance
 FROM {{ ref('int__edesignation_flags') }}
 UNION ALL
 SELECT
