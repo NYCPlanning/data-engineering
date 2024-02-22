@@ -25,19 +25,11 @@ OTHER_FIELDS = [
     "bldgclasslanduse",
 ]
 
-fields_of_interest_dict = {
-    "zoning": [ZONING_FIELDS],
-    "special district": [SPECIAL_DISTRICT_FIELDS],
-    "commericial overlay": [COMMERCIAL_OVERLAY_FIELDS],
-} | {field: [[field]] for field in OTHER_FIELDS}
-
-
-FIELDS_OF_INTEREST = pd.DataFrame.from_dict(
-    fields_of_interest_dict,
-    orient="index",
-    columns=["relevant fields"],
-)
-FIELDS_OF_INTEREST.index.names = ["field group name"]
+FIELDS_OF_INTEREST = {
+    "zoning": ZONING_FIELDS,
+    "special district": SPECIAL_DISTRICT_FIELDS,
+    "commericial overlay": COMMERCIAL_OVERLAY_FIELDS,
+} | {field: [field] for field in OTHER_FIELDS}
 
 
 class ExpectedValueDifferencesReport:
@@ -57,8 +49,14 @@ class ExpectedValueDifferencesReport:
             """
         )
         st.markdown(f"### Grouped fields of interest")
+        fields_of_interest = pd.DataFrame.from_dict(
+            {f: [v] for f, v in FIELDS_OF_INTEREST.items()},
+            orient="index",
+            columns=["relevant fields"],
+        )
+        fields_of_interest.index.names = ["field group name"]
         st.dataframe(
-            FIELDS_OF_INTEREST,
+            fields_of_interest,
             column_config={
                 "relevant fields": st.column_config.ListColumn(
                     width="large",
@@ -66,7 +64,7 @@ class ExpectedValueDifferencesReport:
             },
         )
 
-        for comparison_name in FIELDS_OF_INTEREST.index:
+        for comparison_name in FIELDS_OF_INTEREST:
             st.markdown(f"#### Value differences for `{comparison_name}`")
 
             in1not2, in2not1 = self.value_differences_across_versions(comparison_name)
@@ -125,11 +123,11 @@ class ExpectedValueDifferencesReport:
     ) -> tuple[list, list]:
         v1_values = self.values_by_fields(
             self.v1_expected_records,
-            FIELDS_OF_INTEREST.loc[comparison_name]["relevant fields"],
+            FIELDS_OF_INTEREST[comparison_name],
         )
         v2_values = self.values_by_fields(
             self.v2_expected_records,
-            FIELDS_OF_INTEREST.loc[comparison_name]["relevant fields"],
+            FIELDS_OF_INTEREST[comparison_name],
         )
         in1not2 = self.value_differences(v1_values, v2_values)
         in2not1 = self.value_differences(v2_values, v1_values)

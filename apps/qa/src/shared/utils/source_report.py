@@ -1,10 +1,10 @@
 # functions used to generate source data reports
 import pandas as pd
-from dcpy.connectors.edm import recipes, publishing
-from dcpy.utils import postgres
-from src.shared.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
+from typing import cast
 
+from dcpy.connectors.edm import recipes, publishing
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
+from src.shared.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
 
 
 def dataframe_style_source_report_results(value) -> str:
@@ -92,8 +92,10 @@ def load_source_data_to_compare(
     dataset: str, source_data_versions: pd.DataFrame, pg_client
 ) -> list[str]:
     status_messages = []
-    version_reference = source_data_versions.loc[dataset]["version_reference"]
-    version_staging = source_data_versions.loc[dataset]["version_latest"]
+    version_reference = cast(
+        str, source_data_versions.loc[dataset]["version_reference"]
+    )
+    version_staging = cast(str, source_data_versions.loc[dataset]["version_latest"])
     print(f"⏳ Loading {dataset} ({version_reference}, {version_staging}) ...")
     for version in [version_reference, version_staging]:
         status_message = load_source_data(
