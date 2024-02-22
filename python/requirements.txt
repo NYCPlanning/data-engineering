@@ -34,22 +34,22 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.34.44
+boto3==1.34.47
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.34.44
+boto3-stubs[s3]==1.34.47
     # via -r python/requirements.in
-botocore==1.34.44
+botocore==1.34.47
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.34.44
+botocore-stubs==1.34.47
     # via
     #   -r python/requirements.in
     #   boto3-stubs
-bqplot==0.12.42
+bqplot==0.12.43
     # via leafmap
 branca==0.7.1
     # via
@@ -112,9 +112,9 @@ contextily==1.3.0
     # via -r python/requirements.in
 contourpy==1.2.0
     # via matplotlib
-coverage[toml]==7.4.1
+coverage[toml]==7.4.2
     # via pytest-cov
-cryptography==42.0.3
+cryptography==42.0.4
     # via
     #   moto
     #   msal
@@ -122,7 +122,9 @@ cryptography==42.0.3
 cycler==0.12.1
     # via matplotlib
 dbt-core==1.7.8
-    # via dbt-postgres
+    # via
+    #   dbt-postgres
+    #   sqlfluff-templater-dbt
 dbt-extractor==0.5.1
     # via dbt-core
 dbt-postgres==1.7.8
@@ -156,7 +158,7 @@ folium==0.14.0
     #   streamlit-folium
 fonttools==4.49.0
     # via matplotlib
-future==0.18.3
+future==1.0.0
     # via usaddress
 gdal==3.8.3
     # via -r python/requirements.in
@@ -202,7 +204,7 @@ ipykernel==6.22.0
     # via -r python/requirements.in
 ipyleaflet==0.18.2
     # via leafmap
-ipython==8.21.0
+ipython==8.22.1
     # via
     #   ipykernel
     #   ipywidgets
@@ -235,10 +237,13 @@ jinja2==3.1.3
     #   diagrams
     #   diff-cover
     #   folium
+    #   jinja2-simple-tags
     #   moto
     #   pydeck
     #   sqlfluff
     #   streamlit-folium
+jinja2-simple-tags==0.5.0
+    # via sqlfluff-templater-dbt
 jmespath==1.0.1
     # via
     #   boto3
@@ -265,7 +270,7 @@ jupyterlab-widgets==3.0.10
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-leafmap==0.31.2
+leafmap==0.31.3
     # via -r python/requirements.in
 leather==0.3.4
     # via agate
@@ -280,6 +285,7 @@ markdown-it-py==3.0.0
 markupsafe==2.1.5
     # via
     #   jinja2
+    #   sqlfluff-templater-dbt
     #   werkzeug
 mashumaro[msgpack]==3.12
     # via dbt-core
@@ -300,7 +306,7 @@ minimal-snowplow-tracker==0.0.2
     # via dbt-core
 more-itertools==10.2.0
     # via dbt-semantic-interfaces
-moto[s3]==5.0.1
+moto[s3]==5.0.2
     # via -r python/requirements.in
 msal==1.23.0
     # via -r python/requirements.in
@@ -367,7 +373,7 @@ pandas==2.2.0
     #   mapclassify
     #   streamlit
     #   streamlit-aggrid
-pandas-stubs==2.1.4.231227
+pandas-stubs==2.2.0.240218
     # via -r python/requirements.in
 parsedatetime==2.6
     # via agate
@@ -427,6 +433,7 @@ pydantic==2.6.1
     # via
     #   -r python/requirements.in
     #   dbt-semantic-interfaces
+    #   sqlfluff-templater-dbt
 pydantic-core==2.16.2
     # via pydantic
 pydeck==0.8.1b0
@@ -530,11 +537,16 @@ responses==0.25.0
 rich==13.7.0
     # via
     #   -r python/requirements.in
+    #   sqlfluff-templater-dbt
     #   streamlit
 rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
+ruamel-yaml==0.18.6
+    # via sqlfluff-templater-dbt
+ruamel-yaml-clib==0.2.8
+    # via ruamel-yaml
 s3transfer==0.10.0
     # via boto3
 scikit-learn==1.4.1.post1
@@ -570,6 +582,10 @@ sqlalchemy==2.0.15
 sqlalchemy-stubs==0.4
     # via -r python/requirements.in
 sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
+    # via
+    #   -r python/requirements.in
+    #   sqlfluff-templater-dbt
+sqlfluff-templater-dbt==2.3.1
     # via -r python/requirements.in
 sqlparse==0.4.4
     # via dbt-core
@@ -633,7 +649,7 @@ types-awscrt==0.20.3
     # via botocore-stubs
 types-beautifulsoup4==4.12.0.20240106
     # via -r python/requirements.in
-types-html5lib==1.1.11.20240217
+types-html5lib==1.1.11.20240222
     # via types-beautifulsoup4
 types-psycopg2==2.9.21.20240218
     # via -r python/requirements.in

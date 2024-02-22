@@ -43,6 +43,7 @@ socrata-py==1.1.13
 sqlalchemy-stubs==0.4
 sqlalchemy==2.0.15
 sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
+sqlfluff-templater-dbt
 streamlit==1.*
 streamlit-aggrid==0.*
 streamlit-folium==0.*
