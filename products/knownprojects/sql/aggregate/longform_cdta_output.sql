@@ -1,5 +1,5 @@
 /**********************************************************************************************************************************************************************************
-Sources kpdb_deduplicated - finalized version of KPDB build with no duplicatre record_id values
+Sources kpdb_deduplicated - finalized version of KPDB build with no duplicate record_id values
          dcp_cdta2020
 OUTPUT: longform_cdta_output
 *************************************************************************************************************************************************************************************/
