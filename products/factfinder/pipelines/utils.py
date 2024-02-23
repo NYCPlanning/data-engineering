@@ -1,14 +1,15 @@
 import argparse
 from datetime import date
-from typing import Tuple
+import json
 import pandas as pd
 from pathlib import Path
 import re
 import shutil
+from typing import Tuple
 
 from dcpy.connectors.edm import publishing
 from dcpy.builds import metadata
-from dcpy.utils import string, json
+from dcpy.utils import string
 from . import DATA_PATH, OUTPUT_FOLDER
 
 
@@ -21,6 +22,7 @@ def process_metadata(
     sheet_name: str,
     skiprows: int = 0,
     output_folder: Path = OUTPUT_FOLDER,
+    append=False,
 ) -> dict[str, Path]:
     df = pd.read_excel(excel_file, sheet_name=sheet_name, skiprows=skiprows)
     df = df.dropna(subset=["Category"])
@@ -42,6 +44,10 @@ def process_metadata(
     df.rename(columns=columns, inplace=True)
     df["base_variable"] = df["base_variable"].str.lower()
     df["domain"] = df["domain"].str.lower()
+    df["order"] = df["order"].astype(int)
+
+    string_dtypes = df.convert_dtypes().select_dtypes("string")
+    df[string_dtypes.columns] = string_dtypes.apply(lambda x: x.str.strip())
 
     files: dict[str, Path] = {}
     for year, year_df in df.groupby("year"):
@@ -51,10 +57,16 @@ def process_metadata(
             errors="ignore",
             inplace=True,
         )
+        year_dict = year_df.to_dict(orient="records")
+
         file = output_folder / dataset / year / "metadata.json"
         file.parent.mkdir(parents=True, exist_ok=True)
-        with open(file, "w") as outfile:
-            outfile.write(json.df_to_json(year_df))
+        if append and file.exists():
+            with open(file, "r") as f:
+                old_data = json.load(f)
+            year_dict = old_data + year_dict
+        with open(file, "w") as f:
+            json.dump(year_dict, f, indent=4)
         files[year] = file
 
     return files

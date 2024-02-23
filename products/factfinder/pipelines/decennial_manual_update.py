@@ -67,6 +67,7 @@ def process_file(dataset: str, excel: Path):
         excel,
         SHEET_CONFIG[dataset]["data_dictionary"],
         skiprows=SHEET_CONFIG[dataset].get("skiprows"),
+        append=True,
     )
     for year in YEARS:
         df = process_data_sheet(
