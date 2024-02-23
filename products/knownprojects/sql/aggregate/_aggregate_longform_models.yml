@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: longform_nta_output
-    description: "Project records split by intersecting NTAs"
+    description: "Project records with a row for each NTA it intersects with"
     columns:
       - name: record_id
         tests:
@@ -15,7 +15,7 @@ models:
             - nta
 
   - name: longform_cdta_output
-    description: "Project records split by intersecting CDTAs"
+    description: "Project records with a row for each CDTA it intersects with"
     columns:
       - name: record_id
         tests:
@@ -28,7 +28,7 @@ models:
             - cdta
 
   - name: longform_cd_output
-    description: "Project records split by intersecting community districts"
+    description: "Project records with a row for each community district it intersects with"
     columns:
       - name: record_id
         tests:
@@ -41,7 +41,7 @@ models:
             - cd
 
   - name: longform_ct_output
-    description: "Project records split by intersecting census tracts"
+    description: "Project records with a row for each census tract it intersects with"
     columns:
       - name: record_id
         tests:
