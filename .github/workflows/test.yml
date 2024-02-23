@@ -19,12 +19,13 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      path_filters: ${{ steps.filter.outputs.changes }}
+      pr_changes: ${{ steps.pr_changes.outputs.changes }}
+      push_changes: ${{ steps.push_changes.outputs.changes }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
         if: github.event_name == 'pull_request'
-        id: filter
+        id: pr_changes
         with:
           filters: |
             dcpy:
@@ -60,6 +61,15 @@ jobs:
             docker:
               - python/**
               - docker/**
+      - uses: fvankrieken/paths-filter@master
+        if: github.event_name == 'pull_request'
+        id: push_changes
+        with:
+          filters: |
+            docker:
+              - python/**
+              - docker/**
+          treat-pr-as-push: true
 
   set_docker_image_tag:
     name: Set docker image tag
@@ -71,7 +81,7 @@ jobs:
       - name: set image tag
         id: tag
         run: |
-          tag="${{ contains(needs.check_changes.outputs.path_filters, 'docker') && format('dev-{0}', github.head_ref || github.ref_name) || 'latest'}}"
+          tag="${{ contains(needs.check_changes.outputs.pr_changes, 'docker') && format('dev-{0}', github.head_ref || github.ref_name) || 'latest'}}"
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
   build_docker_images:
@@ -88,9 +98,9 @@ jobs:
           - dev
     steps:
       - uses: actions/checkout@v4
-        if: contains(needs.check_changes.outputs.path_filters, 'docker')
+        if: contains(needs.check_changes.outputs.push_changes, 'docker')
       - name: Load Secrets
-        if: contains(needs.check_changes.outputs.path_filters, 'docker')
+        if: contains(needs.check_changes.outputs.push_changes, 'docker')
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
@@ -99,7 +109,7 @@ jobs:
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
-        if: contains(needs.check_changes.outputs.path_filters, 'docker')
+        if: contains(needs.check_changes.outputs.push_changes, 'docker')
         working-directory: docker
         run: ./publish.sh "${{ matrix.image }}" "${{ needs.set_docker_image_tag.outputs.tag }}"
 
@@ -111,7 +121,7 @@ jobs:
       - build_docker_images
     with:
       image_tag: ${{ needs.set_docker_image_tag.outputs.tag }}
-      path_filter: ${{ needs.check_changes.outputs.path_filters }}
+      path_filter: ${{ needs.check_changes.outputs.pr_changes }}
     secrets: inherit
 
   build:
