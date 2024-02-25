@@ -13,24 +13,10 @@ models:
       - name: wkb_geometry
         tests:
           - not_null:
-              where: "bbl is not null"
+              where: bbl is not null
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: templatedb_unique_compound_key_1
+          name: templatedb_unique_compound_key
           combination_of_columns:
             - place_name
-            - bbl
-          config:
-            severity: error
-            error_if: ">5000"
-            warn_if: ">0"
-      - dbt_utils.unique_combination_of_columns:
-          name: templatedb_unique_compound_key_2
-          combination_of_columns:
-            - place_name
-            - bbl
-            - wkb_geometry
-          config:
-            severity: error
-            error_if: ">50"
-            warn_if: ">0"
+            - borough
