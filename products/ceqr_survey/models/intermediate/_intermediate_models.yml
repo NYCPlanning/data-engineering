@@ -33,6 +33,7 @@ models:
       - name: buffer
         tests:
           - not_null
+          - is_2263_srs
 
   - name: int__edesignation_flags
     description: Flags related to edesignation
