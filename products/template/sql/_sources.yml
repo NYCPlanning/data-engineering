@@ -39,6 +39,9 @@ sources:
           - name: signname
             tests:
               - not_null
+          - name: borough
+            tests:
+              - not_null
           - name: wkb_geometry
             tests:
               - not_null
@@ -51,6 +54,9 @@ sources:
             description: Primary key of the dpr_greenthumb table
             tests:
               - unique
+              - not_null
+          - name: borough
+            tests:
               - not_null
           - name: wkb_geometry
             tests:

@@ -21,7 +21,7 @@ CREATE TABLE templatedb AS
         SELECT
             space_name AS place_name,
             'green space' AS place_type,
-            NULL AS borough,
+            borough AS borough,
             NULL AS bbl,
             wkb_geometry
         FROM green_spaces
