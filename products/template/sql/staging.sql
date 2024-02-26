@@ -18,11 +18,13 @@ FROM qpl_libraries;
 
 CREATE TABLE stg_dpr_parksproperties AS SELECT
     signname AS space_name,
+    borough,
     wkb_geometry
 FROM dpr_parksproperties;
 
 CREATE TABLE stg_dpr_greenthumb AS SELECT
     gardenname AS space_name,
+    borough,
     wkb_geometry
 FROM dpr_greenthumb;
 
