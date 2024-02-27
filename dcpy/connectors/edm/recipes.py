@@ -344,6 +344,24 @@ def purge_recipe_cache():
     shutil.rmtree(LIBRARY_DEFAULT_PATH)
 
 
+def log_metadata(config: Config):
+    logger.info(f"Logging library run metadata for dataset {config.dataset.name}")
+    assert (
+        config.execution_details
+    ), f"Provided config for dataset {config.dataset.name} does not have run details specified. Cannot log."
+    pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
+    query = f"""
+        INSERT INTO {LOGGING_SCHEMA}.{LOGGING_TABLE_NAME} (name, version, timestamp, runner, event_source)
+        VALUES (:name, :version, :timestamp, :runner, 'library run')"""
+    pg_client.execute_query(
+        query,
+        name=config.dataset.name,
+        version=config.dataset.version,
+        timestamp=config.execution_details.timestamp,
+        runner=config.execution_details.runner_string,
+    )
+
+
 def scrape_metadata(dataset: str) -> None:
     """For a given recipes dataset, regenerates logs"""
     logger.info(f"Re-scraping metadata for dataset {dataset}")
