@@ -1,7 +1,7 @@
 name: Compile python requirements
 on:
   schedule: 
-  - cron: 0 5 * * SUN
+  - cron: 0 17 * * SAT
   workflow_dispatch:
 
 jobs:
