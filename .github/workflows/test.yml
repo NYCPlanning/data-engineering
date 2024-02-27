@@ -98,9 +98,9 @@ jobs:
           - dev
     steps:
       - uses: actions/checkout@v4
-        if: contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
       - name: Load Secrets
-        if: contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
@@ -109,7 +109,7 @@ jobs:
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
-        if: contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
         working-directory: docker
         run: ./publish.sh "${{ matrix.image }}" "${{ needs.set_docker_image_tag.outputs.tag }}"
 
