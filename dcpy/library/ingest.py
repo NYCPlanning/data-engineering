@@ -5,7 +5,6 @@ import shutil
 import zipfile
 import datetime
 from functools import wraps
-from typing import Optional
 from math import floor
 import json
 import yaml
@@ -30,7 +29,7 @@ from .sources import generic_source, postgres_source
 
 def translator(func):
     @wraps(func)
-    def wrapper(self: Ingestor, *args, **kwargs) -> Tuple[list[str], str, str]:
+    def wrapper(self: Ingestor, *args, **kwargs) -> tuple[list[str], recipes.Config]:
         # get relevant translator return values
         (dstDS, output_format, output_suffix, compress, inplace) = func(
             self, *args, **kwargs
@@ -54,26 +53,34 @@ def translator(func):
         else:
             destination_path = None
 
+        execution_details = get_run_details()
+
         # Create output folder and output config
         if folder_path and output_suffix:
+            execution_details.logged = True
             os.makedirs(folder_path, exist_ok=True)
-            config = recipes.Config(
+            config_dumped = recipes.Config(
                 dataset=dataset,
-                execution_details=get_run_details(),
+                execution_details=execution_details,
             ).model_dump()
             with open(f"{folder_path}/config.json", "w") as f:
-                f.write(json.dumps(config, indent=4))
+                f.write(json.dumps(config_dumped, indent=4))
             output_files.append(f"{folder_path}/config.json")
             with open(f"{folder_path}/config.yml", "w") as f:
-                yaml.dump(config, f)
+                yaml.dump(config_dumped, f)
             output_files.append(f"{folder_path}/config.yml")
+
+        config = recipes.Config(
+            dataset=dataset,
+            execution_details=execution_details,
+        )
 
         if not output_format:
             if not destination_path:
                 raise Exception("TODO - fix logic around as-is output")
             else:
                 shutil.copy(dataset.source.gdalpath, destination_path)
-                return output_files, dataset.version, dataset.acl
+                return output_files, config
 
         # Default dstDS is destination_path if no dstDS is specificed
         dstDS = destination_path if not dstDS else dstDS
@@ -181,7 +188,7 @@ def translator(func):
                 if inplace:
                     output_files.remove(destination_path)
                 output_files.append(f"{destination_path}.zip")
-        return output_files, dataset.version, dataset.acl
+        return output_files, config
 
     return wrapper
 
@@ -209,7 +216,7 @@ class Ingestor:
         path: str,
         compress: bool = False,
         inplace: bool = False,
-        postgres_url: Optional[str] = None,
+        postgres_url: str | None = None,
         *args,
         **kwargs,
     ):

@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Callable
 
 from dcpy.connectors.edm import recipes
 from . import base_path, pp
@@ -18,15 +18,15 @@ class Archive:
 
     def __call__(
         self,
-        path: Optional[str] = None,
+        path: str | None = None,
         output_format: str = "pgdump",
         push: bool = False,
         clean: bool = False,
         latest: bool = False,
-        name: Optional[str] = None,
+        name: str | None = None,
         *args,
         **kwargs,
-    ):
+    ) -> recipes.Config:
         """
         The `__call__` method allows a user to call a class instance with parameters.
 
@@ -85,10 +85,14 @@ class Archive:
             )
 
         # Get ingestor by format
-        ingestor_of_format = getattr(self.ingestor, output_format)
+        ingestor_of_format: Callable[
+            [str, Any, Any], tuple[list[str], recipes.Config]
+        ] = getattr(self.ingestor, output_format)
 
         # Initiate ingestion
-        output_files, acl, version = ingestor_of_format(path, *args, **kwargs)
+        output_files, config = ingestor_of_format(path, *args, **kwargs)
+        version = config.dataset.version
+        acl = config.dataset.acl
 
         # Write to s3
         for _file in output_files:
@@ -108,16 +112,18 @@ class Archive:
                 # Find all files in latest where the version (stored in s3 metadata)
                 # does not match the version of the file currently getting added to latest
                 keys_in_latest = self.s3.ls(f"datasets/{name}/latest")
-                if len(keys_in_latest) > 0:
-                    diff_version = [
-                        k
-                        for k in keys_in_latest
-                        if self.s3.info(k)["Metadata"].get("version", "") != version
-                    ]
+                diff_version = [
+                    k
+                    for k in keys_in_latest
+                    if self.s3.info(k)["Metadata"].get("version", "") != version
+                ]
 
-                    # Remove keys from the latest directory that have versions different
-                    # from the version of the file currently getting added to latest
+                # Remove keys from the latest directory that have versions different
+                # from the version of the file currently getting added to latest
+                if len(diff_version) > 0:
                     self.s3.rm(*diff_version)
 
             if clean:
                 os.remove(_file)
+
+        return config
