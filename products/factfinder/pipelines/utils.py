@@ -26,8 +26,6 @@ def process_metadata(
 ) -> dict[str, Path]:
     df = pd.read_excel(excel_file, sheet_name=sheet_name, skiprows=skiprows)
     df = df.dropna(subset=["Category"])
-    df["VariableName"] = df["VariableName"].apply(lambda c: COLUMN_CLEANUP.get(c, c))
-    df["VariableName"] = df["VariableName"].str.lower()
     df["year"] = df["Dataset"].astype(str).str.split(", ")
     df = df.explode("year")
     df["year"] = (
@@ -42,6 +40,8 @@ def process_metadata(
         }
     )
     df.rename(columns=columns, inplace=True)
+    df["pff_variable"] = df["pff_variable"].apply(lambda c: COLUMN_CLEANUP.get(c, c))
+    df["pff_variable"] = df["pff_variable"].str.lower()
     df["base_variable"] = df["base_variable"].str.lower()
     df["domain"] = df["domain"].str.lower()
     df["order"] = df["order"].astype(int)
