@@ -91,7 +91,7 @@ sources:
           - name: wkb_geometry
             tests:
               - not_null
-              - is_2263_srs:
+              - is_epsg_2263:
                   config:
                     severity: warn
 

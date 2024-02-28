@@ -1,6 +1,6 @@
 -- tests column values to have 2263 projection (state plane)
 
-{% test is_2263_srs(model, column_name) %}
+{% test is_epsg_2263(model, column_name) %}
 
 WITH validation AS (
     SELECT
