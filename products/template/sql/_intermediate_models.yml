@@ -46,7 +46,3 @@ models:
           combination_of_columns:
             - landmark_name
             - wkb_geometry
-          config:
-            severity: error
-            error_if: ">50"
-            warn_if: ">0"
