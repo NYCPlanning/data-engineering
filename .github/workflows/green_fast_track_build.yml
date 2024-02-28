@@ -1,4 +1,4 @@
-name: CEQR Survey - 🏗️ Build
+name: Green Fast Track - 🏗️ Build
 on:
   workflow_call:
     inputs:
@@ -20,16 +20,16 @@ on:
 
 jobs:
   build:
-    name: Build CEQR Survery
+    name: Build Green Fast Track
     runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
-        working-directory: products/ceqr_survey
+        working-directory: products/green_fast_track
     container:
       image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     env:
-      BUILD_ENGINE_DB: db-ceqr-survey
+      BUILD_ENGINE_DB: db-green-fast-track
       BUILD_NAME: ${{ inputs.build_name }}
     steps:
       - uses: actions/checkout@v3
@@ -68,4 +68,4 @@ jobs:
         run: ./bash/export.sh
 
       - name: Upload
-        run: python3 -m dcpy.connectors.edm.publishing upload --product db-ceqr-survey --acl public-read
+        run: python3 -m dcpy.connectors.edm.publishing upload --product db-green-fast-track --acl public-read

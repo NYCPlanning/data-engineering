@@ -45,8 +45,8 @@ ccp_v = "fisa_2000"
 build_schema = "public"
 
 [tool.sqlfluff.templater.dbt]
-project_dir = "products/ceqr_survey"
-profiles_dir = "products/ceqr_survey"
+project_dir = "products/green_fast_track"
+profiles_dir = "products/green_fast_track"
 dialect = "postgres"
 
 [tool.sqlfluff.rules.layout.long_lines]

@@ -1,5 +1,5 @@
 WITH dcp_lion AS (
-    SELECT * FROM {{ source('ceqr_survey_sources', 'dcp_lion') }}
+    SELECT * FROM {{ source('recipe_sources', 'dcp_lion') }}
 ),
 
 filtered AS (

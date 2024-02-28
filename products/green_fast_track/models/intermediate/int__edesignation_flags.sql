@@ -1,5 +1,5 @@
 WITH dcp_edesignation AS (
-    SELECT * FROM {{ source('ceqr_survey_sources', 'dcp_edesignation_csv') }}
+    SELECT * FROM {{ source('recipe_sources', 'dcp_edesignation_csv') }}
 )
 
 SELECT

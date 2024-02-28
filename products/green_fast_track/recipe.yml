@@ -1,5 +1,5 @@
-name: CEQR Survey DB
-product: ceqr_survey
+name: Green Fast Track
+product: green_fast_track
 version: 0.0.1
 inputs:
   datasets:

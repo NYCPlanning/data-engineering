@@ -1,20 +1,20 @@
 {% set sql_statement %}
-    SELECT * FROM {{ ref('ceqr_variables') }}
+    SELECT * FROM {{ ref('variables') }}
 {% endset %}
 
 {% if execute %}
-    {% set ceqr_variables = run_query(sql_statement) %}
+    {% set variables = run_query(sql_statement) %}
 {% endif %}
 
 WITH pluto AS (
     SELECT * FROM {{ ref('stg__pluto') }}
 ),
 
-ceqr_flags_long AS (
+flags_long AS (
     SELECT * FROM {{ ref('int__flags') }}
 ),
 
-ceqr_flags_ranked AS (
+flags_ranked AS (
     SELECT
         bbl,
         variable_type,
@@ -22,12 +22,12 @@ ceqr_flags_ranked AS (
         ROW_NUMBER()
             OVER (PARTITION BY bbl, variable_type ORDER BY distance)
         AS row_number
-    FROM ceqr_flags_long
+    FROM flags_long
 ),
 
-ceqr_flags_wide AS (
+flags_wide AS (
     SELECT
-        {% for row in ceqr_variables -%}
+        {% for row in variables -%}
             MAX(
                 CASE
                     WHEN
@@ -37,14 +37,14 @@ ceqr_flags_wide AS (
             ) AS "{{ row['label'] }}",
         {% endfor %}
         bbl
-    FROM ceqr_flags_ranked
+    FROM flags_ranked
     WHERE row_number = 1
     GROUP BY bbl
 )
 
 SELECT
     pluto.bbl,
-    {% for row in ceqr_variables -%}
+    {% for row in variables -%}
         CASE
             WHEN f."{{ row['label'] }}" IS NULL THEN 'No'
             ELSE 'Yes'
@@ -54,4 +54,4 @@ SELECT
     pluto.geom
 FROM
     pluto
-LEFT JOIN ceqr_flags_wide AS f ON pluto.bbl = f.bbl
+LEFT JOIN flags_wide AS f ON pluto.bbl = f.bbl
