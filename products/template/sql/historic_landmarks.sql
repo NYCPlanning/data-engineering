@@ -23,14 +23,16 @@ CREATE TABLE historic_landmarks AS
             boroughs ON landmarks_reprojected.borough_name_short = boroughs.name_short
     ),
 
-    final AS (
+    merged_geometries AS (
         SELECT
             landmark_name,
             borough,
             bbl,
-            wkb_geometry
-        FROM landmarks_borough_names
+            ST_UNION(wkb_geometry) AS wkb_geometry
+        FROM
+            landmarks_borough_names
+        GROUP BY landmark_name, borough, bbl
     )
 
-    SELECT * FROM final
+    SELECT * FROM merged_geometries
 );
