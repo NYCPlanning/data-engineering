@@ -1,5 +1,5 @@
 WITH arterial_highways_raw AS (
-    SELECT * FROM {{ source('ceqr_survey_sources', 'dcm_arterial_highways') }}
+    SELECT * FROM {{ source('recipe_sources', 'dcm_arterial_highways') }}
 ),
 
 filtered AS (

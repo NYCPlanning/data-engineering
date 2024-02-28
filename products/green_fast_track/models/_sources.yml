@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: ceqr_survey_sources
+  - name: recipe_sources
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
       - name: panynj_jfk_65db

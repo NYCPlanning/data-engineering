@@ -1,6 +1,6 @@
 WITH source AS (
     SELECT *
-    FROM {{ source('ceqr_survey_sources', 'nysdec_title_v_facility_permits') }}
+    FROM {{ source('recipe_sources', 'nysdec_title_v_facility_permits') }}
 ),
 
 final AS (

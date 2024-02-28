@@ -11,13 +11,13 @@ on:
         options:
           - template
           - cbbr
-          - ceqr_survey
           - checkbook
           - colp
           - cpdb
           - devdb
           - facilities
           - factfinder
+          - green_fast_track
           - knownprojects
           - pluto
           - ztl
@@ -117,17 +117,6 @@ jobs:
       build_note: ${{ inputs.build_note }}
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
-  ceqr_survey:
-    needs: health_check
-    if: inputs.dataset_name == 'ceqr_survey'
-    uses: ./.github/workflows/ceqr_survey_build.yml
-    secrets: inherit
-    with:
-      image_tag: ${{ needs.health_check.outputs.tag }}
-      recipe_file: ${{ inputs.recipe_file }}
-      build_name: ${{ needs.health_check.outputs.build_name }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
   checkbook:
     needs: health_check
     if: inputs.dataset_name == 'checkbook' || inputs.dataset_name  == 'all'
@@ -189,6 +178,17 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
+  green_fast_track:
+    needs: health_check
+    if: inputs.dataset_name == 'green_fast_track' || inputs.dataset_name  == 'all'
+    uses: ./.github/workflows/green_fast_track_build.yml
+    secrets: inherit
+    with:
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+      version: ${{ inputs.version }}
+      repeat: ${{ inputs.repeat }}
   knownprojects:
     needs: health_check
     if: inputs.dataset_name == 'knownprojects' || inputs.dataset_name  == 'all'

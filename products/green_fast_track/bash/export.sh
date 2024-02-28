@@ -2,7 +2,7 @@
 source ../../bash/utils.sh
 set_error_traps
 
-fgdb_filename=ceqr_survery_output
+fgdb_filename=green_fast_track
 
 rm -rf output
 
@@ -16,7 +16,7 @@ mkdir -p output && (
     
     # TODO export all relevant source data (e.g. buffered and original geometries of Title V permits)
     echo "Generate FileGeodatabase ${fgdb_filename}"
-    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON ceqr_survey_bbls ceqr_survey_bbls ${default_srs}
+    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON green_fast_track_bbls green_fast_track_bbls ${default_srs}
 
     fgdb_export_partial ${fgdb_filename} POINT cats_permits_points cats_permits_points ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON cats_permits_lots cats_permits_lots ${default_srs} -update
@@ -38,7 +38,7 @@ mkdir -p output && (
     
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON vent_towers_buffered vent_towers_buffered ${default_srs} -update
     
-    fgdb_export_partial ${fgdb_filename} NONE ceqr_variables ceqr_variables ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} NONE variables variables ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} NONE source_data_versions source_data_versions ${default_srs} -update
 
     fgdb_export_cleanup ${fgdb_filename}

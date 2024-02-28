@@ -1,4 +1,4 @@
-name: "dbt_ceqr_survey"
+name: "green_fast_track"
 
 profile: "dcp-de-postgres"
 
@@ -10,7 +10,7 @@ tests:
   schema: "_tests"
 
 models:
-  dbt_ceqr_survey:
+  green_fast_track:
     staging:
       +materialized: view
     intermediate:

@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: ceqr_survey_bbls
+  - name: green_fast_track_bbls
     description: BBLs and their CEQR Type II variable checks
     ## enforced contract commented out as it doesn't support geom type at the moment
     ## additionally, it requires column names with spaces being in nested quotes (i.e. `name: '"Zoning Districts"'`)

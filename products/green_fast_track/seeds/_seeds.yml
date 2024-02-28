@@ -1,7 +1,7 @@
 version: 2
 
 seeds:
-  - name: ceqr_variables
+  - name: variables
     columns:
       - name: variable_type
         tests:

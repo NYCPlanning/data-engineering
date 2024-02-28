@@ -6,7 +6,7 @@
 ) }}
 
 WITH mappluto_wi AS (
-    SELECT * FROM {{ source('ceqr_survey_sources', 'dcp_mappluto_wi') }}
+    SELECT * FROM {{ source('recipe_sources', 'dcp_mappluto_wi') }}
 ),
 
 final AS (

@@ -38,7 +38,7 @@ jobs:
         working-directory: ./
         run: |
           ./bash/build_env_setup.sh
-          cd products/ceqr_survey
+          cd products/green_fast_track
           dbt deps
 
       - name: Check python files
@@ -53,7 +53,7 @@ jobs:
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
           export BUILD_ENGINE_DB=db-ceqr-survey
-          sqlfluff lint products/ceqr_survey/models --templater=dbt
+          sqlfluff lint products/green_fast_track/models --templater=dbt
 
   mypy:
     runs-on: ubuntu-22.04

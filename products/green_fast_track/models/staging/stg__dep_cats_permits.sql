@@ -1,5 +1,5 @@
 WITH source AS (
-    SELECT * FROM {{ source('ceqr_survey_sources', 'dep_cats_permits') }}
+    SELECT * FROM {{ source('recipe_sources', 'dep_cats_permits') }}
 ),
 
 final AS (
