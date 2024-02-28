@@ -3,6 +3,7 @@ name: "dbt_ceqr_survey"
 profile: "dcp-de-postgres"
 
 model-paths: ["models"]
+macro-paths: ["macros"]
 
 tests:
   +store_failures: true
