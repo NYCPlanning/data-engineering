@@ -8,7 +8,7 @@ CREATE TABLE templatedb AS
 
     historic_landmarks AS (SELECT * FROM historic_landmarks),
 
-    final AS (
+    all_records AS (
         SELECT
             library_name AS place_name,
             'library' AS place_type,
@@ -33,8 +33,22 @@ CREATE TABLE templatedb AS
             bbl,
             wkb_geometry
         FROM historic_landmarks
+    ),
+
+    standardized_geometry_types AS (
+        SELECT
+            place_name,
+            place_type,
+            borough,
+            bbl,
+            CASE
+                WHEN ST_GEOMETRYTYPE(wkb_geometry) = 'ST_Polygon' THEN ST_MULTI(wkb_geometry)
+                WHEN ST_ISEMPTY(wkb_geometry) THEN NULL
+                ELSE wkb_geometry
+            END AS wkb_geometry
+        FROM all_records
     )
 
-    SELECT * FROM final
+    SELECT * FROM standardized_geometry_types
     ORDER BY borough ASC, place_name ASC
 );
