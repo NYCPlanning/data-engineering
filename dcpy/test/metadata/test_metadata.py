@@ -225,3 +225,24 @@ def test_invalid_wkbs():
     ), "The correct error type should be returned"
 
     assert BAD_GEOM_VAL in error_msg
+
+
+def test_additional_cols_in_source():
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    ROW_COUNT = 100
+    fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
+
+    FAKE_COL_NAME = "my_fake_col"
+    fake_ds[FAKE_COL_NAME] = "4"
+
+    results = validate.validate_df(fake_ds, dataset, metadata)
+    assert len(results) == 1, "One error should have been found"
+
+    error_type, error_msg = results[0]
+    assert (
+        error_type == validate.Errors.COLUMM_MISMATCH
+    ), "The correct error type should be returned"
+
+    assert (
+        FAKE_COL_NAME in error_msg
+    ), "The fake column name should be mentioned in the error message"
