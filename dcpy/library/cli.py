@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.table import Table
 import typer
 
+from dcpy.connectors.edm import recipes
 from . import aws_s3_bucket
 from .archive import Archive
 from .s3 import S3
@@ -36,8 +37,9 @@ def archive(
         typer.echo(message)
     else:
         a = Archive()
+        config: recipes.Config | None = None
         for output_format in output_formats:
-            a(
+            config = a(
                 path=path,
                 output_format=output_format,
                 push=push,
@@ -49,6 +51,9 @@ def archive(
                 postgres_url=postgres_url,
                 version=version,
             )
+        assert config
+        if push:
+            recipes.log_metadata(config)
 
 # fmt: off
 @app.command()
