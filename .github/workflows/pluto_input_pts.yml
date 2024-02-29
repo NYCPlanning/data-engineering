@@ -30,7 +30,7 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           sparse-checkout: .github
       - name: Create issue on failure

@@ -27,7 +27,7 @@ jobs:
       EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
