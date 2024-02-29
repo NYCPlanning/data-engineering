@@ -40,7 +40,7 @@ jobs:
         shell: bash
         working-directory: docker
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -61,7 +61,7 @@ jobs:
         shell: bash
         working-directory: docker
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -82,7 +82,7 @@ jobs:
         shell: bash
         working-directory: docker
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -103,7 +103,7 @@ jobs:
         shell: bash
         working-directory: docker
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -124,7 +124,7 @@ jobs:
         shell: bash
         working-directory: docker
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:

@@ -37,7 +37,7 @@ jobs:
       BUILD_NAME: ${{ inputs.build_name }}
       BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1

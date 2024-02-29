@@ -20,7 +20,7 @@ jobs:
     container:
       image: nycplanning/dev:${{ inputs.image_tag || 'latest'}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
@@ -56,7 +56,7 @@ jobs:
     container:
       image: nycplanning/dev:${{ inputs.image_tag || 'latest' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1

@@ -42,7 +42,7 @@ jobs:
         shell: bash
         working-directory: products/template
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
