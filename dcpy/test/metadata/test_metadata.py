@@ -96,8 +96,11 @@ def _fake_row(columns: list[models.Column]):
 
     for c in columns:
         if c.is_nullable and random.choice([True, False]):
-            del row[c.name]
-
+            # adding some extra chaos
+            if random.choice([True, False]):
+                del row[c.name]
+            else:
+                row[c.name] = ""
     return row
 
 
@@ -173,3 +176,33 @@ def test_invalid_standardized_values():
     assert (
         f"'{INVALID_OWNERSHIP_VALUES[2]}': {ROW_COUNT - 2}" in result_msg
     ), "The error message should include the invalid value and count"
+
+
+def test_standardized_values_with_nulls():
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    ROW_COUNT = 100
+    fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
+
+    fake_ds.loc[0, "nullable_ownership"] = ""
+
+    results = validate.validate_df(fake_ds, dataset, metadata)
+    assert (
+        len(results) == 0
+    ), "No errors should have been found for invalid standardized values"
+
+
+def test_non_nullable_bbls():
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    ROW_COUNT = 100
+    fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
+
+    fake_ds.loc[0, "bbl"] = ""
+
+    results = validate.validate_df(fake_ds, dataset, metadata)
+    assert len(results) == 1, "One error should have been found"
+
+    error_type, error_msg = results[0]
+    print(results[0])
+    assert (
+        error_type == validate.Errors.NULLS_FOUND
+    ), "The error type should be NULLS_FOUND"
