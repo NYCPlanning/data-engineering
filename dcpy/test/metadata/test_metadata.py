@@ -206,3 +206,22 @@ def test_non_nullable_bbls():
     assert (
         error_type == validate.Errors.NULLS_FOUND
     ), "The error type should be NULLS_FOUND"
+
+
+def test_invalid_wkbs():
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    ROW_COUNT = 100
+    fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
+
+    BAD_GEOM_VAL = "123"
+    fake_ds.loc[0, "wkb_geometry"] = BAD_GEOM_VAL
+
+    results = validate.validate_df(fake_ds, dataset, metadata)
+    assert len(results) == 1, "One error should have been found"
+
+    error_type, error_msg = results[0]
+    assert (
+        error_type == validate.Errors.INVALID_DATA
+    ), "The correct error type should be returned"
+
+    assert BAD_GEOM_VAL in error_msg
