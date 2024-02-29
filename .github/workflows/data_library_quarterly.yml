@@ -6,7 +6,6 @@ on:
       version:
         description: 'The quarterly version name (e.g. 21b, has to be all lower case)'
         required: true
-        default: 21c
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
@@ -72,4 +71,4 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Library Archive
-        run: library archive --name ${{ matrix.dataset }} --latest --s3
+        run: library archive --name ${{ matrix.dataset }} --version ${{ inputs.version }} --latest --s3
