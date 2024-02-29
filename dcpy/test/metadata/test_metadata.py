@@ -9,7 +9,10 @@ from dcpy.metadata import models
 from dcpy.metadata import validate
 from dcpy.metadata.models import Metadata as md
 
-METADATA_PATH = Path(__file__).parent.resolve() / "resources" / "template_md.yml"
+METADATA_PATH = (
+    Path(__file__).parent.resolve() / "resources" / "test_package" / "metadata.yml"
+)
+print(METADATA_PATH)
 assert METADATA_PATH.exists()
 
 rd = random.Random()
@@ -59,31 +62,52 @@ fakes = {
 }
 
 
-def fake_row(columns: list[models.Column]):
+def _fake_row(columns: list[models.Column]):
     row = {}
 
     found_bbl_parts = {}
     bbl_parts = {"boro_code", "block", "lot"}
+    found_bbl_name = ""
     for c in columns:
         if c.data_type == "bbl":
-            pass
+            found_bbl_name = c.name
+        elif c.values:
+            row[c.name] = random.choice(c.values)[0]
         else:
             val = fakes[c.data_type]()
             row[c.name] = val
             if c.data_type in {"boro_code", "block", "lot"}:
                 found_bbl_parts[c.data_type] = val
-    if set(found_bbl_parts.keys()) == bbl_parts:
-        row["bbl"] = fakes["bbl"](
-            found_bbl_parts["boro_code"],
-            found_bbl_parts["block"],
-            found_bbl_parts["lot"],
-        )
+
+    # Construct a BBL from found parts, or generate a new one
+    if found_bbl_name:
+        if set(found_bbl_parts.keys()) == bbl_parts:
+            row[found_bbl_name] = fakes["bbl"](
+                found_bbl_parts["boro_code"],
+                found_bbl_parts["block"],
+                found_bbl_parts["lot"],
+            )
+        else:
+            row[found_bbl_name] = fakes["bbl"](
+                fakes["boro_code"](),
+                fakes["block"](),
+                fakes["lot"](),
+            )
+
+    for c in columns:
+        if c.is_nullable and random.choice([True, False]):
+            del row[c.name]
 
     return row
 
 
-def _generate_fake_dataset(row_count: int, columns: list[models.Column]):
-    return df.from_records([fake_row(columns) for i in range(row_count)])
+def generate_fake_dataset(row_count: int, columns: list[models.Column]):
+    return df.from_records([_fake_row(columns) for i in range(row_count)])
+
+
+def generate_fake_dataset_from_test_md(row_count: int):
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    return generate_fake_dataset(row_count, columns=dataset.get_columns(metadata))
 
 
 def test_socrata_column_overrides_wkb_geom():
@@ -116,8 +140,36 @@ def test_socrata_column_overrides_wkb_geom():
 
 
 def test_validating_valid_data():
-    dataset = metadata.dataset_package.get_dataset("primary_shapefile")
-    fake_ds = _generate_fake_dataset(100, columns=dataset.get_columns(metadata))
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    fake_ds = generate_fake_dataset(100, columns=dataset.get_columns(metadata))
     results = validate.validate_df(fake_ds, dataset, metadata)
 
     assert results == [], "No Errors should have been found in source data"
+
+
+def test_invalid_standardized_values():
+    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    ROW_COUNT = 100
+    fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
+
+    INVALID_OWNERSHIP_VALUES = ["X", "Y", "Z"]
+    fake_ds.loc[0, "non_nullable_ownership"] = INVALID_OWNERSHIP_VALUES[0]
+    fake_ds.loc[1, "non_nullable_ownership"] = INVALID_OWNERSHIP_VALUES[1]
+    fake_ds.loc[2:, "non_nullable_ownership"] = INVALID_OWNERSHIP_VALUES[2]
+
+    results = validate.validate_df(fake_ds, dataset, metadata)
+    assert (
+        len(results) == 1
+    ), "One error should have been found for invalid standardized values"
+
+    # Assert that the error message should mention the invalid values with their counts
+    result_msg = results[0][1]
+    assert (
+        f"'{INVALID_OWNERSHIP_VALUES[0]}': 1," in result_msg
+    ), "The error message should include the invalid value and count"
+    assert (
+        f"'{INVALID_OWNERSHIP_VALUES[1]}': 1," in result_msg
+    ), "The error message should include the invalid value and count"
+    assert (
+        f"'{INVALID_OWNERSHIP_VALUES[2]}': {ROW_COUNT - 2}" in result_msg
+    ), "The error message should include the invalid value and count"
