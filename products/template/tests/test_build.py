@@ -35,10 +35,12 @@ def test_export_draft():
 def test_export_files():
     expected_export_file_names = [
         "source_data_versions.csv",
+        "build_metadata.json",
         "templatedb.csv",
+        "templatedb_polygons.shp.zip",
+        "templatedb_points.shp.zip",
     ]
     actual_files = s3.get_filenames(
         publishing.BUCKET, f"{PRODUCT_S3_NAME}/draft/{BUILD_NAME}/"
     )
-    for file_name in expected_export_file_names:
-        assert file_name in actual_files
+    assert set(actual_files) == set(expected_export_file_names)
