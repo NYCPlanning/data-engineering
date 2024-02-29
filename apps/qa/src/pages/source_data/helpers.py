@@ -1,13 +1,15 @@
+import os
 from typing import Dict
 
-from src import ROOT_PATH
+from src import ROOT_PATH, APP_PATH
 
 from dcpy.connectors.edm import recipes
 from dcpy.builds import plan
 
 
 def get_source_datasets(product: str) -> list[str]:
-    recipe = plan.recipe_from_yaml(ROOT_PATH / "products" / product / "recipe.yml")
+    root = APP_PATH if "DEPLOY" in os.environ else ROOT_PATH
+    recipe = plan.recipe_from_yaml(root / "products" / product / "recipe.yml")
     return [dataset.name for dataset in recipe.inputs.datasets]
 
 

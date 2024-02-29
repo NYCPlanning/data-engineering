@@ -8,6 +8,8 @@ COPY . .
 RUN python3 -m pip install . -c constraints.txt
 RUN python3 -m pip install -r requirements.txt -c constraints.txt
 
+ENV DEPLOY=true
+
 RUN rm -rf dcpy
 
 EXPOSE 8501
