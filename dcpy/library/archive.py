@@ -126,7 +126,4 @@ class Archive:
             if clean:
                 os.remove(_file)
 
-        if push:
-            recipes.log_metadata(config)
-
         return config
