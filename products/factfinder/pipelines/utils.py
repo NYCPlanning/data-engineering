@@ -72,6 +72,19 @@ def process_metadata(
     return files
 
 
+def apply_ccd_prefix(
+    df: pd.DataFrame, geoid: str = "geoid", geotype: str = "geotype"
+) -> pd.DataFrame:
+    """Edits geoid column for community districts to avoid collisions with boros"""
+    df[geoid] = df.apply(
+        lambda x: "CCD" + str(int(x[geoid]))
+        if x[geotype] == "CCD2023"
+        else str(x[geoid]),
+        axis=1,
+    )
+    return df
+
+
 def regex_or(l: list[str]) -> str:
     return "|".join([re.escape(s) for s in l])
 

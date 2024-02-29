@@ -9,6 +9,7 @@ from dcpy.builds import load
 from . import OUTPUT_FOLDER, DATA_PATH, PRODUCT_PATH
 from .utils import (
     process_metadata,
+    apply_ccd_prefix,
     pivot_factfinder_table,
     export_df,
     s3_upload,
@@ -59,6 +60,7 @@ def transform_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df = strip_unnamed_columns(df)
     df.rename(columns=str.lower, inplace=True)
     df.dropna(subset=["geotype"], inplace=True)
+    df = apply_ccd_prefix(df)
 
     df = pivot_factfinder_table(df)
     for column in ["c", "e", "m", "p", "z"]:
