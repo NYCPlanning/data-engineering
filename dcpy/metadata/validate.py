@@ -44,7 +44,9 @@ def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Meta
 
         match col.data_type:
             case "bbl":
-                with_invalid_bbl = df[~df["bbl"].str.match(r"^\d{10}$")]
+                with_invalid_bbl = df_non_null[
+                    ~df_non_null["bbl"].str.match(r"^\d{10}$")
+                ]
                 if not with_invalid_bbl.empty:
                     errors.append(
                         [
@@ -98,13 +100,15 @@ def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Meta
             case "wkb":
 
                 def is_wkb_valid(g):
+                    if not g:
+                        return True
                     try:
                         wkb.loads(g)
                         return True
                     except Exception:
                         return False
 
-                invalids = df[~df[col.name].apply(is_wkb_valid)]
+                invalids = df_non_null[~df_non_null[col.name].apply(is_wkb_valid)]
                 if not invalids.empty:
                     sample = invalids.iloc[0][col.name]
 
@@ -160,7 +164,7 @@ def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Meta
                     ]
                 )
 
-        if col.is_nullable:
+        if not col.is_nullable:
             nulls = df[df[col.name].isnull()]
 
             if not nulls.empty:
