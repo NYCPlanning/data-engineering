@@ -7,9 +7,58 @@ from . import models
 from dcpy.utils.logging import logger
 
 
-def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Metadata):
+class Errors:
+    INVALID_DATA = "INVALID_DATA"
+    NULLS_FOUND = "NULLS_FOUND"
+    COLUMM_MISMATCH = "COLUMN_MISMATCH"
+    INVALID_METADATA = "INVALID_METADATA"
+
+
+def _is_valid_wkb(g):
+    if not g:
+        return True
+    try:
+        wkb.loads(g)
+        return True
+    except Exception as e:
+        return False
+
+
+def _is_float_or_double(s):
+    try:
+        float(s)
+        return True
+    except ValueError as e:
+        return False
+
+
+def _is_int(s):
+    if s[0] in ("-", "+"):
+        return s[1:].isdigit()
+    return s.isdigit()
+
+
+col_validators = {
+    "bbl": lambda df, col_name: df[~df[col_name].str.match(r"^\d{10}$")],
+    "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
+    "double": lambda df, col_name: df[~df[col_name].apply(_is_float_or_double)],
+    "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
+    # TODO
+    "uid": lambda df, col_name: df.iloc[0:0],
+    "boro_code": lambda df, col_name: df.iloc[0:0],
+    "block": lambda df, col_name: df.iloc[0:0],
+    "lot": lambda df, col_name: df.iloc[0:0],
+    "latitude": lambda df, col_name: df.iloc[0:0],
+    "longitude": lambda df, col_name: df.iloc[0:0],
+    "text": lambda df, col_name: df.iloc[0:0],
+}
+
+
+def validate_df(
+    df: pd.DataFrame, dataset: models.Dataset, metadata: models.Metadata
+) -> list[tuple[str, str]]:
     """Validate a dataframe against a metadata file."""
-    df_non_null = df.fillna("")
+    df_stringified_nulls = df.fillna("")
 
     errors = []
 
@@ -22,19 +71,19 @@ def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Meta
     extras_in_source = df_headers.difference(dataset_column_names)
     if extras_in_source:
         errors.append(
-            [
-                "COLUMN_MISMATCH",
+            (
+                Errors.COLUMM_MISMATCH,
                 f"Invalid column(s) found in source data: {extras_in_source}.",
-            ]
+            )
         )
 
     not_found_in_source = dataset_column_names.difference(df_headers)
     if not_found_in_source:
         errors.append(
-            [
-                "COLUMN_MISMATCH",
+            (
+                Errors.COLUMM_MISMATCH,
                 f"Column(s) missing from source data: {not_found_in_source}.",
-            ]
+            )
         )
 
     # Validate Data in Columns
@@ -42,133 +91,54 @@ def validate_df(df: pd.DataFrame, dataset: models.Dataset, metadata: models.Meta
         if col.name in not_found_in_source:
             continue
 
-        match col.data_type:
-            case "bbl":
-                with_invalid_bbl = df[~df["bbl"].str.match(r"^\d{10}$")]
-                if not with_invalid_bbl.empty:
-                    errors.append(
-                        [
-                            "INVALID_DATA",
-                            f"Column {col.name} contains {len(with_invalid_bbl)} invalid records, for example: {with_invalid_bbl.iloc[0][col.name]}",
-                        ]
-                    )
+        df_no_col_nulls = df_stringified_nulls[
+            df_stringified_nulls[col.name].str.len() > 0
+        ]
+        df_only_col_nulls = df_stringified_nulls[
+            df_stringified_nulls[col.name].str.len() == 0
+        ]
 
-            case "integer":
-
-                def is_maybe_int(s):
-                    if len(s) == 0 or not s:
-                        return True
-                    if s[0] in ("-", "+"):
-                        return s[1:].isdigit()
-                    return s.isdigit()
-
-                invalids = df_non_null[~df_non_null[col.name].apply(is_maybe_int)]
-                if not invalids.empty:
-                    sample = invalids.iloc[0][col.name]
-                    errors.append(
-                        [
-                            "INVALID_DATA",
-                            f"The {col.name} column contains {len(invalids)} invalid integer types, for example: {sample}",
-                        ]
-                    )
-
-            # TODO: discuss whether it makes sense to call these doubles. It's
-            # just what they're designated as in COLP metadata.
-            case "double":
-
-                def is_maybe_float_or_double(s):
-                    try:
-                        float(s)
-                        return True
-                    except ValueError:
-                        return False
-
-                invalids = df_non_null[
-                    ~df_non_null[col.name].apply(is_maybe_float_or_double)
-                ]
-                if not invalids.empty:
-                    sample = invalids.iloc[0][col.name]
-                    errors.append(
-                        [
-                            "INVALID_DATA",
-                            f"The {col.name} column contains {len(invalids)} invalid double types, for example: {sample}",
-                        ]
-                    )
-
-            case "wkb":
-
-                def is_wkb_valid(g):
-                    try:
-                        wkb.loads(g)
-                        return True
-                    except Exception:
-                        return False
-
-                invalids = df[~df[col.name].apply(is_wkb_valid)]
-                if not invalids.empty:
-                    sample = invalids.iloc[0][col.name]
-
-                    sample_error = None
-                    try:
-                        wkb.loads(sample)
-                    except Exception as e:
-                        sample_error = e
-
-                    errors.append(
-                        [
-                            "INVALID_DATA",
-                            f"The {col.name} column contains {len(invalids)} invalid wkb value(s), for example: {sample}. \
-                            error: {sample_error}",
-                        ]
-                    )
-
-            case "uid":
-                pass
-            case "boro_code":
-                pass
-            case "block":
-                pass
-            case "lot":
-                pass
-            case "latitude":
-                pass
-            case "longitude":
-                pass
-
-            case "text":
-                pass
-            case _:
-                errors.append(
-                    [
-                        "INVALID_METADATA",
-                        f"Column {col.name} has unknown type {col.data_type}.",
-                    ]
+        # Check for unknown types
+        if col.data_type not in col_validators:
+            errors.append(
+                (
+                    Errors.INVALID_METADATA,
+                    f"Column {col.name} has unknown type {col.data_type}.",
                 )
+            )
+            continue
 
-        # Validate standardized / enum values
+        # Validate that data in columns matches declared types, for non-nulls only
+        invalids = col_validators[col.data_type](df_no_col_nulls, col.name)
+        if not invalids.empty:
+            errors.append(
+                (
+                    Errors.INVALID_DATA,
+                    f"Column {col.name} contains {len(invalids)} invalid record(s), for example: {invalids.iloc[0][col.name]}",
+                )
+            )
+
+        # Validate standardized/enum values
         if col.values:
-            accepted_values = {str(v[0]) for v in col.values} | {
-                ""
-            }  # Adding empty str so we can do null-checking elsewhere (in just one place)
-            invalids = df_non_null[~df_non_null[col.name].isin(accepted_values)]
+            accepted_values = {str(v[0]) for v in col.values} | {""}
+            invalids = df_no_col_nulls[~df_no_col_nulls[col.name].isin(accepted_values)]
             if not invalids.empty:
                 invalid_counts = dict(invalids.groupby(by=col.name).size())
                 errors.append(
-                    [
-                        "INVALID_DATA",
+                    (
+                        Errors.INVALID_DATA,
                         f"Found counts of non-standardized values for column {col.name}: {invalid_counts}",
-                    ]
+                    )
                 )
 
-        if col.is_nullable:
-            nulls = df[df[col.name].isnull()]
-
-            if not nulls.empty:
+        # Check Nulls
+        if not col.is_nullable:
+            if not df_only_col_nulls.empty:
                 errors.append(
-                    [
-                        "INVALID_DATA",
-                        f"Column {col.name} has {len(nulls)} empty values",
-                    ]
+                    (
+                        Errors.NULLS_FOUND,
+                        f"Column {col.name} has {len(df_only_col_nulls)} empty values",
+                    )
                 )
 
     return errors

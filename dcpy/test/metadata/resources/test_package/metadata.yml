@@ -13,38 +13,32 @@ columns:
   - name: my_uid
     description:  The ID
     display_name: UID
+    is_nullable: False
     data_type: uid
 
   - name: borough
     description: The borough
     display_name: BOROUGH
-    # is_nullable: False
+    is_nullable: False
     data_type: boro_code
 
   - name: block
     description: The Block
     display_name: Block
+    is_nullable: False
     data_type: block
 
   - name: lot
     description: The Lot
     display_name: Lot
+    is_nullable: False
     data_type: lot
 
   - name: bbl
     description: The BBL
     display_name: BBL
+    is_nullable: False
     data_type: bbl
-
-  - name: place_type
-    description: The type of the Place.
-    display_name: Place Type
-    data_type: text
-
-  - name: borough_name
-    description: The Borough Name
-    display_name: Borough Name
-    data_type: text
 
   - name: wkb_geometry
     description: The Geom
@@ -53,11 +47,13 @@ columns:
 
   - name: lat
     description: Latitude
+    is_nullable: False
     display_name: float
     data_type: latitude
 
   - name: long
     description: Latitude
+    is_nullable: False
     display_name: float
     data_type: longitude
 
@@ -66,13 +62,38 @@ columns:
     display_name: nope
     data_type: wkb
 
+  - name: non_nullable_ownership
+    display_name: Owner type
+    description: Type of owner
+    data_type: text
+    is_nullable: False
+    values:
+      - [C, City owned]
+      - [M, Mixed ownership]
+
+  - name: nullable_ownership
+    display_name: Owner type
+    description: Type of owner
+    data_type: text
+    is_nullable: True
+    values:
+      - [C, City owned]
+      - [M, Mixed ownership]
+
+  - name: nullable_text
+    display_name: nullable text field
+    description: This is explicitly nullable
+    data_type: text
+    is_nullable: True
+
+
 dataset_package:
   datasets:
     - name: primary_csv
-      filename: templatedb.csv
+      filename: test.csv
       type: csv
     - name: primary_shapefile
-      filename: template.shp.zip
+      filename: test.shp.zip
       type: shapefile
       overrides:
         omit_columns: [omit_me_from_shapefile]
@@ -80,7 +101,6 @@ dataset_package:
           wkb_geometry:
             name: the_geom
   attachments:
-    - metadata.yml
     - source_data_versions.csv
     - build_metadata.json
 
