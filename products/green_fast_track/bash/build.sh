@@ -6,8 +6,17 @@ echo "Setup dbt"
 dbt deps
 dbt debug
 
-echo "Test source data"
+echo "Test source tables"
 dbt test --select "source:*"
 
-echo "Build all tables"
-dbt build --full-refresh
+echo "Build seed tables"
+dbt build --select config.materialized:seed
+
+echo "Build staging tables"
+dbt build --select staging
+
+echo "Build intermediate tables"
+dbt build --select intermediate
+
+echo "Build product tables"
+dbt build --select product
