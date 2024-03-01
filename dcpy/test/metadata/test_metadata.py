@@ -108,7 +108,9 @@ def generate_fake_dataset(row_count: int, columns: list[models.Column]):
     return df.from_records([_fake_row(columns) for i in range(row_count)])
 
 
-def generate_fake_dataset_from_test_md(row_count: int):
+# AR note: I mostly use this to conveniently get a fake dataset
+# in a Jupyter Notebook.
+def _generate_fake_dataset_from_test_md(row_count: int):
     dataset = metadata.dataset_package.get_dataset("primary_csv")
     return generate_fake_dataset(row_count, columns=dataset.get_columns(metadata))
 
