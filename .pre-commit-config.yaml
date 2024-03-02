@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v1.2.0
+    hooks:
+      # Green Fast Track
+      - id: check-script-semicolon
+        name: Green Fast Track - Model scripts have no semicolon
+        files: ^products/green_fast_track/models/
+        args: ["--manifest", "products/green_fast_track/target/manifest.json"]
+
+      # - id: check-model-has-properties-file
+      #   name: Green Fast Track - Models have a properties file
+      #   files: ^products/green_fast_track/models/
+      #   args: ["--manifest", "products/green_fast_track/target/manifest.json"]
