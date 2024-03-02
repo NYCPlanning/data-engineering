@@ -52,7 +52,7 @@ jobs:
           sqlfluff lint products/knownprojects/ --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
-          export BUILD_ENGINE_DB=db-ceqr-survey
+          export BUILD_ENGINE_DB=db-green-fast-track
           sqlfluff lint products/green_fast_track/models --templater=dbt
 
   mypy:
@@ -69,6 +69,46 @@ jobs:
           mypy products/facilities
           mypy products/template
   
+  dbt_checkpoint:
+    name: Check dbt files
+    runs-on: ubuntu-22.04
+    container: nycplanning/dev:${{ inputs.image_tag }}
+    env:
+      BUILD_NAME: ${{ github.head_ref || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
+
+      - name: Setup build environment
+        run: |
+          ./bash/docker_container_setup.sh
+          ./bash/build_env_setup.sh
+
+      - name: Temp install pre-commit
+        run: python3 -m pip install pre-commit
+
+      - name: Check dbt files
+        run: |
+          export BUILD_ENGINE_DB=db-green-fast-track
+          dbt deps --profiles-dir products/green_fast_track --project-dir products/green_fast_track
+          dbt seed --profiles-dir products/green_fast_track --project-dir products/green_fast_track
+          dbt docs generate --profiles-dir products/green_fast_track --project-dir products/green_fast_track
+          pre-commit run --all-files
+
   template-db:
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
     uses: ./.github/workflows/template_test.yml
