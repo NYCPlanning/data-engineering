@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: stg__nysdec_state_facility_permits
+  - name: stg__dcm_arterial_highways
+  - name: stg__dcp_air_quality_vent_towers_buffered
+  - name: stg__dep_cats_permits
+  - name: stg__panynj_airports
+  - name: stg__pluto
+  - name: stg__nysdec_title_v_facility_permits
