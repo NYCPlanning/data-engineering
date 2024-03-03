@@ -8,7 +8,7 @@ repos:
         files: ^products/green_fast_track/models/
         args: ["--manifest", "products/green_fast_track/target/manifest.json"]
 
-      # - id: check-model-has-properties-file
-      #   name: Green Fast Track - Models have a properties file
-      #   files: ^products/green_fast_track/models/
-      #   args: ["--manifest", "products/green_fast_track/target/manifest.json"]
+      - id: check-model-has-properties-file
+        name: Green Fast Track - Models have a properties file
+        files: ^products/green_fast_track/models/
+        args: ["--manifest", "products/green_fast_track/target/manifest.json"]
