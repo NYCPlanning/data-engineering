@@ -98,9 +98,6 @@ jobs:
           ./bash/docker_container_setup.sh
           ./bash/build_env_setup.sh
 
-      - name: Temp install pre-commit
-        run: python3 -m pip install pre-commit
-
       - name: Check dbt files
         run: |
           export BUILD_ENGINE_DB=db-green-fast-track
