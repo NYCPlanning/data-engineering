@@ -27,6 +27,7 @@ openpyxl==3.1.2
 pandas
 pandas-stubs
 plotly==5.*
+pre-commit
 psycopg2-binary==2.9.5
 types-psycopg2
 pyarrow
