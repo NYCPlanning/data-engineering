@@ -1,26 +1,12 @@
-from pathlib import Path
-from pydantic import BaseModel
-
 from dcpy.connectors.edm import recipes
-from . import PARQUET_PATH
-
-
-class ImportDefinition(BaseModel):
-    """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
-
-    placeholder: str
-
-
-def read_import_definition(dataset: str) -> ImportDefinition:
-    ## likely just yaml.load, maybe some validation
-    raise NotImplemented
+from . import PARQUET_PATH, models
 
 
 # doesn't strictly need to be recipe config, but at least config-like object
 def archive_raw_dataset(dataset: str, version: str | None = None) -> recipes.Config:
     """Given dataset and potentially a semantic version, ingest it from its source and archive it in its
     raw format, with metadata, in edm-recipes/raw_data"""
-    import_definition = read_import_definition(dataset)
+    import_definition = models.read_import_definition(dataset)
 
     ## logic to grab dataset based on ImportDefinition, dump locally
 

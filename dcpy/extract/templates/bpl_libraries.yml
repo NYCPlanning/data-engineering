@@ -1,0 +1,39 @@
+name: bpl_libraries
+acl: public-read
+source:
+  url: https://www.bklynlibrary.org/locations/json
+
+library_dataset:
+  name: bpl_libraries
+  acl: public-read
+  version: ""
+  source:
+    script: 
+      path: https://www.bklynlibrary.org/locations/json
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude"
+      - "Y_POSSIBLE_NAMES=latitude"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      BPL libraries is a dataset that we webscrape and store
+      in a csv format, checkout the Brooklyn Public Library
+      website(https://www.bklynlibrary.org/locations) for
+      more information
+    url: "https://www.bklynlibrary.org/locations"
+    dependents: []
