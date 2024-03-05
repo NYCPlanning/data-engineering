@@ -1,0 +1,37 @@
+name: dcp_atomicpolygons
+acl: public-read
+archive_raw_metadata:
+transform_to_parquet_metadata:
+
+library_dataset:
+  name: dcp_atomicpolygons
+  acl: public-read
+  version: ""
+  source:
+    url:
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
+      subpath: nyap_{{ version }}/nyap.shp
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: POLYGON
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### Atomic Polygons
+      Atomic Polygon numbers are unique within 2010 Census tracts.
+    url: "https://www1.nyc.gov/site/planning/data-maps/open-data.page"
+    dependents: 
+      - db-gru-qaqc

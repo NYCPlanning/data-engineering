@@ -192,6 +192,14 @@ class ArchivalMetadata:
         }
 
 
+def archive(config: Config, file_path: Path):
+    ### this could either take a config object and path to a file, and archive them both in a folder together,
+    ### or take path to folder that takes dumped config as well as file output and loads whole folder
+    ### likely the latter in case of multiple output formats. Not necessarily something we want to be doing long term
+    ### but for flexibility for now it might make sense
+    raise NotImplemented
+
+
 def get_config(name: str, version="latest") -> Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
