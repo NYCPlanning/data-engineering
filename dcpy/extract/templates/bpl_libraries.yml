@@ -1,7 +1,9 @@
 name: bpl_libraries
 acl: public-read
-source:
+# source is url, needs custom preprocessing script
+archive_raw_metadata: 
   url: https://www.bklynlibrary.org/locations/json
+transform_to_parquet_metadata:
 
 library_dataset:
   name: bpl_libraries
