@@ -28,17 +28,12 @@ flags_ranked AS (
 flags_wide AS (
     SELECT
         {% for row in variables -%}
-            MAX(
-                CASE
-                    WHEN
-                        variable_type = '{{ row["variable_type"] }}'
-                        THEN variable_id
-                END
+            ARRAY_TO_STRING(
+                ARRAY_AGG(variable_id) FILTER (WHERE variable_type = '{{ row["variable_type"] }}'), ', '
             ) AS "{{ row['label'] }}",
         {% endfor %}
         bbl
     FROM flags_ranked
-    WHERE row_number = 1
     GROUP BY bbl
 )
 
