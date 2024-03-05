@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 from pydantic import BaseModel
 import yaml
 
@@ -7,7 +8,7 @@ from dcpy.library.validator import DatasetDefinition
 from . import TEMPLATE_DIR
 
 
-class ImportDefinition(
+class Template(
     BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
 ):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
@@ -34,8 +35,18 @@ class ImportDefinition(
             file_format: str
 
 
-def read_import_definition(dataset: str) -> ImportDefinition:
+class Import(BaseModel, use_enum_values=True, extra="forbid"):
+    template: Template
+    version: str
+    timestamp: datetime
+
+
+def read_template(dataset: str) -> Template:
     file = TEMPLATE_DIR / f"{dataset}.yml"
     with open(file, "r") as f:
         s = yaml.safe_load(f)
-    return ImportDefinition(**s)
+    return Template(**s)
+
+
+def get_import_config(dataset: str, version: str | None = None) -> Import:
+    raise NotImplemented

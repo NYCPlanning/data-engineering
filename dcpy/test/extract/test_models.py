@@ -1,6 +1,6 @@
 import yaml
 
-from dcpy.extract import TEMPLATE_DIR, models
+from dcpy.extract import TEMPLATE_DIR, config
 
 
 def test_validate_all_datasets():
@@ -9,5 +9,5 @@ def test_validate_all_datasets():
     for file in templates:
         with open(file, "r") as f:
             s = yaml.safe_load(f)
-            val = models.ImportDefinition(**s)
+            val = config.Template(**s)
             assert val
