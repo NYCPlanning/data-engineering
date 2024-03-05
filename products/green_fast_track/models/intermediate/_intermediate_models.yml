@@ -166,10 +166,6 @@ models:
         data_type: string
         test:
           - not_null
-      - name: distance
-        data_type: float
-        test:
-          - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: int__zoning_flags_compound_key
