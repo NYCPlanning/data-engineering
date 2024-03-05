@@ -22,6 +22,9 @@ mkdir -p output && (
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON cats_permits_lots cats_permits_lots ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON cats_permits_buffered cats_permits_buffered ${default_srs} -update
 
+    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON industrial_sources_lots industrial_sources_lots ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON industrial_sources_buffered industrial_sources_buffered ${default_srs} -update
+
     fgdb_export_partial ${fgdb_filename} POINT state_facility_permits_points state_facility_permits_points ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON state_facility_permits_lots state_facility_permits_lots ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON state_facility_permits_buffered state_facility_permits_buffered ${default_srs} -update

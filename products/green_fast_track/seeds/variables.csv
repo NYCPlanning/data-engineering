@@ -2,6 +2,7 @@ variable_type,label,ceqr_category,survey_question,type_ii_criteria_description
 zoning_districts,Zoning Districts,Zoning,2A,"R5-R10, R1-R4, or (C or M)"
 special_coastal_risk_districts,Special Coastal Risk Districts,Zoning,2B,"Any of 3 special purpose district fields in PLUTO contain a CR% value"
 cats_permits,CATS Permits,Air Quality,10,"400 foot buffer"
+industrial_sources,Unpermitted Industrial Sources,Air Quality,10,"Land Use Code = 06 and 400 foot buffer"
 state_facility_permits,State Facility Permits,Air Quality,11,"1,000 foot buffer"
 title_v_permits,Clean Air Act Title V Permits,Air Quality,12,"1,000 foot buffer"
 vent_towers,Vent Towers,Air Quality,13,"75 foot buffer"

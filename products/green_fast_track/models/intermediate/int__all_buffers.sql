@@ -5,6 +5,7 @@ WITH all_buffers AS (
         ref('int__nysdec_state_facility_permits'),
         ref('int__nysdec_title_v_facility_permits'),
         ref('int__dep_cats_permits'),
+        ref('int__industrial_sources'),
         ref('stg__dcm_arterial_highways'),
         ref('stg__dcp_air_quality_vent_towers_buffered'),
         ref('stg__panynj_airports')

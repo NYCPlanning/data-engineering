@@ -19,6 +19,7 @@ final AS (
         spdist1,
         spdist2,
         spdist3,
+        landuse,
         ST_TRANSFORM(wkb_geometry, 2263) AS geom
     FROM mappluto_wi
 )

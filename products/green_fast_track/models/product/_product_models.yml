@@ -29,6 +29,11 @@ models:
         tests: [not_null]
       - name: '"CATS Permits"'
         data_type: string
+      - name: '"Unpermitted Industrial Sources Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"Unpermitted Industrial Sources"'
+        data_type: string
       - name: '"State Facility Permits Flag"'
         data_type: string
         tests: [not_null]
@@ -79,6 +84,9 @@ models:
   - name: cats_permits_points
   - name: cats_permits_lots
   - name: cats_permits_buffered
+
+  - name: industrial_sources_lots
+  - name: industrial_sources_buffered
 
   - name: state_facility_permits_points
   - name: state_facility_permits_lots
