@@ -114,26 +114,9 @@ def _export_socrata_metadata(
     logger.info(f"fetching metadata for {four_four}")
     md = metadata.make_dcp_metadata(
         pub.Dataset(four_four=four_four).fetch_metadata()
-    ).model_dump()
+    ).model_dump(exclude_none=True)
 
     logger.info(f"pruning extra column fields")
-    # remove some unneeded fields, which are defaulted by Pydantic, but should
-    # not be included in the export to yaml
-    for col in md["columns"]:
-        if "is_primary_key" in col and not col["is_primary_key"]:
-            del col["is_primary_key"]
-
-        if "data_source" in col and not col["data_source"]:
-            del col["data_source"]
-
-        if "is_nullable" in col and col["is_nullable"]:
-            del col["is_nullable"]
-
-        if "readme_data_type" in col and not col["readme_data_type"]:
-            del col["readme_data_type"]
-
-        if "values" in col and not col["values"]:
-            del col["values"]
 
     output_path = output_path or Path(f"{four_four}.yaml")
 

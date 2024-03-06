@@ -132,7 +132,7 @@ def validate_df(
                 )
 
         # Check Nulls
-        if not col.is_nullable:
+        if col.non_nullable:
             if not df_only_col_nulls.empty:
                 errors.append(
                     (

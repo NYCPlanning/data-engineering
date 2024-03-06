@@ -13,31 +13,27 @@ columns:
   - name: my_uid
     description:  The ID
     display_name: UID
-    is_nullable: False
     data_type: uid
 
   - name: borough
     description: The borough
     display_name: BOROUGH
-    is_nullable: False
     data_type: boro_code
 
   - name: block
     description: The Block
     display_name: Block
-    is_nullable: False
     data_type: block
 
   - name: lot
     description: The Lot
     display_name: Lot
-    is_nullable: False
     data_type: lot
 
   - name: bbl
     description: The BBL
     display_name: BBL
-    is_nullable: False
+    non_nullable: True
     data_type: bbl
 
   - name: wkb_geometry
@@ -47,13 +43,13 @@ columns:
 
   - name: lat
     description: Latitude
-    is_nullable: False
+    non_nullable: True
     display_name: float
     data_type: latitude
 
   - name: long
     description: Latitude
-    is_nullable: False
+    non_nullable: True
     display_name: float
     data_type: longitude
 
@@ -66,7 +62,7 @@ columns:
     display_name: Owner type
     description: Type of owner
     data_type: text
-    is_nullable: False
+    non_nullable: True
     values:
       - [C, City owned]
       - [M, Mixed ownership]
@@ -75,7 +71,6 @@ columns:
     display_name: Owner type
     description: Type of owner
     data_type: text
-    is_nullable: True
     values:
       - [C, City owned]
       - [M, Mixed ownership]
@@ -84,7 +79,6 @@ columns:
     display_name: nullable text field
     description: This is explicitly nullable
     data_type: text
-    is_nullable: True
 
 
 dataset_package:
