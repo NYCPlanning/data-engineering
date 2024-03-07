@@ -1,4 +1,9 @@
--- int__spatial_flags.sql
+{{ config(
+    materialized = 'table',
+    indexes=[
+      {'columns': ['bbl', 'variable_type']},
+    ]
+) }}
 
 WITH buffered_flags AS (
     SELECT
