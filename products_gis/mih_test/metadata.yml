@@ -1,0 +1,126 @@
+name: mih_test
+display_name: MIH Test
+summary: Description for Mandatory Inclusionary Housing
+description: Description for Mandatory Inclusionary Housing
+tags:
+- housing
+- house
+- building
+- development
+each_row_is_a: A Mandatorily Included House
+destinations:
+- id: socrata_prod
+  type: socrata
+  four_four: p6cc-cxkc
+  attachments: []
+  datasets:
+  - primary_shapefile
+  omit_columns: []
+  column_details: {}
+dataset_package:
+  datasets:
+  - name: primary_shapefile
+    type: shapefile
+    filename: shapefile.zip
+    overrides:
+      omit_columns: []
+      columns: {}
+  attachments:
+  - nycmih_metadata.pdf
+columns:
+- name: the_geom
+  display_name: the_geom
+  description: Geometry type, changed
+  data_type: wkb
+  example: <FILL_ME_IN>
+  readme_data_type: geometry
+- name: boro
+  display_name: Boro
+  description: The NYC Borough where the Mandatory Inclusionary Housing (MIH) area
+    is mapped. The boro code is a single digit identifier, indicating a particular
+    borough (1 = Manhattan, 2 = Bronx, 3 = Brooklyn, 4 = Queens, 5 = Staten Island).
+  data_type: text
+  example: '3'
+  values:
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '4'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '5'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '02'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '03'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '04'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: status
+  display_name: Status
+  description: Status of the ULURP text amendment application (Adopted = final approval,
+    Pipeline = awaiting approval)
+  data_type: text
+  example: Adopted
+  values:
+  - - Adopted
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - Adoped
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: projectnam
+  display_name: Project Name
+  description: Project Name of the Mandatory Inclusionary Housing (MIH) area.
+  data_type: text
+  example: Jerome Avenue Rezoning
+- name: dateadopte
+  display_name: Date Adopted
+  description: The date the ULURP text amendment application was adopted.
+  data_type: datetime
+  example: '2021-11-23T00:00:00.000'
+- name: zr_ulurpno
+  display_name: ZR_ULURP Number
+  description: The ULURP number of the ULURP text amendment application.
+  data_type: text
+  example: 190352ZRQ
+- name: zr_map
+  display_name: ZR_Map
+  description: The map number referenced in Appendix F of the Zoning Resolution for
+    the mapped Mandatory Inclusionary Housing (MIH) area.
+  data_type: text
+  example: CD11-Map 1 (Area 1)
+- name: cd
+  display_name: CD
+  description: Community District where the Mandatory Inclusionary Housing (MIH) area
+    is mapped.
+  data_type: text
+  example: '1'
+- name: mih_option
+  display_name: MIH_Option
+  description: Level of affordability and options applied to the mapped Mandatory
+    Inclusionary Housing (MIH) area.
+  data_type: text
+  example: Option 1
+- name: zoning_map
+  display_name: Zoning_Map
+  description: Zoning Map index number where the Mandatory Inclusionary Housing (MIH)
+    area is mapped.
+  data_type: text
+  example: 16c
+- name: project_id
+  display_name: Project_ID
+  description: Zoning Application Portal (ZAP) project id. ZAP is a DCP project tracking
+    database.
+  data_type: text
+  example: P2013X0135
+- name: shape_leng
+  display_name: Shape_Length
+  description: Length of feature in feet.
+  data_type: <FILL_ME_IN>!
+  example: '837.017259715'
+- name: shape_area
+  display_name: Shape_Area
+  description: Area of feature in internal squared feet.
+  data_type: <FILL_ME_IN>!
+  example: '700002.648777'

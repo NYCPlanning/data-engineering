@@ -1,0 +1,85 @@
+name:
+display_name:
+summary: |
+
+description: |
+
+tags: []
+each_row_is_a:
+
+columns:
+  - name: uid
+    display_name: Unique ID
+    is_primary_key: True
+    data_source: Department of City Planning
+    description: >-
+
+    data_type: text
+    example: cbe20732be28f6ab445289d7a67bb241
+
+  - name: borough
+    display_name: Borough
+    description: >-
+      NYC borough – 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
+      (Staten Island)
+    data_type: text
+    non_nullable: True
+    values:
+      - ["1", Manhattan]
+      - ["2", Bronx]
+      - ["3", Brooklyn]
+      - ["4", Queens]
+      - ["5", Staten Island]
+
+  - name: block
+    display_name: Tax block
+    description: >-
+      The tax block in which the tax lot is located. Each tax block is unique
+      within a borough.
+    data_type: integer
+    non_nullable: True
+    example: 1637
+
+  - name: lot
+    display_name: Tax lot
+    description: The number of the tax lot. Each tax lot is unique within a tax block.
+    data_type: integer
+    non_nullable: True
+    example: 141
+
+  - name: bbl
+    display_name: BBL
+    description: >-
+      10-digit identifier for a tax lot, consisting of the borough code followed
+      by the tax block followed by the tax lot. The borough code is one numeric
+      digit. The tax block is one to five numeric digits, preceded with leading
+      zeros when the block is less than five digits. The tax lot is one to four
+      digits and is preceded with leading zeros when the lot is less than four
+      digits. For condominiums, this is usually the unit BBL.
+    data_type: bbl
+    readme_data_type: double
+    non_nullable: True
+    example: 1016370141
+
+dataset_package:
+  datasets:
+    - name: primary_shapefile
+      filename:
+      type: shapefile
+      overrides:
+        columns:
+  attachments:
+    - readme.pdf
+    - metadata.pdf
+
+destinations:
+  - id: socrata_prod
+    type: socrata
+    four_four: ""
+    datasets:
+      - primary_shapefile
+    attachments:
+      -  "readme.pdf"
+      -  "metadata.pdf"
+    omit_columns: []
+    column_details:
