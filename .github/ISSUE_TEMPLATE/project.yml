@@ -24,9 +24,6 @@ body:
       value: |
         ...
 
-  - type: markdown
-    attributes:
-      value: |
         ---
 
   - type: textarea
@@ -37,9 +34,6 @@ body:
         - [ ] ...
         - [ ] ...
 
-  - type: markdown
-    attributes:
-      value: |
         ---
 
   - type: textarea
