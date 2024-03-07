@@ -1,0 +1,57 @@
+name: Project
+description: Scope and track a multi-issue project
+title: "PROJECT TITLE"
+labels: ["project"]
+body:
+  - type: textarea
+    attributes:
+      label: Project Description
+      description: A short overview of this project
+      value: |
+        ...
+
+  - type: textarea
+    attributes:
+      label: Goals
+      description: The things that should be true for this project to be considered complete
+      value: |
+        ...
+
+  - type: textarea
+    attributes:
+      label: Timing
+      description: Relevant deadlines or events
+      value: |
+        ...
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+  - type: textarea
+    attributes:
+      label: Tasks
+      description: A list of tasks and/or issues to be completed
+      value: |
+        - [ ] ...
+        - [ ] ...
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+  - type: textarea
+    attributes:
+      label: Motivations
+      description: The background and reasons for this project and it's details
+      value: |
+        ...
+
+  - type: textarea
+    attributes:
+      label: Notes
+      description: Any miscellaneous notes
+      value: |
+        ...
