@@ -69,6 +69,17 @@ class Socrata:
     class Responses:
         """Helper classes to model responses from the Socrata API."""
 
+        class Metadata(TypedDict):
+            """Metadata returned from the Socrata API. Fields are not comprehensive."""
+
+            id: str  # the four-four
+            name: str
+            columns: list[Socrata.Responses.Column]
+            resourceName: str
+            description: str
+            tags: list[str]
+            metadata: dict
+
         class Column(TypedDict):
             """Column fields returned from the Socrata API."""
 

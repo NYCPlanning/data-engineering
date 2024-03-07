@@ -55,11 +55,8 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
     return models.Column(**dcp_col)  # type: ignore
 
 
-def make_dcp_metadata(socrata_md):
+def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Metadata:
     columns = [make_dcp_col(c) for c in socrata_md["columns"]]
-    ds = models.Dataset(
-        name="primary_shapefile", type="shapefile", filename="shapefile.zip"
-    )
 
     return models.Metadata(
         name=socrata_md["resourceName"].lower(),
@@ -77,19 +74,17 @@ def make_dcp_metadata(socrata_md):
                 omit_columns=[],
             )
         ],
-        dataset_package={
-            "datasets": [
-                {
-                    "name": "primary_shapefile",
-                    "filename": "shapefile.zip",
-                    "type": "shapefile",
-                    "overrides": {},
-                }
+        dataset_package=models.DatasetPackage(
+            datasets=[
+                models.Dataset(
+                    name="primary_shapefile",
+                    filename="shapefile.zip",
+                    type="shapefile",
+                    overrides=models.DatasetOverrides(),
+                )
             ],
-            "attachments": [
-                a["filename"] for a in socrata_md["metadata"]["attachments"]
-            ],
-        },
+            attachments=[a["filename"] for a in socrata_md["metadata"]["attachments"]],
+        ),
     )
 
 
@@ -115,8 +110,6 @@ def _export_socrata_metadata(
     md = metadata.make_dcp_metadata(
         pub.Dataset(four_four=four_four).fetch_metadata()
     ).model_dump(exclude_none=True)
-
-    logger.info(f"pruning extra column fields")
 
     output_path = output_path or Path(f"{four_four}.yaml")
 
