@@ -1,6 +1,6 @@
 name: Product Update
 description: Track a data product update
-title: "Product Update - PRODUCT_NAME"
+title: "PRODUCT_NAME VERSION"
 labels: ["data update"]
 body:
   - type: markdown
@@ -26,6 +26,7 @@ body:
         - pluto
         - ztl
         - template
+        - OTHER
     validations:
       required: true
   - type: input
