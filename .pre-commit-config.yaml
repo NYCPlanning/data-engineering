@@ -3,6 +3,28 @@ repos:
     rev: v1.2.0
     hooks:
       # Green Fast Track
+      - id: dbt-clean
+        name: Green Fast Track - dbt clean
+        args:
+          [
+            "--cmd-flags",
+            "++no-clean-project-files-only",
+            "++profiles-dir",
+            "products/green_fast_track",
+            "++project-dir",
+            "products/green_fast_track",
+          ]
+      - id: dbt-docs-generate
+        name: Green Fast Track - dbt docs generate
+        args:
+          [
+            "--cmd-flags",
+            "++profiles-dir",
+            "products/green_fast_track",
+            "++project-dir",
+            "products/green_fast_track",
+          ]
+
       - id: check-script-semicolon
         name: Green Fast Track - Model scripts have no semicolon
         files: ^products/green_fast_track/models/

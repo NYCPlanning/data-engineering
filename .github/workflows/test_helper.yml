@@ -103,7 +103,6 @@ jobs:
           export BUILD_ENGINE_DB=db-green-fast-track
           dbt deps --profiles-dir products/green_fast_track --project-dir products/green_fast_track
           dbt seed --profiles-dir products/green_fast_track --project-dir products/green_fast_track
-          dbt docs generate --profiles-dir products/green_fast_track --project-dir products/green_fast_track
           pre-commit run --all-files
 
   template-db:
