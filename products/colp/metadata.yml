@@ -28,7 +28,7 @@ columns:
       NYC borough – 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
       (Staten Island)
     data_type: text
-    is_nullable: False
+    non_nullable: True
     values:
       - ["1", Manhattan]
       - ["2", Bronx]
@@ -42,14 +42,14 @@ columns:
       The tax block in which the tax lot is located. Each tax block is unique
       within a borough.
     data_type: integer
-    is_nullable: False
+    non_nullable: True
     example: 1637
 
   - name: lot
     display_name: Tax lot
     description: The number of the tax lot. Each tax lot is unique within a tax block.
     data_type: integer
-    is_nullable: False
+    non_nullable: True
     example: 141
 
   - name: bbl
@@ -63,7 +63,7 @@ columns:
       digits. For condominiums, this is usually the unit BBL.
     data_type: bbl
     readme_data_type: double
-    is_nullable: False
+    non_nullable: True
     example: 1016370141
 
   - name: mapbbl
@@ -151,7 +151,7 @@ columns:
     display_name: Owner type
     description: Type of owner
     data_type: text
-    is_nullable: False
+    non_nullable: True
     values:
       - [C, City owned]
       - [M, Mixed ownership]
@@ -165,7 +165,7 @@ columns:
       Category classifies lots as non-residential properties with a current use,
       residential properties, or properties without a current use.
     data_type: integer
-    is_nullable: False
+    non_nullable: True
     values:
       - [1, Non-residential properties with a current use]
       - [2, Residential properties]
@@ -178,7 +178,7 @@ columns:
       This categorization classifies records into broad groups based on use.
       Valid values are 1 – 9.
     data_type: integer
-    is_nullable: False
+    non_nullable: True
     values:
       - [1, Office use]
       - [2, Educational use]

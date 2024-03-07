@@ -17,7 +17,7 @@ import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
 import time
-from typing import TypedDict, Literal
+from typing import TypedDict, Literal, NotRequired
 
 from dcpy.utils.logging import logger
 from dcpy.metadata import models
@@ -68,6 +68,28 @@ class Socrata:
 
     class Responses:
         """Helper classes to model responses from the Socrata API."""
+
+        class Metadata(TypedDict):
+            """Metadata returned from the Socrata API. Fields are not comprehensive."""
+
+            id: str  # the four-four
+            name: str
+            columns: list[Socrata.Responses.Column]
+            resourceName: str
+            description: str
+            tags: list[str]
+            metadata: dict
+
+        class Column(TypedDict):
+            """Column fields returned from the Socrata API."""
+
+            name: str  # ex: Project Name
+            fieldName: str  # ex: projectnam
+            description: str
+            renderTypeName: str
+
+            # cached attributes of a dataset, e.g. top 10 most common values,
+            cachedContents: NotRequired[dict]
 
         class Revision:
             def __init__(self, data):

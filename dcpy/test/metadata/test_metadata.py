@@ -95,7 +95,7 @@ def _fake_row(columns: list[models.Column]):
             )
 
     for c in columns:
-        if c.is_nullable and random.choice([True, False]):
+        if not c.non_nullable and random.choice([True, False]):
             # adding some extra chaos
             if random.choice([True, False]):
                 del row[c.name]

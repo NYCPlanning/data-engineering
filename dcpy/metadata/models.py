@@ -13,7 +13,7 @@ class BytesDestination(BaseModel, extra="forbid"):
 
 class SocrataDestination(BaseModel, extra="forbid"):
     id: str
-    type: Literal["socrata"]
+    type: Literal["socrata"] = "socrata"
     four_four: str
     attachments: list[str] = []
     datasets: conlist(item_type=str, max_length=1)  # type:ignore
@@ -48,10 +48,10 @@ class Column(BaseModel, extra="forbid"):
     # Optional
     data_source: str | None = None
     example: Any | None = None
-    is_nullable: bool = True
-    is_primary_key: bool = False
+    non_nullable: bool | None = None
+    is_primary_key: bool | None = None
     readme_data_type: str | None = None
-    values: list[tuple] = []
+    values: list[list] | None = None
 
 
 class SocrataColumn(BaseModel, extra="forbid"):
