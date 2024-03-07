@@ -12,8 +12,8 @@ body:
 
   - type: textarea
     attributes:
-      label: Goals
-      description: The things that should be true for this project to be considered complete
+      label: Outcomes
+      description: The things that will be true when this project is complete
       value: |
         ...
 
