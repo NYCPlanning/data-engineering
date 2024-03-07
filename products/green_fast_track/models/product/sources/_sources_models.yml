@@ -1,12 +1,20 @@
 version: 2
 
 models:
-  - name: sources__cats_permits_points
-  - name: sources__cats_permits_lots
-  - name: sources__cats_permits_buffers
+  - name: sources__airports
+
+  - name: sources__arterial_highways_buffers
+
+  - name: sources__elevated_railways_buffers
+
+  - name: sources__vent_towers_buffers
 
   - name: sources__industrial_sources_lots
   - name: sources__industrial_sources_buffers
+
+  - name: sources__cats_permits_points
+  - name: sources__cats_permits_lots
+  - name: sources__cats_permits_buffers
 
   - name: sources__state_facility_permits_points
   - name: sources__state_facility_permits_lots
@@ -16,10 +24,3 @@ models:
   - name: sources__title_v_permits_lots
   - name: sources__title_v_permits_buffers
 
-  - name: sources__airports
-
-  - name: sources__arterial_highways_buffers
-
-  - name: sources__elevated_railways_buffers
-
-  - name: sources__vent_towers_buffers
