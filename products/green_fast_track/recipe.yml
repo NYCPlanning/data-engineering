@@ -10,7 +10,6 @@ inputs:
     - name: nysdec_state_facility_permits
     - name: nysdec_title_v_facility_permits
     - name: dcp_air_quality_vent_towers
-      version: 20240201
     # Noise
     # - name: dcp_digital_city_map Doesn't exist yet
     - name: panynj_jfk_65db
