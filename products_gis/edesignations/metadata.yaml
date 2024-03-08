@@ -1,40 +1,31 @@
 name: edesignations_csv_file
 display_name: 'E-Designations: CSV file'
-summary: "This data set contains information and locations of (E) Designations, including\
-  \ CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations (Table\
-  \ 2), in Appendix C of the Zoning Resolution. An (E) Designation provides notice\
-  \ of the presence of an environmental requirement pertaining to potential hazardous\
-  \ materials contamination, high ambient noise levels or air emission concerns on\
-  \ a particular tax lot.\r\n\r\nAll previously released versions of this data are\
-  \ available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
-  >BYTES of the BIG APPLE- Archive</a>"
-description: "This data set contains information and locations of (E) Designations,\
-  \ including CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations\
-  \ (Table 2), in Appendix C of the Zoning Resolution. An (E) Designation provides\
-  \ notice of the presence of an environmental requirement pertaining to potential\
-  \ hazardous materials contamination, high ambient noise levels or air emission concerns\
-  \ on a particular tax lot.\r\n\r\nAll previously released versions of this data\
-  \ are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
-  >BYTES of the BIG APPLE- Archive</a>"
-tags:
-- e-designation
-- (e) designation
-- hazmat
-- hazardous material
-- contamination
-- special designation
-- window wall noise attenuation
-- ambient noise level
-- air quality
-- impact
-- zoning map designation
-- zoning resolution
-- environmental requirements
-- new york city
-- city planning
-- dcp
-- nyc
+summary: >
+  This data set contains information and locations of (E) Designations, including
+  CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations (Table
+  2), in Appendix C of the Zoning Resolution. An (E) Designation provides notice
+  of the presence of an environmental requirement pertaining to potential hazardous
+  materials contamination, high ambient noise levels or air emission concerns on
+  a particular tax lot.
+  
+  All previously released versions of this data are available at 
+  <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\">BYTES of the BIG APPLE-Archive</a>
+
+description: >
+  This data set contains information and locations of (E) Designations,
+  including CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations
+  (Table 2), in Appendix C of the Zoning Resolution. An (E) Designation provides
+  notice of the presence of an environmental requirement pertaining to potential
+  hazardous materials contamination, high ambient noise levels or air emission concerns
+  on a particular tax lot.
+  
+  All previously released versions of this data are available at 
+  <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\>BYTES of the BIG APPLE- Archive</a>
+
+tags: [e-designation, (e) designation, hazmat, hazardous material, contamination, special designation, window wall noise attenuation, ambient noise level, air quality, impact, zoning map designation, zoning resolution, environmental requirements, new york city, city planning, dcp, nyc]
+
 each_row_is_a: E-Designation
+
 destinations:
 - id: socrata_prod
   type: socrata
@@ -44,11 +35,12 @@ destinations:
   - primary_shapefile
   omit_columns: []
   column_details: {}
+
 dataset_package:
   datasets:
   - name: primary_shapefile
     type: shapefile
-    filename: shapefile.zip
+    filename: nyedes_shape.zip
     overrides:
       omit_columns: []
       columns: {}
@@ -58,9 +50,7 @@ dataset_package:
 columns:
 - name: enumber
   display_name: ENumber
-  description: 'Identification number assigned to E-Designations
-
-    '
+  description: 'Identification number assigned to E-Designations'
   data_type: text
   example: E-175
 - name: effective_date
@@ -70,115 +60,85 @@ columns:
   example: '2007-09-10T00:00:00.000'
 - name: borocode
   display_name: BOROCODE
-  description: 'A one digit numeric code that represents the Borough of New York City
+  description: >
+    A one digit numeric code that represents the Borough of New York City 
     where the E-desigination is located
-
-    '
-  data_type: <FILL_ME_IN>!
+  data_type: text
   example: '3'
   values:
-  - - '3'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '4'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '1'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '2'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '5'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+    - ["1", Manhattan]
+    - ["2", Bronx]
+    - ["3", Brooklyn]
+    - ["4", Queens]
+    - ["5", Staten Island]
 - name: taxblock
   display_name: TAXBLOCK
-  description: 'A five digit numeric code that represents the tax block where the
+  description: >
+    A five digit numeric code that represents the tax block where the
     E-desigination is located
-
-    '
-  data_type: <FILL_ME_IN>!
+  data_type: integer
   example: '1116'
 - name: taxlot
   display_name: TAXLOT
-  description: 'A four digit numeric code that represents the tax block where the
-    E-desigination is located
-
-    '
-  data_type: <FILL_ME_IN>!
+  description: >
+   A four digit numeric code that represents the tax block where the
+   E-desigination is located
+  data_type: integer
   example: '1'
 - name: hazmat_code
   display_name: HazMat Code
-  description: 'A one digit numeric code that represents the E-Designation is related
+  description: > 
+    A one digit numeric code that represents the E-Designation is related
     to hazardous materials
-
-    '
-  data_type: <FILL_ME_IN>!
+  data_type: integer
   example: '1'
   values:
-  - - '1'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - ["0", "No"]
+  - ["1", "Yes"]
 - name: air_code
   display_name: Air Code
-  description: 'A one digit numeric code that represents the E-Designation is related
+  description: >
+    A one digit numeric code that represents the E-Designation is related
     to air quality
-
-    '
-  data_type: <FILL_ME_IN>!
+  data_type: integer
   example: '0'
   values:
-  - - '0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '1'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - ["0", "No"]
+  - ["1", "Yes"]
 - name: noise_code
   display_name: Noise Code
-  description: 'A one digit numeric code that represents the E-Designation is related
+  description: >
+    A one digit numeric code that represents the E-Designation is related
     to noise quality
-
-    '
-  data_type: <FILL_ME_IN>!
+  data_type: integer
   example: '1'
   values:
-  - - '1'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - ["0", "No"]
+  - ["1", "Yes"]
 - name: hazmat_date
   display_name: HazMat Date
-  description: 'The date the hazardous material component of the E-designation was
-    satisfied (remediated)
-
-    '
+  description: >
+    The date the hazardous material component of the E-designation was satisfied (remediated)
   data_type: datetime
-  example: <FILL_ME_IN>
+  example: "2003/08/04 0:00:00"
 - name: air_date
   display_name: Air Date
-  description: 'The date the air quality component of the E-designation was satisfied
-    (remediated)
-
-    '
+  description: The date the air quality component of the E-designation was satisfied (remediated)
   data_type: datetime
-  example: <FILL_ME_IN>
+  example: "2003/08/04 0:00:00"
 - name: noise_date
   display_name: Noise Date
-  description: 'The date the noise quality component of the E-designation was satisfied
-    (remediated)
-
-    '
+  description: The date the noise quality component of the E-designation was satisfied (remediated)
   data_type: datetime
   example: '2023-05-30T00:00:00.000'
 - name: ceqr_num
   display_name: CEQR_NUM
-  description: 'CEQR Number assigned to CEQR applications associated to the E-designation
-
-    '
+  description: CEQR Number assigned to CEQR applications associated to the E-designation
   data_type: text
   example: 05DCP081Q
 - name: ulurp_num
   display_name: ULURP_NUM
-  description: 'ULURP Numbers assigned to all ULURP applications associated to the
-    E-designation
-
-    '
+  description: ULURP Numbers assigned to all ULURP applications associated to the E-designation
   data_type: text
   example: 070314ZMQ
 - name: zoning_map
@@ -194,5 +154,5 @@ columns:
 - name: bbl
   display_name: BBL
   description: ''
-  data_type: <FILL_ME_IN>!
+  data_type: bbl
   example: '3070650012'
