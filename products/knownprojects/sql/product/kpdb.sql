@@ -49,6 +49,7 @@ DROP TABLE IF EXISTS review_no_geometry;
 SELECT * INTO review_no_geometry FROM _kpdb WHERE geometry IS NULL;
 
 DROP TABLE IF EXISTS kpdb_deduplicated;
+DROP INDEX IF EXISTS kpdb_deduplicated_gix;
 SELECT DISTINCT ON (record_id)
     project_id,
     source,
@@ -79,6 +80,7 @@ SELECT DISTINCT ON (record_id)
     geometry
 INTO kpdb_deduplicated
 FROM kpdb;
+CREATE INDEX kpdb_deduplicated_gix ON kpdb_deduplicated USING gist (geometry gist_geometry_ops_2d);
 
 DROP TABLE IF EXISTS review_dob;
 SELECT
