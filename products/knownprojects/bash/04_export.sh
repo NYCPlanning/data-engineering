@@ -35,17 +35,17 @@ mkdir -p output
     echo "Compress review folder"
     zip -r review.zip review/
 
-    echo "Export SCA aggregation tables"
-    mkdir -p sca_aggregation
-    (
-        cd sca_aggregation
-        csv_export longform_csd_output &
-        csv_export longform_es_zone_output &
-        csv_export longform_subdist_output_cp_assumptions
-        wait
-    )
-    echo "Compress SCA aggregation folder"
-    zip -r sca_aggregation.zip sca_aggregation/
+    # echo "Export SCA aggregation tables"
+    # mkdir -p sca_aggregation
+    # (
+    #     cd sca_aggregation
+    #     csv_export longform_csd_output &
+    #     csv_export longform_es_zone_output &
+    #     csv_export longform_subdist_output_cp_assumptions
+    #     wait
+    # )
+    # echo "Compress SCA aggregation folder"
+    # zip -r sca_aggregation.zip sca_aggregation/
 
     echo "Export aggregation tables"
     mkdir -p aggregation
