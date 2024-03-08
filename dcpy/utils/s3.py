@@ -101,13 +101,13 @@ def client() -> S3Client:
     )
 
 
-def list_objects(bucket: str, prefix: str) -> list:
+def list_objects(bucket: str, prefix: str) -> list[dict]:
     """Lists all objects with given prefix within bucket"""
-    objects: list = []
+    objects: list[dict] = []
     try:
         paginator = client().get_paginator("list_objects_v2")
         for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
-            objects = objects + result.get("Contents", [])
+            objects = objects + cast(list[dict], result.get("Contents", []))
     except Exception as exc:
         print(f"get_objects(bucket={bucket}, prefix={prefix}) failed")
         raise exc

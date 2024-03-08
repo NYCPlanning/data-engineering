@@ -1,6 +1,9 @@
-import pytest
-import pandas as pd
 from botocore.exceptions import ClientError
+from datetime import datetime
+import pandas as pd
+from pathlib import Path
+import pytest
+
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 
@@ -9,9 +12,23 @@ TEST_BUILD = "build-branch"
 TEST_VERSION = "v001"
 TEST_ACL = "bucket-owner-read"
 TEST_BUCKET_NAME = "edm-publishing"
+TEST_GIS_DATASET = "test_gis_dataset"
 
 draft_key = publishing.DraftKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
 publish_key = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
+
+
+@pytest.fixture(scope="function")
+def add_gis_datasets(create_buckets):
+    today = datetime.now().strftime("%Y%m%d")
+    test_objects = [
+        f"datasets/{TEST_GIS_DATASET}/staging/{TEST_GIS_DATASET}.zip",
+        f"datasets/{TEST_GIS_DATASET}/{today}/{TEST_GIS_DATASET}.zip",
+        f"datasets/{TEST_GIS_DATASET}/{TEST_VERSION.upper()}/{TEST_GIS_DATASET}.zip",
+    ]
+    for object in test_objects:
+        s3.client().put_object(Bucket=publishing.BUCKET, Key=object)
+    yield
 
 
 def test_bucket_empty(create_buckets, mock_data_constants):
@@ -103,3 +120,25 @@ def test_previous(
     previous = publishing.get_previous_version(product, version).label
     if expected is not None:
         assert previous == expected
+
+
+def test_assert_gis_dataset_exists(create_buckets, add_gis_datasets):
+    publishing._assert_gis_dataset_exists(TEST_GIS_DATASET, TEST_VERSION)
+
+    v_fail = "fake_version"
+    with pytest.raises(FileNotFoundError):
+        publishing._assert_gis_dataset_exists(TEST_GIS_DATASET, v_fail)
+
+
+def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
+    today = datetime.now().strftime("%Y%m%d")
+    assert today == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
+
+
+def test_download_gis_dataset(
+    create_buckets, add_gis_datasets, create_temp_filesystem: Path
+):
+    file_path = publishing.download_gis_dataset(
+        TEST_GIS_DATASET, TEST_VERSION, create_temp_filesystem
+    )
+    assert file_path.is_file()
