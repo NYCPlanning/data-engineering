@@ -24,7 +24,9 @@ models:
       - name: units_net
       - name: has_project_phasing
       - name: has_future_units
+      - name: future_phased_units_total
       - name: future_units_without_phasing
+      - name: completed_units
       - name: prop_within_5_years
       - name: prop_5_to_10_years
       - name: prop_after_10_years
@@ -49,17 +51,29 @@ models:
 
       # test the expectation of has_future_units
       - dbt_utils.expression_is_true:
-          name: kpdb_has_future_units
-          expression: units_net != 0
+          name: kpdb_future_units
+          expression: future_phased_units_total + future_units_without_phasing != 0
           config:
             where: has_future_units
 
-      # test the expectation of future_units_without_phasing
+      # test the expectation of has_project_phasing
       - dbt_utils.expression_is_true:
           name: kpdb_future_units_without_phasing
           expression: future_units_without_phasing = 0
           config:
             where: has_project_phasing
+
+      # test the expectation of completed_units
+      - dbt_utils.expression_is_true:
+          name: kpdb_completed_units
+          expression: completed_units = 0
+          config:
+            where: has_project_phasing
+
+      # test the sum of project unit counts
+      - dbt_utils.expression_is_true:
+          name: kpdb_sum_units
+          expression: units_net = future_phased_units_total + future_units_without_phasing + completed_units
 
       # test the sum of all project phase proportions
       - dbt_utils.expression_is_true:
@@ -71,15 +85,13 @@ models:
       # test the sum of project phase unit counts
       - dbt_utils.expression_is_true:
           name: kpdb_sum_units_year_buckets
-          expression: units_net = within_5_years + from_5_to_10_years + after_10_years
+          expression: future_phased_units_total = within_5_years + from_5_to_10_years + after_10_years
           config:
             where: has_project_phasing
 
   - name: kpdb_deduplicated
     description: "Known Projects DB project records deduplicated by Record ID"
     columns:
-      - name: project_id
-      - name: source
       - name: record_id
         tests:
           - not_null

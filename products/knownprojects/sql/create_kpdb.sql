@@ -1,5 +1,6 @@
 -- create _kpdb table
 DROP TABLE IF EXISTS _kpdb_combined_and_deduped;
+DROP TABLE IF EXISTS _future_units_details;
 DROP TABLE IF EXISTS _kpdb;
 
 SELECT
@@ -32,8 +33,12 @@ WITH
 net_units_details AS (
     SELECT
         *,
-        NULLIF(units_net, 0) IS NOT NULL AS has_future_units,
-        within_5_years + from_5_to_10_years + after_10_years AS net_units_sum,
+        CASE
+            WHEN
+                status = 'DOB 5. Completed Construction'
+                THEN units_net
+            ELSE 0
+        END AS completed_units,
         units_net - (within_5_years + from_5_to_10_years + after_10_years) AS net_units_diff
     FROM _kpdb_combined_and_deduped
 ),
@@ -41,9 +46,10 @@ net_units_details AS (
 future_units_details AS (
     SELECT
         *,
+        NULLIF(units_net, 0) IS NOT NULL AND completed_units = 0 AS has_future_units,
         CASE
             WHEN
-                has_future_units AND NOT has_project_phasing
+                NOT has_project_phasing AND completed_units = 0
                 THEN units_net
             ELSE 0
         END AS future_units_without_phasing
@@ -51,24 +57,30 @@ future_units_details AS (
 )
 
 SELECT *
-INTO _kpdb
+INTO _future_units_details
 FROM future_units_details;
 
 --  add the net unit difference (the rounding error) to the first phase with units
-UPDATE _kpdb SET
+UPDATE _future_units_details SET
     within_5_years = within_5_years + net_units_diff,
     net_units_diff = 0
 WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_within_5_years, 0) IS NOT NULL;
 
-UPDATE _kpdb SET
+UPDATE _future_units_details SET
     from_5_to_10_years = from_5_to_10_years + net_units_diff,
     net_units_diff = 0
 WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_5_to_10_years, 0) IS NOT NULL;
 
-UPDATE _kpdb SET
+UPDATE _future_units_details SET
     after_10_years = after_10_years + net_units_diff,
     net_units_diff = 0
 WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_after_10_years, 0) IS NOT NULL;
+
+SELECT
+    *,
+    within_5_years + from_5_to_10_years + after_10_years AS future_phased_units_total
+INTO _kpdb
+FROM _future_units_details;
 
 -- determine missing borough values
 UPDATE _kpdb a
@@ -93,3 +105,5 @@ SET
         WHEN a.source = 'DOB' THEN SUBSTRING(a.record_id, 1, 1)
     END
 WHERE borough IS NULL;
+
+ALTER TABLE _kpdb RENAME COLUMN geom TO geometry;
