@@ -392,6 +392,41 @@ def get_data_directory_url(product_key: ProductKey) -> str:
     return url
 
 
+def _gis_dataset_path(name: str, version: str) -> str:
+    return f"datasets/{name}/{version}/{name}.zip"
+
+
+def _assert_gis_dataset_exists(name: str, version: str):
+    version = version.upper()
+    if not s3.exists(BUCKET, _gis_dataset_path(name, version)):
+        print(_gis_dataset_path(name, version))
+        print(s3.list_objects(BUCKET, _gis_dataset_path(name, version)))
+        print(s3.exists(BUCKET, _gis_dataset_path(name, version)))
+        raise FileNotFoundError(f"GIS dataset {name} has no version {version}")
+
+
+def get_latest_gis_dataset_version(dataset_name: str) -> str:
+    ## TODO
+    ## might make more sense to just list folders, grab "max" version
+    ## by that logic, should likely try to parse str version to dcpy version object
+    ## so we don't have strange cases of an unexpected subfolder (that starts with an _)
+    ## this would let us not have to supply versions for geosupport datasets ("24a", etc)
+    metadata = s3.get_metadata(BUCKET, _gis_dataset_path(dataset_name, "staging"))
+    version = metadata.last_modified.strftime("%Y%m%d")
+    _assert_gis_dataset_exists(dataset_name, version)
+    return version
+
+
+def download_gis_dataset(dataset_name: str, version: str, target_folder: Path):
+    ## TODO - assumes versions are numeric or geosupport (which we use "24a" vs gis "24A")
+    version = version.upper()
+    assert target_folder.is_dir(), f"Target folder '{target_folder}' is not a directory"
+    _assert_gis_dataset_exists(dataset_name, version)
+    file_path = target_folder / f"{dataset_name}.zip"  ## we assume all gis datasets are
+    s3.download_file(BUCKET, _gis_dataset_path(dataset_name, version), file_path)
+    return file_path
+
+
 app = typer.Typer(add_completion=False)
 
 
