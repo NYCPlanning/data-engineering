@@ -111,7 +111,7 @@ def _export_socrata_metadata(
         pub.Dataset(four_four=four_four).fetch_metadata()
     ).model_dump(exclude_none=True)
 
-    output_path = output_path or Path(f"{four_four}.yaml")
+    output_path = output_path or Path(f"{four_four}.yml")
 
     logger.info(f"exporting {four_four} metadata to {output_path}")
     with open(output_path, "w") as outfile:
