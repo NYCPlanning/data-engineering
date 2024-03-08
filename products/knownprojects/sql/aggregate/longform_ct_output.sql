@@ -5,6 +5,7 @@ OUTPUT: longform_ct_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_ct;
+DROP INDEX IF EXISTS aggregated_ct_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_ct;
 DROP TABLE IF EXISTS aggregated_ct_longform;
 DROP TABLE IF EXISTS aggregated_ct_project_level;
@@ -237,6 +238,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_ct_4
 ) AS _1;
+CREATE INDEX aggregated_ct_gix ON aggregated_ct USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any CT*/
