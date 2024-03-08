@@ -1,52 +1,31 @@
 name: facilities_database
 display_name: Facilities Database
-summary: "The Department of City Planning aggregates information about 30,000+ facilities\
-  \ and program sites that are owned, operated, funded, licensed, or certified by\
-  \ a City, State, or Federal agency in the City of New York into a central database\
-  \ called the City Planning Facilities Database (FacDB). These facilities generally\
-  \ help to shape quality of life in the city\u2019s neighborhoods, and this dataset\
-  \ is the basis for a series of planning activities. This public data resource allows\
-  \ all New Yorkers to understand the breadth of government resources in their neighborhoods.\
-  \ The data is also complemented with a <b><a href=\"https://capitalplanning.nyc.gov/facilities\"\
-  >new interactive web map</a></b> that enables users to easily filter the data for\
-  \ their needs. Users are strongly encouraged to read the database documentation,\
-  \ particularly with regard to analytical limitations.\n\nQuestions about this database\
-  \ can be directed to <b><a href=\"mailto:dcpopendata@planning.nyc.gov\">dcpopendata@planning.nyc.gov</a></b>\n\
-  \nAll previously released versions of this data are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
-  >BYTES of the BIG APPLE- Archive</a>"
-description: "The Department of City Planning aggregates information about 30,000+\
-  \ facilities and program sites that are owned, operated, funded, licensed, or certified\
-  \ by a City, State, or Federal agency in the City of New York into a central database\
-  \ called the City Planning Facilities Database (FacDB). These facilities generally\
-  \ help to shape quality of life in the city\u2019s neighborhoods, and this dataset\
-  \ is the basis for a series of planning activities. This public data resource allows\
-  \ all New Yorkers to understand the breadth of government resources in their neighborhoods.\
-  \ The data is also complemented with a <b><a href=\"https://capitalplanning.nyc.gov/facilities\"\
-  >new interactive web map</a></b> that enables users to easily filter the data for\
-  \ their needs. Users are strongly encouraged to read the database documentation,\
-  \ particularly with regard to analytical limitations.\n\nQuestions about this database\
-  \ can be directed to <b><a href=\"mailto:dcpopendata@planning.nyc.gov\">dcpopendata@planning.nyc.gov</a></b>\n\
-  \nAll previously released versions of this data are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
-  >BYTES of the BIG APPLE- Archive</a>"
-tags:
-- service
-- services
-- property
-- facility
-- facilities
-- community
-- program
-- school
-- park
-- library
-- day care
-- foster care
-- special needs
-- mental health
-- housing
-- 'selected facilities and program sites: text'
-- dcp
+summary: ""
+
+description: >
+  The Department of City Planning aggregates information about 30,000+
+  facilities and program sites that are owned, operated, funded, licensed, or certified
+  by a City, State, or Federal agency in the City of New York into a central database
+  called the City Planning Facilities Database (FacDB). These facilities generally
+  help to shape quality of life in the city's neighborhoods, and this dataset
+  is the basis for a series of planning activities. This public data resource allows
+  all New Yorkers to understand the breadth of government resources in their neighborhoods.
+  The data is also complemented with a
+  <b><a href="https://capitalplanning.nyc.gov/facilities">new interactive web map</a></b>
+  that enables users to easily filter the data for
+  their needs. Users are strongly encouraged to read the database documentation,
+  particularly with regard to analytical limitations.
+
+
+  Questions about this database can be directed to
+  <b><a href="mailto:dcpopendata@planning.nyc.gov">dcpopendata@planning.nyc.gov</a></b>
+  All previously released versions of this data are available at
+  <a href="https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0">BYTES of the BIG APPLE Archive</a>
+
+tags: [service, services, property, facility, facilities, community, program, school, park, library, day care, foster care, special needs, mental health, housing, "selected facilities and program sites: text", dcp]
+
 each_row_is_a: Public or Private Facility Licensed to Operate in NYC
+
 destinations:
 - id: socrata_prod
   type: socrata
@@ -56,6 +35,7 @@ destinations:
   - primary_shapefile
   omit_columns: []
   column_details: {}
+
 dataset_package:
   datasets:
   - name: primary_shapefile
@@ -65,14 +45,14 @@ dataset_package:
       omit_columns: []
       columns: {}
   attachments:
-  - facilities_23v2_metadata.zip
+  - facilities_metadata.zip
+
 columns:
 - name: uid
   display_name: uid
-  description: 'Universal Unique Identifier. When a row is added to the table the
-    UID is
-
-    automatically generated, enabling database replication.'
+  description: >
+    Universal Unique Identifier. When a row is added to the table the
+    UID is automatically generated, enabling database replication.
   data_type: text
   example: 0c34b4bf741f058bc765a48f40954318
 - name: facname
@@ -82,33 +62,35 @@ columns:
   example: SP PLUS CORPORATION
 - name: addressnum
   display_name: number
-  description: "The address number of where the facility is located, validated by\
-    \ GeoClient. If\nthe address that is available for the site is not complete with\
-    \ an address\nnumber (only the street name), this \U001000D7eld is left blank."
+  description: >
+    The address number of where the facility is located, validated by
+    GeoClient. If the address that is available for the site is not complete with
+    an address number (only the street name), this field is left blank.
   data_type: text
   example: '100'
 - name: streetname
   display_name: street
-  description: "The name of the street where the facility is located, validated by\
-    \ GeoClient. If\nthe address that is available for the site is not complete with\
-    \ an address\nnumber (only the street name), this \U001000D7eld is left blank."
+  description: >
+    The name of the street where the facility is located, validated by
+    GeoClient. If the address that is available for the site is not complete with
+    an address number (only the street name), this field is left blank.
   data_type: text
   example: BROADWAY
 - name: address
   display_name: address
-  description: 'The concatenated value of AddressNumber and StreetName of where the
-
+  description: >
+    The concatenated value of AddressNumber and StreetName of where the
     facility is located. If there is not a valid, complete address available, any
-
-    location description that was provided is included in this field.'
+    location description that was provided is included in this field.
   data_type: text
   example: PANTRY
 - name: city
   display_name: city
-  description: "The USPS preferred name of the addressed city where the facility is\
-    \ located.\nGenerated by GeoClient and spatial joins. This \U001000D7eld contains\
-    \ some blanks for\nfacilities that do not overlap with the shoreline Zip Code\
-    \ boundaries."
+  description: >
+    The USPS preferred name of the addressed city where the facility is
+    located. Generated by GeoClient and spatial joins. This field contains
+    some blanks for facilities that do not overlap with the shoreline Zip Code
+    boundaries.
   data_type: text
   example: NEW YORK
 - name: boro
@@ -117,107 +99,98 @@ columns:
   data_type: text
   example: MANHATTAN
   values:
-  - - MANHATTAN
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - BROOKLYN
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - QUEENS
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - BRONX
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - STATEN ISLAND
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+    - ["MANHATTAN", ""]
+    - ["BRONX", ""]
+    - ["BROOKLYN", ""]
+    - ["QUEENS", ""]
+    - ["STATEN ISLAND", ""]
 - name: borocode
   display_name: borocode
   description: The number value representing the borough the facility is within.
-  data_type: <FILL_ME_IN>!
-  example: '1.0'
+  data_type: text
+  example: '1'
   values:
-  - - '1.0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '3.0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '4.0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '2.0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '5.0'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+    - ["1", Manhattan]
+    - ["2", Bronx]
+    - ["3", Brooklyn]
+    - ["4", Queens]
+    - ["5", Staten Island]
 - name: zipcode
   display_name: postcode
-  description: "The ZIP Code the facility is within. This \U001000D7eld contains some\
-    \ blanks for facilities\nthat do not overlap with the shoreline Zip Code boundaries."
+  description: >
+    The ZIP Code the facility is within. This field contains some
+    blanks for facilities that do not overlap with the shoreline Zip Code boundaries.
   data_type: text
   example: '11201.0'
 - name: latitude
   display_name: latitude
-  description: 'The latitude of the location either calculated using the coordinates
-    in the
-
-    source data or provided by GeoClient.'
-  data_type: <FILL_ME_IN>!
+  description: >
+    The latitude of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  data_type: double
   example: '40.75361691617714'
 - name: longitude
   display_name: longitude
-  description: 'The longitude of the location either calculated using the coordinates
-    in the
-
-    source data or provided by GeoClient.'
-  data_type: <FILL_ME_IN>!
+  description: >
+    The longitude of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  data_type: double
   example: '-73.99190514220147'
 - name: xcoord
   display_name: xcoord
-  description: 'The X coordinate of the location either calculated using the coordinates
-    in the
-
-    source data or provided by GeoClient.'
-  data_type: <FILL_ME_IN>!
+  description: >
+    The X coordinate of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  data_type: double
   example: '986492.7437038543'
 - name: ycoord
   display_name: ycoord
-  description: 'The Y coordinate of the location either calculated using the coordinates
-    in the
-
-    source data or provided by GeoClient.'
-  data_type: <FILL_ME_IN>!
+  description: >
+    The Y coordinate of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  data_type: double
   example: '213839.74968230928'
 - name: bin
   display_name: bin
-  description: "The BIN values for the buildings the facility is located in. This\
-    \ \U001000D7eld contains\nblanks, because 1) some lots do not have buildings on\
-    \ them, and 2) some lots\nhave multiple buildings and a single BIN could not be\
-    \ reliably assigned given\nthe information provided in the source data."
+  description: >
+    The BIN values for the buildings the facility is located in. This
+    field contains blanks, because 1) some lots do not have buildings on
+    them, and 2) some lots have multiple buildings and a single BIN could not be
+    reliably assigned given the information provided in the source data.
   data_type: text
   example: '1083624.0'
 - name: bbl
   display_name: bbl
-  description: "The BBL values for the tax lots the facility is located on. This \U001000D7\
-    eld contains\nblanks, because some facility categories, like pedestrian plazas\
-    \ are not located\non tax lots."
+  description: >
+    The BBL values for the tax lots the facility is located on. This field
+    contains blanks, because some facility categories, like pedestrian plazas
+    are not located on tax lots.
   data_type: text
   example: '1007860001.0'
 - name: commboard
   display_name: community board
-  description: "The Community District the facility is within. This \U001000D7eld\
-    \ contains blanks\nbecause the Community District boundaries do not capture facilities\
-    \ beyond\nthe shoreline."
-  data_type: <FILL_ME_IN>!
-  example: '105.0'
+  description: >
+    The Community District the facility is within. This field
+    contains blanks because the Community District boundaries do not capture facilities
+    beyond the shoreline.
+  data_type: integer
+  example: '105'
 - name: council
   display_name: council district
   description: The City Council District the facility is within
-  data_type: <FILL_ME_IN>!
-  example: '1.0'
+  data_type: integer
+  example: '1'
 - name: censtract
   display_name: census tract
   description: The U.S. Census Tract the facility is within
-  data_type: <FILL_ME_IN>!
-  example: '2100.0'
+  data_type: integer
+  example: '2100'
 - name: nta
   display_name: nta
-  description: "The Neighborhood Tabulation Area (NTA) the facility is within. This\
-    \ \U001000D7eld\ncontains blanks because the NTA boundaries do not capture facilities\
-    \ beyond\nthe shoreline."
+  description: >
+    The Neighborhood Tabulation Area (NTA) the facility is within. This
+    field contains blanks because the NTA boundaries do not capture facilities
+    beyond the shoreline.
   data_type: text
   example: MN17
 - name: facgroup
@@ -232,44 +205,36 @@ columns:
   example: PARKING LOTS AND GARAGES
 - name: factype
   display_name: factype
-  description: 'The value representing the facility type, the most granular category
-    of
-
-    facilities.'
+  description: >
+    The value representing the facility type, the most granular category
+    of facilities.
   data_type: text
   example: SUMMER ONLY FEEDING SITE
 - name: capacity
   display_name: capacity
-  description: "How many of capacity type/unit the facility is intended to hold. For\
-    \ many types\nof facilities, no capacity information was available. The capacity-related\
-    \ \U001000D7elds\nare blank when no information was provided in the source data."
+  description: >
+    How many of capacity type/unit the facility is intended to hold. For
+    many types of facilities, no capacity information was available. The capacity-related
+    fields are blank when no information was provided in the source data.
   data_type: text
   example: '200.0'
 - name: captype
   display_name: captype
-  description: 'The value representing the unit type of capacity, such as beds, visitors,
-    seats,
-
-    etc.'
+  description: The value representing the unit type of capacity, such as beds, visitors, seats, etc.
   data_type: text
   example: seats
   values:
-  - - seats
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - beds
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - routes
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - [seats, ""]
+  - [beds, ""]
+  - [routes, ""]
 - name: optype
   display_name: optype
   description: Indicates whether the operating entity is public or non-public.
   data_type: text
   example: Non-public
   values:
-  - - Non-public
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - Public
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - [Non-public, ""]
+  - [Public, ""]
 - name: opname
   display_name: opname
   description: The name of the operating entity.
@@ -282,20 +247,14 @@ columns:
   example: Non-public
 - name: overlevel
   display_name: overlevel
-  description: 'The level of government of the oversight agency: City, State, City-State,
-
-    Federal, or Non-public Oversight.'
+  description: 'The level of government of the oversight agency: City, State, City-State, Federal, or Non-public Oversight.'
   data_type: text
   example: City
   values:
-  - - City
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - State
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - Federal
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - County
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - [City, ""]
+  - [State, ""]
+  - [Federal, ""]
+  - [County, ""]
 - name: overagency
   display_name: overagency
   description: The name of the agency overseeing the facility.
@@ -317,29 +276,22 @@ columns:
   data_type: text
   example: EDUCATION, CHILD WELFARE, AND YOUTH
   values:
-  - - EDUCATION, CHILD WELFARE, AND YOUTH
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - HEALTH AND HUMAN SERVICES
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - CORE INFRASTRUCTURE AND TRANSPORTATION
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - PARKS, GARDENS, AND HISTORICAL SITES
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - LIBRARIES AND CULTURAL PROGRAMS
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - ADMINISTRATION OF GOVERNMENT
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - PUBLIC SAFETY, EMERGENCY SERVICES, AND ADMINISTRATION OF JUSTICE
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - ["EDUCATION, CHILD WELFARE, AND YOUTH", ""]
+  - ["HEALTH AND HUMAN SERVICES", ""]
+  - ["CORE INFRASTRUCTURE AND TRANSPORTATION", ""]
+  - ["PARKS, GARDENS, AND HISTORICAL SITES", ""]
+  - ["LIBRARIES AND CULTURAL PROGRAMS", ""]
+  - ["ADMINISTRATION OF GOVERNMENT", ""]
+  - ["PUBLIC SAFETY, EMERGENCY SERVICES, AND ADMINISTRATION OF JUSTICE", ""]
 - name: schooldist
   display_name: schooldist
   description: ''
-  data_type: <FILL_ME_IN>!
+  data_type: text
   example: '2.0'
 - name: policeprct
   display_name: policeprct
   description: ''
-  data_type: <FILL_ME_IN>!
+  data_type: text
   example: '1.0'
 - name: servarea
   display_name: servarea
@@ -347,7 +299,5 @@ columns:
   data_type: text
   example: Local
   values:
-  - - Local
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - Regional
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - [Local, ""]
+  - [Regional, ""]
