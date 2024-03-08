@@ -5,6 +5,7 @@ OUTPUT: longform_nta_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_nta;
+DROP INDEX IF EXISTS aggregated_nta_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_nta;
 DROP TABLE IF EXISTS aggregated_nta_longform;
 DROP TABLE IF EXISTS aggregated_nta_project_level;
@@ -238,6 +239,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_nta_4
 ) AS _1;
+CREATE INDEX aggregated_nta_gix ON aggregated_nta USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any Boundary*/

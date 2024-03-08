@@ -5,6 +5,7 @@ OUTPUT: longform_cdta_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_cdta;
+DROP INDEX IF EXISTS aggregated_cdta_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_cdta;
 DROP TABLE IF EXISTS aggregated_cdta_longform;
 DROP TABLE IF EXISTS aggregated_cdta_project_level;
@@ -237,6 +238,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_cdta_4
 ) AS _1;
+CREATE INDEX aggregated_cdta_gix ON aggregated_cdta USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any Boundary*/
