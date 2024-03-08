@@ -1,30 +1,95 @@
-from . import PARQUET_PATH, config
+from datetime import datetime
+import importlib
+import os
+from pathlib import Path
+import requests
+from urllib.parse import urlparse
+
+from dcpy.utils.logging import logger
+from dcpy.connectors.edm import recipes, publishing
+from dcpy.connectors.socrata import extract as extract_socrata
+from . import TMP_DIR, PARQUET_PATH, metadata
 
 
-# doesn't strictly need to be recipe config, but at least config-like object
-def archive_raw_dataset(import_config: config.Import):
-    """Given dataset and potentially a semantic version, ingest it from its source and archive it in its
-    raw format, with metadata, in edm-recipes/raw_data"""
-    ## logic to grab dataset based on ImportDefinition, dump locally
-
-    ## logic to "compute" recipes.Config object, similar to Config.compute in library
-    ## should be limited to metadata gathering - version, etc
-    ## leaving here as opposed to helper function because not sure if it will only depend on import definition
-    ##   or read any data from downloaded dataset
-
-    ## logic to push local dataset and "computed" config to raw archive in s3
-
-    ## return Config, from which s3path should be computed
-
-    raise NotImplemented
+def _download_file_web(url: str, file_name: str, dir: Path) -> Path:
+    """Simple wrapper to download a file using requests.get.
+    Returns filepath."""
+    file = dir / file_name
+    logger.info(f"downloading {url} to {file}")
+    response = requests.get(url)
+    response.raise_for_status()
+    with open(file, "wb") as f:
+        f.write(response.content)
+    return file
 
 
-def transform_to_parquet(import_config: config.Import):
+def download_file_from_source(
+    template: metadata.Template, version: str, dir=TMP_DIR
+) -> Path:
+    """From parsed config template and version, download raw data from source
+    and return path of saved local file."""
+    match template.source:
+        ## Non reqeust-based methods
+        case recipes.ExtractConfig.Source.LocalFile() as local_file:
+            return local_file.path
+        case recipes.ExtractConfig.Source.EdmPublishingGisDataset() as dataset:
+            return publishing.download_gis_dataset(dataset.name, version, dir)
+        case recipes.ExtractConfig.Source.Script() as s:
+            module = importlib.import_module(
+                f"{s.script_module or 'dcpy.extract.ingest_scripts'}.{s.script_name or template.name}"
+            )
+            logger.info(f"Running custom ingestion script {template.name}.py")
+            return module.runner(dir)
+
+        ## request-based methods
+        case recipes.ExtractConfig.Source.FileDownload() as file_download:
+            return _download_file_web(
+                file_download.url,
+                os.path.basename(urlparse(file_download.url).path),
+                dir,
+            )
+        case recipes.ExtractConfig.Source.Api() as api:
+            return _download_file_web(
+                api.endpoint, f"{template.name}.{api.format}", dir
+            )
+        case recipes.ExtractConfig.Source.Socrata() as socrata:
+            return _download_file_web(
+                extract_socrata.get_download_url(socrata),
+                f"{template.name}.{socrata.extension}",
+                dir,
+            )
+
+
+def extract_and_archive_raw_dataset(dataset: str, version: str | None):
+    """From dataset name and optional version,
+    1. parse template
+    2. determine version from source or set it as today's date if missing
+    3. download raw file from source
+    4. generate recipes config object
+    5. archive raw dataset with config
+    Returns config object."""
+    # gather metadata
+    timestamp = datetime.now()
+    template = metadata.read_template(dataset, version=version)
+    version = version or metadata.get_version(template, timestamp)
+
+    # get file
+    file = download_file_from_source(template, version)
+
+    # create "final" config file
+    config = metadata.get_config(template, version, timestamp, file.name)
+    # archive to edm-recipes/raw_datasets
+    recipes.archive_raw_dataset(config, file)
+
+    return config
+
+
+def transform_to_parquet(config: recipes.ExtractConfig):
     """Given config of archived raw dataset, transform it to parquet"""
     ### idea is that this will dump to PARQUET_PATH - other functions will assume parquet file is there as well
     raise NotImplemented
 
 
-def validate_dataset(import_config: config.Import):
+def validate_dataset(config: recipes.ExtractConfig):
     """Given config of imported dataset, validate data expectations/contract"""
     raise NotImplemented

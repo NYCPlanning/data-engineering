@@ -406,6 +406,8 @@ def _assert_gis_dataset_exists(name: str, version: str):
 
 
 def get_latest_gis_dataset_version(dataset_name: str) -> str:
+    """Get latest version of GIS-published dataset in edm-publishing/datasets
+    from metadata of dataset in 'staging' folder"""
     ## TODO
     ## might make more sense to just list folders, grab "max" version
     ## by that logic, should likely try to parse str version to dcpy version object
@@ -418,6 +420,10 @@ def get_latest_gis_dataset_version(dataset_name: str) -> str:
 
 
 def download_gis_dataset(dataset_name: str, version: str, target_folder: Path):
+    """Download GIS-published dataset from edm-publishing/datasets.
+    Capitalizes supplied version when looking in s3 due to current conventions.
+    Only quarterly (24a/24A) datasets currently use format other than just numeric datestrings
+    """
     ## TODO - assumes versions are numeric or geosupport (which we use "24a" vs gis "24A")
     version = version.upper()
     assert target_folder.is_dir(), f"Target folder '{target_folder}' is not a directory"

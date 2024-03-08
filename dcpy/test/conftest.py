@@ -75,7 +75,7 @@ def create_temp_filesystem(mock_data_constants):
     """Creates a new directory with files and removes it upon test completion.
     The directory is created and removed once per script ('module' scope)."""
 
-    data_path: Path = mock_data_constants["TEST_DATA_DIR"]
+    data_path = mock_data_constants["TEST_DATA_DIR"]
     version = mock_data_constants["TEST_VERSION"]
     version_file = mock_data_constants["TEST_VERSION_FILE"]
     test_file = mock_data_constants["TEST_FILE"]

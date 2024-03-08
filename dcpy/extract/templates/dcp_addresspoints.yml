@@ -1,0 +1,40 @@
+name: dcp-addresspoints
+acl: public-read
+source:
+  type: edm_publishing_gis_dataset
+  name: dcp_address_points
+transform_to_parquet_metadata:
+
+
+library_dataset:
+  name: dcp_addresspoints
+  version: ""
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-publishing/datasets/dcp_address_points/staging/dcp_address_points.zip
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: POINT
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### ESRI Shapefile
+      Address points created from data in the Department of City Planning Property Address Directory (PAD) file.
+      Address points were developed to supplement the address information supplied by the CSCL centerline.
+      Some computer aided dispatch systems use address points as the primary source for locating an address
+    url: ""
+    dependents: []

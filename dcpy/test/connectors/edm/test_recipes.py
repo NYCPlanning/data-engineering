@@ -1,11 +1,11 @@
 from datetime import datetime
 from pathlib import Path
 import pytest
-import pandas as pd
 import yaml
 
-from dcpy.library.archive import Archive
+from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
+from dcpy.library.archive import Archive
 
 TEST_LIBRARY_DATASET = "test"
 TEST_METADATA = recipes.ArchivalMetadata(
@@ -15,7 +15,7 @@ TEST_METADATA = recipes.ArchivalMetadata(
 RESOURCE_DIR = Path(__file__).parent / "resources"
 
 
-def archive(output_format: str, version: str) -> recipes.Config:
+def library_archive(output_format: str, version: str) -> recipes.Config:
     a = Archive()
     return a(
         path=str(RESOURCE_DIR / "test.yml"),
@@ -29,20 +29,40 @@ def archive(output_format: str, version: str) -> recipes.Config:
 
 @pytest.fixture(scope="function")
 def load_library_parquet(create_buckets):
-    yield archive(output_format="parquet", version="parquet")
+    yield library_archive(output_format="parquet", version="parquet")
 
 
 @pytest.fixture(scope="function")
 def load_library_pgdump(create_buckets):
-    yield archive(output_format="pgdump", version="pg_dump")
+    yield library_archive(output_format="pgdump", version="pg_dump")
 
 
 @pytest.fixture(scope="function")
 def load_library_all(create_buckets):
     version = "all"
     for output_format in ["parquet", "pgdump", "csv"]:
-        config = archive(output_format=output_format, version=version)
-    yield config
+        library_config = library_archive(output_format=output_format, version=version)
+    yield library_config
+
+
+def test_archive_raw_dataset(create_buckets, create_temp_filesystem: Path):
+    dataset = "bpl_libraries"  # doesn't actually get queried, just to fill out config
+    file_name = "tmp.txt"
+    tmp_file = create_temp_filesystem / file_name
+    tmp_file.touch()
+    config = recipes.ExtractConfig(
+        name=dataset,
+        version="dummy",
+        archival_timestamp=datetime.now(),
+        acl="private",
+        raw_filename=file_name,
+        source=recipes.ExtractConfig.Source.Script(type="script"),  # easiest to mock
+    )
+    recipes.archive_raw_dataset(config, tmp_file)
+    assert s3.exists(
+        recipes.BUCKET,
+        config.raw_dataset_s3_filepath,
+    )
 
 
 def test_get_preferred_file_type(

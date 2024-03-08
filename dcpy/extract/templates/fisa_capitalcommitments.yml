@@ -1,6 +1,8 @@
 name: fisa_capitalcommitments
 acl: private
-archive_raw_metadata:
+source:
+  type: local_file
+  path: .library/upload/AICP_OREQ_CAPPLN_PJCP.asc
 transform_to_parquet_metadata:
 
 library_dataset:

@@ -2,12 +2,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+import json
 import os
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 import shutil
-from typing import Callable, Literal
+from tempfile import TemporaryDirectory
+from typing import Callable, Literal, TypeAlias
 import yaml
 
 from dcpy.utils import s3, postgres, metadata
@@ -18,6 +20,8 @@ BUCKET = "edm-recipes"
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
+DATASET_FOLDER = "datasets"
+RAW_FOLDER = "raw_datasets"
 LOGGING_DB = "edm-qaqc"
 LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
@@ -26,6 +30,118 @@ ValidAclValues = Literal["public-read", "private"]
 ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
 
 
+#### extract objects
+class RawDatasetKey(BaseModel, extra="forbid"):
+    name: str
+    timestamp: datetime
+
+    @property
+    def s3_path(self):
+        return Path(RAW_FOLDER) / self.name / self.timestamp.isoformat()
+
+
+class DatasetKey(BaseModel, extra="forbid"):
+    name: str
+    version: str
+
+
+class ExtractConfig(BaseModel, extra="forbid"):
+    """New object corresponding to computed template in dcpy.extract
+    Meant to be stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
+    At some point backwards compatability with LibraryConfig should be considered"""
+
+    name: str
+    version: str
+    archival_timestamp: datetime
+    raw_filename: str
+    acl: ValidAclValues
+    source: Source.Options
+
+    class Source:
+        class LocalFile(BaseModel, extra="forbid"):
+            type: Literal["local_file"]
+            path: Path
+
+        class FileDownload(BaseModel, extra="forbid"):
+            type: Literal["file_download"]
+            url: str
+
+        class Api(BaseModel, extra="forbid"):
+            type: Literal["api"]
+            endpoint: str
+            format: Literal["json", "csv"]
+
+        class Socrata(BaseModel, extra="forbid"):
+            # This type should eventually be aligned more with logic in connectors.socrata
+            # and live outside of recipes
+            type: Literal["socrata"]
+            org: Org
+            uid: str
+            format: Literal["csv", "shapefile", "geojson"]
+
+            @property
+            def extension(self) -> str:
+                if self.format == "shapefile":
+                    return "zip"
+                else:
+                    return self.format
+
+            class Org(str, Enum):
+                nyc = "nyc"
+                nys = "nys"
+                nys_health = "nys_health"
+
+                @property
+                def server(self) -> str:
+                    match self:
+                        case "nyc":
+                            return "data.cityofnewyork.us"
+                        case "nys":
+                            return "data.ny.gov"
+                        case "nys_health":
+                            return "health.data.ny.gov"
+                        case s:
+                            raise Exception(f"Unknown org {s}")
+
+        class EdmPublishingGisDataset(BaseModel, extra="forbid"):
+            """Dataset published by GIS in edm-publishing/datasets"""
+
+            # Some datasets here will phased out if we eventually get data
+            # directly from GR or other sources
+            type: Literal["edm_publishing_gis_dataset"]
+            name: str
+
+        class Script(BaseModel):  # no extra="forbid" to allow for extra args for script
+            type: Literal["script"]
+            script_name: str | None = None
+            script_module: str | None = None
+
+        Options: TypeAlias = (
+            LocalFile | FileDownload | Api | Socrata | EdmPublishingGisDataset | Script
+        )
+
+    @property
+    def dataset(self) -> Dataset:
+        return Dataset(name=self.name, version=self.version)
+
+    @property
+    def dataset_key(self) -> DatasetKey:
+        return DatasetKey(name=self.name, version=self.version)
+
+    @property
+    def raw_dataset_key(self) -> RawDatasetKey:
+        return RawDatasetKey(name=self.name, timestamp=self.archival_timestamp)
+
+    @property
+    def raw_dataset_s3_filepath(self) -> str:
+        return f"{self.raw_dataset_key.s3_path}/{self.raw_filename}"
+
+    @field_serializer("archival_timestamp")
+    def serialize_timestamp(self, archival_timestamp: datetime, _info) -> str:
+        return archival_timestamp.isoformat()
+
+
+#### library objects
 class GeometryType(BaseModel):
     SRS: str | None = None
     type: Literal[
@@ -46,7 +162,9 @@ class GeometryType(BaseModel):
     ]
 
 
-class DatasetDefinition(BaseModel):
+class LibraryConfig(BaseModel):
+    """Computed templates from dcpy.library. Stored in config.json files in edm-recipes/datasets"""
+
     name: str
     version: str
     acl: ValidAclValues
@@ -128,7 +246,7 @@ def _type_from_extension(s: str) -> DatasetType | None:
 
 
 class Config(BaseModel, extra="forbid"):
-    dataset: DatasetDefinition
+    dataset: LibraryConfig | ExtractConfig
     execution_details: metadata.RunDetails | None = None
 
     @property
@@ -153,7 +271,7 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     @property
     def s3_folder(self) -> str:
-        return f"datasets/{self.name}/{self.version}"
+        return f"{DATASET_FOLDER}/{self.name}/{self.version}"
 
     @property
     def s3_key(self) -> str:
@@ -175,24 +293,24 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
         return next(t for t in preferences if t in file_types)
 
 
-@dataclass
-class ArchivalMetadata:
-    name: str
-    version: str
-    timestamp: datetime
-    config: Config | None = None
-    runner: str | None = None
+def archive_raw_dataset(extract_config: ExtractConfig, file_path: Path):
+    with TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        shutil.copy(file_path, tmp_dir)
+        config = Config(dataset=extract_config, execution_details=None)
 
-    def to_row(self) -> dict:
-        return {
-            "name": self.name,
-            "version": self.version,
-            "timestamp": self.timestamp,
-            "runner": self.runner,
-        }
+        with open(tmp_dir_path / "config.json", "w") as f:
+            f.write(json.dumps(config.model_dump(), indent=4))
+        s3.upload_folder(
+            BUCKET,
+            tmp_dir_path,
+            extract_config.raw_dataset_key.s3_path,
+            acl=extract_config.acl,
+            contents_only=True,
+        )
 
 
-def archive(config: Config, file_path: Path):
+def archive_dataset():
     ### this could either take a config object and path to a file, and archive them both in a folder together,
     ### or take path to folder that takes dumped config as well as file output and loads whole folder
     ### likely the latter in case of multiple output formats. Not necessarily something we want to be doing long term
@@ -203,7 +321,7 @@ def archive(config: Config, file_path: Path):
 def get_config(name: str, version="latest") -> Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
-        Bucket=BUCKET, Key=f"datasets/{name}/{version}/config.json"
+        Bucket=BUCKET, Key=f"{DATASET_FOLDER}/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
     return Config(**yaml.safe_load(file_content))
@@ -218,35 +336,14 @@ def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
     return [
         folder
-        for folder in s3.get_subfolders(BUCKET, f"datasets/{name}/")
+        for folder in s3.get_subfolders(BUCKET, f"{DATASET_FOLDER}/{name}/")
         if folder != "latest"
     ]
 
 
-def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMetadata:
-    logger.info(f"looking up metadata for {name}/{version}")
-    if version is None:
-        version = get_latest_version(name)
-    config = get_config(name, version)
-    if config.execution_details:
-        timestamp = config.execution_details.timestamp
-        runner = config.execution_details.runner_string
-    else:
-        s3metadata = s3.get_metadata(BUCKET, f"datasets/{name}/{version}/config.json")
-        date_created = s3metadata.custom.get("date_created")
-        if date_created is None:
-            timestamp = s3metadata.last_modified
-        else:
-            timestamp = datetime.fromisoformat(date_created)
-        runner = None
-    return ArchivalMetadata(
-        name=name, version=version, timestamp=timestamp, config=config, runner=runner
-    )
-
-
 def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
-    target_dir = local_library_dir / "datasets" / ds.name / ds.version
+    target_dir = local_library_dir / DATASET_FOLDER / ds.name / ds.version
     target_file_path = target_dir / ds.file_name
     if (target_file_path).exists():
         print(f"✅ {ds.file_name} exists in cache")
@@ -367,6 +464,49 @@ def log_metadata(config: Config):
         version=config.dataset.version,
         timestamp=config.execution_details.timestamp,
         runner=config.execution_details.runner_string,
+    )
+
+
+### Logic for QA source data dashboard
+
+
+@dataclass
+class ArchivalMetadata:
+    name: str
+    version: str
+    timestamp: datetime
+    config: Config | None = None
+    runner: str | None = None
+
+    def to_row(self) -> dict:
+        return {
+            "name": self.name,
+            "version": self.version,
+            "timestamp": self.timestamp,
+            "runner": self.runner,
+        }
+
+
+def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMetadata:
+    if version is None:
+        version = get_latest_version(name)
+    logger.info(f"looking up metadata for {name}/{version}")
+    config = get_config(name, version)
+    if config.execution_details:
+        timestamp = config.execution_details.timestamp
+        runner = config.execution_details.runner_string
+    else:
+        s3metadata = s3.get_metadata(
+            BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"
+        )
+        date_created = s3metadata.custom.get("date_created")
+        if date_created is None:
+            timestamp = s3metadata.last_modified
+        else:
+            timestamp = datetime.fromisoformat(date_created)
+        runner = None
+    return ArchivalMetadata(
+        name=name, version=version, timestamp=timestamp, config=config, runner=runner
     )
 
 

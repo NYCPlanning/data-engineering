@@ -1,0 +1,6 @@
+name: dcp_atomicpolygons
+acl: public-read
+source:
+  type: file_download
+  url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/{{ dummy_jinja_var }}/bytes/nyap_{{ version }}.zip
+transform_to_parquet_metadata:
