@@ -6,7 +6,7 @@ import os
 import requests
 import yaml
 
-from dcpy.connectors.edm.recipes import DatasetDefinition
+from dcpy.connectors.edm.recipes import LibraryConfig
 from .utils import format_url
 from .validator import Validator, Dataset
 
@@ -63,7 +63,7 @@ class Config:
         return datetime.today().strftime("%Y%m%d")
 
     @cached_property
-    def compute(self) -> DatasetDefinition:
+    def compute(self) -> LibraryConfig:
         """based on given yml file, compute the configuration"""
 
         # Validate unparsed, unrendered file
@@ -115,4 +115,4 @@ class Config:
                 "Either url, script source, or socrata source must be defined"
             )
 
-        return DatasetDefinition(**config.model_dump())
+        return LibraryConfig(**config.model_dump())

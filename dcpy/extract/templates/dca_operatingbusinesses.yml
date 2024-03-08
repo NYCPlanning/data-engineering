@@ -1,6 +1,10 @@
 name: dcp_operatingbusinesses
 acl: public-read
-archive_raw_metadata:
+source:
+  type: socrata
+  org: nyc
+  uid: w7w3-xahh
+  format: csv
 transform_to_parquet_metadata:
 
 library_dataset:

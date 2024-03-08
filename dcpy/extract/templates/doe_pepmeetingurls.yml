@@ -1,6 +1,7 @@
 name: doe_pepmeetingurls
 acl: public-read
-archive_raw_metadata:
+source:
+  type: script
 transform_to_parquet_metadata:
 
 library_dataset:

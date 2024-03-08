@@ -1,6 +1,8 @@
 name: dcp_atomicpolygons
 acl: public-read
-archive_raw_metadata:
+source:
+  type: file_download
+  url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
 transform_to_parquet_metadata:
 
 library_dataset:

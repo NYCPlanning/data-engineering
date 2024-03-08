@@ -1,6 +1,10 @@
 name: nysdoh_nursinghomes
 acl: public-read
-archive_raw_metadata:
+source:
+  type: socrata
+  org: nys_health
+  uid: izta-vnpq
+  format: csv
 transform_to_parquet_metadata:
 
 library_dataset:

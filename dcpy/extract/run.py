@@ -1,13 +1,12 @@
 import typer
 
-from dcpy.connectors.edm import recipes
-from . import PARQUET_PATH, config, ingest, processing
+from . import ingest, processing
 
 
 def run(dataset: str, version: str | None = None):
-    import_config = config.get_import_config(dataset, version)
-    ingest.archive_raw_dataset(import_config)
-    ingest.transform_to_parquet(import_config)
+    config = ingest.archive_raw_dataset(dataset, version)
+
+    ingest.transform_to_parquet(config)
 
     ## logic to apply transformations based on parsed config/template. Something like this
     # for step in config.processing.steps:
@@ -34,8 +33,7 @@ def _cli_wrapper_archive_raw_dataset(
         help="Version of dataset being archived",
     ),
 ):
-    import_config = config.get_import_config(dataset, version)
-    ingest.archive_raw_dataset(import_config)
+    ingest.archive_raw_dataset(dataset, version)
 
 
 @app.command("run")

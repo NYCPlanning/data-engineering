@@ -1,6 +1,8 @@
 name: nysed_nonpublicenrollment
 acl: public-read
-archive_raw_metadata:
+source:
+  type: file_download
+  url: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
 transform_to_parquet_metadata:
 
 library_dataset:
