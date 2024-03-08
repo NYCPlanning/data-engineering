@@ -2,12 +2,9 @@ name: mih_test
 display_name: MIH Test
 summary: Description for Mandatory Inclusionary Housing
 description: Description for Mandatory Inclusionary Housing
-tags:
-- housing
-- house
-- building
-- development
+tags: [housing, house, building, development]
 each_row_is_a: A Mandatorily Included House
+
 destinations:
 - id: socrata_prod
   type: socrata
@@ -17,6 +14,7 @@ destinations:
   - primary_shapefile
   omit_columns: []
   column_details: {}
+
 dataset_package:
   datasets:
   - name: primary_shapefile
@@ -27,12 +25,13 @@ dataset_package:
       columns: {}
   attachments:
   - nycmih_metadata.pdf
+
 columns:
 - name: the_geom
   display_name: the_geom
   description: Geometry type, changed
   data_type: wkb
-  example: <FILL_ME_IN>
+  example: 
   readme_data_type: geometry
 - name: boro
   display_name: Boro
@@ -40,24 +39,13 @@ columns:
     is mapped. The boro code is a single digit identifier, indicating a particular
     borough (1 = Manhattan, 2 = Bronx, 3 = Brooklyn, 4 = Queens, 5 = Staten Island).
   data_type: text
-  example: '3'
+  example: '1'
   values:
-  - - '3'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '4'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '2'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '1'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '5'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '02'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '03'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - '04'
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+    - ["1", Manhattan]
+    - ["2", Bronx]
+    - ["3", Brooklyn]
+    - ["4", Queens]
+    - ["5", Staten Island]
 - name: status
   display_name: Status
   description: Status of the ULURP text amendment application (Adopted = final approval,
@@ -65,10 +53,7 @@ columns:
   data_type: text
   example: Adopted
   values:
-  - - Adopted
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
-  - - Adoped
-    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - [Adopted, ]
 - name: projectnam
   display_name: Project Name
   description: Project Name of the Mandatory Inclusionary Housing (MIH) area.
@@ -117,10 +102,10 @@ columns:
 - name: shape_leng
   display_name: Shape_Length
   description: Length of feature in feet.
-  data_type: <FILL_ME_IN>!
+  data_type: double
   example: '837.017259715'
 - name: shape_area
   display_name: Shape_Area
   description: Area of feature in internal squared feet.
-  data_type: <FILL_ME_IN>!
+  data_type: double
   example: '700002.648777'
