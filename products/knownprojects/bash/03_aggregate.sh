@@ -25,9 +25,9 @@ run_sql_file sql/aggregate/preprocessing.sql
 ## Do general aggregations
 echo "Create the general aggregate tables..."
 
-echo "Build Census Tract aggregate table"
-run_sql_file sql/aggregate/longform_ct_output.sql
-dbt build --select future_units_by_ct
+# echo "Build Census Tract aggregate table"
+# run_sql_file sql/aggregate/longform_ct_output.sql
+# dbt build --select future_units_by_ct
 
 echo "Build NTA aggregate table"
 run_sql_file sql/aggregate/longform_nta_output.sql
@@ -37,9 +37,9 @@ echo "Build CDTA aggregate table"
 run_sql_file sql/aggregate/longform_cdta_output.sql
 dbt build --select future_units_by_cdta
 
-echo "Build Community District aggregate table"
-run_sql_file sql/aggregate/longform_cd_output.sql
-dbt build --select future_units_by_cd
+# echo "Build Community District aggregate table"
+# run_sql_file sql/aggregate/longform_cd_output.sql
+# dbt build --select future_units_by_cd
 
 echo "General aggregations are complete"
 
