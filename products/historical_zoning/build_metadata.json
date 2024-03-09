@@ -1,0 +1,511 @@
+{
+    "timestamp": "2024-03-09T12:57:01.611688-05:00",
+    "commit": "5b09bec0da57dca08dcc65e6bb6433af14695a87",
+    "version": "0.0.1",
+    "recipe": {
+        "name": "Green Fast Track",
+        "product": "green_fast_track",
+        "version": "0.0.1",
+        "vars": {
+            "VERSION": "0.0.1"
+        },
+        "inputs": {
+            "missing_versions_strategy": "find_latest",
+            "datasets": [
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20221207",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20221207",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210809",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210809",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20221206",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20221206",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20231113",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20231113",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210406",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210406",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20211005",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20211005",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220504",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220504",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240207",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240207",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210316",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210316",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230505",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230505",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230607",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230607",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230912",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230912",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230920",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230920",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220712",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220712",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230810",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230810",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230504",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230504",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210409",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210409",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210802",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210802",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20221103",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20221103",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210308",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210308",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210317",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210317",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210903",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210903",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220309",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220309",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210331",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210331",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230321",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230321",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20231003",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20231003",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210414",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210414",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210706",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210706",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210506",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210506",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20211105",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20211105",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230719",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230719",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210714",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210714",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230508",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230508",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230809",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230809",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20231109",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20231109",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230724",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230724",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240116",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240116",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230403",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230403",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20221005",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20221005",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220908",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220908",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20211129",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20211129",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220907",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220907",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240105",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240105",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240111",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240111",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230908",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230908",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210407",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210407",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210607",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210607",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230104",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230104",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230404",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230404",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220607",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220607",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230815",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230815",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230711",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230711",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20231204",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20231204",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230203",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230203",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20221107",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20221107",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240103",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240103",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240112",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240112",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220803",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220803",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220110",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220110",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220505",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220505",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220403",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220403",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20240104",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20240104",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210217",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210217",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210202",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210202",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20220207",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20220207",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20210913",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20210913",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230911",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230911",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20230306",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20230306",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20231106",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20231106",
+                    "destination": "postgres"
+                },
+                {
+                    "name": "dcp_zoningdistricts",
+                    "version": "20221109",
+                    "file_type": "pg_dump",
+                    "import_as": "dcp_zoningdistricts_20221109",
+                    "destination": "postgres"
+                }
+            ],
+            "dataset_defaults": {
+                "destination": "postgres"
+            }
+        }
+    }
+}
