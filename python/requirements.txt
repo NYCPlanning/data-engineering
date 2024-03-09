@@ -34,18 +34,18 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.34.54
+boto3==1.34.59
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.34.54
+boto3-stubs[s3]==1.34.59
     # via -r python/requirements.in
-botocore==1.34.54
+botocore==1.34.59
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.34.54
+botocore-stubs==1.34.59
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -155,7 +155,7 @@ filelock==3.13.1
     # via
     #   gdown
     #   virtualenv
-fiona==1.9.5
+fiona==1.9.6
     # via geopandas
 folium==0.14.0
     # via
@@ -197,9 +197,7 @@ idna==3.6
     #   dbt-core
     #   requests
 importlib-metadata==6.11.0
-    # via
-    #   dbt-semantic-interfaces
-    #   streamlit
+    # via dbt-semantic-interfaces
 iniconfig==2.0.0
     # via pytest
 ipyevents==2.0.2
@@ -250,7 +248,7 @@ jinja2==3.1.3
     #   pydeck
     #   sqlfluff
     #   streamlit-folium
-jinja2-simple-tags==0.5.0
+jinja2-simple-tags==0.6.1
     # via sqlfluff-templater-dbt
 jmespath==1.0.1
     # via
@@ -278,7 +276,7 @@ jupyterlab-widgets==3.0.10
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-leafmap==0.31.3
+leafmap==0.31.5
     # via -r python/requirements.in
 leather==0.4.0
     # via agate
@@ -436,7 +434,7 @@ pure-eval==0.2.2
     # via stack-data
 py-partiql-parser==0.5.1
     # via moto
-pyarrow==15.0.0
+pyarrow==15.0.1
     # via
     #   -r python/requirements.in
     #   streamlit
@@ -460,7 +458,7 @@ pyjwt[crypto]==2.8.0
     # via
     #   msal
     #   pyjwt
-pyparsing==3.1.1
+pyparsing==3.1.2
     # via
     #   matplotlib
     #   snuggs
@@ -496,7 +494,6 @@ python-dateutil==2.9.0.post0
     #   pandas
     #   pystac
     #   pystac-client
-    #   streamlit
 python-decouple==3.8
     # via streamlit-aggrid
 python-dotenv==1.0.1
@@ -604,7 +601,7 @@ sqlparse==0.4.4
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.31.1
+streamlit==1.32.0
     # via
     #   -r python/requirements.in
     #   streamlit-aggrid
@@ -676,7 +673,7 @@ types-requests==2.31.0.6
     # via -r python/requirements.in
 types-s3transfer==0.10.0
     # via boto3-stubs
-types-setuptools==69.1.0.20240302
+types-setuptools==69.1.0.20240309
     # via -r python/requirements.in
 types-tqdm==4.66.0.2
     # via -r python/requirements.in
@@ -699,8 +696,6 @@ typing-extensions==4.10.0
     #   typer
 tzdata==2024.1
     # via pandas
-tzlocal==5.2
-    # via streamlit
 urllib3==1.26.18
     # via
     #   -r python/requirements.in
@@ -712,8 +707,6 @@ us==2.0.2
     # via -r python/requirements.in
 usaddress==0.5.10
     # via -r python/requirements.in
-validators==0.22.0
-    # via streamlit
 virtualenv==20.25.1
     # via pre-commit
 watchdog==4.0.0
