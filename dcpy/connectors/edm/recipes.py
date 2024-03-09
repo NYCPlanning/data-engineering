@@ -290,7 +290,8 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
         file_types = self.get_file_types()
         if len(file_types.intersection(preferences)) == 0:
             raise FileNotFoundError(
-                f"Dataset {self.name} could not find filetype of any of {preferences}. Found filetypes for {self.name}: {file_types}"
+                f"Dataset {self.name} version {self.version} could not find filetype of any of {preferences}. "
+                f"Found filetypes for {self.name}: {file_types}"
             )
         return next(t for t in preferences if t in file_types)
 
