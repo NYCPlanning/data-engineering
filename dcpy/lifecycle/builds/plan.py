@@ -90,25 +90,40 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
             publishing.PublishKey(recipe.product, "latest")
         ).to_dict()["version"]
 
+    datasets = []
     for ds in recipe.inputs.datasets:
-        if ds.version is None:
-            if ds.version_env_var is not None:
-                version = os.getenv(ds.version_env_var)
-                if version is None:
-                    raise Exception(
-                        f"Dataset {ds.name} requires version env var: {ds.version_env_var}"
-                    )
-                ds.version = version
-            elif (
-                recipe.inputs.missing_versions_strategy
-                == RecipeInputsVersionStrategy.copy_latest_release
-            ):
-                ds.version = previous_versions[ds.name]
-            else:
-                ds.version = "latest"
-
-        if ds.version == "latest":
-            ds.version = recipes.get_latest_version(ds.name)
+        if ds.version == "__all__":
+            versions = recipes.get_all_versions(ds.name)
+            expanded = [
+                InputDataset(
+                    name=ds.name,
+                    version=version,
+                    file_type=ds.file_type,
+                    import_as=f"{ds.name}_{version}",
+                )
+                for version in versions
+            ]
+            datasets = datasets + expanded
+        else:
+            if ds.version == "latest":
+                ds.version = recipes.get_latest_version(ds.name)
+            if ds.version is None:
+                if ds.version_env_var is not None:
+                    version = os.getenv(ds.version_env_var)
+                    if version is None:
+                        raise Exception(
+                            f"Dataset {ds.name} requires version env var: {ds.version_env_var}"
+                        )
+                    ds.version = version
+                elif (
+                    recipe.inputs.missing_versions_strategy
+                    == RecipeInputsVersionStrategy.copy_latest_release
+                ):
+                    ds.version = previous_versions[ds.name]
+                else:
+                    ds.version = "latest"
+            datasets.append(ds)
+    recipe.inputs.datasets = datasets
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
