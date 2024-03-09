@@ -1,0 +1,8 @@
+name: Green Fast Track
+product: green_fast_track
+version: 0.0.1
+inputs:
+  datasets:
+    - name: dcp_zoningdistricts
+      version: __all__
+  missing_versions_strategy: find_latest
