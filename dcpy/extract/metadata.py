@@ -1,6 +1,8 @@
 from __future__ import annotations
 import jinja2
+from jinja2 import meta
 from datetime import datetime
+from pathlib import Path
 from pydantic import BaseModel
 import yaml
 
@@ -28,12 +30,34 @@ class Template(
     library_dataset: LibraryConfig | None = None
 
 
-def read_template(dataset: str, **kwargs) -> Template:
-    file = TEMPLATE_DIR / f"{dataset}.yml"
+def get_jinja_vars(s: str) -> set[str]:
+    env = jinja2.Environment()
+    parsed_content = env.parse(s)
+    return meta.find_undeclared_variables(parsed_content)
+
+
+def read_template(
+    dataset: str, version: str | None = None, template_dir: Path = TEMPLATE_DIR
+) -> Template:
+    file = template_dir / f"{dataset}.yml"
     logger.info(f"Reading template from {file}")
     with open(file, "r") as f:
         template_string = f.read()
-    template_string = jinja2.Template(template_string).render(**kwargs)
+    vars = get_jinja_vars(template_string)
+    if version is None and len(vars) > 0:
+        if vars == {"version"}:
+            raise Exception(
+                "Version must be supplied explicitly to be rendered in template"
+            )
+        else:
+            raise Exception(f"Unsupported jinja vars found in template: {vars}")
+    else:
+        if not (len(vars) == 0 or vars == {"version"}):
+            vars.discard("version")
+            raise Exception(
+                f"'version' is only suppored jinja var. Unsupported vars in template: {vars}"
+            )
+        template_string = jinja2.Template(template_string).render(version=version)
     template_yml = yaml.safe_load(template_string)
     return Template(**template_yml)
 
