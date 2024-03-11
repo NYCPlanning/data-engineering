@@ -150,12 +150,16 @@ def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metad
 
 
 def validate_package(package_path: Path, metadata: models.Metadata):
+    errors = []
     for ds in metadata.dataset_package.datasets:
         match ds.type:
             case "csv":
                 csv_path = package_path / ds.filename
                 logger.info(f"validating csv: {csv_path} for {ds.name}")
-                return validate_csv(package_path / ds.filename, ds, metadata)
+                errors += validate_csv(package_path / ds.filename, ds, metadata)
+            case _:
+                pass
+    return errors
 
 
 app = typer.Typer(add_completion=False)
