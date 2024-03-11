@@ -27,6 +27,14 @@ tags: [e-designation, (e) designation, hazmat, hazardous material, contamination
 each_row_is_a: E-Designation
 
 destinations:
+- id: socrata_test
+  type: socrata
+  four_four: 4myk-ej58
+  attachments: []
+  datasets:
+  - primary_shapefile
+  omit_columns: []
+  column_details: {}
 - id: socrata_prod
   type: socrata
   four_four: hxm3-23vy
