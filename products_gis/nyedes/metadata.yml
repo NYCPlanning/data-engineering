@@ -1,5 +1,5 @@
-name: edesignations_csv_file
-display_name: 'E-Designations: CSV file'
+name: nyedes
+display_name: 'E-Designations'
 summary: >
   This data set contains information and locations of (E) Designations, including
   CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations (Table
@@ -29,7 +29,7 @@ each_row_is_a: E-Designation
 destinations:
 - id: socrata_test
   type: socrata
-  four_four: 4myk-ej58
+  four_four: jep3-h9py
   attachments: []
   datasets:
   - primary_shapefile
