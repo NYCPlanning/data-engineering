@@ -179,7 +179,7 @@ def _output(df: pd.DataFrame):
         "geo_y_coord",
         "geo_function",
     ]
-    df[cols].to_csv(sys.stdout, sep="|", index=False)
+    df[cols].to_csv("output/dep_cats_permits.csv", index=False)
 
 
 def _readme():

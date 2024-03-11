@@ -55,7 +55,7 @@ CREATE TEMP TABLE dep_cats_permits (
     geo_function text
 );
 
-\COPY dep_cats_permits FROM PSTDIN DELIMITER '|' CSV HEADER;
+\COPY dep_cats_permits FROM 'output/dep_cats_permits.csv' DELIMITER ',' CSV HEADER;
 
 DROP TABLE IF EXISTS :NAME.:"VERSION" CASCADE;
 SELECT 

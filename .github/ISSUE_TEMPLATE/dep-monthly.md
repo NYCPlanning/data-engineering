@@ -3,11 +3,6 @@ name: Monthly Run DEP CATS permits
 about: Approve a push of DEP CATS data to production.
 title: "[publish] dep_cats_permits"
 labels: 'data update'
-assignees:
-    - ileoyu
-    - OmarOrtiz1
-    - jpiacentinidcp
-    - rtblair
 ---
 
 A fresh run of dep_cats_permits is complete! 🎉

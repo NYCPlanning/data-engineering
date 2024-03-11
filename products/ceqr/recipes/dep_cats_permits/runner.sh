@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 source $(pwd)/bin/config.sh
 BASEDIR=$(dirname $0)
 NAME=$(basename $BASEDIR)
@@ -7,13 +8,7 @@ VERSION=$DATE
 (
     cd $BASEDIR
     mkdir -p output
-
-    docker run --rm\
-        -e EDM_DATA=$EDM_DATA\
-        -v $(pwd)/../:/recipes\
-        -w /recipes/$NAME\
-        --user $UID\
-        nycplanning/docker-geosupport:latest python3 build.py | 
+    python3 build.py
     psql $EDM_DATA -v NAME=$NAME -v VERSION=$VERSION -f create.sql
 
     (
@@ -31,10 +26,7 @@ VERSION=$DATE
         echo "$VERSION" > version.txt
 
         # Convert README.md to README.pdf
-        docker run --rm\
-            -v "`pwd`:/data" \
-            --user `id -u`:`id -g` \
-            pandoc/latex README.md -o ReadMe_DEPCATS.pdf
+        mdpdf --output ReadMe_DEPCATS.pdf README.md
     )
     Upload $NAME $VERSION
     Upload $NAME latest
