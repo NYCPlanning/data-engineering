@@ -195,7 +195,8 @@ class Dataset:
         open_revs = self.fetch_open_revisions()
         logger.info(f"Discarding revisions: {[r.revision_num for r in open_revs]}")
         for r in open_revs:
-            r.discard()
+            if r.revision_num != "0":
+                r.discard()
 
     def create_replace_revision(self) -> Revision:
         """Create a revision that will replace/overwrite the existing dataset, rather than upserting."""
