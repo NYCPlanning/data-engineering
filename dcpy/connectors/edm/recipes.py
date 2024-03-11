@@ -46,6 +46,10 @@ class DatasetKey(BaseModel, extra="forbid"):
 
 
 class ExtractConfig(BaseModel, extra="forbid"):
+    """New object corresponding to computed template in dcpy.extract
+    Meant to be stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
+    At some point backwards compatability with LibraryConfig should be considered"""
+
     name: str
     version: str
     archival_timestamp: datetime
@@ -153,6 +157,8 @@ class GeometryType(BaseModel):
 
 
 class LibraryConfig(BaseModel):
+    """Computed templates from dcpy.library. Stored in config.json files in edm-recipes/datasets"""
+
     name: str
     version: str
     acl: ValidAclValues
