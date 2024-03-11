@@ -5,6 +5,7 @@ OUTPUT: longform_cd_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_cd;
+DROP INDEX IF EXISTS aggregated_cd_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_cd;
 DROP TABLE IF EXISTS aggregated_cd_longform;
 DROP TABLE IF EXISTS aggregated_cd_project_level;
@@ -238,6 +239,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_cd_4
 ) AS _1;
+CREATE INDEX aggregated_cd_gix ON aggregated_cd USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any CD*/
