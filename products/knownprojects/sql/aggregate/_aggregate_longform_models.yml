@@ -7,6 +7,9 @@ models:
       - name: record_id
         tests:
           - not_null
+      - name: nta
+        tests:
+          - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: longform_nta_output_compound_key
@@ -18,6 +21,9 @@ models:
     description: "Project records with a row for each CDTA it intersects with"
     columns:
       - name: record_id
+        tests:
+          - not_null
+      - name: cdta
         tests:
           - not_null
     tests:
@@ -33,6 +39,9 @@ models:
       - name: record_id
         tests:
           - not_null
+      - name: cd
+        tests:
+          - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: longform_cd_output_compound_key
@@ -44,6 +53,9 @@ models:
     description: "Project records with a row for each census tract it intersects with"
     columns:
       - name: record_id
+        tests:
+          - not_null
+      - name: ct
         tests:
           - not_null
     tests:
