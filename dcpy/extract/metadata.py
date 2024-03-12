@@ -7,9 +7,10 @@ from pydantic import BaseModel
 import yaml
 
 from dcpy.utils.logging import logger
+from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.library.validator import LibraryConfig
-from . import TEMPLATE_DIR, utils
+from . import TEMPLATE_DIR
 
 
 class Template(
@@ -65,7 +66,7 @@ def read_template(
 def get_version(template: Template, timestamp: datetime) -> str:
     match template.source:
         case recipes.ExtractConfig.Source.Socrata() as socrata:
-            return utils.Socrata.get_version(socrata)
+            return extract_socrata.get_version(socrata)
         case recipes.ExtractConfig.Source.EdmPublishingGisDataset() as gis_dataset:
             return publishing.get_latest_gis_dataset_version(gis_dataset.name)
         case _:

@@ -7,7 +7,8 @@ from urllib.parse import urlparse
 
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
-from . import TMP_DIR, PARQUET_PATH, metadata, utils
+from dcpy.connectors.socrata import extract as extract_socrata
+from . import TMP_DIR, PARQUET_PATH, metadata
 
 
 def _download_file_web(url: str, file_name: str, dir: Path) -> Path:
@@ -53,7 +54,7 @@ def download_file_from_source(
             )
         case recipes.ExtractConfig.Source.Socrata() as socrata:
             return _download_file_web(
-                utils.Socrata.get_url(socrata),
+                extract_socrata.get_download_url(socrata),
                 f"{template.name}.{socrata.extension}",
                 dir,
             )

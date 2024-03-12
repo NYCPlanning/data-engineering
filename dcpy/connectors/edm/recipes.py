@@ -72,6 +72,8 @@ class ExtractConfig(BaseModel, extra="forbid"):
             format: Literal["json", "csv"]
 
         class Socrata(BaseModel, extra="forbid"):
+            # This type should eventually be aligned more with logic in connectors.socrata
+            # and live outside of recipes
             type: Literal["socrata"]
             org: Org
             uid: str
