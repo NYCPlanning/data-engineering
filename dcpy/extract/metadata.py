@@ -32,6 +32,7 @@ class Template(
 
 
 def get_jinja_vars(s: str) -> set[str]:
+    """Get all variables expected in a jinja template string"""
     env = jinja2.Environment()
     parsed_content = env.parse(s)
     return meta.find_undeclared_variables(parsed_content)
@@ -40,6 +41,8 @@ def get_jinja_vars(s: str) -> set[str]:
 def read_template(
     dataset: str, version: str | None = None, template_dir: Path = TEMPLATE_DIR
 ) -> Template:
+    """Given dataset name, read yml template in template_dir of given dataset
+    and insert version as jinja var if provided."""
     file = template_dir / f"{dataset}.yml"
     logger.info(f"Reading template from {file}")
     with open(file, "r") as f:
@@ -64,6 +67,9 @@ def read_template(
 
 
 def get_version(template: Template, timestamp: datetime) -> str:
+    """Given parsed dataset template, determine version.
+    If version's source has no custom logic, returns formatted date
+    from provided datetime"""
     match template.source:
         case recipes.ExtractConfig.Source.Socrata() as socrata:
             return extract_socrata.get_version(socrata)
@@ -76,6 +82,8 @@ def get_version(template: Template, timestamp: datetime) -> str:
 def get_config(
     template: Template, version: str, timestamp: datetime, file_name: str
 ) -> recipes.ExtractConfig:
+    """Simple wrapper to produce a recipes ExtractConfig from a parsed template
+    and other computed values"""
     return recipes.ExtractConfig(
         name=template.name,
         version=version,

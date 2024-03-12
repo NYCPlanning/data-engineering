@@ -104,6 +104,10 @@ class ExtractConfig(BaseModel, extra="forbid"):
                             raise Exception(f"Unknown org {s}")
 
         class EdmPublishingGisDataset(BaseModel, extra="forbid"):
+            """Dataset published by GIS in edm-publishing/datasets"""
+
+            # Some datasets here will phased out if we eventually get data
+            # directly from GR or other sources
             type: Literal["edm_publishing_gis_dataset"]
             name: str
 
