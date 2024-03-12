@@ -45,10 +45,10 @@ class Validator:
     def has_only_one_source(self):
         dataset = self.__parsed_file["dataset"]
         source_fields = list(dataset["source"].keys())
-        # In other words: if url is in source, socrata or script cannot be.
-        # If url is NOT in source. Only one from socrata or url can be. (XOR operator ^)
 
-        if "url" in source_fields:
-            return ("socrata" not in source_fields) and ("script" not in source_fields)
-        else:
-            return ("socrata" in source_fields) ^ ("script" in source_fields)
+        # need to filter to the actual "source" optional fields
+        source_types = {"url", "socrata", "arcgis_feature_server", "script"}
+        provided_sources = [f for f in source_fields if f in source_types]
+
+        # there should be exactly one source
+        return len(provided_sources) == 1

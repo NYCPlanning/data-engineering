@@ -1,12 +1,15 @@
 from datetime import datetime
 from functools import cached_property
 from jinja2 import Template
+import json
 import importlib
 import os
+from pathlib import Path
 import requests
 import yaml
 
 from dcpy.connectors.edm.recipes import LibraryConfig
+from dcpy.connectors.esri import arcgis_feature_service
 from .utils import format_url
 from .validator import Validator, Dataset
 
@@ -72,6 +75,10 @@ class Config:
         _config = self.parsed_unrendered_template
         if _config.source.socrata:
             version = self.version_socrata(_config.source.socrata.uid)
+        elif _config.source.arcgis_feature_server:
+            version = arcgis_feature_service.get_data_last_updated(
+                _config.source.arcgis_feature_server
+            ).strftime("%Y%m%d")
         else:
             # backwards compatibility before templates were simplified
             if _config.version and _config.version.replace(" ", "") == r"{{version}}":
@@ -102,6 +109,20 @@ class Config:
                     "Socrata source format must be 'csv', 'geojson', or 'shapefile'."
                 )
             config.source.gdalpath = format_url(path)
+
+        elif config.source.arcgis_feature_server:
+            tmp_dir = Path(__file__).parent / "tmp"
+            tmp_dir.mkdir(exist_ok=True)
+            if not (config.source.geometry and config.source.geometry.SRS):
+                raise Exception("Must provide source crs for arcgis feature server")
+            geojson = arcgis_feature_service.get_dataset(
+                config.source.arcgis_feature_server,
+                crs=int(config.source.geometry.SRS.strip("EPSG:")),
+            )
+            file = tmp_dir / f"{config.name}.geojson"
+            with open(tmp_dir / f"{config.name}.geojson", "w") as f:
+                json.dump(geojson, f)
+            config.source.gdalpath = format_url(str(file))
 
         elif config.source.url:
             config.source.gdalpath = format_url(
