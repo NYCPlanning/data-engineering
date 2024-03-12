@@ -14,6 +14,7 @@ import yaml
 
 from dcpy.utils import s3, postgres, metadata
 from dcpy.utils.logging import logger
+from dcpy.connectors.esri.arcgis_feature_service import FeatureServer
 
 
 BUCKET = "edm-recipes"
@@ -176,6 +177,7 @@ class LibraryConfig(BaseModel):
         url: Url | None = None
         script: Script | None = None
         socrata: Socrata | None = None
+        arcgis_feature_server: FeatureServer | None = None
         layer_name: str | None = None
         geometry: GeometryType | None = None
         options: list[str] | None = None
