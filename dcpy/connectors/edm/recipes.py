@@ -482,9 +482,9 @@ class ArchivalMetadata:
 
 
 def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMetadata:
-    logger.info(f"looking up metadata for {name}/{version}")
     if version is None:
         version = get_latest_version(name)
+    logger.info(f"looking up metadata for {name}/{version}")
     config = get_config(name, version)
     if config.execution_details:
         timestamp = config.execution_details.timestamp

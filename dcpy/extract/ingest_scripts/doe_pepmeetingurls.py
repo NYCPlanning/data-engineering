@@ -111,8 +111,8 @@ def ingest() -> pd.DataFrame:
     return df
 
 
-def runner() -> Path:
+def runner(dir=TMP_DIR) -> Path:
     df = ingest()
-    path = TMP_DIR / "doe_pepmeetingurls.csv"
+    path = dir / "doe_pepmeetingurls.csv"
     df.to_csv(path, index=False)
     return path

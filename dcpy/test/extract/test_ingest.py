@@ -26,5 +26,7 @@ def test_download_file(create_buckets, create_temp_filesystem: Path):
             source=source,
             transform_to_parquet_metadata=None,
         )
-        file = ingest.download_file_from_source(template, "24a")
+        file = ingest.download_file_from_source(
+            template, "24a", dir=create_temp_filesystem
+        )
         assert file.exists()

@@ -1,7 +1,7 @@
-from dcpy.extract import TMP_DIR
+from pathlib import Path
 
 
-def runner():
-    path = TMP_DIR / "t.txt"
+def runner(create_temp_filesystem: Path):
+    path = create_temp_filesystem / "t.txt"
     path.touch()
     return path

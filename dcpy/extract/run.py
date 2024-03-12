@@ -4,7 +4,7 @@ from . import ingest, processing
 
 
 def run(dataset: str, version: str | None = None):
-    config = ingest.archive_raw_dataset(dataset, version)
+    config = ingest.extract_and_archive_raw_dataset(dataset, version)
 
     ingest.transform_to_parquet(config)
 
@@ -33,7 +33,7 @@ def _cli_wrapper_archive_raw_dataset(
         help="Version of dataset being archived",
     ),
 ):
-    ingest.archive_raw_dataset(dataset, version)
+    ingest.extract_and_archive_raw_dataset(dataset, version)
 
 
 @app.command("run")

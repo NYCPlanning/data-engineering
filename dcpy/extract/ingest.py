@@ -10,11 +10,10 @@ from dcpy.connectors.edm import recipes, publishing
 from . import TMP_DIR, PARQUET_PATH, metadata, utils
 
 
-def _download_file_web(url: str, file_name: str) -> Path:
+def _download_file_web(url: str, file_name: str, dir: Path) -> Path:
     """Simple wrapper to download a file using requests.get.
     Returns filepath."""
-    TMP_DIR.mkdir(exist_ok=True)
-    file = TMP_DIR / file_name
+    file = dir / file_name
     logger.info(f"downloading {url} to {file}")
     response = requests.get(url)
     response.raise_for_status()
@@ -23,7 +22,9 @@ def _download_file_web(url: str, file_name: str) -> Path:
     return file
 
 
-def download_file_from_source(template: metadata.Template, version: str) -> Path:
+def download_file_from_source(
+    template: metadata.Template, version: str, dir=TMP_DIR
+) -> Path:
     """From parsed config template and version, download raw data from source
     and return path of saved local file."""
     match template.source:
@@ -31,28 +32,34 @@ def download_file_from_source(template: metadata.Template, version: str) -> Path
         case recipes.ExtractConfig.Source.LocalFile() as local_file:
             return local_file.path
         case recipes.ExtractConfig.Source.EdmPublishingGisDataset() as dataset:
-            return publishing.download_gis_dataset(dataset.name, version, TMP_DIR)
+            return publishing.download_gis_dataset(dataset.name, version, dir)
         case recipes.ExtractConfig.Source.Script() as s:
             module = importlib.import_module(
                 f"{s.script_module or 'dcpy.extract.ingest_scripts'}.{s.script_name or template.name}"
             )
             logger.info(f"Running custom ingestion script {template.name}.py")
-            return module.runner()
+            return module.runner(dir)
 
         ## request-based methods
         case recipes.ExtractConfig.Source.FileDownload() as file_download:
             return _download_file_web(
-                file_download.url, os.path.basename(urlparse(file_download.url).path)
+                file_download.url,
+                os.path.basename(urlparse(file_download.url).path),
+                dir,
             )
         case recipes.ExtractConfig.Source.Api() as api:
-            return _download_file_web(api.endpoint, f"{template.name}.{api.format}")
+            return _download_file_web(
+                api.endpoint, f"{template.name}.{api.format}", dir
+            )
         case recipes.ExtractConfig.Source.Socrata() as socrata:
             return _download_file_web(
-                utils.Socrata.get_url(socrata), f"{template.name}.{socrata.extension}"
+                utils.Socrata.get_url(socrata),
+                f"{template.name}.{socrata.extension}",
+                dir,
             )
 
 
-def archive_raw_dataset(dataset: str, version: str | None):
+def extract_and_archive_raw_dataset(dataset: str, version: str | None):
     """From dataset name and optional version,
     1. parse template
     2. determine version from source or set it as today's date if missing

@@ -44,7 +44,7 @@ def read_template(
     with open(file, "r") as f:
         template_string = f.read()
     vars = get_jinja_vars(template_string)
-    if version is None and len(vars) > 0:
+    if not version and len(vars) > 0:
         if vars == {"version"}:
             raise Exception(
                 "Version must be supplied explicitly to be rendered in template"
@@ -52,7 +52,7 @@ def read_template(
         else:
             raise Exception(f"Unsupported jinja vars found in template: {vars}")
     else:
-        if not (len(vars) == 0 or vars == {"version"}):
+        if len(vars) > 0 and vars != {"version"}:
             vars.discard("version")
             raise Exception(
                 f"'version' is only suppored jinja var. Unsupported vars in template: {vars}"
