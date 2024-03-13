@@ -59,7 +59,7 @@ jobs:
         env:
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
           repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
-        run: python3 -m dcpy.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
+        run: python3 -m dcpy.lifecycle.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
 
       - name: Set recipe env vars
         working-directory: ./
