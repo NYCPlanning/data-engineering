@@ -1,5 +1,5 @@
 from __future__ import annotations
-from enum import Enum
+from enum import StrEnum
 from pydantic import BaseModel, field_serializer
 from typing import Literal
 
@@ -7,7 +7,7 @@ from typing import Literal
 ValidSourceFormats = Literal["csv", "geojson", "shapefile"]
 
 
-class Org(str, Enum):
+class Org(StrEnum):
     nyc = "nyc"
     nys = "nys"
     nys_health = "nys_health"

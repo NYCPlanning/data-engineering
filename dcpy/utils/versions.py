@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import date
-from enum import Enum
+from enum import StrEnum
 from pydantic import BaseModel
 import re
 
@@ -124,7 +124,7 @@ class BumpLatestRelease(BaseModel):
     bump_latest_release: int
 
 
-class SimpleVersionStrategy(str, Enum):
+class SimpleVersionStrategy(StrEnum):
     first_of_month = "first_of_month"
     bump_latest_release = "bump_latest_release"
 
@@ -132,7 +132,7 @@ class SimpleVersionStrategy(str, Enum):
 VersionStrategy = SimpleVersionStrategy | BumpLatestRelease
 
 
-class VersionSubType(str, Enum):
+class VersionSubType(StrEnum):
     major = "major"
     minor = "minor"
 

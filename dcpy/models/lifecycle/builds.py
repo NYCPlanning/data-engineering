@@ -1,16 +1,16 @@
 from __future__ import annotations
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, field_serializer
 from typing import List
 
 from dcpy.utils import versions
 from dcpy.models.connectors.edm import recipes
 
 
-class RecipeInputsVersionStrategy(str, Enum):
+class RecipeInputsVersionStrategy(StrEnum):
     find_latest = "find_latest"
     copy_latest_release = "copy_latest_release"
 
@@ -20,13 +20,13 @@ class DataPreprocessor(BaseModel, extra="forbid"):
     function: str
 
 
-class InputDatasetDestination(str, Enum):
+class InputDatasetDestination(StrEnum):
     postgres = "postgres"
     df = "df"
     file = "file"
 
 
-class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
+class InputDataset(BaseModel, extra="forbid"):
     name: str
     version: str | None = None
     file_type: recipes.DatasetType | None = None
@@ -48,24 +48,43 @@ class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
             name=self.name, version=self.version, file_type=self.file_type
         )
 
+    @field_serializer("file_type", "destination")
+    def _serialize_str_enum(self, s: StrEnum | None, _info) -> str | None:
+        if s is not None:
+            return s.value
+        else:
+            return s
 
-class InputDatasetDefaults(BaseModel, use_enum_values=True):
+
+class InputDatasetDefaults(BaseModel):
     file_type: recipes.DatasetType | None = None
     preprocessor: DataPreprocessor | None = None
-    destination: InputDatasetDestination = Field(
-        default=InputDatasetDestination.postgres, validate_default=True
-    )
+    destination: InputDatasetDestination = InputDatasetDestination.postgres
+
+    @field_serializer("file_type", "destination")
+    def _serialize_str_enum(self, s: StrEnum | None, _info) -> str | None:
+        if s is not None:
+            return s.value
+        else:
+            return s
 
 
-class RecipeInputs(BaseModel, use_enum_values=True):
+class RecipeInputs(BaseModel):
     missing_versions_strategy: RecipeInputsVersionStrategy | None = None
     datasets: List[InputDataset] = []
     dataset_defaults: InputDatasetDefaults | None = None
 
+    @field_serializer("missing_versions_strategy")
+    def _serialize_strategy(
+        self, s: RecipeInputsVersionStrategy | None, _info
+    ) -> str | None:
+        if s:
+            return s.value
+        else:
+            return s
 
-class Recipe(
-    BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
-):
+
+class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
     product: str
     base_recipe: str | None = None
@@ -81,10 +100,15 @@ class Recipe(
             or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
         )
 
+    @field_serializer("version_type")
+    def _serialize_str_enum(self, s: StrEnum | None, _info) -> str | None:
+        if s is not None:
+            return s.value
+        else:
+            return s
 
-class ImportedDataset(
-    BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
-):
+
+class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
     version: str
     file_type: recipes.DatasetType
@@ -100,8 +124,12 @@ class ImportedDataset(
             name=ds.name, version=ds.version, file_type=ds.file_type, destination=result
         )
 
+    @field_serializer("file_type")
+    def _serialize_str_enum(self, s: StrEnum, _info) -> str:
+        return s.value
 
-class LoadResult(BaseModel, use_enum_values=True, extra="forbid"):
+
+class LoadResult(BaseModel, extra="forbid"):
     name: str
     build_name: str
     datasets: dict[str, ImportedDataset]
@@ -121,7 +149,6 @@ class BuildMetadata(BaseModel, extra="forbid"):
                 data["version"] = recipe.version
         super().__init__(**data)
 
-    def dump(self):
-        json = self.model_dump(exclude_none=True)
-        json["timestamp"] = self.timestamp.isoformat()
-        return json
+    @field_serializer("timestamp")
+    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
+        return timestamp.isoformat()

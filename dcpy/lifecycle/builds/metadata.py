@@ -43,4 +43,4 @@ def write_build_metadata(recipe: Recipe, output_folder: Path):
     )
     with open(output_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing build metadata to {str(output_file.absolute())}")
-        json.dump(build_metadata.dump(), f, indent=4)
+        json.dump(build_metadata.model_dump(), f, indent=4)

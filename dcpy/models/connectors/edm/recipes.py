@@ -1,8 +1,8 @@
 from __future__ import annotations
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from typing import Literal
 
 ValidAclValues = Literal["public-read", "private"]
@@ -22,7 +22,7 @@ class DatasetKey(BaseModel, extra="forbid"):
     version: str
 
 
-class DatasetType(str, Enum):
+class DatasetType(StrEnum):
     pg_dump = "pg_dump"
     csv = "csv"
     parquet = "parquet"
@@ -34,7 +34,7 @@ def _type_to_extension(dst: DatasetType) -> str:
     return mapping[dst]
 
 
-class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
+class Dataset(BaseModel, extra="forbid"):
     name: str
     version: str
     file_type: DatasetType | None = None
@@ -50,3 +50,10 @@ class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
 
     def s3_key(self, prefix) -> str:
         return f"{self.s3_folder(prefix)}/{self.file_name}"
+
+    @field_serializer("file_type")
+    def _serialize_type(self, t: DatasetType | None, _info) -> str | None:
+        if t is not None:
+            return t.value
+        else:
+            return t
