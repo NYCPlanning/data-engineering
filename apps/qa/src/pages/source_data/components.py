@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from typing import Dict
 
-from dcpy.connectors.edm import recipes
+from dcpy.models import library
 
 
 def plot_series(
-    datasets: Dict[str, list[recipes.ArchivalMetadata]], months_back: int = 6
+    datasets: Dict[str, list[library.ArchivalMetadata]], months_back: int = 6
 ):
     end_date = date.today()
     start_date = end_date - relativedelta(months=months_back)
