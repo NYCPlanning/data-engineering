@@ -1,5 +1,5 @@
 from enum import StrEnum
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 
 class Server(StrEnum):
@@ -17,7 +17,7 @@ servers = {
 }
 
 
-class FeatureServer(BaseModel, extra="forbid", use_enum_values=True):
+class FeatureServer(BaseModel, extra="forbid"):
     server: Server
     name: str
     layer: int = 0
@@ -27,3 +27,7 @@ class FeatureServer(BaseModel, extra="forbid", use_enum_values=True):
         subdomain = servers[self.server].get("subdomain", "services")
         server_id = servers[self.server]["id"]
         return f"https://{subdomain}.arcgis.com/{server_id}/ArcGIS/rest/services/{self.name}/FeatureServer/{self.layer}"
+
+    @field_serializer("server")
+    def _serialize_server(self, s: Server, _info) -> str:
+        return s.value

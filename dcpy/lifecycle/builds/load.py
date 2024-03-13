@@ -80,7 +80,7 @@ def load_source_data(
 
     build_name = metadata.build_name()
     logger.info(f"Loading source data for {recipe.name} build named {build_name}")
-    if InputDatasetDestination.postgres.value in [
+    if InputDatasetDestination.postgres in [
         dataset.destination for dataset in recipe.inputs.datasets
     ]:
         pg_client = postgres.PostgresClient(schema=build_name)
