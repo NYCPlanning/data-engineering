@@ -6,9 +6,18 @@ import pandas as pd
 import geopandas as gpd
 from typing import cast
 
+from dcpy.models.lifecycle.extract import (
+    LocalFileSource,
+    ToParquetMeta,
+    Config,
+)
 from dcpy.utils import s3
-from dcpy.connectors.edm import publishing, recipes
-from dcpy.extract import metadata, ingest, PARQUET_PATH
+from dcpy.connectors.edm import publishing
+from dcpy.lifecycle.extract import (
+    metadata,
+    ingest,
+    PARQUET_PATH,
+)
 
 RESOURCES = Path(__file__).parent / "resources"
 TEST_DATA_DIR = "test_data"
@@ -31,20 +40,20 @@ def test_download_file(create_buckets, create_temp_filesystem: Path):
             name="test",
             acl="public-read",
             source=source,
-            transform_to_parquet_metadata=recipes.ExtractConfig.ToParquetMeta.Csv(
+            transform_to_parquet_metadata=ToParquetMeta.Csv(
                 format="csv"  # easiest to mock
             ),
         )
 
-        file = ingest.download_file_from_source(
+        local_file = ingest.download_file_from_source(
             template, "24a", dir=create_temp_filesystem
         )
-        assert file.exists()
+        assert local_file.exists()
 
 
 def get_fake_data_configs():
     """
-    Returns a list of recipes.ExtractConfig objects
+    Returns a list of Config objects
     that represent data files in resources/test_data directory
     """
     with open(RESOURCES / "transform_to_parquet_template.yml") as f:
@@ -65,9 +74,7 @@ def get_fake_data_configs():
 
         local_file_path = RESOURCES / TEST_DATA_DIR / file_name
 
-        source = recipes.ExtractConfig.Source.LocalFile(
-            type="local_file", path=local_file_path
-        )
+        source = LocalFileSource(type="local_file", path=local_file_path)
 
         template = metadata.Template(
             name="test",
@@ -86,7 +93,7 @@ def get_fake_data_configs():
 
 # TODO: implement tests for zip, json, and geojson format
 @pytest.mark.parametrize("config", get_fake_data_configs())
-def test_transform_to_parquet(config: recipes.ExtractConfig):
+def test_transform_to_parquet(config: Config):
     """
     Test the transform_to_parquet function.
 
@@ -95,7 +102,7 @@ def test_transform_to_parquet(config: recipes.ExtractConfig):
         - Checks if the saved Parquet file contains the expected data.
     """
 
-    source = cast(recipes.ExtractConfig.Source.LocalFile, config.source)
+    source = cast(LocalFileSource, config.source)
     file_path = source.path
 
     ingest.transform_to_parquet(config=config, local_data_path=file_path)
@@ -105,13 +112,13 @@ def test_transform_to_parquet(config: recipes.ExtractConfig):
     to_parquet_config = config.transform_to_parquet_metadata
 
     match to_parquet_config:
-        case recipes.ExtractConfig.ToParquetMeta.Shapefile() as shapefile:
+        case ToParquetMeta.Shapefile() as shapefile:
             raw_df = gpd.read_file(file_path)
 
-        case recipes.ExtractConfig.ToParquetMeta.Geodatabase() as geodatabase:
+        case ToParquetMeta.Geodatabase() as geodatabase:
             raw_df = gpd.read_file(file_path)
 
-        case recipes.ExtractConfig.ToParquetMeta.Csv() as csv:
+        case ToParquetMeta.Csv() as csv:
             raw_df = pd.read_csv(file_path)
 
             # case when csv contains geospatial data. Convert to gpd dataframe

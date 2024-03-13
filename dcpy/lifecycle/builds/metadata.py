@@ -7,27 +7,7 @@ import json
 
 from dcpy.utils import git
 from dcpy.utils.logging import logger
-from dcpy.builds.plan import Recipe
-
-
-class BuildMetadata(BaseModel, extra="forbid"):
-    timestamp: datetime
-    commit: str | None = None
-    run_url: str | None = None
-    version: str
-    recipe: Recipe
-
-    def __init__(self, **data):
-        if "version" not in data:
-            recipe = data["recipe"]
-            if recipe.version is not None:
-                data["version"] = recipe.version
-        super().__init__(**data)
-
-    def dump(self):
-        json = self.model_dump(exclude_none=True)
-        json["timestamp"] = self.timestamp.isoformat()
-        return json
+from dcpy.models.lifecycle.builds import Recipe, BuildMetadata
 
 
 def build_name(name: str | None = None) -> str:

@@ -6,6 +6,7 @@ from rich.table import Table
 import typer
 
 from dcpy.connectors.edm import recipes
+from dcpy.models.library import Config
 from . import aws_s3_bucket
 from .archive import Archive
 from .s3 import S3
@@ -37,7 +38,7 @@ def archive(
         typer.echo(message)
     else:
         a = Archive()
-        config: recipes.Config | None = None
+        config: Config | None = None
         for output_format in output_formats:
             config = a(
                 path=path,

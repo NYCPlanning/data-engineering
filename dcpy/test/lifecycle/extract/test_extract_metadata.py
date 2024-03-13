@@ -2,8 +2,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from dcpy.connectors.edm import recipes
-from dcpy.extract import TEMPLATE_DIR, metadata
+from dcpy.models.lifecycle.extract import Template, ToParquetMeta
+from dcpy.models.connectors import web
+from dcpy.lifecycle.extract import TEMPLATE_DIR, metadata
 
 RESOURCES = Path(__file__).parent / "resources"
 
@@ -14,7 +15,7 @@ def test_validate_all_datasets():
     for file in templates:
         with open(file, "r") as f:
             s = yaml.safe_load(f)
-        val = metadata.Template(**s)
+        val = Template(**s)
         assert val
 
 
@@ -39,12 +40,12 @@ def test_read_template():
         metadata.read_template("invalid_jinja", version="dummy", template_dir=RESOURCES)
 
     template = metadata.read_template("dcp_atomicpolygons", version="test")
-    assert isinstance(template.source, recipes.ExtractConfig.Source.FileDownload)
+    assert isinstance(template.source, web.FileDownloadSource)
     assert (
         template.source.url
         == "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_test.zip"
     )
     assert isinstance(
         template.transform_to_parquet_metadata,
-        recipes.ExtractConfig.ToParquetMeta.Shapefile,
+        ToParquetMeta.Shapefile,
     )

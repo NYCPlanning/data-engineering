@@ -2,38 +2,18 @@ from __future__ import annotations
 import importlib
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel
 import typer
 
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-from dcpy.connectors.edm import recipes, publishing
-from dcpy.builds import metadata, plan
-
-
-class ImportedDataset(
-    BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
-):
-    name: str
-    version: str
-    file_type: recipes.DatasetType
-    destination: str | pd.DataFrame | Path
-
-    @staticmethod
-    def from_input(
-        ds: plan.InputDataset, result: str | pd.DataFrame | Path
-    ) -> ImportedDataset:
-        assert ds.version, f"Version of {ds.name} not resolved"
-        assert ds.file_type, f"File type of {ds.name} not resolved"
-        return ImportedDataset(
-            name=ds.name, version=ds.version, file_type=ds.file_type, destination=result
-        )
-
-
-class LoadResult(BaseModel, use_enum_values=True, extra="forbid"):
-    name: str
-    build_name: str
-    datasets: dict[str, ImportedDataset]
+from dcpy.connectors.edm import recipes
+from dcpy.models.lifecycle.builds import (
+    ImportedDataset,
+    LoadResult,
+    InputDatasetDestination,
+    InputDataset,
+)
+from dcpy.lifecycle.builds import metadata, plan
 
 
 def setup_build_pg_schema(pg_client: postgres.PostgresClient):
@@ -44,7 +24,7 @@ def setup_build_pg_schema(pg_client: postgres.PostgresClient):
 
 
 def import_dataset(
-    ds: plan.InputDataset,
+    ds: InputDataset,
     pg_client: postgres.PostgresClient | None,
 ) -> ImportedDataset:
     """Import a recipe to local data library folder and build engine."""
@@ -64,10 +44,10 @@ def import_dataset(
         preproc_func = None
 
     if pg_client and (not ds.destination):
-        ds.destination = plan.InputDatasetDestination.postgres
+        ds.destination = InputDatasetDestination.postgres
     assert ds.destination, f"Dataset destination not resolved for dataset {ds.name}"
     match ds.destination:
-        case plan.InputDatasetDestination.postgres:
+        case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
             table = recipes.import_dataset(
                 ds.dataset,
@@ -76,10 +56,10 @@ def import_dataset(
                 import_as=ds.import_as,
             )
             return ImportedDataset.from_input(ds, table)
-        case plan.InputDatasetDestination.df:
+        case InputDatasetDestination.df:
             df = recipes.read_df(ds.dataset)
             return ImportedDataset.from_input(ds, df)
-        case plan.InputDatasetDestination.file:
+        case InputDatasetDestination.file:
             file_path = recipes.fetch_dataset(ds.dataset)
             return ImportedDataset.from_input(ds, file_path)
         case _ as d:
@@ -100,7 +80,7 @@ def load_source_data(
 
     build_name = metadata.build_name()
     logger.info(f"Loading source data for {recipe.name} build named {build_name}")
-    if plan.InputDatasetDestination.postgres.value in [
+    if InputDatasetDestination.postgres.value in [
         dataset.destination for dataset in recipe.inputs.datasets
     ]:
         pg_client = postgres.PostgresClient(schema=build_name)
@@ -213,7 +193,7 @@ def _import_dataset(
     ),
 ):
     import_dataset(
-        plan.InputDataset(name=dataset_name, version=version, file_type=dataset_type),
+        InputDataset(name=dataset_name, version=version, file_type=dataset_type),
         postgres.PostgresClient(schema=database_schema),
     )
 

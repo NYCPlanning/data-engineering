@@ -6,9 +6,9 @@ import shutil
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-import dcpy
+from dcpy.models.lifecycle.builds import InputDataset, DataPreprocessor
 from dcpy.connectors.edm import recipes
-from dcpy.builds import plan
+from dcpy.lifecycle.builds import plan
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
@@ -80,7 +80,7 @@ class TestRecipesNoDefaults(TestCase):
     def test_serializing_and_deserializing(self):
         """Deserializing python models is a minefield."""
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
-        recipes.recipe_from_yaml(lock_file)
+        plan.recipe_from_yaml(lock_file)
 
 
 _test_df = df([["1", "2"], ["3", "4"]], columns=["a", "b"])
@@ -112,12 +112,12 @@ class TestImportDatasets(TestCase):
 
         dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
-        ds = types.Dataset(
+        ds = InputDataset(
             name="test",
             version="1",
             import_as="new_table_name",
             file_type=recipes.DatasetType.csv,
-            preprocessor=types.DataPreprocessor(module="dcpy", function="preproc"),
+            preprocessor=DataPreprocessor(module="dcpy", function="preproc"),
         )
         plan.import_dataset(ds, pg_mock)
 
@@ -138,12 +138,12 @@ class TestImportDatasets(TestCase):
 
         dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
-        ds = plan.Dataset(
+        ds = InputDataset(
             name="test",
             version="1",
             import_as="new_table_name",
             file_type=recipes.DatasetType.parquet,
-            preprocessor=types.DataPreprocessor(module="dcpy", function="preproc"),
+            preprocessor=DataPreprocessor(module="dcpy", function="preproc"),
         )
 
         recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)

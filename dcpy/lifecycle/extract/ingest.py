@@ -8,67 +8,62 @@ import shutil
 from dcpy.utils import s3
 
 from pathlib import Path
-import requests
 from urllib.parse import urlparse
 
+from dcpy.models.lifecycle.extract import (
+    LocalFileSource,
+    ScriptSource,
+    Template,
+    Config,
+    ToParquetMeta,
+)
+from dcpy.models.connectors import socrata, web as web_models
+from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.socrata import extract as extract_socrata
+from dcpy.connectors import web
 from . import TMP_DIR, PARQUET_PATH, metadata
 
 
-def _download_file_web(url: str, file_name: str, dir: Path) -> Path:
-    """Simple wrapper to download a file using requests.get.
-    Returns filepath."""
-    file = dir / file_name
-    logger.info(f"downloading {url} to {file}")
-    response = requests.get(url)
-    response.raise_for_status()
-    with open(file, "wb") as f:
-        f.write(response.content)
-    return file
-
-
-def download_file_from_source(
-    template: metadata.Template, version: str, dir=TMP_DIR
-) -> Path:
+def download_file_from_source(template: Template, version: str, dir=TMP_DIR) -> Path:
     """From parsed config template and version, download raw data from source
     and return path of saved local file."""
     match template.source:
         ## Non reqeust-based methods
-        case recipes.ExtractConfig.Source.LocalFile() as local_file:
-            return local_file.path
-        case recipes.ExtractConfig.Source.EdmPublishingGisDataset() as dataset:
-            return publishing.download_gis_dataset(dataset.name, version, dir)
-        case recipes.ExtractConfig.Source.Script() as s:
+        case LocalFileSource():
+            return template.source.path
+        case GisDataset():
+            return publishing.download_gis_dataset(template.source.name, version, dir)
+        case ScriptSource():
             module = importlib.import_module(
-                f"{s.script_module or 'dcpy.extract.ingest_scripts'}.{s.script_name or template.name}"
+                f"dcpy.connectors.{template.source.connector}.{template.source.function}"
             )
             logger.info(f"Running custom ingestion script {template.name}.py")
             return module.runner(dir)
 
         ## request-based methods
-        case recipes.ExtractConfig.Source.FileDownload() as file_download:
-            return _download_file_web(
-                file_download.url,
-                os.path.basename(urlparse(file_download.url).path),
+        case web_models.FileDownloadSource():
+            return web.download_file(
+                template.source.url,
+                os.path.basename(urlparse(template.source.url).path),
                 dir,
             )
-        case recipes.ExtractConfig.Source.Api() as api:
-            return _download_file_web(
-                api.endpoint, f"{template.name}.{api.format}", dir
+        case web_models.GenericApiSource():
+            return web.download_file(
+                template.source.endpoint,
+                f"{template.name}.{template.source.format}",
+                dir,
             )
-        case recipes.ExtractConfig.Source.Socrata() as socrata:
-            return _download_file_web(
-                extract_socrata.get_download_url(socrata),
-                f"{template.name}.{socrata.extension}",
+        case socrata.Source():
+            return web.download_file(
+                extract_socrata.get_download_url(template.source),
+                f"{template.name}.{template.source.extension}",
                 dir,
             )
 
 
-def extract_and_archive_raw_dataset(
-    dataset: str, version: str | None
-) -> recipes.ExtractConfig:
+def extract_and_archive_raw_dataset(dataset: str, version: str | None) -> Config:
     """From dataset name and optional version,
     1. parse template
     2. determine version from source or set it as today's date if missing
@@ -92,9 +87,7 @@ def extract_and_archive_raw_dataset(
     return config
 
 
-def transform_to_parquet(
-    config: recipes.ExtractConfig, local_data_path: Path | None = None
-):
+def transform_to_parquet(config: Config, local_data_path: Path | None = None):
     """
     Transforms raw data into a parquet file format and saves it locally.
 
@@ -130,7 +123,7 @@ def transform_to_parquet(
 
         s3.download_file(
             bucket=recipes.BUCKET,
-            key=config.raw_dataset_s3_filepath,
+            key=str(config.raw_dataset_s3_filepath),
             path=local_data_path,
         )
         logger.info(f"Downloaded raw data from s3 to {local_data_path}")
@@ -139,20 +132,20 @@ def transform_to_parquet(
 
     # TODO: rename geom column to "geom" regardless of input data type
     match data_load_config:
-        case recipes.ExtractConfig.ToParquetMeta.Shapefile() as shapefile:
+        case ToParquetMeta.Shapefile() as shapefile:
             gdf = gpd.read_file(
                 local_data_path,
                 crs=shapefile.crs,
                 encoding=shapefile.encoding,
             )
-        case recipes.ExtractConfig.ToParquetMeta.Geodatabase() as geodatabase:
+        case ToParquetMeta.Geodatabase() as geodatabase:
             gdf = gpd.read_file(
                 local_data_path,
                 crs=geodatabase.crs,
                 encoding=geodatabase.encoding,
                 layer=geodatabase.layer,
             )
-        case recipes.ExtractConfig.ToParquetMeta.Csv() as csv:
+        case ToParquetMeta.Csv() as csv:
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,
@@ -190,6 +183,6 @@ def transform_to_parquet(
     logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
 
 
-def validate_dataset(config: recipes.ExtractConfig):
+def validate_dataset(config: Config):
     """Given config of imported dataset, validate data expectations/contract"""
     raise NotImplemented

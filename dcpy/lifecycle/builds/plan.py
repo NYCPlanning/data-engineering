@@ -1,15 +1,17 @@
 import csv
-from enum import Enum
 import os
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel, Field
 import typer
-from typing import List
 import yaml
 
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
+from dcpy.models.lifecycle.builds import (
+    Recipe,
+    RecipeInputsVersionStrategy,
+    InputDatasetDefaults,
+)
 from dcpy.connectors.edm import recipes, publishing
 
 DEFAULT_RECIPE = "recipe.yml"
@@ -19,78 +21,6 @@ RECIPE_FILE_TYPE_PREFERENCE = [
     recipes.DatasetType.parquet,
     recipes.DatasetType.csv,
 ]
-
-
-class RecipeInputsVersionStrategy(str, Enum):
-    find_latest = "find_latest"
-    copy_latest_release = "copy_latest_release"
-
-
-class DataPreprocessor(BaseModel, extra="forbid"):
-    module: str
-    function: str
-
-
-class InputDatasetDestination(str, Enum):
-    postgres = "postgres"
-    df = "df"
-    file = "file"
-
-
-class InputDataset(BaseModel, use_enum_values=True, extra="forbid"):
-    name: str
-    version: str | None = None
-    file_type: recipes.DatasetType | None = None
-    version_env_var: str | None = None
-    import_as: str | None = None
-    preprocessor: DataPreprocessor | None = None
-    destination: InputDatasetDestination | None = None
-
-    @property
-    def is_resolved(self):
-        return self.version is not None and self.version != "latest"
-
-    @property
-    def dataset(self):
-        if self.version is None:
-            raise Exception(f"Dataset {self.name} requires version")
-
-        return recipes.Dataset(
-            name=self.name, version=self.version, file_type=self.file_type
-        )
-
-
-class InputDatasetDefaults(BaseModel, use_enum_values=True):
-    file_type: recipes.DatasetType | None = None
-    preprocessor: DataPreprocessor | None = None
-    destination: InputDatasetDestination = Field(
-        default=InputDatasetDestination.postgres, validate_default=True
-    )
-
-
-class RecipeInputs(BaseModel, use_enum_values=True):
-    missing_versions_strategy: RecipeInputsVersionStrategy | None = None
-    datasets: List[InputDataset] = []
-    dataset_defaults: InputDatasetDefaults | None = None
-
-
-class Recipe(
-    BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
-):
-    name: str
-    product: str
-    base_recipe: str | None = None
-    version_type: versions.VersionSubType | None = None
-    version_strategy: versions.VersionStrategy | None = None
-    version: str | None = None
-    vars: dict[str, str] | None = None
-    inputs: RecipeInputs
-
-    def is_resolved(self):
-        return self.version is not None and (
-            len(self.inputs.datasets) == 0
-            or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
-        )
 
 
 def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
@@ -182,9 +112,8 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
-        ds.file_type = (
-            ds.file_type
-            or ds.dataset.get_preferred_file_type(RECIPE_FILE_TYPE_PREFERENCE).value
+        ds.file_type = ds.file_type or recipes.get_preferred_file_type(
+            ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
         )
 
     return recipe

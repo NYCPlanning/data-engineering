@@ -5,7 +5,7 @@ import typer
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 from dcpy.connectors import github
-from dcpy.builds import metadata
+from dcpy.lifecycle.builds import metadata
 
 from . import BUILD_REPO, BUILD_DBS
 

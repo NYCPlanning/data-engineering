@@ -3,32 +3,15 @@ import jinja2
 from jinja2 import meta
 from datetime import datetime
 from pathlib import Path
-from pydantic import BaseModel
 import yaml
 
+from dcpy.models.lifecycle.extract import Template, Config
+
 from dcpy.utils.logging import logger
+from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract as extract_socrata
-from dcpy.connectors.edm import recipes, publishing
-from dcpy.library.validator import LibraryConfig
+from dcpy.connectors.edm import publishing
 from . import TEMPLATE_DIR
-
-
-class Template(
-    BaseModel, use_enum_values=True, extra="forbid", arbitrary_types_allowed=True
-):
-    """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
-
-    name: str
-    acl: recipes.ValidAclValues
-
-    ## these two fields might merge to "source" or something equivalent at some point
-    ## for now, they are distinct so that they can be worked on separately
-    ## when implemented, "None" should not be valid type
-    source: recipes.ExtractConfig.Source.Options
-    transform_to_parquet_metadata: recipes.ExtractConfig.ToParquetMeta.Options
-
-    ## this is the original library template, included just for reference while we build out our new templates
-    library_dataset: LibraryConfig | None = None
 
 
 def get_jinja_vars(s: str) -> set[str]:
@@ -71,9 +54,9 @@ def get_version(template: Template, timestamp: datetime) -> str:
     If version's source has no custom logic, returns formatted date
     from provided datetime"""
     match template.source:
-        case recipes.ExtractConfig.Source.Socrata() as socrata:
-            return extract_socrata.get_version(socrata)
-        case recipes.ExtractConfig.Source.EdmPublishingGisDataset() as gis_dataset:
+        case socrata.Source() as socrata_source:
+            return extract_socrata.get_version(socrata_source)
+        case publishing.GisDataset() as gis_dataset:
             return publishing.get_latest_gis_dataset_version(gis_dataset.name)
         case _:
             return timestamp.strftime("%Y%m%d")
@@ -81,10 +64,10 @@ def get_version(template: Template, timestamp: datetime) -> str:
 
 def get_config(
     template: Template, version: str, timestamp: datetime, file_name: str
-) -> recipes.ExtractConfig:
+) -> Config:
     """Simple wrapper to produce a recipes ExtractConfig from a parsed template
     and other computed values"""
-    return recipes.ExtractConfig(
+    return Config(
         name=template.name,
         version=version,
         archival_timestamp=timestamp,

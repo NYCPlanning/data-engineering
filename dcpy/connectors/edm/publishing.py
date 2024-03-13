@@ -1,5 +1,4 @@
 import os
-from abc import ABC, abstractmethod
 from pathlib import Path
 from urllib.parse import urlencode, urljoin
 import pandas as pd
@@ -10,49 +9,18 @@ from io import BytesIO
 from zipfile import ZipFile
 import typer
 from typing import Callable, TypeVar
-from dataclasses import dataclass
 
 from dcpy.utils import s3, git, versions
 from dcpy.utils.logging import logger
 
+from dcpy.models.connectors.edm.publishing import (
+    ProductKey,
+    PublishKey,
+    DraftKey,
+)
+
 BUCKET = "edm-publishing"
-BASE_URL = f"https://{BUCKET}.nyc3.digitaloceanspaces.com"
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
-
-
-class ProductKey(ABC):
-    product: str
-
-    @property
-    @abstractmethod
-    def path(self) -> str:
-        raise NotImplementedError("ProductKey is an abstract class")
-
-
-@dataclass
-class PublishKey(ProductKey):
-    product: str
-    version: str
-
-    def __str__(self):
-        return f"{self.product} - {self.version}"
-
-    @property
-    def path(self) -> str:
-        return f"{self.product}/publish/{self.version}"
-
-
-@dataclass
-class DraftKey(ProductKey):
-    product: str
-    build: str
-
-    def __str__(self):
-        return f"Draft: {self.product} - {self.build}"
-
-    @property
-    def path(self) -> str:
-        return f"{self.product}/draft/{self.build}"
 
 
 def get_version(product_key: ProductKey) -> str:
