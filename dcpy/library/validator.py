@@ -1,14 +1,15 @@
 from pydantic import BaseModel, ValidationError
-from dcpy.connectors.edm.recipes import LibraryConfig, ValidAclValues
+from dcpy.models.connectors.edm.recipes import ValidAclValues
+from dcpy.models.library import DatasetDefinition
 
 
 class Dataset(BaseModel):
     name: str
     version: str | None = None
     acl: ValidAclValues
-    source: LibraryConfig.SourceSection
-    destination: LibraryConfig.DestinationSection
-    info: LibraryConfig.InfoSection | None = None
+    source: DatasetDefinition.SourceSection
+    destination: DatasetDefinition.DestinationSection
+    info: DatasetDefinition.InfoSection | None = None
 
 
 class Validator:

@@ -1,21 +1,21 @@
-from __future__ import annotations
-from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
 import json
 import os
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel, field_serializer
 import shutil
 from tempfile import TemporaryDirectory
-from typing import Callable, Literal, TypeAlias
+from typing import Callable
 import yaml
 
-from dcpy.utils import s3, postgres, metadata
+from dcpy.models.connectors.edm.recipes import (
+    Dataset,
+    DatasetType,
+)
+from dcpy.models import library
+from dcpy.models.lifecycle import extract
+from dcpy.utils import s3, postgres
 from dcpy.utils.logging import logger
-from dcpy.connectors.esri.arcgis_feature_service import FeatureServer
-
 
 BUCKET = "edm-recipes"
 LIBRARY_DEFAULT_PATH = (
@@ -27,344 +27,19 @@ LOGGING_DB = "edm-qaqc"
 LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
 
-ValidAclValues = Literal["public-read", "private"]
-ValidSocrataFormats = Literal["csv", "geojson", "shapefile"]
 
-
-class Geometry(BaseModel):
-    """
-    Represents the geometric configuration for geospatial data.
-
-    Attributes:
-        geom_column: The name of geometry column in the dataset, or an instance of PointColumns if geometry is defined by separate longitude and latitude columns.
-        crs: The coordinate reference system (CRS) for the geometry.
-
-    Nested Classes:
-        PointColumns: Defines the names of the longitude and latitude columns for point geometries.
-    """
-
-    geom_column: str | PointColumns
-    crs: str
-
-    class PointColumns(BaseModel):
-        """This class defines longitude and latitude column names."""
-
-        x: str
-        y: str
-
-
-#### extract objects
-class RawDatasetKey(BaseModel, extra="forbid"):
-    name: str
-    timestamp: datetime
-
-    @property
-    def s3_path(self):
-        return Path(RAW_FOLDER) / self.name / self.timestamp.isoformat()
-
-
-class DatasetKey(BaseModel, extra="forbid"):
-    name: str
-    version: str
-
-
-class ExtractConfig(BaseModel, extra="forbid"):
-    """New object corresponding to computed template in dcpy.extract
-    Meant to be stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
-    At some point backwards compatability with LibraryConfig should be considered"""
-
-    name: str
-    version: str
-    archival_timestamp: datetime
-    raw_filename: str
-    acl: ValidAclValues
-    source: Source.Options
-    transform_to_parquet_metadata: ToParquetMeta.Options
-
-    class Source:
-        class LocalFile(BaseModel, extra="forbid"):
-            type: Literal["local_file"]
-            path: Path
-
-        class FileDownload(BaseModel, extra="forbid"):
-            type: Literal["file_download"]
-            url: str
-
-        class Api(BaseModel, extra="forbid"):
-            type: Literal["api"]
-            endpoint: str
-            format: Literal["json", "csv"]
-
-        class Socrata(BaseModel, extra="forbid"):
-            # This type should eventually be aligned more with logic in connectors.socrata
-            # and live outside of recipes
-            type: Literal["socrata"]
-            org: Org
-            uid: str
-            format: Literal["csv", "shapefile", "geojson"]
-
-            @property
-            def extension(self) -> str:
-                if self.format == "shapefile":
-                    return "zip"
-                else:
-                    return self.format
-
-            class Org(str, Enum):
-                nyc = "nyc"
-                nys = "nys"
-                nys_health = "nys_health"
-
-                @property
-                def server(self) -> str:
-                    match self:
-                        case "nyc":
-                            return "data.cityofnewyork.us"
-                        case "nys":
-                            return "data.ny.gov"
-                        case "nys_health":
-                            return "health.data.ny.gov"
-                        case s:
-                            raise Exception(f"Unknown org {s}")
-
-        class EdmPublishingGisDataset(BaseModel, extra="forbid"):
-            """Dataset published by GIS in edm-publishing/datasets"""
-
-            # Some datasets here will phased out if we eventually get data
-            # directly from GR or other sources
-            type: Literal["edm_publishing_gis_dataset"]
-            name: str
-
-        class Script(BaseModel):  # no extra="forbid" to allow for extra args for script
-            type: Literal["script"]
-            script_name: str | None = None
-            script_module: str | None = None
-
-        Options: TypeAlias = (
-            LocalFile | FileDownload | Api | Socrata | EdmPublishingGisDataset | Script
-        )
-
-    class ToParquetMeta:
-        """
-        Represents config info needed for translation of raw data into parquet format.
-        Config attributes vary by raw data format.
-        """
-
-        class Csv(BaseModel, extra="forbid"):
-            format: Literal["csv"]
-            encoding: str = "utf-8"
-            delimiter: str | None = None
-            geometry: Geometry | None = None
-
-        class Xlsx(BaseModel, extra="forbid"):
-            format: Literal["xlsx"]
-            tab_name: str
-            encoding: str = "utf-8"
-            geometry: Geometry | None = None
-
-        class Shapefile(BaseModel, extra="forbid"):
-            format: Literal["shapefile"]
-            encoding: str = "utf-8"
-            crs: str
-
-        class Geodatabase(BaseModel, extra="forbid"):
-            format: Literal["geodatabase"]
-            layer: str | None = None
-            encoding: str = "utf-8"
-            crs: str
-
-        # TODO: implement JSON and GEOJSON
-        class Json(BaseModel):
-            format: Literal["json"]
-
-        Options: TypeAlias = Csv | Xlsx | Shapefile | Geodatabase | Json
-
-    @property
-    def dataset(self) -> Dataset:
-        return Dataset(name=self.name, version=self.version)
-
-    @property
-    def dataset_key(self) -> DatasetKey:
-        return DatasetKey(name=self.name, version=self.version)
-
-    @property
-    def raw_dataset_key(self) -> RawDatasetKey:
-        return RawDatasetKey(name=self.name, timestamp=self.archival_timestamp)
-
-    @property
-    def raw_dataset_s3_filepath(self) -> str:
-        return f"{self.raw_dataset_key.s3_path}/{self.raw_filename}"
-
-    @field_serializer("archival_timestamp")
-    def serialize_timestamp(self, archival_timestamp: datetime, _info) -> str:
-        return archival_timestamp.isoformat()
-
-
-#### library objects
-class GeometryType(BaseModel):
-    SRS: str | None = None
-    type: Literal[
-        "NONE",
-        "GEOMETRY",
-        "POINT",
-        "LINESTRING",
-        "POLYGON",
-        "GEOMETRYCOLLECTION",
-        "MULTIPOINT",
-        "MULTIPOLYGON",
-        "MULTILINESTRING",
-        "CIRCULARSTRING",
-        "COMPOUNDCURVE",
-        "CURVEPOLYGON",
-        "MULTICURVE",
-        "MULTISURFACE",
-    ]
-
-
-class LibraryConfig(BaseModel):
-    """Computed templates from dcpy.library. Stored in config.json files in edm-recipes/datasets"""
-
-    name: str
-    version: str
-    acl: ValidAclValues
-    source: SourceSection
-    destination: DestinationSection
-    info: InfoSection | None = None
-
-    class SourceSection(BaseModel):
-        url: Url | None = None
-        script: Script | None = None
-        socrata: Socrata | None = None
-        arcgis_feature_server: FeatureServer | None = None
-        layer_name: str | None = None
-        geometry: GeometryType | None = None
-        options: list[str] | None = None
-        gdalpath: str | None = None
-
-        class Url(BaseModel):
-            path: str
-            subpath: str = ""
-
-        class Socrata(BaseModel):
-            uid: str
-            format: ValidSocrataFormats
-
-        class Script(BaseModel, extra="allow"):
-            name: str | None = None
-
-    class DestinationSection(BaseModel):
-        geometry: GeometryType
-        options: list[str] | None = None
-        fields: list[str] | None = None
-        sql: str | None = None
-
-    class InfoSection(BaseModel):
-        info: str | None = None
-        url: str | None = None
-        dependents: list[str] | None = None
-
-    @property
-    def dataset(self) -> Dataset:
-        return Dataset(name=self.name, version=self.version)
-
-
-class DatasetType(str, Enum):
-    pg_dump = "pg_dump"
-    csv = "csv"
-    parquet = "parquet"
-    xlsx = "xlsx"  # needed for a few "legacy" products. Aim to phase out
-
-
-## would prefer to have these be class methods but enum_as_value treats StrEnums as strings
-## so class methods not usable
-def _type_to_extension(dst: DatasetType) -> str:
-    match dst:
-        case DatasetType.pg_dump:
-            return "sql"
-        case DatasetType.csv:
-            return "csv"
-        case DatasetType.parquet:
-            return "parquet"
-        case DatasetType.xlsx:
-            return "xlsx"
-        case _:
-            raise Exception(f"Unknown DatasetType '{dst}'")
-
-
-def _type_from_extension(s: str) -> DatasetType | None:
-    match s:
-        case "sql":
-            return DatasetType.pg_dump
-        case "csv":
-            return DatasetType.csv
-        case "parquet":
-            return DatasetType.parquet
-        case "xlsx":
-            return DatasetType.xlsx
-        case _:
-            return None
-
-
-class Config(BaseModel, extra="forbid"):
-    dataset: LibraryConfig | ExtractConfig
-    execution_details: metadata.RunDetails | None = None
-
-    @property
-    def version(self) -> str:
-        return self.dataset.version
-
-    @property
-    def sparse_dataset(self) -> Dataset:
-        return self.dataset.dataset
-
-
-class Dataset(BaseModel, use_enum_values=True, extra="forbid"):
-    name: str
-    version: str
-    file_type: DatasetType | None = None
-
-    @property
-    def file_name(self) -> str:
-        if self.file_type is None:
-            raise Exception("File type must be defined to get file name")
-        return f"{self.name}.{_type_to_extension(self.file_type)}"
-
-    @property
-    def s3_folder(self) -> str:
-        return f"{DATASET_FOLDER}/{self.name}/{self.version}"
-
-    @property
-    def s3_key(self) -> str:
-        return f"{self.s3_folder}/{self.file_name}"
-
-    def get_file_types(self) -> set[DatasetType]:
-        files = s3.get_filenames(bucket=BUCKET, prefix=f"{self.s3_folder}/{self.name}")
-        valid_types = {
-            _type_from_extension(Path(file).suffix.strip(".")) for file in files
-        }
-        return {t for t in valid_types if t is not None}
-
-    def get_preferred_file_type(self, preferences: list[DatasetType]) -> DatasetType:
-        file_types = self.get_file_types()
-        if len(file_types.intersection(preferences)) == 0:
-            raise FileNotFoundError(
-                f"Dataset {self.name} could not find filetype of any of {preferences}. Found filetypes for {self.name}: {file_types}"
-            )
-        return next(t for t in preferences if t in file_types)
-
-
-def archive_raw_dataset(extract_config: ExtractConfig, file_path: Path):
+def archive_raw_dataset(extract_config: extract.Config, file_path: Path):
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir)
-        config = Config(dataset=extract_config, execution_details=None)
+        # config = library.Config(dataset=extract_config, execution_details=None)
 
         with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(json.dumps(config.model_dump(), indent=4))
+            f.write(json.dumps(extract_config.model_dump(), indent=4))
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
-            extract_config.raw_dataset_key.s3_path,
+            extract_config.raw_dataset_key.s3_path(RAW_FOLDER),
             acl=extract_config.acl,
             contents_only=True,
         )
@@ -378,13 +53,13 @@ def archive_dataset():
     raise NotImplemented
 
 
-def get_config(name: str, version="latest") -> Config:
+def get_config(name: str, version="latest") -> library.Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"{DATASET_FOLDER}/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
-    return Config(**yaml.safe_load(file_content))
+    return library.Config(**yaml.safe_load(file_content))
 
 
 def get_latest_version(name: str) -> str:
@@ -401,6 +76,41 @@ def get_all_versions(name: str) -> list[str]:
     ]
 
 
+def _dataset_type_from_extension(s: str) -> DatasetType | None:
+    match s:
+        case "sql":
+            return DatasetType.pg_dump
+        case "csv":
+            return DatasetType.csv
+        case "parquet":
+            return DatasetType.parquet
+        case "xlsx":
+            return DatasetType.xlsx
+        case _:
+            return None
+
+
+def get_file_types(dataset: Dataset) -> set[DatasetType]:
+    files = s3.get_filenames(
+        bucket=BUCKET, prefix=f"{dataset.s3_folder(DATASET_FOLDER)}/{dataset.name}"
+    )
+    valid_types = {
+        _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
+    }
+    return {t for t in valid_types if t is not None}
+
+
+def get_preferred_file_type(
+    dataset: Dataset, preferences: list[DatasetType]
+) -> DatasetType:
+    file_types = get_file_types(dataset)
+    if len(file_types.intersection(preferences)) == 0:
+        raise FileNotFoundError(
+            f"Dataset {dataset.name} could not find filetype of any of {preferences}. Found filetypes for {dataset.name}: {file_types}"
+        )
+    return next(t for t in preferences if t in file_types)
+
+
 def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
     target_dir = local_library_dir / DATASET_FOLDER / ds.name / ds.version
@@ -414,7 +124,7 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
 
         s3.download_file(
             bucket=BUCKET,
-            key=ds.s3_key,
+            key=ds.s3_key(DATASET_FOLDER),
             path=target_file_path,
         )
     return target_file_path
@@ -441,13 +151,13 @@ def read_df(
         DatasetType.parquet,
         DatasetType.csv,
     ]
-    ds.file_type = ds.file_type or ds.get_preferred_file_type(preferred_file_types)
+    ds.file_type = ds.file_type or get_preferred_file_type(ds, preferred_file_types)
     reader = _pd_reader(ds.file_type)
     if local_cache_dir:
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
-        with s3.get_file_as_stream(BUCKET, ds.s3_key) as stream:
+        with s3.get_file_as_stream(BUCKET, ds.s3_key(DATASET_FOLDER)) as stream:
             data = reader(stream, **kwargs)
         return data
 
@@ -509,7 +219,7 @@ def purge_recipe_cache():
     shutil.rmtree(LIBRARY_DEFAULT_PATH)
 
 
-def log_metadata(config: Config):
+def log_metadata(config: library.Config):
     logger.info(f"Logging library run metadata for dataset {config.dataset.name}")
     assert (
         config.execution_details
@@ -530,24 +240,9 @@ def log_metadata(config: Config):
 ### Logic for QA source data dashboard
 
 
-@dataclass
-class ArchivalMetadata:
-    name: str
-    version: str
-    timestamp: datetime
-    config: Config | None = None
-    runner: str | None = None
-
-    def to_row(self) -> dict:
-        return {
-            "name": self.name,
-            "version": self.version,
-            "timestamp": self.timestamp,
-            "runner": self.runner,
-        }
-
-
-def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMetadata:
+def get_archival_metadata(
+    name: str, version: str | None = None
+) -> library.ArchivalMetadata:
     if version is None:
         version = get_latest_version(name)
     logger.info(f"looking up metadata for {name}/{version}")
@@ -565,8 +260,12 @@ def get_archival_metadata(name: str, version: str | None = None) -> ArchivalMeta
         else:
             timestamp = datetime.fromisoformat(date_created)
         runner = None
-    return ArchivalMetadata(
-        name=name, version=version, timestamp=timestamp, config=config, runner=runner
+    return library.ArchivalMetadata(
+        name=name,
+        version=version,
+        timestamp=timestamp,
+        config=config.model_dump(),
+        runner=runner,
     )
 
 

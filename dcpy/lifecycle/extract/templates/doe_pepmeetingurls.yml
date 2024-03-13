@@ -2,6 +2,8 @@ name: doe_pepmeetingurls
 acl: public-read
 source:
   type: script
+  connector: dummy
+  function: dummy
 transform_to_parquet_metadata:
   format: csv
 

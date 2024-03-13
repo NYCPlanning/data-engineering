@@ -5,8 +5,6 @@ from faker import Faker
 import random
 from pathlib import Path
 
-from dcpy.extract import metadata
-
 random.seed(0)
 
 RESOURCES = Path(__file__).parent / "resources"

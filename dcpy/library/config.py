@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 import yaml
 
-from dcpy.connectors.edm.recipes import LibraryConfig
+from dcpy.models.library import DatasetDefinition
 from dcpy.connectors.esri import arcgis_feature_service
 from .utils import format_url
 from .validator import Validator, Dataset
@@ -66,7 +66,7 @@ class Config:
         return datetime.today().strftime("%Y%m%d")
 
     @cached_property
-    def compute(self) -> LibraryConfig:
+    def compute(self) -> DatasetDefinition:
         """based on given yml file, compute the configuration"""
 
         # Validate unparsed, unrendered file
@@ -136,4 +136,4 @@ class Config:
                 "Either url, script source, or socrata source must be defined"
             )
 
-        return LibraryConfig(**config.model_dump())
+        return DatasetDefinition(**config.model_dump())

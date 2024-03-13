@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dcpy.utils import postgres
-from dcpy.builds import metadata
+from dcpy.lifecycle.builds import metadata
 
 
 _product_path = Path(__file__).resolve().parent.parent

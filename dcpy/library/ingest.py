@@ -20,7 +20,7 @@ from rich.progress import (
 )
 
 from dcpy.utils.metadata import get_run_details
-from dcpy.connectors.edm import recipes
+from dcpy.models import library
 
 from . import base_path
 from .config import Config
@@ -29,7 +29,7 @@ from .sources import generic_source, postgres_source
 
 def translator(func):
     @wraps(func)
-    def wrapper(self: Ingestor, *args, **kwargs) -> tuple[list[str], recipes.Config]:
+    def wrapper(self: Ingestor, *args, **kwargs) -> tuple[list[str], library.Config]:
         # get relevant translator return values
         (dstDS, output_format, output_suffix, compress, inplace) = func(
             self, *args, **kwargs
@@ -59,7 +59,7 @@ def translator(func):
         if folder_path and output_suffix:
             execution_details.logged = True
             os.makedirs(folder_path, exist_ok=True)
-            config_dumped = recipes.Config(
+            config_dumped = library.Config(
                 dataset=dataset,
                 execution_details=execution_details,
             ).model_dump()
@@ -70,7 +70,7 @@ def translator(func):
                 yaml.dump(config_dumped, f)
             output_files.append(f"{folder_path}/config.yml")
 
-        config = recipes.Config(
+        config = library.Config(
             dataset=dataset,
             execution_details=execution_details,
         )

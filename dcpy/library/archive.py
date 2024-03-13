@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from dcpy.connectors.edm import recipes
+from dcpy.models.library import Config
 from . import base_path, pp
 from .ingest import Ingestor
 from .s3 import S3
@@ -26,7 +26,7 @@ class Archive:
         name: str | None = None,
         *args,
         **kwargs,
-    ) -> recipes.Config:
+    ) -> Config:
         """
         The `__call__` method allows a user to call a class instance with parameters.
 
@@ -86,7 +86,7 @@ class Archive:
 
         # Get ingestor by format
         ingestor_of_format: Callable[
-            [str, Any, Any], tuple[list[str], recipes.Config]
+            [str, Any, Any], tuple[list[str], Config]
         ] = getattr(self.ingestor, output_format)
 
         # Initiate ingestion

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from dcpy.connectors.edm.recipes import ExtractConfig
+from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract
 
 
@@ -19,9 +19,9 @@ def test_get_version_from_socrata():
     ## https://data.cityofnewyork.us/Social-Services/Outcome-of-Preventive-Cases-Closed-By-Borough-And-/q663-gvx6/about_data
     ## this dataset has "no plan for updates"
     ## it may eventually be deleted but for now is useful as a psuedo-constant
-    test_set = ExtractConfig.Source.Socrata(
+    test_set = socrata.Source(
         type="socrata",
-        org=ExtractConfig.Source.Socrata.Org.nyc,
+        org=socrata.Org.nyc,
         uid="q663-gvx6",
         format="csv",
     )

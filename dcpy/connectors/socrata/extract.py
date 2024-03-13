@@ -1,21 +1,19 @@
 from datetime import datetime
 import requests
 
-## These types will eventually not be in recipes
-## Socrata connector should not depend on recipes connector
-from dcpy.connectors.edm.recipes import ExtractConfig
+from dcpy.models.connectors.socrata import Source
 
 
-def get_base_url(source: ExtractConfig.Source.Socrata):
+def get_base_url(source: Source):
     return f"https://{source.org.server}/api"
 
 
-def get_metadata_url(source: ExtractConfig.Source.Socrata):
+def get_metadata_url(source: Source):
     base_url = get_base_url(source)
     return f"{base_url}/views/{source.uid}.json"
 
 
-def get_download_url(source: ExtractConfig.Source.Socrata):
+def get_download_url(source: Source):
     """For a given dataset (org and four-four), get the url to download
     it in a specific format."""
     base_url = get_base_url(source)
@@ -35,7 +33,7 @@ def _get_version_from_resp(resp: dict) -> str:
     return datetime.fromtimestamp(resp["rowsUpdatedAt"]).strftime("%Y%m%d")
 
 
-def get_version(source: ExtractConfig.Source.Socrata):
+def get_version(source: Source):
     """For given socrata dataset, get date last updated formatted as a string.
     This is used as a proxy for a 'version' of the dataset."""
     url = get_metadata_url(source)
