@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 import streamlit as st
 import requests
 import re
@@ -7,10 +6,11 @@ import re
 from dcpy.utils import s3
 from dcpy.connectors import github
 from dcpy.connectors.edm import recipes
+from dcpy.models import library
 from .constants import qa_checks
 
 
-def get_source_version(dataset: str) -> recipes.ArchivalMetadata:
+def get_source_version(dataset: str) -> library.ArchivalMetadata:
     if dataset == "dcp_saf":
         bucket = "edm-publishing"
         prefix = "gru/dcp_saf/"
@@ -21,7 +21,7 @@ def get_source_version(dataset: str) -> recipes.ArchivalMetadata:
         timestamp = s3.get_metadata(
             bucket, f"{prefix}{latest_version}/dcp_saf.zip"
         ).last_modified
-        return recipes.ArchivalMetadata(
+        return library.ArchivalMetadata(
             name="dcp_saf", version=latest_version, timestamp=timestamp
         )
     else:
@@ -29,7 +29,7 @@ def get_source_version(dataset: str) -> recipes.ArchivalMetadata:
 
 
 @st.cache_data(ttl=120)
-def get_source_versions() -> dict[str, recipes.ArchivalMetadata]:
+def get_source_versions() -> dict[str, library.ArchivalMetadata]:
     versions = {}
     for dataset in [source for sources in qa_checks["sources"] for source in sources]:
         versions[dataset] = get_source_version(dataset)
