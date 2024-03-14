@@ -14,11 +14,13 @@ from rich.progress import (
 
 class Server(StrEnum):
     nys_clearinghouse = "nys_clearinghouse"
+    nys_parks = "nys_parks"
 
 
-def _server_id(server) -> str:
-    mapping = {"nys_clearinghouse": "DZHaqZm9cxOD4CWM"}
-    return mapping[server]
+servers = {
+    "nys_clearinghouse": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
+    "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
+}
 
 
 class FeatureServer(BaseModel, extra="forbid", use_enum_values=True):
@@ -28,12 +30,17 @@ class FeatureServer(BaseModel, extra="forbid", use_enum_values=True):
 
     @property
     def url(self):
-        return f"https://services6.arcgis.com/{_server_id(self.server)}/ArcGIS/rest/services/{self.name}/FeatureServer/{self.layer}"
+        subdomain = servers[self.server].get("subdomain", "services")
+        server_id = servers[self.server]["id"]
+        return f"https://{subdomain}.arcgis.com/{server_id}/ArcGIS/rest/services/{self.name}/FeatureServer/{self.layer}"
 
 
 def get_metadata(dataset: FeatureServer) -> dict:
     resp = requests.get(f"{dataset.url}", params={"f": "pjson"})
     resp.raise_for_status()
+    error = resp.json().get("error")  # 200 responses might contain error details
+    if error:
+        raise Exception(f"Error fetching ESRI Server metadata: {error}")
     return resp.json()
 
 
@@ -60,7 +67,7 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
     object_id_resp = query_dataset(dataset, obj_params)
     object_ids = cast(list[int], object_id_resp["properties"]["objectIds"])
 
-    gjson = {"type": "FeatureCollection", "crs": crs, "features": []}
+    features = []
 
     with Progress(
         SpinnerColumn(spinner_name="earth"),
@@ -74,10 +81,14 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
             f"[green]Downloading [bold]{dataset.name}[/bold]", total=len(object_ids)
         )
 
+        def _downcase_properties_keys(feat):
+            feat["properties"] = {k.lower(): v for k, v in feat["properties"].items()}
+            return feat
+
         for i in range(0, len(object_ids), CHUNK_SIZE):
             params["objectIds"] = object_ids[i : i + CHUNK_SIZE]
             chunk = query_dataset(dataset, params)
             progress.update(task, completed=i + CHUNK_SIZE)
-            gjson["features"] += chunk["features"]
+            features += [_downcase_properties_keys(feat) for feat in chunk["features"]]
 
-    return gjson
+    return {"type": "FeatureCollection", "crs": crs, "features": features}

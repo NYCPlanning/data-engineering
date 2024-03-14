@@ -16,6 +16,10 @@ inputs:
     - name: panynj_lga_65db
     - name: dcm_arterial_highways
     - name: dcp_lion
+    # historic
+    - name: lpc_landmarks
+    - name: lpc_scenic_landmarks
+    - name: nysshpo_register_historic_places
     # Other
     - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
