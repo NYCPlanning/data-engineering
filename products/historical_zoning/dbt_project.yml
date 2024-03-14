@@ -3,7 +3,6 @@ name: "historical_zoning"
 profile: "dcp-de-postgres"
 
 model-paths: ["models"]
-macro-paths: ["macros"]
 
 tests:
   +store_failures: true
@@ -11,9 +10,4 @@ tests:
 
 models:
   historical_zoning:
-    staging:
-      +materialized: view
-    intermediate:
-      +materialized: view
-    product:
-      +materialized: table
+    +materialized: table
