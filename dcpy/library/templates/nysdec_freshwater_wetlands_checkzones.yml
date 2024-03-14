@@ -5,7 +5,7 @@ dataset:
     arcgis_feature_server:
       server: nys_clearinghouse
       name: State_Regulated_Freshwater_Wetlands
-      layer: 0
+      layer: 1
     geometry:
       SRS: EPSG:2263
       type: MULTIPOLYGON
