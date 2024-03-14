@@ -57,7 +57,7 @@ def query_dataset(dataset: FeatureServer, params: dict) -> dict:
 
 
 def get_dataset(dataset: FeatureServer, crs: int) -> dict:
-    CHUNK_SIZE = 2000
+    CHUNK_SIZE = 100
     params = {"where": "1=1", "outFields": "*", "outSr": crs, "f": "geojson"}
 
     # there is a limit of 2000 features on the server, unless we limit to objectIds only
