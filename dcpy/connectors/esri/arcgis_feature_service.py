@@ -37,14 +37,10 @@ class FeatureServer(BaseModel, extra="forbid", use_enum_values=True):
 
 def get_metadata(dataset: FeatureServer) -> dict:
     resp = requests.get(f"{dataset.url}", params={"f": "pjson"})
-    resp.raise_for_status()  # TODO: AR: this didn't seem to work for a 400, which returned
-    # │ │ metadata = {                                       │                       │
-    # │ │            │   'error': {                          │                       │
-    # │ │            │   │   'code': 400,                    │                       │
-    # │ │            │   │   'message': 'Invalid URL',       │                       │
-    # │ │            │   │   'details': ['Invalid URL']      │                       │
-    # │ │            │   }                                   │                       │
-    # │ │            }         return resp.json()
+    resp.raise_for_status()
+    error = resp.json().get("error")  # 200 responses might contain error details
+    if error:
+        raise Exception(f"Error fetching ESRI Server metadata: {error}")
     return resp.json()
 
 
