@@ -169,6 +169,7 @@ def import_dataset(
     local_library_dir=LIBRARY_DEFAULT_PATH,
     import_as: str | None = None,
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
+    rename_pk: bool = True,
 ) -> str:
     """Import a recipe to local data library folder and build engine."""
     assert ds.file_type, f"Cannot import dataset {ds.name}, no file type defined."
@@ -209,6 +210,17 @@ def import_dataset(
         col_type="text",
         default_value=ds.version,
     )
+
+    if rename_pk:
+        pg_client.execute_query(
+            f"ALTER TABLE {ds_table_name} RENAME CONSTRAINT {ds.name}_pk TO {ds.name}_{ds.version}_pk"
+        )
+        pg_client.execute_query(
+            f"ALTER INDEX IF EXISTS {ds.name}_wkb_geometry_geom_idx RENAME TO {ds.name}_{ds.version}_wkb_geometry_geom_idx"
+        )
+        pg_client.execute_query(
+            f"ALTER SEQUENCE IF EXISTS {ds.name}_ogc_fid_seq RENAME TO {ds.name}_{ds.version}_ogc_fid_seq"
+        )
 
     return f"{pg_client.schema}.{ds_table_name}"
 
