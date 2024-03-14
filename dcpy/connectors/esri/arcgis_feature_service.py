@@ -85,10 +85,16 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
             f"[green]Downloading [bold]{dataset.name}[/bold]", total=len(object_ids)
         )
 
+        def _downcase_properties_keys(feat):
+            feat["properties"] = {k.lower(): v for k, v in feat["properties"].items()}
+            return feat
+
         for i in range(0, len(object_ids), CHUNK_SIZE):
             params["objectIds"] = object_ids[i : i + CHUNK_SIZE]
             chunk = query_dataset(dataset, params)
             progress.update(task, completed=i + CHUNK_SIZE)
-            gjson["features"] += chunk["features"]
+            gjson["features"] += [
+                _downcase_properties_keys(feat) for feat in chunk["features"]
+            ]
 
     return gjson
