@@ -1,0 +1,24 @@
+dataset:
+  name: usfws_ny_wetlands 
+  acl: public-read
+  source:
+    url:
+      path: https://documentst.ecosphere.fws.gov/wetlands/data/State-Downloads/NY_geodatabase_wetlands.zip
+      subpath: NY_geodatabase_wetlands.gdb
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    layer_name: NY_Wetlands
+
+  destination:
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "GEOMETRY=AS_WKT"
+
+  info:
+    description: |
+      ## US Fish and Wildlife Service National Wetlands - filtered to NY
+      Has arcgis rest server set up, but only MapServer and RasterServer for this dataset
+    url: https://fwsprimary.wim.usgs.gov/wetlands/apps/wetlands-mapper/

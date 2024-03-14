@@ -1,0 +1,23 @@
+dataset:
+  name: dcp_beaches
+  acl: public-read
+  source:
+    url:
+      path: s3://edm-recipes/inbox/dcp_beaches/nyc_beaches.zip
+      subpath: nyc_beaches.shp
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "GEOMETRY=AS_WKT"
+
+  info:
+    description: |
+      ## DCP NYC Beaches
+      GIS team-produced dataset that merges DPR nyc beaches dataset with manually
+      created features from NPS national beaches
