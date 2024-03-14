@@ -1,5 +1,5 @@
-name: Green Fast Track
-product: green_fast_track
+name: Historical Zoning
+product: historical_zoning
 version: 0.0.1
 inputs:
   datasets:
