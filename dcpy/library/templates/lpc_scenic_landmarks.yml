@@ -1,0 +1,31 @@
+dataset:
+  name: lpc_scenic_landmarks
+  acl: public-read
+  source:
+    socrata:
+      uid: qexa-qpj6
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=the_geom"
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: MULTIPOLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: []
+    sql: null
+
+  info:
+    description: >
+      Provides boundary information regarding all scenic landmarks that have been calendared,
+      heard, or designated by the Landmarks Preservation Commission, or for which an LP number has been issued.
+    url: "https://data.cityofnewyork.us/Housing-Development/Scenic-Landmarks/qexa-qpj6/about_data"
+    dependents: []

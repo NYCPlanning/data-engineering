@@ -18,6 +18,7 @@ inputs:
     - name: dcp_lion
     # historic
     - name: lpc_landmarks
+    - name: lpc_scenic_landmarks
     # Other
     - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
