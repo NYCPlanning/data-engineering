@@ -67,7 +67,7 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
     object_id_resp = query_dataset(dataset, obj_params)
     object_ids = cast(list[int], object_id_resp["properties"]["objectIds"])
 
-    gjson = {"type": "FeatureCollection", "crs": crs, "features": []}
+    features = []
 
     with Progress(
         SpinnerColumn(spinner_name="earth"),
@@ -89,8 +89,6 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
             params["objectIds"] = object_ids[i : i + CHUNK_SIZE]
             chunk = query_dataset(dataset, params)
             progress.update(task, completed=i + CHUNK_SIZE)
-            gjson["features"] += [
-                _downcase_properties_keys(feat) for feat in chunk["features"]
-            ]
+            features += [_downcase_properties_keys(feat) for feat in chunk["features"]]
 
-    return gjson
+    return {"type": "FeatureCollection", "crs": crs, "features": features}
