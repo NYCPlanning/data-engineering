@@ -14,3 +14,13 @@ models:
   - name: stg__waterfront_access_pow
   - name: stg__nys_parks_properties
   - name: stg__us_parks_properties
+  - name: stg__nysdec_freshwater_wetlands_checkzones
+  - name: stg__nysdec_freshwater_wetlands
+  - name: stg__nysdec_tidal_wetlands
+  - name: stg__nysdec_priority_lakes
+  - name: stg__nysdec_priority_estuaries
+  - name: stg__nysdec_priority_shorelines
+  - name: stg__nysdec_priority_streams
+  - name: stg__nysdec_natural_heritage_communities
+  - name: stg__dcp_beaches
+  - name: stg__usfws_nyc_wetlands

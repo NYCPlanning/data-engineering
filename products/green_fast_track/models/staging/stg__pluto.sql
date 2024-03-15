@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['geom'], 'type': 'gist'},
+        {'columns': ['geom'], 'type': 'gist'},
     ]
 ) }}
 

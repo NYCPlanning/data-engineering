@@ -1,3 +1,12 @@
+-- natural resources may still need buffers added
+{{ config(
+    materialized = 'table',
+    indexes=[
+        {'columns': ['buffer'], 'type': 'gist'},
+    ]
+) }}
+
+
 WITH all_buffers AS (
 {{ dbt_utils.union_relations(
     relations=[
@@ -14,7 +23,18 @@ WITH all_buffers AS (
         ref('int_buffers__us_parks_properties'),
         ref('int_buffers__waterfront_access_pow'),
         ref('int_buffers__waterfront_access_wpaa'),
-        ref('stg__panynj_airports')
+        ref('int_buffers__natural_resource_shadows'),
+        ref('stg__panynj_airports'),
+        ref('stg__dcp_beaches'),
+        ref('stg__nysdec_freshwater_wetlands_checkzones'),
+        ref('stg__nysdec_freshwater_wetlands'),
+        ref('stg__nysdec_natural_heritage_communities'),
+        ref('stg__nysdec_priority_estuaries'),
+        ref('stg__nysdec_priority_lakes'),
+        ref('stg__nysdec_priority_shorelines'),
+        ref('stg__nysdec_priority_streams'),
+        ref('stg__nysdec_tidal_wetlands'),
+        ref('stg__usfws_nyc_wetlands'),
     ],
     column_override={"raw_geom": "geometry", "buffer": "geometry"}
 ) }}
@@ -26,5 +46,5 @@ SELECT
     variable_type,
     variable_id,
     raw_geom,
-    buffer
+    COALESCE(buffer, raw_geom) AS buffer
 FROM all_buffers
