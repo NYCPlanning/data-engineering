@@ -18,7 +18,18 @@ inputs:
     - name: panynj_lga_65db
     - name: dcm_arterial_highways
     - name: dcp_lion
-    # historic
+    # Natural Resources
+    - name: dcp_beaches
+    - name: nysdec_freshwater_wetlands_checkzones
+    - name: nysdec_freshwater_wetlands
+    - name: nysdec_tidal_wetlands
+    - name: nysdec_priority_lakes
+    - name: nysdec_priority_estuaries
+    - name: nysdec_priority_shorelines
+    - name: nysdec_priority_streams
+    - name: nysdec_natural_heritage_communities
+    - name: usfws_nyc_wetlands
+    # Historic
     - name: lpc_landmarks
     - name: lpc_scenic_landmarks
     - name: lpc_historic_districts
