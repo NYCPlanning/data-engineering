@@ -23,6 +23,13 @@ inputs:
     - name: nysshpo_register_historic_places
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
+    # Shadows
+    - name: dpr_parksproperties
+    - name: dcp_pops
+    - name: dcp_waterfront_access_map_wpaa
+    - name: dcp_waterfront_access_map_pow
+    - name: nysparks_parks_polygons
+    - name: usnps_parks
     # Other
     - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
