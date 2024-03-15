@@ -1,5 +1,5 @@
 dataset:
-  name: nysdec_freshwater_wetlands
+  name: nysdec_freshwater_wetlands_checkzones
   acl: public-read
   source:
     arcgis_feature_server:
