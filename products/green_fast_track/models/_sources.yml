@@ -133,7 +133,7 @@ sources:
           - name: geom
             tests:
               - not_null
-
+  
       - name: dcp_boroboundaries_wi
 
       - name: dpr_parksproperties
@@ -202,3 +202,13 @@ sources:
           - name: wkt
             tests:
               - not_null
+              
+      - name: nysdec_freshwater_wetlands_checkzones
+      - name: nysdec_freshwater_wetlands
+      - name: nysdec_tidal_wetlands
+      - name: nysdec_priority_lakes
+      - name: nysdec_priority_estuaries
+      - name: nysdec_priority_streams
+      - name: nysdec_natural_heritage_communities
+      - name: dcp_beaches
+      - name: usfws_ny_wetlands
