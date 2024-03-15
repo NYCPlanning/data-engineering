@@ -19,7 +19,10 @@ inputs:
     # historic
     - name: lpc_landmarks
     - name: lpc_scenic_landmarks
+    - name: lpc_historic_districts
     - name: nysshpo_register_historic_places
+    - name: nysshpo_historic_buildings_points
+    - name: nysshpo_historic_buildings_polygons
     # Other
     - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
