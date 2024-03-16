@@ -34,18 +34,18 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.34.59
+boto3==1.34.64
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs==1.34.59
+boto3-stubs==1.34.64
     # via -r python/requirements.in
-botocore==1.34.59
+botocore==1.34.64
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.34.59
+botocore-stubs==1.34.64
     # via
     #   -r python/requirements.in
     #   boto3-stubs
@@ -106,7 +106,7 @@ colorama==0.4.6
     #   sqlfluff
 colour==0.1.5
     # via leafmap
-comm==0.2.1
+comm==0.2.2
     # via
     #   ipykernel
     #   ipywidgets
@@ -114,7 +114,7 @@ contextily==1.3.0
     # via -r python/requirements.in
 contourpy==1.2.0
     # via matplotlib
-coverage==7.4.3
+coverage==7.4.4
     # via pytest-cov
 cryptography==42.0.5
     # via
@@ -123,13 +123,13 @@ cryptography==42.0.5
     #   pyjwt
 cycler==0.12.1
     # via matplotlib
-dbt-core==1.7.9
+dbt-core==1.7.10
     # via
     #   dbt-postgres
     #   sqlfluff-templater-dbt
 dbt-extractor==0.5.1
     # via dbt-core
-dbt-postgres==1.7.9
+dbt-postgres==1.7.10
     # via -r python/requirements.in
 dbt-semantic-interfaces==0.4.4
     # via dbt-core
@@ -162,7 +162,7 @@ folium==0.14.0
     #   -r python/requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.49.0
+fonttools==4.50.0
     # via matplotlib
 future==1.0.0
     # via usaddress
@@ -266,9 +266,9 @@ jsonschema==4.21.1
     #   pystac
 jsonschema-specifications==2023.12.1
     # via jsonschema
-jupyter-client==8.6.0
+jupyter-client==8.6.1
     # via ipykernel
-jupyter-core==5.7.1
+jupyter-core==5.7.2
     # via
     #   ipykernel
     #   jupyter-client
@@ -312,7 +312,7 @@ minimal-snowplow-tracker==0.0.2
     # via dbt-core
 more-itertools==10.2.0
     # via dbt-semantic-interfaces
-moto==5.0.2
+moto==5.0.3
     # via -r python/requirements.in
 msal==1.23.0
     # via -r python/requirements.in
@@ -322,7 +322,7 @@ mypy==1.5.1
     # via
     #   -r python/requirements.in
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.34.14
+mypy-boto3-s3==1.34.64
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via
@@ -404,7 +404,7 @@ platformdirs==4.2.0
     #   black
     #   jupyter-core
     #   virtualenv
-plotly==5.19.0
+plotly==5.20.0
     # via
     #   -r python/requirements.in
     #   leafmap
@@ -440,7 +440,7 @@ pyarrow==15.0.1
     #   streamlit
 pycparser==2.21
     # via cffi
-pydantic==2.6.3
+pydantic==2.6.4
     # via
     #   -r python/requirements.in
     #   dbt-semantic-interfaces
@@ -524,7 +524,7 @@ pyzmq==25.1.2
     #   jupyter-client
 rasterio==1.3.9
     # via contextily
-referencing==0.33.0
+referencing==0.34.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -558,7 +558,7 @@ ruamel-yaml==0.18.6
     # via sqlfluff-templater-dbt
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
-s3transfer==0.10.0
+s3transfer==0.10.1
     # via boto3
 scikit-learn==1.4.1.post1
     # via mapclassify
@@ -601,7 +601,7 @@ sqlparse==0.4.4
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.32.0
+streamlit==1.32.2
     # via
     #   -r python/requirements.in
     #   streamlit-aggrid
@@ -636,7 +636,7 @@ tqdm==4.66.2
     #   -r python/requirements.in
     #   gdown
     #   sqlfluff
-traitlets==5.14.1
+traitlets==5.14.2
     # via
     #   bqplot
     #   comm
@@ -661,19 +661,19 @@ types-beautifulsoup4==4.12.0.20240229
     # via -r python/requirements.in
 types-html5lib==1.1.11.20240228
     # via types-beautifulsoup4
-types-psycopg2==2.9.21.20240218
+types-psycopg2==2.9.21.20240311
     # via -r python/requirements.in
-types-python-dateutil==2.8.19.20240106
+types-python-dateutil==2.9.0.20240316
     # via -r python/requirements.in
 types-pytz==2024.1.0.20240203
     # via pandas-stubs
-types-pyyaml==6.0.12.12
+types-pyyaml==6.0.12.20240311
     # via -r python/requirements.in
 types-requests==2.31.0.6
     # via -r python/requirements.in
 types-s3transfer==0.10.0
     # via boto3-stubs
-types-setuptools==69.1.0.20240309
+types-setuptools==69.2.0.20240316
     # via -r python/requirements.in
 types-tqdm==4.66.0.2
     # via -r python/requirements.in
@@ -730,7 +730,7 @@ xyzservices==2023.10.1
     #   contextily
     #   ipyleaflet
     #   leafmap
-zipp==3.17.0
+zipp==3.18.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
