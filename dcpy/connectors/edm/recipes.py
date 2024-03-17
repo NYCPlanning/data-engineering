@@ -57,6 +57,7 @@ class ExtractConfig(BaseModel, extra="forbid"):
     raw_filename: str
     acl: ValidAclValues
     source: Source.Options
+    transform_to_parquet_metadata: ToParquetMeta
 
     class Source:
         class LocalFile(BaseModel, extra="forbid"):
@@ -120,6 +121,18 @@ class ExtractConfig(BaseModel, extra="forbid"):
         Options: TypeAlias = (
             LocalFile | FileDownload | Api | Socrata | EdmPublishingGisDataset | Script
         )
+
+    class ToParquetMeta(BaseModel):
+        format: Literal["csv", "xlsx", "shapefile", "geodabase", "json", "geojson"]
+        encoding: str | None = None
+        delimiter: str | None = None
+        xlsx_tab: str | None = None
+        geometry: Geometry
+
+        class Geometry(BaseModel):
+            geom_column: str | None = None
+            layer: str | None = None
+            crs: str | None = None
 
     @property
     def dataset(self) -> Dataset:
