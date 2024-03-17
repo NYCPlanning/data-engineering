@@ -1,0 +1,30 @@
+# csv non-spatial case
+- encoding:
+  format: csv
+  delimiter:
+  geometry:
+    geom_column:
+    layer:
+    crs:
+
+# csv spatial case
+- encoding:
+  format: csv
+  delimiter:
+  geometry:
+    geom_column: wkt
+    layer:
+    crs: EPSG:4326
+
+- encoding:
+  format: shapefile
+  geometry:
+    layer:
+    crs: EPSG:4326
+
+- encoding:
+  format: geodabase
+  geometry:
+    geom_column:
+    layer:
+    crs: EPSG:4326
