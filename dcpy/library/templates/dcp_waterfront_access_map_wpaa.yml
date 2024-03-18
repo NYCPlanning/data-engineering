@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     arcgis_feature_server:
-      server: nyc
+      server: dcp
       name: nywpaa_accesspoints
       layer: 0
     options:

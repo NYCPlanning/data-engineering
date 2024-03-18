@@ -16,14 +16,14 @@ class Server(StrEnum):
     nys_clearinghouse = "nys_clearinghouse"
     nys_parks = "nys_parks"
     nps = "nps"
-    nyc = "nyc"
+    dcp = "dcp"
 
 
 servers = {
     "nys_clearinghouse": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
     "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
     "nps": {"id": "fBc8EJBxQRMcHlei", "subdomain": "services1"},
-    "nyc": {"id": "GfwWNkhOj9bNBqoJ", "subdomain": "services5"},
+    "dcp": {"id": "GfwWNkhOj9bNBqoJ", "subdomain": "services5"},
 }
 
 
