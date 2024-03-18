@@ -5,8 +5,8 @@ version_strategy:
 vars:
   GEOSUPPORT_VERSION: 23d
   DOB_DATA_DATE: 20240116
-  CAPTURE_DATE: 07-01-2023
-  CAPTURE_DATE_PREV: 01-01-2023
+  CAPTURE_DATE: 01-01-2024
+  CAPTURE_DATE_PREV: 07-01-2023
 
 inputs:
   missing_versions_strategy: find_latest
