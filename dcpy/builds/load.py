@@ -63,6 +63,8 @@ def import_dataset(
     else:
         preproc_func = None
 
+    if pg_client and (not ds.destination):
+        ds.destination = plan.InputDatasetDestination.postgres
     assert ds.destination, f"Dataset destination not resolved for dataset {ds.name}"
     match ds.destination:
         case plan.InputDatasetDestination.postgres:
