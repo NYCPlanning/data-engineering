@@ -4,6 +4,13 @@ source:
   type: local_file
   path: .library/upload/AICP_OREQ_CAPPLN_PJCP.asc
 transform_to_parquet_metadata:
+  encoding:
+  format: csv # TODO: this is not exactly correct. Need to think how to convert to parquet
+  delimiter:
+  geometry:
+    geom_column:
+    layer:
+    crs:
 
 library_dataset:
   name: fisa_capitalcommitments

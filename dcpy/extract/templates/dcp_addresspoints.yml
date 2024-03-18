@@ -4,7 +4,13 @@ source:
   type: edm_publishing_gis_dataset
   name: dcp_address_points
 transform_to_parquet_metadata:
-
+  encoding:
+  format: shapefile
+  delimiter:
+  geometry:
+    geom_column:
+    layer:
+    crs:
 
 library_dataset:
   name: dcp_addresspoints

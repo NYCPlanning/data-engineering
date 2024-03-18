@@ -6,6 +6,13 @@ source:
   uid: w7w3-xahh
   format: csv
 transform_to_parquet_metadata:
+  encoding:
+  format: csv
+  delimiter:
+  geometry:
+    geom_column: location
+    layer:
+    crs: EPSG:4326
 
 library_dataset:
   name: dca_operatingbusinesses

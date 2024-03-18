@@ -6,13 +6,20 @@ source:
   endpoint: https://www.bklynlibrary.org/locations/json
   format: json
 transform_to_parquet_metadata:
+  encoding:
+  format: json
+  delimiter:
+  geometry:
+    geom_column:
+    layer:
+    crs: EPSG:4326
 
 library_dataset:
   name: bpl_libraries
   acl: public-read
   version: ""
   source:
-    script: 
+    script:
       path: https://www.bklynlibrary.org/locations/json
     options:
       - "AUTODETECT_TYPE=NO"
