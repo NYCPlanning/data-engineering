@@ -133,3 +133,5 @@ sources:
           - name: geom
             tests:
               - not_null
+
+      - name: dcp_boroboundaries_wi
