@@ -6,6 +6,7 @@ BUILD_DBS = [
     "db-cpdb",
     "db-devdb",
     "db-facilities",
+    "db-green-fast-track",
     "db-pluto",
     "db-template",
     "db-ztl",
