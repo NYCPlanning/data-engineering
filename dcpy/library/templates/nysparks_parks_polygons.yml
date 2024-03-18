@@ -1,0 +1,34 @@
+dataset:
+  name: nysparks_parks_polygons
+  acl: public-read
+  source:
+    arcgis_feature_server:
+      server: nys_parks
+      name: NYS_Park_Polygons
+      layer: 0
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:26918
+      type: POLYGON
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POLYGON
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ## New York State Office of Parks, Recreation and Historic Preservation Property
+
+      This service contains the NY state park boundary polygon data, current to August 2022.  Data is updated on a regular basis and should be requested from NY State Parks if current data is needed for your project.
+      All boundaries are shown as approximate.
+    url: https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
+    dependents: []
