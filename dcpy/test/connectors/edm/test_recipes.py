@@ -57,6 +57,10 @@ def test_archive_raw_dataset(create_buckets, create_temp_filesystem: Path):
         acl="private",
         raw_filename=file_name,
         source=recipes.ExtractConfig.Source.Script(type="script"),  # easiest to mock
+        transform_to_parquet_metadata=recipes.ExtractConfig.ToParquetMeta(
+            format="csv",
+            geometry=recipes.ExtractConfig.ToParquetMeta.Geometry(),
+        ),  # easiest to mock
     )
     recipes.archive_raw_dataset(config, tmp_file)
     assert s3.exists(
