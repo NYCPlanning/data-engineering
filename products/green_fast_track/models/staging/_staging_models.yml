@@ -8,3 +8,4 @@ models:
   - name: stg__panynj_airports
   - name: stg__pluto
   - name: stg__nysdec_title_v_facility_permits
+  - name: stg__nyc_boundary
