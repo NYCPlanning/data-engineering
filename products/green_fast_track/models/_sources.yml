@@ -95,6 +95,36 @@ sources:
                   config:
                     severity: warn
 
+      - name: lpc_historic_district_areas
+        columns:
+          - name: area_name
+            tests:
+              - unique
+              - not_null
+          - name: lp_number
+            tests:
+              - unique
+              - not_null
+          - name: the_geom
+            tests:
+              - not_null
+
+      - name: lpc_landmarks
+        columns:
+          - name: bbl
+          - name: last_actio
+          - name: latitude
+          - name: lm_name
+          - name: lm_type
+          - name: longitude
+          - name: most_curre
+          - name: status
+
+      - name: lpc_scenic_landmarks
+        columns:
+          - name: wkb_geometry
+          - name: scen_lm_na
+
       - name: nysdec_title_v_facility_permits
         columns:
           - name: permit_id
@@ -118,6 +148,54 @@ sources:
             tests:
               - dbt_utils.at_least_one
           - name: geom
+            tests:
+              - not_null
+
+      - name: nysshpo_historic_buildings_polygons
+        columns:
+          - name: usnnum
+            tests:
+              - not_null
+          - name: usnname
+            tests:
+              - not_null
+          - name: eligibilitydesc
+            tests:
+            - accepted_values:
+                values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
+          - name: wkb_geometry
+
+      - name: nysshpo_historic_buildings_points
+        columns:
+          - name: usnnum
+            tests:
+              - not_null
+          - name: usnname
+            tests:
+              - not_null
+          - name: eligibilitydesc
+            tests:
+            - accepted_values:
+                values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
+          - name: wkb_geometry
+
+      - name: nysshpo_archaeological_buffer_areas
+        columns:
+          - name: wkb_geometry
+            tests:
+              - not_null
+              - is_epsg_2263
+
+      - name: nysparks_historicplaces
+        columns:
+          - name: wkb_geometry
+            tests:
+              - not_null
+          - name: resource_name
+            tests:
+              - not_null
+          - name: county
+          - name: national_register_number
             tests:
               - not_null
 

@@ -32,12 +32,13 @@ inputs:
     - name: nysdec_natural_heritage_communities
     - name: usfws_nyc_wetlands
     # Historic
-    - name: lpc_landmarks
-    - name: lpc_scenic_landmarks
-    - name: lpc_historic_districts
-    - name: nysshpo_register_historic_places
+    - name: lpc_scenic_landmarks # e.g. Central Park / Ocean Parkway / etc.
+    - name: lpc_historic_district_areas # polygons for a neighborhood
+    - name: lpc_landmarks # landmark buildings -> ncre-qhxs. In spreadsheet as `Historic Building (NYC)` - 38.8k rows
+    - name: nysparks_historicplaces_esri
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
+    - name: nysshpo_archaeological_buffer_areas
     # Shadows
     - name: dpr_parksproperties
     - name: dcp_pops
