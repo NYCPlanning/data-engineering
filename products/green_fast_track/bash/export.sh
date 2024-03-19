@@ -20,10 +20,13 @@ mkdir -p output && (
 
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__airports sources__airports ${default_srs} -update
 
+    fgdb_export_partial ${fgdb_filename} MULTILINESTRING sources__arterial_highways sources__arterial_highways ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__arterial_highways_buffers sources__arterial_highways_buffers ${default_srs} -update
 
+    fgdb_export_partial ${fgdb_filename} MULTILINESTRING sources__elevated_railways sources__elevated_railways ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__elevated_railways_buffers sources__elevated_railways_buffers ${default_srs} -update
     
+    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__vent_towers sources__vent_towers ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__vent_towers_buffers sources__vent_towers_buffers ${default_srs} -update
 
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__industrial_sources_lots sources__industrial_sources_lots ${default_srs} -update
