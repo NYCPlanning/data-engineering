@@ -12,7 +12,7 @@ WITH buffered_flags AS (
         buffer,
         raw_geom
     FROM
-        {{ ref('int__all_buffers') }}
+        {{ ref('int_buffers__all') }}
 ),
 
 pluto AS (

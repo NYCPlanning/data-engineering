@@ -1,2 +1,2 @@
 SELECT ST_UNION(buffer) AS geom
-FROM {{ ref('int__nysdec_state_facility_permits') }}
+FROM {{ ref('int_buffers__nysdec_state_facility_permits') }}

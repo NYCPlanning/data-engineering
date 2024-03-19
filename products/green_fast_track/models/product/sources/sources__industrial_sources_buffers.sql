@@ -1,2 +1,2 @@
 SELECT ST_UNION(buffer) AS geom
-FROM {{ ref('int__industrial_sources') }}
+FROM {{ ref('int_buffers__industrial_sources') }}
