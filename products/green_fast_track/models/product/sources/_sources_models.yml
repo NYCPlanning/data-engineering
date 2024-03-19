@@ -3,10 +3,13 @@ version: 2
 models:
   - name: sources__airports
 
+  - name: sources__arterial_highways
   - name: sources__arterial_highways_buffers
 
+  - name: sources__elevated_railways
   - name: sources__elevated_railways_buffers
 
+  - name: sources__vent_towers
   - name: sources__vent_towers_buffers
 
   - name: sources__industrial_sources_lots
