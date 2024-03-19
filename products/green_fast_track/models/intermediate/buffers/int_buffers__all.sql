@@ -1,13 +1,13 @@
 WITH all_buffers AS (
 {{ dbt_utils.union_relations(
     relations=[
-        ref('int__elevated_railways'),
-        ref('int__nysdec_state_facility_permits'),
-        ref('int__nysdec_title_v_facility_permits'),
-        ref('int__dep_cats_permits'),
-        ref('int__industrial_sources'),
-        ref('stg__dcm_arterial_highways'),
-        ref('stg__dcp_air_quality_vent_towers_buffered'),
+        ref('int_buffers__dcm_arterial_highways'),
+        ref('int_buffers__dcp_air_quality_vent_towers'),
+        ref('int_buffers__dep_cats_permits'),
+        ref('int_buffers__elevated_railways'),
+        ref('int_buffers__industrial_sources'),
+        ref('int_buffers__nysdec_state_facility_permits'),
+        ref('int_buffers__nysdec_title_v_facility_permits'),
         ref('stg__panynj_airports')
     ],
     column_override={"raw_geom": "geometry", "buffer": "geometry"}

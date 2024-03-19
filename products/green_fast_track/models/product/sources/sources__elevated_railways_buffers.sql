@@ -1,2 +1,2 @@
 SELECT ST_UNION(buffer) AS geom
-FROM {{ ref('int__elevated_railways') }}
+FROM {{ ref('int_buffers__elevated_railways') }}
