@@ -10,18 +10,18 @@ SELECT
     variable_type,
     variable_id,
     NULL::double precision AS distance
-FROM {{ ref('int__zoning_flags') }}
+FROM {{ ref('int_flags__zoning') }}
 UNION ALL
 SELECT
     bbl,
     variable_type,
     variable_id,
     NULL::double precision AS distance
-FROM {{ ref('int__edesignation_flags') }}
+FROM {{ ref('int_flags__edesignation') }}
 UNION ALL
 SELECT
     bbl,
     variable_type,
     variable_id,
     distance
-FROM {{ ref('int__spatial_flags') }}
+FROM {{ ref('int_flags__spatial') }}
