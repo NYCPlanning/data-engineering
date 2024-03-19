@@ -3,6 +3,8 @@ product: green_fast_track
 version: 0.0.1
 inputs:
   datasets:
+    # Boundaries
+    - name: dcp_boroboundaries_wi
     # Zoning
     - name: dcp_mappluto_wi
     # Air
