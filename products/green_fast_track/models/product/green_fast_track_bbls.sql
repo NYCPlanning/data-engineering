@@ -11,7 +11,7 @@ WITH pluto AS (
 ),
 
 flags_long AS (
-    SELECT * FROM {{ ref('int__flags') }}
+    SELECT * FROM {{ ref('int_flags__all') }}
 ),
 
 flags_ranked AS (
