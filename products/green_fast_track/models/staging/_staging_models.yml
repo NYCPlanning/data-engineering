@@ -4,6 +4,10 @@ models:
   - name: stg__nysdec_state_facility_permits
   - name: stg__dcm_arterial_highways
   - name: stg__dep_cats_permits
+  - name: stg__lpc_historic_district_areas
+  - name: stg__lpc_landmarks
+  - name: stg__lpc_scenic_landmarks
+  - name: stg__nysparks_historicplaces
   - name: stg__panynj_airports
   - name: stg__pluto
   - name: stg__nysdec_title_v_facility_permits
