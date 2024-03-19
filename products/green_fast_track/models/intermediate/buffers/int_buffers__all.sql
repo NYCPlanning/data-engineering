@@ -8,6 +8,7 @@ WITH all_buffers AS (
         ref('int_buffers__industrial_sources'),
         ref('int_buffers__nysdec_state_facility_permits'),
         ref('int_buffers__nysdec_title_v_facility_permits'),
+        ref('stg__lpc_historic_district_areas'),
         ref('stg__panynj_airports')
     ],
     column_override={"raw_geom": "geometry", "buffer": "geometry"}

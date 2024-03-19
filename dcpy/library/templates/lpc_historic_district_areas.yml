@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     socrata:
-      uid: carn-tkei
+      uid: skyk-mpzq
       format: csv
     options:
       - "AUTODETECT_TYPE=NO"
@@ -15,7 +15,7 @@ dataset:
 
   destination:
     geometry:
-      SRS: EPSG:4326
+      SRS: EPSG:2263
       type: MULTIPOLYGON
     options:
       - "OVERWRITE=YES"
