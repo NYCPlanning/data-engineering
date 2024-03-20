@@ -109,7 +109,8 @@ def transform_to_parquet(
         local_data_path (Path, optional): Path to the local data file. If not provided, data is pulled from S3 bucket.
 
     Raises:
-        AssertionError: If `local_data_path` is provided but does not point to a valid file.
+        AssertionError: If `local_data_path` is provided but does not point to a valid file or directory.
+        AssertionError: If `geom_column` is present in yaml template but not in the dataset.
     """
 
     # create new dir for raw data and output parquet file
@@ -118,9 +119,10 @@ def transform_to_parquet(
     TMP_DIR.mkdir()
 
     if local_data_path:
-        # TODO: fix logic for cases when it's a directory, not a file
-        assert local_data_path.is_file(), "Local path should be a valid file"
-        logger.info(f"Raw data was found locally at {local_data_path}")
+        assert (
+            local_data_path.is_file() or local_data_path.is_dir()
+        ), "Local path should be a valid file or directory"
+        logger.info(f"❌ Raw data was found locally at {local_data_path}")
     else:
         local_data_path = TMP_DIR / config.raw_filename
 
@@ -158,6 +160,9 @@ def transform_to_parquet(
 
             else:
                 geom_column = data_load_config.geometry.geom_column
+                assert (
+                    geom_column in df.columns
+                ), f"❌ Geometry column specified in recipe template does not exist in {config.raw_filename}"
 
                 # replace NaN values with None. Otherwise gpd throws an error
                 if df[geom_column].isnull().any():
@@ -175,7 +180,7 @@ def transform_to_parquet(
                 )
 
     gdf.to_parquet(PARQUET_PATH, index=False)
-    logger.info(f"Converted raw data to parquet file and saved as {PARQUET_PATH}")
+    logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
 
 
 def validate_dataset(config: recipes.ExtractConfig):
