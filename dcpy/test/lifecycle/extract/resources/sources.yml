@@ -9,9 +9,9 @@
   name: dcp_borough_boundary
 - type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_24a.zip
-- type: script
-  script_name: ingest_script
-  script_module: dcpy.test.extract.resources
+#- type: script
+#  script_name: ingest_script
+#  script_module: dcpy.test.extract.resources
 - type: local_file
   path: ""
 - type: file_download
