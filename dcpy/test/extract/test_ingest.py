@@ -31,9 +31,8 @@ def test_download_file(create_buckets, create_temp_filesystem: Path):
             name="test",
             acl="public-read",
             source=source,
-            transform_to_parquet_metadata=recipes.ExtractConfig.ToParquetMeta(
-                format="csv",
-                geometry=recipes.ExtractConfig.ToParquetMeta.Geometry(),
+            transform_to_parquet_metadata=recipes.ExtractConfig.ToParquetMeta.Csv(
+                format="csv"  # easiest to mock
             ),
         )
 
@@ -61,6 +60,8 @@ def get_fake_data_configs():
                 file_name = "test/test.shp"
             case "geodatabase":
                 file_name = "test.gdb"
+            case _:
+                raise ValueError(f"Unknown data format {config['format']}")
 
         local_file_path = RESOURCES / TEST_DATA_DIR / file_name
 
@@ -103,20 +104,20 @@ def test_transform_to_parquet(config: recipes.ExtractConfig):
 
     to_parquet_config = config.transform_to_parquet_metadata
 
-    match to_parquet_config.format:
-        case "shapefile":
+    match to_parquet_config:
+        case recipes.ExtractConfig.ToParquetMeta.Shapefile() as shapefile:
             raw_df = gpd.read_file(file_path)
 
-        case "geodabase":
+        case recipes.ExtractConfig.ToParquetMeta.Geodatabase() as geodatabase:
             raw_df = gpd.read_file(file_path)
 
-        case "csv":
+        case recipes.ExtractConfig.ToParquetMeta.Csv() as csv:
             raw_df = pd.read_csv(file_path)
 
             # case when csv contains geospatial data. Convert to gpd dataframe
-            if to_parquet_config.geometry.crs:
-                geom_column = to_parquet_config.geometry.geom_column
-                crs = to_parquet_config.geometry.crs
+            if csv.geometry:
+                geom_column = csv.geometry.geom_column
+                crs = csv.geometry.crs
 
                 if raw_df[geom_column].isnull().any():
                     raw_df[geom_column] = raw_df[geom_column].astype(object)
@@ -132,12 +133,16 @@ def test_transform_to_parquet(config: recipes.ExtractConfig):
                     crs=crs,
                 )
 
-    if to_parquet_config.geometry.crs:
-        raw_df = (
-            raw_df.to_wkb()
-        )  # translate geometry to wkb format to match parquet geom column
+    # translate geometry to wkb format to match parquet geom column
+    if getattr(to_parquet_config, "geometry", None) or getattr(
+        to_parquet_config, "crs", None
+    ):
+        raw_df = raw_df.to_wkb()
 
     output_df = pd.read_parquet(PARQUET_PATH)
+
+    print(f"raw_df:\n{raw_df.head()}")
+    print(f"\noutput_df:\n{output_df.head()}")
 
     pd.testing.assert_frame_equal(
         left=raw_df,

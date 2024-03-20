@@ -6,13 +6,7 @@ source:
   endpoint: https://www.bklynlibrary.org/locations/json
   format: json
 transform_to_parquet_metadata:
-  encoding:
-  format: json
-  delimiter:
-  geometry:
-    geom_column:
-    layer:
-    crs: EPSG:4326
+  format: json # TODO: implement json as a format for extract.transform_to_parquet
 
 library_dataset:
   name: bpl_libraries

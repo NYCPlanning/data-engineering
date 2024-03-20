@@ -4,13 +4,8 @@ source:
   type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
 transform_to_parquet_metadata:
-  encoding:
   format: shapefile
-  delimiter:
-  geometry:
-    geom_column:
-    layer:
-    crs: EPSG:2263
+  crs: EPSG:2263
 
 library_dataset:
   name: dcp_atomicpolygons

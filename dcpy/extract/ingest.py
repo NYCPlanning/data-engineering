@@ -66,7 +66,9 @@ def download_file_from_source(
             )
 
 
-def extract_and_archive_raw_dataset(dataset: str, version: str | None):
+def extract_and_archive_raw_dataset(
+    dataset: str, version: str | None
+) -> recipes.ExtractConfig:
     """From dataset name and optional version,
     1. parse template
     2. determine version from source or set it as today's date if missing
@@ -122,7 +124,7 @@ def transform_to_parquet(
         assert (
             local_data_path.is_file() or local_data_path.is_dir()
         ), "Local path should be a valid file or directory"
-        logger.info(f"❌ Raw data was found locally at {local_data_path}")
+        logger.info(f"✅ Raw data was found locally at {local_data_path}")
     else:
         local_data_path = TMP_DIR / config.raw_filename
 
@@ -135,16 +137,22 @@ def transform_to_parquet(
 
     data_load_config = config.transform_to_parquet_metadata
 
-    match data_load_config.format:
-        case "shapefile" | "geodabase":
+    # TODO: rename geom column to "geom" regardless of input data type
+    match data_load_config:
+        case recipes.ExtractConfig.ToParquetMeta.Shapefile() as shapefile:
             gdf = gpd.read_file(
                 local_data_path,
-                geometry=data_load_config.geometry.geom_column,
-                crs=data_load_config.geometry.crs,
-                layer=data_load_config.geometry.layer,
+                crs=shapefile.crs,
+                encoding=shapefile.encoding,
             )
-
-        case "csv":
+        case recipes.ExtractConfig.ToParquetMeta.Geodatabase() as geodatabase:
+            gdf = gpd.read_file(
+                local_data_path,
+                crs=geodatabase.crs,
+                encoding=geodatabase.encoding,
+                layer=geodatabase.layer,
+            )
+        case recipes.ExtractConfig.ToParquetMeta.Csv() as csv:
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,
@@ -152,32 +160,31 @@ def transform_to_parquet(
                 delimiter=data_load_config.delimiter,
             )
 
-            if (
-                not data_load_config.geometry.crs
-                and not data_load_config.geometry.geom_column
-            ):
+            if not csv.geometry:
                 gdf = df
 
             else:
-                geom_column = data_load_config.geometry.geom_column
-                assert (
-                    geom_column in df.columns
-                ), f"❌ Geometry column specified in recipe template does not exist in {config.raw_filename}"
+                # case when geometry is in one column (i.e. polygon or point object type)
+                if isinstance(csv.geometry.geom_column, str):
+                    geom_column = csv.geometry.geom_column
+                    assert (
+                        geom_column in df.columns
+                    ), f"❌ Geometry column specified in recipe template does not exist in {config.raw_filename}"
 
-                # replace NaN values with None. Otherwise gpd throws an error
-                if df[geom_column].isnull().any():
-                    df[geom_column] = df[geom_column].astype(object)
-                    df[geom_column] = df[geom_column].where(
-                        df[geom_column].notnull(), None
+                    # replace NaN values with None. Otherwise gpd throws an error
+                    if df[geom_column].isnull().any():
+                        df[geom_column] = df[geom_column].astype(object)
+                        df[geom_column] = df[geom_column].where(
+                            df[geom_column].notnull(), None
+                        )
+
+                    df[geom_column] = gpd.GeoSeries.from_wkt(df[geom_column])
+
+                    gdf = gpd.GeoDataFrame(
+                        df,
+                        geometry=geom_column,
+                        crs=csv.geometry.crs,
                     )
-
-                df[geom_column] = gpd.GeoSeries.from_wkt(df[geom_column])
-
-                gdf = gpd.GeoDataFrame(
-                    df,
-                    geometry=geom_column,
-                    crs=data_load_config.geometry.crs,
-                )
 
     gdf.to_parquet(PARQUET_PATH, index=False)
     logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
