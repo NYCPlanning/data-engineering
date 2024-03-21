@@ -105,6 +105,17 @@ sources:
             tests:
               - not_null
 
+      - name: lpc_landmarks
+        columns:
+          - name: bbl
+          - name: last_actio
+          - name: latitude
+          - name: lm_name
+          - name: lm_type
+          - name: longitude
+          - name: most_curre
+          - name: status
+
       - name: nysdec_title_v_facility_permits
         columns:
           - name: permit_id
