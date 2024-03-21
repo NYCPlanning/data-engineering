@@ -116,6 +116,11 @@ sources:
           - name: most_curre
           - name: status
 
+      - name: lpc_scenic_landmarks
+        columns:
+          - name: wkb_geometry
+          - name: scen_lm_na
+
       - name: nysdec_title_v_facility_permits
         columns:
           - name: permit_id

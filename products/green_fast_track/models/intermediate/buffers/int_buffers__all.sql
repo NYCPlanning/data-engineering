@@ -9,6 +9,7 @@ WITH all_buffers AS (
         ref('int_buffers__nysdec_state_facility_permits'),
         ref('int_buffers__nysdec_title_v_facility_permits'),
         ref('stg__lpc_historic_district_areas'),
+        ref('stg__lpc_scenic_landmarks'),
         ref('int_buffers__lpc_landmarks'),
         ref('stg__panynj_airports')
     ],
