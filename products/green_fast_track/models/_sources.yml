@@ -135,3 +135,70 @@ sources:
               - not_null
 
       - name: dcp_boroboundaries_wi
+
+      - name: dpr_parksproperties
+        columns:
+          - name: objectid
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+          - name: typecategory
+            description: this column is tested to ensure each typecategory in dpr_property exists as typecategory in nyc_parks_properties_categories
+            tests:
+              - relationships:
+                  to: ref('nyc_parks_properties_categories')
+                  field: typecategory
+
+      - name: dcp_pops
+        columns:
+          - name: pops_number
+            tests:
+              - not_null
+              - unique
+          - name: bbl
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: dcp_waterfront_access_map_wpaa
+        columns:
+          - name: objectid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: dcp_waterfront_access_map_pow
+        columns:
+          - name: objectid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysparks_parks_polygons
+        columns:
+          - name: objectid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: usnps_parks
+        columns:
+          - name: objectid
+            tests:
+              - not_null
+              - unique
+          - name: wkt
+            tests:
+              - not_null
