@@ -13,7 +13,7 @@ WITH source AS (
 ),
 
 final AS (
-    SELECT 
+    SELECT
         'pops' AS variable_type,
         pops_number AS variable_id,
         bbl::text,

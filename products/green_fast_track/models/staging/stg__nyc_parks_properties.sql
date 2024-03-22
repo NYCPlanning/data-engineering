@@ -5,7 +5,8 @@ WITH source AS (
 ),
 
 selected_columns AS (
-    SELECT 'nyc_parks_properties' AS variable_type,
+    SELECT
+        'nyc_parks_properties' AS variable_type,
         objectid AS variable_id,
         typecategory,
         st_transform(wkb_geometry, 2263) AS raw_geom
@@ -14,11 +15,14 @@ selected_columns AS (
 
 -- filter records by a list of typecategory values identified in nyc_parks_properties_categories
 filtered AS (
-    SELECT s.variable_type,
+    SELECT
+        s.variable_type,
         s.variable_id,
         s.raw_geom
     FROM selected_columns AS s
-        JOIN {{ ref('nyc_parks_properties_categories') }} AS n ON s.typecategory = n.typecategory
+    INNER JOIN
+        {{ ref('nyc_parks_properties_categories') }} AS n
+        ON s.typecategory = n.typecategory
     WHERE n.allowed = TRUE
 )
 
