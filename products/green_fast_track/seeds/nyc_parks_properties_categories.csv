@@ -1,0 +1,22 @@
+typecategory,allowed
+Triangle/Plaza,TRUE
+Neighborhood Park,TRUE
+Buildings/Institutions,TRUE
+Recreational Field/Courts,TRUE
+Flagship Park,TRUE
+Lot,FALSE
+Nature Area,TRUE
+Strip,FALSE
+Garden,TRUE
+Waterfront Facility,TRUE
+Playground,TRUE
+Jointly Operated Playground,TRUE
+Cemetery,FALSE
+Parkway,FALSE
+Undeveloped,FALSE
+Mall,TRUE
+Managed Sites,FALSE
+Historic House Park,TRUE
+Community Park,TRUE
+Restrictive Declaration,TRUE
+Schoolyard (Playground),TRUE
