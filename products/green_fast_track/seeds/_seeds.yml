@@ -20,6 +20,7 @@ seeds:
       - name: type_ii_criteria_description
         tests:
           - not_null
+
   - name: nyc_parks_properties_categories
     description: All possible values in typecategory column of recipe dpr_parksproperties
     columns:
@@ -32,3 +33,32 @@ seeds:
           - not_null
           - accepted_values:
               values: ["TRUE", "FALSE"]
+
+  - name: expected_green_fast_track_pilot_projects
+    description: Mock pilot projects and their expected outputs
+    config:
+      # empty columns default to integer type
+      column_types:
+        bbl: text
+        Unpermitted Industrial Sources: text
+        Vent Towers: text
+        (E) Designations - Air Quality: text
+        (E) Designations - Noise: text
+        Arterial Highways: text
+        (E) Designations - HazMat: text
+        Special Coastal Risk Districts: text
+        NYC Parks properties: text
+        POPS: text
+        Waterfront Public Access Areas: text
+        Publicly Owned Waterfront: text
+        NYS Parks Property: text
+        Federal Parks property: text
+        geom: geometry
+    columns:
+      - name: project_label
+        tests:
+          - not_null
+      - name: bbl
+        tests:
+          - not_null
+          - unique
