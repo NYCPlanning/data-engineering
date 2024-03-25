@@ -25,6 +25,7 @@ inputs:
     - name: nysparks_historicplaces
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
+    - name: nysshpo_archaeological_buffer_areas
     # Shadows
     - name: dpr_parksproperties
     - name: dcp_pops
