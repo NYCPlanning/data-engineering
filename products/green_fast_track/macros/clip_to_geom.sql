@@ -5,7 +5,7 @@
             {{ dbt_utils.star(from=left, except=[left_by]) }},
         {% else %}
             {% for column in left_columns %}
-                left.{{ column }},
+                {{ left }}.{{ column }},
             {% endfor %}
         {% endif %}
         ST_INTERSECTION({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}) AS geom
