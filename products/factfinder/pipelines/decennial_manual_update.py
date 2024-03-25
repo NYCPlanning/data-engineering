@@ -5,7 +5,7 @@ import shutil
 from dcpy.utils.logging import logger
 from dcpy.builds import load
 from . import OUTPUT_FOLDER
-from .utils import process_metadata, export_df, s3_upload
+from .utils import process_metadata, apply_ccd_prefix, export_df, s3_upload
 
 DATASET = "decennial"
 SHEET_CONFIG = {
@@ -30,16 +30,6 @@ PIVOT_COLUMNS = ["year", "geoid"]
 COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
 
 
-def clean_data(df: pd.DataFrame, geotype: str) -> pd.DataFrame:
-    """Edits geoid column for community districts to avoid collisions with boros"""
-    df["geoid"] = df.apply(
-        lambda x: "CCD" + x["geoid"] if x[geotype] == "CCD2023" else x["geoid"],
-        axis=1,
-    )
-    df.drop(geotype, axis=1, inplace=True)
-    return df
-
-
 def process_data_sheet(
     excel_file: Path, year: str, sheet_name: str, geotype: str
 ) -> None:
@@ -51,7 +41,8 @@ def process_data_sheet(
     df.columns = df.columns.str.lower()
     df["geoid"] = df["geoid"].astype(str)
 
-    df = clean_data(df, geotype)
+    df = apply_ccd_prefix(df, geotype=geotype)
+    df.drop(geotype, axis=1, inplace=True)
     if "year" not in df.columns:
         df["year"] = year
     df = df.melt(id_vars=PIVOT_COLUMNS)
@@ -67,6 +58,7 @@ def process_file(dataset: str, excel: Path):
         excel,
         SHEET_CONFIG[dataset]["data_dictionary"],
         skiprows=SHEET_CONFIG[dataset].get("skiprows"),
+        append=True,
     )
     for year in YEARS:
         df = process_data_sheet(

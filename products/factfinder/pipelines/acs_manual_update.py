@@ -9,6 +9,7 @@ from dcpy.builds import load
 from . import OUTPUT_FOLDER, DATA_PATH, PRODUCT_PATH
 from .utils import (
     process_metadata,
+    apply_ccd_prefix,
     pivot_factfinder_table,
     export_df,
     s3_upload,
@@ -47,7 +48,8 @@ def sheet_names(year: str) -> dict[str, str]:
 
 
 def strip_unnamed_columns(df: pd.DataFrame) -> pd.DataFrame:
-    return df.loc[:, ~df.columns.str.match("Unnamed")]
+    df2 = df.copy()
+    return df2.loc[:, ~df.columns.str.match("Unnamed")]
 
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -59,8 +61,11 @@ def transform_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df = strip_unnamed_columns(df)
     df.rename(columns=str.lower, inplace=True)
     df.dropna(subset=["geotype"], inplace=True)
+    df = apply_ccd_prefix(df)
 
     df = pivot_factfinder_table(df)
+    for column in ["c", "e", "m", "p", "z"]:
+        df[column] = pd.to_numeric(df[column], errors="coerce")
     return df
 
 
@@ -78,6 +83,23 @@ def process_2010_data(load_result: load.LoadResult):
         process_domain_data(df, domain, "2010")
 
 
+def process_2010_appendum_manual():
+    file_path = "dummy"
+    domains = {
+        "demographic": "CCD2023_Dem0610",
+        "economic": "CCD2023_Econ0610_NotInflated",
+        "housing": "CCD2023_Housing0610_NotInflated",
+        "social": "CCD2023_Social0610",
+    }
+    for domain in domains:
+        logging.logger.info(f"Processing ACS year 2010 2024 addendum domain {domain}")
+        df = pd.read_excel(file_path, sheet_name=domains[domain])
+        df = transform_dataframe(df)
+        df["domain"] = domain
+        df = rename_columns(df)
+        export_df(df, DATASET, "2010")
+
+
 def process_latest_data(file: Path, year: str):
     domain_sheets = sheet_names(year)
 
@@ -91,6 +113,7 @@ def run(load_result: load.LoadResult, upload: bool = False):
     if OUTPUT_FOLDER.is_dir():
         shutil.rmtree(OUTPUT_FOLDER)
     process_2010_data(load_result)
+    process_2010_appendum_manual()
 
     latest = load_result.datasets["dcp_pop_acs"]
     assert isinstance(latest.destination, Path)
