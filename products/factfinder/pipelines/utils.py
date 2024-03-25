@@ -75,7 +75,7 @@ def process_metadata(
 def apply_ccd_prefix(
     df: pd.DataFrame, geoid: str = "geoid", geotype: str = "geotype"
 ) -> pd.DataFrame:
-    """Edits geoid column for community districts to avoid collisions with boros"""
+    """Edits geoid column for city council districts to avoid collisions with boros"""
     df[geoid] = df.apply(
         lambda x: "CCD" + str(int(x[geoid]))
         if x[geotype] == "CCD2023"
