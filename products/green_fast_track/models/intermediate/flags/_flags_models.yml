@@ -12,6 +12,9 @@ models:
         data_type: string
         test:
           - not_null
+          - relationships:
+              to: ref('variables')
+              field: variable_type
       - name: variable_id
         data_type: string
         test:
