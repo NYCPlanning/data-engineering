@@ -147,6 +147,32 @@ sources:
             tests:
               - not_null
 
+      - name: nysshpo_historic_buildings_polygons
+        columns:
+          - name: usnnum
+            tests:
+              - not_null
+          - name: eligibilitydesc
+            tests:
+            - accepted_values:
+                values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysshpo_historic_buildings_points
+        columns:
+          - name: usnnum
+            tests:
+              - not_null
+          - name: eligibilitydesc
+            tests:
+            - accepted_values:
+                values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
+          - name: wkb_geometry
+            tests:
+              - not_null
+
       - name: dep_cats_permits
         columns:
           - name: applicationid

@@ -257,3 +257,23 @@ models:
             tests:
               - not_null
               - is_epsg_2263
+
+      - name: int_buffers__nysshpo_historic_buildings
+        description: |
+          Historic buildings within the NYC boundary. Combines both points and polygon sources
+        columns:
+          - name: variable_type
+            test:
+              - not_null
+          - name: variable_id
+            test:
+              - not_null
+              - unique
+          - name: raw_geom
+            tests:
+              - not_null
+              - is_epsg_2263
+          - name: buffer
+            tests:
+              - not_null
+              - is_epsg_2263
