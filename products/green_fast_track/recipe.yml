@@ -22,7 +22,7 @@ inputs:
     - name: lpc_scenic_landmarks # e.g. Central Park / Ocean Parkway / etc.
     - name: lpc_historic_district_areas # polygons for a neighborhood
     - name: lpc_landmarks # landmark buildings -> ncre-qhxs. In spreadsheet as `Historic Building (NYC)` - 38.8k rows
-    - name: nysshpo_register_historic_places
+    - name: nysparks_historicplaces
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
     # Shadows
