@@ -4,7 +4,8 @@ source:
   type: edm_publishing_gis_dataset
   name: dcp_address_points
 transform_to_parquet_metadata:
-
+  format: shapefile
+  crs: EPSG:2263
 
 library_dataset:
   name: dcp_addresspoints

@@ -1,0 +1,14 @@
+# csv non-spatial case
+- format: csv
+
+# csv spatial case
+- format: csv
+  geometry:
+    geom_column: wkt
+    crs: EPSG:4326
+
+- format: shapefile
+  crs: EPSG:4326
+
+- format: geodatabase
+  crs: EPSG:4326

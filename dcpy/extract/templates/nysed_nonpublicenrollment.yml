@@ -4,6 +4,8 @@ source:
   type: file_download
   url: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
 transform_to_parquet_metadata:
+  format: xlsx
+  tab_name: NonPubEnroll_byGrade_{{ version[2:] }} # TODO: need to confirm jinja works
 
 library_dataset:
   name: nysed_nonpublicenrollment

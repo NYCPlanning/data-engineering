@@ -3,6 +3,7 @@ acl: public-read
 source:
   type: script
 transform_to_parquet_metadata:
+  format: csv
 
 library_dataset:
   name: doe_pepmeetingurls

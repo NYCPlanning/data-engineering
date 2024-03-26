@@ -4,6 +4,7 @@ source:
   type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_{{ version }}.zip
 transform_to_parquet_metadata:
+  format: csv # TODO: this is not exactly correct. Need to think how to convert to parquet
 
 library_dataset:
   name: dcp_pad

@@ -6,6 +6,10 @@ source:
   uid: izta-vnpq
   format: csv
 transform_to_parquet_metadata:
+  format: csv
+  geometry:
+    geom_column: geocoded_column
+    crs: EPSG:4326
 
 library_dataset:
   name: nysdoh_nursinghomes

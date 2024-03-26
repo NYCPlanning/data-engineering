@@ -25,7 +25,7 @@ class Template(
     ## for now, they are distinct so that they can be worked on separately
     ## when implemented, "None" should not be valid type
     source: recipes.ExtractConfig.Source.Options
-    transform_to_parquet_metadata: None
+    transform_to_parquet_metadata: recipes.ExtractConfig.ToParquetMeta.Options
 
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: LibraryConfig | None = None
@@ -91,4 +91,5 @@ def get_config(
         acl=template.acl,
         raw_filename=file_name,
         source=template.source,
+        transform_to_parquet_metadata=template.transform_to_parquet_metadata,
     )

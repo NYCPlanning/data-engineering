@@ -44,3 +44,7 @@ def test_read_template():
         template.source.url
         == "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_test.zip"
     )
+    assert isinstance(
+        template.transform_to_parquet_metadata,
+        recipes.ExtractConfig.ToParquetMeta.Shapefile,
+    )

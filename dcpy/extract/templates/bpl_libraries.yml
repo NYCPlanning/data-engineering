@@ -6,13 +6,14 @@ source:
   endpoint: https://www.bklynlibrary.org/locations/json
   format: json
 transform_to_parquet_metadata:
+  format: json # TODO: implement json as a format for extract.transform_to_parquet
 
 library_dataset:
   name: bpl_libraries
   acl: public-read
   version: ""
   source:
-    script: 
+    script:
       path: https://www.bklynlibrary.org/locations/json
     options:
       - "AUTODETECT_TYPE=NO"

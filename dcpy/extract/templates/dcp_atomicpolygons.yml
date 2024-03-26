@@ -4,6 +4,8 @@ source:
   type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
 transform_to_parquet_metadata:
+  format: shapefile
+  crs: EPSG:2263
 
 library_dataset:
   name: dcp_atomicpolygons
@@ -35,5 +37,5 @@ library_dataset:
       ### Atomic Polygons
       Atomic Polygon numbers are unique within 2010 Census tracts.
     url: "https://www1.nyc.gov/site/planning/data-maps/open-data.page"
-    dependents: 
+    dependents:
       - db-gru-qaqc
