@@ -28,7 +28,7 @@ VERSION=$DATE
         # Convert README.md to README.pdf
         mdpdf --output ReadMe_DEPCATS.pdf README.md
     )
-    Upload $NAME $VERSION
-    Upload $NAME latest
+    Upload_data_operations $NAME $VERSION
+    Upload_data_operations $NAME staging
     rm -rf output
 )

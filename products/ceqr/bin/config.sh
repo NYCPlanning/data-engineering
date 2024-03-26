@@ -62,6 +62,20 @@ function Upload {
   wait
 }
 
+function Upload_data_operations {
+  STATUS=$(mc stat --json spaces/edm-publishing/datasets/$1/$2 | jq -r '.status')
+  case $STATUS in
+    success) mc rm -r --force spaces/edm-publishing/datasets/$1/$2 ;;
+    error) true ;;
+  esac
+  for file in output/*
+  do
+    name=$(basename $file)
+    mc cp $file spaces/edm-publishing/datasets/$1/$2/$name
+  done
+  wait
+}
+
 function Publish {
   RECIPE=$1
   VERSION=${2:-latest}
