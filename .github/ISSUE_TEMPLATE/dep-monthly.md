@@ -1,19 +1,21 @@
 ---
 name: Monthly Run DEP CATS permits
-about: Approve a push of DEP CATS data to production.
-title: "[publish] dep_cats_permits"
+about: Scheduled DEP CATS permits build succeeded.
+title: "`dep_cats_permits` ready for QA"
 labels: 'data update'
 ---
 
-A fresh run of dep_cats_permits is complete! 🎉
-## Staging files output:
-- [ ] [version.txt](https://nyc3.digitaloceanspaces.com/edm-publishing/ceqr-app-data-staging/dep_cats_permits/latest/version.txt)
-- [ ] [dep_cats_permits.zip](https://nyc3.digitaloceanspaces.com/edm-publishing/ceqr-app-data-staging/dep_cats_permits/latest/dep_cats_permits.zip)
-- [ ] [dep_cats_permits.csv](https://nyc3.digitaloceanspaces.com/edm-publishing/ceqr-app-data-staging/dep_cats_permits/latest/dep_cats_permits.csv)
-- [ ] [ReadMe_DEPCATS.pdf](https://nyc3.digitaloceanspaces.com/edm-publishing/ceqr-app-data-staging/dep_cats_permits/latest/ReadMe_DEPCATS.pdf)
+A scheduled run of `dep_cats_permits` is complete! 🎉
 
-## Next Steps: 
-If you have manually checked above files and they seem to be ok, comment `[publish]` under this issue. 
-This would allow github actions to move staging files to production. 
-Feel free to close this issue once all complete. Thanks!
+## Staging files in Digital Ocean
 
+- [version.txt](https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dep_cats_permits/staging/version.txt)
+- [dep_cats_permits.zip](https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dep_cats_permits/staging/dep_cats_permits.zip)
+- [dep_cats_permits.csv](https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dep_cats_permits/staging/dep_cats_permits.csv)
+- [ReadMe_DEPCATS.pdf](https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dep_cats_permits/staging/ReadMe_DEPCATS.pdf)
+
+## Next Steps
+
+The ITD QA team will be notified in the `edm-data-operations` repo [here](https://github.com/NYCPlanning/edm-data-operations) of a difference between the staging and production folders.
+
+They will use a github action in that repo to publish staged data which will move staging files to production.
