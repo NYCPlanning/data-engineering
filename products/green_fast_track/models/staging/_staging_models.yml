@@ -8,3 +8,9 @@ models:
   - name: stg__pluto
   - name: stg__nysdec_title_v_facility_permits
   - name: stg__nyc_boundary
+  - name: stg__nyc_parks_properties
+  - name: stg__pops
+  - name: stg__waterfront_access_wpaa
+  - name: stg__waterfront_access_pow
+  - name: stg__nys_parks_properties
+  - name: stg__us_parks_properties

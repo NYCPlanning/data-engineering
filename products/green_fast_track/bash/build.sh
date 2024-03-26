@@ -6,11 +6,11 @@ echo "Setup dbt"
 dbt deps
 dbt debug
 
-echo "Test source tables"
-dbt test --select "source:*"
-
 echo "Build seed tables"
 dbt build --select config.materialized:seed
+
+echo "Test source tables"
+dbt test --select "source:*"
 
 echo "Build staging tables"
 dbt build --select staging

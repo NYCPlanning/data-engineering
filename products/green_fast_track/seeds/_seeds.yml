@@ -20,3 +20,15 @@ seeds:
       - name: type_ii_criteria_description
         tests:
           - not_null
+  - name: nyc_parks_properties_categories
+    description: All possible values in typecategory column of recipe dpr_parksproperties
+    columns:
+      - name: typecategory
+        tests:
+          - not_null
+          - unique
+      - name: allowed
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["TRUE", "FALSE"]
