@@ -74,5 +74,5 @@ def get_config(
         acl=template.acl,
         raw_filename=file_name,
         source=template.source,
-        transform_to_parquet_metadata=template.transform_to_parquet_metadata,
+        file_format=template.file_format,
     )

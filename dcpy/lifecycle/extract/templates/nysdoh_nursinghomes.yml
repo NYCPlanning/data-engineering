@@ -5,7 +5,7 @@ source:
   org: nys_health
   uid: izta-vnpq
   format: csv
-transform_to_parquet_metadata:
+file_format:
   format: csv
   geometry:
     geom_column: geocoded_column

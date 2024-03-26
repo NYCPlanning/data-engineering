@@ -2,7 +2,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from dcpy.models.lifecycle.extract import Template, ToParquetMeta
+from dcpy.models import file
+from dcpy.models.lifecycle.extract import Template
 from dcpy.models.connectors import web
 from dcpy.lifecycle.extract import TEMPLATE_DIR, metadata
 
@@ -46,6 +47,6 @@ def test_read_template():
         == "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_test.zip"
     )
     assert isinstance(
-        template.transform_to_parquet_metadata,
-        ToParquetMeta.Shapefile,
+        template.file_format,
+        file.Shapefile,
     )

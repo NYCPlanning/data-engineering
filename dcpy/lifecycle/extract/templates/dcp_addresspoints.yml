@@ -3,7 +3,7 @@ acl: public-read
 source:
   type: edm_publishing_gis_dataset
   name: dcp_address_points
-transform_to_parquet_metadata:
+file_format:
   format: shapefile
   crs: EPSG:2263
 

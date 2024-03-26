@@ -5,7 +5,7 @@ source:
   org: nyc
   uid: w7w3-xahh
   format: csv
-transform_to_parquet_metadata:
+file_format:
   format: csv
   geometry:
     geom_column: location
