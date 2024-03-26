@@ -5,7 +5,7 @@ import yaml
 
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
-from dcpy.models import library
+from dcpy.models import library, file
 from dcpy.models.lifecycle import extract
 from dcpy.library.archive import Archive
 
@@ -61,9 +61,7 @@ def test_archive_raw_dataset(create_buckets, create_temp_filesystem: Path):
         source=extract.ScriptSource(
             type="script", connector="dummy", function="dummy"
         ),  # easiest to mock
-        transform_to_parquet_metadata=extract.ToParquetMeta.Csv(
-            format="csv"  # easiest to mock
-        ),
+        file_format=file.Csv(format="csv"),  # easiest to mock
     )
     recipes.archive_raw_dataset(config, tmp_file)
     assert s3.exists(

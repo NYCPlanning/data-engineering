@@ -6,9 +6,9 @@ import pandas as pd
 import geopandas as gpd
 from typing import cast
 
+from dcpy.models import file
 from dcpy.models.lifecycle.extract import (
     LocalFileSource,
-    ToParquetMeta,
     Config,
 )
 from dcpy.utils import s3
@@ -40,9 +40,7 @@ def test_download_file(create_buckets, create_temp_filesystem: Path):
             name="test",
             acl="public-read",
             source=source,
-            transform_to_parquet_metadata=ToParquetMeta.Csv(
-                format="csv"  # easiest to mock
-            ),
+            file_format=file.Csv(format="csv"),  # easiest to mock
         )
 
         local_file = ingest.download_file_from_source(
@@ -80,7 +78,7 @@ def get_fake_data_configs():
             name="test",
             acl="public-read",
             source=source,
-            transform_to_parquet_metadata=config,
+            file_format=config,
         )
 
         extract_config = metadata.get_config(
@@ -109,16 +107,16 @@ def test_transform_to_parquet(config: Config):
 
     assert PARQUET_PATH.is_file()
 
-    to_parquet_config = config.transform_to_parquet_metadata
+    to_parquet_config = config.file_format
 
     match to_parquet_config:
-        case ToParquetMeta.Shapefile() as shapefile:
+        case file.Shapefile() as shapefile:
             raw_df = gpd.read_file(file_path)
 
-        case ToParquetMeta.Geodatabase() as geodatabase:
+        case file.Geodatabase() as geodatabase:
             raw_df = gpd.read_file(file_path)
 
-        case ToParquetMeta.Csv() as csv:
+        case file.Csv() as csv:
             raw_df = pd.read_csv(file_path)
 
             # case when csv contains geospatial data. Convert to gpd dataframe

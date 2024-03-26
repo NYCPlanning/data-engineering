@@ -3,7 +3,7 @@ acl: public-read
 source:
   type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
-transform_to_parquet_metadata:
+file_format:
   format: shapefile
   crs: EPSG:2263
 

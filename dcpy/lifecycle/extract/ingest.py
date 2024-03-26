@@ -10,12 +10,12 @@ from dcpy.utils import s3
 from pathlib import Path
 from urllib.parse import urlparse
 
+from dcpy.models import file
 from dcpy.models.lifecycle.extract import (
     LocalFileSource,
     ScriptSource,
     Template,
     Config,
-    ToParquetMeta,
 )
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
@@ -128,24 +128,24 @@ def transform_to_parquet(config: Config, local_data_path: Path | None = None):
         )
         logger.info(f"Downloaded raw data from s3 to {local_data_path}")
 
-    data_load_config = config.transform_to_parquet_metadata
+    data_load_config = config.file_format
 
     # TODO: rename geom column to "geom" regardless of input data type
     match data_load_config:
-        case ToParquetMeta.Shapefile() as shapefile:
+        case file.Shapefile() as shapefile:
             gdf = gpd.read_file(
                 local_data_path,
                 crs=shapefile.crs,
                 encoding=shapefile.encoding,
             )
-        case ToParquetMeta.Geodatabase() as geodatabase:
+        case file.Geodatabase() as geodatabase:
             gdf = gpd.read_file(
                 local_data_path,
                 crs=geodatabase.crs,
                 encoding=geodatabase.encoding,
                 layer=geodatabase.layer,
             )
-        case ToParquetMeta.Csv() as csv:
+        case file.Csv() as csv:
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,

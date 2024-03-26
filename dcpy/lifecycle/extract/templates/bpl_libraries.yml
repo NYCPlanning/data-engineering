@@ -5,7 +5,7 @@ source:
   type: api
   endpoint: https://www.bklynlibrary.org/locations/json
   format: json
-transform_to_parquet_metadata:
+file_format:
   format: json # TODO: implement json as a format for extract.transform_to_parquet
 
 library_dataset:

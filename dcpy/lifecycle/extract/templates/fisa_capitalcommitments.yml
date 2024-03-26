@@ -3,7 +3,7 @@ acl: private
 source:
   type: local_file
   path: .library/upload/AICP_OREQ_CAPPLN_PJCP.asc
-transform_to_parquet_metadata:
+file_format:
   format: csv # TODO: this is not exactly correct. Need to think how to convert to parquet
 
 library_dataset:

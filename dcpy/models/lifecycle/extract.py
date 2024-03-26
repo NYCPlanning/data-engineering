@@ -6,27 +6,7 @@ from typing import Literal, TypeAlias
 
 from dcpy.models.connectors.edm import recipes, publishing
 from dcpy.models.connectors import web, socrata
-from dcpy.models import library
-
-
-class Geometry(BaseModel):
-    """
-    Represents the geometric configuration for geospatial data.
-    Attributes:
-        geom_column: The name of geometry column in the dataset, or an instance of PointColumns if geometry is defined by separate longitude and latitude columns.
-        crs: The coordinate reference system (CRS) for the geometry.
-    Nested Classes:
-        PointColumns: Defines the names of the longitude and latitude columns for point geometries.
-    """
-
-    geom_column: str | PointColumns
-    crs: str
-
-    class PointColumns(BaseModel):
-        """This class defines longitude and latitude column names."""
-
-        x: str
-        y: str
+from dcpy.models import library, file
 
 
 class LocalFileSource(BaseModel, extra="forbid"):
@@ -50,42 +30,6 @@ Source: TypeAlias = (
 )
 
 
-class ToParquetMeta:
-    """
-    Represents config info needed for translation of raw data into parquet format.
-    Config attributes vary by raw data format.
-    """
-
-    class Csv(BaseModel, extra="forbid"):
-        format: Literal["csv"]
-        encoding: str = "utf-8"
-        delimiter: str | None = None
-        geometry: Geometry | None = None
-
-    class Xlsx(BaseModel, extra="forbid"):
-        format: Literal["xlsx"]
-        tab_name: str
-        encoding: str = "utf-8"
-        geometry: Geometry | None = None
-
-    class Shapefile(BaseModel, extra="forbid"):
-        format: Literal["shapefile"]
-        encoding: str = "utf-8"
-        crs: str
-
-    class Geodatabase(BaseModel, extra="forbid"):
-        format: Literal["geodatabase"]
-        layer: str | None = None
-        encoding: str = "utf-8"
-        crs: str
-
-    # TODO: implement JSON and GEOJSON
-    class Json(BaseModel):
-        format: Literal["json"]
-
-    Options: TypeAlias = Csv | Xlsx | Shapefile | Geodatabase | Json
-
-
 class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
@@ -96,7 +40,7 @@ class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     ## for now, they are distinct so that they can be worked on separately
     ## when implemented, "None" should not be valid type
     source: Source
-    transform_to_parquet_metadata: ToParquetMeta.Options
+    file_format: file.Format
 
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: library.DatasetDefinition | None = None
@@ -113,7 +57,7 @@ class Config(BaseModel, extra="forbid"):
     raw_filename: str
     acl: recipes.ValidAclValues
     source: Source
-    transform_to_parquet_metadata: ToParquetMeta.Options
+    file_format: file.Format
 
     @property
     def dataset(self) -> recipes.Dataset:
