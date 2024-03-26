@@ -1,7 +1,17 @@
 -- stg__us_parks_properties.sql
 
-WITH clipped_to_nyc AS (
-    {{ clip_to_geom(left=source("recipe_sources", "usnps_parks"), left_by="wkt") }}
+WITH source AS (
+    SELECT * FROM {{ source("recipe_sources", "usnps_parks") }}
+),
+
+reprojected AS (
+    SELECT *,
+    st_transform(wkt, 2263) AS geom
+    FROM source
+),
+
+clipped_to_nyc AS (
+    {{ clip_to_geom(left='reprojected', left_by='geom', left_columns=['objectid']) }}
 ),
 
 final AS (
