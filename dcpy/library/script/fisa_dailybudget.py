@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 import re
 
+from dcpy.connectors.edm import recipes
 from . import df_to_tempfile
 from .scriptor import ScriptorInterface
 
@@ -35,8 +36,14 @@ def dtype(column):
 
 
 class Scriptor(ScriptorInterface):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    @property
+    def previous_version(self) -> str:
+        version = self.source["previous_version"]
+        if version is None:
+            raise Exception(
+                "fisa_dailybudget requires a previous version specified in its yml input."
+            )
+        return str(version)
 
     def _read_df(self, file: Path) -> pd.DataFrame | None:
         match = re.match("^AIBL_DLY_BUD_96L1_(\d+)$", file.stem)
@@ -55,20 +62,13 @@ class Scriptor(ScriptorInterface):
         return sorted.drop_duplicates(["RCAT_CD", "RCLS_CD", "ATYP_CD"])
 
     def ingest(self) -> pd.DataFrame:
-        df = pd.DataFrame(columns=HEADERS + ["fisa_version"])
-        count = 0
-        path = Path(self.source["path"])
-        if not path.is_dir():
-            raise Exception(f"Directory '{path}' does not exist.")
-        for file in path.glob("AIBL_DLY_BUD_96L1_*.asc"):
-            _df = self._read_df(file)
-            if _df is not None:
-                df = pd.concat((_df, df), ignore_index=True)
-                # not every time for speed reasons, not at the end for memory reasons
-                if count % 10 == 0:
-                    df = self._dedupe(df)
-                count += 1
-
+        previous_dataset = recipes.Dataset(
+            name=self.name,
+            version=self.previous_version,
+        )
+        previous = recipes.read_df(previous_dataset, dtype=str)
+        new = self._read_df(Path(self.source["path"]))
+        df = pd.concat((previous, new), ignore_index=True)
         df = self._dedupe(df)
         return df.sort_values(by="TBL_LAST_DT")
 
