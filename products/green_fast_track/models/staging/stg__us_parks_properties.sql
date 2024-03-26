@@ -5,8 +5,9 @@ WITH source AS (
 ),
 
 reprojected AS (
-    SELECT *,
-    st_transform(wkt, 2263) AS geom
+    SELECT
+        *,
+        st_transform(wkt, 2263) AS geom
     FROM source
 ),
 
