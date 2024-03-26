@@ -9,13 +9,13 @@ VERSION=$DATE
     cd $BASEDIR
     mkdir -p output
     python3 build.py
-    psql $EDM_DATA -v NAME=$NAME -v VERSION=$VERSION -f create.sql
+    psql $EDM_DATA --set ON_ERROR_STOP=1 -v NAME=$NAME -v VERSION=$VERSION -f create.sql
 
     (
         cd output
 
         # Export to CSV
-        psql $EDM_DATA -c "\COPY (
+        psql $EDM_DATA --set ON_ERROR_STOP=1 -c "\COPY (
             SELECT * FROM $NAME.\"$VERSION\"
         ) TO stdout DELIMITER ',' CSV HEADER;" > $NAME.csv
 
