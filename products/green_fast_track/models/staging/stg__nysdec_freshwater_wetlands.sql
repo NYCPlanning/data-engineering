@@ -5,10 +5,9 @@
     ]
 ) }}
 
-WITH clipped_to_nyc AS (
-    {{ clip_to_geom(left=source("recipe_sources", "nysdec_freshwater_wetlands"), left_by="wkb_geometry") }}
-)
-
 SELECT 
-    
-FROM clipped_to_nyc
+    'freshwater_wetlands' AS variable_type,
+    name || ' ' || wetid AS variable_id,
+    wkb_geometry AS geom
+FROM {{ source("recipe_sources", "nysdec_freshwater_wetlands") }}
+WHERE name IN ('Bronx', 'Kings', 'Queens', 'Richmond')

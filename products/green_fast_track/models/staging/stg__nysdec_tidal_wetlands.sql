@@ -10,3 +10,4 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT * FROM clipped_to_nyc
+-- TO DELETE
