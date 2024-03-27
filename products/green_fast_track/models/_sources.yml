@@ -158,15 +158,6 @@ sources:
                 values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
           - name: wkb_geometry
 
-      - name: nysparks_historicplaces
-        columns:
-          - name: wkb_geometry
-            tests:
-              - not_null
-          - name: resource_name
-          - name: county
-          - name: national_register_number
-
       - name: nysshpo_historic_buildings_points
         columns:
           - name: usnnum
@@ -177,6 +168,15 @@ sources:
             - accepted_values:
                 values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
           - name: wkb_geometry
+
+      - name: nysparks_historicplaces
+        columns:
+          - name: wkb_geometry
+            tests:
+              - not_null
+          - name: resource_name
+          - name: county
+          - name: national_register_number
 
       - name: dep_cats_permits
         columns:
