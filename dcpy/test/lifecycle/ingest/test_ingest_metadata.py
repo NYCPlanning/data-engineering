@@ -5,7 +5,7 @@ import yaml
 from dcpy.models import file
 from dcpy.models.lifecycle.extract import Template
 from dcpy.models.connectors import web
-from dcpy.lifecycle.extract import TEMPLATE_DIR, metadata
+from dcpy.lifecycle.ingest import TEMPLATE_DIR, metadata
 
 RESOURCES = Path(__file__).parent / "resources"
 
