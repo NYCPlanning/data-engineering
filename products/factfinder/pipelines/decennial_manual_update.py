@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 
 from dcpy.utils.logging import logger
-from dcpy.builds import load
+from dcpy.lifecycle.builds import load
 from . import OUTPUT_FOLDER
 from .utils import process_metadata, apply_ccd_prefix, export_df, s3_upload
 

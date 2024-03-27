@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from dcpy.utils import postgres
-from dcpy.builds import metadata
+from dcpy.lifecycle.builds import metadata
 
 load_dotenv()
 

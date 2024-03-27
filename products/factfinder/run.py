@@ -1,7 +1,7 @@
 from pathlib import Path
 import typer
 
-from dcpy.builds import load
+from dcpy.lifecycle.builds import load
 from pipelines import acs_manual_update, decennial_manual_update
 
 app = typer.Typer(add_completion=False)

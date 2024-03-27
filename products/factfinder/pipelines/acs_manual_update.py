@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 
 from dcpy.utils import logging
-from dcpy.builds import load
+from dcpy.lifecycle.builds import load
 
 from . import OUTPUT_FOLDER, DATA_PATH, PRODUCT_PATH
 from .utils import (
