@@ -53,7 +53,7 @@ seeds:
         Publicly Owned Waterfront: text
         NYS Parks Property: text
         Federal Parks property: text
-        geom: geometry
+        geom: geometry(Geometry, 2263)
     columns:
       - name: project_label
         tests:
@@ -62,3 +62,7 @@ seeds:
         tests:
           - not_null
           - unique
+      - name: geom
+        tests:
+          - not_null
+          - is_epsg_2263
