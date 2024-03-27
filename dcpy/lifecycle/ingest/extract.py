@@ -4,7 +4,7 @@ import os
 
 from pathlib import Path
 from urllib.parse import urlparse
-from dcpy.models.lifecycle.extract import (
+from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     ScriptSource,
     Template,

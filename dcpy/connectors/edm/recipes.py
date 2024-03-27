@@ -13,7 +13,7 @@ from dcpy.models.connectors.edm.recipes import (
     DatasetType,
 )
 from dcpy.models import library
-from dcpy.models.lifecycle import extract
+from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.logging import logger
 
@@ -28,19 +28,19 @@ LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
 
 
-def archive_raw_dataset(extract_config: extract.Config, file_path: Path):
+def archive_raw_dataset(ingest_config: ingest.Config, file_path: Path):
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir)
-        # config = library.Config(dataset=extract_config, execution_details=None)
+        # config = library.Config(dataset=ingest_config, execution_details=None)
 
         with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(json.dumps(extract_config.model_dump(), indent=4))
+            f.write(json.dumps(ingest_config.model_dump(), indent=4))
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
-            extract_config.raw_dataset_key.s3_path(RAW_FOLDER),
-            acl=extract_config.acl,
+            ingest_config.raw_dataset_key.s3_path(RAW_FOLDER),
+            acl=ingest_config.acl,
             contents_only=True,
         )
 

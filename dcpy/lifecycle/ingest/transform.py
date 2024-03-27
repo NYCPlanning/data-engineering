@@ -7,7 +7,7 @@ from dcpy.utils import s3
 from pathlib import Path
 
 from dcpy.models import file
-from dcpy.models.lifecycle.extract import (
+from dcpy.models.lifecycle.ingest import (
     Config,
 )
 from dcpy.utils.logging import logger

@@ -6,7 +6,7 @@ from typing import cast
 import yaml
 
 from dcpy.models import file
-from dcpy.models.lifecycle.extract import (
+from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     Config,
 )
@@ -50,10 +50,10 @@ def get_fake_data_configs():
             file_format=config,
         )
 
-        extract_config = metadata.get_config(
+        ingest_config = metadata.get_config(
             template, version=FAKE_VERSION, timestamp=date.today(), file_name=file_name
         )
-        test_files.append(extract_config)
+        test_files.append(ingest_config)
 
     return test_files
 
