@@ -2,6 +2,7 @@
     materialized = 'table',
     indexes=[
       {'columns': ['geom'], 'type': 'gist'},
+      {'columns': ['bbl']},
     ]
 ) }}
 
