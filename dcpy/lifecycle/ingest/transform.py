@@ -1,93 +1,21 @@
-from datetime import datetime
-import importlib
 import pandas as pd
 import geopandas as gpd
-import os
 import shutil
 
 from dcpy.utils import s3
 
 from pathlib import Path
-from urllib.parse import urlparse
 
 from dcpy.models import file
 from dcpy.models.lifecycle.extract import (
-    LocalFileSource,
-    ScriptSource,
-    Template,
     Config,
 )
-from dcpy.models.connectors import socrata, web as web_models
-from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils.logging import logger
-from dcpy.connectors.edm import recipes, publishing
-from dcpy.connectors.socrata import extract as extract_socrata
-from dcpy.connectors import web
-from . import TMP_DIR, PARQUET_PATH, metadata
+from dcpy.connectors.edm import recipes
+from . import TMP_DIR, PARQUET_PATH
 
 
-def download_file_from_source(template: Template, version: str, dir=TMP_DIR) -> Path:
-    """From parsed config template and version, download raw data from source
-    and return path of saved local file."""
-    match template.source:
-        ## Non reqeust-based methods
-        case LocalFileSource():
-            return template.source.path
-        case GisDataset():
-            return publishing.download_gis_dataset(template.source.name, version, dir)
-        case ScriptSource():
-            module = importlib.import_module(
-                f"dcpy.connectors.{template.source.connector}.{template.source.function}"
-            )
-            logger.info(f"Running custom ingestion script {template.name}.py")
-            return module.runner(dir)
-
-        ## request-based methods
-        case web_models.FileDownloadSource():
-            return web.download_file(
-                template.source.url,
-                os.path.basename(urlparse(template.source.url).path),
-                dir,
-            )
-        case web_models.GenericApiSource():
-            return web.download_file(
-                template.source.endpoint,
-                f"{template.name}.{template.source.format}",
-                dir,
-            )
-        case socrata.Source():
-            return web.download_file(
-                extract_socrata.get_download_url(template.source),
-                f"{template.name}.{template.source.extension}",
-                dir,
-            )
-
-
-def extract_and_archive_raw_dataset(dataset: str, version: str | None) -> Config:
-    """From dataset name and optional version,
-    1. parse template
-    2. determine version from source or set it as today's date if missing
-    3. download raw file from source
-    4. generate recipes config object
-    5. archive raw dataset with config
-    Returns config object."""
-    # gather metadata
-    timestamp = datetime.now()
-    template = metadata.read_template(dataset, version=version)
-    version = version or metadata.get_version(template, timestamp)
-
-    # get file
-    file = download_file_from_source(template, version)
-
-    # create "final" config file
-    config = metadata.get_config(template, version, timestamp, file.name)
-    # archive to edm-recipes/raw_datasets
-    recipes.archive_raw_dataset(config, file)
-
-    return config
-
-
-def transform_to_parquet(config: Config, local_data_path: Path | None = None):
+def to_parquet(config: Config, local_data_path: Path | None = None):
     """
     Transforms raw data into a parquet file format and saves it locally.
 
@@ -181,8 +109,3 @@ def transform_to_parquet(config: Config, local_data_path: Path | None = None):
 
     gdf.to_parquet(PARQUET_PATH, index=False)
     logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
-
-
-def validate_dataset(config: Config):
-    """Given config of imported dataset, validate data expectations/contract"""
-    raise NotImplemented

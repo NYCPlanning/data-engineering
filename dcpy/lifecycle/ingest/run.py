@@ -1,12 +1,12 @@
 import typer
 
-from . import ingest, processing
+from . import extract, transform
 
 
 def run(dataset: str, version: str | None = None):
-    config = ingest.extract_and_archive_raw_dataset(dataset, version)
+    config = extract.extract_and_archive_raw_dataset(dataset, version)
 
-    ingest.transform_to_parquet(config)
+    transform.to_parquet(config)
 
     ## logic to apply transformations based on parsed config/template. Something like this
     # for step in config.processing.steps:
@@ -33,7 +33,7 @@ def _cli_wrapper_archive_raw_dataset(
         help="Version of dataset being archived",
     ),
 ):
-    ingest.extract_and_archive_raw_dataset(dataset, version)
+    extract.extract_and_archive_raw_dataset(dataset, version)
 
 
 @app.command("run")
