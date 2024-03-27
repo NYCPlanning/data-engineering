@@ -18,8 +18,18 @@ from "left" table and the resulting geom column named "geom"
                 {{ left }}.{{ column }},
             {% endfor %}
         {% endif %}
-        ST_INTERSECTION({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}) AS geom
+        
+        -- ST_Intersection is much more costly than ST_CoveredBy
+        -- So avoid using intersection when possible
+        -- see https://postgis.net/documentation/tips/tip_intersection_faster/
+        CASE
+            WHEN ST_COVEREDBY({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+                THEN {{ left }}.{{ left_by }}
+            ELSE ST_INTERSECTION({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+        END
+         AS geom
     FROM {{ left }}
-    INNER JOIN {{ right }} ON ST_INTERSECTS({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+    -- use ST_Relate rather than ST_Intersect to avoid overlapping edges
+    INNER JOIN {{ right }} ON ST_RELATE({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}, 'T********')
 
 {% endmacro %}
