@@ -18,8 +18,13 @@ from "left" table and the resulting geom column named "geom"
                 {{ left }}.{{ column }},
             {% endfor %}
         {% endif %}
-        ST_INTERSECTION({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}) AS geom
+        CASE
+            WHEN ST_COVEREDBY({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+                THEN {{ left }}.{{ left_by }}
+            ELSE ST_INTERSECTION({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+        END
+         AS geom
     FROM {{ left }}
-    INNER JOIN {{ right }} ON ST_INTERSECTS({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+    INNER JOIN {{ right }} ON ST_RELATE({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}, 'T********')
 
 {% endmacro %}
