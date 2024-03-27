@@ -160,15 +160,14 @@ sources:
             tests:
               - not_null
 
-      - name: nysshpo_register_historic_places
+      - name: nysparks_historicplaces
         columns:
           - name: wkb_geometry
             tests:
               - not_null
-              - is_epsg_2263
           - name: resource_name
           - name: county
-          - name: sphinx_number # This is actually the `National Register Number`
+          - name: national_register_number
 
       - name: nysshpo_historic_buildings_points
         columns:

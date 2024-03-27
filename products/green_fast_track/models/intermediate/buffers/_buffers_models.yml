@@ -278,7 +278,7 @@ models:
           - not_null
           - is_epsg_2263
 
-  - name: int_buffers__nysshpo_register_historic_places
+  - name: int_buffers__nysparks_historicplaces
     description: |
       Historic places within the NYC boundary
     columns:
