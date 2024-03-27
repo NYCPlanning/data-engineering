@@ -7,7 +7,7 @@ dbt deps
 dbt debug
 
 echo "Build seed tables"
-dbt build --select config.materialized:seed --full-refresh
+dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
 
 echo "Test source tables"
 dbt test --select "source:*"
