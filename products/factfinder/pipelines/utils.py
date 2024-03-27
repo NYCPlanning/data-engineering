@@ -8,7 +8,7 @@ import shutil
 from typing import Tuple
 
 from dcpy.connectors.edm import publishing
-from dcpy.builds import metadata
+from dcpy.lifecycle.builds import metadata
 from dcpy.utils import string
 from . import DATA_PATH, OUTPUT_FOLDER
 

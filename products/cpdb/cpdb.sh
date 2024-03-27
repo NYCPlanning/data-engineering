@@ -57,7 +57,7 @@ function share {
 }
 
 case $1 in 
-    dataloading ) python3 -m dcpy.builds.load recipe --recipe_path ./${2:-"recipe"}.yml ;;
+    dataloading ) python3 -m dcpy.lifecycle.builds.load recipe --recipe_path ./${2:-"recipe"}.yml ;;
     preprocessing ) ./bash/01_preprocessing.sh ;;
     attribute ) ./bash/02_build.sh ;;
     adminbounds ) ./bash/03_adminbounds.sh ;;
@@ -70,7 +70,7 @@ case $1 in
     build)
         recipe=$2
         shift 2
-        python3 -m dcpy.builds.load recipe --recipe-path ${recipe}.yml $@
+        python3 -m dcpy.lifecycle.builds.load recipe --recipe-path ${recipe}.yml $@
         export VERSION=$(yq .version recipe.lock.yml)
         ./bash/01_preprocessing.sh
         ./bash/02_build.sh
