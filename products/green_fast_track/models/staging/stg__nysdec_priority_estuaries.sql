@@ -10,7 +10,7 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT 
-    "priority_estuaries" AS variable_type,
+    'priority_estuaries' AS variable_type,
     name AS variable_id,
     ST_UNION(geom) AS geom
 FROM clipped_to_nyc

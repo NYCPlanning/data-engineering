@@ -10,7 +10,7 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT 
-    "natural_heritage_communities" AS variable_type,
+    'natural_heritage_communities' AS variable_type,
     commonname AS variable_id,
     geom
 FROM clipped_to_nyc

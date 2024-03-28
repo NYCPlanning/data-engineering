@@ -10,7 +10,7 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT 
-    "usfws_wetlands" AS variable_type,
+    'usfws_wetlands' AS variable_type,
     row_number() AS variable_id,
     geom
 FROM clipped_to_nyc

@@ -10,7 +10,7 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT 
-    "priority_lakes" AS variable_type,
+    'priority_lakes' AS variable_type,
     name AS variable_id,
     geom
 FROM clipped_to_nyc
