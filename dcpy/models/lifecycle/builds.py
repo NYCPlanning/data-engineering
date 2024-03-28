@@ -107,6 +107,16 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         else:
             return s
 
+    @field_serializer("version_strategy")
+    def _serialize_verstion_strategy(
+        self, s: versions.VersionStrategy | None, _info
+    ) -> str | versions.BumpLatestRelease | None:
+        match s:
+            case versions.SimpleVersionStrategy():
+                return s.value
+            case _:
+                return s
+
 
 class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
