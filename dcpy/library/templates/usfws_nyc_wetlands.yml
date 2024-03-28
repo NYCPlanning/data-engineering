@@ -1,14 +1,11 @@
 dataset:
-  name: usfws_ny_wetlands 
+  name: usfws_nyc_wetlands 
   acl: public-read
   source:
-    url:
-      path: https://documentst.ecosphere.fws.gov/wetlands/data/State-Downloads/NY_geodatabase_wetlands.zip
-      subpath: NY_geodatabase_wetlands.gdb
+    script: {}
     geometry:
-      SRS: EPSG:2263
+      SRS: EPSG:5070
       type: MULTIPOLYGON
-    layer_name: NY_Wetlands
 
   destination:
     geometry:
