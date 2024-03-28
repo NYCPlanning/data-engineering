@@ -6,7 +6,7 @@ import yaml
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 from dcpy.models import library, file
-from dcpy.models.lifecycle import extract
+from dcpy.models.lifecycle import ingest
 from dcpy.library.archive import Archive
 
 TEST_LIBRARY_DATASET = "test"
@@ -52,13 +52,13 @@ def test_archive_raw_dataset(create_buckets, create_temp_filesystem: Path):
     file_name = "tmp.txt"
     tmp_file = create_temp_filesystem / file_name
     tmp_file.touch()
-    config = extract.Config(
+    config = ingest.Config(
         name=dataset,
         version="dummy",
         archival_timestamp=datetime.now(),
         acl="private",
         raw_filename=file_name,
-        source=extract.ScriptSource(
+        source=ingest.ScriptSource(
             type="script", connector="dummy", function="dummy"
         ),  # easiest to mock
         file_format=file.Csv(format="csv"),  # easiest to mock

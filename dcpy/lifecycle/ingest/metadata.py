@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 import yaml
 
-from dcpy.models.lifecycle.extract import Template, Config
+from dcpy.models.lifecycle.ingest import Template, Config
 
 from dcpy.utils.logging import logger
 from dcpy.models.connectors import socrata
