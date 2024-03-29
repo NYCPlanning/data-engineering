@@ -1,52 +1,21 @@
-import pytest
-from pathlib import Path
-import yaml
 from datetime import date
-import pandas as pd
 import geopandas as gpd
+import pandas as pd
+import pytest
 from typing import cast
+import yaml
 
 from dcpy.models import file
-from dcpy.models.lifecycle.extract import (
+from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     Config,
 )
-from dcpy.utils import s3
-from dcpy.connectors.edm import publishing
-from dcpy.lifecycle.extract import (
+from dcpy.lifecycle.ingest import (
     metadata,
-    ingest,
+    transform,
     PARQUET_PATH,
 )
-
-RESOURCES = Path(__file__).parent / "resources"
-TEST_DATA_DIR = "test_data"
-FAKE_VERSION = "v001"
-
-
-def test_download_file(create_buckets, create_temp_filesystem: Path):
-    with open(RESOURCES / "sources.yml") as f:
-        sources = yaml.safe_load(f)
-    s3.client().put_object(
-        Bucket=publishing.BUCKET,
-        Key="datasets/dcp_borough_boundary/24A/dcp_borough_boundary.zip",
-    )
-    for source in sources:
-        if source["type"] == "local_file":
-            tmp_file = create_temp_filesystem / "tmp.txt"
-            tmp_file.touch()
-            source["path"] = tmp_file
-        template = metadata.Template(
-            name="test",
-            acl="public-read",
-            source=source,
-            file_format=file.Csv(format="csv"),  # easiest to mock
-        )
-
-        local_file = ingest.download_file_from_source(
-            template, "24a", dir=create_temp_filesystem
-        )
-        assert local_file.exists()
+from . import RESOURCES, TEST_DATA_DIR, FAKE_VERSION
 
 
 def get_fake_data_configs():
@@ -81,10 +50,10 @@ def get_fake_data_configs():
             file_format=config,
         )
 
-        extract_config = metadata.get_config(
+        ingest_config = metadata.get_config(
             template, version=FAKE_VERSION, timestamp=date.today(), file_name=file_name
         )
-        test_files.append(extract_config)
+        test_files.append(ingest_config)
 
     return test_files
 
@@ -103,17 +72,17 @@ def test_transform_to_parquet(config: Config):
     source = cast(LocalFileSource, config.source)
     file_path = source.path
 
-    ingest.transform_to_parquet(config=config, local_data_path=file_path)
+    transform.to_parquet(config=config, local_data_path=file_path)
 
     assert PARQUET_PATH.is_file()
 
     to_parquet_config = config.file_format
 
     match to_parquet_config:
-        case file.Shapefile() as shapefile:
+        case file.Shapefile():
             raw_df = gpd.read_file(file_path)
 
-        case file.Geodatabase() as geodatabase:
+        case file.Geodatabase():
             raw_df = gpd.read_file(file_path)
 
         case file.Csv() as csv:

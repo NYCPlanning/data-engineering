@@ -6,7 +6,7 @@ source:
   endpoint: https://www.bklynlibrary.org/locations/json
   format: json
 file_format:
-  format: json # TODO: implement json as a format for extract.transform_to_parquet
+  format: json # TODO: implement json as a format for transform.to_parquet
 
 library_dataset:
   name: bpl_libraries
