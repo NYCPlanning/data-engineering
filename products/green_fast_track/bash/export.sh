@@ -14,7 +14,6 @@ mkdir -p output && (
     cp ../source_data_versions.csv .
     cp ../build_metadata.json .
     
-    # TODO export all relevant source data (e.g. buffered and original geometries of Title V permits)
     echo "Generate FileGeodatabase ${fgdb_filename}"
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON green_fast_track_bbls green_fast_track_bbls ${default_srs}
 
