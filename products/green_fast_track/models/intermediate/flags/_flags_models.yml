@@ -12,6 +12,9 @@ models:
         data_type: string
         tests:
           - not_null
+          - dbt_expectations.expect_column_distinct_values_to_equal_set:
+              name: int_flags__all_variable_type_set
+              value_set: '{{ dbt_utils.get_column_values(table=ref("variables"), column="variable_type") }}'
       - name: variable_id
         data_type: string
         tests:
