@@ -5,10 +5,10 @@ models:
     description: Union of all buffered flag tables
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
       - name: raw_geom
         tests:
@@ -21,10 +21,10 @@ models:
   - name: int_buffers__dcm_arterial_highways
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -39,10 +39,10 @@ models:
       Buffered geometries for lots with potenitally unpermitted industrial emissions based on land use
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -56,10 +56,10 @@ models:
     description: Buffered geometries for cats permits
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -73,10 +73,10 @@ models:
     description: Buffered geometries for elevated/exposed railways
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
       - name: raw_geom
         tests:
@@ -89,10 +89,10 @@ models:
     description: Buffered geometries for state facility permits
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -106,10 +106,10 @@ models:
     description: Buffered geometries for title V facility permits
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -122,10 +122,10 @@ models:
   - name: int_buffers__dcp_air_quality_vent_towers
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -139,10 +139,10 @@ models:
     description: Buffered geometries for selected NYC Parks owned properties
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -156,10 +156,10 @@ models:
     description: Buffered geometries for tax lots with POPS
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -173,10 +173,10 @@ models:
     description: Buffered geometries for Publicly Owned Waterfront (pow) areas
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -190,10 +190,10 @@ models:
     description: Buffered geometries for Waterfront Public Access Areas (wpaa)
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -207,10 +207,10 @@ models:
     description: Buffered geometries for NYS Parks owned properties
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -224,10 +224,10 @@ models:
     description: Buffered geometries for Federal Parks owned properties
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
