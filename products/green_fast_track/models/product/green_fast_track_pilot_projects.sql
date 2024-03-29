@@ -3,7 +3,7 @@ WITH gft_bbls AS (
 ),
 
 expected_pilot_projects AS (
-    SELECT * FROM {{ ref('expected_green_fast_track_pilot_projects') }}
+    SELECT * FROM {{ ref('test_expected_pilot_projects') }}
 ),
 
 final AS (
