@@ -34,7 +34,7 @@ seeds:
           - accepted_values:
               values: ["TRUE", "FALSE"]
 
-  - name: expected_green_fast_track_pilot_projects
+  - name: test_expected_pilot_projects
     description: Mock pilot projects and their expected outputs
     config:
       # empty columns default to integer type

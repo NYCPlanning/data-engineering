@@ -87,4 +87,4 @@ models:
       # test the expectations of pilot projects
       - dbt_utils.equality:
           name: green_fast_track_pilot_projects_equality
-          compare_model: ref('expected_green_fast_track_pilot_projects')
+          compare_model: ref('test_expected_pilot_projects')
