@@ -6,15 +6,15 @@ models:
     columns:
       - name: bbl
         data_type: string
-        test:
+        tests:
           - not_null
       - name: variable_type
         data_type: string
-        test:
+        tests:
           - not_null
       - name: variable_id
         data_type: string
-        test:
+        tests:
           - not_null
       - name: distance
         data_type: float
@@ -30,15 +30,15 @@ models:
     columns:
       - name: bbl
         data_type: string
-        test:
+        tests:
           - not_null
       - name: variable_type
         data_type: string
-        test:
+        tests:
           - not_null
       - name: variable_id
         data_type: string
-        test:
+        tests:
           - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -55,10 +55,10 @@ models:
       tests:
         - not_null
     - name: variable_type
-      test:
+      tests:
         - not_null
     - name: variable_id
-      test:
+      tests:
         - not_null
 
   - name: int_flags__spatial
@@ -68,19 +68,19 @@ models:
     columns:
       - name: bbl
         data_type: string
-        test:
+        tests:
           - not_null
       - name: variable_type
         data_type: string
-        test:
+        tests:
           - not_null
       - name: variable_id
         data_type: string
-        test:
+        tests:
           - not_null
       - name: distance
         data_type: float
-        test:
+        tests:
           - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
