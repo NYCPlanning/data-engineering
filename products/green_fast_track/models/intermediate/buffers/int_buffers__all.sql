@@ -6,8 +6,14 @@ WITH all_buffers AS (
         ref('int_buffers__dep_cats_permits'),
         ref('int_buffers__elevated_railways'),
         ref('int_buffers__industrial_sources'),
+        ref('int_buffers__nyc_parks_properties'),
+        ref('int_buffers__nys_parks_properties'),
         ref('int_buffers__nysdec_state_facility_permits'),
         ref('int_buffers__nysdec_title_v_facility_permits'),
+        ref('int_buffers__pops'),
+        ref('int_buffers__us_parks_properties'),
+        ref('int_buffers__waterfront_access_pow'),
+        ref('int_buffers__waterfront_access_wpaa'),
         ref('stg__panynj_airports')
     ],
     column_override={"raw_geom": "geometry", "buffer": "geometry"}
