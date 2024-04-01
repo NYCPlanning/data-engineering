@@ -1,15 +1,17 @@
-import pandas as pd
+import duckdb
+from functools import partial
 import geopandas as gpd
+import inspect
+import pandas as pd
 import shutil
+from typing import Any, Callable
 
 from dcpy.utils import s3
 
 from pathlib import Path
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import (
-    Config,
-)
+from dcpy.models.lifecycle.ingest import Config, FunctionCall
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 from . import TMP_DIR, PARQUET_PATH
@@ -109,3 +111,156 @@ def to_parquet(config: Config, local_data_path: Path | None = None):
 
     gdf.to_parquet(PARQUET_PATH, index=False)
     logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
+
+
+class Preprocessors:
+    """
+    This class is very much a first pass at something that would support the validate/run_processing_steps functions
+    This should/will be iterated on when implementing actual preprocessing steps for chosen templates
+    """
+
+    @staticmethod
+    def split_column(
+        df: pd.DataFrame,
+        col: str,
+        target_cols: list[str],
+        splitter: Callable[[Any], list[Any]],
+        keep_col=False,
+    ) -> pd.DataFrame:
+        df[target_cols] = df[col].apply(splitter)
+        if not keep_col:
+            df.drop(col, axis=1, inplace=True)
+        return df
+
+    @staticmethod
+    def drop_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
+        columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
+        return df.drop(columns, axis=1)
+
+    @staticmethod
+    def strip_columns(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+        if cols == []:
+            df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        else:
+            for col in cols:
+                df[col] = df[col].str.strip()
+        return df
+
+    @staticmethod
+    def no_arg_function(df: pd.DataFrame) -> pd.DataFrame:
+        """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
+        return df
+
+    @staticmethod
+    def append_prev(df: pd.DataFrame, dataset: str, version: str) -> pd.DataFrame:
+        prev_df = recipes.read_df(recipes.Dataset(name=dataset, version=version))
+        df = pd.concat((prev_df, df))
+        return df
+
+    @staticmethod
+    def append_prev_duckdb(file: Path, dataset: str, version: str):
+        duckdb.sql(
+            f"""
+            COPY (
+                SELECT * FROM 's3://edm-recipes/datasets/{dataset}/{version}/{dataset}.parquet'
+                UNION ALL
+                SELECT * FROM '{file}'
+            ) TO '{file}' (FORMAT PARQUET)"""
+        )
+
+
+def validate_function_args(
+    function: Callable, kwargs: dict, raise_error=False
+) -> dict[str, str]:
+    """
+    Given a function and dict containing kwargs, validates that kwargs satiffy the
+    signature of the function. Violations are returned as a dict, with argument names
+    as keys and types of violation as value. Types of violation can be either a missing argument,
+    an argument of the wrong type, or an unexpected argument.
+    If raise_error flag supplied, raises error instead of returning dict of violations.
+    """
+    spec = inspect.getfullargspec(function)
+    if spec.varargs is not None:
+        raise TypeError(
+            f"Positional args not supported, {function.__name__} is invalid preprocessing function"
+        )
+
+    defaults = {}
+    if spec.defaults:
+        defaults_start = len(spec.args) - len(spec.defaults)
+        for i, default in enumerate(spec.defaults):
+            defaults[spec.args[defaults_start + i]] = default
+
+    if spec.kwonlydefaults:
+        defaults.update(spec.kwonlydefaults)
+
+    expected_args = spec.args + spec.kwonlyargs
+    violating_args = {}
+
+    for arg_name in expected_args:
+        if arg_name in kwargs:
+            if arg_name in spec.annotations:
+                arg = kwargs[arg_name]
+                annotation = spec.annotations[arg_name]
+                if not isinstance(arg, annotation):
+                    violating_args[
+                        arg_name
+                    ] = f"Type mismatch, expected '{annotation}' and got {type(arg)}"
+        elif arg_name not in defaults:
+            violating_args[arg_name] = "Missing"
+
+    if spec.varkw is None:
+        for arg in kwargs:
+            if arg not in expected_args:
+                violating_args[arg] = "Unexpected"
+
+    if violating_args and raise_error:
+        raise TypeError(
+            f"Function spec mismatch for function {function.__name__}. Violating arguments:\n{violating_args}"
+        )
+
+    return violating_args
+
+
+def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
+    """
+    Given config of ingest dataset, violates that defined preprocessing steps
+    exist and that appropriate arguments are supplied. Raises error detailing
+    violations if any are found
+
+    Returns list of callables, which expect a dataframe and return a dataframe
+    """
+    violations: dict[str, str | dict[str, str]] = {}
+    compiled_steps: list[Callable] = []
+    for step in steps:
+        if step.name not in Preprocessors().__dir__():
+            violations[step.name] = "Function not found"
+        else:
+            func = getattr(Preprocessors(), step.name)
+
+            kwargs = step.args.copy()
+            # assume that function takes arg "df"
+            kwargs["df"] = pd.DataFrame()
+            kw_error = validate_function_args(func, kwargs, raise_error=False)
+            if kw_error:
+                violations[step.name] = kw_error
+
+            compiled_steps.append(partial(func, **step.args))
+
+    if violations:
+        raise Exception(f"Invalid preprocessing steps:\n{violations}")
+
+    return compiled_steps
+
+
+def run_processing_steps(steps: list[FunctionCall], local_data_path: Path) -> Path:
+    """Validates and runs preprocessing steps defined in config object"""
+    compiled_steps = validate_processing_steps(steps)
+    if len(steps) == 0:
+        return local_data_path
+    else:
+        df = pd.read_parquet(local_data_path)
+        for step in compiled_steps:
+            df = step(df)
+        df.to_parquet(local_data_path)
+        return local_data_path

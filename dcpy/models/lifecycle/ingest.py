@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 from pydantic import BaseModel, field_serializer
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from dcpy.models.connectors.edm import recipes, publishing
 from dcpy.models.connectors import web, socrata
@@ -30,6 +30,11 @@ Source: TypeAlias = (
 )
 
 
+class FunctionCall(BaseModel):
+    name: str
+    args: dict[str, Any] = {}
+
+
 class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
@@ -41,12 +46,15 @@ class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     ## when implemented, "None" should not be valid type
     source: Source
     file_format: file.Format
+    processing_steps: list[FunctionCall] = []
 
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: library.DatasetDefinition | None = None
 
 
-class Config(BaseModel, extra="forbid"):
+class Config(
+    BaseModel, extra="ignore", arbitrary_types_allowed=True
+):  # TODO switch extra back to "forbid" when library_dataset is dropped from template
     """New object corresponding to computed template in dcpy.lifecycle.extract
     Meant to be stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
     At some point backwards compatability with LibraryConfig should be considered"""
@@ -58,6 +66,7 @@ class Config(BaseModel, extra="forbid"):
     acl: recipes.ValidAclValues
     source: Source
     file_format: file.Format
+    processing_steps: list[FunctionCall] = []
 
     @property
     def dataset(self) -> recipes.Dataset:

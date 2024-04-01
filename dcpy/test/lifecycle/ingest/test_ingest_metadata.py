@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 import pytest
 import yaml
@@ -50,3 +51,11 @@ def test_read_template():
         template.file_format,
         file.Shapefile,
     )
+
+
+def test_get_config():
+    template = metadata.read_template("dcp_atomicpolygons", version="test")
+    config = metadata.get_config(
+        template, version="test", timestamp=datetime.now(), file_name="dummy.txt"
+    )
+    assert True  # really just need to make sure that templates properly get converted into configs
