@@ -1,4 +1,4 @@
-name: dcp_operatingbusinesses
+name: dca_operatingbusinesses
 acl: public-read
 source:
   type: socrata
