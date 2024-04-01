@@ -68,11 +68,8 @@ def get_config(
     """Simple wrapper to produce a recipes ExtractConfig from a parsed template
     and other computed values"""
     return Config(
-        name=template.name,
         version=version,
         archival_timestamp=timestamp,
-        acl=template.acl,
         raw_filename=file_name,
-        source=template.source,
-        file_format=template.file_format,
+        **template.model_dump(),
     )
