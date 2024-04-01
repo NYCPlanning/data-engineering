@@ -13,6 +13,8 @@ from dcpy.lifecycle.ingest import (
     transform,
     PARQUET_PATH,
 )
+
+from dcpy.utils import data
 from . import RESOURCES, TEST_DATA_DIR, FAKE_VERSION
 
 
@@ -74,44 +76,13 @@ def test_transform_to_parquet(config: Config):
 
     assert PARQUET_PATH.is_file()
 
-    to_parquet_config = config.file_format
-
-    match to_parquet_config:
-        case file.Shapefile():
-            raw_df = gpd.read_file(file_path)
-
-        case file.Geodatabase():
-            raw_df = gpd.read_file(file_path)
-
-        case file.Csv() as csv:
-            raw_df = pd.read_csv(file_path)
-
-            # case when csv contains geospatial data. Convert to gpd dataframe
-            if csv.geometry:
-                geom_column = csv.geometry.geom_column
-                crs = csv.geometry.crs
-
-                if raw_df[geom_column].isnull().any():
-                    raw_df[geom_column] = raw_df[geom_column].astype(object)
-                    raw_df[geom_column] = raw_df[geom_column].where(
-                        raw_df[geom_column].notnull(), None
-                    )
-
-                raw_df[geom_column] = gpd.GeoSeries.from_wkt(raw_df[geom_column])
-
-                raw_df = gpd.GeoDataFrame(
-                    raw_df,
-                    geometry=geom_column,
-                    crs=crs,
-                )
-
-    # translate geometry to wkb format to match parquet geom column
-    if getattr(to_parquet_config, "geometry", None) or getattr(
-        to_parquet_config, "crs", None
-    ):
-        raw_df = raw_df.to_wkb()
-
     output_df = pd.read_parquet(PARQUET_PATH)
+    raw_df = data.read_data_to_df(config=config, local_data_path=file_path)
+
+    # rename geom column & translate geometry to wkb format to match parquet geom column
+    if isinstance(raw_df, gpd.GeoDataFrame):
+        raw_df = raw_df.rename_geometry(transform.OUTPUT_GEOM_COLUMN)
+        raw_df = raw_df.to_wkb()
 
     print(f"raw_df:\n{raw_df.head()}")
     print(f"\noutput_df:\n{output_df.head()}")
