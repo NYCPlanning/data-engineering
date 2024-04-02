@@ -31,11 +31,20 @@ def get_fake_data_configs():
     for config in configs:
         match config["format"]:
             case "csv":
-                file_name = "test.csv"
+                if "unzipped_filename" in config:
+                    file_name = "test.csv.zip"
+                else:
+                    file_name = "test.csv"
             case "shapefile":
-                file_name = "test/test.shp"
+                if "unzipped_filename" in config:
+                    file_name = "test.zip"
+                else:
+                    file_name = "test/test.shp"
             case "geodatabase":
-                file_name = "test.gdb"
+                if "unzipped_filename" in config:
+                    file_name = "test.gdb.zip"
+                else:
+                    file_name = "test.gdb"
             case _:
                 raise ValueError(f"Unknown data format {config['format']}")
 

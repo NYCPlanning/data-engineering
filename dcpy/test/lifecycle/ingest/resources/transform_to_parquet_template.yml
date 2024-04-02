@@ -7,8 +7,22 @@
     geom_column: wkt
     crs: EPSG:4326
 
+- format: csv
+  unzipped_filename: "test.csv"
+  geometry:
+    geom_column: wkt
+    crs: EPSG:4326
+
 - format: shapefile
+  crs: EPSG:4326
+
+- format: shapefile
+  crs: EPSG:4326
+  unzipped_filename: "test/test.shp"
+
+- format: geodatabase
   crs: EPSG:4326
 
 - format: geodatabase
   crs: EPSG:4326
+  unzipped_filename: "test.gdb"
