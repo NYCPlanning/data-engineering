@@ -34,3 +34,13 @@ repos:
         name: Green Fast Track - Models have a properties file
         files: ^products/green_fast_track/models/
         args: ["--manifest", "products/green_fast_track/target/manifest.json"]
+
+      - id: check-model-parents-and-childs
+        name: Green Fast Track - Staging models have at least 1 child model
+        files: ^products/green_fast_track/models/staging
+        args: [
+                "--manifest",
+                "products/green_fast_track/target/manifest.json",
+                "--min-child-cnt",
+                "1",
+              ]
