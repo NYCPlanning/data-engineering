@@ -1,7 +1,7 @@
 -- int_buffers__us_parks_properties.sql
 
 WITH usparks_properties AS (
-    SELECT * FROM {{ ref("stg__nys_parks_properties") }}
+    SELECT * FROM {{ ref("stg__us_parks_properties") }}
 )
 
 SELECT
