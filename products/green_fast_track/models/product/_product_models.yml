@@ -3,11 +3,9 @@ version: 2
 models:
   - name: green_fast_track_bbls
     description: BBLs and their CEQR Type II variable checks
-    ## enforced contract commented out as it doesn't support geom type at the moment
-    ## additionally, it requires column names with spaces being in nested quotes (i.e. `name: '"Zoning Districts"'`)
-    #config:
-    #  contract:
-    #    enforced: true
+    config:
+      contract:
+        enforced: true
     columns:
       - name: bbl
         data_type: string
@@ -80,6 +78,7 @@ models:
       - name: '"(E) Designations - HazMat"'
         data_type: string
       - name: geom
+        data_type: geometry(Geometry, 2263)
 
   - name: green_fast_track_pilot_projects
     description: Green Fast Track outputs for pilot project examples
