@@ -23,4 +23,7 @@ models:
   - name: stg__nysdec_priority_streams
   - name: stg__nysdec_natural_heritage_communities
   - name: stg__dcp_beaches
+  - name: stg__dcp_wrp_rec
+  - name: stg__dcp_wrp_snwa
+  - name: stg__dpr_forever_wild
   - name: stg__usfws_nyc_wetlands

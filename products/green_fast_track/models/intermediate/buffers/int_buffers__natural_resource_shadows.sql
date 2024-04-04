@@ -2,6 +2,7 @@ WITH all_natural_resources AS (
 {{ dbt_utils.union_relations(
     relations=[
         ref('stg__dcp_beaches'),
+        ref('stg__dpr_forever_wild'),
         ref('stg__nysdec_freshwater_wetlands'),
         ref('stg__nysdec_natural_heritage_communities'),
         ref('stg__nysdec_priority_estuaries'),

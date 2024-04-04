@@ -254,6 +254,11 @@ sources:
               config:
                 severity: warn
               
+
+      - name: dcp_beaches
+      - name: dcp_wrp_rec
+      - name: dcp_wrp_snwa
+      - name: dpr_forever_wild
       - name: nysdec_freshwater_wetlands_checkzones
       - name: nysdec_freshwater_wetlands
       - name: nysdec_tidal_wetlands
@@ -262,5 +267,4 @@ sources:
       - name: nysdec_priority_shorelines
       - name: nysdec_priority_streams
       - name: nysdec_natural_heritage_communities
-      - name: dcp_beaches
       - name: usfws_nyc_wetlands
