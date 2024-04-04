@@ -4,6 +4,7 @@ source:
   type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
 file_format:
+  unzipped_filename: nyap_{{ version }}/nyap.shp
   format: shapefile
   crs: EPSG:2263
 

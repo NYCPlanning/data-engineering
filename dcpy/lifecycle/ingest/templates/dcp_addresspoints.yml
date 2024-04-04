@@ -4,6 +4,7 @@ source:
   type: edm_publishing_gis_dataset
   name: dcp_address_points
 file_format:
+  unzipped_filename: dcp_address_points.shp
   format: shapefile
   crs: EPSG:2263
 
