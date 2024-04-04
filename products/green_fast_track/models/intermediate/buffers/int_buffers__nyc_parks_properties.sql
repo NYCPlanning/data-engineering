@@ -2,6 +2,14 @@
 
 WITH parks_properties AS (
     SELECT * FROM {{ ref("stg__nyc_parks_properties") }}
+),
+
+modified_id AS (
+    SELECT
+        variable_type,
+        raw_geom,
+        gispropnum || '-' || name311 AS variable_id
+    FROM parks_properties
 )
 
 SELECT
@@ -9,4 +17,4 @@ SELECT
     variable_id,
     raw_geom,
     ST_BUFFER(raw_geom, 200) AS buffer
-FROM parks_properties
+FROM modified_id

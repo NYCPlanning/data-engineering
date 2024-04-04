@@ -8,7 +8,8 @@ WITH source AS (
 final AS (
     SELECT
         'waterfront_access_pow' AS variable_type,
-        objectid AS variable_id,
+        name,
+        agency,
         st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 

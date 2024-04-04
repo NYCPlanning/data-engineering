@@ -138,9 +138,12 @@ sources:
 
       - name: dpr_parksproperties
         columns:
-          - name: objectid
+          - name: gispropnum
             tests:
               - unique
+              - not_null
+          - name: name311
+            tests:
               - not_null
           - name: wkb_geometry
             tests:
@@ -165,40 +168,51 @@ sources:
 
       - name: dcp_waterfront_access_map_wpaa
         columns:
-          - name: objectid
+          - name: wpaa_id
             tests:
               - not_null
               - unique
+          - name: wpaa_name
+            tests:
+              - not_null
           - name: wkb_geometry
             tests:
               - not_null
 
       - name: dcp_waterfront_access_map_pow
         columns:
-          - name: objectid
+          - name: name
             tests:
               - not_null
-              - unique
+          - name: agency
+            tests:
+              - not_null
           - name: wkb_geometry
             tests:
               - not_null
 
       - name: nysparks_parks_polygons
         columns:
-          - name: objectid
+          - name: uid
             tests:
               - not_null
               - unique
+          - name: name
+            tests:
+              - not_null
           - name: wkb_geometry
             tests:
               - not_null
 
       - name: usnps_parks
         columns:
-          - name: objectid
+          - name: gnis_id
             tests:
               - not_null
               - unique
+          - name: parkname
+            tests:
+              - not_null
           - name: wkt
             tests:
               - not_null
