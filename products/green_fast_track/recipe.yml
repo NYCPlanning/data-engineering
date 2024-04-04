@@ -20,6 +20,9 @@ inputs:
     - name: dcp_lion
     # Natural Resources
     - name: dcp_beaches
+    - name: dcp_wrp_rec
+    - name: dcp_wrp_snwa
+    - name: dpr_forever_wild
     - name: nysdec_freshwater_wetlands_checkzones
     - name: nysdec_freshwater_wetlands
     - name: nysdec_tidal_wetlands
