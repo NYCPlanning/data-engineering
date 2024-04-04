@@ -8,5 +8,5 @@ SELECT
     variable_type,
     variable_id,
     raw_geom,
-    ST_BUFFER(raw_geom, 75) AS buffer
+    ST_BUFFER(raw_geom, 200) AS buffer
 FROM parks_properties
