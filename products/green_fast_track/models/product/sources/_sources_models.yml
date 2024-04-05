@@ -27,3 +27,20 @@ models:
   - name: sources__title_v_permits_lots
   - name: sources__title_v_permits_buffers
 
+  - name: sources__nyc_parks_properties
+  - name: sources__nyc_parks_properties_buffers
+
+  - name: sources__nys_parks_properties
+  - name: sources__nys_parks_properties_buffers
+
+  - name: sources__pops
+  - name: sources__pops_buffers
+
+  - name: sources__us_parks_properties
+  - name: sources__us_parks_properties_buffers
+
+  - name: sources__waterfront_access_pow
+  - name: sources__waterfront_access_pow_buffers
+
+  - name: sources__waterfront_access_wpaa
+  - name: sources__waterfront_access_wpaa_buffers
