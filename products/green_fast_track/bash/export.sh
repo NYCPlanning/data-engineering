@@ -59,7 +59,7 @@ mkdir -p output && (
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__waterfront_access_pow sources__waterfront_access_pow ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__waterfront_access_pow_buffers sources__waterfront_access_pow_buffers ${default_srs} -update
 
-    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__waterfront_access_wpaa sources__waterfront_access_wpaa ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} POINT sources__waterfront_access_wpaa sources__waterfront_access_wpaa ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__waterfront_access_wpaa_buffers sources__waterfront_access_wpaa_buffers ${default_srs} -update
 
     fgdb_export_partial ${fgdb_filename} NONE variables variables ${default_srs} -update
