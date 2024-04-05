@@ -49,7 +49,8 @@ mkdir -p output && (
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__nys_parks_properties sources__nys_parks_properties ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__nys_parks_properties_buffers sources__nys_parks_properties_buffers ${default_srs} -update
 
-    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__pops sources__pops ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} POINT sources__pops_points sources__pops_points ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__pops_lots sources__pops_lots ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__pops_buffers sources__pops_buffers ${default_srs} -update
 
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__us_parks_properties sources__us_parks_properties ${default_srs} -update
