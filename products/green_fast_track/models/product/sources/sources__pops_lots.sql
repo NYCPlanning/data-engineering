@@ -1,5 +1,6 @@
 SELECT
     variable_type,
     variable_id,
-    ST_MULTI(raw_geom) AS raw_geom
+    raw_geom
 FROM {{ ref('int_buffers__pops') }}
+WHERE ST_GEOMETRYTYPE(raw_geom) = 'ST_MultiPolygon'

@@ -33,7 +33,8 @@ models:
   - name: sources__nys_parks_properties
   - name: sources__nys_parks_properties_buffers
 
-  - name: sources__pops
+  - name: sources__pops_points
+  - name: sources__pops_lots
   - name: sources__pops_buffers
 
   - name: sources__us_parks_properties
