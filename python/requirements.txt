@@ -34,13 +34,13 @@ black==23.1.0
     # via -r python/requirements.in
 blinker==1.7.0
     # via streamlit
-boto3==1.34.74
+boto3==1.34.79
     # via
     #   -r python/requirements.in
     #   moto
-boto3-stubs[s3]==1.34.74
+boto3-stubs[s3]==1.34.79
     # via -r python/requirements.in
-botocore==1.34.74
+botocore==1.34.79
     # via
     #   boto3
     #   moto
@@ -90,7 +90,7 @@ click==8.1.7
     #   rasterio
     #   sqlfluff
     #   streamlit
-    #   typer-slim
+    #   typer
     #   whitebox
 click-plugins==1.1.1
     # via
@@ -112,7 +112,7 @@ comm==0.2.2
     #   ipywidgets
 contextily==1.3.0
     # via -r python/requirements.in
-contourpy==1.2.0
+contourpy==1.2.1
     # via matplotlib
 coverage[toml]==7.4.4
     # via pytest-cov
@@ -162,7 +162,7 @@ folium==0.14.0
     #   -r python/requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.50.0
+fonttools==4.51.0
     # via matplotlib
 future==1.0.0
     # via usaddress
@@ -182,7 +182,7 @@ geopy==2.4.1
     # via contextily
 gitdb==4.0.11
     # via gitpython
-gitpython==3.1.42
+gitpython==3.1.43
     # via streamlit
 graphviz==0.20.3
     # via
@@ -210,7 +210,7 @@ ipykernel==6.22.0
     # via -r python/requirements.in
 ipyleaflet==0.18.2
     # via leafmap
-ipython==8.22.2
+ipython==8.23.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -276,13 +276,13 @@ jupyterlab-widgets==3.0.10
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-leafmap==0.31.6
+leafmap==0.31.7
     # via -r python/requirements.in
 leather==0.4.0
     # via agate
 logbook==1.5.3
     # via dbt-core
-lxml==5.1.1
+lxml==5.2.1
     # via -r python/requirements.in
 mapclassify==2.5.0
     # via -r python/requirements.in
@@ -330,7 +330,7 @@ mypy-extensions==1.0.0
     #   mypy
 nest-asyncio==1.6.0
     # via ipykernel
-networkx==3.2.1
+networkx==3.3
     # via
     #   dbt-core
     #   mapclassify
@@ -359,7 +359,7 @@ numpy==1.26.4
     #   streamlit
 openpyxl==3.1.2
     # via -r python/requirements.in
-packaging==23.2
+packaging==24.0
     # via
     #   altair
     #   black
@@ -385,7 +385,7 @@ pandas-stubs==2.2.1.240316
     # via -r python/requirements.in
 parsedatetime==2.6
     # via agate
-parso==0.8.3
+parso==0.8.4
     # via jedi
 pathspec==0.11.2
     # via
@@ -394,7 +394,7 @@ pathspec==0.11.2
     #   sqlfluff
 pexpect==4.9.0
     # via ipython
-pillow==10.2.0
+pillow==10.3.0
     # via
     #   contextily
     #   matplotlib
@@ -468,7 +468,7 @@ pyshp==2.3.1
     # via leafmap
 pysocks==1.7.1
     # via requests
-pystac[validation]==1.9.0
+pystac[validation]==1.10.0
     # via pystac-client
 pystac-client==0.7.6
     # via leafmap
@@ -550,7 +550,7 @@ rich==13.7.1
     #   -r python/requirements.in
     #   sqlfluff-templater-dbt
     #   streamlit
-    #   typer-slim
+    #   typer
 rpds-py==0.18.0
     # via
     #   jsonschema
@@ -563,7 +563,7 @@ s3transfer==0.10.1
     # via boto3
 scikit-learn==1.4.1.post1
     # via mapclassify
-scipy==1.12.0
+scipy==1.13.0
     # via
     #   mapclassify
     #   scikit-learn
@@ -572,7 +572,7 @@ scooby==0.9.2
 shapely==2.0.3
     # via geopandas
 shellingham==1.5.4
-    # via typer-slim
+    # via typer
 six==1.16.0
     # via
     #   asttokens
@@ -604,14 +604,14 @@ sqlparse==0.4.4
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.32.2
+streamlit==1.33.0
     # via
     #   -r python/requirements.in
     #   streamlit-aggrid
     #   streamlit-folium
 streamlit-aggrid==0.3.4.post3
     # via -r python/requirements.in
-streamlit-folium==0.18.0
+streamlit-folium==0.18.1
     # via -r python/requirements.in
 tabulate==0.9.0
     # via -r python/requirements.in
@@ -656,14 +656,8 @@ traittypes==0.2.1
     #   ipyleaflet
 typed-ast==1.5.5
     # via diagrams
-typer==0.12.0
+typer==0.12.1
     # via -r python/requirements.in
-typer-cli==0.12.0
-    # via typer
-typer-slim[standard]==0.12.0
-    # via
-    #   typer
-    #   typer-cli
 types-awscrt==0.20.5
     # via botocore-stubs
 types-beautifulsoup4==4.12.0.20240229
@@ -688,11 +682,12 @@ types-tqdm==4.66.0.2
     # via -r python/requirements.in
 types-urllib3==1.26.25.14
     # via types-requests
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via
     #   boto3-stubs
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   ipython
     #   mashumaro
     #   mypy
     #   mypy-boto3-s3
@@ -702,7 +697,7 @@ typing-extensions==4.10.0
     #   sqlalchemy-stubs
     #   sqlfluff
     #   streamlit
-    #   typer-slim
+    #   typer
 tzdata==2024.1
     # via pandas
 urllib3==1.26.18
@@ -722,7 +717,7 @@ watchdog==4.0.0
     # via streamlit
 wcwidth==0.2.13
     # via prompt-toolkit
-werkzeug==3.0.1
+werkzeug==3.0.2
     # via moto
 whitebox==2.3.1
     # via whiteboxgui
@@ -734,7 +729,7 @@ xlrd==2.0.1
     # via -r python/requirements.in
 xmltodict==0.13.0
     # via moto
-xyzservices==2023.10.1
+xyzservices==2024.4.0
     # via
     #   contextily
     #   ipyleaflet
