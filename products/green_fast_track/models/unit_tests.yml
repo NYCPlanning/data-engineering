@@ -1,0 +1,11 @@
+unit_tests:
+  - name: test_logic__int_flags__zoning
+    description: "Check the int_flags__zoning logic captures lots with many zoning values."
+    model: int_flags__zoning
+    given:
+      - input: ref('stg__pluto')
+        rows:
+          - {bbl: 1005500023_ish, zonedist1: C1-7, zonedist2: R6, zonedist3: R10, zonedist4: NULL}
+    expect:
+      rows:
+        - {bbl: 1005500023_ish, variable_type: zoning_districts, variable_id: C or M}
