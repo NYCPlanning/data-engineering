@@ -613,11 +613,9 @@ sqlalchemy==2.0.15
     #   geoalchemy2
 sqlalchemy-stubs==0.4
     # via -r python/requirements.in
-sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@main
-    # via
-    #   -r python/requirements.in
-    #   sqlfluff-templater-dbt
-sqlfluff-templater-dbt==2.3.1
+sqlfluff==3.0.3
+    # via sqlfluff-templater-dbt
+sqlfluff-templater-dbt==3.0.3
     # via -r python/requirements.in
 sqlparse==0.4.4
     # via dbt-core
