@@ -71,6 +71,14 @@ ignore_comment_clauses = true
 
 [tool.sqlfluff.rules.capitalisation.keywords]
 capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.literals]
+capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.identifiers]
+extended_capitalisation_policy = "lower"
+[tool.sqlfluff.rules.capitalisation.functions]
+extended_capitalisation_policy = "lower"
+[tool.sqlfluff.rules.capitalisation.types]
+extended_capitalisation_policy = "lower"
 
 [tool.pydocstyle]
 ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
