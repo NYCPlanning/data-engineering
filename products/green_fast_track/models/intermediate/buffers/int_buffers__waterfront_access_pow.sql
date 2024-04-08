@@ -24,6 +24,16 @@ modified_id AS (
         raw_geom,
         name || '-' || agency AS variable_id
     FROM filtered_name_agency
+),
+
+-- some areas are listed multiple times due to different geometries. Group them
+grouped_by_variable_id AS (
+    SELECT
+        variable_type,
+        variable_id,
+        st_union(raw_geom) AS raw_geom
+    FROM modified_id
+    GROUP BY variable_type, variable_id
 )
 
 SELECT
@@ -31,4 +41,4 @@ SELECT
     variable_id,
     raw_geom,
     st_buffer(raw_geom, 200) AS buffer
-FROM modified_id
+FROM grouped_by_variable_id
