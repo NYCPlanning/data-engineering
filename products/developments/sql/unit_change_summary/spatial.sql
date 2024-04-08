@@ -4,36 +4,36 @@
 
 DROP TABLE IF EXISTS aggregate_{{ geom }} CASCADE;
 WITH agg AS (
-    SELECT 
+    SELECT
         {{ source_column }} AS {{ output_column }},
 
-        SUM(comp2020ap) AS comp2020ap,
+        sum(comp2020ap) AS comp2020ap,
         {%- for year in years %}
-            SUM(comp{{year}}) AS comp{{year}},
+            sum(comp{{ year }}) AS comp{{ year }},
         {% endfor %}
 
-        SUM(filed) AS filed,
-        SUM(approved) AS approved,
-        SUM(permitted) AS permitted,
-        SUM(withdrawn) AS withdrawn,
-        SUM(inactive) AS inactive
+        sum(filed) AS filed,
+        sum(approved) AS approved,
+        sum(permitted) AS permitted,
+        sum(withdrawn) AS withdrawn,
+        sum(inactive) AS inactive
 
-    FROM YEARLY_devdb
+    FROM yearly_devdb
 
     GROUP BY 
-        {%- for column in group_by %}
-            {{column}}{{ ", " if not loop.last else "" }}
-        {% endfor %}
+    {%- for column in group_by %}
+        {{ column }}{{ ", " if not loop.last else "" }} -- noqa
+    {% endfor %}
 )
-SELECT 
-    j.{{ geom_join_column }}::TEXT AS "{{ output_column }}", -- slightly hacky. Some outputs we want capitalized, but without quotes everythin is lowercase. 
-                                                             -- so prior to this point we're only working with lowercase to be consistent with upstream data
+SELECT
+    j.{{ geom_join_column }}::text AS "{{ output_column }}", -- slightly hacky. Some outputs we want capitalized, but without quotes everythin is lowercase. 
+    -- so prior to this point we're only working with lowercase to be consistent with upstream data
     {%- for column_pair in additional_column_mappings %}
         j.{{ column_pair[0] }} AS {{ column_pair[1] }},
     {% endfor %}
     coalesce(agg.comp2020ap, 0) AS comp2020ap,
     {%- for year in years %}
-        coalesce(agg.comp{{year}}, 0) AS comp{{year}},
+        coalesce(agg.comp{{ year }}, 0) AS comp{{ year }},
     {% endfor %}
     c.hunits AS cenunits20,
     coalesce(agg.filed, 0) AS filed,
@@ -46,9 +46,8 @@ SELECT
     j.wkb_geometry
 
 INTO aggregate_{{ geom }}
-FROM
-    agg
-    RIGHT JOIN {{ join_table }} j ON agg.{{ output_column }} = j.{{ geom_join_column }}
-    LEFT JOIN census2020_housing_units_by_geography c ON j.{{ geom_join_column }}::TEXT = c.aggregate_join
+FROM {{ join_table }} AS j
+LEFT JOIN agg ON agg.{{ output_column }} = j.{{ geom_join_column }}
+LEFT JOIN census2020_housing_units_by_geography AS c ON j.{{ geom_join_column }}::text = c.aggregate_join
 
 ORDER BY j.{{ geom_join_column }};

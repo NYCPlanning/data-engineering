@@ -43,11 +43,27 @@ CONDITION = "WHERE a.geom IS NOT NULL"
 GEOM = "geom_2263"
 ccp_v = "fisa_2000"
 build_schema = "public"
+CAPTURE_DATE = "2024-01-01"
+CAPTURE_DATE_PREV = "2023-07-01"
+internal_columns = '"Job_Number","Job_Type"'
+external_columns = '"Job_Number","Job_Type"'
 
 [tool.sqlfluff.templater.dbt]
 project_dir = "products/green_fast_track"
 profiles_dir = "products/green_fast_track"
 dialect = "postgres"
+
+[tool.sqlfluff.templater.jinja.context]
+source_column="bct2020"
+output_column="bct2020"
+additional_column_mappings='[("geoid", "centract2020")]'
+group_by='["boro", "bct2020", "centract2020"]'
+join_table="dcp_ct2020"
+geom_join_column="boroct2020"
+years="['2010', '2011']"
+decade="2020"
+geom="CD"
+CAPTURE_DATE="2024-01-01"
 
 [tool.sqlfluff.rules.layout.long_lines]
 ignore_comment_lines = true

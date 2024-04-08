@@ -49,6 +49,9 @@ jobs:
           # TODO: Gradually expand this to cover more products
           sqlfluff lint products/template/
           sqlfluff lint products/cpdb/sql/
+          sqlfluff lint products/developments/sql/*.sql
+          sqlfluff lint products/developments/sql/qaqc
+          sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
           sqlfluff lint products/knownprojects/ --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/

@@ -3,7 +3,7 @@ DESCRIPTION:
     Merging INIT_devdb with (STATUS_Q_devdb, CO_devdb, UNITS_devdb, OCC_devdb)
     JOIN KEY: job_number
 
-INPUTS: 
+INPUTS:
 
     INIT_devdb (
         * job_number,
@@ -20,7 +20,7 @@ INPUTS:
     CO_devdb (
         * job_number,
         _date_complete,
-        co_latest_certtype, 
+        co_latest_certtype,
         co_latest_units
     )
 
@@ -41,14 +41,14 @@ INPUTS:
         occ_proposed
     )
 
-OUTPUTS: 
+OUTPUTS:
     _MID_devdb (
         * job_number,
         date_permittd,
         complete_year,
         complete_qrtr,
         date_complete,
-        co_latest_certtype, 
+        co_latest_certtype,
         co_latest_units,
         classa_init,
         classa_prop,
@@ -65,7 +65,7 @@ OUTPUTS:
         ...
     )
 */
-DROP TABLE IF EXISTS JOIN_date_permittd;
+DROP TABLE IF EXISTS join_date_permittd;
 SELECT
     -- All INIT_devdb fields except for classa_init and classa_prop
     a.job_number,
@@ -159,10 +159,10 @@ SELECT
     b.date_permittd,
     b.permit_year,
     b.permit_qrtr
-INTO JOIN_date_permittd
-FROM INIT_devdb a
-LEFT JOIN STATUS_Q_devdb b
-ON a.job_number = b.job_number;
+INTO join_date_permittd
+FROM init_devdb AS a
+LEFT JOIN status_q_devdb AS b
+    ON a.job_number = b.job_number;
 
 /*
 CORRECTIONS: (implemeted 2021/02/22)
@@ -173,50 +173,49 @@ CALL apply_correction(:'build_schema', 'JOIN_date_permittd', '_manual_correction
 /*
 CONTINUE
 */
-DROP TABLE IF EXISTS _MID_devdb;
-WITH
-JOIN_co as (
-    SELECT 
+DROP TABLE IF EXISTS _mid_devdb;
+WITH join_co AS (
+    SELECT
         a.*,
         /** Complete dates for non-demolitions come from CO (_date_complete). For
             demolitions, complete dates are status Q date (date_permittd)
             when the record has a status X date, and NULL otherwise **/
-        (CASE WHEN a.job_type = 'Demolition'
-            THEN CASE WHEN a.date_statusx IS NOT NULL
-                THEN a.date_permittd
-            ELSE NULL END
-        ELSE b._date_complete END) as date_complete,
+        CASE
+            WHEN a.job_type = 'Demolition'
+                THEN CASE
+                    WHEN a.date_statusx IS NOT NULL THEN a.date_permittd
+                END
+            ELSE b._date_complete
+        END AS date_complete,
 
         b.co_latest_certtype,
         b.co_latest_units::numeric
-    FROM JOIN_date_permittd a
-    LEFT JOIN CO_devdb b
-    ON a.job_number = b.job_number
+    FROM join_date_permittd AS a
+    LEFT JOIN co_devdb AS b
+        ON a.job_number = b.job_number
 ),
-JOIN_units as (
+join_units AS (
     SELECT
         a.*,
-        extract(year from date_complete)::text as complete_year,
-        year_quarter(date_complete) as complete_qrtr,
+        extract(YEAR FROM date_complete)::text AS complete_year,
+        year_quarter(date_complete) AS complete_qrtr,
         b.classa_init,
         b.classa_prop,
         b.classa_net,
         b.hotel_init,
-	    b.hotel_prop,
-	    b.otherb_init,
-	    b.otherb_prop,
-        (CASE
-            WHEN b.classa_net != 0 
-                THEN a.co_latest_units/b.classa_net
-            ELSE NULL
-        END) as classa_complt_pct,
-        b.classa_net - a.co_latest_units as classa_complt_diff,
+        b.hotel_prop,
+        b.otherb_init,
+        b.otherb_prop,
+        CASE
+            WHEN b.classa_net != 0 THEN a.co_latest_units / b.classa_net
+        END AS classa_complt_pct,
+        b.classa_net - a.co_latest_units AS classa_complt_diff,
         b.resid_flag
-    FROM JOIN_co a
-    LEFT JOIN UNITS_devdb b
-    ON a.job_number = b.job_number
+    FROM join_co AS a
+    LEFT JOIN units_devdb AS b
+        ON a.job_number = b.job_number
 ),
-JOIN_occ as (
+join_occ AS (
     SELECT
         a.*,
         b.occ_initial,
@@ -226,13 +225,13 @@ JOIN_occ as (
             a.job_desc,
             b.occ_initial,
             b.occ_proposed
-        ) as nonres_flag
-    FROM JOIN_units a
-    LEFT JOIN OCC_devdb b
-    ON a.job_number = b.job_number
-) 
+        ) AS nonres_flag
+    FROM join_units AS a
+    LEFT JOIN occ_devdb AS b
+        ON a.job_number = b.job_number
+)
 SELECT *
-INTO _MID_devdb
-FROM JOIN_occ;
+INTO _mid_devdb
+FROM join_occ;
 
-DROP TABLE JOIN_date_permittd;
+DROP TABLE join_date_permittd;

@@ -2,7 +2,7 @@
 DESCRIPTION:
 	Initial field mapping and prelimilary data cleaning for BIS job applications data
 
-INPUTS: 
+INPUTS:
 	dob_jobapplications
 
 OUTPUTS:
@@ -62,166 +62,182 @@ OUTPUTS:
 */
 
 
-DROP TABLE IF EXISTS _INIT_BIS_devdb;
+DROP TABLE IF EXISTS _init_bis_devdb;
 SELECT
-	jobnumber::text as job_number,
+    jobnumber::text AS job_number,
 
     -- Job Type recoding
-	(CASE 
-		WHEN jobtype = 'A1' THEN 'Alteration'
-		WHEN jobtype = 'DM' THEN 'Demolition'
-		WHEN jobtype = 'NB' THEN 'New Building'
-		WHEN jobtype = 'A2' THEN 'Alteration (A2)'
-		ELSE jobtype
-	END ) as job_type,
+    CASE
+        WHEN jobtype = 'A1' THEN 'Alteration'
+        WHEN jobtype = 'DM' THEN 'Demolition'
+        WHEN jobtype = 'NB' THEN 'New Building'
+        WHEN jobtype = 'A2' THEN 'Alteration (A2)'
+        ELSE jobtype
+    END AS job_type,
 
-	(CASE WHEN jobdescription !~ '[a-zA-Z]'
-	THEN NULL ELSE jobdescription END) as job_desc,
+    CASE
+        WHEN jobdescription !~ '[a-zA-Z]'
+            THEN NULL
+        ELSE jobdescription
+    END AS job_desc,
 
     -- removing '.' for existingoccupancy 
     -- and proposedoccupancy (3 records affected)
-	replace(existingoccupancy, '.', '') as _occ_initial, 
-    replace(proposedoccupancy, '.', '') as _occ_proposed,
-	
-    -- set 0 -> null for jobtype = A1 or DM
-	(CASE WHEN jobtype ~* 'A1|DM' 
-        THEN nullif(existingnumstories, '0')::numeric
-		ELSE NULL
-    END) as stories_init,
+    replace(existingoccupancy, '.', '') AS _occ_initial,
+    replace(proposedoccupancy, '.', '') AS _occ_proposed,
 
-	-- set 0 -> null for jobtype = A1 or NB
-	(CASE WHEN jobtype ~* 'A1|NB' 
-        THEN nullif(proposednumstories, '0')::numeric
-		ELSE NULL
-    END) as stories_prop,
+    -- set 0 -> null for jobtype = A1 or DM
+    CASE
+        WHEN jobtype ~* 'A1|DM'
+            THEN nullif(existingnumstories, '0')::numeric
+    END AS stories_init,
+
+    -- set 0 -> null for jobtype = A1 or NB
+    CASE
+        WHEN jobtype ~* 'A1|NB'
+            THEN nullif(proposednumstories, '0')::numeric
+    END AS stories_prop,
 
     -- set 0 -> null for jobtype = A1 or DM\
-	(CASE WHEN jobtype ~* 'A1|DM' 
-        THEN nullif(existingzoningsqft, '0')::numeric
-		ELSE existingzoningsqft::numeric
-    END) as zoningsft_init,
+    CASE
+        WHEN jobtype ~* 'A1|DM'
+            THEN nullif(existingzoningsqft, '0')::numeric
+        ELSE existingzoningsqft::numeric
+    END AS zoningsft_init,
 
     -- set 0 -> null for jobtype = A1 or DM
-	(CASE WHEN jobtype ~* 'A1|DM' 
-        THEN nullif(proposedzoningsqft, '0')::numeric
-		ELSE proposedzoningsqft::numeric 
-    END) as zoningsft_prop,
+    CASE
+        WHEN jobtype ~* 'A1|DM'
+            THEN nullif(proposedzoningsqft, '0')::numeric
+        ELSE proposedzoningsqft::numeric
+    END AS zoningsft_prop,
 
     -- if existingdwellingunits is not a number then null
-        (CASE WHEN jobtype ~* 'NB' THEN 0 
-        ELSE (CASE WHEN existingdwellingunits ~ '[^0-9]' THEN NULL
-            ELSE existingdwellingunits::numeric END)
-    END) as classa_init,
+    CASE
+        WHEN jobtype ~* 'NB' THEN 0
+        WHEN existingdwellingunits ~ '[^0-9]' THEN NULL
+        ELSE existingdwellingunits::numeric
+    END AS classa_init,
 
     -- if proposeddwellingunits is not a number then null
-	(CASE WHEN jobtype ~* 'DM' THEN 0
-		ELSE (CASE WHEN proposeddwellingunits ~ '[^0-9]' THEN NULL
-			ELSE proposeddwellingunits::numeric END)
-	END) as classa_prop,
+    CASE
+        WHEN jobtype ~* 'DM' THEN 0
+        WHEN proposeddwellingunits ~ '[^0-9]' THEN NULL
+        ELSE proposeddwellingunits::numeric
+    END AS classa_prop,
 
-	-- one to one mappings
-	jobstatusdesc as _job_status,
-	latestactiondate as date_lastupdt,
-	prefilingdate as date_filed,
-	fullypaid as date_statusd,
-	approved as date_statusp,
-	fullypermitted as date_statusr,
-	signoffdate as date_statusx,
-	zoningdist1 as ZoningDist1,
-	zoningdist2 as ZoningDist2,
-	zoningdist3 as ZoningDist3,
-	specialdistrict1 as SpecialDist1,
-	specialdistrict2 as SpecialDist2,
+    -- one to one mappings
+    jobstatusdesc AS _job_status,
+    latestactiondate AS date_lastupdt,
+    prefilingdate AS date_filed,
+    fullypaid AS date_statusd,
+    approved AS date_statusp,
+    fullypermitted AS date_statusr,
+    signoffdate AS date_statusx,
+    zoningdist1 AS zoningdist1,
+    zoningdist2 AS zoningdist2,
+    zoningdist3 AS zoningdist3,
+    specialdistrict1 AS specialdist1,
+    specialdistrict2 AS specialdist2,
 
-	(CASE WHEN landmarked = 'Y' THEN 'Yes'
-		ELSE NULL END) as Landmark,
+    CASE
+        WHEN landmarked = 'Y' THEN 'Yes'
+    END AS landmark,
 
-	ownership_translate(
-		cityowned,
-		ownertype,
-		nonprofit
-	) as ownership,
-	
-	ownerlastname||', '||ownerfirstname as owner_name,
-	ownerbusinessname as Owner_BizNm,
-	ownerhousestreetname as Owner_Address,
-	zip as Owner_ZipCode,
-	ownerphone as Owner_Phone,
+    ownership_translate(
+        cityowned,
+        ownertype,
+        nonprofit
+    ) AS ownership,
 
-	(CASE WHEN jobtype ~* 'A1|DM' 
-		THEN NULLIF(existingheight, '0')
-	END)::numeric as Height_Init,
+    ownerlastname || ', ' || ownerfirstname AS owner_name,
+    ownerbusinessname AS owner_biznm,
+    ownerhousestreetname AS owner_address,
+    zip AS owner_zipcode,
+    ownerphone AS owner_phone,
 
-	(CASE WHEN jobtype ~* 'A1|NB' 
-		THEN NULLIF(proposedheight, '0')
-	END)::numeric as Height_Prop,
+    CASE
+        WHEN jobtype ~* 'A1|DM'
+            THEN nullif(existingheight, '0')
+    END::numeric AS height_init,
 
-	totalconstructionfloorarea as ConstructnSF,
+    CASE
+        WHEN jobtype ~* 'A1|NB'
+            THEN nullif(proposedheight, '0')
+    END::numeric AS height_prop,
 
-	(CASE 
-		WHEN (horizontalenlrgmt = 'Y' AND verticalenlrgmt <> 'Y') 
-			THEN 'Horizontal'
-		WHEN (horizontalenlrgmt <> 'Y' AND verticalenlrgmt = 'Y') 
-			THEN 'Vertical'
-		WHEN (horizontalenlrgmt = 'Y' AND verticalenlrgmt = 'Y') 
-			THEN 'Horizontal and Vertical'
-	END)  as enlargement,
+    totalconstructionfloorarea AS constructnsf,
 
-	enlargementsqfootage as EnlargementSF,
-	initialcost as CostEstimate,
+    CASE
+        WHEN horizontalenlrgmt = 'Y' AND verticalenlrgmt != 'Y'
+            THEN 'Horizontal'
+        WHEN horizontalenlrgmt != 'Y' AND verticalenlrgmt = 'Y'
+            THEN 'Vertical'
+        WHEN horizontalenlrgmt = 'Y' AND verticalenlrgmt = 'Y'
+            THEN 'Horizontal and Vertical'
+    END AS enlargement,
 
-	(CASE WHEN loftboard = 'Y' THEN 'Yes'
-		ELSE NULL END) as LoftBoardCert,
+    enlargementsqfootage AS enlargementsf,
+    initialcost AS costestimate,
 
-	(CASE WHEN littlee = 'Y' THEN 'Yes'
-		WHEN littlee = 'H' THEN 'Yes'
-		ELSE NULL END) as eDesignation,
+    CASE
+        WHEN loftboard = 'Y' THEN 'Yes'
+    END AS loftboardcert,
 
-	(CASE WHEN curbcut = 'X' THEN 'Yes'
-		ELSE NULL END) as CurbCut,
-		
-	cluster as TractHomes,
-	regexp_replace(
-		trim(housenumber), 
-		'(^|)0*', '', '') as address_numbr,
-	trim(streetname) as address_street,
-	regexp_replace(
-		trim(housenumber), 
-		'(^|)0*', '', '')||' '||trim(streetname) as address,
-	bin as bin,
-	LEFT(bin, 1)||lpad(block, 5, '0')||lpad(RIGHT(lot,4), 4, '0') as bbl,
-	CASE WHEN borough ~* 'Manhattan' THEN '1'
-		WHEN borough ~* 'Bronx' THEN '2'
-		WHEN borough ~* 'Brooklyn' THEN '3'
-		WHEN borough ~* 'Queens' THEN '4'
-		WHEN borough ~* 'Staten Island' THEN '5' 
-		END as boro,
-	-- Add dummy columns for union to now applications for _init_devdb
-	existingzoningsqft as zsf_init,
-	proposedzoningsqft as zsf_prop,
-	NULL::text as zug_init,
-	NULL::text as zug_prop,
-	NULL::numeric as zsfr_prop,
-	NULL::numeric as zsfc_prop,
-	NULL::numeric as zsfcf_prop,
-	NULL::numeric as zsfm_prop,
-	NULL::numeric as prkngprop,
-	-- End Dummy columns 
-	buildingclass as bldg_class,
-	otherdesc as desc_other,
-	specialactionstatus as x_withdrawal,
-	ST_SetSRID(ST_Point(
-		longitude::double precision,
-		latitude::double precision),4326) as dob_geom
-INTO _INIT_BIS_devdb
+    CASE
+        WHEN littlee = 'Y' THEN 'Yes'
+        WHEN littlee = 'H' THEN 'Yes'
+    END AS edesignation,
+
+    CASE
+        WHEN curbcut = 'X' THEN 'Yes'
+    END AS curbcut,
+
+    cluster AS tracthomes,
+    regexp_replace(
+        trim(housenumber),
+        '(^|)0*', '', ''
+    ) AS address_numbr,
+    trim(streetname) AS address_street,
+    regexp_replace(
+        trim(housenumber),
+        '(^|)0*', '', ''
+    ) || ' ' || trim(streetname) AS address,
+    bin AS bin,
+    left(bin, 1) || lpad(block, 5, '0') || lpad(right(lot, 4), 4, '0') AS bbl,
+    CASE
+        WHEN borough ~* 'Manhattan' THEN '1'
+        WHEN borough ~* 'Bronx' THEN '2'
+        WHEN borough ~* 'Brooklyn' THEN '3'
+        WHEN borough ~* 'Queens' THEN '4'
+        WHEN borough ~* 'Staten Island' THEN '5'
+    END AS boro,
+    -- Add dummy columns for union to now applications for _init_devdb
+    existingzoningsqft AS zsf_init,
+    proposedzoningsqft AS zsf_prop,
+    NULL::text AS zug_init,
+    NULL::text AS zug_prop,
+    NULL::numeric AS zsfr_prop,
+    NULL::numeric AS zsfc_prop,
+    NULL::numeric AS zsfcf_prop,
+    NULL::numeric AS zsfm_prop,
+    NULL::numeric AS prkngprop,
+    -- End Dummy columns 
+    buildingclass AS bldg_class,
+    otherdesc AS desc_other,
+    specialactionstatus AS x_withdrawal,
+    st_setsrid(st_point(
+        longitude::double precision,
+        latitude::double precision
+    ), 4326) AS dob_geom
+INTO _init_bis_devdb
 FROM dob_jobapplications
-WHERE 
-	jobdocnumber = '01' AND ( 
-		jobtype ~* 'A1|DM|NB' OR (
-			jobtype = 'A2' 
-			AND sprinkler is NULL 
-			AND lower(jobdescription) LIKE '%combin%' 
-			AND lower(jobdescription) NOT LIKE '%sprinkler%' 
-		)
-	) AND gid = 1;
-
+WHERE
+    jobdocnumber = '01' AND (
+        jobtype ~* 'A1|DM|NB' OR (
+            jobtype = 'A2'
+            AND sprinkler IS NULL
+            AND lower(jobdescription) LIKE '%combin%'
+            AND lower(jobdescription) NOT LIKE '%sprinkler%'
+        )
+    ) AND gid = 1;
