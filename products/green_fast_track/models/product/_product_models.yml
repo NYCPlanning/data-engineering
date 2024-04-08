@@ -107,6 +107,52 @@ models:
         tests: [not_null]
       - name: '"Waterfront Public Access Areas"'
         data_type: string
+      - name: '"State Regulated Freshwater Wetlands - Checkzone"'
+        data_type: string
+      - name: '"State Regulated Freshwater Wetlands - Checkzone Flag"'
+        data_type: string
+      - name: '"State Regulated Freshwater Wetlands"'
+        data_type: string
+      - name: '"State Regulated Freshwater Wetlands Flag"'
+        data_type: string
+      - name: '"State Regulated Tidal Wetlands"'
+        data_type: string
+      - name: '"State Regulated Tidal Wetlands Flag"'
+        data_type: string
+      - name: '"Priority Waterbodies"'
+        data_type: string
+      - name: '"Priority Waterbodies Flag"'
+        data_type: string
+      - name: '"Significant Natural Communities"'
+        data_type: string
+      - name: '"Significant Natural Communities Flag"'
+        data_type: string
+      - name: '"Beaches"'
+        data_type: string
+      - name: '"Beaches Flag"'
+        data_type: string
+      - name: '"National Wetlands"'
+        data_type: string
+      - name: '"National Wetlands Flag"'
+        data_type: string
+      - name: '"Recognized Ecological Complexes"'
+        data_type: string
+      - name: '"Recognized Ecological Complexes Flag"'
+        data_type: string
+      - name: '"Special Natural Waterfront Areas"'
+        data_type: string
+      - name: '"Special Natural Waterfront Areas Flag"'
+        data_type: string
+      - name: '"NYC Parks Forever Wild"'
+        data_type: string
+      - name: '"NYC Parks Forever Wild Flag"'
+        data_type: string
+      - name: '"Contains Natural Resource"'
+        data_type: string
+      - name: '"Natural Resource Shadow"'
+        data_type: string
+      - name: '"Natural Resource Shadow Flag"'
+        data_type: string
       - name: geom
         data_type: geometry(Geometry, 2263)
 
