@@ -1,5 +1,6 @@
 from __future__ import annotations
 import importlib
+import os
 import pandas as pd
 from pathlib import Path
 import typer
@@ -186,12 +187,12 @@ def _import_dataset(
         help="Dataset type",
     ),
     database_schema: str = typer.Option(
-        "postgres",
         "-s",
         "--schema",
         help="Database Schema",
     ),
 ):
+    database_schema = database_schema or os.environ["BUILD_SCHEMA"]
     import_dataset(
         InputDataset(name=dataset_name, version=version, file_type=dataset_type),
         postgres.PostgresClient(schema=database_schema),
