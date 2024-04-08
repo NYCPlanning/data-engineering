@@ -37,9 +37,8 @@ seeds:
   - name: test_expected_pilot_projects
     description: Mock pilot projects and their expected outputs
     config:
-      # empty columns default to integer type
       column_types:
-        bbl: text
+        # empty columns default to integer type
         Unpermitted Industrial Sources: text
         Vent Towers: text
         (E) Designations - Air Quality: text
@@ -53,6 +52,9 @@ seeds:
         Publicly Owned Waterfront: text
         NYS Parks Property: text
         Federal Parks property: text
+        # columns where ids are numeric need to be manually set to text
+        bbl: text
+        State Regulated Freshwater Wetlands - Checkzone: text
         geom: geometry(Geometry, 2263)
     columns:
       - name: project_label

@@ -18,3 +18,14 @@ waterfront_access_wpaa,Waterfront Public Access Areas,Shadow/Open Space,23,"subs
 waterfront_access_pow,Publicly Owned Waterfront,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
 nys_parks_properties,NYS Parks Property,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
 us_parks_properties,Federal Parks property,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
+wetlands_checkzones,State Regulated Freshwater Wetlands - Checkzone,Natural Resources,,Intersects
+freshwater_wetlands,State Regulated Freshwater Wetlands,Natural Resources,,Intersects
+tidal_wetlands,State Regulated Tidal Wetlands,Natural Resources,,Intersects
+priority_waterbodies,Priority Waterbodies,Natural Resources,,Intersects
+natural_heritage_communities,Significant Natural Communities,Natural Resources,,Intersects
+beaches,Beaches,Natural Resources,,Intersects
+usfws_wetlands,National Wetlands,Natural Resources,,Intersects
+rec,Recognized Ecological Complexes,Natural Resources,,Intersects
+snwa,Special Natural Waterfront Areas,Natural Resources,,Intersects
+forever_wild,NYC Parks Forever Wild,Natural Resources,,Intersects
+natural_resource_shadow,Natural Resource Shadow,Natural Resources/Shadow/Open Space,,200 ft buffer

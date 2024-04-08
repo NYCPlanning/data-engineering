@@ -20,7 +20,7 @@ flags_ranked AS (
         variable_type,
         variable_id,
         distance,
-        ROW_NUMBER()
+        row_number()
             OVER (PARTITION BY bbl, variable_type ORDER BY distance)
         AS row_number
     FROM flags_long
@@ -30,13 +30,23 @@ flags_wide AS (
     SELECT
         {% for row in variables -%}
             /* construct a comma-separated list of values ordered by distance and name */
-            ARRAY_TO_STRING(
-                ARRAY_AGG(variable_id ORDER BY distance ASC, variable_id ASC) FILTER (
+            array_to_string(
+                array_agg(variable_id ORDER BY distance ASC, variable_id ASC) FILTER (
                     WHERE variable_type = '{{ row["variable_type"] }}'
                 ),
                 ', '
             ) AS "{{ row['label'] }}",
         {% endfor %}
+        bool_or(variable_id IS NOT NULL)
+        FILTER (
+            WHERE variable_type = any(ARRAY{{
+                variables
+                | selectattr("ceqr_category", "equalto", "Natural Resources")
+                | map(attribute='variable_type')
+                | list
+            }})
+            AND variable_type != 'wetlands_checkzones'
+        ) AS natural_resource,
         bbl
     FROM flags_ranked
     GROUP BY bbl
@@ -51,7 +61,10 @@ SELECT
         END AS "{{ row['label'] }} Flag",
         f."{{ row['label'] }}",
     {% endfor %}
+    CASE
+        WHEN f.natural_resource THEN 'Yes'
+        ELSE 'No'
+    END AS "Contains Natural Resource",
     pluto.geom
-FROM
-    pluto
+FROM pluto
 LEFT JOIN flags_wide AS f ON pluto.bbl = f.bbl
