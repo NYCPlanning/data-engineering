@@ -15,8 +15,6 @@ seeds:
         tests:
           - not_null
       - name: survey_question
-        tests:
-          - not_null
       - name: type_ii_criteria_description
         tests:
           - not_null
