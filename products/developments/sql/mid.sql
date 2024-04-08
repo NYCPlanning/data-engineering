@@ -3,7 +3,7 @@ DESCRIPTION:
     Merging _MID_devdb with (STATUS_devdb) to create MID_devdb
     JOIN KEY: job_number
 
-INPUTS: 
+INPUTS:
 
     _MID_devdb (
         * job_number,
@@ -17,7 +17,7 @@ INPUTS:
     )
 
 
-OUTPUTS: 
+OUTPUTS:
     MID_devdb (
         * job_number,
         job_status character varying,
@@ -27,13 +27,13 @@ OUTPUTS:
         ...
     )
 */
-DROP TABLE IF EXISTS MID_devdb CASCADE;
+DROP TABLE IF EXISTS mid_devdb CASCADE;
 SELECT
-    _MID_devdb.*,
-    STATUS_devdb.job_status,
-    STATUS_devdb.job_inactive
-INTO MID_devdb
-FROM _MID_devdb
-LEFT JOIN STATUS_devdb
-ON _MID_devdb.job_number = STATUS_devdb.job_number;
-CREATE INDEX MID_devdb_job_number_idx ON MID_devdb(job_number);
+    _mid_devdb.*,
+    status_devdb.job_status,
+    status_devdb.job_inactive
+INTO mid_devdb
+FROM _mid_devdb
+LEFT JOIN status_devdb
+    ON _mid_devdb.job_number = status_devdb.job_number;
+CREATE INDEX mid_devdb_job_number_idx ON mid_devdb (job_number);

@@ -1,169 +1,169 @@
 -- EXPORT DevDB
-DROP TABLE IF EXISTS EXPORT_devdb CASCADE;
-SELECT * 
-INTO EXPORT_devdb
-FROM FINAL_devdb
-WHERE 
-    Date_Filed::date <= :'CAPTURE_DATE'
-    OR Date_Permittd::date <= :'CAPTURE_DATE'
-    OR Date_Complete::date <= :'CAPTURE_DATE';
+DROP TABLE IF EXISTS export_devdb CASCADE;
+SELECT *
+INTO export_devdb
+FROM final_devdb
+WHERE
+    date_filed::date <= :'CAPTURE_DATE'
+    OR date_permittd::date <= :'CAPTURE_DATE'
+    OR date_complete::date <= :'CAPTURE_DATE';
 
 -- EXPORT HousingDB
-CREATE VIEW export_housing AS 
-SELECT * 
-FROM EXPORT_devdb
+CREATE VIEW export_housing AS
+SELECT *
+FROM export_devdb
 WHERE resid_flag = 'Residential';
 
 -- Switch to 10 char fieldnames
-CREATE VIEW SHP_devdb AS
+CREATE VIEW shp_devdb AS
 SELECT
-    Job_Number as "Job_Number",
-    Job_Type as "Job_Type",
-    Resid_Flag as "ResidFlag",
-    Nonres_Flag as "NonresFlag",
-    Job_Inactive as "Job_Inactv",
-    Job_Status as "Job_Status",
-    Complete_Year as "CompltYear",
-    Complete_Qrtr as "CompltQrtr",
-    Permit_Year as "PermitYear",
-    Permit_Qrtr as "PermitQrtr",
-    ClassA_Init as "ClassAInit",
-    ClassA_Prop as "ClassAProp",
-    ClassA_Net as "ClassANet",
-    ClassA_HNYAff::NUMERIC as "ClassA_HNY",
-    Hotel_Init as "HotelInit",
-    Hotel_Prop as "HotelProp",
-    OtherB_Init as "OtherBInit",
-    OtherB_Prop as "OtherBProp",
-    units_co as "Units_CO",
-    Boro as "Boro",
-    BIN as "BIN",
-    BBL as "BBL",
-    Address_Numbr as "AddressNum",
-    Address_St as "AddressSt",
-    Address as "Address",
-    Occ_Initial as "Occ_Init",
-    Occ_Proposed as "Occ_Prop",
-    Bldg_Class as "Bldg_Class",
-    Job_Desc as "Job_Desc",
-    Desc_Other as "Desc_Other",
-    Date_Filed as "DateFiled",
-    Date_StatusD as "DateStatsD",
-    Date_StatusP as "DateStatsP",
-    Date_Permittd as "DatePermit",
-    Date_StatusR as "DateStatsR",
-    Date_StatusX as "DateStatsX",
-    Date_LastUpdt as "DateLstUpd",
-    Date_Complete as "DateComplt",
-    ZoningDist1 as "ZoningDst1",
-    ZoningDist2 as "ZoningDst2",
-    ZoningDist3 as "ZoningDst3",
-    SpecialDist1 as "SpeclDst1",
-    SpecialDist2 as "SpeclDst2",
-    Landmark as "Landmark",
-    ZSF_Init as "ZSF_Init",
-    ZSF_Prop as "ZSF_Prop",
-    ZUG_init as "ZUG_Init",
-    ZUG_prop as "ZUG_Prop",
-    ZSFR_Prop as "ZSFR_Prop",
-    ZSFC_Prop as "ZSFC_Prop",
-    ZSFCF_Prop as "ZSFCF_Prop",
-    ZSFM_Prop as "ZSFM_Prop",
-    PrkngProp as "PrkngProp",
-    Stories_Init as "FloorsInit",
-    Stories_Prop as "FloorsProp",
-    Height_Init as "HeightInit",
-    Height_Prop as "HeightProp",
-    ConstructnSF as "CnstrctnSF",
-    Enlargement as "Enlargemnt",
-    EnlargementSF as "EnlrgSF",
-    CostEstimate as "CostEst",
-    LoftBoardCert as "LoftBoard",
-    eDesignation as "eDesigntn",
-    CurbCut as "CurbCut",
-    TractHomes as "TractHomes",
-    Ownership as "Ownership",
-    owner_name as "OwnrName",
-    Owner_Address as "OwnrAddr",
-    Owner_ZipCode as "OwnrZip",
-    Owner_Phone as "OwnrPhone",
-    PLUTO_UnitRes as "PL_UnitRes",
-    PLUTO_BldgSF as "PL_BldgSF",
-    PLUTO_ComSF as "PL_ComSF",
-    PLUTO_OffcSF as "PL_OffcSF",
-    PLUTO_RetlSF as "PL_RetlSF",
-    PLUTO_ResSF as "PL_ResSF",
-    PLUTO_YrBuilt as "PL_YrBuilt",
-    PLUTO_YrAlt1 as "PL_YrAlt1",
-    PLUTO_YrAlt2 as "PL_YrAlt2",
-    PLUTO_Histdst as "PL_Histdst",
-    PLUTO_Landmk as "PL_Landmk",
-    PLUTO_BldgCls as "PL_BldgCls",
-    PLUTO_LandUse as "PL_LandUse",
-    PLUTO_Owner as "PL_Owner",
-    PLUTO_OwnType as "PL_OwnType",
-    PLUTO_Condo as "PL_Condo",
-    PLUTO_Bldgs as "PL_Bldgs",
-    PLUTO_Floors as "PL_Floors",
-    PLUTO_Version as "PL_Version",
-    CenBlock2020 as "CenBlock20",
-    CenTract2020 as "CenTract20",
-    BCTCB2020 as "BCTCB2020",
-    BCT2020 as "BCT2020",
-    NTA2020 as "NTA2020",
-    NTAName2020 as "NTAName20",
-    CDTA2020 as "CDTA2020",
-    CDTAName2020 as "CDTAName20",
-    ComunityDist as "CommntyDst",
-    CouncilDist as "CouncilDst",
-    SchoolSubDist as "SchSubDist",
-    SchoolCommnty as "SchCommnty",
-    SchoolElmntry as "SchElmntry",
-    SchoolMiddle as "SchMiddle",
-    FireCompany as "FireCmpany",
-    FireBattalion as "FireBattln",
-    FireDivision as "FireDivsn",
-    PolicePrecnct as "PolicePcnt",
+    job_number AS "Job_Number",
+    job_type AS "Job_Type",
+    resid_flag AS "ResidFlag",
+    nonres_flag AS "NonresFlag",
+    job_inactive AS "Job_Inactv",
+    job_status AS "Job_Status",
+    complete_year AS "CompltYear",
+    complete_qrtr AS "CompltQrtr",
+    permit_year AS "PermitYear",
+    permit_qrtr AS "PermitQrtr",
+    classa_init AS "ClassAInit",
+    classa_prop AS "ClassAProp",
+    classa_net AS "ClassANet",
+    classa_hnyaff::numeric AS "ClassA_HNY",
+    hotel_init AS "HotelInit",
+    hotel_prop AS "HotelProp",
+    otherb_init AS "OtherBInit",
+    otherb_prop AS "OtherBProp",
+    units_co AS "Units_CO",
+    boro AS "Boro",
+    bin AS "BIN",
+    bbl AS "BBL",
+    address_numbr AS "AddressNum",
+    address_st AS "AddressSt",
+    address AS "Address",
+    occ_initial AS "Occ_Init",
+    occ_proposed AS "Occ_Prop",
+    bldg_class AS "Bldg_Class",
+    job_desc AS "Job_Desc",
+    desc_other AS "Desc_Other",
+    date_filed AS "DateFiled",
+    date_statusd AS "DateStatsD",
+    date_statusp AS "DateStatsP",
+    date_permittd AS "DatePermit",
+    date_statusr AS "DateStatsR",
+    date_statusx AS "DateStatsX",
+    date_lastupdt AS "DateLstUpd",
+    date_complete AS "DateComplt",
+    zoningdist1 AS "ZoningDst1",
+    zoningdist2 AS "ZoningDst2",
+    zoningdist3 AS "ZoningDst3",
+    specialdist1 AS "SpeclDst1",
+    specialdist2 AS "SpeclDst2",
+    landmark AS "Landmark",
+    zsf_init AS "ZSF_Init",
+    zsf_prop AS "ZSF_Prop",
+    zug_init AS "ZUG_Init",
+    zug_prop AS "ZUG_Prop",
+    zsfr_prop AS "ZSFR_Prop",
+    zsfc_prop AS "ZSFC_Prop",
+    zsfcf_prop AS "ZSFCF_Prop",
+    zsfm_prop AS "ZSFM_Prop",
+    prkngprop AS "PrkngProp",
+    stories_init AS "FloorsInit",
+    stories_prop AS "FloorsProp",
+    height_init AS "HeightInit",
+    height_prop AS "HeightProp",
+    constructnsf AS "CnstrctnSF",
+    enlargement AS "Enlargemnt",
+    enlargementsf AS "EnlrgSF",
+    costestimate AS "CostEst",
+    loftboardcert AS "LoftBoard",
+    edesignation AS "eDesigntn",
+    curbcut AS "CurbCut",
+    tracthomes AS "TractHomes",
+    ownership AS "Ownership",
+    owner_name AS "OwnrName",
+    owner_address AS "OwnrAddr",
+    owner_zipcode AS "OwnrZip",
+    owner_phone AS "OwnrPhone",
+    pluto_unitres AS "PL_UnitRes",
+    pluto_bldgsf AS "PL_BldgSF",
+    pluto_comsf AS "PL_ComSF",
+    pluto_offcsf AS "PL_OffcSF",
+    pluto_retlsf AS "PL_RetlSF",
+    pluto_ressf AS "PL_ResSF",
+    pluto_yrbuilt AS "PL_YrBuilt",
+    pluto_yralt1 AS "PL_YrAlt1",
+    pluto_yralt2 AS "PL_YrAlt2",
+    pluto_histdst AS "PL_Histdst",
+    pluto_landmk AS "PL_Landmk",
+    pluto_bldgcls AS "PL_BldgCls",
+    pluto_landuse AS "PL_LandUse",
+    pluto_owner AS "PL_Owner",
+    pluto_owntype AS "PL_OwnType",
+    pluto_condo AS "PL_Condo",
+    pluto_bldgs AS "PL_Bldgs",
+    pluto_floors AS "PL_Floors",
+    pluto_version AS "PL_Version",
+    cenblock2020 AS "CenBlock20",
+    centract2020 AS "CenTract20",
+    bctcb2020 AS "BCTCB2020",
+    bct2020 AS "BCT2020",
+    nta2020 AS "NTA2020",
+    ntaname2020 AS "NTAName20",
+    cdta2020 AS "CDTA2020",
+    cdtaname2020 AS "CDTAName20",
+    comunitydist AS "CommntyDst",
+    councildist AS "CouncilDst",
+    schoolsubdist AS "SchSubDist",
+    schoolcommnty AS "SchCommnty",
+    schoolelmntry AS "SchElmntry",
+    schoolmiddle AS "SchMiddle",
+    firecompany AS "FireCmpany",
+    firebattalion AS "FireBattln",
+    firedivision AS "FireDivsn",
+    policeprecnct AS "PolicePcnt",
     -- DEPDrainArea as "DEPDrainAr",
     -- DEPPumpStatn as "DEPPumpStn",
-    PLUTO_FIRM07 as "PL_FIRM07",
-    PLUTO_PFIRM15 as "PL_PFIRM15",
-    Latitude as "Latitude",
-    Longitude as "Longitude",
-    DataSource as "DataSource",
-    GeomSource as "GeomSource",
-    DCPEditFields as "DCPEdited",
-    HNY_ID as "HNY_ID",
-    HNY_JobRelate as "HNY_Relate",
-    Version as "Version",
-    ST_SetSRID(ST_MakePoint(longitude,latitude), 4326) as geom
-FROM EXPORT_devdb;
+    pluto_firm07 AS "PL_FIRM07",
+    pluto_pfirm15 AS "PL_PFIRM15",
+    latitude AS "Latitude",
+    longitude AS "Longitude",
+    datasource AS "DataSource",
+    geomsource AS "GeomSource",
+    dcpeditfields AS "DCPEdited",
+    hny_id AS "HNY_ID",
+    hny_jobrelate AS "HNY_Relate",
+    version AS "Version",
+    st_setsrid(st_makepoint(longitude, latitude), 4326) AS geom
+FROM export_devdb;
 
-CREATE VIEW shp_housing AS 
-SELECT * 
-FROM SHP_devdb
+CREATE VIEW shp_housing AS
+SELECT *
+FROM shp_devdb
 WHERE "ResidFlag" = 'Residential';
 
 
 -- internal project-level files
 -- created for distribution on m drive
-CREATE VIEW HousingDB_post2010_inactive_included_internal AS 
+CREATE VIEW housingdb_post2010_inactive_included_internal AS
 SELECT :internal_columns
 FROM shp_housing
-WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::DATE >= '2010-01-01');
+WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::date >= '2010-01-01');
 
-CREATE VIEW HousingDB_post2010_internal AS
+CREATE VIEW housingdb_post2010_internal AS
 SELECT *
-FROM HousingDB_post2010_inactive_included_internal
+FROM housingdb_post2010_inactive_included_internal
 WHERE "Job_Inactv" IS NULL;
 
 
 -- external project-level files
 -- created for distribution via BYTES by GIS team
-CREATE VIEW HousingDB_post2010_external AS
+CREATE VIEW housingdb_post2010_external AS
 SELECT :external_columns
-FROM HousingDB_post2010_internal;
+FROM housingdb_post2010_internal;
 
-CREATE VIEW HousingDB_post2010_inactive_included_external AS
+CREATE VIEW housingdb_post2010_inactive_included_external AS
 SELECT :external_columns
-FROM HousingDB_post2010_inactive_included_internal
+FROM housingdb_post2010_inactive_included_internal

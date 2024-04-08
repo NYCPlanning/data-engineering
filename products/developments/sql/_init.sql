@@ -3,7 +3,7 @@ DESCRIPTION:
 	1. Combine _INIT_BIS_devdb and _INIT_NOW_devdb into _INIT_devdb
 	2. Apply corrections on stories_prop, bin, bbl, and date fields
 
-INPUTS: 
+INPUTS:
 	_INIT_BIS_devdb
 	_INIT_NOW_devdb
 
@@ -69,23 +69,27 @@ OUTPUTS:
 		zsfm_prop numeric,
 		prkng_prop numeric
 	)
-	
+
 */
 
-DROP TABLE IF EXISTS _INIT_devdb;
+DROP TABLE IF EXISTS _init_devdb;
 SELECT *
-INTO _INIT_devdb
+INTO _init_devdb
 FROM (
-	SELECT *, 'bis' AS datasource
-	FROM _INIT_BIS_devdb
-	UNION
-	SELECT *, 'now' AS datasource
-	FROM _INIT_NOW_devdb
-) t;
+    SELECT
+        *,
+        'bis' AS datasource
+    FROM _init_bis_devdb
+    UNION
+    SELECT
+        *,
+        'now' AS datasource
+    FROM _init_now_devdb
+) AS t;
 
-ALTER TABLE _INIT_devdb ADD COLUMN "id" SERIAL CONSTRAINT "_init_devdb_pk" PRIMARY KEY;
+ALTER TABLE _init_devdb ADD COLUMN "id" serial CONSTRAINT "_init_devdb_pk" PRIMARY KEY;
 /*
-CORRECTIONS: 
+CORRECTIONS:
 	stories_prop
 	bin
 	bbl

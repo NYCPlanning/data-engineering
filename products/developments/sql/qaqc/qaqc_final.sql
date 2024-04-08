@@ -2,8 +2,8 @@
 Alphabetize QAQC table for export
 */
 
-DROP TABLE IF EXISTS FINAL_qaqc;
-SELECT 
+DROP TABLE IF EXISTS final_qaqc;
+SELECT
     a.job_number,
     a.b_likely_occ_desc,
     a.b_large_alt_reduction,
@@ -32,7 +32,7 @@ SELECT
     a.invalid_date_statusx,
     a.incomp_tract_home,
     a.dem_nb_overlap
-INTO FINAL_qaqc
-FROM MID_qaqc a
-LEFT JOIN GEO_qaqc b
-ON a.job_number = b.job_number;
+INTO final_qaqc
+FROM mid_qaqc AS a
+LEFT JOIN geo_qaqc AS b
+    ON a.job_number = b.job_number;

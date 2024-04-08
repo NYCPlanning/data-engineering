@@ -5,13 +5,13 @@ DESCRIPTION:
 
         SPATIAL_devdb + _INIT_devdb -> INIT_devdb
 
-    2. remove records using job_number and bbl 
-        in _manual_corrections 
+    2. remove records using job_number and bbl
+        in _manual_corrections
 
 INPUTS:
     _INIT_devdb (
         * job_number,
-        ... 
+        ...
     )
 
     SPATIAL_devdb (
@@ -29,7 +29,7 @@ INPUTS:
     )
 
 OUTPUTS:
-    
+
     INIT_devdb (
         _INIT_devdb.*,
         geo_bbl text,
@@ -58,9 +58,8 @@ OUTPUTS:
 /*
 Merging spatial attribute table to the Main attribute table
 */
-DROP TABLE IF EXISTS INIT_devdb;
-SELECT
-    distinct
+DROP TABLE IF EXISTS init_devdb;
+SELECT DISTINCT
     b.*,
     a.geo_bbl,
     a.geo_bin,
@@ -93,49 +92,56 @@ SELECT
     a.longitude,
     a.geom,
     a.geomsource
-INTO INIT_devdb
-FROM SPATIAL_devdb a
-LEFT JOIN _INIT_devdb b
-ON a.id = b.id;
+INTO init_devdb
+FROM spatial_devdb AS a
+LEFT JOIN _init_devdb AS b
+    ON a.id = b.id;
 
 -- Format dates in INIT_devdb where valid
-UPDATE INIT_devdb
-SET date_lastupdt = (CASE WHEN is_date(date_lastupdt) THEN date_lastupdt::date
-					ELSE NULL END),
-	date_filed = (CASE WHEN is_date(date_filed) THEN date_filed::date
-					ELSE NULL END),
-	date_statusd = (CASE WHEN is_date(date_statusd) THEN date_statusd::date
-					ELSE NULL END),
-	date_statusp = (CASE WHEN is_date(date_statusp) THEN date_statusp::date
-					ELSE NULL END),
-	date_statusr = (CASE WHEN is_date(date_statusr) THEN date_statusr::date
-					ELSE NULL END),
-	date_statusx = (CASE WHEN is_date(date_statusx) THEN date_statusx::date
-					ELSE NULL END);
+UPDATE init_devdb
+SET date_lastupdt = (CASE
+    WHEN is_date(date_lastupdt) THEN date_lastupdt::date
+END),
+date_filed = (CASE
+    WHEN is_date(date_filed) THEN date_filed::date
+END),
+date_statusd = (CASE
+    WHEN is_date(date_statusd) THEN date_statusd::date
+END),
+date_statusp = (CASE
+    WHEN is_date(date_statusp) THEN date_statusp::date
+END),
+date_statusr = (CASE
+    WHEN is_date(date_statusr) THEN date_statusr::date
+END),
+date_statusx = (CASE
+    WHEN is_date(date_statusx) THEN date_statusx::date
+END);
 
 /*
 DEDUPLICATION
 
-For any records that share an identical job_number and BBL, 
-keep only the record with the most recent date_lastupdt 
+For any records that share an identical job_number and BBL,
+keep only the record with the most recent date_lastupdt
 value and remove the older record(s). After this step, job_number
 in INIT_devdb will be the uid
 
 */
 WITH latest_records AS (
-	SELECT
-        job_number, 
-        MAX(date_lastupdt) AS date_lastupdt
-	FROM INIT_devdb
-	GROUP BY job_number
-	HAVING COUNT(*)>1
+    SELECT
+        job_number,
+        max(date_lastupdt) AS date_lastupdt
+    FROM init_devdb
+    GROUP BY job_number
+    HAVING count(*) > 1
 )
-DELETE FROM INIT_devdb a
+DELETE FROM init_devdb a
 USING latest_records b
-WHERE a.job_number = b.job_number
-AND a.date_lastupdt != b.date_lastupdt;
+WHERE
+    a.job_number = b.job_number
+    AND a.date_lastupdt != b.date_lastupdt;
 
-/* 
+/*
 CORRECTIONS
 
     job_number (removal)
@@ -143,57 +149,61 @@ CORRECTIONS
 
 */
 
-INSERT INTO _manual_corrections 
-    (job_number, field, reason)
+INSERT INTO _manual_corrections (job_number, field, reason)
 SELECT
-    a.job_number, 
-    'remove' as field,
-    'another correction set bbl from geosupport value to NULL' as reason
-FROM INIT_devdb a
-JOIN _manual_corrections b
-ON a.job_number=b.job_number
-WHERE b.field = 'bbl'
-AND a.geo_bbl = b.old_value
-AND b.new_value IS NULL;
+    a.job_number,
+    'remove' AS field,
+    'another correction set bbl from geosupport value to NULL' AS reason
+FROM init_devdb AS a
+INNER JOIN _manual_corrections AS b
+    ON a.job_number = b.job_number
+WHERE
+    b.field = 'bbl'
+    AND a.geo_bbl = b.old_value
+    AND b.new_value IS NULL;
 
 -- Track corrections applied and not applied based on existance of job_number in INIT_devdb
 WITH applicable AS (
     SELECT
-        job_number, reason
+        job_number,
+        reason
     FROM _manual_corrections
-    WHERE job_number IN (SELECT job_number FROM INIT_devdb)
-    AND field = 'remove'
+    WHERE
+        job_number IN (SELECT job_number FROM init_devdb)
+        AND field = 'remove'
 )
 INSERT INTO corrections_applied
-(SELECT 
-    job_number, 
-    'remove' as field,
-    NULL as pre_corr_value,
-    NULL as old_value,
-    NULL as new_value,
+(SELECT
+    job_number,
+    'remove' AS field,
+    NULL AS pre_corr_value,
+    NULL AS old_value,
+    NULL AS new_value,
     reason
 FROM applicable);
 
 WITH not_applicable AS (
     SELECT
-        job_number, reason
+        job_number,
+        reason
     FROM _manual_corrections
-    WHERE job_number NOT IN (SELECT job_number FROM INIT_devdb)
-    AND field = 'remove'
+    WHERE
+        job_number NOT IN (SELECT job_number FROM init_devdb)
+        AND field = 'remove'
 )
 INSERT INTO corrections_not_applied
-(SELECT 
-    job_number, 
-    'remove' as field,
-    NULL as pre_corr_value,
-    NULL as old_value,
-    NULL as new_value,
+(SELECT
+    job_number,
+    'remove' AS field,
+    NULL AS pre_corr_value,
+    NULL AS old_value,
+    NULL AS new_value,
     reason
 FROM not_applicable);
 
 -- Remove all records with 'remove' as field with a job_number existing in INIT_devdb
-DELETE FROM INIT_devdb a
+DELETE FROM init_devdb a
 USING _manual_corrections b
-WHERE a.job_number=b.job_number
-AND b.field = 'remove';
-
+WHERE
+    a.job_number = b.job_number
+    AND b.field = 'remove';

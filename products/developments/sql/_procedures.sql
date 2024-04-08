@@ -1,24 +1,24 @@
 DROP TABLE IF EXISTS corrections_applied;
 CREATE TABLE corrections_applied (
-	job_number 		text,
-	field 	  		text,
-	pre_corr_value 	text,
-	old_value 		text,
-	new_value 		text,
-    reason          text
+    job_number text,
+    field text,
+    pre_corr_value text,
+    old_value text,
+    new_value text,
+    reason text
 );
 
 DROP TABLE IF EXISTS corrections_not_applied;
 CREATE TABLE corrections_not_applied (
-	job_number 		text,
-	field 	  		text,
-	pre_corr_value 	text,
-	old_value 		text,
-	new_value 		text,
-    reason          text
+    job_number text,
+    field text,
+    pre_corr_value text,
+    old_value text,
+    new_value text,
+    reason text
 );
 
-/* 
+/*
 Procedure to apply a single correction:
 - Identifies data type of field to correct
 - Identifies reference field for old_value (for hotel and otherb, reference is classa)
@@ -27,7 +27,7 @@ Procedure to apply a single correction:
 - If not applicable, adds to 'corrections_not_applied'
 */
 DROP PROCEDURE IF EXISTS correction;
-CREATE OR REPLACE PROCEDURE correction (
+CREATE OR REPLACE PROCEDURE correction(
     _table text,
     _job_number text,
     _field text,
@@ -74,14 +74,14 @@ BEGIN
 END
 $BODY$ LANGUAGE plpgsql;
 
-/* 
+/*
 Procedure to apply all corrections of a given field.
 If a field does not exist in the table or is a geometry field, notice gets raised.
 */
 DROP PROCEDURE IF EXISTS apply_correction;
-CREATE OR REPLACE PROCEDURE apply_correction (
-    _schema text, 
-    _table text, 
+CREATE OR REPLACE PROCEDURE apply_correction(
+    _schema text,
+    _table text,
     _corrections text,
     _field text,
     _ref_field text DEFAULT NULL
