@@ -10,7 +10,7 @@ CREATE TABLE historic_landmarks AS
             landmark_name,
             borough_name_short,
             bbl,
-            ST_TRANSFORM(ST_SETSRID(wkb_geometry, 2263), 4326) AS wkb_geometry
+            st_transform(st_setsrid(wkb_geometry, 2263), 4326) AS wkb_geometry
         FROM
             landmarks
     ),
@@ -28,7 +28,7 @@ CREATE TABLE historic_landmarks AS
             landmark_name,
             borough,
             bbl,
-            ST_UNION(wkb_geometry) AS wkb_geometry
+            st_union(wkb_geometry) AS wkb_geometry
         FROM
             landmarks_borough_names
         GROUP BY landmark_name, borough, bbl

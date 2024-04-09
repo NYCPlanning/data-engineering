@@ -42,8 +42,8 @@ CREATE TABLE templatedb AS
             borough,
             bbl,
             CASE
-                WHEN ST_GEOMETRYTYPE(wkb_geometry) = 'ST_Polygon' THEN ST_MULTI(wkb_geometry)
-                WHEN ST_ISEMPTY(wkb_geometry) THEN NULL
+                WHEN st_geometrytype(wkb_geometry) = 'ST_Polygon' THEN st_multi(wkb_geometry)
+                WHEN st_isempty(wkb_geometry) THEN NULL
                 ELSE wkb_geometry
             END AS wkb_geometry
         FROM all_records
