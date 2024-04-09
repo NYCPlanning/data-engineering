@@ -11,14 +11,14 @@ CREATE TABLE zoningmapper AS (
         SELECT
             id AS dtm_id,
             bbl,
-            ST_MAKEVALID(a.geom) AS geom
+            st_makevalid(a.geom) AS geom
         FROM dof_dtm AS a
     ),
 
     validindex AS (
         SELECT
             a.zoning_map,
-            ST_MAKEVALID(a.geom) AS geom
+            st_makevalid(a.geom) AS geom
         FROM dcp_zoningmapindex AS a
     )
 
@@ -26,23 +26,23 @@ CREATE TABLE zoningmapper AS (
         dtm_id,
         p.bbl,
         n.zoning_map,
-        ST_AREA(
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(ST_MAKEVALID(p.geom), n.geom) THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
+                WHEN st_coveredby(st_makevalid(p.geom), n.geom) THEN p.geom
+                ELSE st_multi(st_intersection(st_makevalid(p.geom), n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
-        ST_AREA(
+        st_area(p.geom) AS allbblgeom,
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom)) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
+                WHEN st_coveredby(n.geom, st_makevalid(p.geom)) THEN n.geom
+                ELSE st_multi(st_intersection(n.geom, st_makevalid(p.geom)))
             END
         ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        st_area(n.geom) AS allzonegeom
     FROM validdtm AS p
     INNER JOIN validindex AS n
-        ON ST_INTERSECTS(p.geom, n.geom)
+        ON st_intersects(p.geom, n.geom)
 );
 
 DROP TABLE IF EXISTS zoningmapperorder;
@@ -54,7 +54,7 @@ CREATE TABLE zoningmapperorder AS (
         segbblgeom,
         (segbblgeom / allbblgeom) * 100 AS perbblgeom,
         (segzonegeom / allzonegeom) * 100 AS perzonegeom,
-        ROW_NUMBER()
+        row_number()
             OVER (
                 PARTITION BY dtm_id
                 ORDER BY segbblgeom DESC

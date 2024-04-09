@@ -12,9 +12,9 @@ WHERE a.bbl IN (
     SELECT b.bbl
     FROM dof_dtm AS b, dcp_zoningmapamendments AS c
     WHERE
-        b.geom IS NOT null
+        b.geom IS NOT NULL
         AND c.project_na = 'Inwood Rezoning'
-        AND ST_INTERSECTS(b.geom, c.geom)
+        AND st_intersects(b.geom, c.geom)
 )
 AND a.bbl != '1022552000'
 AND a.bbl != '1022550001'

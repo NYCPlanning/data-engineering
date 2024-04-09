@@ -3,8 +3,8 @@ WHERE version = :'VERSION';
 
 INSERT INTO dcp_zoningtaxlots.qaqc_bbl (
     SELECT
-        sum(CASE WHEN bblnew IS null THEN 1 ELSE 0 END) AS removed,
-        sum(CASE WHEN bblold IS null THEN 1 ELSE 0 END) AS added,
+        sum(CASE WHEN bblnew IS NULL THEN 1 ELSE 0 END) AS removed,
+        sum(CASE WHEN bblold IS NULL THEN 1 ELSE 0 END) AS added,
         :'VERSION' AS version,
         :'VERSION_PREV' AS version_prev
     FROM (

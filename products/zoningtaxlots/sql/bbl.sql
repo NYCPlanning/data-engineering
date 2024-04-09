@@ -13,9 +13,9 @@ SELECT
     boro,
     block,
     lot,
-    ST_AREA(geom) AS area
+    st_area(geom) AS area
 FROM dof_dtm;
 -- populate bbl field if it's NULL
 UPDATE dcp_zoning_taxlot
-SET bbl = boroughcode || LPAD(taxblock, 5, '0') || LPAD(taxlot, 4, '0')::text
-WHERE bbl IS NULL OR LENGTH(bbl) < 10;
+SET bbl = boroughcode || lpad(taxblock, 5, '0') || lpad(taxlot, 4, '0')::text
+WHERE bbl IS NULL OR length(bbl) < 10;

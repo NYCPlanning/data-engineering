@@ -10,23 +10,23 @@ WITH mihper AS (
         p.id AS dtm_id,
         bbl,
         n.mih_option,
-        ST_AREA(
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                WHEN st_coveredby(p.geom, n.geom) THEN p.geom
+                ELSE st_multi(st_intersection(p.geom, n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
-        ST_AREA(
+        st_area(p.geom) AS allbblgeom,
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                WHEN st_coveredby(n.geom, p.geom) THEN n.geom
+                ELSE st_multi(st_intersection(n.geom, p.geom))
             END
         ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        st_area(n.geom) AS allzonegeom
     FROM dof_dtm AS p
     INNER JOIN dcp_mih AS n
-        ON ST_INTERSECTS(p.geom, n.geom)
+        ON st_intersects(p.geom, n.geom)
 )
 
 SELECT
@@ -35,7 +35,7 @@ SELECT
     segbblgeom,
     (segbblgeom / allbblgeom) * 100 AS perbblgeom,
     (segzonegeom / allzonegeom) * 100 AS perzonegeom,
-    ROW_NUMBER()
+    row_number()
         OVER (
             PARTITION BY dtm_id
             ORDER BY segbblgeom DESC
@@ -45,7 +45,7 @@ FROM mihper;
 
 UPDATE dcp_zoning_taxlot a
 SET
-    mihflag = (COALESCE(perbblgeom >= 10, FALSE)),
+    mihflag = (coalesce(perbblgeom >= 10, FALSE)),
     mihoption
     = CASE
         WHEN perbblgeom >= 10 THEN mih_option

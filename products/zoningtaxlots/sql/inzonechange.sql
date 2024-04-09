@@ -4,5 +4,5 @@ SET inzonechange = 'Y'
 FROM dof_dtm AS b, dcp_zoningmapamendments AS c
 WHERE
     a.dtm_id = b.id
-    AND ST_INTERSECTS(b.geom, c.geom)
-    AND c.effective::DATE > CURRENT_DATE - INTERVAL '2 months';
+    AND st_intersects(b.geom, c.geom)
+    AND c.effective::date > current_date - interval '2 months';

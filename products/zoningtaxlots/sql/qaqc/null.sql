@@ -1,7 +1,7 @@
 CREATE TEMP TABLE newnull AS (
     SELECT
         'zoningdistrict1' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -9,7 +9,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'zoningdistrict2' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -17,7 +17,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'zoningdistrict3' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -25,7 +25,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'zoningdistrict4' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -33,7 +33,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'commercialoverlay1' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -41,7 +41,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'commercialoverlay2' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -49,7 +49,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'specialdistrict1' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -57,7 +57,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'specialdistrict2' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -65,7 +65,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'specialdistrict3' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -73,7 +73,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'limitedheightdistrict' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -81,7 +81,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'zoningmapnumber' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -89,7 +89,7 @@ CREATE TEMP TABLE newnull AS (
     UNION
     SELECT
         'zoningmapcode' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -99,7 +99,7 @@ CREATE TEMP TABLE newnull AS (
 CREATE TEMP TABLE newvalue AS (
     SELECT
         'zoningdistrict1' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -107,7 +107,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'zoningdistrict2' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -115,7 +115,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'zoningdistrict3' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -123,7 +123,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'zoningdistrict4' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -131,7 +131,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'commercialoverlay1' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -139,7 +139,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'commercialoverlay2' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -147,7 +147,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'specialdistrict1' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -155,7 +155,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'specialdistrict2' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -163,7 +163,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'specialdistrict3' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -171,7 +171,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'limitedheightdistrict' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -179,7 +179,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'zoningmapnumber' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
@@ -187,7 +187,7 @@ CREATE TEMP TABLE newvalue AS (
     UNION
     SELECT
         'zoningmapcode' AS field,
-        COUNT(*) AS count
+        count(*) AS count
     FROM dcp_zoningtaxlots.:"VERSION" AS a
     INNER JOIN dcp_zoningtaxlots.:"VERSION_PREV" AS b
         ON a.bbl = b.bbl
