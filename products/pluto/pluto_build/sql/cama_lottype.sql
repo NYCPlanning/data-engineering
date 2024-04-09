@@ -9,9 +9,9 @@ WITH dcpcamavals AS (
         SELECT
             primebbl AS bbl,
             lottype,
-            ROW_NUMBER()
+            row_number()
                 OVER (
-                    PARTITION BY LEFT(bbl, 10)
+                    PARTITION BY left(bbl, 10)
                     ORDER BY lottype
                 )
             AS row_number

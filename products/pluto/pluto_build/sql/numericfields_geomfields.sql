@@ -1,12 +1,12 @@
 -- add decimal in ct2010 where there is a suffix
 UPDATE pluto a
-SET ct2010 = LEFT(a.ct2010, 4) || '.' || RIGHT(a.ct2010, 2)
+SET ct2010 = left(a.ct2010, 4) || '.' || right(a.ct2010, 2)
 WHERE
     a.ct2010 ~ '[0-9]'
     AND ct2010 NOT LIKE '%00';
 -- remove suffix in ct2010 where it is only zero after decimal
 UPDATE pluto a
-SET ct2010 = LEFT(a.ct2010, 4)
+SET ct2010 = left(a.ct2010, 4)
 WHERE
     a.ct2010 ~ '[0-9]'
     AND ct2010 LIKE '%00';
@@ -21,11 +21,11 @@ WHERE a.ct2010 !~ '[0-9]';
 
 -- remove end zeros for numbers with only zeros past decimal and pad to 4 characters
 UPDATE pluto a
-SET tract2010 = LEFT(a.tract2010, 4)
+SET tract2010 = left(a.tract2010, 4)
 WHERE tract2010 LIKE '%00';
 -- remove decimal place and pad to 6 characters
 UPDATE pluto a
-SET tract2010 = LPAD(REPLACE(tract2010, '.', '')::text, 6, '0')
+SET tract2010 = lpad(replace(tract2010, '.', '')::text, 6, '0')
 WHERE tract2010 LIKE '%.%';
 -- only allow numeric values in the tract2010 field
 UPDATE pluto a
@@ -34,7 +34,7 @@ WHERE a.tract2010 ~ '[^0-9]';
 
 -- pad school district to 2 characters
 UPDATE pluto a
-SET schooldist = LPAD(schooldist, 2, '0');
+SET schooldist = lpad(schooldist, 2, '0');
 
 --where sanborn is just spaces set to NULL
 UPDATE pluto a

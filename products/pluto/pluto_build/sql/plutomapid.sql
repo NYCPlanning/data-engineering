@@ -24,9 +24,9 @@ SET plutomapid = '2'
 WHERE geom IS NULL;
 
 DROP TABLE IF EXISTS dof_shoreline_subdivide;
-SELECT ST_SUBDIVIDE(ST_MAKEVALID(geom), 100) AS geom
+SELECT st_subdivide(st_makevalid(geom), 100) AS geom
 INTO dof_shoreline_subdivide
 FROM (
-    SELECT ST_UNION(geom) AS geom
+    SELECT st_union(geom) AS geom
     FROM dof_shoreline
 ) AS a;

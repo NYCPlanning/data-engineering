@@ -2,14 +2,14 @@
 WITH primesums AS (
     SELECT
         billingbbl AS primebbl,
-        SUM(commercialarea::double precision) AS commercialarea,
-        SUM(residarea::double precision) AS residarea,
-        SUM(officearea::double precision) AS officearea,
-        SUM(retailarea::double precision) AS retailarea,
-        SUM(garagearea::double precision) AS garagearea,
-        SUM(storagearea::double precision) AS storagearea,
-        SUM(factoryarea::double precision) AS factoryarea,
-        SUM(otherarea::double precision) AS otherarea
+        sum(commercialarea::double precision) AS commercialarea,
+        sum(residarea::double precision) AS residarea,
+        sum(officearea::double precision) AS officearea,
+        sum(retailarea::double precision) AS retailarea,
+        sum(garagearea::double precision) AS garagearea,
+        sum(storagearea::double precision) AS storagearea,
+        sum(factoryarea::double precision) AS factoryarea,
+        sum(otherarea::double precision) AS otherarea
     FROM pluto_input_cama
     WHERE bldgnum = '1' AND billingbbl::numeric > 0
     GROUP BY billingbbl

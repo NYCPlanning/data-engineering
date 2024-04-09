@@ -9,7 +9,7 @@ WITH edesignation AS (
         SELECT
             bbl,
             enumber,
-            ROW_NUMBER()
+            row_number()
                 OVER (
                     PARTITION BY bbl
                     ORDER BY ceqr_num, ulurp_num, enumber

@@ -5,22 +5,22 @@
 UPDATE pluto a
 SET firm07_flag = '1'
 FROM (
-    SELECT ST_SUBDIVIDE(ST_MAKEVALID(geom)) AS geom
+    SELECT st_subdivide(st_makevalid(geom)) AS geom
     FROM fema_firms2007_100yr AS b
     WHERE
         b.fld_zone != 'X'
         AND b.fld_zone != '0.2 PCT ANNUAL CHANCE FLOOD HAZARD'
 ) AS b
-WHERE a.geom && b.geom AND ST_INTERSECTS(a.geom, b.geom);
+WHERE a.geom && b.geom AND st_intersects(a.geom, b.geom);
 
 -- for 2015 p floodplain
 UPDATE pluto a
 SET pfirm15_flag = '1'
 FROM (
-    SELECT ST_SUBDIVIDE(ST_MAKEVALID(geom)) AS geom
+    SELECT st_subdivide(st_makevalid(geom)) AS geom
     FROM fema_pfirms2015_100yr AS b
     WHERE
         b.fld_zone != 'X'
         AND b.fld_zone != '0.2 PCT ANNUAL CHANCE FLOOD HAZARD'
 ) AS b
-WHERE a.geom && b.geom AND ST_INTERSECTS(a.geom, b.geom);
+WHERE a.geom && b.geom AND st_intersects(a.geom, b.geom);

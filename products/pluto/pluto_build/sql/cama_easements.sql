@@ -12,7 +12,7 @@ WITH distincteasements AS (
 counteasements AS (
     SELECT
         bbl,
-        COUNT(*) AS numeasements
+        count(*) AS numeasements
     FROM distincteasements AS b
     WHERE b.ease IS NOT NULL
     GROUP BY b.bbl
