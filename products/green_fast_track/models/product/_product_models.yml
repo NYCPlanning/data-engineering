@@ -62,10 +62,10 @@ models:
         tests: [not_null]
       - name: '"Arterial Highways"'
         data_type: string
-      - name: '"Elevated Railways Flag"'
+      - name: '"Exposed Railways Flag"'
         data_type: string
         tests: [not_null]
-      - name: '"Elevated Railways"'
+      - name: '"Exposed Railways"'
         data_type: string
       - name: '"Airport Flag"'
         data_type: string

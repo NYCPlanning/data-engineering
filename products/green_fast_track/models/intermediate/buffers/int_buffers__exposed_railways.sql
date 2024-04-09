@@ -12,7 +12,7 @@ filtered AS (
 )
 
 SELECT
-    'elevated_railways' AS variable_type,
+    'exposed_railways' AS variable_type,
     street AS variable_id,
     geom AS raw_geom,
     ST_BUFFER(geom, 1500) AS buffer
