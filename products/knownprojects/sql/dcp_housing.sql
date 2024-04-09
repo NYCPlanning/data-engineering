@@ -69,7 +69,7 @@ spatial_join AS (
         b.wkb_geometry AS spatial_join_geom
     FROM bbl_join AS a
     INNER JOIN dcp_mappluto_wi AS b
-        ON ST_INTERSECTS(a.point_geom, b.wkb_geometry)
+        ON st_intersects(a.point_geom, b.wkb_geometry)
     WHERE a.bbl_join_geom IS NULL AND a.point_geom IS NOT NULL
 ),
 
@@ -78,7 +78,7 @@ _geom AS (
     SELECT
         a.job_number,
         a.bbl,
-        COALESCE(a.bbl_join_geom, b.spatial_join_geom) AS geom,
+        coalesce(a.bbl_join_geom, b.spatial_join_geom) AS geom,
         (CASE
             WHEN a.bbl_join_geom IS NULL THEN 'Spatial'
             ELSE 'BBL'
@@ -106,9 +106,9 @@ SELECT
     b.geom,
     b.geom_source,
     'DOB ' || a.job_status AS status,
-    COALESCE(
-        TO_CHAR(TO_DATE(a.date_permittd, 'YYYY-MM-DD'), 'YYYY/MM/DD'),
-        TO_CHAR(TO_DATE(a.date_filed, 'YYYY-MM-DD'), 'YYYY/MM/DD')
+    coalesce(
+        to_char(to_date(a.date_permittd, 'YYYY-MM-DD'), 'YYYY/MM/DD'),
+        to_char(to_date(a.date_filed, 'YYYY-MM-DD'), 'YYYY/MM/DD')
     ) AS date,
     (CASE
         WHEN a.date_permittd IS NOT NULL THEN 'Date Permitted'
@@ -116,15 +116,15 @@ SELECT
     END) AS date_type,
 
     -- Phasing
-    TO_CHAR(
-        TO_DATE(a.date_permittd, 'YYYY-MM-DD'), 'YYYY/MM/DD'
+    to_char(
+        to_date(a.date_permittd, 'YYYY-MM-DD'), 'YYYY/MM/DD'
     ) AS date_permittd,
-    TO_CHAR(TO_DATE(a.date_filed, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS date_filed, -- remove phasing assumption with inactive dob 
-    TO_CHAR(
-        TO_DATE(a.date_lastupdt, 'YYYY-MM-DD'), 'YYYY/MM/DD'
+    to_char(to_date(a.date_filed, 'YYYY-MM-DD'), 'YYYY/MM/DD') AS date_filed, -- remove phasing assumption with inactive dob 
+    to_char(
+        to_date(a.date_lastupdt, 'YYYY-MM-DD'), 'YYYY/MM/DD'
     ) AS date_lastupdt,
-    TO_CHAR(
-        TO_DATE(a.date_complete, 'YYYY-MM-DD'), 'YYYY/MM/DD'
+    to_char(
+        to_date(a.date_complete, 'YYYY-MM-DD'), 'YYYY/MM/DD'
     ) AS date_complete,
     (CASE WHEN a.job_inactive ~* 'Inactive' THEN 1 ELSE 0 END) AS inactive,
     (CASE
@@ -133,7 +133,7 @@ SELECT
             ~* '1. Filed Application|2. Approved Application|3. Permitted for Construction'
             AND a.job_inactive IS NULL THEN 1
     END) AS prop_within_5_years,
-    FLAG_NYCHA(a::text) AS nycha,
+    flag_nycha(a::text) AS nycha,
     (CASE
         WHEN a.otherb_init::integer > 0 OR a.otherb_prop::integer > 0 THEN '1'
         ELSE 0
@@ -148,7 +148,7 @@ SELECT
             ) THEN '0'
         ELSE '1'
     END) AS no_classa,
-    FLAG_SENIOR_HOUSING(a::text) AS senior_housing
+    flag_senior_housing(a::text) AS senior_housing
 INTO dcp_housing_poly
 FROM dcp_housing_filtered AS a
 INNER JOIN _geom AS b

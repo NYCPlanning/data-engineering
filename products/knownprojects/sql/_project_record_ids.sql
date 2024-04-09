@@ -20,7 +20,7 @@ dbscan AS (
     SELECT
         record_id,
         geom,
-        ST_CLUSTERDBSCAN(geom, 0, 1) OVER () AS id
+        st_clusterdbscan(geom, 0, 1) OVER () AS id
     FROM combined
     WHERE
         source NOT IN (
@@ -36,14 +36,14 @@ project_record_join AS (
         id,
         (geom IS NULL)::integer AS no_geom,
         geom,
-        COUNT(record_id) OVER (PARTITION BY id) AS records_in_project
+        count(record_id) OVER (PARTITION BY id) AS records_in_project
     FROM dbscan
 ),
 
 all_intersections AS (
     SELECT
         a.id,
-        ST_UNION(ST_INTERSECTION(a.geom, b.geom)) AS intersect_geom
+        st_union(st_intersection(a.geom, b.geom)) AS intersect_geom
     FROM project_record_join AS a, project_record_join AS b
     WHERE
         a.record_id < b.record_id
@@ -64,14 +64,14 @@ b) falling completely within the record geometry (St_Within)
 c) containing the record geometry completely (St_Contains)
 with the geometries of the record geometries.
 */
-SELECT ARRAY_AGG(a.record_id) AS project_record_ids
+SELECT array_agg(a.record_id) AS project_record_ids
 INTO _project_record_ids
 FROM project_record_join AS a, all_intersections AS b
 WHERE
     (
-        ST_OVERLAPS(a.geom, b.intersect_geom)
-        OR ST_WITHIN(b.intersect_geom, a.geom)
-        OR ST_CONTAINS(b.intersect_geom, a.geom)
+        st_overlaps(a.geom, b.intersect_geom)
+        OR st_within(b.intersect_geom, a.geom)
+        OR st_contains(b.intersect_geom, a.geom)
     )
     AND a.id IS NOT NULL
     AND a.id = b.id
