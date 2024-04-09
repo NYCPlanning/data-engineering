@@ -10,7 +10,7 @@ CREATE TABLE attributes_maprojid_firecompanies AS (
             b.fire_co_num::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
             fdny_firecompanies AS b
-        WHERE ST_INTERSECTS(a.geom, b.wkb_geometry)
+        WHERE st_intersects(a.geom, b.wkb_geometry)
     ) AS a
     UNION ALL
     SELECT b.*
@@ -21,7 +21,7 @@ CREATE TABLE attributes_maprojid_firecompanies AS (
             b.fire_co_type::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
             fdny_firecompanies AS b
-        WHERE ST_INTERSECTS(a.geom, b.wkb_geometry)
+        WHERE st_intersects(a.geom, b.wkb_geometry)
     ) AS b
     UNION ALL
     SELECT c.*
@@ -32,7 +32,7 @@ CREATE TABLE attributes_maprojid_firecompanies AS (
             b.fire_bn::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
             fdny_firecompanies AS b
-        WHERE ST_INTERSECTS(a.geom, b.wkb_geometry)
+        WHERE st_intersects(a.geom, b.wkb_geometry)
     ) AS c
     UNION ALL
     SELECT d.*
@@ -43,6 +43,6 @@ CREATE TABLE attributes_maprojid_firecompanies AS (
             b.fire_div::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
             fdny_firecompanies AS b
-        WHERE ST_INTERSECTS(a.geom, b.wkb_geometry)
+        WHERE st_intersects(a.geom, b.wkb_geometry)
     ) AS d
 );
