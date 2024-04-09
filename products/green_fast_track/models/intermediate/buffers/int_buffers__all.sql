@@ -4,7 +4,7 @@ WITH all_buffers AS (
         ref('int_buffers__dcm_arterial_highways'),
         ref('int_buffers__dcp_air_quality_vent_towers'),
         ref('int_buffers__dep_cats_permits'),
-        ref('int_buffers__elevated_railways'),
+        ref('int_buffers__exposed_railways'),
         ref('int_buffers__industrial_sources'),
         ref('int_buffers__nyc_parks_properties'),
         ref('int_buffers__nys_parks_properties'),

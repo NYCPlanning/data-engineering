@@ -69,8 +69,8 @@ models:
         tests:
           - not_null
 
-  - name: int_buffers__elevated_railways
-    description: Buffered geometries for elevated/exposed railways
+  - name: int_buffers__exposed_railways
+    description: Buffered geometries for exposed railways
     columns:
       - name: variable_type
         tests:

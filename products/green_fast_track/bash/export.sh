@@ -22,8 +22,8 @@ mkdir -p output && (
     fgdb_export_partial ${fgdb_filename} MULTILINESTRING sources__arterial_highways sources__arterial_highways ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__arterial_highways_buffers sources__arterial_highways_buffers ${default_srs} -update
 
-    fgdb_export_partial ${fgdb_filename} MULTILINESTRING sources__elevated_railways sources__elevated_railways ${default_srs} -update
-    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__elevated_railways_buffers sources__elevated_railways_buffers ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} MULTILINESTRING sources__exposed_railways sources__exposed_railways ${default_srs} -update
+    fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__exposed_railways_buffers sources__exposed_railways_buffers ${default_srs} -update
     
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__vent_towers sources__vent_towers ${default_srs} -update
     fgdb_export_partial ${fgdb_filename} MULTIPOLYGON sources__vent_towers_buffers sources__vent_towers_buffers ${default_srs} -update
