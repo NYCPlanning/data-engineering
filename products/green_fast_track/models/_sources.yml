@@ -256,15 +256,146 @@ sources:
               
 
       - name: dcp_beaches
+        columns:
+          - name: agency
+            tests:
+              - not_null
+          - name: name
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
       - name: dcp_wrp_rec
+        columns:
+          - name: site_name
+            tests:
+              - unique
+              - not_null
+          - name: shape
+            tests:
+              - not_null
+
       - name: dcp_wrp_snwa
+        columns:
+          - name: name
+            tests:
+              - unique
+              - not_null
+          - name: shape
+            tests:
+              - not_null
+
       - name: dpr_forever_wild
+        columns:
+          - name: gispropnum
+            tests:
+              - not_null
+          - name: propertyna
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dpr_forever_wild_uid
+              combination_of_columns:
+                - gispropnum
+                - propertyna
+
       - name: nysdec_freshwater_wetlands_checkzones
+        columns:
+          - name: objectid
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
       - name: nysdec_freshwater_wetlands
-      - name: nysdec_tidal_wetlands
-      - name: nysdec_priority_lakes
-      - name: nysdec_priority_estuaries
-      - name: nysdec_priority_shorelines
-      - name: nysdec_priority_streams
+        columns:
+          - name: wetid
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
       - name: nysdec_natural_heritage_communities
+        columns:
+          - name: commonname
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysdec_priority_lakes
+        columns:
+          - name: pwl_id
+            tests:
+              - unique
+              - not_null
+          - name: name
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysdec_priority_estuaries
+        columns:
+          - name: pwl_id
+            tests:
+              - unique
+              - not_null
+          - name: name
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysdec_priority_shorelines
+        columns:
+          - name: pwl_id
+            tests:
+              - unique
+              - not_null
+          - name: name
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysdec_priority_streams
+        columns:
+          - name: pwl_id
+            tests:
+              - not_null
+          - name: name
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: nysdec_tidal_wetlands
+        columns:
+          - name: id
+            tests:
+              - not_null
+          - name: wkb_geometry
+
       - name: usfws_nyc_wetlands
+        columns:
+          - name: wetland_type
+            tests:
+              - not_null
+          - name: geometry
+            tests:
+              - not_null
