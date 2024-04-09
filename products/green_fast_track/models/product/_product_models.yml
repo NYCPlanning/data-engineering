@@ -82,10 +82,10 @@ models:
         tests: [not_null]
       - name: '"Federal Parks property"'
         data_type: string
-      - name: '"NYC Parks properties Flag"'
+      - name: '"DPR Parks properties Flag"'
         data_type: string
         tests: [not_null]
-      - name: '"NYC Parks properties"'
+      - name: '"DPR Parks properties"'
         data_type: string
       - name: '"NYS Parks Property Flag"'
         data_type: string
