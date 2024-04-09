@@ -7,7 +7,8 @@ WITH source AS (
 selected_columns AS (
     SELECT
         'nyc_parks_properties' AS variable_type,
-        objectid AS variable_id,
+        gispropnum,
+        name311,
         typecategory,
         st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
@@ -17,7 +18,8 @@ selected_columns AS (
 filtered AS (
     SELECT
         s.variable_type,
-        s.variable_id,
+        s.gispropnum,
+        s.name311,
         s.raw_geom
     FROM selected_columns AS s
     INNER JOIN

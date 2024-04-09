@@ -8,10 +8,11 @@ WITH source AS (
 final AS (
     SELECT
         'nys_parks_properties' AS variable_type,
-        objectid AS variable_id,
+        uid,
+        name,
         st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
-    WHERE upper(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND')
+    WHERE upper(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
 )
 
 SELECT * FROM final

@@ -138,9 +138,11 @@ sources:
 
       - name: dpr_parksproperties
         columns:
-          - name: objectid
+          - name: gispropnum
             tests:
-              - unique
+              - not_null
+          - name: name311
+            tests:
               - not_null
           - name: wkb_geometry
             tests:
@@ -151,6 +153,15 @@ sources:
               - relationships:
                   to: ref('nyc_parks_properties_categories')
                   field: typecategory
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dpr_parksproperties_compound_key
+              combination_of_columns:
+                - gispropnum
+                - name311
+                - wkb_geometry
+              config:
+                severity: warn
 
       - name: dcp_pops
         columns:
@@ -165,40 +176,80 @@ sources:
 
       - name: dcp_waterfront_access_map_wpaa
         columns:
-          - name: objectid
+          - name: wpaa_id
             tests:
               - not_null
-              - unique
+          - name: wpaa_name
+            tests:
+              - not_null
           - name: wkb_geometry
             tests:
               - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dcp_waterfront_access_map_wpaa_compound_key
+              combination_of_columns:
+                - wpaa_id
+                - wpaa_name
+                - wkb_geometry
+              config:
+                severity: warn
 
       - name: dcp_waterfront_access_map_pow
         columns:
-          - name: objectid
+          - name: name
             tests:
               - not_null
-              - unique
+          - name: agency
+            tests:
+              - not_null
           - name: wkb_geometry
             tests:
               - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dcp_waterfront_access_map_pow_compound_key
+              combination_of_columns:
+                - name
+                - agency
+                - wkb_geometry
+              config:
+                severity: warn
 
       - name: nysparks_parks_polygons
         columns:
-          - name: objectid
+          - name: uid
+          - name: name
             tests:
               - not_null
-              - unique
           - name: wkb_geometry
             tests:
               - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: nysparks_parks_polygons_compound_key
+              combination_of_columns:
+                - uid
+                - name
+                - wkb_geometry
+              config:
+                severity: warn
 
       - name: usnps_parks
         columns:
-          - name: objectid
+          - name: gnis_id
+          - name: parkname
             tests:
               - not_null
-              - unique
           - name: wkt
             tests:
               - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: usnps_parks_compound_key
+              combination_of_columns:
+                - gnis_id
+                - parkname
+                - wkt
+              config:
+                severity: warn
