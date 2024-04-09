@@ -11,7 +11,11 @@ ROOT_DIR=$(dirname ${DIR})
 source $ROOT_DIR/bash/utils.sh
 set_error_traps
 
-pip3 install requests beautifulsoup4
+pip3 install requests beautifulsoup4 pip-tools
+
+function generate_dcpy_requirements {
+    pip-compile ../pyproject.toml -o $image/dcpy_requirements.txt -c $image/constraints.txt
+}
 
 function export_geosupport_versions {
     VERSIONSTRING=$(python3 geosupport_versions.py)
@@ -51,10 +55,12 @@ case $image in
         $GEO_COMMAND;;
     build-base) 
         common
+        generate_dcpy_requirements
         $COMMAND;;
     build-geosupport) 
         export_geosupport_versions
         common
+        generate_dcpy_requirements
         $GEO_COMMAND;;
     docker-geosupport)
         export_geosupport_versions
