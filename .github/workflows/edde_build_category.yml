@@ -1,0 +1,55 @@
+name: EDDE - Build Category
+
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'Pick Category to Export. This corresponds to tabs in the 1572-B data matrix '
+        required: true
+        type: choice
+        options:
+        - all
+        - housing_production
+        - quality_of_life
+        - housing_security
+
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }} 
+  cancel-in-progress: true
+
+jobs:
+  export:
+    runs-on: ubuntu-20.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+ 
+    steps:
+      - uses: actions/checkout@v2
+      
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      
+      - name: install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip python3-distutils
+          sudo apt install -y gdal-bin
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv ./mc /usr/bin
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: Python packages install
+        run: |
+          python3 -m pip install --requirement requirements.txt
+
+      - name: dataloading
+        run: ./ingest/data_library/dataloading.sh
+
+      - name: export
+        run: |
+          python3 -m external_review.external_review_collate ${{github.event.inputs.category}}  
+          ./external_review/export_DO.sh

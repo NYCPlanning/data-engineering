@@ -1,0 +1,62 @@
+name: EDDE - Build Census
+
+on:
+  workflow_dispatch:
+
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }} 
+  cancel-in-progress: true
+
+jobs:
+  export:
+    runs-on: ubuntu-20.04
+    env:
+      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
+      CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+      
+    strategy:
+      matrix:
+        year:
+          - "2000"
+          - "0812"
+          - "1519"
+          - "1721"
+ 
+    steps:
+      - uses: actions/checkout@v2
+      
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      
+      - name: install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip python3-distutils
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv ./mc /usr/bin
+          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: Python packages install
+        run: |
+          python3 -m pip install --requirement requirements.txt
+
+      - uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '4.1.2' # The R version to download (if necessary) and use.
+
+      - name: Add dependencies
+        run: |
+          install.packages('survey')
+        shell: Rscript {0}
+
+      - name: build
+        run: |
+          python3 -m external_review.collate_save_census ${{matrix.year}}
+
+      - name: export
+        run: |
+          ./external_review/export_DO.sh
