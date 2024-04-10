@@ -1,8 +1,18 @@
 import pandas as pd
-from utils.PUMA_helpers import clean_PUMAs, borough_name_mapper, acs_years, year_range, sheet_name
+from utils.PUMA_helpers import (
+    clean_PUMAs,
+    borough_name_mapper,
+    acs_years,
+    year_range,
+    sheet_name,
+)
 from aggregate.clean_aggregated import order_PUMS_QOL
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.dcp_population_excel_helpers import race_suffix_mapper, count_suffix_mapper_global, map_stat_suffix
+from utils.dcp_population_excel_helpers import (
+    race_suffix_mapper,
+    count_suffix_mapper_global,
+    map_stat_suffix,
+)
 
 
 ind_mapper = {
@@ -12,8 +22,9 @@ ind_mapper = {
 }
 
 
-def access_to_broadband(geography: str, year:str=acs_years[-1], write_to_internal_review=False):
-
+def access_to_broadband(
+    geography: str, year: str = acs_years[-1], write_to_internal_review=False
+):
     clean_df = load_clean_source_data(geography, year)
 
     if geography == "puma":
@@ -44,7 +55,7 @@ def access_to_broadband(geography: str, year:str=acs_years[-1], write_to_interna
     return final
 
 
-def load_clean_source_data(geography: str, year:str) -> pd.DataFrame:
+def load_clean_source_data(geography: str, year: str) -> pd.DataFrame:
     assert geography in ["citywide", "borough", "puma"]
 
     read_excel_arg = {

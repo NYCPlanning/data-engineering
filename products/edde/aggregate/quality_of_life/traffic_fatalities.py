@@ -25,8 +25,7 @@ def traffic_fatalities_injuries(geography, save_for_internal_review=False):
     for year_code, year_range in year_ranges:
         year_range_df = get_year_range_df(year_range)
 
-        year_range_df["borough"] = year_range_df.apply(
-            axis=1, func=puma_to_borough)
+        year_range_df["borough"] = year_range_df.apply(axis=1, func=puma_to_borough)
         year_range_df["citywide"] = "citywide"
 
         for data_point in [
@@ -70,7 +69,8 @@ def get_year_range_df(year_range):
     big_df = pd.DataFrame(data={"puma": get_all_NYC_PUMAs()})
     for year in year_range:
         raw_df = pd.read_csv(
-            f".library/dcp_dot_trafficinjuries/{year}/dcp_dot_trafficinjuries.csv")
+            f".library/dcp_dot_trafficinjuries/{year}/dcp_dot_trafficinjuries.csv"
+        )
         injuries_col_name = f"injuries_total_{year}"
         ped_col_name = f"injuries_ped_{year}"
         cycle_col_name = f"injuries_cycle_{year}"
@@ -119,14 +119,12 @@ def remove_total_from_column_labels(df):
 
 
 def add_safety_column_label_prefix(df: pd.DataFrame):
-
     df.columns = ["safety_" + c for c in df.columns]
 
 
 def mean_by_geography(
     numerator_df: pd.DataFrame, denominator_df: pd.DataFrame, geography, col_name
 ):
-
     numerator_by_geo = numerator_df.groupby(geography).sum().sum(axis=1)
     denom_by_geo = denominator_df.groupby(geography).sum().sum(axis=1)
     rv = ((numerator_by_geo / denom_by_geo) * 100).round(2)

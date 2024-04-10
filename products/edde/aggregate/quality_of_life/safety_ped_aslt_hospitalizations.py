@@ -37,7 +37,7 @@ def pedestrian_hospitalizations(geography, write_to_internal_review=False):
 def calculate_per100k_rate(source_data, geography):
     assert geography in ["citywide", "borough", "puma"]
     gb = source_data.groupby(geography).sum()[["Number", "2010_pop"]]
-    final = ((gb["Number"] / gb["2010_pop"]) * 10 ** 5).round(2)
+    final = ((gb["Number"] / gb["2010_pop"]) * 10**5).round(2)
     final.replace({0: None}, inplace=True)
     return final
 

@@ -8,6 +8,7 @@ from aggregate.all_accessors import Accessors
 
 accessors = Accessors()
 
+
 def collate(geography_level, category):
     """Collate indicators together"""
     accessor_functions = accessors.__getattribute__(category)
@@ -34,21 +35,27 @@ def collate(geography_level, category):
     final_df.to_csv(f".staging/{category}/{category}_{geography_level}.csv")
     return final_df
 
+
 def main(
     eddt_category: Optional[str] = typer.Argument(None),
-    geography: Optional[str] = typer.Argument(None)
+    geography: Optional[str] = typer.Argument(None),
 ):
-    def assert_opt(arg, list): assert((arg is None) or (arg == 'all') or (arg in list))
-    categories = ['housing_security', 'housing_production', 'quality_of_life']
-    geographies = ['citywide', 'borough', 'puma']
+    def assert_opt(arg, list):
+        assert (arg is None) or (arg == "all") or (arg in list)
+
+    categories = ["housing_security", "housing_production", "quality_of_life"]
+    geographies = ["citywide", "borough", "puma"]
     assert_opt(eddt_category, categories)
     assert_opt(geography, geographies)
 
-    if eddt_category is not None and eddt_category != 'all': categories = [eddt_category]
-    if geography is not None and geography != 'all': geographies = [geography]
+    if eddt_category is not None and eddt_category != "all":
+        categories = [eddt_category]
+    if geography is not None and geography != "all":
+        geographies = [geography]
     for c in categories:
         for g in geographies:
             collate(g, c)
+
 
 if __name__ == "__main__":
     typer.run(main)

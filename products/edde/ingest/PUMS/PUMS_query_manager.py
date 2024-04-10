@@ -48,7 +48,8 @@ def get_urls(
     """
     :Limited_PUMA: for testing with single UCGID from each borough.
     :return:  dictionary of lists of urls. Each list is a set of of geographic regions
-    associated with a group of GET variables. Each item is a set of a GET variables (either variables of interest of replicate weights)"""
+    associated with a group of GET variables. Each item is a set of a GET variables (either variables of interest of replicate weights)
+    """
     identifiers = "SERIALNO,SPORDER,"
 
     geo_queries = generate_geo_queries(limited_PUMA, year)

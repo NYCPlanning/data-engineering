@@ -7,11 +7,12 @@ from statistical.calculate_medians_LI import calculate_median_LI
 class PUMSMedians(PUMSAggregator):
     """Crosstabs on idicators work differently for this aggregator.
     Instead of combining crosstab and original indicator into one, crosstabs are
-    included as iterable. Indicators list has elements of (indicator, iterable of crosstabs)"""
+    included as iterable. Indicators list has elements of (indicator, iterable of crosstabs)
+    """
 
     def __init__(
         self,
-        year:int,
+        year: int,
         variable_types,
         geo_col,
         limited_PUMA=False,

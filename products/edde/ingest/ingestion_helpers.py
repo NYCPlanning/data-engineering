@@ -44,11 +44,7 @@ def read_from_S3(name: str, category: str, cols: list = None) -> pd.DataFrame:
 
 
 def read_from_excel(
-    file_path,
-    category: str,
-    sheet_name: str = None,
-    columns: str = None,
-    **kwargs
+    file_path, category: str, sheet_name: str = None, columns: str = None, **kwargs
 ) -> pd.DataFrame:
     read_excel_args = {
         "io": file_path,

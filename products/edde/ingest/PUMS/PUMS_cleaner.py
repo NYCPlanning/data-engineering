@@ -8,7 +8,6 @@ from utils.make_logger import create_logger
 
 
 class PUMSCleaner:
-
     range_recode_fp = "resources/ACSPUMS2015_2019CodeLists.xlsx"
 
     def __init__(self) -> None:

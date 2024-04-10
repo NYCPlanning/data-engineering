@@ -22,7 +22,6 @@ def SE_to_MOE(df):
 
 
 def add_CV(df: pd.DataFrame):
-
     df["cv"] = df["se"] / df["V1"] * 100
 
     return df

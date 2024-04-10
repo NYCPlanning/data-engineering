@@ -13,7 +13,8 @@ local_loader = LocalLoader()
 @pytest.mark.test_new_crosstabs
 def test_local_loader(all_data):
     """This code to take all_data arg from command line and get the corresponding data has to be put in test because of how pytest works.
-    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything"""
+    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything
+    """
     local_loader.load_count_aggregator(all_data)
 
 
@@ -44,7 +45,6 @@ def test_that_all_races_sum_to_total_within_indicator():
 
 @pytest.mark.test_aggregation
 def test_that_all_races_sum_to_total():
-
     assert (
         local_loader.aggregated[race_counts].sum(axis=1)
         == local_loader.aggregated["total_pop-count"]
@@ -53,7 +53,6 @@ def test_that_all_races_sum_to_total():
 
 @pytest.mark.test_aggregation
 def test_that_all_age_buckets_sum_to_total():
-
     assert (
         local_loader.aggregated[age_bucket_counts].sum(axis=1)
         == local_loader.aggregated["total_pop-count"]

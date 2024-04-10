@@ -42,7 +42,6 @@ class PUMSCountHouseholds(PUMSCount):
         )
 
     def household_income_bands_assign(self, person):
-
         income_bands = {
             1: [-9999999, 20900, 34835, 55735, 83602, 114952, 9999999],
             2: [-9999999, 23904, 39840, 63744, 95616, 131473, 9999999],

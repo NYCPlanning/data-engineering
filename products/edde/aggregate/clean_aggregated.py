@@ -2,10 +2,10 @@ from curses import COLOR_RED
 from typing import List
 import pandas as pd
 from utils.dcp_population_excel_helpers import (
-    map_stat_suffix, 
-    race_suffix_mapper, 
+    map_stat_suffix,
+    race_suffix_mapper,
     race_suffix_mapper_global,
-    reorder_year_race
+    reorder_year_race,
 )
 from utils.PUMA_helpers import acs_years
 
@@ -45,7 +45,6 @@ def order_PUMS_QOL_multiple_years(categories, measures, years):
 
 
 def order_affordable(measures, income) -> List:
-
     rv = []
     for i in income:
         for m in measures:

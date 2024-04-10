@@ -34,7 +34,6 @@ dcp_pop_races = ["anh", "bnh", "hsp", "wnh"]
 
 
 def puma_to_borough(record):
-
     borough_code = record.puma[:3]
 
     borough = borough_code_mapper.get(borough_code, None)
@@ -46,7 +45,8 @@ NYC_PUMAS_url = "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/servi
 
 def clean_PUMAs(puma) -> pd.DataFrame:
     """Re-uses code from remove_state_code_from_PUMA col in access to subway, call this instead
-    Possible refactor: apply to dataframe and ensure that re-named column is label \"puma\" """
+    Possible refactor: apply to dataframe and ensure that re-named column is label \"puma\"
+    """
     puma = str(puma)
     puma = puma.split(".")[0]
     if puma == "nan" or puma == nan:

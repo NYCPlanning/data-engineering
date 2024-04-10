@@ -79,9 +79,12 @@ def initialize_dataframe_geo_index(geography, columns=[]):
 """this is specifically to use for housing security and quality March 4th POP data"""
 
 
-def load_clean_housing_security_pop_data(name_mapper: dict, start_year=acs_years[0], end_year=acs_years[-1]) -> pd.DataFrame:
+def load_clean_housing_security_pop_data(
+    name_mapper: dict, start_year=acs_years[0], end_year=acs_years[-1]
+) -> pd.DataFrame:
     """Function to merge the two files for the QOL outputs and do some standard renaming. Because
-    these are QOL indicators they remain in the same csv output with columns indicating year"""
+    these are QOL indicators they remain in the same csv output with columns indicating year
+    """
 
     ind_name_regex = "|".join([k for k in name_mapper.keys()])
 
@@ -92,9 +95,9 @@ def load_clean_housing_security_pop_data(name_mapper: dict, start_year=acs_years
             "usecols": "A:LO",
             "dtype": {"Geog": str},
         }
-    
+
     df_oldest = pd.read_excel(**read_excel_arg(start_year))
-    df_latest= pd.read_excel(**read_excel_arg(end_year))
+    df_latest = pd.read_excel(**read_excel_arg(end_year))
 
     df = pd.merge(df_oldest, df_latest, on="Geog", how="left")
 
@@ -104,9 +107,11 @@ def load_clean_housing_security_pop_data(name_mapper: dict, start_year=acs_years
 
     return df
 
+
 def load_clean_pop_demographics(year: str) -> pd.DataFrame:
     """Function to merge the two files for the QOL outputs and do some standard renaming. Because
-    these are QOL indicators they remain in the same csv output with columns indicating year"""
+    these are QOL indicators they remain in the same csv output with columns indicating year
+    """
 
     def read_excel_arg(year):
         return {

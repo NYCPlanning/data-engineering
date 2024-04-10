@@ -58,7 +58,7 @@ def load_PUMS(
 
 
 def load_HVS(
-    year:int,
+    year: int,
     requery: bool = False,
     human_readable: bool = False,
     output_type: str = ".csv",

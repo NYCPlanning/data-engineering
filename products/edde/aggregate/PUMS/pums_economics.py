@@ -43,6 +43,7 @@ suffix_mappers = {
     "median": median_suffix_mapper_global,
 }
 
+
 def load_clean_source_data(year: str):
     source = pd.read_excel(
         f"resources/ACS_PUMS/EDDT_HHEconSec_ACS{year_range(year)}.xlsx",
@@ -126,11 +127,16 @@ def economics_median_cols_order():
     return rv
 
 
-def acs_pums_economics(geography, year: str=acs_years[-1], write_to_internal_review=False):
+def acs_pums_economics(
+    geography, year: str = acs_years[-1], write_to_internal_review=False
+):
     """Main accessor"""
     assert year in acs_years
     assert geography in ["puma", "borough", "citywide"]
-    if year == "2000": return pums_2000_economics(geography, write_to_internal_review=write_to_internal_review)
+    if year == "2000":
+        return pums_2000_economics(
+            geography, write_to_internal_review=write_to_internal_review
+        )
 
     source = load_clean_source_data(year)
 
@@ -177,7 +183,6 @@ def convert_col_label(col_label: str):
 
 
 def process_ind_label(indicator_label, wages=False):
-
     if indicator_label == "p16t64y":
         indicator_label = "p16t64"
     if indicator_label == "p25p":

@@ -1,13 +1,25 @@
 import pandas as pd
 from aggregate.clean_aggregated import order_PUMS_QOL, order_PUMS_QOL_multiple_years
-from utils.PUMA_helpers import clean_PUMAs, borough_name_mapper, acs_years, year_range, sheet_name
+from utils.PUMA_helpers import (
+    clean_PUMAs,
+    borough_name_mapper,
+    acs_years,
+    year_range,
+    sheet_name,
+)
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.dcp_population_excel_helpers import race_suffix_mapper, map_stat_suffix, reorder_year_race, count_suffix_mapper_global
+from utils.dcp_population_excel_helpers import (
+    race_suffix_mapper,
+    map_stat_suffix,
+    reorder_year_race,
+    count_suffix_mapper_global,
+)
 
 
 def load_acs_access_to_car(start_year, end_year) -> pd.DataFrame:
     """Function to merge the two files for the QOL outputs and do some standard renaming. Because
-    these are QOL indicators they remain in the same csv output with columns indicating year"""
+    these are QOL indicators they remain in the same csv output with columns indicating year
+    """
 
     def read_excel_arg(year):
         return {
@@ -15,9 +27,9 @@ def load_acs_access_to_car(start_year, end_year) -> pd.DataFrame:
             "sheet_name": f"ACS{sheet_name(year)}",
             "dtype": {"Geog": str},
         }
-    
+
     df_oldest = pd.read_excel(**read_excel_arg(start_year))
-    df_latest= pd.read_excel(**read_excel_arg(end_year))
+    df_latest = pd.read_excel(**read_excel_arg(end_year))
 
     df = pd.merge(df_oldest, df_latest, on="Geog", how="left")
 
@@ -65,7 +77,12 @@ def rename_cols(df, years):
     return df
 
 
-def access_transit_car(geography: str, start_year: str=acs_years[0], end_year:str=acs_years[-1], write_to_internal_review=False):
+def access_transit_car(
+    geography: str,
+    start_year: str = acs_years[0],
+    end_year: str = acs_years[-1],
+    write_to_internal_review=False,
+):
     """Main accessor for this indicator"""
     assert geography in ["puma", "borough", "citywide"]
 

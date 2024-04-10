@@ -11,7 +11,9 @@ race_labels = ["", "_wnh", "_bnh", "_hsp", "_anh", "_onh"]
 pop_labels = ["Total Population", "White", "Black", "Hispanic", "Asian", "Other"]
 
 
-def nycha_tenants(geography: str, year: str=acs_years[-1], write_to_internal_review=False):
+def nycha_tenants(
+    geography: str, year: str = acs_years[-1], write_to_internal_review=False
+):
     assert geography in ["citywide", "borough", "puma"]
 
     clean_data = load_clean_nycha_data()

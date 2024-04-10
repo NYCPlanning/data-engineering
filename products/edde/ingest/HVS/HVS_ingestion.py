@@ -14,7 +14,6 @@ data_url_2017 = "https://www2.census.gov/programs-surveys/nychvs/datasets/2017/m
 
 
 def create_HVS(year, human_readable=True, output_type=".pkl") -> pd.DataFrame:
-
     metadata, occupied = GET_survey_data(year)
     variable_positions = create_variable_postion_mapper(metadata)
     occupied_labels = create_label_cleaner(metadata)
@@ -48,7 +47,7 @@ def clean_weights(HVS, weight_cols) -> pd.DataFrame:
     """
     https://www2.census.gov/programs-surveys/nychvs/technical-documentation/record-layouts/2017/occupied-units-17.pdf
     tells us 5 implied decimal places"""
-    HVS[weight_cols] = HVS[weight_cols].astype(int) / 10 ** 5
+    HVS[weight_cols] = HVS[weight_cols].astype(int) / 10**5
     return HVS
 
 

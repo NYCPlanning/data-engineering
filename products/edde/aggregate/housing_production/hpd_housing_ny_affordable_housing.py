@@ -22,10 +22,11 @@ unit_income_levels = [
 
 def load_housing_ny():
     """load the HPD Housing NY Units by Building dataset"""
-    df = read_from_S3("hpd_hny_units_by_building",
-                      "housing_production",
-                      cols=get_columns(),
-                      )
+    df = read_from_S3(
+        "hpd_hny_units_by_building",
+        "housing_production",
+        cols=get_columns(),
+    )
 
     df = df.replace(
         {
@@ -69,15 +70,16 @@ def get_columns() -> list:
 
 
 def get_numeric_columns() -> list:
-    cols = ["extremely_low_income_units",
-            "very_low_income_units",
-            "low_income_units",
-            "moderate_income_units",
-            "middle_income_units",
-            "other_income_units",
-            "latitude_(internal)",
-            "longitude_(internal)",
-            ]
+    cols = [
+        "extremely_low_income_units",
+        "very_low_income_units",
+        "low_income_units",
+        "moderate_income_units",
+        "middle_income_units",
+        "other_income_units",
+        "latitude_(internal)",
+        "longitude_(internal)",
+    ]
     return cols
 
 
@@ -112,8 +114,7 @@ def pivot_and_flatten_index(df, geography):
     for full, abbr in level_mapper.items():
         cols = [c.replace(full, abbr) for c in cols]
 
-    cols = [c.replace("new_construction", "newconstruction") +
-            "_count" for c in cols]
+    cols = [c.replace("new_construction", "newconstruction") + "_count" for c in cols]
 
     df.columns = cols
 
@@ -149,10 +150,8 @@ def citywide_hny_units_con_type(df):
 
 
 def borough_hny_units_con_type(df):
-
     results = (
-        df.groupby(["reporting_construction_type", "borough"])[
-            unit_income_levels]
+        df.groupby(["reporting_construction_type", "borough"])[unit_income_levels]
         .sum()
         .reset_index()
     )
@@ -176,8 +175,7 @@ def PUMA_hny_units_con_type(df):
     )
 
     results = (
-        puma_df.groupby(["reporting_construction_type", "puma"])[
-            unit_income_levels]
+        puma_df.groupby(["reporting_construction_type", "puma"])[unit_income_levels]
         .sum()
         .reset_index()
     )
@@ -215,7 +213,6 @@ def affordable_housing_internal_review():
 
 
 if __name__ == "__main__":
-
     df = load_housing_ny()
 
     results_citywide = citywide_hny_units_con_type(df)

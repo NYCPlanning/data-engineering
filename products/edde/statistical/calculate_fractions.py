@@ -34,7 +34,8 @@ def calculate_fractions(
     race_crosstab=None,
 ):
     """This adds to dataframe so it should receive copy of data
-    Parent category is only used in crosstabs, this is the original variable being crosstabbed on."""
+    Parent category is only used in crosstabs, this is the original variable being crosstabbed on.
+    """
     all_fractions = pd.DataFrame(index=data[geo_col].unique())
     for category in categories:
         category_col = f"{variable_col}_{category}"

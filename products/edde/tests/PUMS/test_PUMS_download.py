@@ -15,7 +15,8 @@ local_loaders = [LocalLoader(year=year) for year in years]
 @pytest.mark.test_download
 def test_local_loader(all_data):
     """This code to take all_data arg from command line and get the corresponding data has to be put in test because of how pytest works.
-    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything"""
+    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything
+    """
     for loader in local_loaders:
         loader.load_by_person(all_data, variable_set="demographics")
 
@@ -24,9 +25,9 @@ def test_local_loader(all_data):
 @pytest.mark.test_download
 def test_PUMS_download(all_data: bool, local_loader):
     if all_data:
-        assert local_loader.by_person.shape[0] > 3 * (10 ** 5)
+        assert local_loader.by_person.shape[0] > 3 * (10**5)
     else:
-        assert local_loader.by_person.shape[0] > 3 * (10 ** 4)
+        assert local_loader.by_person.shape[0] > 3 * (10**4)
 
 
 @pytest.mark.parametrize("local_loader", local_loaders)

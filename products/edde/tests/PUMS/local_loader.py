@@ -13,12 +13,10 @@ class LocalLoader:
     Possible to-do: return ingestor/aggregator instead of data like load_fraction_aggregator
     """
 
-    def __init__(self, year: int = 2021) -> None: 
-        self.year=year
+    def __init__(self, year: int = 2021) -> None:
+        self.year = year
 
-    def load_by_person(
-        self, all_data, include_rw=True, variable_set="demographic"
-    ):
+    def load_by_person(self, all_data, include_rw=True, variable_set="demographic"):
         """To be called in first test"""
         limited_PUMA = not all_data
 
@@ -36,14 +34,22 @@ class LocalLoader:
     def load_aggregated_counts(self, all_data, type, add_MOE=False, keep_SE=True):
         limited_PUMA = not all_data
         if type == "demographics":
-            aggregator = PUMSCountDemographics(year=self.year, limited_PUMA=limited_PUMA)
+            aggregator = PUMSCountDemographics(
+                year=self.year, limited_PUMA=limited_PUMA
+            )
         elif type == "economics":
             aggregator = PUMSCountEconomics(
-                year=self.year, limited_PUMA=limited_PUMA, add_MOE=add_MOE, keep_SE=keep_SE
+                year=self.year,
+                limited_PUMA=limited_PUMA,
+                add_MOE=add_MOE,
+                keep_SE=keep_SE,
             )
         elif type == "households":
             aggregator = PUMSCountHouseholds(
-                year=self.year, limited_PUMA=limited_PUMA, add_MOE=add_MOE, keep_SE=keep_SE
+                year=self.year,
+                limited_PUMA=limited_PUMA,
+                add_MOE=add_MOE,
+                keep_SE=keep_SE,
             )
         self.by_person = aggregator.PUMS
         self.aggregated = aggregator.aggregated

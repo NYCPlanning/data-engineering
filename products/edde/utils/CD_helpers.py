@@ -74,7 +74,6 @@ def nta_to_puma(df, nta_col):
 
 
 def construct_three_digit_CD_code(borough_code: str, cd_num: str) -> str:
-
     if len(cd_num) == 1:
         cd_num = f"0{cd_num}"
     return f"{borough_code}{cd_num}"
