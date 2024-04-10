@@ -21,7 +21,7 @@ def test_that_zero_fraction_historic_means_zero_total_historic():
 def test_all_historic_area_assigned_to_PUMA(indicator):
     """Check that total is equal to within a foot tolerance"""
     assert np.isclose(
-        hd.area.sum() / (5280 ** 2),
+        hd.area.sum() / (5280**2),
         indicator["area_historic_sqmiles_count"].sum(),
         atol=1,
     )

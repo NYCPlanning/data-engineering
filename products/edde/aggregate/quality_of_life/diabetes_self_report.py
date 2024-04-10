@@ -75,7 +75,9 @@ def health_self_reported(geography: str, write_to_internal_review=False):
 def load_clean_source_data(geography: str, indicator: str):
     assert geography in ["citywide", "borough", "puma"]
 
-    df = read_from_excel(file_path=SOURCE_DATA_FILE, category=CATEGORY, sheet_name=SOURCE_SHEET_NAME)
+    df = read_from_excel(
+        file_path=SOURCE_DATA_FILE, category=CATEGORY, sheet_name=SOURCE_SHEET_NAME
+    )
 
     if geography == "puma":
         boro = {"2": "BX", "3": "BK", "1": "MN", "4": "QN", "5": "SI"}

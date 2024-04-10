@@ -14,7 +14,8 @@ counts_fractions_dem_loader_SE_and_MOE = LocalLoader()
 
 def test_local_counts_fractions_demo_loader(all_data):
     """This code to take all_data arg from command line and get the corresponding data has to be put in test because of how pytest works.
-    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything"""
+    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything
+    """
     counts_fractions_dem_loader_SE.load_count_aggregator(
         all_data, keep_SE=True, add_MOE=False
     )
@@ -109,7 +110,8 @@ counts_fraction_eco_loader_with_ME_and_SE = LocalLoader()
 @pytest.mark.current_dev
 def test_local_counts_fractions_eco_loader(all_data):
     """This code to take all_data arg from command line and get the corresponding data has to be put in test because of how pytest works.
-    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything"""
+    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything
+    """
     counts_fraction_eco_loader_only_SE.load_aggregated_counts(
         all_data, type="economics", keep_SE=True, add_MOE=False
     )

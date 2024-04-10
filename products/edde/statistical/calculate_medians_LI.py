@@ -63,7 +63,6 @@ def calculate(bin_counts, bin_dict, indicator_name):
 
 
 def calculate_MOE(bin_counts, indicator_name, median_bin, bin_dict):
-
     B = bin_counts.frequency.sum()
     DF = lookup_metadata(indicator_name, "design_factor")
 

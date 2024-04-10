@@ -29,11 +29,11 @@ variable_mapper = {
         ("INDP", "clean_range_categorical"),  # Industry
         ("OCCP", "occupation_clean_range_categorical"),  # Occupation
     ],
-    "households":[
-        ("HINCP", "clean_continous"), # Household Income
-        ("NPF", "clean_continous"), # Number of Household Members
-        ("HHT", "clean_simple_categorical") # Household Types
-    ]
+    "households": [
+        ("HINCP", "clean_continous"),  # Household Income
+        ("NPF", "clean_continous"),  # Number of Household Members
+        ("HHT", "clean_simple_categorical"),  # Household Types
+    ],
 }
 
 

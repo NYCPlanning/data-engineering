@@ -25,6 +25,7 @@ demos_latest = collate_save_census(year=acs_years[-1], **save_kwargs)
 def test_matching_column_orders_acs_demographics_0812_1519():
     assert (demos_0812.columns == demos_1519.columns).all()
 
+
 def test_matching_column_orders_acs_demographics_0812_latest():
     assert (demos_0812.columns == demos_latest.columns).all()
 

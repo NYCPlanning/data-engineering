@@ -132,7 +132,6 @@ class PUMSData:
         self.cache()
 
     def cache(self):
-
         self.vi_data.to_pickle(self.cache_path)
 
     def assign_identifier(self, attr_name):

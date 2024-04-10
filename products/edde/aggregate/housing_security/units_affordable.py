@@ -1,15 +1,15 @@
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
 from aggregate.clean_aggregated import order_affordable
-from utils.PUMA_helpers import (
-    clean_PUMAs,
-    borough_name_mapper,
-    year_range,
-    acs_years
+from utils.PUMA_helpers import clean_PUMAs, borough_name_mapper, year_range, acs_years
+from utils.dcp_population_excel_helpers import (
+    count_suffix_mapper_global,
+    map_stat_suffix,
 )
-from utils.dcp_population_excel_helpers import count_suffix_mapper_global, map_stat_suffix
 
-ind_mapper = {"Af": "units_affordable_",}
+ind_mapper = {
+    "Af": "units_affordable_",
+}
 
 income_mapper = {
     "ELI": "eli",
@@ -20,7 +20,10 @@ income_mapper = {
     "HI": "hi",
 }
 
-def units_affordable(geography: str, year:str=acs_years[-1], write_to_internal_review=False) -> pd.DataFrame:
+
+def units_affordable(
+    geography: str, year: str = acs_years[-1], write_to_internal_review=False
+) -> pd.DataFrame:
     assert geography in ["citywide", "borough", "puma"]
 
     clean_df = load_source_clean_data(year)
@@ -51,7 +54,6 @@ def units_affordable(geography: str, year:str=acs_years[-1], write_to_internal_r
 
 
 def load_source_clean_data(year) -> pd.DataFrame:
-
     read_excel_arg = {
         "io": f"resources/housing_security/EDDT_UnitsAffordablebyAMI_{year_range(year)}.xlsx",
         "sheet_name": "AffordableAMI",
@@ -71,4 +73,3 @@ def load_source_clean_data(year) -> pd.DataFrame:
     df.columns = cols
 
     return df
-    

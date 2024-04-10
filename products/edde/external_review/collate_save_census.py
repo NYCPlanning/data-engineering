@@ -15,6 +15,7 @@ from utils.PUMA_helpers import acs_years
 
 from aggregate.load_aggregated import initialize_dataframe_geo_index
 
+
 def collate_save_census(
     eddt_category,
     geography,
@@ -23,10 +24,10 @@ def collate_save_census(
     """--test_data will aggregate on only first puma in each borough
     This needs to be updated to handle economics correctly"""
     final = initialize_dataframe_geo_index(geography=geography)
-    if year=='2000':
+    if year == "2000":
         suffix = year
-    else: 
-        suffix = 'generic'
+    else:
+        suffix = "generic"
     for accessor in getattr(CensusAccessors, f"{eddt_category}_{suffix}")():
         df = accessor(geography, year)
         final = final.merge(df, left_index=True, right_index=True)
@@ -57,27 +58,34 @@ class CensusAccessors:
     def economics_generic(cls):
         return [acs_pums_economics]
 
+
 def main(
     year: Optional[str] = typer.Argument(None),
     eddt_category: Optional[str] = typer.Argument(None),
     geography: Optional[str] = typer.Argument(None),
 ):
-    def assert_opt(arg, list): assert((arg is None) or (arg == 'all') or (arg in list))
-    categories = ['economics', 'demographics']
-    geographies = ['citywide', 'borough', 'puma']
+    def assert_opt(arg, list):
+        assert (arg is None) or (arg == "all") or (arg in list)
+
+    categories = ["economics", "demographics"]
+    geographies = ["citywide", "borough", "puma"]
     years = acs_years
-    years.append('2000')
+    years.append("2000")
     assert_opt(year, years)
     assert_opt(eddt_category, categories)
     assert_opt(geography, geographies)
 
-    if year is not None and year != 'all': years = [year]
-    if eddt_category is not None and eddt_category != 'all': categories = [eddt_category]
-    if geography is not None and geography != 'all': geographies = [geography]
+    if year is not None and year != "all":
+        years = [year]
+    if eddt_category is not None and eddt_category != "all":
+        categories = [eddt_category]
+    if geography is not None and geography != "all":
+        geographies = [geography]
     for c in categories:
         for g in geographies:
             for y in years:
                 collate_save_census(c, g, y)
+
 
 if __name__ == "__main__":
     typer.run(main)

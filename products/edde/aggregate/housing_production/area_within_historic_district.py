@@ -26,7 +26,6 @@ def area_historic_internal_review():
 
 
 def rename_col(cols) -> List:
-
     new_cols = [col if "pct" in col else col + "_count" for col in cols]
 
     return new_cols
@@ -35,7 +34,7 @@ def rename_col(cols) -> List:
 def fraction_historic(geography_level):
     """Main accessor of indicator"""
     gdf = generate_geographies(geography_level)
-    gdf["total_sqmiles"] = gdf.geometry.area / (5280 ** 2)
+    gdf["total_sqmiles"] = gdf.geometry.area / (5280**2)
     hd = load_historic_districts_gdf()
     gdf[["area_historic_pct", "area_historic_sqmiles"]] = gdf.apply(
         fraction_PUMA_historic, axis=1, args=(hd,), result_type="expand"
@@ -69,7 +68,7 @@ def fraction_PUMA_historic(PUMA, hd):
         return 0, 0
     else:
         fraction = (overlay.area.sum() / gdf.geometry.area.sum()) * 100
-    return fraction, overlay.area.sum() / (5280 ** 2)
+    return fraction, overlay.area.sum() / (5280**2)
 
 
 def load_historic_districts_gdf() -> gp.GeoDataFrame:

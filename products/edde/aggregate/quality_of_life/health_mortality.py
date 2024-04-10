@@ -26,6 +26,7 @@ borough_name_mapper = {
     "Staten Island": "SI",
 }
 
+
 def shorten_year_range(col):
     match = re.search("\\_(\\d{2})\\_(\\d{2})", col)
     if match:
@@ -34,7 +35,7 @@ def shorten_year_range(col):
         return col
 
 
-def infant_mortality(geography:str, year=LATEST_YEAR, write_to_internal_review=False):
+def infant_mortality(geography: str, year=LATEST_YEAR, write_to_internal_review=False):
     ind_name = "infant_mortality_per1000"
     clean_data = load_clean_source_data(geography=geography)
 
@@ -57,7 +58,9 @@ def infant_mortality(geography:str, year=LATEST_YEAR, write_to_internal_review=F
     return final
 
 
-def overdose_mortality(geography:str, year=LATEST_YEAR, write_to_internal_review=False):
+def overdose_mortality(
+    geography: str, year=LATEST_YEAR, write_to_internal_review=False
+):
     ind_name = "overdose_mortality_per100000"
     clean_data = load_clean_source_data(geography=geography)
 
@@ -78,7 +81,9 @@ def overdose_mortality(geography:str, year=LATEST_YEAR, write_to_internal_review
     return final
 
 
-def premature_mortality(geography:str, year=LATEST_YEAR, write_to_internal_review=False):
+def premature_mortality(
+    geography: str, year=LATEST_YEAR, write_to_internal_review=False
+):
     ind_name = "premature_mortality_per100000"
     clean_data = load_clean_source_data(geography=geography)
 
@@ -97,7 +102,8 @@ def premature_mortality(geography:str, year=LATEST_YEAR, write_to_internal_revie
         )
     return final
 
-def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year: str): 
+
+def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year: str):
     if geography == "puma":
         years = ["0004", "1014"] + [year]
     else:

@@ -19,14 +19,14 @@ job_type_mapper = {
 
 
 def load_housing_data():
+    df = read_from_S3("dcp_housing", "housing_production", cols=get_columns())
 
-    df = read_from_S3(
-        "dcp_housing",
-        "housing_production",
-        cols=get_columns()
-    )
-
-    for c in ["complete_year", "classa_net", "latitude", "longitude", ]:
+    for c in [
+        "complete_year",
+        "classa_net",
+        "latitude",
+        "longitude",
+    ]:
         df[c] = pd.to_numeric(df[c])
 
     census10 = pd.read_excel(
@@ -45,13 +45,11 @@ def load_housing_data():
         "https://www1.nyc.gov/assets/planning/download/office/data-maps/nyc-population/census2010/nyc2010census_tabulation_equiv.xlsx",
         header=3,
         dtype=str,
-        usecols=["2010 Census Bureau FIPS County Code",
-                 "2010 Census Tract", "PUMA"],
+        usecols=["2010 Census Bureau FIPS County Code", "2010 Census Tract", "PUMA"],
     )
 
     census10["nycct"] = (
-        census10["2010 Census FIPS County Code"] +
-        census10["2010 Census Tract"]
+        census10["2010 Census FIPS County Code"] + census10["2010 Census Tract"]
     )
 
     puma_cross["nycct"] = (
@@ -61,8 +59,7 @@ def load_housing_data():
     puma_cross["PUMA"] = puma_cross["PUMA"].apply(clean_PUMAs)
     puma_cross["PUMA"] = puma_cross["PUMA"].apply(clean_PUMAs)
 
-    census10_ = census10.merge(
-        puma_cross[["nycct", "PUMA"]], how="left", on="nycct")
+    census10_ = census10.merge(puma_cross[["nycct", "PUMA"]], how="left", on="nycct")
 
     census10_["Total Housing Units"] = census10_["Total Housing Units"].apply(
         lambda x: pd.to_numeric(x, errors="coerce")
@@ -99,7 +96,6 @@ def get_columns() -> list:
 
 
 def pivot_and_flatten_index(df, geography):
-
     df_pivot = df.pivot(
         index=geography,
         columns="job_type",
@@ -151,17 +147,16 @@ def clean_jobs(df):
     puma = PUMAs
     puma = puma[["puma", "geometry"]]
     gdf = gpd.GeoDataFrame(
-        df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+        df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326"
+    )
     df = gdf.sjoin(puma, how="left", predicate="within")
     df.borough = df.borough.astype(str)
-    df.borough = df.borough.map(
-        {"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"})
+    df.borough = df.borough.map({"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"})
 
     return df
 
 
 def rename_col(cols) -> List:
-
     new_cols = [col if "pct" in col else col + "_count" for col in cols]
 
     return new_cols
@@ -175,8 +170,7 @@ def change_in_units(geography: str, write_to_internal_review=False):
 
     # aggregation begins here
     results = (
-        df.groupby(["job_type", geography]).agg(
-            {"classa_net": "sum"}).reset_index()
+        df.groupby(["job_type", geography]).agg({"classa_net": "sum"}).reset_index()
     )
     all_job_type = (
         df.groupby(geography)
@@ -187,14 +181,12 @@ def change_in_units(geography: str, write_to_internal_review=False):
     results = pd.concat([results, all_job_type], axis=0)
 
     # join with 2010 units from census
-    census_units = census10.groupby(
-        geography)["total_units_2010"].sum().reset_index()
+    census_units = census10.groupby(geography)["total_units_2010"].sum().reset_index()
     results = results.merge(census_units, on=geography, how="left")
 
     results.job_type = results.job_type.map(job_type_mapper)
 
-    results["pct"] = results["classa_net"] / \
-        results["total_units_2010"] * 100.0
+    results["pct"] = results["classa_net"] / results["total_units_2010"] * 100.0
     results["pct"] = results["pct"].round(2)
     results = pivot_and_flatten_index(results, geography=geography)
 

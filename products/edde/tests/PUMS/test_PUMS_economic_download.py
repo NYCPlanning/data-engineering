@@ -3,8 +3,8 @@
 import pytest
 from tests.PUMS.local_loader import LocalLoader
 
-#years = [2012, 2019, 2021]
-#local_loaders = [LocalLoader(year=year) for year in years]
+# years = [2012, 2019, 2021]
+# local_loaders = [LocalLoader(year=year) for year in years]
 local_loader_2021 = LocalLoader(year=2021)
 local_loader_2019 = LocalLoader(year=2019)
 local_loader_2012 = LocalLoader(year=2012)
@@ -31,11 +31,10 @@ EXPECTED_COLS_VALUES_CATEGORICAL = [
 @pytest.mark.test_download
 def test_local_loader(all_data):
     """This code to take all_data arg from command line and get the corresponding data has to be put in test because of how pytest works.
-    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything"""
+    This test exists for the sake of passing all_data arg from command line to local loader, it DOESN'T test anything
+    """
     for loader in local_loaders:
-        loader.load_by_person(
-            all_data, include_rw=False, variable_set="economics"
-        )
+        loader.load_by_person(all_data, include_rw=False, variable_set="economics")
 
 
 @pytest.mark.parametrize("local_loader", local_loaders)
@@ -44,7 +43,6 @@ def test_local_loader(all_data):
 def test_categorical_columns_have_expected_values(
     column, expected_values, local_loader
 ):
-
     assert column in local_loader.by_person.columns
     for ev in expected_values:
         assert ev in local_loader.by_person[column].values
@@ -86,7 +84,9 @@ def test_categorical_range_variables_have_expected_values(column, old_val, new_v
 @pytest.mark.parametrize(
     "column, old_val, new_val", EXPECTED_COLS_VALUES_RANGE_CATEGORICAL
 )
-def test_categorical_range_variables_have_expected_values_2021(column, old_val, new_val):
+def test_categorical_range_variables_have_expected_values_2021(
+    column, old_val, new_val
+):
     """See how this goes for 2021"""
     ids = local_loader_2021.by_person_raw[
         local_loader_2021.by_person_raw[column] == old_val

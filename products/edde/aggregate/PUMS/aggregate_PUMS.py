@@ -54,7 +54,8 @@ class BaseAggregator:
 class PUMSAggregator(BaseAggregator):
     """Parent class for aggregating PUMS data.
     Option to pass in PUMS dataframe on init is hot fix, added to accomdate median_PUMS_economics which breaks several patterns and requires
-    many hot fixes. Solution is to do aggregation on call of this class instead of init"""
+    many hot fixes. Solution is to do aggregation on call of this class instead of init
+    """
 
     # geo_col = "PUMA"
 
@@ -125,7 +126,6 @@ class PUMSAggregator(BaseAggregator):
         self.cache_flat_csv()
 
     def add_aggregated_data(self, new_var: pd.DataFrame):
-
         self.aggregated = self.aggregated.merge(
             new_var, how="left", left_index=True, right_index=True
         )
@@ -155,7 +155,6 @@ class PUMSAggregator(BaseAggregator):
         return subset
 
     def add_counts(self, indicator, subset):
-
         new_indicator_aggregated = calculate_counts(
             data=subset,
             variable_col=indicator,

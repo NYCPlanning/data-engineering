@@ -120,7 +120,6 @@ def load_source_clean_data(indicator: str) -> pd.DataFrame:
 def extract_geography_dataframe(
     clean_data: pd.DataFrame, geography: str
 ) -> pd.DataFrame:
-
     if geography == "puma":
         clean_data["puma"] = clean_data["PUMA"].apply(func=clean_PUMAs)
         final = clean_data.loc[~clean_data.puma.isna()].copy()

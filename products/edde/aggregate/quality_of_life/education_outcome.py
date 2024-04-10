@@ -2,9 +2,7 @@ import pandas as pd
 from ingest.ingestion_helpers import read_from_excel
 from internal_review.set_internal_review_file import set_internal_review_files
 
-SOURCE_DATA_PATH_EDU_OUTCOME = (
-    "resources/quality_of_life/education_outcome/NTA_data_prepared_for_ArcMap_wCodebook.xlsx"
-)
+SOURCE_DATA_PATH_EDU_OUTCOME = "resources/quality_of_life/education_outcome/NTA_data_prepared_for_ArcMap_wCodebook.xlsx"
 SOURCE_DATA_URL_PUMA_CROSS = "https://www1.nyc.gov/assets/planning/download/office/data-maps/nyc-population/census2010/nyc2010census_tabulation_equiv.xlsx"
 
 # TODO resolve issue with new data's racial groups
@@ -86,9 +84,9 @@ def get_education_outcome(
     # Read in source and do some cleanning and merging with puma cross walk
     raw_edu_outcome = read_from_excel(
         SOURCE_DATA_PATH_EDU_OUTCOME,
-        category='quality_of_life',
+        category="quality_of_life",
         sheet_name="5_StudentPerformance",
-        header=1
+        header=1,
     )
 
     raw_edu_outcome.fillna(value=0, inplace=True)

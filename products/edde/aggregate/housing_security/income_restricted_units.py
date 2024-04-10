@@ -66,10 +66,11 @@ def income_restricted_units_hpd(
 
 
 def load_clean_hpd_data():
-    source_data = read_from_S3("hpd_hny_units_by_building",
-                               "housing_security",
-                               cols=get_columns(),
-                               )
+    source_data = read_from_S3(
+        "hpd_hny_units_by_building",
+        "housing_security",
+        cols=get_columns(),
+    )
     # casting to numeric for calculation
     for c in ["latitude_(internal)", "longitude_(internal)", "all_counted_units"]:
         source_data[c] = pd.to_numeric(source_data[c])

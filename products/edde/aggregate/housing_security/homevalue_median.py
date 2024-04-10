@@ -10,15 +10,17 @@ from aggregate.load_aggregated import load_clean_housing_security_pop_data
 from aggregate.aggregation_helpers import get_geography_pop_data
 
 
-def homevalue_median(geography: str, start_year=acs_years[0], end_year=acs_years[-1], write_to_internal_review=False) -> pd.DataFrame:
-
+def homevalue_median(
+    geography: str,
+    start_year=acs_years[0],
+    end_year=acs_years[-1],
+    write_to_internal_review=False,
+) -> pd.DataFrame:
     name_mapper = {"MdVl": "homevalue_median"}
 
     clean_data = load_clean_housing_security_pop_data(name_mapper, start_year, end_year)
 
-    final = get_geography_pop_data(
-        clean_data=clean_data, geography=geography
-    )
+    final = get_geography_pop_data(clean_data=clean_data, geography=geography)
 
     final = rename_col_housing_security(
         final, name_mapper, race_suffix_mapper, "median"

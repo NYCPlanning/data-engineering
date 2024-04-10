@@ -88,7 +88,6 @@ class PUMSMedianEconomics(PUMSAggregator):
         return industry_assign(person)
 
     def civilian_employed_with_earnings_filter(self, PUMS: pd.DataFrame):
-
         age_subset = PUMS[(PUMS["AGEP"] >= 16) & (PUMS["AGEP"] <= 64)]
         civilian_subset = age_subset[
             age_subset["ESR"].isin(

@@ -7,14 +7,15 @@ from aggregate.PUMS.aggregate_medians import PUMSMedians
 class PUMSMedianDemographics(PUMSMedians):
     """Crosstabs on idicators work differently for this aggregator.
     Instead of combining crosstab and original indicator into one, crosstabs are
-    included as iterable. Indicators list has elements of (indicator, iterable of crosstabs)"""
+    included as iterable. Indicators list has elements of (indicator, iterable of crosstabs)
+    """
 
     indicators_denom = [("age",)]
     crosstabs = ["race"]
 
     def __init__(
         self,
-        year:int,
+        year: int,
         limited_PUMA=False,
         requery=False,
         add_MOE=True,

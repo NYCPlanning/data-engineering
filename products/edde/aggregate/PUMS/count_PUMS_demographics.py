@@ -17,7 +17,7 @@ class PUMSCountDemographics(PUMSCount):
 
     def __init__(
         self,
-        year:int,
+        year: int,
         limited_PUMA=False,
         requery=False,
         include_counts=True,

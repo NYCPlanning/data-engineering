@@ -106,7 +106,6 @@ def get_category(indicator, data=None):
 
 
 def get_geography_pop_data(clean_data: pd.DataFrame, geography: str):
-
     if geography == "citywide":
         final = (
             clean_data.loc[clean_data["Geog"] == "citywide"]
