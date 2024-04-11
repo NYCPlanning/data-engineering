@@ -18,25 +18,45 @@ def add_to_recipe_sources(dataset, source):
     return source
 
 
+class RecipeEditor:
+    def __init__(self, path):
+        self.path = path
+
+    def __enter__(self):
+        plan.recipe_from_yaml(self.path)
+        with self.path.open() as f:
+            self.recipe = yaml.load(f)
+        return self.recipe
+
+    def __exit__(self, *args):
+        Recipe(**self.recipe)
+        with self.path.open("w") as f:
+            yaml.dump(self.recipe, f)
+
+
+def generate_sources_yml(project_dir: Path, recipe_path: Path = Path(DEFAULT_RECIPE)):
+    """
+    Generate _source.yml from recipe.yml
+    """
+    return
+
+
 def add_dbt_source(
-    dataset: str, project_dir: Path, recipe_path: Path, add_staging_stubs: bool = False
+    dataset: str,
+    project_dir: Path,
+    recipe_path: Path = Path(DEFAULT_RECIPE),
+    add_staging_stubs: bool = False,
 ):
     """
     Given dataset name, adds a source dataset to a recipe and _sources.yml
     Optionally creates a stub sql file in staging folder and adds source to _staging_models.yml
     """
-    recipe_path = project_dir / recipe_path
-    # validate recipe, but don't use pydantic object just to keep formatting simpler
-    plan.recipe_from_yaml(recipe_path)
-    with recipe_path.open() as f:
-        recipe = yaml.load(f)
-    recipe["inputs"]["datasets"].append(
-        InputDataset(name=dataset).model_dump(exclude_defaults=True, exclude_none=True)
-    )
-    # make sure it's still valid
-    Recipe(**recipe)
-    with recipe_path.open("w") as f:
-        yaml.dump(recipe, f)
+    with RecipeEditor(project_dir / recipe_path) as recipe:
+        recipe["inputs"]["datasets"].append(
+            InputDataset(name=dataset).model_dump(
+                exclude_defaults=True, exclude_none=True
+            )
+        )
 
     sources_path = project_dir / "models" / "_sources.yml"
     with sources_path.open() as f:
