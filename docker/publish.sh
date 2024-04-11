@@ -14,7 +14,7 @@ set_error_traps
 pip3 install requests beautifulsoup4 pip-tools
 
 function generate_dcpy_requirements {
-    cp ../pyproject.toml $image/dcpy.toml
+    cp ../pyproject.toml $image
 }
 
 function export_geosupport_versions {
