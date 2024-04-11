@@ -47,12 +47,13 @@ jobs:
       - name: Check sql files in products
         run: |
           # TODO: Gradually expand this to cover more products
-          sqlfluff lint products/template/
+          sqlfluff lint products/template/sql
+          sqlfluff lint products/cbbr/cbbr_build/sql
           sqlfluff lint products/cpdb/sql/
           sqlfluff lint products/developments/sql/*.sql
           sqlfluff lint products/developments/sql/qaqc
           sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
-          sqlfluff lint products/knownprojects/ --templater=jinja
+          sqlfluff lint products/knownprojects/sql --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
           export BUILD_ENGINE_DB=db-green-fast-track

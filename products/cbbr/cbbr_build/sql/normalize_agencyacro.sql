@@ -1,29 +1,29 @@
 -- setting the agency acronym
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'ACS'
 WHERE agency = 'Administration for Childrens Services';
 
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'BPL'
 WHERE agency = 'Brooklyn Public Library';
 
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'CUNY'
 WHERE agency = 'City University of New York';
 
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'DFTA'
 WHERE agency = 'Department for the Aging';
 
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'DOB'
 WHERE agency = 'Department of Buildings';
 
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'DCP'
 WHERE agency = 'Department of City Planning';
 
-UPDATE cbbr_submissions 
+UPDATE cbbr_submissions
 SET agencyacro = 'DCAS'
 WHERE agency = 'Department of Citywide Administrative Services';
 
