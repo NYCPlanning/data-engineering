@@ -15,40 +15,46 @@ ADD additionalcomment text;
 -- updating cbbr with omb data
 UPDATE cbbr_submissions a
 -- new fields
-SET newtrackingno=b.newtrackingno,
-	requestcategory=b.requestcategory,
-	needcode=b.needcode,
-	projectid1=b.projectid1,
-	projectid2=b.projectid2,
-	projectid3=b.projectid3,
-	budgetline1=b.budgetline1,
-	budgetline2=b.budgetline2,
-	budgetline3=b.budgetline3,
-	agyresponsecode=b.agyresponsecode,
-	additionalcomment=b.additionalcomment,
--- existing fields
-	agency=b.agency,
-	agyresponse=b.agyresponse,
-	agyresponsecat=b.agyresponsecat||' - '||b.agyresponsecatdesc
+SET
+    newtrackingno = b.newtrackingno,
+    requestcategory = b.requestcategory,
+    needcode = b.needcode,
+    projectid1 = b.projectid1,
+    projectid2 = b.projectid2,
+    projectid3 = b.projectid3,
+    budgetline1 = b.budgetline1,
+    budgetline2 = b.budgetline2,
+    budgetline3 = b.budgetline3,
+    agyresponsecode = b.agyresponsecode,
+    additionalcomment = b.additionalcomment,
+    -- existing fields
+    agency = b.agency,
+    agyresponse = b.agyresponse,
+    agyresponsecat = b.agyresponsecat || ' - ' || b.agyresponsecatdesc
 FROM (
-	SELECT a.*, regid
-	FROM cbbr_ombresponse a
-	LEFT JOIN cbbr_omblookuptable b
-	ON a.newtrackingno=b.newtrackingno
-	) b
-WHERE upper(a.regid)=upper(b.regid);
+    SELECT
+        a.*,
+        regid
+    FROM cbbr_ombresponse AS a
+    LEFT JOIN cbbr_omblookuptable AS b
+        ON a.newtrackingno = b.newtrackingno
+) AS b
+WHERE upper(a.regid) = upper(b.regid);
 
 DELETE FROM cbbr_submissions
 WHERE regid IN (
-	SELECT a.regid FROM cbbr_submissions a
-	LEFT JOIN (
-		SELECT a.*, regid as regidb
-		FROM cbbr_ombresponse a
-		LEFT JOIN cbbr_omblookuptable b
-		ON a.newtrackingno=b.newtrackingno
-	) b
-	ON upper(a.regid)=b.regidb
-WHERE b.regidb IS NULL);
+    SELECT a.regid FROM cbbr_submissions AS a
+    LEFT JOIN (
+        SELECT
+            a.*,
+            regid AS regidb
+        FROM cbbr_ombresponse AS a
+        LEFT JOIN cbbr_omblookuptable AS b
+            ON a.newtrackingno = b.newtrackingno
+    ) AS b
+        ON upper(a.regid) = b.regidb
+    WHERE b.regidb IS NULL
+);
 
 -- dropping tables
 DROP TABLE IF EXISTS cbbr_ombresponse;

@@ -11,7 +11,7 @@ CREATE TABLE geo_rejects AS (
         geo_message
     FROM
         _cbbr_submissions
-    WHERE (address != ' ' OR street_name != ' ')
-    AND geom IS NULL
+    WHERE
+        (address != ' ' OR street_name != ' ')
+        AND geom IS NULL
 );
-

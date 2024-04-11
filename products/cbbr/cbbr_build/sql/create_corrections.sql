@@ -1,8 +1,8 @@
 /* Read in points geometry from the csv table */
 DROP TABLE IF EXISTS cbbr_point_corrections;
 CREATE TABLE cbbr_point_corrections (
-    WKT text, --I think we can just turn this into text and then convert once we have all the geometries that were manually mapped
-    OBJECTID text, --these can be deleted in preprocessing of the tables 
+    wkt text, --I think we can just turn this into text and then convert once we have all the geometries that were manually mapped
+    objectid text, --these can be deleted in preprocessing of the tables 
     unique_id text,
     editor text,
     cartodb_id text,
@@ -14,10 +14,10 @@ CREATE TABLE cbbr_point_corrections (
 
 
 DROP TABLE IF EXISTS cbbr_line_corrections;
-CREATE TABLE  cbbr_line_corrections(
-    WKT text,
-    OBJECTID text,
-    Shape_Length numeric,
+CREATE TABLE cbbr_line_corrections (
+    wkt text,
+    objectid text,
+    shape_length numeric,
     unique_id text,
     cartodb_id text,
     editor text
@@ -27,16 +27,13 @@ CREATE TABLE  cbbr_line_corrections(
 
 
 DROP TABLE IF EXISTS cbbr_poly_corrections;
-CREATE TABLE  cbbr_poly_corrections(
-    WKT text, 
-    OBJECTID text,
-    Shape_Length numeric,
-    Shape_Area numeric,
+CREATE TABLE cbbr_poly_corrections (
+    wkt text,
+    objectid text,
+    shape_length numeric,
+    shape_area numeric,
     unique_id text,
     editor text
 
 );
 \COPY cbbr_poly_corrections FROM 'cbbr_geom_corrections/processed/cbbr_poly_corrections.csv' DELIMITER ',' CSV HEADER;
-
-
-
