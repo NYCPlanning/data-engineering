@@ -9,6 +9,7 @@ numpy
 openpyxl
 pandas
 pathos
+pip-tools
 psycopg2_binary
 pytest
 python-dotenv
