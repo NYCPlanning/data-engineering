@@ -1,6 +1,7 @@
 boto3
 census
 contextily
+gdal
 geoalchemy2
 geopandas
 Jinja2
