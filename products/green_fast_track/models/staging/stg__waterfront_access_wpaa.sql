@@ -9,7 +9,8 @@ final AS (
     SELECT
         'waterfront_access_wpaa' AS variable_type,
         wpaa_id,
-        wpaa_name,
+        name,
+        status,
         st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 

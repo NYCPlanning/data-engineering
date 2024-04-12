@@ -179,21 +179,16 @@ sources:
           - name: wpaa_id
             tests:
               - not_null
-          - name: wpaa_name
+              - unique
+          - name: name
             tests:
               - not_null
           - name: wkb_geometry
             tests:
               - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: dcp_waterfront_access_map_wpaa_compound_key
-              combination_of_columns:
-                - wpaa_id
-                - wpaa_name
-                - wkb_geometry
-              config:
-                severity: warn
+          - name: status
+            tests:
+              - not_null
 
       - name: dcp_waterfront_access_map_pow
         columns:
@@ -253,7 +248,6 @@ sources:
                 - wkt
               config:
                 severity: warn
-              
 
       - name: dcp_beaches
         columns:
