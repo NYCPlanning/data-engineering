@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - python/**
+      - docker/**
+      - pyproject.toml
   workflow_dispatch:
     inputs:
       base:
