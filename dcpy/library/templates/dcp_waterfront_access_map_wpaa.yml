@@ -4,19 +4,19 @@ dataset:
   source:
     arcgis_feature_server:
       server: dcp
-      name: nywpaa_accesspoints
+      name: nywpaa
       layer: 0
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
     geometry:
       SRS: EPSG:2263
-      type: POINT
+      type: POLYGON
 
   destination:
     geometry:
       SRS: EPSG:2263
-      type: POINT
+      type: POLYGON
     options:
       - "PRECISION=NO"
       - "OVERWRITE=YES"

@@ -4,22 +4,22 @@ WITH wpaa AS (
     SELECT * FROM {{ ref("stg__waterfront_access_wpaa") }}
 ),
 
+filtered_status AS (
+    SELECT
+        variable_type,
+        wpaa_id,
+        name,
+        raw_geom
+    FROM wpaa
+    WHERE UPPER(status) != 'CLOSED'
+),
+
 modified_id AS (
     SELECT
         variable_type,
         raw_geom,
-        wpaa_id || '-' || wpaa_name AS variable_id
-    FROM wpaa
-),
-
--- some areas are listed multiple times due to different geometries. Group them
-grouped_by_variable_id AS (
-    SELECT
-        variable_type,
-        variable_id,
-        ST_UNION(raw_geom) AS raw_geom
-    FROM modified_id
-    GROUP BY variable_type, variable_id
+        wpaa_id || '-' || name AS variable_id
+    FROM filtered_status
 )
 
 SELECT
@@ -27,4 +27,4 @@ SELECT
     variable_id,
     raw_geom,
     ST_BUFFER(raw_geom, 200) AS buffer
-FROM grouped_by_variable_id
+FROM modified_id
