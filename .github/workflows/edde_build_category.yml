@@ -1,4 +1,5 @@
-name: EDDE - Build Category
+name: EDDE - 🏗️ Build Category
+run-name: "EDDE - 🏗️ Build Category: ${{ inputs.category }}"
 
 on:
   workflow_dispatch:
@@ -18,38 +19,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  export:
-    runs-on: ubuntu-20.04
-    env:
-      AWS_S3_ENDPOINT: ${{ secrets.DO_S3_ENDPOINT }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.DO_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SECRET_ACCESS_KEY }}
- 
+  build:
+    name: "Build EDDE ${{ inputs.category }}"
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/edde
+    container:
+      image: nycplanning/build-geosupport:latest
     steps:
-      - uses: actions/checkout@v2
-      
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
         with:
-          python-version: '3.9'
-      
-      - name: install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3-pip python3-distutils
-          sudo apt install -y gdal-bin
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          sudo mv ./mc /usr/bin
-          mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
-      - name: Python packages install
+      - name: Setup build environment
+        working-directory: ./
         run: |
-          python3 -m pip install --requirement requirements.txt
+          ./bash/docker_container_setup.sh
+          ./bash/build_env_setup.sh
 
-      - name: dataloading
+      - name: Load
         run: ./ingest/data_library/dataloading.sh
 
-      - name: export
+      - name: Build
         run: |
-          python3 -m external_review.external_review_collate ${{github.event.inputs.category}}  
-          ./external_review/export_DO.sh
+          python3 -m external_review.external_review_collate ${{github.event.inputs.category}}
+
+      - name: Export
+        run: ./external_review/export_DO.sh
