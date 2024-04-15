@@ -13,12 +13,12 @@ app = typer.Typer(add_completion=False)
 yaml = YAML()
 
 
-def add_to_recipe_sources(dataset, source):
-    source["tables"].append({"name": dataset})
-    return source
-
-
 class RecipeEditor:
+    """
+    Context manager class that allows recipe files to be edited (and validated)
+    in a with clause. Validation occurs at time of reading and writing.
+    """
+
     def __init__(self, path):
         self.path = path
 
@@ -35,10 +35,14 @@ class RecipeEditor:
 
 
 def generate_sources_yml(project_dir: Path, recipe_path: Path = Path(DEFAULT_RECIPE)):
-    """
-    Generate _source.yml from recipe.yml
-    """
-    return
+    """Generate _source.yml from recipe.yml"""
+    raise NotImplementedError()
+
+
+def add_to_recipe_sources(dataset, source):
+    """Small helper to append dataset to yml from _sources.yml"""
+    source["tables"].append({"name": dataset})
+    return source
 
 
 def add_dbt_source(
