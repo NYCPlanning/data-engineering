@@ -1,20 +1,29 @@
 import pandas as pd
 from utils.PUMA_helpers import puma_to_borough, clean_PUMAs
 from internal_review.set_internal_review_file import set_internal_review_files
+from ingest.ingestion_helpers import read_from_excel
+
+SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2024_Updates_transportation.xlsx"
+CATEGORY = "quality_of_life"
+SOURCE_SHEET_NAMES = {
+    "park_access": "Park_Qtr_Mile_Access",
+}
 
 
 def load_access_to_open_space():
     """ "Drop the percentage served column on reading in the excel file and calculate ourselves"""
-    df = pd.read_excel(
-        "./resources/quality_of_life/Park_Access.xlsx",
-        usecols=["PUMA", "Pop_Served", "Total_Pop20"],
+    df = read_from_excel(
+        file_path=SOURCE_DATA_FILE,
+        category=CATEGORY,
+        sheet_name=SOURCE_SHEET_NAMES["park_access"],
+        columns=["PUMA", "Pop_Served", "Total_Pop21"],
         dtype={"PUMA": str},
     )
     df.rename(
         columns={
             "PUMA": "puma",
             "Pop_Served": "access_openspace_count",
-            "Total_Pop20": "total_pop_2020",
+            "Total_Pop21": "total_pop_2021",
         },
         inplace=True,
     )
@@ -36,10 +45,10 @@ def assign_geo_cols(df):
 
 def calculate_open_space(df, geography):
     aggregated = df.groupby(geography)[
-        ["access_openspace_count", "total_pop_2020"]
+        ["access_openspace_count", "total_pop_2021"]
     ].sum()
     aggregated["access_openspace_pct"] = (
-        aggregated["access_openspace_count"] / aggregated["total_pop_2020"]
+        aggregated["access_openspace_count"] / aggregated["total_pop_2021"]
     ) * 100
     aggregated = aggregated.round(2)
     return aggregated[["access_openspace_count", "access_openspace_pct"]]
