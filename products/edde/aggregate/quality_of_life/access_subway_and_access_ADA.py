@@ -7,7 +7,7 @@ from internal_review.set_internal_review_file import set_internal_review_files
 from utils.PUMA_helpers import puma_to_borough
 from ingest.ingestion_helpers import read_from_excel
 
-SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2023_Updates_transportation.xlsx"
+SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2024_Updates_transportation.xlsx"
 CATEGORY = "quality_of_life"
 SOURCE_SHEET_NAMES = {
     "subway_SBS": "Subway_SBS_Qr_Mile_Access",

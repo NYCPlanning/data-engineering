@@ -5,6 +5,9 @@ from internal_review.set_internal_review_file import set_internal_review_files
 from utils.PUMA_helpers import clean_PUMAs, puma_to_borough, acs_years
 from utils.dcp_population_excel_helpers import race_suffix_mapper_global
 
+SOURCE_DATA_FILE = (
+    "resources/housing_security/nycha_tenants/nycha_tenants_processed_2024.xlsx"
+)
 
 race_labels = ["", "_wnh", "_bnh", "_hsp", "_anh", "_onh"]
 
@@ -62,7 +65,7 @@ def nycha_tenants(
 
 def load_clean_nycha_data():
     read_excel_arg = {
-        "io": "resources/housing_security/nycha_tenants/nycha_tenants_processed_2023.xlsx",
+        "io": SOURCE_DATA_FILE,
         "sheet_name": "PUMA",
         "usecols": "A, F:Q",
         "nrows": 41,
