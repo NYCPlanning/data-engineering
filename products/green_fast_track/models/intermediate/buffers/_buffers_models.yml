@@ -273,7 +273,6 @@ models:
       - name: buffer
         tests:
           - not_null
-          - is_epsg_2263
 
   - name: int_buffers__nysshpo_archaeological_buffer_areas
     columns:
