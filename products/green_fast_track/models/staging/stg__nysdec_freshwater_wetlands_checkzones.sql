@@ -3,7 +3,7 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT
-    'wetland_checkzones' AS variable_type,
+    'wetlands_checkzones' AS variable_type,
     objectid AS variable_id,
     geom AS raw_geom,
     NULL AS buffer
