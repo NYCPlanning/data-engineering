@@ -353,19 +353,6 @@ sources:
             tests:
               - not_null
 
-      - name: nysdec_priority_shorelines
-        columns:
-          - name: pwl_id
-            tests:
-              - unique
-              - not_null
-          - name: name
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-
       - name: nysdec_priority_streams
         columns:
           - name: pwl_id

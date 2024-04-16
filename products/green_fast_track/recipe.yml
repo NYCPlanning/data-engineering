@@ -28,7 +28,6 @@ inputs:
     - name: nysdec_tidal_wetlands
     - name: nysdec_priority_lakes
     - name: nysdec_priority_estuaries
-    - name: nysdec_priority_shorelines
     - name: nysdec_priority_streams
     - name: nysdec_natural_heritage_communities
     - name: usfws_nyc_wetlands

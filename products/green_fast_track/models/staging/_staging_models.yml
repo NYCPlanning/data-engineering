@@ -19,7 +19,6 @@ models:
   - name: stg__nysdec_tidal_wetlands
   - name: stg__nysdec_priority_lakes
   - name: stg__nysdec_priority_estuaries
-  - name: stg__nysdec_priority_shorelines
   - name: stg__nysdec_priority_streams
   - name: stg__nysdec_natural_heritage_communities
   - name: stg__dcp_beaches
