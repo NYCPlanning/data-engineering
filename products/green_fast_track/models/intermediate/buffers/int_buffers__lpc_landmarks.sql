@@ -9,19 +9,25 @@ WITH pluto AS (
 
 
 filtered_lpc_landmarks AS (
-    SELECT
-        lm_name,
-        pluto.bbl,
-        pluto.geom,
-        COALESCE(pluto.geom, lm.raw_geom) AS coalesced_geom
-    FROM {{ ref('stg__lpc_landmarks') }} AS lm
-    -- If, for example, there's a lamppost in a park, we don't want to use the polygon for the entire park.
-    LEFT JOIN pluto ON ST_CONTAINS(pluto.geom, lm.raw_geom) AND pluto.zonedist1 != 'PARK'
+    SELECT * FROM {{ ref('stg__lpc_landmarks') }}
     WHERE
         (lm_type = 'Individual Landmark' OR lm_type = 'Interior Landmark')
         AND status = 'DESIGNATED'
         AND (last_actio = 'DESIGNATED' OR last_actio = 'DESIGNATED (AMENDMENT/MODIFICATION ACCEPTED)')
         AND most_curre = '1'
+),
+
+landmarks_with_pluto AS (
+    SELECT
+        lm_name,
+        pluto.bbl,
+        pluto.geom,
+        COALESCE(pluto.geom, filtered_lpc_landmarks.raw_geom) AS coalesced_geom
+    FROM filtered_lpc_landmarks
+    -- If, for example, there's a lamppost in a park, we don't want to use the polygon for the entire park.
+    LEFT JOIN
+        pluto
+        ON ST_CONTAINS(pluto.geom, filtered_lpc_landmarks.raw_geom) AND lm_name != 'Historic Street Lampposts'
 ),
 
 -- There are a few different cases for deduping.
@@ -30,18 +36,23 @@ filtered_lpc_landmarks AS (
 -- Otherwise we should group by the PLUTO bbl, joining together the names of the individual landmarks
 -- when there are multiple per BBL. e.g. The Brooklyn Navy Yard has two buildings within that are both
 -- landmarks.
-deduped_lpc_landmarks AS (
+grouped_landmarks AS (
     SELECT
-        STRING_AGG(DISTINCT lm_name, ', ') AS lm_names,
+        lm_name,
+        STRING_AGG(DISTINCT bbl, ', ') AS bbls,
         ST_UNION(coalesced_geom) AS geom
-    FROM filtered_lpc_landmarks
-    GROUP BY bbl, COALESCE(bbl, lm_name)
+    FROM landmarks_with_pluto
+    GROUP BY lm_name
+),
+
+buffered_landmarks AS (
+    SELECT
+        'nyc_historic_buildings' AS variable_type,
+        lm_name AS variable_id,
+        bbls,
+        geom AS raw_geom,
+        ST_BUFFER(geom, 90) AS buffer
+    FROM grouped_landmarks
 )
 
-
-SELECT
-    lm_names AS variable_id,
-    'historic_landmark' AS variable_type,
-    geom AS raw_geom,
-    ST_BUFFER(geom, 90) AS buffer
-FROM deduped_lpc_landmarks
+SELECT * FROM buffered_landmarks

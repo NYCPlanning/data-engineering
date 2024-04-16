@@ -5,8 +5,8 @@ WITH clipped_to_nyc AS (
 -- We have multiple rows of archaeological areas, but none have an identifier
 -- so it makes sense to treat them as a single polygon
 SELECT
-    'archaeological_buffer_area' AS variable_id,
-    'archaeological_buffer_area' AS variable_type,
+    'archaeological_areas' AS variable_type,
+    'Archaeological Areas' AS variable_id,
     st_union(geom) AS raw_geom,
-    st_union(geom) AS buffer
+    NULL AS buffer
 FROM clipped_to_nyc

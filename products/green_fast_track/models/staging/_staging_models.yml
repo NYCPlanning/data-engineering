@@ -8,6 +8,9 @@ models:
   - name: stg__lpc_landmarks
   - name: stg__lpc_scenic_landmarks
   - name: stg__nysparks_historicplaces
+  - name: stg__nysshpo_historic_buildings
+  - name: stg__nysshpo_historic_building_districts
+  - name: stg__nysshpo_archaeological_buffer_areas
   - name: stg__panynj_airports
   - name: stg__pluto
   - name: stg__nysdec_title_v_facility_permits

@@ -29,3 +29,10 @@ rec,Recognized Ecological Complexes,Natural Resources,,Intersects
 snwa,Special Natural Waterfront Areas,Natural Resources,,Intersects
 forever_wild,NYC Parks Forever Wild,Natural Resources,,Intersects
 natural_resource_shadow,Natural Resource Shadow,Natural Resources/Shadow/Open Space,,200 ft buffer
+nyc_historic_buildings,Historic Buildings,Historic,,X
+nyc_historic_districts,Historic Districts,Historic,,X
+scenic_landmarks,Scenic Landmarks,Historic,,X
+nys_historic_buildings,State Historic Buildings,Historic,,X
+nys_historic_districts,State Historic Districts,Historic,,X
+us_historic_places,Federal Historic Places,Historic,,X
+archaeological_areas,State Archaeological Areas,Historic,,X

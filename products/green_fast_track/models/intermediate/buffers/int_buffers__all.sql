@@ -38,10 +38,12 @@ WITH all_buffers AS (
         ref('stg__nysdec_tidal_wetlands'),
         ref('stg__usfws_nyc_wetlands'),
         ref('int_buffers__nysshpo_historic_buildings'),
+        ref('stg__nysshpo_historic_building_districts'),
         ref('int_buffers__nysparks_historicplaces'),
         ref('stg__lpc_historic_district_areas'),
         ref('stg__lpc_scenic_landmarks'),
-        ref('int_buffers__lpc_landmarks')
+        ref('int_buffers__lpc_landmarks'),
+        ref('stg__nysshpo_archaeological_buffer_areas')
     ],
     column_override={"raw_geom": "geometry", "buffer": "geometry"}
 ) }}
