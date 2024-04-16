@@ -67,6 +67,23 @@ mkdir -p output && (
     export sources__waterfront_access_wpaa
     export sources__waterfront_access_wpaa_buffers
 
+    # Natural Resources
+    export sources__beaches
+    export sources__forever_wild_reserves
+    export sources__national_wetlands
+    export sources__natural_heritage_communities
+    export sources__priority_estuaries
+    export sources__priority_lakes
+    export sources__priority_streams MULTLINESTRING
+    export sources__recognized_ecological_complexes
+    export sources__special_natural_waterfront_areas
+    export sources__state_freshwater_wetlands_checkzones
+    export sources__state_freshwater_wetlands
+    export sources__state_tidal_wetlands
+
+    export sources__natural_resources_buffer
+
+
     export variables NONE
     export source_data_versions NONE
 
