@@ -16,7 +16,7 @@ from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors import web
-from . import TMP_DIR, metadata
+from . import TMP_DIR, configure
 
 
 def download_file_from_source(template: Template, version: str, dir=TMP_DIR) -> Path:
@@ -66,14 +66,14 @@ def extract_and_archive_raw_dataset(dataset: str, version: str | None) -> Config
     Returns config object."""
     # gather metadata
     timestamp = datetime.now()
-    template = metadata.read_template(dataset, version=version)
-    version = version or metadata.get_version(template, timestamp)
+    template = configure.read_template(dataset, version=version)
+    version = version or configure.get_version(template, timestamp)
 
     # get file
     file = download_file_from_source(template, version)
 
     # create "final" config file
-    config = metadata.get_config(template, version, timestamp, file.name)
+    config = configure.get_config(template, version, timestamp, file.name)
     # archive to edm-recipes/raw_datasets
     recipes.archive_raw_dataset(config, file)
 
