@@ -54,6 +54,9 @@ def add_dbt_source(
     """
     Given dataset name, adds a source dataset to a recipe and _sources.yml
     Optionally creates a stub sql file in staging folder and adds source to _staging_models.yml
+
+    TODO this function is currently untested, and if we start to use operationally, or if
+    additional functionality begins to use it outside of CLI calls, it certainly needs tests
     """
     with RecipeEditor(project_dir / recipe_path) as recipe:
         recipe["inputs"]["datasets"].append(
