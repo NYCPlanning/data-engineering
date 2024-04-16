@@ -153,6 +153,34 @@ models:
         data_type: string
       - name: '"Natural Resource Shadow Flag"'
         data_type: string
+      - name: '"Federal Historic Places Flag"'
+        data_type: string
+      - name: '"Federal Historic Places"'
+        data_type: string
+      - name: '"Historic Buildings Flag"'
+        data_type: string
+      - name: '"Historic Buildings"'
+        data_type: string
+      - name: '"Historic Districts Flag"'
+        data_type: string
+      - name: '"Historic Districts"'
+        data_type: string
+      - name: '"Scenic Landmarks Flag"'
+        data_type: string
+      - name: '"Scenic Landmarks"'
+        data_type: string
+      - name: '"State Archaeological Areas Flag"'
+        data_type: string
+      - name: '"State Archaeological Areas"'
+        data_type: string
+      - name: '"State Historic Buildings Flag"'
+        data_type: string
+      - name: '"State Historic Buildings"'
+        data_type: string
+      - name: '"State Historic Districts Flag"'
+        data_type: string
+      - name: '"State Historic Districts"'
+        data_type: string
       - name: geom
         data_type: geometry(Geometry, 2263)
 
