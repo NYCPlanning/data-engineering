@@ -5,8 +5,8 @@ from dcpy.models import file
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import (
+    configure,
     extract,
-    metadata,
 )
 from . import RESOURCES
 
@@ -23,7 +23,7 @@ def test_download_file(create_buckets, create_temp_filesystem: Path):
             tmp_file = create_temp_filesystem / "tmp.txt"
             tmp_file.touch()
             source["path"] = tmp_file
-        template = metadata.Template(
+        template = configure.Template(
             name="test",
             acl="public-read",
             source=source,
