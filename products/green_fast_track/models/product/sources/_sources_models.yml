@@ -45,3 +45,19 @@ models:
 
   - name: sources__waterfront_access_wpaa
   - name: sources__waterfront_access_wpaa_buffers
+
+  ## natural resources
+  - name: sources__state_freshwater_wetlands_checkzones
+  - name: sources__state_freshwater_wetlands
+  - name: sources__state_tidal_wetlands
+  - name: sources__priority_estuaries
+  - name: sources__priority_lakes
+  - name: sources__priority_streams
+  - name: sources__natural_heritage_communities
+  - name: sources__beaches
+  - name: sources__recognized_ecological_complexes
+  - name: sources__special_natural_waterfront_areas
+  - name: sources__forever_wild_reserves
+  - name: sources__national_wetlands
+
+  - name: sources__natural_resources_buffer
