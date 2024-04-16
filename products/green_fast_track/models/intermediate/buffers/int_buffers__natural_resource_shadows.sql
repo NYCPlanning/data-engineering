@@ -7,7 +7,6 @@ WITH all_natural_resources AS (
         ref('stg__nysdec_natural_heritage_communities'),
         ref('stg__nysdec_priority_estuaries'),
         ref('stg__nysdec_priority_lakes'),
-        ref('stg__nysdec_priority_shorelines'),
         ref('stg__nysdec_priority_streams'),
         ref('stg__nysdec_tidal_wetlands'),
         ref('stg__usfws_nyc_wetlands'),
