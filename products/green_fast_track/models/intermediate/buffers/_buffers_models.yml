@@ -261,10 +261,10 @@ models:
       else the point is just buffered.
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -278,10 +278,10 @@ models:
   - name: int_buffers__nysshpo_archaeological_buffer_areas
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -299,10 +299,10 @@ models:
       Historic buildings within the NYC boundary. Combines both points and polygon sources
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
@@ -319,10 +319,10 @@ models:
       Historic places within the NYC boundary
     columns:
       - name: variable_type
-        test:
+        tests:
           - not_null
       - name: variable_id
-        test:
+        tests:
           - not_null
           - unique
       - name: raw_geom
