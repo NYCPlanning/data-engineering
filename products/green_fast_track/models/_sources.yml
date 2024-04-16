@@ -157,13 +157,19 @@ sources:
             tests:
               - not_null
           - name: usnname
-            tests:
-              - not_null
           - name: eligibilitydesc
             tests:
             - accepted_values:
                 values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
           - name: wkb_geometry
+            tests:
+              - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: nysshpo_historic_buildings_polygons_compound_key
+              combination_of_columns:
+                - usnnum
+                - usnname
 
       - name: nysshpo_historic_buildings_points
         columns:
@@ -171,13 +177,17 @@ sources:
             tests:
               - not_null
           - name: usnname
-            tests:
-              - not_null
           - name: eligibilitydesc
             tests:
             - accepted_values:
                 values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
           - name: wkb_geometry
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: nysshpo_historic_buildings_points_compound_key
+              combination_of_columns:
+                - usnnum
+                - usnname
 
       - name: nysshpo_archaeological_buffer_areas
         columns:
@@ -186,16 +196,16 @@ sources:
               - not_null
               - is_epsg_2263
 
-      - name: nysparks_historicplaces
+      - name: nysparks_historicplaces_esri
         columns:
           - name: wkb_geometry
             tests:
               - not_null
-          - name: resource_name
+          - name: historicname
             tests:
               - not_null
-          - name: county
-          - name: national_register_number
+          - name: countyname
+          - name: nrnum
             tests:
               - not_null
 
