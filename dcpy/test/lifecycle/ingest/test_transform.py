@@ -34,7 +34,14 @@ def get_fake_data_configs():
                 if "unzipped_filename" in config:
                     file_name = "test.csv.zip"
                 else:
-                    file_name = "test.csv"
+                    if config.get("geometry", None) and isinstance(
+                        config["geometry"]["geom_column"], dict
+                    ):
+                        file_name = (
+                            "test2.csv"  # case when geom_column has x and y values
+                        )
+                    else:
+                        file_name = "test.csv"
             case "shapefile":
                 if "unzipped_filename" in config:
                     file_name = "test.zip"
@@ -67,7 +74,7 @@ def get_fake_data_configs():
     return test_files
 
 
-# TODO: implement tests for zip, json, and geojson format
+# TODO: implement tests for json, and geojson format
 @pytest.mark.parametrize("config", get_fake_data_configs())
 def test_transform_to_parquet(config: Config):
     """

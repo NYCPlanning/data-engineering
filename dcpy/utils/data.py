@@ -109,6 +109,19 @@ def read_data_to_df(
                         geometry=geom_column,
                         crs=csv.geometry.crs,
                     )
+                # case when geometry is specified as lon and lat columns
+                else:
+                    x_column = csv.geometry.geom_column.x
+                    y_column = csv.geometry.geom_column.y
+                    assert (
+                        x_column in df.columns and y_column in df.columns
+                    ), f"❌ Longitude or latitude columns specified in the recipe template do not exist in {config.raw_filename}"
+
+                    gdf = gpd.GeoDataFrame(
+                        df,
+                        geometry=gpd.points_from_xy(df[x_column], df[y_column]),
+                        crs=csv.geometry.crs,
+                    )
     return gdf
 
 

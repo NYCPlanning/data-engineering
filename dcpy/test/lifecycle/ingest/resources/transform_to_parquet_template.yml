@@ -13,6 +13,13 @@
     geom_column: wkt
     crs: EPSG:4326
 
+- format: csv
+  geometry:
+    crs: EPSG:4326
+    geom_column:
+      x: longitude
+      y: latitude
+
 - format: shapefile
   crs: EPSG:4326
 
