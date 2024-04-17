@@ -13,6 +13,6 @@
 #  script_name: ingest_script
 #  script_module: dcpy.test.extract.resources
 - type: local_file
-  path: ""
+  path: tmp.txt
 - type: file_download
   url: https://health.data.ny.gov/api/views/izta-vnpq/rows.csv
