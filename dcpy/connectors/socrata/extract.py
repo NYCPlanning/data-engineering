@@ -39,7 +39,6 @@ def get_version(source: Source):
     """For given socrata dataset, get date last updated formatted as a string.
     This is used as a proxy for a 'version' of the dataset."""
     url = get_metadata_url(source)
-    print(url)
     resp = requests.get(url)
     resp.raise_for_status()
     return _get_version_from_resp(resp.json())
