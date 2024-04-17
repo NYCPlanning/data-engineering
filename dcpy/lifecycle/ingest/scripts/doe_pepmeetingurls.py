@@ -7,8 +7,6 @@ import pandas as pd
 import requests
 import urllib
 
-from .. import TMP_DIR
-
 
 def extract_date(x: str) -> date | None:
     try:
@@ -32,7 +30,7 @@ def get_school_year(url):
     return school_year
 
 
-def ingest() -> pd.DataFrame:
+def extract() -> pd.DataFrame:
     url = "https://www.schools.nyc.gov/about-us/leadership/panel-for-education-policy"
     url1 = "https://www.schools.nyc.gov/about-us/leadership/panel-for-education-policy/pep-meetings-archive"
     html_doc = requests.get(url).content
@@ -109,10 +107,3 @@ def ingest() -> pd.DataFrame:
         proposals1.append(g1)
     df = pd.DataFrame(proposals1)
     return df
-
-
-def runner(dir=TMP_DIR) -> Path:
-    df = ingest()
-    path = dir / "doe_pepmeetingurls.csv"
-    df.to_csv(path, index=False)
-    return path
