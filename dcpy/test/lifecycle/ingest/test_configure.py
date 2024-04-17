@@ -2,12 +2,22 @@ from datetime import datetime
 from pathlib import Path
 from pydantic import TypeAdapter
 import pytest
+from unittest import mock
 import yaml
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import Source, Template
-from dcpy.models.connectors import web
+from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.models.connectors import socrata, web
+from dcpy.models.lifecycle.ingest import (
+    LocalFileSource,
+    ScriptSource,
+    Source,
+    Template,
+)
+from dcpy.utils import s3
+from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import TEMPLATE_DIR, configure
+from . import mock_request_get
 
 RESOURCES = Path(__file__).parent / "resources"
 
@@ -58,6 +68,39 @@ def test_read_template():
         template.file_format,
         file.Shapefile,
     )
+
+
+@mock.patch("requests.get", side_effect=mock_request_get)
+def test_get_version(mock_request_get, create_buckets):
+    datestring = datetime.today().strftime("%Y%m%d")
+    s3.client().put_object(
+        Bucket=publishing.BUCKET,
+        Key=f"datasets/dcp_borough_boundary/{datestring}/dcp_borough_boundary.zip",
+    )
+    s3.client().put_object(
+        Bucket=publishing.BUCKET,
+        Key=f"datasets/dcp_borough_boundary/staging/dcp_borough_boundary.zip",
+    )
+    with open(RESOURCES / "sources.yml") as f:
+        sources = TypeAdapter(list[Source]).validate_python(yaml.safe_load(f))
+    for source in sources:
+        match source:
+            case socrata.Source():
+                assert configure.get_version(source) == "20240412"
+            case GisDataset():
+                assert configure.get_version(source) == datestring
+            case LocalFileSource():
+                pass
+            case ScriptSource():
+                pass
+            case web.FileDownloadSource():
+                pass
+            case web.GenericApiSource():
+                pass
+            case _:
+                raise NotImplementedError(
+                    f"Source type {source} has not had test set up"
+                )
 
 
 def test_get_filename():

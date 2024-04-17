@@ -61,17 +61,17 @@ def read_template(
     return Template(**template_yml)
 
 
-def get_version(source: Source, timestamp: datetime) -> str:
+def get_version(source: Source, timestamp: datetime | None = None) -> str:
     """
     Given parsed dataset template, determine version.
     If version's source has no custom logic, returns formatted date
     from provided datetime
     """
     match source:
-        case socrata.Source() as socrata_source:
-            return extract_socrata.get_version(socrata_source)
-        case edm.publishing.GisDataset() as gis_dataset:
-            return publishing.get_latest_gis_dataset_version(gis_dataset.name)
+        case socrata.Source():
+            return extract_socrata.get_version(source)
+        case GisDataset():
+            return publishing.get_latest_gis_dataset_version(source.name)
         case _:
             if timestamp is None:
                 raise TypeError(
@@ -95,6 +95,10 @@ def get_filename(source: Source, ds_name: str) -> str:
             return f"{ds_name}.{source.format}"
         case socrata.Source():
             return f"{ds_name}.{source.extension}"
+        case _:
+            raise NotImplementedError(
+                f"Source type {source} not supported for get_filename"
+            )
 
 
 def get_config(
