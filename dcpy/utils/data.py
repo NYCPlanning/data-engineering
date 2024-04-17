@@ -93,7 +93,7 @@ def read_data_to_df(
                     geom_column = csv.geometry.geom_column
                     assert (
                         geom_column in df.columns
-                    ), f"❌ Geometry column specified in recipe template does not exist in {config.raw_filename}"
+                    ), f"❌ Geometry column specified in recipe template does not exist in {local_data_path.name}"
 
                     # replace NaN values with None. Otherwise gpd throws an error
                     if df[geom_column].isnull().any():
@@ -115,7 +115,7 @@ def read_data_to_df(
                     y_column = csv.geometry.geom_column.y
                     assert (
                         x_column in df.columns and y_column in df.columns
-                    ), f"❌ Longitude or latitude columns specified in the recipe template do not exist in {config.raw_filename}"
+                    ), f"❌ Longitude or latitude columns specified in the recipe template do not exist in {local_data_path.name}"
 
                     gdf = gpd.GeoDataFrame(
                         df,
