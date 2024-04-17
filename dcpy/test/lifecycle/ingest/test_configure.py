@@ -1,10 +1,11 @@
 from datetime import datetime
 from pathlib import Path
+from pydantic import TypeAdapter
 import pytest
 import yaml
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import Template
+from dcpy.models.lifecycle.ingest import Source, Template
 from dcpy.models.connectors import web
 from dcpy.lifecycle.ingest import TEMPLATE_DIR, configure
 
@@ -29,6 +30,10 @@ def test_jinja_vars():
 
 
 def test_read_template():
+    """
+    Tests configure.read_template
+    In addition to ensuring templates are parsed correctly, catches specific errors around jinja templating
+    """
     with pytest.raises(
         Exception,
         match="Version must be supplied explicitly to be rendered in template",
@@ -55,7 +60,31 @@ def test_read_template():
     )
 
 
+def test_get_filename():
+    """
+    Tests configure.get_filename for source objects in resources/sources.yml
+    Feeds in 'test' as a fake dataset name
+    Assumes order in yml file is consistent with order of expected filenames here
+    """
+    expected_filenames = [
+        "test.json",
+        "test.csv",
+        "dcp_borough_boundary.zip",
+        "pad_24a.zip",
+        "tmp.txt",
+        "rows.csv",
+    ]
+    with open(RESOURCES / "sources.yml") as f:
+        sources = TypeAdapter(list[Source]).validate_python(yaml.safe_load(f))
+    for i, source in enumerate(sources):
+        assert configure.get_filename(source, "test") == expected_filenames[i]
+
+
 def test_get_config():
+    """
+    Tests that configure.get_config runs without exception
+    If more complex logic is ever added to configure.get_config, some actual validation should be performed
+    """
     template = configure.read_template("dcp_atomicpolygons", version="test")
     config = configure.get_config(
         template, version="test", timestamp=datetime.now(), file_name="dummy.txt"

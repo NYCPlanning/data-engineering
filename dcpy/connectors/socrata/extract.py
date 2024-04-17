@@ -1,7 +1,9 @@
 from datetime import datetime
+from pathlib import Path
 import requests
 
 from dcpy.models.connectors.socrata import Source
+from dcpy.connectors import web
 
 
 def get_base_url(source: Source):
@@ -41,3 +43,7 @@ def get_version(source: Source):
     resp = requests.get(url)
     resp.raise_for_status()
     return _get_version_from_resp(resp.json())
+
+
+def download(source: Source, path: Path):
+    web.download_file(get_download_url(source), path)
