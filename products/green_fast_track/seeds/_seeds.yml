@@ -19,6 +19,28 @@ seeds:
         tests:
           - not_null
 
+  - name: zoning_district_categories
+    description: All GFT zoning district categories
+    columns:
+      - name: category_type
+          - not_null
+          - unique
+      - name: label
+        tests: [not_null]
+
+  - name: zoning_district_mappings
+    description: All PLUTO zoning district types and their GFT zoning district categories
+    columns:
+      - name: pluto_zoning_type
+        tests:
+          - unique
+      - name: category_type
+        tests:
+            - not_null
+            - relationships:
+                to: ref('zoning_district_categories')
+                field: category_type
+
   - name: nyc_parks_properties_categories
     description: All possible values in typecategory column of recipe dpr_parksproperties
     columns:

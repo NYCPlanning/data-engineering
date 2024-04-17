@@ -1,0 +1,16 @@
+pluto_zoning_type,category_type
+"C",c_or_m
+"M",c_or_m
+"R1",low_res
+"R2",low_res
+"R3",low_res
+"R4",low_res
+"R5",high_res
+"R6",high_res
+"R7",high_res
+"R8",high_res
+"R9",high_res
+"R10",high_res
+"PARK",other
+"BPC",other
+"NONE",other
