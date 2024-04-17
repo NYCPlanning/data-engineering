@@ -11,7 +11,7 @@ from dcpy.models.lifecycle.ingest import (
 
 import zipfile
 
-EXTACTED_FILES_DIR = Path("extracted_files")
+EXTRACTED_FILES_DIR = Path("tmp/extracted_files")
 
 
 def read_data_to_df(
@@ -46,10 +46,10 @@ def read_data_to_df(
         logger.info(f"Unzipping files from {local_data_path}...")
 
         unzipped_filename = data_load_config.unzipped_filename
-        unzipped_file_path = EXTACTED_FILES_DIR / unzipped_filename
+        unzipped_file_path = EXTRACTED_FILES_DIR / unzipped_filename
 
         unzipped_files = unzip_file(
-            zipped_filename=local_data_path, output_dir=EXTACTED_FILES_DIR
+            zipped_filename=local_data_path, output_dir=EXTRACTED_FILES_DIR
         )
 
         # remove leading and trailing slashes
