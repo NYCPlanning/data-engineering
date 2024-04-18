@@ -33,8 +33,7 @@ def download_file_from_source(
                 f"dcpy.connectors.{source.connector}.{source.function}"
             )
             logger.info(f"Running custom ingestion script {source.function}.py")
-            df = module.extract()
-            assert isinstance(df, DataFrame)
+            df: DataFrame = module.extract()
             df.to_parquet(path)
 
         ## request-based methods
