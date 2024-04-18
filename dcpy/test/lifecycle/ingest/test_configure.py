@@ -126,13 +126,10 @@ def test_get_filename():
 def test_get_config():
     """
     Tests that configure.get_config runs without exception
-    If more complex logic is ever added to configure.get_config, some actual validation should be performed
+    Given other unit tests, mainly confirms that template is correctly converted to config pydantic class
     """
-    template = configure.read_template("dcp_atomicpolygons", version="test")
-    config = configure.get_config(
-        template, version="test", timestamp=datetime.now(), file_name="dummy.txt"
-    )
-    assert True  # really just need to make sure that templates properly get converted into configs
+    configure.get_config("dcp_atomicpolygons", version="test")
+    assert True
 
 
 def test_validate_function_args():
