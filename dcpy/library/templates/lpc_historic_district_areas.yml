@@ -15,7 +15,7 @@ dataset:
 
   destination:
     geometry:
-      SRS: EPSG:2263
+      SRS: EPSG:4326
       type: MULTIPOLYGON
     options:
       - "OVERWRITE=YES"
