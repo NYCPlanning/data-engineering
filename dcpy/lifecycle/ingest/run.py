@@ -41,8 +41,9 @@ def _cli_wrapper_run(
         "--version",
         help="Version of dataset being archived",
     ),
+    skip_archival: bool = typer.Option(False, "--skip-archival", "-s"),
 ):
-    run(dataset, version)
+    run(dataset, version, skip_archival=skip_archival)
 
 
 if __name__ == "__main__":
