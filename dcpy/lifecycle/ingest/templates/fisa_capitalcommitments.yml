@@ -4,7 +4,8 @@ source:
   type: local_file
   path: .library/upload/AICP_OREQ_CAPPLN_PJCP.asc
 file_format:
-  format: csv # TODO: this is not exactly correct. Need to think how to convert to parquet
+  format: csv 
+  delimiter: "|"
 
 library_dataset:
   name: fisa_capitalcommitments

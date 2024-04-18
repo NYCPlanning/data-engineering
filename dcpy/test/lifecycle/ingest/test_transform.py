@@ -1,7 +1,9 @@
 from datetime import date
 import geopandas as gpd
 import pandas as pd
+from pathlib import Path
 import pytest
+import tempfile
 from typing import cast
 import yaml
 
@@ -88,32 +90,38 @@ def test_transform_to_parquet(config: Config):
         - Checks if the saved Parquet file contains the expected data.
     """
 
-    source = cast(LocalFileSource, config.source)
-    file_path = source.path
+    with tempfile.TemporaryDirectory() as temp_dir:
+        staging_dir = Path(temp_dir)
 
-    transform.to_parquet(config=config, local_data_path=file_path)
+        source = cast(LocalFileSource, config.source)
+        file_path = source.path
 
-    assert PARQUET_PATH.is_file()
+        transform.to_parquet(
+            config=config, staging_dir=staging_dir, raw_file=source.path
+        )
 
-    output_df = pd.read_parquet(PARQUET_PATH)
-    raw_df = data.read_data_to_df(
-        data_format=config.file_format, local_data_path=file_path
-    )
+        parquet_file = staging_dir / PARQUET_PATH
+        assert parquet_file.is_file()
 
-    # rename geom column & translate geometry to wkb format to match parquet geom column
-    if isinstance(raw_df, gpd.GeoDataFrame):
-        raw_df = raw_df.rename_geometry(transform.OUTPUT_GEOM_COLUMN)
-        raw_df = raw_df.to_wkb()
+        output_df = pd.read_parquet(parquet_file)
+        raw_df = data.read_data_to_df(
+            data_format=config.file_format, local_data_path=file_path
+        )
 
-    print(f"raw_df:\n{raw_df.head()}")
-    print(f"\noutput_df:\n{output_df.head()}")
+        # rename geom column & translate geometry to wkb format to match parquet geom column
+        if isinstance(raw_df, gpd.GeoDataFrame):
+            raw_df = raw_df.rename_geometry(transform.OUTPUT_GEOM_COLUMN)
+            raw_df = raw_df.to_wkb()
 
-    pd.testing.assert_frame_equal(
-        left=raw_df,
-        right=output_df,
-        check_dtype=False,
-        check_like=True,  # ignores order of rows and columns
-    )
+        print(f"raw_df:\n{raw_df.head()}")
+        print(f"\noutput_df:\n{output_df.head()}")
+
+        pd.testing.assert_frame_equal(
+            left=raw_df,
+            right=output_df,
+            check_dtype=False,
+            check_like=True,  # ignores order of rows and columns
+        )
 
 
 def test_validate_processing_steps():

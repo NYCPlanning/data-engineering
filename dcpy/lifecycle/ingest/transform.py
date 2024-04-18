@@ -1,25 +1,22 @@
 import duckdb
 from functools import partial
 import geopandas as gpd
-import inspect
 import pandas as pd
-import shutil
 from typing import Any, Callable
 
-from dcpy.utils import s3, data
+from dcpy.utils import data
 
 from pathlib import Path
 
-from dcpy.models import file
 from dcpy.models.lifecycle.ingest import Config, FunctionCall
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
-from . import TMP_DIR, PARQUET_PATH, configure
+from . import PARQUET_PATH, configure
 
 OUTPUT_GEOM_COLUMN = "geom"
 
 
-def to_parquet(config: Config, local_data_path: Path | None = None):
+def to_parquet(config: Config, staging_dir: Path, raw_file: Path = None):
     """
     Transforms raw data into a parquet file format and saves it locally.
 
@@ -39,35 +36,17 @@ def to_parquet(config: Config, local_data_path: Path | None = None):
         AssertionError: If `local_data_path` is provided but does not point to a valid file or directory.
         AssertionError: If `geom_column` is present in yaml template but not in the dataset.
     """
-
-    # create new dir for raw data and output parquet file
-    if TMP_DIR.is_dir():
-        shutil.rmtree(TMP_DIR)
-    TMP_DIR.mkdir()
-
-    if local_data_path:
-        assert (
-            local_data_path.is_file() or local_data_path.is_dir()
-        ), "Local path should be a valid file or directory"
-        logger.info(f"✅ Raw data was found locally at {local_data_path}")
-    else:
-        local_data_path = TMP_DIR / config.raw_filename
-
-        s3.download_file(
-            bucket=recipes.BUCKET,
-            key=str(config.raw_dataset_s3_filepath(recipes.RAW_FOLDER)),
-            path=local_data_path,
-        )
-        logger.info(f"Downloaded raw data from s3 to {local_data_path}")
-
-    gdf = data.read_data_to_df(config.file_format, local_data_path)
+    raw_file = raw_file or staging_dir / config.raw_filename
+    gdf = data.read_data_to_df(config.file_format, raw_file)
 
     # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):
         gdf = gdf.rename_geometry(OUTPUT_GEOM_COLUMN)
 
-    gdf.to_parquet(PARQUET_PATH, index=False)
-    logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
+    gdf.to_parquet(staging_dir / PARQUET_PATH, index=False)
+    logger.info(
+        f"✅ Converted raw data to parquet file and saved as {staging_dir / PARQUET_PATH}"
+    )
 
 
 class Preprocessors:
