@@ -1,5 +1,6 @@
 import importlib
 from pandas import DataFrame
+import shutil
 
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
@@ -25,7 +26,7 @@ def download_file_from_source(
     match source:
         ## Non reqeust-based methods
         case LocalFileSource():
-            pass
+            shutil.copy(source.path, dir)
         case GisDataset():
             publishing.download_gis_dataset(source.name, version, dir)
         case ScriptSource():
