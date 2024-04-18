@@ -18,10 +18,11 @@ from dcpy.models.lifecycle.ingest import (
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils.logging import logger
-from dcpy.models.connectors import socrata, edm
+from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors.edm import publishing
-from . import TEMPLATE_DIR
+
+TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 
 def get_jinja_vars(s: str) -> set[str]:

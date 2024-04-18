@@ -1,29 +1,25 @@
 import duckdb
 from functools import partial
 import geopandas as gpd
-import inspect
 import pandas as pd
-import shutil
-from typing import Any, Callable
-
-from dcpy.utils import data
-
 from pathlib import Path
+from typing import Any, Callable
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
+from dcpy.utils import data
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
-from . import TMP_DIR, configure
+from . import configure
 
 OUTPUT_GEOM_COLUMN = "geom"
 
 
 def to_parquet(
-    file_format_config: file.Format,
+    file_format: file.Format,
     local_data_path: Path,
-    dir: Path = TMP_DIR,
-    output_filename: str = "tmp.parquet",
+    dir: Path,
+    output_filename: str = "init.parquet",
 ) -> None:
     """
     Transforms raw data into a parquet file format and saves it locally.
@@ -55,7 +51,7 @@ def to_parquet(
     ), "Local path should be a valid file or directory"
     logger.info(f"✅ Raw data was found locally at {local_data_path}")
 
-    gdf = data.read_data_to_df(file_format_config, local_data_path)
+    gdf = data.read_data_to_df(file_format, local_data_path)
 
     # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):

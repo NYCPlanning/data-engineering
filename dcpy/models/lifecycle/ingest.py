@@ -81,6 +81,10 @@ class Config(
         return recipes.DatasetKey(name=self.name, version=self.version)
 
     @property
+    def filename(self) -> str:
+        return f"{self.name}.parquet"
+
+    @property
     def raw_dataset_key(self) -> recipes.RawDatasetKey:
         return recipes.RawDatasetKey(name=self.name, timestamp=self.archival_timestamp)
 

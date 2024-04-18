@@ -1,5 +1,6 @@
 import geopandas as gpd
 import pandas as pd
+from pathlib import Path
 import pytest
 import yaml
 from pydantic import TypeAdapter, BaseModel
@@ -57,7 +58,7 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
     output_file_path = create_temp_filesystem / test_output_filename
 
     transform.to_parquet(
-        file_format_config=file["format"],
+        file_format=file["format"],
         local_data_path=file["local_file_path"],
         dir=create_temp_filesystem,
         output_filename=test_output_filename,
