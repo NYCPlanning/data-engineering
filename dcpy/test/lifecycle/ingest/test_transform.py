@@ -66,8 +66,11 @@ def get_fake_data_configs():
             file_format=config,
         )
 
-        ingest_config = configure.get_config(
-            template, version=FAKE_VERSION, timestamp=date.today(), file_name=file_name
+        ingest_config = Config(
+            version=FAKE_VERSION,
+            archival_timestamp=date.today(),
+            raw_filename=file_name,
+            **template.model_dump(),
         )
         test_files.append(ingest_config)
 

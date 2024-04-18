@@ -101,17 +101,18 @@ def get_filename(source: Source, ds_name: str) -> str:
             )
 
 
-def get_config(
-    template: Template, version: str, timestamp: datetime, file_name: str
-) -> Config:
-    """
-    Simple wrapper to produce a recipes ExtractConfig from a parsed template
-    and other computed values
-    """
+def get_config(dataset: str, version: str | None = None) -> Config:
+    """Generate config object for dataset and optional version"""
+    timestamp = datetime.now()
+    template = read_template(dataset, version=version)
+    filename = get_filename(template.source, template.name)
+    version = version or get_version(template.source, timestamp)
+
+    # create config object
     return Config(
         version=version,
         archival_timestamp=timestamp,
-        raw_filename=file_name,
+        raw_filename=filename,
         **template.model_dump(),
     )
 

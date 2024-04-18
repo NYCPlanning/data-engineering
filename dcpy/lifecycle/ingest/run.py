@@ -1,10 +1,19 @@
 import typer
 
-from . import extract, transform
+from dcpy.connectors.edm import recipes
+from . import configure, extract, transform, TMP_DIR
 
 
 def run(dataset: str, version: str | None = None):
-    config = extract.extract_and_archive_raw_dataset(dataset, version)
+    config = configure.get_config(dataset, version)
+
+    # download dataset
+    extract.download_file_from_source(
+        config.source, config.raw_filename, config.version
+    )
+
+    # archive to edm-recipes/raw_datasets
+    recipes.archive_raw_dataset(config, TMP_DIR / config.raw_filename)
 
     transform.to_parquet(config)
 
@@ -21,19 +30,6 @@ def run(dataset: str, version: str | None = None):
 
 
 app = typer.Typer(add_completion=False)
-
-
-@app.command("archive_raw")
-def _cli_wrapper_archive_raw_dataset(
-    dataset: str = typer.Argument(),
-    version: str = typer.Option(
-        None,
-        "-v",
-        "--version",
-        help="Version of dataset being archived",
-    ),
-):
-    extract.extract_and_archive_raw_dataset(dataset, version)
 
 
 @app.command("run")
