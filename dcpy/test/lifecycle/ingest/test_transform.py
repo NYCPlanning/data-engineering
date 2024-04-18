@@ -93,7 +93,9 @@ def test_transform_to_parquet(config: Config):
     assert PARQUET_PATH.is_file()
 
     output_df = pd.read_parquet(PARQUET_PATH)
-    raw_df = data.read_data_to_df(config=config, local_data_path=file_path)
+    raw_df = data.read_data_to_df(
+        data_format=config.file_format, local_data_path=file_path
+    )
 
     # rename geom column & translate geometry to wkb format to match parquet geom column
     if isinstance(raw_df, gpd.GeoDataFrame):

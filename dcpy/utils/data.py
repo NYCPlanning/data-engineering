@@ -5,9 +5,6 @@ from pathlib import Path
 
 from dcpy.utils.logging import logger
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import (
-    Config,
-)
 
 import zipfile
 
@@ -15,14 +12,14 @@ EXTRACTED_FILES_DIR = Path("tmp/extracted_files")
 
 
 def read_data_to_df(
-    config: Config, local_data_path: Path
+    data_format: file.Format, local_data_path: Path
 ) -> gpd.GeoDataFrame | pd.DataFrame:
     """
     Reads data from a specified path and returns a pandas or geopandas dataframe depending
-    whether the data is geospatial (specified in the config parameter).
+    whether the data is geospatial (specified in the data_format parameter).
 
     Parameters:
-        config(recipes.ExtractConfig): Object containing metadata about the data, including its format
+        data_format(file.Foramt): Object containing metadata about the data, including its format
                          and whether it is geospatial.
         local_data_path(Path): Local path where the data is stored.
 
@@ -39,13 +36,11 @@ def read_data_to_df(
         - The function will load the data into a GeoDataFrame if it is geospatial, otherwise into a DataFrame.
     """
 
-    data_load_config = config.file_format
-
     # case when an input file is a zip
-    if data_load_config.unzipped_filename is not None:
+    if data_format.unzipped_filename is not None:
         logger.info(f"Unzipping files from {local_data_path}...")
 
-        unzipped_filename = data_load_config.unzipped_filename
+        unzipped_filename = data_format.unzipped_filename
         unzipped_file_path = EXTRACTED_FILES_DIR / unzipped_filename
 
         unzipped_files = unzip_file(
@@ -62,7 +57,7 @@ def read_data_to_df(
 
         local_data_path = unzipped_file_path
 
-    match data_load_config:
+    match data_format:
         case file.Shapefile() as shapefile:
             gdf = gpd.read_file(
                 local_data_path,
@@ -80,8 +75,8 @@ def read_data_to_df(
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,
-                encoding=data_load_config.encoding,
-                delimiter=data_load_config.delimiter,
+                encoding=data_format.encoding,
+                delimiter=data_format.delimiter,
             )
 
             if not csv.geometry:

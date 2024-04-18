@@ -60,7 +60,7 @@ def to_parquet(config: Config, local_data_path: Path | None = None):
         )
         logger.info(f"Downloaded raw data from s3 to {local_data_path}")
 
-    gdf = data.read_data_to_df(config, local_data_path)
+    gdf = data.read_data_to_df(config.file_format, local_data_path)
 
     # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):
