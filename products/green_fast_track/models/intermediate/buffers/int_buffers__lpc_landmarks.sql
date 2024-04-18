@@ -7,27 +7,26 @@ WITH pluto AS (
     FROM {{ ref('stg__pluto') }}
 ),
 
-
-filtered_lpc_landmarks AS (
-    SELECT * FROM {{ ref('stg__lpc_landmarks') }}
-    WHERE
-        (lm_type = 'Individual Landmark' OR lm_type = 'Interior Landmark')
-        AND status = 'DESIGNATED'
-        AND (last_actio = 'DESIGNATED' OR last_actio = 'DESIGNATED (AMENDMENT/MODIFICATION ACCEPTED)')
-        AND most_curre = '1'
+lpc_landmarks AS (
+    SELECT
+        variable_type,
+        variable_id,
+        raw_geom
+    FROM {{ ref('stg__lpc_landmarks') }}
 ),
 
 landmarks_with_pluto AS (
     SELECT
-        lm_name,
+        variable_type,
+        variable_id,
         pluto.bbl,
         pluto.geom,
-        COALESCE(pluto.geom, filtered_lpc_landmarks.raw_geom) AS coalesced_geom
-    FROM filtered_lpc_landmarks
+        COALESCE(pluto.geom, lpc_landmarks.raw_geom) AS coalesced_geom
+    FROM lpc_landmarks
     -- If, for example, there's a lamppost in a park, we don't want to use the polygon for the entire park.
     LEFT JOIN
         pluto
-        ON ST_CONTAINS(pluto.geom, filtered_lpc_landmarks.raw_geom) AND lm_name != 'Historic Street Lampposts'
+        ON ST_CONTAINS(pluto.geom, lpc_landmarks.raw_geom) AND variable_id != 'Historic Street Lampposts'
 ),
 
 -- There are a few different cases for deduping.
@@ -38,17 +37,18 @@ landmarks_with_pluto AS (
 -- landmarks.
 grouped_landmarks AS (
     SELECT
-        lm_name,
+        variable_type,
+        variable_id,
         STRING_AGG(DISTINCT bbl, ', ') AS bbls,
         ST_UNION(coalesced_geom) AS geom
     FROM landmarks_with_pluto
-    GROUP BY lm_name
+    GROUP BY variable_type, variable_id
 ),
 
 buffered_landmarks AS (
     SELECT
-        'nyc_historic_buildings' AS variable_type,
-        lm_name AS variable_id,
+        variable_type,
+        variable_id,
         bbls,
         geom AS raw_geom,
         ST_BUFFER(geom, 90) AS buffer
