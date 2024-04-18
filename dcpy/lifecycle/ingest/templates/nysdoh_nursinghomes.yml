@@ -8,7 +8,7 @@ source:
 file_format:
   format: csv
   geometry:
-    geom_column: geocoded_column
+    geom_column: Location
     crs: EPSG:4326
 
 library_dataset:

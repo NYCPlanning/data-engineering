@@ -1,6 +1,7 @@
 import pytest
 from shapely import wkt
 import geopandas as gpd
+import pandas as pd
 from faker import Faker
 import random
 from pathlib import Path
@@ -17,46 +18,76 @@ def generate_fake_data(gdf: gpd.GeoDataFrame = None):
     """Generates test data in various data formats"""
     if not gdf:
         gdf = generate_gdf()
+        gdf2 = generate_gdf(
+            columns=[
+                "boro_code",
+                "block",
+                "lot",
+                "bbl",
+                "text",
+                "longitude",
+                "latitude",
+            ]
+        )
 
     csv_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.csv"
+    csv_path_2 = TEST_DATA_DIR / f"{TEST_DATA_NAME}2.csv"
     shp_path = TEST_DATA_DIR / TEST_DATA_NAME
     gdb_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.gdb"
     parquet_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.parquet"
 
     gdf.to_csv(csv_path, index=False)
+    gdf2.to_csv(csv_path_2, index=False)
     gdf.to_file(shp_path, driver="ESRI Shapefile")
     gdf.to_file(gdb_path, driver="OpenFileGDB")
     gdf.to_parquet(parquet_path, index=False)
 
 
-def generate_gdf() -> gpd.GeoDataFrame:
-    """Generates geodataframe with fake data"""
+def generate_gdf(
+    columns: list = ["boro_code", "block", "lot", "bbl", "text", "wkt"]
+) -> gpd.GeoDataFrame | pd.DataFrame:
+    """Generates a geodataframe with specified columns using fake data."""
 
-    def generate_row() -> dict:
-        """Generates fake row"""
-        fakes = {
-            "wkt": DCPFakes.wkt,
+    def generate_row(columns) -> dict:
+        """Generates fake row based on specified columns"""
+        data_generators = {
             "boro_code": DCPFakes.boro_code,
             "block": DCPFakes.block,
             "lot": DCPFakes.lot,
             "bbl": DCPFakes.bbl,
             "text": fake.pystr,
+            "latitude": fake.latitude,
+            "longitude": fake.longitude,
+            "wkt": DCPFakes.wkt,
         }
         row = {}
-        for k in fakes.keys():
-            if k != "wkt":
-                row[k] = (
-                    fakes[k]() if random.random() > 0.3 else random.choice(["", None])
-                )
+        lat_lon_value = (
+            random.random() > 0.3
+        )  # determine if lat and lon should be set or be None
+
+        for col in columns:
+            if col in ["latitude", "longitude"]:
+                row[col] = data_generators[col]() if lat_lon_value else None
+            elif col == "wkt":
+                row[col] = data_generators[col]() if random.random() > 0.3 else None
             else:
-                row[k] = fakes[k]() if random.random() > 0.3 else None
+                row[col] = (
+                    data_generators[col]()
+                    if random.random() > 0.3
+                    else random.choice(["", None])
+                )
+
         return row
 
     num_rows = 5
-    rows = [generate_row() for _ in range(num_rows)]
-    gdf = gpd.GeoDataFrame(rows)
-    gdf = gdf.set_geometry(col="wkt")
-    gdf.crs = "EPSG:4326"
+    rows = [generate_row(columns=columns) for _ in range(num_rows)]
+
+    if "wkt" in columns:
+        gdf = gpd.GeoDataFrame(rows)
+        gdf = gdf.set_geometry(col="wkt")
+        gdf.crs = "EPSG:4326"
+    else:
+        gdf = pd.DataFrame(rows)
 
     return gdf
 

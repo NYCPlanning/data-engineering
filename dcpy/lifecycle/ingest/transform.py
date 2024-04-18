@@ -6,7 +6,7 @@ import pandas as pd
 import shutil
 from typing import Any, Callable
 
-from dcpy.utils import s3
+from dcpy.utils import s3, data
 
 from pathlib import Path
 
@@ -15,6 +15,8 @@ from dcpy.models.lifecycle.ingest import Config, FunctionCall
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 from . import TMP_DIR, PARQUET_PATH, configure
+
+OUTPUT_GEOM_COLUMN = "geom"
 
 
 def to_parquet(config: Config, local_data_path: Path | None = None):
@@ -53,61 +55,16 @@ def to_parquet(config: Config, local_data_path: Path | None = None):
 
         s3.download_file(
             bucket=recipes.BUCKET,
-            key=str(config.raw_dataset_s3_filepath),
+            key=str(config.raw_dataset_s3_filepath(recipes.RAW_FOLDER)),
             path=local_data_path,
         )
         logger.info(f"Downloaded raw data from s3 to {local_data_path}")
 
-    data_load_config = config.file_format
+    gdf = data.read_data_to_df(config.file_format, local_data_path)
 
-    # TODO: rename geom column to "geom" regardless of input data type
-    match data_load_config:
-        case file.Shapefile() as shapefile:
-            gdf = gpd.read_file(
-                local_data_path,
-                crs=shapefile.crs,
-                encoding=shapefile.encoding,
-            )
-        case file.Geodatabase() as geodatabase:
-            gdf = gpd.read_file(
-                local_data_path,
-                crs=geodatabase.crs,
-                encoding=geodatabase.encoding,
-                layer=geodatabase.layer,
-            )
-        case file.Csv() as csv:
-            df = pd.read_csv(
-                local_data_path,
-                index_col=False,
-                encoding=data_load_config.encoding,
-                delimiter=data_load_config.delimiter,
-            )
-
-            if not csv.geometry:
-                gdf = df
-
-            else:
-                # case when geometry is in one column (i.e. polygon or point object type)
-                if isinstance(csv.geometry.geom_column, str):
-                    geom_column = csv.geometry.geom_column
-                    assert (
-                        geom_column in df.columns
-                    ), f"❌ Geometry column specified in recipe template does not exist in {config.raw_filename}"
-
-                    # replace NaN values with None. Otherwise gpd throws an error
-                    if df[geom_column].isnull().any():
-                        df[geom_column] = df[geom_column].astype(object)
-                        df[geom_column] = df[geom_column].where(
-                            df[geom_column].notnull(), None
-                        )
-
-                    df[geom_column] = gpd.GeoSeries.from_wkt(df[geom_column])
-
-                    gdf = gpd.GeoDataFrame(
-                        df,
-                        geometry=geom_column,
-                        crs=csv.geometry.crs,
-                    )
+    # rename geom column to "geom" regardless of input data type
+    if isinstance(gdf, gpd.GeoDataFrame):
+        gdf = gdf.rename_geometry(OUTPUT_GEOM_COLUMN)
 
     gdf.to_parquet(PARQUET_PATH, index=False)
     logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")

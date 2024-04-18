@@ -10,7 +10,7 @@ import yaml
 from dcpy.models.lifecycle.ingest import Template, Config
 
 from dcpy.utils.logging import logger
-from dcpy.models.connectors import socrata
+from dcpy.models.connectors import socrata, edm
 from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors.edm import publishing
 from . import TEMPLATE_DIR
@@ -58,7 +58,7 @@ def get_version(template: Template, timestamp: datetime) -> str:
     match template.source:
         case socrata.Source() as socrata_source:
             return extract_socrata.get_version(socrata_source)
-        case publishing.GisDataset() as gis_dataset:
+        case edm.publishing.GisDataset() as gis_dataset:
             return publishing.get_latest_gis_dataset_version(gis_dataset.name)
         case _:
             return timestamp.strftime("%Y%m%d")
