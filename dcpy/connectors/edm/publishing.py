@@ -9,6 +9,7 @@ from io import BytesIO
 from zipfile import ZipFile
 import typer
 from typing import Callable, TypeVar
+import yaml
 
 from dcpy.utils import s3, git, versions
 from dcpy.utils.logging import logger
@@ -18,18 +19,24 @@ from dcpy.models.connectors.edm.publishing import (
     PublishKey,
     DraftKey,
 )
+from dcpy.models.lifecycle.builds import BuildMetadata
 
 BUCKET = "edm-publishing"
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
 
 
+def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
+    """Retrieve a product build metadata from s3."""
+    obj = s3.client().get_object(
+        Bucket=BUCKET, Key=f"{product_key.path}/build_metadata.json"
+    )
+    file_content = str(obj["Body"].read(), "utf-8")
+    return BuildMetadata(**yaml.safe_load(file_content))
+
+
 def get_version(product_key: ProductKey) -> str:
-    """Given product key, gets version
-    Assumes existence of version.txt in output folder
-    """
-    return s3.get_file_as_text(BUCKET, f"{product_key.path}/version.txt").splitlines()[
-        0
-    ]
+    """Given product key, gets version"""
+    return get_build_metadata(product_key).version
 
 
 def get_latest_version(product: str) -> str:

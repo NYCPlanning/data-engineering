@@ -1,12 +1,16 @@
-import os
-import pytest
-from pathlib import Path
-import shutil
 import csv
+from datetime import datetime
 from moto import mock_aws
+import os
+from pathlib import Path
+import pytest
+import shutil
+import yaml
 
 from dcpy.utils import s3
+from dcpy.models.lifecycle.builds import BuildMetadata
 from dcpy.connectors.edm import recipes, publishing, packaging
+from dcpy.lifecycle.builds import plan
 
 
 TEST_BUCKET = "test-bucket"
@@ -59,6 +63,7 @@ def mock_data_constants():
         "TEST_BUILD": "build-branch",
         "TEST_VERSION": test_version,
         "TEST_VERSION_FILE": "version.txt",
+        "TEST_BUILD_METADATA": "build_metadata.json",
         "TEST_FILE": "file.csv",
         "TEST_PACKAGED_FILE": f"file_{test_version}.csv",
         "TEST_DATA_FIELDS": ["drink", "like"],
@@ -78,6 +83,7 @@ def create_temp_filesystem(mock_data_constants):
     data_path = mock_data_constants["TEST_DATA_DIR"]
     version = mock_data_constants["TEST_VERSION"]
     version_file = mock_data_constants["TEST_VERSION_FILE"]
+    build_metadata_file = mock_data_constants["TEST_BUILD_METADATA"]
     test_file = mock_data_constants["TEST_FILE"]
     file_columns = mock_data_constants["TEST_DATA_FIELDS"]
     file_data = mock_data_constants["TEST_DATA"]
@@ -91,6 +97,13 @@ def create_temp_filesystem(mock_data_constants):
         print("❌ Unable to create test dir.")
         raise err
 
+    test_recipe = plan.recipe_from_yaml(
+        Path(__file__).parent / "lifecycle" / "builds" / "resources" / "recipe.yml"
+    )
+    build_metadata = BuildMetadata(
+        timestamp=datetime.now(), version=version, recipe=test_recipe
+    )
+
     try:
         txt_file_path = data_path / version_file
         csv_file_path = data_path / test_file
@@ -100,6 +113,8 @@ def create_temp_filesystem(mock_data_constants):
             writer = csv.DictWriter(csv_file, fieldnames=file_columns)
             writer.writeheader()
             writer.writerows(file_data)
+        with open(data_path / build_metadata_file, "w") as f:
+            yaml.dump(build_metadata.model_dump(), f)
         print("Created test filesystem ✅")
 
     except Exception as exc:
