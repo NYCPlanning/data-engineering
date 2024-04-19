@@ -87,6 +87,11 @@ models:
         tests: [not_null]
       - name: '"DPR Parks properties"'
         data_type: string
+      - name: '"Schoolyard-to-playground Flag"'
+        data_type: string
+        tests: [not_null]
+      - name: '"Schoolyard-to-playground"'
+        data_type: string
       - name: '"NYS Parks Property Flag"'
         data_type: string
         tests: [not_null]
