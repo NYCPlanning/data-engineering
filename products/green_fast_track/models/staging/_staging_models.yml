@@ -33,3 +33,4 @@ models:
   - name: stg__dcp_wrp_snwa
   - name: stg__dpr_forever_wild
   - name: stg__usfws_nyc_wetlands
+  - name: stg__dpr_schoolyard_to_playgrounds
