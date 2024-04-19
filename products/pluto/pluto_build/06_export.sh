@@ -19,8 +19,7 @@ ls | grep -v pluto_changes.zip | xargs rm
 cp ../../source_data_versions.csv ./
 cp ../../build_metadata.json ./
 
-echo "version: ${VERSION}" > version.txt
-echo "date: ${DATE}" >> version.txt
+echo "${VERSION}" > version.txt
 
 echo "Exporting gdbs and shapefiles"
 
