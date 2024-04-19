@@ -41,6 +41,7 @@ inputs:
     - name: nysshpo_archaeological_buffer_areas
     # Shadows
     - name: dpr_parksproperties
+    - name: dpr_schoolyard_to_playgrounds
     - name: dcp_pops
     - name: dcp_waterfront_access_map_wpaa
     - name: dcp_waterfront_access_map_pow

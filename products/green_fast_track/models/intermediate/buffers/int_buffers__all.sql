@@ -16,6 +16,7 @@ WITH all_buffers AS (
         ref('int_buffers__exposed_railways'),
         ref('int_buffers__industrial_sources'),
         ref('int_buffers__nyc_parks_properties'),
+        ref('int_buffers__dpr_schoolyard_to_playgrounds'),
         ref('int_buffers__nys_parks_properties'),
         ref('int_buffers__nysdec_state_facility_permits'),
         ref('int_buffers__nysdec_title_v_facility_permits'),

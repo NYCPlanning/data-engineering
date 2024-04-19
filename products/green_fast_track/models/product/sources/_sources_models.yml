@@ -30,6 +30,9 @@ models:
   - name: sources__nyc_parks_properties
   - name: sources__nyc_parks_properties_buffers
 
+  - name: sources__dpr_schoolyard_to_playgrounds_lots
+  - name: sources__dpr_schoolyard_to_playgrounds_buffers
+
   - name: sources__nys_parks_properties
   - name: sources__nys_parks_properties_buffers
 
