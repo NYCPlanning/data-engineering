@@ -159,8 +159,15 @@ sources:
           - name: usnname
           - name: eligibilitydesc
             tests:
-            - accepted_values:
-                values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
+              - accepted_values:
+                  values:
+                    [
+                      "Eligible",
+                      "Listed",
+                      "Not Eligible",
+                      "Not Eligible - Demolished",
+                      "Undetermined",
+                    ]
           - name: wkb_geometry
             tests:
               - not_null
@@ -179,8 +186,15 @@ sources:
           - name: usnname
           - name: eligibilitydesc
             tests:
-            - accepted_values:
-                values: ['Eligible','Listed', 'Not Eligible', 'Not Eligible - Demolished', 'Undetermined']
+              - accepted_values:
+                  values:
+                    [
+                      "Eligible",
+                      "Listed",
+                      "Not Eligible",
+                      "Not Eligible - Demolished",
+                      "Undetermined",
+                    ]
           - name: wkb_geometry
         tests:
           - dbt_utils.unique_combination_of_columns:
@@ -223,6 +237,27 @@ sources:
               - not_null
 
       - name: dcp_boroboundaries_wi
+
+      - name: dpr_schoolyard_to_playgrounds
+        columns:
+          - name: gispropnum
+            tests:
+              - not_null
+          - name: location
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dpr_schoolyard_to_playgrounds_compound_key
+              combination_of_columns:
+                - gispropnum
+                - location
+                - wkb_geometry
+              config:
+                severity: warn
 
       - name: dpr_parksproperties
         columns:
