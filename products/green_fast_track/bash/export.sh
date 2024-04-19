@@ -51,6 +51,9 @@ mkdir -p output && (
     export sources__nyc_parks_properties
     export sources__nyc_parks_properties_buffers
 
+    export sources__dpr_schoolyard_to_playgrounds_lots
+    export sources__dpr_schoolyard_to_playgrounds_buffers
+
     export sources__nys_parks_properties
     export sources__nys_parks_properties_buffers
 
