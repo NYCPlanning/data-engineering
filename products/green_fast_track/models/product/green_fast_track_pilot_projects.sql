@@ -14,4 +14,4 @@ final AS (
         ON gft_bbls.bbl = expected_pilot_projects.bbl
 )
 
-SELECT * FROM final
+SELECT * FROM final ORDER BY project_label ASC, bbl ASC
