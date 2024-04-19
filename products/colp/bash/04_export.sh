@@ -13,7 +13,7 @@ mkdir -p output && (
     cp ../source_data_versions.csv .
     cp ../build_metadata.json .
 
-    echo "[$(date)] ${DATE}" > version.txt
+    echo "${DATE}" > version.txt
 )
 
 mkdir -p output/qaqc && (
