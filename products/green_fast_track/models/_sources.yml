@@ -255,7 +255,6 @@ sources:
               combination_of_columns:
                 - gispropnum
                 - location
-                - wkb_geometry
               config:
                 severity: warn
 
