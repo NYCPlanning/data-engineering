@@ -6,12 +6,12 @@ import pandas as pd
 import shutil
 from typing import Any, Callable
 
-from dcpy.utils import s3, data
+from dcpy.utils import data
 
 from pathlib import Path
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import Config, FunctionCall
+from dcpy.models.lifecycle.ingest import FunctionCall
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 from . import TMP_DIR, PARQUET_PATH, configure
@@ -19,24 +19,23 @@ from . import TMP_DIR, PARQUET_PATH, configure
 OUTPUT_GEOM_COLUMN = "geom"
 
 
-def to_parquet(config: Config, local_data_path: Path | None = None):
+def to_parquet(file_format_config: file.Format, local_data_path: Path):
     """
     Transforms raw data into a parquet file format and saves it locally.
 
     This function first checks for the presence of raw data locally at the specified `local_data_path`.
-    If the path not provided, it is downloaded from an S3 bucket using the `config` parameter.
     The raw data is then read into a GeoDataFrame and saved as a parquet file.
 
     The transformation process varies depending on the format of the raw data, which can be in .shp, .gdb,
-    or .csv format. For csv files, if geometry is present, it is converted into a GeoSeries before creating
+    .csv or zipped format. For csv files, if geometry is present, it is converted into a GeoSeries before creating
     the GeoDataFrame.
 
     Parameters:
-        config (recipes.ExtractConfig): Config object containing geometry info.
-        local_data_path (Path, optional): Path to the local data file. If not provided, data is pulled from S3 bucket.
+        file_format_config (file.Format): Config object containing geometry info.
+        local_data_path (Path): Path to the local data file.
 
     Raises:
-        AssertionError: If `local_data_path` is provided but does not point to a valid file or directory.
+        AssertionError: `local_data_path` does not point to a valid file or directory.
         AssertionError: If `geom_column` is present in yaml template but not in the dataset.
     """
 
@@ -45,22 +44,12 @@ def to_parquet(config: Config, local_data_path: Path | None = None):
         shutil.rmtree(TMP_DIR)
     TMP_DIR.mkdir()
 
-    if local_data_path:
-        assert (
-            local_data_path.is_file() or local_data_path.is_dir()
-        ), "Local path should be a valid file or directory"
-        logger.info(f"✅ Raw data was found locally at {local_data_path}")
-    else:
-        local_data_path = TMP_DIR / config.raw_filename
+    assert (
+        local_data_path.is_file() or local_data_path.is_dir()
+    ), "Local path should be a valid file or directory"
+    logger.info(f"✅ Raw data was found locally at {local_data_path}")
 
-        s3.download_file(
-            bucket=recipes.BUCKET,
-            key=str(config.raw_dataset_s3_filepath(recipes.RAW_FOLDER)),
-            path=local_data_path,
-        )
-        logger.info(f"Downloaded raw data from s3 to {local_data_path}")
-
-    gdf = data.read_data_to_df(config.file_format, local_data_path)
+    gdf = data.read_data_to_df(file_format_config, local_data_path)
 
     # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):
