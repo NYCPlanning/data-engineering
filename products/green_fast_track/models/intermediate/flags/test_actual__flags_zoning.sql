@@ -10,7 +10,7 @@ pluto AS (
 ),
 
 expected_flags_zoning AS (
-    SELECT * FROM {{ ref('test__expected__flags_zoning') }}
+    SELECT * FROM {{ ref('test_expected__flags_zoning') }}
 ),
 
 flags_zoning_districts AS (

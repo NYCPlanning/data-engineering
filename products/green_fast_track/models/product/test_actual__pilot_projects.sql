@@ -3,7 +3,7 @@ WITH gft_bbls AS (
 ),
 
 expected_pilot_projects AS (
-    SELECT * FROM {{ ref('test__expected_pilot_projects') }}
+    SELECT * FROM {{ ref('test_expected__pilot_projects') }}
 ),
 
 final AS (

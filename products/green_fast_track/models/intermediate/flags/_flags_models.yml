@@ -93,7 +93,7 @@ models:
             - variable_type
             - variable_id
 
-  - name: test__actual__flags_zoning
+  - name: test_actual__flags_zoning
     description: Particular lots, their zoning fields, and the actual GFT zoning flag results
     columns:
       - name: lot_label
@@ -112,6 +112,6 @@ models:
       # test zoning flag logic
       - dbt_utils.equality:
           name: equality_flags_zoning
-          compare_model: ref('test__expected__flags_zoning')
+          compare_model: ref('test_expected__flags_zoning')
           config:
             severity: warn
