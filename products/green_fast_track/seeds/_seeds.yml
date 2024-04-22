@@ -32,7 +32,7 @@ seeds:
           - accepted_values:
               values: ["TRUE", "FALSE"]
 
-  - name: test__expected_pilot_projects
+  - name: test_expected__pilot_projects
     description: Mock pilot projects and their expected outputs
     config:
       column_types:
@@ -67,7 +67,7 @@ seeds:
           - not_null
           - is_epsg_2263
 
-  - name: test__expected__flags_zoning
+  - name: test_expected__flags_zoning
     description: Particular lots, their zoning fields, and the expected GFT zoning flag results
     columns:
       - name: lot_label

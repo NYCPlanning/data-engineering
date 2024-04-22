@@ -189,10 +189,10 @@ models:
       - name: geom
         data_type: geometry(Geometry, 2263)
 
-  - name: test__actual__pilot_projects
+  - name: test_actual__pilot_projects
     description: Green Fast Track outputs for pilot project examples
     tests:
       # test the expectations of pilot projects
       - dbt_utils.equality:
           name: equality_green_fast_track_pilot_projects
-          compare_model: ref('test__expected_pilot_projects')
+          compare_model: ref('test_expected__pilot_projects')
