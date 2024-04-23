@@ -1,16 +1,6 @@
 name: nyedes
-display_name: 'E-Designations'
-summary: >
-  This data set contains information and locations of (E) Designations, including
-  CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations (Table
-  2), in Appendix C of the Zoning Resolution. An (E) Designation provides notice
-  of the presence of an environmental requirement pertaining to potential hazardous
-  materials contamination, high ambient noise levels or air emission concerns on
-  a particular tax lot.
-  
-  All previously released versions of this data are available at 
-  <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\">BYTES of the BIG APPLE-Archive</a>
-
+display_name: E-Designations
+summary: ""
 description: >
   This data set contains information and locations of (E) Designations,
   including CEQR Environment Requirements (Table 1) and CEQR Restrictive Declarations
@@ -18,9 +8,10 @@ description: >
   notice of the presence of an environmental requirement pertaining to potential
   hazardous materials contamination, high ambient noise levels or air emission concerns
   on a particular tax lot.
+
   
   All previously released versions of this data are available at 
-  <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\>BYTES of the BIG APPLE- Archive</a>
+  <a href="https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0"\>BYTES of the BIG APPLE- Archive</a>
 
 tags: [e-designation, (e) designation, hazmat, hazardous material, contamination, special designation, window wall noise attenuation, ambient noise level, air quality, impact, zoning map designation, zoning resolution, environmental requirements, new york city, city planning, dcp, nyc]
 
@@ -33,8 +24,11 @@ destinations:
   attachments: []
   datasets:
   - primary_shapefile
-  omit_columns: []
-  column_details: {}
+  omit_columns: ['noise_code', 'noise_date', 'effective_date', 'air_date', 'hazmat_date', 'description', 'air_code', 'hazmat_code']
+  column_details:
+    descriptio: # TODO: fix
+      api_name: description
+      display_name: description
 - id: socrata_prod
   type: socrata
   four_four: hxm3-23vy
@@ -51,7 +45,9 @@ dataset_package:
     filename: nyedes_shape.zip
     overrides:
       omit_columns: []
-      columns: {}
+      columns:
+        description:
+          name: descriptio
   attachments:
   - nyedes_metadata.pdf
 
@@ -156,7 +152,7 @@ columns:
   example: 14d
 - name: description
   display_name: DESCRIPTION
-  description: ''
+  description: 'A description of the E-Designation'
   data_type: text
   example: Window Wall Attenuation & Alternate Ventilation
 - name: bbl
@@ -164,3 +160,8 @@ columns:
   description: ''
   data_type: bbl
   example: '3070650012'
+- name: the_geom
+  display_name: the_geom
+  description: ''
+  data_type: wkb
+  example:
