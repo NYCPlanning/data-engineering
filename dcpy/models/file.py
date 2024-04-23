@@ -58,6 +58,8 @@ class Geodatabase(BaseModel, extra="forbid"):
 # TODO: implement JSON and GEOJSON
 class Json(BaseModel):
     type: Literal["json"]
+    normalize: dict = {}
+    columns: list[str] = []
     unzipped_filename: str | None = None
 
 

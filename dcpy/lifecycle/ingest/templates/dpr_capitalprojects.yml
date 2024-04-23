@@ -1,0 +1,50 @@
+name: dpr_capitalprojects
+acl: public-read
+source:
+  type: file_download
+  url: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
+file_format:
+  type: json
+  normalize:
+    record_path:
+    - Locations
+    - Location
+    meta:
+    - TrackerID
+    - FMSID
+    - Title
+    - TotalFunding
+
+library_dataset:
+  name: dpr_capitalprojects
+  acl: public-read
+  version: "" 
+  source:
+    script:
+      path: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "GEOM_POSSIBLE_NAMES=the_geom"
+      - "X_POSSIBLE_NAMES=longitude,Longitude,Lon,lon,x"
+      - "Y_POSSIBLE_NAMES=latitude,Latitude,Lat,lat,y"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      ### DPR Capital Projects
+      check [here] for metadata
+    url: "https://www.nycgovparks.org/bigapps"
+    dependents: []

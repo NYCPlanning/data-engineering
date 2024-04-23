@@ -1,0 +1,53 @@
+name: nypl_libraries
+acl: public-read
+source:
+  type: api
+  endpoint: https://refinery.nypl.org/api/nypl/locations/v1.0/locations
+  format: json
+file_format:
+  type: json
+  normalize:
+    record_path:
+    - locations
+  columns:
+  - name
+  - postal_code
+  - street_address
+  - locality
+  - region
+  - geolocation.type
+  - geolocation.coordinates
+
+library_dataset:
+  name: nypl_libraries
+  acl: public-read
+  version: ""
+  source:
+    script:
+      path: https://refinery.nypl.org/api/nypl/locations/v1.0/locations
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=lon"
+      - "Y_POSSIBLE_NAMES=lat"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      NYPL libraries is a dataset that we webscrape and store
+      in a csv format, checkout the nypl website(https://www.nypl.org/locations)
+      for more information
+    url: "https://www.nypl.org/locations"
+    dependents: []
