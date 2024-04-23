@@ -2,50 +2,93 @@ WITH pluto AS (
     SELECT * FROM {{ ref('stg__pluto') }}
 ),
 
-zoning_districts_exploded AS (
+district_mappings AS (
+    SELECT * FROM {{ ref('zoning_district_mappings') }}
+),
+
+district_categories AS (
+    SELECT * FROM {{ ref('zoning_district_categories') }}
+),
+
+districts_exploded AS (
     SELECT
         bbl,
-        UNNEST(ARRAY[zonedist1, zonedist2, zonedist3, zonedist4]) AS zd
+        UNNEST(ARRAY[zonedist1, zonedist2, zonedist3, zonedist4]) AS zd,
+        COALESCE(zonedist1, zonedist2, zonedist3, zonedist4) IS null AS zd_all_null
     FROM pluto
 ),
 
-zoning_districts_split_exploded AS (
+districts_distinct AS (
     SELECT
         bbl,
-        UNNEST(STRING_TO_ARRAY(zd, '/')) AS zd
-    FROM zoning_districts_exploded
-    WHERE zd IS NOT NULL
+        zd
+    FROM districts_exploded
+    WHERE (zd IS NOT null AND NOT zd_all_null) OR zd_all_null
+    GROUP BY 1, 2
 ),
 
-zoning_districts_preprocessed AS (
+district_types AS (
     SELECT
         bbl,
-        (REGEXP_MATCH(zd, '^(\w\d+)(?:[^\d].*)?$'))[1] AS zd,
-        zd LIKE 'M%' OR zd LIKE 'C%' AS cmflag
-    FROM zoning_districts_split_exploded
+        CASE
+            WHEN zd IS null THEN 'NONE'
+            WHEN zd LIKE 'M%' OR zd LIKE 'C%' THEN SUBSTRING(zd for 1)
+            WHEN zd LIKE 'R%' THEN SPLIT_PART(zd, '-', 1)
+            ELSE zd
+        END AS zd_type
+    FROM districts_distinct
 ),
 
-zoning_districts_regrouped AS (
+districts_mapped AS (
+    SELECT
+        district_types.*,
+        district_mappings.category_type
+    FROM district_types
+    LEFT JOIN district_mappings ON district_types.zd_type = district_mappings.pluto_zoning_type
+),
+
+lot_with_zoning_categories AS (
     SELECT
         bbl,
-        ARRAY_AGG(zd) <@ ARRAY['R5', 'R6', 'R7', 'R8', 'R9', 'R10'] AS r5_r10,
-        ARRAY_AGG(zd) && ARRAY['R1', 'R2', 'R3', 'R4'] AS r1_r4,
-        BOOL_AND(cmflag) AS c_m
-    FROM zoning_districts_preprocessed
-    GROUP BY bbl
+        ARRAY_AGG(DISTINCT category_type) AS category_type_array
+    FROM districts_mapped
+    GROUP BY 1
+),
+
+lots_with_flags AS (
+    SELECT
+        bbl,
+        category_type_array,
+        'other' = ANY(category_type_array) AS has_other,
+        'c_or_m' = ANY(category_type_array) AS has_c_or_m,
+        'low_res' = ANY(category_type_array) AS has_low_res
+    FROM lot_with_zoning_categories
+),
+
+districts_resolved AS (
+    SELECT
+        bbl,
+        CASE
+            WHEN has_other THEN 'other'
+            WHEN has_c_or_m
+                THEN
+                    CASE
+                        WHEN has_low_res THEN 'low_res_c_or_m'
+                        ELSE 'c_or_m'
+                    END
+            WHEN has_low_res THEN 'low_res'
+            ELSE 'high_res'
+        END AS category_type
+    FROM lots_with_flags
 ),
 
 zoning_district_flags AS (
     SELECT
-        bbl,
+        districts_resolved.bbl,
         'zoning_districts' AS variable_type,
-        CASE
-            WHEN r5_r10 THEN 'R5-R10'
-            WHEN r1_r4 THEN 'R1-R4'
-            WHEN c_m THEN 'C or M'
-        END AS variable_id
-    FROM zoning_districts_regrouped
-    WHERE r5_r10 OR r1_r4 OR c_m
+        district_categories.label AS variable_id
+    FROM districts_resolved
+    LEFT JOIN district_categories ON districts_resolved.category_type = district_categories.category_type
 ),
 
 special_district_flags AS (
