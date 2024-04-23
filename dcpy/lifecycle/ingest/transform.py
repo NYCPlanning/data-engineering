@@ -14,12 +14,17 @@ from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
-from . import TMP_DIR, PARQUET_PATH, configure
+from . import TMP_DIR, configure
 
 OUTPUT_GEOM_COLUMN = "geom"
 
 
-def to_parquet(file_format_config: file.Format, local_data_path: Path):
+def to_parquet(
+    file_format_config: file.Format,
+    local_data_path: Path,
+    dir: Path = TMP_DIR,
+    output_filename: str = "tmp.parquet",
+) -> None:
     """
     Transforms raw data into a parquet file format and saves it locally.
 
@@ -33,16 +38,17 @@ def to_parquet(file_format_config: file.Format, local_data_path: Path):
     Parameters:
         file_format_config (file.Format): Config object containing geometry info.
         local_data_path (Path): Path to the local data file.
+        dir (Path): Directory to use for output file.
+        output_filename (str): Output file name.
 
     Raises:
         AssertionError: `local_data_path` does not point to a valid file or directory.
         AssertionError: If `geom_column` is present in yaml template but not in the dataset.
     """
 
-    # create new dir for raw data and output parquet file
-    if TMP_DIR.is_dir():
-        shutil.rmtree(TMP_DIR)
-    TMP_DIR.mkdir()
+    # create new dir for output parquet file if doesn't exist
+    dir.mkdir(parents=True, exist_ok=True)
+    output_file_path = dir / output_filename
 
     assert (
         local_data_path.is_file() or local_data_path.is_dir()
@@ -55,8 +61,10 @@ def to_parquet(file_format_config: file.Format, local_data_path: Path):
     if isinstance(gdf, gpd.GeoDataFrame):
         gdf = gdf.rename_geometry(OUTPUT_GEOM_COLUMN)
 
-    gdf.to_parquet(PARQUET_PATH, index=False)
-    logger.info(f"✅ Converted raw data to parquet file and saved as {PARQUET_PATH}")
+    gdf.to_parquet(output_file_path, index=False)
+    logger.info(
+        f"✅ Converted raw data to parquet file and saved as {output_file_path}"
+    )
 
 
 class Preprocessors:

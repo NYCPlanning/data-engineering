@@ -3,13 +3,11 @@ import pandas as pd
 import pytest
 import yaml
 from pydantic import TypeAdapter, BaseModel
+from pathlib import Path
 
 from dcpy.models.file import Format
 from dcpy.models.lifecycle.ingest import FunctionCall
-from dcpy.lifecycle.ingest import (
-    transform,
-    PARQUET_PATH,
-)
+from dcpy.lifecycle.ingest import transform
 
 from dcpy.utils import data
 from . import RESOURCES, TEST_DATA_DIR
@@ -46,7 +44,7 @@ def get_fake_data_configs():
 
 # TODO: implement tests for json, and geojson format
 @pytest.mark.parametrize("file", get_fake_data_configs())
-def test_to_parquet(file: dict):
+def test_to_parquet(file: dict, create_temp_filesystem: Path):
     """
     Test the to_parquet function.
 
@@ -55,13 +53,19 @@ def test_to_parquet(file: dict):
         - Checks if the saved Parquet file contains the expected data.
     """
 
+    test_output_filename = "test_output.parquet"
+    output_file_path = create_temp_filesystem / test_output_filename
+
     transform.to_parquet(
-        file_format_config=file["format"], local_data_path=file["local_file_path"]
+        file_format_config=file["format"],
+        local_data_path=file["local_file_path"],
+        dir=create_temp_filesystem,
+        output_filename=test_output_filename,
     )
 
-    assert PARQUET_PATH.is_file()
+    assert output_file_path.is_file()
 
-    output_df = pd.read_parquet(PARQUET_PATH)
+    output_df = pd.read_parquet(output_file_path)
     raw_df = data.read_data_to_df(
         data_format=file["format"], local_data_path=file["local_file_path"]
     )
