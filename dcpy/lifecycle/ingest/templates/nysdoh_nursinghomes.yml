@@ -6,7 +6,7 @@ source:
   uid: izta-vnpq
   format: csv
 file_format:
-  format: csv
+  type: csv
   geometry:
     geom_column: Location
     crs: EPSG:4326

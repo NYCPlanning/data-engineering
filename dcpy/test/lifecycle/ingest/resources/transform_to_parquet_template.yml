@@ -1,12 +1,12 @@
 # csv non-spatial case
 - file_name: test.csv
   file_format:
-    format: csv
+    type: csv
 
 # csv spatial case (1 geom column, i.e. point or polygon geom)
 - file_name: test.csv
   file_format:
-    format: csv
+    type: csv
     geometry:
       geom_column: wkt
       crs: EPSG:4326
@@ -14,7 +14,7 @@
 # csv zipped case
 - file_name: test.csv.zip
   file_format:
-    format: csv
+    type: csv
     unzipped_filename: test.csv
     geometry:
       geom_column: wkt
@@ -23,7 +23,7 @@
 # csv spatial case (2 geom columns, i.e. longitude and latitude columns)
 - file_name: test2.csv
   file_format:
-    format: csv
+    type: csv
     geometry:
       crs: EPSG:4326
       geom_column:
@@ -32,24 +32,24 @@
 
 - file_name: test/test.shp
   file_format:
-    format: shapefile
+    type: shapefile
     crs: EPSG:4326
 
 # shapefile zipped case
 - file_name: test.zip
   file_format:
-    format: shapefile
+    type: shapefile
     crs: EPSG:4326
     unzipped_filename: "test/test.shp"
 
 - file_name: test.gdb
   file_format:
-    format: geodatabase
+    type: geodatabase
     crs: EPSG:4326
 
 # geodatabase zipped case
 - file_name: test.gdb.zip
   file_format:
-    format: geodatabase
+    type: geodatabase
     crs: EPSG:4326
     unzipped_filename: "test.gdb"
