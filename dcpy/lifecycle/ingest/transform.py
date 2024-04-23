@@ -62,9 +62,7 @@ def to_parquet(
         gdf = gdf.rename_geometry(OUTPUT_GEOM_COLUMN)
 
     gdf.to_parquet(output_file_path, index=False)
-    logger.info(
-        f"✅ Converted raw data to parquet file and saved as {output_file_path}"
-    )
+    logger.info(f"✅ Converted raw data to parquet file and saved as {output_file_path}")
 
 
 class Preprocessors:
