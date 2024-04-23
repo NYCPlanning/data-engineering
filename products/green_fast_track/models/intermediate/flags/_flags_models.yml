@@ -113,5 +113,3 @@ models:
       - dbt_utils.equality:
           name: equality_flags_zoning
           compare_model: ref('test_expected__flags_zoning')
-          config:
-            severity: warn
