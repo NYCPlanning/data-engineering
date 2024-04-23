@@ -19,7 +19,7 @@ class TestConfig(BaseModel):
     """
 
     file_name: str
-    to_parquet_config: Format
+    file_format: Format
 
 
 def get_fake_data_configs():
@@ -33,7 +33,7 @@ def get_fake_data_configs():
     test_files = []
 
     for config in configs:
-        format = config.to_parquet_config
+        format = config.file_format
         file_name = config.file_name
         local_file_path = RESOURCES / TEST_DATA_DIR / file_name
 

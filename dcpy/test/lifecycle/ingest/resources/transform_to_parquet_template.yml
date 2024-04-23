@@ -1,11 +1,11 @@
 # csv non-spatial case
 - file_name: test.csv
-  to_parquet_config:
+  file_format:
     format: csv
 
 # csv spatial case (1 geom column, i.e. point or polygon geom)
 - file_name: test.csv
-  to_parquet_config:
+  file_format:
     format: csv
     geometry:
       geom_column: wkt
@@ -13,7 +13,7 @@
 
 # csv zipped case
 - file_name: test.csv.zip
-  to_parquet_config:
+  file_format:
     format: csv
     unzipped_filename: test.csv
     geometry:
@@ -22,7 +22,7 @@
 
 # csv spatial case (2 geom columns, i.e. longitude and latitude columns)
 - file_name: test2.csv
-  to_parquet_config:
+  file_format:
     format: csv
     geometry:
       crs: EPSG:4326
@@ -31,25 +31,25 @@
         y: latitude
 
 - file_name: test/test.shp
-  to_parquet_config:
+  file_format:
     format: shapefile
     crs: EPSG:4326
 
 # shapefile zipped case
 - file_name: test.zip
-  to_parquet_config:
+  file_format:
     format: shapefile
     crs: EPSG:4326
     unzipped_filename: "test/test.shp"
 
 - file_name: test.gdb
-  to_parquet_config:
+  file_format:
     format: geodatabase
     crs: EPSG:4326
 
 # geodatabase zipped case
 - file_name: test.gdb.zip
-  to_parquet_config:
+  file_format:
     format: geodatabase
     crs: EPSG:4326
     unzipped_filename: "test.gdb"
