@@ -3,6 +3,10 @@ from types import UnionType
 from typing import Callable, get_args, get_origin, Literal
 
 
+def _isempty(obj) -> bool:
+    return obj == inspect._empty
+
+
 def _isinstance(obj, cls):
     """
     _isinstance extends behavior of basic python `isinstance` to allow for
@@ -42,38 +46,45 @@ def validate_function_args(
     If raise_error flag supplied, raises error instead of returning dict of violations.
     """
     ignore_args = ignore_args or []
-    spec = inspect.getfullargspec(function)
-    if spec.varargs is not None:
+    sig = inspect.signature(function)
+
+    pos = [
+        a
+        for a in sig.parameters.values()
+        if a.kind == a.VAR_POSITIONAL or a.kind == a.POSITIONAL_ONLY
+    ]
+    if pos:
         raise TypeError(
             f"Positional args not supported, {function.__name__} is invalid preprocessing function"
         )
 
-    defaults = {}
-    if spec.defaults:
-        defaults_start = len(spec.args) - len(spec.defaults)
-        for i, default in enumerate(spec.defaults):
-            defaults[spec.args[defaults_start + i]] = default
-
-    if spec.kwonlydefaults:
-        defaults.update(spec.kwonlydefaults)
-
-    expected_args = spec.args + spec.kwonlyargs
-    expected_args = [a for a in expected_args if a not in ignore_args]
+    expected_args = [
+        a
+        for a in sig.parameters
+        if a not in ignore_args
+        and sig.parameters[a].kind != sig.parameters[a].VAR_KEYWORD
+    ]
+    defaults = [a for a in expected_args if not _isempty(sig.parameters[a].default)]
     violating_args = {}
 
     for arg_name in expected_args:
         if arg_name in kwargs:
-            if arg_name in spec.annotations:
-                arg = kwargs[arg_name]
-                annotation = spec.annotations[arg_name]
-                if not _isinstance(arg, annotation):
-                    violating_args[arg_name] = (
-                        f"Type mismatch, expected '{annotation}' and got {type(arg)}"
-                    )
+            arg = kwargs[arg_name]
+            annotation = sig.parameters[arg_name].annotation
+            if (
+                not _isempty(annotation)
+                and not isinstance(annotation, str)
+                and not _isinstance(arg, annotation)
+            ):
+                violating_args[arg_name] = (
+                    f"Type mismatch, expected '{annotation}' and got {type(arg)}"
+                )
         elif arg_name not in defaults:
             violating_args[arg_name] = "Missing"
 
-    if spec.varkw is None:
+    varkw = [a for a in sig.parameters.values() if a.kind == a.VAR_KEYWORD]
+
+    if not varkw:
         for arg in kwargs:
             if arg not in expected_args:
                 violating_args[arg] = "Unexpected"

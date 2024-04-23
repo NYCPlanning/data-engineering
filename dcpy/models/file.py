@@ -29,6 +29,7 @@ class Csv(BaseModel, extra="forbid"):
     encoding: str = "utf-8"
     delimiter: str | None = None
     geometry: Geometry | None = None
+    dtype: str | None = None
 
 
 class Xlsx(BaseModel, extra="forbid"):

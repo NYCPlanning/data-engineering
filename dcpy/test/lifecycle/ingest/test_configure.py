@@ -34,12 +34,6 @@ def test_read_template():
     """
     with pytest.raises(
         Exception,
-        match="Version must be supplied explicitly to be rendered in template",
-    ):
-        configure.read_template("dcp_atomicpolygons")
-
-    with pytest.raises(
-        Exception,
         match="'version' is only suppored jinja var. Unsupported vars in template: ",
     ):
         configure.read_template(

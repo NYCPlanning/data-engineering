@@ -44,9 +44,7 @@ def read_template(
     vars = get_jinja_vars(template_string)
     if not version and len(vars) > 0:
         if vars == {"version"}:
-            raise Exception(
-                "Version must be supplied explicitly to be rendered in template"
-            )
+            pass
         else:
             raise Exception(f"Unsupported jinja vars found in template: {vars}")
     else:
@@ -106,6 +104,7 @@ def get_config(dataset: str, version: str | None = None) -> Config:
     template = read_template(dataset, version=version)
     filename = get_filename(template.source, template.name)
     version = version or get_version(template.source, timestamp)
+    template = read_template(dataset, version=version)
 
     # create config object
     return Config(

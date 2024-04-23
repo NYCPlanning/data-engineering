@@ -1,10 +1,9 @@
-import duckdb
 from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 import shutil
-from typing import Any, Callable, Literal
+from typing import Callable, Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
@@ -73,6 +72,7 @@ class Preprocessor:
         self.dataset_name = dataset_name
 
     def filter_rows(
+        self,
         df: pd.DataFrame,
         type: Literal["equals", "contains"],
         column_name: str | int,
@@ -83,6 +83,25 @@ class Preprocessor:
         elif type == "contains":
             filter = df[column_name].str.contains(str(val))
         return df[filter]
+
+    def rename_columns(self, df: pd.DataFrame, map: dict[str, str]) -> pd.DataFrame:
+        return df.rename(columns=map)
+
+    def update_column(
+        self,
+        df: pd.DataFrame,
+        column_name: str,
+        val: str | int,
+    ) -> pd.DataFrame:
+        df[column_name] = val
+        return df
+
+    def append_prev(self, df: pd.DataFrame) -> pd.DataFrame:
+        prev_df = recipes.read_df(
+            recipes.Dataset(name=self.dataset_name, version="latest")
+        )
+        df = pd.concat((prev_df, df))
+        return df
 
     def drop_columns(self, df: pd.DataFrame, columns: list[str | int]) -> pd.DataFrame:
         columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
@@ -98,24 +117,59 @@ class Preprocessor:
             df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return df
 
+    def pd_series_func(
+        self,
+        df: pd.DataFrame,
+        column_name: str,
+        function_name: str,
+        output_column_name: str | None = None,
+        **kwargs,
+    ) -> pd.DataFrame:
+        """
+        Operates on a given column using a given pandas Series function and supplied kwargs
+
+        Example yml which defines a call:
+        - name: pd_series_func
+          args:
+            column_name: jobnum
+            function_name: str.replace
+            pat: -[a-zA-Z\d]1$
+            repl: ""
+            regex: True
+
+        Which has the effect of
+        `df["jobnum"] = df["jobnum"].str.replace("-[a-zA-Z\d]1$", "", regex=True)`
+
+        "function_name" must be a valid function of a pd.Series. This is validated
+        kwargs are validated by name only, as annotations for these functions are quite messy
+
+        function is called on "column_name" of df
+        output of function is assigned to "column_name" (overwriting) unless 'output_column_name' if provided
+        """
+        parts = function_name.split(".")
+        func = df[column_name]
+        for part in parts:
+            func = func.__getattribute__(part)
+        df[output_column_name or column_name] = func(**kwargs)  # type: ignore
+        return df
+
     def no_arg_function(self, df: pd.DataFrame) -> pd.DataFrame:
         """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
         return df
 
-    def append_prev(self, df: pd.DataFrame, dataset: str, version: str) -> pd.DataFrame:
-        prev_df = recipes.read_df(recipes.Dataset(name=dataset, version=version))
-        df = pd.concat((prev_df, df))
-        return df
 
-    def append_prev_duckdb(self, file: Path, dataset: str, version: str):
-        duckdb.sql(
-            f"""
-            COPY (
-                SELECT * FROM 's3://edm-recipes/datasets/{dataset}/{version}/{dataset}.parquet'
-                UNION ALL
-                SELECT * FROM '{file}'
-            ) TO '{file}' (FORMAT PARQUET)"""
-        )
+def validate_pd_series_func(
+    column_name: str, function_name: str, **kwargs
+) -> str | dict[str, str]:
+    parts = function_name.split(".")
+    func = pd.Series()
+    func_str = "pd.Series"
+    for part in parts:
+        if part not in func.__dir__():
+            return f"'{func_str}' has no attribute '{part}'"
+        func = func.__getattribute__(part)
+        func_str += f".{part}"
+    return validation.validate_function_args(func, kwargs)  # type: ignore
 
 
 def validate_processing_steps(
@@ -137,13 +191,18 @@ def validate_processing_steps(
         else:
             func = getattr(preprocessor, step.name)
 
-            kwargs = step.args.copy()
-            # assume that function takes arg "df"
+            # assume that function takes args "self, df"
             kw_error = validation.validate_function_args(
-                func, kwargs, raise_error=False, ignore_args=["self", "df"]
+                func, step.args, raise_error=False, ignore_args=["self", "df"]
             )
             if kw_error:
                 violations[step.name] = kw_error
+
+            # extra validation needed
+            elif step.name == "pd_series_func":
+                series_error = validate_pd_series_func(**step.args)
+                if series_error:
+                    violations[step.name] = series_error
 
             compiled_steps.append(partial(func, **step.args))
 

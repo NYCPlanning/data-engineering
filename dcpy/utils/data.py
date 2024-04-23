@@ -77,6 +77,7 @@ def read_data_to_df(
                 index_col=False,
                 encoding=data_format.encoding,
                 delimiter=data_format.delimiter,
+                dtype=data_format.dtype,
             )
 
             if not csv.geometry:

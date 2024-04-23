@@ -1,0 +1,84 @@
+name: dob_cofos
+acl: public-read
+source:
+  type: local_file
+  path: .library/upload/dob_cofos.csv
+file_format:
+  type: csv
+  dtype: str
+processing_steps:
+- name: drop_columns
+  args:
+    columns: ["CofO Status"]
+- name: rename_columns
+  args: 
+    map: 
+      "Job number": jobnum
+      Occupancyissueddate: effectivedate
+      BIN: bin
+      Borough: boroname
+      Housenumber: housenumber
+      Streetname: streetname
+      Block: block
+      Lot: lot
+      Noofdwellingunits: numofdwellingunits
+      Buildingoccupancygroupclassification: occupancyclass
+      CofilingtypeLabel: certificatetype
+- name: pd_series_func
+  args:
+    column_name: jobnum
+    function_name: str.replace
+    pat: -[a-zA-Z\d]1$
+    repl: ""
+    regex: True
+- name: pd_series_func
+  args:
+    column_name: certificatetype
+    function_name: map
+    arg:
+      Initial: T- TCO
+      Renewal With Change: T- TCO
+      Renewal Without Change: T- TCO
+      Final: C- CO
+- name: update_column
+  args:
+    column_name: v
+    val: "{{ version }}"
+- name: append_prev
+
+library_dataset:
+  name: dob_cofos
+  acl: public-read
+  version: ""
+  source:
+    script:
+      path: .library/upload/dob_cofos.csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+    fields: []
+    sql: null
+
+  info:
+    description: |
+      # DOB Certificate of Occupancies
+      We get this file from DOB via email, records are 
+      appended to previous `latest` file. Make sure you 
+      place the new file in the library/tmp folder of the db-data-library
+      repo named `dob_cofos.csv` so that the script runner can 
+      run successfully.
+    url: ""
+    dependents: []
+    ## This field must be updated manually when archiving. Should eventually be refactored out of here
+    ## Do not check in a specific version, leave blank version check in - this has led to issues in the past
+    previous_version: 
