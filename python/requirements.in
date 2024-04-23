@@ -9,7 +9,7 @@ diagrams>=0.23.3
 faker==23.1.0
 folium==0.14.0
 GDAL==3.8.3
-geopandas==0.12.2
+geopandas
 geoalchemy2==0.14.1
 graphviz>=0.20.1
 ipykernel==6.22.0
