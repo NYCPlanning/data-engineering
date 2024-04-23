@@ -4,7 +4,7 @@ source:
   type: file_download
   url: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
 file_format:
-  format: xlsx
+  type: xlsx
   tab_name: NonPubEnroll_byGrade_{{ version[2:] }} # TODO: need to confirm jinja works
 
 library_dataset:

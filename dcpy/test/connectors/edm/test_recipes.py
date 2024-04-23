@@ -61,7 +61,7 @@ def test_archive_raw_dataset(create_buckets, create_temp_filesystem: Path):
         source=ingest.ScriptSource(
             type="script", connector="dummy", function="dummy"
         ),  # easiest to mock
-        file_format=file.Csv(format="csv"),  # easiest to mock
+        file_format=file.Csv(type="csv"),  # easiest to mock
     )
     recipes.archive_raw_dataset(config, tmp_file)
     assert s3.exists(

@@ -24,7 +24,7 @@ class Geometry(BaseModel):
 
 
 class Csv(BaseModel, extra="forbid"):
-    format: Literal["csv"]
+    type: Literal["csv"]
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
     delimiter: str | None = None
@@ -32,7 +32,7 @@ class Csv(BaseModel, extra="forbid"):
 
 
 class Xlsx(BaseModel, extra="forbid"):
-    format: Literal["xlsx"]
+    type: Literal["xlsx"]
     unzipped_filename: str | None = None
     tab_name: str
     encoding: str = "utf-8"
@@ -40,14 +40,14 @@ class Xlsx(BaseModel, extra="forbid"):
 
 
 class Shapefile(BaseModel, extra="forbid"):
-    format: Literal["shapefile"]
+    type: Literal["shapefile"]
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
     crs: str
 
 
 class Geodatabase(BaseModel, extra="forbid"):
-    format: Literal["geodatabase"]
+    type: Literal["geodatabase"]
     unzipped_filename: str | None = None
     layer: str | None = None
     encoding: str = "utf-8"
@@ -56,7 +56,7 @@ class Geodatabase(BaseModel, extra="forbid"):
 
 # TODO: implement JSON and GEOJSON
 class Json(BaseModel):
-    format: Literal["json"]
+    type: Literal["json"]
     unzipped_filename: str | None = None
 
 

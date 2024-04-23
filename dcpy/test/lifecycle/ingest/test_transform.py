@@ -1,103 +1,73 @@
-from datetime import date
 import geopandas as gpd
 import pandas as pd
 import pytest
-from typing import cast
 import yaml
+from pydantic import TypeAdapter, BaseModel
+from pathlib import Path
 
-from dcpy.models import file
-from dcpy.models.lifecycle.ingest import Template
-from dcpy.models.lifecycle.ingest import LocalFileSource, Config, FunctionCall
-from dcpy.lifecycle.ingest import (
-    configure,
-    transform,
-    PARQUET_PATH,
-)
+from dcpy.models.file import Format
+from dcpy.models.lifecycle.ingest import FunctionCall
+from dcpy.lifecycle.ingest import transform
 
 from dcpy.utils import data
-from . import RESOURCES, TEST_DATA_DIR, FAKE_VERSION
+from . import RESOURCES, TEST_DATA_DIR
+
+
+class TestConfig(BaseModel):
+    """
+    Test pydentic class used to validate input yaml file
+    """
+
+    file_name: str
+    file_format: Format
 
 
 def get_fake_data_configs():
     """
-    Returns a list of Config objects
-    that represent data files in resources/test_data directory
+    Returns a list of dicts that represent data files in resources/test_data directory.
+    Each dict contains a file.Format object and a path to the test data.
     """
     with open(RESOURCES / "transform_to_parquet_template.yml") as f:
-        configs = yaml.safe_load(f)
+        configs = TypeAdapter(list[TestConfig]).validate_python(yaml.safe_load(f))
 
     test_files = []
 
     for config in configs:
-        match config["format"]:
-            case "csv":
-                if "unzipped_filename" in config:
-                    file_name = "test.csv.zip"
-                else:
-                    if config.get("geometry", None) and isinstance(
-                        config["geometry"]["geom_column"], dict
-                    ):
-                        file_name = (
-                            "test2.csv"  # case when geom_column has x and y values
-                        )
-                    else:
-                        file_name = "test.csv"
-            case "shapefile":
-                if "unzipped_filename" in config:
-                    file_name = "test.zip"
-                else:
-                    file_name = "test/test.shp"
-            case "geodatabase":
-                if "unzipped_filename" in config:
-                    file_name = "test.gdb.zip"
-                else:
-                    file_name = "test.gdb"
-            case _:
-                raise ValueError(f"Unknown data format {config['format']}")
-
+        format = config.file_format
+        file_name = config.file_name
         local_file_path = RESOURCES / TEST_DATA_DIR / file_name
 
-        source = LocalFileSource(type="local_file", path=local_file_path)
-
-        template = Template(
-            name="test",
-            acl="public-read",
-            source=source,
-            file_format=config,
-        )
-
-        ingest_config = Config(
-            version=FAKE_VERSION,
-            archival_timestamp=date.today(),
-            raw_filename=file_name,
-            **template.model_dump(),
-        )
-        test_files.append(ingest_config)
+        test_files.append({"format": format, "local_file_path": local_file_path})
 
     return test_files
 
 
 # TODO: implement tests for json, and geojson format
-@pytest.mark.parametrize("config", get_fake_data_configs())
-def test_transform_to_parquet(config: Config):
+@pytest.mark.parametrize("file", get_fake_data_configs())
+def test_to_parquet(file: dict, create_temp_filesystem: Path):
     """
-    Test the transform_to_parquet function.
+    Test the to_parquet function.
 
     Checks:
         - Checks if the function creates expected parquet file.
         - Checks if the saved Parquet file contains the expected data.
     """
 
-    source = cast(LocalFileSource, config.source)
-    file_path = source.path
+    test_output_filename = "test_output.parquet"
+    output_file_path = create_temp_filesystem / test_output_filename
 
-    transform.to_parquet(config=config, local_data_path=file_path)
+    transform.to_parquet(
+        file_format_config=file["format"],
+        local_data_path=file["local_file_path"],
+        dir=create_temp_filesystem,
+        output_filename=test_output_filename,
+    )
 
-    assert PARQUET_PATH.is_file()
+    assert output_file_path.is_file()
 
-    output_df = pd.read_parquet(PARQUET_PATH)
+    output_df = pd.read_parquet(output_file_path)
     raw_df = data.read_data_to_df(
-        data_format=config.file_format, local_data_path=file_path
+        data_format=file["format"], local_data_path=file["local_file_path"]
     )
 
     # rename geom column & translate geometry to wkb format to match parquet geom column

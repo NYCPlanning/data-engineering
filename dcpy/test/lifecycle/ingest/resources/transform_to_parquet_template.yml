@@ -1,35 +1,55 @@
 # csv non-spatial case
-- format: csv
+- file_name: test.csv
+  file_format:
+    type: csv
 
-# csv spatial case
-- format: csv
-  geometry:
-    geom_column: wkt
+# csv spatial case (1 geom column, i.e. point or polygon geom)
+- file_name: test.csv
+  file_format:
+    type: csv
+    geometry:
+      geom_column: wkt
+      crs: EPSG:4326
+
+# csv zipped case
+- file_name: test.csv.zip
+  file_format:
+    type: csv
+    unzipped_filename: test.csv
+    geometry:
+      geom_column: wkt
+      crs: EPSG:4326
+
+# csv spatial case (2 geom columns, i.e. longitude and latitude columns)
+- file_name: test2.csv
+  file_format:
+    type: csv
+    geometry:
+      crs: EPSG:4326
+      geom_column:
+        x: longitude
+        y: latitude
+
+- file_name: test/test.shp
+  file_format:
+    type: shapefile
     crs: EPSG:4326
 
-- format: csv
-  unzipped_filename: "test.csv"
-  geometry:
-    geom_column: wkt
+# shapefile zipped case
+- file_name: test.zip
+  file_format:
+    type: shapefile
+    crs: EPSG:4326
+    unzipped_filename: "test/test.shp"
+
+- file_name: test.gdb
+  file_format:
+    type: geodatabase
     crs: EPSG:4326
 
-- format: csv
-  geometry:
+# geodatabase zipped case
+- file_name: test.gdb.zip
+  file_format:
+    type: geodatabase
     crs: EPSG:4326
-    geom_column:
-      x: longitude
-      y: latitude
-
-- format: shapefile
-  crs: EPSG:4326
-
-- format: shapefile
-  crs: EPSG:4326
-  unzipped_filename: "test/test.shp"
-
-- format: geodatabase
-  crs: EPSG:4326
-
-- format: geodatabase
-  crs: EPSG:4326
-  unzipped_filename: "test.gdb"
+    unzipped_filename: "test.gdb"

@@ -11,11 +11,13 @@ def run(dataset: str, version: str | None = None):
     extract.download_file_from_source(
         config.source, config.raw_filename, config.version
     )
+    file_path = TMP_DIR / config.raw_filename
 
     # archive to edm-recipes/raw_datasets
-    recipes.archive_raw_dataset(config, TMP_DIR / config.raw_filename)
+    recipes.archive_raw_dataset(config, file_path)
 
-    transform.to_parquet(config)
+    # convert raw data to parquet format
+    transform.to_parquet(config.file_format, file_path)
 
     ## logic to apply transformations based on parsed config/template. Something like this
     # for step in config.processing.steps:

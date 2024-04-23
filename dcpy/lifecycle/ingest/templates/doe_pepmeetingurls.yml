@@ -5,7 +5,7 @@ source:
   connector: dummy
   function: dummy
 file_format:
-  format: csv
+  type: csv
 
 library_dataset:
   name: doe_pepmeetingurls
