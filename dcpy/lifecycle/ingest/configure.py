@@ -152,9 +152,9 @@ def validate_function_args(
                 arg = kwargs[arg_name]
                 annotation = spec.annotations[arg_name]
                 if not isinstance(arg, annotation):
-                    violating_args[
-                        arg_name
-                    ] = f"Type mismatch, expected '{annotation}' and got {type(arg)}"
+                    violating_args[arg_name] = (
+                        f"Type mismatch, expected '{annotation}' and got {type(arg)}"
+                    )
         elif arg_name not in defaults:
             violating_args[arg_name] = "Missing"
 

@@ -5,7 +5,9 @@ from src.shared.constants import PAGES
 
 
 def run():
-    st.set_page_config(page_title="Data Engineering QAQC", page_icon="📊", layout="wide")
+    st.set_page_config(
+        page_title="Data Engineering QAQC", page_icon="📊", layout="wide"
+    )
     st.sidebar.markdown(
         """
         <div stule="margin-left: auto; margin-right: auto;">

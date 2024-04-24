@@ -340,9 +340,9 @@ class Calculate:
             ["c", "m", "p", "z"],
         ] = pd.Series({"c": np.nan, "m": np.nan, "p": np.nan, "z": np.nan})
 
-        df.loc[
-            df.pff_variable.isin(self.meta.special_variables), ["p", "z"]
-        ] = pd.Series({"p": np.nan, "z": np.nan})
+        df.loc[df.pff_variable.isin(self.meta.special_variables), ["p", "z"]] = (
+            pd.Series({"p": np.nan, "z": np.nan})
+        )
 
         # If e == 0/np.nan, then all other fields are np.nan
         df.loc[(df.e == 0) | (df.e.isna()), ["c", "m", "p", "z"]] = pd.Series(

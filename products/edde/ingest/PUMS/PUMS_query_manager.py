@@ -8,6 +8,7 @@ access that query via an input.
 
 Refactor: call this from PUMS data init instead of from PUMS_request
 """
+
 import os
 from dotenv import load_dotenv
 from typing import List

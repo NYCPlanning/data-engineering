@@ -7,6 +7,7 @@ Longer Term:
 Put age into buckets
 Start aggregation with replicated weights
 """
+
 import requests
 import pandas as pd
 import time

@@ -2,6 +2,7 @@
 For final output generally want MOE instead of SE.
 For debugging want both
 """
+
 import pandas as pd
 from scipy import stats
 import numpy as np

@@ -755,9 +755,9 @@ def usdot_airports(df: pd.DataFrame):
     # 1B can geocode free form address if we pass it into street_name
     df["zipcode"] = df["manager_city_state_zip"].str[-5:]
     df["airport_name"] = ""
-    df.loc[
-        df.name == "JOHN F KENNEDY INTL", "airport_name"
-    ] = "JOHN F KENNEDY INTL AIRPORT"
+    df.loc[df.name == "JOHN F KENNEDY INTL", "airport_name"] = (
+        "JOHN F KENNEDY INTL AIRPORT"
+    )
     df.loc[df.name == "LAGUARDIA", "airport_name"] = "LAGUARDIA AIRPORT"
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="manager_address")
