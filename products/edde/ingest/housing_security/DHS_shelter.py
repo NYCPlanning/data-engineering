@@ -1,6 +1,5 @@
 """Source data is from NYC open data"""
 
-
 from datetime import datetime
 import pandas as pd
 import requests

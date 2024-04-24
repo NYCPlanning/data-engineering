@@ -1,4 +1,5 @@
 """Examine median wages broken out by industry, occupation"""
+
 from re import sub
 import pandas as pd
 from aggregate.PUMS.aggregate_medians import PUMSMedians

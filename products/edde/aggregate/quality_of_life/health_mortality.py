@@ -1,4 +1,5 @@
 """This file will have three accessors for three indicators that all rely on the same source data"""
+
 import pandas as pd
 import numpy as np
 import re

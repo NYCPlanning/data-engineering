@@ -2,6 +2,7 @@
 "Percent of residents within 1/4 mile of ADA accessible subway stations\" and 
 "Percent within 1/4 mile of subway or Select Bus station". Both indicators are similar and quite simple
 """
+
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.PUMA_helpers import puma_to_borough

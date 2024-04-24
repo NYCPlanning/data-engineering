@@ -1,4 +1,5 @@
 """Between PUMS aggregator and base classes"""
+
 from distutils.util import subst_vars
 from aggregate.PUMS.aggregate_PUMS import PUMSAggregator
 from statistical.calculate_medians_LI import calculate_median_LI
