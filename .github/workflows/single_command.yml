@@ -1,0 +1,48 @@
+name: Run a single command
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Which docker image to use"
+        required: true
+        type: choice
+        options: 
+        - build-base
+        - build-geosupport
+        - dev
+      dev_tag: 
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
+      command:
+        description: "Custom command to run"
+        required: true
+
+jobs:
+  dataloading:
+    runs-on: ubuntu-22.04
+    container: 
+      image: nycplanning/${{ inputs.image }}:${{ inputs.dev_tag && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup
+        run: ./bash/docker_container_setup.sh
+
+      - name: Run custom command
+        run: ${{ inputs.command }}
