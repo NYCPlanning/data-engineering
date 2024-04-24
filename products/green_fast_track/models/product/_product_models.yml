@@ -12,7 +12,7 @@ models:
         tests:
           - not_null
           - unique
-      - name: '"Zoning Districts Flag"'
+      - name: '"Zoning Districts Category"'
         data_type: string
         tests: [not_null]
       - name: '"Zoning Districts"'

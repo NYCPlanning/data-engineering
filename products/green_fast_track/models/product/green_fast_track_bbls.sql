@@ -55,11 +55,20 @@ flags_wide AS (
 SELECT
     pluto.bbl,
     {% for row in variables -%}
-        CASE
-            WHEN f."{{ row['label'] }}" IS NULL THEN 'No'
-            ELSE 'Yes'
-        END AS "{{ row['label'] }} Flag",
-        f."{{ row['label'] }}",
+        {% if row['variable_type'] == 'zoning_districts' %}
+            /* zoning_districts has a Category column */
+            f."{{ row['label'] }}" AS "{{ row['label'] }} Category",
+            array_to_string(ARRAY[pluto.zonedist1, pluto.zonedist2, pluto.zonedist3, pluto.zonedist4],
+                ', '
+            ) AS "{{ row['label'] }}",
+        {% else %}
+            /* all other variables have a Flag column */
+            CASE
+                WHEN f."{{ row['label'] }}" IS NULL THEN 'No'
+                ELSE 'Yes'
+            END AS "{{ row['label'] }} Flag",
+            f."{{ row['label'] }}",
+        {% endif %}
     {% endfor %}
     CASE
         WHEN f.natural_resource THEN 'Yes'
