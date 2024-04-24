@@ -8,6 +8,7 @@ import yaml
 
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
+    S3Source,
     ScriptSource,
     Source,
     Template,
@@ -92,6 +93,8 @@ def get_filename(source: Source, ds_name: str) -> str:
             return f"{ds_name}.{source.format}"
         case socrata.Source():
             return f"{ds_name}.{source.extension}"
+        case S3Source():
+            return Path(source.key).name
         case _:
             raise NotImplementedError(
                 f"Source type {source} not supported for get_filename"

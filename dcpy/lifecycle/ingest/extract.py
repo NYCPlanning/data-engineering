@@ -5,11 +5,13 @@ import shutil
 
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
+    S3Source,
     ScriptSource,
     Source,
 )
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.utils import s3
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.socrata import extract as extract_socrata
@@ -30,6 +32,8 @@ def download_file_from_source(
                 shutil.copy(source.path, path)
         case GisDataset():
             publishing.download_gis_dataset(source.name, version, dir)
+        case S3Source():
+            s3.download_file(source.bucket, source.key, path)
         case ScriptSource():
             module = importlib.import_module(
                 f"dcpy.connectors.{source.connector}.{source.function}"

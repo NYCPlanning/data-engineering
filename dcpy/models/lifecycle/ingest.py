@@ -18,6 +18,12 @@ class LocalFileSource(BaseModel, extra="forbid"):
         return str(path)
 
 
+class S3Source(BaseModel, extra="forbid"):
+    type: Literal["s3"]
+    bucket: str
+    key: str
+
+
 class ScriptSource(BaseModel, extra="forbid"):
     type: Literal["script"]
     connector: str
@@ -30,6 +36,7 @@ Source: TypeAlias = (
     | web.GenericApiSource
     | socrata.Source
     | publishing.GisDataset
+    | S3Source
     | ScriptSource
 )
 
