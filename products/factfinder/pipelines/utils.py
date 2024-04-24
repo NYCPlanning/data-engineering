@@ -77,9 +77,9 @@ def apply_ccd_prefix(
 ) -> pd.DataFrame:
     """Edits geoid column for city council districts to avoid collisions with boros"""
     df[geoid] = df.apply(
-        lambda x: "CCD" + str(int(x[geoid]))
-        if x[geotype] == "CCD2023"
-        else str(x[geoid]),
+        lambda x: (
+            "CCD" + str(int(x[geoid])) if x[geotype] == "CCD2023" else str(x[geoid])
+        ),
         axis=1,
     )
     return df

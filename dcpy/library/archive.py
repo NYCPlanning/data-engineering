@@ -85,9 +85,9 @@ class Archive:
             )
 
         # Get ingestor by format
-        ingestor_of_format: Callable[
-            [str, Any, Any], tuple[list[str], Config]
-        ] = getattr(self.ingestor, output_format)
+        ingestor_of_format: Callable[[str, Any, Any], tuple[list[str], Config]] = (
+            getattr(self.ingestor, output_format)
+        )
 
         # Initiate ingestion
         output_files, config = ingestor_of_format(path, *args, **kwargs)

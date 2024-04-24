@@ -1,7 +1,6 @@
 """Similar to load_data in ingest process. MAybe this is supposed to live in
  external review, I'm not sure"""
 
-
 # from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics
 # from aggregate.PUMS.count_PUMS_households import PUMSCountHouseholds
 # from aggregate.PUMS.median_PUMS_economics import PUMSMedianEconomics

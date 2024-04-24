@@ -1,4 +1,5 @@
 """Logic to clean PUMS columns. """
+
 import pandas as pd
 import numpy as np
 from os.path import exists
@@ -47,9 +48,9 @@ class PUMSCleaner:
         new_col_name = column_name + "_cleaned"
         vi_data[new_col_name] = None
         for category in recode_ranges:
-            vi_data.loc[
-                vi_data[column_name].between(*category[0]), new_col_name
-            ] = category[1]
+            vi_data.loc[vi_data[column_name].between(*category[0]), new_col_name] = (
+                category[1]
+            )
         vi_data[column_name] = vi_data[new_col_name]
         vi_data.drop(columns=new_col_name, inplace=True)
         return vi_data

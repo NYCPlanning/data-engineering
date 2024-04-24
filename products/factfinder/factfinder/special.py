@@ -25,15 +25,11 @@ def hovacrtm(hovacue, vacsalee, vacsalem, hovacum):
         return 0
     elif vacsalem**2 - (vacsalee * hovacum / hovacue) ** 2 < 0:
         return (
-            math.sqrt(vacsalem**2 + (vacsalee * hovacum / hovacue) ** 2)
-            / hovacue
-            * 100
+            math.sqrt(vacsalem**2 + (vacsalee * hovacum / hovacue) ** 2) / hovacue * 100
         )
     else:
         return (
-            math.sqrt(vacsalem**2 - (vacsalee * hovacum / hovacue) ** 2)
-            / hovacue
-            * 100
+            math.sqrt(vacsalem**2 - (vacsalee * hovacum / hovacue) ** 2) / hovacue * 100
         )
 
 

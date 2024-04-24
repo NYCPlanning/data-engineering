@@ -1,4 +1,5 @@
 """These are used for counts/fraction and medians. Counts/fractions and medians are handled by different classes that each call these functions"""
+
 industry_mapper = {
     "Agriculture, Forestry, Fishing and Hunting, and Mining": "AgFFHM",
     "Construction": "Cnstn",

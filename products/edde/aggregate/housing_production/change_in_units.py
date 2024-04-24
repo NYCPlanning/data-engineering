@@ -132,13 +132,13 @@ def clean_jobs(df):
     )
 
     # drop rows where alterations is zero and create two types for alterations
-    df.loc[
-        (df.job_type == "Alteration") & (df.classa_net < 0), "job_type"
-    ] = "Alteration_Decrease"
+    df.loc[(df.job_type == "Alteration") & (df.classa_net < 0), "job_type"] = (
+        "Alteration_Decrease"
+    )
 
-    df.loc[
-        (df.job_type == "Alteration") & (df.classa_net > 0), "job_type"
-    ] = "Alteration_Increase"
+    df.loc[(df.job_type == "Alteration") & (df.classa_net > 0), "job_type"] = (
+        "Alteration_Increase"
+    )
 
     df.drop(df.loc[df.job_type == "Alteration"].index, axis=0, inplace=True)
 

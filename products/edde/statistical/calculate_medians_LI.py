@@ -1,4 +1,5 @@
 """Calculate medians using linear interpolation"""
+
 import json
 from scipy import stats
 import numpy as np

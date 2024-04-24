@@ -1,4 +1,5 @@
 """All data should have same column labels for replicate weights columns"""
+
 import pandas as pd
 
 rw_cols_clean = [f"rw_{i}" for i in range(1, 81)]

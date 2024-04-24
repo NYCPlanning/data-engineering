@@ -120,21 +120,27 @@ def facdb():
 
             styled = (
                 to_display.style.applymap(
-                    lambda x: f"background-color: {colors[0]}"
-                    if x
-                    else "background-color: white",
+                    lambda x: (
+                        f"background-color: {colors[0]}"
+                        if x
+                        else "background-color: white"
+                    ),
                     subset=rows_to_style[0:1],
                 )
                 .applymap(
-                    lambda x: f"background-color: {colors[1]}"
-                    if x
-                    else "background-color: white",
+                    lambda x: (
+                        f"background-color: {colors[1]}"
+                        if x
+                        else "background-color: white"
+                    ),
                     subset=rows_to_style[1:2],
                 )
                 .applymap(
-                    lambda x: f"background-color: {colors[2]}"
-                    if x
-                    else "background-color: white",
+                    lambda x: (
+                        f"background-color: {colors[2]}"
+                        if x
+                        else "background-color: white"
+                    ),
                     subset=rows_to_style[2:3],
                 )
             )
