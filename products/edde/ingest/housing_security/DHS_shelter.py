@@ -7,7 +7,7 @@ import requests
 
 def load_DHS_shelter(year: int) -> pd.DataFrame:
     url = "https://data.cityofnewyork.us/resource/ur7y-ziyb.json"
-    timestamp = datetime(year, 3, 31).isoformat()
+    timestamp = datetime(year, 6, 30).isoformat()
     query_str = f"?report_date={timestamp}"
 
     res = requests.get(f"{url}{query_str}")
