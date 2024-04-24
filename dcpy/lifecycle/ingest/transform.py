@@ -84,8 +84,29 @@ class Preprocessor:
             filter = df[column_name].str.contains(str(val))
         return df[filter]
 
-    def rename_columns(self, df: pd.DataFrame, map: dict[str, str]) -> pd.DataFrame:
-        return df.rename(columns=map)
+    def rename_columns(
+        self, df: pd.DataFrame, map: dict[str, str], drop_others=False
+    ) -> pd.DataFrame:
+        df = df.rename(columns=map, errors="raise")
+        if drop_others:
+            df = df[list(map.values())]
+        return df
+
+    def clean_column_names(
+        self,
+        df: pd.DataFrame,
+        *,
+        replace: dict[str, str] | None = None,
+        lower: bool = False,
+    ) -> pd.DataFrame:
+        replace = replace or {}
+        columns = list(df.columns)
+        for pattern in replace:
+            columns = [c.replace(pattern, replace[pattern]) for c in columns]
+        if lower:
+            columns = [c.lower() for c in columns]
+        df.columns = pd.Index(columns)
+        return df
 
     def update_column(
         self,

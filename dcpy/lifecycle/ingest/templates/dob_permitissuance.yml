@@ -1,0 +1,145 @@
+name: dob_permitissuance
+acl: public-read
+source:
+  type: socrata
+  org: nyc
+  uid: ipu4-2q9a
+  format: csv
+file_format:
+  type: csv
+processing_steps:
+- name: rename_columns
+  args:
+    map:
+      "Job #": jobnum
+      "Job doc. #": jobdocnum
+      "Job Type": jobtype
+      "Issuance Date": issuancedate
+    drop_others: True
+- name: filter_rows
+  args:
+    type: equals
+    column_name: jobdocnumber
+    val: '01'
+- name: filter_rows
+  args:
+    type: contains
+    column_name: jobtype
+    val: 'A1|A2|DM|NB'
+    
+library_dataset:
+  name: dob_permitissuance
+  acl: public-read
+  version: ""
+  source:
+    socrata:
+      uid: ipu4-2q9a
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: 
+      - BOROUGH
+      - Binnum
+      - Housenum
+      - StreetName
+      - Jobnum
+      - Jobdocnum
+      - JobType
+      - Self_Cert
+      - Block
+      - Lot
+      - CommunityBoard
+      - ZipCode
+      - BldgType
+      - Residential
+      - SpecialDistrict1
+      - SpecialDistrict2
+      - WorkType
+      - PermitStatus
+      - FilingStatus
+      - PermitType
+      - PermitSequencenum
+      - PermitSubtype
+      - OilGas
+      - SiteFill
+      - FilingDate
+      - IssuanceDate
+      - ExpirationDate
+      - JobStartDate
+      - PermitteeFirstName
+      - PermitteeLastName
+      - PermitteeBusinessName
+      - PermitteePhonenum
+      - PermitteeLicenseType
+      - PermitteeLicensenum
+      - ActSuperintendent
+      - PermitteeOtherTitle
+      - HICLicense
+      - SiteSafetyMgrFirstName
+      - SiteSafetyMgrLastName
+      - SiteSafetyMgrBusinessName
+      - SuperintendentFirstLastName
+      - SuperintendentBusinessName
+      - OwnerBusinessType
+      - NonProfit
+      - OwnerBusinessName
+      - OwnerFirstName
+      - OwnerLastName
+      - OwnerHousenum
+      - OwnerHouseStreetName
+      - OwnerHouseCity
+      - OwnerHouseState
+      - OwnerHouseZipCode
+      - OwnerPhonenum
+      - DOBRunDate
+      - PERMITSINO
+      - LATITUDE
+      - LONGITUDE
+      - COUNCILDISTRICT
+      - CENSUSTRACT
+      - NTANAME
+    sql: |
+      SELECT 
+          jobnum,
+          jobdocnum,
+          jobtype,
+          issuancedate
+      FROM @filename
+      WHERE jobdocnum = '01'
+      AND (
+        jobtype LIKE '%A1%' OR
+        jobtype LIKE '%A2%' OR
+        jobtype LIKE '%DM%' OR
+        jobtype LIKE '%NB%'
+      )
+      
+  info:
+    description: |
+      # The Department of Buildings (DOB) issues permits
+      The Department of Buildings (DOB) issues permits for 
+      construction and demolition activities in the City of New York. 
+      The construction industry must submit an application to DOB with 
+      details of the construction job they would like to complete. 
+      The primary types of application, aka job type, are: New Building, 
+      Demolition, and Alterations Type 1, 2, and 3. Each job type can 
+      have multiple work types, such as general construction, boiler,
+      elevator, and plumbing. Each work type will receive a separate permit. 
+      (See the DOB Job Application Filings dataset for information about each job application.) 
+      Each row/record in this dataset represents the life cycle of one permit for one work type. 
+      The dataset is updated daily with new records, and each existing record will be 
+      updated as the permit application moves through the approval process to reflect the 
+      latest status of the application.
+    url: https://data.cityofnewyork.us/Housing-Development/DOB-Permit-Issuance/ipu4-2q9a
+    dependents: []
