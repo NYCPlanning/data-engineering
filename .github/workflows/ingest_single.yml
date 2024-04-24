@@ -1,5 +1,5 @@
-name: Ingest - 📁 Update a Single Dataset
-run-name: "Ingest - 📁 Update a Single Dataset: ${{ inputs.dataset }}"
+name: Ingest Single Dataset
+run-name: "Ingest Single Dataset: ${{ inputs.dataset }}"
 
 on:
   workflow_dispatch:
