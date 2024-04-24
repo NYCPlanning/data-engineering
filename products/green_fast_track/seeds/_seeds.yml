@@ -31,7 +31,7 @@ seeds:
   - name: zoning_district_mappings
     description: All PLUTO zoning district types and their GFT zoning district categories
     columns:
-      - name: pluto_zoning_type
+      - name: zoning_district_type
         tests:
           - unique
       - name: category_type
