@@ -1,4 +1,4 @@
-pluto_zoning_type,category_type
+zoning_district_type,category_type
 "C",c_or_m
 "M",c_or_m
 "R1",low_res

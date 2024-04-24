@@ -2,6 +2,10 @@ WITH pluto AS (
     SELECT * FROM {{ ref('stg__pluto') }}
 ),
 
+zoning_districts AS (
+    SELECT * FROM {{ ref('int__zoning_districts') }}
+),
+
 district_mappings AS (
     SELECT * FROM {{ ref('zoning_district_mappings') }}
 ),
@@ -10,41 +14,13 @@ district_categories AS (
     SELECT * FROM {{ ref('zoning_district_categories') }}
 ),
 
-districts_exploded AS (
-    SELECT
-        bbl,
-        UNNEST(ARRAY[zonedist1, zonedist2, zonedist3, zonedist4]) AS zd,
-        COALESCE(zonedist1, zonedist2, zonedist3, zonedist4) IS null AS zd_all_null
-    FROM pluto
-),
-
-districts_distinct AS (
-    SELECT
-        bbl,
-        zd
-    FROM districts_exploded
-    WHERE (zd IS NOT null AND NOT zd_all_null) OR zd_all_null
-    GROUP BY 1, 2
-),
-
-district_types AS (
-    SELECT
-        bbl,
-        CASE
-            WHEN zd IS null THEN 'NONE'
-            WHEN zd LIKE 'M%' OR zd LIKE 'C%' THEN SUBSTRING(zd for 1)
-            WHEN zd LIKE 'R%' THEN SPLIT_PART(zd, '-', 1)
-            ELSE zd
-        END AS zd_type
-    FROM districts_distinct
-),
-
 districts_mapped AS (
     SELECT
-        district_types.*,
+        zoning_districts.bbl,
+        zoning_districts.zoning_district_type,
         district_mappings.category_type
-    FROM district_types
-    LEFT JOIN district_mappings ON district_types.zd_type = district_mappings.pluto_zoning_type
+    FROM zoning_districts
+    LEFT JOIN district_mappings ON zoning_districts.zoning_district_type = district_mappings.zoning_district_type
 ),
 
 lot_with_zoning_categories AS (
@@ -52,7 +28,7 @@ lot_with_zoning_categories AS (
         bbl,
         ARRAY_AGG(DISTINCT category_type) AS category_type_array
     FROM districts_mapped
-    GROUP BY 1
+    GROUP BY bbl
 ),
 
 lots_with_flags AS (
