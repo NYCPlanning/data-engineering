@@ -1,0 +1,48 @@
+name: Ingest Single Dataset
+run-name: "Ingest Single Dataset: ${{ inputs.dataset }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Name of the dataset (required)"
+        required: true
+        default: dcp_mappluto
+      latest:
+        type: boolean
+        description: "Tag this version as latest (optional)"
+        required: false
+        default: true
+      version:
+        description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
+        required: false
+      dev_image: 
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
+
+jobs:
+  dataloading:
+    runs-on: ubuntu-22.04
+    container: 
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup ...
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
