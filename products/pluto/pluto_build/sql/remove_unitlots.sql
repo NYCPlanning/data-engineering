@@ -23,7 +23,7 @@ WHERE
 INSERT INTO pluto_removed_records (
     WITH thousandlots AS (
         SELECT * FROM pluto
-        WHERE lot::numeric >= 1000
+        WHERE lot::numeric >= 1000 AND geom IS NULL
     ),
 
     overcouting AS (
