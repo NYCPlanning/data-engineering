@@ -55,11 +55,24 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
     return models.Column(**dcp_col)  # type: ignore
 
 
+def _slugify(s):
+    """transform a messy string into a slug.
+    e.g. 'MY* _weird. product- -name' -> 'my_weird_product_name'
+    """
+    return (
+        "".join(ch for ch in s if ch.isalnum() or ch == " ").replace(" ", "_").lower()
+    )
+
+
 def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Metadata:
     columns = [make_dcp_col(c) for c in socrata_md["columns"]]
 
     return models.Metadata(
-        name=socrata_md["resourceName"].lower(),
+        name=_slugify(
+            socrata_md["resourceName"]
+            if "resourceName" in socrata_md
+            else socrata_md["name"]
+        ),
         display_name=socrata_md["name"],
         summary=socrata_md["description"],
         description=socrata_md["description"],
@@ -111,7 +124,7 @@ def _export_socrata_metadata(
         pub.Dataset(four_four=four_four).fetch_metadata()
     ).model_dump(exclude_none=True)
 
-    output_path = output_path or Path(f"{four_four}.yaml")
+    output_path = output_path or Path(f"{four_four}.yml")
 
     logger.info(f"exporting {four_four} metadata to {output_path}")
     with open(output_path, "w") as outfile:

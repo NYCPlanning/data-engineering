@@ -135,6 +135,13 @@ def test_socrata_column_overrides_wkb_geom():
 
     assert "omit_me_from_shapefile" not in socrata_dest_col_names_shp
 
+    OVERRIDDEN_DISPLAY_COL = "the_geom"
+    the_geom_field = [
+        c for c in socrata_dest_cols_shp if c.name == OVERRIDDEN_DISPLAY_COL
+    ][0]
+
+    assert the_geom_field.display_name == "the_geom_socrata_overridden_display"
+
     # CSV
     socrata_dest_cols_csv = metadata.get_destination(
         "socrata_csv"
