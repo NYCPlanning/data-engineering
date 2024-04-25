@@ -110,6 +110,7 @@ destinations:
     column_details:
       the_geom:
         api_name: the_geom_socrata
+        display_name: the_geom_socrata_overridden_display
 
   - id: socrata_csv
     type: socrata

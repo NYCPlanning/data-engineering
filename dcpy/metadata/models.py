@@ -20,13 +20,21 @@ class SocrataDestination(BaseModel, extra="forbid"):
     omit_columns: list[str]
     column_details: dict[str, SocrataColumn] = {}
 
+    def get_column_overrides(self, col_name):
+        col = self.column_details.get(col_name, SocrataColumn())
+        # Unfortunate reality of serializing with pydantic from a yaml dictionary.
+        # columns overrides aren't deserialized with their name value,
+        # since the name is a dictionary key in the metadata. So:
+        col.name = col_name
+        return col
+
     def destination_column_metadata(self, metadata: Metadata) -> list[SocrataColumn]:
         soc_cols = []
         dataset = metadata.dataset_package.get_dataset(self.datasets[0])
         for col in dataset.get_columns(metadata):
             if col.name in self.omit_columns:
                 continue
-            overrides = self.column_details.get(col.name, SocrataColumn())
+            overrides = self.get_column_overrides(col.name)
 
             soc_cols.append(
                 SocrataColumn(
