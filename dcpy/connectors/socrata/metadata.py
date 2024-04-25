@@ -55,11 +55,24 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
     return models.Column(**dcp_col)  # type: ignore
 
 
+def _slugify(s):
+    """transform a messy string into a slug.
+    e.g. 'MY* _weird. product- -name' -> 'my_weird_product_name'
+    """
+    return (
+        "".join(ch for ch in s if ch.isalnum() or ch == " ").replace(" ", "_").lower()
+    )
+
+
 def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Metadata:
     columns = [make_dcp_col(c) for c in socrata_md["columns"]]
 
     return models.Metadata(
-        name=socrata_md["resourceName"].lower(),
+        name=_slugify(
+            socrata_md["resourceName"]
+            if "resourceName" in socrata_md
+            else socrata_md["name"]
+        ),
         display_name=socrata_md["name"],
         summary=socrata_md["description"],
         description=socrata_md["description"],
