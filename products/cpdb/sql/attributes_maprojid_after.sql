@@ -1,26 +1,34 @@
 DROP TABLE IF EXISTS cpdb_adminbounds;
 CREATE TABLE cpdb_adminbounds AS (
-    SELECT * FROM attributes_maprojid_cd
-    UNION ALL
-    SELECT * FROM attributes_maprojid_censustracts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_congressionaldistricts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_councildistricts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_firecompanies
-    UNION ALL
-    SELECT * FROM attributes_maprojid_municipalcourtdistricts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_policeprecincts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_schooldistricts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_stateassemblydistricts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_statesenatedistricts
-    UNION ALL
-    SELECT * FROM attributes_maprojid_trafficanalysiszones
+    WITH all_records AS (
+        SELECT * FROM attributes_maprojid_cd
+        UNION ALL
+        SELECT * FROM attributes_maprojid_censustracts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_congressionaldistricts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_councildistricts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_firecompanies
+        UNION ALL
+        SELECT * FROM attributes_maprojid_municipalcourtdistricts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_policeprecincts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_schooldistricts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_stateassemblydistricts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_statesenatedistricts
+        UNION ALL
+        SELECT * FROM attributes_maprojid_trafficanalysiszones
+    )
+    SELECT DISTINCT
+        feature_id,
+        admin_boundary_type,
+        admin_boundary_id
+    FROM all_records
+    ORDER BY feature_id, admin_boundary_type, admin_boundary_id
 );
 
 DROP TABLE attributes_maprojid_cd;
