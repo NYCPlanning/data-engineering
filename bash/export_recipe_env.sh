@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 # This file must be used with "source" to export to active shell env
 
 function export_ {

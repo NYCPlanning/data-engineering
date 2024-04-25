@@ -29,18 +29,6 @@ jobs:
     env:
       BUILD_ENGINE_DB: db-cbbr
       BUILD_NAME: ${{ inputs.build_name }}
-    services:
-      postgis:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout
@@ -66,12 +54,12 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
+      - name: Dataloading
+        run: python -m dcpy.lifecycle.builds.load recipe
+
       - name: Set recipe env vars
         working-directory: ./
         run: source ./bash/export_recipe_env.sh products/cbbr/${{ inputs.recipe_file }}.lock.yml 
-
-      - name: Dataloading
-        run: python -m dcpy.lifecycle.builds.load recipe
 
       - name: Create Build Tables and Normalize CBBR Values
         working-directory: ./products/cbbr/cbbr_build

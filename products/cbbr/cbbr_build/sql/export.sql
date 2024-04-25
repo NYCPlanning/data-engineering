@@ -105,28 +105,23 @@ SELECT
     street_name,
     between_cross_street_1 AS street_cross_1,
     and_cross_street_2 AS street_cross_2,
-    (
-        CASE
-            WHEN
-                supporters_1 IS NULL
-                OR supporters_1 IN ('', ' ', 'n/a')
-                THEN
-                    NULL
-            ELSE
-                supporters_1
-        END
-    ) AS supporters_1,
-    (
-        CASE
-            WHEN
-                supporters_2 IS NULL
-                OR supporters_2 IN ('', ' ', 'n/a')
-                THEN
-                    NULL
-            ELSE
-                supporters_2
-        END
-    ) AS supporters_2,
+    CASE
+        WHEN
+            supporters_1 IS NULL
+            OR supporters_1 IN ('', ' ', 'n/a')
+            THEN NULL
+        ELSE
+            supporters_1
+    END AS supporters_1,
+    CASE
+        WHEN
+            supporters_2 IS NULL
+            OR supporters_2 IN ('', ' ', 'n/a')
+            THEN
+                NULL
+        ELSE
+            supporters_2
+    END AS supporters_2,
     parent_tracking_code,
     agency_acronym,
     agency,

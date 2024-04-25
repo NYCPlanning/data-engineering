@@ -143,6 +143,7 @@ dmypy.json
 *.db
 
 products/*/*.lock.yml
+products/*/build_metadata.json
 products/*/source_data_versions.csv
 
 .config

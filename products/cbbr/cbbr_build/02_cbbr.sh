@@ -1,5 +1,6 @@
 #!/bin/bash
 source config.sh
+set_error_traps
 
 echo "CBBR Version ${VERSION} : 02 CBBR"
 

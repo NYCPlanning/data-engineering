@@ -1,9 +1,10 @@
 #!/bin/bash
 source config.sh
+set_error_traps
 
 echo "CBBR Version ${VERSION} : 03 Spatial"
 # TODO delete tables that are created by this stage
-echo "Geocode with geosupport image  ..."
+echo "Geocode ..."
 python3 -m library.geocode
 
 echo "Assign DoiTT geometries to geocoded data ..."
