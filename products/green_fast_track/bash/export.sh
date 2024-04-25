@@ -78,7 +78,7 @@ mkdir -p output && (
     export_source sources__priority_estuaries
     export_source sources__priority_lakes
     export_source sources__priority_streams MULTILINESTRING
-    export_source sources__recognized_ecological_complexes
+    export_source sources__recognized_ecological_complexes POINT
     export_source sources__special_natural_waterfront_areas
     export_source sources__state_freshwater_wetlands_checkzones
     export_source sources__state_freshwater_wetlands
