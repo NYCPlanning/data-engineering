@@ -82,7 +82,6 @@ inputs:
     - name: dycd_service_sites
     - name: fbop_corrections
     - name: fdny_firehouses
-    - name: nysomh_mentalhealth
     - name: dep_wwtc
       version: "20210413"
     - name: dfta_contracts
