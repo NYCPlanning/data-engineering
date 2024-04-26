@@ -21,7 +21,7 @@ echo "Assign geometries from facilities data ..."
 run_sql_file sql/spatial_facilities.sql
  
 echo "Overwriting geometries with manual mapping..."
-run_sql_file sql/apply_corrections.sql
+#run_sql_file sql/apply_corrections.sql
 
 echo "Running spatial_geomclean ..."
 run_sql_file sql/spatial_geomclean.sql
