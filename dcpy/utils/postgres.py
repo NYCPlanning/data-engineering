@@ -290,19 +290,28 @@ class PostgresClient:
         schema: str | None = None,
         if_exists: Literal["fail", "replace", "append"] = "replace",
     ):
-        df.to_sql(
-            table_name,
-            schema=schema or self.schema,
-            con=self.engine,
-            if_exists=if_exists,
-            index=False,
-            dtype={
-                "geo_1b": dialects.postgresql.JSON,
-                "geo_bl": dialects.postgresql.JSON,
-                "geo_bn": dialects.postgresql.JSON,
-            },
-            method=insert_copy,
-        )
+        # our custom insert method seems to make this not work properly, so need to manually drop first
+        with self.connect() as conn:
+            with conn.begin():
+                if if_exists == "replace":
+                    self.execute_query(
+                        f'DROP TABLE IF EXISTS ":table_name" CASCADE;',
+                        table_name=AsIs(table_name),
+                        conn=conn,
+                    )
+                df.to_sql(
+                    table_name,
+                    schema=schema or self.schema,
+                    con=conn,
+                    if_exists=if_exists,
+                    index=False,
+                    dtype={
+                        "geo_1b": dialects.postgresql.JSON,
+                        "geo_bl": dialects.postgresql.JSON,
+                        "geo_bn": dialects.postgresql.JSON,
+                    },
+                    method=insert_copy,
+                )
 
 
 def insert_copy(table, conn, keys, data_iter):
