@@ -33,5 +33,5 @@ generalized_districts AS (
 )
 
 SELECT * FROM generalized_districts
-GROUP BY bbl, zd
-ORDER BY bbl, zd
+GROUP BY bbl, zoning_district_type
+ORDER BY bbl, zoning_district_type
