@@ -1,5 +1,3 @@
-import os
-from sqlalchemy import create_engine, text
 import pandas as pd
 import numpy as np
 import copy
@@ -13,6 +11,7 @@ from library.helper.geocode_utils import (
     get_sname,
     geo_parser,
 )
+from dcpy.utils import postgres
 
 geo_client = Geosupport()
 
@@ -160,10 +159,7 @@ def geocode_record(inputs: dict) -> dict:
 
 
 def geocode_records(cbbr_data: pd.DataFrame) -> pd.DataFrame:
-    cbbr_data["addressnum"] = cbbr_data["address"].apply(get_hnum)
-    cbbr_data["street_name"] = cbbr_data["address"].apply(get_sname)
     cbbr_data[GEOCODE_COLUMNS] = None
-
     data_records = cbbr_data.to_dict("records")
     # Multiprocess
     with Pool(processes=cpu_count()) as pool:
@@ -175,18 +171,19 @@ def geocode_records(cbbr_data: pd.DataFrame) -> pd.DataFrame:
 if __name__ == "__main__":
     print("start selecting data from DB ...")
     # connect to postgres db
-    engine = create_engine(os.environ["BUILD_ENGINE"])
-    select_query = text("SELECT * FROM _cbbr_submissions")
-    with engine.begin() as conn:
-        cbbr_data = pd.read_sql(select_query, conn)
+    client = postgres.PostgresClient()
+    cbbr_data = client.read_sql_table("_cbbr_submissions")
 
     print("parsing location data for geocoding ...")
     cbbr_data = parse_location(cbbr_data)
+    cbbr_data["addressnum"] = cbbr_data["address"].apply(get_hnum)
+    cbbr_data["street_name"] = cbbr_data["address"].apply(get_sname)
 
+    client.insert_dataframe(cbbr_data, "_cbbr_submissions_address_parsed")
     print("start geocoding ...")
     geocoded_cbbr_data = geocode_records(cbbr_data)
     print("start exporting to DB ...")
-    geocoded_cbbr_data.to_sql(
-        "_cbbr_submissions", engine, if_exists="replace", chunksize=500, index=False
+    client.insert_dataframe(
+        geocoded_cbbr_data, "_cbbr_submissions", if_exists="replace"
     )
     print("done geocoding")
