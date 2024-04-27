@@ -130,7 +130,7 @@ def dfta_contracts(df: pd.DataFrame):
     df = Function1B(
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",
-        zipcode_field="program_zipcode",
+        zipcode_field="postcode",
     ).geocode_a_dataframe(df)
     return df
 
