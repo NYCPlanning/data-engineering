@@ -1,0 +1,89 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "bpl_libraries_checks",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 1
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "wkb_geometry"
+      },
+      "meta": {
+        "notes": {
+          "content": [
+            "#### wkb_geometry \n Geometry can't be `null`"
+          ],
+          "format": "markdown"
+        }
+      }
+    },
+    {
+      "expectation_type": "expect_column_to_exist",
+      "kwargs": {
+        "column": "title"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "title"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {
+        "column": "title"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "region",
+        "mostly": 1.0,
+        "value_set": [
+          "NewLots",
+          "CrownHeights",
+          "KingsHighway",
+          "ParkSlope",
+          "NewUtrecht",
+          "Central",
+          "CBH",
+          "Flatbush"
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_state_projection",
+      "kwargs": {
+        "column": "wkb_geometry"
+      },
+      "meta": {}
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "citations": [
+      {
+        "batch_request": {
+          "data_asset_name": "bpl_libraries",
+          "data_connector_name": "default_configured_data_connector_name",
+          "datasource_name": "postgres_template_db",
+          "limit": 1000
+        },
+        "citation_date": "2024-04-28T01:41:45.995018Z",
+        "comment": "Created suite added via CLI"
+      }
+    ],
+    "great_expectations_version": "0.18.12"
+  }
+}
