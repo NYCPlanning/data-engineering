@@ -6,14 +6,16 @@ SELECT
     ogc_fid AS unique_id,
     trkno AS tracking_code,
     borough,
-    cb_label AS cd,
+    RIGHT(cb_label, 2) AS cd,
+    cb_label,
     "type" AS type_br,
     priority,
     request,
     REPLACE(reason, E'\n', ' ') AS explanation,
     location,
     CASE
-        WHEN location IS NOT NULL THEN 'site'
+        WHEN location ILIKE 'site%' OR location ILIKE 'cross%' THEN 'site'
+        WHEN location ILIKE 'street%' THEN 'street'
         ELSE 'general'
     END AS "type",
     supported_by_1 AS supporters_1,
