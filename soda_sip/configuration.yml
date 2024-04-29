@@ -1,0 +1,8 @@
+data_source template_db:
+  type: postgres
+  host: ${BUILD_ENGINE_HOST}
+  port: ${BUILD_ENGINE_PORT}
+  username: ${BUILD_ENGINE_USER}
+  password: ${BUILD_ENGINE_PASSWORD}
+  database: db-template
+  schema: main

@@ -1,0 +1,35 @@
+checks for bpl_libraries:
+  - row_count > 0
+  - duplicate_count(title) = 0
+  - missing_count(title) = 0
+  - invalid_count(region) = 0:
+      valid values:
+        - "NewLots"
+        - "CrownHeights"
+        - "KingsHighway"
+        - "ParkSlope"
+        - "NewUtrecht"
+        - "Central"
+        - "CBH"
+        - "Flatbush"
+
+  - missing_count(wkb_geometry) = 0:
+      name: No NULL values in wkb_geometry column # optional: add check description
+
+  # example of same check above using a custom check
+  - null_count = 0:
+      null_count query: |
+        SELECT COUNT(wkb_geometry) 
+        FROM bpl_libraries
+        WHERE wkb_geometry = NULL
+
+  # example of schema checks
+  - schema:
+      warn:
+        when wrong column type:
+          title: character varying
+          region: integer
+      fail:
+        when required column missing: [title, region, wkb_geometry]
+
+  # wkb_geometry: check correct projection <-- Soda doesn't have geospatial checks :(
