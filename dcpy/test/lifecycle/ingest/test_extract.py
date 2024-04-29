@@ -8,7 +8,8 @@ from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import extract, configure
 
-from . import RESOURCES, mock_request_get
+from . import RESOURCES
+from dcpy.test.conftest import mock_request_get
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)

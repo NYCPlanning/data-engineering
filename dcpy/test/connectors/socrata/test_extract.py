@@ -1,29 +1,18 @@
-import json
-from pathlib import Path
+from unittest import mock
 
 from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract
 
-
-RESOURCES = Path(__file__).parent / "resources"
-
-
-def test_parse_version():
-    with open(RESOURCES / "sample_api_response.json") as f:
-        resp = json.load(f)
-    version = extract._get_version_from_resp(resp)
-    assert version == "20160606"
+from dcpy.test.conftest import mock_request_get
 
 
-def test_get_version_from_socrata():
-    ## https://data.cityofnewyork.us/Social-Services/Outcome-of-Preventive-Cases-Closed-By-Borough-And-/q663-gvx6/about_data
-    ## this dataset has "no plan for updates"
-    ## it may eventually be deleted but for now is useful as a psuedo-constant
+@mock.patch("requests.get", side_effect=mock_request_get)
+def test_get_version_from_socrata(mock_request_get):
     test_set = socrata.Source(
         type="socrata",
         org=socrata.Org.nyc,
-        uid="q663-gvx6",
+        uid="w7w3-xahh",
         format="csv",
     )
     version = extract.get_version(test_set)
-    assert version == "20160606"
+    assert version == "20240412"
