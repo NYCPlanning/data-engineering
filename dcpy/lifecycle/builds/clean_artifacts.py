@@ -53,15 +53,17 @@ def delete_stale_image_tags(active_build_names: list[str]) -> None:
         tags = requests.get(
             f"https://hub.docker.com/v2/repositories/nycplanning/{image}/tags?page_size=1000"
         ).json()["results"]
-        dev_tags: list[str] = [tag for tag in tags if tag["name"].startswith("dev-")]
+        dev_tags: list[str] = [
+            tag["name"] for tag in tags if tag["name"].startswith("dev-")
+        ]
         for tag in dev_tags:
             if tag.removeprefix("dev-") not in active_build_names:
-                logger.warning(f"Deleting tag {image}:{tag['name']}")
+                logger.warning(f"Deleting tag {image}:{tag}")
                 # Should we include this file in dcpy? A little odd to rely on this file existing, but it's going to be a bit hacky regardless
                 # The intonation seems a bit finicky so don't really want to implement in python rather than bash
-                subprocess.call(["docker/delete.sh", image, tag["name"]])
+                subprocess.call(["docker/delete.sh", image, tag])
             else:
-                logger.info(f"Keeping tag {image}.{tag['name']}")
+                logger.info(f"Keeping tag {image}.{tag}")
 
 
 app = typer.Typer(add_completion=False)
