@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 from pydantic import TypeAdapter
 import pytest
 from unittest import mock
@@ -17,9 +16,9 @@ from dcpy.models.lifecycle.ingest import (
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import TEMPLATE_DIR, configure
-from . import mock_request_get
 
-RESOURCES = Path(__file__).parent / "resources"
+from dcpy.test.conftest import mock_request_get
+from . import RESOURCES
 
 
 def test_validate_all_datasets():
