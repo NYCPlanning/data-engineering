@@ -50,10 +50,10 @@ def delete_stale_image_tags(active_build_names: list[str]) -> None:
     logger.info(f"Potential active branch build names: {active_build_names}")
     DOCKER_IMAGES = ["dev", "build-base", "build-geosupport"]
     for image in DOCKER_IMAGES:
-        tags: list[str] = requests.get(
+        tags = requests.get(
             f"https://hub.docker.com/v2/repositories/nycplanning/{image}/tags?page_size=1000"
         ).json()["results"]
-        dev_tags = [tag for tag in tags if tag["name"].startswith("dev-")]
+        dev_tags: list[str] = [tag for tag in tags if tag["name"].startswith("dev-")]
         for tag in dev_tags:
             if tag.removeprefix("dev-") not in active_build_names:
                 logger.warning(f"Deleting tag {image}:{tag['name']}")
