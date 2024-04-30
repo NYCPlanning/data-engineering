@@ -46,6 +46,7 @@ WITH all_buffers AS (
         ref('int_buffers__lpc_landmarks'),
         ref('stg__nysshpo_archaeological_buffer_areas')
     ],
+    include=["variable_type", "variable_id", "raw_geom", "buffer"],
     column_override={"raw_geom": "geometry", "buffer": "geometry"}
 ) }}
 )
