@@ -21,7 +21,7 @@ dataset:
 
   info:
     description: |
-      ## DEC State Regulated Freshwater Wetlands
+      ## DEC State Regulated Freshwater Wetlands - Checkzones
       Wetlands that are currently mapped or officially proposed for addition to the wetland maps 
       and currently regulated under the NYS Freshwater Wetlands Act.
     url: https://data.gis.ny.gov/maps/a57e144caedb4b1aaf510809013e4ac7/about
