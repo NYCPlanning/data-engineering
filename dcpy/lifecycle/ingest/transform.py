@@ -4,7 +4,7 @@ import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 import shutil
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
@@ -71,6 +71,18 @@ class Preprocessor:
 
     def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
+
+    def filter_rows(
+        df: pd.DataFrame,
+        type: Literal["equals", "contains"],
+        column_name: str | int,
+        val: str | int,
+    ) -> pd.DataFrame:
+        if type == "equals":
+            filter = df[column_name] == val
+        elif type == "contains":
+            filter = df[column_name].str.contains(str(val))
+        return df[filter]
 
     def drop_columns(self, df: pd.DataFrame, columns: list[str | int]) -> pd.DataFrame:
         columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
