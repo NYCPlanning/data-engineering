@@ -1,10 +1,8 @@
-import inspect
 from datetime import datetime
 import jinja2
 from jinja2 import meta
 import os
 from pathlib import Path
-from typing import Callable, get_args, get_origin, Literal
 from urllib.parse import urlparse
 import yaml
 
@@ -116,66 +114,3 @@ def get_config(dataset: str, version: str | None = None) -> Config:
         raw_filename=filename,
         **template.model_dump(),
     )
-
-
-# This maybe belongs in a more pure util section of code
-def validate_function_args(
-    function: Callable,
-    kwargs: dict,
-    raise_error=False,
-    ignore_args: list[str] | None = None,
-) -> dict[str, str]:
-    """
-    Given a function and dict containing kwargs, validates that kwargs satiffy the
-    signature of the function. Violations are returned as a dict, with argument names
-    as keys and types of violation as value. Types of violation can be either a missing argument,
-    an argument of the wrong type, or an unexpected argument.
-    If raise_error flag supplied, raises error instead of returning dict of violations.
-    """
-    ignore_args = ignore_args or []
-    spec = inspect.getfullargspec(function)
-    if spec.varargs is not None:
-        raise TypeError(
-            f"Positional args not supported, {function.__name__} is invalid preprocessing function"
-        )
-
-    defaults = {}
-    if spec.defaults:
-        defaults_start = len(spec.args) - len(spec.defaults)
-        for i, default in enumerate(spec.defaults):
-            defaults[spec.args[defaults_start + i]] = default
-
-    if spec.kwonlydefaults:
-        defaults.update(spec.kwonlydefaults)
-
-    expected_args = spec.args + spec.kwonlyargs
-    expected_args = [a for a in expected_args if a not in ignore_args]
-    violating_args = {}
-
-    for arg_name in expected_args:
-        if arg_name in kwargs:
-            if arg_name in spec.annotations:
-                arg = kwargs[arg_name]
-                annotation = spec.annotations[arg_name]
-                if get_origin(annotation) == Literal:
-                    clause = arg in get_args(annotation)
-                else:
-                    clause = isinstance(arg, annotation)
-                if not clause:
-                    violating_args[arg_name] = (
-                        f"Type mismatch, expected '{annotation}' and got {type(arg)}"
-                    )
-        elif arg_name not in defaults:
-            violating_args[arg_name] = "Missing"
-
-    if spec.varkw is None:
-        for arg in kwargs:
-            if arg not in expected_args:
-                violating_args[arg] = "Unexpected"
-
-    if violating_args and raise_error:
-        raise TypeError(
-            f"Function spec mismatch for function {function.__name__}. Violating arguments:\n{violating_args}"
-        )
-
-    return violating_args

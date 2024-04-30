@@ -8,10 +8,9 @@ from typing import Any, Callable
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
-from dcpy.utils import data
+from dcpy.utils import data, validation
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
-from . import configure
 
 OUTPUT_GEOM_COLUMN = "geom"
 
@@ -73,7 +72,7 @@ class Preprocessor:
     def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
 
-    def drop_columns(self, df: pd.DataFrame, columns: list) -> pd.DataFrame:
+    def drop_columns(self, df: pd.DataFrame, columns: list[str | int]) -> pd.DataFrame:
         columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
         return df.drop(columns, axis=1)
 
@@ -128,7 +127,7 @@ def validate_processing_steps(
 
             kwargs = step.args.copy()
             # assume that function takes arg "df"
-            kw_error = configure.validate_function_args(
+            kw_error = validation.validate_function_args(
                 func, kwargs, raise_error=False, ignore_args=["self", "df"]
             )
             if kw_error:
