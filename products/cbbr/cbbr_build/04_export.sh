@@ -1,5 +1,6 @@
 #!/bin/bash
 source config.sh
+set_error_traps
 
 echo "CBBR Version ${VERSION} : 04 Export"
 OUTPUT_DIRECTORY="output"
