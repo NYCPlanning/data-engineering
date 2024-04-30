@@ -28,5 +28,5 @@ dataset:
       ### LPC Landmark Sites
       This dataset contains site boundaries for all designated individual
       landmarks as well as administrative information such as site boundary description and designation date.
-    url: "https://data.cityofnewyork.us/Housing-Development/Individual-Landmark-Sites/ts56-fkf5"
+    url: "https://data.cityofnewyork.us/Housing-Development/Individual-Landmark-Sites/ncre-qhxs"
     dependents: []
