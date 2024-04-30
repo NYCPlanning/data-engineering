@@ -25,6 +25,7 @@ WITH all_buffers AS (
         ref('int_buffers__waterfront_access_pow'),
         ref('int_buffers__waterfront_access_wpaa'),
         ref('int_buffers__natural_resource_shadows'),
+        ref('int_buffers__historic_resource_shadows'),
         ref('stg__panynj_airports'),
         ref('stg__dcp_beaches'),
         ref('stg__dcp_wrp_rec'),
