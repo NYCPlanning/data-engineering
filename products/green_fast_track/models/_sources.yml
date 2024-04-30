@@ -105,7 +105,7 @@ sources:
             tests:
               - unique
               - not_null
-          - name: the_geom
+          - name: wkb_geometry
             tests:
               - not_null
 
