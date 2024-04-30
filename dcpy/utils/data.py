@@ -78,6 +78,7 @@ def read_data_to_df(
                 index_col=False,
                 encoding=data_format.encoding,
                 delimiter=data_format.delimiter,
+                names=data_format.column_names,
                 dtype=data_format.dtype,
             )
 

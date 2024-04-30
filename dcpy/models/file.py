@@ -28,8 +28,9 @@ class Csv(BaseModel, extra="forbid"):
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
     delimiter: str | None = None
-    geometry: Geometry | None = None
+    column_names: list[str] | None = None
     dtype: str | None = None
+    geometry: Geometry | None = None
 
 
 class Xlsx(BaseModel, extra="forbid"):

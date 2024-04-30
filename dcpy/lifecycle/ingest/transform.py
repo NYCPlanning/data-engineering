@@ -71,6 +71,9 @@ class Preprocessor:
     def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
 
+    def sort(self, df: pd.DataFrame, by: list[str], ascending=False) -> pd.DataFrame:
+        return df.sort_values(by=by, ascending=ascending)
+
     def filter_rows(
         self,
         df: pd.DataFrame,
@@ -123,6 +126,18 @@ class Preprocessor:
         )
         df = pd.concat((prev_df, df))
         return df
+
+    def deduplicate(
+        self,
+        df: pd.DataFrame,
+        sort_columns: list[str] | None = None,
+        sort_ascending: bool = False,
+        by: list[str] | None = None,
+    ) -> pd.DataFrame:
+        if sort_columns:
+            df = df.sort_values(by=sort_columns, ascending=sort_ascending)
+        by = by or []
+        return df.drop_duplicates(by)
 
     def drop_columns(self, df: pd.DataFrame, columns: list[str | int]) -> pd.DataFrame:
         columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
