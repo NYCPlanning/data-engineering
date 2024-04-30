@@ -5,10 +5,12 @@ DROP TABLE IF EXISTS pluto_removed_records;
 CREATE TABLE pluto_removed_records (LIKE pluto);
 
 -- where it's a unit lot, it's unmapped, and the number of units is > 1
+-- unit lots have lots >= 1000, though 75xx is reserved for condo billing bbls
 INSERT INTO pluto_removed_records (
     SELECT * FROM pluto
     WHERE
         lot::numeric >= 1000
+        AND lot NOT LIKE '75%'
         AND unitstotal::numeric > 1
         AND geom IS NULL
 );
@@ -23,7 +25,7 @@ WHERE
 INSERT INTO pluto_removed_records (
     WITH thousandlots AS (
         SELECT * FROM pluto
-        WHERE lot::numeric >= 1000
+        WHERE lot::numeric >= 1000 AND lot NOT LIKE '75%'
     ),
 
     overcouting AS (
@@ -47,7 +49,7 @@ INSERT INTO pluto_removed_records (
     WHERE address || bldgarea IN (
         SELECT address || bldgarea FROM tobedropped
     )
-    AND lot::numeric >= 1000
+    AND lot::numeric >= 1000 AND lot NOT LIKE '75%'
 );
 
 DELETE FROM pluto
