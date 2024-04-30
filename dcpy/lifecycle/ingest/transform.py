@@ -3,6 +3,7 @@ from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
+import shutil
 from typing import Any, Callable
 
 from dcpy.models import file
@@ -63,52 +64,39 @@ def to_parquet(
     )
 
 
-class Preprocessors:
+class Preprocessor:
     """
     This class is very much a first pass at something that would support the validate/run_processing_steps functions
     This should/will be iterated on when implementing actual preprocessing steps for chosen templates
     """
 
-    @staticmethod
-    def split_column(
-        df: pd.DataFrame,
-        col: str,
-        target_cols: list[str],
-        splitter: Callable[[Any], list[Any]],
-        keep_col=False,
-    ) -> pd.DataFrame:
-        df[target_cols] = df[col].apply(splitter)
-        if not keep_col:
-            df.drop(col, axis=1, inplace=True)
-        return df
+    def __init__(self, dataset_name: str):
+        self.dataset_name = dataset_name
 
-    @staticmethod
-    def drop_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
+    def drop_columns(self, df: pd.DataFrame, columns: list) -> pd.DataFrame:
         columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
         return df.drop(columns, axis=1)
 
-    @staticmethod
-    def strip_columns(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-        if cols == []:
-            df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-        else:
+    def strip_columns(
+        self, df: pd.DataFrame, cols: list[str] | None = None
+    ) -> pd.DataFrame:
+        if cols:
             for col in cols:
                 df[col] = df[col].str.strip()
+        else:
+            df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return df
 
-    @staticmethod
-    def no_arg_function(df: pd.DataFrame) -> pd.DataFrame:
+    def no_arg_function(self, df: pd.DataFrame) -> pd.DataFrame:
         """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
         return df
 
-    @staticmethod
-    def append_prev(df: pd.DataFrame, dataset: str, version: str) -> pd.DataFrame:
+    def append_prev(self, df: pd.DataFrame, dataset: str, version: str) -> pd.DataFrame:
         prev_df = recipes.read_df(recipes.Dataset(name=dataset, version=version))
         df = pd.concat((prev_df, df))
         return df
 
-    @staticmethod
-    def append_prev_duckdb(file: Path, dataset: str, version: str):
+    def append_prev_duckdb(self, file: Path, dataset: str, version: str):
         duckdb.sql(
             f"""
             COPY (
@@ -119,7 +107,9 @@ class Preprocessors:
         )
 
 
-def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
+def validate_processing_steps(
+    dataset_name: str, processing_steps: list[FunctionCall]
+) -> list[Callable]:
     """
     Given config of ingest dataset, violates that defined preprocessing steps
     exist and that appropriate arguments are supplied. Raises error detailing
@@ -129,16 +119,18 @@ def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
     """
     violations: dict[str, str | dict[str, str]] = {}
     compiled_steps: list[Callable] = []
-    for step in steps:
-        if step.name not in Preprocessors().__dir__():
+    preprocessor = Preprocessor(dataset_name)
+    for step in processing_steps:
+        if step.name not in preprocessor.__dir__():
             violations[step.name] = "Function not found"
         else:
-            func = getattr(Preprocessors(), step.name)
+            func = getattr(preprocessor, step.name)
 
             kwargs = step.args.copy()
             # assume that function takes arg "df"
-            kwargs["df"] = pd.DataFrame()
-            kw_error = configure.validate_function_args(func, kwargs, raise_error=False)
+            kw_error = configure.validate_function_args(
+                func, kwargs, raise_error=False, ignore_args=["self", "df"]
+            )
             if kw_error:
                 violations[step.name] = kw_error
 
@@ -150,14 +142,18 @@ def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
     return compiled_steps
 
 
-def run_processing_steps(steps: list[FunctionCall], local_data_path: Path) -> Path:
+def run_processing_steps(
+    dataset_name: str,
+    processing_steps: list[FunctionCall],
+    input_path: Path,
+    output_path,
+):
     """Validates and runs preprocessing steps defined in config object"""
-    compiled_steps = validate_processing_steps(steps)
-    if len(steps) == 0:
-        return local_data_path
+    compiled_steps = validate_processing_steps(dataset_name, processing_steps)
+    if len(compiled_steps) == 0:
+        shutil.copy(input_path, output_path)
     else:
-        df = pd.read_parquet(local_data_path)
+        df = pd.read_parquet(input_path)
         for step in compiled_steps:
             df = step(df)
-        df.to_parquet(local_data_path)
-        return local_data_path
+        df.to_parquet(output_path)

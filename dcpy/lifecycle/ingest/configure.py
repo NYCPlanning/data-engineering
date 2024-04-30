@@ -4,7 +4,7 @@ import jinja2
 from jinja2 import meta
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Callable, get_args, get_origin, Literal
 from urllib.parse import urlparse
 import yaml
 
@@ -120,7 +120,10 @@ def get_config(dataset: str, version: str | None = None) -> Config:
 
 # This maybe belongs in a more pure util section of code
 def validate_function_args(
-    function: Callable, kwargs: dict, raise_error=False
+    function: Callable,
+    kwargs: dict,
+    raise_error=False,
+    ignore_args: list[str] | None = None,
 ) -> dict[str, str]:
     """
     Given a function and dict containing kwargs, validates that kwargs satiffy the
@@ -129,6 +132,7 @@ def validate_function_args(
     an argument of the wrong type, or an unexpected argument.
     If raise_error flag supplied, raises error instead of returning dict of violations.
     """
+    ignore_args = ignore_args or []
     spec = inspect.getfullargspec(function)
     if spec.varargs is not None:
         raise TypeError(
@@ -145,6 +149,7 @@ def validate_function_args(
         defaults.update(spec.kwonlydefaults)
 
     expected_args = spec.args + spec.kwonlyargs
+    expected_args = [a for a in expected_args if a not in ignore_args]
     violating_args = {}
 
     for arg_name in expected_args:
@@ -152,7 +157,11 @@ def validate_function_args(
             if arg_name in spec.annotations:
                 arg = kwargs[arg_name]
                 annotation = spec.annotations[arg_name]
-                if not isinstance(arg, annotation):
+                if get_origin(annotation) == Literal:
+                    clause = arg in get_args(annotation)
+                else:
+                    clause = isinstance(arg, annotation)
+                if not clause:
                     violating_args[arg_name] = (
                         f"Type mismatch, expected '{annotation}' and got {type(arg)}"
                     )

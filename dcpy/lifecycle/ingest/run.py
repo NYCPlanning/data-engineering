@@ -14,16 +14,17 @@ def run(
     skip_archival: bool = False,
 ):
     config = configure.get_config(dataset, version)
+    transform.validate_processing_steps(config.name, config.processing_steps)
 
     if not staging_dir:
         staging_dir = TMP_DIR / config.archival_timestamp.isoformat()
-        staging_dir.mkdir()
+        staging_dir.mkdir(parents=True)
 
     # download dataset
     extract.download_file_from_source(
         config.source, config.raw_filename, config.version, staging_dir
     )
-    file_path = TMP_DIR / config.raw_filename
+    file_path = staging_dir / config.raw_filename
 
     if not skip_archival:
         # archive to edm-recipes/raw_datasets
@@ -32,6 +33,14 @@ def run(
     init_parquet = "init.parquet"
     transform.to_parquet(
         config.file_format, file_path, dir=staging_dir, output_filename=init_parquet
+    )
+
+    post_parquet = "post.parquet"
+    transform.run_processing_steps(
+        config.name,
+        config.processing_steps,
+        staging_dir / init_parquet,
+        staging_dir / post_parquet,
     )
 
     ## logic to apply transformations based on parsed config/template. Something like this

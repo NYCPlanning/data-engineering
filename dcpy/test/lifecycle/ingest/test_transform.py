@@ -100,7 +100,7 @@ def test_validate_processing_steps():
         FunctionCall(name="no_arg_function"),
         FunctionCall(name="drop_columns", args={"columns": ["col1", "col2"]}),
     ]
-    compiled_steps = transform.validate_processing_steps(steps)
+    compiled_steps = transform.validate_processing_steps("test", steps)
     assert len(compiled_steps) == 2
 
     df = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]})
@@ -120,4 +120,4 @@ def test_validate_processing_steps():
     # validate each separately for ease of making sure that each throws an error
     for step in error_steps:
         with pytest.raises(Exception, match="Invalid preprocessing steps"):
-            transform.validate_processing_steps([step])
+            transform.validate_processing_steps("test", [step])
