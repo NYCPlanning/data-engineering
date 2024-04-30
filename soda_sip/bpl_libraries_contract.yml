@@ -1,0 +1,58 @@
+# new Soda feature: data contracts.
+# We could probably consider using them for intermediate and product tables during builds.
+
+dataset: bpl_libraries
+
+# optional, custom key-value pairs as a part of data contract below
+descripton: This dataset is about bpl_libraries
+owner: Brooklyn Public library
+email: nope@dcp.gov
+
+columns:
+  - name: title
+    data_type: character varying
+    # a list of data contract checks that apply to the column,
+    # each of which is identified by a type parameter
+    checks:
+      - type: no_missing_values
+      - type: no_duplicate_values
+
+  - name: region
+    data_type: character varying
+
+  - name: wkb_geometry
+    optional: true
+
+  - name: wkb_geom
+    # an optional parameter to indicate that a column in a schema is not required
+    optional: true
+
+  - name: ogc_fid
+  - name: address
+  - name: phone
+  - name: position
+  - name: bus
+  - name: subway
+  - name: monday
+  - name: tuesday
+  - name: wednesday
+  - name: thursday
+  - name: friday
+  - name: saturday
+  - name: sunday
+  - name: hours
+  - name: closingmsg
+  - name: access
+  - name: tags
+  - name: path
+  - name: branchid
+  - name: pickuploc
+  - name: branchlist
+  - name: latitude
+  - name: longitude
+  - name: data_library_version
+
+# checks at table level
+checks:
+  - type: row_count
+    must_be_greater_than: 0
