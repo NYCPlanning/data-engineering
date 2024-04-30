@@ -50,7 +50,7 @@ buffered_landmarks AS (
         variable_type,
         variable_id,
         bbls,
-        geom AS raw_geom,
+        ST_MULTI(geom) AS raw_geom,
         ST_BUFFER(geom, 90) AS buffer
     FROM grouped_landmarks
 )

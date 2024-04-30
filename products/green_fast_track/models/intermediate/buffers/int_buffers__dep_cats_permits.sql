@@ -28,7 +28,7 @@ final AS (
     SELECT
         variable_type,
         variable_id,
-        raw_geom,
+        ST_MULTI(raw_geom) AS raw_geom,
         ST_BUFFER(raw_geom, 400) AS buffer
     FROM cats_permits_with_pluto
 )

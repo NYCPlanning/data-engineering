@@ -30,7 +30,7 @@ final AS (
     SELECT
         variable_type,
         variable_id,
-        raw_geom,
+        ST_MULTI(raw_geom) AS raw_geom,
         ST_BUFFER(raw_geom, 1000) AS buffer
     FROM state_facility_permits_with_pluto
 )
