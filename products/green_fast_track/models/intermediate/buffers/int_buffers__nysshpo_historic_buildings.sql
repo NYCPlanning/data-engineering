@@ -23,6 +23,6 @@ points_with_maybe_pluto_geom AS (
 SELECT
     variable_type,
     variable_id,
-    raw_geom,
+    ST_MULTI(raw_geom) AS raw_geom,
     ST_BUFFER(raw_geom, 90) AS buffer
 FROM points_with_maybe_pluto_geom

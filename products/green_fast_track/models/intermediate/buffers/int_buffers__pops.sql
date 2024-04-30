@@ -34,7 +34,7 @@ final AS (
     SELECT
         variable_type,
         variable_id,
-        raw_geom,
+        ST_MULTI(raw_geom) AS raw_geom,
         ST_BUFFER(raw_geom, 200) AS buffer
     FROM pops_with_pluto
 )
