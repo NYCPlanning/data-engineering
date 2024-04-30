@@ -2,7 +2,7 @@ WITH lpc_dist_areas AS (
     SELECT
         area_name,
         lp_number,
-        ST_TRANSFORM(ST_GEOMFROMTEXT(the_geom, '4326'), 2263) AS raw_geom
+        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
     FROM {{ source('recipe_sources', 'lpc_historic_district_areas') }}
 )
 
