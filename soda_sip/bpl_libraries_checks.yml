@@ -23,6 +23,11 @@ checks for bpl_libraries:
         FROM bpl_libraries
         WHERE wkb_geometry = NULL
 
+  - invalid_count_geom = 0:
+      invalid_count_geom query: SELECT COUNT(*)
+        FROM bpl_libraries
+        WHERE public.ST_SRID(wkb_geometry) != 2263
+
   # example of schema checks
   - schema:
       warn:
