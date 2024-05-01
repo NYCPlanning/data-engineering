@@ -7,7 +7,7 @@ import uuid
 
 import dcpy.models.product_metadata as models
 from dcpy.models.product_metadata import Metadata as md
-from dcpy.metadata import validate
+from dcpy.lifecycle.package import validate
 
 METADATA_PATH = (
     Path(__file__).parent.resolve() / "resources" / "test_package" / "metadata.yml"

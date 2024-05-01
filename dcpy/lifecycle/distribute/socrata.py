@@ -2,7 +2,7 @@ from pathlib import Path
 import typer
 
 import dcpy.models.product_metadata as m
-import dcpy.metadata.validate as v
+from dcpy.lifecycle.package import validate as v
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
