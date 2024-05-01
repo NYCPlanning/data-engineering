@@ -30,7 +30,7 @@ class SocrataDestination(BaseModel, extra="forbid"):
 
     def destination_column_metadata(self, metadata: Metadata) -> list[SocrataColumn]:
         soc_cols = []
-        dataset = metadata.dataset_package.get_dataset(self.datasets[0])
+        dataset = metadata.package.get_dataset(self.datasets[0])
         for col in dataset.get_columns(metadata):
             if col.name in self.omit_columns:
                 continue
@@ -75,7 +75,7 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     columns: dict = {}
 
 
-class Dataset(BaseModel, extra="forbid"):
+class DatasetFile(BaseModel, extra="forbid"):
     name: str
     type: str
     filename: str
@@ -94,12 +94,12 @@ class Dataset(BaseModel, extra="forbid"):
         return cols
 
 
-class DatasetPackage(BaseModel, extra="forbid"):
-    datasets: list[Dataset]
+class Package(BaseModel, extra="forbid"):
+    dataset_files: list[DatasetFile]
     attachments: list[str]
 
-    def get_dataset(self, ds_id: str) -> Dataset:
-        ds = [d for d in self.datasets if d.name == ds_id]
+    def get_dataset(self, ds_id: str) -> DatasetFile:
+        ds = [d for d in self.dataset_files if d.name == ds_id]
         if len(ds) == 1:
             return ds[0]
         raise Exception(f"No dataset named {ds_id}")
@@ -114,7 +114,7 @@ class Metadata(BaseModel, extra="forbid"):
     each_row_is_a: str
 
     destinations: list[BytesDestination | SocrataDestination]
-    dataset_package: DatasetPackage
+    package: Package
     columns: list[Column]
 
     @staticmethod

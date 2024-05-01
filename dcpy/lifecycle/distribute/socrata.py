@@ -69,7 +69,7 @@ def _dist_from_local(
 
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
 
-    match md.dataset_package.get_dataset(ds_name_to_push).type:
+    match md.package.get_dataset(ds_name_to_push).type:
         case "shapefile":
             soc_pub.push_shp(md, dataset_destination_id, package_path, publish=publish)
 

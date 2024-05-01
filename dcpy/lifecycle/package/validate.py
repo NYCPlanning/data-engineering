@@ -20,7 +20,7 @@ def _is_valid_wkb(g):
     try:
         wkb.loads(g)
         return True
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -28,7 +28,7 @@ def _is_float_or_double(s):
     try:
         float(s)
         return True
-    except ValueError as e:
+    except ValueError:
         return False
 
 
@@ -55,7 +55,7 @@ col_validators = {
 
 
 def validate_df(
-    df: pd.DataFrame, dataset: models.Dataset, metadata: models.Metadata
+    df: pd.DataFrame, dataset: models.DatasetFile, metadata: models.Metadata
 ) -> list[tuple[str, str]]:
     """Validate a dataframe against a metadata file."""
     df_stringified_nulls = df.fillna("")
@@ -144,14 +144,16 @@ def validate_df(
     return errors
 
 
-def validate_csv(csv_path: Path, dataset: models.Dataset, metadata: models.Metadata):
+def validate_csv(
+    csv_path: Path, dataset: models.DatasetFile, metadata: models.Metadata
+):
     df = pd.read_csv(csv_path, dtype=str)
     return validate_df(df, dataset, metadata)
 
 
 def validate_package(package_path: Path, metadata: models.Metadata):
     errors = []
-    for ds in metadata.dataset_package.datasets:
+    for ds in metadata.package.dataset_files:
         match ds.type:
             case "csv":
                 csv_path = package_path / ds.filename

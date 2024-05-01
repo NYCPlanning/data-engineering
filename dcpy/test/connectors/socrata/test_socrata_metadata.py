@@ -28,7 +28,7 @@ def test_creating_dcp_metadata():
 
     # Dataset Checks
     assert (
-        len(dcp_md.dataset_package.attachments) == 1
+        len(dcp_md.package.attachments) == 1
     ), "There should be the correct number of attachments"
-    assert dcp_md.dataset_package.attachments[0] == sample_metadata.MIH_ATTACHMENT_NAME
-    assert len(dcp_md.dataset_package.datasets) == 1, "There should be one dataset"
+    assert dcp_md.package.attachments[0] == sample_metadata.MIH_ATTACHMENT_NAME
+    assert len(dcp_md.package.dataset_files) == 1, "There should be one dataset"

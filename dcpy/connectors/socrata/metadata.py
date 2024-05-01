@@ -87,9 +87,9 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
                 omit_columns=[],
             )
         ],
-        dataset_package=models.DatasetPackage(
+        dataset_package=models.Package(
             datasets=[
-                models.Dataset(
+                models.DatasetFile(
                     name="primary_shapefile",
                     filename="shapefile.zip",
                     type="shapefile",

@@ -111,12 +111,12 @@ def generate_fake_dataset(row_count: int, columns: list[models.Column]):
 # AR note: I mostly use this to conveniently get a fake dataset
 # in a Jupyter Notebook.
 def _generate_fake_dataset_from_test_md(row_count: int):
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     return generate_fake_dataset(row_count, columns=dataset.get_columns(metadata))
 
 
 def test_socrata_column_overrides_wkb_geom():
-    dataset = metadata.dataset_package.get_dataset("primary_shapefile")
+    dataset = metadata.package.get_dataset("primary_shapefile")
     col_names = {c.name for c in dataset.get_columns(metadata)}
 
     assert (
@@ -152,7 +152,7 @@ def test_socrata_column_overrides_wkb_geom():
 
 
 def test_validating_valid_data():
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     fake_ds = generate_fake_dataset(100, columns=dataset.get_columns(metadata))
     results = validate.validate_df(fake_ds, dataset, metadata)
 
@@ -160,7 +160,7 @@ def test_validating_valid_data():
 
 
 def test_invalid_standardized_values():
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     ROW_COUNT = 100
     fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
 
@@ -188,7 +188,7 @@ def test_invalid_standardized_values():
 
 
 def test_standardized_values_with_nulls():
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     ROW_COUNT = 100
     fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
 
@@ -201,7 +201,7 @@ def test_standardized_values_with_nulls():
 
 
 def test_non_nullable_bbls():
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     ROW_COUNT = 100
     fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
 
@@ -218,7 +218,7 @@ def test_non_nullable_bbls():
 
 
 def test_invalid_wkbs():
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     ROW_COUNT = 100
     fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
 
@@ -237,7 +237,7 @@ def test_invalid_wkbs():
 
 
 def test_additional_cols_in_source():
-    dataset = metadata.dataset_package.get_dataset("primary_csv")
+    dataset = metadata.package.get_dataset("primary_csv")
     ROW_COUNT = 100
     fake_ds = generate_fake_dataset(ROW_COUNT, columns=dataset.get_columns(metadata))
 

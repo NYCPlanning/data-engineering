@@ -342,7 +342,7 @@ def push_shp(
     if type(dest) != models.SocrataDestination:
         raise Exception("received a non-socrata type destination")
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-    shapefile_name = metadata.dataset_package.get_dataset(ds_name_to_push).filename
+    shapefile_name = metadata.package.get_dataset(ds_name_to_push).filename
     shape_file_path = dataset_package_path / shapefile_name
 
     dataset = Dataset(four_four=dest.four_four)
