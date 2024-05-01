@@ -8,15 +8,15 @@ from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub
 
-app = typer.Typer(add_completion=False)
+# Adding two apps here to achieve nested commands
+# ie. dcpy.cli lifecycle distribute socrata from_s3
+socrata_app = typer.Typer()
+
+distribute_app = typer.Typer()
+distribute_app.add_typer(socrata_app, name="socrata")
 
 
-@app.command("placeholder")
-def _placeholder():
-    assert False, "Come on, now..."
-
-
-@app.command("from_local")
+@socrata_app.command("from_local")
 def _dist_from_local(
     package_path: Path = typer.Option(
         None,
@@ -78,7 +78,7 @@ def _dist_from_local(
             raise Exception("Only shapefiles have been implemented so far")
 
 
-@app.command("from_s3")
+@socrata_app.command("from_s3")
 def _dist_from_s3(
     product_name: str = typer.Option(
         None,
@@ -135,7 +135,3 @@ def _dist_from_s3(
         metadata_path=metadata_path,
         publish=publish,
     )
-
-
-if __name__ == "__main__":
-    app()

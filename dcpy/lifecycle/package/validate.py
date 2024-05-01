@@ -182,7 +182,3 @@ def _validate(
         models.Metadata.from_yaml(metadata_path or package_path / "metadata.yml"),
     )
     logger.info(f"errors: {errors}")
-
-
-if __name__ == "__main__":
-    app()
