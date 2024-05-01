@@ -87,7 +87,7 @@ mkdir -p output && (
     export_source sources__natural_resources_buffer
 
     # Historic
-    export_source sources__nyc_historic_buildings_points POINT
+    export_source sources__nyc_historic_buildings_points MULTIPOINT
     export_source sources__nyc_historic_buildings_lots
     export_source sources__nyc_historic_buildings_buffers
     export_source sources__nyc_historic_districts
