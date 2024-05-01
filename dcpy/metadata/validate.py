@@ -3,7 +3,7 @@ from pathlib import Path
 from shapely import wkb
 import typer
 
-from . import models
+import dcpy.models.product_metadata as models
 from dcpy.utils.logging import logger
 
 

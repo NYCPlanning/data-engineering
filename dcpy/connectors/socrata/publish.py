@@ -20,7 +20,7 @@ import time
 from typing import TypedDict, Literal, NotRequired
 
 from dcpy.utils.logging import logger
-from dcpy.metadata import models
+import dcpy.models.product_metadata as models
 
 SOCRATA_USER = os.getenv("SOCRATA_USER")
 SOCRATA_PASSWORD = os.getenv("SOCRATA_PASSWORD")
