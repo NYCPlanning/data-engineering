@@ -1,23 +1,52 @@
 version: 2
 
 seeds:
-  - name: variables
+  - name: question_flags
+    description: GFT survery questions and their flags
     columns:
-      - name: variable_type
-        tests:
-          - not_null
-          - unique
-      - name: label
-        tests:
-          - not_null
-          - unique
       - name: ceqr_category
         tests:
           - not_null
-      - name: survey_question
-      - name: type_ii_criteria_description
+      - name: survey_question_id
         tests:
           - not_null
+          - unique
+      - name: flag_field_name
+        tests:
+          - not_null
+          - unique
+      - name: flag_id_field_name
+        tests:
+          - not_null
+          - unique
+
+  - name: variables
+    description: GFT variables used in question flags
+    columns:
+      - name: flag_id_field_name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('question_flags')
+              field: flag_id_field_name
+      - name: variable_label
+        tests:
+          - not_null
+      - name: variable_type
+        tests:
+          - not_null
+      - name: dataset
+        tests:
+          - not_null
+      - name: join_to_lots
+      - name: buffer_ft
+      - name: type_ii_criteria_description
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: variables_compound_key
+          combination_of_columns:
+            - flag_id_field_name
+            - variable_type
 
   - name: zoning_district_categories
     description: All GFT zoning district categories
