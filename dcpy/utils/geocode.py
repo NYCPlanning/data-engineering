@@ -1,4 +1,7 @@
 from geosupport import Geosupport
+from multiprocessing import Pool, cpu_count
+import pandas as pd
+from typing import Callable
 
 g = Geosupport()
 
@@ -208,3 +211,44 @@ def function1n(
     if len(kwargs.keys() & {"borough_code", "zip_code"}) != 1:
         raise ValueError("Only borough_code or zip_code may be supplied")
     return g["1E"](kwargs_dict=kwargs)
+
+
+def geocode_df(
+    df: pd.DataFrame,
+    *,
+    borough_column: str = "borough",
+    street_name_column: str = "street_name",
+    house_number_column: str = "house_number",
+    zip_code_column: str | None = None,
+    snl: int = 32,
+    street_name_normalization: bool = False,
+    browse_flag: bool = False,
+):
+    # assume 1b for now
+    if zip_code_column:
+        borough_column = None
+
+    data_records = df.to_dict("records")
+
+    def func(dict):
+        if zip_code_column:
+            borough = None
+            zip_code = dict[zip_code_column]
+        else:
+            borough = dict[borough_column]
+            zip_code = None
+        return function1b(
+            borough=borough,
+            zip_code=zip_code,
+            street_name=dict[street_name_column],
+            house_number=dict[house_number_column],
+            snl=snl,
+            street_name_normalization=street_name_normalization,
+            browse_flag=browse_flag,
+        )
+
+    # Multiprocess
+    with Pool(processes=cpu_count()) as pool:
+        geocoded_records = pool.map(func, data_records, 10000)
+
+    return pd.DataFrame(geocoded_records)
