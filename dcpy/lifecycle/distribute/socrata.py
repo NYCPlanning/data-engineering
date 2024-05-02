@@ -1,7 +1,7 @@
 from pathlib import Path
 import typer
 
-import dcpy.models.product_metadata as m
+import dcpy.models.product.dataset.metadata as m
 from dcpy.lifecycle.package import validate as v
 from dcpy.utils import s3
 from dcpy.utils.logging import logger

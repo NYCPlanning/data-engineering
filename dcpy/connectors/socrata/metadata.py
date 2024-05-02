@@ -5,7 +5,7 @@ import yaml
 from dcpy.connectors.socrata import publish as pub
 from dcpy.connectors.socrata import metadata
 
-import dcpy.models.product_metadata as models
+import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 
 soc_types_to_dcp_types = {

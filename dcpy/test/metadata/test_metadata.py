@@ -5,8 +5,8 @@ import random
 from shapely import wkb, wkt
 import uuid
 
-import dcpy.models.product_metadata as models
-from dcpy.models.product_metadata import Metadata as md
+import dcpy.models.product.dataset.metadata as models
+from dcpy.models.product.dataset.metadata import Metadata as md
 from dcpy.lifecycle.package import validate
 
 METADATA_PATH = (
