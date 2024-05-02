@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
@@ -8,11 +9,18 @@ import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 
 
-class Errors:
+class ErrorType:
     INVALID_DATA = "INVALID_DATA"
     NULLS_FOUND = "NULLS_FOUND"
     COLUMM_MISMATCH = "COLUMN_MISMATCH"
     INVALID_METADATA = "INVALID_METADATA"
+
+
+@dataclass
+class ValidationError:
+    error_type: ErrorType
+    message: str
+    dataset_file: models.DatasetFile
 
 
 def _is_valid_wkb(g):
@@ -57,7 +65,7 @@ col_validators = {
 
 def validate_df(
     df: pd.DataFrame, dataset: models.DatasetFile, metadata: models.Metadata
-) -> list[tuple[str, str]]:
+) -> list[ValidationError]:
     """Validate a dataframe against a metadata file."""
     df_stringified_nulls = df.fillna("")
 
@@ -72,18 +80,20 @@ def validate_df(
     extras_in_source = df_headers.difference(dataset_column_names)
     if extras_in_source:
         errors.append(
-            (
-                Errors.COLUMM_MISMATCH,
-                f"Invalid column(s) found in source data: {extras_in_source}.",
+            ValidationError(
+                error_type=ErrorType.COLUMM_MISMATCH,
+                message=f"Invalid column(s) found in source data: {extras_in_source}.",
+                dataset_file=dataset,
             )
         )
 
     not_found_in_source = dataset_column_names.difference(df_headers)
     if not_found_in_source:
         errors.append(
-            (
-                Errors.COLUMM_MISMATCH,
-                f"Column(s) missing from source data: {not_found_in_source}.",
+            ValidationError(
+                error_type=ErrorType.COLUMM_MISMATCH,
+                message=f"Column(s) missing from source data: {not_found_in_source}.",
+                dataset_file=dataset,
             )
         )
 
@@ -107,9 +117,10 @@ def validate_df(
         # Check for unknown types
         if col.data_type not in col_validators:
             errors.append(
-                (
-                    Errors.INVALID_METADATA,
-                    f"Column {col.name} has unknown type {col.data_type}.",
+                ValidationError(
+                    error_type=ErrorType.INVALID_METADATA,
+                    message=f"Column {col.name} has unknown type {col.data_type}.",
+                    dataset_file=dataset,
                 )
             )
             continue
@@ -118,9 +129,10 @@ def validate_df(
         invalids = col_validators[col.data_type](df_no_col_nulls, col.name)
         if not invalids.empty:
             errors.append(
-                (
-                    Errors.INVALID_DATA,
-                    f"Column {col.name} contains {len(invalids)} invalid record(s), for example: {invalids.iloc[0][col.name]}",
+                ValidationError(
+                    error_type=ErrorType.INVALID_DATA,
+                    message=f"Column {col.name} contains {len(invalids)} invalid record(s), for example: {invalids.iloc[0][col.name]}",
+                    dataset_file=dataset,
                 )
             )
 
@@ -131,9 +143,10 @@ def validate_df(
             if not invalids.empty:
                 invalid_counts = dict(invalids.groupby(by=col.name).size())
                 errors.append(
-                    (
-                        Errors.INVALID_DATA,
-                        f"Found counts of non-standardized values for column {col.name}: {invalid_counts}",
+                    ValidationError(
+                        error_type=ErrorType.INVALID_DATA,
+                        message=f"Found counts of non-standardized values for column {col.name}: {invalid_counts}",
+                        dataset_file=dataset,
                     )
                 )
 
@@ -141,9 +154,10 @@ def validate_df(
         if col.non_nullable:
             if not df_only_col_nulls.empty:
                 errors.append(
-                    (
-                        Errors.NULLS_FOUND,
-                        f"Column {col.name} has {len(df_only_col_nulls)} empty values",
+                    ValidationError(
+                        error_type=ErrorType.NULLS_FOUND,
+                        message=f"Column {col.name} has {len(df_only_col_nulls)} empty values",
+                        dataset_file=dataset,
                     )
                 )
 
