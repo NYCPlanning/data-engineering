@@ -151,14 +151,16 @@ def validate_csv(
     return validate_df(df, dataset, metadata)
 
 
-def validate_package(package_path: Path, metadata: models.Metadata):
+def validate_package(package_path: Path, metadata: models.Metadata = None):
+    metadata = metadata or models.Metadata.from_yaml(package_path / "metadata.yml")
+    dataset_files_path = package_path / "dataset_files"
     errors = []
     for ds in metadata.package.dataset_files:
+        ds_path = dataset_files_path / ds.filename
         match ds.type:
             case "csv":
-                csv_path = package_path / ds.filename
-                logger.info(f"validating csv: {csv_path} for {ds.name}")
-                errors += validate_csv(package_path / ds.filename, ds, metadata)
+                logger.info(f"validating csv: {ds_path} for {ds.name}")
+                errors += validate_csv(ds_path, ds, metadata)
             case _:
                 pass
     return errors

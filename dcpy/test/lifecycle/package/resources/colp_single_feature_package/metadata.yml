@@ -1,0 +1,274 @@
+name: db-colp
+display_name: City Owned and Leased Property (COLP)
+summary: ""
+description: ""
+each_row_is_a: ""
+tags: ["a", "b"]
+
+columns:
+  - name: uid
+    display_name: Unique ID
+    is_primary_key: True
+    data_source: Department of City Planning
+    description: ""
+    data_type: text
+    example: cbe20732be28f6ab445289d7a67bb241
+
+  - name: BOROUGH
+    display_name: Borough
+    description: >-
+      NYC borough – 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
+      (Staten Island)
+    data_type: text
+    non_nullable: True
+    values:
+      - ["1", Manhattan]
+      - ["2", Bronx]
+      - ["3", Brooklyn]
+      - ["4", Queens]
+      - ["5", Staten Island]
+
+  - name: BLOCK
+    display_name: Tax block
+    description: >-
+      The tax block in which the tax lot is located. Each tax block is unique
+      within a borough.
+    data_type: integer
+    non_nullable: True
+    example: 1637
+
+  - name: LOT
+    display_name: Tax lot
+    description: The number of the tax lot. Each tax lot is unique within a tax block.
+    data_type: integer
+    non_nullable: True
+    example: 141
+
+  - name: BBL
+    display_name: BBL
+    description: ""
+    data_type: bbl
+    readme_data_type: double
+    non_nullable: True
+    example: 1016370141
+
+  - name: MAPBBL
+    display_name: Mapped BBL
+    data_source: Department of City Planning - Geosupport
+    description: ""
+    data_type: bbl
+    readme_data_type: double
+    example: 1016370141
+
+  - name: CD
+    display_name: Community district
+    data_source: Department of City Planning
+    description: ""
+    data_type: integer
+    example: 111
+
+  - name: HNUM
+    display_name: House number
+    description: House number
+    data_type: text
+    example: "1955"
+
+  - name: SNAME
+    display_name: Street name
+    description: Name of the street
+    data_type: text
+    example: Third Avenue
+
+  - name: ADDRESS
+    display_name: Address
+    description: House number and street name
+    data_type: text
+    example: 1955 Third Avenue
+
+  - name: PARCELNAME
+    display_name: Parcel name
+    description: ""
+    data_type: text
+    example: AGUILAR BRANCH LIBRARY
+
+  - name: AGENCY
+    display_name: Agency
+    description: ""
+    data_type: text
+    example: NYPL
+
+  - name: USECODE
+    display_name: Use code
+    description: >-
+      The use code indicates how the lot is being used by the agency. See
+      Appendix B for a complete list of use codes and descriptions.
+    data_type: text
+    example: "218"
+
+  - name: USETYPE
+    display_name: Use description
+    description: >-
+      Description of how the lot is being used by the agency. See Appendix B for
+      a complete list of use codes and descriptions.
+    data_type: text
+    example: BRANCH LIBRARY
+
+  - name: OWNERSHIP
+    display_name: Owner type
+    description: Type of owner
+    data_type: text
+    non_nullable: True
+    values:
+      - [C, City owned]
+      - [M, Mixed ownership]
+      - [P, Private]
+      - [O, Other/public authority (includes properties owned by federal and state entities)]
+
+  - name: CATEGORY
+    display_name: Category
+    data_source: Department of City Planning
+    description: >-
+      Category classifies lots as non-residential properties with a current use,
+      residential properties, or properties without a current use.
+    data_type: integer
+    non_nullable: True
+    values:
+      - [1, Non-residential properties with a current use]
+      - [2, Residential properties]
+      - [3, Properties with no current use]
+
+  - name: EXPANDCAT
+    display_name: Expanded category
+    data_source: Department of City Planning
+    description: >-
+      This categorization classifies records into broad groups based on use.
+      Valid values are 1 – 9.
+    data_type: integer
+    non_nullable: True
+    values:
+      - [1, Office use]
+      - [2, Educational use]
+      - [3, Cultural & recreational use]
+      - [4, Public safety & criminal justice use]
+      - [5, Health & social service use]
+      - [6, Leased out to a private tenant]
+      - [7, Maintenance, storage & infrastructure]
+      - [8, Property with no use]
+      - [9, Property with a residential used]
+
+  - name: EXCATDESC
+    display_name: Expanded category description
+    data_source: Department of City Planning
+    description: >-
+      Descriptions for the expanded category values. See EXPANDCAT for the
+      domain values.
+    data_type: text
+
+  - name: LEASED
+    display_name: Leased
+    description: >-
+      A value of “L” indicates that the agency’s use of the property is
+      authorized through a lease. For questions about the lease or ownership
+      status of specific lots, please contact DCAS at (212) 386-0622 or
+      RESPlanning311@dcas.nyc.gov.
+    data_type: text
+    values:
+      - [L, Leased]
+
+  - name: FINALCOM
+    display_name: Final commitment
+    description: A value of “D” indicates potential disposition by the City.
+    data_type: text
+    values:
+      - [D, Potential Disposition]
+
+  - name: AGREEMENT
+    display_name: Lease agreement
+    description: >-
+      For City-owned properties that are leased to another entity, this field
+      indicates whether the agreement is short-term, long-term, or there are
+      both short- and long-term agreements present.
+    data_type: text
+    values:
+      - [S, Short-term]
+      - [L, Long-term]
+      - [M, Mixed (there are both short- and long-term agreements on the property)]
+
+  - name: XCOORD
+    display_name: X coordinate
+    data_source: Department of City Planning
+    description: >-
+      X coordinate based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD 1983 State Plane New York Long Island FIPS 3104
+      Feet.
+    data_type: integer
+    example: 999900
+
+  - name: YCOORD
+    display_name: Y coordinate
+    data_source: Department of City Planning
+    description: >-
+      Y coordinate based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD 1983 State Plane New York Long Island FIPS 3104
+      Feet.
+    data_type: integer
+    example: 228619
+
+  - name: LATITUDE
+    display_name: Latitude
+    data_source: Department of City Planning
+    description: >-
+      Latitude based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD_1983.
+    data_type: double
+    example: 40.794169
+
+  - name: LONGITUDE
+    display_name: Longitude
+    data_source: Department of City Planning
+    description: >-
+      Longitude based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD_1983.
+    data_type: double
+    example: -73.943479
+
+  - name: DCPEDITED
+    display_name: DCP Edited
+    data_source: Department of City Planning
+    description: >-
+      City Planning modifies some records to correct street names or normalize
+      parcel names when programmatic cleaning is insufficient. If a field has
+      been manually modified, the original value can be found on GitHub in the
+      modifications_applied.csv available in Outputs file series.
+    data_type: text
+    values:
+      - [Y, Yes]
+
+  - name: GEOM
+    display_name: Geometry
+    description: Point geometry type
+    data_type: wkb
+    readme_data_type: geometry
+
+package:
+  dataset_files:
+    - name: primary_shapefile
+      filename: colp_single_feature_shp.zip
+      type: shapefile
+    - name: primary_csv
+      filename: colp_single_feature.csv
+      type: csv
+      overrides:
+        omit_columns: ["GEOM"]
+  attachments:
+    - colp_readme.pdf
+
+destinations:
+  - id: socrata_prod
+    type: socrata
+    four_four: "fn4k-qyk2"
+    datasets:
+      - primary_shapefile
+    attachments:
+      -  "colp_readme.pdf"
+    omit_columns: [dcpedited, uid]
