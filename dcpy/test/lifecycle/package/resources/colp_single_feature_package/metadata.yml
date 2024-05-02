@@ -255,6 +255,14 @@ package:
     - name: primary_shapefile
       filename: colp_single_feature_shp.zip
       type: shapefile
+      overrides:
+        columns:
+          GEOM:
+            name: geometry
+          BBL:
+            data_type: double
+          MAPBBL:
+            data_type: double
     - name: primary_csv
       filename: colp_single_feature.csv
       type: csv

@@ -1,3 +1,4 @@
+import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 from shapely import wkb
@@ -91,8 +92,13 @@ def validate_df(
         if col.name in not_found_in_source:
             continue
 
+        col_type = type(df.dtypes.get(col.name))
+
+        if col_type is gpd.array.GeometryDtype:
+            continue
+
         df_no_col_nulls = df_stringified_nulls[
-            df_stringified_nulls[col.name].str.len() > 0
+            df_stringified_nulls[col.name].apply(str).str.len() > 0
         ]
         df_only_col_nulls = df_stringified_nulls[
             df_stringified_nulls[col.name].str.len() == 0
@@ -151,6 +157,13 @@ def validate_csv(
     return validate_df(df, dataset, metadata)
 
 
+def validate_shapefile(
+    shp_path: Path, dataset: models.DatasetFile, metadata: models.Metadata
+):
+    df = pd.DataFrame(gpd.read_file(shp_path), dtype=str)
+    return validate_df(df, dataset, metadata)
+
+
 def validate_package(package_path: Path, metadata: models.Metadata = None):
     metadata = metadata or models.Metadata.from_yaml(package_path / "metadata.yml")
     dataset_files_path = package_path / "dataset_files"
@@ -161,6 +174,8 @@ def validate_package(package_path: Path, metadata: models.Metadata = None):
             case "csv":
                 logger.info(f"validating csv: {ds_path} for {ds.name}")
                 errors += validate_csv(ds_path, ds, metadata)
+            case "shapefile":
+                errors += validate_shapefile(ds_path, ds, metadata)
             case _:
                 pass
     return errors
