@@ -81,8 +81,8 @@ columns:
     data_type: text
 
 
-dataset_package:
-  datasets:
+package:
+  dataset_files:
     - name: primary_csv
       filename: test.csv
       type: csv
