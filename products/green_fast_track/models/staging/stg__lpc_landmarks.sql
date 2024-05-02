@@ -20,8 +20,7 @@ filtered_lpc_landmarks AS (
         raw_geom
     FROM all_landmarks
     WHERE
-        (lm_type = 'Individual Landmark' OR lm_type = 'Interior Landmark')
-        AND status = 'DESIGNATED'
+        status = 'DESIGNATED'
         AND (last_actio = 'DESIGNATED' OR last_actio = 'DESIGNATED (AMENDMENT/MODIFICATION ACCEPTED)')
         AND most_curre = '1'
 )
