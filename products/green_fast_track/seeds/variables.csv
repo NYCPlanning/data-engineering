@@ -1,40 +1,55 @@
-variable_type,label,ceqr_category,survey_question,type_ii_criteria_description
-zoning_districts,Zoning Districts,Zoning,2A,"R5-R10, R1-R4, or (C or M)"
-special_coastal_risk_districts,Special Coastal Risk Districts,Zoning,2B,"Any of 3 special purpose district fields in PLUTO contain a CR% value"
-cats_permits,CATS Permits,Air Quality,10,"400 foot buffer"
-industrial_sources,Unpermitted Industrial Sources,Air Quality,10,"Land Use Code = 06 and 400 foot buffer"
-state_facility_permits,State Facility Permits,Air Quality,11,"1,000 foot buffer"
-title_v_permits,Clean Air Act Title V Permits,Air Quality,12,"1,000 foot buffer"
-vent_towers,Vent Towers,Air Quality,13,"75 foot buffer"
-e_designations_air,(E) Designations - Air Quality,Air Quality,14,"Air Code = 1"
-e_designations_noise,(E) Designations - Noise,Noise,15,"Noise Code = 1"
-arterial_highways,Arterial Highways,Noise,16,"75 foot buffer"
-exposed_railways,Exposed Railways,Noise,17,"1,500 foot buffer"
-airport,Airport,Noise,18,"Intersects 65db contour"
-e_designations_hazmat,(E) Designations - HazMat,HazMat,HZ1,"HazMat Code = 1"
-nyc_parks_properties,DPR Parks properties,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
-schoolyard_to_playgrounds,Schoolyard-to-playground,Shadow/Open Space,,"substantially contiguous (200 ft) to open space resource"
-pops,POPS,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
-waterfront_access_wpaa,Waterfront Public Access Areas,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
-waterfront_access_pow,Publicly Owned Waterfront,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
-nys_parks_properties,NYS Parks Property,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
-us_parks_properties,Federal Parks property,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
-natural_resource_shadow,Natural Resource Shadow,Shadow/Open Space,,200 ft buffer
-historic_resource_shadow,Historic Resource Shadow,Shadow/Open Space,,200 ft buffer
-wetlands_checkzones,State Regulated Freshwater Wetlands - Checkzone,Natural Resources,,Intersects
-freshwater_wetlands,State Regulated Freshwater Wetlands,Natural Resources,,Intersects
-tidal_wetlands,State Regulated Tidal Wetlands,Natural Resources,,Intersects
-priority_waterbodies,Priority Waterbodies,Natural Resources,,Intersects
-natural_heritage_communities,Significant Natural Communities,Natural Resources,,Intersects
-beaches,Beaches,Natural Resources,,Intersects
-usfws_wetlands,National Wetlands,Natural Resources,,Intersects
-rec,Recognized Ecological Complexes,Natural Resources,,Intersects
-snwa,Special Natural Waterfront Areas,Natural Resources,,Intersects
-forever_wild,NYC Parks Forever Wild,Natural Resources,,Intersects
-nyc_historic_buildings,Historic Buildings,Historic,,X
-nyc_historic_districts,Historic Districts,Historic,,X
-scenic_landmarks,Scenic Landmarks,Historic,,X
-nys_historic_buildings,State Historic Buildings,Historic,,X
-nys_historic_districts,State Historic Districts,Historic,,X
-us_historic_places,Federal Historic Places,Historic,,X
-archaeological_areas,State Archaeological Areas,Historic,,X
+flag_id_field_name,variable_label,variable_type,dataset,join_to_lots,buffer_ft,type_ii_criteria_description
+zoning_district,Zoning Districts,zoning_districts,dcp_mappluto_wi,,,
+special_coastal_risk,Special Coastal Risk Districts,special_coastal_risk_districts,dcp_mappluto_wi,,,Any of 3 special purpose district fields in PLUTO contain a CR% value
+cats_permit,CATS Permits,cats_permits,dep_cats_permits,TRUE,400,
+industrial_lots,Unpermitted Industrial Sources,industrial_sources,dcp_mappluto_wi,,400,Land Use Code = 06 and 400 foot buffer
+state_facility,State Facility Permits,state_facility_permits,nysdec_state_facility_permits,TRUE,1000,
+title_v_permit,Clean Air Act Title V Permits,title_v_permits,nysdec_title_v_facility_permits,TRUE,1000,
+vent_tower,Vent Towers,vent_towers,dcp_air_quality_vent_towers,FALSE,200,
+e_des_air_quality,(E) Designations - Air Quality,e_designations_air,dcp_edesignation_csv,,,Air Code = 1
+e_des_noise,(E) Designations - Noise,e_designations_noise,dcp_edesignation_csv,,,Noise Code = 1
+arterial_highway,Arterial Highways,arterial_highways,dcm_arterial_highways,FALSE,200,
+exposed_railway,Exposed Railways,exposed_railways,dcp_lion,FALSE,1500,
+airport_noise,Airport Noise Exposure Zone - JFK,airport_noise_jfk,panynj_jfk_65db,FALSE,0,
+airport_noise,Airport Noise Exposure Zone - LGA,airport_noise_lga,panynj_lga_65db,FALSE,0,
+e_des_hazmat,(E) Designations - HazMat,e_designations_hazmat,dcp_edesignation_csv,FALSE,0,HazMat Code = 1
+natural_resources,State Regulated Freshwater Wetlands,freshwater_wetlands,nysdec_freshwater_wetlands,FALSE,0,
+natural_resources,State Regulated Tidal Wetlands,tidal_wetlands,nysdec_tidal_wetlands,FALSE,0,
+natural_resources,Priority Waterbodies - Lakes,priority_waterbodies_lakes,nysdec_priority_lakes,FALSE,0,
+natural_resources,Priority Waterbodies - Estuaries,priority_waterbodies_estuaries,nysdec_priority_estuaries,FALSE,0,
+natural_resources,Priority Waterbodies - Streams,priority_waterbodies_streams,nysdec_priority_streams,FALSE,0,
+natural_resources,Beaches,beaches,dcp_beaches,FALSE,0,
+natural_resources,Significant Natural Communities,natural_heritage_communities,nysdec_natural_heritage_communities,FALSE,0,
+natural_resources,National Wetlands,usfws_wetlands,usfws_nyc_wetlands,FALSE,0,
+natural_resources,Recognized Ecological Complexes,rec,dcp_wrp_rec,TRUE,0,
+natural_resources,Special Natural Waterfront Areas,snwa,dcp_wrp_snwa,FALSE,0,
+natural_resources,NYC Parks Forever Wild,forever_wild,dpr_forever_wild,FALSE,0,
+wetland_checkzone,State Regulated Freshwater Wetlands - Checkzone,wetlands_checkzones,nysdec_freshwater_wetlands_checkzones,FALSE,0,
+archaeological_area,State Archeological Buffer Areas,archaeological_areas,nysshpo_archaeological_buffer_areas,FALSE,0,
+historic_districts,NYC Historic Districts,nyc_historic_districts,lpc_historic_district_areas,FALSE,0,
+historic_districts,State Historic Districts,nys_historic_districts,nysshpo_historic_buildings_polygons,FALSE,0,
+historic_districts,Scenic Landmarks,scenic_landmarks,lpc_scenic_landmarks,FALSE,0,
+historic_districts,Federal Historic Places,us_historic_places,us_historic_places,TRUE,0,
+historic_resources,NYC Historic Buildings,nyc_historic_buildings,lpc_landmarks,TRUE,0,
+historic_resources,State Historic Buildings,nys_historic_buildings,nysshpo_historic_buildings_points,TRUE,0,
+historic_resources_adj,City Historic Buildings,nyc_historic_buildings,lpc_landmarks,TRUE,90,
+historic_resources_adj,State Historic Buildings,nys_historic_buildings,nysshpo_historic_buildings_points,TRUE,90,
+shadow_open_spaces,DPR Parks properties,nyc_parks_properties,dpr_parksproperties,FALSE,200,
+shadow_open_spaces,Schoolyard-to-playground,schoolyard_to_playgrounds,dpr_schoolyard_to_playgrounds,FALSE,200,
+shadow_open_spaces,POPS,pops,dcp_pops,TRUE,200,
+shadow_open_spaces,Waterfront Public Access Areas,waterfront_access_wpaa,dcp_waterfront_access_map_wpaa,FALSE,200,
+shadow_open_spaces,Publicly Owned Waterfront,waterfront_access_pow,dcp_waterfront_access_map_pow,FALSE,200,
+shadow_open_spaces,NYS Parks Property,nys_parks_properties,nysparks_parks_polygons,FALSE,200,
+shadow_open_spaces,Federal Parks property,us_parks_properties,usnps_parks,FALSE,200,
+shadow_nat_resources,NYC Parks Forever Wild,forever_wild,dcp_beaches,FALSE,200,
+shadow_nat_resources,State Regulated Freshwater Wetlands,freshwater_wetlands,dpr_forever_wild,FALSE,200,
+shadow_nat_resources,State Regulated Tidal Wetlands,tidal_wetlands,nysdec_freshwater_wetlands,FALSE,200,
+shadow_nat_resources,Priority Waterbodies - Lakes,priority_waterbodies_lakes,nysdec_natural_heritage_communities,FALSE,200,
+shadow_nat_resources,Priority Waterbodies - Estuaries,priority_waterbodies_estuaries,nysdec_priority_lakes,FALSE,200,
+shadow_nat_resources,Priority Waterbodies - Streams,priority_waterbodies_streams,nysdec_priority_estuaries,FALSE,200,
+shadow_nat_resources,Beaches,beaches,nysdec_priority_streams,FALSE,200,
+shadow_nat_resources,Significant Natural Communities,natural_heritage_communities,nysdec_tidal_wetlands,FALSE,200,
+shadow_nat_resources,National Wetlands,usfws_wetlands,usfws_nyc_wetlands,FALSE,200,
+shadow_hist_resources,NYC Historic Buildings,nyc_historic_buildings,lpc_landmarks,TRUE,200,
+shadow_hist_resources,State Historic Buildings,nys_historic_buildings,nysshpo_historic_buildings_points,TRUE,200,
+shadow_hist_resources,Scenic Landmarks,scenic_landmarks,lpc_scenic_landmarks,FALSE,200,
