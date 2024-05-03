@@ -17,6 +17,8 @@ mkdir -p output && (
     csv_export checkbook_spending_by_year &
     csv_export geospatial_check &
     csv_export cpdb_projects_without_budget_data &
+    
+    cp ../projects_in_geographies.zip ./
 
     cp ../source_data_versions.csv ./
     cp ../build_metadata.json ./

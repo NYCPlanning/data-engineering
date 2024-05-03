@@ -64,6 +64,10 @@ years="['2010', '2011']"
 decade="2020"
 geom="CD"
 CAPTURE_DATE="2024-01-01"
+geography_type="anything"
+geography_name="anything"
+geography_id="anything"
+table_name="anything"
 
 [tool.sqlfluff.rules.layout.long_lines]
 ignore_comment_lines = true
