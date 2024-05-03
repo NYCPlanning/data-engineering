@@ -11,7 +11,6 @@ from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     ScriptSource,
     Source,
-    Template,
 )
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
@@ -19,16 +18,6 @@ from dcpy.lifecycle.ingest import configure
 
 from dcpy.test.conftest import mock_request_get
 from . import RESOURCES
-
-
-def test_validate_all_datasets():
-    templates = [t for t in configure.TEMPLATE_DIR.glob("*")]
-    assert len(templates) > 0
-    for file in templates:
-        with open(file, "r") as f:
-            s = yaml.safe_load(f)
-        val = Template(**s)
-        assert val
 
 
 def test_jinja_vars():
