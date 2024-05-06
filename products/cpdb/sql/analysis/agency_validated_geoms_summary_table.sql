@@ -4,7 +4,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     WITH newgeoms AS (
         SELECT
             a.agency,
-            COUNT(a . *) AS countnew,
+            COUNT(a.*) AS countnew,
             SUM(b.plannedcommit_total) AS totalplannedcommitnew
         FROM dcp_cpdb_agencyverified AS a
         LEFT JOIN ccp_projects AS b
@@ -18,7 +18,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     correctedgeoms AS (
         SELECT
             a.agency,
-            COUNT(a . *) AS countcorrected,
+            COUNT(a.*) AS countcorrected,
             SUM(b.plannedcommit_total) AS totalplannedcommitcorrected
         FROM dcp_cpdb_agencyverified AS a
         LEFT JOIN ccp_projects AS b
@@ -32,7 +32,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     removedgeoms AS (
         SELECT
             a.agency,
-            COUNT(a . *) AS countremoved,
+            COUNT(a.*) AS countremoved,
             SUM(b.plannedcommit_total) AS totalplannedcommitremoved
         FROM dcp_cpdb_agencyverified AS a
         LEFT JOIN ccp_projects AS b
@@ -49,7 +49,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     totalmappedrecords AS (
         SELECT
             a.agency,
-            COUNT(a . *) AS totalmapped
+            COUNT(a.*) AS totalmapped
         FROM dcp_cpdb_agencyverified AS a
         WHERE origin = 'mapped'
         GROUP BY agency
@@ -58,7 +58,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     totalunmappedrecords AS (
         SELECT
             a.agency,
-            COUNT(a . *) AS totalunmapped
+            COUNT(a.*) AS totalunmapped
         FROM dcp_cpdb_agencyverified AS a
         WHERE origin = 'unmapped'
         GROUP BY agency

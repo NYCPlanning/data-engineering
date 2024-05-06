@@ -9,6 +9,6 @@ WITH lpc_dist_areas AS (
 SELECT
     'nyc_historic_districts' AS variable_type,
     lp_number || '-' || area_name AS variable_id,
-    raw_geom AS raw_geom,
+    raw_geom,
     NULL AS buffer
 FROM lpc_dist_areas

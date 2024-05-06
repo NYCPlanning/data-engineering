@@ -3,7 +3,7 @@ SET plutomapid = '4'
 WHERE a.bbl IN (
     SELECT a.bbl FROM (
         SELECT
-            a.bbl AS bbl,
+            a.bbl,
             st_union(b.geom) AS geom
         FROM pluto AS a, dof_shoreline_subdivide AS b
         WHERE

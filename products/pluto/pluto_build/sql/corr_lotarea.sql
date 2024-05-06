@@ -4,13 +4,13 @@
 -- Insert old and new values into tracking table
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT
-    a.bbl AS bbl,
+    a.bbl,
     'lotarea' AS field,
     a.lotarea AS old_value,
     round(st_area(st_transform(a.geom, 2263)))::text AS new_value,
     '1' AS type,
     'Zero lot area' AS reason,
-    a.version AS version
+    a.version
 FROM pluto AS a
 WHERE
     a.lotarea = '0'

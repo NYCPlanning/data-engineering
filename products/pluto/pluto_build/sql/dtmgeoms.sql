@@ -22,7 +22,7 @@ INSERT INTO pluto (
     plutomapid
 )
 SELECT
-    b.bbl AS bbl,
+    b.bbl,
     LEFT(b.bbl, 1) AS borocode,
     CASE
         WHEN LEFT(b.bbl, 1) = '1' THEN 'MN'

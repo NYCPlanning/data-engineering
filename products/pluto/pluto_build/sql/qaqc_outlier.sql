@@ -17,7 +17,8 @@ INSERT INTO qaqc_outlier (
                 'unitsres', tmp.unitsres,
                 'resarea', tmp.resarea,
                 'res_unit_ratio', tmp.res_unit_ratio
-            )) AS values, 'unitsres_resarea' AS field
+            )) AS values,
+            'unitsres_resarea' AS field
         FROM (
             SELECT
                 bbl,
@@ -41,7 +42,8 @@ INSERT INTO qaqc_outlier (
                 'lotarea', tmp.lotarea,
                 'numfloors', tmp.numfloors,
                 'blog_lot_ratio', tmp.bldg_lot_ratio
-            )) AS values, 'lotarea_numfloor' AS field
+            )) AS values,
+            'lotarea_numfloor' AS field
         FROM (
             SELECT
                 bbl,

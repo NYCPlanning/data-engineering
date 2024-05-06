@@ -37,7 +37,7 @@ WITH regrouped AS (
     GROUP BY zoning_district_id
 )
 SELECT
-    zd.id AS id,
+    zd.id,
     zd.label AS district,
     r.commercial,
     r.manufacturing,

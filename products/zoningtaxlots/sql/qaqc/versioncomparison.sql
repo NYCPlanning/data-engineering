@@ -106,7 +106,7 @@ CREATE TEMP TABLE qaqc_field_change AS (
 
     SELECT
         a.field,
-        a.count AS count,
+        a.count,
         round((a.count / b.countall) * 100, 2) AS percent
     FROM pivot_mismatch AS a, countall AS b
     ORDER BY percent DESC

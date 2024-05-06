@@ -39,12 +39,14 @@ flags_wide AS (
         {% endfor %}
         bool_or(variable_id IS NOT NULL)
         FILTER (
-            WHERE variable_type = any(ARRAY{{
-                variables
-                | selectattr("ceqr_category", "equalto", "Natural Resources")
-                | map(attribute='variable_type')
-                | list
-            }})
+            WHERE variable_type = any(
+                ARRAY{{
+                    variables
+                    | selectattr("ceqr_category", "equalto", "Natural Resources")
+                    | map(attribute='variable_type')
+                    | list
+                }}
+            )
             AND variable_type != 'wetlands_checkzones'
         ) AS natural_resource,
         bbl
@@ -58,7 +60,8 @@ SELECT
         {% if row['variable_type'] == 'zoning_districts' %}
             /* zoning_districts has a Category column */
             f."{{ row['label'] }}" AS "{{ row['label'] }} Category",
-            array_to_string(ARRAY[pluto.zonedist1, pluto.zonedist2, pluto.zonedist3, pluto.zonedist4],
+            array_to_string(
+                ARRAY[pluto.zonedist1, pluto.zonedist2, pluto.zonedist3, pluto.zonedist4],
                 ', '
             ) AS "{{ row['label'] }}",
         {% else %}
