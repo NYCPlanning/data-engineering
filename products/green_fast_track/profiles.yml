@@ -1,6 +1,3 @@
-config:
-  fail-fast: true
-
 dcp-de-postgres:
   target: dev
   outputs:
