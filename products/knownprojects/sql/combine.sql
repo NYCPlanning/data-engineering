@@ -119,7 +119,7 @@ _edc_projects AS (
         1 AS phasing_known,
 
         -- phasing
-        b.geom AS geom,
+        b.geom,
         array_append(ARRAY[]::text [], a.uid) AS record_id_input,
         (CASE
             WHEN build_year::numeric <= date_part('year', current_date) + 5

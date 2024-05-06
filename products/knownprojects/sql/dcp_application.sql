@@ -148,7 +148,7 @@ consolidated_remove_filter AS (
     */
     SELECT dcp_name FROM records_corr_remove
     UNION
-    SELECT dcp_name AS dcp_name FROM zap_translated
+    SELECT dcp_name FROM zap_translated
     WHERE dcp_name NOT IN (SELECT dcp_name FROM consolidated_add_filter)
 ),
 
@@ -298,7 +298,7 @@ geom_pluto AS (
     FROM (
         SELECT
             a.record_id,
-            b.bbl AS bbl
+            b.bbl
         FROM _dcp_application AS a
         LEFT JOIN dcp_projectbbls AS b
             ON a.record_id = TRIM(SPLIT_PART(b.project_id, '-', 1))

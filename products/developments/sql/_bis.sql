@@ -134,9 +134,9 @@ SELECT
     approved AS date_statusp,
     fullypermitted AS date_statusr,
     signoffdate AS date_statusx,
-    zoningdist1 AS zoningdist1,
-    zoningdist2 AS zoningdist2,
-    zoningdist3 AS zoningdist3,
+    zoningdist1,
+    zoningdist2,
+    zoningdist3,
     specialdistrict1 AS specialdist1,
     specialdistrict2 AS specialdist2,
 
@@ -203,7 +203,7 @@ SELECT
         trim(housenumber),
         '(^|)0*', '', ''
     ) || ' ' || trim(streetname) AS address,
-    bin AS bin,
+    bin,
     left(bin, 1) || lpad(block, 5, '0') || lpad(right(lot, 4), 4, '0') AS bbl,
     CASE
         WHEN borough ~* 'Manhattan' THEN '1'

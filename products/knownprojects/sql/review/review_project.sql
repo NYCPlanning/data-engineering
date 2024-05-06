@@ -6,7 +6,7 @@ WITH dcp_planner AS (
     FROM (
         SELECT
             a.dcp_name AS planner,
-            b.project_id AS project_id
+            b.project_id
         FROM dcp_dcpprojectteams AS a LEFT JOIN dcp_projects AS b
             ON SPLIT_PART(a.dcp_dmsourceid, '_', 1) = b.project_id
     ) AS a GROUP BY project_id

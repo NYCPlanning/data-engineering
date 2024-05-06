@@ -58,8 +58,8 @@ one_to_one AS (
         r.total_units::text AS all_hny_units,
         r.one_dev_to_many_hny,
         r.one_hny_to_many_dev,
-        h.project_start_date AS project_start_date,
-        h.project_completion_date AS project_completion_date,
+        h.project_start_date,
+        h.project_completion_date,
         h.extremely_low_income_units::numeric AS extremely_low_income_units,
         h.very_low_income_units::numeric AS very_low_income_units,
         h.low_income_units::numeric AS low_income_units,
@@ -120,7 +120,7 @@ one_to_many AS (
 -- Other HNY attributes is set to either max or min but they should be from the same hny record
 many_to_one AS (
     SELECT
-        r.hny_id AS hny_id,
+        r.hny_id,
         min(r.job_number) AS job_number,
         max(coalesce(r.all_counted_units::int, '0'))::text AS classa_hnyaff,
         max(coalesce(r.total_units::int, '0'))::text AS all_hny_units,

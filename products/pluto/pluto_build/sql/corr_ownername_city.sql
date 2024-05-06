@@ -5,10 +5,10 @@ SELECT DISTINCT
     a.bbl,
     'ownername' AS field,
     a.ownername AS old_value,
-    b.new_value AS new_value,
-    b.type AS type,
-    b.reason AS reason,
-    b.version AS version
+    b.new_value,
+    b.type,
+    b.reason,
+    b.version
 FROM pluto AS a, pluto_input_research AS b
 WHERE
     a.ownername = b.old_value

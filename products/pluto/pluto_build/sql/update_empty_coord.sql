@@ -9,8 +9,8 @@ WITH update_table AS (
         END AS centroid
     FROM (
         SELECT
-            p.bbl AS bbl,
-            p.geom AS geom,
+            p.bbl,
+            p.geom,
             ST_CENTROID(p.geom) AS centroid,
             ST_POINTONSURFACE(p.geom) AS point_surface
         FROM pluto AS p

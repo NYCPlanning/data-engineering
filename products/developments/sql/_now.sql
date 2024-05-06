@@ -183,7 +183,7 @@ SELECT
         trim(house_no),
         '(^|)0*', '', ''
     ) || ' ' || trim(street_name) AS address,
-    bin AS bin,
+    bin,
     left(bin, 1) || lpad(block, 5, '0') || lpad(right(lot, 4), 4, '0') AS bbl,
     CASE
         WHEN borough ~* 'Manhattan' THEN '1'

@@ -24,7 +24,7 @@ generalized_districts AS (
         bbl,
         CASE
             WHEN zd IS null THEN 'NONE'
-            WHEN zd LIKE 'M%' OR zd LIKE 'C%' THEN SUBSTRING(zd for 1)
+            WHEN zd LIKE 'M%' OR zd LIKE 'C%' THEN LEFT(zd, 1)
             -- match the first group of characters that end with a number
             WHEN zd LIKE 'R%' THEN (REGEXP_MATCH(zd, '^(\w\d+)'))[1]
             ELSE zd

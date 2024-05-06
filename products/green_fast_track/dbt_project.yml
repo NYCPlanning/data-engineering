@@ -20,3 +20,6 @@ models:
       +materialized: view
     product:
       +materialized: table
+
+flags:
+  fail-fast: true
