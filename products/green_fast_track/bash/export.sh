@@ -90,11 +90,13 @@ mkdir -p output && (
     export_source sources__nyc_historic_buildings_points MULTIPOINT
     export_source sources__nyc_historic_buildings_lots
     export_source sources__nyc_historic_buildings_buffers
+    export_source sources__nyc_historic_buildings_buffers_adj
     export_source sources__nyc_historic_districts
     export_source sources__scenic_landmarks
     export_source sources__nys_historic_buildings_points POINT
     export_source sources__nys_historic_buildings_lots
     export_source sources__nys_historic_buildings_buffers
+    export_source sources__nys_historic_buildings_buffers_adj
     export_source sources__nys_historic_districts
     export_source sources__us_historic_places
     export_source sources__us_historic_places_buffers
