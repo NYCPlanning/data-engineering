@@ -40,6 +40,7 @@ models:
   - name: sources__waterfront_access_wpaa
   - name: sources__waterfront_access_wpaa_buffers
   - name: sources__natural_resources_buffer
+  - name: sources__historic_resource_buffer
 
   ## natural resources
   - name: sources__state_freshwater_wetlands_checkzones
@@ -59,11 +60,13 @@ models:
   - name: sources__nyc_historic_buildings_points
   - name: sources__nyc_historic_buildings_lots
   - name: sources__nyc_historic_buildings_buffers
+  - name: sources__nyc_historic_buildings_buffers_200
   - name: sources__nyc_historic_districts
   - name: sources__scenic_landmarks
   - name: sources__nys_historic_buildings_points
   - name: sources__nys_historic_buildings_lots
   - name: sources__nys_historic_buildings_buffers
+  - name: sources__nys_historic_buildings_buffers_200
   - name: sources__nys_historic_districts
   - name: sources__us_historic_places
   - name: sources__us_historic_places_buffers
