@@ -16,8 +16,7 @@ on:
         type: string
         required: false
       repeat:
-        type: boolean
-        default: false
+        type: string
 
 jobs:
   build:

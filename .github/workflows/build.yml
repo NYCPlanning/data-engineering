@@ -72,10 +72,11 @@ on:
         type: string
         required: true
       dev_image:
-        type: boolean
+        type: string
         default: false
+        required: false
       repeat:
-        type: boolean
+        type: string
         default: false
       build_name:
         type: string
@@ -86,12 +87,12 @@ jobs:
     name: Health Check
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
       build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
     steps:
       - name: Check inputs
         run: |
-          echo "running with image tag ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}"
+          echo "running with image tag ${{ (inputs.dev_image == 'true'|| inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}"
           echo "Workflow inputs are:"
           echo "${{ toJSON(github.event.inputs) }}"
   template:
