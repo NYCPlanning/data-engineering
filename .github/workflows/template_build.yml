@@ -22,8 +22,7 @@ on:
         type: string
         required: false
       repeat:
-        type: boolean
-        default: false
+        type: string
 
 env:
   TOY_SECRET_GITHUB: ${{ secrets.TOY_SECRET }}

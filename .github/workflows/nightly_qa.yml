@@ -10,7 +10,6 @@ on:
       dev_image: 
         description: Use dev image specific to this branch (if exists)
         type: boolean
-        required: true
         default: false
   schedule:
     - cron: "0 5 * * *"
@@ -20,7 +19,7 @@ jobs:
     uses: ./.github/workflows/test_helper.yml
     secrets: inherit
     with:
-      image_tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image_tag: ${{ (inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
   
   build:
     uses: ./.github/workflows/build.yml
@@ -29,7 +28,7 @@ jobs:
       dataset_name: all
       build_note: nightly qa
       recipe_file: recipe
-      dev_image: ${{ inputs.dev_image }}
+      dev_image: ${{ inputs.dev_image || 'false' }}
       build_name: ${{ inputs.build_name || 'nightly_qa' }}
 
   create_issue_on_failure:
