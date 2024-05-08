@@ -3,6 +3,7 @@ from enum import Enum
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
+import pprint
 from shapely import wkb, wkt
 import typer
 
@@ -16,6 +17,7 @@ class ErrorType(Enum):
     COLUMM_MISMATCH = "COLUMN_MISMATCH"
     INVALID_METADATA = "INVALID_METADATA"
     UNHANDLED_EXCEPTION = "UNHANDLED_EXCEPTION"
+    MISSING_FILE = "MISSING_FILE"
 
 
 @dataclass
@@ -247,18 +249,27 @@ def validate_package(
                 )
             )
 
+    package_errors = []
+
+    for attachment in metadata.package.attachments:
+        if not (package_path / "attachments" / attachment).exists():
+            package_errors.append(
+                ValidationError(
+                    error_type=ErrorType.MISSING_FILE,
+                    message=f"Missing attachment: {attachment}",
+                    dataset_file=None,
+                )
+            )
+
     unique_row_counts = {v.stats.row_count for v in validations}
-    package_errors = (
-        [
+    if len(unique_row_counts) > 1:
+        package_errors.append(
             ValidationError(
                 error_type=ErrorType.INVALID_DATA,
                 message=f"Found varying row counts: {unique_row_counts}",
                 dataset_file=None,
             )
-        ]
-        if len(unique_row_counts) > 1
-        else []
-    )
+        )
     return PackageValidation(validations=validations, errors=package_errors)
 
 
@@ -267,12 +278,7 @@ app = typer.Typer(add_completion=False)
 
 @app.command("validate")
 def _validate(
-    package_path: Path = typer.Option(
-        None,
-        "-p",
-        "--package-path",
-        help="Package Path",
-    ),
+    package_path: Path,
     metadata_path: Path = typer.Option(
         None, "-m", "--metadata-path", help="(Optional) Metadata Path"
     ),
@@ -281,4 +287,4 @@ def _validate(
         package_path,
         models.Metadata.from_yaml(metadata_path or package_path / "metadata.yml"),
     )
-    logger.info(f"errors: {errors}")
+    pprint.pp(errors)
