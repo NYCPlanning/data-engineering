@@ -195,7 +195,7 @@ class Preprocessor:
 
 
 def validate_pd_series_func(
-    column_name: str, function_name: str, **kwargs
+    *, function_name: str, column_name: str = "", **kwargs
 ) -> str | dict[str, str]:
     parts = function_name.split(".")
     func = pd.Series()

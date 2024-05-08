@@ -1,4 +1,5 @@
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import pytest
@@ -121,3 +122,70 @@ def test_validate_processing_steps():
     for step in error_steps:
         with pytest.raises(Exception, match="Invalid preprocessing steps"):
             transform.validate_processing_steps("test", [step])
+
+
+def test_validate_pd_series_func():
+    assert not transform.validate_pd_series_func(
+        function_name="str.replace", pat="pat", repl="repl"
+    )
+
+    assert not transform.validate_pd_series_func(
+        function_name="map", arg={"value 1": "other value 1"}
+    )
+
+    assert "repl" in transform.validate_pd_series_func(
+        function_name="str.replace", pat="pat"
+    )
+
+    assert "extra_arg" in transform.validate_pd_series_func(
+        function_name="str.replace", pat="pat", repl="repl", extra_arg="foo"
+    )
+
+
+def test_call_pd_series_func():
+    def df() -> pd.DataFrame:
+        return pd.DataFrame({"column_a": ["value 1", "value 2"], "column_b": [1, 2]})
+
+    func_name = "pd_series_func"
+
+    pandas_res_1 = df()
+    pandas_res_1["column_a"] = pandas_res_1["column_a"].str.replace(
+        pat="value", repl="VALUE"
+    )
+    manual_1 = pd.DataFrame({"column_a": ["VALUE 1", "VALUE 2"], "column_b": [1, 2]})
+
+    call_1 = FunctionCall(
+        name=func_name,
+        args={
+            "column_name": "column_a",
+            "function_name": "str.replace",
+            "pat": "value",
+            "repl": "VALUE",
+        },
+    )
+    [step_1] = transform.validate_processing_steps("dummpy", [call_1])
+    transform_1 = step_1(df())
+
+    assert transform_1.equals(pandas_res_1)
+    assert transform_1.equals(manual_1)
+
+    pandas_res_2 = df()
+    print(pandas_res_2)
+    pandas_res_2["column_a"] = pandas_res_2["column_a"].map(
+        {"value 1": "other value 1"}
+    )
+    manual_2 = pd.DataFrame({"column_a": ["other value 1", np.nan], "column_b": [1, 2]})
+
+    call_2 = FunctionCall(
+        name=func_name,
+        args={
+            "column_name": "column_a",
+            "function_name": "map",
+            "arg": {"value 1": "other value 1"},
+        },
+    )
+    [step_2] = transform.validate_processing_steps("dummpy", [call_2])
+    transform_2 = step_2(df())
+
+    assert transform_2.equals(pandas_res_2)
+    assert transform_2.equals(manual_2)
