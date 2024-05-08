@@ -1,0 +1,244 @@
+name: dob_jobapplications
+acl: public-read
+source:
+  type: socrata
+  org: nyc
+  uid: ic3t-wcy2
+  format: csv
+file_format:
+  type: csv
+processing_steps:
+- name: rename_columns
+  args:
+    map:
+      "Job #": jobnumber
+      "Doc #": jobdocnumber
+      "House #": housenumber
+      "BIN #": bin
+      Job Status Descrp: jobstatusdesc
+      Other Description: otherdesc
+      "Applicant License #": applicantlicensenumber
+      ExistingNo. of Stories: existingnumstories
+      Proposed No. of Stories: proposednumstories
+      "Owner'sPhone #": ownerphone
+      GIS_NTA_NAME: nta
+- name: clean_column_names
+  args:
+    replace: 
+      GIS_: ""
+      "'s": ""
+      " ": ""
+      "-": ""
+      _: ""
+    lower: True
+- name: filter_rows
+  args:
+    type: equals
+    column_name: jobdocnumber
+    val: '01'
+- name: filter_rows
+  args:
+    type: contains
+    column_name: jobtype
+    val: 'A1|A2|DM|NB'
+
+library_dataset:
+  name: dob_jobapplications
+  acl: public-read
+  version: ""
+  source:
+    socrata:
+      uid: ic3t-wcy2
+      format: csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    fields: 
+      - jobnumber
+      - jobdocnumber
+      - borough
+      - housenumber
+      - streetname
+      - block
+      - lot
+      - bin
+      - jobtype
+      - jobstatus
+      - jobstatusdesc
+      - latestactiondate
+      - buildingtype
+      - communityboard
+      - cluster
+      - landmarked
+      - adultestab
+      - loftboard
+      - cityowned
+      - littlee
+      - pcfiled
+      - efilingfiled
+      - plumbing
+      - mechanical
+      - boiler
+      - fuelburning
+      - fuelstorage
+      - standpipe
+      - sprinkler
+      - firealarm
+      - equipment
+      - firesuppression
+      - curbcut
+      - other
+      - otherdesc
+      - applicantfirstname
+      - applicantlastname
+      - applicantprofessionaltitle
+      - applicantlicensenumber
+      - professionalcert
+      - prefilingdate
+      - paid
+      - fullypaid
+      - assigned
+      - approved
+      - fullypermitted
+      - initialcost
+      - totalestfee
+      - feestatus
+      - existingzoningsqft
+      - proposedzoningsqft
+      - horizontalenlrgmt
+      - verticalenlrgmt
+      - enlargementsqfootage
+      - streetfrontage
+      - existingnumstories
+      - proposednumstories
+      - existingheight
+      - proposedheight
+      - existingdwellingunits
+      - proposeddwellingunits
+      - existingoccupancy
+      - proposedoccupancy
+      - sitefill
+      - zoningdist1
+      - zoningdist2
+      - zoningdist3
+      - specialdistrict1
+      - specialdistrict2
+      - ownertype
+      - nonprofit
+      - ownerfirstname
+      - ownerlastname
+      - ownerbusinessname
+      - ownerhousenumber
+      - ownerhousestreetname
+      - city
+      - state
+      - zip
+      - ownerphone
+      - jobdescription
+      - dobrundate
+      - jobs1no
+      - totalconstructionfloorarea
+      - withdrawalflag
+      - signoffdate
+      - specialactionstatus
+      - specialactiondate
+      - buildingclass
+      - jobnogoodcount
+      - latitude
+      - longitude
+      - councildistrict
+      - censustract
+      - nta
+      - gisbin
+    sql: |
+        SELECT 
+          ROW_NUMBER() OVER(PARTITION BY jobnumber ORDER BY SUBSTR(dobrundate, 7, 4)||SUBSTR(dobrundate, 1, 2)||SUBSTR(dobrundate, 4, 2) DESC) as gid,
+          SUBSTR(dobrundate, 7, 4)||SUBSTR(dobrundate, 1, 2)||SUBSTR(dobrundate, 4, 2) as dobrundate,
+          jobnumber,
+          jobdocnumber,
+          jobtype,
+          jobdescription,
+          existingoccupancy,
+          proposedoccupancy,
+          existingnumstories,
+          proposednumstories,
+          existingzoningsqft,
+          proposedzoningsqft,
+          existingdwellingunits,
+          proposeddwellingunits,
+          jobstatusdesc,
+          latestactiondate,
+          sprinkler,
+          prefilingdate,
+          assigned,
+          paid,
+          fullypaid,
+          approved,
+          fullypermitted,
+          signoffdate,
+          zoningdist1,
+          zoningdist2,
+          zoningdist3,
+          specialdistrict1,
+          specialdistrict2,
+          landmarked,
+          cityowned,
+          ownertype,
+          nonprofit,
+          ownerfirstname,
+          ownerlastname,
+          ownerbusinessname,
+          ownerhousestreetname,
+          zip,
+          ownerphone,
+          existingheight,
+          proposedheight,
+          totalconstructionfloorarea,
+          horizontalenlrgmt,
+          verticalenlrgmt,
+          enlargementsqfootage,
+          initialcost,
+          loftboard,
+          littlee,
+          curbcut,
+          cluster,
+          housenumber,
+          streetname,
+          bin,
+          borough,
+          block,
+          lot,
+          specialactionstatus,
+          latitude,
+          longitude,
+          existingzoningsqft,
+          proposedzoningsqft,
+          buildingclass,
+          otherdesc
+        FROM @filename
+        WHERE jobdocnumber = '01'
+        AND ( 
+          jobtype LIKE '%A1%' OR
+          jobtype LIKE '%A2%' OR
+          jobtype LIKE '%DM%' OR
+          jobtype LIKE '%NB%'
+        )
+
+  info:
+    description: |
+      #This dataset contains all job applications submitted through the Borough Offices, 
+      through eFiling, or through the HUB, which have a "Latest Action Date" since January 1, 2000.
+      This dataset does not include jobs submitted through DOB NOW. See the DOB NOW: Build – Job Application Filings dataset for DOB NOW jobs.
+    url: https://data.cityofnewyork.us/Housing-Development/DOB-Job-Application-Filings/ic3t-wcy2
+    dependents: []

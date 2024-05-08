@@ -28,6 +28,8 @@ class Csv(BaseModel, extra="forbid"):
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
     delimiter: str | None = None
+    column_names: list[str] | None = None
+    dtype: str | None = None
     geometry: Geometry | None = None
 
 
@@ -57,6 +59,8 @@ class Geodatabase(BaseModel, extra="forbid"):
 # TODO: implement JSON and GEOJSON
 class Json(BaseModel):
     type: Literal["json"]
+    normalize: dict = {}
+    columns: list[str] = []
     unzipped_filename: str | None = None
 
 

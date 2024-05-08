@@ -134,7 +134,7 @@ def create_temp_filesystem(mock_data_constants):
         raise e
 
 
-def mock_request_get(url):
+def mock_request_get(url, headers=None):
     """
     Mocks calls to request.get
 

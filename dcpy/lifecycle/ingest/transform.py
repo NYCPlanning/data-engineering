@@ -1,29 +1,24 @@
-import duckdb
 from functools import partial
 import geopandas as gpd
-import inspect
 import pandas as pd
-import shutil
-from typing import Any, Callable
-
-from dcpy.utils import data
-
 from pathlib import Path
+import shutil
+from typing import Callable, Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
+from dcpy.utils import data, introspect
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
-from . import TMP_DIR, configure
 
 OUTPUT_GEOM_COLUMN = "geom"
 
 
 def to_parquet(
-    file_format_config: file.Format,
+    file_format: file.Format,
     local_data_path: Path,
-    dir: Path = TMP_DIR,
-    output_filename: str = "tmp.parquet",
+    dir: Path,
+    output_filename: str = "init.parquet",
 ) -> None:
     """
     Transforms raw data into a parquet file format and saves it locally.
@@ -55,7 +50,7 @@ def to_parquet(
     ), "Local path should be a valid file or directory"
     logger.info(f"✅ Raw data was found locally at {local_data_path}")
 
-    gdf = data.read_data_to_df(file_format_config, local_data_path)
+    gdf = data.read_data_to_df(file_format, local_data_path)
 
     # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):
@@ -67,63 +62,155 @@ def to_parquet(
     )
 
 
-class Preprocessors:
+class Preprocessor:
     """
     This class is very much a first pass at something that would support the validate/run_processing_steps functions
     This should/will be iterated on when implementing actual preprocessing steps for chosen templates
     """
 
-    @staticmethod
-    def split_column(
+    def __init__(self, dataset_name: str):
+        self.dataset_name = dataset_name
+
+    def sort(self, df: pd.DataFrame, by: list[str], ascending=False) -> pd.DataFrame:
+        return df.sort_values(by=by, ascending=ascending)
+
+    def filter_rows(
+        self,
         df: pd.DataFrame,
-        col: str,
-        target_cols: list[str],
-        splitter: Callable[[Any], list[Any]],
-        keep_col=False,
+        type: Literal["equals", "contains"],
+        column_name: str | int,
+        val: str | int,
     ) -> pd.DataFrame:
-        df[target_cols] = df[col].apply(splitter)
-        if not keep_col:
-            df.drop(col, axis=1, inplace=True)
+        if type == "equals":
+            filter = df[column_name] == val
+        elif type == "contains":
+            filter = df[column_name].str.contains(str(val))
+        return df[filter]
+
+    def rename_columns(
+        self, df: pd.DataFrame, map: dict[str, str], drop_others=False
+    ) -> pd.DataFrame:
+        df = df.rename(columns=map, errors="raise")
+        if drop_others:
+            df = df[list(map.values())]
         return df
 
-    @staticmethod
-    def drop_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
-        columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
-        return df.drop(columns, axis=1)
-
-    @staticmethod
-    def strip_columns(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-        if cols == []:
-            df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-        else:
-            for col in cols:
-                df[col] = df[col].str.strip()
+    def clean_column_names(
+        self,
+        df: pd.DataFrame,
+        *,
+        replace: dict[str, str] | None = None,
+        lower: bool = False,
+    ) -> pd.DataFrame:
+        replace = replace or {}
+        columns = list(df.columns)
+        for pattern in replace:
+            columns = [c.replace(pattern, replace[pattern]) for c in columns]
+        if lower:
+            columns = [c.lower() for c in columns]
+        df.columns = pd.Index(columns)
         return df
 
-    @staticmethod
-    def no_arg_function(df: pd.DataFrame) -> pd.DataFrame:
-        """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
+    def update_column(
+        self,
+        df: pd.DataFrame,
+        column_name: str,
+        val: str | int,
+    ) -> pd.DataFrame:
+        df[column_name] = val
         return df
 
-    @staticmethod
-    def append_prev(df: pd.DataFrame, dataset: str, version: str) -> pd.DataFrame:
-        prev_df = recipes.read_df(recipes.Dataset(name=dataset, version=version))
+    def append_prev(self, df: pd.DataFrame) -> pd.DataFrame:
+        prev_df = recipes.read_df(
+            recipes.Dataset(name=self.dataset_name, version="latest")
+        )
         df = pd.concat((prev_df, df))
         return df
 
-    @staticmethod
-    def append_prev_duckdb(file: Path, dataset: str, version: str):
-        duckdb.sql(
-            f"""
-            COPY (
-                SELECT * FROM 's3://edm-recipes/datasets/{dataset}/{version}/{dataset}.parquet'
-                UNION ALL
-                SELECT * FROM '{file}'
-            ) TO '{file}' (FORMAT PARQUET)"""
-        )
+    def deduplicate(
+        self,
+        df: pd.DataFrame,
+        sort_columns: list[str] | None = None,
+        sort_ascending: bool = False,
+        by: list[str] | None = None,
+    ) -> pd.DataFrame:
+        if sort_columns:
+            df = df.sort_values(by=sort_columns, ascending=sort_ascending)
+        by = by or []
+        return df.drop_duplicates(by)
+
+    def drop_columns(self, df: pd.DataFrame, columns: list[str | int]) -> pd.DataFrame:
+        columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
+        return df.drop(columns, axis=1)
+
+    def strip_columns(
+        self, df: pd.DataFrame, cols: list[str] | None = None
+    ) -> pd.DataFrame:
+        if cols:
+            for col in cols:
+                df[col] = df[col].str.strip()
+        else:
+            df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        return df
+
+    def pd_series_func(
+        self,
+        df: pd.DataFrame,
+        column_name: str,
+        function_name: str,
+        output_column_name: str | None = None,
+        **kwargs,
+    ) -> pd.DataFrame:
+        """
+        Operates on a given column using a given pandas Series function and supplied kwargs
+
+        Example yml which defines a call:
+        - name: pd_series_func
+          args:
+            column_name: jobnum
+            function_name: str.replace
+            pat: -[a-zA-Z\d]1$
+            repl: ""
+            regex: True
+
+        Which has the effect of
+        `df["jobnum"] = df["jobnum"].str.replace("-[a-zA-Z\d]1$", "", regex=True)`
+
+        "function_name" must be a valid function of a pd.Series. This is validated
+        kwargs are validated by name only, as annotations for these functions are quite messy
+
+        function is called on "column_name" of df
+        output of function is assigned to "column_name" (overwriting) unless 'output_column_name' if provided
+        """
+        parts = function_name.split(".")
+        func = df[column_name]
+        for part in parts:
+            func = func.__getattribute__(part)
+        df[output_column_name or column_name] = func(**kwargs)  # type: ignore
+        return df
+
+    def no_arg_function(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
+        return df
 
 
-def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
+def validate_pd_series_func(
+    *, function_name: str, column_name: str = "", **kwargs
+) -> str | dict[str, str]:
+    parts = function_name.split(".")
+    func = pd.Series()
+    func_str = "pd.Series"
+    for part in parts:
+        if part not in func.__dir__():
+            return f"'{func_str}' has no attribute '{part}'"
+        func = func.__getattribute__(part)
+        func_str += f".{part}"
+    return introspect.validate_kwargs(func, kwargs)  # type: ignore
+
+
+def validate_processing_steps(
+    dataset_name: str, processing_steps: list[FunctionCall]
+) -> list[Callable]:
     """
     Given config of ingest dataset, violates that defined preprocessing steps
     exist and that appropriate arguments are supplied. Raises error detailing
@@ -133,18 +220,25 @@ def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
     """
     violations: dict[str, str | dict[str, str]] = {}
     compiled_steps: list[Callable] = []
-    for step in steps:
-        if step.name not in Preprocessors().__dir__():
+    preprocessor = Preprocessor(dataset_name)
+    for step in processing_steps:
+        if step.name not in preprocessor.__dir__():
             violations[step.name] = "Function not found"
         else:
-            func = getattr(Preprocessors(), step.name)
+            func = getattr(preprocessor, step.name)
 
-            kwargs = step.args.copy()
-            # assume that function takes arg "df"
-            kwargs["df"] = pd.DataFrame()
-            kw_error = configure.validate_function_args(func, kwargs, raise_error=False)
+            # assume that function takes args "self, df"
+            kw_error = introspect.validate_kwargs(
+                func, step.args, raise_error=False, ignore_args=["self", "df"]
+            )
             if kw_error:
                 violations[step.name] = kw_error
+
+            # extra validation needed
+            elif step.name == "pd_series_func":
+                series_error = validate_pd_series_func(**step.args)
+                if series_error:
+                    violations[step.name] = series_error
 
             compiled_steps.append(partial(func, **step.args))
 
@@ -154,14 +248,18 @@ def validate_processing_steps(steps: list[FunctionCall]) -> list[Callable]:
     return compiled_steps
 
 
-def run_processing_steps(steps: list[FunctionCall], local_data_path: Path) -> Path:
+def run_processing_steps(
+    dataset_name: str,
+    processing_steps: list[FunctionCall],
+    input_path: Path,
+    output_path,
+):
     """Validates and runs preprocessing steps defined in config object"""
-    compiled_steps = validate_processing_steps(steps)
-    if len(steps) == 0:
-        return local_data_path
+    compiled_steps = validate_processing_steps(dataset_name, processing_steps)
+    if len(compiled_steps) == 0:
+        shutil.copy(input_path, output_path)
     else:
-        df = pd.read_parquet(local_data_path)
+        df = pd.read_parquet(input_path)
         for step in compiled_steps:
             df = step(df)
-        df.to_parquet(local_data_path)
-        return local_data_path
+        df.to_parquet(output_path)

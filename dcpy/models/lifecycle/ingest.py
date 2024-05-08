@@ -13,6 +13,16 @@ class LocalFileSource(BaseModel, extra="forbid"):
     type: Literal["local_file"]
     path: Path
 
+    @field_serializer("path")
+    def _serialize_path(self, path: Path, _info) -> str:
+        return str(path)
+
+
+class S3Source(BaseModel, extra="forbid"):
+    type: Literal["s3"]
+    bucket: str
+    key: str
+
 
 class ScriptSource(BaseModel, extra="forbid"):
     type: Literal["script"]
@@ -26,6 +36,7 @@ Source: TypeAlias = (
     | web.GenericApiSource
     | socrata.Source
     | publishing.GisDataset
+    | S3Source
     | ScriptSource
 )
 
@@ -75,6 +86,10 @@ class Config(
     @property
     def dataset_key(self) -> recipes.DatasetKey:
         return recipes.DatasetKey(name=self.name, version=self.version)
+
+    @property
+    def filename(self) -> str:
+        return f"{self.name}.parquet"
 
     @property
     def raw_dataset_key(self) -> recipes.RawDatasetKey:

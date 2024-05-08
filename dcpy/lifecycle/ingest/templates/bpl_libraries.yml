@@ -1,12 +1,19 @@
 name: bpl_libraries
 acl: public-read
-# source is url, needs custom preprocessing script
 source:
   type: api
   endpoint: https://www.bklynlibrary.org/locations/json
   format: json
 file_format:
-  type: json # TODO: implement json as a format for transform.to_parquet
+  type: json
+  normalize:
+    record_path:
+    - locations
+processing_steps:
+- name: clean_column_names
+  args:
+    replace: 
+      "data.": ""
 
 library_dataset:
   name: bpl_libraries

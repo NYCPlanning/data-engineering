@@ -1,22 +1,25 @@
 import importlib
 from pandas import DataFrame
+from pathlib import Path
+import shutil
 
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
+    S3Source,
     ScriptSource,
     Source,
 )
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.utils import s3
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors import web
-from . import TMP_DIR
 
 
 def download_file_from_source(
-    source: Source, filename: str, version: str, dir=TMP_DIR
+    source: Source, filename: str, version: str, dir: Path
 ) -> None:
     """
     From parsed config template and version, download raw data from source to provided path
@@ -25,9 +28,12 @@ def download_file_from_source(
     match source:
         ## Non reqeust-based methods
         case LocalFileSource():
-            pass
+            if source.path != path:
+                shutil.copy(source.path, path)
         case GisDataset():
             publishing.download_gis_dataset(source.name, version, dir)
+        case S3Source():
+            s3.download_file(source.bucket, source.key, path)
         case ScriptSource():
             module = importlib.import_module(
                 f"dcpy.connectors.{source.connector}.{source.function}"

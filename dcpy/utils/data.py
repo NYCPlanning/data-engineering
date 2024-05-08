@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import geopandas as gpd
 
@@ -77,6 +78,8 @@ def read_data_to_df(
                 index_col=False,
                 encoding=data_format.encoding,
                 delimiter=data_format.delimiter,
+                names=data_format.column_names,
+                dtype=data_format.dtype,
             )
 
             if not csv.geometry:
@@ -117,6 +120,17 @@ def read_data_to_df(
                         geometry=gpd.points_from_xy(df[x_column], df[y_column]),
                         crs=csv.geometry.crs,
                     )
+        case file.Json():
+            with open(local_data_path) as f:
+                json_str = json.load(f)
+            if data_format.normalize:
+                gdf = pd.json_normalize(json_str, **data_format.normalize)
+            else:
+                gdf = pd.read_json(json_str)
+            # Feels a tad hacky to have this here instead of in preprocessing
+            # But json columns were causing parquet issues
+            if data_format.columns:
+                gdf = gdf[data_format.columns]
     return gdf
 
 
