@@ -72,6 +72,7 @@ class SocrataColumn(BaseModel, extra="forbid"):
 
 class DatasetOverrides(BaseModel, extra="forbid"):
     omit_columns: list[str] = []
+    ignore_validation: list[str] = []
     columns: dict = {}
 
 
@@ -86,10 +87,9 @@ class DatasetFile(BaseModel, extra="forbid"):
         for col in metadata.columns:
             if col.name in self.overrides.omit_columns:
                 continue
+            overrides = self.overrides.columns.get(col.name, {})
             new_col = col.model_dump()
-            maybe_new_name = self.overrides.columns.get(col.name, {}).get("name")
-            new_col["name"] = maybe_new_name or col.name
-            new_col["display_name"] = maybe_new_name or col.name
+            new_col.update(overrides)
             cols.append(Column(**new_col))
         return cols
 

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
@@ -14,6 +14,7 @@ class ErrorType:
     NULLS_FOUND = "NULLS_FOUND"
     COLUMM_MISMATCH = "COLUMN_MISMATCH"
     INVALID_METADATA = "INVALID_METADATA"
+    UNHANDLED_EXCEPTION = "UNHANDLED_EXCEPTION"
 
 
 @dataclass
@@ -21,6 +22,29 @@ class ValidationError:
     error_type: ErrorType
     message: str
     dataset_file: models.DatasetFile
+
+
+@dataclass
+class ValidationStats:
+    row_count: int | None
+
+
+@dataclass
+class DatasetFileValidation:
+    stats: ValidationStats = field(
+        default_factory=lambda: ValidationStats(row_count=None)
+    )
+    errors: list[ValidationError] = field(default_factory=lambda: [])
+
+
+@dataclass
+class PackageValidation:
+    validations: list[DatasetFileValidation]
+    errors: list[ValidationError]
+
+    def get_dataset_errors(self):
+        """Get validation errors from all dataset validations in the package."""
+        return sum([v.errors for v in self.validations if v.errors], [])
 
 
 def _is_valid_wkb(g):
@@ -65,19 +89,22 @@ col_validators = {
 
 def validate_df(
     df: pd.DataFrame, dataset: models.DatasetFile, metadata: models.Metadata
-) -> list[ValidationError]:
+) -> DatasetFileValidation:
     """Validate a dataframe against a metadata file."""
     df_stringified_nulls = df.fillna("")
 
     errors = []
 
-    dataset_columns = dataset.get_columns(metadata)
+    ignored_cols = set(dataset.overrides.ignore_validation)
+    dataset_columns = [
+        col for col in dataset.get_columns(metadata) if col.name not in ignored_cols
+    ]
     dataset_column_names = {c.name for c in dataset_columns}
 
     # Find mismatched columns
     df_headers = set(df.columns)
 
-    extras_in_source = df_headers.difference(dataset_column_names)
+    extras_in_source = df_headers.difference(dataset_column_names) - ignored_cols
     if extras_in_source:
         errors.append(
             ValidationError(
@@ -87,7 +114,7 @@ def validate_df(
             )
         )
 
-    not_found_in_source = dataset_column_names.difference(df_headers)
+    not_found_in_source = dataset_column_names.difference(df_headers) - ignored_cols
     if not_found_in_source:
         errors.append(
             ValidationError(
@@ -161,38 +188,69 @@ def validate_df(
                     )
                 )
 
-    return errors
+    return DatasetFileValidation(
+        errors=errors, stats=ValidationStats(row_count=len(df))
+    )
 
 
 def validate_csv(
     csv_path: Path, dataset: models.DatasetFile, metadata: models.Metadata
-):
+) -> DatasetFileValidation:
     df = pd.read_csv(csv_path, dtype=str)
     return validate_df(df, dataset, metadata)
 
 
 def validate_shapefile(
     shp_path: Path, dataset: models.DatasetFile, metadata: models.Metadata
-):
+) -> DatasetFileValidation:
     df = pd.DataFrame(gpd.read_file(shp_path), dtype=str)
     return validate_df(df, dataset, metadata)
 
 
-def validate_package(package_path: Path, metadata: models.Metadata = None):
+def validate_package(
+    package_path: Path, metadata: models.Metadata = None
+) -> PackageValidation:
     metadata = metadata or models.Metadata.from_yaml(package_path / "metadata.yml")
     dataset_files_path = package_path / "dataset_files"
-    errors = []
+    validations = []
+
     for ds in metadata.package.dataset_files:
         ds_path = dataset_files_path / ds.filename
-        match ds.type:
-            case "csv":
-                logger.info(f"validating csv: {ds_path} for {ds.name}")
-                errors += validate_csv(ds_path, ds, metadata)
-            case "shapefile":
-                errors += validate_shapefile(ds_path, ds, metadata)
-            case _:
-                pass
-    return errors
+        try:
+            match ds.type:
+                case "csv":
+                    logger.info(f"validating csv: {ds_path} for {ds.name}")
+                    validations.append(validate_csv(ds_path, ds, metadata))
+                case "shapefile":
+                    validations.append(validate_shapefile(ds_path, ds, metadata))
+                case _:
+                    pass
+        except Exception as e:
+            validations.append(
+                DatasetFileValidation(
+                    errors=[
+                        ValidationError(
+                            error_type=ErrorType.UNHANDLED_EXCEPTION,
+                            message=str(e),
+                            dataset_file=ds,
+                        )
+                    ]
+                )
+            )
+
+    unique_row_counts = {v.stats.row_count for v in validations}
+    package_errors = (
+        [
+            ValidationError(
+                ErrorType.INVALID_DATA,
+                f"Found varying row counts: {unique_row_counts}",
+                None,
+            )
+        ]
+        if len(unique_row_counts) > 1
+        else []
+    )
+    return PackageValidation(validations=validations, errors=package_errors)
 
 
 app = typer.Typer(add_completion=False)

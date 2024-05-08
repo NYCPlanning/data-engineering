@@ -7,5 +7,6 @@ COLP_PACKAGE_PATH = (
 
 
 def test_colp_single_feature_package():
-    errors = validate.validate_package(COLP_PACKAGE_PATH)
-    assert not errors
+    validation = validate.validate_package(COLP_PACKAGE_PATH)
+    assert len(validation.validations) == 2
+    assert not validation.get_dataset_errors()

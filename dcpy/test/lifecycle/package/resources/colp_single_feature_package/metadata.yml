@@ -256,9 +256,11 @@ package:
       filename: colp_single_feature_shp.zip
       type: shapefile
       overrides:
+        ignore_validation: ["AGREEMENT", "DCPEDITED", "FINALCOM"]
         columns:
           GEOM:
             name: geometry
+            data_type: text
           BBL:
             data_type: double
           MAPBBL:

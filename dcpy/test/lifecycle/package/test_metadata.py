@@ -156,7 +156,7 @@ def test_validating_valid_data():
     fake_ds = generate_fake_dataset(100, columns=dataset.get_columns(metadata))
     results = validate.validate_df(fake_ds, dataset, metadata)
 
-    assert results == [], "No Errors should have been found in source data"
+    assert not results.errors, "No Errors should have been found in source data"
 
 
 def test_invalid_standardized_values():
@@ -169,13 +169,13 @@ def test_invalid_standardized_values():
     fake_ds.loc[1, "non_nullable_ownership"] = INVALID_OWNERSHIP_VALUES[1]
     fake_ds.loc[2:, "non_nullable_ownership"] = INVALID_OWNERSHIP_VALUES[2]
 
-    results = validate.validate_df(fake_ds, dataset, metadata)
+    errors = validate.validate_df(fake_ds, dataset, metadata).errors
     assert (
-        len(results) == 1
+        len(errors) == 1
     ), "One error should have been found for invalid standardized values"
 
     # Assert that the error message should mention the invalid values with their counts
-    result_msg = results[0].message
+    result_msg = errors[0].message
     assert (
         f"'{INVALID_OWNERSHIP_VALUES[0]}': 1," in result_msg
     ), "The error message should include the invalid value and count"
@@ -194,9 +194,9 @@ def test_standardized_values_with_nulls():
 
     fake_ds.loc[0, "nullable_ownership"] = ""
 
-    results = validate.validate_df(fake_ds, dataset, metadata)
+    errors = validate.validate_df(fake_ds, dataset, metadata).errors
     assert (
-        len(results) == 0
+        not errors
     ), "No errors should have been found for invalid standardized values"
 
 
@@ -207,7 +207,7 @@ def test_non_nullable_bbls():
 
     fake_ds.loc[0, "bbl"] = ""
 
-    results = validate.validate_df(fake_ds, dataset, metadata)
+    results = validate.validate_df(fake_ds, dataset, metadata).errors
     assert len(results) == 1, "One error should have been found"
 
     assert (
@@ -223,7 +223,7 @@ def test_invalid_wkbs():
     BAD_GEOM_VAL = "123"
     fake_ds.loc[0, "wkb_geometry"] = BAD_GEOM_VAL
 
-    results = validate.validate_df(fake_ds, dataset, metadata)
+    results = validate.validate_df(fake_ds, dataset, metadata).errors
     assert len(results) == 1, "One error should have been found"
 
     assert (
@@ -241,13 +241,13 @@ def test_additional_cols_in_source():
     FAKE_COL_NAME = "my_fake_col"
     fake_ds[FAKE_COL_NAME] = "4"
 
-    results = validate.validate_df(fake_ds, dataset, metadata)
-    assert len(results) == 1, "One error should have been found"
+    errors = validate.validate_df(fake_ds, dataset, metadata).errors
+    assert len(errors) == 1, "One error should have been found"
 
     assert (
-        results[0].error_type == validate.ErrorType.COLUMM_MISMATCH
+        errors[0].error_type == validate.ErrorType.COLUMM_MISMATCH
     ), "The correct error type should be returned"
 
     assert (
-        FAKE_COL_NAME in results[0].message
+        FAKE_COL_NAME in errors[0].message
     ), "The fake column name should be mentioned in the error message"
