@@ -54,10 +54,7 @@ def _dist_from_local(
     assert dest.type == "socrata"
 
     logger.info("Validating package")
-    try:
-        errors = v.validate_package(package_path, md)
-    except Exception as e:
-        errors = [str(e)]
+    errors = v.validate_package(package_path, md).get_dataset_errors()
 
     if len(errors) > 0:
         error_msg = f"Errors Found! {errors}"

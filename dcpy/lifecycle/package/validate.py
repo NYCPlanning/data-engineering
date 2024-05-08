@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from enum import Enum
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
@@ -9,7 +10,7 @@ import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 
 
-class ErrorType:
+class ErrorType(Enum):
     INVALID_DATA = "INVALID_DATA"
     NULLS_FOUND = "NULLS_FOUND"
     COLUMM_MISMATCH = "COLUMN_MISMATCH"
@@ -21,7 +22,7 @@ class ErrorType:
 class ValidationError:
     error_type: ErrorType
     message: str
-    dataset_file: models.DatasetFile
+    dataset_file: models.DatasetFile | None
 
 
 @dataclass
@@ -42,7 +43,7 @@ class PackageValidation:
     validations: list[DatasetFileValidation]
     errors: list[ValidationError]
 
-    def get_dataset_errors(self):
+    def get_dataset_errors(self) -> list[ValidationError]:
         """Get validation errors from all dataset validations in the package."""
         return sum([v.errors for v in self.validations if v.errors], [])
 
@@ -216,7 +217,7 @@ def validate_shapefile(
 
 
 def validate_package(
-    package_path: Path, metadata: models.Metadata = None
+    package_path: Path, metadata: models.Metadata | None = None
 ) -> PackageValidation:
     metadata = metadata or models.Metadata.from_yaml(package_path / "metadata.yml")
     dataset_files_path = package_path / "dataset_files"
@@ -250,9 +251,9 @@ def validate_package(
     package_errors = (
         [
             ValidationError(
-                ErrorType.INVALID_DATA,
-                f"Found varying row counts: {unique_row_counts}",
-                None,
+                error_type=ErrorType.INVALID_DATA,
+                message=f"Found varying row counts: {unique_row_counts}",
+                dataset_file=None,
             )
         ]
         if len(unique_row_counts) > 1
