@@ -23,9 +23,9 @@ def _helper(output: dict[str, str], expected: list[str], assertion_error_message
     assert set(expected) == set(output.keys()), assertion_error_message
 
 
-class TestValidateFunctionArgs:
+class TestValidateKwargs:
     """
-    Test the validate_function_args function.
+    Test the validate_kwargs function.
 
     Ensures that a variety of cases - missing args, unexpected args, mistyped args, etc are caught
     Tests are a bit redundant, code-wise, for clarity in debugging if errors are found
@@ -51,7 +51,7 @@ class TestValidateFunctionArgs:
             return
 
         _helper(
-            introspect.validate_function_args(noargs, input),
+            introspect.validate_kwargs(noargs, input),
             expected_output,
             error_message,
         )
@@ -74,7 +74,7 @@ class TestValidateFunctionArgs:
             return
 
         _helper(
-            introspect.validate_function_args(args, input),
+            introspect.validate_kwargs(args, input),
             expected_output,
             error_message,
         )
@@ -92,7 +92,7 @@ class TestValidateFunctionArgs:
             return
 
         _helper(
-            introspect.validate_function_args(args_default, input),
+            introspect.validate_kwargs(args_default, input),
             expected_output,
             error_message,
         )
@@ -109,7 +109,7 @@ class TestValidateFunctionArgs:
             return
 
         _helper(
-            introspect.validate_function_args(star_kwargs, input),
+            introspect.validate_kwargs(star_kwargs, input),
             expected_output,
             error_message,
         )
@@ -127,7 +127,7 @@ class TestValidateFunctionArgs:
             return
 
         _helper(
-            introspect.validate_function_args(kwargs, input),
+            introspect.validate_kwargs(kwargs, input),
             expected_output,
             error_message,
         )
@@ -138,7 +138,7 @@ class TestValidateFunctionArgs:
             return
 
         with pytest.raises(TypeError, match="Positional args not supported"):
-            introspect.validate_function_args(star_args, self.abc)
+            introspect.validate_kwargs(star_args, self.abc)
 
     # Function with everything
     # For this, test both presence and absence of variables in returned dict
@@ -160,30 +160,30 @@ class TestValidateFunctionArgs:
         def kwargs_default(a: str, b: int = 1, *, c: bool, d: str = "Hello!"):
             return
 
-        empty = introspect.validate_function_args(kwargs_default, {})
+        empty = introspect.validate_kwargs(kwargs_default, {})
         assert (
             "a" in empty
             and ("b" not in empty)
             and ("c" in empty)
             and (not "d" in empty)
         )
-        only_a = introspect.validate_function_args(kwargs_default, self.a)
+        only_a = introspect.validate_kwargs(kwargs_default, self.a)
         assert (
             ("a" not in only_a)
             and ("b" not in only_a)
             and ("c" in only_a)
             and ("d" not in only_a)
         ), "Supplying only 'a' to kwargs_default should error"
-        type_e = introspect.validate_function_args(kwargs_default, self.ab_wrong_type)
+        type_e = introspect.validate_kwargs(kwargs_default, self.ab_wrong_type)
         assert (
             ("a" in type_e)
             and ("b" in type_e)
             and ("c" not in type_e)
             and ("d" not in type_e)
         ), "Supplying wrong types to kwargs_default should error"
-        assert not introspect.validate_function_args(
+        assert not introspect.validate_kwargs(
             kwargs_default, self.abc
         ), "Supplying abc to kwargs_default should not error"
-        assert not introspect.validate_function_args(
+        assert not introspect.validate_kwargs(
             kwargs_default, self.abcd
         ), "Supplying abcd to kwargs_default should not error"

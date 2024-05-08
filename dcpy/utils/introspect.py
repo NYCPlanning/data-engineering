@@ -31,7 +31,7 @@ def _isinstance(obj, cls):
         return isinstance(obj, cls)
 
 
-def validate_function_args(
+def validate_kwargs(
     function: Callable,
     kwargs: dict,
     raise_error=False,
@@ -42,6 +42,10 @@ def validate_function_args(
     signature of the function. Violations are returned as a dict, with argument names
     as keys and types of violation as value. Types of violation can be either a missing argument,
     an argument of the wrong type, or an unexpected argument.
+
+    While this can handle functions with "positional or keyword" args, cannot handle positional only arguments
+    (function type signatures with slashes or with *args)
+
     If raise_error flag supplied, raises error instead of returning dict of violations.
     """
     ignore_args = ignore_args or []

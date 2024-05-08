@@ -205,7 +205,7 @@ def validate_pd_series_func(
             return f"'{func_str}' has no attribute '{part}'"
         func = func.__getattribute__(part)
         func_str += f".{part}"
-    return introspect.validate_function_args(func, kwargs)  # type: ignore
+    return introspect.validate_kwargs(func, kwargs)  # type: ignore
 
 
 def validate_processing_steps(
@@ -228,7 +228,7 @@ def validate_processing_steps(
             func = getattr(preprocessor, step.name)
 
             # assume that function takes args "self, df"
-            kw_error = introspect.validate_function_args(
+            kw_error = introspect.validate_kwargs(
                 func, step.args, raise_error=False, ignore_args=["self", "df"]
             )
             if kw_error:
