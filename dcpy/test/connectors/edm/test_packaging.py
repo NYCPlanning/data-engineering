@@ -39,7 +39,8 @@ def test_package_stages(create_buckets, create_temp_filesystem, mock_data_consta
         version=mock_data_constants["TEST_VERSION"],
     )
     package_key = packaging.PackageKey(
-        product=mock_data_constants["TEST_PACKAGE_METADATA"].packaged_name,
+        product=mock_data_constants["TEST_PACKAGE_NAME"],
+        dataset=mock_data_constants["TEST_PACKAGE_DATASET"],
         version=mock_data_constants["TEST_VERSION"],
     )
     publishing.download_published_version(publish_key, packaging.DOWNLOAD_ROOT_PATH)
