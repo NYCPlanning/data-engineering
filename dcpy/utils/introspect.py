@@ -1,6 +1,6 @@
 import inspect
 from types import UnionType
-from typing import Callable, get_args, get_origin, Literal
+from typing import Callable, get_args, get_origin, Literal, Union
 
 
 def _isempty(obj) -> bool:
@@ -14,7 +14,7 @@ def _isinstance(obj, cls):
     """
     if get_origin(cls) == Literal:
         return obj in get_args(cls)
-    elif get_origin(cls) == UnionType:
+    elif (get_origin(cls) == Union) or (get_origin(cls) == UnionType):
         return any([_isinstance(obj, param) for param in get_args(cls)])
     elif get_origin(cls) == list:
         param = get_args(cls)[0]

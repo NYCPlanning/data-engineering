@@ -1,5 +1,22 @@
 import pytest
+from typing import Literal
+
 from dcpy.utils import introspect
+
+
+@pytest.mark.parametrize(
+    "obj, cls, notcls",
+    [
+        ("a", Literal["a"], Literal["b"]),
+        ("a", Literal["a"] | int, Literal["b"] | int),
+        (["a"], list[str], list[int]),
+        (["a", 1], list[str | int], list[int | Literal["b"]]),
+        ({"a": 1}, dict[str, int], dict[int, int]),
+    ],
+)
+def test_isinstance(obj, cls, notcls):
+    assert introspect._isinstance(obj, cls)
+    assert not introspect._isinstance(obj, notcls)
 
 
 def _helper(output: dict[str, str], expected: list[str], assertion_error_message: str):
