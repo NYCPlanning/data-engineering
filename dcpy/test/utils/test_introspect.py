@@ -2,11 +2,16 @@ import pytest
 from dcpy.utils import introspect
 
 
+def _helper(output: dict[str, str], expected: list[str], assertion_error_message: str):
+    assert set(expected) == set(output.keys()), assertion_error_message
+
+
 class TestValidateFunctionArgs:
     """
     Test the validate_function_args function.
 
     Ensures that a variety of cases - missing args, unexpected args, mistyped args, etc are caught
+    Tests are a bit redundant, code-wise, for clarity in debugging if errors are found
     """
 
     # Variety of dummy data. All roughly follows same signature
@@ -17,74 +22,98 @@ class TestValidateFunctionArgs:
     abcd = {"a": "a", "b": 1, "c": True, "d": "goodbye"}
 
     # Function with no arguments
-    def test_noargs(self):
+    @pytest.mark.parametrize(
+        "input, expected_output, error_message",
+        [
+            ({}, [], "No arguments supplied to noargs"),
+            (a, ["a"], "Unexpected argument to noargs not caught"),
+        ],
+    )
+    def test_noargs(self, input, expected_output, error_message):
         def noargs():
             return
 
-        # No arguments passed
-        assert not introspect.validate_function_args(
-            noargs, {}
-        ), "No arguments supplied to noargs"
-        # Unexpected argument returns value (error message not validated, just presence of it in returned dict)
-        assert "a" in introspect.validate_function_args(
-            noargs, self.a
-        ), "Unexpected argument to noargs not caught"
+        _helper(
+            introspect.validate_function_args(noargs, input),
+            expected_output,
+            error_message,
+        )
 
     # Function with positional arguments
-    def test_args(self):
+    @pytest.mark.parametrize(
+        "input, expected_output, error_message",
+        [
+            (ab, [], "Both arguments supplied to args"),
+            (a, ["b"], "Missing argument to args not caught"),
+            (
+                ab_wrong_type,
+                ["a", "b", "c"],
+                "Type mismatch and unexpected argument to args not caught",
+            ),
+        ],
+    )
+    def test_args(self, input, expected_output, error_message):
         def args(a: str, b: int):
             return
 
-        # Two valid arguments
-        assert not introspect.validate_function_args(
-            args, self.ab
-        ), "Both arguments supplied to args"
-        # Missing argument is returned
-        assert "b" in introspect.validate_function_args(
-            args, self.a
-        ), "Missing argument to args not caught"
-        # Type mismatch of arguments and additonal argument. All 3 errors should be present
-        multiple_errors = introspect.validate_function_args(args, self.ab_wrong_type)
-        assert (
-            "a" in multiple_errors and "b" in multiple_errors and "c" in multiple_errors
-        ), "Type mismatch and unexpected argument to args not caught"
+        _helper(
+            introspect.validate_function_args(args, input),
+            expected_output,
+            error_message,
+        )
 
     # Function with positional arguments and one default value
-    def test_args_default(self):
+    @pytest.mark.parametrize(
+        "input, expected_output, error_message",
+        [
+            (a, [], "Valid missing arg with default to args_default"),
+            (ab, [], "Both args supplied to args_default"),
+        ],
+    )
+    def test_args_default(self, input, expected_output, error_message):
         def args_default(a: str, b: int = 0):
             return
 
-        # Default not supplied
-        assert not introspect.validate_function_args(
-            args_default, self.a
-        ), "Valid missing arg with default to args_default"
-        # Default supplied
-        assert not introspect.validate_function_args(
-            args_default, self.ab
-        ), "Both args supplied to args_default"
+        _helper(
+            introspect.validate_function_args(args_default, input),
+            expected_output,
+            error_message,
+        )
 
     # Function with **kwargs
-    def test_star_kwargs(self):
+    @pytest.mark.parametrize(
+        "input, expected_output, error_message",
+        [
+            (abc, [], "Valid extra kwarg supplied to star_kwargs"),
+        ],
+    )
+    def test_star_kwargs(self, input, expected_output, error_message):
         def star_kwargs(a: str, b: int, **kwargs):
             return
 
-        # No error with "unexpected" argument
-        assert not introspect.validate_function_args(
-            star_kwargs, self.abc
-        ), "Valid extra kwarg supplied to star_kwargs"
+        _helper(
+            introspect.validate_function_args(star_kwargs, input),
+            expected_output,
+            error_message,
+        )
 
     # Function with kwargs
-    def test_kwargs(self):
+    @pytest.mark.parametrize(
+        "input, expected_output, error_message",
+        [
+            (a, ["b", "c"], "missing positional and kw args b and c"),
+            (abc, [], "all arguments supplied"),
+        ],
+    )
+    def test_kwargs(self, input, expected_output, error_message):
         def kwargs(a: str, b: int, *, c: bool):
             return
 
-        multiple_errors = introspect.validate_function_args(kwargs, self.a)
-        assert (
-            "b" in multiple_errors and "c" in multiple_errors
-        ), "Missing positional and kwargs in kwargs not caught"
-        assert not introspect.validate_function_args(
-            kwargs, self.abc
-        ), "All arguments supplied to kwargs"
+        _helper(
+            introspect.validate_function_args(kwargs, input),
+            expected_output,
+            error_message,
+        )
 
     # Function with *args. Not supported
     def test_star_args(self):
@@ -96,7 +125,21 @@ class TestValidateFunctionArgs:
 
     # Function with everything
     # For this, test both presence and absence of variables in returned dict
-    def test_all(self):
+    @pytest.mark.parametrize(
+        "input, expected_output, error_message",
+        [
+            ({}, ["a", "c"], "missing arguments a and c, while b and d have defaults"),
+            (a, ["c"], "missing argument c. a supplied, b and d have defaults"),
+            (
+                ab_wrong_type,
+                ["a", "b"],
+                "a and b have incorrect types. c supplied, d has default",
+            ),
+            (abc, [], "a, b, c supplied. d has default"),
+            (abcd, [], "all arguments supplied"),
+        ],
+    )
+    def test_all(self, input, expected_output, error_message):
         def kwargs_default(a: str, b: int = 1, *, c: bool, d: str = "Hello!"):
             return
 
