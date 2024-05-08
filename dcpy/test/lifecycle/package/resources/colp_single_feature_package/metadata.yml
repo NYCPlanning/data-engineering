@@ -260,7 +260,7 @@ package:
         columns:
           GEOM:
             name: geometry
-            data_type: text
+            data_type: geom_point
           BBL:
             data_type: double
           MAPBBL:

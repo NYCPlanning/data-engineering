@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-from shapely import wkb
+from shapely import wkb, wkt
 import typer
 
 import dcpy.models.product.dataset.metadata as models
@@ -71,11 +71,19 @@ def _is_int(s):
     return s.isdigit()
 
 
+def _is_geom_point(s):
+    try:
+        return wkt.loads(s).geom_type == "Point"
+    except ValueError:
+        return False
+
+
 col_validators = {
     "bbl": lambda df, col_name: df[~df[col_name].str.match(r"^\d{10}$")],
     "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
     "double": lambda df, col_name: df[~df[col_name].apply(_is_float_or_double)],
     "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
+    "geom_point": lambda df, col_name: df[~df[col_name].apply(_is_geom_point)],
     # TODO
     "uid": lambda df, col_name: df.iloc[0:0],
     "boro_code": lambda df, col_name: df.iloc[0:0],
