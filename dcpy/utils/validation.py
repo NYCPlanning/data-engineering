@@ -31,7 +31,6 @@ def _isinstance(obj, cls):
         return isinstance(obj, cls)
 
 
-# This maybe belongs in a more pure util section of code
 def validate_function_args(
     function: Callable,
     kwargs: dict,
