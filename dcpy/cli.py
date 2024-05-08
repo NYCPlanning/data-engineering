@@ -1,5 +1,5 @@
 import typer
-import dcpy.lifecycle.cli as lifecycle
+import dcpy.lifecycle._cli as lifecycle
 import dcpy.connectors._cli as connectors
 
 # This is a separate module because it will eventually import most of dcpy
