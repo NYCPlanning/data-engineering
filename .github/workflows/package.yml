@@ -55,6 +55,6 @@ jobs:
 
       - name: package
         run: |
-          python3 -m dcpy.connectors.edm.packaging package \
+          python3 -m dcpy.connectors edm packaging package \
             --product ${{ inputs.product }} \
             --version ${{ inputs.version }}

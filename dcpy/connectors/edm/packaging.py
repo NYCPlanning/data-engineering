@@ -9,7 +9,7 @@ from dcpy.utils import s3
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 
-BUCKET = "edm-distributions"
+BUCKET = "edm-publishing"
 BUCKET_ACL: s3.ACL = "public-read"
 
 DOWNLOAD_ROOT_PATH = Path(".publishing")
@@ -127,13 +127,3 @@ def _cli_wrapper_package(
     logger.info(f"Packaging {product} version {version}")
     publish_key = publishing.PublishKey(product, version)
     package(publish_key)
-
-
-@app.command("placeholder")
-def _placeholder():
-    # If you only have one command defined, typer ignores the specified command name.
-    assert False, "Please don't invoke me."
-
-
-if __name__ == "__main__":
-    app()
