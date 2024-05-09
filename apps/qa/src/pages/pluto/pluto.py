@@ -1,127 +1,27 @@
 def pluto():
     import streamlit as st
 
-    from src.shared.components import sidebar, build_outputs
+    from src.shared.components import sidebar
     from .helpers import get_data, PRODUCT
+    from .components.version_comparison_report import version_comparison_report
     from .components.changes_report import ChangesReport
-    from .components.mismatch_report import MismatchReport
-    from .components.null_graph import NullReport
-    from .components.source_data_versions_report import (
-        SourceDataVersionsReport,
-    )
-    from .components.expected_value_differences_report import (
-        ExpectedValueDifferencesReport,
-    )
-    from .components.outlier_report import OutlierReport
-    from .components.aggregate_report import AggregateReport
-    from .components.bbl_diffs_report import BblDiffsReport
 
     st.title("PLUTO QAQC")
 
     product_key = sidebar.data_selection(PRODUCT)
 
-    report_type = st.sidebar.selectbox(
-        "Choose a Report Type",
-        ["Compare with Previous Version", "Review Manual Changes"],
-    )
-
     if not product_key:
         st.header("Select a version.")
     else:
+        report_type = st.sidebar.selectbox(
+            "Choose a Report Type",
+            ["Compare with Previous Version", "Review Manual Changes"],
+        )
+
         data = get_data(product_key)
 
-        def version_comparison_report(data):
-            versions = sorted(data["df_aggregate"]["v"].unique(), reverse=True)
-
-            v1 = st.sidebar.selectbox(
-                "Choose a version of PLUTO",
-                versions,
-            )
-            v2 = st.sidebar.selectbox(
-                "Choose a Previous version of PLUTO",
-                versions,
-                versions.index(v1) + 1,
-                disabled=True,
-            )
-            v3 = st.sidebar.selectbox(
-                "Choose a Previous Previous of PLUTO",
-                versions,
-                versions.index(v1) + 2,
-                disabled=True,
-            )
-
-            condo = st.sidebar.checkbox("condo only")
-            mapped = st.sidebar.checkbox("mapped only")
-
-            build_outputs.data_directory_link(product_key)
-
-            st.markdown(
-                f"""
-                **{v1}** is the Current version
-
-                **{v2}** is the Previous version
-
-                **{v3}** is the Previous Previous version
-            """
-            )
-            st.markdown(
-                f"""
-                This series of reports compares two pairs of PLUTO versions using two colors in graphs:
-                - blue: the Selected and the Previous versions ({v1})
-                - gold: the previous two versions ({v2})
-
-                The graphs report the number of records that have a different value in a given field but share the same BBL between versions.
-
-                In this series of graphs the x-axis is the field name and the y-axis is the total number of records. \
-
-                The graphs are useful to see if there are any dramatic changes in the values of fields between versions.
-
-                For example, you can read these graphs as "there are 300,000 records with the same BBL between {v1} to {v2}, but the exempttot value changed."
-
-                Hover over the graph to see the percent of records that have a change.
-
-                There is an option to filter these graphs to just show condo lots. \
-                Condos make up a small percentage of all lots, but they contain a large percentage of the residential housing. \
-                A second filter enables you look at all lots or just mapped lots. \
-                Unmapped lots are those with a record in PTS, but no corresponding record in DTM. \
-                This happens because DOF updates are not in sync.
-
-            """
-            )
-
-            MismatchReport(
-                data=data["df_mismatch"],
-                v1=v1,
-                v2=v2,
-                v3=v3,
-                condo=condo,
-                mapped=mapped,
-            )()
-
-            AggregateReport(
-                data=data["df_aggregate"],
-                v1=v1,
-                v2=v2,
-                v3=v3,
-                condo=condo,
-                mapped=mapped,
-            )()
-
-            NullReport(
-                data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
-            )()
-
-            SourceDataVersionsReport(version_text=data["version_text"])()
-
-            ExpectedValueDifferencesReport(data=data["df_expected"], v1=v1, v2=v2)()
-
-            OutlierReport(
-                data=data["df_outlier"], v1=v1, v2=v2, condo=condo, mapped=mapped
-            )()
-
-            BblDiffsReport(data=data.get("df_bbl_diffs", None))()
-
         if report_type == "Compare with Previous Version":
-            version_comparison_report(data)
+            version_comparison_report(product_key, data)
+
         elif report_type == "Review Manual Changes":
             ChangesReport(data)()
