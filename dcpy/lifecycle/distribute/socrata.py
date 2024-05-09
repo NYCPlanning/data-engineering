@@ -91,7 +91,7 @@ def _dist_from_s3(
     dataset_destination_id: str,
     dataset: str = typer.Option(
         None,
-        "-d",  # d is already taken, unfortunately
+        "-d",
         "--dataset",
         help="(optional) dataset. Defaults to product name",
     ),
