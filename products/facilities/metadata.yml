@@ -32,7 +32,7 @@ destinations:
   four_four: ji82-xba5
   attachments: []
   datasets:
-  - primary_shapefile
+  - shapefile
   omit_columns: []
   column_details: {}
 
