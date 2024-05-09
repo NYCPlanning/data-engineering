@@ -48,12 +48,20 @@ def get_packaged_versions(product: str) -> list[str]:
     )
 
 
-def download_packaged_version(package_key: PackageKey) -> None:
+def download_packaged_version(package_key: PackageKey) -> Path:
     packaged_versions = get_packaged_versions(product=package_key.product)
     assert (
         package_key.version in packaged_versions
     ), f"{package_key} not found in S3 bucket '{BUCKET}'. Packaged versions are {packaged_versions}"
     s3.download_folder(BUCKET, f"{package_key.path}/", DOWNLOAD_ROOT_PATH)
+    return (
+        DOWNLOAD_ROOT_PATH
+        / "product_datasets"
+        / package_key.product
+        / "package"
+        / package_key.version
+        / package_key.dataset
+    )
 
 
 app = typer.Typer(add_completion=False)
