@@ -15,13 +15,13 @@ class AggregateReport:
         self.mapped = mapped
 
     def __call__(self):
-        st.header("Aggregate Graph")
+        st.header("Aggregate Changes")
+
+        st.info(self.info_description)
 
         self.display_graph()
 
         st.write(self.aggregate_df.sort_values(by="v", ascending=False))
-
-        st.info(self.info_description)
 
     @property
     def aggregate_df(self):
@@ -100,7 +100,7 @@ class AggregateReport:
 
         fig.add_hline(y=0, line_color="grey", opacity=0.5)
         fig.update_layout(
-            title="Aggregate graph",
+            title="Percent change in sum of columns for all PLUTO lots",
             template="plotly_white",
             yaxis={"title": "Percent Change"},
             colorway=COLOR_SCHEME,
@@ -111,7 +111,7 @@ class AggregateReport:
     @property
     def info_description(self):
         return """
-            In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
+            In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change, summed across the entire dataset.
             For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released. 
             The aggregate graph may show that the aggregated sum increased by 5%. 
             Totals for assessland, assesstot, and exempttot should only change after the tentative and final rolls. 

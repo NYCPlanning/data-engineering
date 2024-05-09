@@ -22,6 +22,11 @@ class MismatchReport:
         v1v2 = self.filter_by_version_pair(df, self.version_pairs[0])
         v2v3 = self.filter_by_version_pair(df, self.version_pairs[1])
 
+        st.header("Mismatched Records")
+        st.info(
+            "Each mismatch graph and table shows the number of records (identified by bbl) with a changed value in a given field."
+        )
+
         for group in self.groups:
             self.display_graph(v1v2, v2v3, group)
 
@@ -31,7 +36,7 @@ class MismatchReport:
             """
             This table reports the number of records with differences in a field value between versions. 
             This table is useful for digging into any anomalies identified using the graphs above.
-        """
+            """
         )
 
     def display_graph(self, v1v2, v2v3, group):
@@ -41,7 +46,10 @@ class MismatchReport:
         fig.add_trace(self.generate_version_trace(v2v3, group["columns"]))
 
         fig.update_layout(
-            title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
+            title=group["title"],
+            template="plotly_white",
+            colorway=COLOR_SCHEME,
+            yaxis={"title": "# Changed Records"},
         )
 
         st.plotly_chart(fig)
