@@ -93,13 +93,22 @@ def _is_geom_point(s):
         return False
 
 
+def _is_geom_poly(s):
+    try:
+        return wkt.loads(s).geom_type in {"Polygon", "MultiPolygon"}
+    except ValueError:
+        return False
+
+
 col_validators = {
     "bbl": lambda df, col_name: df[~df[col_name].str.match(r"^\d{10}$")],
     "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
     "double": lambda df, col_name: df[~df[col_name].apply(_is_float_or_double)],
     "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
     "geom_point": lambda df, col_name: df[~df[col_name].apply(_is_geom_point)],
+    "geom_poly": lambda df, col_name: df[~df[col_name].apply(_is_geom_poly)],
     # TODO
+    "datetime": lambda df, col_name: df.iloc[0:0],
     "uid": lambda df, col_name: df.iloc[0:0],
     "boro_code": lambda df, col_name: df.iloc[0:0],
     "block": lambda df, col_name: df.iloc[0:0],

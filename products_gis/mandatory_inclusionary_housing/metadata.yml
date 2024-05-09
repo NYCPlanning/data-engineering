@@ -1,7 +1,18 @@
 name: mandatory_inclusionary_housing
 display_name: Mandatory Inclusionary Housing
-summary: Description for Mandatory Inclusionary Housing
-description: Description for Mandatory Inclusionary Housing
+summary: ""
+description: |
+  The Mandatory Inclusionary Housing program was adopted in 2016 to encourage the creation of
+  housing for families at a range of incomes in areas planned for housing growth. When actions
+  of the Commission significantly increase residential density, the City Planning
+  Commission and the City Council will apply one or more options to require affordable housing
+  as part of new residential construction.
+
+
+  All previously released versions of this data are available at
+  <a href="https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts%5Byear%5D=0" rel="nofollow noreferrer external" target="_blank">BYTES of the BIG APPLE- Archive</a>
+
+
 tags: [housing, house, building, development]
 each_row_is_a: A Mandatorily Included House
 
@@ -33,7 +44,35 @@ package:
     filename: dcp_mandatory_inclusionary_housing.zip
     overrides:
       omit_columns: []
-      columns: {}
+      columns:
+        zr_ulurpno:
+          name: ZR_ULURPno
+        project_id:
+          name: Project_ID
+        boro:
+          name: Boro
+        mih_option:
+          name: MIH_Option
+        zr_map:
+          name: ZR_Map
+        cd:
+          name: CD
+        projectnam:
+          name: ProjectNam
+        dateadopte:
+          name: DateAdopte
+        shape_leng:
+          name: Shape_Leng
+        status:
+          name: Status
+        shape_area:
+          name: Shape_Area
+        the_geom:
+          name: geometry
+          data_type: geom_poly
+        zoning_map:
+          name: Zoning_Map
+
   attachments:
   - nycmih_metadata.pdf
 
