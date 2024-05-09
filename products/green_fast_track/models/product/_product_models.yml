@@ -12,186 +12,142 @@ models:
         tests:
           - not_null
           - unique
-      - name: '"Zoning Districts Category"'
+      # flag and flag value columns
+      - name: zoning_category
         data_type: string
         tests: [not_null]
-      - name: '"Zoning Districts"'
+      - name: zoning_district
         data_type: string
-      - name: '"Special Coastal Risk Districts Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"Special Coastal Risk Districts"'
-        data_type: string
-      - name: '"CATS Permits Flag"'
+
+      - name: special_coastal_risk_flag
         data_type: string
         tests: [not_null]
-      - name: '"CATS Permits"'
+      - name: special_coastal_risk
         data_type: string
-      - name: '"Unpermitted Industrial Sources Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"Unpermitted Industrial Sources"'
-        data_type: string
-      - name: '"State Facility Permits Flag"'
+
+      - name: cats_permit_flag
         data_type: string
         tests: [not_null]
-      - name: '"State Facility Permits"'
+      - name: cats_permit
         data_type: string
-      - name: '"Clean Air Act Title V Permits Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"Clean Air Act Title V Permits"'
-        data_type: string
-      - name: '"Vent Towers Flag"'
+
+      - name: industrial_lots_flag
         data_type: string
         tests: [not_null]
-      - name: '"Vent Towers"'
+      - name: industrial_lots
         data_type: string
-      - name: '"(E) Designations - Air Quality Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"(E) Designations - Air Quality"'
-        data_type: string
-      - name: '"(E) Designations - Noise Flag"'
+
+      - name: state_facility_flag
         data_type: string
         tests: [not_null]
-      - name: '"(E) Designations - Noise"'
+      - name: state_facility
         data_type: string
-      - name: '"Arterial Highways Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"Arterial Highways"'
-        data_type: string
-      - name: '"Exposed Railways Flag"'
+
+      - name: title_v_permit_flag
         data_type: string
         tests: [not_null]
-      - name: '"Exposed Railways"'
+      - name: title_v_permit
         data_type: string
-      - name: '"Airport Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"Airport"'
-        data_type: string
-      - name: '"(E) Designations - HazMat Flag"'
+
+      - name: vent_tower_flag
         data_type: string
         tests: [not_null]
-      - name: '"(E) Designations - HazMat"'
+      - name: vent_tower
         data_type: string
-      - name: '"Federal Parks property Flag"'
         data_type: string
-        tests: [not_null]
-      - name: '"Federal Parks property"'
-        data_type: string
-      - name: '"DPR Parks properties Flag"'
+
+      - name: e_des_air_quality_flag
         data_type: string
         tests: [not_null]
-      - name: '"DPR Parks properties"'
+      - name: e_des_air_quality
         data_type: string
-      - name: '"Schoolyard-to-playground Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"Schoolyard-to-playground"'
-        data_type: string
-      - name: '"NYS Parks Property Flag"'
+
+      - name: e_des_noise_flag
         data_type: string
         tests: [not_null]
-      - name: '"NYS Parks Property"'
+      - name: e_des_noise
         data_type: string
-      - name: '"POPS Flag"'
-        data_type: string
-        tests: [not_null]
-      - name: '"POPS"'
-        data_type: string
-      - name: '"Publicly Owned Waterfront Flag"'
+
+      - name: arterial_highway_flag
         data_type: string
         tests: [not_null]
-      - name: '"Publicly Owned Waterfront"'
+      - name: arterial_highway
         data_type: string
-      - name: '"Waterfront Public Access Areas Flag"'
+
+      - name: exposed_railway_flag
         data_type: string
         tests: [not_null]
-      - name: '"Waterfront Public Access Areas"'
+      - name: exposed_railway
         data_type: string
-      - name: '"State Regulated Freshwater Wetlands - Checkzone"'
+
+      - name: airport_noise_flag
         data_type: string
-      - name: '"State Regulated Freshwater Wetlands - Checkzone Flag"'
+        tests: [not_null]
+      - name: airport_noise
         data_type: string
-      - name: '"State Regulated Freshwater Wetlands"'
+
+      - name: e_des_hazmat_flag
         data_type: string
-      - name: '"State Regulated Freshwater Wetlands Flag"'
+        tests: [not_null]
+      - name: e_des_hazmat
         data_type: string
-      - name: '"State Regulated Tidal Wetlands"'
+
+      - name: natural_resources_flag
         data_type: string
-      - name: '"State Regulated Tidal Wetlands Flag"'
+        tests: [not_null]
+      - name: natural_resources
         data_type: string
-      - name: '"Priority Waterbodies"'
+
+      - name: wetland_checkzone_flag
         data_type: string
-      - name: '"Priority Waterbodies Flag"'
+        tests: [not_null]
+      - name: wetland_checkzone
         data_type: string
-      - name: '"Significant Natural Communities"'
+
+      - name: archaeological_area_flag
         data_type: string
-      - name: '"Significant Natural Communities Flag"'
+        tests: [not_null]
+      - name: archaeological_area
         data_type: string
-      - name: '"Beaches"'
+
+      - name: historic_districts_flag
         data_type: string
-      - name: '"Beaches Flag"'
+        tests: [not_null]
+      - name: historic_districts
         data_type: string
-      - name: '"National Wetlands"'
+
+      - name: historic_resources_flag
         data_type: string
-      - name: '"National Wetlands Flag"'
+        tests: [not_null]
+      - name: historic_resources
         data_type: string
-      - name: '"Recognized Ecological Complexes"'
+
+      - name: historic_resources_adj_flag
         data_type: string
-      - name: '"Recognized Ecological Complexes Flag"'
+        tests: [not_null]
+      - name: historic_resources_adj
         data_type: string
-      - name: '"Special Natural Waterfront Areas"'
+
+      - name: shadow_open_spaces_flag
         data_type: string
-      - name: '"Special Natural Waterfront Areas Flag"'
+        tests: [not_null]
+      - name: shadow_open_spaces
         data_type: string
-      - name: '"NYC Parks Forever Wild"'
+
+      - name: shadow_nat_resources_flag
         data_type: string
-      - name: '"NYC Parks Forever Wild Flag"'
+        tests: [not_null]
+      - name: shadow_nat_resources
         data_type: string
-      - name: '"Contains Natural Resource"'
+
+      - name: shadow_hist_resources_flag
         data_type: string
-      - name: '"Natural Resource Shadow"'
+        tests: [not_null]
         data_type: string
-      - name: '"Natural Resource Shadow Flag"'
+      - name: shadow_hist_resources
         data_type: string
-      - name: '"Federal Historic Places Flag"'
-        data_type: string
-      - name: '"Federal Historic Places"'
-        data_type: string
-      - name: '"Historic Buildings Flag"'
-        data_type: string
-      - name: '"Historic Buildings"'
-        data_type: string
-      - name: '"Historic Districts Flag"'
-        data_type: string
-      - name: '"Historic Districts"'
-        data_type: string
-      - name: '"Scenic Landmarks Flag"'
-        data_type: string
-      - name: '"Scenic Landmarks"'
-        data_type: string
-      - name: '"State Archaeological Areas Flag"'
-        data_type: string
-      - name: '"State Archaeological Areas"'
-        data_type: string
-      - name: '"State Historic Buildings Flag"'
-        data_type: string
-      - name: '"State Historic Buildings"'
-        data_type: string
-      - name: '"State Historic Districts Flag"'
-        data_type: string
-      - name: '"State Historic Districts"'
-        data_type: string
-      - name: '"Contains Historic"'
-        data_type: string
-      - name: '"Historic Resource Shadow"'
-        data_type: string
-      - name: '"Historic Resource Shadow Flag"'
-        data_type: string
+
+      # lot geometry
       - name: geom
         data_type: geometry(Geometry, 2263)
 
