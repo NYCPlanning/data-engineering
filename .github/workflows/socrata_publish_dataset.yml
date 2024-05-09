@@ -1,13 +1,17 @@
 name: 🚀 Socrata - Publish a Dataset
-run-name: "🚀 Socrata - Publish a Dataset: ${{ inputs.DATASET_NAME }}"
+run-name: "🚀 Socrata - Publish a Dataset: ${{ inputs.PRODUCT_NAME }}"
 
 on:
   workflow_dispatch:
     inputs:
-      DATASET_NAME:
+      PRODUCT_NAME:
         description: "Name of the dataset"
         type: string
         required: true
+      DATASET:
+        description: "Dataset to push (defaults to PRODUCT_NAME when omitted)"
+        type: string
+        required: false
       DATASET_VERSION:
         description: "Version to push"
         type: string
@@ -58,8 +62,9 @@ jobs:
       - name: Push to Socrata
         run: |
           python3 -m dcpy.cli lifecycle distribute socrata from_s3  \
-            --name ${{ inputs.DATASET_NAME }} \
-            --version ${{ inputs.DATASET_VERSION }} \
+            ${{ inputs.PRODUCT_NAME }} \
+            ${{ inputs.DATASET_VERSION }} \
+            --dataset ${{ inputs.DATASET }} \
             --dest ${{ inputs.DESTINATION_ID }} \
             $(if [ ${{ inputs.PUBLISH }} = "true" ]; then echo "-p"; fi) \
             $(if [ ${{ inputs.IGNORE_VALIDATION_ERRORS }} = "true" ]; then echo "-i"; fi)

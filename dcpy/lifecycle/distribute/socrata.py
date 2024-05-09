@@ -77,23 +77,14 @@ def _dist_from_local(
 
 @socrata_app.command("from_s3")
 def _dist_from_s3(
-    product_name: str = typer.Option(
+    product_name: str,
+    version: str,
+    dataset_destination_id: str,
+    dataset: str = typer.Option(
         None,
-        "-n",
-        "--name",
-        help="product name",
-    ),
-    version: str = typer.Option(
-        None,
-        "-v",
-        "--version",
-        help="package version",
-    ),
-    dataset_destination_id: str = typer.Option(
-        None,
-        "-d",
-        "--dest",
-        help="Dataset Destination Id",
+        "-d",  # d is already taken, unfortunately
+        "--dataset",
+        help="(optional) dataset. Defaults to product name",
     ),
     metadata_path: Path = typer.Option(
         None,
@@ -117,18 +108,16 @@ def _dist_from_s3(
     logger.info(
         f"Distributing {product_name}-{version} to {dataset_destination_id}. Publishing: {publish}. Ignoring Validation Errors: {ignore_validation_errors}"
     )
-    download_root_path = Path(".packaged/")
-    package_path = download_root_path / product_name / version
     logger.info(f"Downloading dataset package for {product_name}-{version}")
-    s3.download_folder(
-        packaging.BUCKET,
-        f"{product_name}/{version}/",
-        package_path,
-        include_prefix_in_export=False,
+
+    package_path = packaging.download_packaged_version(
+        packaging.PackageKey(product_name, version, dataset or product_name)
     )
+
     _dist_from_local(
         package_path=package_path,
         dataset_destination_id=dataset_destination_id,
         metadata_path=metadata_path,
         publish=publish,
+        ignore_validation_errors=ignore_validation_errors,
     )
