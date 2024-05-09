@@ -14,25 +14,17 @@ from .aggregate_report import AggregateReport
 from .bbl_diffs_report import BblDiffsReport
 
 
-def version_comparison_report(product_key, data):
+def version_comparison_report(product_key, data, comp_type):
     versions = sorted(data["df_aggregate"]["v"].unique(), reverse=True)
 
-    v1 = st.sidebar.selectbox(
-        "Choose a version of PLUTO",
-        versions,
-    )
-    v2 = st.sidebar.selectbox(
-        "Choose a Previous version of PLUTO",
-        versions,
-        versions.index(v1) + 1,
-        disabled=True,
-    )
-    v3 = st.sidebar.selectbox(
-        "Choose a Previous Previous of PLUTO",
-        versions,
-        versions.index(v1) + 2,
-        disabled=True,
-    )
+    v = versions[0]
+    v_prev = versions[versions.index(v) + 1]
+
+    if comp_type == "Previous":
+        v_comp = v_prev
+    else:
+        v_comp = next(_v for _v in versions if _v != v and (("." in _v) == ("." in v)))
+    v_comp_prev = versions[versions.index(v_comp) + 1]
 
     condo = st.sidebar.checkbox("condo only")
     mapped = st.sidebar.checkbox("mapped only")
@@ -41,18 +33,18 @@ def version_comparison_report(product_key, data):
 
     st.markdown(
         f"""
-        **{v1}** is the Current version
+        **{v}** is the Current version
 
-        **{v2}** is the Previous version
+        **{v_prev}** is the Previous version
 
-        **{v3}** is the Previous Previous version
+        **{v_comp} - {v_comp_prev}** is the diff for comparison
     """
     )
     st.markdown(
         f"""
         This series of reports compares two pairs of PLUTO versions using two colors in graphs:
-        - blue: the Selected and the Previous versions ({v1})
-        - gold: the previous two versions ({v2})
+        - blue: the Selected and the Previous versions ({v})
+        - gold: the previous two versions ({v_prev})
 
         The graphs report the number of records that have a different value in a given field but share the same BBL between versions.
 
@@ -60,7 +52,7 @@ def version_comparison_report(product_key, data):
 
         The graphs are useful to see if there are any dramatic changes in the values of fields between versions.
 
-        For example, you can read these graphs as "there are 300,000 records with the same BBL between {v1} to {v2}, but the exempttot value changed."
+        For example, you can read these graphs as "there are 300,000 records with the same BBL between {v} to {v_prev}, but the exempttot value changed."
 
         Hover over the graph to see the percent of records that have a change.
 
@@ -75,28 +67,40 @@ def version_comparison_report(product_key, data):
 
     MismatchReport(
         data=data["df_mismatch"],
-        v1=v1,
-        v2=v2,
-        v3=v3,
+        v=v,
+        v_prev=v_prev,
+        v_comp=v_comp,
+        v_comp_prev=v_comp_prev,
         condo=condo,
         mapped=mapped,
     )()
 
     AggregateReport(
         data=data["df_aggregate"],
-        v1=v1,
-        v2=v2,
-        v3=v3,
+        v=v,
+        v_prev=v_prev,
+        v_comp=v_comp,
+        v_comp_prev=v_comp_prev,
         condo=condo,
         mapped=mapped,
     )()
 
-    NullReport(data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped)()
+    NullReport(
+        data=data["df_null"],
+        v=v,
+        v_prev=v_prev,
+        v_comp=v_comp,
+        v_comp_prev=v_comp_prev,
+        condo=condo,
+        mapped=mapped,
+    )()
 
     SourceDataVersionsReport(version_text=data["version_text"])()
 
-    ExpectedValueDifferencesReport(data=data["df_expected"], v1=v1, v2=v2)()
+    ExpectedValueDifferencesReport(data=data["df_expected"], v=v, v_prev=v_prev)()
 
-    OutlierReport(data=data["df_outlier"], v1=v1, v2=v2, condo=condo, mapped=mapped)()
+    OutlierReport(
+        data=data["df_outlier"], v=v, v_prev=v_prev, condo=condo, mapped=mapped
+    )()
 
     BblDiffsReport(data=data.get("df_bbl_diffs", None))()

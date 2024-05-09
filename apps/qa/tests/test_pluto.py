@@ -14,17 +14,17 @@ def example_ExpectedValueDifferencesReport():
     data = get_data(publishing.PublishKey(PRODUCT, TEST_VERSION_1))
     return ExpectedValueDifferencesReport(
         data=data["df_expected"],
-        v1=TEST_VERSION_1,
-        v2=TEST_VERSION_2,
+        v=TEST_VERSION_1,
+        v_prev=TEST_VERSION_2,
     )
 
 
-def test_v1_expected_records(
+def test_expected_records(
     example_ExpectedValueDifferencesReport: ExpectedValueDifferencesReport,
 ):
-    v1_expected_records = example_ExpectedValueDifferencesReport.v1_expected_records
-    assert isinstance(v1_expected_records, list)
-    assert len(v1_expected_records) == 15
+    expected_records = example_ExpectedValueDifferencesReport.v_expected_records
+    assert isinstance(expected_records, list)
+    assert len(expected_records) == 15
 
 
 def test_values_by_field(
@@ -44,9 +44,9 @@ def test_values_by_field(
         "C2-5",
         "C1-3",
     ]
-    v1_expected_records = example_ExpectedValueDifferencesReport.v1_expected_records
+    expected_records = example_ExpectedValueDifferencesReport.v_expected_records
     values_by_field_actual = example_ExpectedValueDifferencesReport.values_by_field(
-        v1_expected_records,
+        expected_records,
         field,
     )
     assert values_by_field_actual == values_by_field_expected
@@ -80,9 +80,9 @@ def test_values_by_fields(
         "C1-5",
         "C1-1",
     ]
-    v1_expected_records = example_ExpectedValueDifferencesReport.v1_expected_records
+    expected_records = example_ExpectedValueDifferencesReport.v_expected_records
     actual_values = example_ExpectedValueDifferencesReport.values_by_fields(
-        v1_expected_records,
+        expected_records,
         fields,
     )
     assert actual_values == expected_values

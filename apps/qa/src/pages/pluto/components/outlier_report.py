@@ -4,17 +4,17 @@ from st_aggrid import AgGrid
 
 
 class OutlierReport:
-    def __init__(self, data, v1, v2, condo, mapped):
+    def __init__(self, data, v, v_prev, condo, mapped):
         self.df = data
-        self.v1 = v1
-        self.v2 = v2
+        self.v = v
+        self.v_prev = v_prev
         self.condo = condo
         self.mapped = mapped
 
     def __call__(self):
         st.header("Outlier Analysis")
 
-        if self.v1 not in self.versions:
+        if self.v not in self.versions:
             st.info("There is no outlier report available for selected version.")
             return
 
@@ -40,7 +40,7 @@ class OutlierReport:
                 AgGrid(df)
 
     def fetch_dataframe(self, field):
-        records = [i["values"] for i in self.v1_outlier_records if i["field"] == field][
+        records = [i["values"] for i in self.v_outlier_records if i["field"] == field][
             0
         ]
 
@@ -64,17 +64,17 @@ class OutlierReport:
         return self.df.loc[
             (self.df.condo == self.condo)
             & (self.df.mapped == self.mapped)
-            & (self.df.v == self.v1),
+            & (self.df.v == self.v),
             :,
         ].to_dict("records")
 
     @property
-    def v1_outlier_records(self):
-        return [i["outlier"] for i in self.outlier_records if i["v"] == self.v1][0]
+    def v_outlier_records(self):
+        return [i["outlier"] for i in self.outlier_records if i["v"] == self.v][0]
 
     @property
     def version_pair(self):
-        return f"{self.v1}-{self.v2}"
+        return f"{self.v}-{self.v_prev}"
 
     @property
     def markdown_dict(self):

@@ -21,7 +21,16 @@ def pluto():
         data = get_data(product_key)
 
         if report_type == "Compare with Previous Version":
-            version_comparison_report(product_key, data)
+            comp_type = st.sidebar.selectbox(
+                "Comparison Type",
+                ["Previous", "Last of same version type"],
+                help="""
+                    "Previous" will compare 24v2 - 24v1.1 diffs with 24v1.1 - 24v1 diffs \n
+                    "Last of same version type" will compare instead to last major or minor i.e. 24v2 - 24v1.1 to 24v1 - 24v3.1
+                """,
+            )
+
+            version_comparison_report(product_key, data, comp_type)
 
         elif report_type == "Review Manual Changes":
             ChangesReport(data)()

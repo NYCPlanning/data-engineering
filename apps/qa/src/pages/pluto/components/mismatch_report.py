@@ -4,14 +4,15 @@ from src.shared.constants import COLOR_SCHEME
 
 
 class MismatchReport:
-    def __init__(self, data, v1, v2, v3, condo, mapped):
+    def __init__(self, data, v, v_prev, v_comp, v_comp_prev, condo, mapped):
         self.df_mismatch = data
-        self.v1 = v1
-        self.v2 = v2
-        self.v3 = v3
+        self.v = v
+        self.v_prev = v_prev
+        self.v_comp = v_comp
+        self.v_comp_prev = v_comp_prev
         self.version_pairs = [
-            f"{v1} - {v2}",
-            f"{v2} - {v3}",
+            f"{v} - {v_prev}",
+            f"{v_comp} - {v_comp_prev}",
         ]
         self.condo = condo
         self.mapped = mapped
