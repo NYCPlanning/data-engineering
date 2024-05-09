@@ -343,7 +343,9 @@ def push_shp(
         raise Exception("received a non-socrata type destination")
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
     shapefile_name = metadata.package.get_dataset(ds_name_to_push).filename
-    shape_file_path = dataset_package_path / shapefile_name
+    shape_file_path = (
+        dataset_package_path / "dataset_files" / shapefile_name
+    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
 
     dataset = Dataset(four_four=dest.four_four)
 
