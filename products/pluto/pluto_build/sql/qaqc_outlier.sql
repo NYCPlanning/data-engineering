@@ -4,86 +4,80 @@ WHERE
     AND condo::boolean = :CONDO
     AND mapped::boolean = :MAPPED;
 
+
+WITH pluto_filtered AS (
+    SELECT *
+    FROM archive_pluto AS a
+    :CONDITION
+),
+-- building area has more than doubled in size
+building_area_increase AS (
+    SELECT
+        jsonb_agg(json_build_object(
+            'pair', :'VERSION' || ' - ' || :'VERSION_PREV',
+            'bbl', current.bbl,
+            'building_area_current', current.lotarea::float,
+            'building_area_previous', prev.lotarea::float,
+            'percent_change', (current.lotarea::float - prev.lotarea::float) / prev.lotarea::float * 100
+        )) AS values,
+        'building_area_increase' AS field
+    FROM pluto_filtered AS current
+    INNER JOIN previous_pluto AS prev ON current.bbl::float = prev.bbl::float
+    WHERE
+        current.lotarea::float > 2 * prev.lotarea::float
+        AND prev.lotarea::float != 0
+),
+-- unreasonably small apartments based on area/unit ratio
+small_apartments AS (
+    SELECT
+        jsonb_agg(json_build_object(
+            'bbl', bbl,
+            'ownername', ownername,
+            'unitsres', unitsres,
+            'resarea', resarea,
+            'res_unit_ratio', resarea::float / unitsres::float
+        )) AS values,
+        'unitsres_resarea' AS field
+    FROM pluto_filtered
+    WHERE
+        unitsres::float > 50 AND resarea::float / unitsres::float < 300
+        AND resarea::float != 0
+),
+-- building area over lot area is more than double the number of floors
+floors AS (
+    SELECT
+        jsonb_agg(json_build_object(
+            'bbl', current.bbl,
+            'bldgarea', current.bldgarea,
+            'lotarea', current.lotarea,
+            'numfloors', current.numfloors,
+            'blog_lot_ratio', current.bldgarea::float / current.lotarea::float,
+            'new_flag', prev.bbl IS NULL
+        )) AS values,
+        'lotarea_numfloor' AS field
+    FROM pluto_filtered AS current
+    LEFT JOIN previous_pluto AS prev
+        ON
+            current.bbl::float = prev.bbl::float
+            AND prev.lotarea::float != 0
+            AND prev.numfloors::float != 0
+            AND prev.bldgarea::float / prev.lotarea::float > prev.numfloors::float * 2
+    WHERE
+        current.bldgarea::float / current.lotarea::float > current.numfloors::float * 2
+        AND current.lotarea::float != 0 AND current.numfloors != 0
+),
+unioned AS (
+    SELECT * FROM building_area_increase
+    UNION ALL
+    SELECT * FROM small_apartments
+    UNION ALL
+    SELECT * FROM floors
+)
 INSERT INTO qaqc_outlier (
     SELECT
         :'VERSION' AS v,
         :CONDO AS condo,
         :MAPPED AS mapped,
-        jsonb_agg(t) AS outlier
-    FROM (
-        SELECT
-            jsonb_agg(json_build_object(
-                'bbl', tmp.bbl,
-                'unitsres', tmp.unitsres,
-                'resarea', tmp.resarea,
-                'res_unit_ratio', tmp.res_unit_ratio
-            )) AS values,
-            'unitsres_resarea' AS field
-        FROM (
-            SELECT
-                bbl,
-                unitsres,
-                resarea,
-                resarea::float / unitsres::float AS res_unit_ratio
-            FROM (
-                SELECT a.*
-                FROM archive_pluto AS a
-                :CONDITION
-            ) AS b
-            WHERE
-                unitsres::float > 50 AND resarea::float / unitsres::float < 300
-                AND resarea::float != 0
-        ) AS tmp
-        UNION
-        SELECT
-            jsonb_agg(json_build_object(
-                'bbl', tmp.bbl,
-                'bldgarea', tmp.bldgarea,
-                'lotarea', tmp.lotarea,
-                'numfloors', tmp.numfloors,
-                'blog_lot_ratio', tmp.bldg_lot_ratio
-            )) AS values,
-            'lotarea_numfloor' AS field
-        FROM (
-            SELECT
-                bbl,
-                bldgarea,
-                lotarea,
-                numfloors,
-                bldgarea::float / lotarea::float AS bldg_lot_ratio
-            FROM (
-                SELECT a.*
-                FROM archive_pluto AS a
-                :CONDITION
-            ) AS b
-            WHERE
-                bldgarea::float / lotarea::float > numfloors::float * 2
-                AND lotarea::float != 0 AND numfloors != 0
-        ) AS tmp
-        UNION
-        SELECT
-            jsonb_agg(json_build_object(
-                'pair', m.pair, 'bbl', m.bbl,
-                'building_area_current', m.building_area_current,
-                'building_area_previous', m.building_area_previous,
-                'percent_change', m.percent_change
-            )) AS values,
-            'building_area_increase' AS field
-        FROM (
-            SELECT
-                :'VERSION' || ' - ' || :'VERSION_PREV' AS pair,
-                a.bbl,
-                a.lotarea::float AS building_area_current,
-                b.lotarea::float AS building_area_previous,
-                ((a.lotarea::float - b.lotarea::float) / b.lotarea::float * 100) AS percent_change
-            FROM (
-                SELECT a.*
-                FROM archive_pluto AS a
-                :CONDITION
-            ) AS a, previous_pluto AS b
-            WHERE
-                a.bbl::float = b.bbl::float AND a.lotarea::float > 2 * b.lotarea::float
-                AND b.lotarea::float != 0
-        ) AS m
-    ) AS t
+        jsonb_agg(unioned) AS outlier
+    FROM unioned
 );

@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from typing import Callable
 from st_aggrid import AgGrid
 
 
@@ -18,26 +19,64 @@ class OutlierReport:
             st.info("There is no outlier report available for selected version.")
             return
 
-        self.display_dataframe("building_area_increase")
+        self.building_area_increase()
 
-        self.display_dataframe("unitsres_resarea")
+        self.small_apartments()
 
-        self.display_dataframe("lotarea_numfloor")
+        self.floors()
 
-    def display_dataframe(self, field):
-        df = self.fetch_dataframe(field)
+    def display_dataframe(
+        self, field: str, df: pd.DataFrame, filter: Callable | None = None
+    ):
+        st.markdown(self.markdown_dict[field])
+        st.info(self.info_dict[field])
 
         if df.empty:
-            st.markdown(self.markdown_dict[field])
             st.write("There are no outliers for this check.")
-            st.info(self.info_dict[field])
         else:
-            st.markdown(self.markdown_dict[field])
             st.write(f"There are {df.shape[0]} outliers in total.")
-            st.info(self.info_dict[field])
+            if filter:
+                df = filter(df)
 
-            with st.expander("See table"):
+            with st.expander("Show table"):
                 AgGrid(df)
+
+    def building_area_increase(self):
+        field = "building_area_increase"
+        df = self.fetch_dataframe(field)
+        self.display_dataframe(field, df)
+
+    def small_apartments(self):
+        field = "unitsres_resarea"
+        df = self.fetch_dataframe(field)
+
+        def filter(_df: pd.DataFrame):
+            valid = "ownername" in df.columns
+            help = (
+                "This feature was implemented after this build" if not valid else None
+            )
+            if st.checkbox("Filter out NYCHA records", disabled=not valid, help=help):
+                return _df[~(_df["ownername"] == "NYC HOUSING AUTHORITY")]
+            else:
+                return _df
+
+        self.display_dataframe(field, df, filter)
+
+    def floors(self):
+        field = "lotarea_numfloor"
+        df = self.fetch_dataframe(field)
+
+        def filter(_df: pd.DataFrame):
+            valid = "new_flag" in df.columns
+            help = (
+                "This feature was implemented after this build" if not valid else None
+            )
+            if st.checkbox("Only display new entries", disabled=not valid, help=help):
+                return _df[_df["new_flag"]]
+            else:
+                return _df
+
+        self.display_dataframe(field, df, filter)
 
     def fetch_dataframe(self, field):
         records = [i["values"] for i in self.v_outlier_records if i["field"] == field][
