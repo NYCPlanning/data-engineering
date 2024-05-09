@@ -16,7 +16,7 @@ OUTPUT_ROOT_PATH = Path(".output")
 
 
 @dataclass
-class PackageKey(publishing.ProductKey):
+class DatasetPackageKey(publishing.ProductKey):
     product: str
     version: str
     dataset: str
@@ -29,7 +29,7 @@ class PackageKey(publishing.ProductKey):
         return f"{BUCKET_FOLDER}/{self.product}/package/{self.version}/{self.dataset}"
 
 
-def upload(local_folder_path: Path, package_key: PackageKey) -> None:
+def upload(local_folder_path: Path, package_key: DatasetPackageKey) -> None:
     meta = s3.generate_metadata()
     s3.upload_folder(
         BUCKET,
@@ -48,7 +48,7 @@ def get_packaged_versions(product: str) -> list[str]:
     )
 
 
-def download_packaged_version(package_key: PackageKey) -> Path:
+def download_packaged_version(package_key: DatasetPackageKey) -> Path:
     packaged_versions = get_packaged_versions(product=package_key.product)
     assert (
         package_key.version in packaged_versions
@@ -104,5 +104,5 @@ def _download_packages(
     ),
 ):
     download_packaged_version(
-        PackageKey(product_name, version, dataset or product_name)
+        DatasetPackageKey(product_name, version, dataset or product_name)
     )

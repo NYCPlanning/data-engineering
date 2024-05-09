@@ -40,7 +40,7 @@ def create_buckets(aws_credentials):
 @pytest.fixture(scope="module")
 def mock_data_constants():
     def _test_product(
-        publish_key: publishing.PublishKey, package_key: packaging.PackageKey
+        publish_key: publishing.PublishKey, package_key: packaging.DatasetPackageKey
     ) -> None:
         output_path = packaging.OUTPUT_ROOT_PATH / package_key.path
         shutil.copytree(
