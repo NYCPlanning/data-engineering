@@ -49,6 +49,18 @@ class PackageValidation:
         """Get validation errors from all dataset validations in the package."""
         return sum([v.errors for v in self.validations if v.errors], [])
 
+    def pretty_print_errors(self):
+        ds_errors = self.get_dataset_errors()
+
+        for e in ds_errors + self.errors:
+            pprint.pp(
+                [
+                    e.dataset_file.filename if e.dataset_file else None,
+                    e.error_type.value,
+                    e.message,
+                ]
+            )
+
 
 def _is_valid_wkb(g):
     if not g:
@@ -283,8 +295,8 @@ def _validate(
         None, "-m", "--metadata-path", help="(Optional) Metadata Path"
     ),
 ):
-    errors = validate_package(
+    validation = validate_package(
         package_path,
         models.Metadata.from_yaml(metadata_path or package_path / "metadata.yml"),
     )
-    pprint.pp(errors)
+    validation.pretty_print_errors()

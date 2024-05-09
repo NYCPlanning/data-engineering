@@ -54,14 +54,17 @@ def _dist_from_local(
     assert dest.type == "socrata"
 
     logger.info("Validating package")
-    errors = v.validate_package(package_path, md).get_dataset_errors()
+    validation = v.validate_package(package_path, md)
+    errors = validation.get_dataset_errors()
 
     if len(errors) > 0:
-        error_msg = f"Errors Found! {errors}"
         if ignore_validation_errors:
-            logger.warn(error_msg)
+            logger.warn("Errors Found! But continuing to distribute")
+            validation.pretty_print_errors()
         else:
+            error_msg = "Errors Found! Aborting distribute"
             logger.error(error_msg)
+            validation.pretty_print_errors()
             raise Exception(error_msg)
 
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
