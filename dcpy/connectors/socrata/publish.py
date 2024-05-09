@@ -353,10 +353,6 @@ def push_shp(
 
     rev = dataset.create_replace_revision()
 
-    data_source = rev.push_shp(shape_file_path)
-
-    data_source.update_column_metadata(dest, metadata)
-
     attachments_metadata = [
         rev.upload_attachment(
             dataset_package_path / "attachments" / attachment,
@@ -368,6 +364,18 @@ def push_shp(
     rev.patch_metadata(
         attachments=attachments_metadata, metadata=make_socrata_metadata(metadata)
     )
+
+    data_source = rev.push_shp(shape_file_path)
+    try:
+        data_source.update_column_metadata(dest, metadata)
+    except Exception as e:
+        # Upating column Metadata is tricky, and there's still some work to be done
+        logger.error(
+            f"""Error Updating Column Metadata! However,
+        the Dataset File was uploaded and the revision can still be applied manually. Error: {e}"""
+        )
+        return
+
     if not publish:
         logger.info(
             f"Finished syncing product to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually"
