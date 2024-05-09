@@ -48,31 +48,37 @@ def _dist_from_local(
         "--ignore-validation-errors",
         help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
     ),
+    skip_validation: bool = typer.Option(
+        False,
+        "-y",  # -y(olo)
+        "--skip-validation",
+        help="Skip Validation Altogether",
+    ),
 ):
     md = m.Metadata.from_yaml(metadata_path or package_path / "metadata.yml")
     dest = md.get_destination(dataset_destination_id)
     assert dest.type == "socrata"
 
-    logger.info("Validating package")
-    validation = v.validate_package(package_path, md)
-    errors = validation.get_dataset_errors()
+    if not skip_validation:
+        logger.info("Validating package")
+        validation = v.validate_package(package_path, md)
+        errors = validation.get_dataset_errors()
 
-    if len(errors) > 0:
-        if ignore_validation_errors:
-            logger.warn("Errors Found! But continuing to distribute")
-            validation.pretty_print_errors()
-        else:
-            error_msg = "Errors Found! Aborting distribute"
-            logger.error(error_msg)
-            validation.pretty_print_errors()
-            raise Exception(error_msg)
+        if len(errors) > 0:
+            if ignore_validation_errors:
+                logger.warn("Errors Found! But continuing to distribute")
+                validation.pretty_print_errors()
+            else:
+                error_msg = "Errors Found! Aborting distribute"
+                logger.error(error_msg)
+                validation.pretty_print_errors()
+                raise Exception(error_msg)
 
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
 
     match md.package.get_dataset(ds_name_to_push).type:
         case "shapefile":
             soc_pub.push_shp(md, dataset_destination_id, package_path, publish=publish)
-
         case _:
             # TODO
             raise Exception("Only shapefiles have been implemented so far")
@@ -107,6 +113,12 @@ def _dist_from_s3(
         "--ignore-validation-errors",
         help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
     ),
+    skip_validation: bool = typer.Option(
+        False,
+        "-y",  # -y(olo)
+        "--skip-validation",
+        help="Skip Validation Altogether",
+    ),
 ):
     logger.info(
         f"Distributing {product_name}-{version} to {dataset_destination_id}. Publishing: {publish}. Ignoring Validation Errors: {ignore_validation_errors}"
@@ -123,4 +135,5 @@ def _dist_from_s3(
         metadata_path=metadata_path,
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
+        skip_validation=skip_validation,
     )
