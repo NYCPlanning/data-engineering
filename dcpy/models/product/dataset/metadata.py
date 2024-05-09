@@ -17,7 +17,7 @@ class SocrataDestination(BaseModel, extra="forbid"):
     four_four: str
     attachments: list[str] = []
     datasets: conlist(item_type=str, max_length=1)  # type:ignore
-    omit_columns: list[str]
+    omit_columns: list[str] = []
     column_details: dict[str, SocrataColumn] = {}
 
     def get_column_overrides(self, col_name):
