@@ -1,5 +1,5 @@
-name: mih_test
-display_name: MIH Test
+name: mandatory_inclusionary_housing
+display_name: Mandatory Inclusionary Housing
 summary: Description for Mandatory Inclusionary Housing
 description: Description for Mandatory Inclusionary Housing
 tags: [housing, house, building, development]
@@ -8,18 +8,29 @@ each_row_is_a: A Mandatorily Included House
 destinations:
 - id: socrata_prod
   type: socrata
-  four_four: p6cc-cxkc
-  attachments: []
+  four_four: bw8v-wzdr
+  attachments:
+  - nycmih_metadata.pdf
   datasets:
   - primary_shapefile
   omit_columns: []
   column_details: {}
 
-dataset_package:
+- id: socrata_test
+  type: socrata
+  four_four: p6cc-cxkc
+  attachments:
+  - nycmih_metadata.pdf
   datasets:
+  - primary_shapefile
+  omit_columns: []
+  column_details: {}
+
+package:
+  dataset_files:
   - name: primary_shapefile
     type: shapefile
-    filename: shapefile.zip
+    filename: dcp_mandatory_inclusionary_housing.zip
     overrides:
       omit_columns: []
       columns: {}
