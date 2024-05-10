@@ -88,22 +88,16 @@ seeds:
     config:
       column_types:
         # empty columns default to integer type
-        Unpermitted Industrial Sources: text
-        Vent Towers: text
-        (E) Designations - Air Quality: text
-        (E) Designations - Noise: text
-        Arterial Highways: text
-        (E) Designations - HazMat: text
-        Special Coastal Risk Districts: text
-        NYC Parks properties: text
-        POPS: text
-        Waterfront Public Access Areas: text
-        Publicly Owned Waterfront: text
-        NYS Parks Property: text
-        Federal Parks property: text
+        special_coastal_risk: text
+        vent_tower: text
+        e_des_air_quality: text
+        e_des_noise: text
+        e_des_hazmat: text
         # columns where ids are numeric need to be manually set to text
         bbl: text
-        State Regulated Freshwater Wetlands - Checkzone: text
+        industrial_lots: text
+        wetland_checkzone: text
+        # geometry column type
         geom: geometry(Geometry, 2263)
     columns:
       - name: project_label
