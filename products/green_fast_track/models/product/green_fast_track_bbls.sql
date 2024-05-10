@@ -1,9 +1,9 @@
-{% set sql_statement %}
-    SELECT * FROM {{ ref('variables') }}
+{% set sql_statement_question_flags %}
+    SELECT * FROM {{ ref('question_flags') }}
 {% endset %}
 
 {% if execute %}
-    {% set variables = run_query(sql_statement) %}
+    {% set question_flags = run_query(sql_statement_question_flags) %}
 {% endif %}
 
 WITH pluto AS (
@@ -17,47 +17,27 @@ flags_long AS (
 flags_ranked AS (
     SELECT
         bbl,
+        flag_id_field_name,
         variable_type,
         variable_id,
         distance,
         row_number()
-            OVER (PARTITION BY bbl, variable_type ORDER BY distance)
+            OVER (PARTITION BY bbl, flag_id_field_name ORDER BY distance)
         AS row_number
     FROM flags_long
 ),
 
 flags_wide AS (
     SELECT
-        {% for row in variables -%}
-            /* construct a comma-separated list of values ordered by distance and name */
+        {% for row in question_flags -%}
+            /* construct a comma-separated list of values ordered by distance and flag */
             array_to_string(
-                array_agg(variable_id ORDER BY distance ASC, variable_id ASC) FILTER (
-                    WHERE variable_type = '{{ row["variable_type"] }}'
+                array_agg(variable_id ORDER BY distance ASC, flag_id_field_name ASC) FILTER (
+                    WHERE flag_id_field_name = '{{ row["flag_id_field_name"] }}'
                 ),
                 ', '
-            ) AS "{{ row['label'] }}",
+            ) AS "{{ row['flag_id_field_name'] }}",
         {% endfor %}
-        bool_or(variable_id IS NOT NULL)
-        FILTER (
-            WHERE variable_type = any(
-                ARRAY{{
-                    variables
-                    | selectattr("ceqr_category", "equalto", "Natural Resources")
-                    | map(attribute='variable_type')
-                    | list
-                }}
-            )
-            AND variable_type != 'wetlands_checkzones'
-        ) AS natural_resource,
-        bool_or(variable_id IS NOT NULL)
-        FILTER (
-            WHERE variable_type = any(ARRAY{{
-                variables
-                | selectattr("ceqr_category", "equalto", "Historic")
-                | map(attribute='variable_type')
-                | list
-            }})
-        ) AS historic,
         bbl
     FROM flags_ranked
     GROUP BY bbl
@@ -65,31 +45,25 @@ flags_wide AS (
 
 SELECT
     pluto.bbl,
-    {% for row in variables -%}
-        {% if row['variable_type'] == 'zoning_districts' %}
-            /* zoning_districts has a Category column */
-            f."{{ row['label'] }}" AS "{{ row['label'] }} Category",
+    {% for row in question_flags -%}
+        {% if row['flag_field_name'] == 'zoning_category' %}
+            /* the flag zoning_category isn't a binary Yes/No */
+            f."{{ row['flag_id_field_name'] }}" AS "{{ row['flag_field_name'] }}",
+            /* the id column for the flag zoning_category must show source data */
             array_to_string(
                 ARRAY[pluto.zonedist1, pluto.zonedist2, pluto.zonedist3, pluto.zonedist4],
                 ', '
-            ) AS "{{ row['label'] }}",
+            ) AS "{{ row['flag_id_field_name'] }}",
         {% else %}
-            /* all other variables have a Flag column */
+            /* determine the flag */
             CASE
-                WHEN f."{{ row['label'] }}" IS NULL THEN 'No'
+                WHEN f."{{ row['flag_id_field_name'] }}" IS NULL THEN 'No'
                 ELSE 'Yes'
-            END AS "{{ row['label'] }} Flag",
-            f."{{ row['label'] }}",
+            END AS "{{ row['flag_field_name'] }}",
+            /* pass along the value of the flag id */
+            f."{{ row['flag_id_field_name'] }}",
         {% endif %}
     {% endfor %}
-    CASE
-        WHEN f.natural_resource THEN 'Yes'
-        ELSE 'No'
-    END AS "Contains Natural Resource",
-    CASE
-        WHEN f.historic THEN 'Yes'
-        ELSE 'No'
-    END AS "Contains Historic",
     pluto.geom
 FROM pluto
 LEFT JOIN flags_wide AS f ON pluto.bbl = f.bbl
