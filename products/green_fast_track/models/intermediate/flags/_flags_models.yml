@@ -8,13 +8,24 @@ models:
         data_type: string
         tests:
           - not_null
+      - name: flag_id_field_name
+        data_type: string
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_distinct_values_to_equal_set:
+              name: int_flags__all__flag_id_field_name__set
+              value_set: '{{ dbt_utils.get_column_values(
+                              table=ref("variables"),
+                              column="flag_id_field_name") }}'
       - name: variable_type
         data_type: string
         tests:
           - not_null
           - dbt_expectations.expect_column_distinct_values_to_equal_set:
-              name: int_flags__all_variable_type_set
-              value_set: '{{ dbt_utils.get_column_values(table=ref("variables"), column="variable_type") }}'
+              name: int_flags__all__variable_type__set
+              value_set: '{{ dbt_utils.get_column_values(
+                              table=ref("variables"),
+                              column="variable_type") }}'
       - name: variable_id
         data_type: string
         tests:
@@ -23,10 +34,10 @@ models:
         data_type: float
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: int_flags__all_compound_key
+          name: int_flags__all__compound_key
           combination_of_columns:
             - bbl
-            - variable_type
+            - flag_id_field_name
             - variable_id
 
   - name: int__zoning_districts

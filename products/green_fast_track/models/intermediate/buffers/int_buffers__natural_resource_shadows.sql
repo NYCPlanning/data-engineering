@@ -18,7 +18,7 @@ WITH all_natural_resources AS (
 -- e.g.: `cast("raw_geom" as USER-DEFINED) as "raw...`
 
 SELECT
-    'natural_resource_shadow' AS variable_type,
+    'shadow_nat_resources' AS variable_type,
     'Natural Resource Shadow' AS variable_id,
     st_union(raw_geom) AS raw_geom,
     st_buffer(st_union(raw_geom), 200) AS buffer

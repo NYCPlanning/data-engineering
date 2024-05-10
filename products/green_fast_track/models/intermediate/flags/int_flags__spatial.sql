@@ -67,7 +67,7 @@ SELECT
     variable_type,
     variable_id,
     CASE
-        WHEN variable_type = 'natural_resource_shadow' THEN 0
+        WHEN variable_type = 'shadow_nat_resources' THEN 0
         ELSE ST_DISTANCE(bbl_geom, raw_geom)
     END AS distance
 FROM joined_hexes
