@@ -1,4 +1,4 @@
-name: nyedes
+name: e_designations
 display_name: E-Designations
 summary: ""
 description: >
@@ -21,7 +21,8 @@ destinations:
 - id: socrata_test
   type: socrata
   four_four: jep3-h9py
-  attachments: []
+  attachments:
+  - nyedes_metadata.pdf
   datasets:
   - primary_shapefile
   omit_columns: ['noise_code', 'noise_date', 'effective_date', 'air_date', 'hazmat_date', 'description', 'air_code', 'hazmat_code']
@@ -32,14 +33,15 @@ destinations:
 - id: socrata_prod
   type: socrata
   four_four: hxm3-23vy
-  attachments: []
+  attachments:
+  - nyedes_metadata.pdf
   datasets:
   - primary_shapefile
   omit_columns: []
   column_details: {}
 
-dataset_package:
-  datasets:
+package:
+  dataset_files:
   - name: primary_shapefile
     type: shapefile
     filename: nyedes_shape.zip
@@ -48,6 +50,9 @@ dataset_package:
       columns:
         description:
           name: descriptio
+  - name: csv
+    type: csv
+    filename: nyedes.csv
   attachments:
   - nyedes_metadata.pdf
 
