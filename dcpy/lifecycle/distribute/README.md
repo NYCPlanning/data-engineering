@@ -70,6 +70,6 @@ INFO:dcpy:Finished syncing product to Socrata, but did not publish. Find revisio
 INFO:dcpy:            here https://data.cityofnewyork.us/d/b7pm-uzu7/revisions/32
 ```
 
-[ TODO: Image Here ]
 Follow the provided link. Here you can review the modified data and metadata. Hit `Update` in the top right to apply the revision. 
+![template_db_socrata](https://github.com/NYCPlanning/data-engineering/assets/11164730/b0c24251-00e3-4be1-99a6-6cf015240cc6)
 
