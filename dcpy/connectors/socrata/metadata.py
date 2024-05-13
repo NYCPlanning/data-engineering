@@ -5,7 +5,7 @@ import yaml
 from dcpy.connectors.socrata import publish as pub
 from dcpy.connectors.socrata import metadata
 
-from dcpy.metadata import models
+import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 
 soc_types_to_dcp_types = {
@@ -87,9 +87,9 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
                 omit_columns=[],
             )
         ],
-        dataset_package=models.DatasetPackage(
-            datasets=[
-                models.Dataset(
+        package=models.Package(
+            dataset_files=[
+                models.DatasetFile(
                     name="primary_shapefile",
                     filename="shapefile.zip",
                     type="shapefile",

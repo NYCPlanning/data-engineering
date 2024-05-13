@@ -32,20 +32,27 @@ destinations:
   four_four: ji82-xba5
   attachments: []
   datasets:
-  - primary_shapefile
+  - shapefile
   omit_columns: []
   column_details: {}
 
-dataset_package:
-  datasets:
-  - name: primary_shapefile
+package:
+  dataset_files:
+  - name: csv
+    type: csv
+    filename: facilities.csv
+    overrides:
+      omit_columns: []
+      columns: {}
+  - name: shapefile
     type: shapefile
-    filename: shapefile.zip
+    filename: facilities_shapefile.zip
     overrides:
       omit_columns: []
       columns: {}
   attachments:
-  - facilities_metadata.zip
+  - facilities_data_dictionary.xlsx
+  - facilities_readme.pdf
 
 columns:
 - name: uid

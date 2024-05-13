@@ -15,7 +15,7 @@ from dcpy.lifecycle.builds import plan
 
 
 TEST_BUCKET = "test-bucket"
-TEST_BUCKETS = [TEST_BUCKET, publishing.BUCKET, packaging.BUCKET, recipes.BUCKET]
+TEST_BUCKETS = [TEST_BUCKET, publishing.BUCKET, recipes.BUCKET]
 RESOURCES = Path(__file__).parent / "resources"
 
 
@@ -40,7 +40,7 @@ def create_buckets(aws_credentials):
 @pytest.fixture(scope="module")
 def mock_data_constants():
     def _test_product(
-        publish_key: publishing.PublishKey, package_key: packaging.PackageKey
+        publish_key: publishing.PublishKey, package_key: packaging.DatasetPackageKey
     ) -> None:
         output_path = packaging.OUTPUT_ROOT_PATH / package_key.path
         shutil.copytree(
@@ -57,10 +57,8 @@ def mock_data_constants():
     test_version = "v001"
     constants = {
         "TEST_PRODUCT_NAME": test_product_name,
-        "TEST_PACKAGE_METADATA": packaging.PackageMetadata(
-            "dcp_test_product",
-            _test_product,
-        ),
+        "TEST_PACKAGE_DATASET": "test_package_dataset",
+        "TEST_PACKAGE_NAME": "dcp_test_product",
         "TEST_DATA_DIR": Path(__file__).resolve().parent / "test_data",
         "TEST_BUILD": "build-branch",
         "TEST_VERSION": test_version,

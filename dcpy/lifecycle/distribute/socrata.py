@@ -1,22 +1,22 @@
 from pathlib import Path
 import typer
 
-import dcpy.metadata.models as m
-import dcpy.metadata.validate as v
+import dcpy.models.product.dataset.metadata as m
+from dcpy.lifecycle.package import validate as v
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub
 
-app = typer.Typer(add_completion=False)
+# Adding two apps here to achieve nested commands
+# ie. dcpy.cli lifecycle distribute socrata from_s3
+socrata_app = typer.Typer()
+
+distribute_app = typer.Typer()
+distribute_app.add_typer(socrata_app, name="socrata")
 
 
-@app.command("placeholder")
-def _placeholder():
-    assert False, "Come on, now..."
-
-
-@app.command("from_local")
+@socrata_app.command("from_local")
 def _dist_from_local(
     package_path: Path = typer.Option(
         None,
@@ -48,55 +48,52 @@ def _dist_from_local(
         "--ignore-validation-errors",
         help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
     ),
+    skip_validation: bool = typer.Option(
+        False,
+        "-y",  # -y(olo)
+        "--skip-validation",
+        help="Skip Validation Altogether",
+    ),
 ):
     md = m.Metadata.from_yaml(metadata_path or package_path / "metadata.yml")
     dest = md.get_destination(dataset_destination_id)
     assert dest.type == "socrata"
 
-    logger.info("Validating package")
-    try:
-        errors = v.validate_package(package_path, md)
-    except Exception as e:
-        errors = [str(e)]
+    if not skip_validation:
+        logger.info("Validating package")
+        validation = v.validate_package(package_path, md)
+        errors = validation.get_dataset_errors()
 
-    if len(errors) > 0:
-        error_msg = f"Errors Found! {errors}"
-        if ignore_validation_errors:
-            logger.warn(error_msg)
-        else:
-            logger.error(error_msg)
-            raise Exception(error_msg)
+        if len(errors) > 0:
+            if ignore_validation_errors:
+                logger.warn("Errors Found! But continuing to distribute")
+                validation.pretty_print_errors()
+            else:
+                error_msg = "Errors Found! Aborting distribute"
+                logger.error(error_msg)
+                validation.pretty_print_errors()
+                raise Exception(error_msg)
 
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
 
-    match md.dataset_package.get_dataset(ds_name_to_push).type:
+    match md.package.get_dataset(ds_name_to_push).type:
         case "shapefile":
             soc_pub.push_shp(md, dataset_destination_id, package_path, publish=publish)
-
         case _:
             # TODO
             raise Exception("Only shapefiles have been implemented so far")
 
 
-@app.command("from_s3")
+@socrata_app.command("from_s3")
 def _dist_from_s3(
-    product_name: str = typer.Option(
-        None,
-        "-n",
-        "--name",
-        help="product name",
-    ),
-    version: str = typer.Option(
-        None,
-        "-v",
-        "--version",
-        help="package version",
-    ),
-    dataset_destination_id: str = typer.Option(
+    product_name: str,
+    version: str,
+    dataset_destination_id: str,
+    dataset: str = typer.Option(
         None,
         "-d",
-        "--dest",
-        help="Dataset Destination Id",
+        "--dataset",
+        help="(optional) dataset. Defaults to product name",
     ),
     metadata_path: Path = typer.Option(
         None,
@@ -116,26 +113,27 @@ def _dist_from_s3(
         "--ignore-validation-errors",
         help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
     ),
+    skip_validation: bool = typer.Option(
+        False,
+        "-y",  # -y(olo)
+        "--skip-validation",
+        help="Skip Validation Altogether",
+    ),
 ):
     logger.info(
         f"Distributing {product_name}-{version} to {dataset_destination_id}. Publishing: {publish}. Ignoring Validation Errors: {ignore_validation_errors}"
     )
-    download_root_path = Path(".packaged/")
-    package_path = download_root_path / product_name / version
     logger.info(f"Downloading dataset package for {product_name}-{version}")
-    s3.download_folder(
-        packaging.BUCKET,
-        f"{product_name}/{version}/",
-        package_path,
-        include_prefix_in_export=False,
+
+    package_path = packaging.download_packaged_version(
+        packaging.DatasetPackageKey(product_name, version, dataset or product_name)
     )
+
     _dist_from_local(
         package_path=package_path,
         dataset_destination_id=dataset_destination_id,
         metadata_path=metadata_path,
         publish=publish,
+        ignore_validation_errors=ignore_validation_errors,
+        skip_validation=skip_validation,
     )
-
-
-if __name__ == "__main__":
-    app()

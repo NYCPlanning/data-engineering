@@ -5,7 +5,7 @@ summary: |
 description: |
   Template DB is a mock dataset created by the Data Engineering team at the Department of City Planning (DCP).
 
-  More details are available at the DCP Data Engineering wiki [here](https://github.com/NYCPlanning/data-engineering/wiki/).
+  More details are available at the DCP Data Engineering wiki <a href="https://github.com/NYCPlanning/data-engineering/wiki/"\>here</a>
 tags: [Department of City Planning, DCP, New York City, NYC]
 each_row_is_a: Interesting place in NYC
 
@@ -35,8 +35,8 @@ columns:
     display_name: Geometry
     data_type: wkb
 
-dataset_package:
-  datasets:
+package:
+  dataset_files:
     - name: primary_csv
       filename: templatedb.csv
       type: csv
@@ -55,7 +55,6 @@ dataset_package:
           wkb_geometry:
             name: the_geom
   attachments:
-    - metadata.yml
     - source_data_versions.csv
     - build_metadata.json
 

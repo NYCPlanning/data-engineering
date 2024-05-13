@@ -20,7 +20,7 @@ import time
 from typing import TypedDict, Literal, NotRequired
 
 from dcpy.utils.logging import logger
-from dcpy.metadata import models
+import dcpy.models.product.dataset.metadata as models
 
 SOCRATA_USER = os.getenv("SOCRATA_USER")
 SOCRATA_PASSWORD = os.getenv("SOCRATA_PASSWORD")
@@ -342,8 +342,10 @@ def push_shp(
     if type(dest) != models.SocrataDestination:
         raise Exception("received a non-socrata type destination")
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-    shapefile_name = metadata.dataset_package.get_dataset(ds_name_to_push).filename
-    shape_file_path = dataset_package_path / shapefile_name
+    shapefile_name = metadata.package.get_dataset(ds_name_to_push).filename
+    shape_file_path = (
+        dataset_package_path / "dataset_files" / shapefile_name
+    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
 
     dataset = Dataset(four_four=dest.four_four)
 
