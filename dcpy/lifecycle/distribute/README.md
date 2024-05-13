@@ -55,3 +55,21 @@ In our publishing connector, the flow for distributing is as follows:
 - upload attachments, and update dataset-level metadata. (e.g. the dataset description or tags) 
 - Upload the dataset itself. Currently only shapefiles are supported. 
 - _Attempt_ to update column metadata for the uploaded dataset. This step is placed last because it's the most finicky at the moment, as it entails reconciling our uploaded columns, Socrata's existing columns, and our metadata. However, should this step fail, you can still go manually apply the revision in the Socrata GUI. 
+
+## Applying Revisions in Socrata
+
+In the case of errors, or if the the `--publish` flag isn't supplied, you'll have to manually apply on the Socrata website. Below is an example push without a publish:
+
+```
+INFO:dcpy:Pushing shapefiles at .package/product_datasets/template_db/package/20231227/template_db/dataset_files/templatedb_points.shp.zip to b7pm-uzu7 - rev: 32
+INFO:dcpy:Updating Columns at https://data.cityofnewyork.us/api/publishing/v1/source/202450926/schema/199848287
+INFO:dcpy:                    Columns in uploaded data: {'place_name', 'bbl', 'place_type', 'wkb_geometry', 'borough'}
+INFO:dcpy:                    Columns from our metadata: ['place_name', 'bbl', 'place_type', 'borough', 'wkb_geometry']
+INFO:dcpy:
+INFO:dcpy:Finished syncing product to Socrata, but did not publish. Find revision 32, and apply manually
+INFO:dcpy:            here https://data.cityofnewyork.us/d/b7pm-uzu7/revisions/32
+```
+
+[ TODO: Image Here ]
+Follow the provided link. Here you can review the modified data and metadata. Hit `Update` in the top right to apply the revision. 
+
