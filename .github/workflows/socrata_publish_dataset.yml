@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       PRODUCT_NAME:
-        description: "Name of the dataset"
+        description: "Name of the product"
         type: string
         required: true
       DATASET:
@@ -21,12 +21,12 @@ on:
         type: string
         required: true
       PUBLISH:
-        description: "Publish the revision? Or leave open"
+        description: "Publish the revision? (if not, will leave the revision open)"
         type: boolean
         default: false
         required: true
       IGNORE_VALIDATION_ERRORS:
-        description: "Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push"
+        description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console"
         type: boolean
         default: false
         required: true
