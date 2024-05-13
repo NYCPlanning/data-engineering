@@ -71,9 +71,11 @@ if __name__ == "__main__":
 
     df_qaqc = df_qaqc.replace(",", "", regex=True)
     print("Number of geocoded records after filtering: ", df_qaqc.shape[0])
-    
+
     df_deduped = df_qaqc.groupby(["geo_borough", "address_numbr", "address_st"]).apply(
-        lambda group: group.loc[group[group['job_number'] == group['job_number'].max()].index[0]]
+        lambda group: group.loc[
+            group[group["job_number"] == group["job_number"].max()].index[0]
+        ]
     )
     print("Number of records per address: ", df_deduped.shape[0])
 

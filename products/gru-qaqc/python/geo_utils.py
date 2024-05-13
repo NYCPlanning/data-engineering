@@ -227,6 +227,7 @@ def geo_parser_1a(geo):
         geo_reason_code=geo.get("Reason Code", ""),
     )
 
+
 def geo_parser_1b(geo):
     """
     Parses nested dictionary output by geosupport 1B to extract

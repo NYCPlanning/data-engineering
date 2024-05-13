@@ -40,7 +40,9 @@ if __name__ == "__main__":
     import_sql = f"""SELECT bin, doitt_id FROM doitt_buildingfootprints;"""
     df = pd.read_sql(import_sql, engine)
     if df.empty:
-        raise Exception("No records retrieved from doitt_buildingfootprints, update source data")
+        raise Exception(
+            "No records retrieved from doitt_buildingfootprints, update source data"
+        )
 
     records = df.to_dict("records")
 
