@@ -221,6 +221,12 @@ class Revision:
     def revision_endpoint(self):
         return f"{_revisions_root}/{self.four_four}/{self.revision_num}"
 
+    @property
+    def page_url(self):
+        return (
+            f"https://{SOCRATA_DOMAIN}/d/{self.four_four}/revisions/{self.revision_num}"
+        )
+
     def apply(self):
         """Apply the revision to the dataset, closing the revision."""
         return _socrata_request(f"{self.revision_endpoint}/apply", "put")
@@ -372,13 +378,16 @@ def push_shp(
         # Upating column Metadata is tricky, and there's still some work to be done
         logger.error(
             f"""Error Updating Column Metadata! However,
-        the Dataset File was uploaded and the revision can still be applied manually. Error: {e}"""
+            the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
+            Error: {e}"""
         )
         return
 
     if not publish:
         logger.info(
-            f"Finished syncing product to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually"
+            f"""Finished syncing product to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually
+            here {rev.page_url}
+            """
         )
     else:
         logger.info("Publishing")
@@ -394,7 +403,8 @@ def push_shp(
             elapsed_secs += 5
             if elapsed_secs > SOCRATA_REVISION_APPLY_TIMEOUT_SECS:
                 raise Exception(
-                    f"waited {SOCRATA_REVISION_APPLY_TIMEOUT_SECS} seconds for the Socrata \
-                revision to apply, but it didn't. Note: it may just be a very long running job. Please investigate manually."
+                    f"""waited {SOCRATA_REVISION_APPLY_TIMEOUT_SECS} seconds for the Socrata \
+                    revision to apply, but it didn't. Note: it may just be a very long running job.
+                    Please investigate manually here: {rev.page_url}"""
                 )
         logger.info("Job Finished Successfully")
