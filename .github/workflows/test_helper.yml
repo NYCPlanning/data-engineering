@@ -34,12 +34,9 @@ jobs:
           BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
           BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
-      - name: Set up dbt for sqlfluff templating
-        working-directory: ./
+      - name: Setup build environment (envars only)
         run: |
           ./bash/build_env_setup.sh
-          cd products/green_fast_track
-          dbt deps
 
       - name: Check python files
         run: black --diff --color --check .
@@ -60,9 +57,8 @@ jobs:
 
           # this should probably be its own util/script
           export BUILD_ENGINE_DB=db-green-fast-track
-          cd products/green_fast_track
-          dbt seed
-          cd ../..
+          dbt deps --profiles-dir products/green_fast_track --project-dir products/green_fast_track
+          dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh --profiles-dir products/green_fast_track --project-dir products/green_fast_track
           sqlfluff lint products/green_fast_track/models --templater=dbt
 
   mypy:
