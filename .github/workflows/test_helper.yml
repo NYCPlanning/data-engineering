@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
-    env: 
-      BUILD_NAME: test
+    env:
+      BUILD_NAME: ${{ github.head_ref || github.ref_name }}__pr_tests
     steps:
       - uses: actions/checkout@v4
 
