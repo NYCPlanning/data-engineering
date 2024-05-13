@@ -1,0 +1,69 @@
+name: GRU QAQC Runner
+run-name: ${{ inputs.geosupport_version }}_${{ inputs.name }}
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'What check would you like to run?'
+        required: true
+        default: 'test'
+      geosupport_version:
+        description: 'Version of geosupport (i.e. 23.4.1 - see versions here https://hub.docker.com/r/nycplanning/docker-geosupport/tags)'
+        required: true
+      #options:
+      #  - address-points-vs-pad
+      #  - addresses-spatial
+      #  - footprints-vs-pad
+      #  - housing
+      #  - pad-vs-footprint
+      #  - dcm-streetname
+      #  - saf-vs-pad
+
+jobs:
+  QAQC:
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/docker-geosupport:${{ github.event.inputs.geosupport_version }}  
+    env:
+      BUILD_ENGINE: postgresql://postgres:postgres@postgres:5432/postgres
+      EDM_DATA: ${{ secrets.EDM_DATA }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies ...
+        run: |
+          apt update && apt install -y zip jq postgresql-client
+          pip install --upgrade pip
+          curl -sSL https://install.python-poetry.org | python3 -
+              
+      - name: Install and configure minio client ...
+        run: |
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          mv ./mc /usr/bin/ 
+
+      - name: Poetry Install
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          poetry config virtualenvs.create false --local
+          poetry install
+      
+      - name: Initialize
+        run: ./gru.sh init
+
+      - name: Run ${{ inputs.name }}
+        run: ./gru.sh run ${{ inputs.name }} -i -p -e -u
