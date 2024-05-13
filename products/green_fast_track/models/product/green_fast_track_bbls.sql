@@ -49,6 +49,7 @@ flags_wide AS (
             )
             AND variable_type != 'wetlands_checkzones'
         ) AS natural_resource,
+        bool_or(variable_id IS NOT NULL)
         FILTER (
             WHERE variable_type = any(ARRAY{{
                 variables
