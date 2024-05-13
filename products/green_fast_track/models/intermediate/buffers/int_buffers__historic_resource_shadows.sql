@@ -8,7 +8,8 @@ WITH non_dist_historic AS (
         ref('stg__nysshpo_archaeological_buffer_areas'),
         ref('stg__nysshpo_historic_buildings'),
     ],
-    column_override={"raw_geom": "geometry", "buffer": "geometry"}
+    column_override={"raw_geom": "geometry", "buffer": "geometry"},
+    include=["raw_geom"]
 ) }}
 )
 -- Note: without `column_override`, dbt throws an error trying to cast.
