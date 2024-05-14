@@ -1,0 +1,32 @@
+address-points-vs-pad:
+  sources:
+  - dcp_addresspoints
+  outputs:
+  - rejects_pad_addrpts
+addresses-spatial:
+  sources:
+  - dcp_addresspoints
+  - dcp_atomicpolygons
+  outputs:
+  - geocode_diffs_address_spatial
+  - rejects_address_spatial
+dcm-streetname:
+  sources:
+  - dcp_dcmstreetcenterline
+  outputs:
+footprints-vs-pad:
+  sources:
+  outputs:
+housing:
+  sources:
+  - dcp_developments
+  outputs:
+  - rejects_sn_dcm_snd
+pad-vs-footprint:
+  sources:
+  - doitt_buildingfootprints
+  - dcp_pad
+  outputs:
+saf-vs-pad:
+  sources:
+  outputs:

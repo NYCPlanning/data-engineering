@@ -23,7 +23,7 @@ jobs:
   QAQC:
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/docker-geosupport:${{ github.event.inputs.geosupport_version }}  
+      image: nycplanning/build-geosupport:${{ github.event.inputs.geosupport_version }}  
     env:
       BUILD_ENGINE: postgresql://postgres:postgres@postgres:5432/postgres
       EDM_DATA: ${{ secrets.EDM_DATA }}
@@ -43,27 +43,15 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies ...
-        run: |
-          apt update && apt install -y zip jq postgresql-client
-          pip install --upgrade pip
-          curl -sSL https://install.python-poetry.org | python3 -
-              
-      - name: Install and configure minio client ...
-        run: |
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          mv ./mc /usr/bin/ 
+      - uses: actions/checkout@v4
 
-      - name: Poetry Install
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          poetry config virtualenvs.create false --local
-          poetry install
-      
-      - name: Initialize
-        run: ./gru.sh init
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
 
       - name: Run ${{ inputs.name }}
         run: ./gru.sh run ${{ inputs.name }} -i -p -e -u
