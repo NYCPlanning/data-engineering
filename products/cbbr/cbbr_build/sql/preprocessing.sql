@@ -10,14 +10,11 @@ SELECT
     cb_label,
     "type" AS type_br,
     priority,
+    need,
     request,
     REPLACE(reason, E'\n', ' ') AS explanation,
     location,
-    CASE
-        WHEN location ILIKE 'site%' OR location ILIKE 'cross%' THEN 'site'
-        WHEN location ILIKE 'street%' THEN 'street'
-        ELSE 'general'
-    END AS "type",
+    loc_type AS "type",
     supported_by_1 AS supporters_1,
     supported_by_2 AS supporters_2,
     project_id_1,
@@ -27,6 +24,7 @@ SELECT
     budget_line_2,
     budget_line_3,
     agency_acronym,
+    agency,
     agy_response_category AS agency_category_response,
     agy_response AS agency_response,
     REPLACE(additional_comment, E'\n', ' ') AS additional_comment,
