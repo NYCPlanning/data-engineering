@@ -18,6 +18,7 @@ INSERT INTO pluto_removed_records (
 DELETE FROM pluto
 WHERE
     lot::numeric >= 1000
+    AND lot NOT LIKE '75%'
     AND unitstotal::numeric > 1
     AND geom IS NULL;
 
