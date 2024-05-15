@@ -9,7 +9,7 @@ dataset:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
     geometry:
-      SRS: EPSG:2263
+      SRS: EPSG:4326
       type: POLYGON
 
   destination:
