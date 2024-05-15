@@ -1,10 +1,12 @@
 # Distribute
 
 ## Terms
-- `Product`: a suite of datasets. E.g. LION, which contains multiple `datasets`, such as "2010 Census Blocks" or "Community Districts (water areas Included)"
-- `Dataset` : roughly analogous to what you'd find on a Socrata page. Effectively it's metadata, attachments, and dataset files. 
-- `Dataset File`: actual file for a dataset, e.g. a csv, or a shapefile. Note: there may be slight variations between `dataset files` for the same `dataset`. e.g. columns in the shapefile for PLUTO will have slightly different columns than the csv. 
+- `Dataset`: Abstractly, a single table of data and metadata about it.
+- `Product`: A suite of datasets. E.g. LION, which contains multiple `datasets`, such as "2010 Census Blocks" or "Community Districts (water areas Included)"
+- `Dataset File`: Actual file export for a dataset, e.g. a csv, or a shapefile. Note: there may be slight variations between `dataset files` for the same `dataset`. e.g. columns in the shapefile for PLUTO will have slightly different columns than the csv. 
 - `Attachment`: README's, data dictionaries, etc.
+- `Dataset Package`: Instance of a `Dataset`, meaning metadata, attachments, and dataset files. 
+- `Product Package`: Versioned collection of Dataset Packages. 
 
 ## How to distribute to Socrata
 Socrata datasets consist of, effectively, one table. In the past, a single Socrata dataset could contain multiple shapefile layers, but that's no longer the case. So for us:
@@ -51,10 +53,10 @@ Note: this is a low-risk operation when you don't tick the box to publish the da
 ## The Socrata Publish Flow
 In our publishing connector, the flow for distributing is as follows: 
 
-- create a new revision for the dataset, and discard other open revisions. 
-- upload attachments, and update dataset-level metadata. (e.g. the dataset description or tags) 
-- Upload the dataset itself. Currently only shapefiles are supported. 
-- _Attempt_ to update column metadata for the uploaded dataset. This step is placed last because it's the most finicky at the moment, as it entails reconciling our uploaded columns, Socrata's existing columns, and our metadata. However, should this step fail, you can still go manually apply the revision in the Socrata GUI. 
+1. create a new revision for the dataset, and discard other open revisions. 
+2. upload attachments, and update dataset-level metadata. (e.g. the dataset description or tags) 
+3. Upload the dataset itself. Currently only shapefiles are supported. 
+4. _Attempt_ to update column metadata for the uploaded dataset. This step is placed last because it's the most finicky at the moment, as it entails reconciling our uploaded columns, Socrata's existing columns, and our metadata. However, should this step fail, you can still go manually apply the revision in the Socrata GUI. 
 
 ## Applying Revisions in Socrata
 
