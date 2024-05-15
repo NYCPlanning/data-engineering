@@ -20,6 +20,7 @@ waterfront_access_pow,Publicly Owned Waterfront,Shadow/Open Space,23,"substantia
 nys_parks_properties,NYS Parks Property,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
 us_parks_properties,Federal Parks property,Shadow/Open Space,23,"substantially contiguous (200 ft) to open space resource"
 natural_resource_shadow,Natural Resource Shadow,Shadow/Open Space,,200 ft buffer
+historic_resource_shadow,Historic Resource Shadow,Shadow/Open Space,,200 ft buffer
 wetlands_checkzones,State Regulated Freshwater Wetlands - Checkzone,Natural Resources,,Intersects
 freshwater_wetlands,State Regulated Freshwater Wetlands,Natural Resources,,Intersects
 tidal_wetlands,State Regulated Tidal Wetlands,Natural Resources,,Intersects
