@@ -11,11 +11,9 @@ on:
       recipe_file:
         type: string
         required: true
-      version:
+      plan_command:
         type: string
-        required: false
-      repeat:
-        type: string
+        default: recipe
 
 jobs:
   build:
@@ -65,15 +63,15 @@ jobs:
       working-directory: ./
       run: ./bash/build_env_setup.sh
 
-    - name: Dataloading ...
-      env:
-        version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
-        repeat: ${{ github.event.inputs.repeat == 'true' && '--repeat' || '' }}
-      run: python3 -m dcpy.lifecycle.builds.load recipe --recipe-path ./${{ inputs.recipe_file }}.yml $version $repeat
+    - name: Plan build
+      run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
 
     - name: Set recipe env vars
       working-directory: ./
       run: source ./bash/export_recipe_env.sh products/colp/${{ inputs.recipe_file }}.lock.yml 
+
+    - name: Dataloading
+      run: python -m dcpy.lifecycle.builds.load load
 
     - name: Build COLP ...
       run: ./colp.sh build

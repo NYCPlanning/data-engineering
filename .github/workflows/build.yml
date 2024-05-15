@@ -34,10 +34,6 @@ on:
         description: "Version of dataset being built (overrides version defined in recipe)"
         type: string
         required: false
-      repeat:
-        description: "Repeat existing build?"
-        type: boolean
-        default: false
       dev_image: 
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
@@ -75,20 +71,24 @@ on:
         type: string
         default: false
         required: false
-      repeat:
-        type: string
-        default: false
       build_name:
         type: string
         required: false
+
+
+env:
+  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+  build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
+  version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
 
 jobs:
   health_check:
     name: Health Check
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
-      build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
+      plan_command: recipe --recipe-path ./${{ inputs.recipe_file }}.yml ${{ env.version }}
+      tag: ${{ env.tag }}
+      build_name: ${{ env.build_name }}
     steps:
       - name: Check inputs
         run: |
@@ -104,8 +104,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
   cbbr:
@@ -114,10 +113,12 @@ jobs:
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
     with:
-      logging_level: ${{ inputs.logging_level }}
-      build_note: ${{ inputs.build_note }}
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      recipe_file: ${{ inputs.recipe_file }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      logging_level: ${{ inputs.logging_level }}
+      build_note: ${{ inputs.build_note }}
   checkbook:
     needs: health_check
     if: inputs.dataset_name == 'checkbook' || inputs.dataset_name  == 'all'
@@ -135,8 +136,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
   cpdb:
     needs: health_check
     if: inputs.dataset_name == 'cpdb' || inputs.dataset_name  == 'all'
@@ -146,8 +146,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
   devdb:
     needs: health_check
     if: inputs.dataset_name == 'devdb' || inputs.dataset_name  == 'all'
@@ -157,8 +156,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
   facilities:
     needs: health_check
     if: inputs.dataset_name == 'facilities' || inputs.dataset_name  == 'all'
@@ -168,8 +166,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
   factfinder:
     needs: health_check
     if: inputs.dataset_name == 'factfinder'
@@ -188,8 +185,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       recipe_file: ${{ inputs.recipe_file }}
       build_name: ${{ needs.health_check.outputs.build_name }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
   knownprojects:
     needs: health_check
     if: inputs.dataset_name == 'knownprojects' || inputs.dataset_name  == 'all'
@@ -207,8 +203,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
   ztl:
     needs: health_check
     if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'
@@ -218,5 +213,4 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      version: ${{ inputs.version }}
-      repeat: ${{ inputs.repeat }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}

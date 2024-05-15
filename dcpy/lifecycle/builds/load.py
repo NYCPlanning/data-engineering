@@ -68,16 +68,13 @@ def import_dataset(
 
 
 def load_source_data(
-    recipe_path: Path,
-    version: str | None = None,
-    repeat: bool = False,
+    recipe_lock_path: Path,
     keep_files: bool = False,
 ) -> LoadResult:
-    recipe_lock_path = plan.plan(recipe_path, version, repeat)
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
     plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
-    metadata.write_build_metadata(recipe, recipe_path.parent)
+    metadata.write_build_metadata(recipe, recipe_lock_path.parent)
 
     build_name = metadata.build_name()
     logger.info(f"Loading source data for {recipe.name} build named {build_name}")
@@ -146,24 +143,37 @@ app = typer.Typer(add_completion=False)
 
 
 @app.command("recipe")
-def _cli_wrapper_load(
+def _cli_wrapper_recipe(
     recipe_path: Path = typer.Option(
         Path(plan.DEFAULT_RECIPE),
         "--recipe-path",
         "-r",
         help="Path of recipe file to use",
     ),
-    version=typer.Option(
+    version: str = typer.Option(
         None,
         "--version",
         "-v",
         help="Version of dataset being built",
     ),
-    repeat: bool = typer.Option(
-        False, "--repeat", help="Repeat specific published build"
+):
+    recipe_lock_path = plan.plan(recipe_path, version)
+    load_source_data(recipe_lock_path)
+
+
+@app.command("load")
+def _cli_wrapper_load(
+    recipe_lock_path: Path = typer.Option(
+        None,
+        "--recipe-path",
+        "-r",
+        help="Path of recipe lock file to use",
     ),
 ):
-    load_source_data(recipe_path, version, repeat)
+    recipe_lock_path = recipe_lock_path or (
+        Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
+    )
+    load_source_data(recipe_lock_path)
 
 
 @app.command("dataset")

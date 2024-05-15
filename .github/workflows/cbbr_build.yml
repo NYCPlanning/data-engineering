@@ -9,12 +9,18 @@ on:
       build_note:
         type: string
         required: false
+      recipe_file:
+        type: string
+        required: true
       image_tag:
         type: string
         required: false
       build_name: 
         type: string
         required: true
+      plan_command:
+        type: string
+        default: recipe
 
 jobs:
   build:
@@ -54,12 +60,15 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
-      - name: Dataloading
-        run: python -m dcpy.lifecycle.builds.load recipe
+      - name: Plan build
+        run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
 
       - name: Set recipe env vars
         working-directory: ./
         run: source ./bash/export_recipe_env.sh products/cbbr/${{ inputs.recipe_file }}.lock.yml 
+
+      - name: Dataloading
+        run: python -m dcpy.lifecycle.builds.load load
 
       - name: Create Build Tables and Normalize CBBR Values
         working-directory: ./products/cbbr/cbbr_build

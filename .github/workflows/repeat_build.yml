@@ -3,3 +3,193 @@ run-name: "🏗️ Repeat a Product Build: ${{ inputs.product }}/${{ inputs.prod
 
 on:
   workflow_dispatch:
+    inputs:
+      product:
+        description: "Which product to repeat build"
+        type: choice
+        required: true
+        options:
+          - template
+          - cbbr
+          #- checkbook
+          - colp
+          - cpdb
+          - devdb
+          - facilities
+          #- factfinder
+          - green_fast_track
+          #- knownprojects
+          - pluto
+          - ztl
+      product_type:
+        description: "What type of product/build to repeat"
+        type: choice
+        options:
+          - publish
+          - draft
+        required: true
+      version_or_build:
+        description: "Key of product instance (publish version or draft build name)"
+        type: string
+        required: true
+      dev_image: 
+        description: "Use dev image specific to this branch (if exists)"
+        type: boolean
+        required: true
+        default: false
+      logging_level:
+        description: "Logging level"
+        type: choice
+        required: true
+        default: INFO
+        options:
+          - WARNING
+          - INFO
+          - DEBUG
+      build_name:
+        description: "Build name (defaults to branch name)"
+        type: string
+        required: false
+      build_note:
+        description: "An optional note about this build"
+        type: string
+        required: false
+
+env:
+  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+  build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
+
+jobs:
+  health_check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    outputs:
+      plan_command: repeat ${{ inputs.product }} --product-type ${{ inputs.product_type }} --version-or-build ${{ inputs.version_or_build }}
+      tag: ${{ env.tag }}
+      build_name: ${{ env.build_name }}
+    steps:
+      - name: Check inputs
+        run: |
+          echo "running with image tag ${{ env.tag }}"
+          echo "Workflow inputs are:"
+          echo "${{ toJSON(github.event.inputs) }}"
+  template:
+    needs: health_check
+    if: inputs.product == 'template'
+    uses: ./.github/workflows/template_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+      logging_level: ${{ inputs.logging_level }}
+      build_note: ${{ inputs.build_note }}
+  cbbr:
+    needs: health_check
+    if: inputs.product == 'cbbr' || inputs.product  == 'all'
+    uses: ./.github/workflows/cbbr_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+      logging_level: ${{ inputs.logging_level }}
+      build_note: ${{ inputs.build_note }}
+  #checkbook:
+  #  needs: health_check
+  #  if: inputs.product == 'checkbook' || inputs.product  == 'all'
+  #  uses: ./.github/workflows/checkbook_build.yml
+  #  secrets: inherit
+  #  with:
+  #    image_tag: ${{ needs.health_check.outputs.tag }}
+  #    build_name: ${{ needs.health_check.outputs.build_name }}
+  colp:
+    needs: health_check
+    if: inputs.product == 'colp' || inputs.product  == 'all'
+    uses: ./.github/workflows/colp_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  cpdb:
+    needs: health_check
+    if: inputs.product == 'cpdb' || inputs.product  == 'all'
+    uses: ./.github/workflows/cpdb_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  devdb:
+    needs: health_check
+    if: inputs.product == 'devdb' || inputs.product  == 'all'
+    uses: ./.github/workflows/developments_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  facilities:
+    needs: health_check
+    if: inputs.product == 'facilities' || inputs.product  == 'all'
+    uses: ./.github/workflows/facilities_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  #factfinder:
+  #  needs: health_check
+  #  if: inputs.product == 'factfinder'
+  #  uses: ./.github/workflows/factfinder_build.yml
+  #  secrets: inherit
+  #  with:
+  #    plan_command: ${{ needs.health_check.outputs.plan_command }}
+  #    recipe_file: recipe
+  #    image_tag: ${{ needs.health_check.outputs.tag }}
+  #    build_name: ${{ needs.health_check.outputs.build_name }}
+  green_fast_track:
+    needs: health_check
+    if: inputs.product == 'green_fast_track' || inputs.product  == 'all'
+    uses: ./.github/workflows/green_fast_track_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  #knownprojects:
+  #  needs: health_check
+  #  if: inputs.product == 'knownprojects' || inputs.product  == 'all'
+  #  uses: ./.github/workflows/knownprojects_build.yml
+  #  secrets: inherit
+  #  with:
+  #    image_tag: ${{ needs.health_check.outputs.tag }}
+  #    build_name: ${{ needs.health_check.outputs.build_name }}
+  pluto:
+    needs: health_check
+    if: inputs.product == 'pluto' || inputs.product  == 'all'
+    uses: ./.github/workflows/pluto_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  ztl:
+    needs: health_check
+    if: inputs.product == 'ztl' || inputs.product  == 'all'
+    uses: ./.github/workflows/zoningtaxlots_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
