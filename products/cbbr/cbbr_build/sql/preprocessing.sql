@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS _cbbr_submissions;
 
 CREATE TABLE _cbbr_submissions AS
 SELECT
-    ogc_fid AS unique_id,
+    unique_id,
     trkno AS tracking_code,
     borough,
     RIGHT(cb_label, 2) AS cd,
