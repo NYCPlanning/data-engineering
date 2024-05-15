@@ -5,7 +5,6 @@ ROOT_DIR="${FILE_DIR}/../../.."
 
 source $ROOT_DIR/bash/utils.sh
 
-set_env $ROOT_DIR/.env
 set_error_traps
 
 function import_qaqc {
