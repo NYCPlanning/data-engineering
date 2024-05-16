@@ -186,6 +186,12 @@ models:
         data_type: string
       - name: '"State Historic Districts"'
         data_type: string
+      - name: '"Contains Historic"'
+        data_type: string
+      - name: '"Historic Resource Shadow"'
+        data_type: string
+      - name: '"Historic Resource Shadow Flag"'
+        data_type: string
       - name: geom
         data_type: geometry(Geometry, 2263)
 
