@@ -101,7 +101,7 @@ mkdir -p output && (
     export_source sources__us_historic_places
     export_source sources__us_historic_places_buffers
     export_source sources__archaeological_areas
-    export_source int_buffers__historic_resource_shadows
+    export_source sources__historic_resource_buffer
 
     export_source variables NONE
     export_source source_data_versions NONE
