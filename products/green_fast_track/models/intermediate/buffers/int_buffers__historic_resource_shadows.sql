@@ -19,6 +19,6 @@ WITH non_dist_historic AS (
 SELECT
     'historic_resource_shadow' AS variable_type,
     'Historic Resource Shadow' AS variable_id,
-    st_union(raw_geom) AS raw_geom,
-    st_union(st_buffer(raw_geom, 200)) AS buffer
+    raw_geom,
+    st_buffer(raw_geom, 200) AS buffer
 FROM non_dist_historic
