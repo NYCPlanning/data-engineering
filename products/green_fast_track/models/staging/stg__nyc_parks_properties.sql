@@ -10,7 +10,8 @@ selected_columns AS (
         gispropnum,
         name311,
         typecategory,
-        st_transform(wkb_geometry, 2263) AS raw_geom
+        gispropnum || '-' || name311 AS variable_id,
+        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
     FROM source
 ),
 
@@ -18,8 +19,7 @@ selected_columns AS (
 filtered AS (
     SELECT
         s.variable_type,
-        s.gispropnum,
-        s.name311,
+        s.variable_id,
         s.raw_geom
     FROM selected_columns AS s
     INNER JOIN
@@ -28,5 +28,9 @@ filtered AS (
     WHERE n.allowed = TRUE
 )
 
-SELECT *
+SELECT
+    variable_type,
+    variable_id,
+    ST_UNION(raw_geom) AS raw_geom
 FROM filtered
+GROUP BY variable_type, variable_id
