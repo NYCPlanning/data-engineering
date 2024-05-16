@@ -10,6 +10,7 @@ selected_columns AS (
         'schoolyard_to_playgrounds' AS variable_type,
         gispropnum,
         location,
+        gispropnum || '-' || location AS variable_id,
         st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 )

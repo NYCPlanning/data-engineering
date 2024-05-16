@@ -5,14 +5,18 @@ WITH source AS (
     FROM {{ source('recipe_sources', 'nysparks_parks_polygons') }}
 ),
 
-final AS (
+filtered AS (
     SELECT
         'nys_parks_properties' AS variable_type,
-        uid,
-        name,
-        st_transform(wkb_geometry, 2263) AS raw_geom
+        COALESCE(uid || '-', '') || name AS variable_id,
+        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
     FROM source
-    WHERE upper(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
+    WHERE UPPER(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
 )
 
-SELECT * FROM final
+SELECT
+    variable_type,
+    variable_id,
+    ST_UNION(raw_geom) AS raw_geom
+FROM filtered
+GROUP BY variable_type, variable_id
