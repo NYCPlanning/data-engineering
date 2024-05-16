@@ -6,26 +6,26 @@
 ) }}
 
 /*
-We have a few monstrous polygons in our buffers, so a tiled approach greatly improves performance
+We have a few monstrous polygons in our variable geometries, so a tiled approach greatly improves performance
 
 First, a hex grid is generated for NYCs extent. 8000 as a size was roughly optimized for performance
 This creates roughly a 13x14 grid of hexagons covering the city (175 hexagons total)
 
-These hexagons are joined to the buffers table, creating one row per unique buffer and tiled hexagon
+These hexagons are joined to the variable geometries table, creating one row per unique variable geometry and tiled hexagon
 
-This buffer/hexagon table is then joined to pluto lots. hexagons geoms are used as first join criterion, then actual geom
+This variable geoemtry/hexagon table is then joined to pluto lots. hexagons geoms are used as first join criterion, then actual geom
 
 Finally, rows are deduplicated based on bbl, variable_id, and variable_type
 */
 
-WITH buffers AS (
+WITH variable_geoms AS (
     SELECT
         variable_type,
         variable_id,
-        buffer,
-        raw_geom
+        raw_geom,
+        variable_geom
     FROM
-        {{ ref('int_buffers__all') }}
+        {{ ref('int_spatial__all') }}
 ),
 
 pluto AS (
@@ -43,12 +43,12 @@ hexes AS (
     )
 ),
 
-buffers_hexes AS (
+variable_geom_hexes AS (
     SELECT
         b.*,
         hexes.geom
-    FROM buffers AS b
-    LEFT JOIN hexes ON ST_INTERSECTS(b.buffer, hexes.geom)
+    FROM variable_geoms AS b
+    LEFT JOIN hexes ON ST_INTERSECTS(b.variable_geom, hexes.geom)
 ),
 
 joined_hexes AS (
@@ -58,8 +58,8 @@ joined_hexes AS (
         b.variable_type,
         b.variable_id,
         b.raw_geom
-    FROM buffers_hexes AS b INNER JOIN pluto AS p
-        ON ST_INTERSECTS(b.geom, p.bbl_geom) AND ST_INTERSECTS(b.buffer, p.bbl_geom)
+    FROM variable_geom_hexes AS b INNER JOIN pluto AS p
+        ON ST_INTERSECTS(b.geom, p.bbl_geom) AND ST_INTERSECTS(b.variable_geom, p.bbl_geom)
 )
 
 SELECT
@@ -67,7 +67,11 @@ SELECT
     variable_type,
     variable_id,
     CASE
-        WHEN variable_type = 'shadow_nat_resources' THEN 0
+        WHEN
+            variable_type IN (
+                'archaeological_areas', 'shadow_open_spaces', 'shadow_nat_resources', 'shadow_hist_resources'
+            )
+            THEN 0
         ELSE ST_DISTANCE(bbl_geom, raw_geom)
     END AS distance
 FROM joined_hexes
