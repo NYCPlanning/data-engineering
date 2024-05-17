@@ -2,7 +2,9 @@
 
 -- Take note of corrections not applied to pluto
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.numfloors AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
