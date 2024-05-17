@@ -53,11 +53,14 @@ class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
     acl: recipes.ValidAclValues
 
+    target_crs: int | None = None
+
     ## these two fields might merge to "source" or something equivalent at some point
     ## for now, they are distinct so that they can be worked on separately
     ## when implemented, "None" should not be valid type
     source: Source
     file_format: file.Format
+
     processing_steps: list[FunctionCall] = []
 
     ## this is the original library template, included just for reference while we build out our new templates
@@ -76,9 +79,13 @@ class Config(
     archival_timestamp: datetime
     raw_filename: str
     acl: recipes.ValidAclValues
+
+    target_crs: str | None = None
+
     source: Source
     file_format: file.Format
     processing_steps: list[FunctionCall] = []
+
     run_details: RunDetails
 
     @property
@@ -90,6 +97,10 @@ class Config(
     @property
     def dataset_key(self) -> recipes.DatasetKey:
         return recipes.DatasetKey(name=self.name, version=self.version)
+
+    @property
+    def preprocessing(self) -> Preprocessing:
+        return self.Preprocessing(**self.model_dump())
 
     @property
     def filename(self) -> str:
@@ -108,3 +119,8 @@ class Config(
     @field_serializer("archival_timestamp")
     def _serialize_timestamp(self, archival_timestamp: datetime, _info) -> str:
         return archival_timestamp.isoformat()
+
+    class Preprocessing(BaseModel, extra="ignore"):
+        name: str
+        target_crs: str | None
+        processing_steps: list[FunctionCall]

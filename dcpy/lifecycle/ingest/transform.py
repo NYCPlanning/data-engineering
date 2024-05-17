@@ -2,12 +2,11 @@ from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-import shutil
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import FunctionCall
-from dcpy.utils import data, introspect
+from dcpy.models.lifecycle.ingest import FunctionCall, Config
+from dcpy.utils import data, introspect, geospatial
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 
@@ -248,18 +247,21 @@ def validate_processing_steps(
     return compiled_steps
 
 
-def run_processing_steps(
-    dataset_name: str,
-    processing_steps: list[FunctionCall],
+def preprocess(
+    config: Config.Preprocessing,
     input_path: Path,
-    output_path,
+    output_path: Path,
 ):
-    """Validates and runs preprocessing steps defined in config object"""
-    compiled_steps = validate_processing_steps(dataset_name, processing_steps)
-    if len(compiled_steps) == 0:
-        shutil.copy(input_path, output_path)
-    else:
-        df = data.read_parquet(input_path)
-        for step in compiled_steps:
-            df = step(df)
-        df.to_parquet(output_path)
+    """Reprojects if needed, then validates and runs preprocessing steps defined in config object"""
+    df = data.read_parquet(input_path)
+    if config.target_crs:
+        if not isinstance(df, gpd.GeoDataFrame):
+            raise TypeError(
+                "Reprojection specified in template, but dataset has no geometry"
+            )
+        df = geospatial.reproject_gdf(df, target_crs=config.target_crs)
+
+    compiled_steps = validate_processing_steps(config.name, config.processing_steps)
+    for step in compiled_steps:
+        df = step(df)
+    df.to_parquet(output_path)

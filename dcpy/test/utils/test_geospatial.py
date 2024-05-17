@@ -11,14 +11,14 @@ from dcpy.utils import geospatial, data
 RESOURCES_DIR = Path(__file__).parent / "resources"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def data_wkb() -> pd.DataFrame:
     return pd.read_csv(
         RESOURCES_DIR / "data_wkb.csv",
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def data_wkt() -> pd.DataFrame:
     return pd.read_csv(
         RESOURCES_DIR / "data_wkt.csv",
@@ -90,10 +90,13 @@ def test_projected_crs(data_wkb):
     assert round(geodata.area.sum(), 2) == 126924.61  # sqft
 
 
-def test_read_parquet_metadata(data_wkt):
+@pytest.fixture()
+def gdf(data_wkt):
     geometry = Geometry(geom_column="geom", crs="EPSG:4236")
-    gdf = data.df_to_gdf(data_wkt, geometry)
+    return data.df_to_gdf(data_wkt, geometry)
 
+
+def test_read_parquet_metadata(gdf):
     with TemporaryDirectory() as dir:
         filepath = f"{dir}/tmp.parquet"
         gdf.to_parquet(filepath)
@@ -103,3 +106,9 @@ def test_read_parquet_metadata(data_wkt):
         assert "geom" in meta.geo_parquet.columns
         assert meta.geo_parquet.columns["geom"].crs.id
         assert meta.geo_parquet.columns["geom"].crs.id.code == 4236
+
+
+def test_reproject_gdf(gdf):
+    assert gdf.crs.srs == "EPSG:4236"
+    state_plane = geospatial.reproject_gdf(gdf, target_crs="EPSG:2263")
+    assert state_plane.crs.srs == "EPSG:2263"

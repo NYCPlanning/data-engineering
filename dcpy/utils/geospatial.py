@@ -166,3 +166,18 @@ def read_parquet_metadata(filepath: Path) -> geoparquet.MetaData:
     geo = parquet_metadata.metadata[geoparquet.GEOPARQUET_METADATA_KEY]
     geo_parquet = geoparquet.GeoParquet(**json.loads(geo))
     return geoparquet.MetaData(file_metadata=parquet_metadata, geo_parquet=geo_parquet)
+
+
+def reproject_gdf(
+    df: gpd.GeoDataFrame, target_crs: str, source_crs: str | None = None
+) -> gpd.GeoDataFrame:
+    if not df.crs:
+        if not source_crs:
+            raise ValueError("df has no crs set and none provided")
+        df.set_crs(source_crs, inplace=True)
+    else:
+        if source_crs and (source_crs != df.crs.srs):
+            raise ValueError(
+                f"source crs '{source_crs}' supplied, but gdf has crs '{df.crs.srs}'."
+            )
+    return df.to_crs(target_crs)
