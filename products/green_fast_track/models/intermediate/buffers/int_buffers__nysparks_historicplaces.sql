@@ -4,6 +4,8 @@ WITH historic_places_nyc AS (
         ST_MAKEVALID(geom) AS geom
     FROM {{ ref('stg__nysparks_historicplaces') }}
     WHERE countyname IN ('Kings', 'New York', 'Queens', 'Richmond', 'Bronx')
+    -- citytown overall is a messier field, but there's a specific troublesome row to be filtered out.
+    AND citytown <> 'Buffalo'
 ),
 
 grouped_historic_places AS (

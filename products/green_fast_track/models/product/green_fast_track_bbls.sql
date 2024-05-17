@@ -49,6 +49,15 @@ flags_wide AS (
             )
             AND variable_type != 'wetlands_checkzones'
         ) AS natural_resource,
+        bool_or(variable_id IS NOT NULL)
+        FILTER (
+            WHERE variable_type = any(ARRAY{{
+                variables
+                | selectattr("ceqr_category", "equalto", "Historic")
+                | map(attribute='variable_type')
+                | list
+            }})
+        ) AS historic,
         bbl
     FROM flags_ranked
     GROUP BY bbl
@@ -77,6 +86,10 @@ SELECT
         WHEN f.natural_resource THEN 'Yes'
         ELSE 'No'
     END AS "Contains Natural Resource",
+    CASE
+        WHEN f.historic THEN 'Yes'
+        ELSE 'No'
+    END AS "Contains Historic",
     pluto.geom
 FROM pluto
 LEFT JOIN flags_wide AS f ON pluto.bbl = f.bbl
