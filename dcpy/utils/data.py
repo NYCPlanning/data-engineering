@@ -72,6 +72,8 @@ def read_data_to_df(
                 encoding=geodatabase.encoding,
                 layer=geodatabase.layer,
             )
+        case file.GeoJson() as geojson:
+            gdf = gpd.read_file(local_data_path, encoding=geojson.encoding)
         case file.Csv() as csv:
             df = pd.read_csv(
                 local_data_path,
@@ -121,12 +123,17 @@ def read_data_to_df(
                         crs=csv.geometry.crs,
                     )
         case file.Json():
-            with open(local_data_path) as f:
-                json_str = json.load(f)
-            if data_format.normalize:
-                gdf = pd.json_normalize(json_str, **data_format.normalize)
+            if isinstance(data_format.json_read_meta, file.ReadJson):
+                gdf = pd.read_json(
+                    local_data_path, **data_format.json_read_meta.json_read_kwargs
+                )
             else:
-                gdf = pd.read_json(json_str)
+                with open(local_data_path) as f:
+                    json_str = json.load(f)
+                gdf = pd.json_normalize(
+                    json_str, **data_format.json_read_meta.json_read_kwargs
+                )
+
             # Feels a tad hacky to have this here instead of in preprocessing
             # But json columns were causing parquet issues
             if data_format.columns:
