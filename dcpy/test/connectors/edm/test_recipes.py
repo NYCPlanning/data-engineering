@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from dcpy.utils import s3
+from dcpy.utils import s3, metadata
 from dcpy.connectors.edm import recipes
 from dcpy.models import library, file
 from dcpy.models.lifecycle import ingest
@@ -47,26 +47,37 @@ def load_library_all(create_buckets):
     yield library_config
 
 
-def test_archive_raw_dataset(create_buckets, create_temp_filesystem: Path):
+def test_archive_dataset(create_buckets, create_temp_filesystem: Path):
     dataset = "bpl_libraries"  # doesn't actually get queried, just to fill out config
-    file_name = "tmp.txt"
-    tmp_file = create_temp_filesystem / file_name
+    raw_file_name = "tmp.txt"
+    tmp_file = create_temp_filesystem / raw_file_name
     tmp_file.touch()
     config = ingest.Config(
         name=dataset,
         version="dummy",
         archival_timestamp=datetime.now(),
         acl="private",
-        raw_filename=file_name,
+        raw_filename=raw_file_name,
         source=ingest.ScriptSource(
             type="script", connector="dummy", function="dummy"
         ),  # easiest to mock
         file_format=file.Csv(type="csv"),  # easiest to mock
+        run_details=metadata.get_run_details(),
     )
     recipes.archive_raw_dataset(config, tmp_file)
     assert s3.exists(
         recipes.BUCKET,
-        str(config.raw_dataset_s3_filepath(recipes.RAW_FOLDER)),
+        str(config.raw_s3_key(recipes.RAW_FOLDER)),
+    )
+
+    tmp_parquet = create_temp_filesystem / config.filename
+    tmp_parquet.touch()
+    recipes.archive_dataset(config, tmp_parquet)
+    assert s3.exists(
+        recipes.BUCKET,
+        str(
+            config.s3_file_key("ingest_datasets")
+        ),  ## TODO don't want to point the code at our "production" folder at the moment
     )
 
 

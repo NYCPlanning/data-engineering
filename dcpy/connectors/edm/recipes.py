@@ -28,29 +28,27 @@ LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
 
 
-def archive_raw_dataset(ingest_config: ingest.Config, file_path: Path):
+def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
-        shutil.copy(file_path, tmp_dir)
-        # config = library.Config(dataset=ingest_config, execution_details=None)
-
+        shutil.copy(file_path, tmp_dir_path)
         with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(json.dumps(ingest_config.model_dump(), indent=4))
+            f.write(json.dumps(config.model_dump(), indent=4))
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
-            ingest_config.raw_dataset_key.s3_path(RAW_FOLDER),
-            acl=ingest_config.acl,
+            s3_path,
+            acl=config.acl,
             contents_only=True,
         )
 
 
-def archive_dataset():
-    ### this could either take a config object and path to a file, and archive them both in a folder together,
-    ### or take path to folder that takes dumped config as well as file output and loads whole folder
-    ### likely the latter in case of multiple output formats. Not necessarily something we want to be doing long term
-    ### but for flexibility for now it might make sense
-    raise NotImplemented
+def archive_raw_dataset(config: ingest.Config, file_path: Path):
+    _archive_dataset(config, file_path, config.raw_dataset_key.s3_path(RAW_FOLDER))
+
+
+def archive_dataset(config: ingest.Config, file_path: Path):
+    _archive_dataset(config, file_path, config.dataset_key.s3_path("ingest_datasets"))
 
 
 def get_config(name: str, version="latest") -> library.Config:
@@ -92,7 +90,7 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
 
 def get_file_types(dataset: Dataset) -> set[DatasetType]:
     files = s3.get_filenames(
-        bucket=BUCKET, prefix=f"{dataset.s3_folder(DATASET_FOLDER)}/{dataset.name}"
+        bucket=BUCKET, prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.name}"
     )
     valid_types = {
         _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
@@ -124,7 +122,7 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
 
         s3.download_file(
             bucket=BUCKET,
-            key=ds.s3_key(DATASET_FOLDER),
+            key=ds.s3_file_key(DATASET_FOLDER),
             path=target_file_path,
         )
     return target_file_path
@@ -157,7 +155,7 @@ def read_df(
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
-        with s3.get_file_as_stream(BUCKET, ds.s3_key(DATASET_FOLDER)) as stream:
+        with s3.get_file_as_stream(BUCKET, ds.s3_file_key(DATASET_FOLDER)) as stream:
             data = reader(stream, **kwargs)
         return data
 

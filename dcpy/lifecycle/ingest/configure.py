@@ -16,6 +16,7 @@ from dcpy.models.lifecycle.ingest import (
 )
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.utils import metadata
 from dcpy.utils.logging import logger
 from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract as extract_socrata
@@ -103,16 +104,17 @@ def get_filename(source: Source, ds_name: str) -> str:
 
 def get_config(dataset: str, version: str | None = None) -> Config:
     """Generate config object for dataset and optional version"""
-    timestamp = datetime.now()
+    run_details = metadata.get_run_details()
     template = read_template(dataset, version=version)
     filename = get_filename(template.source, template.name)
-    version = version or get_version(template.source, timestamp)
+    version = version or get_version(template.source, run_details.timestamp)
     template = read_template(dataset, version=version)
 
     # create config object
     return Config(
         version=version,
-        archival_timestamp=timestamp,
+        archival_timestamp=run_details.timestamp,
         raw_filename=filename,
+        run_details=run_details,
         **template.model_dump(),
     )
