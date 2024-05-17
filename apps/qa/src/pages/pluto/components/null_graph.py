@@ -4,11 +4,18 @@ from src.shared.constants import COLOR_SCHEME
 
 
 class NullReport:
-    def __init__(self, data, v1, v2, v3, condo, mapped):
+    def __init__(self, data, v, v_prev, v_comp, v_comp_prev, condo, mapped):
         self.df_null = data
-        self.v1 = v1
-        self.v2 = v2
-        self.v3 = v3
+        self.v = v
+        self.v_prev = v_prev
+        self.v_comp = v_comp
+        self.v_comp_prev = v_comp_prev
+        self.diff = f"{v} - {v_prev}"
+        self.diff_comp = f"{v_comp} - {v_comp_prev}"
+        self.version_pairs = [
+            self.diff,
+            self.diff_comp,
+        ]
         self.condo = condo
         self.mapped = mapped
 
@@ -25,30 +32,28 @@ class NullReport:
         df = df.loc[
             (df.condo == self.condo)
             & (df.mapped == self.mapped)
-            & (df.pair.isin([f"{self.v1} - {self.v2}", f"{self.v2} - {self.v3}"])),
+            & (df.pair.isin(self.version_pairs)),
             :,
         ].drop_duplicates()
 
         df_transformed = df.drop(columns=["condo", "mapped", "total"])
         sorted_df = df_transformed.set_index("pair").T
-        sorted_df.sort_values(
-            by=f"{self.v1} - {self.v2}", ascending=False, inplace=True
-        )
+        sorted_df.sort_values(by=self.diff, ascending=False, inplace=True)
         fields_in_order = sorted_df.index.values.tolist()
         df_transformed = self.sort_and_filter_df(
             df_transformed, field_range, fields_in_order
         )
 
-        v1v2 = f"{self.v1} - {self.v2}" in df_transformed.version.unique()
-        v2v3 = f"{self.v2} - {self.v3}" in df_transformed.version.unique()
+        diff = self.diff in df_transformed.version.unique()
+        diff_comp = self.diff_comp in df_transformed.version.unique()
 
-        if not (v1v2 or v2v3):
+        if not (diff or diff_comp):
             st.write("Null Graph")
             st.info("There is no change in NULL values across three versions.")
             return
-        if v1v2 and not v2v3:
+        if diff and not diff_comp:
             self.display_graph(df_transformed, False)
-        elif v2v3 and not v1v2:
+        elif diff_comp and not diff:
             self.display_graph(df_transformed, False)
         else:
             self.display_graph(df_transformed, True)

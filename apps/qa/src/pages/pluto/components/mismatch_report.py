@@ -4,14 +4,15 @@ from src.shared.constants import COLOR_SCHEME
 
 
 class MismatchReport:
-    def __init__(self, data, v1, v2, v3, condo, mapped):
+    def __init__(self, data, v, v_prev, v_comp, v_comp_prev, condo, mapped):
         self.df_mismatch = data
-        self.v1 = v1
-        self.v2 = v2
-        self.v3 = v3
+        self.v = v
+        self.v_prev = v_prev
+        self.v_comp = v_comp
+        self.v_comp_prev = v_comp_prev
         self.version_pairs = [
-            f"{v1} - {v2}",
-            f"{v2} - {v3}",
+            f"{v} - {v_prev}",
+            f"{v_comp} - {v_comp_prev}",
         ]
         self.condo = condo
         self.mapped = mapped
@@ -20,6 +21,11 @@ class MismatchReport:
         df = self.filter_by_options()
         v1v2 = self.filter_by_version_pair(df, self.version_pairs[0])
         v2v3 = self.filter_by_version_pair(df, self.version_pairs[1])
+
+        st.header("Mismatched Records")
+        st.info(
+            "Each mismatch graph and table shows the number of records (identified by bbl) with a changed value in a given field."
+        )
 
         for group in self.groups:
             self.display_graph(v1v2, v2v3, group)
@@ -30,7 +36,7 @@ class MismatchReport:
             """
             This table reports the number of records with differences in a field value between versions. 
             This table is useful for digging into any anomalies identified using the graphs above.
-        """
+            """
         )
 
     def display_graph(self, v1v2, v2v3, group):
@@ -40,7 +46,10 @@ class MismatchReport:
         fig.add_trace(self.generate_version_trace(v2v3, group["columns"]))
 
         fig.update_layout(
-            title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
+            title=group["title"],
+            template="plotly_white",
+            colorway=COLOR_SCHEME,
+            yaxis={"title": "# Changed Records"},
         )
 
         st.plotly_chart(fig)

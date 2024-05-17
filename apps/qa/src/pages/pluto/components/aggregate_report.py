@@ -5,43 +5,48 @@ from src.shared.constants import COLOR_SCHEME
 
 
 class AggregateReport:
-    def __init__(self, data, v1, v2, v3, condo, mapped):
+    def __init__(self, data, v, v_prev, v_comp, v_comp_prev, condo, mapped):
         self.df = data
-        self.v1 = v1
-        self.v2 = v2
-        self.v3 = v3
+        self.v = v
+        self.v_prev = v_prev
+        self.v_comp = v_comp
+        self.v_comp_prev = v_comp_prev
         self.condo = condo
         self.mapped = mapped
 
     def __call__(self):
-        st.header("Aggregate Graph")
+        st.header("Aggregate Changes")
+
+        st.info(self.info_description)
 
         self.display_graph()
 
         st.write(self.aggregate_df.sort_values(by="v", ascending=False))
-
-        st.info(self.info_description)
 
     @property
     def aggregate_df(self):
         return self.df.loc[
             (self.df.condo == self.condo)
             & (self.df.mapped == self.mapped)
-            & (self.df.v.isin([self.v1, self.v2, self.v3])),
+            & (self.df.v.isin([self.v, self.v_prev, self.v_comp, self.v_comp_prev])),
             :,
         ]
 
     @property
-    def v1_records(self):
-        return self.records_by_version(self.v1)
+    def v_records(self):
+        return self.records_by_version(self.v)
 
     @property
-    def v2_records(self):
-        return self.records_by_version(self.v2)
+    def v_prev_records(self):
+        return self.records_by_version(self.v_prev)
 
     @property
-    def v3_records(self):
-        return self.records_by_version(self.v3)
+    def v_comp_records(self):
+        return self.records_by_version(self.v_comp)
+
+    @property
+    def v_comp_prev_records(self):
+        return self.records_by_version(self.v_comp_prev)
 
     def records_by_version(self, version):
         return self.aggregate_df.loc[self.aggregate_df.v == version, :].to_dict(
@@ -88,12 +93,14 @@ class AggregateReport:
     def display_graph(self):
         fig = go.Figure()
 
-        fig.add_trace(self.generate_trace(self.v1_records, self.v2_records))
-        fig.add_trace(self.generate_trace(self.v2_records, self.v3_records))
+        fig.add_trace(self.generate_trace(self.v_records, self.v_prev_records))
+        fig.add_trace(
+            self.generate_trace(self.v_comp_records, self.v_comp_prev_records)
+        )
 
         fig.add_hline(y=0, line_color="grey", opacity=0.5)
         fig.update_layout(
-            title="Aggregate graph",
+            title="Percent change in sum of columns for all PLUTO lots",
             template="plotly_white",
             yaxis={"title": "Percent Change"},
             colorway=COLOR_SCHEME,
@@ -104,7 +111,7 @@ class AggregateReport:
     @property
     def info_description(self):
         return """
-            In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
+            In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change, summed across the entire dataset.
             For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released. 
             The aggregate graph may show that the aggregated sum increased by 5%. 
             Totals for assessland, assesstot, and exempttot should only change after the tentative and final rolls. 

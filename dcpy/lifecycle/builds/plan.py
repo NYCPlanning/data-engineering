@@ -166,39 +166,10 @@ def repeat_recipe_from_source_data_versions(
     return recipe
 
 
-def plan(recipe_file: Path, version: str | None = None, repeat: bool = False) -> Path:
-    lock_file = (
-        recipe_file.parent / f"{recipe_file.stem}.lock.yml"
-        if recipe_file
-        else Path("recipe.lock.yml")
-    )
-    if not repeat:
-        logger.info(f"Planning recipe from {recipe_file}")
-        recipe = plan_recipe(recipe_file, version)
-    else:
-        if version is None:
-            raise Exception("Version must be supplied if repeating a specific build")
-        template_recipe = recipe_from_yaml(recipe_file)
-        logger.info(f"Attempting to repeat recipe for {version}")
-        product_key = publishing.PublishKey(template_recipe.product, version)
-        if publishing.file_exists(product_key, "build_metadata.json"):
-            with publishing.get_file(product_key, "build_metadata.json") as file:
-                s = yaml.safe_load(file)["recipe"]
-                recipe = Recipe(**s)
-        elif publishing.file_exists(product_key, "source_data_versions.csv"):
-            if not recipe_file:
-                raise Exception(
-                    "Template recipe file must be provided to repeat build from existing source_data_versions.csv"
-                )
-            source_data_versions = publishing.get_source_data_versions(product_key)
-            recipe = repeat_recipe_from_source_data_versions(
-                version, source_data_versions, template_recipe
-            )
-
-        else:
-            raise Exception(
-                "Neither 'build_metadata.json' nor 'source_data_versions.csv' can be found. Build cannot be repeated"
-            )
+def plan(recipe_file: Path, version: str | None = None) -> Path:
+    lock_file = recipe_file.parent / f"{recipe_file.stem}.lock.yml"
+    logger.info(f"Planning recipe from {recipe_file}")
+    recipe = plan_recipe(recipe_file, version)
 
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
@@ -228,6 +199,57 @@ def write_source_data_versions(recipe_file: Path):
             writer.writerow([s, v, f])
 
 
+def repeat_build(
+    product_key: publishing.ProductKey,
+    recipe_file: Path | None = None,
+    manual_version: str | None = None,
+) -> Path:
+    if publishing.file_exists(product_key, "build_metadata.json"):
+        with publishing.get_file(product_key, "build_metadata.json") as file:
+            s = yaml.safe_load(file)["recipe"]
+            recipe = Recipe(**s)
+    elif publishing.file_exists(product_key, "source_data_versions.csv"):
+        if not recipe_file:
+            raise ValueError(
+                "Recipe file for template must be supplied in if repeating an older draft build without build_metadata.json"
+            )
+
+        if isinstance(product_key, publishing.PublishKey):
+            version = product_key.version
+        elif manual_version:
+            version = manual_version
+        else:
+            raise ValueError(
+                "Version must be supplied manually if repeating an older draft build without build_metadata.json"
+            )
+
+        template_recipe = recipe_from_yaml(recipe_file)
+        logger.info(f"Attempting to repeat recipe for {product_key}")
+        if not (recipe_file and recipe_file.exists()):
+            raise Exception(
+                "Template recipe file must be provided to repeat build from existing source_data_versions.csv"
+            )
+        source_data_versions = publishing.get_source_data_versions(product_key)
+        recipe = repeat_recipe_from_source_data_versions(
+            version, source_data_versions, template_recipe
+        )
+
+    else:
+        raise Exception(
+            f"Neither 'build_metadata.json' nor 'source_data_versions.csv' can be found. '{product_key}' cannot be repeated"
+        )
+
+    lock_file = (
+        recipe_file.parent / f"{recipe_file.stem}.lock.yml"
+        if recipe_file
+        else Path("recipe.lock.yml")
+    )
+    with open(lock_file, "w", encoding="utf-8") as f:
+        logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
+        yaml.dump(recipe.model_dump(), f)
+    return lock_file
+
+
 app = typer.Typer(add_completion=False)
 
 
@@ -248,7 +270,47 @@ def _cli_wrapper_plan_recipe(
         False, "--repeat", help="Repeat specific published build"
     ),
 ):
-    plan(recipe_path, version, repeat)
+    plan(recipe_path, version)
+
+
+@app.command("repeat")
+def _cli_wrapper_repeat_recipe(
+    product: str = typer.Argument(help="Name of the product to build"),
+    product_type: str = typer.Option(
+        None, "--product-type", "-t", help="Product/build type ('draft' or 'publish')"
+    ),
+    version_or_build: str = typer.Option(
+        None,
+        "--version-or-build",
+        "-vb",
+        help="Unique key for draft/publish build, either version or build name, respectively",
+    ),
+    recipe_path: Path = typer.Option(
+        Path(DEFAULT_RECIPE),
+        "--recipe-path",
+        "-r",
+        help="Path of recipe file to use. Only needed if attempting to rebuild from older builds without build_metadata.json",
+    ),
+    manual_version: str = typer.Option(
+        None,
+        "--manual-version",
+        "--mv",
+        help="Manually specified version. Only needed if attempting to rebuild and older draft where version cannot be easily determined.",
+    ),
+):
+    if product_type == "draft":
+        product_key: publishing.ProductKey = publishing.DraftKey(
+            product=f"db-{product}", build=version_or_build
+        )
+    elif product_type == "publish":
+        product_key = publishing.PublishKey(
+            product=f"db-{product}", version=version_or_build
+        )
+    else:
+        raise ValueError(
+            f"Invalid product/build type supplied: '{version_or_build}'. Only options are 'draft' or 'publish'"
+        )
+    repeat_build(product_key, recipe_path), manual_version
 
 
 if __name__ == "__main__":

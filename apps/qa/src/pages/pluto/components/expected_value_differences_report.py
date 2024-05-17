@@ -33,10 +33,10 @@ FIELDS_OF_INTEREST = {
 
 
 class ExpectedValueDifferencesReport:
-    def __init__(self, data, v1, v2):
+    def __init__(self, data, v, v_prev):
         self.df = data
-        self.v1 = v1
-        self.v2 = v2
+        self.v = v
+        self.v_prev = v_prev
 
     def __call__(self):
         st.header("Expected Value Comparison")
@@ -71,8 +71,8 @@ class ExpectedValueDifferencesReport:
             value_differences = pd.DataFrame.from_dict(
                 dict(
                     [
-                        (f"in {self.v1} but not {self.v2}", [in1not2]),
-                        (f"in {self.v2} but not {self.v1}", [in2not1]),
+                        (f"in {self.v} but not {self.v_prev}", [in1not2]),
+                        (f"in {self.v_prev} but not {self.v}", [in2not1]),
                     ]
                 ),
                 orient="index",
@@ -93,15 +93,15 @@ class ExpectedValueDifferencesReport:
 
     @property
     def expected_records(self) -> dict:
-        return self.df[self.df["v"].isin([self.v1, self.v2])].to_dict("records")
+        return self.df[self.df["v"].isin([self.v, self.v_prev])].to_dict("records")
 
     @property
-    def v1_expected_records(self) -> dict:
-        return self.expected_records_by_version(self.v1)
+    def v_expected_records(self) -> dict:
+        return self.expected_records_by_version(self.v)
 
     @property
-    def v2_expected_records(self) -> dict:
-        return self.expected_records_by_version(self.v2)
+    def v_prev_expected_records(self) -> dict:
+        return self.expected_records_by_version(self.v_prev)
 
     def expected_records_by_version(self, version) -> dict:
         return [i["expected"] for i in self.expected_records if i["v"] == version][0]
@@ -121,14 +121,14 @@ class ExpectedValueDifferencesReport:
     def value_differences_across_versions(
         self, comparison_name: str
     ) -> tuple[list, list]:
-        v1_values = self.values_by_fields(
-            self.v1_expected_records,
+        v_values = self.values_by_fields(
+            self.v_expected_records,
             FIELDS_OF_INTEREST[comparison_name],
         )
-        v2_values = self.values_by_fields(
-            self.v2_expected_records,
+        v_prev_values = self.values_by_fields(
+            self.v_prev_expected_records,
             FIELDS_OF_INTEREST[comparison_name],
         )
-        in1not2 = self.value_differences(v1_values, v2_values)
-        in2not1 = self.value_differences(v2_values, v1_values)
+        in1not2 = self.value_differences(v_values, v_prev_values)
+        in2not1 = self.value_differences(v_prev_values, v_values)
         return (in1not2, in2not1)
