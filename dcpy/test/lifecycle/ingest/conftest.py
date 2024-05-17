@@ -32,14 +32,20 @@ def generate_fake_data(gdf: gpd.GeoDataFrame = None):
 
     csv_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.csv"
     csv_path_2 = TEST_DATA_DIR / f"{TEST_DATA_NAME}2.csv"
+    excel_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.xlsx"
     shp_path = TEST_DATA_DIR / TEST_DATA_NAME
     gdb_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.gdb"
+    json_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.json"
+    geojson_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.geojson"
     parquet_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.parquet"
 
     gdf.to_csv(csv_path, index=False)
-    gdf2.to_csv(csv_path_2, index=False)
+    gdf2.to_csv(csv_path_2, index=False)  # regular pandas df
+    gdf2.to_excel(excel_path, index=False)  # regular pandas df
+    gdf2.to_json(json_path, orient="records")  # regular pandas df
     gdf.to_file(shp_path, driver="ESRI Shapefile")
     gdf.to_file(gdb_path, driver="OpenFileGDB")
+    gdf.to_file(geojson_path, driver="GeoJSON")
     gdf.to_parquet(parquet_path, index=False)
 
 

@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boro_code": "4", "block": null, "lot": "803", "bbl": "4469310598", "text": "GsifrlkxmckyxrKHjGsr" }, "geometry": null },
+{ "type": "Feature", "properties": { "boro_code": "", "block": "32835", "lot": "546", "bbl": "5192630318", "text": "" }, "geometry": { "type": "Point", "coordinates": [ 10.3894635, -175.008089 ] } },
+{ "type": "Feature", "properties": { "boro_code": "1", "block": "41445", "lot": "935", "bbl": null, "text": "GWCTGjatBdiRUUhuZVpa" }, "geometry": { "type": "Point", "coordinates": [ -9.238951, -145.760694 ] } },
+{ "type": "Feature", "properties": { "boro_code": "1", "block": null, "lot": "804", "bbl": "1802030506", "text": "AUpDOAduszPBEJDlVUBR" }, "geometry": { "type": "Point", "coordinates": [ -15.231156, -149.791288 ] } },
+{ "type": "Feature", "properties": { "boro_code": "1", "block": "", "lot": "", "bbl": "4119560083", "text": "qXrLaXGgZHRfZSUqsTKa" }, "geometry": { "type": "Point", "coordinates": [ -42.0053425, 63.745867 ] } }
+]
+}
