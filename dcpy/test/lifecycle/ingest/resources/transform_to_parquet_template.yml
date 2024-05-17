@@ -53,3 +53,11 @@
     type: geodatabase
     crs: EPSG:4326
     unzipped_filename: "test.gdb"
+
+- file_name: test.geojson
+  file_format:
+    type: geojson
+
+- file_name: test.json
+  file_format:
+    type: json

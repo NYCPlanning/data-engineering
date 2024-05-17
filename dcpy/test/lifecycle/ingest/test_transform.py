@@ -44,7 +44,6 @@ def get_fake_data_configs():
     return test_files
 
 
-# TODO: implement tests for json, and geojson format
 @pytest.mark.parametrize("file", get_fake_data_configs())
 def test_to_parquet(file: dict, create_temp_filesystem: Path):
     """
