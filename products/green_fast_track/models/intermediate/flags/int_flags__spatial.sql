@@ -75,3 +75,4 @@ SELECT
         ELSE ST_DISTANCE(bbl_geom, raw_geom)
     END AS distance
 FROM joined_hexes
+ORDER BY bbl ASC, variable_type ASC, variable_id ASC

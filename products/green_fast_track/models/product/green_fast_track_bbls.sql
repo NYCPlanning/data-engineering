@@ -20,19 +20,16 @@ flags_ranked AS (
         flag_id_field_name,
         variable_type,
         variable_id,
-        distance,
-        row_number()
-            OVER (PARTITION BY bbl, flag_id_field_name ORDER BY distance)
-        AS row_number
+        distance
     FROM flags_long
 ),
 
 flags_wide AS (
     SELECT
         {% for row in question_flags -%}
-            /* construct a comma-separated list of values ordered by distance and flag */
+            /* construct a comma-separated list of values ordered by distance and value */
             array_to_string(
-                array_agg(variable_id ORDER BY distance ASC, flag_id_field_name ASC) FILTER (
+                array_agg(variable_id) FILTER (
                     WHERE flag_id_field_name = '{{ row["flag_id_field_name"] }}'
                 ),
                 ', '
