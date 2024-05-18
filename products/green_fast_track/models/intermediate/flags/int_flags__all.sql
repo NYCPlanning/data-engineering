@@ -44,4 +44,4 @@ all_flags AS (
 )
 
 SELECT * FROM all_flags
-ORDER BY bbl ASC, flag_id_field_name ASC, variable_type ASC
+ORDER BY bbl ASC, flag_id_field_name ASC, variable_type ASC, variable_id ASC
