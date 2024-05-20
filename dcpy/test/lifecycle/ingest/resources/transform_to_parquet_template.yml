@@ -30,6 +30,23 @@
         x: longitude
         y: latitude
 
+# excel non-spatial case
+- file_name: test.xlsx
+  file_format:
+    type: xlsx
+    tab_name: Sheet1
+
+# excel spatial case (2 geom columns, i.e. longitude and latitude columns)
+- file_name: test.xlsx
+  file_format:
+    type: xlsx
+    tab_name: Sheet1
+    geometry:
+      crs: EPSG:4326
+      geom_column:
+        x: longitude
+        y: latitude
+
 - file_name: test/test.shp
   file_format:
     type: shapefile
@@ -61,3 +78,21 @@
 - file_name: test.json
   file_format:
     type: json
+    json_read_meta:
+      json_read_fn: read_json
+
+# json: case where each object is a column
+- file_name: test2.json
+  file_format:
+    type: json
+    json_read_meta:
+      json_read_fn: read_json
+      json_read_kwargs: { "orient": "columns" }
+
+# json: case with nested values
+- file_name: test3.json
+  file_format:
+    type: json
+    json_read_meta:
+      json_read_fn: normalize
+      json_read_kwargs: { "max_level": 1 }
