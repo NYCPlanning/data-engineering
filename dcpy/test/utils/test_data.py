@@ -3,8 +3,12 @@ import tempfile
 import zipfile
 from pathlib import Path
 import pandas as pd
+from geopandas import GeoDataFrame
 
+from dcpy.models import file
 from dcpy.utils import data
+
+RESOURCES_DIR = Path(__file__).parent / "resources"
 
 
 @pytest.fixture
@@ -72,3 +76,11 @@ def test_serialize_nested_objects():
         for value in serialized_df[col]:
             assert isinstance(value, str)
             assert value.startswith("{")
+
+
+def test_read_parquet():
+    df = data.read_parquet(RESOURCES_DIR / "simple.parquet")
+    assert not isinstance(df, GeoDataFrame)
+
+    gdf = data.read_parquet(RESOURCES_DIR / "geo.parquet")
+    assert isinstance(gdf, GeoDataFrame)

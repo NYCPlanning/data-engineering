@@ -2,9 +2,10 @@ import pytest
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
-import shapely
+from tempfile import TemporaryDirectory
 
-from dcpy.utils import geospatial
+from dcpy.models.file import Geometry
+from dcpy.utils import geospatial, data
 
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
@@ -87,3 +88,18 @@ def test_projected_crs(data_wkb):
     geodata = geodata_source.to_crs(new_crs)
     assert geodata.crs == new_crs
     assert round(geodata.area.sum(), 2) == 126924.61  # sqft
+
+
+def test_read_parquet_metadata(data_wkt):
+    geometry = Geometry(geom_column="geom", crs="EPSG:4236")
+    gdf = data.df_to_gdf(data_wkt, geometry)
+
+    with TemporaryDirectory() as dir:
+        filepath = f"{dir}/tmp.parquet"
+        gdf.to_parquet(filepath)
+
+        meta = geospatial.read_parquet_metadata(filepath)
+
+        assert "geom" in meta.geo_parquet.columns
+        assert meta.geo_parquet.columns["geom"].crs.id
+        assert meta.geo_parquet.columns["geom"].crs.id.code == 4236

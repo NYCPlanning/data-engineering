@@ -259,7 +259,7 @@ def run_processing_steps(
     if len(compiled_steps) == 0:
         shutil.copy(input_path, output_path)
     else:
-        df = pd.read_parquet(input_path)
+        df = data.read_parquet(input_path)
         for step in compiled_steps:
             df = step(df)
         df.to_parquet(output_path)

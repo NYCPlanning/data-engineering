@@ -1,11 +1,13 @@
 import json
 import pandas as pd
 import geopandas as gpd
+from pyarrow import parquet
 
 from pathlib import Path
 
 from dcpy.utils.logging import logger
 from dcpy.models import file
+from dcpy.models.geospatial.parquet import GEOPARQUET_METADATA_KEY
 
 import zipfile
 
@@ -209,3 +211,16 @@ def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:
 
     # Apply serialization to each cell in the DataFrame
     return df.map(serialize_value)
+
+
+def read_parquet(filepath: Path) -> pd.DataFrame:
+    """
+    Read parquet file either as pd.DataFrame or gpd.GeoDataFrame
+    For now, type signature is just pd.DataFrame
+    If GeoDataFrame is needed with resulting DataFrame, should check type of object at runtime
+    """
+    parquet_metadata = parquet.read_metadata(filepath)
+    if GEOPARQUET_METADATA_KEY in parquet_metadata.metadata:
+        return gpd.read_parquet(filepath)
+    else:
+        return pd.read_parquet(filepath)

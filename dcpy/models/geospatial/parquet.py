@@ -3,6 +3,8 @@ from typing import Any, Literal
 
 from . import projjson as proj
 
+GEOPARQUET_METADATA_KEY = b"geo"
+
 
 class Columns(BaseModel, extra="forbid"):
     """GeoParquet column metadata as specified by https://geoparquet.org/releases/v1.0.0/schema.json"""

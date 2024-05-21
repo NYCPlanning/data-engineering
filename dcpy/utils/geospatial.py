@@ -1,10 +1,11 @@
 from numpy import floor
 from enum import Enum
-from typing import Callable
-import pandas as pd
 import geopandas as gpd
-import shapely
+import json
 import leafmap.foliumap as lmf
+import pandas as pd
+from pathlib import Path
+from pyarrow import parquet
 from rich.progress import (
     BarColumn,
     Progress,
@@ -12,7 +13,10 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+import shapely
+from typing import Callable
 
+from dcpy.models.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
 
@@ -149,3 +153,16 @@ def translate_shp_to_mvt(
             callback=update_progress,
             datasetCreationOptions=[f"MINZOOM={min_zoom}", f"MAXZOOM={max_zoom}"],
         )
+
+
+def read_parquet_metadata(filepath: Path) -> geoparquet.MetaData:
+    """
+    Given filepath to GeoParquet file, returns both standard pyarrow parquet FileMetaData
+    And geospatial metadata as defined in GeoParquet spec
+    """
+    parquet_metadata = parquet.read_metadata(filepath)
+    if geoparquet.GEOPARQUET_METADATA_KEY not in parquet_metadata.metadata:
+        raise TypeError(f"{filepath} is not a geoparquet file.")
+    geo = parquet_metadata.metadata[geoparquet.GEOPARQUET_METADATA_KEY]
+    geo_parquet = geoparquet.GeoParquet(**json.loads(geo))
+    return geoparquet.MetaData(file_metadata=parquet_metadata, geo_parquet=geo_parquet)
