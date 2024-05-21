@@ -7,7 +7,7 @@ from typing import Callable, Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
-from dcpy.utils import data, introspect
+from dcpy.utils import data, introspect, validate
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
@@ -255,6 +255,7 @@ def validate_processing_steps(
 def preprocess(
     dataset_name: str,
     processing_steps: list[FunctionCall],
+    fields: list[validate.Field],
     input_path: Path,
     output_path: Path,
 ):

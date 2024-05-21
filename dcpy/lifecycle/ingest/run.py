@@ -38,6 +38,7 @@ def run(
     transform.preprocess(
         config.name,
         config.processing_steps,
+        config.fields,
         staging_dir / init_parquet,
         staging_dir / config.filename,
     )

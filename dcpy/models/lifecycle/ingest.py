@@ -7,7 +7,7 @@ from typing import Any, Literal, TypeAlias
 from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes, publishing
 from dcpy.models.connectors import web, socrata
-from dcpy.models import library, file
+from dcpy.models import library, file, validate
 
 
 class LocalFileSource(BaseModel, extra="forbid"):
@@ -62,6 +62,7 @@ class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     file_format: file.Format
 
     processing_steps: list[FunctionCall] = []
+    fields: list[validate.Field] | None = None
 
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: library.DatasetDefinition | None = None
@@ -85,6 +86,7 @@ class Config(
     source: Source
     file_format: file.Format
     processing_steps: list[FunctionCall] = []
+    fields: list[validate.Field] | None = None
 
     run_details: RunDetails
 

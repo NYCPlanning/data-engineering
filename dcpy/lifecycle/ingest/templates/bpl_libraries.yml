@@ -20,6 +20,38 @@ processing_steps:
       replace:
         "data.": ""
 
+fields:
+  - name: title
+    data_type: text
+    checks:
+      not_null: {}
+      #- type: no_duplicate_values
+  - name: geom
+    data_type: wkb
+    checks:
+      is_geom_point:
+  - name: address
+  - name: phone
+    checks:
+      str_matches: ^ *\d{3}?\.\d{3}?\.\d{4} *$
+  - name: bus
+  - name: subway
+  - name: Monday
+  - name: Tuesday
+  - name: Wednesday
+  - name: Thursday
+  - name: Friday
+  - name: Saturday
+  - name: Sunday
+  - name: hours
+  - name: closingmsg
+  - name: access
+  - name: tags
+  - name: path
+  - name: branchid
+  - name: pickuploc
+  - name: branchlist
+
 library_dataset:
   name: bpl_libraries
   acl: public-read
