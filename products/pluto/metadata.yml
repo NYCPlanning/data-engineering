@@ -1,0 +1,675 @@
+name: primary_land_use_tax_lot_output_pluto
+display_name: Primary Land Use Tax Lot Output (PLUTO)
+summary: "Extensive land use and geographic data at the tax lot level in comma\u2013\
+  separated values (CSV) file format. The PLUTO files contain more than seventy fields\
+  \ derived from data maintained by city agencies.\r\n\r\nAll previously released\
+  \ versions of this data are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
+  >BYTES of the BIG APPLE- Archive</a>"
+description: "Extensive land use and geographic data at the tax lot level in comma\u2013\
+  separated values (CSV) file format. The PLUTO files contain more than seventy fields\
+  \ derived from data maintained by city agencies.\r\n\r\nAll previously released\
+  \ versions of this data are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
+  >BYTES of the BIG APPLE- Archive</a>"
+tags: [primary land use tax lot output, pluto, parcels, tax lot, tax block, zoning, land use, department of city planning, dcp, new york city, nyc]
+each_row_is_a: <FILL_ME_IN>
+destinations:
+- id: socrata_prod
+  type: socrata
+  four_four: 64uk-42ks
+  attachments: []
+  datasets:
+  - primary_shapefile
+  omit_columns: []
+  column_details: {}
+package:
+  dataset_files:
+  - name: primary_shapefile
+    type: shapefile
+    filename: shapefile.zip
+    overrides:
+      omit_columns: []
+      ignore_validation: []
+      columns: {}
+  attachments:
+  - pluto_datadictionary.pdf
+  - pluto_readme.pdf
+columns:
+- name: borough
+  display_name: borough
+  description: ''
+  data_type: text
+  example: QN
+  values:
+  - - QN
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - BK
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - SI
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - BX
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - MN
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: block
+  display_name: block
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '2925'
+- name: lot
+  display_name: lot
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+- name: cd
+  display_name: community board
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '503'
+- name: ct2010
+  display_name: census tract 2010
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '226'
+- name: cb2010
+  display_name: cb2010
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1000'
+- name: schooldist
+  display_name: schooldist
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '31'
+- name: council
+  display_name: council district
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '51'
+- name: zipcode
+  display_name: postcode
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '10314'
+- name: firecomp
+  display_name: firecomp
+  description: ''
+  data_type: text
+  example: L170
+- name: policeprct
+  display_name: policeprct
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '105'
+- name: healtharea
+  display_name: healtharea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '800'
+- name: sanitboro
+  display_name: sanitboro
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '4'
+  values:
+  - - '4'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '5'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: sanitsub
+  display_name: sanitsub
+  description: ''
+  data_type: text
+  example: 2C
+- name: address
+  display_name: address
+  description: ''
+  data_type: text
+  example: HYLAN BOULEVARD
+- name: zonedist1
+  display_name: zonedist1
+  description: ''
+  data_type: text
+  example: R5
+- name: zonedist2
+  display_name: zonedist2
+  description: ''
+  data_type: text
+  example: R6B
+- name: zonedist3
+  display_name: zonedist3
+  description: ''
+  data_type: text
+  example: R5
+- name: zonedist4
+  display_name: zonedist4
+  description: ''
+  data_type: text
+  example: PARK
+- name: overlay1
+  display_name: overlay1
+  description: ''
+  data_type: text
+  example: C2-4
+- name: overlay2
+  display_name: overlay2
+  description: ''
+  data_type: text
+  example: C2-4
+- name: spdist1
+  display_name: spdist1
+  description: ''
+  data_type: text
+  example: SRD
+- name: spdist2
+  display_name: spdist2
+  description: ''
+  data_type: text
+  example: TA
+- name: spdist3
+  display_name: spdist3
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: ltdheight
+  display_name: ltdheight
+  description: ''
+  data_type: text
+  example: LH-1
+  values:
+  - - LH-1
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - LH-1A
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: splitzone
+  display_name: splitzone
+  description: ''
+  data_type: boolean
+  example: false
+  values:
+  - - false
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - true
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: bldgclass
+  display_name: bldgclass
+  description: ''
+  data_type: text
+  example: A1
+- name: landuse
+  display_name: landuse
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+- name: easements
+  display_name: easements
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: ownertype
+  display_name: ownertype
+  description: ''
+  data_type: text
+  example: X
+  values:
+  - - X
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - C
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - O
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - P
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - M
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: ownername
+  display_name: ownername
+  description: ''
+  data_type: text
+  example: UNAVAILABLE OWNER
+- name: lotarea
+  display_name: lotarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '2000'
+- name: bldgarea
+  display_name: bldgarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: comarea
+  display_name: comarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: resarea
+  display_name: resarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: officearea
+  display_name: officearea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: retailarea
+  display_name: retailarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: garagearea
+  display_name: garagearea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: strgearea
+  display_name: strgearea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: factryarea
+  display_name: factryarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: otherarea
+  display_name: otherarea
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: areasource
+  display_name: areasource
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '2'
+  values:
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '7'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '4'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '0'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '5'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: numbldgs
+  display_name: numbldgs
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+- name: numfloors
+  display_name: numfloors
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '2.0000000'
+- name: unitsres
+  display_name: unitsres
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+- name: unitstotal
+  display_name: unitstotal
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+- name: lotfront
+  display_name: lotfront
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '20.0000000'
+- name: lotdepth
+  display_name: lotdepth
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '100.0000000'
+- name: bldgfront
+  display_name: bldgfront
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '20.0000000'
+- name: bldgdepth
+  display_name: bldgdepth
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '40.0000000'
+- name: ext
+  display_name: ext
+  description: ''
+  data_type: text
+  example: N
+  values:
+  - - N
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - G
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - E
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - EG
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: proxcode
+  display_name: proxcode
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+  values:
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '0'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: irrlotcode
+  display_name: irrlotcode
+  description: ''
+  data_type: boolean
+  example: false
+  values:
+  - - false
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - true
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: lottype
+  display_name: lottype
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '5'
+- name: bsmtcode
+  display_name: bsmtcode
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '2'
+  values:
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '5'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '0'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '4'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: assessland
+  display_name: assessland
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '10080.00000'
+- name: assesstot
+  display_name: assesstot
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0.00000'
+- name: exempttot
+  display_name: exempttot
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0.00000'
+- name: yearbuilt
+  display_name: yearbuilt
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1920'
+- name: yearalter1
+  display_name: yearalter1
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: yearalter2
+  display_name: yearalter2
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0'
+- name: histdist
+  display_name: histdist
+  description: ''
+  data_type: text
+  example: Park Slope Historic District
+- name: landmark
+  display_name: landmark
+  description: ''
+  data_type: text
+  example: INDIVIDUAL LANDMARK
+  values:
+  - - INDIVIDUAL LANDMARK
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - INDIVIDUAL AND INTERIOR LANDMARK
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - INTERIOR LANDMARK
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: builtfar
+  display_name: builtfar
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0.00000000000'
+- name: residfar
+  display_name: residfar
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0.50000000000'
+- name: commfar
+  display_name: commfar
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '0.00000000000'
+- name: facilfar
+  display_name: facilfar
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '2.00000000000'
+- name: borocode
+  display_name: borocode
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '4'
+  values:
+  - - '4'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '5'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: bbl
+  display_name: bbl
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '3053610075.00000000'
+- name: condono
+  display_name: condono
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '100'
+- name: tract2010
+  display_name: tract2010
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '226'
+- name: xcoord
+  display_name: xcoord
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '999440'
+- name: ycoord
+  display_name: ycoord
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '199486'
+- name: latitude
+  display_name: latitude
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '40.7142067'
+- name: longitude
+  display_name: longitude
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '-73.9452063'
+- name: zonemap
+  display_name: zonemap
+  description: ''
+  data_type: text
+  example: 17a
+- name: zmcode
+  display_name: zmcode
+  description: ''
+  data_type: boolean
+  example: true
+  values:
+  - - true
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: sanborn
+  display_name: sanborn
+  description: ''
+  data_type: text
+  example: 504 436
+- name: taxmap
+  display_name: taxmap
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '52402'
+- name: edesignum
+  display_name: edesignum
+  description: ''
+  data_type: text
+  example: E-175
+- name: appbbl
+  display_name: appbbl
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '5057350102.00000000'
+- name: appdate
+  display_name: appdate
+  description: ''
+  data_type: datetime
+  example: '1988-08-25T00:00:00.000'
+- name: plutomapid
+  display_name: plutomapid
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+  values:
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '4'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '5'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: version
+  display_name: version
+  description: ''
+  data_type: text
+  example: 24v1.1
+  values:
+  - - 24v1.1
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: sanitdistrict
+  display_name: sanitdistrict
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '3'
+- name: healthcenterdistrict
+  display_name: healthcenterdistrict
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '51'
+- name: firm07_flag
+  display_name: firm07_flag
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+  values:
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: pfirm15_flag
+  display_name: pfirm15_flag
+  description: ''
+  data_type: <FILL_ME_IN>!
+  example: '1'
+  values:
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: rpaddate
+  display_name: rpaddate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: dcasdate
+  display_name: dcasdate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: zoningdate
+  display_name: zoningdate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: landmkdate
+  display_name: landmkdate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: basempdate
+  display_name: basempdate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: masdate
+  display_name: masdate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: polidate
+  display_name: polidate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: edesigdate
+  display_name: edesigdate
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: geom
+  display_name: geom
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: dcpedited
+  display_name: dcpedited
+  description: ''
+  data_type: text
+  example: t
+  values:
+  - - t
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: notes
+  display_name: notes
+  description: ''
+  data_type: text
+  example: <FILL_ME_IN>
+- name: bct2020
+  display_name: bct2020
+  description: ''
+  data_type: text
+  example: '4089201'
+- name: bctcb2020
+  display_name: bctcb2020
+  description: ''
+  data_type: text
+  example: '50170071000'
