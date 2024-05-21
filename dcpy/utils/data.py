@@ -59,22 +59,22 @@ def read_data_to_df(
         local_data_path = unzipped_file_path
 
     match data_format:
-        case file.Shapefile() as shapefile:
+        case file.Shapefile():
             gdf = gpd.read_file(
                 local_data_path,
-                crs=shapefile.crs,
-                encoding=shapefile.encoding,
+                crs=data_format.crs,
+                encoding=data_format.encoding,
             )
-        case file.Geodatabase() as geodatabase:
+        case file.Geodatabase():
             gdf = gpd.read_file(
                 local_data_path,
-                crs=geodatabase.crs,
-                encoding=geodatabase.encoding,
-                layer=geodatabase.layer,
+                crs=data_format.crs,
+                encoding=data_format.encoding,
+                layer=data_format.layer,
             )
-        case file.GeoJson() as geojson:
-            gdf = gpd.read_file(local_data_path, encoding=geojson.encoding)
-        case file.Csv() as csv:
+        case file.GeoJson():
+            gdf = gpd.read_file(local_data_path, encoding=data_format.encoding)
+        case file.Csv():
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,
@@ -83,13 +83,13 @@ def read_data_to_df(
                 names=data_format.column_names,
                 dtype=data_format.dtype,
             )
-
-            gdf = df if not csv.geometry else df_to_gdf(df, csv.geometry)
-        case file.Xlsx:
+            gdf = (
+                df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
+            )
+        case file.Xlsx():
             df = pd.read_excel(
                 local_data_path,
                 sheet_name=data_format.tab_name,
-                encoding=data_format.encoding,
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
