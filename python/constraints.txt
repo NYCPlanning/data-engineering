@@ -456,6 +456,8 @@ pyarrow==16.1.0
     # via
     #   -r python/requirements.in
     #   streamlit
+pyarrow-stubs==10.0.1.7
+    # via -r python/requirements.in
 pycparser==2.22
     # via cffi
 pydantic==2.7.1

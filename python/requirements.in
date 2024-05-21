@@ -31,6 +31,7 @@ pre-commit
 psycopg2-binary==2.9.5
 types-psycopg2
 pyarrow
+pyarrow-stubs
 pydantic
 pytest==7.3.0
 pytest-cov==4.0.0
