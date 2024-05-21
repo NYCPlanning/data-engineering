@@ -104,11 +104,6 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
 app = typer.Typer(add_completion=False)
 
 
-@app.command("placeholder")
-def _placeholder():
-    pass
-
-
 @app.command("export")
 def _export_socrata_metadata(
     four_four: str,
