@@ -9,14 +9,6 @@ file_format:
   json_read_meta:
     json_read_fn: normalize
     json_read_kwargs: { "record_path": ["locations"] }
-  columns:
-    - name
-    - postal_code
-    - street_address
-    - locality
-    - region
-    - geolocation.type
-    - geolocation.coordinates
 
 library_dataset:
   name: nypl_libraries

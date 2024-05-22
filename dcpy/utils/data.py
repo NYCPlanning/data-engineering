@@ -106,12 +106,6 @@ def read_data_to_df(
                 df = pd.json_normalize(
                     json_str, **data_format.json_read_meta.json_read_kwargs
                 )
-
-            # Feels a tad hacky to have this here instead of in preprocessing
-            # But json columns were causing parquet issues
-            if data_format.columns:
-                df = df[data_format.columns]
-
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )

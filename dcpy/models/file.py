@@ -58,7 +58,6 @@ class Geodatabase(BaseModel, extra="forbid"):
 class Json(BaseModel):
     type: Literal["json"]
     json_read_meta: JsonMeta
-    columns: list[str] = []
     unzipped_filename: str | None = None
     geometry: Geometry | None = None
 
