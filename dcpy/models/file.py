@@ -55,7 +55,7 @@ class Geodatabase(BaseModel, extra="forbid"):
     crs: str
 
 
-class Json(BaseModel):
+class Json(BaseModel, extra="forbid"):
     type: Literal["json"]
     json_read_fn: Literal["normalize", "read_json"]
     json_read_kwargs: dict = {}
