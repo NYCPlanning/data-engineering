@@ -14,7 +14,7 @@ on:
           - checkbook
           - colp
           - cpdb
-          - devdb
+          - developments
           - facilities
           - factfinder
           - green_fast_track
@@ -147,9 +147,9 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-  devdb:
+  developments:
     needs: health_check
-    if: inputs.dataset_name == 'devdb' || inputs.dataset_name  == 'all'
+    if: inputs.dataset_name == 'developments' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
