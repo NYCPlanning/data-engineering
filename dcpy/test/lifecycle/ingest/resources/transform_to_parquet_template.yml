@@ -34,13 +34,13 @@
 - file_name: test.xlsx
   file_format:
     type: xlsx
-    tab_name: Sheet1
+    sheet_name: Sheet1
 
 # excel spatial case (2 geom columns, i.e. longitude and latitude columns)
 - file_name: test.xlsx
   file_format:
     type: xlsx
-    tab_name: Sheet1
+    sheet_name: Sheet1
     geometry:
       crs: EPSG:4326
       geom_column:

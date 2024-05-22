@@ -89,7 +89,7 @@ def read_data_to_df(
         case file.Xlsx():
             df = pd.read_excel(
                 local_data_path,
-                sheet_name=data_format.tab_name,
+                sheet_name=data_format.sheet_name,
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)

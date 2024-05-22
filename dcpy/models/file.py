@@ -36,7 +36,7 @@ class Csv(BaseModel, extra="forbid"):
 class Xlsx(BaseModel, extra="forbid"):
     type: Literal["xlsx"]
     unzipped_filename: str | None = None
-    tab_name: str
+    sheet_name: str
     geometry: Geometry | None = None
 
 
