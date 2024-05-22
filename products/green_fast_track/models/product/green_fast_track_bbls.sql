@@ -46,7 +46,7 @@ final AS (
         {% for row in question_flags -%}
             {% if row['flag_field_name'] == 'zoning_category' %}
                 /* the flag zoning_category isn't a binary Yes/No */
-                f."{{ row['flag_id_field_name'] }}" AS "{{ row['flag_field_name'] }}",
+                flags_wide."{{ row['flag_id_field_name'] }}" AS "{{ row['flag_field_name'] }}",
                 /* the id column for the flag zoning_category must show source data */
                 array_to_string(
                     ARRAY[pluto.zonedist1, pluto.zonedist2, pluto.zonedist3, pluto.zonedist4],
@@ -55,16 +55,16 @@ final AS (
             {% else %}
                 /* determine the flag */
                 CASE
-                    WHEN f."{{ row['flag_id_field_name'] }}" IS NULL THEN 'No'
+                    WHEN flags_wide."{{ row['flag_id_field_name'] }}" IS NULL THEN 'No'
                     ELSE 'Yes'
                 END AS "{{ row['flag_field_name'] }}",
                 /* pass along the value of the flag id */
-                f."{{ row['flag_id_field_name'] }}",
+                flags_wide."{{ row['flag_id_field_name'] }}",
             {% endif %}
         {% endfor %}
         pluto.geom
     FROM pluto
-    LEFT JOIN flags_wide AS f ON pluto.bbl = f.bbl
+    LEFT JOIN flags_wide ON pluto.bbl = flags_wide.bbl
 )
 
 SELECT * FROM final
