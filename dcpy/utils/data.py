@@ -110,6 +110,7 @@ def read_data_to_df(
                     if data_format.json_read_kwargs
                     else pd.json_normalize(json_str)
                 )
+            df = serialize_nested_objects(df)
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
@@ -194,3 +195,17 @@ def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
         )
 
     return gdf
+
+
+def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Serialize nested objects (dictionaries and lists) to JSON strings.
+    """
+
+    def serialize_value(value):
+        if isinstance(value, (dict, list)):
+            return json.dumps(value)
+        return value
+
+    # Apply serialization to each cell in the DataFrame
+    return df.map(serialize_value)
