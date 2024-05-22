@@ -14,7 +14,7 @@ on:
           #- checkbook
           - colp
           - cpdb
-          - devdb
+          - developments
           - facilities
           #- factfinder
           - green_fast_track
@@ -134,9 +134,9 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
-  devdb:
+  developments:
     needs: health_check
-    if: inputs.product == 'devdb' || inputs.product  == 'all'
+    if: inputs.product == 'developments' || inputs.product  == 'all'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
