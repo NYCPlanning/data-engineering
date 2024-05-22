@@ -68,6 +68,7 @@ SELECT
     variable_id,
     CASE
         WHEN
+            -- don't calculate distance for spatial flags with a single city-wide geometry
             variable_type IN (
                 'archaeological_areas', 'shadow_open_spaces', 'shadow_nat_resources', 'shadow_hist_resources'
             )
