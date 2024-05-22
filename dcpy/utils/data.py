@@ -96,15 +96,19 @@ def read_data_to_df(
             )
 
         case file.Json():
-            if isinstance(data_format.json_read_meta, file.ReadJson):
-                df = pd.read_json(
-                    local_data_path, **data_format.json_read_meta.json_read_kwargs
+            if data_format.json_read_fn == "read_json":
+                df = (
+                    pd.read_json(local_data_path, **data_format.json_read_kwargs)
+                    if data_format.json_read_kwargs
+                    else pd.read_json(local_data_path)
                 )
             else:
                 with open(local_data_path) as f:
                     json_str = json.load(f)
-                df = pd.json_normalize(
-                    json_str, **data_format.json_read_meta.json_read_kwargs
+                df = (
+                    pd.json_normalize(json_str, **data_format.json_read_kwargs)
+                    if data_format.json_read_kwargs
+                    else pd.json_normalize(json_str)
                 )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)

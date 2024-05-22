@@ -57,22 +57,10 @@ class Geodatabase(BaseModel, extra="forbid"):
 
 class Json(BaseModel):
     type: Literal["json"]
-    json_read_meta: JsonMeta
+    json_read_fn: Literal["normalize", "read_json"]
+    json_read_kwargs: dict = {}
     unzipped_filename: str | None = None
     geometry: Geometry | None = None
-
-
-class JsonNormalize(BaseModel):
-    json_read_fn: Literal["normalize"]
-    json_read_kwargs: dict = {"record_path": None}
-
-
-class ReadJson(BaseModel):
-    json_read_fn: Literal["read_json"]
-    json_read_kwargs: dict = {"orient": None}
-
-
-JsonMeta: TypeAlias = JsonNormalize | ReadJson
 
 
 class GeoJson(BaseModel, extra="forbid"):

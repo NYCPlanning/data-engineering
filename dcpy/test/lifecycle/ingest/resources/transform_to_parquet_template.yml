@@ -78,21 +78,18 @@
 - file_name: test.json
   file_format:
     type: json
-    json_read_meta:
-      json_read_fn: read_json
+    json_read_fn: read_json
 
 # json: case where each object is a column
 - file_name: test2.json
   file_format:
     type: json
-    json_read_meta:
-      json_read_fn: read_json
-      json_read_kwargs: { "orient": "columns" }
+    json_read_fn: read_json
+    json_read_kwargs: { "orient": "columns" }
 
 # json: case with nested values
 - file_name: test3.json
   file_format:
     type: json
-    json_read_meta:
-      json_read_fn: normalize
-      json_read_kwargs: { "max_level": 1 }
+    json_read_fn: normalize
+    json_read_kwargs: { "max_level": 1 }
