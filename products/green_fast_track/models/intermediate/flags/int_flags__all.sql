@@ -12,6 +12,7 @@ WITH variables AS (
 all_variable_ids AS (
     SELECT
         bbl,
+        flag_variable_type,
         variable_type,
         variable_id,
         NULL::double precision AS distance
@@ -19,6 +20,7 @@ all_variable_ids AS (
     UNION ALL
     SELECT
         bbl,
+        flag_variable_type,
         variable_type,
         variable_id,
         NULL::double precision AS distance
@@ -26,6 +28,7 @@ all_variable_ids AS (
     UNION ALL
     SELECT
         bbl,
+        flag_variable_type,
         variable_type,
         variable_id,
         distance
@@ -34,13 +37,14 @@ all_variable_ids AS (
 
 all_flags AS (
     SELECT
-        bbl,
+        all_variable_ids.bbl,
+        all_variable_ids.flag_variable_type,
         variables.flag_id_field_name,
         all_variable_ids.variable_type,
-        variable_id,
-        distance
+        all_variable_ids.variable_id,
+        all_variable_ids.distance
     FROM all_variable_ids LEFT JOIN variables
-        ON all_variable_ids.variable_type = variables.variable_type
+        ON all_variable_ids.flag_variable_type = variables.flag_variable_type
 )
 
 SELECT * FROM all_flags

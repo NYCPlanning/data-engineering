@@ -1,5 +1,6 @@
 SELECT
     source_relation,
+    'hra_' || variable_type AS flag_variable_type,
     variable_type,
     variable_id,
     raw_geom,

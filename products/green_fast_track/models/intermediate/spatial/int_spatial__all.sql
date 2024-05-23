@@ -32,7 +32,7 @@ WITH all_buffers AS (
 
     ],
     source_column_name="source_relation",
-    include=["variable_type", "variable_id", "raw_geom", "lot_geom", "buffer_geom"],
+    include=["flag_variable_type", "variable_type", "variable_id", "raw_geom", "lot_geom", "buffer_geom"],
     column_override={"raw_geom": "geometry", "lot_geom": "geometry", "buffer_geom": "geometry"}
 ) }}
 )
@@ -41,6 +41,7 @@ WITH all_buffers AS (
 
 SELECT
     source_relation,
+    flag_variable_type,
     variable_type,
     variable_id,
     ST_MULTI(raw_geom) AS raw_geom,

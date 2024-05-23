@@ -15,6 +15,7 @@ WITH all_natural_resources AS (
 
 SELECT
     source_relation,
+    'shr_' || variable_type AS flag_variable_type,
     variable_type,
     variable_id,
     raw_geom,

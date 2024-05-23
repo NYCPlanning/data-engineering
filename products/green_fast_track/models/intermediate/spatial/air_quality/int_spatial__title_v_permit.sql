@@ -27,6 +27,7 @@ title_v_facility_permits_with_pluto AS (
 -- If tax lot is null, create buffer around point (geom column)
 final AS (
     SELECT
+        'title_v_permit' AS flag_variable_type,
         variable_type,
         variable_id,
         ST_MULTI(raw_geom) AS raw_geom,
