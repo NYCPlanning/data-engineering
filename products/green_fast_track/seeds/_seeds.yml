@@ -23,6 +23,10 @@ seeds:
   - name: variables
     description: GFT variables used in question flags
     columns:
+      - name: flag_variable_type
+        tests:
+          - not_null
+          - unique
       - name: flag_id_field_name
         tests:
           - not_null
