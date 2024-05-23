@@ -59,20 +59,22 @@ def read_data_to_df(
         local_data_path = unzipped_file_path
 
     match data_format:
-        case file.Shapefile() as shapefile:
+        case file.Shapefile():
             gdf = gpd.read_file(
                 local_data_path,
-                crs=shapefile.crs,
-                encoding=shapefile.encoding,
+                crs=data_format.crs,
+                encoding=data_format.encoding,
             )
-        case file.Geodatabase() as geodatabase:
+        case file.Geodatabase():
             gdf = gpd.read_file(
                 local_data_path,
-                crs=geodatabase.crs,
-                encoding=geodatabase.encoding,
-                layer=geodatabase.layer,
+                crs=data_format.crs,
+                encoding=data_format.encoding,
+                layer=data_format.layer,
             )
-        case file.Csv() as csv:
+        case file.GeoJson():
+            gdf = gpd.read_file(local_data_path, encoding=data_format.encoding)
+        case file.Csv():
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,
@@ -81,56 +83,38 @@ def read_data_to_df(
                 names=data_format.column_names,
                 dtype=data_format.dtype,
             )
+            gdf = (
+                df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
+            )
+        case file.Xlsx():
+            df = pd.read_excel(
+                local_data_path,
+                sheet_name=data_format.sheet_name,
+            )
+            gdf = (
+                df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
+            )
 
-            if not csv.geometry:
-                gdf = df
-
-            else:
-                # case when geometry is in one column (i.e. polygon or point object type)
-                if isinstance(csv.geometry.geom_column, str):
-                    geom_column = csv.geometry.geom_column
-                    assert (
-                        geom_column in df.columns
-                    ), f"❌ Geometry column specified in recipe template does not exist in {local_data_path.name}"
-
-                    # replace NaN values with None. Otherwise gpd throws an error
-                    if df[geom_column].isnull().any():
-                        df[geom_column] = df[geom_column].astype(object)
-                        df[geom_column] = df[geom_column].where(
-                            df[geom_column].notnull(), None
-                        )
-
-                    df[geom_column] = gpd.GeoSeries.from_wkt(df[geom_column])
-
-                    gdf = gpd.GeoDataFrame(
-                        df,
-                        geometry=geom_column,
-                        crs=csv.geometry.crs,
-                    )
-                # case when geometry is specified as lon and lat columns
-                else:
-                    x_column = csv.geometry.geom_column.x
-                    y_column = csv.geometry.geom_column.y
-                    assert (
-                        x_column in df.columns and y_column in df.columns
-                    ), f"❌ Longitude or latitude columns specified in the recipe template do not exist in {local_data_path.name}"
-
-                    gdf = gpd.GeoDataFrame(
-                        df,
-                        geometry=gpd.points_from_xy(df[x_column], df[y_column]),
-                        crs=csv.geometry.crs,
-                    )
         case file.Json():
-            with open(local_data_path) as f:
-                json_str = json.load(f)
-            if data_format.normalize:
-                gdf = pd.json_normalize(json_str, **data_format.normalize)
+            if data_format.json_read_fn == "read_json":
+                df = (
+                    pd.read_json(local_data_path, **data_format.json_read_kwargs)
+                    if data_format.json_read_kwargs
+                    else pd.read_json(local_data_path)
+                )
             else:
-                gdf = pd.read_json(json_str)
-            # Feels a tad hacky to have this here instead of in preprocessing
-            # But json columns were causing parquet issues
-            if data_format.columns:
-                gdf = gdf[data_format.columns]
+                with open(local_data_path) as f:
+                    json_str = json.load(f)
+                df = (
+                    pd.json_normalize(json_str, **data_format.json_read_kwargs)
+                    if data_format.json_read_kwargs
+                    else pd.json_normalize(json_str)
+                )
+            df = serialize_nested_objects(df)
+            gdf = (
+                df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
+            )
+
     return gdf
 
 
@@ -163,3 +147,65 @@ def unzip_file(zipped_filename: Path, output_dir: Path) -> list[str]:
     )
 
     return extracted_files
+
+
+def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
+    """
+    Convert a pandas DataFrame to a GeoDataFrame based on the provided geometry information.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame.
+    geometry (file.Geometry): An object containing geometry information.
+
+    Returns:
+    gpd.GeoDataFrame: The resulting GeoDataFrame.
+    """
+
+    # case when geometry is in one column (i.e. polygon or point object type)
+    if isinstance(geometry.geom_column, str):
+        geom_column = geometry.geom_column
+        assert (
+            geom_column in df.columns
+        ), f"❌ Geometry column specified in recipe template does not exist in the input data."
+
+        # replace NaN values with None. Otherwise gpd throws an error
+        if df[geom_column].isnull().any():
+            df[geom_column] = df[geom_column].astype(object)
+            df[geom_column] = df[geom_column].where(df[geom_column].notnull(), None)
+
+        df[geom_column] = gpd.GeoSeries.from_wkt(df[geom_column])
+
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=geom_column,
+            crs=geometry.crs,
+        )
+    # case when geometry is specified as lon and lat columns
+    else:
+        x_column = geometry.geom_column.x
+        y_column = geometry.geom_column.y
+        assert (
+            x_column in df.columns and y_column in df.columns
+        ), f"❌ Longitude or latitude columns specified in the recipe template do not exist in the input data"
+
+        gdf = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df[x_column], df[y_column]),
+            crs=geometry.crs,
+        )
+
+    return gdf
+
+
+def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Serialize nested objects (dictionaries and lists) to JSON strings.
+    """
+
+    def serialize_value(value):
+        if isinstance(value, (dict, list)):
+            return json.dumps(value)
+        return value
+
+    # Apply serialization to each cell in the DataFrame
+    return df.map(serialize_value)

@@ -36,8 +36,7 @@ class Csv(BaseModel, extra="forbid"):
 class Xlsx(BaseModel, extra="forbid"):
     type: Literal["xlsx"]
     unzipped_filename: str | None = None
-    tab_name: str
-    encoding: str = "utf-8"
+    sheet_name: str
     geometry: Geometry | None = None
 
 
@@ -56,12 +55,19 @@ class Geodatabase(BaseModel, extra="forbid"):
     crs: str
 
 
-# TODO: implement JSON and GEOJSON
-class Json(BaseModel):
+class Json(BaseModel, extra="forbid"):
     type: Literal["json"]
-    normalize: dict = {}
-    columns: list[str] = []
+    json_read_fn: Literal["normalize", "read_json"]
+    json_read_kwargs: dict = {}
     unzipped_filename: str | None = None
+    geometry: Geometry | None = None
 
 
-Format: TypeAlias = Csv | Xlsx | Shapefile | Geodatabase | Json
+class GeoJson(BaseModel, extra="forbid"):
+    type: Literal["geojson"]
+    unzipped_filename: str | None = None
+    encoding: str = "utf-8"
+    # Note, crs is not an attribute for geojson format. Geojson has a specification of "EPSG:4326"
+
+
+Format: TypeAlias = Csv | Xlsx | Shapefile | Geodatabase | Json | GeoJson
