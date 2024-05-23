@@ -9,8 +9,6 @@ from dcpy.models import file
 
 import zipfile
 
-EXTRACTED_FILES_DIR = Path("tmp/extracted_files")
-
 
 def read_data_to_df(
     data_format: file.Format, local_data_path: Path
@@ -41,11 +39,13 @@ def read_data_to_df(
     if data_format.unzipped_filename is not None:
         logger.info(f"Unzipping files from {local_data_path}...")
 
+        extracted_files_dir = local_data_path.parent / "extracted_files"
+
         unzipped_filename = data_format.unzipped_filename
-        unzipped_file_path = EXTRACTED_FILES_DIR / unzipped_filename
+        unzipped_file_path = extracted_files_dir / unzipped_filename
 
         unzipped_files = unzip_file(
-            zipped_filename=local_data_path, output_dir=EXTRACTED_FILES_DIR
+            zipped_filename=local_data_path, output_dir=extracted_files_dir
         )
 
         # remove leading and trailing slashes
