@@ -1,0 +1,112 @@
+name: pluto_change_file
+display_name: PLUTO Change File
+summary: "This is a companion dataset to PLUTO and MapPLUTO. PLUTO and MapPLUTO are\
+  \ created using the best available data from a number of city agencies. To further\
+  \ improve data quality, the Department of City Planning (DCP) applies changes to\
+  \ selected field values. DCPEdited is set to \u201C1\u201D in PLUTO if the record\
+  \ contains any changed values.\r\n\r\nAll previously released versions of this data\
+  \ are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
+  >BYTES of the BIG APPLE- Archive</a>"
+description: "This is a companion dataset to PLUTO and MapPLUTO. PLUTO and MapPLUTO\
+  \ are created using the best available data from a number of city agencies. To further\
+  \ improve data quality, the Department of City Planning (DCP) applies changes to\
+  \ selected field values. DCPEdited is set to \u201C1\u201D in PLUTO if the record\
+  \ contains any changed values.\r\n\r\nAll previously released versions of this data\
+  \ are available at <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\
+  >BYTES of the BIG APPLE- Archive</a>"
+tags:
+- pluto
+- mappluto
+- dtm
+- tax block
+- tax lot
+- parcels
+- change
+- correction
+- dcp
+- city planning
+each_row_is_a: change to selected filed value in PLUTO
+destinations:
+- id: socrata_prod
+  type: socrata
+  four_four: qt5r-nqxp
+  attachments: []
+  datasets:
+  - primary_shapefile
+  omit_columns: []
+  column_details: {}
+package:
+  dataset_files:
+  - name: primary_shapefile
+    type: shapefile
+    filename: shapefile.zip
+    overrides:
+      omit_columns: []
+      ignore_validation: []
+      columns: {}
+  attachments: []
+columns:
+- name: bbl
+  display_name: bbl
+  description: A concatenation of the borough code, tax block and tax lot
+  data_type: text
+  example: '3002600011'
+- name: field
+  display_name: field
+  description: Name of the PLUTO field being changed
+  data_type: text
+  example: yearbuilt
+  values:
+  - - yearbuilt
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - ownername
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - lotarea
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - numfloors
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - unitsres
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - unitstotal
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - cd
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - lotfront
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - lotdepth
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: old_value
+  display_name: old_value
+  description: The original value of the field
+  data_type: text
+  example: '1899'
+- name: new_value
+  display_name: new_value
+  description: The changed value of the field
+  data_type: text
+  example: NYC DEPARTMENT OF PARKS AND RECREATION
+- name: type
+  display_name: type
+  description: Flag indicating the type of change
+  data_type: <FILL_ME_IN>!
+  example: '2'
+  values:
+  - - '2'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '1'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+  - - '3'
+    - <FILL_IN_THE_VALUE_DESCRIPTION!>
+- name: reason
+  display_name: reason
+  description: "The reason the field value was changed. See Appendix for valid values\
+    \ for programmatic and research changes. For user reported changes, the reason\
+    \ states the field that was wrong, e.g. \u201CLot area wrong\u201D."
+  data_type: text
+  example: LPC year built
+- name: version
+  display_name: version
+  description: For programmatic changes, this is version in which the programmatic
+    change was implemented.
+  data_type: text
+  example: 20v1
