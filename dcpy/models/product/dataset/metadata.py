@@ -59,6 +59,7 @@ class Column(BaseModel, extra="forbid"):
     non_nullable: bool | None = None
     is_primary_key: bool | None = None
     readme_data_type: str | None = None
+    deprecated: bool | None = None
     values: list[list] | None = None
 
 
