@@ -18,23 +18,13 @@ distribute_app.add_typer(socrata_app, name="socrata")
 
 @socrata_app.command("from_local")
 def _dist_from_local(
-    package_path: Path = typer.Option(
-        None,
-        "-m",
-        "--metadata-path",
-        help="(Optional) Metadata Path",
-    ),
-    dataset_destination_id: str = typer.Option(
-        None,
-        "-d",
-        "--dest",
-        help="Dataset Destination Id",
-    ),
+    package_path: Path = typer.Argument(),
+    dataset_destination_id: str = typer.Argument(),
     metadata_path: Path = typer.Option(
         None,
         "-m",
         "--metadata-path",
-        help="(Optional) Metadata Path",
+        help="(Optional) Metadata Path Override",
     ),
     publish: bool = typer.Option(
         False,
