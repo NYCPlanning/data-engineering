@@ -61,6 +61,7 @@ districts_resolved AS (
 zoning_district_flags AS (
     SELECT
         districts_resolved.bbl,
+        'zoning_district' AS flag_variable_type,
         'zoning_districts' AS variable_type,
         district_categories.label AS variable_id
     FROM districts_resolved
@@ -70,6 +71,7 @@ zoning_district_flags AS (
 special_district_flags AS (
     SELECT
         bbl,
+        'special_coastal_risk' AS flag_variable_type,
         'special_coastal_risk_districts' AS variable_type,
         CASE
             WHEN spdist1 LIKE 'CR%' THEN spdist1
@@ -85,12 +87,14 @@ special_district_flags AS (
 
 SELECT
     bbl,
+    flag_variable_type,
     variable_type,
     variable_id
 FROM zoning_district_flags
 UNION ALL
 SELECT
     bbl,
+    flag_variable_type,
     variable_type,
     variable_id
 FROM special_district_flags

@@ -8,6 +8,15 @@ models:
         data_type: string
         tests:
           - not_null
+      - name: flag_variable_type
+        data_type: string
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_distinct_values_to_equal_set:
+              name: int_flags__all__flag_variable_type__set
+              value_set: '{{ dbt_utils.get_column_values(
+                              table=ref("variables"),
+                              column="flag_variable_type") }}'
       - name: flag_id_field_name
         data_type: string
         tests:

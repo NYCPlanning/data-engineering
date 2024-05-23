@@ -15,6 +15,7 @@ WITH all_natural_resources AS (
 -- e.g.: `cast("raw_geom" as USER-DEFINED) as "raw...`
 
 SELECT
+    'hd_' || variable_type AS flag_variable_type,
     source_relation,
     variable_type,
     variable_id,

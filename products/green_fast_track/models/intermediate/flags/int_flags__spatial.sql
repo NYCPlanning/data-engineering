@@ -20,6 +20,7 @@ Finally, rows are deduplicated based on bbl, variable_id, and variable_type
 
 WITH variable_geoms AS (
     SELECT
+        flag_variable_type,
         variable_type,
         variable_id,
         raw_geom,
@@ -52,9 +53,10 @@ variable_geom_hexes AS (
 ),
 
 joined_hexes AS (
-    SELECT DISTINCT ON (p.bbl, b.variable_type, b.variable_id)
+    SELECT DISTINCT ON (p.bbl, b.flag_variable_type, b.variable_id)
         p.bbl,
         p.bbl_geom,
+        b.flag_variable_type,
         b.variable_type,
         b.variable_id,
         b.raw_geom
@@ -64,6 +66,7 @@ joined_hexes AS (
 
 SELECT
     bbl,
+    flag_variable_type,
     variable_type,
     variable_id,
     CASE
