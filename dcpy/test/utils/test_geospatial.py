@@ -2,9 +2,11 @@ import pytest
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
+import shapely
 from tempfile import TemporaryDirectory
 
-from dcpy.models.file import Geometry
+from dcpy.models.geospatial import geometry
+from dcpy.models.file import Geometry as FileGeometry
 from dcpy.utils import geospatial, data
 
 
@@ -25,51 +27,49 @@ def data_wkt() -> pd.DataFrame:
     )
 
 
-def test_convert_to_geodata_wkb(data_wkb):
-    geodata = geospatial.convert_to_geodata(
-        data=data_wkb,
-        geometry_column="geom",
-        geometry_format=geospatial.GeometryFormat.wkb,
-        crs=geospatial.GeometryCRS.wgs_84_deg,
+def test_df_to_gdf_wkb(data_wkb):
+    epsg = "EPSG:4326"
+    geom = FileGeometry(
+        geom_column="geom",
+        format=geometry.StandardGeometryFormat.wkb,
+        crs=epsg,
     )
+    gdf = geospatial.df_to_gdf(data_wkb, geom)
+
+    assert isinstance(gdf, gpd.GeoDataFrame)
+    assert gdf.columns.to_list() == [
+        "row_id",
+        "geom",
+    ]
+    assert isinstance(gdf["geom"], gpd.GeoSeries)
+    assert gdf.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
+    assert str(gdf.crs) == epsg
+
+
+def test_df_to_gdf_wkt(data_wkt):
+    epsg = "EPSG:4326"
+    geom = FileGeometry(
+        geom_column="geom",
+        format=geometry.StandardGeometryFormat.wkt,
+        crs=epsg,
+    )
+    geodata = geospatial.df_to_gdf(data_wkt, geom)
 
     assert isinstance(geodata, gpd.GeoDataFrame)
     assert geodata.columns.to_list() == [
         "row_id",
         "geom",
-        "geometry_generated",
-        "geometry_error",
     ]
-    assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
+    assert isinstance(geodata["geom"], gpd.GeoSeries)
     assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
-    assert list(geodata[geodata.geometry.isnull()]["geometry_error"].unique()) == [
-        "Expected bytes or string, got float"
-    ]
-    assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
-
-
-# @pytest.mark.skip
-def test_convert_to_geodata_wkt(data_wkt):
-    geodata = geospatial.convert_to_geodata(
-        data=data_wkt,
-        geometry_column="geom",
-        geometry_format=geospatial.GeometryFormat.wkt,
-        crs=geospatial.GeometryCRS.wgs_84_deg,
-    )
-
-    assert isinstance(geodata, gpd.GeoDataFrame)
-    assert geodata.columns.to_list() == [
-        "row_id",
-        "geom",
-        "geometry_generated",
-        "geometry_error",
-    ]
-    assert isinstance(geodata["geometry_generated"], gpd.GeoSeries)
-    assert geodata.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
-    assert str(geodata.crs) == geospatial.GeometryCRS.wgs_84_deg.value
+    assert str(geodata.crs) == epsg
 
 
 def test_geoseries_constructors_fail(data_wkb, data_wkt):
+    """
+    This issue can either be handled by using shapely.from_wkb/wkt
+    or by converting pandas 'nan's to 'None'
+    """
     with pytest.raises(TypeError):
         data_wkb["new_geometry_column"] = gpd.GeoSeries.from_wkb(data_wkb["geom"])
 
@@ -78,30 +78,30 @@ def test_geoseries_constructors_fail(data_wkb, data_wkt):
 
 
 def test_projected_crs(data_wkb):
-    new_crs = geospatial.GeometryCRS.ny_long_island.value
-    geodata_source = geospatial.convert_to_geodata(
-        data=data_wkb,
-        geometry_column="geom",
-        geometry_format=geospatial.GeometryFormat.wkb,
-        crs=geospatial.GeometryCRS.wgs_84_deg,
+    new_crs = "EPSG:2263"
+    geom = FileGeometry(
+        geom_column="geom",
+        format=geometry.StandardGeometryFormat.wkb,
+        crs="EPSG:4326",
     )
-    geodata = geodata_source.to_crs(new_crs)
-    assert geodata.crs == new_crs
-    assert round(geodata.area.sum(), 2) == 126924.61  # sqft
+    gdf_source = geospatial.df_to_gdf(data_wkb, geom)
+    gdf = gdf_source.to_crs(new_crs)
+    assert gdf.crs == new_crs
+    assert round(gdf.area.sum(), 2) == 126924.61  # sqft
 
 
 @pytest.fixture()
 def gdf(data_wkt):
-    geometry = Geometry(geom_column="geom", crs="EPSG:4236")
+    geometry = FileGeometry(geom_column="geom", crs="EPSG:4236")
     return data.df_to_gdf(data_wkt, geometry)
 
 
-def test_read_parquet_metadata(gdf):
+def test_read_geoparquet_metadata(gdf):
     with TemporaryDirectory() as dir:
         filepath = f"{dir}/tmp.parquet"
         gdf.to_parquet(filepath)
 
-        meta = geospatial.read_parquet_metadata(filepath)
+        meta = geospatial.read_geoparquet_metadata(filepath)
 
         assert "geom" in meta.geo_parquet.columns
         assert meta.geo_parquet.columns["geom"].crs.id
@@ -112,3 +112,18 @@ def test_reproject_gdf(gdf):
     assert gdf.crs.srs == "EPSG:4236"
     state_plane = geospatial.reproject_gdf(gdf, target_crs="EPSG:2263")
     assert state_plane.crs.srs == "EPSG:2263"
+
+
+@pytest.mark.parametrize(
+    "xy_str, example",
+    [
+        ("x, y", "-74.0, 40.7"),
+        ("Point(x y)", "Point(-74.0 40.7)"),
+        pytest.param("Point(x y)", "-74.0 40.7", marks=pytest.mark.xfail),
+        pytest.param("Point(x y y)", "-74.0 40.7", marks=pytest.mark.xfail),
+    ],
+)
+def test_point_xy_str(xy_str, example):
+    point_xy = geometry.PointXYStr(point_xy_str=xy_str)
+    wkt = point_xy.wkt(example)
+    assert shapely.from_wkt(wkt)

@@ -264,4 +264,5 @@ def preprocess(
     compiled_steps = validate_processing_steps(config.name, config.processing_steps)
     for step in compiled_steps:
         df = step(df)
+    print(df.columns)
     df.to_parquet(output_path)
