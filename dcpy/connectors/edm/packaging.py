@@ -92,7 +92,7 @@ def _list_packages(product_name):
     return print(get_packaged_versions(product_name))
 
 
-@app.command("download")
+@app.command("pull")
 def _download_packages(
     product_name,
     version,
