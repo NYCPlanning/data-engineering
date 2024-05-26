@@ -151,6 +151,10 @@ models:
       - name: geom
         data_type: geometry(Geometry, 2263)
 
+
+  - name: product__flags
+  - name: product__sources
+
   - name: test_actual__pilot_projects
     description: Green Fast Track outputs for pilot project examples
     tests:
