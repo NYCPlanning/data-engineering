@@ -6,6 +6,8 @@ models:
     config:
       contract:
         enforced: true
+    
+    # contract
     columns:
       - name: bbl
         data_type: string
@@ -150,6 +152,23 @@ models:
       # lot geometry
       - name: geom
         data_type: geometry(Geometry, 2263)
+
+    tests:
+      # domain knowledge
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          name: logic_buffer_source_data_a
+          # expect more flags from buffered than non-buffered
+          min_value: 1
+          row_condition: "historic_resources is null and historic_resources_adj is not null"
+          config:
+            # TODO fix this
+            severity: warn
+
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          name: logic_buffer_source_data_b
+          # expect more flags from larger buffer
+          min_value: 1
+          row_condition: "historic_resources_adj is null and shadow_hist_resources is not null"
 
   - name: test_actual__pilot_projects
     description: Green Fast Track outputs for pilot project examples
