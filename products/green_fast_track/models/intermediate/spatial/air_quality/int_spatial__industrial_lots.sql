@@ -13,6 +13,7 @@ filtered AS (
 )
 
 SELECT
+    'industrial_lots' AS flag_id_field_name,
     'industrial_sources' AS variable_type,
     bbl AS variable_id,
     geom AS raw_geom,

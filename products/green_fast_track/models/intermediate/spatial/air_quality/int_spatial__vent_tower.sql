@@ -4,8 +4,9 @@ WITH vents_raw AS (
 )
 
 SELECT
-    name AS variable_id,
+    'vent_tower' AS flag_id_field_name,
     'vent_towers' AS variable_type,
+    name AS variable_id,
     wkb_geometry AS raw_geom,
     ST_BUFFER(wkb_geometry, 75) AS buffer_geom
 FROM vents_raw

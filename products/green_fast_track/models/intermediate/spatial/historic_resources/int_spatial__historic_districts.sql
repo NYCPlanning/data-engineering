@@ -16,6 +16,7 @@ WITH all_natural_resources AS (
 
 SELECT
     source_relation,
+    'historic_districts' AS flag_id_field_name,
     variable_type,
     variable_id,
     raw_geom

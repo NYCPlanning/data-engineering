@@ -3,6 +3,7 @@ WITH clipped_to_nyc AS (
 )
 
 SELECT
+    'wetland_checkzone' AS flag_id_field_name,
     'wetlands_checkzones' AS variable_type,
     objectid AS variable_id,
     geom AS raw_geom,

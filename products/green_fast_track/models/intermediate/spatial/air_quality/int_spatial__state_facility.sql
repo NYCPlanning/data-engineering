@@ -27,6 +27,7 @@ state_facility_permits_with_pluto AS (
 -- If tax lot is null, create buffer around point (geom column)
 final AS (
     SELECT
+        'state_facility' AS flag_id_field_name,
         variable_type,
         variable_id,
         ST_MULTI(raw_geom) AS raw_geom,
