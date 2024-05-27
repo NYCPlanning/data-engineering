@@ -121,7 +121,7 @@ models:
           name: int_flags__spatial_compound_key
           combination_of_columns:
             - bbl
-            - variable_type
+            - flag_id_field_name
             - variable_id
 
   - name: test_actual__flags_zoning

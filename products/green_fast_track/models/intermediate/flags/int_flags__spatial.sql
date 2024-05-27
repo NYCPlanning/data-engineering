@@ -15,11 +15,12 @@ These hexagons are joined to the variable geometries table, creating one row per
 
 This variable geoemtry/hexagon table is then joined to pluto lots. hexagons geoms are used as first join criterion, then actual geom
 
-Finally, rows are deduplicated based on bbl, variable_id, and variable_type
+Finally, rows are deduplicated based on bbl, variable_id, variable_type, and flag_id_field_name
 */
 
 WITH variable_geoms AS (
     SELECT
+        flag_id_field_name,
         variable_type,
         variable_id,
         raw_geom,
@@ -52,9 +53,10 @@ variable_geom_hexes AS (
 ),
 
 joined_hexes AS (
-    SELECT DISTINCT ON (p.bbl, b.variable_type, b.variable_id)
+    SELECT DISTINCT ON (p.bbl, b.flag_id_field_name, b.variable_type, b.variable_id)
         p.bbl,
         p.bbl_geom,
+        b.flag_id_field_name,
         b.variable_type,
         b.variable_id,
         b.raw_geom
@@ -64,16 +66,17 @@ joined_hexes AS (
 
 SELECT
     bbl,
+    flag_id_field_name,
     variable_type,
     variable_id,
     CASE
         WHEN
             -- don't calculate distance for spatial flags with a single city-wide geometry
-            variable_type IN (
-                'archaeological_areas', 'shadow_open_spaces', 'shadow_nat_resources', 'shadow_hist_resources'
+            flag_id_field_name IN (
+                'archaeological_area', 'shadow_open_spaces', 'shadow_nat_resources', 'shadow_hist_resources'
             )
             THEN 0
         ELSE ST_DISTANCE(bbl_geom, raw_geom)
     END AS distance
 FROM joined_hexes
-ORDER BY bbl ASC, variable_type ASC, variable_id ASC
+ORDER BY bbl ASC, flag_id_field_name ASC, variable_type ASC, variable_id ASC

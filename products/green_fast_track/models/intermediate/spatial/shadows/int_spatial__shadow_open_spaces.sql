@@ -19,6 +19,7 @@ WITH all_natural_resources AS (
 
 SELECT
     source_relation,
+    'shadow_open_spaces' AS flag_id_field_name,
     variable_type,
     variable_id,
     raw_geom,

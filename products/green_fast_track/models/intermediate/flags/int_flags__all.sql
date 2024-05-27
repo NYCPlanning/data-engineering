@@ -5,13 +5,10 @@
     ]
 ) }}
 
-WITH variables AS (
-    SELECT * FROM {{ ref('variables') }}
-),
-
-all_variable_ids AS (
+WITH all_flags AS (
     SELECT
         bbl,
+        flag_id_field_name,
         variable_type,
         variable_id,
         NULL::double precision AS distance
@@ -19,6 +16,7 @@ all_variable_ids AS (
     UNION ALL
     SELECT
         bbl,
+        flag_id_field_name,
         variable_type,
         variable_id,
         NULL::double precision AS distance
@@ -26,21 +24,11 @@ all_variable_ids AS (
     UNION ALL
     SELECT
         bbl,
+        flag_id_field_name,
         variable_type,
         variable_id,
         distance
     FROM {{ ref('int_flags__spatial') }}
-),
-
-all_flags AS (
-    SELECT
-        bbl,
-        variables.flag_id_field_name,
-        all_variable_ids.variable_type,
-        variable_id,
-        distance
-    FROM all_variable_ids LEFT JOIN variables
-        ON all_variable_ids.variable_type = variables.variable_type
 )
 
 SELECT * FROM all_flags

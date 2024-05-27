@@ -3,6 +3,7 @@ WITH arterial_highways AS (
 )
 
 SELECT
+    'arterial_highway' AS flag_id_field_name,
     'arterial_highways' AS variable_type,
     name AS variable_id,
     wkb_geometry AS raw_geom,

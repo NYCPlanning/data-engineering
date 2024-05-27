@@ -12,6 +12,7 @@ filtered AS (
 )
 
 SELECT
+    'exposed_railway' AS flag_id_field_name,
     'exposed_railways' AS variable_type,
     street AS variable_id,
     geom AS raw_geom,
