@@ -172,7 +172,7 @@ if __name__ == "__main__":
     print("start selecting data from DB ...")
     # connect to postgres db
     client = postgres.PostgresClient()
-    cbbr_data = client.read_sql_table("_cbbr_submissions")
+    cbbr_data = client.read_table_df("_cbbr_submissions")
 
     print("parsing location data for geocoding ...")
     cbbr_data = parse_location(cbbr_data)

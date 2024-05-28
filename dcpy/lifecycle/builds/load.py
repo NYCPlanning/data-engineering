@@ -105,7 +105,7 @@ def get_imported_df(load_result: LoadResult, ds_name: str) -> pd.DataFrame:
             return df
         case str() as table_name:
             pg_client = postgres.PostgresClient(schema=load_result.build_name)
-            return pg_client.read_sql_table(table_name)
+            return pg_client.read_table_df(table_name)
         case Path() as file_path:
             if file_path.suffix == "csv":
                 return pd.read_csv(file_path)
