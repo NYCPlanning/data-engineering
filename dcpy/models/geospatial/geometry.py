@@ -37,7 +37,6 @@ class PointXYStr(BaseModel, extra="forbid"):
             .replace("x", capture("x"))
             .replace("y", capture("y"))
         )
-        print(regex_str)
         re_match = re.match(rf"^{regex_str}$", s)
         if re_match:
             return f"Point({re_match['x']} {re_match['y']})"

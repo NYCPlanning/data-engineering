@@ -114,7 +114,7 @@ def read_data_to_df(
                     else pd.json_normalize(json_str)
                 )
             df = serialize_nested_objects(df)
-            print(df)
+
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
