@@ -2,6 +2,8 @@ import os
 import shutil
 import zipfile
 from dcpy.connectors.edm import publishing
+from dcpy.models.file import Geometry
+from dcpy.models.geospatial import geometry
 from dcpy.utils import geospatial
 from dcpy.utils.logging import logger
 
@@ -40,11 +42,14 @@ def export():
                 data.to_csv(file_path.with_suffix(".csv"), index=False)
             elif "shapefile" in file_type:
                 shapefile_directory = OUTPUT_DIR
-                geodata = geospatial.convert_to_geodata(
+                geom = Geometry(
+                    geom_column="wkb_geometry",
+                    format=geometry.StandardGeometryFormat.wkb,
+                    crs="EPSG:4326",
+                )
+                geodata = geospatial.df_to_gdf(
                     data,
-                    geometry_column="wkb_geometry",
-                    geometry_format=geospatial.GeometryFormat.wkb,
-                    crs=geospatial.GeometryCRS.wgs_84_deg,
+                    geom,
                 )
 
                 if file_type == "shapefile_points":

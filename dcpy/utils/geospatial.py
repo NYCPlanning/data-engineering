@@ -11,7 +11,6 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
-import shapely
 
 from dcpy.models import file
 from dcpy.models.geospatial import parquet as geoparquet, geometry as geom

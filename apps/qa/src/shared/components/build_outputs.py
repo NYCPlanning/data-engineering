@@ -4,7 +4,9 @@ import pandas as pd
 import geopandas as gpd
 import leafmap.foliumap as lmf
 
-from dcpy.utils import geospatial
+from dcpy.models.geospatial import geometry
+from dcpy.models.file import Geometry
+from dcpy.utils import geospatial, mapping
 from dcpy.connectors.edm import publishing
 from src.shared.utils.publishing import read_csv_cached, read_file_metadata
 
@@ -49,7 +51,7 @@ def load_build_outputs(product_key, csv_files) -> list[BuildOutput]:
 def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
     for build_output in build_outputs:
         # TODO generalize to work for files with different geometry formats and column names
-        geometry_format = geospatial.GeometryFormat.wkb
+        geometry_format = geometry.StandardGeometryFormat.wkb
         geometry_column = "wkb_geometry"
         with st.spinner(f"Generating `{build_output.file_name}` GeoDataFrame ..."):
             if build_output.dataframe is None:
@@ -61,11 +63,11 @@ def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
                 build_output.geodataframe = None
                 build_output.qa_warnings.append(f"Column {geometry_column} not found.")
             else:
-                build_output.geodataframe = geospatial.convert_to_geodata(
-                    build_output.dataframe,
-                    geometry_column=geometry_column,
-                    geometry_format=geometry_format,
-                    crs=geospatial.GeometryCRS.wgs_84_deg,
+                geom = Geometry(
+                    geom_column=geometry_column, format=geometry_format, crs="EPSG:4326"
+                )
+                build_output.geodataframe = geospatial.df_to_gdf(
+                    build_output.dataframe, geom
                 )
 
                 build_output.geodataframe_for_display = build_output.geodataframe.copy()
@@ -85,7 +87,7 @@ def generate_maps(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
             build_output.qa_warnings.append(f"No GeoDataFrame to generate map from.")
         else:
             with st.spinner(f"Generating `{build_output.file_name}` map ..."):
-                build_output.map = geospatial.generate_folium_map(
+                build_output.map = mapping.generate_folium_map(
                     build_output.geodataframe
                 )
 
@@ -137,7 +139,4 @@ def show_map(build_output: BuildOutput) -> None:
         st.info("No map")
         return
 
-    map.to_streamlit(
-        width=geospatial.DEFAULT_MAP_SIZE["width"],
-        height=geospatial.DEFAULT_MAP_SIZE["height"],
-    )
+    map.to_streamlit(**mapping.DEFAULT_MAP_SIZE)
