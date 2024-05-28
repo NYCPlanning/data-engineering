@@ -266,6 +266,27 @@ class Revision:
             )
         )
 
+    def push_csv(
+        self, path: Path, *, dest_filename: str | None = None
+    ) -> Socrata.Responses.RevisionDataSource:
+        _socratapy_client = SocrataPy(
+            Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
+        )
+        view = _socratapy_client.views.lookup(self.four_four)
+        rev = view.revisions.lookup(self.revision_num)
+        with open(path, "rb") as csv:
+            logger.info(
+                f"Pushing csv at {path} to {self.four_four} - rev: {self.revision_num}"
+            )
+            push_resp = (
+                rev.create_upload(dest_filename or path.name).csv(csv).wait_for_finish()
+            )
+        error_details: dict | None = push_resp.attributes["failure_details"]
+        if error_details:
+            logger.error(f"CSV upload failed with {error_details}")
+            raise Exception()
+        return Socrata.Responses.RevisionDataSource(push_resp)
+
     def push_shp(
         self, path: Path, *, dest_filename: str | None = None
     ) -> Socrata.Responses.RevisionDataSource:
@@ -280,7 +301,7 @@ class Revision:
                 f"Pushing shapefiles at {path} to {self.four_four} - rev: {self.revision_num}"
             )
             push_resp = (
-                rev.create_upload(dest_filename or shp_zip.name)
+                rev.create_upload(dest_filename or path.name)
                 .shapefile(shp_zip)
                 .wait_for_finish()
             )
