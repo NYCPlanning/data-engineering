@@ -10,8 +10,8 @@ WITH all_natural_resources AS (
         ref('stg__us_parks_properties'),
     ],
     source_column_name="source_relation",
-    include=["variable_type", "variable_id", "raw_geom"],
-    column_override={"raw_geom": "geometry"}
+    include=["variable_type", "variable_id", "raw_geom", "lot_geom"],
+    column_override={"raw_geom": "geometry", "lot_geom": "geometry"}
 ) }}
 )
 -- Note: without `column_override`, dbt throws an error trying to cast.
@@ -22,6 +22,6 @@ SELECT
     'shadow_open_spaces' AS flag_id_field_name,
     variable_type,
     variable_id,
-    raw_geom,
-    ST_BUFFER(raw_geom, 200) AS buffer_geom
+    ST_MULTI(COALESCE(lot_geom, raw_geom)) AS raw_geom,
+    ST_MULTI(ST_BUFFER(COALESCE(lot_geom, raw_geom), 200)) AS buffer_geom
 FROM all_natural_resources

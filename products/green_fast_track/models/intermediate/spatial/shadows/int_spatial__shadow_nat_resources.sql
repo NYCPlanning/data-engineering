@@ -24,6 +24,6 @@ SELECT
     'shadow_nat_resources' AS flag_id_field_name,
     variable_type,
     variable_id,
-    raw_geom,
-    ST_BUFFER(raw_geom, 200) AS buffer_geom
+    ST_MULTI(raw_geom) AS raw_geom,
+    ST_MULTI(ST_BUFFER(raw_geom, 200)) AS buffer_geom
 FROM all_natural_resources
