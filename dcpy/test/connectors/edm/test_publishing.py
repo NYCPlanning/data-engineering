@@ -132,8 +132,9 @@ def test_assert_gis_dataset_exists(create_buckets, add_gis_datasets):
 
 
 def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
-    today = datetime.now().strftime("%Y%m%d")
-    assert today == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
+    assert TEST_VERSION.upper() == publishing.get_latest_gis_dataset_version(
+        TEST_GIS_DATASET
+    )
 
 
 def test_download_gis_dataset(
