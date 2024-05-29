@@ -30,12 +30,37 @@ destinations:
       api_name: healthcent
     sanitdistrict:
       api_name: sanitdistr
+- id: test_socrata_prod_water_incl
+  type: socrata
+  four_four: 4g5k-ab5u
+  attachments:
+  - pluto_datadictionary.pdf
+  - pluto_readme.pdf
+  datasets:
+  - shapefile_water_incl_test
+  omit_columns: []
+  column_details:
+    pfirm15_flag:
+      api_name: pfirm15_fla
+    firm07_flag:
+      api_name: firm07_fla
+    healthcenterdistrict:
+      api_name: healthcent
+    sanitdistrict:
+      api_name: sanitdistr
 
 package:
   dataset_files:
   - name: shapefile_water_incl
     type: shapefile
     filename: mappluto_wi_shp.zip
+    overrides:
+      omit_columns: []
+      ignore_validation: []
+      columns: {}
+  - name: shapefile_water_incl_test
+    type: shapefile
+    filename: MapPLUTO_WI_truncated.zip
     overrides:
       omit_columns: []
       ignore_validation: []
