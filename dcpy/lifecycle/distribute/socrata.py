@@ -115,7 +115,7 @@ def _dist_from_s3(
     )
     logger.info(f"Downloading dataset package for {product_name}-{version}")
 
-    package_path = packaging.download_packaged_version(
+    package_path = packaging.pull(
         packaging.DatasetPackageKey(product_name, version, dataset or product_name)
     )
 

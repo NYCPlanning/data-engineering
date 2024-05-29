@@ -1,6 +1,6 @@
 import typer
 
-from .edm.packaging import app as package_app
+from .edm.packaging import package_app as package_app
 from .socrata import metadata
 
 edm_app = typer.Typer()
