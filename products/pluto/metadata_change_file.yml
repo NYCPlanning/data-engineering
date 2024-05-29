@@ -24,6 +24,15 @@ destinations:
   - pluto_changes_applied
   omit_columns: []
   column_details: {}
+- id: socrata_test
+  type: socrata
+  four_four: v3y3-tzps
+  attachments:
+    - pluto_removed_records.csv
+  datasets:
+  - pluto_changes_applied
+  omit_columns: []
+  column_details: {}
 
 package:
   dataset_files:
