@@ -9,11 +9,14 @@ from dcpy.lifecycle.builds import metadata
 
 from . import BUILD_REPO, BUILD_DBS
 
+PROTECTED_BUILD_NAMES = ["nightly_qa"]
+
 
 def get_active_build_names(as_schema=False) -> list[str]:
     branches = github.get_branches(repo=BUILD_REPO)  # all remote branches
     branch_build_names = sorted(
-        [
+        PROTECTED_BUILD_NAMES
+        + [
             metadata.build_name(name=branch) if as_schema else branch
             for branch in branches
         ]
