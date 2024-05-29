@@ -13,9 +13,9 @@ WITH all_buffers AS (
         ref('int_spatial__state_facility'),
         ref('int_spatial__title_v_permit'),
         ref('int_spatial__vent_tower'),
+        ref('int_spatial__arterial_highway'),
 
         ref('stg__panynj_airports'),
-        ref('int_spatial__arterial_highway'),
         ref('int_spatial__exposed_railway'),
 
         ref('int_spatial__natural_resources'),

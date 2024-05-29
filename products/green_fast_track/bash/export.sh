@@ -42,10 +42,10 @@ mkdir -p output && (
     export_source source__vent_tower
     export_source source__vent_tower_buffer
     
-    echo "FGDB export Noise ..."
     export_source source__arterial_highway MULTILINESTRING
     export_source source__arterial_highway_buffer
 
+    echo "FGDB export Noise ..."
     export_source source__exposed_railway MULTILINESTRING
     export_source source__exposed_railway_buffer
 
