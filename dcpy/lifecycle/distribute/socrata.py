@@ -64,14 +64,7 @@ def _dist_from_local(
                 validation.pretty_print_errors()
                 raise Exception(error_msg)
 
-    ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-
-    match md.package.get_dataset(ds_name_to_push).type:
-        case "shapefile":
-            soc_pub.push_shp(md, dataset_destination_id, package_path, publish=publish)
-        case _:
-            # TODO
-            raise Exception("Only shapefiles have been implemented so far")
+    soc_pub.push_dataset(md, dataset_destination_id, package_path, publish=publish)
 
 
 @socrata_app.command("from_s3")

@@ -193,9 +193,8 @@ class Dataset:
 
     def discard_open_revisions(self):
         open_revs = self.fetch_open_revisions()
-        to_discard = [r for r in open_revs if r.revision_num != "0"]
-        logger.info(f"Discarding revisions: {to_discard}")
-        for rev in to_discard:
+        logger.info(f"Discarding revisions: {open_revs}")
+        for rev in open_revs:
             rev.discard()
 
     def create_replace_revision(self) -> Revision:
@@ -357,26 +356,24 @@ def make_socrata_metadata(dcp_md: models.Metadata):
     }
 
 
-def push_shp(
+def push_dataset(
     metadata: models.Metadata,
     dataset_destination_id: str,
     dataset_package_path: Path,
     *,
     publish: bool,
 ):
-    """Push Shapefile from the distributions bucket to Socrata, and sync metadata."""
+    """Push a dataset and sync metadata."""
     dest = metadata.get_destination(dataset_destination_id)
     if type(dest) != models.SocrataDestination:
         raise Exception("received a non-socrata type destination")
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-    shapefile_name = metadata.package.get_dataset(ds_name_to_push).filename
-    shape_file_path = (
-        dataset_package_path / "dataset_files" / shapefile_name
+    md_dataset = metadata.package.get_dataset(ds_name_to_push)
+    file_path = (
+        dataset_package_path / "dataset_files" / md_dataset.filename
     )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
 
     dataset = Dataset(four_four=dest.four_four)
-
-    dataset.discard_open_revisions()
 
     rev = dataset.create_replace_revision()
 
@@ -392,7 +389,14 @@ def push_shp(
         attachments=attachments_metadata, metadata=make_socrata_metadata(metadata)
     )
 
-    data_source = rev.push_shp(shape_file_path)
+    data_source = None
+    if md_dataset.type == "csv":
+        data_source = rev.push_csv(file_path)
+    elif md_dataset.type == "shapefile":
+        data_source = rev.push_shp(file_path)
+    else:
+        raise Exception(f"Pushing unsupported file type: {md_dataset.type}")
+
     try:
         data_source.update_column_metadata(dest, metadata)
     except Exception as e:
@@ -429,3 +433,5 @@ def push_shp(
                     Please investigate manually here: {rev.page_url}"""
                 )
         logger.info("Job Finished Successfully")
+
+        dataset.discard_open_revisions()
