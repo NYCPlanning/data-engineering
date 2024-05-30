@@ -22,56 +22,15 @@ jobs:
     strategy:
       matrix:
         dataset:
-          - council_members
-          - dca_operatingbusinesses
-          - dcla_culturalinstitutions
-          - dcp_edeseignation_csv
-          - dep_cats_permits
-          - dfta_contracts
-          - doe_busroutesgarages
-          - doe_eszones
-          - doe_hszones
-          - doe_mszones
-          - dohmh_daycare
-          - doit_evictions
-          - doitt_buildingcentroids
           - doitt_buildingfootprints
           - doitt_buildingfootprints_historical
-          - dot_pedplazas
-          - dot_projects_intersections
-          - dot_projects_streets
-          - dpr_forever_wild
           - dpr_greenthumb
           - dpr_park_access_zone
           - dpr_parksproperties
-          - dpr_schoolyard_to_playgrounds
-          - dsny_donatenycdirectory
-          - dsny_electronicsdrop
-          - dsny_fooddrop
           - dsny_frequencies
           - dsny_garages
-          - dsny_leafdrop
-          - dsny_specialwastedrop
-          - dsny_textiledrop
-          - dycd_afterschoolprograms
-          - dycd_service_sites
-          - fdny_firecompanies
-          - fdny_firehouses
-          - hhc_hospitals
-          - hpd_hny_units_by_building
-          - hra_jobcenters
-          - hra_medicaid
-          - hra_snapcenters
-          - lpc_historic_district_areas
           - lpc_historic_districts
           - lpc_landmarks
-          - lpc_scenic_landmarks
-          - nycha_communitycenters
-          - nycha_policeservice
-          - nypd_policeprecincts
-          - qpl_libraries
-          - sbs_workforce1
-          - sca_enrollment_capacity
           
     steps:
       - uses: actions/checkout@v4
