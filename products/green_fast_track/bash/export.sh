@@ -79,6 +79,7 @@ mkdir -p output && (
 
     export_source source__shadow_hist_resources_points POINT
     export_source source__shadow_hist_resources_polys
+    export_source source__shadow_hist_resources_lots
     export_source source__shadow_hist_resources_buffer
 
     echo "FGDB export non-spatial tables ..."
