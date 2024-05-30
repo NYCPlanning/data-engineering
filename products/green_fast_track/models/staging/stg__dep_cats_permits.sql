@@ -9,7 +9,6 @@ final AS (
         status,
         st_transform(geom::geometry, 2263) AS permit_geom
     FROM source
-    WHERE upper(status) IN ('EXPIRED', 'CURRENT')
 )
 
 SELECT * FROM final

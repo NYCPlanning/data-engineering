@@ -5,6 +5,7 @@ WITH cats_permits AS (
         permit_geom
     FROM
         {{ ref('stg__dep_cats_permits') }}
+    WHERE upper(status) IN ('EXPIRED', 'CURRENT') and variable_id SIMILAR TO 'PA%|PB%'
 ),
 
 pluto AS (
