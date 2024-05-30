@@ -1,0 +1,26 @@
+dataset:
+  name: dob_natural_resource_check_flags
+  acl: private
+  source:
+    url:
+      path: .library/upload/DOB_NYC_NatResCheck_flags_20240419.csv
+    options:
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    geometry:
+      SRS: null
+      type: NONE
+
+  info:
+    description: |
+      ## DOB NYC Natural Resource Check Flags
+      Private file shared with DCP by DOB with flags per bbl
+      Does not contain geospatial data or identifying features of flags
+      Unique by bbl, with three flag columns
