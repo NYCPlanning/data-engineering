@@ -32,7 +32,7 @@ final AS (
         variable_id,
         ST_MULTI(raw_geom) AS raw_geom,
         ST_MULTI(lot_geom) AS lot_geom,
-        ST_MULTI(ST_BUFFER(raw_geom, 1000)) AS buffer_geom
+        ST_MULTI(ST_BUFFER(COALESCE(lot_geom, raw_geom), 1000)) AS buffer_geom
     FROM state_facility_permits_with_pluto
 )
 
