@@ -1,13 +1,12 @@
-WITH all_natural_resources AS (
+WITH all_shadow_resources AS (
 {{ dbt_utils.union_relations(
     relations=[
-        ref('stg__lpc_landmarks'),
-        ref('stg__nysshpo_historic_buildings'),
+        ref('int_spatial__historic_resources'),
         ref('stg__lpc_scenic_landmarks'),
     ],
     source_column_name="source_relation",
-    include=["variable_type", "variable_id", "raw_geom"],
-    column_override={"raw_geom": "geometry"}
+    include=["variable_type", "variable_id", "raw_geom", "lot_geom"],
+    column_override={"raw_geom": "geometry", "lot_geom": "geometry"}
 ) }}
 )
 -- Note: without `column_override`, dbt throws an error trying to cast.
@@ -19,5 +18,6 @@ SELECT
     variable_type,
     variable_id,
     ST_MULTI(raw_geom) AS raw_geom,
-    ST_MULTI(ST_BUFFER(raw_geom, 200)) AS buffer_geom
-FROM all_natural_resources
+    ST_MULTI(lot_geom) AS lot_geom,
+    ST_MULTI(ST_BUFFER(COALESCE(lot_geom, raw_geom), 200)) AS buffer_geom
+FROM all_shadow_resources

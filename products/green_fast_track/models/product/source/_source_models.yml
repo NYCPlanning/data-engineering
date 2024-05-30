@@ -38,8 +38,10 @@ models:
   # Historic Resources
   - name: source__archaeological_area
   - name: source__historic_districts
+
   - name: source__historic_resources_points
   - name: source__historic_resources_lots
+
   - name: source__historic_resources_adj_points
   - name: source__historic_resources_adj_lots
   - name: source__historic_resources_adj_buffer
@@ -54,5 +56,6 @@ models:
   - name: source__shadow_nat_resources_buffer
 
   - name: source__shadow_hist_resources_points
+  - name: source__shadow_hist_resources_lots
   - name: source__shadow_hist_resources_polys
   - name: source__shadow_hist_resources_buffer
