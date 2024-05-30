@@ -75,6 +75,18 @@ sources:
             tests:
               - not_null
 
+      - name: dcp_cscl_commonplace
+        columns:
+          - name: wkb_geometry
+            tests:
+              - not_null
+
+      - name: dcp_cscl_complex
+        columns:
+          - name: wkb_geometry
+            tests:
+              - not_null
+
       - name: dcp_mappluto_wi
         columns:
           - name: bbl

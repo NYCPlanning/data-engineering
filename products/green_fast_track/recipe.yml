@@ -18,6 +18,8 @@ inputs:
     - name: panynj_jfk_65db
     - name: panynj_lga_65db
     - name: dcp_lion
+    - name: dcp_cscl_commonplace
+    - name: dcp_cscl_complex
     # Natural Resources
     - name: dcp_beaches
     - name: dcp_wrp_rec

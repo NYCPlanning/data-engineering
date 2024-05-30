@@ -47,6 +47,7 @@ mkdir -p output && (
 
     echo "FGDB export Noise ..."
     export_source source__exposed_railway_lines MULTILINESTRING
+    export_source source__exposed_railway_polys
     export_source source__exposed_railway_buffer
 
     export_source source__airport_noise

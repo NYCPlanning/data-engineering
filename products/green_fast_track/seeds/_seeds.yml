@@ -130,3 +130,16 @@ seeds:
     config:
       column_types:
         bbl: text
+
+  - name: railyards_hudsonyards_erase
+    description: area to remove from exposed railyards data source (from dcp_cscl_commonplace)
+    columns:
+      - name: geom
+      - name: complexid
+      - name: globalid
+      - name: parentid
+      - name: shape_area
+      - name: shape_length
+    config:
+      column_types:
+        geom: geometry(Geometry, 2263)

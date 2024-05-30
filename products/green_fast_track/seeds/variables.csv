@@ -10,6 +10,7 @@ e_des_air_quality,(E) Designations - Air Quality,e_designations_air,dcp_edesigna
 e_des_noise,(E) Designations - Noise,e_designations_noise,dcp_edesignation_csv,,,Noise Code = 1
 arterial_highway,Arterial Highways,arterial_highways,dcm_arterial_highways,FALSE,200,
 exposed_railway,Exposed Railways,exposed_railways,dcp_lion,FALSE,1500,
+exposed_railway,Exposed Railyards,exposed_railyards,dcp_cscl_complex,FALSE,1500,
 airport_noise,Airport Noise Exposure Zone - JFK,airport_noise_jfk,panynj_jfk_65db,FALSE,0,
 airport_noise,Airport Noise Exposure Zone - LGA,airport_noise_lga,panynj_lga_65db,FALSE,0,
 e_des_hazmat,(E) Designations - HazMat,e_designations_hazmat,dcp_edesignation_csv,FALSE,0,HazMat Code = 1
