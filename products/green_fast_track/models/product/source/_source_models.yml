@@ -17,14 +17,14 @@ models:
   - name: source__title_v_permit_lots
   - name: source__title_v_permit_buffer
 
-  - name: source__vent_tower
+  - name: source__vent_tower_polys
   - name: source__vent_tower_buffer
 
   # Noise
-  - name: source__arterial_highway
+  - name: source__arterial_highway_lines
   - name: source__arterial_highway_buffer
 
-  - name: source__exposed_railway
+  - name: source__exposed_railway_lines
   - name: source__exposed_railway_buffer
 
   - name: source__airport_noise
@@ -36,8 +36,8 @@ models:
   - name: source__wetland_checkzone
 
   # Historic Resources
-  - name: source__archaeological_area
-  - name: source__historic_districts
+  - name: source__archaeological_area_polys
+  - name: source__historic_districts_polys
 
   - name: source__historic_resources_points
   - name: source__historic_resources_lots

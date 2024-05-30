@@ -39,14 +39,14 @@ mkdir -p output && (
     export_source source__title_v_permit_lots
     export_source source__title_v_permit_buffer
 
-    export_source source__vent_tower
+    export_source source__vent_tower_polys
     export_source source__vent_tower_buffer
     
-    export_source source__arterial_highway MULTILINESTRING
+    export_source source__arterial_highway_lines MULTILINESTRING
     export_source source__arterial_highway_buffer
 
     echo "FGDB export Noise ..."
-    export_source source__exposed_railway MULTILINESTRING
+    export_source source__exposed_railway_lines MULTILINESTRING
     export_source source__exposed_railway_buffer
 
     export_source source__airport_noise
@@ -59,8 +59,8 @@ mkdir -p output && (
     export_source source__wetland_checkzone
 
     echo "FGDB export Historic Resources ..."
-    export_source source__archaeological_area
-    export_source source__historic_districts
+    export_source source__archaeological_area_polys
+    export_source source__historic_districts_polys
     export_source source__historic_resources_points POINT
     export_source source__historic_resources_lots
 
