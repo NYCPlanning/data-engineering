@@ -61,9 +61,9 @@ mkdir -p output && (
     echo "FGDB export Historic Resources ..."
     export_source source__archaeological_area
     export_source source__historic_districts
-    export_source source__historic_resources POINT
+    export_source source__historic_resources_points POINT
 
-    export_source source__historic_resources_adj POINT
+    export_source source__historic_resources_adj_points POINT
     export_source source__historic_resources_adj_buffer
 
     echo "FGDB export Shadows ..."

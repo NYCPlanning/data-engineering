@@ -38,8 +38,8 @@ models:
   # Historic Resources
   - name: source__archaeological_area
   - name: source__historic_districts
-  - name: source__historic_resources
-  - name: source__historic_resources_adj
+  - name: source__historic_resources_points
+  - name: source__historic_resources_adj_points
   - name: source__historic_resources_adj_buffer
 
   # Shadows
