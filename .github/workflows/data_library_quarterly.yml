@@ -45,6 +45,7 @@ jobs:
           - dcp_firecompanies
           - dcp_healthareas
           - dcp_healthcenters
+          - dcp_lion
           - dcp_municipalcourtdistricts
           - dcp_nta2010
           - dcp_nta2020
