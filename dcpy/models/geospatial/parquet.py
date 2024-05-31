@@ -1,5 +1,6 @@
+from pyarrow.parquet import FileMetaData
 from pydantic import BaseModel
-from typing import Any, Literal
+from typing import Literal
 
 from . import projjson as proj
 
@@ -37,6 +38,10 @@ class GeoParquet(BaseModel, extra="forbid"):
     creator: dict | None = None
 
 
-class MetaData(BaseModel, extra="forbid"):
-    file_metadata: Any
+class MetaData:
+    file_metadata: FileMetaData
     geo_parquet: GeoParquet
+
+    def __init__(self, file_metadata: FileMetaData, geo_parquet: GeoParquet):
+        self.file_metadata = file_metadata
+        self.geo_parquet = geo_parquet

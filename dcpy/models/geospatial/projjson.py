@@ -5,6 +5,7 @@
 # our codebase when generally we just want an enum like "EPSG:4326"
 
 # for this reason, leaving named "projjson" instead of more generic "projection"
+# it for now is unreferenced by the rest of the codebase, but left as an interesting example
 
 from __future__ import annotations
 

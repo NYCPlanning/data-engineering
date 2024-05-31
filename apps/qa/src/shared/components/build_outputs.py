@@ -6,8 +6,9 @@ import leafmap.foliumap as lmf
 
 from dcpy.models.geospatial import geometry
 from dcpy.models.file import Geometry
-from dcpy.utils import geospatial, mapping
+from dcpy.utils.geospatial import mapping
 from dcpy.connectors.edm import publishing
+from dcpy.utils.geospatial import transform
 from src.shared.utils.publishing import read_csv_cached, read_file_metadata
 
 
@@ -66,7 +67,7 @@ def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
                 geom = Geometry(
                     geom_column=geometry_column, format=geometry_format, crs="EPSG:4326"
                 )
-                build_output.geodataframe = geospatial.df_to_gdf(
+                build_output.geodataframe = transform.df_to_gdf(
                     build_output.dataframe, geom
                 )
 

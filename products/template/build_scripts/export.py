@@ -1,10 +1,6 @@
-import os
 import shutil
-import zipfile
+
 from dcpy.connectors.edm import publishing
-from dcpy.models.file import Geometry
-from dcpy.models.geospatial import geometry
-from dcpy.utils import geospatial
 from dcpy.utils.logging import logger
 
 from . import PRODUCT_S3_NAME, BUILD_NAME, OUTPUT_DIR, PG_CLIENT

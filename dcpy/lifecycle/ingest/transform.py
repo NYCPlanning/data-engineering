@@ -6,7 +6,8 @@ from typing import Callable, Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall, Config
-from dcpy.utils import data, introspect, geospatial
+from dcpy.utils import data, introspect
+from dcpy.utils.geospatial import transform, parquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 
@@ -253,13 +254,13 @@ def preprocess(
     output_path: Path,
 ):
     """Reprojects if needed, then validates and runs preprocessing steps defined in config object"""
-    df = data.read_parquet(input_path)
+    df = parquet.read_df(input_path)
     if config.target_crs:
         if not isinstance(df, gpd.GeoDataFrame):
             raise TypeError(
                 "Reprojection specified in template, but dataset has no geometry"
             )
-        df = geospatial.reproject_gdf(df, target_crs=config.target_crs)
+        df = transform.reproject_gdf(df, target_crs=config.target_crs)
 
     compiled_steps = validate_processing_steps(config.name, config.processing_steps)
     for step in compiled_steps:

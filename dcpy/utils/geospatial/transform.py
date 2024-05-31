@@ -1,9 +1,6 @@
 from numpy import floor
 import geopandas as gpd
-import json
 import pandas as pd
-from pathlib import Path
-from pyarrow import parquet
 from rich.progress import (
     BarColumn,
     Progress,
@@ -13,7 +10,7 @@ from rich.progress import (
 )
 
 from dcpy.models import file
-from dcpy.models.geospatial import parquet as geoparquet, geometry as geom
+from dcpy.models.geospatial import geometry as geom
 from dcpy.utils.logging import logger
 
 
@@ -89,19 +86,6 @@ def reproject_gdf(
                 f"source crs '{source_crs}' supplied, but gdf has crs '{df.crs.srs}'."
             )
     return df.to_crs(target_crs)
-
-
-def read_geoparquet_metadata(filepath: Path) -> geoparquet.MetaData:
-    """
-    Given filepath to GeoParquet file, returns both standard pyarrow parquet FileMetaData
-    And geospatial metadata as defined in GeoParquet spec
-    """
-    parquet_metadata = parquet.read_metadata(filepath)
-    if geoparquet.GEOPARQUET_METADATA_KEY not in parquet_metadata.metadata:
-        raise TypeError(f"{filepath} is not a geoparquet file.")
-    geo = parquet_metadata.metadata[geoparquet.GEOPARQUET_METADATA_KEY]
-    geo_parquet = geoparquet.GeoParquet(**json.loads(geo))
-    return geoparquet.MetaData(file_metadata=parquet_metadata, geo_parquet=geo_parquet)
 
 
 def translate_shp_to_mvt(
