@@ -23,12 +23,15 @@ jobs:
       matrix:
         dataset:
           - doitt_buildingfootprints
-          - lpc_historic_districts
-          - lpc_landmarks
+          - doitt_buildingfootprints_historical
           - dpr_greenthumb
+          - dpr_park_access_zone
           - dpr_parksproperties
           - dsny_frequencies
-          - dpr_park_access_zone
+          - dsny_garages
+          - lpc_historic_districts
+          - lpc_landmarks
+          
     steps:
       - uses: actions/checkout@v4
 
