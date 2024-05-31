@@ -95,6 +95,19 @@ models:
       tests:
         - not_null
 
+  - name: int_flags__dob_natural_resources
+    description: Flags from a file provided by DOB
+    columns:
+    - name: bbl
+      tests:
+        - not_null
+    - name: variable_type
+      tests:
+        - not_null
+    - name: variable_id
+      tests:
+        - not_null
+
   - name: int_flags__spatial
     description: |
       A table featuring spatially joined BBLs with buffered variable types, 

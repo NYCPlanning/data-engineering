@@ -10,6 +10,7 @@ WITH all_natural_resources AS (
         ref('stg__nysdec_natural_heritage_communities'),
         ref('stg__usfws_nyc_wetlands'),
         ref('stg__dpr_forever_wild'),
+        ref('int_flags__dob_natural_resources'),
     ],
     source_column_name="source_relation",
     include=["variable_type", "variable_id", "raw_geom"],

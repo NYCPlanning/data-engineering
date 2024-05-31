@@ -514,3 +514,13 @@ sources:
           - name: geometry
             tests:
               - not_null
+
+      - name: dob_natural_resource_check_flags
+        columns:
+          - name: bbl
+            tests:
+              - not_null
+              - unique
+          - name: coastal_hazard_area_flag
+          - name: fresh_water_wetlands_flag
+          - name: tidal_coastal_wetlands_flag 
