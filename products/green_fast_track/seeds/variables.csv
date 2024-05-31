@@ -52,4 +52,3 @@ shadow_nat_resources,Significant Natural Communities,natural_heritage_communitie
 shadow_nat_resources,National Wetlands,usfws_wetlands,usfws_nyc_wetlands,FALSE,200,
 shadow_hist_resources,NYC Historic Buildings,nyc_historic_buildings,lpc_landmarks,TRUE,200,
 shadow_hist_resources,State Historic Buildings,nys_historic_buildings,nysshpo_historic_buildings_points,TRUE,200,
-shadow_hist_resources,Scenic Landmarks,scenic_landmarks,lpc_scenic_landmarks,FALSE,200,
