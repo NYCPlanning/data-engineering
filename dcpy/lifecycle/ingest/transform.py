@@ -2,12 +2,13 @@ from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
+import shutil
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import FunctionCall, Config
+from dcpy.models.lifecycle.ingest import FunctionCall
 from dcpy.utils import data, introspect
-from dcpy.utils.geospatial import transform, parquet
+from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 
@@ -70,6 +71,9 @@ class Preprocessor:
 
     def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
+
+    def reproject(self, df: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
+        return transform.reproject_gdf(df, target_crs=target_crs)
 
     def sort(self, df: pd.DataFrame, by: list[str], ascending=False) -> pd.DataFrame:
         return df.sort_values(by=by, ascending=ascending)
@@ -249,20 +253,18 @@ def validate_processing_steps(
 
 
 def preprocess(
-    config: Config.Preprocessing,
+    dataset_name: str,
+    processing_steps: list[FunctionCall],
     input_path: Path,
     output_path: Path,
 ):
-    """Reprojects if needed, then validates and runs preprocessing steps defined in config object"""
-    df = parquet.read_df(input_path)
-    if config.target_crs:
-        if not isinstance(df, gpd.GeoDataFrame):
-            raise TypeError(
-                "Reprojection specified in template, but dataset has no geometry"
-            )
-        df = transform.reproject_gdf(df, target_crs=config.target_crs)
+    """Validates and runs preprocessing steps defined in config object"""
+    if len(processing_steps) == 0:
+        shutil.copy(input_path, output_path)
+    else:
+        df = geoparquet.read_df(input_path)
+        compiled_steps = validate_processing_steps(dataset_name, processing_steps)
 
-    compiled_steps = validate_processing_steps(config.name, config.processing_steps)
-    for step in compiled_steps:
-        df = step(df)
-    df.to_parquet(output_path)
+        for step in compiled_steps:
+            df = step(df)
+        df.to_parquet(output_path)

@@ -11,6 +11,7 @@ from dcpy.models.lifecycle.ingest import (
     S3Source,
     ScriptSource,
     Source,
+    FunctionCall,
     Template,
     Config,
 )
@@ -109,12 +110,24 @@ def get_config(dataset: str, version: str | None = None) -> Config:
     filename = get_filename(template.source, template.name)
     version = version or get_version(template.source, run_details.timestamp)
     template = read_template(dataset, version=version)
+    processing_steps = template.processing_steps
+
+    if template.target_crs:
+        reprojection = FunctionCall(
+            name="reproject", args={"target_crs": template.target_crs}
+        )
+        processing_steps = [reprojection] + processing_steps
 
     # create config object
     return Config(
+        name=template.name,
         version=version,
         archival_timestamp=run_details.timestamp,
         raw_filename=filename,
+        acl=template.acl,
+        target_crs=template.target_crs,
+        source=template.source,
+        file_format=template.file_format,
+        processing_steps=processing_steps,
         run_details=run_details,
-        **template.model_dump(),
     )
