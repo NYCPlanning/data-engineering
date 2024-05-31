@@ -29,6 +29,11 @@ LOGGING_TABLE_NAME = "metadata_logging"
 
 
 def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
+    """
+    Given a config and a path to a file and an s3_path, archive it in edm-recipe
+    It is assumed that s3_path has taken care of figuring out which top-level folder,
+    how the dataset is being versioned, etc.
+    """
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
@@ -44,10 +49,18 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
 
 
 def archive_raw_dataset(config: ingest.Config, file_path: Path):
+    """
+    Given a config and a path to a 'raw' input dataset, archive it in edm-recipes
+    Unique identifier of a raw dataset is its name and the timestamp of archival
+    """
     _archive_dataset(config, file_path, config.raw_dataset_key.s3_path(RAW_FOLDER))
 
 
 def archive_dataset(config: ingest.Config, file_path: Path):
+    """
+    Given a config and a path to a processed parquet file, archive it in edm-recipes
+    Unique identifier of a raw dataset is its name and its version
+    """
     _archive_dataset(config, file_path, config.dataset_key.s3_path("ingest_datasets"))
 
 
