@@ -15,7 +15,7 @@ group_by_rollup AS (
         zonedist4,
         count(*) AS zoning_combo_count
     FROM pluto
-    GROUP BY rollup(zonedist1, zonedist2, zonedist3, zonedist4) -- noqa: PRS
+    GROUP BY ROLLUP(zonedist1, zonedist2, zonedist3, zonedist4) -- noqa: PRS, CP03
 )
 
 SELECT
