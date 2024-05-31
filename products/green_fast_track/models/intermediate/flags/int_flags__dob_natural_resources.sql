@@ -15,7 +15,10 @@ joined AS (
         source_flags.*,
         pluto.geom AS raw_geom
     FROM source_flags
-    INNER JOIN pluto ON source_flags.bbl = pluto.bbl
+    INNER JOIN pluto
+        ON (
+            source_flags.boro_code || source_flags.block || lpad(source_flags.lot, 4, '0')
+        ) = pluto.bbl
     WHERE pluto.geom IS NOT NULL
 ),
 
