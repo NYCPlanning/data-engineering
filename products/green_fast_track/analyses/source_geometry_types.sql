@@ -5,15 +5,15 @@ record_details AS (
         source_relation,
         flag_id_field_name,
         variable_type,
-        geometrytype(variable_geom) AS geometry_type
+        geometrytype(raw_geom) AS raw_geom_type
     FROM all_spatial
 )
 
 SELECT
     flag_id_field_name,
     variable_type,
-    geometry_type,
-    count(*) AS geometry_type_count
+    raw_geom_type,
+    count(*) AS raw_geom_type_count
 FROM record_details
-GROUP BY flag_id_field_name, variable_type, geometry_type
-ORDER BY flag_id_field_name, variable_type ASC, geometry_type ASC;
+GROUP BY flag_id_field_name, variable_type, raw_geom_type
+ORDER BY flag_id_field_name ASC, variable_type ASC, raw_geom_type ASC;
