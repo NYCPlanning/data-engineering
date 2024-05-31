@@ -5,7 +5,8 @@ record_details AS (
         source_relation,
         flag_id_field_name,
         variable_type,
-        geometrytype(raw_geom) AS raw_geom_type
+        geometrytype(raw_geom) AS raw_geom_type,
+        geometrytype(variable_geom) AS variable_geom_type
     FROM all_spatial
 )
 
@@ -13,7 +14,8 @@ SELECT
     flag_id_field_name,
     variable_type,
     raw_geom_type,
-    count(*) AS raw_geom_type_count
+    variable_geom_type,
+    count(*) AS combo_of_geom_types_count
 FROM record_details
-GROUP BY flag_id_field_name, variable_type, raw_geom_type
-ORDER BY flag_id_field_name ASC, variable_type ASC, raw_geom_type ASC;
+GROUP BY flag_id_field_name, variable_type, raw_geom_type, variable_geom_type
+ORDER BY flag_id_field_name ASC, variable_type ASC, raw_geom_type ASC, variable_geom_type ASC;
