@@ -57,5 +57,4 @@ models:
 
   - name: source__shadow_hist_resources_points
   - name: source__shadow_hist_resources_lots
-  - name: source__shadow_hist_resources_polys
   - name: source__shadow_hist_resources_buffer
