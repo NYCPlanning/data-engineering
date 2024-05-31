@@ -6,8 +6,6 @@ import pandas as pd
 
 from dcpy.utils import data
 
-RESOURCES_DIR = Path(__file__).parent / "resources"
-
 
 @pytest.fixture
 def temp_zip_file():

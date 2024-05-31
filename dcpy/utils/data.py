@@ -1,14 +1,12 @@
 import json
 import pandas as pd
 import geopandas as gpd
-from pyarrow import parquet
 
 from pathlib import Path
 
 from dcpy.models import file
-from dcpy.models.geospatial.parquet import GEOPARQUET_METADATA_KEY
-from dcpy.utils.geospatial.transform import df_to_gdf
 from dcpy.utils.logging import logger
+from dcpy.utils.geospatial.transform import df_to_gdf
 
 import zipfile
 
