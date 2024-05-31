@@ -134,9 +134,7 @@ class TestParquet:
 
             meta = parquet.read_metadata(filepath)
 
-            assert "geom" in meta.geo_parquet.columns
-            assert meta.geo_parquet.columns["geom"].crs.id
-            assert meta.geo_parquet.columns["geom"].crs.id.code == 4236
+            assert meta.geo_parquet.primary_column.crs_string == "EPSG:4236"
 
     def test_read_parquet(self):
         df = parquet.read_df(RESOURCES_DIR / "simple.parquet")
