@@ -57,14 +57,203 @@ package:
     overrides:
       omit_columns: []
       ignore_validation: []
-      columns: {}
+      columns:
+        geom: {name: geometry}
+        firm07_flag: {name: FIRM07_FLA}
+        healthcenterdistrict: {name: HealthCent}
+        pfirm15_flag: {name: PFIRM15_FL}
+        sanitdistrict: {name: SanitDistr}
+        address: {name: Address}
+        appbbl: {name: APPBBL}
+        appdate: {name: APPDate}
+        areasource: {name: AreaSource}
+        assessland: {name: AssessLand}
+        assesstot: {name: AssessTot}
+        bbl: {name: BBL}
+        bct2020: {name: BCT2020}
+        bctcb2020: {name: BCTCB2020}
+        bldgarea: {name: BldgArea}
+        bldgclass: {name: BldgClass}
+        bldgdepth: {name: BldgDepth}
+        bldgfront: {name: BldgFront}
+        block: {name: Block}
+        borocode: {name: BoroCode}
+        borough: {name: Borough}
+        bsmtcode: {name: BsmtCode}
+        builtfar: {name: BuiltFAR}
+        cb2010: {name: CB2010}
+        cd: {name: CD}
+        comarea: {name: ComArea}
+        commfar: {name: CommFAR}
+        condono: {name: CondoNo}
+        council: {name: Council}
+        ct2010: {name: CT2010}
+        dcpedited: {name: DCPEdited}
+        easements: {name: Easements}
+        edesignum: {name: EDesigNum}
+        exempttot: {name: ExemptTot}
+        ext: {name: Ext}
+        facilfar: {name: FacilFAR}
+        factryarea: {name: FactryArea}
+        firecomp: {name: FireComp}
+        garagearea: {name: GarageArea}
+        healtharea: {name: HealthArea}
+        histdist: {name: HistDist}
+        irrlotcode: {name: IrrLotCode}
+        landmark: {name: Landmark}
+        landuse: {name: LandUse}
+        latitude: {name: Latitude}
+        longitude: {name: Longitude}
+        lot: {name: Lot}
+        lotarea: {name: LotArea}
+        lotdepth: {name: LotDepth}
+        lotfront: {name: LotFront}
+        lottype: {name: LotType}
+        ltdheight: {name: LtdHeight}
+        notes: {name: Notes}
+        numbldgs: {name: NumBldgs}
+        numfloors: {name: NumFloors}
+        officearea: {name: OfficeArea}
+        otherarea: {name: OtherArea}
+        overlay1: {name: Overlay1}
+        overlay2: {name: Overlay2}
+        ownername: {name: OwnerName}
+        ownertype: {name: OwnerType}
+        plutomapid: {name: PLUTOMapID}
+        policeprct: {name: PolicePrct}
+        proxcode: {name: ProxCode}
+        resarea: {name: ResArea}
+        residfar: {name: ResidFAR}
+        retailarea: {name: RetailArea}
+        sanborn: {name: Sanborn}
+        sanitboro: {name: Sanitboro}
+        sanitsub: {name: SanitSub}
+        schooldist: {name: SchoolDist}
+        spdist1: {name: SPDist1}
+        spdist2: {name: SPDist2}
+        spdist3: {name: SPDist3}
+        splitzone: {name: SplitZone}
+        strgearea: {name: StrgeArea}
+        taxmap: {name: TaxMap}
+        tract2010: {name: Tract2010}
+        unitsres: {name: UnitsRes}
+        unitstotal: {name: UnitsTotal}
+        version: {name: Version}
+        xcoord: {name: XCoord}
+        ycoord: {name: YCoord}
+        yearalter1: {name: YearAlter1}
+        yearalter2: {name: YearAlter2}
+        yearbuilt: {name: YearBuilt}
+        zipcode: {name: ZipCode}
+        zmcode: {name: ZMCode}
+        zonedist1: {name: ZoneDist1}
+        zonedist2: {name: ZoneDist2}
+        zonedist3: {name: ZoneDist3}
+        zonedist4: {name: ZoneDist4}
+        zonemap: {name: ZoneMap}
+
   - name: shapefile_water_incl_test
     type: shapefile
     filename: MapPLUTO_WI_truncated.zip
     overrides:
-      omit_columns: []
+      omit_columns: [basempdate, dcasdate, edesigdate, landmkdate, masdate, polidate, rpaddate, zoningdate]
       ignore_validation: []
-      columns: {}
+      # TODO: This duplication of colum overrides is really unfortunate. Need some reusability here
+      columns:
+        geom: {name: geometry}
+        firm07_flag: {name: FIRM07_FLA}
+        healthcenterdistrict: {name: HealthCent}
+        pfirm15_flag: {name: PFIRM15_FL}
+        sanitdistrict: {name: SanitDistr}
+        address: {name: Address}
+        appbbl: {name: APPBBL}
+        appdate: {name: APPDate}
+        areasource: {name: AreaSource}
+        assessland: {name: AssessLand}
+        assesstot: {name: AssessTot}
+        bbl: {name: BBL}
+        bct2020: {name: BCT2020}
+        bctcb2020: {name: BCTCB2020}
+        bldgarea: {name: BldgArea}
+        bldgclass: {name: BldgClass}
+        bldgdepth: {name: BldgDepth}
+        bldgfront: {name: BldgFront}
+        block: {name: Block}
+        borocode: {name: BoroCode}
+        borough: {name: Borough}
+        bsmtcode: {name: BsmtCode}
+        builtfar: {name: BuiltFAR}
+        cb2010: {name: CB2010}
+        cd: {name: CD}
+        comarea: {name: ComArea}
+        commfar: {name: CommFAR}
+        condono: {name: CondoNo}
+        council: {name: Council}
+        ct2010: {name: CT2010}
+        dcpedited: {name: DCPEdited}
+        easements: {name: Easements}
+        edesignum: {name: EDesigNum}
+        exempttot: {name: ExemptTot}
+        ext: {name: Ext}
+        facilfar: {name: FacilFAR}
+        factryarea: {name: FactryArea}
+        firecomp: {name: FireComp}
+        garagearea: {name: GarageArea}
+        healtharea: {name: HealthArea}
+        histdist: {name: HistDist}
+        irrlotcode: {name: IrrLotCode}
+        landmark: {name: Landmark}
+        landuse: {name: LandUse}
+        latitude: {name: Latitude}
+        longitude: {name: Longitude}
+        lot: {name: Lot}
+        lotarea: {name: LotArea}
+        lotdepth: {name: LotDepth}
+        lotfront: {name: LotFront}
+        lottype: {name: LotType}
+        ltdheight: {name: LtdHeight}
+        notes: {name: Notes}
+        numbldgs: {name: NumBldgs}
+        numfloors: {name: NumFloors}
+        officearea: {name: OfficeArea}
+        otherarea: {name: OtherArea}
+        overlay1: {name: Overlay1}
+        overlay2: {name: Overlay2}
+        ownername: {name: OwnerName}
+        ownertype: {name: OwnerType}
+        plutomapid: {name: PLUTOMapID}
+        policeprct: {name: PolicePrct}
+        proxcode: {name: ProxCode}
+        resarea: {name: ResArea}
+        residfar: {name: ResidFAR}
+        retailarea: {name: RetailArea}
+        sanborn: {name: Sanborn}
+        sanitboro: {name: Sanitboro}
+        sanitsub: {name: SanitSub}
+        schooldist: {name: SchoolDist}
+        spdist1: {name: SPDist1}
+        spdist2: {name: SPDist2}
+        spdist3: {name: SPDist3}
+        splitzone: {name: SplitZone}
+        strgearea: {name: StrgeArea}
+        taxmap: {name: TaxMap}
+        tract2010: {name: Tract2010}
+        unitsres: {name: UnitsRes}
+        unitstotal: {name: UnitsTotal}
+        version: {name: Version}
+        xcoord: {name: XCoord}
+        ycoord: {name: YCoord}
+        yearalter1: {name: YearAlter1}
+        yearalter2: {name: YearAlter2}
+        yearbuilt: {name: YearBuilt}
+        zipcode: {name: ZipCode}
+        zmcode: {name: ZMCode}
+        zonedist1: {name: ZoneDist1}
+        zonedist2: {name: ZoneDist2}
+        zonedist3: {name: ZoneDist3}
+        zonedist4: {name: ZoneDist4}
+        zonemap: {name: ZoneMap}
+
   attachments:
   - pluto_datadictionary.pdf
   - pluto_readme.pdf
