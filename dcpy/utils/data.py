@@ -4,12 +4,11 @@ import geopandas as gpd
 
 from pathlib import Path
 
-from dcpy.utils.logging import logger
 from dcpy.models import file
+from dcpy.utils.logging import logger
+from dcpy.utils.geospatial.transform import df_to_gdf
 
 import zipfile
-
-EXTRACTED_FILES_DIR = Path("tmp/extracted_files")
 
 
 def read_data_to_df(
@@ -41,11 +40,13 @@ def read_data_to_df(
     if data_format.unzipped_filename is not None:
         logger.info(f"Unzipping files from {local_data_path}...")
 
+        extracted_files_dir = local_data_path.parent / "extracted_files"
+
         unzipped_filename = data_format.unzipped_filename
-        unzipped_file_path = EXTRACTED_FILES_DIR / unzipped_filename
+        unzipped_file_path = extracted_files_dir / unzipped_filename
 
         unzipped_files = unzip_file(
-            zipped_filename=local_data_path, output_dir=EXTRACTED_FILES_DIR
+            zipped_filename=local_data_path, output_dir=extracted_files_dir
         )
 
         # remove leading and trailing slashes
@@ -111,6 +112,7 @@ def read_data_to_df(
                     else pd.json_normalize(json_str)
                 )
             df = serialize_nested_objects(df)
+
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
@@ -147,54 +149,6 @@ def unzip_file(zipped_filename: Path, output_dir: Path) -> list[str]:
     )
 
     return extracted_files
-
-
-def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
-    """
-    Convert a pandas DataFrame to a GeoDataFrame based on the provided geometry information.
-
-    Parameters:
-    df (pd.DataFrame): The input DataFrame.
-    geometry (file.Geometry): An object containing geometry information.
-
-    Returns:
-    gpd.GeoDataFrame: The resulting GeoDataFrame.
-    """
-
-    # case when geometry is in one column (i.e. polygon or point object type)
-    if isinstance(geometry.geom_column, str):
-        geom_column = geometry.geom_column
-        assert (
-            geom_column in df.columns
-        ), f"❌ Geometry column specified in recipe template does not exist in the input data."
-
-        # replace NaN values with None. Otherwise gpd throws an error
-        if df[geom_column].isnull().any():
-            df[geom_column] = df[geom_column].astype(object)
-            df[geom_column] = df[geom_column].where(df[geom_column].notnull(), None)
-
-        df[geom_column] = gpd.GeoSeries.from_wkt(df[geom_column])
-
-        gdf = gpd.GeoDataFrame(
-            df,
-            geometry=geom_column,
-            crs=geometry.crs,
-        )
-    # case when geometry is specified as lon and lat columns
-    else:
-        x_column = geometry.geom_column.x
-        y_column = geometry.geom_column.y
-        assert (
-            x_column in df.columns and y_column in df.columns
-        ), f"❌ Longitude or latitude columns specified in the recipe template do not exist in the input data"
-
-        gdf = gpd.GeoDataFrame(
-            df,
-            geometry=gpd.points_from_xy(df[x_column], df[y_column]),
-            crs=geometry.crs,
-        )
-
-    return gdf
 
 
 def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:

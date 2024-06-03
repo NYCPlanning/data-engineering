@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic import BaseModel, field_serializer
 from typing import Any, Literal, TypeAlias
 
+from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes, publishing
 from dcpy.models.connectors import web, socrata
 from dcpy.models import library, file
@@ -52,11 +53,14 @@ class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
     acl: recipes.ValidAclValues
 
+    target_crs: str | None = None
+
     ## these two fields might merge to "source" or something equivalent at some point
     ## for now, they are distinct so that they can be worked on separately
     ## when implemented, "None" should not be valid type
     source: Source
     file_format: file.Format
+
     processing_steps: list[FunctionCall] = []
 
     ## this is the original library template, included just for reference while we build out our new templates
@@ -75,13 +79,20 @@ class Config(
     archival_timestamp: datetime
     raw_filename: str
     acl: recipes.ValidAclValues
+
+    target_crs: str | None = None
+
     source: Source
     file_format: file.Format
     processing_steps: list[FunctionCall] = []
 
+    run_details: RunDetails
+
     @property
     def dataset(self) -> recipes.Dataset:
-        return recipes.Dataset(name=self.name, version=self.version)
+        return recipes.Dataset(
+            name=self.name, version=self.version, file_type=recipes.DatasetType.parquet
+        )
 
     @property
     def dataset_key(self) -> recipes.DatasetKey:
@@ -95,7 +106,10 @@ class Config(
     def raw_dataset_key(self) -> recipes.RawDatasetKey:
         return recipes.RawDatasetKey(name=self.name, timestamp=self.archival_timestamp)
 
-    def raw_dataset_s3_filepath(self, prefix: str) -> Path:
+    def s3_file_key(self, prefix: str) -> str:
+        return self.dataset.s3_file_key(prefix)
+
+    def raw_s3_key(self, prefix: str) -> Path:
         return self.raw_dataset_key.s3_path(prefix) / self.raw_filename
 
     @field_serializer("archival_timestamp")

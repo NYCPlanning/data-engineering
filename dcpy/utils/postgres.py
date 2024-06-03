@@ -2,6 +2,7 @@ from io import StringIO
 from pathlib import Path
 import csv
 import os
+import geopandas as gpd
 import pandas as pd
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, text, dialects
@@ -105,7 +106,7 @@ class PostgresClient:
             select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
         return select_records
 
-    def read_sql_table(
+    def read_table_df(
         self,
         table_name: str,
         *,
@@ -117,6 +118,22 @@ class PostgresClient:
                 return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
         else:
             return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
+
+    def read_table_gdf(
+        self,
+        table_name: str,
+        geom_column: str = "geom",
+        *,
+        conn=None,
+        **kwargs,
+    ) -> gpd.GeoDataFrame:
+        if conn is None:
+            with self.engine.connect() as conn:
+                return gpd.read_postgis(
+                    table_name, conn, geom_col=geom_column, **kwargs
+                )
+        else:
+            return gpd.read_postgis(table_name, conn, geom_col=geom_column, **kwargs)
 
     def create_postigs_extension(self) -> None:
         self.execute_query("CREATE EXTENSION POSTGIS")
@@ -188,14 +205,6 @@ class PostgresClient:
             """,
             old_name=AsIs(old_name),
             new_name=AsIs(new_name),
-        )
-
-    def get_table(self, table_name: str) -> pd.DataFrame:
-        return self.execute_select_query(
-            """
-            SELECT * FROM :table_name;
-            """,
-            table_name=AsIs(table_name),
         )
 
     def get_table_columns(self, table_name: str) -> list[str]:

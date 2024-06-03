@@ -2,8 +2,10 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing import Literal, TypeAlias
 
+from dcpy.models.geospatial import geometry
 
-class Geometry(BaseModel):
+
+class Geometry(BaseModel, extra="forbid"):
     """
     Represents the geometric configuration for geospatial data.
     Attributes:
@@ -15,8 +17,9 @@ class Geometry(BaseModel):
 
     geom_column: str | PointColumns
     crs: str
+    format: geometry.GeometryFormat | None = None
 
-    class PointColumns(BaseModel):
+    class PointColumns(BaseModel, extra="forbid"):
         """This class defines longitude and latitude column names."""
 
         x: str

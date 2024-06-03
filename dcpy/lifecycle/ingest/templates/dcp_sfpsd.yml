@@ -6,6 +6,10 @@ source:
 file_format:
   type: csv
   unzipped_filename: facilities_20190110.csv
+  geometry:
+    geom_column: the_geom
+    crs: EPSG:4326
+    format: wkb
 processing_steps:
 - name: filter_rows
   args:

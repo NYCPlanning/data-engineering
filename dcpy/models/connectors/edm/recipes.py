@@ -21,6 +21,9 @@ class DatasetKey(BaseModel, extra="forbid"):
     name: str
     version: str
 
+    def s3_path(self, prefix: str) -> Path:
+        return Path(prefix) / self.name / self.version
+
 
 class DatasetType(StrEnum):
     pg_dump = "pg_dump"
@@ -45,11 +48,11 @@ class Dataset(BaseModel, extra="forbid"):
             raise Exception("File type must be defined to get file name")
         return f"{self.name}.{_type_to_extension(self.file_type)}"
 
-    def s3_folder(self, prefix) -> str:
+    def s3_folder_key(self, prefix: str) -> str:
         return f"{prefix}/{self.name}/{self.version}"
 
-    def s3_key(self, prefix) -> str:
-        return f"{self.s3_folder(prefix)}/{self.file_name}"
+    def s3_file_key(self, prefix: str) -> str:
+        return f"{self.s3_folder_key(prefix)}/{self.file_name}"
 
     @field_serializer("file_type")
     def _serialize_type(self, t: DatasetType | None, _info) -> str | None:

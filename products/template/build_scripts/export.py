@@ -1,8 +1,6 @@
-import os
 import shutil
-import zipfile
+
 from dcpy.connectors.edm import publishing
-from dcpy.utils import geospatial
 from dcpy.utils.logging import logger
 
 from . import PRODUCT_S3_NAME, BUILD_NAME, OUTPUT_DIR, PG_CLIENT
@@ -30,35 +28,30 @@ def export():
 
     # export builds tables
     for table_name, file_types in BUILD_TABLES.items():
-        data = PG_CLIENT.get_table(table_name)
         file_path = OUTPUT_DIR / table_name
         for file_type in file_types:
             logger.info(
                 f"Exporting table\n\t{table_name}\n\tas a {file_type} to\n\t{OUTPUT_DIR}"
             )
             if file_type == "csv":
+                data = PG_CLIENT.read_table_df(table_name)
                 data.to_csv(file_path.with_suffix(".csv"), index=False)
             elif "shapefile" in file_type:
+                data = PG_CLIENT.read_table_gdf(table_name, geom_column="wkb_geometry")
                 shapefile_directory = OUTPUT_DIR
-                geodata = geospatial.convert_to_geodata(
-                    data,
-                    geometry_column="wkb_geometry",
-                    geometry_format=geospatial.GeometryFormat.wkb,
-                    crs=geospatial.GeometryCRS.wgs_84_deg,
-                )
 
                 if file_type == "shapefile_points":
                     shapefile_directory = OUTPUT_DIR / f"{file_path}_points.shp"
-                    geodata = geodata.loc[geodata.geom_type == "Point"]
+                    data = data.loc[data.geom_type == "Point"]
                 elif file_type == "shapefile_polygons":
                     shapefile_directory = OUTPUT_DIR / f"{file_path}_polygons.shp"
-                    geodata = geodata.loc[geodata.geom_type == "MultiPolygon"]
+                    data = data.loc[data.geom_type == "MultiPolygon"]
                 else:
                     raise NotImplementedError(
                         f"Cannot export a shapefile as file type {file_type}"
                     )
                 shapefile_directory.mkdir(parents=True)
-                geodata.to_file(shapefile_directory)
+                data.to_file(shapefile_directory)
 
                 logger.info(f"Zipping shapefile\n\t{shapefile_directory}")
                 shutil.make_archive(

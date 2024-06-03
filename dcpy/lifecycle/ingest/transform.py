@@ -8,6 +8,7 @@ from typing import Callable, Literal
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
 from dcpy.utils import data, introspect
+from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 
@@ -70,6 +71,9 @@ class Preprocessor:
 
     def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
+
+    def reproject(self, df: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
+        return transform.reproject_gdf(df, target_crs=target_crs)
 
     def sort(self, df: pd.DataFrame, by: list[str], ascending=False) -> pd.DataFrame:
         return df.sort_values(by=by, ascending=ascending)
@@ -248,18 +252,19 @@ def validate_processing_steps(
     return compiled_steps
 
 
-def run_processing_steps(
+def preprocess(
     dataset_name: str,
     processing_steps: list[FunctionCall],
     input_path: Path,
-    output_path,
+    output_path: Path,
 ):
     """Validates and runs preprocessing steps defined in config object"""
-    compiled_steps = validate_processing_steps(dataset_name, processing_steps)
-    if len(compiled_steps) == 0:
+    if len(processing_steps) == 0:
         shutil.copy(input_path, output_path)
     else:
-        df = pd.read_parquet(input_path)
+        df = geoparquet.read_df(input_path)
+        compiled_steps = validate_processing_steps(dataset_name, processing_steps)
+
         for step in compiled_steps:
             df = step(df)
         df.to_parquet(output_path)

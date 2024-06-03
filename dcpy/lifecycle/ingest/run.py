@@ -35,32 +35,21 @@ def run(
         config.file_format, file_path, dir=staging_dir, output_filename=init_parquet
     )
 
-    post_parquet = "post.parquet"
-    transform.run_processing_steps(
+    transform.preprocess(
         config.name,
         config.processing_steps,
         staging_dir / init_parquet,
-        staging_dir / post_parquet,
+        staging_dir / config.filename,
     )
 
-    ## logic to apply transformations based on parsed config/template. Something like this
-    # for step in config.processing.steps:
-    #    func = getattr(processing, step)
-    #    func(local_parquet_path)
-    ##
-
-    # if not skip_archival:
-    #    recipes.archive(
-    #        import_config, PARQUET_PATH
-    #    )
-
-    raise NotImplementedError()
+    if not skip_archival:
+        recipes.archive_dataset(config, staging_dir / config.filename)
 
 
 app = typer.Typer(add_completion=False)
 
 
-@app.command("run")
+@app.command()
 def _cli_wrapper_run(
     dataset: str = typer.Argument(),
     version: str = typer.Option(
@@ -72,7 +61,3 @@ def _cli_wrapper_run(
     skip_archival: bool = typer.Option(False, "--skip-archival", "-s"),
 ):
     run(dataset, version, skip_archival=skip_archival)
-
-
-if __name__ == "__main__":
-    app()

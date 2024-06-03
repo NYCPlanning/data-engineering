@@ -4,7 +4,9 @@ source:
   type: file_download
   url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_{{ version }}.zip
 file_format:
-  type: csv # TODO: this is not exactly correct. Need to think how to convert to parquet
+  type: csv
+  unzipped_filename: bobaadr.txt
+  dtype: str
 
 library_dataset:
   name: dcp_pad

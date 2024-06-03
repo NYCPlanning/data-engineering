@@ -274,7 +274,7 @@ def upload_folder(
         logger.info(
             f"Deleting any existing files in {upload_path} from bucket {bucket}"
         )
-        delete(bucket, str(upload_path))
+        delete(bucket, _folderize(str(upload_path)))
 
     logger.info(f"Uploading {local_folder_path} to {upload_path} in bucket {bucket}")
     for file in files:
@@ -337,6 +337,7 @@ def delete(bucket: str, path: str) -> None:
     client_ = client()
     if path[-1] == "/":
         for object in list_objects(bucket, path):
+            print(object["Key"])
             client_.delete_object(Bucket=bucket, Key=object["Key"])
     client_.delete_object(Bucket=bucket, Key=path)
 

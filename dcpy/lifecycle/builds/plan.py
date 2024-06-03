@@ -150,7 +150,6 @@ def repeat_recipe_from_source_data_versions(
 ) -> Recipe:
     recipe = template_recipe.model_copy()
     recipe.version = version
-    print(source_data_versions.columns)
     version_by_source_data_name = {
         name: row["version"] for name, row in source_data_versions.iterrows()
     }
