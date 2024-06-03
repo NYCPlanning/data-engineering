@@ -18,6 +18,8 @@ inputs:
     - name: panynj_jfk_65db
     - name: panynj_lga_65db
     - name: dcp_lion
+    - name: dcp_cscl_commonplace
+    - name: dcp_cscl_complex
     # Natural Resources
     - name: dcp_beaches
     - name: dcp_wrp_rec
@@ -31,6 +33,7 @@ inputs:
     - name: nysdec_priority_streams
     - name: nysdec_natural_heritage_communities
     - name: usfws_nyc_wetlands
+    - name: dob_natural_resource_check_flags
     # Historic
     - name: lpc_scenic_landmarks # e.g. Central Park / Ocean Parkway / etc.
     - name: lpc_historic_district_areas # polygons for a neighborhood

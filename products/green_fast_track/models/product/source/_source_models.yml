@@ -25,6 +25,7 @@ models:
   - name: source__arterial_highway_buffer
 
   - name: source__exposed_railway_lines
+  - name: source__exposed_railway_polys
   - name: source__exposed_railway_buffer
 
   - name: source__airport_noise

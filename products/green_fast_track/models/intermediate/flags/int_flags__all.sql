@@ -27,6 +27,14 @@ WITH all_flags AS (
         flag_id_field_name,
         variable_type,
         variable_id,
+        NULL::double precision AS distance
+    FROM {{ ref('int_flags__dob_natural_resources') }}
+    UNION ALL
+    SELECT
+        bbl,
+        flag_id_field_name,
+        variable_type,
+        variable_id,
         distance
     FROM {{ ref('int_flags__spatial') }}
 )

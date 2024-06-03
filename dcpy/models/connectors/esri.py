@@ -7,6 +7,7 @@ class Server(StrEnum):
     nys_parks = "nys_parks"
     nps = "nps"
     dcp = "dcp"
+    nyc_maphub = "nyc_maphub"
 
 
 servers = {
@@ -14,6 +15,7 @@ servers = {
     "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
     "nps": {"id": "fBc8EJBxQRMcHlei", "subdomain": "services1"},
     "dcp": {"id": "GfwWNkhOj9bNBqoJ", "subdomain": "services5"},
+    "nyc_maphub": {"id": "yG5s3afENB5iO9fj", "subdomain": "services6"},
 }
 
 

@@ -1,20 +1,21 @@
-WITH dcp_lion AS (
-    SELECT * FROM {{ source('recipe_sources', 'dcp_lion') }}
-),
-
-filtered AS (
-    SELECT
-        street,
-        ST_UNION(shape) AS geom
-    FROM dcp_lion
-    WHERE row_type IN ('2', '3', '4', '5', '6', '7')
-    GROUP BY street
+WITH all_rails AS (
+{{ dbt_utils.union_relations(
+    relations=[
+        ref('stg__exposed_railways'),
+        ref('stg__exposed_railyards')
+    ],
+    source_column_name="source_relation",
+    include=["variable_type", "variable_id", "raw_geom"],
+    column_override={"raw_geom": "geometry"}
+) }}
 )
+-- Note: without `column_override`, dbt throws an error trying to cast.
+-- e.g.: `cast("raw_geom" as USER-DEFINED) as "raw...`
 
 SELECT
     'exposed_railway' AS flag_id_field_name,
-    'exposed_railways' AS variable_type,
-    street AS variable_id,
-    geom AS raw_geom,
-    ST_BUFFER(geom, 1500) AS buffer_geom
-FROM filtered
+    variable_type,
+    variable_id,
+    raw_geom,
+    ST_BUFFER(raw_geom, 1500) AS buffer_geom
+FROM all_rails
