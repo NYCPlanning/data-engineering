@@ -1,0 +1,104 @@
+name: pluto_change_file
+display_name: PLUTO Change File
+summary: ""
+description: >-
+  This is a companion dataset to PLUTO and MapPLUTO. PLUTO and MapPLUTO are
+  created using the best available data from a number of city agencies. To further
+  improve data quality, the Department of City Planning (DCP) applies changes to
+  selected field values. DCPEdited is set to "1" in PLUTO if the record
+  contains any changed values.
+
+
+  All previously released versions of this data are available at
+  <a href=\"https://www1.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts[year]=0\"\ >BYTES of the BIG APPLE- Archive</a>
+tags: [pluto, mappluto, dtm, tax block, tax lot, parcels, change, correction, dcp, city planning]
+each_row_is_a: change to selected filed value in PLUTO
+
+destinations:
+- id: socrata_prod
+  type: socrata
+  four_four: qt5r-nqxp
+  attachments:
+    - pluto_removed_records.csv
+  datasets:
+  - pluto_changes_applied
+  omit_columns: []
+  column_details: {}
+- id: socrata_test
+  type: socrata
+  four_four: v3y3-tzps
+  attachments:
+    - pluto_removed_records.csv
+  datasets:
+  - pluto_changes_applied
+  omit_columns: []
+  column_details: {}
+
+package:
+  dataset_files:
+  - name: pluto_changes_applied
+    type: csv
+    filename: pluto_changes_applied.csv
+    overrides:
+      omit_columns: []
+      ignore_validation: []
+      columns: {}
+  - name: pluto_changes_not_applied
+    type: csv
+    filename: pluto_changes_not_applied.csv
+    overrides:
+      omit_columns: []
+      ignore_validation: []
+      columns: {}
+  attachments:
+    - pluto_removed_records.csv
+
+columns:
+- name: bbl
+  display_name: bbl
+  description: A concatenation of the borough code, tax block and tax lot
+  data_type: bbl
+  example: '3002600011'
+
+- name: field
+  display_name: field
+  description: Name of the PLUTO field being changed
+  data_type: text
+  example: yearbuilt
+
+- name: old_value
+  display_name: old_value
+  description: The original value of the field
+  data_type: text
+  example: '1899'
+
+- name: new_value
+  display_name: new_value
+  description: The changed value of the field
+  data_type: text
+  example: NYC DEPARTMENT OF PARKS AND RECREATION
+
+- name: type
+  display_name: type
+  description: Flag indicating the type of change
+  data_type: integer
+  example: '2'
+  values:
+  - ['1', "Programmatic", "Changes that are applied programmatically to each new version of PLUTO. For example, if lot area is zero in DOF’s Property Tax System, PLUTO uses the area of the tax lot’s geometric shape."]
+  - ['2', "Research", "Changes resulting from DCP research that are stored in PLUTO_input_research.csv. Each row in this file contains a change needed for a particular BBL and field. The change will be applied for each new version unless the original value of the field changes."]
+  - ['3', "User reported", "Errors reported by users. These are verified by DCP and stored in PLUTO_input_research.csv."]
+
+- name: reason
+  display_name: reason
+  description: >-
+    The reason the field value was changed. See Appendix for valid values
+    for programmatic and research changes. For user reported changes, the reason
+    states the field that was wrong, e.g. "Lot area wrong."
+  data_type: text
+  example: LPC year built
+
+- name: version
+  display_name: version
+  description: For programmatic changes, this is version in which the programmatic change was implemented.
+  data_type: text
+  example: 20v1

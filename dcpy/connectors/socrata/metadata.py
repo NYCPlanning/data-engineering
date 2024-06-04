@@ -9,6 +9,7 @@ import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 
 soc_types_to_dcp_types = {
+    "checkbox": "boolean",
     "text": "text",
     "multipolygon": "wkb",
     "calendar_date": "datetime",
@@ -77,7 +78,7 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
         summary=socrata_md["description"],
         description=socrata_md["description"],
         tags=socrata_md["tags"],
-        each_row_is_a=socrata_md["metadata"]["rowLabel"],
+        each_row_is_a=socrata_md["metadata"].get("rowLabel") or "<FILL_ME_IN>",
         columns=columns,
         destinations=[
             models.SocrataDestination(
@@ -96,17 +97,14 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
                     overrides=models.DatasetOverrides(),
                 )
             ],
-            attachments=[a["filename"] for a in socrata_md["metadata"]["attachments"]],
+            attachments=[
+                a["filename"] for a in socrata_md["metadata"].get("attachments", [])
+            ],
         ),
     )
 
 
 app = typer.Typer(add_completion=False)
-
-
-@app.command("placeholder")
-def _placeholder():
-    pass
 
 
 @app.command("export")

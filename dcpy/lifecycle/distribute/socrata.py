@@ -18,23 +18,13 @@ distribute_app.add_typer(socrata_app, name="socrata")
 
 @socrata_app.command("from_local")
 def _dist_from_local(
-    package_path: Path = typer.Option(
-        None,
-        "-m",
-        "--metadata-path",
-        help="(Optional) Metadata Path",
-    ),
-    dataset_destination_id: str = typer.Option(
-        None,
-        "-d",
-        "--dest",
-        help="Dataset Destination Id",
-    ),
+    package_path: Path = typer.Argument(),
+    dataset_destination_id: str = typer.Argument(),
     metadata_path: Path = typer.Option(
         None,
         "-m",
         "--metadata-path",
-        help="(Optional) Metadata Path",
+        help="(Optional) Metadata Path Override",
     ),
     publish: bool = typer.Option(
         False,
@@ -74,14 +64,7 @@ def _dist_from_local(
                 validation.pretty_print_errors()
                 raise Exception(error_msg)
 
-    ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-
-    match md.package.get_dataset(ds_name_to_push).type:
-        case "shapefile":
-            soc_pub.push_shp(md, dataset_destination_id, package_path, publish=publish)
-        case _:
-            # TODO
-            raise Exception("Only shapefiles have been implemented so far")
+    soc_pub.push_dataset(md, dataset_destination_id, package_path, publish=publish)
 
 
 @socrata_app.command("from_s3")
@@ -125,7 +108,7 @@ def _dist_from_s3(
     )
     logger.info(f"Downloading dataset package for {product_name}-{version}")
 
-    package_path = packaging.download_packaged_version(
+    package_path = packaging.pull(
         packaging.DatasetPackageKey(product_name, version, dataset or product_name)
     )
 

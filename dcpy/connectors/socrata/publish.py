@@ -193,9 +193,8 @@ class Dataset:
 
     def discard_open_revisions(self):
         open_revs = self.fetch_open_revisions()
-        to_discard = [r for r in open_revs if r.revision_num != "0"]
-        logger.info(f"Discarding revisions: {to_discard}")
-        for rev in to_discard:
+        logger.info(f"Discarding revisions: {open_revs}")
+        for rev in open_revs:
             rev.discard()
 
     def create_replace_revision(self) -> Revision:
@@ -266,6 +265,27 @@ class Revision:
             )
         )
 
+    def push_csv(
+        self, path: Path, *, dest_filename: str | None = None
+    ) -> Socrata.Responses.RevisionDataSource:
+        _socratapy_client = SocrataPy(
+            Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
+        )
+        view = _socratapy_client.views.lookup(self.four_four)
+        rev = view.revisions.lookup(self.revision_num)
+        with open(path, "rb") as csv:
+            logger.info(
+                f"Pushing csv at {path} to {self.four_four} - rev: {self.revision_num}"
+            )
+            push_resp = (
+                rev.create_upload(dest_filename or path.name).csv(csv).wait_for_finish()
+            )
+        error_details: dict | None = push_resp.attributes["failure_details"]
+        if error_details:
+            logger.error(f"CSV upload failed with {error_details}")
+            raise Exception()
+        return Socrata.Responses.RevisionDataSource(push_resp)
+
     def push_shp(
         self, path: Path, *, dest_filename: str | None = None
     ) -> Socrata.Responses.RevisionDataSource:
@@ -280,7 +300,7 @@ class Revision:
                 f"Pushing shapefiles at {path} to {self.four_four} - rev: {self.revision_num}"
             )
             push_resp = (
-                rev.create_upload(dest_filename or shp_zip.name)
+                rev.create_upload(dest_filename or path.name)
                 .shapefile(shp_zip)
                 .wait_for_finish()
             )
@@ -336,26 +356,24 @@ def make_socrata_metadata(dcp_md: models.Metadata):
     }
 
 
-def push_shp(
+def push_dataset(
     metadata: models.Metadata,
     dataset_destination_id: str,
     dataset_package_path: Path,
     *,
     publish: bool,
 ):
-    """Push Shapefile from the distributions bucket to Socrata, and sync metadata."""
+    """Push a dataset and sync metadata."""
     dest = metadata.get_destination(dataset_destination_id)
     if type(dest) != models.SocrataDestination:
         raise Exception("received a non-socrata type destination")
     ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-    shapefile_name = metadata.package.get_dataset(ds_name_to_push).filename
-    shape_file_path = (
-        dataset_package_path / "dataset_files" / shapefile_name
+    md_dataset = metadata.package.get_dataset(ds_name_to_push)
+    file_path = (
+        dataset_package_path / "dataset_files" / md_dataset.filename
     )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
 
     dataset = Dataset(four_four=dest.four_four)
-
-    dataset.discard_open_revisions()
 
     rev = dataset.create_replace_revision()
 
@@ -371,7 +389,14 @@ def push_shp(
         attachments=attachments_metadata, metadata=make_socrata_metadata(metadata)
     )
 
-    data_source = rev.push_shp(shape_file_path)
+    data_source = None
+    if md_dataset.type == "csv":
+        data_source = rev.push_csv(file_path)
+    elif md_dataset.type == "shapefile":
+        data_source = rev.push_shp(file_path)
+    else:
+        raise Exception(f"Pushing unsupported file type: {md_dataset.type}")
+
     try:
         data_source.update_column_metadata(dest, metadata)
     except Exception as e:
@@ -408,3 +433,5 @@ def push_shp(
                     Please investigate manually here: {rev.page_url}"""
                 )
         logger.info("Job Finished Successfully")
+
+        dataset.discard_open_revisions()

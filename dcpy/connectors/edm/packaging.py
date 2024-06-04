@@ -16,6 +16,23 @@ OUTPUT_ROOT_PATH = Path(".output")
 
 
 @dataclass
+class PackageKey(publishing.ProductKey):
+    product: str
+    version: str
+
+    def __str__(self):
+        return f"{self.product} - {self.version}"
+
+    @property
+    def relative_path(self) -> str:
+        return f"{self.product}/package/{self.version}"
+
+    @property
+    def path(self) -> str:
+        return f"{BUCKET_FOLDER}/{self.relative_path}"
+
+
+@dataclass
 class DatasetPackageKey(publishing.ProductKey):
     product: str
     version: str
@@ -25,8 +42,12 @@ class DatasetPackageKey(publishing.ProductKey):
         return f"{self.product} - {self.version} - {self.dataset}"
 
     @property
+    def relative_path(self) -> str:
+        return f"{self.product}/package/{self.version}/{self.dataset}"
+
+    @property
     def path(self) -> str:
-        return f"{BUCKET_FOLDER}/{self.product}/package/{self.version}/{self.dataset}"
+        return f"{BUCKET_FOLDER}/{self.relative_path}"
 
 
 def upload(local_folder_path: Path, package_key: DatasetPackageKey) -> None:
@@ -48,26 +69,33 @@ def get_packaged_versions(product: str) -> list[str]:
     )
 
 
-def download_packaged_version(package_key: DatasetPackageKey) -> Path:
+def pull(package_key: DatasetPackageKey | PackageKey) -> Path:
+    """Pull a specific dataset or package. Returns local path of downloaded dataset."""
     packaged_versions = get_packaged_versions(product=package_key.product)
     assert (
         package_key.version in packaged_versions
     ), f"{package_key} not found in S3 bucket '{BUCKET}'. Packaged versions are {packaged_versions}"
     s3.download_folder(BUCKET, f"{package_key.path}/", DOWNLOAD_ROOT_PATH)
-    return (
-        DOWNLOAD_ROOT_PATH
-        / "product_datasets"
-        / package_key.product
-        / "package"
-        / package_key.version
-        / package_key.dataset
-    )
+    return DOWNLOAD_ROOT_PATH / package_key.relative_path
 
 
-app = typer.Typer(add_completion=False)
+dataset_app = typer.Typer()
 
 
-@app.command("package")
+@dataset_app.command("pull")
+def _download_package_dataset(
+    product_name: str = typer.Argument(),
+    version: str = typer.Argument(),
+    dataset: str = typer.Argument(),
+):
+    pull(DatasetPackageKey(product_name, version, dataset or product_name))
+
+
+package_app = typer.Typer()
+package_app.add_typer(dataset_app, name="dataset")
+
+
+@package_app.command("package")
 def _cli_wrapper_package(
     product: str = typer.Option(
         None,
@@ -87,22 +115,15 @@ def _cli_wrapper_package(
     # package(publish_key)
 
 
-@app.command("versions")
+@package_app.command("versions")
 def _list_packages(product_name):
     return print(get_packaged_versions(product_name))
 
 
-@app.command("download")
-def _download_packages(
-    product_name,
-    version,
-    dataset: str = typer.Option(
-        None,
-        "-d",
-        "--dataset",
-        help="Dataset of the product",
-    ),
+@package_app.command("pull")
+def _download_package(
+    product_name: str = typer.Argument(),
+    version: str = typer.Argument(),
 ):
-    download_packaged_version(
-        DatasetPackageKey(product_name, version, dataset or product_name)
-    )
+    out_path = pull(PackageKey(product_name, version))
+    print(f"downloaded to {out_path}")
