@@ -1,10 +1,12 @@
 from pathlib import Path
 from dataclasses import dataclass
+import tempfile
 import typer
 
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm import product_metadata
 
 BUCKET = "edm-publishing"
 BUCKET_FOLDER = "product_datasets"
@@ -127,3 +129,35 @@ def _download_package(
 ):
     out_path = pull(PackageKey(product_name, version))
     print(f"downloaded to {out_path}")
+
+
+@package_app.command("scaffold")
+def _generate_package_scaffold(
+    product_name: str = typer.Argument(),
+    version: str = typer.Argument(),
+    dataset: str = typer.Argument(),
+):
+    client = s3.client()
+    bucket = "edm-publishing"
+    base_path = f"product_datasets/{product_name}/package/{version}/{dataset}"
+
+    logger.info("Making empty `attachments` folder")
+    client.put_object(
+        Bucket=bucket,
+        Key=f"{base_path}/attachments/",
+    )
+    logger.info("Making empty `dataset_files` folder")
+    client.put_object(
+        Bucket=bucket,
+        Key=f"{base_path}/dataset_files/",
+    )
+
+    raw_metadata = product_metadata.fetch_raw(product_name, dataset=dataset)
+    tf = tempfile.NamedTemporaryFile()
+    with open(tf.name, "w") as f:
+        f.write(raw_metadata)
+
+    logger.info("Uploading metadata")
+    s3.upload_file(
+        "edm-publishing", Path(tf.name), f"{base_path}/metadata.yml", "public-read"
+    )
