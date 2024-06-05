@@ -282,15 +282,6 @@ def validate_package(
                 )
             )
 
-    unique_row_counts = {v.stats.row_count for v in validations}
-    if len(unique_row_counts) > 1:
-        package_errors.append(
-            ValidationError(
-                error_type=ErrorType.INVALID_DATA,
-                message=f"Found varying row counts: {unique_row_counts}",
-                dataset_file=None,
-            )
-        )
     return PackageValidation(validations=validations, errors=package_errors)
 
 
