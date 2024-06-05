@@ -8,10 +8,6 @@ on:
         description: "Name of the product"
         type: string
         required: true
-      DATASET:
-        description: "Dataset to push (defaults to PRODUCT_NAME when omitted)"
-        type: string
-        required: false
       DATASET_VERSION:
         description: "Version to push"
         type: string
@@ -20,6 +16,10 @@ on:
         description: "Destination ID (e.g. `colp_socrata`)"
         type: string
         required: true
+      DATASET:
+        description: "Dataset to push (defaults to PRODUCT_NAME when omitted)"
+        type: string
+        required: false
       PUBLISH:
         description: "Publish the revision? (if not, will leave the revision open)"
         type: boolean
