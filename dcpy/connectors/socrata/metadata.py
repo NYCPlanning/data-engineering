@@ -77,7 +77,7 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
         display_name=socrata_md["name"],
         summary=socrata_md["description"],
         description=socrata_md["description"],
-        tags=socrata_md["tags"],
+        tags=socrata_md.get("tags", []),
         each_row_is_a=socrata_md["metadata"].get("rowLabel")
         or models.FILL_ME_IN_PLACEHOLDER,
         columns=columns,
