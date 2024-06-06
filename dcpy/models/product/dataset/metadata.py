@@ -4,6 +4,10 @@ from pydantic import BaseModel, conlist
 from typing import Any, Literal
 import yaml
 
+# Putting this here so we can have a constant value in all connectors
+# and throw an exception when we attempt to deserialize files that contain it.
+FILL_ME_IN_PLACEHOLDER = "<FILL ME IN!>"
+
 
 class BytesDestination(BaseModel, extra="forbid"):
     type: Literal["bytes"]

@@ -18,7 +18,7 @@ soc_types_to_dcp_types = {
 
 def make_dcp_col(c: pub.Socrata.Responses.Column):
     samples = c.get("cachedContents", {}).get("top", [])
-    sample = "<FILL_ME_IN>"
+    sample = models.FILL_ME_IN_PLACEHOLDER
     dcp_type = None
 
     if samples:
@@ -30,7 +30,7 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
         elif type(sample) == int:
             dcp_type = "integer"
         else:
-            dcp_type = "<FILL_ME_IN>!"
+            dcp_type = models.FILL_ME_IN_PLACEHOLDER
     else:
         dcp_type = soc_types_to_dcp_types[c["renderTypeName"]]
 
@@ -51,7 +51,7 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
         and len(samples) == int(c["cachedContents"].get("cardinality"))  # type: ignore
     ):
         dcp_col["values"] = [
-            [s["item"], "<FILL_IN_THE_VALUE_DESCRIPTION!>"] for s in samples
+            [s["item"], models.FILL_ME_IN_PLACEHOLDER] for s in samples
         ]  # type: ignore
     return models.Column(**dcp_col)  # type: ignore
 
@@ -78,7 +78,8 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
         summary=socrata_md["description"],
         description=socrata_md["description"],
         tags=socrata_md["tags"],
-        each_row_is_a=socrata_md["metadata"].get("rowLabel") or "<FILL_ME_IN>",
+        each_row_is_a=socrata_md["metadata"].get("rowLabel")
+        or models.FILL_ME_IN_PLACEHOLDER,
         columns=columns,
         destinations=[
             models.SocrataDestination(

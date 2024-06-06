@@ -101,7 +101,7 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
 
     return models.Metadata(
         name=resp.get("name"),
-        display_name="FILL ME IN",
+        display_name=models.FILL_ME_IN_PLACEHOLDER,
         package=models.Package(
             dataset_files=[
                 models.DatasetFile(
