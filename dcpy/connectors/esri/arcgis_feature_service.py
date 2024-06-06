@@ -81,7 +81,11 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
         layer_url = layer_url + "?f=pjson"
 
     resp = requests.get(layer_url).json()
-    esri_to_dcp = {"esriFieldTypeString": "text", "esriFieldTypeDouble": "double"}
+    esri_to_dcp = {
+        "esriFieldTypeString": "text",
+        "esriFieldTypeDouble": "double",
+        "esriFieldTypeSmallInteger": "integer",
+    }
 
     raw_cols = resp.get("fields")
     our_cols = [
