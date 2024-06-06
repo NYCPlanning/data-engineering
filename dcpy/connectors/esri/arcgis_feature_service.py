@@ -77,6 +77,9 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
 
 
 def make_dcp_metadata(layer_url: str) -> models.Metadata:
+    if layer_url.endswith("FeatureServer/0"):
+        layer_url = layer_url + "?f=pjson"
+
     resp = requests.get(layer_url).json()
     esri_to_dcp = {"esriFieldTypeString": "text", "esriFieldTypeDouble": "double"}
 
