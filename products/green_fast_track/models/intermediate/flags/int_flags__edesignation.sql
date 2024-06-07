@@ -4,7 +4,7 @@ WITH dcp_edesignation AS (
 ids AS (
     SELECT
         bbl,
-        enumber || ' ' || ceqrnum AS variable_id,
+        enumber || ' ' || ceqr_num AS variable_id,
         hazmat_code,
         air_code,
         noise_code
