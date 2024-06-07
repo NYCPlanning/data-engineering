@@ -1,9 +1,11 @@
-# Build artifacts/data
+# Lifecycle artifacts
 .library/
 .publishing/
+.package/
 output/
 .output/
 .data
+
 .ssh/
 
 # Byte-compiled / optimized / DLL files
