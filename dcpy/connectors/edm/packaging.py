@@ -9,7 +9,7 @@ from dcpy.connectors.edm import publishing
 from dcpy.connectors.edm import product_metadata
 
 BUCKET = "edm-publishing"
-BUCKET_FOLDER = "product_datasets"
+DATASETS_FOLDER = "product_datasets"
 BUCKET_ACL: s3.ACL = "public-read"
 PACKAGE_FOLDER = "package"
 
@@ -31,7 +31,7 @@ class PackageKey(publishing.ProductKey):
 
     @property
     def path(self) -> str:
-        return f"{BUCKET_FOLDER}/{self.relative_path}"
+        return f"{DATASETS_FOLDER}/{self.relative_path}"
 
 
 @dataclass
@@ -49,7 +49,7 @@ class DatasetPackageKey(publishing.ProductKey):
 
     @property
     def path(self) -> str:
-        return f"{BUCKET_FOLDER}/{self.relative_path}"
+        return f"{DATASETS_FOLDER}/{self.relative_path}"
 
 
 def upload(local_folder_path: Path, package_key: DatasetPackageKey) -> None:
@@ -66,7 +66,7 @@ def upload(local_folder_path: Path, package_key: DatasetPackageKey) -> None:
 
 def get_packaged_versions(product: str) -> list[str]:
     return sorted(
-        s3.get_subfolders(BUCKET, f"{BUCKET_FOLDER}/{product}/{PACKAGE_FOLDER}"),
+        s3.get_subfolders(BUCKET, f"{DATASETS_FOLDER}/{product}/{PACKAGE_FOLDER}"),
         reverse=True,
     )
 
@@ -139,7 +139,7 @@ def _generate_package_scaffold(
 ):
     client = s3.client()
     bucket = "edm-publishing"
-    base_path = f"product_datasets/{product_name}/package/{version}/{dataset}"
+    base_path = f"{DATASETS_FOLDER}/{product_name}/package/{version}/{dataset}"
 
     logger.info("Making empty `attachments` folder")
     client.put_object(
