@@ -120,15 +120,17 @@ class Socrata:
                 )
 
             @property
-            def column_names(self) -> set[str]:
-                return {c["field_name"] for c in self.soc_output_columns}
+            def column_names(self) -> list[str]:
+                return sorted([c["field_name"] for c in self.soc_output_columns])
 
             def update_column_metadata(
                 self, socrata_dest: models.SocrataDestination, metadata: models.Metadata
             ):
                 # TODO: changing column types. Not strictly required yet, and could be tricky
                 dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
-                expected_api_names = [c.api_name for c in dest_col_metadata]
+                expected_api_names = sorted(
+                    [c.api_name for c in dest_col_metadata if c.api_name]
+                )
 
                 logger.info(
                     f"""Updating Columns at {self._column_update_endpoint}
@@ -140,8 +142,8 @@ class Socrata:
                 assert self.column_names == set(
                     expected_api_names
                 ), f"""The field names in the uploaded data do not match our metadata.
-                - Present in our metadata, but not uploaded data: {set(expected_api_names) - self.column_names}
-                - Present in uploaded data, but not our metadata: {self.column_names - set(expected_api_names)}
+                - Present in our metadata, but not uploaded data: {set(expected_api_names) - set(self.column_names)}
+                - Present in uploaded data, but not our metadata: {set(self.column_names) - set(expected_api_names)}
                 """
 
                 for uploaded_col in self.soc_output_columns:
