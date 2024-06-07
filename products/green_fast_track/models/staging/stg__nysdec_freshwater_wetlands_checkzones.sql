@@ -6,6 +6,6 @@ SELECT
     'wetland_checkzone' AS flag_id_field_name,
     'wetlands_checkzones' AS variable_type,
     objectid AS variable_id,
-    geom AS raw_geom,
+    st_multi(geom) AS raw_geom,
     NULL AS buffer
 FROM clipped_to_nyc
