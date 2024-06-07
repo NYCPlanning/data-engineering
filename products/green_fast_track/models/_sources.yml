@@ -62,6 +62,7 @@ sources:
           - name: noise_code
             tests:
               - not_null
+          - name: ceqr_num
 
       - name: dcp_lion
         columns:
