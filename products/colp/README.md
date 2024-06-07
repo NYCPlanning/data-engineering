@@ -31,18 +31,3 @@ The input data for COLP is the Integrated Property Information System (IPIS), a 
 
 
 For more in-depth information on COLP, check out its [wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Product:-COLP)
-
-# MOVE EVERYTHING BELOW
-### Bytes of the Big Apple Source Data 
-Make sure versions of each dataset are the most recent published version in DigitalOcean.
-
-- [ ] dcp_pluto - https://www.nyc.gov/site/planning/data-maps/open-data.page#pluto (Version that was last built and published, typically updated 4x a year)
-- [ ] dcp_colp - https://www.nyc.gov/site/planning/data-maps/open-data.page#city_facilities (Version that was last built and published)
-- [ ] dcp_boroboundaries_wi - https://www.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page (New release with every geosupport but should not change from version to version)
-
-### Manual Uploads
-- [ ] dcas_ipis - DCAS emails us a csv and this is ingested manually 
-
-### Recieved via GIS Team uploaded to DO
-
-- [ ] dof_air_rights_lots 
