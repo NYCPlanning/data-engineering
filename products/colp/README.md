@@ -1,4 +1,4 @@
-# City Owned and Leased Properties Database ![CI](https://github.com/NYCPlanning/db-colp/workflows/CI/badge.svg)
+# City Owned and Leased Properties Database
 
 Various city authorities own or lease a large inventory of properties. This repo contains code to create a database of all city owned and leased properties, as required under Section 204 of the City Charter. The database contains information about each property's use, owning/leasing agency, location, and tenent agreements. This repo is a refactoring of the dataset found on [Bytes of the Big Apple](https://www1.nyc.gov/site/planning/about/publications/colp.page), and is currently in development.
 
@@ -26,17 +26,6 @@ The input data for COLP is the Integrated Property Information System (IPIS), a 
 
 ## Additional Resources
 Look-up tables for agency abbreviations and use types are availaible in CSV form under [`/resources`](https://github.com/NYCPlanning/data-engineering/tree/main/products/colp/resources)
-
-## Building COLP
-There are currently two methods to create colp:
-1. via a `push` event, make sure you include `[build]` in your commit message to trigger a build. This workflow can be triggered on all branches.
-2. via a `workflow_dispatch` event. Head to the `actions` tab of the repo and click **Run Workflow** under the **Build** section. 
-
-# COLP Source Data Updates
-
-Like most of our data products, source data must be updated in data library before COLP is run/built. 
-
-All source data listed is to be uploaded as .sql files.
 
 ### Bytes of the Big Apple Source Data 
 Make sure versions of each dataset are the most recent published version in DigitalOcean.
