@@ -19,5 +19,5 @@ SELECT
     'historic_districts' AS flag_id_field_name,
     variable_type,
     variable_id,
-    raw_geom
+    st_multi(raw_geom) AS raw_geom
 FROM all_natural_resources

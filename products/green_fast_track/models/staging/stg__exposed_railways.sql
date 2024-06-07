@@ -14,5 +14,5 @@ filtered AS (
 SELECT
     'exposed_railways' AS variable_type,
     street AS variable_id,
-    geom AS raw_geom
+    ST_MULTI(geom) AS raw_geom
 FROM filtered
