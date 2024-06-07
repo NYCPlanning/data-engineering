@@ -29,6 +29,6 @@ joined_and_corrected AS (
 SELECT
     'exposed_railyards' AS variable_type,
     variable_id,
-    raw_geom
+    ST_MULTI(raw_geom) AS raw_geom
 FROM
     joined_and_corrected
