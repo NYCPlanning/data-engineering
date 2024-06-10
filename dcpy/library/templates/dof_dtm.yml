@@ -10,7 +10,7 @@ dataset:
       - "X_POSSIBLE_NAMES=lon"
       - "Y_POSSIBLE_NAMES=lat"
     geometry:
-      SRS: EPSG:3857
+      SRS: EPSG:2263
       type: MULTIPOLYGON
 
   destination:
