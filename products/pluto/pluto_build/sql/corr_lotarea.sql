@@ -30,7 +30,9 @@ WHERE
 
 -- Take researched lot area values from the research table
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.lotarea AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
@@ -58,7 +60,9 @@ WHERE
 
 -- Take researched building area values from the research table
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.bldgarea AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
@@ -95,7 +99,9 @@ WHERE
 
 -- lot frontage
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.lotfront AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
@@ -124,7 +130,9 @@ WHERE
 
 -- lot depth
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.lotdepth AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl

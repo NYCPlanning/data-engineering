@@ -15,7 +15,9 @@ WHERE
     AND a.bbl NOT IN (SELECT bbl FROM pluto_changes_applied WHERE field = 'ownername');
 
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.ownername AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl

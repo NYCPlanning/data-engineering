@@ -11,14 +11,15 @@ on:
         required: false
         default: "latest"
 
+env:
+  BUILD_NAME: ${{ github.head_ref || github.ref_name }}__pr_tests
+
 jobs:
   check_formatting:
     name: Check formatting of files
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
-    env:
-      BUILD_NAME: ${{ github.head_ref || github.ref_name }}__pr_tests
     steps:
       - uses: actions/checkout@v4
 
@@ -76,11 +77,10 @@ jobs:
           mypy products/template
   
   dbt_checkpoint:
+    needs: check_formatting
     name: Check dbt files
     runs-on: ubuntu-22.04
     container: nycplanning/dev:${{ inputs.image_tag }}
-    env:
-      BUILD_NAME: ${{ github.head_ref || github.ref_name }}__pr_tests
     steps:
       - uses: actions/checkout@v4
 
@@ -108,7 +108,6 @@ jobs:
         run: |
           export BUILD_ENGINE_DB=db-green-fast-track
           dbt deps --profiles-dir products/green_fast_track --project-dir products/green_fast_track
-          dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh --profiles-dir products/green_fast_track --project-dir products/green_fast_track
           pre-commit run --all-files
 
   template-db:

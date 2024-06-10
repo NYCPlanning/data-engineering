@@ -63,21 +63,21 @@ jobs:
     needs: [dataloading]
     name: Build Ztl
     if: inputs.build_ztl
-    uses: ./.github/workflows/zoningtaxlots_build.yml
+    uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
-      image_tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
-      build_name: ${{ github.head_ref || github.ref_name }}
+      dataset_name: ztl
+      dev_image: ${{ inputs.dev_image }}
       recipe_file: recipe
 
   pluto_minor:
     needs: [dataloading]
     name: Build Pluto Minor
     if: inputs.build_pluto_minor
-    uses: ./.github/workflows/pluto_build.yml
+    uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
       create_issue: true
-      image_tag: ${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
-      build_name: ${{ github.head_ref || github.ref_name }}
+      dataset_name: pluto
+      dev_image: ${{ inputs.dev_image }}
       recipe_file: recipe-minor

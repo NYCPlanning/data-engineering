@@ -15,7 +15,9 @@
 -- 	AND a.bbl NOT IN (SELECT bbl FROM pluto_corrections WHERE field = 'unitstotal');
 
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.unitstotal AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
@@ -58,7 +60,9 @@ WHERE
 -- 	AND a.bbl NOT IN (SELECT bbl FROM pluto_corrections WHERE field = 'unitsres');
 
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.unitsres AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl

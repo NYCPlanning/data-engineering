@@ -27265,3 +27265,109 @@ bbl,field,old_value,new_value,Type,reason,version
 1012277501,unitstotal,364,22,2,PTS error - units,24v1
 3024137502,unitsres,361,19,2,PTS error - units,24v1
 3024137502,unitstotal,361,19,2,PTS error - units,24v1
+1004027502,unitsres,64,6,2,PTS error - units,24v2
+1004027502,unitstotal,65,6,2,PTS error - units,24v2
+3070627501,unitsres,1128,376,2,PTS error - units,24v2
+3070627501,unitstotal,1135,379,2,PTS error - units,24v2
+1014890037,unitsres,384,192,2,PTS error - units,24v2
+1014890037,unitstotal,384,192,2,PTS error - units,24v2
+1014890008,unitsres,286,192,2,PTS error - units,24v2
+1014890008,unitstotal,287,193,2,PTS error - units,24v2
+1001907509,unitsres,324,18,2,PTS error - units,24v2
+1001907509,unitstotal,327,21,2,PTS error - units,24v2
+3033937503,unitsres,324,18,2,PTS error - units,24v2
+3033937503,unitstotal,324,18,2,PTS error - units,24v2
+3017347517,unitsres,307,18,2,PTS error - units,24v2
+3017347517,unitstotal,310,21,2,PTS error - units,24v2
+3003437501,unitsres,289,17,2,PTS error - units,24v2
+3003437501,unitstotal,562,18,2,PTS error - units,24v2
+4014797501,unitsres,264,88,2,PTS error - units,24v2
+4014797501,unitstotal,274,90,2,PTS error - units,24v2
+4006197501,unitsres,256,16,2,PTS error - units,24v2
+4006197501,unitstotal,365,24,2,PTS error - units,24v2
+3067827507,unitsres,225,15,2,PTS error - units,24v2
+3067827507,unitstotal,225,15,2,PTS error - units,24v2
+1007677506,unitsres,169,13,2,PTS error - units,24v2
+1007677506,unitstotal,170,14,2,PTS error - units,24v2
+3041047501,unitsres,144,12,2,PTS error - units,24v2
+3041047501,unitstotal,244,22,2,PTS error - units,24v2
+1003737501,unitsres,121,11,2,PTS error - units,24v2
+1003737501,unitstotal,121,11,2,PTS error - units,24v2
+3055167504,unitsres,121,11,2,PTS error - units,24v2
+3055167504,unitstotal,121,11,2,PTS error - units,24v2
+5009550025,lotarea,732550000,75620,2,PTS error - lotarea,24v2
+3018770027,numfloors,2,7,2,PTS error - numfloors,24v2
+3001510009,numfloors,1,2,2,PTS error - numfloors,24v2
+3027017502,bldgarea,32448,6299,2,PTS error - bldgarea,24v2
+3023677503,bldgarea,46027.5,21384,2,PTS error - bldgarea,24v2
+2023510001,unitsres,338,84,2,PTS error - units,24v2
+2023510001,unitstotal,341,85,2,PTS error - units,24v2
+2023510003,unitsres,338,84,2,PTS error - units,24v2
+2023510003,unitstotal,341,85,2,PTS error - units,24v2
+2023510012,unitsres,338,85,2,PTS error - units,24v2
+2023510012,unitstotal,341,85,2,PTS error - units,24v2
+2023510020,unitsres,338,85,2,PTS error - units,24v2
+2023510020,unitstotal,341,86,2,PTS error - units,24v2
+3024570034,unitsres,256,0,2,PTS error - vacant lots with units,24v2
+3024570034,unitstotal,257,0,2,PTS error - vacant lots with units,24v2
+4096207501,unitsres,171,0,2,PTS error - vacant lots with units,24v2
+2023690008,unitsres,218,0,2,PTS error - vacant lots with units,24v2
+2023690008,unitstotal,219,0,2,PTS error - vacant lots with units,24v2
+2023690009,unitsres,218,0,2,PTS error - vacant lots with units,24v2
+2023690009,unitstotal,219,0,2,PTS error - vacant lots with units,24v2
+2023690010,unitsres,218,0,2,PTS error - vacant lots with units,24v2
+2023690010,unitstotal,219,0,2,PTS error - vacant lots with units,24v2
+2033310053,unitsres,116,0,2,PTS error - vacant lots with units,24v2
+2033310053,unitstotal,117,0,2,PTS error - vacant lots with units,24v2
+"3010407502",unitsres,100,10,2,PTS error - units,"24v2"
+"3010407502",unitstotal,100,10,2,PTS error - units,"24v2"
+"4017687502",unitsres,100,10,2,PTS error - units,"24v2"
+"4017687502",unitstotal,102,12,2,PTS error - units,"24v2"
+"1005957510",unitsres,81,9,2,PTS error - units,"24v2"
+"1005957510",unitstotal,82,10,2,PTS error - units,"24v2"
+"1007357501",unitsres,81,9,2,PTS error - units,"24v2"
+"1007357501",unitstotal,82,10,2,PTS error - units,"24v2"
+"3010347501",unitsres,81,9,2,PTS error - units,"24v2"
+"3010347501",unitstotal,120,18,2,PTS error - units,"24v2"
+"3050367501",unitsres,81,9,2,PTS error - units,"24v2"
+"3050367501",unitstotal,81,9,2,PTS error - units,"24v2"
+"4062987501",unitsres,81,9,2,PTS error - units,"24v2"
+"4062987501",unitstotal,88,16,2,PTS error - units,"24v2"
+"1001367506",unitsres,64,8,2,PTS error - units,"24v2"
+"1001367506",unitstotal,66,10,2,PTS error - units,"24v2"
+"3002927501",unitsres,64,8,2,PTS error - units,"24v2"
+"3002927501",unitstotal,64,8,2,PTS error - units,"24v2"
+"3008927502",unitsres,64,8,2,PTS error - units,"24v2"
+"3008927502",unitstotal,64,8,2,PTS error - units,"24v2"
+"3011747502",unitsres,64,8,2,PTS error - units,"24v2"
+"3011747502",unitstotal,64,8,2,PTS error - units,"24v2"
+"3012737501",unitsres,64,8,2,PTS error - units,"24v2"
+"3012737501",unitstotal,64,8,2,PTS error - units,"24v2"
+"3016537502",unitsres,64,8,2,PTS error - units,"24v2"
+"3016537502",unitstotal,64,8,2,PTS error - units,"24v2"
+"3033837501",unitsres,64,8,2,PTS error - units,"24v2"
+"3033837501",unitstotal,64,8,2,PTS error - units,"24v2"
+"3027807501",unitsres,90,9,2,PTS error - units,"24v2"
+"3027807501",unitstotal,100,10,2,PTS error - units,"24v2"
+"3032957502",unitsres,57,8,2,PTS error - units,"24v2"
+"3032957502",unitstotal,57,8,2,PTS error - units,"24v2"
+"3074117502",unitsres,54,6,2,PTS error - units,"24v2"
+"3074117502",unitstotal,76,11,2,PTS error - units,"24v2"
+"3001980034",unitsres,53,0,2,PTS error - vacant lot with units,"24v2"
+"3001980034",unitstotal,55,0,2,PTS error - vacant lot with units,"24v2"
+"3001980035",unitsres,53,0,2,PTS error - vacant lot with units,"24v2"
+"3001980035",unitstotal,55,0,2,PTS error - vacant lot with units,"24v2"
+"3001980036",unitsres,53,0,2,PTS error - vacant lot with units,"24v2"
+"3001980036",unitstotal,55,0,2,PTS error - vacant lot with units,"24v2"
+"3001980037",unitsres,53,0,2,PTS error - vacant lot with units,"24v2"
+"3001980037",unitstotal,55,0,2,PTS error - vacant lot with units,"24v2"
+"3001980038",unitsres,53,0,2,PTS error - vacant lot with units,"24v2"
+"3001980038",unitstotal,55,0,2,PTS error - vacant lot with units,"24v2"
+"3001980039",unitsres,53,0,2,PTS error - vacant lot with units,"24v2"
+"3001980039",unitstotal,55,0,2,PTS error - vacant lot with units,"24v2"
+"3020580047",unitsres,229,0,2,PTS error - vacant lot with units,"24v2"
+"3020580047",unitstotal,231,0,2,PTS error - vacant lot with units,"24v2"
+"3020580049",unitsres,229,0,2,PTS error - vacant lot with units,"24v2"
+"3020580049",unitstotal,231,0,2,PTS error - vacant lot with units,"24v2"
+"3020580050",unitsres,229,0,2,PTS error - vacant lot with units,"24v2"
+"3020580050",unitstotal,231,0,2,PTS error - vacant lot with units,"24v2"

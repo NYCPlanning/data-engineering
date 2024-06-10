@@ -1,7 +1,9 @@
 -- Take the year built from researched lpc_historic_districts table
 
 INSERT INTO pluto_changes_not_applied
-SELECT DISTINCT b.*
+SELECT DISTINCT
+    b.*,
+    a.yearbuilt AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
