@@ -13,6 +13,8 @@ TEST_VERSION = "v001"
 TEST_ACL = "bucket-owner-read"
 TEST_BUCKET_NAME = "edm-publishing"
 TEST_GIS_DATASET = "test_gis_dataset"
+DATE_CONSTANT = "20240101"
+DATE_TODAY = datetime.now().strftime("%Y%m%d")
 
 draft_key = publishing.DraftKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
 publish_key = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
@@ -20,11 +22,10 @@ publish_key = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERS
 
 @pytest.fixture(scope="function")
 def add_gis_datasets(create_buckets):
-    today = datetime.now().strftime("%Y%m%d")
     test_objects = [
         f"datasets/{TEST_GIS_DATASET}/staging/{TEST_GIS_DATASET}.zip",
-        f"datasets/{TEST_GIS_DATASET}/{today}/{TEST_GIS_DATASET}.zip",
-        f"datasets/{TEST_GIS_DATASET}/{TEST_VERSION.upper()}/{TEST_GIS_DATASET}.zip",
+        f"datasets/{TEST_GIS_DATASET}/{DATE_TODAY}/{TEST_GIS_DATASET}.zip",
+        f"datasets/{TEST_GIS_DATASET}/{DATE_CONSTANT}/{TEST_GIS_DATASET}.zip",
     ]
     for object in test_objects:
         s3.client().put_object(Bucket=publishing.BUCKET, Key=object)
@@ -124,7 +125,7 @@ def test_previous(
 
 
 def test_assert_gis_dataset_exists(create_buckets, add_gis_datasets):
-    publishing._assert_gis_dataset_exists(TEST_GIS_DATASET, TEST_VERSION)
+    publishing._assert_gis_dataset_exists(TEST_GIS_DATASET, DATE_CONSTANT)
 
     v_fail = "fake_version"
     with pytest.raises(FileNotFoundError):
@@ -132,14 +133,20 @@ def test_assert_gis_dataset_exists(create_buckets, add_gis_datasets):
 
 
 def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
-    today = datetime.now().strftime("%Y%m%d")
-    assert today == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
+    assert DATE_TODAY == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
+
+    s3.client().put_object(
+        Bucket=publishing.BUCKET,
+        Key=f"datasets/{TEST_GIS_DATASET}/24A/{TEST_GIS_DATASET}.zip",
+    )
+    with pytest.raises(ValueError, match="Multiple"):
+        publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
 
 
 def test_download_gis_dataset(
     create_buckets, add_gis_datasets, create_temp_filesystem: Path
 ):
     file_path = publishing.download_gis_dataset(
-        TEST_GIS_DATASET, TEST_VERSION, create_temp_filesystem
+        TEST_GIS_DATASET, DATE_CONSTANT, create_temp_filesystem
     )
     assert file_path.is_file()
