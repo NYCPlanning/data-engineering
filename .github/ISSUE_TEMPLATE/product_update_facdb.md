@@ -1,6 +1,6 @@
 ---
- name: Product Update: FacDB
- about: Product Update: FacDB
+ name: "Product Update: FacDB"
+ about: "Product Update: FacDB"
  title: "{{ env.VERSION }} FacDB Update"
  labels: 'data update'
 ---
