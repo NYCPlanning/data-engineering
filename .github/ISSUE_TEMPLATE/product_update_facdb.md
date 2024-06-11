@@ -11,13 +11,6 @@ Like most of our data products, source data must be updated in data library befo
 
 **All source data listed is to be uploaded as .csv files**
 
-## Geosupport
-
-- [ ] Ensure latest Geosupport version is present in production EDM Docker images
-
-## Version Env
-
-- [ ] Update previous version for QCQA in `version.env` file
 
 ## Scraped by data library
 
@@ -102,6 +95,7 @@ date updated as neatly as the open datasets, have to look at data itself.
   Hand check for 1 facility in queens, 1 facility in Manhattan, 0 in the other 3 boros. Only look at the correctional facility locations, not the offices.
 
 ## Manual download
+**`TODO`**: update this section to replace any documentation (or just put a TODO) around any "local machine" steps to indicate that we should put these files in edm-recipes/inbox on S3, and change the library template path to point there, e.g. what we do [here](https://github.com/NYCPlanning/data-engineering/blob/cd5c71319b0c093154baf8885b3badf6709451fd/dcpy/library/templates/panynj_jfk_65db.yml#L6).
 
 Manually download the following datasets to your local machine and make tweaks if needed per individual instructions. After downloading, 
 use data library CLI to archive the data to S3. Refer to the dataset templates in data library to see where it expects the data – that's where 
