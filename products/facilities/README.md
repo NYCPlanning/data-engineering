@@ -1,4 +1,4 @@
-# Facilities database (FacDB)  [![Build](https://github.com/NYCPlanning/data-engineering/actions/workflows/facilities_build.yml/badge.svg)](https://github.com/NYCPlanning/data-engineering/actions/workflows/facilities_build.yml)
+# Facilities database (FacDB)
 
 The City Planning Facilities Database aggregates more than 35,000 records from 52 different public data sources provided by City, State, and Federal agencies.
 
