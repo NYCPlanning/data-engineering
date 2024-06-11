@@ -1,6 +1,6 @@
 ---
-name: Product Update: COLP
-about: Product Update: COLP
+name: "Product Update: COLP"
+about: "Product Update: COLP"
 title: "{{ env.VERSION }} COLP Update"
 labels: 'data update'
 ---
