@@ -36,15 +36,15 @@ WITH
 -- When identifying donating BBLs for air rights lots, do not include 89 lots
 air_rights_counts AS (
 	SELECT 
-		a.air_rights_bbl, 
-		a.donating_bbl, 
+		a.air_lot_bbl as air_rights_bbl,
+		a.parent_bbl as donating_bbl,
 		b.lot_count
 	FROM dof_air_rights_lots a
-	JOIN (SELECT air_rights_bbl, COUNT(*) as lot_count
+	JOIN (SELECT air_lot_bbl, COUNT(*) as lot_count
 		FROM dof_air_rights_lots 
-		GROUP BY air_rights_bbl) b
-	ON a.air_rights_bbl = b.air_rights_bbl
-	WHERE SUBSTRING(donating_bbl, 7, 2) <> '89'
+		GROUP BY air_lot_bbl) b
+	ON a.air_lot_bbl = b.air_lot_bbl
+	WHERE SUBSTRING(parent_bbl, 7, 2) <> '89'
 )
 -- If an air rights BBL matches with multiple donating BBLs, take the lot with matching last 3 digits
 SELECT 
