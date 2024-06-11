@@ -1,7 +1,7 @@
 ---
-name: Product Update: Pluto Major
-about: Product Update: Pluto Major
-title: "Data Update: Pluto {{ env.VERSION }}"
+name: "Product Update: Pluto Major"
+about: "Product Update: Pluto Major"
+title: "Product Update: Pluto {{ VERSION }}"
 labels: 'data update'
 ---
 
@@ -18,14 +18,12 @@ labels: 'data update'
 
 #### Updated 2x a year typically in June and December
 - [ ] **dcp_colp** (check [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-colp.page)) 
-#### Currently updated with each new release of a major version of PLUTO - important to make sure this is up to date
-- [ ] **pluto_corrections** (pulling from bytes, must update when there's updates to **pluto_input_research**)
 
 ### Automated Updates
 
 #### Open data automated pull
 
-> Check [here](https://github.com/NYCPlanning/db-data-library/actions/workflows/open-data.yml) to see the latest run
+> Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/data_library_open_data.yml) to see the latest run
 
 - [ ] **dsny_frequencies**
 - [ ] **dpr_greenthumb**
@@ -39,7 +37,7 @@ labels: 'data update'
 - [ ] **pluto_input_cama_dof** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_cama.yml))
 - [ ] **pluto_input_numbldgs** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_numbldgs.yml))
 
-### Updated with Quarterly updates (check [here](https://github.com/NYCPlanning/db-data-library/actions/workflows/quaterly-updates.yml))
+### Updated with Quarterly updates (check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/data_library_quarterly.yml))
 
 - [ ] **dcp_cdboundaries_wi**
 - [ ] **dcp_ct2010**
