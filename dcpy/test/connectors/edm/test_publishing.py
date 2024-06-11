@@ -24,7 +24,7 @@ def add_gis_datasets(create_buckets):
     test_objects = [
         f"datasets/{TEST_GIS_DATASET}/staging/{TEST_GIS_DATASET}.zip",
         f"datasets/{TEST_GIS_DATASET}/{today}/{TEST_GIS_DATASET}.zip",
-        f"datasets/{TEST_GIS_DATASET}/{TEST_VERSION.upper()}/{TEST_GIS_DATASET}.zip",
+        f"datasets/{TEST_GIS_DATASET}/20240101/{TEST_GIS_DATASET}.zip",
     ]
     for object in test_objects:
         s3.client().put_object(Bucket=publishing.BUCKET, Key=object)
@@ -124,7 +124,7 @@ def test_previous(
 
 
 def test_assert_gis_dataset_exists(create_buckets, add_gis_datasets):
-    publishing._assert_gis_dataset_exists(TEST_GIS_DATASET, TEST_VERSION)
+    publishing._assert_gis_dataset_exists(TEST_GIS_DATASET, "20240101")
 
     v_fail = "fake_version"
     with pytest.raises(FileNotFoundError):
@@ -132,15 +132,22 @@ def test_assert_gis_dataset_exists(create_buckets, add_gis_datasets):
 
 
 def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
-    assert TEST_VERSION.upper() == publishing.get_latest_gis_dataset_version(
-        TEST_GIS_DATASET
+    assert datetime.now().strftime(
+        "%Y%m%d"
+    ) == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
+
+    s3.client().put_object(
+        Bucket=publishing.BUCKET,
+        Key=f"datasets/{TEST_GIS_DATASET}/24A/{TEST_GIS_DATASET}.zip",
     )
+    with pytest.raises(ValueError, match="Multiple"):
+        publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
 
 
 def test_download_gis_dataset(
     create_buckets, add_gis_datasets, create_temp_filesystem: Path
 ):
     file_path = publishing.download_gis_dataset(
-        TEST_GIS_DATASET, TEST_VERSION, create_temp_filesystem
+        TEST_GIS_DATASET, "20240101", create_temp_filesystem
     )
     assert file_path.is_file()

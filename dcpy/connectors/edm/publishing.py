@@ -385,12 +385,19 @@ def get_latest_gis_dataset_version(dataset_name: str) -> str:
     Get latest version of GIS-published dataset in edm-publishing/datasets
     assuming versions are sortable
     """
-    gis_version_formats = [r"\d{2}[A-Z]", r"\d{8}"]
-    subfolders = [
-        f
-        for f in s3.get_subfolders(BUCKET, f"datasets/{dataset_name}/")
-        if any([re.match(p, f) for p in gis_version_formats])
-    ]
+    gis_version_formats = [r"^\d{2}[A-Z]$", r"^\d{8}$"]
+    subfolders = []
+    matched_formats = set()
+    for f in s3.get_subfolders(BUCKET, f"datasets/{dataset_name}"):
+        for p in gis_version_formats:
+            if re.match(p, f):
+                subfolders.append(f)
+                matched_formats.add(p)
+    if subfolders:
+        if len(matched_formats) > 1:
+            raise ValueError(
+                f"Multiple version formats found for gis dataset {dataset_name}. Cannot determine latest version"
+            )
     version = max(subfolders)
     _assert_gis_dataset_exists(dataset_name, version)
     return version
