@@ -1,3 +1,4 @@
+from typing import Callable
 from faker import Faker
 from pandas import DataFrame as df
 from pathlib import Path
@@ -48,7 +49,7 @@ class DCPFakes:
         return f"{boro_code}{block.zfill(5)}{lot.zfill(4)}"
 
 
-fakes = {
+fakes: dict[str, Callable] = {
     "wkt": DCPFakes.wkt,
     "wkb": DCPFakes.wkb,
     "boro_code": DCPFakes.boro_code,

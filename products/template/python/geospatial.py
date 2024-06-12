@@ -66,7 +66,7 @@ def pad_map_bounds(
 
     axes.axis("scaled")
     axes.axis(
-        [lon_min - lon_pad, lon_max + lon_pad, lat_min - lat_pad, lat_max + lat_pad]
+        (lon_min - lon_pad, lon_max + lon_pad, lat_min - lat_pad, lat_max + lat_pad)
     )
     return axes
 
