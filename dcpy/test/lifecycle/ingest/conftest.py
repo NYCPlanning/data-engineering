@@ -1,4 +1,5 @@
 import pytest
+from typing import Callable
 from shapely import wkt
 import geopandas as gpd
 import pandas as pd
@@ -56,7 +57,7 @@ def generate_gdf(
 
     def generate_row(columns) -> dict:
         """Generates fake row based on specified columns"""
-        data_generators = {
+        data_generators: dict[str, Callable] = {
             "boro_code": DCPFakes.boro_code,
             "block": DCPFakes.block,
             "lot": DCPFakes.lot,
