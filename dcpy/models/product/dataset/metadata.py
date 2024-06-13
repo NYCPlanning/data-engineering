@@ -9,6 +9,38 @@ import yaml
 FILL_ME_IN_PLACEHOLDER = "<FILL ME IN!>"
 
 
+class Column(BaseModel, extra="forbid"):
+    name: str
+    display_name: str
+    description: str
+    data_type: str
+
+    # Optional
+    data_source: str | None = None
+    example: Any | None = None
+    non_nullable: bool | None = None
+    is_primary_key: bool | None = None
+    readme_data_type: str | None = None
+    deprecated: bool | None = None
+    values: list[list] | None = None
+
+
+class SocrataColumn(BaseModel, extra="forbid"):
+    name: str | None = None
+    api_name: str | None = None
+    display_name: str | None = None
+    description: str | None = None
+    is_primary_key: bool = False
+
+
+class DatasetOverrides(BaseModel, extra="forbid"):
+    omit_columns: list[str] = []
+    ignore_validation: list[str] = []
+    columns: dict = {}
+    display_name: str | None = None
+    summary: str | None = None
+
+
 class BytesDestination(BaseModel, extra="forbid"):
     type: Literal["bytes"]
     id: str
@@ -49,36 +81,6 @@ class SocrataDestination(BaseModel, extra="forbid"):
                 )
             )
         return soc_cols
-
-
-class Column(BaseModel, extra="forbid"):
-    name: str
-    display_name: str
-    description: str
-    data_type: str
-
-    # Optional
-    data_source: str | None = None
-    example: Any | None = None
-    non_nullable: bool | None = None
-    is_primary_key: bool | None = None
-    readme_data_type: str | None = None
-    deprecated: bool | None = None
-    values: list[list] | None = None
-
-
-class SocrataColumn(BaseModel, extra="forbid"):
-    name: str | None = None
-    api_name: str | None = None
-    display_name: str | None = None
-    description: str | None = None
-    is_primary_key: bool = False
-
-
-class DatasetOverrides(BaseModel, extra="forbid"):
-    omit_columns: list[str] = []
-    ignore_validation: list[str] = []
-    columns: dict = {}
 
 
 class DatasetFile(BaseModel, extra="forbid"):
