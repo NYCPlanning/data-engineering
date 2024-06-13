@@ -1,4 +1,4 @@
-name: dcp_commercial_overlay
+name: dcp_commercialoverlay
 acl: public-read
 source:
   type: edm_publishing_gis_dataset
