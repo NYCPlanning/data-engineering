@@ -71,13 +71,13 @@ def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = True)
         )
 
 
-def get_config(name: str, version="latest") -> library.Config:
+def get_config(name: str, version="latest") -> ingest.Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"{DATASET_FOLDER}/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
-    return library.Config(**yaml.safe_load(file_content))
+    return ingest.Config(**yaml.safe_load(file_content))
 
 
 def get_latest_version(name: str) -> str:
