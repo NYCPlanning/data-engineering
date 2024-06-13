@@ -1,10 +1,16 @@
 from pathlib import Path
+import yaml
+
 from dcpy.lifecycle.package import validate
-from dcpy.models.product.dataset.metadata import Metadata as md
+import dcpy.models.product.dataset.metadata as md
 
 COLP_PACKAGE_PATH = (
     Path(__file__).parent.resolve() / "resources" / "colp_single_feature_package"
 )
+METADATA_PATH = COLP_PACKAGE_PATH / "metadata.yml"
+
+COLP_MD = md.Metadata.from_yaml(METADATA_PATH)
+RAW_MD = yaml.safe_load(open(METADATA_PATH, "r"))
 
 
 def test_colp_single_feature_package():
@@ -14,7 +20,7 @@ def test_colp_single_feature_package():
 
 
 def test_missing_attachments():
-    overridden_md = md.from_yaml(COLP_PACKAGE_PATH / "metadata.yml")
+    overridden_md = md.Metadata.from_yaml(COLP_PACKAGE_PATH / "metadata.yml")
 
     fake_attachment_name = "I_dont_exist.pdf"
     overridden_md.package.attachments.append(fake_attachment_name)
@@ -28,4 +34,32 @@ def test_missing_attachments():
 
 
 def test_destination_overrides():
-    pass
+    """
+    Tests overrides at both the destination dataset_file level.
+    Destination overrides should take priority over dataset_file overrides.
+    """
+    dest = COLP_MD.get_destination("socrata_prod")
+    assert type(dest) == md.SocrataDestination
+    soc_md = dest.get_metadata(COLP_MD)
+
+    soc_destination_raw = [
+        d for d in RAW_MD["destinations"] if d["id"] == "socrata_prod"
+    ][0]
+    soc_dataset_file_raw = [
+        f
+        for f in RAW_MD["package"]["dataset_files"]
+        if f["name"] == "primary_shapefile"
+    ][0]
+
+    assert (
+        soc_md.name == soc_destination_raw["overrides"]["display_name"]
+    ), """
+    Display Name is overridden at both the destination and dataset_file level,
+    but destination should take priority"""
+
+    assert (
+        soc_md.description == soc_dataset_file_raw["overrides"]["description"]
+    ), """
+    Description is overridden ONLY at the dataset_file level"""
+
+    assert soc_md.tags == RAW_MD["tags"], "Tags should be unchanged"

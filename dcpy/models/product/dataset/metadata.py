@@ -38,13 +38,26 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     ignore_validation: list[str] = []
     columns: dict = {}
     display_name: str | None = None
-    summary: str | None = None
+    description: str | None = None
+    tags: list[str] = []
 
 
 class BytesDestination(BaseModel, extra="forbid"):
     type: Literal["bytes"]
     id: str
     datasets: list[str]
+    overrides: DatasetOverrides = DatasetOverrides()
+
+
+DEFAULT_SOCRATA_CATEGORY = "city government"
+
+
+class SocrataMetada(BaseModel, extra="forbid"):
+    name: str
+    description: str
+    tags: list[str] = []
+    metadata: dict[str, str] = {}
+    category: str = DEFAULT_SOCRATA_CATEGORY
 
 
 class SocrataDestination(BaseModel, extra="forbid"):
@@ -56,6 +69,21 @@ class SocrataDestination(BaseModel, extra="forbid"):
     omit_columns: list[str] = []
     column_details: dict[str, SocrataColumn] = {}
     overrides: DatasetOverrides = DatasetOverrides()
+
+    def get_metadata(self, md: Metadata) -> SocrataMetada:
+        dataset_file_overrides = md.package.get_dataset(self.datasets[0]).overrides
+
+        # It would be nice to have a more comprehensive way to combine these overrides
+        return SocrataMetada(
+            name=self.overrides.display_name
+            or dataset_file_overrides.display_name
+            or md.display_name,
+            description=self.overrides.description
+            or dataset_file_overrides.description
+            or md.description,
+            tags=self.overrides.tags or dataset_file_overrides.tags or md.tags,
+            metadata={"rowLabel": md.each_row_is_a},
+        )
 
     def get_column_overrides(self, col_name):
         col = self.column_details.get(col_name, SocrataColumn())
