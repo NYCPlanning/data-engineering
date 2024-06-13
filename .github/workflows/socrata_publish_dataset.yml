@@ -68,7 +68,7 @@ jobs:
             ${{ inputs.PRODUCT_NAME }} \
             ${{ inputs.DATASET_VERSION }} \
             ${{ inputs.DESTINATION_ID }} \
-            $(if [ ${{ inputs.DATASET}} = "true" ]; then echo "--dataset ${{ inputs.DATASET }}" ; fi) \
+            $(if [ ${{ inputs.DATASET}} != "" ]; then echo "--dataset ${{ inputs.DATASET }}" ; fi) \
             $(if [ ${{ inputs.SKIP_VALIDATION }} = "true" ]; then echo "-y"; fi) \
             $(if [ ${{ inputs.PUBLISH }} = "true" ]; then echo "-p"; fi) \
             $(if [ ${{ inputs.IGNORE_VALIDATION_ERRORS }} = "true" ]; then echo "-i"; fi)
