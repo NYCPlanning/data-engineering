@@ -386,7 +386,8 @@ def push_dataset(
     ]
 
     rev.patch_metadata(
-        attachments=attachments_metadata, metadata=make_socrata_metadata(metadata)
+        attachments=attachments_metadata,
+        metadata=dest.get_metadata(metadata).model_dump(),
     )
 
     data_source = None

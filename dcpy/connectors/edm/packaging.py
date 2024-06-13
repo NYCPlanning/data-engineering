@@ -78,7 +78,7 @@ def pull(package_key: DatasetPackageKey | PackageKey) -> Path:
         package_key.version in packaged_versions
     ), f"{package_key} not found in S3 bucket '{BUCKET}'. Packaged versions are {packaged_versions}"
     s3.download_folder(BUCKET, f"{package_key.path}/", DOWNLOAD_ROOT_PATH)
-    return DOWNLOAD_ROOT_PATH / package_key.relative_path
+    return DOWNLOAD_ROOT_PATH / package_key.path
 
 
 dataset_app = typer.Typer()
