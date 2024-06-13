@@ -282,3 +282,6 @@ destinations:
     attachments:
       -  "colp_readme.pdf"
     omit_columns: [dcpedited, uid]
+    overrides:
+      display_name: "I'm the ovverridden display name!"
+      summary: "I'm the ovverridden summary!"

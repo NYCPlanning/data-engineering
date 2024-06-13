@@ -55,6 +55,7 @@ class SocrataDestination(BaseModel, extra="forbid"):
     datasets: conlist(item_type=str, max_length=1)  # type:ignore
     omit_columns: list[str] = []
     column_details: dict[str, SocrataColumn] = {}
+    overrides: DatasetOverrides = DatasetOverrides()
 
     def get_column_overrides(self, col_name):
         col = self.column_details.get(col_name, SocrataColumn())

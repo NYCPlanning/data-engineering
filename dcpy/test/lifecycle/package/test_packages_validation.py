@@ -25,3 +25,7 @@ def test_missing_attachments():
     ), "An error should have been found for the missing attachment"
 
     assert fake_attachment_name in validation.errors[0].message
+
+
+def test_destination_overrides():
+    pass
