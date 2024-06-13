@@ -21,7 +21,7 @@ BUCKET = "edm-recipes"
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
-DATASET_FOLDER = "datasets"
+DATASET_FOLDER = "ingest_datasets"
 RAW_FOLDER = "raw_datasets"
 LOGGING_DB = "edm-qaqc"
 LOGGING_SCHEMA = "source_data"
