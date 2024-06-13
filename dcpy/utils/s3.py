@@ -419,5 +419,7 @@ def _cli_wrapper_upload_folder(
     )
 
 
-if __name__ == "__main__":
-    app()
+@app.command("download_file")
+def _cli_wrapper_download_file(bucket: str, s3_path: str, local_path: Path):
+    logger.info(f"Downloading file at {bucket}/{s3_path} to {local_path}")
+    download_file(bucket, s3_path, local_path)
