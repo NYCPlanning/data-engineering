@@ -51,4 +51,4 @@ jobs:
         env:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
-        run: python3 -m dcpy.cli lifecycle ingest ${{ github.event.inputs.dataset }} $version
+        run: python3 -m dcpy.lifecycle.ingest.run ${{ github.event.inputs.dataset }} $version
