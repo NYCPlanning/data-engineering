@@ -57,7 +57,7 @@ class SocrataMetada(BaseModel, extra="forbid"):
     description: str
     tags: list[str] = []
     metadata: dict[str, str] = {}
-    category: str = DEFAULT_SOCRATA_CATEGORY
+    # category: str = DEFAULT_SOCRATA_CATEGORY
 
 
 class SocrataDestination(BaseModel, extra="forbid"):
