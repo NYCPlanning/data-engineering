@@ -1,28 +1,3 @@
--- Preprocessing (change column names and table names) 
-ALTER TABLE dcp_commercialoverlay
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dcp_limitedheight
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dcp_specialpurposesubdistricts
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dcp_specialpurpose
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dcp_zoningdistricts
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dcp_zoningmapamendments
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dof_dtm
-RENAME COLUMN wkb_geometry TO geom;
-
-ALTER TABLE dcp_zoningmapindex
-RENAME COLUMN wkb_geometry TO geom;
-
 DROP TABLE IF EXISTS dof_dtm_tmp;
 CREATE TABLE dof_dtm_tmp AS (
     WITH coalesced AS (
