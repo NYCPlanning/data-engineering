@@ -61,3 +61,7 @@ def _cli_wrapper_run(
     skip_archival: bool = typer.Option(False, "--skip-archival", "-s"),
 ):
     run(dataset, version, skip_archival=skip_archival)
+
+
+if __name__ == "__main__":
+    app()
