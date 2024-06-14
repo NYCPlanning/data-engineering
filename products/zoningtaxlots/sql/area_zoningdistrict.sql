@@ -42,18 +42,18 @@ SELECT
     n.zonedist,
     ST_AREA(
         CASE
-            WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom::geography
-            ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))::geography
+            WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+            ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
         END
     ) AS segbblgeom,
     ST_AREA(
         CASE
-            WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom::geography
-            ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))::geography
+            WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+            ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
         END
     ) AS segzonegeom,
-    ST_AREA(p.geom::geography) AS allbblgeom,
-    ST_AREA(n.geom::geography) AS allzonegeom
+    ST_AREA(p.geom) AS allbblgeom,
+    ST_AREA(n.geom) AS allzonegeom
 
 FROM validdtm AS p
 INNER JOIN validzones AS n
