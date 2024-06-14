@@ -46,3 +46,9 @@ jobs:
       - name: Finish container setup ...
         working-directory: ./
         run: ./bash/docker_container_setup.sh
+
+      - name: Ingest ${{ github.event.inputs.dataset }}
+        env:
+          latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+        run: python3 -m dcpy.cli lifecycle ingest ${{ github.event.inputs.dataset }} $version
