@@ -215,7 +215,11 @@ def import_dataset(
 
         # make column names more sql-friendly
         columns = {
-            column: column.lower().strip().replace("-", "_").replace("'", "_").replace(" ", "_")
+            column: column.lower()
+            .strip()
+            .replace("-", "_")
+            .replace("'", "_")
+            .replace(" ", "_")
             for column in df.columns
         }
         df.rename(columns=columns, inplace=True)
