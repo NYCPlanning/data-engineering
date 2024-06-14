@@ -27,7 +27,7 @@ CREATE TABLE validzones AS (
         END AS zonedist,
         ST_MAKEVALID(geom) AS geom
     FROM dcp_zoningdistricts
-    WHERE ST_GEOMETRYTYPE(ST_MAKEVALID(geom)) = 'ST_MultiPolygon'
+    WHERE ST_GEOMETRYTYPE(ST_MAKEVALID(ST_MULTI(geom))) = 'ST_MultiPolygon'
 );
 
 CREATE INDEX validzones_geom_idx ON validzones USING gist (geom gist_geometry_ops_2d);
