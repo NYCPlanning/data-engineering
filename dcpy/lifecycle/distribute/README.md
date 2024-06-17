@@ -99,7 +99,7 @@ python -m dcpy.cli connectors esri metadata export https://services5.arcgis.com/
 #### ESRI PDF parser
 
 The last resort for grabbing column metadata. This is by far the most fragile of the methods.
-1. Open the ESRI pdf
+1. Open the ESRI pdf in the **Mac Preview app** (Important - copying from other apps doesn't work)
 2. Copy paste the document contents into a text file
 3. Run:
 
