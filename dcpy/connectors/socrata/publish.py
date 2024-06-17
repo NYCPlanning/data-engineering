@@ -134,7 +134,7 @@ class Socrata:
 
                 logger.info(
                     f"""Updating Columns at {self._column_update_endpoint}
-                    Columns in uploaded data: {self.column_names}
+                    Columns from dataset page: {self.column_names}
                     Columns from our metadata: {expected_api_names}
                 """
                 )
@@ -142,8 +142,8 @@ class Socrata:
                 assert self.column_names == set(
                     expected_api_names
                 ), f"""The field names in the uploaded data do not match our metadata.
-                - Present in our metadata, but not uploaded data: {set(expected_api_names) - set(self.column_names)}
-                - Present in uploaded data, but not our metadata: {set(self.column_names) - set(expected_api_names)}
+                - Present in our metadata, but not dataset page: {set(expected_api_names) - set(self.column_names)}
+                - Present in dataset page, but not our metadata: {set(self.column_names) - set(expected_api_names)}
                 """
 
                 for uploaded_col in self.soc_output_columns:
