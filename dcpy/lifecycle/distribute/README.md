@@ -65,7 +65,7 @@ In the case of errors, or if the the `--publish` flag isn't supplied, you'll hav
 ```
 INFO:dcpy:Pushing shapefiles at .package/product_datasets/template_db/package/20231227/template_db/dataset_files/templatedb_points.shp.zip to b7pm-uzu7 - rev: 32
 INFO:dcpy:Updating Columns at https://data.cityofnewyork.us/api/publishing/v1/source/202450926/schema/199848287
-INFO:dcpy:                    Columns in uploaded data: {'place_name', 'bbl', 'place_type', 'wkb_geometry', 'borough'}
+INFO:dcpy:                    Columns from dataset page: {'place_name', 'bbl', 'place_type', 'wkb_geometry', 'borough'}
 INFO:dcpy:                    Columns from our metadata: ['place_name', 'bbl', 'place_type', 'borough', 'wkb_geometry']
 INFO:dcpy:
 INFO:dcpy:Finished syncing product to Socrata, but did not publish. Find revision 32, and apply manually
