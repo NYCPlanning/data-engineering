@@ -75,3 +75,34 @@ INFO:dcpy:            here https://data.cityofnewyork.us/d/b7pm-uzu7/revisions/3
 Follow the provided link. Here you can review the modified data and metadata. Hit `Update` in the top right to apply the revision. 
 ![template_db_socrata](https://github.com/NYCPlanning/data-engineering/assets/11164730/b0c24251-00e3-4be1-99a6-6cf015240cc6)
 
+
+## Generating Metadata
+
+So you need to generate a `metadata.yml` file. There are a few options that will each get you part of the way:
+
+#### Socrata Connector
+``` sh
+python -m dcpy.cli connectors socrata metadata export {four-four here}
+```
+
+The limitations here are when you're working from an old datasource. It will correctly pull certain dataset-level fields (e.g. Description), but unfortonutely no column metadata. (yet)
+
+#### ESRI FeatureServer Connector
+``` sh
+python -m dcpy.cli connectors esri metadata export {feature-server here}
+
+-- e.g.
+
+python -m dcpy.cli connectors esri metadata export https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0
+```
+
+#### ESRI PDF parser
+
+The last resort for grabbing column metadata. This is by far the most fragile of the methods.
+1. Open the ESRI pdf
+2. Copy paste the document contents into a text file
+3. Run:
+
+``` sh
+python -m dcpy.cli lifecycle package esri parse_pdf_text {path to your text file}
+```
