@@ -297,7 +297,7 @@ def validate_package(
 app = typer.Typer(add_completion=False)
 
 
-@app.command("validate")
+@app.command()
 def _validate(
     package_path: Path,
     metadata_path: Path = typer.Option(
