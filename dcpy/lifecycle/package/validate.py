@@ -6,6 +6,7 @@ from pathlib import Path
 import pprint
 from shapely import wkb, wkt
 import typer
+from pandera import Column, DataFrameSchema, Check, Index
 
 import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
@@ -101,21 +102,12 @@ def _is_geom_poly(s):
 
 
 col_validators = {
-    "bbl": lambda df, col_name: df[~df[col_name].str.match(r"^\d{10}$")],
-    "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
-    "double": lambda df, col_name: df[~df[col_name].apply(_is_float_or_double)],
-    "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
-    "geom_point": lambda df, col_name: df[~df[col_name].apply(_is_geom_point)],
-    "geom_poly": lambda df, col_name: df[~df[col_name].apply(_is_geom_poly)],
-    # TODO
-    "datetime": lambda df, col_name: df.iloc[0:0],
-    "uid": lambda df, col_name: df.iloc[0:0],
-    "boro_code": lambda df, col_name: df.iloc[0:0],
-    "block": lambda df, col_name: df.iloc[0:0],
-    "lot": lambda df, col_name: df.iloc[0:0],
-    "latitude": lambda df, col_name: df.iloc[0:0],
-    "longitude": lambda df, col_name: df.iloc[0:0],
-    "text": lambda df, col_name: df.iloc[0:0],
+    "bbl": lambda s: s.str.match(r"^\d{10}$"),
+    "integer": lambda s: s.apply(_is_int),
+    "double": lambda s: s.apply(_is_float_or_double),
+    "wkb": lambda s: s.apply(_is_valid_wkb),
+    "geom_point": lambda s: s.apply(_is_geom_point),
+    "geom_poly": lambda s: s.apply(_is_geom_poly),
 }
 
 
@@ -123,102 +115,28 @@ def validate_df(
     df: pd.DataFrame, dataset: models.DatasetFile, metadata: models.Metadata
 ) -> DatasetFileValidation:
     """Validate a dataframe against a metadata file."""
-    df_stringified_nulls = df.fillna("")
+
+    def make_checks(col):
+        vals_check = Check.isin([v[0] for v in col.values]) if col.values else None
+        dcp_validator = col_validators.get(col.data_type)
+        dcp_check = Check(dcp_validator) if dcp_validator else None
+
+        return [c for c in [vals_check, dcp_check] if c is not None]
+
+    shapefile_cols = dataset.get_columns(metadata)
+
+    schema = DataFrameSchema(
+        {c.name: Column(str, make_checks(c)) for c in shapefile_cols},
+        index=Index(int),
+        strict=True,
+        coerce=True,
+    )
 
     errors = []
-
-    ignored_cols = set(dataset.overrides.ignore_validation)
-    dataset_columns = [
-        col for col in dataset.get_columns(metadata) if col.name not in ignored_cols
-    ]
-    dataset_column_names = {c.name for c in dataset_columns}
-
-    # Find mismatched columns
-    df_headers = set(df.columns)
-
-    extras_in_source = df_headers.difference(dataset_column_names) - ignored_cols
-    if extras_in_source:
-        errors.append(
-            ValidationError(
-                error_type=ErrorType.COLUMM_MISMATCH,
-                message=f"Invalid column(s) found in source data: {extras_in_source}.",
-                dataset_file=dataset,
-            )
-        )
-
-    not_found_in_source = dataset_column_names.difference(df_headers) - ignored_cols
-    if not_found_in_source:
-        errors.append(
-            ValidationError(
-                error_type=ErrorType.COLUMM_MISMATCH,
-                message=f"Column(s) missing from source data: {not_found_in_source}.",
-                dataset_file=dataset,
-            )
-        )
-
-    # Validate Data in Columns
-    for col in dataset_columns:
-        if col.name in not_found_in_source:
-            continue
-
-        col_type = type(df.dtypes.get(col.name))
-
-        if col_type is gpd.array.GeometryDtype:
-            continue
-
-        df_no_col_nulls = df_stringified_nulls[
-            df_stringified_nulls[col.name].apply(str).str.len() > 0
-        ]
-        df_only_col_nulls = df_stringified_nulls[
-            df_stringified_nulls[col.name].str.len() == 0
-        ]
-
-        # Check for unknown types
-        if col.data_type not in col_validators:
-            errors.append(
-                ValidationError(
-                    error_type=ErrorType.INVALID_METADATA,
-                    message=f"Column {col.name} has unknown type {col.data_type}.",
-                    dataset_file=dataset,
-                )
-            )
-            continue
-
-        # Validate that data in columns matches declared types, for non-nulls only
-        invalids = col_validators[col.data_type](df_no_col_nulls, col.name)
-        if not invalids.empty:
-            errors.append(
-                ValidationError(
-                    error_type=ErrorType.INVALID_DATA,
-                    message=f"Column {col.name} contains {len(invalids)} invalid record(s), for example: {invalids.iloc[0][col.name]}",
-                    dataset_file=dataset,
-                )
-            )
-
-        # Validate standardized/enum values
-        if col.values:
-            accepted_values = {str(v[0]) for v in col.values} | {""}
-            invalids = df_no_col_nulls[~df_no_col_nulls[col.name].isin(accepted_values)]
-            if not invalids.empty:
-                invalid_counts = dict(invalids.groupby(by=col.name).size())
-                errors.append(
-                    ValidationError(
-                        error_type=ErrorType.INVALID_DATA,
-                        message=f"Found counts of non-standardized values for column {col.name}: {invalid_counts}",
-                        dataset_file=dataset,
-                    )
-                )
-
-        # Check Nulls
-        if col.non_nullable:
-            if not df_only_col_nulls.empty:
-                errors.append(
-                    ValidationError(
-                        error_type=ErrorType.NULLS_FOUND,
-                        message=f"Column {col.name} has {len(df_only_col_nulls)} empty values",
-                        dataset_file=dataset,
-                    )
-                )
+    try:
+        schema.validate(df)
+    except Exception as e:
+        errors = e
 
     return DatasetFileValidation(
         errors=errors, stats=ValidationStats(row_count=len(df))
