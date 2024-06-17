@@ -2,7 +2,7 @@ name: "zoning_tax_lots"
 
 profile: "dcp-de-postgres"
 
-model-paths: ["sql"]
+model-paths: ["models"]
 
 tests:
   +store_failures: true
