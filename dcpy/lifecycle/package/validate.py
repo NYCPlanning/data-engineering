@@ -136,7 +136,9 @@ def validate_df(
     # Find mismatched columns
     df_headers = set(df.columns)
 
-    extras_in_source = df_headers.difference(dataset_column_names) - ignored_cols
+    extras_in_source = sorted(
+        list(df_headers.difference(dataset_column_names) - ignored_cols)
+    )
     if extras_in_source:
         errors.append(
             ValidationError(
@@ -146,7 +148,9 @@ def validate_df(
             )
         )
 
-    not_found_in_source = dataset_column_names.difference(df_headers) - ignored_cols
+    not_found_in_source = sorted(
+        list(dataset_column_names.difference(df_headers) - ignored_cols)
+    )
     if not_found_in_source:
         errors.append(
             ValidationError(
