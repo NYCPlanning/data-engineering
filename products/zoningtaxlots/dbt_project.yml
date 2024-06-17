@@ -1,0 +1,9 @@
+name: "zoning_tax_lots"
+
+profile: "dcp-de-postgres"
+
+model-paths: ["sql"]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
