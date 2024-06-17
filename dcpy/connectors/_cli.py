@@ -5,7 +5,7 @@ from .socrata import metadata
 from .esri import arcgis_feature_service
 
 edm_app = typer.Typer()
-edm_app.add_typer(package_app, name="package")
+edm_app.add_typer(package_app, name="packaging")
 
 socrata_app = typer.Typer()
 socrata_app.add_typer(metadata.app, name="metadata")
