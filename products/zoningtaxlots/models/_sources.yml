@@ -5,10 +5,90 @@ sources:
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
       - name: dcp_commercialoverlay
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
+          - name: overlay
+            tests:
+              - not_null
       - name: dcp_limitedheight
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
+          - name: lhlbl
+            tests:
+              - not_null
       - name: dcp_specialpurpose
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: sdlbl
+            tests: 
+              - not_null
+              - unique 
+          - name: wkb_geometry
+            tests:
+              - not_null
       - name: dcp_specialpurposesubdistricts
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
       - name: dcp_zoningmapamendments
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
       - name: dof_dtm
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: bbl
+            tests: 
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
       - name: dcp_zoningdistricts
+        columns:
+          - name: ogc_fid
+            tests:
+              - not_null
+              - unique
+          - name: zonedist
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
       - name: dcp_zoningmapindex
+        columns:
+          - name: zoning_map
+            tests:
+              - not_null
+              - unique
+          - name: wkb_geometry
+            tests:
+              - not_null
