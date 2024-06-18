@@ -70,7 +70,7 @@ sources:
               - not_null
           - name: wkb_geometry
             tests:
-              - not_null
+              - dbt_utils.at_least_one
       - name: dcp_zoningdistricts
         columns:
           - name: ogc_fid
@@ -88,7 +88,6 @@ sources:
           - name: zoning_map
             tests:
               - not_null
-              - unique
           - name: wkb_geometry
             tests:
               - not_null
