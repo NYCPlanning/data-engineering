@@ -65,6 +65,9 @@ mkdir -p dof && (
     ls | grep -v bbl_council.zip | xargs rm
 )
 
+echo "Exporting Zoning Districts"
+ae_output_scripts/generate_csvs.sh
+
 echo "Exporting QAQC"
 mkdir -p qaqc && (
     cd qaqc
