@@ -1,0 +1,14 @@
+version: 2
+
+seeds:
+  - name: zonedist_priority
+    columns:
+      - name: zonedist
+        tests:
+          - not_null
+          - unique
+      - name: priority
+        tests:
+          - not_null
+          - unique
+      
