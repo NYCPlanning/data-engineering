@@ -121,29 +121,29 @@ class Socrata:
 
             @property
             def column_names(self) -> list[str]:
-                return sorted([c["field_name"] for c in self.soc_output_columns])
+                return [c["field_name"] for c in self.soc_output_columns]
 
             def update_column_metadata(
                 self, socrata_dest: models.SocrataDestination, metadata: models.Metadata
             ):
                 # TODO: changing column types. Not strictly required yet, and could be tricky
                 dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
-                expected_api_names = sorted(
-                    [c.api_name for c in dest_col_metadata if c.api_name]
-                )
+                expected_api_names = [
+                    c.api_name for c in dest_col_metadata if c.api_name
+                ]
 
                 logger.info(
                     f"""Updating Columns at {self._column_update_endpoint}
-                    Columns from dataset page: {self.column_names}
-                    Columns from our metadata: {expected_api_names}
+                    Columns from dataset page: {sorted(self.column_names)}
+                    Columns from our metadata: {sorted(expected_api_names)}
                 """
                 )
 
                 assert set(self.column_names) == set(
                     expected_api_names
                 ), f"""The field names in the uploaded data do not match our metadata.
-                - Present in our metadata, but not dataset page: {set(expected_api_names) - set(self.column_names)}
-                - Present in dataset page, but not our metadata: {set(self.column_names) - set(expected_api_names)}
+                - Present in our metadata, but not dataset page: {sorted(set(expected_api_names) - set(self.column_names))}
+                - Present in dataset page, but not our metadata: {sorted(set(self.column_names) - set(expected_api_names))}
                 """
 
                 for uploaded_col in self.soc_output_columns:
