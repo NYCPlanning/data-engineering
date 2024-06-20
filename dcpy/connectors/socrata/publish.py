@@ -139,7 +139,7 @@ class Socrata:
                 """
                 )
 
-                assert self.column_names == set(
+                assert set(self.column_names) == set(
                     expected_api_names
                 ), f"""The field names in the uploaded data do not match our metadata.
                 - Present in our metadata, but not dataset page: {set(expected_api_names) - set(self.column_names)}
