@@ -1,5 +1,5 @@
 name: 🚀 Socrata - Publish a Dataset
-run-name: "🚀 Socrata - Publish a Dataset: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
+run-name: "🚀 Socrata - Publish a Dataset: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
 
 on:
   workflow_dispatch:
