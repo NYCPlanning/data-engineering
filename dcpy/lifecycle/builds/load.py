@@ -197,15 +197,29 @@ def _import_dataset(
         help="Dataset type",
     ),
     database_schema: str = typer.Option(
+        None,
         "-s",
         "--schema",
         help="Database Schema",
     ),
+    database: str = typer.Option(
+        None,
+        "-d",
+        "--database",
+    ),
+    import_as: str = typer.Option(
+        None, "--import-as", help="Renames the imported table"
+    ),
 ):
     database_schema = database_schema or os.environ["BUILD_SCHEMA"]
     import_dataset(
-        InputDataset(name=dataset_name, version=version, file_type=dataset_type),
-        postgres.PostgresClient(schema=database_schema),
+        InputDataset(
+            name=dataset_name,
+            version=version,
+            file_type=dataset_type,
+            import_as=import_as,
+        ),
+        postgres.PostgresClient(schema=database_schema, database=database),
     )
 
 

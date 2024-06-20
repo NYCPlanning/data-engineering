@@ -9,9 +9,7 @@ set_env $ROOT_DIR/.env version.env
 set_error_traps
 
 # Set Date and Versions
-DATE=$(date "+%Y-%m-01")
-VERSION=$DATE
-VERSION_PREV=$(date --date="$(date "+%Y-%m-01") - 1 month" "+%Y-%m-01")
+VERSION_PREV=$(date --date=""$VERSION" - 1 month" "+%Y-%m-01")
 # Set SQL Version Table Names
-VERSION_SQL_TABLE=$(date "+%Y%m01")
-VERSION_PREV_SQL_TABLE=$(date --date="$(date "+%Y%m01") - 1 month" "+%Y%m01")
+VERSION_SQL_TABLE=$(date --date="$VERSION" "+%Y%m01")
+VERSION_PREV_SQL_TABLE=$(date --date=""$VERSION" - 1 month" "+%Y%m01")

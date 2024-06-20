@@ -136,7 +136,9 @@ def validate_df(
     # Find mismatched columns
     df_headers = set(df.columns)
 
-    extras_in_source = df_headers.difference(dataset_column_names) - ignored_cols
+    extras_in_source = sorted(
+        list(df_headers.difference(dataset_column_names) - ignored_cols)
+    )
     if extras_in_source:
         errors.append(
             ValidationError(
@@ -146,7 +148,9 @@ def validate_df(
             )
         )
 
-    not_found_in_source = dataset_column_names.difference(df_headers) - ignored_cols
+    not_found_in_source = sorted(
+        list(dataset_column_names.difference(df_headers) - ignored_cols)
+    )
     if not_found_in_source:
         errors.append(
             ValidationError(
@@ -282,22 +286,13 @@ def validate_package(
                 )
             )
 
-    unique_row_counts = {v.stats.row_count for v in validations}
-    if len(unique_row_counts) > 1:
-        package_errors.append(
-            ValidationError(
-                error_type=ErrorType.INVALID_DATA,
-                message=f"Found varying row counts: {unique_row_counts}",
-                dataset_file=None,
-            )
-        )
     return PackageValidation(validations=validations, errors=package_errors)
 
 
 app = typer.Typer(add_completion=False)
 
 
-@app.command("validate")
+@app.command()
 def _validate(
     package_path: Path,
     metadata_path: Path = typer.Option(

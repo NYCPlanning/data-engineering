@@ -1,5 +1,5 @@
 name: 🚀 Socrata - Publish a Dataset
-run-name: "🚀 Socrata - Publish a Dataset: ${{ inputs.PRODUCT_NAME }}"
+run-name: "🚀 Socrata - Publish a Dataset: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
 
 on:
   workflow_dispatch:
@@ -8,10 +8,6 @@ on:
         description: "Name of the product"
         type: string
         required: true
-      DATASET:
-        description: "Dataset to push (defaults to PRODUCT_NAME when omitted)"
-        type: string
-        required: false
       DATASET_VERSION:
         description: "Version to push"
         type: string
@@ -20,16 +16,23 @@ on:
         description: "Destination ID (e.g. `colp_socrata`)"
         type: string
         required: true
+      DATASET:
+        description: "Dataset to push (defaults to PRODUCT_NAME when omitted)"
+        type: string
+        required: false
       PUBLISH:
         description: "Publish the revision? (if not, will leave the revision open)"
         type: boolean
         default: false
         required: true
       IGNORE_VALIDATION_ERRORS:
-        description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console"
+        description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console)"
         type: boolean
         default: false
-        required: true
+      SKIP_VALIDATION:
+        description: "Skip validation altogether?"
+        type: boolean
+        default: false
 jobs:
   publish:
     runs-on: ubuntu-22.04
@@ -64,7 +67,8 @@ jobs:
           python3 -m dcpy.cli lifecycle distribute socrata from_s3  \
             ${{ inputs.PRODUCT_NAME }} \
             ${{ inputs.DATASET_VERSION }} \
-            --dataset ${{ inputs.DATASET }} \
-            --dest ${{ inputs.DESTINATION_ID }} \
+            ${{ inputs.DESTINATION_ID }} \
+            $(if [ ${{ inputs.DATASET}} != "" ]; then echo "--dataset ${{ inputs.DATASET }}" ; fi) \
+            $(if [ ${{ inputs.SKIP_VALIDATION }} = "true" ]; then echo "-y"; fi) \
             $(if [ ${{ inputs.PUBLISH }} = "true" ]; then echo "-p"; fi) \
             $(if [ ${{ inputs.IGNORE_VALIDATION_ERRORS }} = "true" ]; then echo "-i"; fi)

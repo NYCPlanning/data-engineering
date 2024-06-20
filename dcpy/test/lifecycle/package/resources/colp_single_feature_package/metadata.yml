@@ -1,7 +1,7 @@
 name: db-colp
 display_name: City Owned and Leased Property (COLP)
-summary: ""
-description: ""
+summary: "Raw Summary"
+description: "Raw Description"
 each_row_is_a: ""
 tags: ["a", "b"]
 
@@ -265,6 +265,8 @@ package:
             data_type: double
           MAPBBL:
             data_type: double
+        display_name: "display_name overridden at the dataset_file level"
+        description: "description overridden at the dataset_file level"
     - name: primary_csv
       filename: colp_single_feature.csv
       type: csv
@@ -282,3 +284,5 @@ destinations:
     attachments:
       -  "colp_readme.pdf"
     omit_columns: [dcpedited, uid]
+    overrides:
+      display_name: "display_name overridden at the destination level"

@@ -2,8 +2,9 @@ dataset:
   name: dcas_ipis
   acl: public-read
   source:
-    script:
-      path: .library/upload/dcas_ipis.csv
+  source:
+    url:
+      path: s3://edm-recipes/inbox/dcas_ipis/{{ version }}/dcas_ipis.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

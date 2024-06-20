@@ -9,48 +9,6 @@ import yaml
 FILL_ME_IN_PLACEHOLDER = "<FILL ME IN!>"
 
 
-class BytesDestination(BaseModel, extra="forbid"):
-    type: Literal["bytes"]
-    id: str
-    datasets: list[str]
-
-
-class SocrataDestination(BaseModel, extra="forbid"):
-    id: str
-    type: Literal["socrata"] = "socrata"
-    four_four: str
-    attachments: list[str] = []
-    datasets: conlist(item_type=str, max_length=1)  # type:ignore
-    omit_columns: list[str] = []
-    column_details: dict[str, SocrataColumn] = {}
-
-    def get_column_overrides(self, col_name):
-        col = self.column_details.get(col_name, SocrataColumn())
-        # Unfortunate reality of serializing with pydantic from a yaml dictionary.
-        # columns overrides aren't deserialized with their name value,
-        # since the name is a dictionary key in the metadata. So:
-        col.name = col_name
-        return col
-
-    def destination_column_metadata(self, metadata: Metadata) -> list[SocrataColumn]:
-        soc_cols = []
-        dataset = metadata.package.get_dataset(self.datasets[0])
-        for col in dataset.get_columns(metadata):
-            if col.name in self.omit_columns:
-                continue
-            overrides = self.get_column_overrides(col.name)
-
-            soc_cols.append(
-                SocrataColumn(
-                    name=col.name,
-                    api_name=overrides.api_name or col.name,
-                    display_name=overrides.display_name or col.display_name,
-                    description=overrides.description or col.description,
-                )
-            )
-        return soc_cols
-
-
 class Column(BaseModel, extra="forbid"):
     name: str
     display_name: str
@@ -79,6 +37,79 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     omit_columns: list[str] = []
     ignore_validation: list[str] = []
     columns: dict = {}
+    display_name: str | None = None
+    description: str | None = None
+    tags: list[str] = []
+
+
+class BytesDestination(BaseModel, extra="forbid"):
+    type: Literal["bytes"]
+    id: str
+    datasets: list[str]
+    overrides: DatasetOverrides = DatasetOverrides()
+
+
+DEFAULT_SOCRATA_CATEGORY = "city government"
+
+
+class SocrataMetada(BaseModel, extra="forbid"):
+    name: str
+    description: str
+    tags: list[str] = []
+    metadata: dict[str, str] = {}
+    # category: str = DEFAULT_SOCRATA_CATEGORY
+
+
+class SocrataDestination(BaseModel, extra="forbid"):
+    id: str
+    type: Literal["socrata"] = "socrata"
+    four_four: str
+    attachments: list[str] = []
+    datasets: conlist(item_type=str, max_length=1)  # type:ignore
+    omit_columns: list[str] = []
+    column_details: dict[str, SocrataColumn] = {}
+    overrides: DatasetOverrides = DatasetOverrides()
+
+    def get_metadata(self, md: Metadata) -> SocrataMetada:
+        dataset_file_overrides = md.package.get_dataset(self.datasets[0]).overrides
+
+        # It would be nice to have a more comprehensive way to combine these overrides
+        return SocrataMetada(
+            name=self.overrides.display_name
+            or dataset_file_overrides.display_name
+            or md.display_name,
+            description=self.overrides.description
+            or dataset_file_overrides.description
+            or md.description,
+            tags=self.overrides.tags or dataset_file_overrides.tags or md.tags,
+            metadata={"rowLabel": md.each_row_is_a},
+        )
+
+    def get_column_overrides(self, col_name):
+        col = self.column_details.get(col_name, SocrataColumn())
+        # Unfortunate reality of serializing with pydantic from a yaml dictionary.
+        # columns overrides aren't deserialized with their name value,
+        # since the name is a dictionary key in the metadata. So:
+        col.name = col_name
+        return col
+
+    def destination_column_metadata(self, metadata: Metadata) -> list[SocrataColumn]:
+        soc_cols = []
+        dataset = metadata.package.get_dataset(self.datasets[0])
+        for col in dataset.get_columns(metadata):
+            if col.name in self.omit_columns:
+                continue
+            overrides = self.get_column_overrides(col.name)
+
+            soc_cols.append(
+                SocrataColumn(
+                    name=col.name,
+                    api_name=overrides.api_name or col.name,
+                    display_name=overrides.display_name or col.display_name,
+                    description=overrides.description or col.description,
+                )
+            )
+        return soc_cols
 
 
 class DatasetFile(BaseModel, extra="forbid"):

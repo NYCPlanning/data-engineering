@@ -2,6 +2,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.dates as dates
 import streamlit as st
 from typing import Dict
 
@@ -53,9 +54,9 @@ def plot_series(
     ax.xaxis.grid(color=LIGHT_GREY)
     ax.set_ylim(bottom=-0.5, top=len(datasets) - 0.5)
 
-    months = mpl.dates.MonthLocator()
+    months = dates.MonthLocator()
     ax.xaxis.set_major_locator(months)
-    year_month = mpl.dates.DateFormatter("%Y %b")
+    year_month = dates.DateFormatter("%Y %b")
     ax.xaxis.set_major_formatter(year_month)
 
     ax.spines["top"].set_visible(False)

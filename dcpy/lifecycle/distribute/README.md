@@ -65,7 +65,7 @@ In the case of errors, or if the the `--publish` flag isn't supplied, you'll hav
 ```
 INFO:dcpy:Pushing shapefiles at .package/product_datasets/template_db/package/20231227/template_db/dataset_files/templatedb_points.shp.zip to b7pm-uzu7 - rev: 32
 INFO:dcpy:Updating Columns at https://data.cityofnewyork.us/api/publishing/v1/source/202450926/schema/199848287
-INFO:dcpy:                    Columns in uploaded data: {'place_name', 'bbl', 'place_type', 'wkb_geometry', 'borough'}
+INFO:dcpy:                    Columns from dataset page: {'place_name', 'bbl', 'place_type', 'wkb_geometry', 'borough'}
 INFO:dcpy:                    Columns from our metadata: ['place_name', 'bbl', 'place_type', 'borough', 'wkb_geometry']
 INFO:dcpy:
 INFO:dcpy:Finished syncing product to Socrata, but did not publish. Find revision 32, and apply manually
@@ -75,3 +75,34 @@ INFO:dcpy:            here https://data.cityofnewyork.us/d/b7pm-uzu7/revisions/3
 Follow the provided link. Here you can review the modified data and metadata. Hit `Update` in the top right to apply the revision. 
 ![template_db_socrata](https://github.com/NYCPlanning/data-engineering/assets/11164730/b0c24251-00e3-4be1-99a6-6cf015240cc6)
 
+
+## Generating Metadata
+
+So you need to generate a `metadata.yml` file. There are a few options that will each get you part of the way:
+
+#### Socrata Connector
+``` sh
+python -m dcpy.cli connectors socrata metadata export {four-four here}
+```
+
+The limitations here are when you're working from an old datasource. It will correctly pull certain dataset-level fields (e.g. Description), but unfortonutely no column metadata. (yet)
+
+#### ESRI FeatureServer Connector
+``` sh
+python -m dcpy.cli connectors esri metadata export {feature-server here}
+
+-- e.g.
+
+python -m dcpy.cli connectors esri metadata export https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0
+```
+
+#### ESRI PDF parser
+
+The last resort for grabbing column metadata. This is by far the most fragile of the methods.
+1. Open the ESRI pdf in the **Mac Preview app** (Important - copying from other apps doesn't work)
+2. Copy paste the document contents into a text file
+3. Run:
+
+``` sh
+python -m dcpy.cli lifecycle package esri parse_pdf_text {path to your text file}
+```
