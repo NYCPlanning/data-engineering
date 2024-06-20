@@ -66,7 +66,17 @@ mkdir -p dof && (
 )
 
 echo "Exporting Zoning Districts"
-ae_output_scripts/generate_csvs.sh
+run_sql_file ../sql/export_ae_tables.sql
+
+mkdir -p ae_output && (
+    cd ae_output
+
+    echo "Generating output files ..."
+    mkdir -p tables && (
+        cd tables
+        csv_export ae_zoning_district zoning_district
+    )
+)
 
 echo "Exporting QAQC"
 mkdir -p qaqc && (
