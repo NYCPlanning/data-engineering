@@ -28,4 +28,4 @@ validzones AS(
     WHERE ST_GEOMETRYTYPE(ST_MAKEVALID(geom)) = 'ST_MultiPolygon'
 )
 
-SELECT * FROM validzone
+SELECT * FROM validzones

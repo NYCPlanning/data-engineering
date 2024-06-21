@@ -4,7 +4,7 @@ WITH dcp_commercialoverlay AS (
 
 rename AS (
     SELECT 
-        ogc_fid，
+        ogc_fid,
         wkb_geometry AS geom,
         overlay
     FROM dcp_commercialoverlay
