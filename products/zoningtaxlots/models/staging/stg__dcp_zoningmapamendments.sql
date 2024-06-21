@@ -10,4 +10,3 @@ rename AS (
 )
 
 SELECT * FROM dcp_zoningmapamendments
-

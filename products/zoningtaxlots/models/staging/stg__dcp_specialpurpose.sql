@@ -11,4 +11,3 @@ rename AS (
 )
 
 SELECT * FROM rename
-
