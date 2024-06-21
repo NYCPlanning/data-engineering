@@ -9,4 +9,4 @@ rename AS (
     FROM dcp_zoningmapindex
 )
 
-SELECT * FROM dcp_zoningmapindex
+SELECT * FROM rename

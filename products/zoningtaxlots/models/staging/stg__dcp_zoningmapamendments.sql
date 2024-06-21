@@ -5,8 +5,10 @@ WITH dcp_zoningmapamendments AS (
 rename AS (
     SELECT
         ogc_fid,
-        wkb_geometry AS geom
+        wkb_geometry AS geom,
+        project_na,
+        effective
     FROM dcp_zoningmapamendments
 )
 
-SELECT * FROM dcp_zoningmapamendments
+SELECT * FROM rename
