@@ -11,4 +11,3 @@ seeds:
         tests:
           - not_null
           - unique
-      
