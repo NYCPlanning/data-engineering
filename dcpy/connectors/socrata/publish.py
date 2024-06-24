@@ -329,7 +329,8 @@ class Revision:
         content_types = {
             ".csv": "text/csv",
             ".pdf": "application/pdf",
-            ".xlsx": "application/vnd.ms-excel",
+            ".xlsx": "application/octet-stream",
+            ".xls": "application/octet-stream",
         }
 
         with open(path, "rb") as f:
