@@ -7,7 +7,9 @@ dcp_zoningmapamendments AS (
 ),
 
 inzonechange AS (
-    SELECT 'Y' AS inzonechange
+    SELECT 
+        a.id AS dtm_id, 
+        'Y' AS inzonechange
     FROM dof_dtm a
     INNER JOIN dcp_zoningmapamendments b
         ON ST_INTERSECTS(a.geom, b.geom)
