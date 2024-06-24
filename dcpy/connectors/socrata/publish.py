@@ -326,7 +326,11 @@ class Revision:
         up into one patch.
         """
         # TODO: check other attachment types, e.g. xlsx
-        content_types = {".csv": "text/csv", ".pdf": "application/pdf"}
+        content_types = {
+            ".csv": "text/csv",
+            ".pdf": "application/pdf",
+            ".xlsx": "application/vnd.ms-excel",
+        }
 
         with open(path, "rb") as f:
             attachment_md_raw = _socrata_request(
