@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: int__commercialoverlay
+  - name: int__inwoodrezooning
+  - name: int__inzonechange
+  - name: int__limitedheight
+  - name: int__specialpurpose
+  - name: int__validdtm
+  - name: int__zoningdistricts
+  - name: int__zoningmapindex
