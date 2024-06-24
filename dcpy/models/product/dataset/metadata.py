@@ -69,6 +69,7 @@ class SocrataDestination(BaseModel, extra="forbid"):
     omit_columns: list[str] = []
     column_details: dict[str, SocrataColumn] = {}
     overrides: DatasetOverrides = DatasetOverrides()
+    is_blob_dataset: bool = False
 
     def get_metadata(self, md: Metadata) -> SocrataMetada:
         dataset_file_overrides = md.package.get_dataset(self.datasets[0]).overrides
