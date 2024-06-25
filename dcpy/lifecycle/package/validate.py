@@ -1,3 +1,4 @@
+import ast
 from dataclasses import dataclass, field
 from enum import Enum
 import geopandas as gpd
@@ -245,9 +246,8 @@ def validate_shapefile(
 
 
 def validate_package(
-    package_path: Path, metadata: models.Metadata | None = None
+    package_path: Path, metadata: models.Metadata
 ) -> PackageValidation:
-    metadata = metadata or models.Metadata.from_yaml(package_path / "metadata.yml")
     dataset_files_path = package_path / "dataset_files"
     validations = []
 
@@ -290,6 +290,18 @@ def validate_package(
     return PackageValidation(validations=validations, errors=package_errors)
 
 
+def validate_package_from_path(
+    package_path: Path,
+    metadata_override_path: Path | None = None,
+    metadata_args: dict | None = None,
+) -> PackageValidation:
+    metadata = models.Metadata.from_yaml(
+        (metadata_override_path or package_path) / "metadata.yml",
+        template_vars=metadata_args,
+    )
+    return validate_package(package_path=package_path, metadata=metadata)
+
+
 app = typer.Typer(add_completion=False)
 
 
@@ -299,9 +311,11 @@ def _validate(
     metadata_path: Path = typer.Option(
         None, "-m", "--metadata-path", help="(Optional) Metadata Path"
     ),
+    metadata_args: dict = typer.Option(..., callback=ast.literal_eval),
 ):
-    validation = validate_package(
+    validation = validate_package_from_path(
         package_path,
-        models.Metadata.from_yaml(metadata_path or package_path / "metadata.yml"),
+        metadata_path,
+        metadata_args=metadata_args,
     )
     validation.pretty_print_errors()

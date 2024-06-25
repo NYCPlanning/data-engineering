@@ -418,8 +418,7 @@ def push_dataset(
     if dest.is_unparsed_dataset:
         rev.push_blob(
             file_path,
-            dest_filename=dest.overrides.get_dataset_destination_name(version)
-            or file_path.name,
+            dest_filename=dest.overrides.destination_file_name or file_path.name,
         )
     elif md_dataset.type == "csv":
         data_source = rev.push_csv(file_path)

@@ -46,7 +46,10 @@ def _dist_from_local(
         help="Skip Validation Altogether",
     ),
 ):
-    md = m.Metadata.from_yaml(metadata_path or package_path / "metadata.yml")
+    md = m.Metadata.from_yaml(
+        metadata_path or package_path / "metadata.yml",
+        template_vars={"version": version},
+    )  # TODO: Determine the right time to do metadata templating. Ie. Should any metadata in our packages already be templated?
     dest = md.get_destination(dataset_destination_id)
     assert dest.type == "socrata"
 

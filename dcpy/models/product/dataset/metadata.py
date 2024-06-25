@@ -1,8 +1,11 @@
 from __future__ import annotations
+import jinja2
 from pathlib import Path
 from pydantic import BaseModel, conlist
 from typing import Any, Literal
 import yaml
+
+from dcpy.utils.logging import logger
 
 # Putting this here so we can have a constant value in all connectors
 # and throw an exception when we attempt to deserialize files that contain it.
@@ -41,16 +44,6 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     description: str | None = None
     tags: list[str] = []
     destination_file_name: str | None = None
-
-    _VERSION_TEMPLATE_TOKEN = "{{ version }}"
-
-    def get_dataset_destination_name(self, version) -> str:
-        """Get filename for the destination dataset. Should only be invoked for unparsed datasets."""
-        return (
-            self.destination_file_name.replace(self._VERSION_TEMPLATE_TOKEN, version)
-            if self.destination_file_name is not None
-            else ""
-        )
 
 
 class BytesDestination(BaseModel, extra="forbid"):
@@ -166,8 +159,14 @@ class Metadata(BaseModel, extra="forbid"):
     columns: list[Column]
 
     @staticmethod
-    def from_yaml(path: Path):
-        return Metadata(**yaml.safe_load(open(path, "r")))
+    def from_yaml(path: Path, *, template_vars=None):
+        with open(path, "r") as raw:
+            logger.info(f"Templating the metadata with vars: {template_vars}")
+            templated = jinja2.Template(
+                raw.read(), undefined=jinja2.StrictUndefined
+            ).render(template_vars or {})
+
+            return Metadata(**yaml.safe_load(templated))  # type: ignore
 
     def get_destination(self, dest_id) -> BytesDestination | SocrataDestination:
         ds = [d for d in self.destinations if d.id == dest_id]
