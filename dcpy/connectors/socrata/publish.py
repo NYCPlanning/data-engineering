@@ -16,6 +16,7 @@ from pathlib import Path
 import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
+from socrata.revisions import Revision as SocrataPyRevision
 import time
 from typing import TypedDict, Literal, NotRequired
 
@@ -267,7 +268,9 @@ class Revision:
             )
         )
 
-    def _fetch_socrata_revision_data(self):
+    def _fetch_socratapy_revision(self) -> SocrataPyRevision:
+        """Fetches the SocrataPy object wrapper around the revision object.
+        This is useful for uploading to open revisions."""
         _socratapy_client = SocrataPy(
             Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
         )
@@ -275,7 +278,7 @@ class Revision:
         return view.revisions.lookup(self.revision_num)
 
     def push_blob(self, path: Path, *, dest_filename: str | None = None):
-        rev = self._fetch_socrata_revision_data()
+        rev = self._fetch_socratapy_revision()
         with open(path, "rb") as blob:
             logger.info(
                 f"Pushing blob at {path} to {self.four_four} - rev: {self.revision_num}"
@@ -293,11 +296,7 @@ class Revision:
     def push_csv(
         self, path: Path, *, dest_filename: str | None = None
     ) -> Socrata.Responses.RevisionDataSource:
-        _socratapy_client = SocrataPy(
-            Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
-        )
-        view = _socratapy_client.views.lookup(self.four_four)
-        rev = view.revisions.lookup(self.revision_num)
+        rev = self._fetch_socratapy_revision()
         with open(path, "rb") as csv:
             logger.info(
                 f"Pushing csv at {path} to {self.four_four} - rev: {self.revision_num}"
@@ -314,11 +313,7 @@ class Revision:
     def push_shp(
         self, path: Path, *, dest_filename: str | None = None
     ) -> Socrata.Responses.RevisionDataSource:
-        _socratapy_client = SocrataPy(
-            Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
-        )
-        view = _socratapy_client.views.lookup(self.four_four)
-        rev = view.revisions.lookup(self.revision_num)
+        rev = self._fetch_socratapy_revision()
         with open(path, "rb") as shp_zip:
             logger.info(
                 f"Pushing shapefiles at {path} to {self.four_four} - rev: {self.revision_num}"
