@@ -95,10 +95,14 @@ jobs:
 
   build_base_image:
     name: >
-      ${{ ( contains(needs.check_changes.outputs.pr_changes, 'docker_base')
-            && contains(needs.check_changes.outputs.push_changes, 'docker_base' )
-          && 'Build dev "base" docker image'
-          || 'Use latest "base" docker image' }}
+      ${{
+        (
+          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
+          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        )
+        && 'Build dev base docker image'
+        || 'Use latest base docker image'
+      }}
     needs: 
       - check_changes
       - set_docker_image_tag
@@ -126,10 +130,14 @@ jobs:
 
   build_docker_images:
     name: >
-      ${{ ( contains(needs.check_changes.outputs.pr_changes, 'docker')
-            && contains(needs.check_changes.outputs.push_changes, 'docker' )
-          && format('Build dev "{0}" docker image', matrix.image)
-          || format('Use latest "{0}" docker image', matrix.image) }}
+      ${{
+        (
+          contains(needs.check_changes.outputs.pr_changes, 'docker')
+          && contains(needs.check_changes.outputs.push_changes, 'docker')
+        )
+        && format('Build dev {0} docker image', matrix.image)
+        || format('Use latest {0} docker image', matrix.image)
+      }}
     needs: 
       - check_changes
       - set_docker_image_tag
