@@ -286,3 +286,16 @@ destinations:
     omit_columns: [dcpedited, uid]
     overrides:
       display_name: "display_name overridden at the destination level"
+
+  - id: socrata_unparsed
+    type: socrata
+    four_four: "fn4k-abcd"
+    is_unparsed_dataset: true
+    datasets:
+      - primary_shapefile
+    attachments:
+      -  "colp_readme.pdf"
+    omit_columns: []
+    overrides:
+      display_name: "display_name overridden at the destination level"
+      destination_file_name: shapefile_blob_{{ version }}

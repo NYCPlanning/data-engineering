@@ -40,6 +40,17 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     display_name: str | None = None
     description: str | None = None
     tags: list[str] = []
+    destination_file_name: str | None = None
+
+    _VERSION_TEMPLATE_TOKEN = "{{ version }}"
+
+    def get_dataset_destination_name(self, version) -> str:
+        """Get filename for the destination dataset. Should only be invoked for unparsed datasets."""
+        return (
+            self.destination_file_name.replace(self._VERSION_TEMPLATE_TOKEN, version)
+            if self.destination_file_name is not None
+            else ""
+        )
 
 
 class BytesDestination(BaseModel, extra="forbid"):
