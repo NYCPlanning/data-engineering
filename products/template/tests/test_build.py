@@ -37,8 +37,8 @@ def test_export_files():
         "source_data_versions.csv",
         "build_metadata.json",
         "templatedb.csv",
-        "templatedb_polygons.shp.zip",
-        "templatedb_points.shp.zip",
+        "templatedb_polygons.zip",
+        "templatedb_points.zip",
     ]
     actual_files = s3.get_filenames(
         publishing.BUCKET, f"{PRODUCT_S3_NAME}/draft/{BUILD_NAME}/"

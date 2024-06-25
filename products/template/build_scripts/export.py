@@ -41,16 +41,15 @@ def export():
                 shapefile_directory = OUTPUT_DIR
 
                 if file_type == "shapefile_points":
-                    shapefile_directory = OUTPUT_DIR / f"{file_path}_points.shp"
+                    shapefile_directory = OUTPUT_DIR / f"{table_name}_points"
                     data = data.loc[data.geom_type == "Point"]
                 elif file_type == "shapefile_polygons":
-                    shapefile_directory = OUTPUT_DIR / f"{file_path}_polygons.shp"
+                    shapefile_directory = OUTPUT_DIR / f"{table_name}_polygons"
                     data = data.loc[data.geom_type == "MultiPolygon"]
                 else:
                     raise NotImplementedError(
                         f"Cannot export a shapefile as file type {file_type}"
                     )
-                shapefile_directory.mkdir(parents=True)
                 data.to_file(shapefile_directory)
 
                 logger.info(f"Zipping shapefile\n\t{shapefile_directory}")
