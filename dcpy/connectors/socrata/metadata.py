@@ -37,7 +37,7 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
     dcp_col = {
         "name": c["fieldName"],
         "display_name": c["name"],
-        "description": c["description"],
+        "description": c.get("description", models.FILL_ME_IN_PLACEHOLDER),
         "data_type": dcp_type,
         "example": sample,
     }
@@ -124,6 +124,8 @@ def _export_socrata_metadata(
     ).model_dump(exclude_none=True)
 
     output_path = output_path or Path(f"{four_four}.yml")
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
     logger.info(f"exporting {four_four} metadata to {output_path}")
     with open(output_path, "w") as outfile:
