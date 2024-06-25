@@ -3,8 +3,6 @@
 image=$1
 tag=$2
 
-PYTHON_VERSION="3.11"
-
 DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 ROOT_DIR=$(dirname ${DIR})
 
