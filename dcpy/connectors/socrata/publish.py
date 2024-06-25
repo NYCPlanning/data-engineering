@@ -414,7 +414,7 @@ def push_dataset(
     )
 
     data_source = None
-    if dest.is_blob_dataset:
+    if dest.is_unparsed_dataset:
         rev.push_blob(file_path)
     elif md_dataset.type == "csv":
         data_source = rev.push_csv(file_path)
@@ -423,7 +423,7 @@ def push_dataset(
     else:
         raise Exception(f"Pushing unsupported file type: {md_dataset.type}")
 
-    if not dest.is_blob_dataset and data_source:  # appease the type-checker
+    if not dest.is_unparsed_dataset and data_source:  # appease the type-checker
         try:
             data_source.update_column_metadata(dest, metadata)
         except Exception as e:
