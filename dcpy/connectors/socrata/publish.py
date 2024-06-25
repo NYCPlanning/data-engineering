@@ -277,14 +277,14 @@ class Revision:
         view = _socratapy_client.views.lookup(self.four_four)
         return view.revisions.lookup(self.revision_num)
 
-    def push_blob(self, path: Path, *, dest_filename: str | None = None):
+    def push_blob(self, path: Path, *, dest_filename: str):
         rev = self._fetch_socratapy_revision()
         with open(path, "rb") as blob:
             logger.info(
                 f"Pushing blob at {path} to {self.four_four} - rev: {self.revision_num}"
             )
             push_resp = (
-                rev.create_upload(dest_filename or path.name, {"parse_source": False})
+                rev.create_upload(dest_filename, {"parse_source": False})
                 .blob(blob)
                 .wait_for_finish()
             )
@@ -385,14 +385,14 @@ def push_dataset(
     dataset_destination_id: str,
     dataset_package_path: Path,
     *,
+    version: str,
     publish: bool,
 ):
     """Push a dataset and sync metadata."""
     dest = metadata.get_destination(dataset_destination_id)
     if type(dest) != models.SocrataDestination:
         raise Exception("received a non-socrata type destination")
-    ds_name_to_push = dest.datasets[0]  # socrata will only have one dataset
-    md_dataset = metadata.package.get_dataset(ds_name_to_push)
+    md_dataset = metadata.package.get_dataset(dest.datasets[0])
     file_path = (
         dataset_package_path / "dataset_files" / md_dataset.filename
     )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
@@ -416,7 +416,11 @@ def push_dataset(
 
     data_source = None
     if dest.is_unparsed_dataset:
-        rev.push_blob(file_path)
+        rev.push_blob(
+            file_path,
+            dest_filename=dest.overrides.get_dataset_destination_name(version)
+            or file_path.name,
+        )
     elif md_dataset.type == "csv":
         data_source = rev.push_csv(file_path)
     elif md_dataset.type == "shapefile":

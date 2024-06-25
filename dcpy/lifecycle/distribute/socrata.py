@@ -20,6 +20,7 @@ distribute_app.add_typer(socrata_app, name="socrata")
 def _dist_from_local(
     package_path: Path = typer.Argument(),
     dataset_destination_id: str = typer.Argument(),
+    version: str = typer.Argument(),
     metadata_path: Path = typer.Option(
         None,
         "-m",
@@ -64,7 +65,9 @@ def _dist_from_local(
                 validation.pretty_print_errors()
                 raise Exception(error_msg)
 
-    soc_pub.push_dataset(md, dataset_destination_id, package_path, publish=publish)
+    soc_pub.push_dataset(
+        md, dataset_destination_id, package_path, version=version, publish=publish
+    )
 
 
 @socrata_app.command("from_s3")
@@ -115,6 +118,7 @@ def _dist_from_s3(
     _dist_from_local(
         package_path=package_path,
         dataset_destination_id=dataset_destination_id,
+        version=version,
         metadata_path=metadata_path,
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,

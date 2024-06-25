@@ -1,5 +1,6 @@
 from pathlib import Path
 import yaml
+import pytest
 
 from dcpy.lifecycle.package import validate
 import dcpy.models.product.dataset.metadata as md
@@ -63,3 +64,14 @@ def test_destination_overrides():
     Description is overridden ONLY at the dataset_file level"""
 
     assert soc_md.tags == RAW_MD["tags"], "Tags should be unchanged"
+
+
+def test_unparsed_dataset_name_templating():
+    VERSION = "24b"
+    dest = COLP_MD.get_destination("socrata_unparsed")
+    assert type(dest) == md.SocrataDestination
+
+    assert (
+        dest.overrides.get_dataset_destination_name(version=VERSION)
+        == f"shapefile_blob_{VERSION}"
+    )
