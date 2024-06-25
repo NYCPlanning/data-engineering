@@ -16,6 +16,7 @@ from pathlib import Path
 import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
+from socrata.revisions import Revision as SocrataPyRevision
 import time
 from typing import TypedDict, Literal, NotRequired
 
@@ -267,14 +268,35 @@ class Revision:
             )
         )
 
-    def push_csv(
-        self, path: Path, *, dest_filename: str | None = None
-    ) -> Socrata.Responses.RevisionDataSource:
+    def _fetch_socratapy_revision(self) -> SocrataPyRevision:
+        """Fetches the SocrataPy object wrapper around the revision object.
+        This is useful for uploading to open revisions."""
         _socratapy_client = SocrataPy(
             Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
         )
         view = _socratapy_client.views.lookup(self.four_four)
-        rev = view.revisions.lookup(self.revision_num)
+        return view.revisions.lookup(self.revision_num)
+
+    def push_blob(self, path: Path, *, dest_filename: str | None = None):
+        rev = self._fetch_socratapy_revision()
+        with open(path, "rb") as blob:
+            logger.info(
+                f"Pushing blob at {path} to {self.four_four} - rev: {self.revision_num}"
+            )
+            push_resp = (
+                rev.create_upload(dest_filename or path.name, {"parse_source": False})
+                .blob(blob)
+                .wait_for_finish()
+            )
+        error_details: dict | None = push_resp.attributes["failure_details"]
+        if error_details:
+            logger.error(f"BLOB upload failed with {error_details}")
+            raise Exception(str(error_details))
+
+    def push_csv(
+        self, path: Path, *, dest_filename: str | None = None
+    ) -> Socrata.Responses.RevisionDataSource:
+        rev = self._fetch_socratapy_revision()
         with open(path, "rb") as csv:
             logger.info(
                 f"Pushing csv at {path} to {self.four_four} - rev: {self.revision_num}"
@@ -291,12 +313,7 @@ class Revision:
     def push_shp(
         self, path: Path, *, dest_filename: str | None = None
     ) -> Socrata.Responses.RevisionDataSource:
-        # This is the only use of socrata-py. The data syncing utilities are nice.
-        _socratapy_client = SocrataPy(
-            Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
-        )
-        view = _socratapy_client.views.lookup(self.four_four)
-        rev = view.revisions.lookup(self.revision_num)
+        rev = self._fetch_socratapy_revision()
         with open(path, "rb") as shp_zip:
             logger.info(
                 f"Pushing shapefiles at {path} to {self.four_four} - rev: {self.revision_num}"
@@ -397,23 +414,26 @@ def push_dataset(
     )
 
     data_source = None
-    if md_dataset.type == "csv":
+    if dest.is_unparsed_dataset:
+        rev.push_blob(file_path)
+    elif md_dataset.type == "csv":
         data_source = rev.push_csv(file_path)
     elif md_dataset.type == "shapefile":
         data_source = rev.push_shp(file_path)
     else:
         raise Exception(f"Pushing unsupported file type: {md_dataset.type}")
 
-    try:
-        data_source.update_column_metadata(dest, metadata)
-    except Exception as e:
-        # Upating column Metadata is tricky, and there's still some work to be done
-        logger.error(
-            f"""Error Updating Column Metadata! However,
-            the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
-            Error: {e}"""
-        )
-        return
+    if not dest.is_unparsed_dataset and data_source:  # appease the type-checker
+        try:
+            data_source.update_column_metadata(dest, metadata)
+        except Exception as e:
+            # Upating column Metadata is tricky, and there's still some work to be done
+            logger.error(
+                f"""Error Updating Column Metadata! However,
+                the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
+                Error: {e}"""
+            )
+            return
 
     if not publish:
         logger.info(
