@@ -94,15 +94,24 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
   build_base_image:
+    name: >
+      ${{ ( contains(needs.check_changes.outputs.pr_changes, 'docker_base')
+            && contains(needs.check_changes.outputs.push_changes, 'docker_base' )
+          && 'Build dev "base" docker image'
+          || 'Use latest "base" docker image' }}
     needs: 
       - check_changes
       - set_docker_image_tag
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-        if: contains(needs.check_changes.outputs.pr_changes, 'docker_base') && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        if: >
+          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
+          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
       - name: Load Secrets
-        if: contains(needs.check_changes.outputs.pr_changes, 'docker_base') && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        if: >
+          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
+          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
@@ -116,7 +125,11 @@ jobs:
         run: ./publish.sh base "${{ needs.set_docker_image_tag.outputs.base_tag }}"
 
   build_docker_images:
-    name: docker image ${{ matrix.image }}:${{ needs.set_docker_image_tag.outputs.tag }}
+    name: >
+      ${{ ( contains(needs.check_changes.outputs.pr_changes, 'docker')
+            && contains(needs.check_changes.outputs.push_changes, 'docker' )
+          && format('Build dev "{0}" docker image', matrix.image)
+          || format('Use latest "{0}" docker image', matrix.image) }}
     needs: 
       - check_changes
       - set_docker_image_tag
@@ -130,9 +143,13 @@ jobs:
           - dev
     steps:
       - uses: actions/checkout@v4
-        if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: >
+          contains(needs.check_changes.outputs.pr_changes, 'docker')
+          && contains(needs.check_changes.outputs.push_changes, 'docker')
       - name: Load Secrets
-        if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: >
+          contains(needs.check_changes.outputs.pr_changes, 'docker')
+          && contains(needs.check_changes.outputs.push_changes, 'docker')
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
