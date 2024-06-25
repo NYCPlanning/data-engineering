@@ -145,7 +145,7 @@ class Package(BaseModel, extra="forbid"):
 class Metadata(BaseModel, extra="forbid"):
     name: str
     display_name: str
-    summary: str
+    summary: str  # TODO: potentially remove this field
     description: str
     tags: list[str]
     each_row_is_a: str
