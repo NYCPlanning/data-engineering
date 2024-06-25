@@ -61,6 +61,8 @@ jobs:
             docker:
               - python/**
               - docker/**
+            docker_base:
+              - docker/base/**
       - uses: fvankrieken/paths-filter@master
         if: github.event_name == 'pull_request'
         id: push_changes
@@ -69,26 +71,56 @@ jobs:
             docker:
               - python/**
               - docker/**
+            docker_base:
+              - docker/base/**
           treat-pr-as-push: true
+
 
   set_docker_image_tag:
     name: Set docker image tag
     needs: check_changes
     runs-on: ubuntu-22.04
     outputs:
+      base_tag: ${{ steps.tag.outputs.base_tag }}
       tag: ${{ steps.tag.outputs.tag }}
     steps:
       - name: set image tag
         id: tag
         run: |
-          tag="${{ contains(needs.check_changes.outputs.pr_changes, 'docker') && format('dev-{0}', github.head_ref || github.ref_name) || 'latest'}}"
+          branch_tag="${{ format('dev-{0}', github.head_ref || github.ref_name) }}"
+          base_tag="${{ contains(needs.check_changes.outputs.pr_changes, 'docker_base') && env.branch_tag || 'latest'}}"
+          echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
+          tag="${{ contains(needs.check_changes.outputs.pr_changes, 'docker') && env.branch_tag || 'latest'}}"
           echo "tag=$tag" >> $GITHUB_OUTPUT
+
+  build_base_image:
+    needs: 
+      - check_changes
+      - set_docker_image_tag
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        if: contains(needs.check_changes.outputs.pr_changes, 'docker_base') && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+      - name: Load Secrets
+        if: contains(needs.check_changes.outputs.pr_changes, 'docker_base') && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+      - name: publish images
+        if: contains(needs.check_changes.outputs.pr_changes, 'docker_base') && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        working-directory: docker
+        run: ./publish.sh base "${{ needs.set_docker_image_tag.outputs.base_tag }}"
 
   build_docker_images:
     name: docker image ${{ matrix.image }}:${{ needs.set_docker_image_tag.outputs.tag }}
     needs: 
       - check_changes
       - set_docker_image_tag
+      - build_base_image
     runs-on: ubuntu-22.04
     strategy: 
       matrix: 
@@ -111,7 +143,9 @@ jobs:
       - name: publish images
         if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
         working-directory: docker
-        run: ./publish.sh "${{ matrix.image }}" "${{ needs.set_docker_image_tag.outputs.tag }}"
+        run: |
+          export base_tag=${{ needs.set_docker_image_tag.outputs.base_tag }}
+          ./publish.sh "${{ matrix.image }}" "${{ needs.set_docker_image_tag.outputs.tag }}"
 
   test:
     uses: ./.github/workflows/test_helper.yml

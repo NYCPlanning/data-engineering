@@ -1,4 +1,4 @@
-FROM nycplanning/base:latest
+FROM nycplanning/base:${base_tag:-latest}
 
 COPY . .
 
