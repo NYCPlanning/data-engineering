@@ -71,3 +71,9 @@ models:
             - perbblgeom
             - perzonegeom
             - row_number
+  - name: zoning-tax-lots
+    columns:
+      - name: dtm_id
+        tests:
+          - not_null
+          - unique
