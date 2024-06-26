@@ -495,7 +495,7 @@ def _cli_wrapper_download_file(
     ),
 ):
     if draft:
-        key = DraftKey(product=product, build=version)
+        key: ProductKey = DraftKey(product=product, build=version)
     else:
         key = PublishKey(product=product, version=version)
     download_file(key, filepath, output_dir)
