@@ -7,7 +7,9 @@ dcp_zoningmapamendments AS (
 ),
 
 rezone_bbl AS (
-    SELECT b.bbl, '1' AS notes
+    SELECT
+        b.bbl,
+        '1' AS notes
     FROM dof_dtm AS b, dcp_zoningmapamendments AS c
     WHERE
         b.geom IS NOT null

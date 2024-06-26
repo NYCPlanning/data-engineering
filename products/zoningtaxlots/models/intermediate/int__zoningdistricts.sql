@@ -1,3 +1,7 @@
+{{ config(
+    materialized = 'table'
+) }}
+
 WITH validzones AS (
     SELECT * FROM {{ ref('stg__dcp_zoningdistricts') }}
 ),

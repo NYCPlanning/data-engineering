@@ -28,7 +28,7 @@ commoverlayper AS (
     FROM validdtm AS p
     INNER JOIN dcp_commercialoverlay AS n
         ON ST_INTERSECTS(p.geom, n.geom)
-    ),
+),
 
 commoverlayperorder AS (
     SELECT

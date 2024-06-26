@@ -1,3 +1,7 @@
+{{ config(
+    materialized = 'table'
+) }}
+
 WITH dof_dtm AS (
     SELECT * FROM {{ ref('stg__dof_dtm') }} 
 ),
@@ -62,6 +66,18 @@ zoningmapperorder AS (
         AS row_number
     FROM zoningmapper
     WHERE allbblgeom > 0
+),
+
+zoningmapperorder_distinct AS (
+    SELECT DISTINCT 
+        dtm_id,
+        bbl,
+        zoning_map,
+        segbblgeom,
+        perbblgeom,
+        perzonegeom,
+        row_number
+    FROM zoningmapperorder
 )
 
-SELECT * FROM zoningmapperorder
+SELECT * FROM zoningmapperorder_distinct
