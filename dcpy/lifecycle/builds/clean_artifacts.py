@@ -53,7 +53,7 @@ def delete_stale_schemas(active_build_names: list[str]):
 
 def delete_stale_image_tags(active_build_names: list[str]) -> None:
     logger.info(f"Potential active branch build names: {active_build_names}")
-    DOCKER_IMAGES = ["dev", "build-base", "build-geosupport"]
+    DOCKER_IMAGES = ["base", "dev", "build-base", "build-geosupport"]
     for image in DOCKER_IMAGES:
         tags = requests.get(
             f"https://hub.docker.com/v2/repositories/nycplanning/{image}/tags?page_size=1000"
