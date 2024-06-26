@@ -2,6 +2,7 @@
 
 image=$1
 tag=$2
+base_tag=$3
 
 DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 ROOT_DIR=$(dirname ${DIR})
@@ -31,7 +32,7 @@ function common {
 
     docker_login
 
-    if [[ -z $base_tag ]]; then
+    if [[ -n $base_tag ]]; then
         base_tag_command="--build-arg base_tag=$base_tag"
     fi
 

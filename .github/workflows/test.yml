@@ -167,9 +167,7 @@ jobs:
       - name: publish images
         if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
         working-directory: docker
-        run: |
-          export base_tag=${{ needs.base_image.outputs.base_tag }}
-          ./publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}"
+        run: ./publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}" "${{ needs.base_image.outputs.base_tag }}"
 
   test:
     uses: ./.github/workflows/test_helper.yml
