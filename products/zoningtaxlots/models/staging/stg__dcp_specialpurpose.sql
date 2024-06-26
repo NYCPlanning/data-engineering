@@ -3,7 +3,7 @@ WITH dcp_specialpurpose AS (
 ),
 
 rename AS (
-    SELECT 
+    SELECT
         ogc_fid,
         sdlbl,
         wkb_geometry AS geom

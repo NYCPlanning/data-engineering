@@ -3,7 +3,7 @@
 ) }}
 
 WITH dof_dtm AS (
-    SELECT * FROM {{ ref('stg__dof_dtm') }} 
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 validdtm AS (
@@ -11,7 +11,7 @@ validdtm AS (
         id AS dtm_id,
         bbl,
         ST_MAKEVALID(a.geom) AS geom
-    FROM dof_dtm a 
+    FROM dof_dtm AS a
 ),
 
 
@@ -23,7 +23,7 @@ validindex AS (
     SELECT
         a.zoning_map,
         ST_MAKEVALID(a.geom) AS geom
-    FROM dcp_zoningmapindex a
+    FROM dcp_zoningmapindex AS a
 ),
 
 zoningmapper AS (
@@ -69,7 +69,7 @@ zoningmapperorder AS (
 ),
 
 zoningmapperorder_distinct AS (
-    SELECT DISTINCT 
+    SELECT DISTINCT
         dtm_id,
         bbl,
         zoning_map,

@@ -28,7 +28,7 @@ specialpurposeper AS (
     FROM validdtm AS p
     INNER JOIN dcp_specialpurpose AS n
         ON ST_INTERSECTS(p.geom, n.geom)
-    ),
+),
 
 specialpurposeperorder_init AS (
     SELECT
@@ -61,6 +61,6 @@ specialpurposeperorder AS (
     WHERE
         perbblgeom >= 10
         OR sd_row_number = 1
-    )
+)
 
 SELECT * FROM specialpurposeperorder

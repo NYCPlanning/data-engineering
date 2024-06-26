@@ -3,11 +3,11 @@ WITH dcp_limitedheight AS (
 ),
 
 rename AS (
-    SELECT 
+    SELECT
         ogc_fid,
         wkb_geometry AS geom,
         lhlbl
     FROM dcp_limitedheight
 )
 
-SELECT * FROM rename 
+SELECT * FROM rename

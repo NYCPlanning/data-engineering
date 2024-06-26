@@ -9,15 +9,15 @@ WITH dcp_zoningdistricts AS (
     SELECT * FROM {{ source('recipe_sources', 'dcp_zoningdistricts') }}
 ),
 
-rename AS(
-    SELECT 
+rename AS (
+    SELECT
         ogc_fid,
         wkb_geometry AS geom,
         zonedist
     FROM dcp_zoningdistricts
 ),
 
-validzones AS(
+validzones AS (
     SELECT
         CASE
             WHEN zonedist = ANY('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'

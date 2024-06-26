@@ -3,7 +3,7 @@ WITH dcp_zoningmapindex AS (
 ),
 
 rename AS (
-    SELECT 
+    SELECT
         zoning_map,
         wkb_geometry AS geom
     FROM dcp_zoningmapindex

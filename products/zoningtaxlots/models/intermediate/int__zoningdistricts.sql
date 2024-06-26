@@ -91,7 +91,8 @@ lotzoneperorder_init AS (
         CASE
             WHEN
                 ROW_NUMBER() OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) = 1
-                OR LAG(segbblgeom, 1, segbblgeom) OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) - segbblgeom > 0.01
+                OR LAG(segbblgeom, 1, segbblgeom) OVER (PARTITION BY dtm_id ORDER BY segbblgeom DESC) - segbblgeom
+                > 0.01
                 THEN 1
             ELSE 0
         END AS group_start
@@ -100,7 +101,7 @@ lotzoneperorder_init AS (
         lot_row_number = 1
         OR perbblgeom >= 10
         OR zonedist_row_number = 1
-    ),
+),
 
 group_column_added AS (
     SELECT
@@ -157,10 +158,6 @@ lotzoneperorder AS (
         COALESCE(new.row_number, a.row_number) AS row_number
     FROM lotzoneperorder_init AS a
     LEFT JOIN new_order AS new ON a.dtm_id = new.dtm_id AND a.zonedist = new.zonedist
-    )
+)
 
 SELECT * FROM lotzoneperorder
-
-
-
-

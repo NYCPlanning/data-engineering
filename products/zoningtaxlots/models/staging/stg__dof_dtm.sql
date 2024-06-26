@@ -9,11 +9,11 @@ WITH dof_dtm AS (
     SELECT * FROM {{ source('recipe_sources', 'dof_dtm') }}
 ),
 
-rename AS(
-    SELECT 
+rename AS (
+    SELECT
         ogc_fid,
         bbl,
-        wkb_geometry as geom,
+        wkb_geometry AS geom,
         boro,
         block,
         lot
@@ -28,9 +28,9 @@ coalesced AS (
         COALESCE(lot::text, SUBSTRING(bbl::text, 7, 4)) AS lot,
         geom
     FROM rename
-    ),
+),
 
-dof_dtm_tmp AS(
+dof_dtm_tmp AS (
     SELECT
         ROW_NUMBER() OVER () AS id,
         bbl,

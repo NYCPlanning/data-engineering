@@ -3,7 +3,7 @@ WITH dcp_commercialoverlay AS (
 ),
 
 rename AS (
-    SELECT 
+    SELECT
         ogc_fid,
         wkb_geometry AS geom,
         overlay

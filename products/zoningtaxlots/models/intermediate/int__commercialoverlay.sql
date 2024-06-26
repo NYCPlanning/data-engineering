@@ -45,6 +45,12 @@ commoverlayperorder AS (
             )
         AS row_number
     FROM commoverlayper
+),
+
+filter AS (
+    SELECT *
+    FROM commoverlayperorder
+    WHERE perbblgeom >= 10 OR perzonegeom >= 50
 )
 
-SELECT * FROM commoverlayperorder
+SELECT * FROM filter
