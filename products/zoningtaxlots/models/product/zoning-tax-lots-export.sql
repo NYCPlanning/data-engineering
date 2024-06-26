@@ -200,7 +200,7 @@ add_height AS (
     ON a.dtm_id = b.dtm_id
 ),
 
-add_zoningmap AS (
+add_zoningmapnumber AS (
     SELECT 
         a.dtm_id,
         a.bbl,
@@ -214,12 +214,33 @@ add_zoningmap AS (
         a.specialdistrict2,
         a.specialdistrict3,
         a.limitedheightdistrict,
-        (CASE WHEN b.row_number = 1 AND b.perbblgeom >= 10 THEN b.zoning_map
-        ELSE NULL END) AS zoningmapnumber,
-        (CASE WHEN b.row_number = 2 THEN 'Y' ELSE NULL END) AS zoningmapcode
+        (CASE WHEN b.perbblgeom >= 10 THEN b.zoning_map
+        ELSE NULL END) AS zoningmapnumber
     FROM add_height a 
     LEFT JOIN zoningmapindex b
-    ON a.dtm_id = b.dtm_id
+    ON a.dtm_id = b.dtm_id AND b.row_number = 1 
+),
+
+add_zoningmapcode AS (
+    SELECT 
+        a.dtm_id,
+        a.bbl,
+        a.boroughcode,
+        a.taxblock,
+        a.taxlot,
+        a.area,
+        a.commercialoverlay1,
+        a.commercialoverlay2,
+        a.specialdistrict1,
+        a.specialdistrict2,
+        a.specialdistrict3,
+        a.limitedheightdistrict,
+        a.zoningmapnumber,
+        (CASE WHEN b.row_number = 2 THEN 'Y'
+        ELSE NULL END) AS zoningmapcode
+    FROM add_zoningmapnumber a 
+    LEFT JOIN zoningmapindex b
+    ON a.dtm_id = b.dtm_id AND b.row_number = 2
 ),
 
 add_zoningdistricts_1 AS (
@@ -239,7 +260,7 @@ add_zoningdistricts_1 AS (
         a.zoningmapnumber,
         a.zoningmapcode,
         b.zonedist AS zoningdistrict1
-    FROM add_zoningmap a
+    FROM add_zoningmapcode a
     LEFT JOIN zoningdistricts b
     ON a.dtm_id = b.dtm_id AND b.row_number = 1
 ),
@@ -471,6 +492,7 @@ drop_invalid AS (
 
 export AS (
     SELECT 
+        dtm_id,
         boroughcode AS "Borough Code",
         trunc(taxblock::numeric) AS "Tax Block",
         taxlot AS "Tax Lot",
