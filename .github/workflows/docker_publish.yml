@@ -38,7 +38,7 @@ on:
 jobs:
   base:
     runs-on: ubuntu-22.04
-    if: inputs.base
+    if: inputs.base || github.event_name == 'push'
     defaults:
       run:
         shell: bash
