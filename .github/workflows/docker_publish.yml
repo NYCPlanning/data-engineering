@@ -38,14 +38,15 @@ on:
 jobs:
   base:
     runs-on: ubuntu-22.04
-    if: inputs.base || github.event_name == 'push'
     defaults:
       run:
         shell: bash
         working-directory: docker
     steps:
       - uses: actions/checkout@v4
+        if: inputs.base || github.event_name == 'push'
       - name: Load Secrets
+        if: inputs.base || github.event_name == 'push'
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
@@ -55,10 +56,12 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish base
+        if: inputs.base || github.event_name == 'push'
         run: ./publish.sh base
 
   build-base:
     runs-on: ubuntu-22.04
+    needs: [base]
     if: inputs.build-base || github.event_name == 'push'
     defaults:
       run:
@@ -80,6 +83,7 @@ jobs:
 
   build-geosupport:
     runs-on: ubuntu-22.04
+    needs: [base]
     if: inputs.build-geosupport || github.event_name == 'push'
     defaults:
       run:
@@ -101,6 +105,7 @@ jobs:
 
   dev:
     runs-on: ubuntu-22.04
+    needs: [base]
     if: inputs.dev || github.event_name == 'push'
     defaults:
       run:
