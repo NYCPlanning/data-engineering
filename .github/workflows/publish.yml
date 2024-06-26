@@ -22,10 +22,6 @@ on:
         description: "Build folder in drafts to publish"
         type: string
         required: true
-      publishing_version:
-        description: "Data product release version"
-        type: string
-        required: true
       latest:
         description: "Publish to 'latest' folder?"
         type: boolean
@@ -70,13 +66,34 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: publish
-        env:
-          latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
+      - name: Download Metadata
+        run: |
+          python3 -m dcpy.connectors.edm.publishing download_file \
+            --filepath build_metadata.json \
+            --product ${{ inputs.product }} \
+            --draft \
+            --version ${{inputs.draft_build}}
+
+      - name: Set version and build sha
+        run: |
+          echo "version=$(cat build_metadata.json | jq -r .version)" >> $GITHUB_ENV
+          echo "commit=$(cat build_metadata.json | jq -r .commit)" >> $GITHUB_ENV
+
+      - name: Publish
         run: |
           python3 -m dcpy.connectors.edm.publishing publish \
             --product ${{ inputs.product }} \
             --build ${{ inputs.draft_build }} \
-            --version ${{ inputs.publishing_version }} \
             --acl ${{ inputs.product_acl }} \
-            $latest
+            ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
+
+      - name: create tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ inputs.product }}__${{ env.version }}',
+              sha: '${{ env.commit }}'
+            })

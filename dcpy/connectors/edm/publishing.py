@@ -481,6 +481,11 @@ def _cli_wrapper_download_file(
         "--product",
         help="Name of data product (publishing folder in s3)",
     ),
+    draft: bool = typer.Option(
+        False,
+        "-d",
+        "--draft",
+    ),
     version: str = typer.Option(None, "-v", "--version", help="Product version"),
     filepath: str = typer.Option(
         None, "-f", "--filepath", help="Filepath within s3 output folder"
@@ -489,7 +494,11 @@ def _cli_wrapper_download_file(
         None, "-o", "--output-dir", help="Folder to download file to"
     ),
 ):
-    download_file(PublishKey(product, version), filepath, output_dir)
+    if draft:
+        key = DraftKey(product=product, build=version)
+    else:
+        key = PublishKey(product=product, version=version)
+    download_file(key, filepath, output_dir)
 
 
 if __name__ == "__main__":
