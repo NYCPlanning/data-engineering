@@ -2,18 +2,9 @@
     materialized = 'table'
 ) }}
 
-WITH dof_dtm AS (
-    SELECT * FROM {{ ref('stg__dof_dtm') }}
+WITH validdtm AS (
+    SELECT * FROM {{ ref('int__validdtm') }}
 ),
-
-validdtm AS (
-    SELECT
-        id AS dtm_id,
-        bbl,
-        ST_MAKEVALID(a.geom) AS geom
-    FROM dof_dtm AS a
-),
-
 
 dcp_zoningmapindex AS (
     SELECT * FROM {{ ref('stg__dcp_zoningmapindex') }}

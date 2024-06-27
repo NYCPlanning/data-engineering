@@ -3,7 +3,7 @@
 ) }}
 
 WITH ztl AS (
-    SELECT * FROM {{ ref('zoning-tax-lots') }}
+    SELECT * FROM {{ ref('int__zoningtaxlots') }}
 )
 
 SELECT
