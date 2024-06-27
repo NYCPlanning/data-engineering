@@ -2,8 +2,7 @@
 
 image=$1
 tag=$2
-
-PYTHON_VERSION="3.12"
+base_tag=$3
 
 DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 ROOT_DIR=$(dirname ${DIR})
@@ -33,13 +32,17 @@ function common {
 
     docker_login
 
+    if [[ -n $base_tag ]]; then
+        base_tag_command="--build-arg base_tag=$base_tag"
+    fi
+
     if [[ -z $tag ]]; then
-        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME latest --build-arg PYTHON_VERSION=$PYTHON_VERSION"
-        GEO_COMMAND="build_and_publish_versioned_docker_image $image $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME latest $base_tag_command"
+        GEO_COMMAND="build_and_publish_versioned_docker_image $image $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS $base_tag_command"
     else
-        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $base_tag_command"
         echo "$COMMAND"
-        GEO_COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $BUILD_ARGS --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+        GEO_COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $BUILD_ARGS $base_tag_command"
     fi
 }
 
