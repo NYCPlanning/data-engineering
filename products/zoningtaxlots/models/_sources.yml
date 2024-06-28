@@ -91,3 +91,4 @@ sources:
           - name: wkb_geometry
             tests:
               - not_null
+      - name: dcp_zoningtaxlots
