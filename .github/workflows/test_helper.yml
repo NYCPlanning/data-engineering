@@ -58,6 +58,7 @@ jobs:
 
           # dbt requires slightly special logic
           ./bash/sqlfluff_dbt.sh lint green_fast_track
+          ./bash/sqlfluff_dbt.sh lint zoningtaxlots
 
   mypy:
     runs-on: ubuntu-22.04
