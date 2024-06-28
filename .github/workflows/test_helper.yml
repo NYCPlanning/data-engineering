@@ -56,11 +56,8 @@ jobs:
           sqlfluff lint products/pluto/pluto_build/sql/
           sqlfluff lint products/zoningtaxlots/sql/
 
-          # this should probably be its own util/script
-          export BUILD_ENGINE_DB=db-green-fast-track
-          dbt deps --profiles-dir products/green_fast_track --project-dir products/green_fast_track
-          dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh --profiles-dir products/green_fast_track --project-dir products/green_fast_track
-          sqlfluff lint products/green_fast_track/models --templater=dbt
+          # dbt requires slightly special logic
+          ./bash/sqlfluff_dbt.sh lint green_fast_track
 
   mypy:
     runs-on: ubuntu-22.04
