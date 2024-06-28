@@ -183,8 +183,8 @@ export AS (
         specialdistrict1::text AS special_district_1,
         specialdistrict2::text AS special_district_2,
         specialdistrict3::text AS special_district_3,
-        limitedheightdistrict::text AS limited_height_district, 
-        zoningmapnumber::text  AS zoning_map_number,
+        limitedheightdistrict::text AS limited_height_district,
+        zoningmapnumber::text AS zoning_map_number,
         zoningmapcode::text AS zoning_map_code,
         area::float8,
         inzonechange::text AS "inzonechange"

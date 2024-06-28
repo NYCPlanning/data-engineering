@@ -10,7 +10,7 @@ prev_version AS (
     SELECT * FROM {{ source('recipe_sources', 'dcp_zoningtaxlots') }}
 ),
 
-mismatch AS(
+mismatch AS (
     SELECT
         count(*) AS total,
         sum(
@@ -21,22 +21,26 @@ mismatch AS(
         sum((a.bbl != b.bbl OR (a.bbl IS NULL AND b.bbl IS NOT NULL))::integer) AS bbl,
         sum(
             (
-                a.zoning_district_1 != b.zoning_district_1 OR (a.zoning_district_1 IS NULL AND b.zoning_district_1 IS NOT NULL)
+                a.zoning_district_1 != b.zoning_district_1
+                OR (a.zoning_district_1 IS NULL AND b.zoning_district_1 IS NOT NULL)
             )::integer
         ) AS zoning_district_1,
         sum(
             (
-                a.zoning_district_2 != b.zoning_district_2 OR (a.zoning_district_2 IS NULL AND b.zoning_district_2 IS NOT NULL)
+                a.zoning_district_2 != b.zoning_district_2
+                OR (a.zoning_district_2 IS NULL AND b.zoning_district_2 IS NOT NULL)
             )::integer
         ) AS zoning_district_2,
         sum(
             (
-                a.zoning_district_3 != b.zoning_district_3 OR (a.zoning_district_3 IS NULL AND b.zoning_district_3 IS NOT NULL)
+                a.zoning_district_3 != b.zoning_district_3
+                OR (a.zoning_district_3 IS NULL AND b.zoning_district_3 IS NOT NULL)
             )::integer
         ) AS zoning_district_3,
         sum(
             (
-                a.zoning_district_4 != b.zoning_district_4 OR (a.zoning_district_4 IS NULL AND b.zoning_district_4 IS NOT NULL)
+                a.zoning_district_4 != b.zoning_district_4
+                OR (a.zoning_district_4 IS NULL AND b.zoning_district_4 IS NOT NULL)
             )::integer
         ) AS zoning_district_4,
         sum(
@@ -77,11 +81,14 @@ mismatch AS(
         ) AS limited_height_district,
         sum(
             (
-                a.zoning_map_number != b.zoning_map_number OR (a.zoning_map_number IS NULL AND b.zoning_map_number IS NOT NULL)
+                a.zoning_map_number != b.zoning_map_number
+                OR (a.zoning_map_number IS NULL AND b.zoning_map_number IS NOT NULL)
             )::integer
         ) AS zoning_map_number,
         sum(
-            (a.zoning_map_code != b.zoning_map_code OR (a.zoning_map_code IS NULL AND b.zoning_map_code IS NOT NULL))::integer
+            (
+                a.zoning_map_code != b.zoning_map_code OR (a.zoning_map_code IS NULL AND b.zoning_map_code IS NOT NULL)
+            )::integer
         ) AS zoning_map_code,
         'new_version' AS version,
         'prev_version' AS version_prev

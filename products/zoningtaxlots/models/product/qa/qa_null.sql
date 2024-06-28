@@ -220,4 +220,4 @@ qaqc_new_nulls AS (
     ORDER BY value_to_null ASC, null_to_value DESC
 )
 
-SELECT * FROM qaqc_new_nulls 
+SELECT * FROM qaqc_new_nulls
