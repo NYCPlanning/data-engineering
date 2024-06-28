@@ -1,0 +1,33 @@
+{{ config(
+    materialized = 'table'
+) }}
+
+WITH new_version AS (
+    SELECT * FROM {{ ref('int__zoningtaxlots') }}
+),
+
+prev_version AS (
+    SELECT * FROM {{ source('recipe_sources', 'dcp_zoningtaxlots') }}
+),
+
+qaqc_bblareachange AS (
+    SELECT
+        bbl,
+        newarea,
+        oldarea,
+        areadiff,
+        'new_version' AS version,
+        'prev_version' AS version_prev
+    FROM (
+        SELECT DISTINCT
+            a.bbl,
+            a.area AS newarea,
+            b.area AS oldarea,
+            (a.area - b.area) AS areadiff
+        FROM new_version AS a
+        INNER JOIN prev_version AS b
+            ON a.bbl = b.bbl
+    ) AS c
+)
+
+SELECT * FROM qaqc_bblareachange
