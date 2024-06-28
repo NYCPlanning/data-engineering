@@ -401,7 +401,7 @@ corr_zoninggaps AS (
         zoningdistrict2,
         zoningdistrict3,
         zoningdistrict4,
-        (COALESCE (commercialoverlay1, commercialoverlay2)) AS commercialoverlay1,
+        (COALESCE(commercialoverlay1, commercialoverlay2)) AS commercialoverlay1,
         (CASE
             WHEN commercialoverlay1 IS NULL THEN NULL
             ELSE commercialoverlay2

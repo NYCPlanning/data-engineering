@@ -11,7 +11,7 @@ then
     exit 1
 fi
 
-if [ -eq "$project" "zoningtaxlots" ]
+if [ "$project" = "zoningtaxlots" ]
 then
     export BUILD_ENGINE_DB="db-ztl"
 else
