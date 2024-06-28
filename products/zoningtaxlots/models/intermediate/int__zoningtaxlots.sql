@@ -66,7 +66,7 @@ pop_bbl AS (
 
 -- add commercialoverlay
 
-add_comm1 AS (
+add_comm AS (
     SELECT
         a.dtm_id,
         a.bbl,
@@ -74,30 +74,18 @@ add_comm1 AS (
         a.taxblock,
         a.taxlot,
         a.area,
-        b.overlay AS commercialoverlay1
+        b1.overlay AS commercialoverlay1,
+        b2.overlay AS commercialoverlay2
     FROM pop_bbl AS a
-    LEFT JOIN commercialoverlay AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 1
-),
-
-add_comm2 AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        b.overlay AS commercialoverlay2
-    FROM add_comm1 AS a
-    LEFT JOIN commercialoverlay AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 2
+    LEFT JOIN commercialoverlay AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN commercialoverlay AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
 ),
 
 -- add specialdistrict
 
-add_special_1 AS (
+add_special AS (
     SELECT
         a.dtm_id,
         a.bbl,
@@ -107,47 +95,17 @@ add_special_1 AS (
         a.area,
         a.commercialoverlay1,
         a.commercialoverlay2,
-        b.sdlbl AS specialdistrict1
-    FROM add_comm2 AS a
-    LEFT JOIN specialpurpose AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 1
+        b1.sdlbl AS specialdistrict1,
+        b2.sdlbl AS specialdistrict2,
+        b3.sdlbl AS specialdistrict3
+    FROM add_comm AS a
+    LEFT JOIN specialpurpose AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN specialpurpose AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN specialpurpose AS b3
+        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
 ),
-
-add_special_2 AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        a.commercialoverlay2,
-        a.specialdistrict1,
-        b.sdlbl AS specialdistrict2
-    FROM add_special_1 AS a
-    LEFT JOIN specialpurpose AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 2
-),
-
-add_special_3 AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        a.commercialoverlay2,
-        a.specialdistrict1,
-        a.specialdistrict2,
-        b.sdlbl AS specialdistrict3
-    FROM add_special_2 AS a
-    LEFT JOIN specialpurpose AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 3
-),
--- set the order of specialdistrict
 
 set_sd_order AS (
     SELECT
@@ -180,7 +138,7 @@ set_sd_order AS (
             ELSE specialdistrict2
         END) AS specialdistrict2,
         specialdistrict3
-    FROM add_special_3
+    FROM add_special
 ),
 
 -- add limitedheight
@@ -251,7 +209,7 @@ add_zoningmapcode AS (
         ON a.dtm_id = b.dtm_id AND b.row_number = 2
 ),
 
-add_zoningdistricts_1 AS (
+add_zoningdistricts AS (
     SELECT
         a.dtm_id,
         a.bbl,
@@ -267,82 +225,19 @@ add_zoningdistricts_1 AS (
         a.limitedheightdistrict,
         a.zoningmapnumber,
         a.zoningmapcode,
-        b.zonedist AS zoningdistrict1
+        b1.zonedist AS zoningdistrict1,
+        b2.zonedist AS zoningdistrict2,
+        b3.zonedist AS zoningdistrict3,
+        b4.zonedist AS zoningdistrict4
     FROM add_zoningmapcode AS a
-    LEFT JOIN zoningdistricts AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 1
-),
-
-add_zoningdistricts_2 AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        a.commercialoverlay2,
-        a.specialdistrict1,
-        a.specialdistrict2,
-        a.specialdistrict3,
-        a.limitedheightdistrict,
-        a.zoningmapnumber,
-        a.zoningmapcode,
-        a.zoningdistrict1,
-        b.zonedist AS zoningdistrict2
-    FROM add_zoningdistricts_1 AS a
-    LEFT JOIN zoningdistricts AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 2
-),
-
-add_zoningdistricts_3 AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        a.commercialoverlay2,
-        a.specialdistrict1,
-        a.specialdistrict2,
-        a.specialdistrict3,
-        a.limitedheightdistrict,
-        a.zoningmapnumber,
-        a.zoningmapcode,
-        a.zoningdistrict1,
-        a.zoningdistrict2,
-        b.zonedist AS zoningdistrict3
-    FROM add_zoningdistricts_2 AS a
-    LEFT JOIN zoningdistricts AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 3
-),
-
-add_zoningdistricts_4 AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        a.commercialoverlay2,
-        a.specialdistrict1,
-        a.specialdistrict2,
-        a.specialdistrict3,
-        a.limitedheightdistrict,
-        a.zoningmapnumber,
-        a.zoningmapcode,
-        a.zoningdistrict1,
-        a.zoningdistrict2,
-        a.zoningdistrict3,
-        b.zonedist AS zoningdistrict4
-    FROM add_zoningdistricts_3 AS a
-    LEFT JOIN zoningdistricts AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 4
+    LEFT JOIN zoningdistricts AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN zoningdistricts AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN zoningdistricts AS b3
+        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
+    LEFT JOIN zoningdistricts AS b4
+        ON a.dtm_id = b4.dtm_id AND b4.row_number = 4
 ),
 
 add_inwoodrezooning AS (
@@ -366,7 +261,7 @@ add_inwoodrezooning AS (
         a.zoningmapnumber,
         a.zoningmapcode,
         b.notes
-    FROM add_zoningdistricts_4 AS a
+    FROM add_zoningdistricts AS a
     LEFT JOIN inwoodrezooning AS b
         ON
             a.bbl = b.bbl

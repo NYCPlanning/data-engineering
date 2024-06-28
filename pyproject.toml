@@ -48,14 +48,6 @@ CAPTURE_DATE_PREV = "2023-07-01"
 internal_columns = '"Job_Number","Job_Type"'
 external_columns = '"Job_Number","Job_Type"'
 
-<<<<<<< HEAD
-=======
-[tool.sqlfluff.templater.dbt]
-project_dir = "products/green_fast_track"
-profiles_dir = "products/green_fast_track"
-dialect = "postgres"
-
->>>>>>> 11e2c3a9 (reverts pyproject changes)
 [tool.sqlfluff.templater.jinja.context]
 source_column="bct2020"
 output_column="bct2020"
