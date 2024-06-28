@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: stg__dcp_commercialoverlay
+  - name: stg__dcp_limitedheight
+  - name: stg__dcp_specialpurpose
+  - name: stg__dcp_zoningdistricts
+  - name: stg__dcp_zoningmapamendments
+  - name: stg__dcp_zoningmapindex
+  - name: stg__dof_dtm

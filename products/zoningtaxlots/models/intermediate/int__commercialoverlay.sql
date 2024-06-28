@@ -1,0 +1,56 @@
+WITH validdtm AS (
+    SELECT * FROM {{ ref('int__validdtm') }}
+),
+
+dcp_commercialoverlay AS (
+    SELECT * FROM {{ ref('stg__dcp_commercialoverlay') }}
+),
+
+commoverlayper AS (
+    SELECT
+        p.dtm_id,
+        p.bbl,
+        n.overlay,
+        ST_AREA(
+            CASE
+                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+            END
+        ) AS segbblgeom,
+        ST_AREA(p.geom) AS allbblgeom,
+        ST_AREA(
+            CASE
+                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+            END
+        ) AS segzonegeom,
+        ST_AREA(n.geom) AS allzonegeom
+    FROM validdtm AS p
+    INNER JOIN dcp_commercialoverlay AS n
+        ON ST_INTERSECTS(p.geom, n.geom)
+),
+
+commoverlayperorder AS (
+    SELECT
+        dtm_id,
+        bbl,
+        overlay,
+        segbblgeom,
+        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
+        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+        ROW_NUMBER()
+            OVER (
+                PARTITION BY dtm_id
+                ORDER BY segbblgeom DESC, segzonegeom DESC
+            )
+        AS row_number
+    FROM commoverlayper
+),
+
+filter AS (
+    SELECT *
+    FROM commoverlayperorder
+    WHERE perbblgeom >= 10 OR perzonegeom >= 50
+)
+
+SELECT * FROM filter

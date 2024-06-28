@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: int__commercialoverlay
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dtm_id
+            - overlay
+            - row_number
+  - name: int__inwoodrezooning
+    columns:
+      - name: bbl
+        data_type: string
+        tests:
+          - not_null
+  - name: int__inzonechange
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
+  - name: int__limitedheight
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dtm_id
+            - lhlbl
+  - name: int__specialpurpose
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dtm_id
+            - sdlbl
+  - name: int__validdtm
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dtm_id
+  - name: int__zoningdistricts
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dtm_id
+            - zonedist
+  - name: int__zoningmapindex
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - dtm_id
+            - zoning_map
+            - row_number
+  - name: int__zoningtaxlots
+    columns:
+      - name: dtm_id
+        tests:
+          - not_null
+          - unique
