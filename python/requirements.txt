@@ -522,7 +522,7 @@ python-decouple==3.8
     # via streamlit-aggrid
 python-dotenv==1.0.1
     # via -r python/requirements.in
-python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
+python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@fvk-function3
     # via -r python/requirements.in
 python-slugify==8.0.4
     # via agate

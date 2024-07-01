@@ -36,7 +36,7 @@ pydantic
 pytest
 pytest-cov
 python-dotenv>=0.20.0
-python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
+python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@fvk-function3
 pytz>=2023.3
 PyYAML>=6.0.1
 types-PyYAML>=6.0.1
