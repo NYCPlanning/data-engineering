@@ -98,9 +98,9 @@ add_special AS (
         b.specialdistrict1,
         b.specialdistrict2,
         b.specialdistrict3
-    FROM add_comm a
-    LEFT JOIN specialpurpose b
-    ON a.dtm_id = b.dtm_id
+    FROM add_comm AS a
+    LEFT JOIN specialpurpose AS b
+        ON a.dtm_id = b.dtm_id
 ),
 
 
