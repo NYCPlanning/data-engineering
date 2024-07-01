@@ -28,11 +28,12 @@ models:
             - dtm_id
             - lhlbl
   - name: int__specialpurpose
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dtm_id
-            - sdlbl
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
   - name: int__validdtm
     tests:
       - dbt_utils.unique_combination_of_columns:

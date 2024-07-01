@@ -95,51 +95,14 @@ add_special AS (
         a.area,
         a.commercialoverlay1,
         a.commercialoverlay2,
-        b1.sdlbl AS specialdistrict1,
-        b2.sdlbl AS specialdistrict2,
-        b3.sdlbl AS specialdistrict3
-    FROM add_comm AS a
-    LEFT JOIN specialpurpose AS b1
-        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
-    LEFT JOIN specialpurpose AS b2
-        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
-    LEFT JOIN specialpurpose AS b3
-        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
+        b.specialdistrict1,
+        b.specialdistrict2,
+        b.specialdistrict3
+    FROM add_comm a
+    LEFT JOIN specialpurpose b
+    ON a.dtm_id = b.dtm_id
 ),
 
-set_sd_order AS (
-    SELECT
-        dtm_id,
-        bbl,
-        boroughcode,
-        taxblock,
-        taxlot,
-        area,
-        commercialoverlay1,
-        commercialoverlay2,
-        (CASE
-            WHEN specialdistrict1 = 'MiD' AND specialdistrict2 = 'CL' THEN 'CL'
-            WHEN specialdistrict1 = 'TA' AND specialdistrict2 = 'MiD' THEN 'MiD'
-            WHEN specialdistrict1 = 'TA' AND specialdistrict2 = '125th' THEN '125th'
-            WHEN specialdistrict1 = 'MX-16' AND specialdistrict2 = 'EC-5' THEN 'EC-5'
-            WHEN specialdistrict1 = 'MX-16' AND specialdistrict2 = 'EC-6' THEN 'EC-6'
-            WHEN specialdistrict1 = 'TA' AND specialdistrict2 = 'EHC' THEN 'EHC'
-            WHEN specialdistrict1 = 'G' AND specialdistrict2 = 'MX-1' THEN 'MX-1'
-            ELSE specialdistrict1
-        END) AS specialdistrict1,
-        (CASE
-            WHEN specialdistrict1 = 'MiD' AND specialdistrict2 = 'CL' THEN 'MiD'
-            WHEN specialdistrict1 = 'TA' AND specialdistrict2 = 'MiD' THEN 'TA'
-            WHEN specialdistrict1 = 'TA' AND specialdistrict2 = '125th' THEN 'TA'
-            WHEN specialdistrict1 = 'MX-16' AND specialdistrict2 = 'EC-5' THEN 'MX-16'
-            WHEN specialdistrict1 = 'MX-16' AND specialdistrict2 = 'EC-6' THEN 'MX-16'
-            WHEN specialdistrict1 = 'TA' AND specialdistrict2 = 'EHC' THEN 'TA'
-            WHEN specialdistrict1 = 'G' AND specialdistrict2 = 'MX-1' THEN 'G'
-            ELSE specialdistrict2
-        END) AS specialdistrict2,
-        specialdistrict3
-    FROM add_special
-),
 
 -- add limitedheight
 
@@ -159,7 +122,7 @@ add_height AS (
         (CASE
             WHEN b.perbblgeom >= 10 THEN b.lhlbl
         END) AS limitedheightdistrict
-    FROM set_sd_order AS a
+    FROM add_special AS a
     LEFT JOIN limitedheight AS b
         ON a.dtm_id = b.dtm_id
 ),

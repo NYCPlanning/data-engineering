@@ -6,6 +6,10 @@ dcp_specialpurpose AS (
     SELECT * FROM {{ ref('stg__dcp_specialpurpose') }}
 ),
 
+specialdistrict_priority AS (
+    SELECT * FROM {{ ref('specialdistrict_priority') }}
+),
+
 specialpurposeper AS (
     SELECT
         p.dtm_id,
@@ -61,6 +65,35 @@ specialpurposeperorder AS (
     WHERE
         perbblgeom >= 10
         OR sd_row_number = 1
+),
+
+pivot AS (
+    SELECT 
+        a.dtm_id,
+        a.bbl,
+        b1.sdlbl AS specialdistrict1,
+        b2.sdlbl AS specialdistrict2,
+        b3.sdlbl AS specialdistrict3
+    FROM (SELECT DISTINCT dtm_id,bbl FROM specialpurposeperorder) a 
+    LEFT JOIN specialpurposeperorder AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN specialpurposeperorder AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN specialpurposeperorder AS b3
+        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
+),
+
+set_sd_order AS (
+    SELECT  
+        a.dtm_id,
+        a.bbl,
+        b.sdlabel1 AS specialdistrict1,
+        b.sdlabel2 AS specialdistrict2,
+        a.specialdistrict3
+    FROM pivot a 
+    LEFT JOIN specialdistrict_priority b
+    ON (a.specialdistrict1 = b.sdlabel1 AND a.specialdistrict2 = b.sdlabel2)
+    OR (a.specialdistrict1 = b.sdlabel2 AND a.specialdistrict2 = b.sdlabel1)
 )
 
-SELECT * FROM specialpurposeperorder
+SELECT * FROM set_sd_order
