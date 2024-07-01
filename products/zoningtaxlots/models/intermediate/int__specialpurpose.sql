@@ -90,8 +90,8 @@ set_sd_order AS (
     SELECT
         a.dtm_id,
         a.bbl,
-        b.sdlabel1 AS specialdistrict1,
-        b.sdlabel2 AS specialdistrict2,
+        (COALESCE (b.sdlabel1, a.specialdistrict1)) AS specialdistrict1,
+        (COALESCE (b.sdlabel2, a.specialdistrict2)) AS specialdistrict2,
         a.specialdistrict3
     FROM pivot AS a
     LEFT JOIN specialdistrict_priority AS b
