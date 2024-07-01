@@ -11,3 +11,7 @@ seeds:
         tests:
           - not_null
           - unique
+  - name: specialdistrict_priority 
+    columns:
+    - name: sdlabel1
+    - name: sdlabel2
