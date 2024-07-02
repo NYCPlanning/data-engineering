@@ -23,6 +23,40 @@ class TestVersions(TestCase):
         with self.assertRaises(Exception):
             versions.parse("20231212")
 
+    def test_sort_valid_versions(self):
+        for version_list, sorted in [
+            [
+                [
+                    versions.MajorMinor(year=23, major=2),
+                    versions.MajorMinor(year=23, major=1),
+                ],
+                [
+                    versions.MajorMinor(year=23, major=1),
+                    versions.MajorMinor(year=23, major=2),
+                ],
+            ],
+            [
+                [
+                    versions.Date(year=23, month=1, day=2),
+                    versions.FirstOfMonth(year=23, month=1),
+                ],
+                [
+                    versions.FirstOfMonth(year=23, month=1),
+                    versions.Date(year=23, month=1, day=2),
+                ],
+            ],
+        ]:
+            self.assertEqual(sorted, versions.sort(version_list))
+
+    def test_sort_invalid_versions(self):
+        with self.assertRaises(TypeError):
+            versions.sort(
+                [
+                    versions.FirstOfMonth(year=23, month=1),
+                    versions.MajorMinor(year=23, major=2),
+                ]
+            )
+
     def test_bumping_versions(self):
         for bumped_part, bump_by, v, v_expected in [
             ["major", None, "23v2", "23v3"],
