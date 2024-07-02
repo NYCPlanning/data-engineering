@@ -103,7 +103,7 @@ class FirstOfMonth(Version):
     ) -> FirstOfMonth:
         if version_subtype is not None:
             raise Exception(
-                f"Version subtype {version_subtype} not applicable for Quarterly versions"
+                f"Version subtype {version_subtype} not applicable for FirstOfMonth versions"
             )
         bump_by = bump_by or 1
         new_year = int(self.year + (self.month + bump_by - 1) / 12)
