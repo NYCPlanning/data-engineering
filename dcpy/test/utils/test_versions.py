@@ -9,6 +9,7 @@ class TestVersions(TestCase):
             ["23v2", versions.MajorMinor(year=23, major=2)],
             ["23v2.11", versions.MajorMinor(year=23, major=2, minor=11)],
             ["24v34.56", versions.MajorMinor(year=24, major=34, minor=56)],
+            ["2020-03-28", versions.Date(year=2020, month=3, day=28)],
             ["2023-01-01", versions.FirstOfMonth(year=2023, month=1)],
             ["23Q4", versions.Quarter(year=23, quarter=4)],
         ]:
@@ -31,6 +32,8 @@ class TestVersions(TestCase):
             [None, 1, "23Q1", "23Q2"],
             [None, 2, "23Q4", "24Q2"],
             [None, 7, "23Q2", "25Q1"],
+            [None, 1, "2020-03-28", "2020-03-29"],
+            [None, 8, "2020-03-28", "2020-04-05"],
             [None, 7, "2023-01-01", "2023-08-01"],
             [None, 1, "2023-12-01", "2024-01-01"],
         ]:
