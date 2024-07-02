@@ -65,6 +65,7 @@ def get_previous_version(
             version_obj = version
 
     published_version_strings = get_published_versions(product)
+    logger.info(f"Published versions of {product}: {published_version_strings}")
     published_versions = [
         versions.parse(v) for v in published_version_strings if v != "latest"
     ]
@@ -94,7 +95,11 @@ def try_get_previous_version(
 ) -> versions.Version | None:
     try:
         return get_previous_version(product, version)
-    except (LookupError, ValueError):  # versions not found, or don't parse correctly
+    except (
+        LookupError,
+        ValueError,
+    ) as e:  # versions not found, or don't parse correctly
+        logger.error(f"Error: {e}")
         return None
 
 
