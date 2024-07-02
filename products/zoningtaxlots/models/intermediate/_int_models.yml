@@ -2,12 +2,12 @@ version: 2
 
 models:
   - name: int__commercialoverlay
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dtm_id
-            - overlay
-            - row_number
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
   - name: int__inwoodrezooning
     columns:
       - name: bbl
@@ -35,23 +35,26 @@ models:
           - not_null
           - unique
   - name: int__validdtm
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dtm_id
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
   - name: int__zoningdistricts
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dtm_id
-            - zonedist
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
   - name: int__zoningmapindex
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dtm_id
-            - zoning_map
-            - row_number
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
   - name: int__zoningtaxlots
     columns:
       - name: dtm_id

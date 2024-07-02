@@ -147,17 +147,28 @@ new_order AS (
 lotzoneperorder AS (
     SELECT
         a.dtm_id,
-        a.bbl,
         a.zonedist,
-        segbblgeom,
-        allbblgeom,
-        perbblgeom,
-        segzonegeom,
-        allzonegeom,
-        perzonegeom,
         COALESCE(new.row_number, a.row_number) AS row_number
     FROM lotzoneperorder_init AS a
     LEFT JOIN new_order AS new ON a.dtm_id = new.dtm_id AND a.zonedist = new.zonedist
+),
+
+pivot AS (
+    SELECT
+        a.dtm_id,
+        b1.zonedist AS zoningdistrict1,
+        b2.zonedist AS zoningdistrict2,
+        b3.zonedist AS zoningdistrict3,
+        b4.zonedist AS zoningdistrict4
+    FROM (SELECT DISTINCT dtm_id FROM lotzoneperorder) AS a
+    LEFT JOIN lotzoneperorder AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN lotzoneperorder AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN lotzoneperorder AS b3
+        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
+    LEFT JOIN lotzoneperorder AS b4
+        ON a.dtm_id = b4.dtm_id AND b4.row_number = 4
 )
 
-SELECT * FROM lotzoneperorder
+SELECT * FROM pivot

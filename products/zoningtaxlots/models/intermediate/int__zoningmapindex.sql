@@ -62,13 +62,26 @@ zoningmapperorder AS (
 zoningmapperorder_distinct AS (
     SELECT DISTINCT
         dtm_id,
-        bbl,
         zoning_map,
-        segbblgeom,
         perbblgeom,
-        perzonegeom,
         row_number
     FROM zoningmapperorder
+),
+
+pivot AS (
+    SELECT
+        a.dtm_id,
+        (CASE
+            WHEN b1.perbblgeom >= 10 THEN b1.zoning_map
+        END) AS zoningmapnumber,
+        (CASE
+            WHEN b2.row_number = 2 THEN 'Y'
+        END) AS zoningmapcode
+    FROM (SELECT DISTINCT dtm_id FROM zoningmapperorder_distinct) AS a
+    LEFT JOIN zoningmapperorder_distinct AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN zoningmapperorder_distinct AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
 )
 
-SELECT * FROM zoningmapperorder_distinct
+SELECT * FROM pivot

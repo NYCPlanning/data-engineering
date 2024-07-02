@@ -33,18 +33,19 @@ limitedheightper AS (
 limitedheightperorder AS (
     SELECT
         dtm_id,
-        bbl,
         lhlbl,
-        segbblgeom,
-        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
-        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY dtm_id
-                ORDER BY segbblgeom DESC
-            )
-        AS row_number
+        (segbblgeom / allbblgeom) * 100 AS perbblgeom
     FROM limitedheightper
+),
+
+flag_limited AS (
+    SELECT
+        dtm_id,
+        lhlbl,
+        (CASE
+            WHEN perbblgeom >= 10 THEN lhlbl
+        END) AS limitedheightdistrict
+    FROM limitedheightperorder
 )
 
-SELECT * FROM limitedheightperorder
+SELECT * FROM flag_limited

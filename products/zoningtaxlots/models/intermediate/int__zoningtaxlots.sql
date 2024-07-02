@@ -74,13 +74,11 @@ add_comm AS (
         a.taxblock,
         a.taxlot,
         a.area,
-        b1.overlay AS commercialoverlay1,
-        b2.overlay AS commercialoverlay2
+        b.commercialoverlay1,
+        b.commercialoverlay2
     FROM pop_bbl AS a
-    LEFT JOIN commercialoverlay AS b1
-        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
-    LEFT JOIN commercialoverlay AS b2
-        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN commercialoverlay AS b
+        ON a.dtm_id = b.dtm_id
 ),
 
 -- add specialdistrict
@@ -119,15 +117,13 @@ add_height AS (
         a.specialdistrict1,
         a.specialdistrict2,
         a.specialdistrict3,
-        (CASE
-            WHEN b.perbblgeom >= 10 THEN b.lhlbl
-        END) AS limitedheightdistrict
+        b.limitedheightdistrict
     FROM add_special AS a
     LEFT JOIN limitedheight AS b
         ON a.dtm_id = b.dtm_id
 ),
 
-add_zoningmapnumber AS (
+add_zoningmap AS (
     SELECT
         a.dtm_id,
         a.bbl,
@@ -141,35 +137,11 @@ add_zoningmapnumber AS (
         a.specialdistrict2,
         a.specialdistrict3,
         a.limitedheightdistrict,
-        (CASE
-            WHEN b.perbblgeom >= 10 THEN b.zoning_map
-        END) AS zoningmapnumber
+        b.zoningmapnumber,
+        b.zoningmapcode
     FROM add_height AS a
     LEFT JOIN zoningmapindex AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 1
-),
-
-add_zoningmapcode AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        a.boroughcode,
-        a.taxblock,
-        a.taxlot,
-        a.area,
-        a.commercialoverlay1,
-        a.commercialoverlay2,
-        a.specialdistrict1,
-        a.specialdistrict2,
-        a.specialdistrict3,
-        a.limitedheightdistrict,
-        a.zoningmapnumber,
-        (CASE
-            WHEN b.row_number = 2 THEN 'Y'
-        END) AS zoningmapcode
-    FROM add_zoningmapnumber AS a
-    LEFT JOIN zoningmapindex AS b
-        ON a.dtm_id = b.dtm_id AND b.row_number = 2
+        ON a.dtm_id = b.dtm_id
 ),
 
 add_zoningdistricts AS (
@@ -188,19 +160,13 @@ add_zoningdistricts AS (
         a.limitedheightdistrict,
         a.zoningmapnumber,
         a.zoningmapcode,
-        b1.zonedist AS zoningdistrict1,
-        b2.zonedist AS zoningdistrict2,
-        b3.zonedist AS zoningdistrict3,
-        b4.zonedist AS zoningdistrict4
-    FROM add_zoningmapcode AS a
-    LEFT JOIN zoningdistricts AS b1
-        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
-    LEFT JOIN zoningdistricts AS b2
-        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
-    LEFT JOIN zoningdistricts AS b3
-        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
-    LEFT JOIN zoningdistricts AS b4
-        ON a.dtm_id = b4.dtm_id AND b4.row_number = 4
+        b.zoningdistrict1,
+        b.zoningdistrict2,
+        b.zoningdistrict3,
+        b.zoningdistrict4
+    FROM add_zoningmap AS a
+    LEFT JOIN zoningdistricts AS b
+        ON a.dtm_id = b.dtm_id
 ),
 
 add_inwoodrezooning AS (
@@ -322,65 +288,9 @@ park AS (
     FROM add_inzonechange
 ),
 
-drop_dup AS (
-    SELECT
-        dtm_id,
-        bbl,
-        boroughcode,
-        taxblock,
-        taxlot,
-        area,
-        notes,
-        inzonechange,
-        zoningdistrict1,
-        zoningdistrict2,
-        zoningdistrict3,
-        zoningdistrict4,
-        commercialoverlay1,
-        (CASE
-            WHEN commercialoverlay1 = commercialoverlay2 THEN NULL
-            ELSE commercialoverlay2
-        END) AS commercialoverlay2,
-        specialdistrict1,
-        specialdistrict2,
-        specialdistrict3,
-        limitedheightdistrict,
-        zoningmapnumber,
-        zoningmapcode
-    FROM park
-),
-
-corr_zoninggaps AS (
-    SELECT
-        dtm_id,
-        bbl,
-        boroughcode,
-        taxblock,
-        taxlot,
-        area,
-        notes,
-        inzonechange,
-        zoningdistrict1,
-        zoningdistrict2,
-        zoningdistrict3,
-        zoningdistrict4,
-        (COALESCE(commercialoverlay1, commercialoverlay2)) AS commercialoverlay1,
-        (CASE
-            WHEN commercialoverlay1 IS NULL THEN NULL
-            ELSE commercialoverlay2
-        END) AS commercialoverlay2,
-        specialdistrict1,
-        specialdistrict2,
-        specialdistrict3,
-        limitedheightdistrict,
-        zoningmapnumber,
-        zoningmapcode
-    FROM drop_dup
-),
-
 drop_invalid AS (
     SELECT *
-    FROM corr_zoninggaps
+    FROM park
     WHERE
         (boroughcode IS NOT NULL OR boroughcode != '0')
         OR (taxblock IS NOT NULL OR taxblock != '0')
