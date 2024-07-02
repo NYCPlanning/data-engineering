@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
-from datetime import date
+from datetime import datetime, date, timedelta
 from enum import StrEnum
 from pydantic import BaseModel
 import re
@@ -90,6 +90,38 @@ class Quarter(Version):
 
 
 @dataclass(order=True)
+class Date(Version):
+    year: int
+    month: int
+    day: int
+
+    @property
+    def label(self) -> str:
+        return f"{self.year}-{self.month:02d}-{self.day:02d}"
+
+    def bump(
+        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
+    ) -> Date:
+        if version_subtype is not None:
+            raise Exception(
+                f"Version subtype {version_subtype} not applicable for Date versions"
+            )
+        bump_by = bump_by or 1
+        current_date = datetime.strptime(self.label, "%Y-%m-%d")
+        end_date = current_date + timedelta(days=bump_by)
+        return Date(year=end_date.year, month=end_date.month, day=end_date.day)
+
+    @staticmethod
+    def generate() -> Date:
+        version = parse(date.today().strftime("%Y-%m-%d"))
+        match version:
+            case Date():
+                return version
+            case _:
+                raise Exception("Version parsing failed")
+
+
+@dataclass(order=True)
 class FirstOfMonth(Version):
     year: int
     month: int
@@ -148,6 +180,8 @@ def parse(v: str) -> Version:
             return Quarter(year=int(m[1]), quarter=int(m[2]))
         case r"^(\d{4})-(\d{2})-01$" as m:
             return FirstOfMonth(year=int(m[1]), month=int(m[2]))
+        case r"^(\d{4})-(\d{2})-(\d{2})$" as m:
+            return Date(year=int(m[1]), month=int(m[2]), day=int(m[3]))
         case _:
             raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
