@@ -177,6 +177,23 @@ def parse(v: str) -> Version:
             )
 
 
+def sort(versions: list[Version]) -> list[Version]:
+    version_types = set([type(v) for v in versions])
+    # can't compare different types
+    if len(version_types) != 1:
+        # only handle date-like versions
+        if version_types.issubset(set([Date, FirstOfMonth])):
+            return sorted(
+                versions,
+                key=lambda version: datetime.strptime(version.label, "%y-%m-%d"),
+            )
+        else:
+            raise TypeError(
+                f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
+            )
+    return sorted(versions)
+
+
 def bump(
     previous_version: str,
     bump_type: VersionSubType | None = None,
