@@ -25,7 +25,7 @@ freq AS (
         count(zoning_map_number) AS zoning_map_number,
         count(zoning_map_code) AS zoning_map_code,
         count(area) AS area,
-        'new_version' AS version
+        'VERSION' AS version
     FROM new_version
 )
 

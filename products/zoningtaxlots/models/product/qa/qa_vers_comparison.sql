@@ -7,7 +7,7 @@ WITH new_version AS (
 ),
 
 prev_version AS (
-    SELECT * FROM {{ source('recipe_sources', 'dcp_zoningtaxlots') }}
+    SELECT * FROM {{ source('recipe_sources', 'previous_ztl') }}
 ),
 
 pivot_mismatch AS (
