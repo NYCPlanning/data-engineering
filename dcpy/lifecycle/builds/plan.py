@@ -62,9 +62,13 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         recipe.product, recipe.version
     )
     if previous_recipe is not None:
+        logger.info(
+            f"Previous version of {recipe.product}: {previous_recipe.label} ({previous_recipe})"
+        )
         recipe.vars["VERSION_PREV"] = previous_recipe.label
 
     # Add vars to environ so both can be accessed in environ
+    logger.info(f"Export envars: {recipe.vars}")
     os.environ.update(recipe.vars)
 
     # merge in base recipe inputs
