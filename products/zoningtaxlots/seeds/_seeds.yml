@@ -13,5 +13,5 @@ seeds:
           - unique
   - name: specialdistrict_priority 
     columns:
-    - name: sdlabel1
-    - name: sdlabel2
+    - name: sdlbl
+    - name: priority
