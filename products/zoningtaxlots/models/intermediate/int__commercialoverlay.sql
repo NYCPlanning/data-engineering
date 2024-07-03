@@ -30,60 +30,38 @@ commoverlayper AS (
         ON ST_INTERSECTS(p.geom, n.geom)
 ),
 
+filtered AS (
+    SELECT
+        dtm_id,
+        overlay,
+        segbblgeom,
+        segzonegeom
+    FROM commoverlayper
+    WHERE (segbblgeom / allbblgeom) * 100 >= 10 OR (segzonegeom / allzonegeom) * 100 >= 50
+),
+
+grouped AS (
+    SELECT
+        dtm_id,
+        overlay,
+        SUM(segbblgeom) AS segbblgeom,
+        SUM(segzonegeom) AS segzonegeom
+    FROM filtered
+    GROUP BY dtm_id, overlay
+),
+
 commoverlayperorder AS (
     SELECT
         dtm_id,
-        bbl,
         overlay,
-        segbblgeom,
-        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
-        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
         ROW_NUMBER()
             OVER (
                 PARTITION BY dtm_id
                 ORDER BY segbblgeom DESC, segzonegeom DESC
             )
         AS row_number
-    FROM commoverlayper
-),
-
-filtered AS (
-    SELECT * FROM commoverlayperorder
-    WHERE perbblgeom >= 10 OR perzonegeom >= 50
-),
-
-pivot AS (
-    SELECT
-        a.dtm_id,
-        b1.overlay AS commercialoverlay1,
-        b2.overlay AS commercialoverlay2
-    FROM (SELECT DISTINCT dtm_id FROM filtered) AS a
-    LEFT JOIN filtered AS b1
-        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
-    LEFT JOIN filtered AS b2
-        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
-),
-
-drop_dup AS (
-    SELECT
-        dtm_id,
-        commercialoverlay1,
-        (CASE
-            WHEN commercialoverlay1 = commercialoverlay2 THEN NULL
-            ELSE commercialoverlay2
-        END) AS commercialoverlay2
-    FROM pivot
-),
-
-corr_zoninggaps AS (
-    SELECT
-        dtm_id,
-        (COALESCE(commercialoverlay1, commercialoverlay2)) AS commercialoverlay1,
-        (CASE
-            WHEN commercialoverlay1 IS NULL THEN NULL
-            ELSE commercialoverlay2
-        END) AS commercialoverlay2
-    FROM drop_dup
+    FROM grouped
 )
 
-SELECT * FROM corr_zoninggaps
+
+SELECT * FROM commoverlayperorder

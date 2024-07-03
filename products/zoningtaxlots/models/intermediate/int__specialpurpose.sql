@@ -13,7 +13,6 @@ specialdistrict_priority AS (
 specialpurposeper AS (
     SELECT
         p.dtm_id,
-        p.bbl,
         n.sdlbl,
         ST_AREA(
             CASE
@@ -37,11 +36,9 @@ specialpurposeper AS (
 specialpurposeperorder_init AS (
     SELECT
         dtm_id,
-        bbl,
         sdlbl,
-        segbblgeom,
         (segbblgeom / allbblgeom) * 100 AS perbblgeom,
-        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+        segbblgeom,
         -- per sp district type, rank by 
         --   1) if lot meets 10% coverage by sp district threshold
         --   2) area of coverage
@@ -56,48 +53,18 @@ specialpurposeperorder_init AS (
 
 specialpurposeperorder AS (
     SELECT
-        dtm_id,
-        bbl,
-        sdlbl,
-        segbblgeom,
-        ROW_NUMBER() OVER (PARTITION BY dtm_id ORDER BY segbblgeom ASC, sdlbl DESC) AS row_number
-    FROM specialpurposeperorder_init
-    WHERE
-        perbblgeom >= 10
-        OR sd_row_number = 1
-),
-
-pivot AS (
-    SELECT
         a.dtm_id,
-        a.bbl,
-        b1.sdlbl AS specialdistrict1,
-        b2.sdlbl AS specialdistrict2,
-        b3.sdlbl AS specialdistrict3
-    FROM (SELECT DISTINCT
-        dtm_id,
-        bbl
-    FROM specialpurposeperorder) AS a
-    LEFT JOIN specialpurposeperorder AS b1
-        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
-    LEFT JOIN specialpurposeperorder AS b2
-        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
-    LEFT JOIN specialpurposeperorder AS b3
-        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
-),
-
-set_sd_order AS (
-    SELECT
-        a.dtm_id,
-        a.bbl,
-        (COALESCE(b.sdlabel1, a.specialdistrict1)) AS specialdistrict1,
-        (COALESCE(b.sdlabel2, a.specialdistrict2)) AS specialdistrict2,
-        a.specialdistrict3
-    FROM pivot AS a
+        a.sdlbl,
+        b.priority,
+        ROW_NUMBER()
+            OVER (PARTITION BY a.dtm_id ORDER BY a.segbblgeom DESC, b.priority ASC, a.sdlbl ASC)
+        AS row_number
+    FROM specialpurposeperorder_init AS a
     LEFT JOIN specialdistrict_priority AS b
-        ON
-            (a.specialdistrict1 = b.sdlabel1 AND a.specialdistrict2 = b.sdlabel2)
-            OR (a.specialdistrict1 = b.sdlabel2 AND a.specialdistrict2 = b.sdlabel1)
+        ON a.sdlbl = b.sdlbl
+    WHERE
+        a.perbblgeom >= 10
+        OR a.sd_row_number = 1
 )
 
-SELECT * FROM set_sd_order
+SELECT * FROM specialpurposeperorder

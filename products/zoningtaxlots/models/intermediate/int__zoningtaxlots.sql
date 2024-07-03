@@ -65,7 +65,6 @@ pop_bbl AS (
 ),
 
 -- add commercialoverlay
-
 add_comm AS (
     SELECT
         a.dtm_id,
@@ -74,12 +73,15 @@ add_comm AS (
         a.taxblock,
         a.taxlot,
         a.area,
-        b.commercialoverlay1,
-        b.commercialoverlay2
+        b1.overlay AS commercialoverlay1,
+        b2.overlay AS commercialoverlay2
     FROM pop_bbl AS a
-    LEFT JOIN commercialoverlay AS b
-        ON a.dtm_id = b.dtm_id
+    LEFT JOIN commercialoverlay AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN commercialoverlay AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
 ),
+
 
 -- add specialdistrict
 
@@ -93,12 +95,16 @@ add_special AS (
         a.area,
         a.commercialoverlay1,
         a.commercialoverlay2,
-        b.specialdistrict1,
-        b.specialdistrict2,
-        b.specialdistrict3
+        b1.sdlbl AS specialdistrict1,
+        b2.sdlbl AS specialdistrict2,
+        b3.sdlbl AS specialdistrict3
     FROM add_comm AS a
-    LEFT JOIN specialpurpose AS b
-        ON a.dtm_id = b.dtm_id
+    LEFT JOIN specialpurpose AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN specialpurpose AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN specialpurpose AS b3
+        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
 ),
 
 
@@ -137,11 +143,17 @@ add_zoningmap AS (
         a.specialdistrict2,
         a.specialdistrict3,
         a.limitedheightdistrict,
-        b.zoningmapnumber,
-        b.zoningmapcode
+        (CASE
+            WHEN b1.perbblgeom >= 10 THEN b1.zoning_map
+        END) AS zoningmapnumber,
+        (CASE
+            WHEN b2.row_number = 2 THEN 'Y'
+        END) AS zoningmapcode
     FROM add_height AS a
-    LEFT JOIN zoningmapindex AS b
-        ON a.dtm_id = b.dtm_id
+    LEFT JOIN zoningmapindex AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN zoningmapindex AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
 ),
 
 add_zoningdistricts AS (
@@ -160,13 +172,19 @@ add_zoningdistricts AS (
         a.limitedheightdistrict,
         a.zoningmapnumber,
         a.zoningmapcode,
-        b.zoningdistrict1,
-        b.zoningdistrict2,
-        b.zoningdistrict3,
-        b.zoningdistrict4
+        b1.zonedist AS zoningdistrict1,
+        b2.zonedist AS zoningdistrict2,
+        b3.zonedist AS zoningdistrict3,
+        b4.zonedist AS zoningdistrict4
     FROM add_zoningmap AS a
-    LEFT JOIN zoningdistricts AS b
-        ON a.dtm_id = b.dtm_id
+    LEFT JOIN zoningdistricts AS b1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
+    LEFT JOIN zoningdistricts AS b2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
+    LEFT JOIN zoningdistricts AS b3
+        ON a.dtm_id = b3.dtm_id AND b3.row_number = 3
+    LEFT JOIN zoningdistricts AS b4
+        ON a.dtm_id = b4.dtm_id AND b4.row_number = 4
 ),
 
 add_inwoodrezooning AS (

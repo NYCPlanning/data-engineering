@@ -9,7 +9,6 @@ dcp_limitedheight AS (
 limitedheightper AS (
     SELECT
         p.dtm_id,
-        p.bbl,
         n.lhlbl,
         ST_AREA(
             CASE
@@ -17,14 +16,7 @@ limitedheightper AS (
                 ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
-        ST_AREA(
-            CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
-            END
-        ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        ST_AREA(p.geom) AS allbblgeom
     FROM validdtm AS p
     INNER JOIN dcp_limitedheight AS n
         ON ST_INTERSECTS(p.geom, n.geom)
@@ -33,19 +25,9 @@ limitedheightper AS (
 limitedheightperorder AS (
     SELECT
         dtm_id,
-        lhlbl,
-        (segbblgeom / allbblgeom) * 100 AS perbblgeom
+        lhlbl AS limitedheightdistrict
     FROM limitedheightper
-),
-
-flag_limited AS (
-    SELECT
-        dtm_id,
-        lhlbl,
-        (CASE
-            WHEN perbblgeom >= 10 THEN lhlbl
-        END) AS limitedheightdistrict
-    FROM limitedheightperorder
+    WHERE (segbblgeom / allbblgeom) * 100 >= 10
 )
 
-SELECT * FROM flag_limited
+SELECT * FROM limitedheightperorder
