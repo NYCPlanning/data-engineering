@@ -46,10 +46,15 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     destination_file_name: str | None = None
 
 
+class RemoteFile(BaseModel, extra="forbid"):
+    name: str
+    url: str
+
+
 class BytesDestination(BaseModel, extra="forbid"):
     type: Literal["bytes"]
     id: str
-    datasets: list[str]
+    files: list[RemoteFile]
     overrides: DatasetOverrides = DatasetOverrides()
 
 
@@ -117,10 +122,13 @@ class SocrataDestination(BaseModel, extra="forbid"):
         return soc_cols
 
 
-class DatasetFile(BaseModel, extra="forbid"):
+class File(BaseModel, extra="forbid"):
     name: str
     type: str
     filename: str
+
+
+class DatasetFile(File, extra="forbid"):
     overrides: DatasetOverrides = DatasetOverrides()
 
     def get_columns(self, metadata: Metadata) -> list[Column]:
@@ -135,15 +143,26 @@ class DatasetFile(BaseModel, extra="forbid"):
         return cols
 
 
+class ZipFile(File, extra="forbid"):
+    type: Literal["Zip"] = "Zip"
+    contains: list[str]
+
+
 class Package(BaseModel, extra="forbid"):
     dataset_files: list[DatasetFile]
     attachments: list[str]
+    zip_files: list[ZipFile] = []
 
     def get_dataset(self, ds_id: str) -> DatasetFile:
         ds = [d for d in self.dataset_files if d.name == ds_id]
         if len(ds) == 1:
             return ds[0]
         raise Exception(f"No dataset named {ds_id}")
+
+    def _files_by_name(self):
+        return {ds.name: ds for ds in self.dataset_files + self.zip_files} | {
+            ds: ds for ds in self.attachments
+        }
 
 
 class Metadata(BaseModel, extra="forbid"):

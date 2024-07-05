@@ -251,6 +251,13 @@ columns:
     readme_data_type: geometry
 
 package:
+  zip_files:
+  - name: csv_package
+    filename: csv_package.zip
+    contains:
+      - primary_csv
+      - colp_readme.pdf
+      - colp_readme.pdf
   dataset_files:
     - name: primary_shapefile
       filename: colp_single_feature_shp.zip
@@ -272,10 +279,16 @@ package:
       type: csv
       overrides:
         omit_columns: ["GEOM"]
+    - name: secondary_csv
+      filename: colp_single_feature_secondary.csv
+      type: csv
+      overrides:
+        omit_columns: ["GEOM"]
   attachments:
     - colp_readme.pdf
 
 destinations:
+  # Socrata
   - id: socrata_prod
     type: socrata
     four_four: "fn4k-qyk2"
@@ -286,7 +299,6 @@ destinations:
     omit_columns: [dcpedited, uid]
     overrides:
       display_name: "display_name overridden at the destination level"
-
   - id: socrata_unparsed
     type: socrata
     four_four: "fn4k-abcd"
@@ -299,3 +311,11 @@ destinations:
     overrides:
       display_name: "display_name overridden at the destination level"
       destination_file_name: shapefile_blob_{{ version }}
+  # BYTES
+  - id: bytes
+    type: bytes
+    files:
+      - name: csv_package
+        url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
+      - name: colp_readme.pdf
+        url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/colp_readme.pdf
