@@ -37,7 +37,7 @@ def test_missing_attachments():
     validation = validate.validate_package(COLP_PACKAGE_PATH, overridden_md)
     assert (
         len(validation.errors) == 1
-    ), "An error should have been found for the missing attachment"
+    ), f"An error should have been found for the missing attachment. Found: {validation.errors}"
 
     assert fake_attachment_name in validation.errors[0].message
 

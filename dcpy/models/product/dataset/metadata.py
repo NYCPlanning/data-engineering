@@ -124,8 +124,8 @@ class SocrataDestination(BaseModel, extra="forbid"):
 
 class File(BaseModel, extra="forbid"):
     name: str
-    type: str
-    filename: str
+    type: str | None = None
+    filename: str | None = None
 
 
 class DatasetFile(File, extra="forbid"):
@@ -145,7 +145,7 @@ class DatasetFile(File, extra="forbid"):
 
 class ZipFile(File, extra="forbid"):
     type: Literal["Zip"] = "Zip"
-    contains: list[str]
+    contains: list[File]
 
 
 class Package(BaseModel, extra="forbid"):
