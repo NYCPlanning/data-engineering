@@ -20,6 +20,7 @@ validindex AS (
 zoningmapper AS (
     SELECT
         dtm_id,
+        p.bbl,
         n.zoning_map,
         ST_AREA(
             CASE
@@ -27,6 +28,12 @@ zoningmapper AS (
                 ELSE ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
             END
         ) AS segbblgeom,
+        ST_AREA(
+            CASE
+                WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom)) THEN n.geom
+                ELSE ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
+            END
+        ) AS segzonegeom,
         ST_AREA(p.geom) AS allbblgeom
     FROM validdtm AS p
     INNER JOIN validindex AS n
@@ -36,8 +43,10 @@ zoningmapper AS (
 zoningmapperorder AS (
     SELECT
         dtm_id,
+        bbl,
         zoning_map,
         segbblgeom,
+        segzonegeom,
         (segbblgeom / allbblgeom) * 100 AS perbblgeom
     FROM zoningmapper
     WHERE allbblgeom > 0
@@ -46,6 +55,9 @@ zoningmapperorder AS (
 ordered AS (
     SELECT
         dtm_id,
+        bbl,
+        segbblgeom,
+        segzonegeom,
         zoning_map,
         perbblgeom,
         ROW_NUMBER()

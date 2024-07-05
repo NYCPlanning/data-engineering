@@ -33,6 +33,7 @@ commoverlayper AS (
 filtered AS (
     SELECT
         dtm_id,
+        bbl,
         overlay,
         segbblgeom,
         segzonegeom
@@ -43,16 +44,20 @@ filtered AS (
 grouped AS (
     SELECT
         dtm_id,
+        bbl,
         overlay,
         SUM(segbblgeom) AS segbblgeom,
         SUM(segzonegeom) AS segzonegeom
     FROM filtered
-    GROUP BY dtm_id, overlay
+    GROUP BY dtm_id, bbl, overlay
 ),
 
 commoverlayperorder AS (
     SELECT
         dtm_id,
+        bbl,
+        segbblgeom,
+        segzonegeom,
         overlay,
         ROW_NUMBER()
             OVER (

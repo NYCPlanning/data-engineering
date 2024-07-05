@@ -13,6 +13,7 @@ specialdistrict_priority AS (
 specialpurposeper AS (
     SELECT
         p.dtm_id,
+        p.bbl,
         n.sdlbl,
         ST_AREA(
             CASE
@@ -36,9 +37,11 @@ specialpurposeper AS (
 specialpurposeperorder_init AS (
     SELECT
         dtm_id,
+        bbl,
         sdlbl,
         (segbblgeom / allbblgeom) * 100 AS perbblgeom,
         segbblgeom,
+        segzonegeom,
         -- per sp district type, rank by 
         --   1) if lot meets 10% coverage by sp district threshold
         --   2) area of coverage
@@ -54,7 +57,10 @@ specialpurposeperorder_init AS (
 specialpurposeperorder AS (
     SELECT
         a.dtm_id,
+        a.bbl,
         a.sdlbl,
+        a.segbblgeom,
+        a.segzonegeom,
         b.priority,
         ROW_NUMBER()
             OVER (PARTITION BY a.dtm_id ORDER BY a.segbblgeom DESC, b.priority ASC, a.sdlbl ASC)
