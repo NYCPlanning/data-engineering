@@ -8,6 +8,7 @@ import shutil
 import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 from dcpy.lifecycle import WORKING_DIRECTORIES
+from dcpy.connectors.edm import packaging
 
 ASSEMBLY_DIR = WORKING_DIRECTORIES.packaging / ".assembly"
 
@@ -17,6 +18,8 @@ def from_bytes(
 ):
     out_dir = ASSEMBLY_DIR / product / version / dataset
     out_dir.mkdir(exist_ok=True, parents=True)
+
+    product_metadata.templated_source_metadata_to_file(Path(out_dir / "metadata.yml"))
 
     for bytes_dest in [d for d in product_metadata.destinations if d.type == "bytes"]:
         package_files = product_metadata.package._files_by_name()
@@ -38,3 +41,15 @@ def from_bytes(
                             Path(temp_unpacked_dir) / contained_file.filename,  # type: ignore
                             out_dir / cf_file_name,
                         )
+
+
+app = typer.Typer()
+
+
+@app.command("from_bytes")
+def _from_bytes_cli(metadata_path: Path, product: str, version: str, dataset: str):
+    md = models.Metadata.from_path(
+        metadata_path,
+        template_vars={"version": version},
+    )
+    from_bytes(md, product, version, dataset)

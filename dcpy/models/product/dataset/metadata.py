@@ -177,15 +177,29 @@ class Metadata(BaseModel, extra="forbid"):
     package: Package
     columns: list[Column]
 
-    @staticmethod
-    def from_path(path: Path, *, template_vars=None):
-        with open(path, "r") as raw:
-            logger.info(f"Templating the metadata with vars: {template_vars}")
-            templated = jinja2.Template(
-                raw.read(), undefined=jinja2.StrictUndefined
-            ).render(template_vars or {})
+    # Hold onto this for serialization, to avoid Pydantics reformatting of the metadata.yml
+    _templated_source_metadata: str
 
-            return Metadata(**yaml.safe_load(templated))  # type: ignore
+    def __init__(self, templated_source_metadata: str, **data):
+        super().__init__(**data)
+        self._templated_source_metadata = templated_source_metadata
+
+    @staticmethod
+    def from_yaml(yaml_str: str, *, template_vars=None):
+        logger.info(f"Templating the metadata with vars: {template_vars}")
+        templated = jinja2.Template(yaml_str, undefined=jinja2.StrictUndefined).render(
+            template_vars or {}
+        )
+        return Metadata(templated_source_metadata=templated, **yaml.safe_load(templated))  # type: ignore
+
+    @classmethod
+    def from_path(cls, path: Path, *, template_vars=None):
+        with open(path, "r") as raw:
+            return cls.from_yaml(raw.read(), template_vars=template_vars)
+
+    def write_source_metadata_to_file(self, path: Path):
+        with open(path, "w") as f:
+            f.write(self._templated_source_metadata)
 
     def get_destination(self, dest_id) -> BytesDestination | SocrataDestination:
         ds = [d for d in self.destinations if d.id == dest_id]

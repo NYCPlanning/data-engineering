@@ -302,7 +302,7 @@ def validate_package_from_path(
     return validate_package(package_path=package_path, metadata=metadata)
 
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer()
 
 
 @app.command()
@@ -311,11 +311,11 @@ def _validate(
     metadata_path: Path = typer.Option(
         None, "-m", "--metadata-path", help="(Optional) Metadata Path"
     ),
-    metadata_args: dict = typer.Option(..., callback=ast.literal_eval),
+    metadata_args: str = typer.Option(..., callback=ast.literal_eval),
 ):
     validation = validate_package_from_path(
         package_path,
         metadata_path,
-        metadata_args=metadata_args,
+        metadata_args=metadata_args,  # type: ignore
     )
     validation.pretty_print_errors()
