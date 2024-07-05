@@ -25,7 +25,7 @@ freq AS (
         count(zoning_map_number) AS zoning_map_number,
         count(zoning_map_code) AS zoning_map_code,
         count(area) AS area,
-        'VERSION' AS version
+        '{{env_var('VERSION')}}'::text AS version
     FROM new_version
 )
 

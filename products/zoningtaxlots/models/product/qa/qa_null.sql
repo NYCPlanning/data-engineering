@@ -29,8 +29,8 @@ qaqc_new_nulls AS (
         newnull.field,
         newnull.count AS value_to_null,
         newvalue.count AS null_to_value,
-        'VERSION' AS version,
-        'VERSION_PREV' AS version_prev
+        '{{env_var('VERSION')}}'::text AS version,
+        '{{env_var('VERSION_PREV')}}'::text AS version_prev
     FROM newnull LEFT JOIN newvalue
         ON newnull.field = newvalue.field
     ORDER BY value_to_null ASC, null_to_value DESC

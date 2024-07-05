@@ -29,8 +29,8 @@ mismatch AS (
         {{not_equal_or_null('a', 'b', 'limited_height_district')}} AS limited_height_district,
         {{not_equal_or_null('a', 'b', 'zoning_map_number')}} AS zoning_map_number,
         {{not_equal_or_null('a', 'b', 'zoning_map_code')}} AS zoning_map_code,
-        'VERSION' AS version,
-        'VERSION_PREV' AS version_prev
+        '{{env_var('VERSION')}}'::text AS version,
+        '{{env_var('VERSION_PREV')}}'::text AS version_prev
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl
