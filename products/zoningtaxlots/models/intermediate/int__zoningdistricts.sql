@@ -48,7 +48,7 @@ lotzoneper_grouped AS (
         SUM(segzonegeom) AS segzonegeom,
         SUM(allzonegeom) AS allzonegeom
     FROM lotzoneper
-    GROUP BY dtm_id, bbl, allbblgeom, zonedist
+    GROUP BY dtm_id, allbblgeom, zonedist, bbl
 ),
 
 initial_rankings AS (
@@ -106,6 +106,9 @@ lotzoneperorder_init AS (
 group_column_added AS (
     SELECT
         dtm_id,
+        bbl,
+        segbblgeom,
+        segzonegeom,
         -- this is not summing by any sql grouping, but rather summing in a window function as the rows are iterated through
         -- output column ends up being a grouping of lot/zone pairings that are "tied" within some limit and should be reordered
         --     based on ranking in zonedist_priority
@@ -147,14 +150,7 @@ new_order AS (
 lotzoneperorder AS (
     SELECT
         a.dtm_id,
-        a.bbl,
         a.zonedist,
-        segbblgeom,
-        allbblgeom,
-        perbblgeom,
-        segzonegeom,
-        allzonegeom,
-        perzonegeom,
         COALESCE(new.row_number, a.row_number) AS row_number
     FROM lotzoneperorder_init AS a
     LEFT JOIN new_order AS new ON a.dtm_id = new.dtm_id AND a.zonedist = new.zonedist

@@ -6,6 +6,10 @@ dcp_specialpurpose AS (
     SELECT * FROM {{ ref('stg__dcp_specialpurpose') }}
 ),
 
+specialdistrict_priority AS (
+    SELECT * FROM {{ ref('specialdistrict_priority') }}
+),
+
 specialpurposeper AS (
     SELECT
         p.dtm_id,
@@ -35,9 +39,9 @@ specialpurposeperorder_init AS (
         dtm_id,
         bbl,
         sdlbl,
-        segbblgeom,
         (segbblgeom / allbblgeom) * 100 AS perbblgeom,
-        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+        segbblgeom,
+        segzonegeom,
         -- per sp district type, rank by 
         --   1) if lot meets 10% coverage by sp district threshold
         --   2) area of coverage
@@ -52,15 +56,21 @@ specialpurposeperorder_init AS (
 
 specialpurposeperorder AS (
     SELECT
-        dtm_id,
-        bbl,
-        sdlbl,
-        segbblgeom,
-        ROW_NUMBER() OVER (PARTITION BY dtm_id ORDER BY segbblgeom ASC, sdlbl DESC) AS row_number
-    FROM specialpurposeperorder_init
+        a.dtm_id,
+        a.bbl,
+        a.sdlbl,
+        a.segbblgeom,
+        a.segzonegeom,
+        b.priority,
+        ROW_NUMBER()
+            OVER (PARTITION BY a.dtm_id ORDER BY a.segbblgeom DESC, b.priority ASC, a.sdlbl ASC)
+        AS row_number
+    FROM specialpurposeperorder_init AS a
+    LEFT JOIN specialdistrict_priority AS b
+        ON a.sdlbl = b.sdlbl
     WHERE
-        perbblgeom >= 10
-        OR sd_row_number = 1
+        a.perbblgeom >= 10
+        OR a.sd_row_number = 1
 )
 
 SELECT * FROM specialpurposeperorder

@@ -28,14 +28,13 @@ zoningmapper AS (
                 ELSE ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
         ST_AREA(
             CASE
                 WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom)) THEN n.geom
                 ELSE ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
             END
         ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        ST_AREA(p.geom) AS allbblgeom
     FROM validdtm AS p
     INNER JOIN validindex AS n
         ON ST_INTERSECTS(p.geom, n.geom)
@@ -47,28 +46,27 @@ zoningmapperorder AS (
         bbl,
         zoning_map,
         segbblgeom,
-        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
-        (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+        segzonegeom,
+        (segbblgeom / allbblgeom) * 100 AS perbblgeom
+    FROM zoningmapper
+    WHERE allbblgeom > 0
+),
+
+ordered AS (
+    SELECT
+        dtm_id,
+        bbl,
+        segbblgeom,
+        segzonegeom,
+        zoning_map,
+        perbblgeom,
         ROW_NUMBER()
             OVER (
                 PARTITION BY dtm_id
                 ORDER BY segbblgeom DESC
             )
         AS row_number
-    FROM zoningmapper
-    WHERE allbblgeom > 0
-),
-
-zoningmapperorder_distinct AS (
-    SELECT DISTINCT
-        dtm_id,
-        bbl,
-        zoning_map,
-        segbblgeom,
-        perbblgeom,
-        perzonegeom,
-        row_number
     FROM zoningmapperorder
 )
 
-SELECT * FROM zoningmapperorder_distinct
+SELECT * FROM ordered

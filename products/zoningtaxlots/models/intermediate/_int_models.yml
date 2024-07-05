@@ -2,18 +2,30 @@ version: 2
 
 models:
   - name: int__commercialoverlay
+    columns:
+      - name: dtm_id
+      - name: bbl
+      - name: segbblgeom
+      - name: segzonegeom
+      - name: overlay
+      - name: row_number
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - dtm_id
             - overlay
-            - row_number
   - name: int__inwoodrezooning
     columns:
       - name: bbl
         data_type: string
         tests:
           - not_null
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: notes 
   - name: int__inzonechange
     columns:
       - name: dtm_id
@@ -21,39 +33,88 @@ models:
         tests:
           - not_null
           - unique
+      - name: inzonechange
   - name: int__limitedheight
+    columns:
+      - name: dtm_id
+      - name: bbl
+      - name: segbblgeom
+      - name: segzonegeom
+      - name: limitedheightdistrict
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - dtm_id
-            - lhlbl
+            - limitedheightdistrict
   - name: int__specialpurpose
+    columns:
+      - name: dtm_id
+      - name: bbl
+      - name: sdlbl
+      - name: segbblgeom
+      - name: segzonegeom
+      - name: priority
+      - name: row_number
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - dtm_id
             - sdlbl
   - name: int__validdtm
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - dtm_id
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: bbl
+      - name: geom 
   - name: int__zoningdistricts
+    columns:
+      - name: dtm_id
+      - name: zonedist
+      - name: row_number
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - dtm_id
             - zonedist
   - name: int__zoningmapindex
+    columns:
+      - name: dtm_id
+      - name: bbl
+      - name: segbblgeom
+      - name: segzonegeom
+      - name: zoning_map
+      - name: perbblgeom
+      - name: row_number
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - dtm_id
             - zoning_map
-            - row_number
+            - perbblgeom
   - name: int__zoningtaxlots
     columns:
       - name: dtm_id
         tests:
           - not_null
           - unique
+      - name: boroughcode
+      - name: taxblock
+      - name: taxlot
+      - name: bbl
+      - name: zoningdistrict1
+      - name: zoningdistrict2
+      - name: zoningdistrict3
+      - name: zoningdistrict4
+      - name: commercialoverlay1
+      - name: commercialoverlay2
+      - name: specialdistrict1
+      - name: specialdistrict2
+      - name: specialdistrict3
+      - name: limitedheightdistrict
+      - name: zoningmapnumber
+      - name: zoningmapcode
+      - name: area
+      - name: inzonechange
