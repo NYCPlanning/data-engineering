@@ -102,23 +102,12 @@ class Date(Version):
     def bump(
         self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
     ) -> Date:
-        if version_subtype is not None:
-            raise Exception(
-                f"Version subtype {version_subtype} not applicable for Date versions"
-            )
-        bump_by = bump_by or 1
-        current_date = datetime.strptime(self.label, "%Y-%m-%d")
-        end_date = current_date + timedelta(days=bump_by)
-        return Date(year=end_date.year, month=end_date.month, day=end_date.day)
+        raise NotImplementedError("Date version cannot be bumped")
 
     @staticmethod
-    def generate() -> Date:
-        version = parse(date.today().strftime("%Y-%m-%d"))
-        match version:
-            case Date():
-                return version
-            case _:
-                raise Exception("Version parsing failed")
+    def from_todays_date() -> Date:
+        today = date.today()
+        return Date(year=today.year, month=today.month, day=today.day)
 
 
 @dataclass(order=True)
