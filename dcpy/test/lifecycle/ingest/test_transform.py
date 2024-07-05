@@ -11,7 +11,7 @@ from dcpy.models.file import Format
 from dcpy.models.lifecycle.ingest import FunctionCall
 from dcpy.lifecycle.ingest import transform
 
-from dcpy.utils import data
+from dcpy.utils import dataframe
 from . import RESOURCES, TEST_DATA_DIR
 
 
@@ -67,7 +67,7 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
     assert output_file_path.is_file()
 
     output_df = pd.read_parquet(output_file_path)
-    raw_df = data.read_data_to_df(
+    raw_df = dataframe.read_file(
         data_format=file["format"], local_data_path=file["local_file_path"]
     )
 

@@ -1,17 +1,15 @@
 import json
 import pandas as pd
 import geopandas as gpd
-
 from pathlib import Path
 
 from dcpy.models import file
+from dcpy.utils.file import unzip
 from dcpy.utils.logging import logger
 from dcpy.utils.geospatial.transform import df_to_gdf
 
-import zipfile
 
-
-def read_data_to_df(
+def read_file(
     data_format: file.Format, local_data_path: Path
 ) -> gpd.GeoDataFrame | pd.DataFrame:
     """
@@ -45,7 +43,7 @@ def read_data_to_df(
         unzipped_filename = data_format.unzipped_filename
         unzipped_file_path = extracted_files_dir / unzipped_filename
 
-        unzipped_files = unzip_file(
+        unzipped_files = unzip(
             zipped_filename=local_data_path, output_dir=extracted_files_dir
         )
 
@@ -120,35 +118,10 @@ def read_data_to_df(
     return gdf
 
 
-def unzip_file(zipped_filename: Path, output_dir: Path) -> list[str]:
-    """
-    Extracts file(s) from a specified zipped file into an output directory.
-    Output directory doesn't need to exist.
-
-    Parameters:
-        zipped_filename (Path): Path to the zip archive to be extracted.
-        output_dir (Path): Path to the directory where files will be extracted.
-
-    Returns:
-        list[str]: A list of filenames of the extracted files.
-
-    Raises:
-        AssertionError: If the zip archive does not exist.
-    """
-
-    assert (
-        zipped_filename.exists()
-    ), f"❌ Provided path {zipped_filename} to zipped file wasn't found. Try again"
-
-    with zipfile.ZipFile(zipped_filename, "r") as zip_ref:
-        zip_ref.extractall(output_dir)
-        extracted_files = zip_ref.namelist()
-
-    logger.info(
-        f"✅ Successfully extracted the following file(s) from {zipped_filename}: {extracted_files}"
-    )
-
-    return extracted_files
+def to_json(df: pd.DataFrame) -> str:
+    """Converts pandas dataframe to pretty json
+    Prints as json array rather than standard to_json"""
+    return json.dumps(json.loads(df.to_json(orient="records")), indent=4)
 
 
 def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:
