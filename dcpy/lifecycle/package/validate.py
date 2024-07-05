@@ -295,7 +295,7 @@ def validate_package_from_path(
     metadata_override_path: Path | None = None,
     metadata_args: dict | None = None,
 ) -> PackageValidation:
-    metadata = models.Metadata.from_yaml(
+    metadata = models.Metadata.from_path(
         (metadata_override_path or package_path) / "metadata.yml",
         template_vars=metadata_args,
     )

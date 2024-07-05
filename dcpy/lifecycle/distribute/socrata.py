@@ -46,7 +46,7 @@ def _dist_from_local(
         help="Skip Validation Altogether",
     ),
 ):
-    md = m.Metadata.from_yaml(
+    md = m.Metadata.from_path(
         metadata_path or package_path / "metadata.yml",
         template_vars={"version": version},
     )  # TODO: Determine the right time to do metadata templating. Ie. Should any metadata in our packages already be templated?

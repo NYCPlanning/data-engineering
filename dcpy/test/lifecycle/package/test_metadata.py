@@ -20,7 +20,7 @@ rd = random.Random()
 rd.seed(0)
 faker = Faker()
 
-metadata = md.from_yaml(METADATA_PATH)
+metadata = md.from_path(METADATA_PATH)
 
 
 class DCPFakes:

@@ -178,7 +178,7 @@ class Metadata(BaseModel, extra="forbid"):
     columns: list[Column]
 
     @staticmethod
-    def from_yaml(path: Path, *, template_vars=None):
+    def from_path(path: Path, *, template_vars=None):
         with open(path, "r") as raw:
             logger.info(f"Templating the metadata with vars: {template_vars}")
             templated = jinja2.Template(

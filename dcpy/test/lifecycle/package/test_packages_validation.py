@@ -15,7 +15,7 @@ RAW_MD = yaml.safe_load(open(METADATA_PATH, "r"))
 
 
 def _get_colp_md():
-    return md.Metadata.from_yaml(METADATA_PATH, template_vars={"version": COLP_VERSION})
+    return md.Metadata.from_path(METADATA_PATH, template_vars={"version": COLP_VERSION})
 
 
 def test_colp_single_feature_package():
