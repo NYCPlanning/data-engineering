@@ -1,10 +1,17 @@
 from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, date, timedelta
+from datetime import date
+from dateutil.relativedelta import relativedelta
 from enum import StrEnum
 from pydantic import BaseModel
 import re
+
+
+class DateVersionFormat(StrEnum):
+    quarter = "Quarter"
+    month = "Month"
+    date = "Date"
 
 
 @dataclass
@@ -68,77 +75,45 @@ class MajorMinor(Version):
 
 
 @dataclass(order=True)
-class Quarter(Version):
-    year: int
-    quarter: int
+class Date(Version):
+    date: date
+    format: DateVersionFormat
 
     @property
     def label(self) -> str:
-        return f"{self.year}Q{self.quarter}"
+        match self.format:
+            case DateVersionFormat.quarter:
+                return f"{self.date.strftime("%y")}Q{int((self.date.month + 2) / 3)}"
+            case DateVersionFormat.month:
+                return self.date.strftime("%Y-%m")
+            case DateVersionFormat.date:
+                return self.date.strftime("%Y-%m-%d")
 
     def bump(
         self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
-    ) -> Quarter:
+    ) -> Date:
         if version_subtype is not None:
             raise Exception(
                 f"Version subtype {version_subtype} not applicable for Quarterly versions"
             )
         bump_by = bump_by or 1
-        new_year = int(self.year + (self.quarter + bump_by - 1) / 4)
-        new_quarter = ((self.quarter + bump_by - 1) % 4) + 1
-        return Quarter(year=new_year, quarter=new_quarter)
+        match self.format:
+            case DateVersionFormat.quarter:
+                return Date(
+                    date=self.date + relativedelta(months=bump_by * 3),
+                    format=self.format,
+                )
+            case DateVersionFormat.month:
+                return Date(
+                    date=self.date + relativedelta(months=bump_by),
+                    format=self.format,
+                )
+            case DateVersionFormat.date:
+                raise NotImplementedError("Date version cannot be bumped")
 
 
-@dataclass(order=True)
-class Date(Version):
-    year: int
-    month: int
-    day: int
-
-    @property
-    def label(self) -> str:
-        return f"{self.year}-{self.month:02d}-{self.day:02d}"
-
-    def bump(
-        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
-    ) -> Date:
-        raise NotImplementedError("Date version cannot be bumped")
-
-    @staticmethod
-    def from_todays_date() -> Date:
-        today = date.today()
-        return Date(year=today.year, month=today.month, day=today.day)
-
-
-@dataclass(order=True)
-class FirstOfMonth(Version):
-    year: int
-    month: int
-
-    @property
-    def label(self) -> str:
-        return f"{self.year}-{self.month:02d}-01"
-
-    def bump(
-        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
-    ) -> FirstOfMonth:
-        if version_subtype is not None:
-            raise Exception(
-                f"Version subtype {version_subtype} not applicable for FirstOfMonth versions"
-            )
-        bump_by = bump_by or 1
-        new_year = int(self.year + (self.month + bump_by - 1) / 12)
-        new_month = ((self.month + bump_by - 1) % 12) + 1
-        return FirstOfMonth(year=new_year, month=new_month)
-
-    @staticmethod
-    def generate() -> FirstOfMonth:
-        version = parse(date.today().strftime("%Y-%m-01"))
-        match version:
-            case FirstOfMonth():
-                return version
-            case _:
-                raise Exception("Version parsing failed")
+def generate_first_of_month() -> Date:
+    return Date(date=date.today().replace(day=1), format=DateVersionFormat.date)
 
 
 class BumpLatestRelease(BaseModel):
@@ -166,11 +141,20 @@ def parse(v: str) -> Version:
         case r"^(\d{2})v(\d+)\.(\d+)$" as m:
             return MajorMinor(year=int(m[1]), major=int(m[2]), minor=int(m[3]))
         case r"^(\d{2})Q(\d)$" as m:
-            return Quarter(year=int(m[1]), quarter=int(m[2]))
-        case r"^(\d{4})-(\d{2})-01$" as m:
-            return FirstOfMonth(year=int(m[1]), month=int(m[2]))
+            return Date(
+                date(2000 + int(m[1]), int(m[2]) * 3 - 2, 1),
+                format=DateVersionFormat.quarter,
+            )
         case r"^(\d{4})-(\d{2})-(\d{2})$" as m:
-            return Date(year=int(m[1]), month=int(m[2]), day=int(m[3]))
+            return Date(
+                date(int(m[1]), int(m[2]), int(m[3])),
+                format=DateVersionFormat.date,
+            )
+        case r"^(\d{4})-(\d{2})$" as m:
+            return Date(
+                date(int(m[1]), int(m[2]), 1),
+                format=DateVersionFormat.month,
+            )
         case _:
             raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
@@ -182,15 +166,9 @@ def sort(versions: list[Version]) -> list[Version]:
     # can't compare different types
     if len(version_types) != 1:
         # only handle date-like versions
-        if version_types.issubset(set([Date, FirstOfMonth])):
-            return sorted(
-                versions,
-                key=lambda version: datetime.strptime(version.label, "%Y-%m-%d"),
-            )
-        else:
-            raise TypeError(
-                f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
-            )
+        raise TypeError(
+            f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
+        )
     return sorted(versions)
 
 
