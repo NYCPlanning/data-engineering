@@ -57,11 +57,17 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     recipe.vars = recipe.vars or {}
     recipe.vars["VERSION"] = recipe.version
 
+    logger.info(
+        f"Trying to get previous version of {recipe.product} assuming this build's version is {recipe.version}"
+    )
     # Determine previous version
     previous_recipe = publishing.try_get_previous_version(
         recipe.product, recipe.version
     )
     if previous_recipe is not None:
+        logger.info(
+            f"Previous version of {recipe.product} seems to be {previous_recipe.label}"
+        )
         recipe.vars["VERSION_PREV"] = previous_recipe.label
 
     # Add vars to environ so both can be accessed in environ

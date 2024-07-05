@@ -65,6 +65,19 @@ mkdir -p dof && (
     ls | grep -v bbl_council.zip | xargs rm
 )
 
+echo "Exporting Zoning Districts"
+run_sql_file ../sql/export_ae_tables.sql
+
+mkdir -p ae_output && (
+    cd ae_output
+
+    echo "Generating output files ..."
+    mkdir -p tables && (
+        cd tables
+        csv_export ae_zoning_district zoning_district
+    )
+)
+
 echo "Exporting QAQC"
 mkdir -p qaqc && (
     cd qaqc
