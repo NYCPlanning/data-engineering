@@ -7,7 +7,7 @@ from typing import Callable, Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import FunctionCall
-from dcpy.utils import data, introspect
+from dcpy.utils import dataframe, introspect
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
@@ -51,7 +51,7 @@ def to_parquet(
     ), "Local path should be a valid file or directory"
     logger.info(f"✅ Raw data was found locally at {local_data_path}")
 
-    gdf = data.read_data_to_df(file_format, local_data_path)
+    gdf = dataframe.read_file(file_format, local_data_path)
 
     # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):

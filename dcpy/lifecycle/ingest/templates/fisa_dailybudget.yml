@@ -7,24 +7,24 @@ file_format:
   type: csv 
   delimiter: "|"
   column_names:
-  - RCAT_CD
-  - RCLS_CD
-  - ATYP_CD
-  - MNG_DPT_CD
-  - CPTL_PROJ_ID
-  - BUD_OBJ_CD
-  - AU_CD
-  - FNDG_DPT_CD
-  - CMTMNT_AM
-  - OBLGTNS_AM
-  - ADPT_AM
-  - PENC_AM
-  - ENC_AM
-  - ACRD_EXP_AM
-  - CASH_EXP_AM
-  - UCOMIT_AM
-  - ACTU_EXP_AM
-  - TBL_LAST_DT
+  - rcat_cd
+  - rcls_cd
+  - atyp_cd
+  - mng_dpt_cd
+  - cptl_proj_id
+  - bud_obj_cd
+  - au_cd
+  - fndg_dpt_cd
+  - cmtmnt_am
+  - oblgtns_am
+  - adpt_am
+  - penc_am
+  - enc_am
+  - acrd_exp_am
+  - cash_exp_am
+  - ucomit_am
+  - actu_exp_am
+  - tbl_last_dt
 processing_steps:
 - name: update_column
   args:
@@ -35,15 +35,15 @@ processing_steps:
   args:
     sort_columns:
     - fisa_version
-    - TBL_LAST_DT
+    - tbl_last_dt
     sort_ascending: True
     by:
-    - RCAT_CD
-    - RCLS_CD
-    - ATYP_CD
+    - rcat_cd
+    - rcls_cd
+    - atyp_cd
 - name: sort
   args:
-    by: [TBL_LAST_DT]
+    by: [tbl_last_dt]
 
 library_dataset:
   name: fisa_dailybudget
