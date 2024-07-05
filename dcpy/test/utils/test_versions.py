@@ -45,6 +45,30 @@ class TestVersions(TestCase):
                     versions.Date(year=23, month=1, day=2),
                 ],
             ],
+            [
+                [
+                    versions.FirstOfMonth(year=23, month=3),
+                    versions.FirstOfMonth(year=23, month=2),
+                    versions.Date(year=23, month=2, day=2),
+                ],
+                [
+                    versions.FirstOfMonth(year=23, month=2),
+                    versions.Date(year=23, month=2, day=2),
+                    versions.FirstOfMonth(year=23, month=3),
+                ],
+            ],
+            [
+                [
+                    versions.Date(year=23, month=2, day=2),
+                    versions.Date(year=23, month=1, day=20),
+                    versions.FirstOfMonth(year=23, month=2),
+                ],
+                [
+                    versions.Date(year=23, month=1, day=20),
+                    versions.FirstOfMonth(year=23, month=2),
+                    versions.Date(year=23, month=2, day=2),
+                ],
+            ],
         ]:
             self.assertEqual(sorted, versions.sort(version_list))
 
