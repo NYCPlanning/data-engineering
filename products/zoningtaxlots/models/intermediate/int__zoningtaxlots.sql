@@ -66,7 +66,7 @@ insertion AS (
         f4.zonedist AS zoningdistrict4,
         g.notes,
         h.inzonechange
-    FROM dof_dtm a
+    FROM dof_dtm AS a
     LEFT JOIN commercialoverlay AS b1
         ON a.id = b1.dtm_id AND b1.row_number = 1
     LEFT JOIN commercialoverlay AS b2

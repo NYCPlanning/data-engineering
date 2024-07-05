@@ -48,7 +48,7 @@ lotzoneper_grouped AS (
         SUM(segzonegeom) AS segzonegeom,
         SUM(allzonegeom) AS allzonegeom
     FROM lotzoneper
-    GROUP BY dtm_id, allbblgeom, zonedist,bbl
+    GROUP BY dtm_id, allbblgeom, zonedist, bbl
 ),
 
 initial_rankings AS (
