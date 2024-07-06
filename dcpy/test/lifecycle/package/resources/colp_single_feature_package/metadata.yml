@@ -319,7 +319,7 @@ destinations:
   - id: bytes
     type: bytes
     files:
-      - name: csv_package
+      - id: csv_package
         url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
-      - name: colp_readme.pdf
+      - id: colp_readme.pdf
         url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/colp_readme.pdf

@@ -256,7 +256,7 @@ def validate_package(
         try:
             match ds.type:
                 case "csv":
-                    logger.info(f"validating csv: {ds_path} for {ds.name}")
+                    logger.info(f"validating csv: {ds_path} for {ds.id}")
                     validations.append(validate_csv(ds_path, ds, metadata))
                 case "shapefile":
                     validations.append(validate_shapefile(ds_path, ds, metadata))

@@ -43,11 +43,11 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     display_name: str | None = None
     description: str | None = None
     tags: list[str] = []
-    destination_file_name: str | None = None
+    destination_file_name: str | None = None  # TODO filename
 
 
 class RemoteFile(BaseModel, extra="forbid"):
-    name: str
+    id: str
     url: str
 
 
@@ -123,9 +123,13 @@ class SocrataDestination(BaseModel, extra="forbid"):
 
 
 class File(BaseModel, extra="forbid"):
-    name: str
+    name: str  # TODO: migrate to `key` or `id`
+    filename: str
     type: str | None = None
-    filename: str | None = None
+
+    @property
+    def id(self):  # TODO: remove when we migrate
+        return self.name
 
 
 class DatasetFile(File, extra="forbid"):
@@ -149,20 +153,26 @@ class ZipFile(File, extra="forbid"):
 
 
 class Package(BaseModel, extra="forbid"):
+    # TODO: should these just be combined into one flat list of files? Why have three distinctions
     dataset_files: list[DatasetFile]
-    attachments: list[str]
+    attachments: list[str]  # TODO: migrate to File type
     zip_files: list[ZipFile] = []
 
+    def get_files(self) -> list[File]:
+        return (
+            self.dataset_files
+            + self.zip_files
+            + [File(name=a, filename=a) for a in self.attachments]
+        )
+
     def get_dataset(self, ds_id: str) -> DatasetFile:
-        ds = [d for d in self.dataset_files if d.name == ds_id]
+        ds = [d for d in self.dataset_files if d.id == ds_id]
         if len(ds) == 1:
             return ds[0]
         raise Exception(f"No dataset named {ds_id}")
 
-    def _files_by_name(self):
-        return {ds.name: ds for ds in self.dataset_files + self.zip_files} | {
-            ds: ds for ds in self.attachments
-        }
+    def files_by_id(self) -> dict[str, File]:
+        return {f.id: f for f in self.get_files()}
 
 
 class Metadata(BaseModel, extra="forbid"):
@@ -173,7 +183,9 @@ class Metadata(BaseModel, extra="forbid"):
     tags: list[str]
     each_row_is_a: str
 
-    destinations: list[BytesDestination | SocrataDestination]
+    destinations: list[
+        BytesDestination | SocrataDestination
+    ]  # TODO: Destination superclass
     package: Package
     columns: list[Column]
 
