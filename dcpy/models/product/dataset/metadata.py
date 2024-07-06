@@ -201,7 +201,7 @@ class Metadata(BaseModel, extra="forbid"):
     # Hold onto this for serialization, to avoid Pydantics reformatting of the metadata.yml
     _templated_source_metadata: str
 
-    def __init__(self, templated_source_metadata: str, **data):
+    def __init__(self, templated_source_metadata: str = "", **data):
         super().__init__(**data)
         self._templated_source_metadata = templated_source_metadata
 
