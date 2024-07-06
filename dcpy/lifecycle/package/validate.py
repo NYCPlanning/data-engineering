@@ -278,7 +278,7 @@ def validate_package(
     package_errors = []
 
     for attachment in metadata.package.attachments:
-        if not (package_path / "attachments" / attachment).exists():
+        if not (package_path / "attachments" / attachment.filename).exists():
             package_errors.append(
                 ValidationError(
                     error_type=ErrorType.MISSING_FILE,

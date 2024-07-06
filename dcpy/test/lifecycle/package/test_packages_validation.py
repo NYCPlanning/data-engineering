@@ -32,7 +32,9 @@ def test_missing_attachments():
     overridden_md = _get_colp_md()
 
     fake_attachment_name = "I_dont_exist.pdf"
-    overridden_md.package.attachments.append(fake_attachment_name)
+    overridden_md.package.attachments.append(
+        md.File(name=fake_attachment_name, filename=fake_attachment_name)
+    )
 
     validation = validate.validate_package(COLP_PACKAGE_PATH, overridden_md)
     assert (

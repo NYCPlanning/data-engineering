@@ -155,15 +155,24 @@ class ZipFile(File, extra="forbid"):
 class Package(BaseModel, extra="forbid"):
     # TODO: should these just be combined into one flat list of files? Why have three distinctions
     dataset_files: list[DatasetFile]
-    attachments: list[str]  # TODO: migrate to File type
+    attachments: list[File]
     zip_files: list[ZipFile] = []
 
+    def __init__(self, **data):
+        file_attachments = []
+        for a in data["attachments"]:
+            if type(a) is str:
+                logger.warning(
+                    f"Found string attachment type: {a}. Migrate to File type."
+                )
+                file_attachments.append(File(name=a, filename=a).model_dump())
+            else:
+                file_attachments.append(a)
+        data["attachments"] = file_attachments
+        super().__init__(**data)
+
     def get_files(self) -> list[File]:
-        return (
-            self.dataset_files
-            + self.zip_files
-            + [File(name=a, filename=a) for a in self.attachments]
-        )
+        return self.dataset_files + self.zip_files + self.attachments
 
     def get_dataset(self, ds_id: str) -> DatasetFile:
         ds = [d for d in self.dataset_files if d.id == ds_id]

@@ -288,8 +288,10 @@ package:
       overrides:
         omit_columns: ["GEOM"]
   attachments:
-    - colp_readme.pdf
-    - colp_metadata.pdf
+    - name: colp_readme.pdf
+      filename: colp_readme.pdf
+    - name: colp_metadata.pdf
+      filename: colp_metadata.pdf
 
 destinations:
   # Socrata
