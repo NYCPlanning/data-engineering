@@ -18,15 +18,20 @@ def from_bytes(
 ):
     out_dir = ASSEMBLY_DIR / product / version / dataset
     out_dir.mkdir(exist_ok=True, parents=True)
+    (out_dir / "attachments").mkdir(exist_ok=True)
+    (out_dir / "dataset_files").mkdir(exist_ok=True)
+    (out_dir / "zip_files").mkdir(exist_ok=True)
 
     product_metadata.write_source_metadata_to_file(Path(out_dir / "metadata.yml"))
 
-    for bytes_dest in [d for d in product_metadata.destinations if d.type == "bytes"]:
-        package_files_by_id = product_metadata.package.files_by_id()
+    package_files_by_id = product_metadata.package.files_by_id()
+    asset_types_by_file_id = product_metadata.package.asset_types_by_file_id()
 
+    for bytes_dest in [d for d in product_metadata.destinations if d.type == "bytes"]:
         for dest_file in bytes_dest.files:
             f = package_files_by_id[dest_file.id]
-            file_path = Path(out_dir) / f.filename
+            asset_type = asset_types_by_file_id[dest_file.id]
+            file_path = Path(out_dir) / asset_type / f.filename
             logger.info(f"downloading {f.filename} to {file_path}")
             urllib.request.urlretrieve(dest_file.url, file_path)
 
@@ -36,10 +41,11 @@ def from_bytes(
                     shutil.unpack_archive(file_path, temp_unpacked_dir)
                     for contained_file in f.contains:
                         cf = package_files_by_id[contained_file.id]
+                        asset_type = asset_types_by_file_id[contained_file.id]
                         logger.info(f"Extracting zipped file: {cf.id}")
                         shutil.copy2(
                             Path(temp_unpacked_dir) / contained_file.filename,  # type: ignore
-                            out_dir / cf.filename,
+                            out_dir / asset_type / cf.filename,
                         )
 
 

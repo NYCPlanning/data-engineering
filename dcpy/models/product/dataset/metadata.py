@@ -158,6 +158,8 @@ class Package(BaseModel, extra="forbid"):
     attachments: list[File]
     zip_files: list[ZipFile] = []
 
+    _ASSET_TYPES = Literal["dataset_files", "attachments", "zip_files"]
+
     def __init__(self, **data):
         file_attachments = []
         for a in data["attachments"]:
@@ -170,6 +172,13 @@ class Package(BaseModel, extra="forbid"):
                 file_attachments.append(a)
         data["attachments"] = file_attachments
         super().__init__(**data)
+
+    def asset_types_by_file_id(self) -> dict[str, _ASSET_TYPES]:
+        return (
+            {dsf.id: "dataset_files" for dsf in self.dataset_files}
+            | {a.id: "attachments" for a in self.attachments}
+            | {z.id: "zip_files" for z in self.zip_files}
+        )  # type: ignore
 
     def get_files(self) -> list[File]:
         return self.dataset_files + self.zip_files + self.attachments
