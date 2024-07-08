@@ -11,22 +11,9 @@ then
     exit 1
 fi
 
-if [ "$project" = "zoningtaxlots" ]
-then
-    export BUILD_ENGINE_DB="db-ztl"
-else
-    export BUILD_ENGINE_DB="db-$(echo "$project" | tr '_' '-')"
-fi
-
-echo "
-[tool.sqlfluff.templater.dbt]
-dialect = \"postgres\"
-project_dir = \"${dir}\"
-profiles_dir = \"${dir}\"" >> pyproject.toml
-
-dbt deps --profiles-dir $dir --project-dir $dir
-dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh --profiles-dir $dir --project-dir $dir
-set -e
-sqlfluff $command $dir/$folder --templater=dbt
-
-echo "$(head -n -5 pyproject.toml)" > pyproject.toml
+(
+    cd $dir
+    dbt deps
+    sqlfluff $command $dir/$folder --templater=dbt
+    dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
+)

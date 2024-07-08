@@ -11,9 +11,6 @@ on:
         required: false
         default: "latest"
 
-env:
-  BUILD_NAME: ${{ github.head_ref || github.ref_name }}__pr_tests
-
 jobs:
   check_formatting:
     name: Check formatting of files
@@ -23,18 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
-          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
-          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
-          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
-
       - name: Setup build environment (envars only)
         run: |
           ./bash/build_env_setup.sh
@@ -43,9 +28,6 @@ jobs:
         run: black --diff --color --check .
 
       - name: Check sql files in products
-        env: 
-          VERSION: "2024-05-01"
-          VERSION_PREV: "2024-04-01"
         run: |
           # TODO: Gradually expand this to cover more products
           sqlfluff lint products/template/sql
@@ -58,10 +40,58 @@ jobs:
           sqlfluff lint products/knownprojects/sql --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           
-
-          # dbt requires slightly special logic
-          ./bash/sqlfluff_dbt.sh lint green_fast_track
-          ./bash/sqlfluff_dbt.sh lint zoningtaxlots
+  dbt_tests:
+    name: dbt tests
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:${{ inputs.image_tag }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/${{ matrix.project }}
+    env:
+      BUILD_ENGINE_HOST: postgis
+      BUILD_ENGINE_USER: postgres
+      BUILD_ENGINE_PASSWORD: postgres
+      BUILD_ENGINE_PORT: "5432"
+      BUILD_ENGINE_DB: postgres
+      BUILD_ENGINE_SCHEMA: ${{ matrix.project }}
+      # sqlfluff env vars
+      VERSION: "2024-05-01"
+      VERSION_PREV: "2024-04-01"
+    services:
+      postgis:
+        image: postgis/postgis:13-3.3-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --shm-size=2gb
+        ports:
+          - 5432:5432
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - green_fast_track
+          - zoningtaxlots
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup
+        run: |
+          git config --global --add safe.directory /__w/data-engineering/data-engineering
+          dbt deps
+          dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
+      - name: sqlfluff
+        run: sqlfluff lint models --templater=dbt
+      - name: checkpoint
+        working-directory: "."
+        run: |
+          echo -e "version: 1\ndbt-project-dir: products/${{ matrix.project }}\n" >> .dbt-checkpoint.yaml
+          pre-commit run --all-files
 
   mypy:
     runs-on: ubuntu-22.04
@@ -76,40 +106,6 @@ jobs:
           mypy apps/qa/src
           mypy products/facilities
           mypy products/template
-  
-  dbt_checkpoint:
-    needs: check_formatting
-    name: Check dbt files
-    runs-on: ubuntu-22.04
-    container: nycplanning/dev:${{ inputs.image_tag }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
-          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
-          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
-          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
-
-      - name: Setup build environment
-        run: |
-          ./bash/docker_container_setup.sh
-          ./bash/build_env_setup.sh
-
-      - name: Check dbt files
-        run: |
-          export BUILD_ENGINE_DB=db-green-fast-track
-          dbt deps --profiles-dir products/green_fast_track --project-dir products/green_fast_track
-          pre-commit run --all-files
 
   template-db:
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
