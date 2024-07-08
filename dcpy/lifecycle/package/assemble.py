@@ -2,7 +2,6 @@ from pathlib import Path
 import typer
 import tempfile
 import urllib.request
-import zipfile
 import shutil
 
 import dcpy.models.product.dataset.metadata as models
@@ -13,7 +12,7 @@ from dcpy.connectors.edm import packaging
 ASSEMBLY_DIR = WORKING_DIRECTORIES.packaging / ".assembly"
 
 
-def from_bytes(
+def dataset_from_bytes(
     product_metadata: models.Metadata, product: str, version: str, dataset: str
 ):
     out_dir = ASSEMBLY_DIR / product / version / dataset
@@ -32,7 +31,7 @@ def from_bytes(
             f = package_files_by_id[dest_file.id]
             asset_type = asset_types_by_file_id[dest_file.id]
             file_path = Path(out_dir) / asset_type / f.filename
-            logger.info(f"downloading {f.filename} to {file_path}")
+            logger.info(f"downloading{f.filename} to {file_path}")
             urllib.request.urlretrieve(dest_file.url, file_path)
 
             if type(f) == models.ZipFile:
@@ -52,10 +51,24 @@ def from_bytes(
 app = typer.Typer()
 
 
-@app.command("from_bytes")
-def _from_bytes_cli(metadata_path: Path, product: str, version: str, dataset: str):
+@app.command("dataset_from_bytes")
+def _dataset_from_bytes_cli(
+    metadata_path: Path, product: str, version: str, dataset: str
+):
     md = models.Metadata.from_path(
         metadata_path,
         template_vars={"version": version},
     )
-    from_bytes(md, product, version, dataset)
+    dataset_from_bytes(md, product, version, dataset)
+
+
+@app.command("product_from_bytes")
+def _product_from_bytes_cli(product_metadata_path: Path, product: str, version: str):
+    for folder in [
+        p for p in product_metadata_path.iterdir() if not p.name.startswith(".")
+    ]:
+        md = models.Metadata.from_path(
+            folder / "metadata.yml",
+            template_vars={"version": version},
+        )
+        dataset_from_bytes(md, product, version, dataset=folder.name)
