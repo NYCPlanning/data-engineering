@@ -401,10 +401,11 @@ def push_dataset(
 
     rev = dataset.create_replace_revision()
 
+    files_by_id = metadata.package.files_by_id()
     attachments_metadata = [
         rev.upload_attachment(
-            dataset_package_path / "attachments" / attachment,
-            dest_file_name=attachment,
+            dataset_package_path / "attachments" / files_by_id[attachment].filename,
+            dest_file_name=files_by_id[attachment].filename,
         )
         for attachment in dest.attachments
     ]
