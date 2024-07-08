@@ -257,9 +257,9 @@ package:
     contains:
       - name: primary_csv
         filename: colp_{{ version }}.csv
-      - name: colp_readme.pdf
+      - name: colp_readme
         filename: colp_readme.pdf
-      - name: colp_metadata.pdf
+      - name: colp_metadata
         filename: colp_metadata.pdf
   dataset_files:
     - name: primary_shapefile
@@ -288,9 +288,9 @@ package:
       overrides:
         omit_columns: ["GEOM"]
   attachments:
-    - name: colp_readme.pdf
+    - name: colp_readme
       filename: colp_readme.pdf
-    - name: colp_metadata.pdf
+    - name: colp_metadata
       filename: colp_metadata.pdf
 
 destinations:
@@ -301,7 +301,7 @@ destinations:
     datasets:
       - primary_shapefile
     attachments:
-      -  "colp_readme.pdf"
+      -  colp_readme
     omit_columns: [dcpedited, uid]
     overrides:
       display_name: "display_name overridden at the destination level"
@@ -323,5 +323,5 @@ destinations:
     files:
       - id: csv_package
         url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
-      - id: colp_readme.pdf
+      - id: colp_readme
         url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/colp_readme.pdf
