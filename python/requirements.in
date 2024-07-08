@@ -44,8 +44,8 @@ rich>=13.4.2
 socrata-py==1.1.13
 sqlalchemy
 sqlalchemy-stubs
-sqlfluff @ git+https://github.com/fvankrieken/sqlfluff@dbt180
-sqlfluff-templater-dbt @ git+https://github.com/fvankrieken/sqlfluff@dbt180#subdirectory=plugins/sqlfluff-templater-dbt
+sqlfluff
+sqlfluff-templater-dbt
 streamlit
 streamlit-aggrid
 streamlit-folium
