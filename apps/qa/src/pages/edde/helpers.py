@@ -41,7 +41,7 @@ def get_demographics_data(branch: str, version: str):
         files = s3.get_filenames(
             publishing.BUCKET, f"{PRODUCT}/{branch}/{version}/{category}"
         )
-        pattern = "^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$"
+        pattern = r"^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$"
         match_objs = [re.match(pattern, file) for file in files]
         matches = [match for match in match_objs if match]
         key = lambda m: (m.group(1), m.group(3))
