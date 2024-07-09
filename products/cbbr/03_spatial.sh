@@ -10,18 +10,14 @@ python3 -m geocode.geosupport
 echo "Assign DoiTT geometries to geocoded data ..."
 run_sql_file sql/assign_geoms.sql
 
-# ## Skipping for dev of initial FY2024 build
-# # echo "Assign geometries from manual shapefiles ..."
-# # run_sql sql/spatial_manualshp.sql
-
 echo "Assign geometries from parks data ..."
 run_sql_file sql/spatial_dpr_string_name.sql
 
 echo "Assign geometries from facilities data ..."
 run_sql_file sql/spatial_facilities.sql
- 
-echo "Overwriting geometries with manual mapping..."
-#run_sql_file sql/apply_corrections.sql
+
+echo "Assign geometries from manual shapefiles ..."
+run_sql sql/spatial_manual.sql
 
 echo "Running spatial_geomclean ..."
 run_sql_file sql/spatial_geomclean.sql

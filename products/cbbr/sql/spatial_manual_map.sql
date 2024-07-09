@@ -1,25 +1,14 @@
--- Overwrite geoms with manual mapping input
-
--- Translate fy22 ids back to fy21 ids to use fy21 manual geoms
-WITH fy21_fy22_translate AS (
-    SELECT
-        b.fy22_unique_id AS unique_id,
-        a.geom
-    FROM manual_geoms."FY21" AS a
-    INNER JOIN fy21_fy22_lookup AS b
-        ON a.unique_id = b.fy21_unique_id
+-- backfill ungeocoded records with manually researched geoms
+WITH all_manual_mappings AS (
+    SELECT * FROM dcp_cbbr_manualmappings_points
+    UNION ALL
+    SELECT * FROM dcp_cbbr_manualmappings_poly
 )
-UPDATE cbbr_submissions a
+UPDATE _cbbr_submissions a
 SET
-    geom = b.geom,
+    geom = b.wkb_geometry,
     geo_function = 'Manual_Research'
-FROM fy21_fy22_translate AS b
-WHERE a.unique_id = b.unique_id;
-
--- Overwrite with fy22 manual geoms
-UPDATE cbbr_submissions a
-SET
-    geom = b.geom,
-    geo_function = 'Manual_Research'
-FROM manual_geoms."FY22" AS b
-WHERE a.unique_id = b.unique_id;
+FROM all_manual_mappings AS b
+WHERE
+    a.tracking_code = regexp_replace(b.tracking_c, E'[\\n\\r]+', '', 'g')
+    AND a.geom IS NULL;
