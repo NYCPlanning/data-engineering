@@ -351,19 +351,53 @@ def get_filenames(bucket: str, prefix: str) -> set[str]:
 
 
 def get_subfolders(bucket: str, prefix: str, index=1) -> list[str]:
+    """
+    List subfolders in an S3 bucket at a specific depth.
+
+    Parameters:
+    bucket (str): The name of the S3 bucket.
+    prefix (str): The prefix (directory path) to search within the bucket.
+    index (int): The depth level of subfolders to list (default is 1 for top-level subfolders).
+
+    Returns:
+    list[str]: A list of subfolder names at the specified depth.
+
+    Examples:
+    >>> # Given the following objects in the S3 bucket:
+    >>> # - 'root/folder1/file1.txt'
+    >>> # - 'root/folder1/folder2/file2.txt'
+    >>> # - 'root/folder3/'
+    >>>
+    >>> get_subfolders('my_bucket', 'root/', 1)
+    ['folder1', 'folder3']
+    >>>
+    >>> get_subfolders('my_bucket', 'root/', 2)
+    ['folder1/folder2']
+    """
     prefix = _folderize(prefix)
     prefix_path = Path(prefix)
     subfolders: set[str] = set()
+
     try:
-        paginator = client().get_paginator("list_objects_v2")
-        for result in paginator.paginate(Bucket=bucket, Prefix=prefix, Delimiter="/"):
-            for obj in result.get("CommonPrefixes", []):
-                path = Path(obj["Prefix"])
-                if len(path.relative_to(prefix_path).parts) == index:
-                    subfolders.add(path.name)
+        all_objects = list_objects(bucket=bucket, prefix=prefix)
+        for obj in all_objects:
+            obj_path = Path(obj["Key"])
+
+            # Determine the directory path (if object is a file, get parent directory)
+            dir_path = obj_path if obj["Key"].endswith("/") else obj_path.parent
+
+            # Get relative parts of the directory path after the prefix
+            relative_parts = dir_path.relative_to(prefix_path).parts
+
+            # Add the directory path up to the specified folder depth to the subfolders set
+            if len(relative_parts) >= index:
+                partial_path = Path(*relative_parts[:index])
+                subfolders.add(str(partial_path))
+
     except Exception as exc:
-        print(f"get_subfolders(bucket={bucket}, prefix={prefix}) failed")
+        print(f"get_subfolders(bucket={bucket}, prefix={prefix}, index={index}) failed")
         raise exc
+
     return list(subfolders)
 
 
