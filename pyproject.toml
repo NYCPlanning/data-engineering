@@ -64,9 +64,16 @@ geography_name="anything"
 geography_id="anything"
 table_name="anything"
 
-[tool.sqlfluff.templater.dbt.context]
-VERSION = '2024-07-01'
-VERSION_PREV = '2024-05-01'
+[tool.sqlfluff.templater]
+templater = dbt
+
+[tool.sqlfluff.templator.dbt]
+project_dir = products/zoningtaxlots
+profiles_dir = products/zoningtaxlots
+
+[tool.sqlfluff.variables]
+VERSION_PREV = "${VERSION_PREV}"
+VERSION = "${VERSION}"
 
 [tool.sqlfluff.rules.layout.long_lines]
 ignore_comment_lines = true
