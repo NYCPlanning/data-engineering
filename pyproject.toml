@@ -146,23 +146,3 @@ library = "dcpy.library.cli:run"
 
 [tool.setuptools.package-data]
 dcpy = ["library/templates/*.yml"]
-
-[tool.sqlfluff.templater.dbt]
-dialect = "postgres"
-project_dir = "products/zoningtaxlots"
-profiles_dir = "products/zoningtaxlots"
-
-[tool.sqlfluff.templater.dbt]
-dialect = "postgres"
-project_dir = "products/zoningtaxlots"
-profiles_dir = "products/zoningtaxlots"
-
-[tool.sqlfluff.templater.dbt]
-dialect = "postgres"
-project_dir = "products/zoningtaxlots"
-profiles_dir = "products/zoningtaxlots"
-
-[tool.sqlfluff.templater.dbt]
-dialect = "postgres"
-project_dir = "products/zoningtaxlots"
-profiles_dir = "products/zoningtaxlots"
