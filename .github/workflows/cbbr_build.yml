@@ -71,13 +71,10 @@ jobs:
         run: python -m dcpy.lifecycle.builds.load load
 
       - name: Create Build Tables and Normalize CBBR Values
-        working-directory: ./products/cbbr/cbbr_build
         run: ./02_cbbr.sh
 
       - name: Assign Geometries from DOITT, Parks, Facilties DB and Run Spatial
-        working-directory: ./products/cbbr/cbbr_build
         run: ./03_spatial.sh
 
       - name: Export CBBR Output to DO (edm-publishing)
-        working-directory: ./products/cbbr/cbbr_build
         run: ./04_export.sh

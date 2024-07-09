@@ -1,10 +1,9 @@
 import pytest
 import pandas as pd
 import numpy as np
-import copy
 
-from library.helper.geocode_utils import GEOCODE_COLUMNS, parse_location
-from library.geocode import geocode_records
+from geocode.helpers import GEOCODE_COLUMNS, parse_location
+from geocode.geosupport import geocode_records
 
 
 def assert_dataframe_rows_equality(

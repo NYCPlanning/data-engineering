@@ -5,7 +5,7 @@ set_error_traps
 echo "CBBR Version ${VERSION} : 03 Spatial"
 # TODO delete tables that are created by this stage
 echo "Geocode ..."
-python3 -m library.geocode
+python3 -m geocode.geosupport
 
 echo "Assign DoiTT geometries to geocoded data ..."
 run_sql_file sql/assign_geoms.sql

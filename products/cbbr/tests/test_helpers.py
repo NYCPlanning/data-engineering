@@ -1,9 +1,8 @@
 # test geocoding logic
 import pytest
 import pandas as pd
-import numpy as np
 
-from library.helper.geocode_utils import (
+from geocode.helpers import (
     get_location_value_from_end,
     remove_location_value_from_end,
     parse_location,
