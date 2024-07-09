@@ -5,6 +5,8 @@ inputs:
   missing_versions_strategy: find_latest
   datasets:
   - name: cbbr_submissions
+  - name: dcp_cbbr_manualmappings_points
+  - name: dcp_cbbr_manualmappings_poly
   - name: dpr_parksproperties
   - name: dcp_facilities
   - name: doitt_buildingfootprints
