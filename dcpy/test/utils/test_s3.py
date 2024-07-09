@@ -63,3 +63,27 @@ def test_get_filenames(create_buckets, prefix, expected_num_objects):
         s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
     actual_objects = s3.get_filenames(bucket=TEST_BUCKET, prefix=prefix)
     assert len(actual_objects) == expected_num_objects
+
+
+@pytest.mark.parametrize(
+    "prefix, index, expected_num_folders",
+    [
+        ("", 1, 2),
+        ("", 2, 1),
+        (TEST_DIR_NAME_1, 1, 1),
+        (TEST_DIR_NAME_1, 2, 0),
+        (TEST_DIR_NAME_2, 1, 0),
+    ],
+)
+def test_get_subfolders(create_buckets, prefix, index, expected_num_folders):
+    """Tests total number of folders with given prefix and depth (index)."""
+    objects_to_add = [
+        TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME,
+        TEST_DIR_NAME_1 + "/" + TEST_DIR_NAME_2 + "/",
+        TEST_DIR_NAME_2 + "/",
+    ]
+    for obj in objects_to_add:
+        s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
+    actual_objects = s3.get_subfolders(bucket=TEST_BUCKET, prefix=prefix, index=index)
+
+    assert len(actual_objects) == expected_num_folders
