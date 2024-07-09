@@ -65,8 +65,8 @@ jobs:
       - name: Dataloading
         run: python -m dcpy.lifecycle.builds.load load
 
-      - name: 2. build ...
-        run: ./ztl.sh build
+      - name: Build
+        run: ./bash/build.sh
 
       - name: 3. qaqc, export, and upload ...
         run: ./ztl.sh qaqc
