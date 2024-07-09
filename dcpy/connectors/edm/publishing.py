@@ -90,19 +90,6 @@ def get_previous_version(
             )
 
 
-def try_get_previous_version(
-    product: str, version: str | versions.Version
-) -> versions.Version | None:
-    try:
-        return get_previous_version(product, version)
-    except (
-        LookupError,
-        ValueError,
-    ) as e:  # versions not found, or don't parse correctly
-        logger.error(f"Error: {e}")
-        return None
-
-
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
     """Given product name, gets source data versions of published version"""
     source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)

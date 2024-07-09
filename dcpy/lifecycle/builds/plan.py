@@ -58,14 +58,20 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     recipe.vars["VERSION"] = recipe.version
 
     # Determine previous version
-    previous_recipe = publishing.try_get_previous_version(
-        recipe.product, recipe.version
-    )
-    if previous_recipe is not None:
+    try:
+        previous_recipe = publishing.get_previous_version(
+            product=recipe.product, version=recipe.version
+        )
         logger.info(
             f"Previous version of {recipe.product}: {previous_recipe.label} ({previous_recipe})"
         )
         recipe.vars["VERSION_PREV"] = previous_recipe.label
+    except (
+        LookupError,
+        ValueError,
+        TypeError,
+    ) as e:  # versions not found, or don't parse correctly
+        logger.error(f"Error: {e}")
 
     # Add vars to environ so both can be accessed in environ
     logger.info(f"Export envars: {recipe.vars}")
