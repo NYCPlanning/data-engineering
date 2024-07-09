@@ -3,28 +3,48 @@ source bash/config.sh
 set_error_traps
 
 echo "Archive final output"
-echo "Copy zoningtaxlots to DB defaultdb ..."
+echo "Copy int__zoningtaxlots to DB defaultdb ..."
 run_sql_command "CREATE TABLE public.dcp_zoning_taxlot AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.int__zoningtaxlots;"
 pg_dump ${BUILD_ENGINE} -t public.dcp_zoning_taxlot --no-owner --clean | psql ${EDM_DATA}
 run_sql_command "DROP TABLE IF EXISTS public.dcp_zoning_taxlot;"
 
-echo "Change defaultdb.public.dcp_zoningtaxlots table's schema to dcp_zoningtaxlots and name to ${VERSION_SQL_TABLE} ..."
+echo "Change defaultdb.public.dcp_zoningtaxlots table's schema to dcp_zoningtaxlots and name to ${VERSION} ..."
 psql ${EDM_DATA} -c "
   CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
   ALTER TABLE dcp_zoning_taxlot SET SCHEMA dcp_zoningtaxlots;
-  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\";
-  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION_SQL_TABLE}\";
+  DROP TABLE IF EXISTS dcp_zoningtaxlots.\"${VERSION}\";
+  ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION}\";
 "
 
-echo "Run export and qaqc scripts ..."
-run_sql_file models/product/zoningtaxlots.sql
-psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -f models/product/qa/qa_freq.sql
-psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f models/product/qa/qa_bbl.sql
-psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f models/product/qa/qa_mismatch.sql
-psql ${EDM_DATA} --set ON_ERROR_STOP=1 -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} -f models/product/qa/qa_bbldiffs.sql | 
+echo "Archive export and qaqc tables ..."
+
+echo "Copy zoningtaxlots to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.zoningtaxlots AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.zoningtaxlots;"
+pg_dump ${BUILD_ENGINE} -t public.zoningtaxlots --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.zoningtaxlots;"
+
+echo "Copy qaqc_freq to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qaqc_freq AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_freq;"
+pg_dump ${BUILD_ENGINE} -t public.qaqc_freq --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qaqc_freq;"
+
+echo "Copy qa_bbl to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qa_bbl AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_bbl;"
+pg_dump ${BUILD_ENGINE} -t public.qa_bbl --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qa_bbl;"
+
+echo "Copy qa_mismatch to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qa_mismatch AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_mismatch;"
+pg_dump ${BUILD_ENGINE} -t public.qa_mismatch --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qa_mismatch;"
+
+echo "Copy qa_bbldiffs to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qa_bbldiffs AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_bbldiffs;"
+pg_dump ${BUILD_ENGINE} -t public.qa_bbldiffs --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qa_bbldiffs;"
 
 ## remove dtm_id column from archive because it isn't a true id but rather one we generate during build
-psql $EDM_DATA -c "ALTER TABLE dcp_zoningtaxlots.\"${VERSION_SQL_TABLE}\" DROP COLUMN dtm_id;"
+psql $EDM_DATA -c "ALTER TABLE dcp_zoningtaxlots.\"${VERSION}\" DROP COLUMN dtm_id;"
 
 echo "Generate csvs and shapefiles ..."
 rm -rf output && mkdir -p output
@@ -68,11 +88,16 @@ rm -rf output && mkdir -p output
     wait
 )
 
-psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} \
-    -f models/product/qa/qa_vers_comparison.sql > output/qc_versioncomparison.csv
+echo "Copy qa_vers_comparison to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qa_vers_comparison AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_vers_comparison;"
+pg_dump ${BUILD_ENGINE} -t public.qa_vers_comparison --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qa_vers_comparison;"
 
-psql -q ${EDM_DATA} -v VERSION=${VERSION_SQL_TABLE} -v VERSION_PREV=${VERSION_PREV_SQL_TABLE} \
-    -f models/product/qa/qa_null.sql > output/qaqc_null.csv
+
+echo "Copy qa_null to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qa_null AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_null;"
+pg_dump ${BUILD_ENGINE} -t public.qa_null --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qa_null;"
 
 echo "Upload outpits ..."
 python3 -m dcpy.connectors.edm.publishing upload -p db-zoningtaxlots -a public-read
