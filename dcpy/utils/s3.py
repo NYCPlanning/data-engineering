@@ -398,7 +398,7 @@ def get_subfolders(bucket: str, prefix: str, index=1) -> list[str]:
         print(f"get_subfolders(bucket={bucket}, prefix={prefix}, index={index}) failed")
         raise exc
 
-    return list(subfolders)
+    return sorted(list(subfolders))
 
 
 def get_file_as_stream(bucket: str, path: str) -> BytesIO:
