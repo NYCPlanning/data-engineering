@@ -47,6 +47,9 @@ jobs:
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
           BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
       - name: Finish container setup
         working-directory: ./
