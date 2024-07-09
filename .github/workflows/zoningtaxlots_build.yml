@@ -46,6 +46,7 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
 
       - name: Finish container setup
         working-directory: ./
