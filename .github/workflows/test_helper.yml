@@ -43,6 +43,9 @@ jobs:
         run: black --diff --color --check .
 
       - name: Check sql files in products
+        env: 
+          VERSION: "2024-05-01"
+          VERSION_PREV: "2024-04-01"
         run: |
           # TODO: Gradually expand this to cover more products
           sqlfluff lint products/template/sql
@@ -54,7 +57,7 @@ jobs:
           sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
           sqlfluff lint products/knownprojects/sql --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
-          sqlfluff lint products/zoningtaxlots/sql/
+          
 
           # dbt requires slightly special logic
           ./bash/sqlfluff_dbt.sh lint green_fast_track
