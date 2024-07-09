@@ -73,4 +73,4 @@ jobs:
         run: ./bash/build.sh
 
       - name: 3. qaqc, export, and upload ...
-        run: ./ztl.sh qaqc
+        run: ./bash/export.sh
