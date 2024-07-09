@@ -12,3 +12,6 @@ inputs:
     - name: dof_dtm
     - name: dcp_zoningdistricts
     - name: dcp_zoningmapindex
+    - name: dcp_zoningtaxlots
+      version_env_var: VERSION_PREV 
+      import_as: previous_ztl

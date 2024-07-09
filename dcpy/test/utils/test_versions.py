@@ -27,46 +27,46 @@ class TestVersions(TestCase):
         for version_list, sorted in [
             [
                 [
-                    versions.MajorMinor(year=23, major=2),
-                    versions.MajorMinor(year=23, major=1),
+                    versions.MajorMinor(year=2023, major=2),
+                    versions.MajorMinor(year=2023, major=1),
                 ],
                 [
-                    versions.MajorMinor(year=23, major=1),
-                    versions.MajorMinor(year=23, major=2),
-                ],
-            ],
-            [
-                [
-                    versions.Date(year=23, month=1, day=2),
-                    versions.FirstOfMonth(year=23, month=1),
-                ],
-                [
-                    versions.FirstOfMonth(year=23, month=1),
-                    versions.Date(year=23, month=1, day=2),
+                    versions.MajorMinor(year=2023, major=1),
+                    versions.MajorMinor(year=2023, major=2),
                 ],
             ],
             [
                 [
-                    versions.FirstOfMonth(year=23, month=3),
-                    versions.FirstOfMonth(year=23, month=2),
-                    versions.Date(year=23, month=2, day=2),
+                    versions.Date(year=2023, month=1, day=2),
+                    versions.FirstOfMonth(year=2023, month=1),
                 ],
                 [
-                    versions.FirstOfMonth(year=23, month=2),
-                    versions.Date(year=23, month=2, day=2),
-                    versions.FirstOfMonth(year=23, month=3),
+                    versions.FirstOfMonth(year=2023, month=1),
+                    versions.Date(year=2023, month=1, day=2),
                 ],
             ],
             [
                 [
-                    versions.Date(year=23, month=2, day=2),
-                    versions.Date(year=23, month=1, day=20),
-                    versions.FirstOfMonth(year=23, month=2),
+                    versions.FirstOfMonth(year=2023, month=3),
+                    versions.FirstOfMonth(year=2023, month=2),
+                    versions.Date(year=2023, month=2, day=2),
                 ],
                 [
-                    versions.Date(year=23, month=1, day=20),
-                    versions.FirstOfMonth(year=23, month=2),
-                    versions.Date(year=23, month=2, day=2),
+                    versions.FirstOfMonth(year=2023, month=2),
+                    versions.Date(year=2023, month=2, day=2),
+                    versions.FirstOfMonth(year=2023, month=3),
+                ],
+            ],
+            [
+                [
+                    versions.Date(year=2023, month=2, day=2),
+                    versions.Date(year=2023, month=1, day=20),
+                    versions.FirstOfMonth(year=2023, month=2),
+                ],
+                [
+                    versions.Date(year=2023, month=1, day=20),
+                    versions.FirstOfMonth(year=2023, month=2),
+                    versions.Date(year=2023, month=2, day=2),
                 ],
             ],
         ]:
@@ -76,8 +76,8 @@ class TestVersions(TestCase):
         with self.assertRaises(TypeError):
             versions.sort(
                 [
-                    versions.FirstOfMonth(year=23, month=1),
-                    versions.MajorMinor(year=23, major=2),
+                    versions.FirstOfMonth(year=2023, month=1),
+                    versions.MajorMinor(year=2023, major=2),
                 ]
             )
 

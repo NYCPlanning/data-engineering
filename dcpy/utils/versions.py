@@ -185,7 +185,7 @@ def sort(versions: list[Version]) -> list[Version]:
         if version_types.issubset(set([Date, FirstOfMonth])):
             return sorted(
                 versions,
-                key=lambda version: datetime.strptime(version.label, "%y-%m-%d"),
+                key=lambda version: datetime.strptime(version.label, "%Y-%m-%d"),
             )
         else:
             raise TypeError(
