@@ -11,6 +11,9 @@ models:
       - name: records_in_nta
       - name: units_gross
       - name: units_net
+      - name: future_phased_units_total
+      - name: future_units_without_phasing
+      - name: completed_units
       - name: within_5_years
       - name: from_5_to_10_years
       - name: after_10_years
@@ -26,6 +29,9 @@ models:
       - name: records_in_cdta
       - name: units_gross
       - name: units_net
+      - name: future_phased_units_total
+      - name: future_units_without_phasing
+      - name: completed_units
       - name: within_5_years
       - name: from_5_to_10_years
       - name: after_10_years
@@ -41,6 +47,9 @@ models:
       - name: records_in_cd
       - name: units_gross
       - name: units_net
+      - name: future_phased_units_total
+      - name: future_units_without_phasing
+      - name: completed_units
       - name: within_5_years
       - name: from_5_to_10_years
       - name: after_10_years
@@ -57,6 +66,9 @@ models:
       - name: records_in_ct
       - name: units_gross
       - name: units_net
+      - name: future_phased_units_total
+      - name: future_units_without_phasing
+      - name: completed_units
       - name: within_5_years
       - name: from_5_to_10_years
       - name: after_10_years
