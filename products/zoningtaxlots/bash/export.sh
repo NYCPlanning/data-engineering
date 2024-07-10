@@ -12,20 +12,19 @@ rm -rf output && mkdir -p output
     
     csv_export zoningtaxlots zoningtaxlot_db &
 
-    run_sql_command "\copy (
-    SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_freq 
-    order by version::timestamp
-    ) TO STDOUT DELIMITER ',' CSV HEADER;" > qaqc_frequency.csv &
+    csv_export qa_freq qaqc_frequency &
 
-    run_sql_command "\copy (
-    SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_bbl 
-    order by version::timestamp
-    ) TO STDOUT DELIMITER ',' CSV HEADER;" > qaqc_bbl.csv &
+    csv_export qa_bbl qaqc_bbl &
 
-    run_sql_command "\copy (
-    SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_mismatch 
-    order by version::timestamp
-    ) TO STDOUT DELIMITER ',' CSV HEADER;" > qaqc_mismatch.csv &
+    csv_export qa_mismatch qaqc_mismatch &
+
+    csv_export qa_freq qaqc_bbl &
+
+    csv_export qa_freq qaqc_bbl &
+
+    csv_export qa_vers_comparison qc_versioncomparison &
+
+    csv_export qa_null qaqc_null &
 
     run_sql_command "\copy (
     SELECT borough_code, tax_block,tax_lot , bblnew ,zd1new , 
@@ -39,14 +38,6 @@ rm -rf output && mkdir -p output
     ) TO STDOUT DELIMITER ',' CSV HEADER;" > qc_bbldiffs.csv &
 
     shp_export qa_bbldiffs MULTIPOLYGON -t_srs "EPSG:2263"
-
-    run_sql_command "\copy (
-    SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_vers_comparison 
-    ) TO STDOUT DELIMITER ',' CSV HEADER;" > qc_versioncomparison.csv &
-
-    run_sql_command "\copy (
-    SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_null 
-    ) TO STDOUT DELIMITER ',' CSV HEADER;" > qaqc_null.csv
 
     echo "${DATE}" > version.txt
     wait
