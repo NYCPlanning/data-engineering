@@ -19,27 +19,40 @@ psql ${EDM_DATA} -c "
   ALTER TABLE dcp_zoningtaxlots.dcp_zoning_taxlot RENAME TO \"${VERSION}\";
 "
 
-echo "Archive export and qaqc tables ..."
+echo "Archive qaqc tables ..."
 
-echo "Copy zoningtaxlots to DB defaultdb ..."
-run_sql_command "CREATE TABLE public.zoningtaxlots AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.zoningtaxlots;"
-pg_dump ${BUILD_ENGINE} -t public.zoningtaxlots --no-owner --clean | psql ${EDM_DATA}
-run_sql_command "DROP TABLE IF EXISTS public.zoningtaxlots;"
+echo "Copy qaqc_frequency to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qaqc_frequency AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_freq;"
+pg_dump ${BUILD_ENGINE} -t public.qaqc_frequency --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qaqc_frequency;"
 
-echo "Copy qaqc_freq to DB defaultdb ..."
-run_sql_command "CREATE TABLE public.qaqc_freq AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_freq;"
-pg_dump ${BUILD_ENGINE} -t public.qaqc_freq --no-owner --clean | psql ${EDM_DATA}
-run_sql_command "DROP TABLE IF EXISTS public.qaqc_freq;"
+echo "Change defaultdb.public.qaqc_frequency table's schema to dcp_zoningtaxlots ..."
+psql ${EDM_DATA} -c "
+  CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
+  ALTER TABLE qaqc_frequency SET SCHEMA dcp_zoningtaxlots;
+"
 
-echo "Copy qa_bbl to DB defaultdb ..."
-run_sql_command "CREATE TABLE public.qa_bbl AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_bbl;"
-pg_dump ${BUILD_ENGINE} -t public.qa_bbl --no-owner --clean | psql ${EDM_DATA}
-run_sql_command "DROP TABLE IF EXISTS public.qa_bbl;"
+echo "Copy qaqc_bbl to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qaqc_bbl AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_bbl;"
+pg_dump ${BUILD_ENGINE} -t public.qaqc_bbl --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qaqc_bbl;"
 
-echo "Copy qa_mismatch to DB defaultdb ..."
-run_sql_command "CREATE TABLE public.qa_mismatch AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_mismatch;"
-pg_dump ${BUILD_ENGINE} -t public.qa_mismatch --no-owner --clean | psql ${EDM_DATA}
-run_sql_command "DROP TABLE IF EXISTS public.qa_mismatch;"
+echo "Change defaultdb.public.qaqc_bbl table's schema to dcp_zoningtaxlots ..."
+psql ${EDM_DATA} -c "
+  CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
+  ALTER TABLE qaqc_bbl SET SCHEMA dcp_zoningtaxlots;
+"
+
+echo "Copy qaqc_mismatch to DB defaultdb ..."
+run_sql_command "CREATE TABLE public.qaqc_mismatch AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_mismatch;"
+pg_dump ${BUILD_ENGINE} -t public.qaqc_mismatch --no-owner --clean | psql ${EDM_DATA}
+run_sql_command "DROP TABLE IF EXISTS public.qaqc_mismatch;"
+
+echo "Change defaultdb.public.qaqc_mismatch table's schema to dcp_zoningtaxlots ..."
+psql ${EDM_DATA} -c "
+  CREATE SCHEMA IF NOT EXISTS dcp_zoningtaxlots;
+  ALTER TABLE qaqc_mismatch SET SCHEMA dcp_zoningtaxlots;
+"
 
 echo "Copy qa_bbldiffs to DB defaultdb ..."
 run_sql_command "CREATE TABLE public.qa_bbldiffs AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.qa_bbldiffs;"
@@ -75,7 +88,7 @@ rm -rf output && mkdir -p output
     ) TO STDOUT DELIMITER ',' CSV HEADER;" > qaqc_mismatch.csv &
 
     run_sql_command "\copy (
-    SELECT boroughcode, taxblock,taxlot , bblnew ,zd1new , 
+    SELECT borough_code, tax_block,tax_lot , bblnew ,zd1new , 
         zd2new ,zd3new , zd4new ,co1new , co2new ,
         sd1new , sd2new ,sd3new , lhdnew zmnnew , 
         zmcnew , area, inzonechange , 
