@@ -2,6 +2,9 @@
 source bash/config.sh
 set_error_traps
 
+echo "BUILD ENGINE SCHEMA: ${BUILD_ENGINE_SCHEMA}" 
+echo "BUILD ENGINE: ${BUILD_ENGINE}"
+echo "EDM: ${EDM_DATA}"
 echo "Archive final output"
 echo "Copy int__zoningtaxlots to DB defaultdb ..."
 run_sql_command "CREATE TABLE public.dcp_zoning_taxlot AS SELECT * FROM ${BUILD_ENGINE_SCHEMA}.int__zoningtaxlots;"
