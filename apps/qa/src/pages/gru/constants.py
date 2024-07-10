@@ -110,7 +110,7 @@ using BN. Specifically, these records:
 
 + Returned a GRC of 22 (Invalid BIN format) or 23 (Temporary DOB BIN), or
 + Returned a GRC of 01 but had TPAD-related warnings:
-+ Geo reason code was '\*' suggesting a TPAD warning and
++ Geo reason code was '*' suggesting a TPAD warning and
 + The TPAD conflict flag was neither blank nor 1
 
 The records for QAQC have additional flags added:
