@@ -1,0 +1,5 @@
+*.sql linguist-detectable=true
+# for sql files that show up as "PLpgSQL"
+*.sql linguist-language=SQL
+**/data/** linguist-vendored
+*.ipynb linguist-vendored
