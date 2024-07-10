@@ -9,9 +9,6 @@ on:
       build_name: 
         type: string
         required: true
-      create_issue:
-        type: boolean
-        default: false
       recipe_file:
         type: string
         required: true
@@ -35,7 +32,6 @@ jobs:
     env:
       BUILD_ENGINE_DB: db-pluto
       BUILD_NAME: ${{ inputs.build_name }}
-      BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
 
@@ -88,29 +84,3 @@ jobs:
 
       - name: Export and Upload
         run: ./06_export.sh
-
-      - name: Create Issue - Pluto Draft Succeeded
-        if: success() && inputs.create_issue
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRODUCT: Pluto
-          PRODUCT_VERSION: ${{ env.VERSION }}
-          SUMMARY_NOTE: "Build Success ✅"
-          REQUIRED_ACTION: "Review and publish the build."
-          BUILD_URL: ${{ env.BUILD_URL }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/product_new_draft_created.md
-
-      - name: Create Issue - Pluto Draft Failed to Build
-        if: failure() && inputs.create_issue
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRODUCT: Pluto
-          PRODUCT_VERSION: ${{ env.VERSION }}
-          SUMMARY_NOTE: "Build Failed 🚨"
-          REQUIRED_ACTION: "Investigate and rebuild PLUTO."
-          BUILD_URL: ${{ env.BUILD_URL }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/product_new_draft_created.md

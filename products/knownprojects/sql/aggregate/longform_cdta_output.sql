@@ -5,6 +5,7 @@ OUTPUT: longform_cdta_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_cdta;
+DROP INDEX IF EXISTS aggregated_cdta_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_cdta;
 DROP TABLE IF EXISTS aggregated_cdta_longform;
 DROP TABLE IF EXISTS aggregated_cdta_project_level;
@@ -237,6 +238,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_cdta_4
 ) AS _1;
+CREATE INDEX aggregated_cdta_gix ON aggregated_cdta USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any Boundary*/
@@ -337,7 +339,9 @@ FROM (
         b.cdta_1 AS cdta,
         b.proportion_in_cdta_1 AS proportion_in_cdta,
         round(a.units_net * b.proportion_in_cdta_1) AS units_net_in_cdta,
+        round(a.future_phased_units_total * b.proportion_in_cdta_1) AS future_phased_units_total_in_cdta,
         round(a.future_units_without_phasing * b.proportion_in_cdta_1) AS future_units_without_phasing_in_cdta,
+        round(a.completed_units * b.proportion_in_cdta_1) AS completed_units_in_cdta,
         round(b.proportion_in_cdta_1 * a.within_5_years::decimal
         ) AS within_5_years_in_cdta,
         round(b.proportion_in_cdta_1 * a.from_5_to_10_years::decimal

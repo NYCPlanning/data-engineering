@@ -5,6 +5,7 @@ OUTPUT: longform_nta_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_nta;
+DROP INDEX IF EXISTS aggregated_nta_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_nta;
 DROP TABLE IF EXISTS aggregated_nta_longform;
 DROP TABLE IF EXISTS aggregated_nta_project_level;
@@ -238,6 +239,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_nta_4
 ) AS _1;
+CREATE INDEX aggregated_nta_gix ON aggregated_nta USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any Boundary*/
@@ -338,7 +340,9 @@ FROM (
         b.nta_1 AS nta,
         b.proportion_in_nta_1 AS proportion_in_nta,
         round(a.units_net * b.proportion_in_nta_1) AS units_net_in_nta,
+        round(a.future_phased_units_total * b.proportion_in_nta_1) AS future_phased_units_total_in_nta,
         round(a.future_units_without_phasing * b.proportion_in_nta_1) AS future_units_without_phasing_in_nta,
+        round(a.completed_units * b.proportion_in_nta_1) AS completed_units_in_nta,
         round(b.proportion_in_nta_1 * a.within_5_years::decimal
         ) AS within_5_years_in_nta,
         round(b.proportion_in_nta_1 * a.from_5_to_10_years::decimal

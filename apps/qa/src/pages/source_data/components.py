@@ -36,7 +36,9 @@ def plot_series(
         timestamps = [m.timestamp for m in metadata]
         versions = [m.version for m in metadata]
         ax.plot(
-            timestamps,
+            # mypy is not happy with list of datetimes, as this technically isn't ArrayLike
+            # however, it is valid in pyplot
+            timestamps,  # type: ignore
             [n - index - 1 for _ in versions],
             marker="o",
             markersize=12,

@@ -77,7 +77,6 @@ jobs:
     uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
-      create_issue: true
       dataset_name: pluto
       dev_image: ${{ inputs.dev_image }}
       recipe_file: recipe-minor

@@ -5,6 +5,7 @@ OUTPUT: longform_ct_output
 *************************************************************************************************************************************************************************************/
 
 DROP TABLE IF EXISTS aggregated_ct;
+DROP INDEX IF EXISTS aggregated_ct_gix;
 DROP TABLE IF EXISTS ungeocoded_projects_ct;
 DROP TABLE IF EXISTS aggregated_ct_longform;
 DROP TABLE IF EXISTS aggregated_ct_project_level;
@@ -237,6 +238,7 @@ FROM (
 
     SELECT * FROM aggregated_boundaries_ct_4
 ) AS _1;
+CREATE INDEX aggregated_ct_gix ON aggregated_ct USING gist (geometry gist_geometry_ops_2d);
 
 
 /*Identify projects which did not geocode to any CT*/
@@ -337,7 +339,9 @@ FROM (
         b.ct_1 AS ct,
         b.proportion_in_ct_1 AS proportion_in_ct,
         round(a.units_net * b.proportion_in_ct_1) AS units_net_in_ct,
+        round(a.future_phased_units_total * b.proportion_in_ct_1) AS future_phased_units_total_in_ct,
         round(a.future_units_without_phasing * b.proportion_in_ct_1) AS future_units_without_phasing_in_ct,
+        round(a.completed_units * b.proportion_in_ct_1) AS completed_units_in_ct,
         round(b.proportion_in_ct_1 * a.within_5_years::decimal
         ) AS within_5_years_in_ct,
         round(b.proportion_in_ct_1 * a.from_5_to_10_years::decimal

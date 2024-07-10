@@ -2,45 +2,32 @@ repos:
   - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
     rev: v1.2.0
     hooks:
-      # Green Fast Track
       - id: dbt-clean
-        name: Green Fast Track - dbt clean
+        name: dbt clean
         args:
           [
             "--cmd-flags",
-            "++no-clean-project-files-only",
-            "++profiles-dir",
-            "products/green_fast_track",
-            "++project-dir",
-            "products/green_fast_track",
+            "++no-clean-project-files-only"
           ]
       - id: dbt-docs-generate
-        name: Green Fast Track - dbt docs generate
-        args:
-          [
-            "--cmd-flags",
-            "++profiles-dir",
-            "products/green_fast_track",
-            "++project-dir",
-            "products/green_fast_track",
-          ]
+        name: dbt docs generate
 
       - id: check-script-semicolon
-        name: Green Fast Track - Model scripts have no semicolon
-        files: ^products/green_fast_track/models/
-        args: ["--manifest", "products/green_fast_track/target/manifest.json"]
+        name: Model scripts have no semicolon
+        files: ^./models/
+        args: ["--manifest", "./target/manifest.json"]
 
       - id: check-model-has-properties-file
-        name: Green Fast Track - Models have a properties file
-        files: ^products/green_fast_track/models/
-        args: ["--manifest", "products/green_fast_track/target/manifest.json"]
+        name: Models have a properties file
+        files: ^./models/
+        args: ["--manifest", "./target/manifest.json"]
 
       - id: check-model-parents-and-childs
-        name: Green Fast Track - Staging models have at least 1 child model
-        files: ^products/green_fast_track/models/staging
+        name: Staging models have at least 1 child model
+        files: ^./models/staging
         args: [
                 "--manifest",
-                "products/green_fast_track/target/manifest.json",
+                "./target/manifest.json",
                 "--min-child-cnt",
                 "1",
               ]

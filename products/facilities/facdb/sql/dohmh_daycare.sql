@@ -28,11 +28,13 @@ _dohmh_daycare_tmp AS(
     SELECT
         uid,
         source,
-        (CASE
-            WHEN center_name LIKE '%SBCC%' THEN initcap(legal_name)
-            WHEN center_name LIKE '%SCHOOL BASED CHILD CARE%' THEN initcap(legal_name)
-            ELSE initcap(center_name)
-        END) as facname,
+        REGEXP_REPLACE(
+            (CASE
+                WHEN center_name LIKE '%SBCC%' THEN initcap(legal_name)
+                WHEN center_name LIKE '%SCHOOL BASED CHILD CARE%' THEN initcap(legal_name)
+                ELSE initcap(center_name)
+            END), '\x1a', ''''
+        ) as facname,
         building as addressnum,
         street as streetname,
         building||' '||street as address,
