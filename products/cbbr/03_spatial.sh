@@ -17,7 +17,7 @@ echo "Assign geometries from facilities data ..."
 run_sql_file sql/spatial_facilities.sql
 
 echo "Assign geometries from manual shapefiles ..."
-run_sql sql/spatial_manual.sql
+run_sql_file sql/spatial_manual_map.sql
 
 echo "Running spatial_geomclean ..."
 run_sql_file sql/spatial_geomclean.sql
