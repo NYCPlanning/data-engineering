@@ -52,5 +52,5 @@ rm -rf output && mkdir -p output
     wait
 )
 
-echo "Upload outpits ..."
+echo "Upload outputs ..."
 python3 -m dcpy.connectors.edm.publishing upload -p db-zoningtaxlots -a public-read
