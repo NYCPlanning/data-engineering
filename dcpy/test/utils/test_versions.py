@@ -101,14 +101,13 @@ class TestVersions(TestCase):
             ["23v2", "22v3.4", True],
             ["23Q1", "23Q2", False],
             ["2023-01-01", "2023-08-01", False],
+            ["23Q2", "2023-01-01", True],
         ]:
             self.assertEqual(bool_expected, versions.is_newer(version_1, version_2))
 
     def test_is_newer_invalid_versions(self):
         with self.assertRaises(TypeError):
             versions.is_newer("23v2", "23Q2")
-        with self.assertRaises(TypeError):
-            versions.is_newer("23Q1", "2023-01-01")
         with self.assertRaises(ValueError):
             versions.is_newer("", "2023-08-01")
 
@@ -123,5 +122,13 @@ class TestVersions(TestCase):
             [None, 7, "23Q2", "25Q1"],
             [None, 7, "2023-01", "2023-08"],
             [None, 1, "2023-12", "2024-01"],
+            ["patch", 1, "23v2", "23v2.0.1"],
+            ["patch", 1, "23v2.1", "23v2.1.1"],
+            ["patch", 1, "2023-01", "2023-01.1"],
+            ["patch", 1, "2023-01.2", "2023-01.3"],
+            ["patch", 2, "23Q2.1", "23Q2.3"],
+            ["major", None, "23v2.0.1", "23v3"],
+            ["minor", None, "23v2.2.1", "23v2.3"],
+            [None, 2, "23Q4.1", "24Q2"],
         ]:
             self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)

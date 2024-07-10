@@ -35,7 +35,6 @@ class RegexSpmMatch:
 
 @total_ordering
 class Version:
-    patch: int = 0
 
     @property
     @abstractmethod
@@ -54,13 +53,16 @@ class MajorMinor(Version):
     year: int
     major: int
     minor: int = 0
+    patch: int = 0
 
     @property
     def label(self) -> str:
-        if self.minor == 0:
+        if self.minor == 0 and self.patch == 0:
             return f"{self.year}v{self.major}"
-        else:
+        elif self.minor != 0 and self.patch == 0:
             return f"{self.year}v{self.major}.{self.minor}"
+        else:
+            return f"{self.year}v{self.major}.{self.minor}.{self.patch}"
 
     def __lt__(self, other) -> bool:
         match other:
@@ -97,16 +99,28 @@ class MajorMinor(Version):
 class Date(Version):
     date: date
     format: DateVersionFormat
+    patch: int = 0
 
     @property
     def label(self) -> str:
         match self.format:
             case DateVersionFormat.quarter:
-                return f"{self.date.strftime("%y")}Q{int((self.date.month + 2) / 3)}"
+                if self.patch == 0:
+                    return (
+                        f"{self.date.strftime('%y')}Q{int((self.date.month + 2) / 3)}"
+                    )
+                else:
+                    return f"{self.date.strftime('%y')}Q{int((self.date.month + 2) / 3)}.{self.patch}"
             case DateVersionFormat.month:
-                return self.date.strftime("%Y-%m")
+                if self.patch == 0:
+                    return self.date.strftime("%Y-%m")
+                else:
+                    return f"{self.date.strftime('%Y-%m')}.{self.patch}"
             case DateVersionFormat.date:
-                return self.date.strftime("%Y-%m-%d")
+                if self.patch == 0:
+                    return self.date.strftime("%Y-%m-%d")
+                else:
+                    return f"{self.date.strftime('%Y-%m')}.{self.patch}"
 
     def __lt__(self, other) -> bool:
         match other:
@@ -150,6 +164,7 @@ VersionStrategy = SimpleVersionStrategy | BumpLatestRelease
 class VersionSubType(StrEnum):
     major = "major"
     minor = "minor"
+    patch = "patch"
 
 
 def parse(v: str) -> Version:
@@ -159,20 +174,42 @@ def parse(v: str) -> Version:
             return MajorMinor(year=int(m[1]), major=int(m[2]))
         case r"^(\d{2})v(\d+)\.(\d+)$" as m:
             return MajorMinor(year=int(m[1]), major=int(m[2]), minor=int(m[3]))
+        case r"^(\d{2})v(\d+)\.(\d+)\.(\d+)$" as m:
+            return MajorMinor(
+                year=int(m[1]), major=int(m[2]), minor=int(m[3]), patch=int(m[4])
+            )
         case r"^(\d{2})Q(\d)$" as m:
             return Date(
                 date(2000 + int(m[1]), int(m[2]) * 3 - 2, 1),
                 format=DateVersionFormat.quarter,
+            )
+        case r"^(\d{2})Q(\d)\.(\d+)$" as m:
+            return Date(
+                date(2000 + int(m[1]), int(m[2]) * 3 - 2, 1),
+                format=DateVersionFormat.quarter,
+                patch=int(m[3]),
             )
         case r"^(\d{4})-(\d{2})-(\d{2})$" as m:
             return Date(
                 date(int(m[1]), int(m[2]), int(m[3])),
                 format=DateVersionFormat.date,
             )
+        case r"^(\d{4})-(\d{2})-(\d{2})\.(\d+)$" as m:
+            return Date(
+                date(int(m[1]), int(m[2]), int(m[3])),
+                format=DateVersionFormat.date,
+                patch=int(m[4]),
+            )
         case r"^(\d{4})-(\d{2})$" as m:
             return Date(
                 date(int(m[1]), int(m[2]), 1),
                 format=DateVersionFormat.month,
+            )
+        case r"^(\d{4})-(\d{2}).(\d+)$" as m:
+            return Date(
+                date(int(m[1]), int(m[2]), 1),
+                format=DateVersionFormat.month,
+                patch=int(m[3]),
             )
         case _:
             raise ValueError(
@@ -235,25 +272,48 @@ def bump(
             return MajorMinor(
                 year=previous_version.year, major=previous_version.major + bump_by
             )
-
+        case MajorMinor(), VersionSubType.patch:
+            return MajorMinor(
+                year=previous_version.year,
+                major=previous_version.major,
+                minor=previous_version.minor,
+                patch=previous_version.patch + bump_by,
+            )
         case Date(format=DateVersionFormat.quarter), None:
             return Date(
                 date=previous_version.date + relativedelta(months=bump_by * 3),
                 format=previous_version.format,
+            )
+        case Date(format=DateVersionFormat.quarter), VersionSubType.patch:
+            return Date(
+                date=previous_version.date,
+                format=previous_version.format,
+                patch=previous_version.patch + bump_by,
             )
         case Date(format=DateVersionFormat.month), None:
             return Date(
                 date=previous_version.date + relativedelta(months=bump_by),
                 format=previous_version.format,
             )
+        case Date(format=DateVersionFormat.month), VersionSubType.patch:
+            return Date(
+                date=previous_version.date,
+                format=previous_version.format,
+                patch=previous_version.patch + bump_by,
+            )
+        case Date(format=DateVersionFormat.date), VersionSubType.patch:
+            return Date(
+                date=previous_version.date,
+                format=previous_version.format,
+                patch=previous_version.patch + bump_by,
+            )
         case Date(format=DateVersionFormat.date), None:
-            raise NotImplementedError("Date version cannot be bumped")
+            raise NotImplementedError("Date version cannot be bumped except for patch")
         case Date(), None:
             raise ValueError(f"Unsupported date format {previous_version.format}")
         case Date(), _:
             raise Exception(
                 f"Version subtype {bump_type} not applicable for Date versions"
             )
-
         case _:
             raise ValueError(f"Unsupported version format {previous_version}")
