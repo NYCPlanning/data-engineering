@@ -42,7 +42,7 @@ def get_version(product_key: ProductKey) -> str:
 
 def get_latest_version(product: str) -> str:
     """Given product name, gets latest version
-    Assumes existence of version.txt in output folder
+    Assumes existence of build_metadata.json in output folder
     """
     return get_version(PublishKey(product, "latest"))
 
@@ -211,6 +211,8 @@ def publish(
     target = f"{draft_key.product}/publish/{version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
     if latest:
+        # TODO: if the version is is older than existing latest, pass. provide logging message
+        # TODO: do we want raise an error or a logging message suffices?
         s3.copy_folder(
             BUCKET,
             source,
