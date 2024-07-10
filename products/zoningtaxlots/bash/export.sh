@@ -14,8 +14,6 @@ rm -rf output && mkdir -p output
     csv_export qa_freq qaqc_frequency &
     csv_export qa_bbl qaqc_bbl &
     csv_export qa_mismatch qaqc_mismatch &
-    csv_export qa_freq qaqc_bbl &
-    csv_export qa_freq qaqc_bbl &
     csv_export qa_vers_comparison qc_versioncomparison &
     csv_export qa_null qaqc_null &
     csv_export qa_bbldiffs qc_bbldiffs &
