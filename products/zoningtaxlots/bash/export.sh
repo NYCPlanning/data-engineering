@@ -11,14 +11,14 @@ rm -rf output && mkdir -p output
     cp ../build_metadata.json ./
     
     csv_export zoningtaxlots zoningtaxlot_db &
-    csv_export qa_freq qaqc_frequency &
-    csv_export qa_bbl qaqc_bbl &
-    csv_export qa_mismatch qaqc_mismatch &
-    csv_export qa_vers_comparison qc_versioncomparison &
-    csv_export qa_null qaqc_null &
-    csv_export qa_bbldiffs qc_bbldiffs &
+    csv_export qaqc_frequency qaqc_frequency &
+    csv_export qaqc_bbl qaqc_bbl &
+    csv_export qaqc_mismatch qaqc_mismatch &
+    csv_export qc_versioncomparison qc_versioncomparison &
+    csv_export qaqc_null qaqc_null &
+    csv_export qc_bbldiffs qc_bbldiffs &
 
-    shp_export qa_bbldiffs MULTIPOLYGON -t_srs "EPSG:2263"
+    shp_export qc_bbldiffs MULTIPOLYGON -f qc_bbldiffs -t_srs "EPSG:2263"
 
     echo "${VERSION}" > version.txt
     wait
