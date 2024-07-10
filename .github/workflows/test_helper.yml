@@ -80,11 +80,9 @@ jobs:
           - zoningtaxlots
     steps:
       - uses: actions/checkout@v4
-      - name: Container setup
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
-      - name: dbt setup
+      - name: setup
         run: |
+          git config --global --add safe.directory /__w/data-engineering/data-engineering
           dbt deps
           dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
       - name: sqlfluff
