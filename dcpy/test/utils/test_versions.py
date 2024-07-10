@@ -96,6 +96,22 @@ class TestVersions(TestCase):
                 "2024-01-01",
             ].sort()
 
+    def test_is_newer_valid_versions(self):
+        for version_1, version_2, bool_expected in [
+            ["23v2", "22v3.4", True],
+            ["23Q1", "23Q2", False],
+            ["2023-01-01", "2023-08-01", False],
+        ]:
+            self.assertEqual(bool_expected, versions.is_newer(version_1, version_2))
+
+    def test_is_newer_invalid_versions(self):
+        with self.assertRaises(TypeError):
+            versions.is_newer("23v2", "23Q2")
+        with self.assertRaises(TypeError):
+            versions.is_newer("23Q1", "2023-01-01")
+        with self.assertRaises(ValueError):
+            versions.is_newer("", "2023-08-01")
+
     def test_bumping_versions(self):
         for bumped_part, bump_by, v, v_expected in [
             ["major", None, "23v2", "23v3"],

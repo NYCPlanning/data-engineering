@@ -35,6 +35,8 @@ class RegexSpmMatch:
 
 @total_ordering
 class Version:
+    patch: int = 0
+
     @property
     @abstractmethod
     def label(self) -> str:
@@ -190,6 +192,27 @@ def sort(versions: list[Version]) -> list[Version]:
             f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
         )
     return sorted(versions)
+
+
+def is_newer(version_1: str, version_2: str) -> bool:
+    """
+    Compares `version_1` to `version_2`. Returns True if `version_1` is newer than `version_2`.
+    Both versions are expected to be of same Version subtype.
+    """
+    try:
+        version_1_obj = parse(version_1)
+        version_2_obj = parse(version_2)
+        versions_sorted = sort([version_1_obj, version_2_obj])
+    except TypeError as e:
+        raise e(
+            f"Can't compare mixed types of dataset versions: {type(version_1_obj), type(version_2_obj)}"
+        )
+    except Exception:
+        raise ValueError(
+            f"Tried to parse version: but one or both did not match the expected formats: {version_1, version_2}"
+        )
+
+    return versions_sorted[-1] == version_1_obj
 
 
 def bump(
