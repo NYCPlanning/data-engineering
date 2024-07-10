@@ -22,6 +22,8 @@ from dcpy.models.connectors.edm.publishing import (
 )
 from dcpy.models.lifecycle.builds import BuildMetadata
 
+from botocore.exceptions import ClientError
+
 BUCKET = "edm-publishing"
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
 
@@ -207,19 +209,38 @@ def publish(
     By default, keeps draft output folder"""
     if version is None:
         version = get_version(draft_key)
+
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+
+    # if current version comes after 'latest' version or there are no files in 'latest' folder,
+    # update 'latest' folder
     if latest:
-        # TODO: if the version is is older than existing latest, pass. provide logging message
-        # TODO: do we want raise an error or a logging message suffices?
-        s3.copy_folder(
-            BUCKET,
-            source,
-            f"{draft_key.product}/publish/latest/",
-            acl,
-            max_files=max_files,
-        )
+        try:
+            latest_version = get_latest_version(draft_key.product)
+
+            # Both latest_version and version are expected to be of same version schema
+            after_latest_version = versions.is_newer(
+                version_1=version, version_2=latest_version
+            )
+        except ClientError:
+            latest_version = None
+            after_latest_version = None
+
+        if after_latest_version or latest_version is None:
+            s3.copy_folder(
+                BUCKET,
+                source,
+                f"{draft_key.product}/publish/latest/",
+                acl,
+                max_files=max_files,
+            )
+        else:
+            raise ValueError(
+                f"Unable to update 'latest' folder: the version {version} is older than 'latest' ({latest_version})"
+            )
+
     if not keep_draft:
         s3.delete(BUCKET, source)
 
