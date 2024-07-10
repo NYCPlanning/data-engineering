@@ -178,6 +178,20 @@ def parse(v: str) -> Version:
             )
 
 
+def sort(versions: list[Version]) -> list[Version]:
+    """
+    Sorts version in ascending order: from oldest to newest.
+    """
+    version_types = set([type(v) for v in versions])
+    # can't compare different types
+    if len(version_types) != 1:
+        # only handle date-like versions
+        raise TypeError(
+            f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
+        )
+    return sorted(versions)
+
+
 def bump(
     previous_version: str | Version,
     bump_type: VersionSubType | None = None,
