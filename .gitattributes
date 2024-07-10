@@ -3,3 +3,4 @@
 *.sql linguist-language=SQL
 **/data/** linguist-vendored
 *.ipynb linguist-vendored
+**/docs/** linguist-documentation
