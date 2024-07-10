@@ -204,11 +204,24 @@ def publish(
     keep_draft: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     latest: bool = False,
+    overwrite_if_exists: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if version is None:
         version = get_version(draft_key)
+
+    version_already_published = version in get_published_versions(
+        product=draft_key.product
+    )
+    # Exit if input version already exists and overwrite isn't allowed
+    if version_already_published and not overwrite_if_exists:
+        raise FileExistsError(
+            f"Version {version} already exists in s3. If you wish to overwrite folder contents, select 'overwrite'."
+        )
+    # Bump version if input version already exists in s3
+    elif version_already_published:
+        version = versions.bump(previous_version=version, bump_type="patch", bump_by=1)
 
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
