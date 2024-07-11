@@ -496,6 +496,12 @@ def _cli_wrapper_publish(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Publish to latest folder as well?"
     ),
+    overwrite_if_exists: bool = typer.Option(
+        False,
+        "-o",
+        "--overwrite_if_exists",
+        help="Overwrite contents if version exists?",
+    ),
 ):
     acl_literal = s3.string_as_acl(acl)
     logger.info(
@@ -506,6 +512,7 @@ def _cli_wrapper_publish(
         acl=acl_literal,
         version=version,
         latest=latest,
+        overwrite_if_exists=overwrite_if_exists,
     )
 
 
