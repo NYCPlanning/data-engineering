@@ -170,5 +170,5 @@ def bump(
             raise Exception(
                 f"Version subtype {bump_type} not applicable for Date versions"
             )
-        case _, _:
+        case _:
             raise ValueError(f"Unsupported version format {previous_version}")
