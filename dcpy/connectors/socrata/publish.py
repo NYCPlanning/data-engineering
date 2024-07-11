@@ -401,10 +401,11 @@ def push_dataset(
 
     rev = dataset.create_replace_revision()
 
+    files_by_id = metadata.package.files_by_id()
     attachments_metadata = [
         rev.upload_attachment(
-            dataset_package_path / "attachments" / attachment,
-            dest_file_name=attachment,
+            dataset_package_path / "attachments" / files_by_id[attachment].filename,
+            dest_file_name=files_by_id[attachment].filename,
         )
         for attachment in dest.attachments
     ]
@@ -418,8 +419,7 @@ def push_dataset(
     if dest.is_unparsed_dataset:
         rev.push_blob(
             file_path,
-            dest_filename=dest.overrides.get_dataset_destination_name(version)
-            or file_path.name,
+            dest_filename=dest.overrides.destination_file_name or file_path.name,
         )
     elif md_dataset.type == "csv":
         data_source = rev.push_csv(file_path)

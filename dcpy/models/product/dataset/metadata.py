@@ -1,8 +1,11 @@
 from __future__ import annotations
+import jinja2
 from pathlib import Path
 from pydantic import BaseModel, conlist
 from typing import Any, Literal
 import yaml
+
+from dcpy.utils.logging import logger
 
 # Putting this here so we can have a constant value in all connectors
 # and throw an exception when we attempt to deserialize files that contain it.
@@ -40,23 +43,18 @@ class DatasetOverrides(BaseModel, extra="forbid"):
     display_name: str | None = None
     description: str | None = None
     tags: list[str] = []
-    destination_file_name: str | None = None
+    destination_file_name: str | None = None  # TODO filename
 
-    _VERSION_TEMPLATE_TOKEN = "{{ version }}"
 
-    def get_dataset_destination_name(self, version) -> str:
-        """Get filename for the destination dataset. Should only be invoked for unparsed datasets."""
-        return (
-            self.destination_file_name.replace(self._VERSION_TEMPLATE_TOKEN, version)
-            if self.destination_file_name is not None
-            else ""
-        )
+class RemoteFile(BaseModel, extra="forbid"):
+    id: str
+    url: str
 
 
 class BytesDestination(BaseModel, extra="forbid"):
     type: Literal["bytes"]
     id: str
-    datasets: list[str]
+    files: list[RemoteFile]
     overrides: DatasetOverrides = DatasetOverrides()
 
 
@@ -124,10 +122,17 @@ class SocrataDestination(BaseModel, extra="forbid"):
         return soc_cols
 
 
-class DatasetFile(BaseModel, extra="forbid"):
-    name: str
-    type: str
+class File(BaseModel, extra="forbid"):
+    name: str  # TODO: migrate to `key` or `id`
     filename: str
+    type: str | None = None
+
+    @property
+    def id(self):  # TODO: remove when we migrate
+        return self.name
+
+
+class DatasetFile(File, extra="forbid"):
     overrides: DatasetOverrides = DatasetOverrides()
 
     def get_columns(self, metadata: Metadata) -> list[Column]:
@@ -142,15 +147,50 @@ class DatasetFile(BaseModel, extra="forbid"):
         return cols
 
 
+class ZipFile(File, extra="forbid"):
+    type: Literal["Zip"] = "Zip"
+    contains: list[File]
+
+
 class Package(BaseModel, extra="forbid"):
+    # TODO: should these just be combined into one flat list of files? Why have three distinctions
     dataset_files: list[DatasetFile]
-    attachments: list[str]
+    attachments: list[File]
+    zip_files: list[ZipFile] = []
+
+    _ASSET_TYPES = Literal["dataset_files", "attachments", "zip_files"]
+
+    def __init__(self, **data):
+        file_attachments = []
+        for a in data["attachments"]:
+            if type(a) is str:
+                logger.warning(
+                    f"Found string attachment type: {a}. Migrate to File type."
+                )
+                file_attachments.append(File(name=a, filename=a).model_dump())
+            else:
+                file_attachments.append(a)
+        data["attachments"] = file_attachments
+        super().__init__(**data)
+
+    def asset_types_by_file_id(self) -> dict[str, _ASSET_TYPES]:
+        return (
+            {dsf.id: "dataset_files" for dsf in self.dataset_files}
+            | {a.id: "attachments" for a in self.attachments}
+            | {z.id: "zip_files" for z in self.zip_files}
+        )  # type: ignore
+
+    def get_files(self) -> list[File]:
+        return self.dataset_files + self.zip_files + self.attachments
 
     def get_dataset(self, ds_id: str) -> DatasetFile:
-        ds = [d for d in self.dataset_files if d.name == ds_id]
+        ds = [d for d in self.dataset_files if d.id == ds_id]
         if len(ds) == 1:
             return ds[0]
         raise Exception(f"No dataset named {ds_id}")
+
+    def files_by_id(self) -> dict[str, File]:
+        return {f.id: f for f in self.get_files()}
 
 
 class Metadata(BaseModel, extra="forbid"):
@@ -161,13 +201,37 @@ class Metadata(BaseModel, extra="forbid"):
     tags: list[str]
     each_row_is_a: str
 
-    destinations: list[BytesDestination | SocrataDestination]
+    destinations: list[
+        BytesDestination | SocrataDestination
+    ]  # TODO: Destination superclass
     package: Package
     columns: list[Column]
 
+    # Hold onto this for serialization, to avoid Pydantics reformatting of the metadata.yml
+    _templated_source_metadata: str
+
+    def __init__(self, templated_source_metadata: str = "", **data):
+        super().__init__(**data)
+        self._templated_source_metadata = templated_source_metadata
+
     @staticmethod
-    def from_yaml(path: Path):
-        return Metadata(**yaml.safe_load(open(path, "r")))
+    def from_yaml(yaml_str: str, *, template_vars=None):
+        logger.info(f"Templating the metadata with vars: {template_vars}")
+        templated = jinja2.Template(yaml_str, undefined=jinja2.StrictUndefined).render(
+            template_vars or {}
+        )
+        return Metadata(
+            templated_source_metadata=templated, **yaml.safe_load(templated)
+        )
+
+    @classmethod
+    def from_path(cls, path: Path, *, template_vars=None):
+        with open(path, "r") as raw:
+            return cls.from_yaml(raw.read(), template_vars=template_vars)
+
+    def write_source_metadata_to_file(self, path: Path):
+        with open(path, "w") as f:
+            f.write(self._templated_source_metadata)
 
     def get_destination(self, dest_id) -> BytesDestination | SocrataDestination:
         ds = [d for d in self.destinations if d.id == dest_id]

@@ -99,7 +99,8 @@ def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Meta
                 )
             ],
             attachments=[
-                a["filename"] for a in socrata_md["metadata"].get("attachments", [])
+                models.File(name=a["filename"], filename=a["filename"])
+                for a in socrata_md["metadata"].get("attachments", [])
             ],
         ),
     )

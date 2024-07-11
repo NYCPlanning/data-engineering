@@ -30,5 +30,5 @@ def test_creating_dcp_metadata():
     assert (
         len(dcp_md.package.attachments) == 1
     ), "There should be the correct number of attachments"
-    assert dcp_md.package.attachments[0] == sample_metadata.MIH_ATTACHMENT_NAME
+    assert dcp_md.package.attachments[0].filename == sample_metadata.MIH_ATTACHMENT_NAME
     assert len(dcp_md.package.dataset_files) == 1, "There should be one dataset"
