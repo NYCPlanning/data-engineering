@@ -214,13 +214,8 @@ def publish(
     version_already_published = version in get_published_versions(
         product=draft_key.product
     )
-    # Exit if input version already exists and overwrite isn't allowed
+    # Bump version if input version already exists and overwrite isn't allowed
     if version_already_published and not overwrite_if_exists:
-        raise FileExistsError(
-            f"Version {version} already exists in s3. If you wish to overwrite folder contents, select 'overwrite'."
-        )
-    # Bump version if input version already exists in s3
-    elif version_already_published:
         version = versions.bump(previous_version=version, bump_type="patch", bump_by=1)
 
     source = draft_key.path + "/"
