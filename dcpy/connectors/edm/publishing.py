@@ -216,7 +216,9 @@ def publish(
     )
     # Bump version if input version already exists and overwrite isn't allowed
     if version_already_published and not overwrite_if_exists:
-        version = versions.bump(previous_version=version, bump_type="patch", bump_by=1)
+        version = versions.bump(
+            previous_version=version, bump_type=versions.VersionSubType.patch, bump_by=1
+        )
 
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
