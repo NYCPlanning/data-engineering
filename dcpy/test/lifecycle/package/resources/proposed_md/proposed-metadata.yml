@@ -6,7 +6,8 @@ each_row_is_a: ""
 tags: ["a", "b"]
 
 columns:
-  - name: uid # key? id? or leave it?
+  - id: myreallylongcolumnuid # Use id
+    # TODO: api_name'ish stuff
     display_name: Unique ID
     data_source: Department of City Planning
     description: ""
@@ -14,9 +15,11 @@ columns:
     example: cbe20732be28f6ab445289d7a67bb241
     checks:
       is_primary_key: True
+      nullable: True
     custom:
       # not broadly applicable, so chuck under "custom"
       readme_data_type: string
+      does_alex_like_this_column: False
 
 assembly:
   - key: csv_package
@@ -28,7 +31,7 @@ assembly:
       - key: colp_readme
         filename: colp_readme.pdf
 
-package_files:
+files:
   - key: primary_shapefile
     filename: colp_single_feature_shp.zip
     type: shapefile
