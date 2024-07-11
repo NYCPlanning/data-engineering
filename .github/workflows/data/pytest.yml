@@ -4,7 +4,7 @@
   db: db-checkbook
   calls: ["./products/checkbook -s --verbose --verbose"]
 - name: cbbr
-  working-directory: products/cbbr/cbbr_build
+  working-directory: products/cbbr
   calls: ["."]
 - name: zap
   working-directory: products/zap-opendata

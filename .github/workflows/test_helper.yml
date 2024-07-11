@@ -31,7 +31,7 @@ jobs:
         run: |
           # TODO: Gradually expand this to cover more products
           sqlfluff lint products/template/sql
-          sqlfluff lint products/cbbr/cbbr_build/sql
+          sqlfluff lint products/cbbr/sql
           sqlfluff lint products/cpdb/sql/
           sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
           sqlfluff lint products/developments/sql/*.sql
