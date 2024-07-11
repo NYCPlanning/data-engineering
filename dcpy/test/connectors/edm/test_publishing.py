@@ -50,26 +50,37 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
     assert publishing.get_version(product_key=draft_key) == TEST_VERSION
 
 
-def test_publish(create_buckets, create_temp_filesystem, mock_data_constants):
+def test_publish_overwrite_and_patch(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
     """Tests publish function as well as get_version and get_latest_version"""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    raise NotImplemented
+
+
+def test_publish_draft_folder(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """
+    Test to confirm files are retained or deleted based on input argument.
+    """
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.publish(draft_key=draft_key, keep_draft=False, acl=TEST_ACL)
+
+    assert publishing.get_draft_builds(product=draft_key.product) == []
+
+    publishing.publish(draft_key=draft_key, keep_draft=True, acl=TEST_ACL)
+    assert publishing.get_draft_builds(product=draft_key.product) == [TEST_BUILD]
+
+
+def test_publish_expected_data(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """Tests whether published data matches original data."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
     publishing.publish(draft_key=draft_key, acl=TEST_ACL)
-
-    assert publishing.get_draft_builds(product=draft_key.product) == [TEST_BUILD]
-    assert [TEST_VERSION] == publishing.get_published_versions(
-        product=TEST_PRODUCT_NAME
-    )
-
-    # assert that latest folder was not populated
-    with pytest.raises(ClientError) as e_info:
-        publishing.get_latest_version(TEST_PRODUCT_NAME)
-
-    # re-publish with latest flag, delete draft
-    publishing.publish(draft_key=draft_key, acl=TEST_ACL, keep_draft=False, latest=True)
-
-    assert publishing.get_draft_builds(product=draft_key.product) == []
-    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == publish_key.version
 
     test_data = pd.DataFrame(
         data=mock_data_constants["TEST_DATA"],
@@ -79,6 +90,25 @@ def test_publish(create_buckets, create_temp_filesystem, mock_data_constants):
         product_key=publish_key, filepath=mock_data_constants["TEST_FILE"]
     )
     assert published_data.equals(test_data)
+
+
+def test_publish_latest_folder(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """
+    Test to confirm files are not published to "latest" folder when input arg `latest` = False.
+    """
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=False)
+
+    # assert that latest folder was not populated
+    with pytest.raises(ClientError) as e_info:
+        publishing.get_latest_version(TEST_PRODUCT_NAME)
+
+    # republish with latest = True
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=True)
+    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == publish_key.version
 
 
 @pytest.fixture()
