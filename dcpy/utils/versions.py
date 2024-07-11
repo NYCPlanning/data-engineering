@@ -39,12 +39,6 @@ class Version:
     def label(self) -> str:
         raise NotImplementedError("Version is an abstract class")
 
-    @abstractmethod
-    def bump(
-        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
-    ) -> Version:
-        raise NotImplementedError("Version is an abstract class")
-
 
 @dataclass(order=True)
 class MajorMinor(Version):
@@ -58,20 +52,6 @@ class MajorMinor(Version):
             return f"{self.year}v{self.major}"
         else:
             return f"{self.year}v{self.major}.{self.minor}"
-
-    def bump(
-        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
-    ) -> MajorMinor:
-        bump_by = bump_by or 1
-        match version_subtype:
-            case None:
-                raise Exception("Must specify major or minor version to bump.")
-            case VersionSubType.minor:
-                return MajorMinor(
-                    year=self.year, major=self.major, minor=self.minor + bump_by
-                )
-            case VersionSubType.major:
-                return MajorMinor(year=self.year, major=self.major + bump_by)
 
 
 @dataclass(order=True)
@@ -88,28 +68,6 @@ class Date(Version):
                 return self.date.strftime("%Y-%m")
             case DateVersionFormat.date:
                 return self.date.strftime("%Y-%m-%d")
-
-    def bump(
-        self, version_subtype: VersionSubType | None = None, bump_by: int | None = None
-    ) -> Date:
-        if version_subtype is not None:
-            raise Exception(
-                f"Version subtype {version_subtype} not applicable for Quarterly versions"
-            )
-        bump_by = bump_by or 1
-        match self.format:
-            case DateVersionFormat.quarter:
-                return Date(
-                    date=self.date + relativedelta(months=bump_by * 3),
-                    format=self.format,
-                )
-            case DateVersionFormat.month:
-                return Date(
-                    date=self.date + relativedelta(months=bump_by),
-                    format=self.format,
-                )
-            case DateVersionFormat.date:
-                raise NotImplementedError("Date version cannot be bumped")
 
 
 def generate_first_of_month() -> Date:
@@ -173,11 +131,44 @@ def sort(versions: list[Version]) -> list[Version]:
 
 
 def bump(
-    previous_version: str,
+    previous_version: str | Version,
     bump_type: VersionSubType | None = None,
     bump_by: int | None = None,
-) -> str:
+) -> Version:
     """Takes a version string, attempts to parse it, bumps it, and returns the string label of the bumped version"""
-    version = parse(previous_version)
-    bumped = version.bump(bump_type, bump_by=bump_by)
-    return bumped.label
+    if isinstance(previous_version, str):
+        previous_version = parse(previous_version)
+    bump_by = bump_by or 1
+    match previous_version, bump_type:
+        case MajorMinor(), None:
+            raise Exception("Must specify major or minor version to bump.")
+        case MajorMinor(), VersionSubType.minor:
+            return MajorMinor(
+                year=previous_version.year,
+                major=previous_version.major,
+                minor=previous_version.minor + bump_by,
+            )
+        case MajorMinor(), VersionSubType.major:
+            return MajorMinor(
+                year=previous_version.year, major=previous_version.major + bump_by
+            )
+        case Date(format=DateVersionFormat.quarter), None:
+            return Date(
+                date=previous_version.date + relativedelta(months=bump_by * 3),
+                format=previous_version.format,
+            )
+        case Date(format=DateVersionFormat.month), None:
+            return Date(
+                date=previous_version.date + relativedelta(months=bump_by),
+                format=previous_version.format,
+            )
+        case Date(format=DateVersionFormat.date), None:
+            raise NotImplementedError("Date version cannot be bumped")
+        case Date(), None:
+            raise ValueError(f"Unsupported date format {previous_version.format}")
+        case Date(), _:
+            raise Exception(
+                f"Version subtype {bump_type} not applicable for Date versions"
+            )
+        case _, _:
+            raise ValueError(f"Unsupported version format {previous_version}")

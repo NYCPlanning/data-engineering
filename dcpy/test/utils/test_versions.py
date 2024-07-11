@@ -99,4 +99,4 @@ class TestVersions(TestCase):
             [None, 7, "2023-01", "2023-08"],
             [None, 1, "2023-12", "2024-01"],
         ]:
-            self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by))
+            self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)
