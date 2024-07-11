@@ -1,3 +1,4 @@
+from datetime import date
 from unittest import TestCase
 
 from dcpy.utils import versions
@@ -9,9 +10,20 @@ class TestVersions(TestCase):
             ["23v2", versions.MajorMinor(year=23, major=2)],
             ["23v2.11", versions.MajorMinor(year=23, major=2, minor=11)],
             ["24v34.56", versions.MajorMinor(year=24, major=34, minor=56)],
-            ["2020-03-28", versions.Date(year=2020, month=3, day=28)],
-            ["2023-01-01", versions.FirstOfMonth(year=2023, month=1)],
-            ["23Q4", versions.Quarter(year=23, quarter=4)],
+            [
+                "2020-03-28",
+                versions.Date(
+                    date=date(2020, 3, 28),
+                    format=versions.DateVersionFormat.date,
+                ),
+            ],
+            [
+                "23Q4",
+                versions.Date(
+                    date=date(2023, 10, 1),
+                    format=versions.DateVersionFormat.quarter,
+                ),
+            ],
         ]:
             self.assertEqual(parsed, versions.parse(version))
 
@@ -27,57 +39,51 @@ class TestVersions(TestCase):
         for version_list, sorted in [
             [
                 [
-                    versions.MajorMinor(year=2023, major=2),
-                    versions.MajorMinor(year=2023, major=1),
+                    "23v2",
+                    "23v1",
+                    "22v3.1",
+                    "22v3",
                 ],
                 [
-                    versions.MajorMinor(year=2023, major=1),
-                    versions.MajorMinor(year=2023, major=2),
-                ],
-            ],
-            [
-                [
-                    versions.Date(year=2023, month=1, day=2),
-                    versions.FirstOfMonth(year=2023, month=1),
-                ],
-                [
-                    versions.FirstOfMonth(year=2023, month=1),
-                    versions.Date(year=2023, month=1, day=2),
+                    "22v3",
+                    "22v3.1",
+                    "23v1",
+                    "23v2",
                 ],
             ],
             [
                 [
-                    versions.FirstOfMonth(year=2023, month=3),
-                    versions.FirstOfMonth(year=2023, month=2),
-                    versions.Date(year=2023, month=2, day=2),
+                    "23Q4",
+                    "2023-10-02",
+                    "2023-11-02",
+                    "2023-11",
+                    "2023-02-05",
+                    "2024-01-01",
+                    "23Q2",
                 ],
                 [
-                    versions.FirstOfMonth(year=2023, month=2),
-                    versions.Date(year=2023, month=2, day=2),
-                    versions.FirstOfMonth(year=2023, month=3),
-                ],
-            ],
-            [
-                [
-                    versions.Date(year=2023, month=2, day=2),
-                    versions.Date(year=2023, month=1, day=20),
-                    versions.FirstOfMonth(year=2023, month=2),
-                ],
-                [
-                    versions.Date(year=2023, month=1, day=20),
-                    versions.FirstOfMonth(year=2023, month=2),
-                    versions.Date(year=2023, month=2, day=2),
+                    "2023-02-05",
+                    "23Q2",
+                    "23Q4",
+                    "2023-10-02",
+                    "2023-11",
+                    "2023-11-02",
+                    "2024-01-01",
                 ],
             ],
         ]:
-            self.assertEqual(sorted, versions.sort(version_list))
+            parsed_and_sorted = versions.sort([versions.parse(v) for v in version_list])
+            labels = [v.label for v in parsed_and_sorted]
+            self.assertEqual(sorted, labels)
 
     def test_sort_invalid_versions(self):
         with self.assertRaises(TypeError):
             versions.sort(
                 [
-                    versions.FirstOfMonth(year=2023, month=1),
-                    versions.MajorMinor(year=2023, major=2),
+                    versions.Date(
+                        date(2024, 1, 1), format=versions.DateVersionFormat.quarter
+                    ),
+                    versions.MajorMinor(year=23, major=2),
                 ]
             )
 
@@ -90,7 +96,7 @@ class TestVersions(TestCase):
             [None, 1, "23Q1", "23Q2"],
             [None, 2, "23Q4", "24Q2"],
             [None, 7, "23Q2", "25Q1"],
-            [None, 7, "2023-01-01", "2023-08-01"],
-            [None, 1, "2023-12-01", "2024-01-01"],
+            [None, 7, "2023-01", "2023-08"],
+            [None, 1, "2023-12", "2024-01"],
         ]:
-            self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by))
+            self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)
