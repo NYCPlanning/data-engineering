@@ -4,12 +4,13 @@ import pandas as pd
 from pathlib import Path
 import pytest
 
-from dcpy.utils import s3
+from dcpy.utils import s3, versions
 from dcpy.connectors.edm import publishing
 
 TEST_PRODUCT_NAME = "test-product"
 TEST_BUILD = "build-branch"
-TEST_VERSION = "v001"
+TEST_VERSION_OBJ = versions.MajorMinor(year=24, major=2)  # matches conftest.py
+TEST_VERSION = TEST_VERSION_OBJ.label
 TEST_ACL = "bucket-owner-read"
 TEST_BUCKET_NAME = "edm-publishing"
 TEST_GIS_DATASET = "test_gis_dataset"
@@ -53,9 +54,45 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
 def test_publish_overwrite_and_patch(
     create_buckets, create_temp_filesystem, mock_data_constants
 ):
-    """Tests publish function as well as get_version and get_latest_version"""
+    """Tests publish function to overwrite existing files or patch a version."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    raise NotImplemented
+    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.publish(
+        draft_key=draft_key,
+        acl=TEST_ACL,
+        version=TEST_VERSION,
+        keep_draft=True,
+        latest=False,
+    )
+    # re-publish and assert existing files get overwritten
+    publishing.publish(
+        draft_key=draft_key,
+        acl=TEST_ACL,
+        version=TEST_VERSION,
+        keep_draft=True,
+        latest=False,
+        overwrite_if_exists=True,
+    )
+    assert publishing.get_published_versions(product=draft_key.product) == [
+        TEST_VERSION
+    ]
+    # re-publish and assert a bumped version is created
+    publishing.publish(
+        draft_key=draft_key,
+        acl=TEST_ACL,
+        version=TEST_VERSION,
+        keep_draft=True,
+        latest=False,
+        overwrite_if_exists=False,
+    )
+    bumped_version = versions.bump(
+        previous_version=TEST_VERSION,
+        bump_type=versions.VersionSubType.patch,
+        bump_by=1,
+    )
+    assert set(publishing.get_published_versions(product=draft_key.product)) == set(
+        [TEST_VERSION, bumped_version]
+    )
 
 
 def test_publish_draft_folder(
@@ -66,11 +103,22 @@ def test_publish_draft_folder(
     """
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(draft_key=draft_key, keep_draft=False, acl=TEST_ACL)
+    publishing.publish(
+        draft_key=draft_key,
+        acl=TEST_ACL,
+        version=TEST_VERSION,
+        keep_draft=False,
+    )
 
     assert publishing.get_draft_builds(product=draft_key.product) == []
 
-    publishing.publish(draft_key=draft_key, keep_draft=True, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.publish(
+        draft_key=draft_key,
+        acl=TEST_ACL,
+        version=TEST_VERSION,
+        keep_draft=True,
+    )
     assert publishing.get_draft_builds(product=draft_key.product) == [TEST_BUILD]
 
 
@@ -80,19 +128,20 @@ def test_publish_expected_data(
     """Tests whether published data matches original data."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(draft_key=draft_key, acl=TEST_ACL)
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION)
 
     test_data = pd.DataFrame(
         data=mock_data_constants["TEST_DATA"],
         columns=mock_data_constants["TEST_DATA_FIELDS"],
     )
+    publish_key = publishing.PublishKey(product=draft_key.product, version=TEST_VERSION)
     published_data = publishing.read_csv(
         product_key=publish_key, filepath=mock_data_constants["TEST_FILE"]
     )
     assert published_data.equals(test_data)
 
 
-def test_publish_latest_folder(
+def test_publish_excludes_latest_when_flag_false(
     create_buckets, create_temp_filesystem, mock_data_constants
 ):
     """
@@ -100,15 +149,47 @@ def test_publish_latest_folder(
     """
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=False)
 
+    publishing.publish(
+        draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=False
+    )
     # assert that latest folder was not populated
     with pytest.raises(ClientError) as e_info:
         publishing.get_latest_version(TEST_PRODUCT_NAME)
+    # assert a file is published to "latest"
+    publishing.publish(
+        draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=True
+    )
+    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
 
-    # republish with latest = True
-    publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=True)
-    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == publish_key.version
+
+def test_publish_latest_ignores_older_versions(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """
+    Test to confirm 'latest' folder doesn't get updated with older data version.
+    """
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+
+    publishing.publish(
+        draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=True
+    )
+    # sanity check
+    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
+
+    # republish an older version. "latest" should NOT be updated
+    TEST_VERSION_OBJ = versions.parse(TEST_VERSION)
+    older_version = versions.MajorMinor(
+        year=TEST_VERSION_OBJ.year, major=TEST_VERSION_OBJ.major - 1
+    ).label
+    with pytest.raises(ValueError) as e_info:
+        publishing.publish(
+            draft_key=draft_key,
+            acl=TEST_ACL,
+            version=older_version,
+            latest=True,
+        )
 
 
 @pytest.fixture()

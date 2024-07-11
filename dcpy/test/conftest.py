@@ -8,7 +8,7 @@ import pytest
 import shutil
 import yaml
 
-from dcpy.utils import s3
+from dcpy.utils import s3, versions
 from dcpy.models.lifecycle.builds import BuildMetadata
 from dcpy.connectors.edm import recipes, publishing, packaging
 from dcpy.lifecycle.builds import plan
@@ -54,7 +54,7 @@ def mock_data_constants():
         )
 
     test_product_name = "test-product"
-    test_version = "v001"
+    test_version = versions.MajorMinor(year=24, major=2).label
     constants = {
         "TEST_PRODUCT_NAME": test_product_name,
         "TEST_PACKAGE_DATASET": "test_package_dataset",
