@@ -1,0 +1,96 @@
+name: db-colp
+display_name: City Owned and Leased Property (COLP)
+summary: "Raw Summary"
+description: "Raw Description"
+each_row_is_a: ""
+tags: ["a", "b"]
+
+columns:
+  - name: uid # key? id? or leave it?
+    display_name: Unique ID
+    data_source: Department of City Planning
+    description: ""
+    data_type: text
+    example: cbe20732be28f6ab445289d7a67bb241
+    checks:
+      is_primary_key: True
+    custom:
+      # not broadly applicable, so chuck under "custom"
+      readme_data_type: string
+
+assembly:
+  - key: csv_package
+    type: zip
+    filename: csv_package.zip
+    contains:
+      - key: primary_csv
+        filename: colp_{{ version }}.csv
+      - key: colp_readme
+        filename: colp_readme.pdf
+
+package_files:
+  - key: primary_shapefile
+    filename: colp_single_feature_shp.zip
+    type: shapefile
+    overrides:
+      columns:
+        GEOM:
+          name: geometry
+          data_type: geom_point
+      display_name: "display_name overridden at the dataset_file level"
+      description: "description overridden at the dataset_file level"
+    custom:
+      ignore_validation: ["AGREEMENT", "DCPEDITED", "FINALCOM"]
+
+  - key: primary_csv
+    filename: colp_single_feature.csv
+    type: csv
+    overrides:
+      omit_columns: ["GEOM"]
+
+  - key: colp_readme
+    filename: colp_readme.pdf
+
+# Change destinations to be same between different types (e.g. Socrata and Bytes)
+# Adding new destination types shouldn't require a code change in our models.
+# TODO: how to maintain some static checking
+destinations:
+  - id: socrata_prod # or key? or do we like `id`
+    type: socrata
+    custom:
+      four_four: "fn4k-qyk2"
+    files:
+      - id: primary_shapefile
+        overrides:
+          omit_columns: [dcpedited, uid]
+        custom:
+          display_name: "display_name overridden at the destination level"
+          destination_use: dataset_file # better name than type? destination_use
+      - id: colp_readme
+        custom:
+          destination_use: attachment
+
+  - id: socrata_unparsed
+    type: socrata
+    custom:
+      four_four: "fn4k-abcd"
+    files:
+      - id: primary_shapefile
+        custom:
+          is_unparsed_dataset_file: True
+          destination_use: dataset_file
+      - id: colp_readme
+        custom:
+          destination_file_name: shapefile_blob_{{ version }}
+          destination_use: attachment
+
+  # BYTES
+  - id: bytes
+    type: bytes
+    files:
+      - id: csv_package
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
+      - id: colp_readme
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/colp_readme.pdf
