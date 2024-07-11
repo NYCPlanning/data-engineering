@@ -152,7 +152,7 @@ def bump(
             return MajorMinor(
                 year=previous_version.year, major=previous_version.major + bump_by
             )
-        
+
         case Date(format=DateVersionFormat.quarter), None:
             return Date(
                 date=previous_version.date + relativedelta(months=bump_by * 3),
@@ -171,6 +171,6 @@ def bump(
             raise Exception(
                 f"Version subtype {bump_type} not applicable for Date versions"
             )
-        
+
         case _:
             raise ValueError(f"Unsupported version format {previous_version}")
