@@ -220,7 +220,9 @@ class Metadata(BaseModel, extra="forbid"):
         templated = jinja2.Template(yaml_str, undefined=jinja2.StrictUndefined).render(
             template_vars or {}
         )
-        return Metadata(templated_source_metadata=templated, **yaml.safe_load(templated))  # type: ignore
+        return Metadata(
+            templated_source_metadata=templated, **yaml.safe_load(templated)
+        )
 
     @classmethod
     def from_path(cls, path: Path, *, template_vars=None):
