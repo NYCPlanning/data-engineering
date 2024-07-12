@@ -38,7 +38,9 @@ filtered AS (
         segbblgeom,
         segzonegeom
     FROM commoverlayper
-    WHERE (segbblgeom / allbblgeom) * 100 >= 10 OR (segzonegeom / allzonegeom) * 100 >= 50
+    WHERE
+        (segbblgeom / allbblgeom) * 100 >= 10
+        OR (segzonegeom / allzonegeom) * 100 >= 50
 ),
 
 grouped AS (

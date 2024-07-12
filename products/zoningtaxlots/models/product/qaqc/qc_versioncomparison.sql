@@ -45,7 +45,9 @@ pivot_mismatch AS (
     UNION
     SELECT
         'commercial_overlay_1' AS field,
-        count(nullif(a.commercial_overlay_1 = b.commercial_overlay_1, true)) AS count
+        count(
+            nullif(a.commercial_overlay_1 = b.commercial_overlay_1, true)
+        ) AS count
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl
@@ -53,7 +55,9 @@ pivot_mismatch AS (
     UNION
     SELECT
         'commercial_overlay_2' AS field,
-        count(nullif(a.commercial_overlay_2 = b.commercial_overlay_2, true)) AS count
+        count(
+            nullif(a.commercial_overlay_2 = b.commercial_overlay_2, true)
+        ) AS count
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl
@@ -61,7 +65,9 @@ pivot_mismatch AS (
     UNION
     SELECT
         'special_district_1' AS field,
-        count(nullif(a.special_district_1 = b.special_district_1, true)) AS count
+        count(
+            nullif(a.special_district_1 = b.special_district_1, true)
+        ) AS count
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl
@@ -69,7 +75,9 @@ pivot_mismatch AS (
     UNION
     SELECT
         'special_district_2' AS field,
-        count(nullif(a.special_district_2 = b.special_district_2, true)) AS count
+        count(
+            nullif(a.special_district_2 = b.special_district_2, true)
+        ) AS count
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl
@@ -77,7 +85,9 @@ pivot_mismatch AS (
     UNION
     SELECT
         'special_district_3' AS field,
-        count(nullif(a.special_district_3 = b.special_district_3, true)) AS count
+        count(
+            nullif(a.special_district_3 = b.special_district_3, true)
+        ) AS count
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl
@@ -85,7 +95,9 @@ pivot_mismatch AS (
     UNION
     SELECT
         'limited_height_district' AS field,
-        count(nullif(a.limited_height_district = b.limited_height_district, true)) AS count
+        count(
+            nullif(a.limited_height_district = b.limited_height_district, true)
+        ) AS count
     FROM new_version AS a
     INNER JOIN prev_version AS b
         ON a.bbl = b.bbl

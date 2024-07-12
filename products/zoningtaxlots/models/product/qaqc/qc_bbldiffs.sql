@@ -3,11 +3,11 @@
 ) }}
 
 WITH new_version AS (
-    SELECT * FROM {{ref('int__zoningtaxlots') }}
+    SELECT * FROM {{ ref('int__zoningtaxlots') }}
 ),
 
 prev_version AS (
-    SELECT * FROM {{source('recipe_sources', 'previous_ztl') }}
+    SELECT * FROM {{ source('recipe_sources', 'previous_ztl') }}
 ),
 
 bbldiffs AS (
@@ -50,29 +50,29 @@ bbldiffs AS (
         AND a.tax_block = b.tax_block
         AND a.tax_lot = b.tax_lot
         AND (
-            {{is_diff('a', 'b', 'zoning_district_1')}}
+            {{ is_diff('a', 'b', 'zoning_district_1') }}
             OR
-            {{is_diff('a', 'b', 'zoning_district_2')}}
+            {{ is_diff('a', 'b', 'zoning_district_2') }}
             OR
-            {{is_diff('a', 'b', 'zoning_district_3')}}
+            {{ is_diff('a', 'b', 'zoning_district_3') }}
             OR
-            {{is_diff('a', 'b', 'zoning_district_4')}}
+            {{ is_diff('a', 'b', 'zoning_district_4') }}
             OR
-            {{is_diff('a', 'b', 'commercial_overlay_1')}}
+            {{ is_diff('a', 'b', 'commercial_overlay_1') }}
             OR
-            {{is_diff('a', 'b', 'commercial_overlay_2')}}
+            {{ is_diff('a', 'b', 'commercial_overlay_2') }}
             OR
-            {{is_diff('a', 'b', 'special_district_1')}}
+            {{ is_diff('a', 'b', 'special_district_1') }}
             OR
-            {{is_diff('a', 'b', 'special_district_2')}}
+            {{ is_diff('a', 'b', 'special_district_2') }}
             OR
-            {{is_diff('a', 'b', 'special_district_3')}}
+            {{ is_diff('a', 'b', 'special_district_3') }}
             OR
-            {{is_diff('a', 'b', 'limited_height_district')}}
+            {{ is_diff('a', 'b', 'limited_height_district') }}
             OR
-            {{is_diff('a', 'b', 'zoning_map_number')}}
+            {{ is_diff('a', 'b', 'zoning_map_number') }}
             OR
-            {{is_diff('a', 'b', 'zoning_map_code')}}
+            {{ is_diff('a', 'b', 'zoning_map_code') }}
         )
 )
 
