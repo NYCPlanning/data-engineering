@@ -89,7 +89,7 @@ def test_publish_overwrite_and_patch(
         previous_version=TEST_VERSION,
         bump_type=versions.VersionSubType.patch,
         bump_by=1,
-    )
+    ).label
     assert set(publishing.get_published_versions(product=draft_key.product)) == set(
         [TEST_VERSION, bumped_version]
     )
