@@ -10,7 +10,7 @@ rm -rf output && mkdir -p output
     cp ../source_data_versions.csv ./
     cp ../build_metadata.json ./
     
-    csv_export zoningtaxlots_db &
+    csv_export zoningtaxlot_db &
     csv_export qaqc_frequency &
     csv_export qaqc_bbl &
     csv_export qaqc_mismatch &
