@@ -77,7 +77,3 @@ jobs:
         run: |
           ./devdb.sh export
           ./devdb.sh upload
-
-      # - name: 5. Archive ...
-      #   if: inputs.archive
-      #   run: ./devdb.sh archive
