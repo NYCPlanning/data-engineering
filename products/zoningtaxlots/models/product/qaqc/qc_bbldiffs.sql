@@ -12,7 +12,6 @@ prev_version AS (
 
 bbldiffs AS (
     SELECT
-        a.dtm_id,
         a.borough_code,
         a.tax_block,
         a.tax_lot,

@@ -46,6 +46,10 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
       - name: Finish container setup
         working-directory: ./
@@ -65,8 +69,8 @@ jobs:
       - name: Dataloading
         run: python -m dcpy.lifecycle.builds.load load
 
-      - name: 2. build ...
-        run: ./ztl.sh build
+      - name: Build
+        run: ./bash/build.sh
 
       - name: 3. qaqc, export, and upload ...
-        run: ./ztl.sh qaqc
+        run: ./bash/export.sh
