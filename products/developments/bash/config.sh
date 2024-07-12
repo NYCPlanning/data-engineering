@@ -26,14 +26,3 @@ function import_qaqc_historic {
         run_sql_file sql/qaqc/_create_qaqc_historic.sql
         run_sql_command "\COPY qaqc_historic FROM "${target_dir}/${target_filename}" DELIMITER ',' CSV HEADER;"
 }
-
-function archive_devdb { ## different from "standard" archive slightly
-    echo "archiving $1 -> $2"
-    pg_dump -t $1 $BUILD_ENGINE -O -c | psql $EDM_DATA
-    psql $EDM_DATA -c "CREATE SCHEMA IF NOT EXISTS $2;";
-    psql $EDM_DATA -c "ALTER TABLE $1 SET SCHEMA $2;";
-    psql $EDM_DATA -c "DROP VIEW IF EXISTS $2.latest;";
-    psql $EDM_DATA -c "DROP TABLE IF EXISTS $2.\"$DATE\";";
-    psql $EDM_DATA -c "ALTER TABLE $2.$1 RENAME TO \"$DATE\";";
-    psql $EDM_DATA -c "CREATE VIEW $2.latest AS (SELECT '$DATE' as v, * FROM $2.\"$DATE\");"
-}

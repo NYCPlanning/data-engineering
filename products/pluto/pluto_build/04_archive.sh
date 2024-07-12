@@ -33,11 +33,3 @@ run_sql_command "
   ALTER TABLE mappluto_sample ALTER COLUMN \"Lot\" SET NOT NULL;
   ALTER TABLE mappluto_sample ALTER COLUMN \"BBL\" SET NOT NULL;
   ALTER TABLE mappluto_sample ALTER COLUMN \"BoroCode\" SET NOT NULL;"
-
-# pg_dump -t archive_pluto ${BUILD_ENGINE} -O -c --if-exists | psql ${EDM_DATA}
-# psql ${EDM_DATA} -c "
-#     CREATE SCHEMA IF NOT EXISTS dcp_pluto;
-#     ALTER TABLE archive_pluto SET SCHEMA dcp_pluto;
-#     DROP TABLE IF EXISTS dcp_pluto.\"${VERSION}\";
-#     ALTER TABLE dcp_pluto.archive_pluto RENAME TO \"${VERSION}\";";
-
