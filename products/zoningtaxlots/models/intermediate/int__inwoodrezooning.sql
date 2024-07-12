@@ -1,5 +1,5 @@
-WITH dof_dtm AS (
-    SELECT * FROM {{ ref('stg__dof_dtm') }}
+WITH validdtm AS (
+    SELECT * FROM {{ ref('int__validdtm') }}
 ),
 
 dcp_zoningmapamendments AS (
@@ -11,7 +11,7 @@ rezone_bbl AS (
         b.bbl,
         b.id AS dtm_id,
         '1' AS notes
-    FROM dof_dtm AS b, dcp_zoningmapamendments AS c
+    FROM validdtm AS b, dcp_zoningmapamendments AS c
     WHERE
         b.geom IS NOT null
         AND c.project_na = 'Inwood Rezoning'
