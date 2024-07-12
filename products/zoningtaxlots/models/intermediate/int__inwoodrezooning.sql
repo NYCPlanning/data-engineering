@@ -9,7 +9,7 @@ dcp_zoningmapamendments AS (
 rezone_bbl AS (
     SELECT
         a.bbl,
-        a.id AS dtm_id,
+        a.dtm_id,
         '1' AS notes
     FROM validdtm AS a
     INNER JOIN dcp_zoningmapamendments AS b

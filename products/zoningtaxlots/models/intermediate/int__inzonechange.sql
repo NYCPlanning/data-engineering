@@ -8,7 +8,7 @@ dcp_zoningmapamendments AS (
 
 inzonechange AS (
     SELECT
-        a.id AS dtm_id,
+        a.dtm_id,
         'Y' AS inzonechange
     FROM validdtm AS a
     INNER JOIN dcp_zoningmapamendments AS b
