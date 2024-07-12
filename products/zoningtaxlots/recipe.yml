@@ -7,7 +7,6 @@ inputs:
     - name: dcp_commercialoverlay
     - name: dcp_limitedheight
     - name: dcp_specialpurpose
-    - name: dcp_specialpurposesubdistricts
     - name: dcp_zoningmapamendments
     - name: dof_dtm
     - name: dcp_zoningdistricts
