@@ -69,7 +69,7 @@ def get_previous_version(
     published_versions = [
         versions.parse(v) for v in published_version_strings if v != "latest"
     ]
-    published_versions = versions.sort(published_versions)
+    published_versions.sort()
     if len(published_versions) == 0:
         raise LookupError(f"No published versions found for {product}")
     if version_obj in published_versions:

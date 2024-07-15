@@ -51,9 +51,6 @@ jobs:
         working-directory: ./
         run: ./bash/build_env_setup.sh
 
-      - name: Set product environment variables
-        run: cat version.env >> "$GITHUB_ENV"
-
       - name: Plan build
         run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
 

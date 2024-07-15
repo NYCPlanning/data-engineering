@@ -1,5 +1,5 @@
 name: Facilities
-version: 24v1
+version_strategy: bump_latest_release
 product: db-facilities
 inputs:
   dataset_defaults:
