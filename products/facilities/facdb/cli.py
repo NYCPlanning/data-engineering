@@ -20,7 +20,7 @@ if not CACHE_PATH.exists():
 app = typer.Typer(add_completion=False)
 
 
-def complete_dataset_name(incomplete: str) -> list:
+def _autocomplete_dataset_name(incomplete: str) -> list:
     pipelines = importlib.import_module("facdb.pipelines")
     completion = []
     for name in dir(pipelines):
@@ -29,8 +29,8 @@ def complete_dataset_name(incomplete: str) -> list:
     return completion
 
 
-@app.command()
-def init():
+@app.command("init")
+def _cli_wrapper_init():
     """
     Initialize empty facdb_base table and create procedures and functions
     """
@@ -42,8 +42,8 @@ def init():
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
 
 
-@app.command()
-def build():
+@app.command("build")
+def _cli_wrapper_build():
     """
     Building facdb based on facdb_base
     """
@@ -67,22 +67,22 @@ def build():
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
 
 
-@app.command()
-def qaqc():
+@app.command("qaqc")
+def _cli_wrapper_qaqc():
     """
     Running QAQC commands
     """
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_qaqc.sql")
 
 
-@app.command()
-def run(
+@app.command("run_pipelines")
+def _cli_wrapper_run_pipelines(
     name: str = typer.Option(
         None,
         "--name",
         "-n",
         help="Name of the dataset",
-        autocompletion=complete_dataset_name,
+        autocompletion=_autocomplete_dataset_name,
     ),
 ):
     """ """
@@ -101,8 +101,8 @@ def run(
     dump_metadata()
 
 
-@app.command()
-def reformat_facdb():
+@app.command("reformat_facdb")
+def _cli_wrapper_reformat_facdb():
     """Update columns and data types in facdb table."""
     postgres.execute_file_via_shell(
         BUILD_ENGINE,
