@@ -1,5 +1,6 @@
 import calendar
 import datetime as dt
+from io import StringIO
 import pandas as pd
 from pathlib import Path
 import pytz
@@ -186,7 +187,7 @@ def get_data(
             raise Exception("Unable to extract total record count")
         total_record_count = int(records_tag.text)
         df = pd.read_xml(
-            xml_response,
+            StringIO(xml_response),
             xpath=f"./result_records/{type_of_data.lower()}_transactions/*",
         )
         df_list.append(df)
