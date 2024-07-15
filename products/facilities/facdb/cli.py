@@ -113,46 +113,5 @@ def reformat_facdb():
     )
 
 
-@app.command()
-def sql(
-    scripts: Optional[List[Path]] = typer.Option(
-        None, "-f", help="SQL Scripts to execute"
-    )
-):
-    """
-    this command will execute any given sql script against the facdb database\n
-    facdb sql -f path/to/file.sql\n
-    facdb sql -f path/to/file1.sql -f path/to/file2.sql\n
-    """
-    if scripts:
-        for script in scripts:
-            postgres.execute_file_via_shell(BUILD_ENGINE, script)
-
-
-@app.command()
-def clear(
-    name: str = typer.Option(
-        None,
-        "--name",
-        "-n",
-        help="Name of the dataset",
-        autocompletion=complete_dataset_name,
-    ),
-    all_datasets: bool = typer.Option(None, "--all", help="Execute all datasets"),
-):
-    """
-    clear will clear the cached dataset created while reading a csv\n
-    facdb clear -n {{ name }}\n
-    facdb clear --all\n
-    """
-    files_for_removal = (
-        [f"{name}.pkl"]
-        if name and not all_datasets
-        else [f for f in os.listdir(CACHE_PATH) if ".pkl" in f]
-    )
-    for f in files_for_removal:
-        os.remove(CACHE_PATH / f)
-
-
 if __name__ == "__main__":
     app()
