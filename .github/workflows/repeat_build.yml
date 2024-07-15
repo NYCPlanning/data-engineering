@@ -20,7 +20,7 @@ on:
           - green_fast_track
           #- knownprojects
           - pluto
-          - ztl
+          - zoningtaxlots
       product_type:
         description: "What type of product/build to repeat"
         type: choice
@@ -185,7 +185,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   ztl:
     needs: health_check
-    if: inputs.product == 'ztl' || inputs.product  == 'all'
+    if: inputs.product == 'zoningtaxlots' || inputs.product  == 'all'
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
