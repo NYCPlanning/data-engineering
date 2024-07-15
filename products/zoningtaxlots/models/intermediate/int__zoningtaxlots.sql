@@ -39,34 +39,33 @@ zonechange AS (
 insertion AS (
     SELECT
         a.id AS dtm_id,
+        (CASE
+            WHEN a.bbl IS NULL OR LENGTH(a.bbl) < 10
+                THEN a.boro || LPAD(a.block, 5, '0') || LPAD(a.lot, 4, '0')::text
+            ELSE a.bbl
+        END) AS bbl,
         a.boro AS boroughcode,
         a.block AS taxblock,
         a.lot AS taxlot,
+        ST_AREA(a.geom) AS area,
         b1.overlay AS commercialoverlay1,
         b2.overlay AS commercialoverlay2,
         c1.sdlbl AS specialdistrict1,
         c2.sdlbl AS specialdistrict2,
         c3.sdlbl AS specialdistrict3,
         d.limitedheightdistrict,
-        f1.zonedist AS zoningdistrict1,
-        f2.zonedist AS zoningdistrict2,
-        f3.zonedist AS zoningdistrict3,
-        f4.zonedist AS zoningdistrict4,
-        g.notes,
-        h.inzonechange,
-        (CASE
-            WHEN a.bbl IS NULL OR LENGTH(a.bbl) < 10
-                THEN
-                    a.boro || LPAD(a.block, 5, '0') || LPAD(a.lot, 4, '0')::text
-            ELSE a.bbl
-        END) AS bbl,
-        ST_AREA(a.geom) AS area,
         (CASE
             WHEN e1.perbblgeom >= 10 THEN e1.zoning_map
         END) AS zoningmapnumber,
         (CASE
             WHEN e2.row_number = 2 THEN 'Y'
-        END) AS zoningmapcode
+        END) AS zoningmapcode,
+        f1.zonedist AS zoningdistrict1,
+        f2.zonedist AS zoningdistrict2,
+        f3.zonedist AS zoningdistrict3,
+        f4.zonedist AS zoningdistrict4,
+        g.notes,
+        h.inzonechange
     FROM dof_dtm AS a
     LEFT JOIN commercialoverlay AS b1
         ON a.id = b1.dtm_id AND b1.row_number = 1
@@ -109,8 +108,6 @@ park AS (
         notes,
         inzonechange,
         zoningdistrict1,
-        zoningmapnumber,
-        zoningmapcode,
         (CASE
             WHEN zoningdistrict1 = 'PARK' AND zoningdistrict2 IS NULL
                 THEN NULL
@@ -155,7 +152,9 @@ park AS (
             WHEN zoningdistrict1 = 'PARK' AND zoningdistrict2 IS NULL
                 THEN NULL
             ELSE limitedheightdistrict
-        END) AS limitedheightdistrict
+        END) AS limitedheightdistrict,
+        zoningmapnumber,
+        zoningmapcode
     FROM insertion
 ),
 

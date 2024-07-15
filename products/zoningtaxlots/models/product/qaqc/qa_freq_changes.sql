@@ -22,24 +22,12 @@ count_old AS (
                 sum((zoning_district_2 IS NOT null)::int) AS zoning_district_2,
                 sum((zoning_district_3 IS NOT null)::int) AS zoning_district_3,
                 sum((zoning_district_4 IS NOT null)::int) AS zoning_district_4,
-                sum(
-                    (commercial_overlay_1 IS NOT null)::int
-                ) AS commercial_overlay_1,
-                sum(
-                    (commercial_overlay_2 IS NOT null)::int
-                ) AS commercial_overlay_2,
-                sum(
-                    (special_district_1 IS NOT null)::int
-                ) AS special_district_1,
-                sum(
-                    (special_district_2 IS NOT null)::int
-                ) AS special_district_2,
-                sum(
-                    (special_district_3 IS NOT null)::int
-                ) AS special_district_3,
-                sum(
-                    (limited_height_district IS NOT null)::int
-                ) AS limited_height_district,
+                sum((commercial_overlay_1 IS NOT null)::int) AS commercial_overlay_1,
+                sum((commercial_overlay_2 IS NOT null)::int) AS commercial_overlay_2,
+                sum((special_district_1 IS NOT null)::int) AS special_district_1,
+                sum((special_district_2 IS NOT null)::int) AS special_district_2,
+                sum((special_district_3 IS NOT null)::int) AS special_district_3,
+                sum((limited_height_district IS NOT null)::int) AS limited_height_district,
                 sum((zoning_map_number IS NOT null)::int) AS zoning_map_number,
                 sum((zoning_map_code IS NOT null)::int) AS zoning_map_code
             FROM prev_version
@@ -59,24 +47,12 @@ count_new AS (
                 sum((zoning_district_2 IS NOT null)::int) AS zoning_district_2,
                 sum((zoning_district_3 IS NOT null)::int) AS zoning_district_3,
                 sum((zoning_district_4 IS NOT null)::int) AS zoning_district_4,
-                sum(
-                    (commercial_overlay_1 IS NOT null)::int
-                ) AS commercial_overlay_1,
-                sum(
-                    (commercial_overlay_2 IS NOT null)::int
-                ) AS commercial_overlay_2,
-                sum(
-                    (special_district_1 IS NOT null)::int
-                ) AS special_district_1,
-                sum(
-                    (special_district_2 IS NOT null)::int
-                ) AS special_district_2,
-                sum(
-                    (special_district_3 IS NOT null)::int
-                ) AS special_district_3,
-                sum(
-                    (limited_height_district IS NOT null)::int
-                ) AS limited_height_district,
+                sum((commercial_overlay_1 IS NOT null)::int) AS commercial_overlay_1,
+                sum((commercial_overlay_2 IS NOT null)::int) AS commercial_overlay_2,
+                sum((special_district_1 IS NOT null)::int) AS special_district_1,
+                sum((special_district_2 IS NOT null)::int) AS special_district_2,
+                sum((special_district_3 IS NOT null)::int) AS special_district_3,
+                sum((limited_height_district IS NOT null)::int) AS limited_height_district,
                 sum((zoning_map_number IS NOT null)::int) AS zoning_map_number,
                 sum((zoning_map_code IS NOT null)::int) AS zoning_map_code
             FROM new_version

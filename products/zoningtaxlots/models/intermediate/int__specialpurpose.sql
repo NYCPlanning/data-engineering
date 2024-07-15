@@ -39,9 +39,9 @@ specialpurposeperorder_init AS (
         dtm_id,
         bbl,
         sdlbl,
+        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
         segbblgeom,
         segzonegeom,
-        (segbblgeom / allbblgeom) * 100 AS perbblgeom,
         -- per sp district type, rank by 
         --   1) if lot meets 10% coverage by sp district threshold
         --   2) area of coverage
@@ -49,10 +49,7 @@ specialpurposeperorder_init AS (
         -- 1) is to cover edge case where largest section of specific large (but common) sp district that happens to have largest area on small fraction of huge lot
         -- See BBL 1013730001 in ZoLa - largest section of special district but should not be assigned spdist SRI
         ROW_NUMBER()
-            OVER (
-                PARTITION BY sdlbl
-                ORDER BY (segbblgeom / allbblgeom) * 100 < 10, segzonegeom DESC
-            )
+            OVER (PARTITION BY sdlbl ORDER BY (segbblgeom / allbblgeom) * 100 < 10, segzonegeom DESC)
         AS sd_row_number
     FROM specialpurposeper
 ),
@@ -66,10 +63,7 @@ specialpurposeperorder AS (
         a.segzonegeom,
         b.priority,
         ROW_NUMBER()
-            OVER (
-                PARTITION BY a.dtm_id
-                ORDER BY a.segbblgeom DESC, b.priority ASC, a.sdlbl ASC
-            )
+            OVER (PARTITION BY a.dtm_id ORDER BY a.segbblgeom DESC, b.priority ASC, a.sdlbl ASC)
         AS row_number
     FROM specialpurposeperorder_init AS a
     LEFT JOIN specialdistrict_priority AS b

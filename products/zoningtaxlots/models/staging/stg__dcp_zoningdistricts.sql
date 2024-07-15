@@ -20,9 +20,7 @@ rename AS (
 validzones AS (
     SELECT
         CASE
-            WHEN
-                zonedist = ANY('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}')
-                THEN 'PARK'
+            WHEN zonedist = ANY('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'
             ELSE zonedist
         END AS zonedist,
         ST_MAKEVALID(geom) AS geom
