@@ -1,9 +1,11 @@
 # test generation of source data reports
+import pytest
 import pandas as pd
 from dcpy.utils.postgres import PostgresClient
 from dcpy.connectors.edm import publishing
 from src.shared.constants import DATASET_NAMES
 from src.shared.utils.source_report import (
+    get_latest_source_data_versions,
     get_source_dataset_names,
     compare_source_data_columns,
     compare_source_data_row_count,
@@ -46,14 +48,14 @@ def test_get_source_data_versions_from_build():
     )
 
 
-## TODO this really needs a mocked up data product/input dataset in DO - tough to verify a latest version otherwise
-# def test_get_latest_source_data_versions():
-#    source_data_versions = get_latest_source_data_versions(dataset=TEST_DATASET_NAME)
-#    assert isinstance(source_data_versions, pd.DataFrame)
-#    assert (
-#        source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
-#        == TEST_DATA_SOURCE_VERSION_LATEST
-#    )
+@pytest.mark.skip(reason="requires mock data")
+def test_get_latest_source_data_versions():
+    source_data_versions = get_latest_source_data_versions(dataset=TEST_DATASET_NAME)
+    assert isinstance(source_data_versions, pd.DataFrame)
+    assert (
+        source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
+        == TEST_DATA_SOURCE_VERSION_LATEST
+    )
 
 
 def test_get_source_dataset_names():
@@ -74,6 +76,7 @@ def test_compare_source_data_columns():
     assert source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"] is True
 
 
+@pytest.mark.skip(reason="requires mock data")
 def test_compare_source_data_row_count():
     pg_client = PostgresClient(database=QAQC_DB, schema=QAQC_DB_SCHEMA_SOURCE_DATA)
     source_report_results = compare_source_data_row_count(
