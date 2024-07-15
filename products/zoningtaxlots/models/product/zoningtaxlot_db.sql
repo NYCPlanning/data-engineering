@@ -8,6 +8,7 @@ WITH ztl AS (
 
 SELECT
     borough_code AS "Borough Code",
+    trunc(tax_block::numeric) AS "Tax Block",
     tax_lot AS "Tax Lot",
     bbl AS "BBL",
     zoning_district_1 AS "Zoning District 1",
@@ -21,6 +22,5 @@ SELECT
     special_district_3 AS "Special District 3",
     limited_height_district AS "Limited Height District",
     zoning_map_number AS "Zoning Map Number",
-    zoning_map_code AS "Zoning Map Code",
-    trunc(tax_block::numeric) AS "Tax Block"
+    zoning_map_code AS "Zoning Map Code"
 FROM ztl
