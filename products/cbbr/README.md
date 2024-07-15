@@ -69,20 +69,19 @@ CBBR is primarily built for planning coordination and information purposes only
 2. Install pytest with `python3 -m pip install pytest`
 3. Run python tests with `python3 -m pytest`
 
-
 ### Processing Manually Digitized Geometry Files
 
 Typically, there are many records in the original CBBR Submissions source data that cannot/do not get programmatically geocoded by GeoSupport. This is usually do to insufficient location information or a particular record might not be applicable to a specific location (not a mappable project). To increase the number of mappable projects in the CBBR data, EDM set out to manually map records that were considered Priority A projects (that is projects identified as `Capital Projects` and which have been identified as a `Site` location).
 
-In order to properly preprocess these corrections to the existing CBBR data, the following steps are necessary: 
+In order to properly preprocess these corrections to the existing CBBR data, the following steps are necessary:
 
 1. Download the files (.shp and .gdb) from Sharepoint and bring them into QGIS.
 2. Merge “like” geometries using the ‘Vector` -> `Data Management Tool` -> `Merge Vector Layers` being cognizant that original CBBR geometries are projected in CRS/EPSG: 4236 (Export the file as 4236). EDM digitizers used different methods of digitizing and some used CRS/EPSG: 2263.
-    a. Note: you can merge Shapefiles and GDB files with like geometries 
+    a. Note: you can merge Shapefiles and GDB files with like geometries
 3. Repeat step for Points, Polygons, and Lines
 4. Export the files as CSV’s
-    a. Right Click the file you want to export: `Export` -> `Save Features As…` 
+    a. Right Click the file you want to export: `Export` -> `Save Features As…`
     b. Create file name for each individual file (e.g. `cbbr_line_corrections`)
     c. Select `Layer Options` -> `Geometry` - `AS_WKT`
-    d. Save the file(s) into the `cbbr/build/cbbr_geom_corrections/processed/` folder 
+    d. Save the file(s) into the `cbbr/build/cbbr_geom_corrections/processed/` folder
 5. Once that is done, the creation of the corrections files takes place programmatically.

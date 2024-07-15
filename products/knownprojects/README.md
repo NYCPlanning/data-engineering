@@ -1,6 +1,6 @@
 # Known Projects Database (KPDB)
 
-This repo contains code for creating the Known Projects Database (KPDB). The build process has multiple automated phases, separated by manual review. 
+This repo contains code for creating the Known Projects Database (KPDB). The build process has multiple automated phases, separated by manual review.
 
 For detailed information on the tables created throughout the build process, see the [build environment table descriptions](https://github.com/NYCPlanning/db-knownprojects/wiki/Build-environment-tables).
 
@@ -13,9 +13,9 @@ For detailed information on the tables created throughout the build process, see
 - Build database: `./02_build.sh`
 - Export: `./03_export.sh`
 
-# Update source data
+### Update source data
 
-## Partner Agency Data
+#### Partner Agency Data
 
 > It's important to note that when pulling the most recent data from `db-knownprojects-data` repo that the latest commit of that repo's copy in `db-knownprojects` should match that of the data repo. Without double-checking, you could be pulling stale data. List of source data that should be updated (via `db-knownprojects-data`) but double checked in this repo (after updating the submodule):
 
@@ -23,9 +23,9 @@ For detailed information on the tables created throughout the build process, see
 - [ ] `EDC projects for DCP housing projections` - `edc_projects`
 - [ ] `EDC Shapefile` - `edc_dcp_inputs`
 - [ ] `Neighborhood Study Commitments` - `dcp_n_study`
-- [ ] `Future Neighborhood Rezonings` - `dcp_n_study_future` 
+- [ ] `Future Neighborhood Rezonings` - `dcp_n_study_future`
 - [ ] `Past Neighborhood Rezonings` - `dcp_n_study_projected`
-- [ ] `HPD Requests for Proposals (RFPs)` - `hpd_rfp` 
+- [ ] `HPD Requests for Proposals (RFPs)` - `hpd_rfp`
 - [ ] `HPD Projected Closing` - `hpd_pc`
 - [ ] `DCP Planner Added Projects` - `dcp_planneradded`
 
