@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from enum import StrEnum
+from functools import total_ordering
 from pydantic import BaseModel
 import re
 
@@ -32,15 +33,21 @@ class RegexSpmMatch:
             return None
 
 
-@dataclass(order=True)
+@total_ordering
 class Version:
     @property
     @abstractmethod
     def label(self) -> str:
         raise NotImplementedError("Version is an abstract class")
 
+    def __lt__(self, other) -> bool:
+        raise NotImplementedError("Version is an abstract class")
 
-@dataclass(order=True)
+    def __eq__(self, other) -> bool:
+        raise NotImplementedError("Version is an abstract class")
+
+
+@dataclass
 class MajorMinor(Version):
     year: int
     major: int
@@ -53,8 +60,38 @@ class MajorMinor(Version):
         else:
             return f"{self.year}v{self.major}.{self.minor}"
 
+    def __lt__(self, other) -> bool:
+        match other:
+            case MajorMinor():
+                return (self.year, self.major, self.minor) < (
+                    other.year,
+                    other.major,
+                    other.minor,
+                )
+            case Date():
+                self_year = self.year + 2000
+                if self_year != other.date.year:
+                    return self_year < other.date.year
+                else:
+                    raise ValueError(
+                        f"Cannot compare Date and MajorMinor versions of the same year"
+                    )
+            case _:
+                raise TypeError(f"Cannot compare Version with type '{type(other)}'")
 
-@dataclass(order=True)
+    def __eq__(self, other) -> bool:
+        match other:
+            case MajorMinor():
+                return (self.year, self.major, self.minor) == (
+                    other.year,
+                    other.major,
+                    other.minor,
+                )
+            case _:
+                return False
+
+
+@dataclass
 class Date(Version):
     date: date
     format: DateVersionFormat
@@ -68,6 +105,28 @@ class Date(Version):
                 return self.date.strftime("%Y-%m")
             case DateVersionFormat.date:
                 return self.date.strftime("%Y-%m-%d")
+
+    def __lt__(self, other) -> bool:
+        match other:
+            case Date():
+                return (self.date, self.format) < (other.date, other.format)
+            case MajorMinor():
+                other_year = other.year + 2000
+                if self.date.year != other_year:
+                    return self.date.year < other_year
+                else:
+                    raise ValueError(
+                        f"Cannot compare Date and MajorMinor versions of the same year"
+                    )
+            case _:
+                raise TypeError(f"Cannot compare Version with type '{type(other)}'")
+
+    def __eq__(self, other) -> bool:
+        match other:
+            case Date():
+                return (self.date, self.format) == (other.date, other.format)
+            case _:
+                return False
 
 
 def generate_first_of_month() -> Date:
@@ -117,17 +176,6 @@ def parse(v: str) -> Version:
             raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
             )
-
-
-def sort(versions: list[Version]) -> list[Version]:
-    version_types = set([type(v) for v in versions])
-    # can't compare different types
-    if len(version_types) != 1:
-        # only handle date-like versions
-        raise TypeError(
-            f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
-        )
-    return sorted(versions)
 
 
 def bump(

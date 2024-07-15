@@ -36,7 +36,7 @@ class TestVersions(TestCase):
             versions.parse("20231212")
 
     def test_sort_valid_versions(self):
-        for version_list, sorted in [
+        for version_list, sorted_list in [
             [
                 [
                     "23v2",
@@ -56,12 +56,15 @@ class TestVersions(TestCase):
                     "23Q4",
                     "2023-10-02",
                     "2023-11-02",
+                    "25v3",
+                    "21v1",
                     "2023-11",
                     "2023-02-05",
                     "2024-01-01",
                     "23Q2",
                 ],
                 [
+                    "21v1",
                     "2023-02-05",
                     "23Q2",
                     "23Q4",
@@ -69,23 +72,29 @@ class TestVersions(TestCase):
                     "2023-11",
                     "2023-11-02",
                     "2024-01-01",
+                    "25v3",
                 ],
             ],
         ]:
-            parsed_and_sorted = versions.sort([versions.parse(v) for v in version_list])
+            parsed_and_sorted = sorted([versions.parse(v) for v in version_list])
             labels = [v.label for v in parsed_and_sorted]
-            self.assertEqual(sorted, labels)
+            self.assertEqual(sorted_list, labels)
 
     def test_sort_invalid_versions(self):
+        with self.assertRaises(ValueError):
+            [
+                versions.Date(
+                    date(2024, 1, 1), format=versions.DateVersionFormat.quarter
+                ),
+                versions.MajorMinor(year=24, major=2),
+            ].sort()
         with self.assertRaises(TypeError):
-            versions.sort(
-                [
-                    versions.Date(
-                        date(2024, 1, 1), format=versions.DateVersionFormat.quarter
-                    ),
-                    versions.MajorMinor(year=23, major=2),
-                ]
-            )
+            [
+                versions.Date(
+                    date(2024, 1, 1), format=versions.DateVersionFormat.quarter
+                ),
+                "2024-01-01",
+            ].sort()
 
     def test_bumping_versions(self):
         for bumped_part, bump_by, v, v_expected in [
