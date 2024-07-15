@@ -188,15 +188,13 @@ def bump(
         previous_version = parse(previous_version)
     bump_by = bump_by or 1
     match previous_version, bump_type:
-        case MajorMinor(), None:
-            raise Exception("Must specify major or minor version to bump.")
         case MajorMinor(), VersionSubType.minor:
             return MajorMinor(
                 year=previous_version.year,
                 major=previous_version.major,
                 minor=previous_version.minor + bump_by,
             )
-        case MajorMinor(), VersionSubType.major:
+        case MajorMinor(), (VersionSubType.major | None):
             return MajorMinor(
                 year=previous_version.year, major=previous_version.major + bump_by
             )
