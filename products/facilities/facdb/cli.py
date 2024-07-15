@@ -30,7 +30,7 @@ def _autocomplete_dataset_name(incomplete: str) -> list:
 
 
 @app.command("init")
-def _cli_wrapper_init():
+def _cli_init():
     """
     Initialize empty facdb_base table and create procedures and functions
     """
@@ -43,7 +43,7 @@ def _cli_wrapper_init():
 
 
 @app.command("build")
-def _cli_wrapper_build():
+def _cli_build():
     """
     Building facdb based on facdb_base
     """
@@ -68,7 +68,7 @@ def _cli_wrapper_build():
 
 
 @app.command("qaqc")
-def _cli_wrapper_qaqc():
+def _cli_qaqc():
     """
     Running QAQC commands
     """
@@ -76,7 +76,7 @@ def _cli_wrapper_qaqc():
 
 
 @app.command("run_pipelines")
-def _cli_wrapper_run_pipelines(
+def _cli_run_pipelines(
     name: str = typer.Option(
         None,
         "--name",
@@ -102,7 +102,7 @@ def _cli_wrapper_run_pipelines(
 
 
 @app.command("reformat_facdb")
-def _cli_wrapper_reformat_facdb():
+def _cli_reformat_facdb():
     """Update columns and data types in facdb table."""
     postgres.execute_file_via_shell(
         BUILD_ENGINE,
