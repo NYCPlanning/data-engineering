@@ -1,5 +1,5 @@
-WITH dof_dtm AS (
-    SELECT * FROM {{ ref('stg__dof_dtm') }}
+WITH validdtm AS (
+    SELECT * FROM {{ ref('int__validdtm') }}
 ),
 
 dcp_zoningmapamendments AS (
@@ -8,9 +8,9 @@ dcp_zoningmapamendments AS (
 
 inzonechange AS (
     SELECT
-        a.id AS dtm_id,
+        a.dtm_id,
         'Y' AS inzonechange
-    FROM dof_dtm AS a
+    FROM validdtm AS a
     INNER JOIN dcp_zoningmapamendments AS b
         ON
             ST_INTERSECTS(a.geom, b.geom)

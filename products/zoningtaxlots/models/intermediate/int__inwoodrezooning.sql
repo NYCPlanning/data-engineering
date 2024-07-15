@@ -1,5 +1,5 @@
-WITH dof_dtm AS (
-    SELECT * FROM {{ ref('stg__dof_dtm') }}
+WITH validdtm AS (
+    SELECT * FROM {{ ref('int__validdtm') }}
 ),
 
 dcp_zoningmapamendments AS (
@@ -8,18 +8,18 @@ dcp_zoningmapamendments AS (
 
 rezone_bbl AS (
     SELECT
-        b.bbl,
-        b.id AS dtm_id,
+        a.bbl,
+        a.dtm_id,
         '1' AS notes
-    FROM dof_dtm AS b, dcp_zoningmapamendments AS c
+    FROM validdtm AS a
+    INNER JOIN dcp_zoningmapamendments AS b
+        ON ST_INTERSECTS(a.geom, b.geom)
     WHERE
-        b.geom IS NOT null
-        AND c.project_na = 'Inwood Rezoning'
-        AND ST_INTERSECTS(b.geom, c.geom)
-        AND b.bbl != '1022552000'
-        AND b.bbl != '1022550001'
-        AND b.bbl != '1021890001'
-        AND b.bbl != '1021970001'
+        b.project_na = 'Inwood Rezoning'
+        AND a.bbl != '1022552000'
+        AND a.bbl != '1022550001'
+        AND a.bbl != '1021890001'
+        AND a.bbl != '1021970001'
 )
 
 SELECT * FROM rezone_bbl

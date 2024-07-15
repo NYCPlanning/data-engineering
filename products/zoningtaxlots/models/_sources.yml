@@ -41,15 +41,6 @@ sources:
           - name: wkb_geometry
             tests:
               - not_null
-      - name: dcp_specialpurposesubdistricts
-        columns:
-          - name: ogc_fid
-            tests:
-              - not_null
-              - unique
-          - name: wkb_geometry
-            tests:
-              - not_null
       - name: dcp_zoningmapamendments
         columns:
           - name: ogc_fid
