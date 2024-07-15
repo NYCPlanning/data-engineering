@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS append_to_facdb_base;
-CREATE OR REPLACE PROCEDURE append_to_facdb_base (
+CREATE OR REPLACE PROCEDURE append_to_facdb_base(
     _table text
 ) AS $BODY$
 DECLARE
@@ -46,24 +46,24 @@ LANGUAGE plpgsql;
 
 DROP TABLE IF EXISTS corrections_applied;
 CREATE TABLE corrections_applied (
-	uid 		text,
-	field 	  		text,
-	pre_corr_value 	text,
-	old_value 		text,
-	new_value 		text
+    uid text,
+    field text,
+    pre_corr_value text,
+    old_value text,
+    new_value text
 );
 
 DROP TABLE IF EXISTS corrections_not_applied;
 CREATE TABLE corrections_not_applied (
-	uid 		text,
-	field 	  		text,
-	pre_corr_value 	text,
-	old_value 		text,
-	new_value 		text
+    uid text,
+    field text,
+    pre_corr_value text,
+    old_value text,
+    new_value text
 );
 
 DROP PROCEDURE IF EXISTS correction;
-CREATE OR REPLACE PROCEDURE correction (
+CREATE OR REPLACE PROCEDURE correction(
     _table text,
     _uid text,
     _field text,
@@ -111,7 +111,7 @@ $BODY$ LANGUAGE plpgsql;
 
 
 DROP PROCEDURE IF EXISTS apply_correction;
-CREATE OR REPLACE PROCEDURE apply_correction (
+CREATE OR REPLACE PROCEDURE apply_correction(
     _schema text,
     _table text,
     _corrections text
@@ -141,7 +141,7 @@ $BODY$ LANGUAGE plpgsql;
 
 
 DROP PROCEDURE IF EXISTS replace_empty_strings;
-CREATE OR REPLACE PROCEDURE replace_empty_strings (
+CREATE OR REPLACE PROCEDURE replace_empty_strings(
     _schema text,
     _table text
 ) AS $BODY$

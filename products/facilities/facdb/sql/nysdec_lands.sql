@@ -3,30 +3,30 @@ DROP TABLE IF EXISTS _nysdec_lands;
 SELECT
     uid,
     source,
-    initcap(facility) as facname,
-    NULL as addressnum,
-    NULL as streetname,
-    NULL as address,
-    NULL as city,
-    NULL as zipcode,
-    county as boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
+    initcap(facility) AS facname,
+    NULL AS addressnum,
+    NULL AS streetname,
+    NULL AS address,
+    NULL AS city,
+    NULL AS zipcode,
+    county AS boro,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
     (CASE
-		WHEN category = 'NRA' THEN 'Natural Resource Area'
-		ELSE initcap(category)
-	END) as factype,
-    'Preserves and Conservation Areas' as facsubgrp,
-    'NYS Department of Environmental Conservation' as opname,
-    'NYSDEC' as opabbrev,
-    'NYSDEC' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    ST_AsBinary(ST_AsText(wkt)) as wkb_geometry,
-    NULL as geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn
+        WHEN category = 'NRA' THEN 'Natural Resource Area'
+        ELSE initcap(category)
+    END) AS factype,
+    'Preserves and Conservation Areas' AS facsubgrp,
+    'NYS Department of Environmental Conservation' AS opname,
+    'NYSDEC' AS opabbrev,
+    'NYSDEC' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    st_asbinary(st_astext(wkt)) AS wkb_geometry,
+    NULL AS geo_1b,
+    NULL AS geo_bl,
+    NULL AS geo_bn
 INTO _nysdec_lands
 FROM nysdec_lands;
 

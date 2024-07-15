@@ -3,28 +3,28 @@ DROP TABLE IF EXISTS _nypl_libraries;
 SELECT
     uid,
     source,
-    name as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
+    name AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
     address,
-    NULL as city,
+    NULL AS city,
     zipcode,
-    locality as boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
-    'Public Library' as factype,
-    'Public Libraries' as facsubgrp,
-    'New York Public Library' as opname,
-    'NYPL' as opabbrev,
-    'NYPL' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    ST_POINT(lon::double precision, lat::double precision) as wkb_geometry,
+    locality AS boro,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
+    'Public Library' AS factype,
+    'Public Libraries' AS facsubgrp,
+    'New York Public Library' AS opname,
+    'NYPL' AS opabbrev,
+    'NYPL' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    ST_POINT(lon::double precision, lat::double precision) AS wkb_geometry,
     geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn
+    NULL AS geo_bl,
+    NULL AS geo_bn
 INTO _nypl_libraries
 FROM nypl_libraries;
 
-CALL append_to_facdb_base('_nypl_libraries');
+CALL APPEND_TO_FACDB_BASE('_nypl_libraries');

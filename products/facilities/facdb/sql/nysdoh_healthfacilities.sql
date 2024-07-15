@@ -1,17 +1,18 @@
 DROP TABLE IF EXISTS _nysdoh_healthfacilities;
-SELECT uid,
+SELECT
+    uid,
     source,
-    facility_name as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
-    facility_address_1 as address,
-    facility_city as city,
+    facility_name AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
+    facility_address_1 AS address,
+    facility_city AS city,
     zipcode,
-    facility_county as boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
-    description as factype,
+    facility_county AS boro,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
+    description AS factype,
     (
         CASE
             WHEN description LIKE '%Hospice%' THEN 'Residential Health Care'
@@ -19,15 +20,17 @@ SELECT uid,
             WHEN description LIKE '%Home%' THEN 'Other Health Care'
             ELSE 'Hospitals and Clinics'
         END
-    ) as facsubgrp,
+    ) AS facsubgrp,
     (
         CASE
             WHEN operator_name = 'City of New York' THEN 'NYC Department of Health and Mental Hygiene'
-            WHEN operator_name = 'New York City Health and Hospital Corporation' THEN 'NYC Health and Hospitals Corporation'
+            WHEN
+                operator_name = 'New York City Health and Hospital Corporation'
+                THEN 'NYC Health and Hospitals Corporation'
             WHEN ownership_type = 'State' THEN 'NYS Department of Health'
             ELSE operator_name
         END
-    ) as opname,
+    ) AS opname,
     (
         CASE
             WHEN operator_name = 'City of New York' THEN 'NYCDOHMH'
@@ -35,14 +38,15 @@ SELECT uid,
             WHEN ownership_type = 'State' THEN 'NYSDOH'
             ELSE 'Non-public'
         END
-    ) as opabbrev,
-    'NYSDOH' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    ) AS opabbrev,
+    'NYSDOH' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn INTO _nysdoh_healthfacilities
+    NULL AS geo_bl,
+    NULL AS geo_bn
+INTO _nysdoh_healthfacilities
 FROM nysdoh_healthfacilities
 WHERE description NOT LIKE '%Residential%' AND description NOT LIKE 'Licensed Home Care Services Agency';
 

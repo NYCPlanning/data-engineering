@@ -7,9 +7,9 @@ SELECT
     streetname,
     address,
     city,
-    SPLIT_PART(zipcode,'.',1) as zipcode,
+    SPLIT_PART(zipcode, '.', 1) AS zipcode,
     boro,
-    SPLIT_PART(borocode,'.',1) as borocode,
+    SPLIT_PART(borocode, '.', 1) AS borocode,
     bin,
     bbl,
     factype,
@@ -17,13 +17,13 @@ SELECT
     opname,
     opabbrev,
     overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    the_geom::geometry as wkb_geometry,
-    NULL as geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn
+    NULL AS capacity,
+    NULL AS captype,
+    the_geom::geometry AS wkb_geometry,
+    NULL AS geo_1b,
+    NULL AS geo_bl,
+    NULL AS geo_bn
 INTO _dcp_sfpsd
 FROM dcp_sfpsd;
 
-CALL append_to_facdb_base('_dcp_sfpsd');
+CALL APPEND_TO_FACDB_BASE('_dcp_sfpsd');
