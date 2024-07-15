@@ -9,8 +9,7 @@ commercial overlays, a tax lot is assigned a value if 10% or more of the tax lot
 commercial overlay and/or 50% or more of the commercial overlay feature is within the tax lot.
 The zoning features are taken from the Department of City Planning NYC GIS Zoning Features.
 
-
-### Important files
+## Important files
 
 ```bash
 zoningtaxlots/

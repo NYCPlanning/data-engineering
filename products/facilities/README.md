@@ -14,7 +14,7 @@ While each source agency classifies its facilities according to their own naming
 
 Within each of these domains, each record is further categorized into a set of facility groups, subgroups, and types that are intended to make the data easy to navigate and more useful for specific planning purposes. Facility types and names appear as they do in source datasets, wherever possible. A full listing of the facility categories is provided in the data dictionary.
 
-### Important files
+## Important files
 
  ```bash
 facilities/
@@ -41,7 +41,7 @@ Additionally:
 
 [`Github workflow`](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/facilities_build.yml) - config file used to build Facilities via Github Actions
 
-### Links
+## Links
 
 [FacDB on Bytes](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page)  
 
