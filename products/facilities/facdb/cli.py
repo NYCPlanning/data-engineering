@@ -86,11 +86,6 @@ def run(
         help="Name of the dataset",
         autocompletion=complete_dataset_name,
     ),
-    python: bool = typer.Option(False, "--python", help="Execute python part only"),
-    sql: bool = typer.Option(False, "--sql", help="Execute sql part only"),
-    all_datasets: bool = typer.Option(
-        None, "--all", help="Execute all datasets, both python and sql"
-    ),
 ):
     """ """
     datasets = read_datasets_yml()
