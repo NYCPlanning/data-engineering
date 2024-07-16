@@ -4,6 +4,8 @@ source config.sh
 set -e
 
 COMMON_APT_PACKAGES="curl zip unzip git wget ca-certificates lsb-release build-essential sudo postgresql-client-15 libpq-dev jq locales"
+gdal_version=3.9.1
+gdal_short_version="$(echo "$gdal_version" | tr -d ".")"
 
 apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y -V install $COMMON_APT_PACKAGES \
@@ -29,9 +31,9 @@ function install_gdal {
 
     echo "installing gdal from source" && (
         cd ~
-        wget https://github.com/fvankrieken/gdal/archive/refs/heads/3.8-revert-null-date-behavior.zip
-        unzip "3.8-revert-null-date-behavior.zip"
-        cd gdal-3.8-revert-null-date-behavior
+        wget download.osgeo.org/gdal/${gdal_version}/gdal${gdal_short_version}.zip
+        unzip gdal${gdal_short_version}.zip
+        cd gdal-${gdal_version}
         mkdir build
         cd build
         sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
