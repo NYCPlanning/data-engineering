@@ -37,6 +37,7 @@ jobs:
           sqlfluff lint products/developments/sql/*.sql
           sqlfluff lint products/developments/sql/qaqc
           sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
+          sqlfluff lint products/facilities/facdb/sql/
           sqlfluff lint products/knownprojects/sql --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           

@@ -65,7 +65,7 @@ jobs:
         run: python -m facdb.cli init
 
       - name: Run Pipelines
-        run: python -m facdb.cli run --sql
+        run: python -m facdb.cli run_pipelines
 
       - name: Build facdb
         run: python -m facdb.cli build
@@ -74,7 +74,7 @@ jobs:
         run: python -m facdb.cli qaqc
 
       - name: Modify facdb table
-        run: python -m facdb.cli reformat-facdb
+        run: python -m facdb.cli reformat_facdb
 
       - name: Export facdb
         run: ./facdb.sh export

@@ -3,17 +3,17 @@ DROP TABLE IF EXISTS _dpr_parksproperties;
 SELECT
     uid,
     source,
-    signname as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
+    signname AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
     address,
-    NULL as city,
+    NULL AS city,
     zipcode,
     boro,
-    NULL as borocode,
-    NULL as bin,
-    NULL as bbl,
-    typecategory as factype,
+    NULL AS borocode,
+    NULL AS bin,
+    NULL AS bbl,
+    typecategory AS factype,
     (CASE
         -- admin of gov
         WHEN typecategory = 'Lot' THEN 'City Agency Parking'
@@ -32,16 +32,16 @@ SELECT
         WHEN typecategory = 'Neighborhood Park' THEN 'Parks'
         WHEN typecategory = 'Undeveloped' THEN 'Undeveloped'
         ELSE 'Recreation and Waterfront Sites'
-	END) as facsubgrp,
-    'NYC Department of Parks and Recreation' as opname,
-    'NYCDPR' as opabbrev,
-    'NYCDPR' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    END) AS facsubgrp,
+    'NYC Department of Parks and Recreation' AS opname,
+    'NYCDPR' AS opabbrev,
+    'NYCDPR' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
-    NULL as geo_bl,
-    NULL as geo_bn
+    NULL AS geo_bl,
+    NULL AS geo_bn
 INTO _dpr_parksproperties
 FROM dpr_parksproperties;
 

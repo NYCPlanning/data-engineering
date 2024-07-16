@@ -1,28 +1,29 @@
 DROP TABLE IF EXISTS _dsny_garages;
-SELECT uid,
+SELECT
+    uid,
     source,
-    CONCAT(name,' ',type) as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
+    CONCAT(name, ' ', type) AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
     address,
     city,
-    zip as zipcode,
-    NULL as boro,
-    boro as borocode,
+    zip AS zipcode,
+    NULL AS boro,
+    boro AS borocode,
     bin,
     bbl,
-    'DSNY Garage' as factype,
-    'Solid Waste Transfer and Carting' as facsubgrp,
-    'NYC Department of Sanitation' as opname,
-    'NYCDSNY' as opabbrev,
-    'NYCDSNY' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    'DSNY Garage' AS factype,
+    'Solid Waste Transfer and Carting' AS facsubgrp,
+    'NYC Department of Sanitation' AS opname,
+    'NYCDSNY' AS opabbrev,
+    'NYCDSNY' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
     geo_bl,
     geo_bn
 INTO _dsny_garages
 FROM dsny_garages;
 
-CALL append_to_facdb_base('_dsny_garages');
+CALL APPEND_TO_FACDB_BASE('_dsny_garages');

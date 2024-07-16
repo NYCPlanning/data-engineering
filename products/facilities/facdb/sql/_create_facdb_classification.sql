@@ -6,6 +6,6 @@ SELECT
     b.facdomain,
     b.servarea
 INTO facdb_classification
-FROM facdb_base a
-JOIN lookup_classification b
-ON UPPER(a.facsubgrp) = UPPER(b.facsubgrp);
+FROM facdb_base AS a
+INNER JOIN lookup_classification AS b
+    ON UPPER(a.facsubgrp) = UPPER(b.facsubgrp);

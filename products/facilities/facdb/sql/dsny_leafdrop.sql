@@ -1,28 +1,29 @@
 DROP TABLE IF EXISTS _dsny_leafdrop;
-SELECT uid,
+SELECT
+    uid,
     source,
-    CONCAT(site_name, ' Leaf Drop-off Site') as facname,
-    parsed_hnum as addressnum,
-    parsed_sname as streetname,
+    CONCAT(site_name, ' Leaf Drop-off Site') AS facname,
+    parsed_hnum AS addressnum,
+    parsed_sname AS streetname,
     address,
-    NULL as city,
+    NULL AS city,
     zipcode,
-    borough as boro,
-    NULL as borocode,
+    borough AS boro,
+    NULL AS borocode,
     bin,
     bbl,
-    'Leaf' as factype,
-    'DSNY Drop-off Facility' as facsubgrp,
-    site_managed_by as opname,
-    NULL as opabbrev,
-    'NYCDSNY' as overabbrev,
-    NULL as capacity,
-    NULL as captype,
-    wkt::geometry as wkb_geometry,
+    'Leaf' AS factype,
+    'DSNY Drop-off Facility' AS facsubgrp,
+    site_managed_by AS opname,
+    NULL AS opabbrev,
+    'NYCDSNY' AS overabbrev,
+    NULL AS capacity,
+    NULL AS captype,
+    wkt::geometry AS wkb_geometry,
     geo_1b,
     geo_bl,
     geo_bn
 INTO _dsny_leafdrop
 FROM dsny_leafdrop;
 
-CALL append_to_facdb_base('_dsny_leafdrop');
+CALL APPEND_TO_FACDB_BASE('_dsny_leafdrop');

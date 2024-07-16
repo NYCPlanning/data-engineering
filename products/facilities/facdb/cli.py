@@ -1,7 +1,5 @@
 import importlib
-import os
 from pathlib import Path
-from typing import List, Optional
 
 import typer
 
@@ -22,7 +20,7 @@ if not CACHE_PATH.exists():
 app = typer.Typer(add_completion=False)
 
 
-def complete_dataset_name(incomplete: str) -> list:
+def _autocomplete_dataset_name(incomplete: str) -> list:
     pipelines = importlib.import_module("facdb.pipelines")
     completion = []
     for name in dir(pipelines):
@@ -31,8 +29,8 @@ def complete_dataset_name(incomplete: str) -> list:
     return completion
 
 
-@app.command()
-def init():
+@app.command("init")
+def _cli_init():
     """
     Initialize empty facdb_base table and create procedures and functions
     """
@@ -44,8 +42,8 @@ def init():
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
 
 
-@app.command()
-def build():
+@app.command("build")
+def _cli_build():
     """
     Building facdb based on facdb_base
     """
@@ -69,27 +67,22 @@ def build():
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
 
 
-@app.command()
-def qaqc():
+@app.command("qaqc")
+def _cli_qaqc():
     """
     Running QAQC commands
     """
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_qaqc.sql")
 
 
-@app.command()
-def run(
+@app.command("run_pipelines")
+def _cli_run_pipelines(
     name: str = typer.Option(
         None,
         "--name",
         "-n",
         help="Name of the dataset",
-        autocompletion=complete_dataset_name,
-    ),
-    python: bool = typer.Option(False, "--python", help="Execute python part only"),
-    sql: bool = typer.Option(False, "--sql", help="Execute sql part only"),
-    all_datasets: bool = typer.Option(
-        None, "--all", help="Execute all datasets, both python and sql"
+        autocompletion=_autocomplete_dataset_name,
     ),
 ):
     """ """
@@ -108,55 +101,14 @@ def run(
     dump_metadata()
 
 
-@app.command()
-def reformat_facdb():
+@app.command("reformat_facdb")
+def _cli_reformat_facdb():
     """Update columns and data types in facdb table."""
     postgres.execute_file_via_shell(
         BUILD_ENGINE,
         SQL_PATH / "_reformat_facdb.sql",
         build_schema=BUILD_NAME,
     )
-
-
-@app.command()
-def sql(
-    scripts: Optional[List[Path]] = typer.Option(
-        None, "-f", help="SQL Scripts to execute"
-    )
-):
-    """
-    this command will execute any given sql script against the facdb database\n
-    facdb sql -f path/to/file.sql\n
-    facdb sql -f path/to/file1.sql -f path/to/file2.sql\n
-    """
-    if scripts:
-        for script in scripts:
-            postgres.execute_file_via_shell(BUILD_ENGINE, script)
-
-
-@app.command()
-def clear(
-    name: str = typer.Option(
-        None,
-        "--name",
-        "-n",
-        help="Name of the dataset",
-        autocompletion=complete_dataset_name,
-    ),
-    all_datasets: bool = typer.Option(None, "--all", help="Execute all datasets"),
-):
-    """
-    clear will clear the cached dataset created while reading a csv\n
-    facdb clear -n {{ name }}\n
-    facdb clear --all\n
-    """
-    files_for_removal = (
-        [f"{name}.pkl"]
-        if name and not all_datasets
-        else [f for f in os.listdir(CACHE_PATH) if ".pkl" in f]
-    )
-    for f in files_for_removal:
-        os.remove(CACHE_PATH / f)
 
 
 if __name__ == "__main__":
