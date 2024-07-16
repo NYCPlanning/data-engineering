@@ -9,16 +9,13 @@ on:
         type: boolean
         required: true
         default: false
-
-env:
-  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
   
 jobs:
   compile_requirements:
     name: Compile requirements and commit changes
     runs-on: ubuntu-22.04    
     container:
-      image: nycplanning/base:${{ env.tag }}
+      image: nycplanning/base:${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     defaults:
       run:
         shell: bash
