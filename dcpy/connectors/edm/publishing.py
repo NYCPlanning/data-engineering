@@ -204,7 +204,7 @@ def publish(
     keep_draft: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     latest: bool = False,
-    overwrite_if_exists: bool = False,
+    is_patch: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
@@ -214,11 +214,15 @@ def publish(
     version_already_published = version in get_published_versions(
         product=draft_key.product
     )
-    # Bump version if input version already exists and overwrite isn't allowed
-    if version_already_published and not overwrite_if_exists:
+    # Bump version if input version already exists
+    if version_already_published and is_patch:
         version = versions.bump(
             previous_version=version, bump_type=versions.VersionSubType.patch, bump_by=1
         ).label
+    elif version_already_published and not is_patch:
+        raise ValueError(
+            f"Version '{version}' already exists. Enter a different version value or select to patch a version."
+        )
 
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
@@ -493,12 +497,6 @@ def _cli_wrapper_publish(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Publish to latest folder as well?"
     ),
-    overwrite_if_exists: bool = typer.Option(
-        False,
-        "-o",
-        "--overwrite_if_exists",
-        help="Overwrite contents if version exists?",
-    ),
 ):
     acl_literal = s3.string_as_acl(acl)
     logger.info(
@@ -509,7 +507,6 @@ def _cli_wrapper_publish(
         acl=acl_literal,
         version=version,
         latest=latest,
-        overwrite_if_exists=overwrite_if_exists,
     )
 
 

@@ -27,8 +27,8 @@ on:
         type: boolean
         default: true
         required: true
-      overwrite_if_exists:
-        description: "Overwrite contents if version exists?"
+      is_patch:
+        description: "Create a patched version?"
         type: boolean
         default: false
         required: true
@@ -90,7 +90,7 @@ jobs:
             --product ${{ inputs.product }} \
             --build ${{ inputs.draft_build }} \
             --acl ${{ inputs.product_acl }} \
-            --overwrite_if_exists ${{ inputs.overwrite_if_exists }} \
+            --is_patch ${{ inputs.is_patch }} \
             ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
 
       - name: create tag
