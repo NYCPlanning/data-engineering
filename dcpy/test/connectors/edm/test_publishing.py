@@ -51,10 +51,10 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
     assert publishing.get_version(product_key=draft_key) == TEST_VERSION
 
 
-def test_publish_overwrite_and_patch(
-    create_buckets, create_temp_filesystem, mock_data_constants
-):
-    """Tests publish function to overwrite existing files or patch a version."""
+def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
+    """
+    Tests publish function when a version already exists.
+    When is_path = True, publish a patched version. Otherwise throw an error."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
     publishing.publish(
@@ -63,19 +63,19 @@ def test_publish_overwrite_and_patch(
         version=TEST_VERSION,
         keep_draft=True,
         latest=False,
+        is_patch=False,
     )
-    # re-publish and assert existing files get overwritten
-    publishing.publish(
-        draft_key=draft_key,
-        acl=TEST_ACL,
-        version=TEST_VERSION,
-        keep_draft=True,
-        latest=False,
-        overwrite_if_exists=True,
-    )
-    assert publishing.get_published_versions(product=draft_key.product) == [
-        TEST_VERSION
-    ]
+    # re-publish and assert an error is thrown when is_patch = False
+    with pytest.raises(ValueError) as e_info:
+        publishing.publish(
+            draft_key=draft_key,
+            acl=TEST_ACL,
+            version=TEST_VERSION,
+            keep_draft=True,
+            latest=False,
+            is_patch=False,
+        )
+
     # re-publish and assert a bumped version is created
     publishing.publish(
         draft_key=draft_key,
@@ -83,7 +83,7 @@ def test_publish_overwrite_and_patch(
         version=TEST_VERSION,
         keep_draft=True,
         latest=False,
-        overwrite_if_exists=False,
+        is_patch=True,
     )
     bumped_version = versions.bump(
         previous_version=TEST_VERSION,
@@ -118,6 +118,7 @@ def test_publish_draft_folder(
         acl=TEST_ACL,
         version=TEST_VERSION,
         keep_draft=True,
+        is_patch=True,
     )
     assert publishing.get_draft_builds(product=draft_key.product) == [TEST_BUILD]
 
@@ -158,11 +159,16 @@ def test_publish_excludes_latest_when_flag_false(
         publishing.get_latest_version(TEST_PRODUCT_NAME)
     # assert a file is published to "latest"
     publishing.publish(
-        draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=True
+        draft_key=draft_key,
+        acl=TEST_ACL,
+        version=TEST_VERSION,
+        latest=True,
+        is_patch=True,
     )
     assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
 
 
+@pytest.fixture(scope="function")
 def test_publish_latest_ignores_older_versions(
     create_buckets, create_temp_filesystem, mock_data_constants
 ):
