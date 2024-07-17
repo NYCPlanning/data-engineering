@@ -41,13 +41,17 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
             case versions.SimpleVersionStrategy.first_of_month:
                 recipe.version = versions.generate_first_of_month().label
             case versions.SimpleVersionStrategy.bump_latest_release:
+                previous_version = publishing.get_latest_version(recipe.product)
+                assert previous_version is not None
                 recipe.version = versions.bump(
-                    previous_version=publishing.get_latest_version(recipe.product),
+                    previous_version=previous_version,
                     bump_type=recipe.version_type,
                 ).label
             case versions.BumpLatestRelease() as bump:
+                previous_version = publishing.get_latest_version(recipe.product)
+                assert previous_version is not None
                 recipe.version = versions.bump(
-                    previous_version=publishing.get_latest_version(recipe.product),
+                    previous_version=previous_version,
                     bump_type=recipe.version_type,
                     bump_by=bump.bump_latest_release,
                 ).label
