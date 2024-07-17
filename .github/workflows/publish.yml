@@ -27,6 +27,11 @@ on:
         type: boolean
         default: true
         required: true
+      is_patch:
+        description: "Create a patched version?"
+        type: boolean
+        default: false
+        required: true
       product_acl:
         description: "Set access control list for output in DO"
         type: choice
@@ -85,6 +90,7 @@ jobs:
             --product ${{ inputs.product }} \
             --build ${{ inputs.draft_build }} \
             --acl ${{ inputs.product_acl }} \
+            ${{ github.event.inputs.is_patch == 'true' && '--is_patch' || '' }} \
             ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
 
       - name: create tag

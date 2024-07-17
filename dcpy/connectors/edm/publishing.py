@@ -11,6 +11,7 @@ from zipfile import ZipFile
 import typer
 from typing import Callable, TypeVar
 import yaml
+import json
 
 from dcpy.utils import s3, git, versions
 from dcpy.utils.logging import logger
@@ -21,6 +22,8 @@ from dcpy.models.connectors.edm.publishing import (
     DraftKey,
 )
 from dcpy.models.lifecycle.builds import BuildMetadata
+
+from botocore.exceptions import ClientError
 
 BUCKET = "edm-publishing"
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
@@ -36,15 +39,18 @@ def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
 
 
 def get_version(product_key: ProductKey) -> str:
-    """Given product key, gets version"""
+    """Given product key, gets version."""
     return get_build_metadata(product_key).version
 
 
-def get_latest_version(product: str) -> str:
+def get_latest_version(product: str) -> str | None:
     """Given product name, gets latest version
-    Assumes existence of version.txt in output folder
+    Assumes existence of build_metadata.json in output folder
     """
-    return get_version(PublishKey(product, "latest"))
+    try:
+        return get_version(PublishKey(product, "latest"))
+    except ClientError:
+        return None
 
 
 def get_published_versions(product: str) -> list[str]:
@@ -202,22 +208,81 @@ def publish(
     keep_draft: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     latest: bool = False,
+    is_patch: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if version is None:
         version = get_version(draft_key)
+
+    version_already_published = version in get_published_versions(
+        product=draft_key.product
+    )
+    # Bump version if input version already exists. Update metadata
+    if version_already_published and is_patch:
+        build_metadata = get_build_metadata(
+            product_key=PublishKey(draft_key.product, version)
+        )
+        version = versions.bump(
+            previous_version=version, bump_type=versions.VersionSubType.patch, bump_by=1
+        ).label
+
+        # update version in metadata and dump it locally
+        build_metadata.version = version
+        build_metadata_path = Path("build_metadata.json")
+        with open(build_metadata_path, "w", encoding="utf-8") as f:
+            json.dump(build_metadata.model_dump(), f, indent=4)
+    elif version_already_published and not is_patch:
+        raise ValueError(
+            f"Version '{version}' already exists. Enter a different version value or select to patch a version."
+        )
+    else:
+        build_metadata = None
+
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
-    if latest:
-        s3.copy_folder(
+
+    # upload metadata if a version was patched
+    if build_metadata:
+        s3.upload_file(
             BUCKET,
-            source,
-            f"{draft_key.product}/publish/latest/",
+            build_metadata_path,
+            f"{target}{build_metadata_path.name}",
             acl,
-            max_files=max_files,
         )
+    # if current version comes after 'latest' version or there are no files in 'latest' folder,
+    # update 'latest' folder
+    if latest:
+        latest_version = get_latest_version(draft_key.product)
+        if latest_version:
+            # Both latest_version and version are expected to be of same version schema
+            after_latest_version = versions.is_newer(
+                version_1=version, version_2=latest_version
+            )
+        else:
+            after_latest_version = None
+
+        if after_latest_version or latest_version is None:
+            s3.copy_folder(
+                BUCKET,
+                source,
+                f"{draft_key.product}/publish/latest/",
+                acl,
+                max_files=max_files,
+            )
+            if build_metadata:
+                s3.upload_file(
+                    BUCKET,
+                    build_metadata_path,
+                    f"{draft_key.product}/publish/latest/{build_metadata_path.name}",
+                    acl,
+                )
+        else:
+            raise ValueError(
+                f"Unable to update 'latest' folder: the version {version} is older than 'latest' ({latest_version})"
+            )
+
     if not keep_draft:
         s3.delete(BUCKET, source)
 
@@ -460,6 +525,12 @@ def _cli_wrapper_publish(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Publish to latest folder as well?"
     ),
+    is_patch: bool = typer.Option(
+        False,
+        "-ip",
+        "--is_patch",
+        help="Create a patched version if version already exists?",
+    ),
 ):
     acl_literal = s3.string_as_acl(acl)
     logger.info(
@@ -470,6 +541,7 @@ def _cli_wrapper_publish(
         acl=acl_literal,
         version=version,
         latest=latest,
+        is_patch=is_patch,
     )
 
 
