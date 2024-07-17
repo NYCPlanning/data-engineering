@@ -236,16 +236,9 @@ def is_newer(version_1: str, version_2: str) -> bool:
     Compares `version_1` to `version_2`. Returns True if `version_1` is newer than `version_2`.
     Both versions are expected to be of same Version subtype.
     """
-    try:
-        version_1_obj = parse(version_1)
-        version_2_obj = parse(version_2)
-        versions_sorted = sort([version_1_obj, version_2_obj])
-    except TypeError:
-        raise TypeError(
-            f"Can't compare mixed types of dataset versions: {version_1_obj, version_2_obj}"
-        )
-
-    return versions_sorted[-1] == version_1_obj
+    version_1_obj = parse(version_1)
+    version_2_obj = parse(version_2)
+    return version_1_obj > version_2_obj
 
 
 def bump(
