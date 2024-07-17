@@ -90,7 +90,7 @@ jobs:
             --product ${{ inputs.product }} \
             --build ${{ inputs.draft_build }} \
             --acl ${{ inputs.product_acl }} \
-            --is_patch ${{ inputs.is_patch }} \
+            ${{ github.event.inputs.is_patch == 'true' && '--is_patch' || '' }} \
             ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
 
       - name: create tag
