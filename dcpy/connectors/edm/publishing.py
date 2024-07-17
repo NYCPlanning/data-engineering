@@ -37,12 +37,18 @@ def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     return BuildMetadata(**yaml.safe_load(file_content))
 
 
-def get_version(product_key: ProductKey) -> str:
-    """Given product key, gets version"""
-    return get_build_metadata(product_key).version
+def get_version(product_key: ProductKey) -> str | None:
+    """
+    Given product key, gets version. None is returned when metadata file
+    for given product_key doesn't exist.
+    """
+    try:
+        return get_build_metadata(product_key).version
+    except ClientError:
+        return None
 
 
-def get_latest_version(product: str) -> str:
+def get_latest_version(product: str) -> str | None:
     """Given product name, gets latest version
     Assumes existence of build_metadata.json in output folder
     """
@@ -231,15 +237,13 @@ def publish(
     # if current version comes after 'latest' version or there are no files in 'latest' folder,
     # update 'latest' folder
     if latest:
-        try:
-            latest_version = get_latest_version(draft_key.product)
-
+        latest_version = get_latest_version(draft_key.product)
+        if latest_version:
             # Both latest_version and version are expected to be of same version schema
             after_latest_version = versions.is_newer(
                 version_1=version, version_2=latest_version
             )
-        except ClientError:
-            latest_version = None
+        else:
             after_latest_version = None
 
         if after_latest_version or latest_version is None:

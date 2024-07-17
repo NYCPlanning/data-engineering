@@ -155,8 +155,7 @@ def test_publish_excludes_latest_when_flag_false(
         draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=False
     )
     # assert that latest folder was not populated
-    with pytest.raises(ClientError) as e_info:
-        publishing.get_latest_version(TEST_PRODUCT_NAME)
+    publishing.get_latest_version(TEST_PRODUCT_NAME) == None
     # assert a file is published to "latest"
     publishing.publish(
         draft_key=draft_key,

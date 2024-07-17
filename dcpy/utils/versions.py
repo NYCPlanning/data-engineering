@@ -242,11 +242,7 @@ def is_newer(version_1: str, version_2: str) -> bool:
         versions_sorted = sort([version_1_obj, version_2_obj])
     except TypeError:
         raise TypeError(
-            f"Can't compare mixed types of dataset versions: {type(version_1_obj), type(version_2_obj)}"
-        )
-    except Exception:
-        raise ValueError(
-            f"Tried to parse version: but one or both did not match the expected formats: {version_1, version_2}"
+            f"Can't compare mixed types of dataset versions: {version_1_obj, version_2_obj}"
         )
 
     return versions_sorted[-1] == version_1_obj
