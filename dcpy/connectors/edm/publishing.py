@@ -38,22 +38,19 @@ def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     return BuildMetadata(**yaml.safe_load(file_content))
 
 
-def get_version(product_key: ProductKey) -> str | None:
-    """
-    Given product key, gets version. None is returned when metadata file
-    for given product_key doesn't exist.
-    """
-    try:
-        return get_build_metadata(product_key).version
-    except ClientError:
-        return None
+def get_version(product_key: ProductKey) -> str:
+    """Given product key, gets version."""
+    return get_build_metadata(product_key).version
 
 
 def get_latest_version(product: str) -> str | None:
     """Given product name, gets latest version
     Assumes existence of build_metadata.json in output folder
     """
-    return get_version(PublishKey(product, "latest"))
+    try:
+        return get_version(PublishKey(product, "latest"))
+    except ClientError:
+        return None
 
 
 def get_published_versions(product: str) -> list[str]:
