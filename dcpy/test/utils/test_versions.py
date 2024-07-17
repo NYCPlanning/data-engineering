@@ -106,7 +106,7 @@ class TestVersions(TestCase):
             self.assertEqual(bool_expected, versions.is_newer(version_1, version_2))
 
     def test_is_newer_invalid_versions(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             versions.is_newer("23v2", "23Q2")
         with self.assertRaises(ValueError):
             versions.is_newer("", "2023-08-01")
