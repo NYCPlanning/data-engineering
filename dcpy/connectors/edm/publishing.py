@@ -11,6 +11,7 @@ from zipfile import ZipFile
 import typer
 from typing import Callable, TypeVar
 import yaml
+import json
 
 from dcpy.utils import s3, git, versions
 from dcpy.utils.logging import logger
@@ -221,20 +222,39 @@ def publish(
     version_already_published = version in get_published_versions(
         product=draft_key.product
     )
-    # Bump version if input version already exists
+    # Bump version if input version already exists. Update metadata
     if version_already_published and is_patch:
+        build_metadata = get_build_metadata(
+            product_key=PublishKey(draft_key.product, version)
+        )
         version = versions.bump(
             previous_version=version, bump_type=versions.VersionSubType.patch, bump_by=1
         ).label
+
+        # update version in metadata and dump it locally
+        build_metadata.version = version
+        build_metadata_path = Path("build_metadata.json")
+        with open(build_metadata_path, "w", encoding="utf-8") as f:
+            json.dump(build_metadata.model_dump(), f, indent=4)
     elif version_already_published and not is_patch:
         raise ValueError(
             f"Version '{version}' already exists. Enter a different version value or select to patch a version."
         )
+    else:
+        build_metadata = None
 
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
 
+    # upload metadata if a version was patched
+    if build_metadata:
+        s3.upload_file(
+            BUCKET,
+            build_metadata_path,
+            f"{target}{build_metadata_path.name}",
+            acl,
+        )
     # if current version comes after 'latest' version or there are no files in 'latest' folder,
     # update 'latest' folder
     if latest:
@@ -255,6 +275,13 @@ def publish(
                 acl,
                 max_files=max_files,
             )
+            if build_metadata:
+                s3.upload_file(
+                    BUCKET,
+                    build_metadata_path,
+                    f"{draft_key.product}/publish/latest/{build_metadata_path.name}",
+                    acl,
+                )
         else:
             raise ValueError(
                 f"Unable to update 'latest' folder: the version {version} is older than 'latest' ({latest_version})"
