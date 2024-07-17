@@ -53,8 +53,9 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
     """
-    Tests publish function when a version already exists.
-    When is_path = True, publish a patched version. Otherwise throw an error."""
+    Tests publish function when a version already exists. When is_path = True,
+    publish a patched version and update build_metadata.json.
+    Otherwise throw an error."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
     publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
     publishing.publish(
@@ -75,14 +76,13 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
             latest=False,
             is_patch=False,
         )
-
-    # re-publish and assert a bumped version is created
+    # re-publish and assert a bumped version is created and metadata file is updated
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
         version=TEST_VERSION,
         keep_draft=True,
-        latest=False,
+        latest=True,
         is_patch=True,
     )
     bumped_version = versions.bump(
@@ -90,9 +90,13 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
         bump_type=versions.VersionSubType.patch,
         bump_by=1,
     ).label
+    bumped_publish_key = publishing.PublishKey(publish_key.product, bumped_version)
     assert set(publishing.get_published_versions(product=draft_key.product)) == set(
-        [TEST_VERSION, bumped_version]
+        [TEST_VERSION, bumped_version, "latest"]
     )
+    # tests version in metadata was updated to patched version
+    assert publishing.get_version(bumped_publish_key) == bumped_version
+    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == bumped_version
 
 
 def test_publish_draft_folder(
@@ -156,13 +160,15 @@ def test_publish_excludes_latest_when_flag_false(
     )
     # assert that latest folder was not populated
     publishing.get_latest_version(TEST_PRODUCT_NAME) == None
+
+    s3.delete(TEST_BUCKET_NAME, publish_key.path + "/")
+
     # assert a file is published to "latest"
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
         version=TEST_VERSION,
         latest=True,
-        is_patch=True,
     )
     assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
 
