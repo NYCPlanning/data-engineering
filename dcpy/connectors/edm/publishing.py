@@ -214,7 +214,6 @@ def publish(
     By default, keeps draft output folder"""
     if version is None:
         version = get_version(draft_key)
-        assert version is not None
 
     version_already_published = version in get_published_versions(
         product=draft_key.product
