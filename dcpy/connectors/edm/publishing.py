@@ -525,6 +525,12 @@ def _cli_wrapper_publish(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Publish to latest folder as well?"
     ),
+    is_patch: bool = typer.Option(
+        False,
+        "-ip",
+        "--is_patch",
+        help="Create a patched version if version already exists?",
+    ),
 ):
     acl_literal = s3.string_as_acl(acl)
     logger.info(
@@ -535,6 +541,7 @@ def _cli_wrapper_publish(
         acl=acl_literal,
         version=version,
         latest=latest,
+        is_patch=is_patch,
     )
 
 
