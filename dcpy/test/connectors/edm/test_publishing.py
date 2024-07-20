@@ -17,6 +17,7 @@ TEST_GIS_DATASET = "test_gis_dataset"
 DATE_CONSTANT = "20240101"
 DATE_TODAY = datetime.now().strftime("%Y%m%d")
 
+build_key = publishing.BuildKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
 draft_key = publishing.DraftKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
 publish_key = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
 
@@ -37,18 +38,19 @@ def test_bucket_empty(create_buckets, mock_data_constants):
     """Sanity check there are no draft or publish versions from previous tests
     or actual data."""
 
+    assert publishing.get_builds(product=TEST_PRODUCT_NAME) == []
     assert publishing.get_draft_builds(product=TEST_PRODUCT_NAME) == []
     assert publishing.get_published_versions(product=TEST_PRODUCT_NAME) == []
 
 
 def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
-    """Checks build directory is found in draft builds.
+    """Checks build directory is found in s3 "build" directory.
     Tests version from version.txt file matches actual version."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
 
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    assert TEST_BUILD in publishing.get_draft_builds(product=TEST_PRODUCT_NAME)
-    assert publishing.get_version(product_key=draft_key) == TEST_VERSION
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    assert TEST_BUILD in publishing.get_builds(product=TEST_PRODUCT_NAME)
+    assert publishing.get_version(product_key=build_key) == TEST_VERSION
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
@@ -57,7 +59,7 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
     publish a patched version and update build_metadata.json.
     Otherwise throw an error."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
@@ -106,7 +108,7 @@ def test_publish_draft_folder(
     Test to confirm files are retained or deleted based on input argument.
     """
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
@@ -116,7 +118,7 @@ def test_publish_draft_folder(
 
     assert publishing.get_draft_builds(product=draft_key.product) == []
 
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
@@ -132,7 +134,7 @@ def test_publish_expected_data(
 ):
     """Tests whether published data matches original data."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
     publishing.publish(draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION)
 
     test_data = pd.DataFrame(
@@ -153,7 +155,7 @@ def test_publish_excludes_latest_when_flag_false(
     Test to confirm files are not published to "latest" folder when input arg `latest` = False.
     """
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
 
     publishing.publish(
         draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=False
@@ -181,7 +183,7 @@ def test_publish_latest_ignores_older_versions(
     Test to confirm 'latest' folder doesn't get updated with older data version.
     """
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+    publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
 
     publishing.publish(
         draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=True
@@ -272,3 +274,12 @@ def test_download_gis_dataset(
         TEST_GIS_DATASET, DATE_CONSTANT, create_temp_filesystem
     )
     assert file_path.is_file()
+
+
+def test_get_builds(create_buckets, create_temp_filesystem, mock_data_constants):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    publishing.get_builds(TEST_PRODUCT_NAME) == []
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+
+    publishing.get_builds(TEST_PRODUCT_NAME) == [TEST_BUILD]
