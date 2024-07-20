@@ -20,6 +20,7 @@ from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
     DraftKey,
+    BuildKey,
 )
 from dcpy.models.lifecycle.builds import BuildMetadata
 
@@ -59,6 +60,10 @@ def get_published_versions(product: str) -> list[str]:
 
 def get_draft_builds(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
+
+
+def get_builds(product: str) -> list[str]:
+    return sorted(s3.get_subfolders(BUCKET, f"{product}/build/"), reverse=True)
 
 
 def get_previous_version(
@@ -127,19 +132,19 @@ def generate_metadata() -> dict[str, str]:
 
 def upload(
     output_path: Path,
-    draft_key: DraftKey,
+    build_key: BuildKey,
     *,
     acl: s3.ACL,
     max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
-    """Upload build output(s) to draft folder in edm-publishing"""
-    draft_path = draft_key.path
+    """Upload build output(s) to build folder in edm-publishing"""
+    build_path = build_key.path
     meta = generate_metadata()
     if output_path.is_dir():
         s3.upload_folder(
             BUCKET,
             output_path,
-            Path(draft_path),
+            Path(build_path),
             acl,
             contents_only=True,
             max_files=max_files,
@@ -147,9 +152,9 @@ def upload(
         )
     else:
         s3.upload_file(
-            "edm-publishing",
+            BUCKET,
             output_path,
-            f"{draft_path}/{output_path.name}",
+            f"{build_path}/{output_path.name}",
             acl,
             metadata=meta,
         )
@@ -501,9 +506,9 @@ def _cli_wrapper_upload(
             f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."
         )
     logger.info(
-        f'Uploading {output_path} to {product}/draft/{build_name} with ACL "{acl}"'
+        f'Uploading {output_path} to {product}/build/{build_name} with ACL "{acl}"'
     )
-    upload(output_path, DraftKey(product, build_name), acl=acl_literal)
+    upload(output_path, BuildKey(product, build_name), acl=acl_literal)
 
 
 @app.command("publish")

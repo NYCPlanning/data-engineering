@@ -8,23 +8,31 @@ def data_selection(
 ) -> publishing.ProductKey | None:
     if section_label is not None:
         st.sidebar.title(section_label)
-    publish_or_draft = st.sidebar.selectbox(
-        "Published version or draft?",
-        ["Published", "Draft"],
+    product_type = st.sidebar.selectbox(
+        "Published version, draft, or build?",
+        ["Published", "Draft", "Build"],
         key=f"{section_label}_type",
     )
-    is_draft = publish_or_draft == "Draft"
-    if is_draft:
-        label = "Select a build"
-        options = publishing.get_draft_builds(product)
-    else:
-        label = "Select a version"
-        options = publishing.get_published_versions(product)
+
+    match product_type:
+        case "Build":
+            label = "Select a build"
+            options = publishing.get_builds(product)
+        case "Draft":
+            label = "Select a build"
+            options = publishing.get_draft_builds(product)
+        case "Published":
+            label = "Select a version"
+            options = publishing.get_published_versions(product)
+
     select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
     if select:
-        if is_draft:
-            return publishing.DraftKey(product, select)
-        else:
-            return publishing.PublishKey(product, select)
+        match product_type:
+            case "Build":
+                return publishing.BuildKey(product, select)
+            case "Draft":
+                return publishing.DraftKey(product, select)
+            case "Published":
+                return publishing.PublishKey(product, select)
     else:
         return None

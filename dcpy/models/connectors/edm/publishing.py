@@ -40,6 +40,19 @@ class DraftKey(ProductKey):
         return f"{self.product}/draft/{self.build}"
 
 
+@dataclass
+class BuildKey(ProductKey):
+    product: str
+    build: str
+
+    def __str__(self):
+        return f"Build: {self.product} - {self.build}"
+
+    @property
+    def path(self) -> str:
+        return f"{self.product}/build/{self.build}"
+
+
 class GisDataset(BaseModel, extra="forbid"):
     """Dataset published by GIS in edm-publishing/datasets"""
 
