@@ -18,9 +18,7 @@ def archive_raw_data(dataset_name: str, version: str, uploaded_file, file_name: 
     with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
-    st.success(
-        f"Temporary file {uploaded_file.name} saved successfully"
-    )
+    st.success(f"Temporary file {uploaded_file.name} saved successfully")
 
     s3.upload_file(
         BUCKET,
