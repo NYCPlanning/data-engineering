@@ -19,7 +19,7 @@ def archive_raw_data(dataset_name: str, version: str, uploaded_file, file_name: 
         f.write(uploaded_file.getbuffer())
 
     st.success(
-        f"Temporary file {uploaded_file.name} saved successfully as {dataset_name}"
+        f"Temporary file {uploaded_file.name} saved successfully"
     )
 
     s3.upload_file(
@@ -35,8 +35,7 @@ def archive_raw_data(dataset_name: str, version: str, uploaded_file, file_name: 
 
     try:
         shutil.rmtree(base_path)
-        shutil.rmtree(Path("__pycache__"))
-        st.success(f"Local temporary files and pycache cleaned up successfully.")
+        st.success(f"Local temporary files cleaned up successfully.")
     except Exception as e:
         st.error("No cleanup needed")
 
