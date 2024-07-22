@@ -1,6 +1,6 @@
-# apps/qa/ingest_dataset.py
 import streamlit as st
-from helper import handle_file_upload
+from helper import archive_raw_data, edit_tamplate, library_archive
+from pathlib import Path
 
 
 st.title("Ingest Dataset")
@@ -8,10 +8,14 @@ st.title("Ingest Dataset")
 dataset_name = st.text_input("Dataset Name")
 version = st.text_input("Version")
 uploaded_file = st.file_uploader("Choose a file")
+s3_path = Path('inbox')/dataset_name/version
+file_name = uploaded_file.name
 
 if st.button("Ingest"):
     if dataset_name and version and uploaded_file:
-        file_path = handle_file_upload(dataset_name, version, uploaded_file)
+        file_path = archive_raw_data(dataset_name, version, uploaded_file,file_name)
+        template_path = edit_tamplate (dataset_name, s3_path)
+        library_archive(template_path)
     else:
         st.warning("Please input all fields.")
 
