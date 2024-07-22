@@ -1,0 +1,90 @@
+name: db-colp
+display_name: City Owned and Leased Property (COLP)
+description: "Raw Description"
+each_row_is_a: ""
+tags: ["a", "b"]
+
+columns:
+  - id: my_column_id
+    display_name: My Column Id
+    data_source: Department of City Planning
+    description: ""
+    data_type: text
+    example: cbe20732be28f6ab445289d7a67bb241
+    checks:
+      is_primary_key: True
+      nullable: True
+    custom:
+      # not broadly applicable, so chuck under "custom"
+      readme_data_type: string
+      does_alex_like_this_column: False
+
+assembly:
+  - id: csv_package
+    type: zip
+    filename: csv_package.zip
+    contains:
+      - id: primary_csv
+        filename: colp_{{ version }}.csv
+      - id: colp_readme
+        filename: colp_readme.pdf
+
+files:
+  - id: primary_shapefile
+    filename: colp_single_feature_shp.zip
+    type: shapefile
+    overrides:
+      columns_overridden:
+        my_column_id:
+          display_name: My Overridden Column ID
+          data_type: integer
+      display_name: "display_name overridden at the dataset_file level"
+      description: "description overridden at the dataset_file level"
+    custom:
+      ignore_validation: ["AGREEMENT", "DCPEDITED", "FINALCOM"]
+  - id: primary_csv
+    filename: colp_single_feature.csv
+    type: csv
+    overrides:
+      columns_omitted: ["GEOM"]
+  - id: colp_readme
+    filename: colp_readme.pdf
+
+destinations:
+  - id: socrata_prod
+    type: socrata
+    custom:
+      four_four: "fn4k-qyk2"
+    files:
+      - id: primary_shapefile
+        overrides:
+          columns_omitted: [dcpedited, uid]
+        custom:
+          display_name: "display_name overridden at the destination level"
+          destination_use: dataset_file
+      - id: colp_readme
+        custom:
+          destination_use: attachment
+  - id: socrata_unparsed
+    type: socrata
+    custom:
+      four_four: "fn4k-abcd"
+    files:
+      - id: primary_shapefile
+        custom:
+          is_unparsed_dataset_file: True
+          destination_use: dataset_file
+      - id: colp_readme
+        custom:
+          destination_file_name: shapefile_blob_{{ version }}
+          destination_use: attachment
+  # BYTES
+  - id: bytes
+    type: bytes
+    files:
+      - id: csv_package
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
+      - id: colp_readme
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/colp_readme.pdf
