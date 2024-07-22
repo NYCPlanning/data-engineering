@@ -1,5 +1,5 @@
 import streamlit as st
-from helper import archive_raw_data, edit_tamplate, library_archive
+from helper import archive_raw_data
 from pathlib import Path
 
 
@@ -14,7 +14,5 @@ file_name = uploaded_file.name
 if st.button("Ingest"):
     if dataset_name and version and uploaded_file:
         file_path = archive_raw_data(dataset_name, version, uploaded_file, file_name)
-        template_path = edit_tamplate(dataset_name, s3_path)
-        library_archive(template_path)
     else:
         st.warning("Please input all fields.")
