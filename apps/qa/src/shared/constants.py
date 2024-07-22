@@ -21,6 +21,7 @@ PAGES = {
     "GRU QAQC": "gru",
     "Source Data": "source_data",
     "Checkbook": "checkbook",
+    "Data Ingestion": "ingest",
 }
 
 DATASET_NAMES = {

@@ -9,10 +9,12 @@ def ingest():
     version = st.text_input("Version")
     uploaded_file = st.file_uploader("Choose a file")
     s3_path = Path("inbox") / dataset_name / version
-    file_name = uploaded_file.name
 
     if st.button("Ingest"):
         if dataset_name and version and uploaded_file:
-            file_path = archive_raw_data(dataset_name, version, uploaded_file, file_name)
+            file_name = uploaded_file.name
+            file_path = archive_raw_data(
+                dataset_name, version, uploaded_file, file_name
+            )
         else:
             st.warning("Please input all fields.")
