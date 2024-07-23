@@ -2,8 +2,8 @@ from collections import defaultdict
 import json
 import pandas as pd
 import geopandas as gpd
-
 from pathlib import Path
+from typing import Literal
 
 from dcpy.models import file
 from dcpy.utils.logging import logger
@@ -179,3 +179,78 @@ def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:
 
     # Apply serialization to each cell in the DataFrame
     return df.map(serialize_value)
+
+
+def upsert_df_columns(
+    df: pd.DataFrame,
+    upsert_df: pd.DataFrame,
+    on: list[str],
+    insert_behavior: Literal["allow", "ignore", "error"] = "allow",
+    missing_key_behavior: Literal["null", "coalesce", "error"] = "error",
+    allow_duplicate_keys=False,
+) -> pd.DataFrame:
+    """
+    Upserts columns in a dataframe by left joining another dataframe
+
+    Parameters:
+        df: dataframe to upsert and return
+        upsert_df: a df containing columns to join by and columns to upsert into df
+        on: column(s) to join the two datasets by.
+        insert_behavior: how to handle columns in the upsert df not present in main df. Either upsert, update (and ignore additional), or try to update and error on additional
+        missing_key_behavior: how to handle when keys in the left df are missing in the right (rows that do not join) when updating
+            "null": regardless of value for row for updated column, update with "None"/"NaN"
+            "coalesce": if row is not joined and row is updated, default to old value
+            "error": throw error if any rows are not joined
+        allow_duplicate_keys: boolean flag. If true, allows duplicate keys in both dataframes, meaning returned df may have more rows in input
+    """
+    cols = set(df.columns)
+    upsert_cols = set(upsert_df.columns)
+    if not set(on).issubset(cols):
+        raise ValueError("Cannot upsert: 'by' columns not present in df")
+    if not set(on).issubset(upsert_cols):
+        raise ValueError("Cannot upsert: 'by' columns not present in upsert_df")
+
+    if (not allow_duplicate_keys) and not len(df) == len(df[on].drop_duplicates()):
+        raise ValueError("Cannot upsert: df keys are not unique")
+    if (not allow_duplicate_keys) and not len(upsert_df) == len(
+        upsert_df[on].drop_duplicates()
+    ):
+        raise ValueError("Cannot upsert: upsert_df keys are not unique")
+
+    if insert_behavior == "error" and not upsert_cols.issubset(cols):
+        raise ValueError(
+            f"Unexpected columns found in upsert_df: {upsert_cols.difference(cols)}"
+        )
+    if insert_behavior == "ignore":
+        upsert_df = upsert_df[
+            [c for c in upsert_df.columns if c in on or c in df.columns]
+        ]
+
+    upsert_columns = [c for c in upsert_df.columns if c not in on]
+    output_columns = list(df.columns) + [
+        c for c in upsert_columns if c not in df.columns
+    ]
+
+    suffix = "__upsert"
+    joined = df.merge(
+        upsert_df, on=on, suffixes=(None, suffix), indicator=True, how="left"
+    )
+
+    if (missing_key_behavior == "error") and any(joined["_merge"] == "left_only"):
+        raise ValueError("Not all keys in df found in upsert_df")
+
+    for column in upsert_columns:
+        col_type = joined[column].dtype
+        upsert_column = column + suffix if column in df.columns else column
+        if missing_key_behavior == "coalesce":
+            joined[column] = joined.apply(
+                lambda row: (
+                    row[column] if row["_merge"] == "left_only" else row[upsert_column]
+                ),
+                axis=1,
+            )
+        else:
+            joined[column] = joined[upsert_column]
+        joined[column] = joined[column].astype(col_type, errors="ignore")
+
+    return joined[output_columns]
