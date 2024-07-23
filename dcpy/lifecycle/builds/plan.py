@@ -276,6 +276,7 @@ def _cli_wrapper_plan_recipe(
     ),
     version=typer.Option(
         None,
+        "--version",
         "-v",
         help="Version of dataset being built",
     ),

@@ -24,7 +24,6 @@ inputs:
 
 # Projects
     - name: nycoc_checkbook
-      version: 2010-2023
     - name: fisa_capitalcommitments
     - name: fisa_dailybudget
     - name: dot_projects_intersections

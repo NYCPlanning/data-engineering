@@ -1,18 +1,20 @@
-import xml.etree.ElementTree as ET
-import requests
-import pandas as pd
-import datetime as dt
-import pytz
 import calendar
+import datetime as dt
+from io import StringIO
+import pandas as pd
 from pathlib import Path
+import pytz
+import random
+import requests
 import shutil
 import sys
 import time
-import random
+from typing import Literal, TypedDict, Any
+import xml.etree.ElementTree as ET
 
 from . import df_to_tempfile
+from .scriptor import ScriptorInterface
 
-from typing import Literal, TypedDict, Any
 
 api_endpoint = "https://www.checkbooknyc.com/api"
 
@@ -34,7 +36,6 @@ DEFAULT_MAX_RECORDS = "20000"
 
 DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 DEFAULT_START_PERIOD = dt.date(2010, 1, 1).strftime(DEFAULT_DATE_FORMAT)
-DEFAULT_END_PERIOD = dt.date.today().strftime(DEFAULT_DATE_FORMAT)
 
 DEFAULT_DATA_PATH = Path(__file__).resolve().parent / "capital_spending_data"
 
@@ -64,7 +65,7 @@ class CriteriaRange(TypedDict):
     end: str
 
 
-class Scriptor:
+class Scriptor(ScriptorInterface):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -79,12 +80,15 @@ class Scriptor:
         num_retries: int = 3,
         data_dir: Path = DEFAULT_DATA_PATH,
         start_period: str = DEFAULT_START_PERIOD,
-        end_period: str = DEFAULT_END_PERIOD,
+        end_period: str | None = None,
     ) -> pd.DataFrame:
         """Fetches data from Checkbook NYC API based on input parameters, saves it
         locally in parquet files organized by months, and returns data in a pandas DataFrame.
         """
         create_data_dir(data_dir)
+        if not end_period:
+            end_date = dt.datetime.strptime(self.version, "%Y%m%d")
+            end_period = end_date.strftime(DEFAULT_DATE_FORMAT)
 
         search_criteria = validate_search_criteria(search_criteria)
 
@@ -183,7 +187,7 @@ def get_data(
             raise Exception("Unable to extract total record count")
         total_record_count = int(records_tag.text)
         df = pd.read_xml(
-            xml_response,
+            StringIO(xml_response),
             xpath=f"./result_records/{type_of_data.lower()}_transactions/*",
         )
         df_list.append(df)

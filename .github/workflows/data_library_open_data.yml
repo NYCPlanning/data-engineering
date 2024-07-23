@@ -24,13 +24,18 @@ jobs:
         dataset:
           - doitt_buildingfootprints
           - doitt_buildingfootprints_historical
+          - dot_projects_intersectiosn
+          - dot_projects_streets
+          - dpr_capitalprojects
           - dpr_greenthumb
           - dpr_park_access_zone
           - dpr_parksproperties
           - dsny_frequencies
           - dsny_garages
+          - fdny_firehouses
           - lpc_historic_districts
           - lpc_landmarks
+          - nypd_policeprecincts
           
     steps:
       - uses: actions/checkout@v4
