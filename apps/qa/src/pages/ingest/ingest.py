@@ -13,8 +13,6 @@ def ingest():
     ingest_button_pressed = st.button("Ingest")
     if ingest_button_pressed == True:
         if dataset_name and version and uploaded_file:
-            st.warning(type(uploaded_file))
-            st.warning(type(s3_path))
             file_name = uploaded_file.name
             file_path = archive_raw_data(
                 dataset_name, version, uploaded_file, file_name
