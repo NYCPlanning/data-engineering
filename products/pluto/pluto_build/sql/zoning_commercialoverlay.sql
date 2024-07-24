@@ -28,6 +28,19 @@ WITH commoverlayper AS (
     FROM pluto AS p
     INNER JOIN dcp_commercialoverlay AS n
         ON ST_INTERSECTS(p.geom, n.geom)
+),
+
+grouped AS (
+    SELECT
+        id,
+        bbl,
+        overlay,
+        SUM(segbblgeom) AS segbblgeom,
+        SUM(segzonegeom) AS segzonegeom,
+        (SUM(segbblgeom) / SUM(allbblgeom)) * 100 AS perbblgeom,
+        (SUM(segzonegeom) / SUM(allzonegeom)) * 100 AS perzonegeom
+    FROM commoverlayper
+    GROUP BY id, bbl, overlay
 )
 
 SELECT
@@ -35,36 +48,27 @@ SELECT
     bbl,
     overlay,
     segbblgeom,
-    (segbblgeom / allbblgeom) * 100 AS perbblgeom,
-    (segzonegeom / allzonegeom) * 100 AS perzonegeom,
+    perbblgeom,
+    perzonegeom,
     ROW_NUMBER()
         OVER (
             PARTITION BY id
             ORDER BY segbblgeom DESC, segzonegeom DESC
         )
     AS row_number
-FROM commoverlayper;
+FROM grouped
+WHERE perbblgeom >= 10 OR perzonegeom >= 50;
 
 UPDATE pluto a
 SET overlay1 = overlay
 FROM commoverlayperorder AS b
 WHERE
     a.id = b.id
-    AND row_number = 1
-    AND (
-        perbblgeom >= 10
-        OR perzonegeom >= 50
-    );
+    AND row_number = 1;
 
 UPDATE pluto a
 SET overlay2 = overlay
 FROM commoverlayperorder AS b
 WHERE
     a.id = b.id
-    AND row_number = 2
-    AND (
-        perbblgeom >= 10
-        OR perzonegeom >= 50
-    );
-
-DROP TABLE commoverlayperorder;
+    AND row_number = 2;

@@ -74,8 +74,6 @@ run_sql_file sql/zoning_specialdistrict.sql
 run_sql_file sql/zoning_limitedheight.sql
 run_sql_file sql/zoning_zonemap.sql
 run_sql_file sql/zoning_parks.sql
-run_sql_file sql/zoning_correctdups.sql
-run_sql_file sql/zoning_correctgaps.sql
 run_sql_file sql/zoning_splitzone.sql
 run_sql_command "VACUUM ANALYZE pluto;"
 
