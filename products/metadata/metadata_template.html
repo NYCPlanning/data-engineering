@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Metadata</title>
+    <style>
+        body { font-family: 'Times New Roman', Times, serif; }
+        .column { margin-bottom: 1em; }
+        .column h2 { margin: 0.5em 0; }
+    </style>
+</head>
+
+<body>
+    <h1>{{ metadata.display_name }}</h1>
+    <h2><strong>Description:</strong> </h2>
+    <p>{{ metadata.description }}</p>
+    <h2><strong>Tags:</strong></h2>
+    <ul>
+        {% for tag in metadata.tags %}
+        <li>{{ tag }}</li>
+        {% endfor %}
+    </ul>
+    <h2><strong>Each row is a: </strong> </h2>
+    <p>{{ metadata.each_row_is_a }}</p>
+    <h2><strong>Destinations: </strong> </h2>
+    <ul>
+        {% for destination in metadata.destinations %}
+        <li>
+        {% if destination.type == 'socrata' %}
+        <strong>id: </strong> {{ destination.id }}<br>
+        <strong>type: </strong> {{ destination.type }}<br>
+        <strong>four_four: </strong> {{ destination.four_four }}<br>
+        <strong>attachments: </strong> 
+            <ul>
+                {% for attachment in destination.attachments %}
+                <li>{{ attachment }}</li>
+                {% endfor %}
+            </ul><br>
+        <strong>datasets: </strong>  
+            <ul>
+                {% for dataset in destination.datasets %}
+                <li>{{ dataset }}</li>
+                {% endfor %}
+            </ul>
+        <strong>omit_columns: </strong> 
+            <ul>
+                {% for col in destination.omit_columns %}
+                <li>{{ col }}</li>
+                {% endfor %}
+            </ul>
+        <strong>column_details: </strong> 
+        <ul>
+            {% for col_name, socrata_column in destination.column_details.items() %}
+            <li>
+                <strong>Column Name:</strong> {{ col_name }}<br>
+                <strong>API Name:</strong> {{ socrata_column.api_name }}<br>
+                <strong>Display Name:</strong> {{ socrata_column.display_name }}<br>
+                <strong>Description:</strong> {{ socrata_column.description }}<br>
+                <strong>Primary Key:</strong> {{ socrata_column.is_primary_key }}
+            </li>
+            {% endfor %}
+        </ul>
+        <strong>overrides: </strong> 
+        <ul>
+            <li> 
+                <strong>Display Name:</strong> {{ destination.overrides.display_name }}<br>
+                <strong>Description:</strong> {{ destination.overrides.description }}<br>
+                <strong>Columns:</strong>
+                <ul>
+                    {% for key,value in destination.overrides.columns.items() %}
+                    <li>
+                        <strong>key:</strong> {{ val }}<br>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <strong>Omit Columns: </strong>  
+                <ul>
+                    {% for col in destination.overrides.omit_columns %}
+                    <li>{{ col }}</li>
+                    {% endfor %}
+                </ul>
+                <strong>Ignore Validation: </strong>  
+                <ul>
+                    {% for ignore in destination.overrides.ignore_validation %}
+                    <li>{{ ignore }}</li>
+                    {% endfor %}
+                </ul>
+                <strong>Tags: </strong>  
+                <ul>
+                    {% for tag in destination.overrides.tags %}
+                    <li>{{ tag }}</li>
+                    {% endfor %}
+                </ul>
+                <strong>Destination File Name:</strong> {{ destination.overrides.destination_file_name }}<br>
+
+
+            </li>
+        </ul>
+        <strong>Display Name:</strong> {{ destination.overrides.display_name }}
+        <strong>is_unparsed_dataset: </strong> {{ destination.is_unparsed_dataset }}<br>
+        <br>
+        {% endif %} </li>
+        {% endfor %}
+    </ul>
+    
+</body>
+</html>
