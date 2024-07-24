@@ -134,3 +134,32 @@ class TestVersions(TestCase):
             [None, 2, "23Q4.1", "24Q2"],
         ]:
             self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)
+
+    def test_parse_draft_version_valid_versions(self):
+        for draft_version, expected_draft_num, expected_draft_summary in [
+            ["1-start", 1, "start"],
+            ["1", 1, ""],
+            ["123", 123, ""],
+            ["2-fix-something", 2, "fix-something"],
+            ["3-Not Sure What This Fix Is", 3, "Not Sure What This Fix Is"],
+        ]:
+            self.assertEqual(
+                versions.parse_draft_version(draft_version).revision_num,
+                expected_draft_num,
+            )
+            self.assertEqual(
+                versions.parse_draft_version(draft_version).revision_summary,
+                expected_draft_summary,
+            )
+
+    def test_parse_draft_version_invalid_versions(self):
+        with self.assertRaises(ValueError):
+            versions.parse_draft_version("InvalidFormat")
+        with self.assertRaises(ValueError):
+            versions.parse_draft_version("1.something")
+        with self.assertRaises(ValueError):
+            versions.parse_draft_version("-2-something")
+        with self.assertRaises(ValueError):
+            versions.parse_draft_version(
+                "3-this-draft-version-format-cannot-be-longer-than-defined-max-length"
+            )
