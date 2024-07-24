@@ -23,9 +23,10 @@ on:
         type: string
         required: true
       draft_summary:
-        description: "Draft description (becomes a part of draft name in s3)"
+        description: "Draft revision summary (becomes a part of draft name in s3)"
         type: string
-        required: true
+        required: false
+        default: ''
       product_acl:
         description: "Set access control list for output in DO"
         type: choice
@@ -34,3 +35,56 @@ on:
         options:
           - public-read 
           - private
+  workflow_call:
+    inputs:
+      product:
+        type: string
+        required: true
+      build:
+        type: string
+        required: true
+      draft_summary:
+        type: string
+        required: false
+        default: ''
+      product_acl:
+        type: string
+        required: true
+
+jobs:
+  promote:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-base:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dcpy 
+            bash
+            python
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: Promote Build to Draft
+        run: |
+          python3 -m dcpy.connectors.edm.publishing promote_to_draft \
+            --product ${{ inputs.product }} \
+            --build ${{ inputs.build }} \
+            ${{ (inputs.draft_summary != '' && format('--draft-summary {0}', inputs.draft_summary)) || ''}} \
+            --acl ${{ inputs.product_acl }}
