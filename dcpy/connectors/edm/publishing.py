@@ -58,8 +58,14 @@ def get_published_versions(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/publish/"), reverse=True)
 
 
-def get_draft_builds(product: str) -> list[str]:
+def get_draft_versions(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
+
+
+def get_draft_version_revisions(product: str, version: str) -> list[str]:
+    return sorted(
+        s3.get_subfolders(BUCKET, f"{product}/draft/{version}/"), reverse=True
+    )
 
 
 def get_builds(product: str) -> list[str]:
@@ -203,6 +209,51 @@ def legacy_upload(
         if latest:
             ## much faster than uploading again
             s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
+
+
+def promote_to_draft(
+    build_key: BuildKey,
+    acl: s3.ACL,
+    keep_build: bool = True,
+    max_files: int = s3.MAX_FILE_COUNT,
+    draft_revision_summary: str = "",
+):
+    version = get_version(build_key)
+
+    # generate version draft revision number
+    draft_revision_number = (
+        len(get_draft_version_revisions(build_key.product, version)) + 1
+    )
+    draft_revision_label = versions.DraftVersionRevision(
+        draft_revision_number, draft_revision_summary
+    ).label
+
+    # read in build metadata, update it with draft label, and save it locally
+    build_metadata = get_build_metadata(product_key=build_key)
+    build_metadata.draft_revision_name = draft_revision_label
+    build_metadata_path = Path("build_metadata.json")
+    with open(build_metadata_path, "w", encoding="utf-8") as f:
+        json.dump(build_metadata.model_dump(), f, indent=4)
+
+    # promote from build to draft
+    source = build_key.path + "/"
+    target = f"{build_key.product}/draft/{version}/{draft_revision_label}/"
+    s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+
+    # upload updated metadata file
+    s3.upload_file(
+        BUCKET,
+        build_metadata_path,
+        f"{target}{build_metadata_path.name}",
+        acl,
+    )
+
+    logger.info(
+        f"Promoted {build_key.product} to drafts as {version}/{draft_revision_label}"
+    )
+
+    if not keep_build:
+        s3.delete(BUCKET, source)
 
 
 def publish(
@@ -547,6 +598,32 @@ def _cli_wrapper_publish(
         version=version,
         latest=latest,
         is_patch=is_patch,
+    )
+
+
+@app.command("promote_to_draft")
+def _cli_wrapper_promote_to_draft(
+    product: str = typer.Option(
+        None,
+        "-p",
+        "--product",
+        help="Data product name (folder name in S3 publishing bucket)",
+    ),
+    build: str = typer.Option(None, "-b", "--build", help="Label of build"),
+    draft_summary: str = typer.Option(
+        "",
+        "-ds",
+        "--draft-summary",
+        help="Draft description (becomes a part of draft name in s3)",
+    ),
+    acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+):
+    acl_literal = s3.string_as_acl(acl)
+    logger.info(f'Promoting {product}/build/{build} to draft with ACL "{acl}"')
+    promote_to_draft(
+        build_key=BuildKey(product, build),
+        draft_revision_summary=draft_summary,
+        acl=acl_literal,
     )
 
 
