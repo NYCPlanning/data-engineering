@@ -635,12 +635,19 @@ def _cli_wrapper_download_file(
         "--product",
         help="Name of data product (publishing folder in s3)",
     ),
-    draft: bool = typer.Option(
-        False,
-        "-d",
-        "--draft",
+    product_type: str = typer.Option(
+        None,
+        "-pt",
+        "--product-type",
+        help=f"Product type to download. Options are: 'build', 'draft', or 'publish'",
     ),
-    version: str = typer.Option(None, "-v", "--version", help="Product version"),
+    version: str = typer.Option(None, "-v", "--version", help="Product version/build"),
+    draft_revision: str = typer.Option(
+        None,
+        "-dr",
+        "--draft-revision",
+        help="If product-type is 'draft', must provide draft revision label (ex: 1-initial). Otherwise leave this blank",
+    ),
     filepath: str = typer.Option(
         None, "-f", "--filepath", help="Filepath within s3 output folder"
     ),
@@ -648,10 +655,20 @@ def _cli_wrapper_download_file(
         None, "-o", "--output-dir", help="Folder to download file to"
     ),
 ):
-    if draft:
-        key: ProductKey = DraftKey(product=product, build=version)
-    else:
-        key = PublishKey(product=product, version=version)
+    if product_type == "draft":
+        assert draft_revision is not None
+
+    match product_type:
+        case "build":
+            key = BuildKey(product=product, build=version)
+        case "draft":
+            key = DraftKey(product=product, version=version, revision=draft_revision)
+        case "published":
+            key = PublishKey(product=product, version=version)
+        case _:
+            raise ValueError(
+                f"product-type should be 'build', 'draft', or 'published'. Instead got {product_type}"
+            )
     download_file(key, filepath, output_dir)
 
 
