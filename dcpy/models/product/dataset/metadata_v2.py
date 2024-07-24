@@ -43,7 +43,7 @@ class Package(CustomizableBase):
     id: str
     type: str
     filename: str
-    contains: List[PackageFile]
+    contents: List[PackageFile]
 
 
 class FileOverrides(CustomizableBase):
@@ -72,15 +72,16 @@ class Destination(CustomizableBase):
 
 
 # All overrideable at the Destination/File level
-class BaseMetadata(CustomizableBase):
-    name: str
+class DatasetAttributes(CustomizableBase):
     display_name: str
     description: str
     each_row_is_a: str
     tags: List[str]
 
 
-class Metadata(BaseMetadata):
+class Metadata(CustomizableBase):
+    id: str
+    attributes: DatasetAttributes
     assembly: List[Package]
     columns: List[Column]
     files: List[File]

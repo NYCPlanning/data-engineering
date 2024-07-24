@@ -1,8 +1,10 @@
-name: db-colp
-display_name: City Owned and Leased Property (COLP)
-description: "Raw Description"
-each_row_is_a: ""
-tags: ["a", "b"]
+id: db-colp
+
+attributes:
+  display_name: City Owned and Leased Property (COLP)
+  description: "Raw Description"
+  each_row_is_a: ""
+  tags: ["a", "b"]
 
 columns:
   - id: my_column_id
@@ -23,7 +25,7 @@ assembly:
   - id: csv_package
     type: zip
     filename: csv_package.zip
-    contains:
+    contents:
       - id: primary_csv
         filename: colp_{{ version }}.csv
       - id: colp_readme
