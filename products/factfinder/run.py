@@ -1,7 +1,7 @@
 from pathlib import Path
 import typer
 
-from dcpy.lifecycle.builds import load
+from dcpy.lifecycle.builds import load, plan
 from pipelines import acs_manual_update, decennial_manual_update
 
 app = typer.Typer(add_completion=False)
@@ -21,7 +21,8 @@ def _run(
         "acs",
         "decennial",
     ], "'acs' and 'decennial' only valid options for dataset."
-    load_result = load.load_source_data(Path(f"{dataset}.yml"), keep_files=True)
+    lockfile = plan.plan(Path(f"{dataset}.yml"))
+    load_result = load.load_source_data(lockfile, keep_files=True)
     match dataset:
         case "acs":
             acs_manual_update.run(load_result, upload)
