@@ -56,12 +56,20 @@ def archive_raw_dataset(config: ingest.Config, file_path: Path):
     _archive_dataset(config, file_path, config.raw_dataset_key.s3_path(RAW_FOLDER))
 
 
-def archive_dataset(config: ingest.Config, file_path: Path):
+def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False):
     """
     Given a config and a path to a processed parquet file, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and its version
     """
-    _archive_dataset(config, file_path, config.dataset_key.s3_path("ingest_datasets"))
+    s3_path = config.dataset_key.s3_path("ingest_datasets")
+    _archive_dataset(config, file_path, s3_path)
+    if latest:
+        s3.copy_folder(
+            BUCKET,
+            f"{s3_path}/",
+            f"ingest_datasets/{config.name}/latest/",
+            acl=config.acl,
+        )
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:

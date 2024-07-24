@@ -8,7 +8,7 @@ from pydantic import TypeAdapter, BaseModel
 from pathlib import Path
 
 from dcpy.models.file import Format
-from dcpy.models.lifecycle.ingest import FunctionCall
+from dcpy.models.lifecycle.ingest import PreprocessingStep
 from dcpy.lifecycle.ingest import transform
 
 from dcpy.utils import data
@@ -97,8 +97,8 @@ def test_validate_processing_steps():
     """
 
     steps = [
-        FunctionCall(name="no_arg_function"),
-        FunctionCall(name="drop_columns", args={"columns": ["col1", "col2"]}),
+        PreprocessingStep(name="no_arg_function"),
+        PreprocessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
     ]
     compiled_steps = transform.validate_processing_steps("test", steps)
     assert len(compiled_steps) == 2
@@ -111,11 +111,11 @@ def test_validate_processing_steps():
     # test invalid steps
     error_steps = [
         # Non-existent function
-        FunctionCall(name="fake_function_name"),
+        PreprocessingStep(name="fake_function_name"),
         # Missing arg
-        FunctionCall(name="drop_columns", args={}),
+        PreprocessingStep(name="drop_columns", args={}),
         # Unexpected arg
-        FunctionCall(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
+        PreprocessingStep(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
     ]
     # validate each separately for ease of making sure that each throws an error
     for step in error_steps:
@@ -153,7 +153,7 @@ def test_call_pd_series_func():
     )
     manual_1 = pd.DataFrame({"column_a": ["VALUE 1", "VALUE 2"], "column_b": [1, 2]})
 
-    call_1 = FunctionCall(
+    call_1 = PreprocessingStep(
         name=func_name,
         args={
             "column_name": "column_a",
@@ -175,7 +175,7 @@ def test_call_pd_series_func():
     )
     manual_2 = pd.DataFrame({"column_a": ["other value 1", np.nan], "column_b": [1, 2]})
 
-    call_2 = FunctionCall(
+    call_2 = PreprocessingStep(
         name=func_name,
         args={
             "column_name": "column_a",

@@ -11,7 +11,7 @@ from dcpy.models.lifecycle.ingest import (
     S3Source,
     ScriptSource,
     Source,
-    FunctionCall,
+    PreprocessingStep,
     Template,
     Config,
 )
@@ -103,7 +103,9 @@ def get_filename(source: Source, ds_name: str) -> str:
             )
 
 
-def get_config(dataset: str, version: str | None = None) -> Config:
+def get_config(
+    dataset: str, version: str | None = None, mode: str | None = None
+) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
     template = read_template(dataset, version=version)
@@ -113,10 +115,17 @@ def get_config(dataset: str, version: str | None = None) -> Config:
     processing_steps = template.processing_steps
 
     if template.target_crs:
-        reprojection = FunctionCall(
+        reprojection = PreprocessingStep(
             name="reproject", args={"target_crs": template.target_crs}
         )
         processing_steps = [reprojection] + processing_steps
+
+    if mode:
+        modes = {s.mode for s in processing_steps}
+        if mode not in modes:
+            raise ValueError(f"mode '{mode}' is not present in template '{dataset}'")
+
+    processing_steps = [s for s in processing_steps if s.mode is None or s.mode == mode]
 
     # create config object
     return Config(

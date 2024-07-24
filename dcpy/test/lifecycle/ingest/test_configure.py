@@ -109,6 +109,19 @@ def test_get_config():
     """
     Tests that configure.get_config runs without exception
     Given other unit tests, mainly confirms that template is correctly converted to config pydantic class
+    Tests "mode" functionality
+    Should probably be mocked but this is straightforward for now
     """
-    configure.get_config("dcp_atomicpolygons", version="test")
-    assert True
+    standard = configure.get_config("dcp_pop_acs2010_demographic", version="test")
+    assert standard.processing_steps
+    assert "append_prev" not in [s.name for s in standard.processing_steps]
+
+    append = configure.get_config(
+        "dcp_pop_acs2010_demographic", version="test", mode="append"
+    )
+    assert "append_prev" in [s.name for s in append.processing_steps]
+
+    with pytest.raises(ValueError):
+        configure.get_config(
+            "dcp_pop_acs2010_demographic", version="test", mode="fake_mode"
+        )

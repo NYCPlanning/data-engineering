@@ -107,6 +107,7 @@ def read_data_to_df(
             df = pd.read_excel(
                 local_data_path,
                 sheet_name=data_format.sheet_name,
+                dtype=_get_dtype(data_format.dtype),
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
@@ -184,7 +185,7 @@ def serialize_nested_objects(df: pd.DataFrame) -> pd.DataFrame:
 def upsert_df_columns(
     df: pd.DataFrame,
     upsert_df: pd.DataFrame,
-    on: list[str],
+    key: list[str],
     insert_behavior: Literal["allow", "ignore", "error"] = "allow",
     missing_key_behavior: Literal["null", "coalesce", "error"] = "error",
     allow_duplicate_keys=False,
@@ -205,15 +206,15 @@ def upsert_df_columns(
     """
     cols = set(df.columns)
     upsert_cols = set(upsert_df.columns)
-    if not set(on).issubset(cols):
+    if not set(key).issubset(cols):
         raise ValueError("Cannot upsert: 'by' columns not present in df")
-    if not set(on).issubset(upsert_cols):
+    if not set(key).issubset(upsert_cols):
         raise ValueError("Cannot upsert: 'by' columns not present in upsert_df")
 
-    if (not allow_duplicate_keys) and not len(df) == len(df[on].drop_duplicates()):
+    if (not allow_duplicate_keys) and not len(df) == len(df[key].drop_duplicates()):
         raise ValueError("Cannot upsert: df keys are not unique")
     if (not allow_duplicate_keys) and not len(upsert_df) == len(
-        upsert_df[on].drop_duplicates()
+        upsert_df[key].drop_duplicates()
     ):
         raise ValueError("Cannot upsert: upsert_df keys are not unique")
 
@@ -223,17 +224,17 @@ def upsert_df_columns(
         )
     if insert_behavior == "ignore":
         upsert_df = upsert_df[
-            [c for c in upsert_df.columns if c in on or c in df.columns]
+            [c for c in upsert_df.columns if c in key or c in df.columns]
         ]
 
-    upsert_columns = [c for c in upsert_df.columns if c not in on]
+    upsert_columns = [c for c in upsert_df.columns if c not in key]
     output_columns = list(df.columns) + [
         c for c in upsert_columns if c not in df.columns
     ]
 
     suffix = "__upsert"
     joined = df.merge(
-        upsert_df, on=on, suffixes=(None, suffix), indicator=True, how="left"
+        upsert_df, on=key, suffixes=(None, suffix), indicator=True, how="left"
     )
 
     if (missing_key_behavior == "error") and any(joined["_merge"] == "left_only"):
