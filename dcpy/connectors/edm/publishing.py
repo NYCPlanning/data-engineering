@@ -68,6 +68,23 @@ def get_draft_version_revisions(product: str, version: str) -> list[str]:
     )
 
 
+def get_draft_revision_label(product: str, version: str, revision_num: int) -> str:
+    """Given a draft revision number, return draft revision label in s3."""
+    draft_revision_label = None
+    draft_revision_objects = [
+        versions.parse_draft_version(version)
+        for version in get_draft_version_revisions(product, version)
+    ]
+    for obj in draft_revision_objects:
+        if obj.revision_num == revision_num:
+            draft_revision_label = obj.label
+    if draft_revision_label is None:
+        raise ValueError(
+            f"A draft revision with revision numbef of {revision_num} doesn't exist. Try again"
+        )
+    return draft_revision_label
+
+
 def get_builds(product: str) -> list[str]:
     return sorted(s3.get_subfolders(BUCKET, f"{product}/build/"), reverse=True)
 
@@ -256,50 +273,59 @@ def promote_to_draft(
         s3.delete(BUCKET, source)
 
 
+def determine_publish_version(
+    product: str,
+    version: str,
+    is_patch: bool,
+) -> str:
+    """Given input arguments, determine the publish version, bumping it if necessary."""
+    version_already_published = version in get_published_versions(product=product)
+
+    if version_already_published:
+        if is_patch:
+            return versions.bump(
+                previous_version=version,
+                bump_type=versions.VersionSubType.patch,
+                bump_by=1,
+            ).label
+        else:
+            raise ValueError(
+                f"Version '{version}' already exists in published folder and patch wasn't selected"
+            )
+
+    logger.info(f"Predicted version in publish folder: {version}")
+    return version
+
+
 def publish(
     draft_key: DraftKey,
-    *,
     acl: s3.ACL,
-    version: str | None = None,
-    keep_draft: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     latest: bool = False,
     is_patch: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
-    if version is None:
-        version = get_version(draft_key)
+    version = get_version(draft_key)
+    new_version = determine_publish_version(draft_key.product, version, is_patch)
 
-    version_already_published = version in get_published_versions(
-        product=draft_key.product
+    logger.info(
+        f'Publishing {draft_key.path} as version {new_version} with ACL "{acl}"'
     )
-    # Bump version if input version already exists. Update metadata
-    if version_already_published and is_patch:
-        build_metadata = get_build_metadata(
-            product_key=PublishKey(draft_key.product, version)
-        )
-        version = versions.bump(
-            previous_version=version, bump_type=versions.VersionSubType.patch, bump_by=1
-        ).label
-
-        # update version in metadata and dump it locally
-        build_metadata.version = version
+    # if it's patch, update version in metadata and dump it locally
+    build_metadata = None
+    if new_version != version:
+        build_metadata = get_build_metadata(product_key=draft_key)
+        build_metadata.version = new_version
         build_metadata_path = Path("build_metadata.json")
         with open(build_metadata_path, "w", encoding="utf-8") as f:
             json.dump(build_metadata.model_dump(), f, indent=4)
-    elif version_already_published and not is_patch:
-        raise ValueError(
-            f"Version '{version}' already exists. Enter a different version value or select to patch a version."
-        )
-    else:
-        build_metadata = None
 
     source = draft_key.path + "/"
-    target = f"{draft_key.product}/publish/{version}/"
+    target = f"{draft_key.product}/publish/{new_version}/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
 
-    # upload metadata if a version was patched
+    # upload metadata if version was patched
     if build_metadata:
         s3.upload_file(
             BUCKET,
@@ -313,8 +339,9 @@ def publish(
         latest_version = get_latest_version(draft_key.product)
         if latest_version:
             # Both latest_version and version are expected to be of same version schema
-            after_latest_version = versions.is_newer(
-                version_1=version, version_2=latest_version
+            after_latest_version = (
+                versions.is_newer(version_1=new_version, version_2=latest_version)
+                or new_version == latest_version
             )
         else:
             after_latest_version = None
@@ -336,11 +363,8 @@ def publish(
                 )
         else:
             raise ValueError(
-                f"Unable to update 'latest' folder: the version {version} is older than 'latest' ({latest_version})"
+                f"Unable to update 'latest' folder: the version {new_version} is older than 'latest' ({latest_version})"
             )
-
-    if not keep_draft:
-        s3.delete(BUCKET, source)
 
 
 def download_published_version(
@@ -570,12 +594,17 @@ def _cli_wrapper_publish(
         "--product",
         help="Data product name (folder name in S3 publishing bucket)",
     ),
-    build: str = typer.Option(None, "-b", "--build", help="Label of build"),
     version: str = typer.Option(
         None,
         "-v",
         "--version",
-        help="Data product release version",
+        help="Data product release version (draft version folder name in s3)",
+    ),
+    draft_revision_num: int = typer.Option(
+        None,
+        "-dn",
+        "--draft-number",
+        help="Draft revision number to publish. If blank, will use latest draft",
     ),
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
     latest: bool = typer.Option(
@@ -584,20 +613,48 @@ def _cli_wrapper_publish(
     is_patch: bool = typer.Option(
         False,
         "-ip",
-        "--is_patch",
+        "--is-patch",
         help="Create a patched version if version already exists?",
     ),
 ):
     acl_literal = s3.string_as_acl(acl)
-    logger.info(
-        f'Publishing {product}/draft/{build} as version {version} with ACL "{acl}"'
+
+    # Get draft_key
+    if draft_revision_num is not None:
+        draft_revision_label = get_draft_revision_label(
+            product, version, draft_revision_num
+        )
+    else:
+        draft_revision_label = get_draft_version_revisions(product, version)[0]
+    draft_key = DraftKey(
+        product=product, version=version, revision=draft_revision_label
     )
     publish(
-        DraftKey(product, build),
+        draft_key=draft_key,
         acl=acl_literal,
-        version=version,
         latest=latest,
         is_patch=is_patch,
+    )
+
+
+@app.command("determine_publish_version")
+def _cli_wrapper_determine_publish_version(
+    product: str = typer.Option(
+        None,
+        "-p",
+        "--product",
+        help="Data product name (folder name in S3 publishing bucket)",
+    ),
+    version: str = typer.Option(None, "-v", "--version", help="Product version"),
+    is_patch: bool = typer.Option(
+        False,
+        "-ip",
+        "--is-patch",
+        help="Is this a patch for an existing version?",
+    ),
+):
+    print(
+        determine_publish_version(product=product, version=version, is_patch=is_patch)
     )
 
 
