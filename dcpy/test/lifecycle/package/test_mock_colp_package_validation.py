@@ -8,18 +8,20 @@ import dcpy.models.product.dataset.metadata as md
 COLP_PACKAGE_PATH = (
     Path(__file__).parent.resolve() / "resources" / "colp_single_feature_package"
 )
-METADATA_PATH = COLP_PACKAGE_PATH / "metadata.yml"
+METADATA_V1_PATH = COLP_PACKAGE_PATH / "metadata_v1.yml"
 
 COLP_VERSION = "24b"
-RAW_MD = yaml.safe_load(open(METADATA_PATH, "r"))
+RAW_V1_MD = yaml.safe_load(open(METADATA_V1_PATH, "r"))
 
 
 def _get_colp_md():
-    return md.Metadata.from_path(METADATA_PATH, template_vars={"version": COLP_VERSION})
+    return md.Metadata.from_path(
+        METADATA_V1_PATH, template_vars={"version": COLP_VERSION}
+    )
 
 
 def test_colp_single_feature_package():
-    raw_md_dataset_files = RAW_MD["package"]["dataset_files"]
+    raw_md_dataset_files = RAW_V1_MD["package"]["dataset_files"]
 
     validation = validate.validate_package_from_path(
         COLP_PACKAGE_PATH, metadata_args={"version": COLP_VERSION}
@@ -55,11 +57,11 @@ def test_destination_overrides():
     soc_md = dest.get_metadata(colp_md)
 
     soc_destination_raw = [
-        d for d in RAW_MD["destinations"] if d["id"] == "socrata_prod"
+        d for d in RAW_V1_MD["destinations"] if d["id"] == "socrata_prod"
     ][0]
     soc_dataset_file_raw = [
         f
-        for f in RAW_MD["package"]["dataset_files"]
+        for f in RAW_V1_MD["package"]["dataset_files"]
         if f["name"] == "primary_shapefile"
     ][0]
 
@@ -74,7 +76,7 @@ def test_destination_overrides():
     ), """
     Description is overridden ONLY at the dataset_file level"""
 
-    assert soc_md.tags == RAW_MD["tags"], "Tags should be unchanged"
+    assert soc_md.tags == RAW_V1_MD["tags"], "Tags should be unchanged"
 
 
 def test_destination_filename_templating():
