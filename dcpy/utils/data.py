@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 import pandas as pd
 import geopandas as gpd
@@ -9,6 +10,21 @@ from dcpy.utils.logging import logger
 from dcpy.utils.geospatial.transform import df_to_gdf
 
 import zipfile
+
+
+def _get_dtype(dtype: str | dict | None) -> str | dict | defaultdict | None:
+    """
+    A helper function to have a way of specifying both kwarg and default dtypes for a file to be read
+    """
+    match dtype:
+        case dict():
+            if "__default__" in dtype:
+                default = dtype.pop("__default__")
+                return defaultdict(lambda: default, **dtype)
+            else:
+                return dtype
+        case _:
+            return dtype
 
 
 def read_data_to_df(
@@ -82,7 +98,7 @@ def read_data_to_df(
                 encoding=data_format.encoding,
                 delimiter=data_format.delimiter,
                 names=data_format.column_names,
-                dtype=data_format.dtype,
+                dtype=_get_dtype(data_format.dtype),
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
