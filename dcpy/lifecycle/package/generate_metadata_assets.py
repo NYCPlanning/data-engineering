@@ -6,6 +6,7 @@ import typer
 
 app = typer.Typer()
 
+
 @app.command()
 def generate_metadata_assets(yaml_file_path, html_template_path, output_html_path):
     html_output = to_html(yaml_file_path, html_template_path)
