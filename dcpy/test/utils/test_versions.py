@@ -100,6 +100,8 @@ class TestVersions(TestCase):
         for version_1, version_2, bool_expected in [
             ["23v2", "22v3.4", True],
             ["23Q1", "23Q2", False],
+            ["23v2.0.1", "23v2", True],
+            ["23Q1.1", "23Q1", True],
             ["2023-01-01", "2023-08-01", False],
             ["23Q2", "2023-01-01", True],
         ]:
