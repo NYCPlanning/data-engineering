@@ -3,52 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <title>Metadata</title>
-    <style>
-        body { font-family: 'Times New Roman', Times, serif; }
-        .column { margin-bottom: 1em; }
-        .column h2 { margin: 0.5em 0; }
-    </style>
 </head>
 
 <body>
     <h1>{{ metadata.display_name }}</h1>
+
     <h2><strong>Description:</strong> </h2>
     <p>{{ metadata.description }}</p>
+
     <h2><strong>Tags:</strong></h2>
     <ul>
         {% for tag in metadata.tags %}
         <li>{{ tag }}</li>
         {% endfor %}
     </ul>
+
     <h2><strong>Each row is a: </strong> </h2>
     <p>{{ metadata.each_row_is_a }}</p>
+
     <h2><strong>Destinations: </strong> </h2>
     <ul>
         {% for destination in metadata.destinations %}
         <li>
         {% if destination.type == 'socrata' %}
-        <strong>id: </strong> {{ destination.id }}<br>
-        <strong>type: </strong> {{ destination.type }}<br>
-        <strong>four_four: </strong> {{ destination.four_four }}<br>
-        <strong>attachments: </strong> 
+        <strong>ID: </strong> {{ destination.id }}<br>
+        <strong>Type: </strong> {{ destination.type }}<br>
+        <strong>Four Four: </strong> {{ destination.four_four }}<br>
+        <strong>Attachments: </strong> 
             <ul>
                 {% for attachment in destination.attachments %}
                 <li>{{ attachment }}</li>
                 {% endfor %}
-            </ul><br>
-        <strong>datasets: </strong>  
+            </ul>
+        <strong>Datasets: </strong>  
             <ul>
                 {% for dataset in destination.datasets %}
                 <li>{{ dataset }}</li>
                 {% endfor %}
             </ul>
-        <strong>omit_columns: </strong> 
+        <strong>Omit Columns: </strong> 
             <ul>
                 {% for col in destination.omit_columns %}
                 <li>{{ col }}</li>
                 {% endfor %}
             </ul>
-        <strong>column_details: </strong> 
+        <strong>Column Details: </strong> 
         <ul>
             {% for col_name, socrata_column in destination.column_details.items() %}
             <li>
@@ -60,18 +59,18 @@
             </li>
             {% endfor %}
         </ul>
-        <strong>overrides: </strong> 
+        <strong>Overrides: </strong> 
         <ul>
             <li> 
                 <strong>Display Name:</strong> {{ destination.overrides.display_name }}<br>
                 <strong>Description:</strong> {{ destination.overrides.description }}<br>
                 <strong>Columns:</strong>
                 <ul>
-                    {% for key,value in destination.overrides.columns.items() %}
                     <li>
-                        <strong>key:</strong> {{ val }}<br>
-                    </li>
+                    {% for key,value in destination.overrides.columns.items() %}
+                        <strong>{{key}}:</strong> {{ value }}
                     {% endfor %}
+                    </li>
                 </ul>
                 <strong>Omit Columns: </strong>  
                 <ul>
@@ -92,16 +91,149 @@
                     {% endfor %}
                 </ul>
                 <strong>Destination File Name:</strong> {{ destination.overrides.destination_file_name }}<br>
-
-
             </li>
         </ul>
-        <strong>Display Name:</strong> {{ destination.overrides.display_name }}
-        <strong>is_unparsed_dataset: </strong> {{ destination.is_unparsed_dataset }}<br>
+        <strong>Display Name:</strong> {{ destination.overrides.display_name }}<br>
+        <strong>Unparsed Dataset: </strong> {{ destination.is_unparsed_dataset }}<br>
         <br>
+        {% elif destination.type == 'bytes' %}
+        <strong>ID: </strong> {{ destination.id }}<br>
+        <strong>Type: </strong> {{ destination.type }}<br>
+        <strong>Files: </strong>  
+                <ul>
+                    {% for file in destination.overrides.files %}
+                    <li>{{ file }}</li>
+                    {% endfor %}
+                </ul>
+                <strong>Overrides: </strong> 
+                <ul>
+                    <li> 
+                        <strong>Display Name:</strong> {{ destination.overrides.display_name }}<br>
+                        <strong>Description:</strong> {{ destination.overrides.description }}<br>
+                        <strong>Columns:</strong>
+                        <ul>
+                            {% for key,value in destination.overrides.columns.items() %}
+                            <li>
+                                <strong>{{key}}:</strong> {{ value }}<br>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <strong>Omit Columns: </strong>  
+                        <ul>
+                            {% for col in destination.overrides.omit_columns %}
+                            <li>{{ col }}</li>
+                            {% endfor %}
+                        </ul>
+                        <strong>Ignore Validation: </strong>  
+                        <ul>
+                            {% for ignore in destination.overrides.ignore_validation %}
+                            <li>{{ ignore }}</li>
+                            {% endfor %}
+                        </ul>
+                        <strong>Tags: </strong>  
+                        <ul>
+                            {% for tag in destination.overrides.tags %}
+                            <li>{{ tag }}</li>
+                            {% endfor %}
+                        </ul>
         {% endif %} </li>
         {% endfor %}
     </ul>
+
+    <h2><strong>Package:</strong></h2>
+<ul>
+    <li>
+        <strong>Dataset Files: </strong>
+        <ul>
+            {% for dataset in metadata.package.dataset_files %}
+            <li>
+            <strong>Name: </strong>{{ dataset.name }}<br>
+            <strong>Type: </strong>{{ dataset.type }}<br>
+            <strong>File Name: </strong>{{ dataset.filename }}<br>
+            <strong>Overrides: </strong>
+            <ul>
+                <li>
+                    <strong>Omit Columns: </strong>
+                    <ul>
+                        {% for col in dataset.overrides.omit_columns %}
+                        <li>{{col}}</li>
+                        {% endfor %}
+                    </ul>
+                    <strong>Ignore Validations: </strong>
+                    <ul>
+                        {% for ignore in dataset.overrides.ignore_validations %}
+                        <li>{{ignore}}</li>
+                        {% endfor %}
+                    </ul>
+                    <strong>Columns:</strong>
+                        <ul>
+                            {% for key,value in dataset.overrides.columns.items() %}
+                            <li>
+                                <strong>{{key}}:</strong> {{ value }}<br>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                </li>
+            </ul><br>
+            {% endfor %}
+            </li>
+        </ul>      
+        <strong>Attachments: </strong>
+        <ul>
+            {% for attachment in metadata.package.attachments %}
+            <li>
+            <strong>Name: </strong>{{ attachment.name }}<br>
+            <strong>File Name: </strong>{{ attachment.filename }}<br>
+            <strong>Type: </strong>{{ attachment.type }}<br>
+            </li><br>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>
+    
+    <h2><strong>Columns:</strong> </h2>
+    <ul>
+        {% for col in metadata.columns %}
+        <li>
+            <strong>Name:</strong> {{ col.name }}<br>
+            <strong>Display Name:</strong> {{ col.display_name }}<br>
+            <strong>Data Type:</strong> {{ col.data_type }}<br>
+            {% if col.data_source %}
+                <strong>Data Source:</strong> {{ col.data_source }}<br>
+            {% endif %}
+            {% if col.example %}
+                <strong>Example:</strong> {{ col.example }}<br>
+            {% endif %}
+            {% if col.non_nullable %}
+                <strong>Non-Nullable:</strong> {{ col.non_nullable }}<br>
+            {% endif %}
+            {% if col.is_primary_key %}
+                <strong>Is Primary Key:</strong> {{ col.is_primary_key }}<br>
+            {% endif %}
+            {% if col.readme_data_type %}
+                <strong>Readme Data Type:</strong> {{ col.readme_data_type }}<br>
+            {% endif %}
+            {% if col.deprecated %}
+                <strong>Deprecated:</strong> {{ col.deprecated }}<br>
+            {% endif %}
+            {% if col.values %}
+            <strong>Values: </strong>
+            <ul>
+                {% for value in col.values %}
+                <li><strong>{{ value[0] }} :</strong> {{ value[1] }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <strong>Description:</strong><br>
+            <ul><li>
+            {{ col.description  | replace('\n', '<br>') | replace('<b>','') | safe }}
+            </li></ul>
+        </li><br>
+        {% endfor %}
+    </ul>
+    
     
 </body>
 </html>
+
+
