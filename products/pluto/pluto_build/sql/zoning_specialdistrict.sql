@@ -54,7 +54,7 @@ SELECT
     bbl,
     sdlbl,
     segbblgeom,
-    ROW_NUMBER() OVER (PARTITION BY id ORDER BY segbblgeom ASC, sdlbl DESC) AS row_number
+    ROW_NUMBER() OVER (PARTITION BY id ORDER BY segbblgeom DESC, sdlbl ASC) AS row_number
 FROM specialpurposeperorder_init
 WHERE
     perbblgeom >= 10

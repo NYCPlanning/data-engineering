@@ -1,0 +1,36 @@
+name: 🛫  Promote a Dataset to Draft
+run-name: "🛫 Promote a Dataset to Draft: ${{ inputs.product }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Data product name (folder name in S3 publishing bucket)"
+        type: choice
+        required: true
+        options:
+          - db-cbbr
+          - db-checkbook
+          - db-colp
+          - db-cpdb
+          - db-developments
+          - db-facilities
+          - db-pluto
+          - db-zoningtaxlots
+          - db-template
+      build:
+        description: "Build folder to promote"
+        type: string
+        required: true
+      draft_summary:
+        description: "Draft description (becomes a part of draft name in s3)"
+        type: string
+        required: true
+      product_acl:
+        description: "Set access control list for output in DO"
+        type: choice
+        required: true
+        default: public-read
+        options:
+          - public-read 
+          - private
