@@ -64,13 +64,17 @@ def archive_dataset(config: ingest.Config, file_path: Path):
     _archive_dataset(config, file_path, config.dataset_key.s3_path("ingest_datasets"))
 
 
-def get_config(name: str, version="latest") -> library.Config:
+def get_config(name: str, version="latest") -> library.Config | ingest.Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"{DATASET_FOLDER}/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
-    return library.Config(**yaml.safe_load(file_content))
+    config = yaml.safe_load(file_content)
+    if "dataset" in config:
+        return library.Config(**config)
+    else:
+        return ingest.Config(**config)
 
 
 def get_latest_version(name: str) -> str:
@@ -258,9 +262,14 @@ def get_archival_metadata(
         version = get_latest_version(name)
     logger.info(f"looking up metadata for {name}/{version}")
     config = get_config(name, version)
-    if config.execution_details:
-        timestamp = config.execution_details.timestamp
-        runner = config.execution_details.runner_string
+    match config:
+        case library.Config():
+            execution_details = config.execution_details
+        case ingest.Config():
+            execution_details = config.run_details
+    if execution_details:
+        timestamp = execution_details.timestamp
+        runner = execution_details.runner_string
     else:
         s3metadata = s3.get_metadata(
             BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"
