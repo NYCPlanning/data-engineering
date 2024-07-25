@@ -2,9 +2,12 @@ from dcpy.models.product.dataset.metadata import Metadata
 import argparse
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
+import typer
 
+app = typer.Typer()
 
-def save_html(yaml_file_path, html_template_path, output_html_path):
+@app.command()
+def generate_metadata_assets(yaml_file_path, html_template_path, output_html_path):
     html_output = to_html(yaml_file_path, html_template_path)
     output_path = Path(output_html_path)
     with open(output_path, "w") as f:
@@ -23,20 +26,3 @@ def get_metadata(yaml_file_path):
         Path(yaml_file_path), template_vars={"var1": "value1"}
     )
     return metadata
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert a YAML file to a HTML file.")
-    parser.add_argument(
-        "yaml_file_path", type=str, help="The path to the input YAML file"
-    )
-    parser.add_argument(
-        "html_template_path", type=str, help="The path to the input HTML template file"
-    )
-    parser.add_argument(
-        "output_html_path", type=str, help="The path to the output HTML file"
-    )
-
-    args = parser.parse_args()
-
-    save_html(args.yaml_file_path, args.html_template_path, args.output_html_path)
