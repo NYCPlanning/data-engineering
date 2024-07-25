@@ -67,10 +67,11 @@ class MajorMinor(Version):
     def __lt__(self, other) -> bool:
         match other:
             case MajorMinor():
-                return (self.year, self.major, self.minor) < (
+                return (self.year, self.major, self.minor, self.patch) < (
                     other.year,
                     other.major,
                     other.minor,
+                    other.patch,
                 )
             case Date():
                 self_year = self.year + 2000
@@ -86,10 +87,11 @@ class MajorMinor(Version):
     def __eq__(self, other) -> bool:
         match other:
             case MajorMinor():
-                return (self.year, self.major, self.minor) == (
+                return (self.year, self.major, self.minor, self.patch) == (
                     other.year,
                     other.major,
                     other.minor,
+                    other.patch,
                 )
             case _:
                 return False
@@ -125,7 +127,11 @@ class Date(Version):
     def __lt__(self, other) -> bool:
         match other:
             case Date():
-                return (self.date, self.format) < (other.date, other.format)
+                return (self.date, self.format, self.patch) < (
+                    other.date,
+                    other.format,
+                    other.patch,
+                )
             case MajorMinor():
                 other_year = other.year + 2000
                 if self.date.year != other_year:
@@ -140,7 +146,11 @@ class Date(Version):
     def __eq__(self, other) -> bool:
         match other:
             case Date():
-                return (self.date, self.format) == (other.date, other.format)
+                return (self.date, self.format, self.patch) == (
+                    other.date,
+                    other.format,
+                    other.patch,
+                )
             case _:
                 return False
 
