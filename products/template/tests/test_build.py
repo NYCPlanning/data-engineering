@@ -26,7 +26,7 @@ def test_transform_staging():
 @pytest.mark.end_to_end()
 def test_export_draft():
     expected_build_name = BUILD_NAME
-    actual_build_name = publishing.get_draft_builds(product=PRODUCT_S3_NAME)
+    actual_build_name = publishing.get_draft_versions(product=PRODUCT_S3_NAME)
 
     assert expected_build_name in actual_build_name
 
