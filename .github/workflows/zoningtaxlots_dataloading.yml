@@ -11,6 +11,11 @@ on:
         description: "Build Pluto (minor) after dataloading is complete"
         type: boolean
         default: false
+      promote_ztl:
+        description: "Promote  Zoning Tax Lots to Draft folder after build?"
+        type: boolean
+        required: true
+        default: false
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
@@ -80,3 +85,14 @@ jobs:
       dataset_name: pluto
       dev_image: ${{ inputs.dev_image }}
       recipe_file: recipe-minor
+
+  promote_to_draft:
+    needs: [dataloading, build_ztl]
+    name: Promote Ztl build to Draft folder
+    if: inputs.build_ztl && inputs.promote_ztl
+    uses: ./.github/workflows/promote_to_draft.yml
+    secrets: inherit
+    with:
+      product: db-zoningtaxlots
+      build: ${{ github.head_ref || github.ref_name }}
+      product_acl: public-read
