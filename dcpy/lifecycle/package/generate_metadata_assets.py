@@ -8,7 +8,9 @@ app = typer.Typer()
 
 
 @app.command()
-def generate_metadata_assets(yaml_file_path: str, html_template_path: str, output_html_path: str) -> Path:
+def generate_metadata_assets(
+    yaml_file_path: str, html_template_path: str, output_html_path: str
+) -> Path:
     html_output = to_html(yaml_file_path, html_template_path)
     output_path = Path(output_html_path)
     with open(output_path, "w") as f:
