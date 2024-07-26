@@ -1,6 +1,6 @@
 def ingest():
     import streamlit as st
-    from .helpers import archive_raw_data
+    from .helpers import dummy_archive_raw_data, dummy_library_call
     from pathlib import Path
     import time
 
@@ -28,7 +28,7 @@ def ingest():
             time.sleep(5)
             file_name = uploaded_file.name
             try:
-                file_path = archive_raw_data(
+                file_path = dummy_archive_raw_data(
                     dataset_name, version, uploaded_file, file_name
                 )
             except Exception as e:

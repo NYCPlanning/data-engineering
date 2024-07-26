@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 import streamlit as st
+from time import sleep
 from dcpy.utils import s3
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
@@ -35,3 +36,20 @@ def archive_raw_data(
             "Failed to archive Dataset {dataset_name} version {version} to {s3_path}: {e}"
         )
     return file_path
+
+
+def dummy_archive_raw_data(
+    dataset_name: str, version: str, uploaded_file: UploadedFile, file_name: str
+) -> str | None:
+    sleep(5)
+
+    if dataset_name == "error":
+        return None
+    else:
+        return "dummy_path"
+
+
+def dummy_library_call(dataset_name: str, version: str, s3_path: str) -> bool:
+    sleep(5)
+
+    return dataset_name != "error"
