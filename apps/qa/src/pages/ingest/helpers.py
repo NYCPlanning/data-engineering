@@ -17,23 +17,21 @@ def archive_raw_data(
 
     s3_path = Path("inbox") / dataset_name / version / f"{file_name}"
 
-    st.success(f"Archive started...")
+    try:
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+    except Exception as e:
+        st.error("Failed to save temporary file: {e}")
 
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    st.success(f"Temporary file {uploaded_file.name} saved successfully")
-
-    s3.upload_file(
-        BUCKET,
-        file_path,
-        f"inbox/{dataset_name}/{version}/{file_name}",
-        "public-read",
-    )
-
-    st.success(
-        f"Dataset {dataset_name} version {version} has been archived successfully to {s3_path}."
-    )
-
-    st.success(f"Process completed.")
+    try:
+        s3.upload_file(
+            BUCKET,
+            file_path,
+            f"inbox/{dataset_name}/{version}/{file_name}",
+            "public-read",
+        )
+    except Exception as e:
+        st.error(
+            "Failed to archive Dataset {dataset_name} version {version} to {s3_path}: {e}"
+        )
     return file_path

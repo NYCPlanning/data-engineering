@@ -27,8 +27,16 @@ def ingest():
         with st.spinner("Ingesting"):
             time.sleep(5)
             file_name = uploaded_file.name
-            file_path = archive_raw_data(
-                dataset_name, version, uploaded_file, file_name
-            )
+            try:
+                file_path = archive_raw_data(
+                    dataset_name, version, uploaded_file, file_name
+                )
+            except Exception as e:
+                st.error("Ingestion Failed: {e}")
+                time.sleep(5)
+                st.session_state.running = False
+                st.rerun()
         st.session_state.running = False
+        st.success("Ingest Successful")
+        time.sleep(5)
         st.rerun()
