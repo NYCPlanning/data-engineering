@@ -34,3 +34,12 @@ on:
         options:
           - public-read 
           - private
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: stub
+        run: echo "this job is a stub"
