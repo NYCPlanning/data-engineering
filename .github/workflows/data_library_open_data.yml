@@ -24,7 +24,7 @@ jobs:
         dataset:
           - doitt_buildingfootprints
           - doitt_buildingfootprints_historical
-          - dot_projects_intersectiosn
+          - dot_projects_intersections
           - dot_projects_streets
           - dpr_capitalprojects
           - dpr_greenthumb
