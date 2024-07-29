@@ -18,21 +18,34 @@ def data_selection(
         case "Build":
             label = "Select a build"
             options = publishing.get_builds(product)
+            select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
+            if select:
+                return publishing.BuildKey(product, select)
         case "Draft":
-            label = "Select a build"
-            options = publishing.get_draft_builds(product)
+            label = "Select a version"
+            options = publishing.get_draft_versions(product)
+            version_select = st.sidebar.selectbox(
+                label, options, key=f"{section_label}_version"
+            )
+            if version_select:
+                draft_revision_options = publishing.get_draft_version_revisions(
+                    product, version_select
+                )
+                draft_revision_label = "Select a draft"
+                subversion_select = st.sidebar.selectbox(
+                    draft_revision_label,
+                    draft_revision_options,
+                    key=f"{section_label}_output",
+                )
+                if subversion_select:
+                    return publishing.DraftKey(
+                        product, version_select, subversion_select
+                    )
         case "Published":
             label = "Select a version"
             options = publishing.get_published_versions(product)
-
-    select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
-    if select:
-        match product_type:
-            case "Build":
-                return publishing.BuildKey(product, select)
-            case "Draft":
-                return publishing.DraftKey(product, select)
-            case "Published":
+            select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
+            if select:
                 return publishing.PublishKey(product, select)
-    else:
-        return None
+
+    return None
