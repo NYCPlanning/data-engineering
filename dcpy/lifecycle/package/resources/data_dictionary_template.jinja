@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Metadata</title>
+</head>
+
+<body>
+    <h1>{{ metadata.display_name }}</h1>
+
+    <h2><strong>Description:</strong> </h2>
+    <p>{{ metadata.description }}</p>
+
+    <h2><strong>Tags:</strong></h2>
+    <ul>
+        {% for tag in metadata.tags %}
+        <li>{{ tag }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2><strong>Each row is a: </strong> </h2>
+    <p>{{ metadata.each_row_is_a }}</p>
+
+        <h2><strong>Columns:</strong> </h2>
+    <ul>
+        {% for col in metadata.columns %}
+        <li>
+            <strong>Name:</strong> {{ col.name }}<br>
+            <strong>Display Name:</strong> {{ col.display_name }}<br>
+            <strong>Data Type:</strong> {{ col.data_type }}<br>
+            {% if col.example %}
+                <strong>Example:</strong> {{ col.example }}<br>
+            {% endif %}
+            {% if col.non_nullable %}
+                <strong>Non-Nullable:</strong> {{ col.non_nullable }}<br>
+            {% endif %}
+            {% if col.is_primary_key %}
+                <strong>Is Primary Key:</strong> {{ col.is_primary_key }}<br>
+            {% endif %}
+            {% if col.readme_data_type %}
+                <strong>Readme Data Type:</strong> {{ col.readme_data_type }}<br>
+            {% endif %}
+            {% if col.deprecated %}
+                <strong>Deprecated:</strong> {{ col.deprecated }}<br>
+            {% endif %}
+            {% if col.values %}
+            <strong>Values: </strong>
+            <ul>
+                {% for value in col.values %}
+                <li><strong>{{ value[0] }} :</strong> {{ value[1] }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if col.data_source %}
+                <strong>Data Source:</strong> 
+                <ul><li>
+                    {{ col.data_source  | replace('\n', '<br>') | replace('<b>','') | safe }}
+                </li></ul>
+            {% endif %}
+            <strong>Description:</strong><br>
+            <ul><li>
+            {{ col.description  | replace('\n', '<br>') | replace('<b>','') | safe }}
+            </li></ul>
+        </li><br>
+        {% endfor %}
+    </ul>
+    
+    
+</body>
+</html>
