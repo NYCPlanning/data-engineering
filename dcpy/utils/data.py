@@ -223,14 +223,10 @@ def upsert_df_columns(
             f"Unexpected columns found in upsert_df: {upsert_cols.difference(cols)}"
         )
     if insert_behavior == "ignore":
-        upsert_df = upsert_df[
-            [c for c in upsert_df.columns if c in key or c in df.columns]
-        ]
+        upsert_df = upsert_df[[c for c in upsert_df.columns if c in cols]]
 
     upsert_columns = [c for c in upsert_df.columns if c not in key]
-    output_columns = list(df.columns) + [
-        c for c in upsert_columns if c not in df.columns
-    ]
+    output_columns = list(df.columns) + [c for c in upsert_columns if c not in cols]
 
     suffix = "__upsert"
     joined = df.merge(
@@ -240,9 +236,9 @@ def upsert_df_columns(
     if (missing_key_behavior == "error") and any(joined["_merge"] == "left_only"):
         raise ValueError("Not all keys in df found in upsert_df")
 
-    for column in upsert_columns:
+    for column in upsert_df.columns:
         col_type = joined[column].dtype
-        upsert_column = column + suffix if column in df.columns else column
+        upsert_column = column + suffix if column in cols else column
         if missing_key_behavior == "coalesce":
             joined[column] = joined.apply(
                 lambda row: (
