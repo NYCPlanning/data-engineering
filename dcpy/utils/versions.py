@@ -348,14 +348,14 @@ def parse_draft_version(v: str) -> DraftVersionRevision:
     split_index = v.find("-")
 
     if split_index != -1:
-        revision_num = v[:split_index]
+        revision_num_str = v[:split_index]
         revision_summary = v[split_index + 1 :]
     else:
-        revision_num = v
+        revision_num_str = v
         revision_summary = ""
 
     try:
-        revision_num = int(revision_num)
+        revision_num = int(revision_num_str)
     except ValueError:
         raise ValueError(f"Unsupported draft version revision format {v}")
 

@@ -715,6 +715,7 @@ def _cli_wrapper_download_file(
     if product_type == "draft":
         assert draft_revision is not None
 
+    key: BuildKey | DraftKey | PublishKey
     match product_type:
         case "build":
             key = BuildKey(product=product, build=version)
