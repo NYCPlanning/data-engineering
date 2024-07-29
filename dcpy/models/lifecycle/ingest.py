@@ -85,6 +85,7 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
 
     source: Source
     file_format: file.Format
+    processing_mode: str | None = None
     processing_steps: list[PreprocessingStep] = []
 
     run_details: RunDetails

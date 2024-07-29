@@ -137,6 +137,7 @@ def get_config(
         target_crs=template.target_crs,
         source=template.source,
         file_format=template.file_format,
+        processing_mode=mode,
         processing_steps=processing_steps,
         run_details=run_details,
     )
