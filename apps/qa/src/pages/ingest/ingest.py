@@ -7,8 +7,8 @@ def ingest():
     if "ingest" not in st.session_state:
         st.session_state["ingest"] = {
             "running": False,
-            "dataset_name": "",
-            "version": "",
+            "dataset_name": None,
+            "version": None,
             "s3_path": None,
             "uploaded_file": None,
             "ingest_status": None,
