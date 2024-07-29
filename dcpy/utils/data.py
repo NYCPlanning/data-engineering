@@ -236,7 +236,7 @@ def upsert_df_columns(
     if (missing_key_behavior == "error") and any(joined["_merge"] == "left_only"):
         raise ValueError("Not all keys in df found in upsert_df")
 
-    for column in upsert_df.columns:
+    for column in upsert_columns:
         col_type = joined[column].dtype
         upsert_column = column + suffix if column in cols else column
         if missing_key_behavior == "coalesce":
