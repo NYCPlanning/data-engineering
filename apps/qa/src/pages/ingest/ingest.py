@@ -1,42 +1,82 @@
 def ingest():
     import streamlit as st
-    from .helpers import dummy_archive_raw_data, dummy_library_call
+    from .helpers import archive_raw_data
     from pathlib import Path
     import time
 
-    st.title("Ingest Dataset")
+    if "ingest" not in st.session_state:
+        st.session_state["ingest"] = {
+            "running": False,
+            "dataset_name": "",
+            "version": "",
+            "s3_path": None,
+            "uploaded_file": None,
+            "ingest_status": None,
+            "ingest_error_message": None,
+        }
 
-    if "running" not in st.session_state:
-        st.session_state.running = False
-
-    dataset_name = st.text_input("Dataset Name", disabled=st.session_state.running)
-    version = st.text_input("Version", disabled=st.session_state.running)
-    uploaded_file = st.file_uploader("Choose a file", disabled=st.session_state.running)
-    s3_path = Path("inbox") / dataset_name / version
-
-    disabled = st.session_state.get("running", False)
-    ingest_button_pressed = st.button("Ingest", disabled=st.session_state.running)
-    if ingest_button_pressed == True:
-        if dataset_name and version and uploaded_file:
-            st.session_state.running = True
-            st.rerun()
+    def run_start():
+        if (
+            st.session_state["ingest"]["dataset_name"]
+            and st.session_state["ingest"]["version"]
+            and st.session_state["ingest"]["uploaded_file"]
+        ):
+            st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
 
-    if st.session_state.running == True:
+    def start_ingest():
         with st.spinner("Ingesting"):
-            time.sleep(5)
-            file_name = uploaded_file.name
             try:
-                file_path = dummy_archive_raw_data(
-                    dataset_name, version, uploaded_file, file_name
+                file_path = archive_raw_data(
+                    st.session_state["ingest"]["dataset_name"],
+                    st.session_state["ingest"]["version"],
+                    st.session_state["ingest"]["uploaded_file"],
+                    st.session_state["ingest"]["uploaded_file"].name,
                 )
+                st.session_state["ingest"]["ingest_status"] = "success"
             except Exception as e:
-                st.error("Ingestion Failed: {e}")
-                time.sleep(5)
-                st.session_state.running = False
-                st.rerun()
-        st.session_state.running = False
+                st.session_state["ingest"]["ingest_status"] = "fail"
+                st.session_state["ingest"]["ingest_error_message"] = e
+
+    def run_stop():
+        st.session_state["ingest"]["running"] = False
+        st.session_state["ingest"]["ingest_status"] = None
+        st.session_state["ingest"]["ingest_error_message"] = None
+
+    st.title("Ingest Dataset")
+    st.session_state["ingest"]["dataset_name"] = st.text_input(
+        "Dataset Name",
+        value=st.session_state["ingest"]["dataset_name"],
+        disabled=st.session_state["ingest"]["running"],
+    )
+    st.session_state["ingest"]["version"] = st.text_input(
+        "Version",
+        value=st.session_state["ingest"]["version"],
+        disabled=st.session_state["ingest"]["running"],
+    )
+    st.session_state["ingest"]["uploaded_file"] = st.file_uploader(
+        "Choose a file", disabled=st.session_state["ingest"]["running"]
+    )
+    if (
+        st.session_state["ingest"]["dataset_name"]
+        and st.session_state["ingest"]["version"]
+    ):
+        st.session_state["ingest"]["s3_path"] = (
+            Path("inbox")
+            / st.session_state["ingest"]["dataset_name"]
+            / st.session_state["ingest"]["version"]
+        )
+    if (
+        st.button(
+            "Ingest", on_click=run_start, disabled=st.session_state["ingest"]["running"]
+        )
+        and st.session_state["ingest"]["running"] == True
+    ):
+        start_ingest()
+    if st.session_state["ingest"]["ingest_status"] == "success":
         st.success("Ingest Successful")
-        time.sleep(5)
-        st.rerun()
+        st.button("Restart", on_click=run_stop)
+    if st.session_state["ingest"]["ingest_status"] == "fail":
+        st.error(st.session_state["ingest"]["ingest_error_message"])
+        st.button("Restart", on_click=run_stop)
