@@ -5,17 +5,10 @@ def ingest():
     import time
 
     if "ingest" not in st.session_state:
-        st.session_state["ingest"] = {
-            "running": False,
-            "ingest_status": None
-        }
+        st.session_state["ingest"] = {"running": False, "ingest_status": None}
 
     def run_start():
-        if (
-            dataset_name
-            and version
-            and uploaded_file
-        ):
+        if dataset_name and version and uploaded_file:
             st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
@@ -24,10 +17,7 @@ def ingest():
         with st.spinner("Ingesting"):
             try:
                 file_path = archive_raw_data(
-                    dataset_name,
-                    version,
-                    uploaded_file,
-                    uploaded_file.name
+                    dataset_name, version, uploaded_file, uploaded_file.name
                 )
                 st.session_state["ingest"]["ingest_status"] = "success"
             except Exception as e:
@@ -37,7 +27,6 @@ def ingest():
     def run_stop():
         st.session_state["ingest"]["running"] = False
         st.session_state["ingest"]["ingest_status"] = None
-
 
     st.title("Ingest Dataset")
 
@@ -50,19 +39,16 @@ def ingest():
         disabled=st.session_state["ingest"]["running"],
     )
     uploaded_file = st.file_uploader(
-        "Choose a file", 
-        disabled=st.session_state["ingest"]["running"]
+        "Choose a file", disabled=st.session_state["ingest"]["running"]
     )
 
     if dataset_name and version:
-        s3_path = (
-                Path("inbox")
-                / dataset_name
-                / version
-            )
-    
-    ingest_button_pressed  = st.button("Ingest", on_click=run_start, disabled=st.session_state["ingest"]["running"])
-    
+        s3_path = Path("inbox") / dataset_name / version
+
+    ingest_button_pressed = st.button(
+        "Ingest", on_click=run_start, disabled=st.session_state["ingest"]["running"]
+    )
+
     if ingest_button_pressed == True and st.session_state["ingest"]["running"] == True:
         start_ingest()
     if st.session_state["ingest"]["ingest_status"] == "success":
