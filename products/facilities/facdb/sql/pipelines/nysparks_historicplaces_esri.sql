@@ -1,14 +1,14 @@
-DROP TABLE IF EXISTS _nysparks_historicplaces;
+DROP TABLE IF EXISTS _nysparks_historicplaces_esri;
 SELECT
     uid,
     source,
-    resource_name AS facname,
+    historicname AS facname,
     NULL AS addressnum,
     NULL AS streetname,
     NULL AS address,
     NULL AS city,
     NULL AS zipcode,
-    county AS boro,
+    countyname AS boro,
     NULL AS borocode,
     NULL AS bin,
     NULL AS bbl,
@@ -24,7 +24,7 @@ SELECT
     NULL AS geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
-INTO _nysparks_historicplaces
-FROM nysparks_historicplaces;
+INTO _nysparks_historicplaces_esri
+FROM nysparks_historicplaces_esri;
 
-CALL append_to_facdb_base('_nysparks_historicplaces');
+CALL append_to_facdb_base('_nysparks_historicplaces_esri');

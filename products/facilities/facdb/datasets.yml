@@ -219,13 +219,13 @@ datasets:
     scripts:
       - nysopwdd_providers.sql
 
-  - name: nysparks_historicplaces
+  - name: nysparks_historicplaces_esri
     scripts:
-      - nysparks_historicplaces.sql
+      - nysparks_historicplaces_esri.sql
 
-  - name: nysparks_parks
+  - name: nysparks_parks_polygons
     scripts:
-      - nysparks_parks.sql
+      - nysparks_parks_polygons.sql
 
   - name: nysoasas_programs
     scripts:
