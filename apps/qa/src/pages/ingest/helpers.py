@@ -49,7 +49,10 @@ def dummy_archive_raw_data(
         return "dummy_path"
 
 
-def dummy_library_call(dataset_name: str, version: str, s3_path: str) -> bool:
+def dummy_library_call(dataset_name: str, version: str, s3_path: str) -> str | None:
     sleep(5)
 
-    return dataset_name != "error"
+    if version == "error":
+        return None
+    else:
+        return "dummy_path"
