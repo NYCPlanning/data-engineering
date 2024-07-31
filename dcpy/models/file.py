@@ -32,7 +32,7 @@ class Csv(BaseModel, extra="forbid"):
     encoding: str = "utf-8"
     delimiter: str | None = None
     column_names: list[str] | None = None
-    dtype: str | None = None
+    dtype: str | dict | None = None
     geometry: Geometry | None = None
 
 
@@ -40,6 +40,7 @@ class Xlsx(BaseModel, extra="forbid"):
     type: Literal["xlsx"]
     unzipped_filename: str | None = None
     sheet_name: str
+    dtype: str | dict | None = None
     geometry: Geometry | None = None
 
 
