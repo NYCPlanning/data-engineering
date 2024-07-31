@@ -77,7 +77,7 @@ jobs:
 
       - name: Determine Published Version
         run: |
-          published_version=$(python3 -m dcpy.connectors.edm.publishing determine_publish_version \
+          published_version=$(python3 -m dcpy.connectors.edm.publishing validate_or_patch_version \
             --product ${{ inputs.product }} \
             --version ${{ inputs.version }} \
             ${{ github.event.inputs.is_patch == 'true' && '--is-patch' || '' }})

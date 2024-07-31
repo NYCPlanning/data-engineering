@@ -273,7 +273,7 @@ def promote_to_draft(
         s3.delete(BUCKET, source)
 
 
-def determine_publish_version(
+def validate_or_patch_version(
     product: str,
     version: str,
     is_patch: bool,
@@ -307,7 +307,7 @@ def publish(
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     version = get_version(draft_key)
-    new_version = determine_publish_version(draft_key.product, version, is_patch)
+    new_version = validate_or_patch_version(draft_key.product, version, is_patch)
 
     logger.info(
         f'Publishing {draft_key.path} as version {new_version} with ACL "{acl}"'
@@ -637,8 +637,8 @@ def _cli_wrapper_publish(
     )
 
 
-@app.command("determine_publish_version")
-def _cli_wrapper_determine_publish_version(
+@app.command("validate_or_patch_version")
+def _cli_wrapper_validate_or_patch_version(
     product: str = typer.Option(
         None,
         "-p",
@@ -654,7 +654,7 @@ def _cli_wrapper_determine_publish_version(
     ),
 ):
     print(
-        determine_publish_version(product=product, version=version, is_patch=is_patch)
+        validate_or_patch_version(product=product, version=version, is_patch=is_patch)
     )
 
 
