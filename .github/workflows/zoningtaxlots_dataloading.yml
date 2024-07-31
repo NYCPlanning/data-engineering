@@ -6,16 +6,16 @@ on:
       build_ztl:
         description: "Build Zoning Tax Lots after dataloading is complete"
         type: boolean
-        default: false
+        default: true
       build_pluto_minor:
         description: "Build Pluto (minor) after dataloading is complete"
         type: boolean
         default: false
       promote_ztl:
-        description: "Promote  Zoning Tax Lots to Draft folder after build?"
+        description: "Promote Zoning Tax Lots to Draft folder after build?"
         type: boolean
         required: true
-        default: false
+        default: true
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
