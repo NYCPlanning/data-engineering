@@ -50,8 +50,8 @@ class Package(CustomizableBase):
 
 
 class FileOverrides(CustomizableBase):
-    columns_overridden: dict[str, dict] | None = None
-    columns_omitted: list[str] | None = None
+    columns_overridden: list[OverrideableColumnAttrs] = []
+    columns_omitted: list[str] = []
     display_name: str | None = None
     description: str | None = None
 
@@ -86,7 +86,7 @@ class Metadata(CustomizableBase):
     id: str
     attributes: DatasetAttributes
     assembly: List[Package]
-    columns: List[Column]
+    columns: List[DatasetColumn]
     files: List[File]
     destinations: List[Destination]
 
