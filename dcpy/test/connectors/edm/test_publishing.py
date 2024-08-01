@@ -17,7 +17,7 @@ TEST_GIS_DATASET = "test_gis_dataset"
 DATE_CONSTANT = "20240101"
 DATE_TODAY = datetime.now().strftime("%Y%m%d")
 
-draft_key = publishing.DraftKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
+build_key = publishing.BuildKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
 publish_key = publishing.PublishKey(product=TEST_PRODUCT_NAME, version=TEST_VERSION)
 
 
@@ -37,18 +37,19 @@ def test_bucket_empty(create_buckets, mock_data_constants):
     """Sanity check there are no draft or publish versions from previous tests
     or actual data."""
 
-    assert publishing.get_draft_builds(product=TEST_PRODUCT_NAME) == []
+    assert publishing.get_builds(product=TEST_PRODUCT_NAME) == []
+    assert publishing.get_draft_versions(product=TEST_PRODUCT_NAME) == []
     assert publishing.get_published_versions(product=TEST_PRODUCT_NAME) == []
 
 
 def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
-    """Checks build directory is found in draft builds.
+    """Checks build directory is found in s3 "build" directory.
     Tests version from version.txt file matches actual version."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
 
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    assert TEST_BUILD in publishing.get_draft_builds(product=TEST_PRODUCT_NAME)
-    assert publishing.get_version(product_key=draft_key) == TEST_VERSION
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    assert TEST_BUILD in publishing.get_builds(product=TEST_PRODUCT_NAME)
+    assert publishing.get_version(product_key=build_key) == TEST_VERSION
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
@@ -57,12 +58,21 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
     publish a patched version and update build_metadata.json.
     Otherwise throw an error."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+        keep_build=True,
+    )
+    draft_revision = publishing.get_draft_version_revisions(
+        build_key.product, TEST_VERSION
+    )[0]
+    draft_key = publishing.DraftKey(build_key.product, TEST_VERSION, draft_revision)
+
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
-        version=TEST_VERSION,
-        keep_draft=True,
         latest=False,
         is_patch=False,
     )
@@ -71,8 +81,6 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
         publishing.publish(
             draft_key=draft_key,
             acl=TEST_ACL,
-            version=TEST_VERSION,
-            keep_draft=True,
             latest=False,
             is_patch=False,
         )
@@ -80,8 +88,6 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
-        version=TEST_VERSION,
-        keep_draft=True,
         latest=True,
         is_patch=True,
     )
@@ -99,41 +105,22 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
     assert publishing.get_latest_version(TEST_PRODUCT_NAME) == bumped_version
 
 
-def test_publish_draft_folder(
-    create_buckets, create_temp_filesystem, mock_data_constants
-):
-    """
-    Test to confirm files are retained or deleted based on input argument.
-    """
-    data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(
-        draft_key=draft_key,
-        acl=TEST_ACL,
-        version=TEST_VERSION,
-        keep_draft=False,
-    )
-
-    assert publishing.get_draft_builds(product=draft_key.product) == []
-
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(
-        draft_key=draft_key,
-        acl=TEST_ACL,
-        version=TEST_VERSION,
-        keep_draft=True,
-        is_patch=True,
-    )
-    assert publishing.get_draft_builds(product=draft_key.product) == [TEST_BUILD]
-
-
 def test_publish_expected_data(
     create_buckets, create_temp_filesystem, mock_data_constants
 ):
     """Tests whether published data matches original data."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-    publishing.publish(draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION)
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+    )
+    draft_revision = publishing.get_draft_version_revisions(
+        build_key.product, TEST_VERSION
+    )[0]
+    draft_key = publishing.DraftKey(build_key.product, TEST_VERSION, draft_revision)
+
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL)
 
     test_data = pd.DataFrame(
         data=mock_data_constants["TEST_DATA"],
@@ -153,11 +140,17 @@ def test_publish_excludes_latest_when_flag_false(
     Test to confirm files are not published to "latest" folder when input arg `latest` = False.
     """
     data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
-
-    publishing.publish(
-        draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=False
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
     )
+    draft_revision = publishing.get_draft_version_revisions(
+        build_key.product, TEST_VERSION
+    )[0]
+    draft_key = publishing.DraftKey(build_key.product, TEST_VERSION, draft_revision)
+    publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=False)
+
     # assert that latest folder was not populated
     publishing.get_latest_version(TEST_PRODUCT_NAME) == None
 
@@ -167,40 +160,42 @@ def test_publish_excludes_latest_when_flag_false(
     publishing.publish(
         draft_key=draft_key,
         acl=TEST_ACL,
-        version=TEST_VERSION,
         latest=True,
     )
     assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
 
 
-@pytest.fixture(scope="function")
-def test_publish_latest_ignores_older_versions(
-    create_buckets, create_temp_filesystem, mock_data_constants
-):
-    """
-    Test to confirm 'latest' folder doesn't get updated with older data version.
-    """
-    data_path = mock_data_constants["TEST_DATA_DIR"]
-    publishing.upload(output_path=data_path, draft_key=draft_key, acl=TEST_ACL)
+# TODO: need to fix setup test code to produce different versions
+# in build_metadata.yml and test this function
 
-    publishing.publish(
-        draft_key=draft_key, acl=TEST_ACL, version=TEST_VERSION, latest=True
-    )
-    # sanity check
-    assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
+# @pytest.fixture(scope="function")
+# def test_publish_latest_ignores_older_versions(
+#     create_buckets, create_temp_filesystem, mock_data_constants
+# ):
+#     """
+#     Test to confirm 'latest' folder doesn't get updated with older data version.
+#     """
+#     data_path = mock_data_constants["TEST_DATA_DIR"]
+#     publishing.upload(output_path=data_path, build_key=draft_key, acl=TEST_ACL)
 
-    # republish an older version. "latest" should NOT be updated
-    TEST_VERSION_OBJ = versions.parse(TEST_VERSION)
-    older_version = versions.MajorMinor(
-        year=TEST_VERSION_OBJ.year, major=TEST_VERSION_OBJ.major - 1
-    ).label
-    with pytest.raises(ValueError) as e_info:
-        publishing.publish(
-            draft_key=draft_key,
-            acl=TEST_ACL,
-            version=older_version,
-            latest=True,
-        )
+#     publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=True)
+#     # sanity check
+#     assert publishing.get_latest_version(TEST_PRODUCT_NAME) == TEST_VERSION
+
+#     # republish an older version. "latest" should NOT be updated
+#     TEST_VERSION_OBJ = versions.parse(TEST_VERSION)
+#     older_version = versions.MajorMinor(
+#         year=TEST_VERSION_OBJ.year, major=TEST_VERSION_OBJ.major - 1
+#     ).label
+
+#     with pytest.raises(ValueError) as e_info:
+#         publishing.publish(
+#             draft_key=publishing.DraftKey(
+#                 draft_key.product, version=older_version, revision="1-init"
+#             ),
+#             acl=TEST_ACL,
+#             latest=True,
+#         )
 
 
 @pytest.fixture()
@@ -272,3 +267,142 @@ def test_download_gis_dataset(
         TEST_GIS_DATASET, DATE_CONSTANT, create_temp_filesystem
     )
     assert file_path.is_file()
+
+
+def test_get_builds(create_buckets, create_temp_filesystem, mock_data_constants):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    publishing.get_builds(TEST_PRODUCT_NAME) == []
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+
+    publishing.get_builds(TEST_PRODUCT_NAME) == [TEST_BUILD]
+
+
+def test_get_draft_versions(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+
+    publishing.get_draft_versions(TEST_PRODUCT_NAME) == []
+    publishing.promote_to_draft(build_key=build_key, acl=TEST_ACL)
+    publishing.get_draft_versions(TEST_PRODUCT_NAME) == [TEST_VERSION]
+
+
+def test_get_draft_version_revisions(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """Validates a list of given draft version revisions is returned correctly."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+
+    publishing.get_draft_version_revisions(TEST_PRODUCT_NAME, TEST_VERSION) == []
+    publishing.promote_to_draft(build_key=build_key, acl=TEST_ACL)
+
+    publishing.get_draft_version_revisions(TEST_PRODUCT_NAME, TEST_VERSION) == ["1"]
+
+    publishing.promote_to_draft(build_key=build_key, acl=TEST_ACL)
+
+    publishing.get_draft_version_revisions(TEST_PRODUCT_NAME, TEST_VERSION) == [
+        "1",
+        "2",
+    ]
+
+
+def test_get_draft_revision_label(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key, draft_revision_summary="", acl=TEST_ACL
+    )
+    publishing.promote_to_draft(
+        build_key=build_key, draft_revision_summary="second-draft", acl=TEST_ACL
+    )
+    assert (
+        publishing.get_draft_revision_label(build_key.product, TEST_VERSION, 1) == "1"
+    )
+    assert (
+        publishing.get_draft_revision_label(build_key.product, TEST_VERSION, 2)
+        == "2-second-draft"
+    )
+
+
+def test_promote_to_draft_build_folder(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """
+    Test to confirm files are retained or deleted based on input argument.
+    """
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+        keep_build=False,
+    )
+
+    assert publishing.get_builds(product=build_key.product) == []
+
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+        keep_build=True,
+    )
+    assert publishing.get_builds(product=build_key.product) == [TEST_BUILD]
+
+
+def test_promote_to_draft_updates_metadata(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """
+    Tests to confirm metadata file in draft contains draft revision name.
+    """
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+        keep_build=True,
+    )
+    draft_version = publishing.get_draft_versions(build_key.product)[0]
+    draft_revisions = publishing.get_draft_version_revisions(
+        build_key.product, draft_version
+    )
+    # sanity check
+    assert len(draft_revisions) == 1
+
+    draft_revision_label = draft_revisions[0]
+    draft_key = publishing.DraftKey(
+        build_key.product, TEST_VERSION, draft_revision_label
+    )
+    build_metadata = publishing.get_build_metadata(product_key=draft_key)
+
+    assert build_metadata.draft_revision_name == draft_revision_label
+
+
+def test_promote_to_draft_revison_versioning(
+    create_buckets, create_temp_filesystem, mock_data_constants
+):
+    """Ensures correct versioning of draft revisions."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+        keep_build=True,
+    )
+    publishing.promote_to_draft(
+        build_key=build_key,
+        acl=TEST_ACL,
+        keep_build=True,
+        draft_revision_summary="correct-zoning",
+    )
+
+    assert publishing.get_draft_versions(build_key.product) == [TEST_VERSION]
+    assert publishing.get_draft_version_revisions(build_key.product, TEST_VERSION) == [
+        "2-correct-zoning",
+        "1",
+    ]

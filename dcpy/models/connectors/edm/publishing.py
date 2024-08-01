@@ -30,14 +30,28 @@ class PublishKey(ProductKey):
 @dataclass
 class DraftKey(ProductKey):
     product: str
-    build: str
+    version: str
+    revision: str
 
     def __str__(self):
-        return f"Draft: {self.product} - {self.build}"
+        return f"Draft: {self.product} - {self.version} ({self.revision})"
 
     @property
     def path(self) -> str:
-        return f"{self.product}/draft/{self.build}"
+        return f"{self.product}/draft/{self.version}/{self.revision}"
+
+
+@dataclass
+class BuildKey(ProductKey):
+    product: str
+    build: str
+
+    def __str__(self):
+        return f"Build: {self.product} - {self.build}"
+
+    @property
+    def path(self) -> str:
+        return f"{self.product}/build/{self.build}"
 
 
 class GisDataset(BaseModel, extra="forbid"):

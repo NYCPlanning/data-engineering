@@ -18,17 +18,21 @@ on:
           - db-pluto
           - db-zoningtaxlots
           - db-template
-      draft_build:
-        description: "Build folder in drafts to publish"
+      version:
+        description: "Data product release version"
         type: string
         required: true
+      draft_revision_num:
+        description: "Draft revision number to publish. If not provided, will use latest draft"
+        type: number
+        required: false
       latest:
         description: "Publish to 'latest' folder?"
         type: boolean
         default: true
         required: true
       is_patch:
-        description: "Create a patched version?"
+        description: "Patch version?"
         type: boolean
         default: false
         required: true
@@ -71,31 +75,26 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: Download Metadata
+      - name: Publish
         run: |
-          python3 -m dcpy.connectors.edm.publishing download_file \
-            --filepath build_metadata.json \
+          python3 -m dcpy.connectors.edm.publishing publish \
             --product ${{ inputs.product }} \
-            --draft \
-            --version ${{inputs.draft_build}}
+            --version ${{ inputs.version }} \
+            ${{ (inputs.draft_revision_num != '' && format('--draft-number {0}', inputs.draft_revision_num)) || ''}} \
+            --acl ${{ inputs.product_acl }} \
+            ${{ github.event.inputs.is_patch == 'true' && '--is-patch' || '' }} \
+            ${{ github.event.inputs.latest == 'true' && '--latest' || '' }} \
+            --download-metadata
 
       - name: Set version and build sha
         run: |
           echo "version=$(cat build_metadata.json | jq -r .version)" >> $GITHUB_ENV
           echo "commit=$(cat build_metadata.json | jq -r .commit)" >> $GITHUB_ENV
 
-      - name: Publish
-        run: |
-          python3 -m dcpy.connectors.edm.publishing publish \
-            --product ${{ inputs.product }} \
-            --build ${{ inputs.draft_build }} \
-            --acl ${{ inputs.product_acl }} \
-            ${{ github.event.inputs.is_patch == 'true' && '--is_patch' || '' }} \
-            ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
-
       - name: create tag
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GHP_TOKEN }}
           script: |
             github.rest.git.createRef({
               owner: context.repo.owner,
