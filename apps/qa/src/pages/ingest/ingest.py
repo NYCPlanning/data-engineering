@@ -74,12 +74,12 @@ def ingest():
 
     process = st.sidebar.selectbox(
         "Choose a process:",
-        (   
+        (
             "Upload File and Call Library",
             "Upload Raw Files to S3",
-            "Call Library on S3 Files"
+            "Call Library on S3 Files",
         ),
-        disabled=st.session_state["ingest"]["running"]
+        disabled=st.session_state["ingest"]["running"],
     )
 
     if st.session_state["ingest"]["retry"] == True:
@@ -93,12 +93,10 @@ def ingest():
         st.write("Ingest Raw Files to S3")
 
         dataset_name = st.selectbox(
-        "Choose a Dataset:",
-        (   
-            utils.get_all_templates()
-        ),
-        index = None,
-        disabled=st.session_state["ingest"]["running"]
+            "Choose a Dataset:",
+            (utils.get_all_templates()),
+            index=None,
+            disabled=st.session_state["ingest"]["running"],
         )
 
         version = st.text_input(
@@ -114,7 +112,8 @@ def ingest():
 
         ingest_button_pressed = st.button(
             "Ingest",
-            on_click=lock_for_ingest, args=(dataset_name, version, uploaded_file),
+            on_click=lock_for_ingest,
+            args=(dataset_name, version, uploaded_file),
             disabled=st.session_state["ingest"]["running"],
         )
 
@@ -139,12 +138,10 @@ def ingest():
                 disabled=st.session_state["ingest"]["running"],
             )
         dataset_name = st.selectbox(
-        "Choose a Dataset:",
-        (   
-            utils.get_all_templates()
-        ),
-        index = None,
-        disabled=st.session_state["ingest"]["running"]
+            "Choose a Dataset:",
+            (utils.get_all_templates()),
+            index=None,
+            disabled=st.session_state["ingest"]["running"],
         )
         version = st.text_input(
             "Version", disabled=st.session_state["ingest"]["running"]
@@ -156,7 +153,8 @@ def ingest():
         )
         library_button_pressed = st.button(
             "Call Library",
-            on_click=lock_for_library, args=(dataset_name, version, s3_path),
+            on_click=lock_for_library,
+            args=(dataset_name, version, s3_path),
             disabled=st.session_state["ingest"]["running"],
         )
         if (
@@ -177,12 +175,10 @@ def ingest():
     if process == "Upload File and Call Library":
         st.write("Ingest and Call Library")
         dataset_name = st.selectbox(
-        "Choose a Dataset:",
-        (   
-            utils.get_all_templates()
-        ),
-        index = None,
-        disabled=st.session_state["ingest"]["running"]
+            "Choose a Dataset:",
+            (utils.get_all_templates()),
+            index=None,
+            disabled=st.session_state["ingest"]["running"],
         )
         version = st.text_input(
             "Version", disabled=st.session_state["ingest"]["running"]
@@ -198,7 +194,8 @@ def ingest():
         ingest_button_pressed = False
         ingest_button_pressed = st.button(
             "Ingest and Call Library",
-            on_click=lock_for_ingest, args=(dataset_name, version, uploaded_file),
+            on_click=lock_for_ingest,
+            args=(dataset_name, version, uploaded_file),
             disabled=st.session_state["ingest"]["running"],
         )
         if (
