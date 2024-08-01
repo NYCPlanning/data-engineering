@@ -303,6 +303,7 @@ def publish(
     max_files: int = s3.MAX_FILE_COUNT,
     latest: bool = False,
     is_patch: bool = False,
+    download_metadata: bool = False,
 ) -> None:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
@@ -365,6 +366,13 @@ def publish(
             raise ValueError(
                 f"Unable to update 'latest' folder: the version {new_version} is older than 'latest' ({latest_version})"
             )
+    if download_metadata:
+        publish_key = PublishKey(product=draft_key.product, version=new_version)
+        download_file(
+            product_key=publish_key,
+            filepath="build_metadata.json",
+        )
+        logger.info(f"Downloaded build_metadata.json from {publish_key.path}")
 
 
 def download_published_version(
@@ -616,6 +624,12 @@ def _cli_wrapper_publish(
         "--is-patch",
         help="Create a patched version if version already exists?",
     ),
+    download_metadata: bool = typer.Option(
+        False,
+        "-m",
+        "--download-metadata",
+        help="Download metadata from 'publish' folder after publishing?",
+    ),
 ):
     acl_literal = s3.string_as_acl(acl)
 
@@ -634,6 +648,7 @@ def _cli_wrapper_publish(
         acl=acl_literal,
         latest=latest,
         is_patch=is_patch,
+        download_metadata=download_metadata,
     )
 
 

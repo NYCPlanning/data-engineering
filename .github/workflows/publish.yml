@@ -75,15 +75,6 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: Determine Published Version
-        run: |
-          published_version=$(python3 -m dcpy.connectors.edm.publishing validate_or_patch_version \
-            --product ${{ inputs.product }} \
-            --version ${{ inputs.version }} \
-            ${{ github.event.inputs.is_patch == 'true' && '--is-patch' || '' }})
-
-          echo "published_version=$published_version" >> $GITHUB_ENV
-
       - name: Publish
         run: |
           python3 -m dcpy.connectors.edm.publishing publish \
@@ -92,15 +83,8 @@ jobs:
             ${{ (inputs.draft_revision_num != '' && format('--draft-number {0}', inputs.draft_revision_num)) || ''}} \
             --acl ${{ inputs.product_acl }} \
             ${{ github.event.inputs.is_patch == 'true' && '--is-patch' || '' }} \
-            ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
-  
-      - name: Download Metadata
-        run: |
-          python3 -m dcpy.connectors.edm.publishing download_file \
-            --filepath build_metadata.json \
-            --product ${{ inputs.product }} \
-            --product-type published \
-            --version ${{ env.published_version }}
+            ${{ github.event.inputs.latest == 'true' && '--latest' || '' }} \
+            --download-metadata
 
       - name: Set version and build sha
         run: |
