@@ -28,7 +28,7 @@ def generate_pdf_from_yml(
         ],
         check=True,
     )
-
+    return Path(output_pdf_path)
 
 @app.command()
 def generate_html_from_yaml(
