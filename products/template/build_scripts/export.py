@@ -67,11 +67,11 @@ def export():
 
 def upload():
     logger.info(
-        f"Uploading exported files\n\tfrom {OUTPUT_DIR}\n\tto S3 at {publishing.BUCKET}/{PRODUCT_S3_NAME}/draft/{BUILD_NAME}"
+        f"Uploading exported files\n\tfrom {OUTPUT_DIR}\n\tto S3 at {publishing.BUCKET}/{PRODUCT_S3_NAME}/build/{BUILD_NAME}"
     )
     publishing.upload(
         OUTPUT_DIR,
-        publishing.DraftKey(PRODUCT_S3_NAME, BUILD_NAME),
+        publishing.BuildKey(PRODUCT_S3_NAME, BUILD_NAME),
         acl="public-read",
     )
 

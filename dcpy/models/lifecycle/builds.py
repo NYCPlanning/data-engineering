@@ -150,6 +150,7 @@ class BuildMetadata(BaseModel, extra="forbid"):
     commit: str | None = None
     run_url: str | None = None
     version: str
+    draft_revision_name: str | None = None
     recipe: Recipe
 
     def __init__(self, **data):

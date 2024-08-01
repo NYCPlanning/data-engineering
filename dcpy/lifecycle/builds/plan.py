@@ -297,7 +297,13 @@ def _cli_wrapper_repeat_recipe(
         None,
         "--version-or-build",
         "-vb",
-        help="Unique key for draft/publish build, either version or build name, respectively",
+        help="Unique key for build/draft/publish build, either version or build name, respectively",
+    ),
+    draft_revision_number: int = typer.Option(
+        None,
+        "--draft-number",
+        "-dn",
+        help="If --product-type is 'draft', must provide draft revision number. Otherwise leave this blank",
     ),
     recipe_path: Path = typer.Option(
         Path(DEFAULT_RECIPE),
@@ -312,18 +318,36 @@ def _cli_wrapper_repeat_recipe(
         help="Manually specified version. Only needed if attempting to rebuild and older draft where version cannot be easily determined.",
     ),
 ):
-    if product_type == "draft":
-        product_key: publishing.ProductKey = publishing.DraftKey(
-            product=f"db-{product}", build=version_or_build
-        )
-    elif product_type == "publish":
-        product_key = publishing.PublishKey(
-            product=f"db-{product}", version=version_or_build
-        )
-    else:
-        raise ValueError(
-            f"Invalid product/build type supplied: '{version_or_build}'. Only options are 'draft' or 'publish'"
-        )
+    product_key: publishing.BuildKey | publishing.DraftKey | publishing.PublishKey
+
+    match product_type:
+        case "build":
+            product_key = publishing.BuildKey(
+                product=f"db-{product}", build=version_or_build
+            )
+        case "draft":
+            if draft_revision_number is None:
+                raise ValueError(
+                    "For repeating builds of 'draft' type, need to provide draft revision number"
+                )
+            draft_revision = publishing.get_draft_revision_label(
+                product=f"db-{product}",
+                version=version_or_build,
+                revision_num=draft_revision_number,
+            )
+            product_key = publishing.DraftKey(
+                product=f"db-{product}",
+                version=version_or_build,
+                revision=draft_revision,
+            )
+        case "publish":
+            product_key = publishing.PublishKey(
+                product=f"db-{product}", version=version_or_build
+            )
+        case _:
+            raise ValueError(
+                f"Invalid product/build type supplied: '{version_or_build}'. Only options are 'build', 'draft', or 'publish'"
+            )
     repeat_build(product_key, recipe_path), manual_version
 
 

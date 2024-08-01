@@ -38,7 +38,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
         with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(json.dumps(config.model_dump(), indent=4))
+            f.write(json.dumps(config.model_dump(exclude_none=True), indent=4))
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
@@ -56,21 +56,33 @@ def archive_raw_dataset(config: ingest.Config, file_path: Path):
     _archive_dataset(config, file_path, config.raw_dataset_key.s3_path(RAW_FOLDER))
 
 
-def archive_dataset(config: ingest.Config, file_path: Path):
+def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False):
     """
     Given a config and a path to a processed parquet file, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and its version
     """
-    _archive_dataset(config, file_path, config.dataset_key.s3_path("ingest_datasets"))
+    s3_path = config.dataset_key.s3_path("ingest_datasets")
+    _archive_dataset(config, file_path, s3_path)
+    if latest:
+        s3.copy_folder(
+            BUCKET,
+            f"{s3_path}/",
+            f"ingest_datasets/{config.name}/latest/",
+            acl=config.acl,
+        )
 
 
-def get_config(name: str, version="latest") -> library.Config:
+def get_config(name: str, version="latest") -> library.Config | ingest.Config:
     """Retrieve a recipe config from s3."""
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"{DATASET_FOLDER}/{name}/{version}/config.json"
     )
     file_content = str(obj["Body"].read(), "utf-8")
-    return library.Config(**yaml.safe_load(file_content))
+    config = yaml.safe_load(file_content)
+    if "dataset" in config:
+        return library.Config(**config)
+    else:
+        return ingest.Config(**config)
 
 
 def get_latest_version(name: str) -> str:
@@ -258,9 +270,14 @@ def get_archival_metadata(
         version = get_latest_version(name)
     logger.info(f"looking up metadata for {name}/{version}")
     config = get_config(name, version)
-    if config.execution_details:
-        timestamp = config.execution_details.timestamp
-        runner = config.execution_details.runner_string
+    match config:
+        case library.Config():
+            execution_details = config.execution_details
+        case ingest.Config():
+            execution_details = config.run_details
+    if execution_details:
+        timestamp = execution_details.timestamp
+        runner = execution_details.runner_string
     else:
         s3metadata = s3.get_metadata(
             BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"

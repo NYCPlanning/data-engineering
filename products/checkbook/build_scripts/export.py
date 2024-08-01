@@ -14,6 +14,6 @@ if __name__ == "__main__":
         f.write(str(date.today()))
     build_environment = git.branch()
     publishing.upload(
-        OUTPUT_DIR, publishing.DraftKey(PRODUCT, build_environment), acl="public-read"
+        OUTPUT_DIR, publishing.BuildKey(PRODUCT, build_environment), acl="public-read"
     )
     print("Finished export!")

@@ -27,11 +27,16 @@ on:
         options:
           - publish
           - draft
+          - build
         required: true
       version_or_build:
-        description: "Key of product instance (publish version or draft build name)"
+        description: "Key of product instance (publish version, draft version, or build name)"
         type: string
         required: true
+      draft_number:
+        description: "If repeating draft product type, provide draft number"
+        type: number
+        required: false
       dev_image: 
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
@@ -64,7 +69,11 @@ jobs:
     name: Health Check
     runs-on: ubuntu-latest
     outputs:
-      plan_command: repeat ${{ inputs.product }} --product-type ${{ inputs.product_type }} --version-or-build ${{ inputs.version_or_build }}
+      plan_command: |
+        repeat ${{ inputs.product }} \
+          --product-type ${{ inputs.product_type }} \
+          --version-or-build ${{ inputs.version_or_build }} \
+          ${{ (inputs.draft_number != '' && format('--draft-number {0}', inputs.draft_number)) || ''}}
       tag: ${{ env.tag }}
       build_name: ${{ env.build_name }}
     steps:

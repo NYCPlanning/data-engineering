@@ -18,6 +18,7 @@ PyYAML
 Requests
 retry
 Shapely
+socrata-py
 SQLAlchemy
 tqdm
 typer
