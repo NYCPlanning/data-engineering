@@ -345,15 +345,8 @@ class DraftVersionRevision:
 
 def parse_draft_version(v: str) -> DraftVersionRevision:
     """Takes a version string and attempts to parse it into DraftVersionRevision object."""
-    split_index = v.find("-")
-
-    if split_index != -1:
-        revision_num_str = v[:split_index]
-        revision_summary = v[split_index + 1 :]
-    else:
-        revision_num_str = v
-        revision_summary = ""
-
+    revision_num_str, *rest = v.split("-", 1)
+    revision_summary = rest[0] if len(rest) == 1 else ""
     try:
         revision_num = int(revision_num_str)
     except ValueError:
