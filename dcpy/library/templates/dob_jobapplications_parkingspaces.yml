@@ -1,0 +1,55 @@
+dataset:
+  name: dob_jobapplications_parkingspaces
+  acl: private
+  source:
+    url:
+      path: s3://edm-recipes/inbox/dob_bis_applications_parkingspots/dob_bis_applications_parkingspots.csv
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: null
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: null
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "PRECISION=NO"
+    sql: |
+      WITH numbered AS (
+        SELECT
+          ROW_NUMBER() OVER (PARTITION BY job_# ORDER BY DOBRunDate DESC) AS row_id,
+          "job_#" AS jobnumber,
+          DOBRunDate AS dobrundate,
+          J_ENCLOSED_NUM_SPACES AS enclosed_spaces,
+          cast(J_EX_PARKING_SPACES AS INTEGER) AS existing_parking_spaces,
+          cast(J_PR_PARKING_SPACES AS INTEGER) AS proposed_parking_spaces
+        FROM @filename
+        WHERE "doc_#" = '01'
+        AND ( 
+          "job_type" LIKE '%A1%' OR
+          "job_type" LIKE '%A2%' OR
+          "job_type" LIKE '%DM%' OR
+          "job_type" LIKE '%NB%'
+        )
+      )
+      SELECT 
+        jobnumber,
+        dobrundate,
+        enclosed_spaces,
+        existing_parking_spaces,
+        proposed_parking_spaces
+      FROM numbered
+      WHERE row_id = 1      
+
+  info:
+    description: |
+      This dataset is a one-time export from DOB containing historical BIS applications data with parking spots included
+      There are three additional columns: "J_ENCLOSED_NUM_SPACES", "J_EX_PARKING_SPACES", and "J_PR_PARKING_SPACES" 
+
+      Given that we get other columns from BIS open data, this is filtered in preprocessing to just jobnumber and parking space columns
+    url: ""
+    dependents: []
