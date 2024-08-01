@@ -74,13 +74,13 @@ def get_draft_revision_label(product: str, version: str, revision_num: int) -> s
     draft_revision_objects = [
         versions.parse_draft_version(version)
         for version in get_draft_version_revisions(product, version)
+        if versions.parse_draft_version(version).revision_num == revision_num
     ]
-    for obj in draft_revision_objects:
-        if obj.revision_num == revision_num:
-            draft_revision_label = obj.label
+    if len(draft_revision_objects) != 0:
+        draft_revision_label = draft_revision_objects[0].label
     if draft_revision_label is None:
         raise ValueError(
-            f"A draft revision with revision numbef of {revision_num} doesn't exist. Try again"
+            f"A draft revision with revision number of {revision_num} doesn't exist. Try again"
         )
     return draft_revision_label
 
