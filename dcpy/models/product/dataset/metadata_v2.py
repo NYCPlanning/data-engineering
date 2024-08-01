@@ -2,39 +2,138 @@ from __future__ import annotations
 
 import jinja2
 from pathlib import Path
-from pydantic import BaseModel
-from typing import Any, List, Literal
+from pydantic import BaseModel, field_validator, model_serializer
+from pydantic.fields import PrivateAttr
+from typing import Any, List, Literal, get_args
+import typing
 import yaml
 
 from dcpy.utils.logging import logger
 
 
-class CustomizableBase(BaseModel, extra="forbid"):
+class YamlTopLevelSpacesDumper(yaml.SafeDumper):
+    """YAML serializer that will insert lines between top-level entries,
+    which is nice in longer files."""
+
+    def write_line_break(self, data=None):
+        super().write_line_break(data)
+
+        if len(self.indents) == 1:
+            super().write_line_break()
+
+
+class SortedSerializedBase(BaseModel):
+    """A Pydantic BaseModel that will allow for sensible (and overrideable) deserialization order.
+
+    The serialization order is as follows:
+    - model attributes defined in the head sort order
+    - simple (and nullable simple) types: strings, ints, bools, literals
+    - complext types
+    - model attributes defined in the tail sort order
+
+    Note: This is put in its own class because it might be useful for other
+    classes unrelated to product metadata in the future.
+    """
+
+    _exclude_falsey_values: bool = True
+    _head_sort_order: list[str] = PrivateAttr(default=["id"])
+    _tail_sort_order: list[str] = PrivateAttr(default=["custom"])
+
+    @model_serializer(mode="wrap")
+    def _model_dump_ordered(self, handler):
+        unordered = handler(self)
+
+        ordered_items_head = []
+        ordered_items_tail = []
+        simple_type_items = []
+        other_items = []
+
+        for model_field in list(unordered.items()):
+            if not model_field[1] and self._exclude_falsey_values:
+                # If an object's values are all None, it will serialize as {}.
+                # These aren't removed by model_dump(exclude_none=True), so we have to do it manually.
+                continue
+            field_type = self.model_fields[
+                model_field[0]
+            ].annotation  # Need to retrieve type from the class def, not the instance
+            is_literal = type(field_type) is typing._LiteralGenericAlias  # type: ignore
+            simple_types = {
+                bool,
+                bool | None,  # This is a little hacky, but does the job.
+                str,
+                str | None,
+                int,
+                int | None,
+                float,
+                float | None,
+                type(None),
+            }
+
+            if model_field[0] in self._head_sort_order:
+                ordered_items_head.append(model_field)
+            elif model_field[0] in self._tail_sort_order:
+                ordered_items_tail.append(model_field)
+            elif field_type in simple_types or is_literal:
+                simple_type_items.append(model_field)
+            else:
+                other_items.append(model_field)
+
+        # As of python 3.7, dict keys are ordered, and so will serialize in the order below
+        return dict(
+            sorted(ordered_items_head, key=lambda x: self._head_sort_order.index(x[0]))
+            + sorted(simple_type_items, key=lambda x: x[0])
+            + sorted(other_items, key=lambda x: x[0])
+            + sorted(
+                ordered_items_tail, key=lambda x: self._tail_sort_order.index(x[0])
+            )
+        )
+
+
+class CustomizableBase(SortedSerializedBase, extra="forbid"):
     custom: dict[str, Any] | None = None
 
 
 # TODO: move to share with ingest.validate
 class Checks(CustomizableBase):
-    is_primary_key: bool | None
-    nullable: bool | None
+    is_primary_key: bool | None = None
+    non_nullable: bool | None = None
 
 
 # TODO: move to share with ingest.validate
-COLUMN_TYPES = Literal["text", "integer", "decimal", "geometry"]
 COLUMN_TYPES = Literal[
     "text", "integer", "decimal", "geometry", "bool", "bbl", "datetime"
 ]
 
 
-class Column(CustomizableBase):
-    id: str
-    display_name: str
-    data_type: COLUMN_TYPES
-
+class OverrideableColumnAttrs(CustomizableBase):
+    id: str  # Note: id isn't overrideable, but is required as a pointer back to the original column
+    display_name: str | None = None
+    data_type: str | None = None
     data_source: str | None = None
     description: str | None = None
     example: str | None = None
     checks: Checks | None = None
+    deprecated: bool | None = None
+    values: list[list] | None = None
+
+    @field_validator("data_type")
+    def _validate_colum_types(cls, v):
+        assert v in get_args(COLUMN_TYPES)
+        return v
+
+
+class DatasetColumn(OverrideableColumnAttrs):
+    """Like a OverrideableColumnAttrs, but with constraints for non-null fields"""
+
+    @field_validator("display_name")
+    def _validate_display_name(cls, dn):
+        assert dn, "display_name may not be null"
+        return dn
+
+    # @field_validator("data_type")
+    # def _validate_data_type(cls, dt):
+    #     assert dt, "data_type may not be null"
+    #     return dt
 
 
 class PackageFile(CustomizableBase):
@@ -90,13 +189,23 @@ class Metadata(CustomizableBase):
     files: List[File]
     destinations: List[Destination]
 
+    _head_sort_order = [
+        "id",
+        "attributes",
+    ]
+    _tail_sort_order = ["columns"]
+
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):
-        logger.info(f"Templating metadata with vars: {template_vars}")
-        templated = jinja2.Template(yaml_str, undefined=jinja2.StrictUndefined).render(
-            template_vars or {}
-        )
-        return Metadata(**yaml.safe_load(templated))
+        if template_vars:
+            logger.info(f"Templating metadata with vars: {template_vars}")
+            templated = jinja2.Template(
+                yaml_str, undefined=jinja2.StrictUndefined
+            ).render(template_vars or {})
+            return Metadata(**yaml.safe_load(templated))
+        else:
+            logger.info("No Template vars supplied. Skipping templating.")
+        return Metadata(**yaml.safe_load(yaml_str))
 
     @classmethod
     def from_path(cls, path: Path, *, template_vars=None):
@@ -107,8 +216,9 @@ class Metadata(CustomizableBase):
         with open(path, "w") as f:
             f.write(
                 yaml.dump(
-                    self.model_dump(),
+                    self.model_dump(exclude_none=True),
                     sort_keys=False,
                     default_flow_style=False,
+                    Dumper=YamlTopLevelSpacesDumper,
                 )
             )
