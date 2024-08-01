@@ -246,5 +246,5 @@ SELECT
 INTO _init_now_devdb
 FROM dob_now_applications
 WHERE
-    jobtype ~* 'CO|New'
+    (jobtype IN ('New Building', 'Full Demolition') OR jobtype ~* 'CO')
     AND right(job_filing_number, 2) = 'I1';
