@@ -21,6 +21,9 @@ class Checks(CustomizableBase):
 
 # TODO: move to share with ingest.validate
 COLUMN_TYPES = Literal["text", "integer", "decimal", "geometry"]
+COLUMN_TYPES = Literal[
+    "text", "integer", "decimal", "geometry", "bool", "bbl", "datetime"
+]
 
 
 class Column(CustomizableBase):
