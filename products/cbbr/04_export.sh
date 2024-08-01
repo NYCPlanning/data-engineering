@@ -4,12 +4,14 @@ set_error_traps
 
 echo "CBBR Version ${VERSION} : 04 Export"
 OUTPUT_DIRECTORY="output"
-mkdir -p ${OUTPUT_DIRECTORY}
+mkdir -p $OUTPUT_DIRECTORY
+cp ./source_data_versions.csv $OUTPUT_DIRECTORY
+cp ./build_metadata.json $OUTPUT_DIRECTORY
 
 echo "Transforming to final schemas ..."
 run_sql_file sql/export.sql
 
-cd ${OUTPUT_DIRECTORY}
+cd $OUTPUT_DIRECTORY
 echo "Exporting input table to csv file ..."
 csv_export cbbr_submissions cbbr_submissions_input
 
