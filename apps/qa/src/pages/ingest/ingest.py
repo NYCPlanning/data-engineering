@@ -3,6 +3,7 @@ def ingest():
     from .helpers import archive_raw_data, dummy_library_call, dummy_archive_raw_data
     from pathlib import Path
     import time
+    from dcpy.library import utils
 
     if "ingest" not in st.session_state:
         st.session_state["ingest"] = {
@@ -14,19 +15,19 @@ def ingest():
             "s3_path": None,
         }
 
-    def lock_for_ingest():
+    def lock_for_ingest(dataset_name, version, uploaded_file):
         if dataset_name and version and uploaded_file:
             st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
 
-    def lock_for_library():
+    def lock_for_library(dataset_name, version, s3_path):
         if dataset_name and version and s3_path:
             st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
 
-    def ingest():
+    def ingest(dataset_name, version, uploaded_file):
         with st.spinner("Ingesting"):
             try:
                 file_path = dummy_archive_raw_data(
@@ -39,7 +40,7 @@ def ingest():
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
-    def library():
+    def library(dataset_name, version, s3_path):
         with st.spinner("Calling Library"):
             try:
                 library_path = dummy_library_call(dataset_name, version, s3_path)
@@ -73,12 +74,12 @@ def ingest():
 
     process = st.sidebar.selectbox(
         "Choose a process:",
-        (
-            "Ingest Raw Files to S3",
-            "Call Library on S3 Files",
-            "Ingest and Call Library",
+        (   
+            "Upload File and Call Library",
+            "Upload Raw Files to S3",
+            "Call Library on S3 Files"
         ),
-        disabled=st.session_state["ingest"]["running"],
+        disabled=st.session_state["ingest"]["running"]
     )
 
     if st.session_state["ingest"]["retry"] == True:
@@ -88,11 +89,18 @@ def ingest():
         )
         st.write("To quit retry mode, click the button below")
 
-    if process == "Ingest Raw Files to S3":
+    if process == "Upload Raw Files to S3":
         st.write("Ingest Raw Files to S3")
-        dataset_name = st.text_input(
-            "Dataset Name", disabled=st.session_state["ingest"]["running"]
+
+        dataset_name = st.selectbox(
+        "Choose a Dataset:",
+        (   
+            utils.get_all_templates()
+        ),
+        index = None,
+        disabled=st.session_state["ingest"]["running"]
         )
+
         version = st.text_input(
             "Version", disabled=st.session_state["ingest"]["running"]
         )
@@ -106,17 +114,15 @@ def ingest():
 
         ingest_button_pressed = st.button(
             "Ingest",
-            on_click=lock_for_ingest,
+            on_click=lock_for_ingest, args=(dataset_name, version, uploaded_file),
             disabled=st.session_state["ingest"]["running"],
         )
-
-        st.write()
 
         if (
             ingest_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            ingest()
+            ingest(dataset_name, version, uploaded_file)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -132,8 +138,13 @@ def ingest():
                 on_click=end_retry,
                 disabled=st.session_state["ingest"]["running"],
             )
-        dataset_name = st.text_input(
-            "Dataset Name", disabled=st.session_state["ingest"]["running"]
+        dataset_name = st.selectbox(
+        "Choose a Dataset:",
+        (   
+            utils.get_all_templates()
+        ),
+        index = None,
+        disabled=st.session_state["ingest"]["running"]
         )
         version = st.text_input(
             "Version", disabled=st.session_state["ingest"]["running"]
@@ -145,14 +156,14 @@ def ingest():
         )
         library_button_pressed = st.button(
             "Call Library",
-            on_click=lock_for_library,
+            on_click=lock_for_library, args=(dataset_name, version, s3_path),
             disabled=st.session_state["ingest"]["running"],
         )
         if (
             library_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            library()
+            library(dataset_name, version, s3_path)
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -163,10 +174,15 @@ def ingest():
             else:
                 st.button("Restart", on_click=unlock)
 
-    if process == "Ingest and Call Library":
+    if process == "Upload File and Call Library":
         st.write("Ingest and Call Library")
-        dataset_name = st.text_input(
-            "Dataset Name", disabled=st.session_state["ingest"]["running"]
+        dataset_name = st.selectbox(
+        "Choose a Dataset:",
+        (   
+            utils.get_all_templates()
+        ),
+        index = None,
+        disabled=st.session_state["ingest"]["running"]
         )
         version = st.text_input(
             "Version", disabled=st.session_state["ingest"]["running"]
@@ -182,17 +198,17 @@ def ingest():
         ingest_button_pressed = False
         ingest_button_pressed = st.button(
             "Ingest and Call Library",
-            on_click=lock_for_ingest,
+            on_click=lock_for_ingest, args=(dataset_name, version, uploaded_file),
             disabled=st.session_state["ingest"]["running"],
         )
         if (
             ingest_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            ingest()
+            ingest(dataset_name, version, uploaded_file)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
-            library()
+            library(dataset_name, version, s3_path)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
             st.button("Restart", on_click=unlock)
