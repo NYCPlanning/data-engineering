@@ -102,3 +102,13 @@ class Metadata(CustomizableBase):
     def from_path(cls, path: Path, *, template_vars=None):
         with open(path, "r") as raw:
             return cls.from_yaml(raw.read(), template_vars=template_vars)
+
+    def write_to_yaml(self, path: Path):
+        with open(path, "w") as f:
+            f.write(
+                yaml.dump(
+                    self.model_dump(),
+                    sort_keys=False,
+                    default_flow_style=False,
+                )
+            )
