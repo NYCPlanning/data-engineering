@@ -7,10 +7,27 @@ import subprocess
 
 app = typer.Typer()
 
+
 @app.command()
-def generate_pdf_from_yml(yaml_file_path: str, html_template_path: str, output_html_path: str, output_pdf_path: str, pdf_metadata_path) -> Path:
-    generate_html_from_yaml(yaml_file_path,html_template_path,output_html_path)
-    subprocess.run(["pandoc",output_html_path,"o",output_pdf_path,"--metadata-file=",pdf_metadata_path], check= True)
+def generate_pdf_from_yml(
+    yaml_file_path: str,
+    html_template_path: str,
+    output_html_path: str,
+    output_pdf_path: str,
+    pdf_metadata_path,
+) -> Path:
+    generate_html_from_yaml(yaml_file_path, html_template_path, output_html_path)
+    subprocess.run(
+        [
+            "pandoc",
+            output_html_path,
+            "o",
+            output_pdf_path,
+            "--metadata-file=",
+            pdf_metadata_path,
+        ],
+        check=True,
+    )
 
 
 @app.command()
