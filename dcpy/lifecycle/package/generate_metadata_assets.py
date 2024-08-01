@@ -30,6 +30,7 @@ def generate_pdf_from_yml(
     )
     return Path(output_pdf_path)
 
+
 @app.command()
 def generate_html_from_yaml(
     yaml_file_path: str, html_template_path: str, output_html_path: str
