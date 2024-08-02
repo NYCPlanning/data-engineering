@@ -24,9 +24,9 @@ def test_transform_staging():
 
 # * test Export stage
 @pytest.mark.end_to_end()
-def test_export_draft():
+def test_export_build():
     expected_build_name = BUILD_NAME
-    actual_build_name = publishing.get_draft_versions(product=PRODUCT_S3_NAME)
+    actual_build_name = publishing.get_builds(product=PRODUCT_S3_NAME)
 
     assert expected_build_name in actual_build_name
 
@@ -41,6 +41,6 @@ def test_export_files():
         "templatedb_points.zip",
     ]
     actual_files = s3.get_filenames(
-        publishing.BUCKET, f"{PRODUCT_S3_NAME}/draft/{BUILD_NAME}/"
+        publishing.BUCKET, f"{PRODUCT_S3_NAME}/build/{BUILD_NAME}/"
     )
     assert set(actual_files) == set(expected_export_file_names)
