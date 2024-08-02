@@ -42,9 +42,11 @@ Source: TypeAlias = (
 )
 
 
-class FunctionCall(BaseModel):
+class PreprocessingStep(BaseModel):
     name: str
     args: dict[str, Any] = {}
+    # mode allows for certain preprocessing steps only to be run if specified at runtime
+    mode: str | None = None
 
 
 class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
@@ -61,18 +63,17 @@ class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     source: Source
     file_format: file.Format
 
-    processing_steps: list[FunctionCall] = []
+    processing_steps: list[PreprocessingStep] = []
 
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: library.DatasetDefinition | None = None
 
 
-class Config(
-    BaseModel, extra="ignore", arbitrary_types_allowed=True
-):  # TODO switch extra back to "forbid" when library_dataset is dropped from template
-    """New object corresponding to computed template in dcpy.lifecycle.extract
-    Meant to be stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
-    At some point backwards compatability with LibraryConfig should be considered"""
+class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
+    """
+    Computed Template of ingest dataset
+    Stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
+    """
 
     name: str
     version: str
@@ -84,7 +85,8 @@ class Config(
 
     source: Source
     file_format: file.Format
-    processing_steps: list[FunctionCall] = []
+    processing_mode: str | None = None
+    processing_steps: list[PreprocessingStep] = []
 
     run_details: RunDetails
 

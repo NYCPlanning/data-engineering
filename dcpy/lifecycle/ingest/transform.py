@@ -6,7 +6,7 @@ import shutil
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import FunctionCall
+from dcpy.models.lifecycle.ingest import PreprocessingStep
 from dcpy.utils import data, introspect
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -124,11 +124,33 @@ class Preprocessor:
         df[column_name] = val
         return df
 
-    def append_prev(self, df: pd.DataFrame) -> pd.DataFrame:
+    def append_prev(self, df: pd.DataFrame, version: str = "latest") -> pd.DataFrame:
         prev_df = recipes.read_df(
-            recipes.Dataset(name=self.dataset_name, version="latest")
+            recipes.Dataset(name=self.dataset_name, version=version)
         )
-        df = pd.concat((prev_df, df))
+
+        appended = pd.concat((prev_df, df))
+        return appended
+
+    def upsert_column_of_previous_version(
+        self,
+        df: pd.DataFrame,
+        key: list[str],
+        version: str = "latest",
+        insert_behavior: Literal["allow", "ignore", "error"] = "allow",
+        missing_key_behavior: Literal["null", "coalesce", "error"] = "error",
+    ) -> pd.DataFrame:
+        assert key, "Must provide non-empty list of columns to be used as keys"
+        prev_df = recipes.read_df(
+            recipes.Dataset(name=self.dataset_name, version=version)
+        )
+        df = data.upsert_df_columns(
+            prev_df,
+            df,
+            key=key,
+            insert_behavior=insert_behavior,
+            missing_key_behavior=missing_key_behavior,
+        )
         return df
 
     def deduplicate(
@@ -213,7 +235,7 @@ def validate_pd_series_func(
 
 
 def validate_processing_steps(
-    dataset_name: str, processing_steps: list[FunctionCall]
+    dataset_name: str, processing_steps: list[PreprocessingStep]
 ) -> list[Callable]:
     """
     Given config of ingest dataset, violates that defined preprocessing steps
@@ -254,9 +276,10 @@ def validate_processing_steps(
 
 def preprocess(
     dataset_name: str,
-    processing_steps: list[FunctionCall],
+    processing_steps: list[PreprocessingStep],
     input_path: Path,
     output_path: Path,
+    output_csv: bool = False,
 ):
     """Validates and runs preprocessing steps defined in config object"""
     if len(processing_steps) == 0:
@@ -267,4 +290,8 @@ def preprocess(
 
         for step in compiled_steps:
             df = step(df)
+
+        if output_csv:
+            df.to_csv(output_path.parent / f"{dataset_name}.csv")
+
         df.to_parquet(output_path)

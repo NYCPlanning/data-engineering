@@ -16,6 +16,9 @@ on:
       version:
         description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
         required: false
+      mode:
+        description: "Preprocessing 'mode', if applicable"
+        required: false
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
@@ -44,5 +47,11 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
       - name: Finish container setup ...
-        working-directory: ./
         run: ./bash/docker_container_setup.sh
+
+      - name: Archive dataset
+        env:
+          latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+          mode: ${{ github.event.inputs.mode && format('--mode {0}', github.event.inputs.mode) || '' }}
+        run: python3 -m dcpy.cli lifecycle ingest ${{ inputs.dataset }} $latest $version $mode

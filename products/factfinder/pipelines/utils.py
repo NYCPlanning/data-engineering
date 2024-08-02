@@ -142,6 +142,12 @@ def pivot_table_with_suffixes(
         raise Exception(f"Some field names missing certain suffixes: {field_names}")
 
     expected_columns = set(pivot_columns + suffix_columns)
+    for c in df.columns:
+        if c not in expected_columns:
+            print(f"unexpected: {c}")
+    for c in expected_columns:
+        if c not in df.columns:
+            print(f"missing: {c}")
     assert set(df.columns) == expected_columns
 
     output_df = pd.DataFrame()

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from enum import StrEnum
@@ -67,10 +67,11 @@ class MajorMinor(Version):
     def __lt__(self, other) -> bool:
         match other:
             case MajorMinor():
-                return (self.year, self.major, self.minor) < (
+                return (self.year, self.major, self.minor, self.patch) < (
                     other.year,
                     other.major,
                     other.minor,
+                    other.patch,
                 )
             case Date():
                 self_year = self.year + 2000
@@ -86,10 +87,11 @@ class MajorMinor(Version):
     def __eq__(self, other) -> bool:
         match other:
             case MajorMinor():
-                return (self.year, self.major, self.minor) == (
+                return (self.year, self.major, self.minor, self.patch) == (
                     other.year,
                     other.major,
                     other.minor,
+                    other.patch,
                 )
             case _:
                 return False
@@ -125,7 +127,11 @@ class Date(Version):
     def __lt__(self, other) -> bool:
         match other:
             case Date():
-                return (self.date, self.format) < (other.date, other.format)
+                return (self.date, self.format, self.patch) < (
+                    other.date,
+                    other.format,
+                    other.patch,
+                )
             case MajorMinor():
                 other_year = other.year + 2000
                 if self.date.year != other_year:
@@ -140,7 +146,11 @@ class Date(Version):
     def __eq__(self, other) -> bool:
         match other:
             case Date():
-                return (self.date, self.format) == (other.date, other.format)
+                return (self.date, self.format, self.patch) == (
+                    other.date,
+                    other.format,
+                    other.patch,
+                )
             case _:
                 return False
 
@@ -306,3 +316,40 @@ def bump(
             )
         case _:
             raise ValueError(f"Unsupported version format {previous_version}")
+
+
+@dataclass(order=True)
+class DraftVersionRevision:
+    revision_num: int
+    revision_summary: str = field(compare=False)
+
+    def __post_init__(self):
+        max_string_length = 50  # random max length. may need to revise
+
+        if not isinstance(self.revision_num, int) or self.revision_num <= 0:
+            raise ValueError(
+                f"revision_num must be a positive integer, got {self.revision_num}"
+            )
+        if len(self.revision_summary) > max_string_length:
+            raise ValueError(
+                f"revision_summary must be no more than {max_string_length} characters, got {len(self.revision_summary)} characters"
+            )
+
+    @property
+    def label(self) -> str:
+        if self.revision_summary == "":
+            return f"{self.revision_num}"
+        else:
+            return f"{self.revision_num}-{self.revision_summary}"
+
+
+def parse_draft_version(v: str) -> DraftVersionRevision:
+    """Takes a version string and attempts to parse it into DraftVersionRevision object."""
+    revision_num_str, *rest = v.split("-", 1)
+    revision_summary = rest[0] if len(rest) == 1 else ""
+    try:
+        revision_num = int(revision_num_str)
+    except ValueError:
+        raise ValueError(f"Unsupported draft version revision format {v}")
+
+    return DraftVersionRevision(revision_num, revision_summary)
