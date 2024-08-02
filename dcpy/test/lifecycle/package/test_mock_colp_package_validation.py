@@ -4,19 +4,27 @@ import pytest
 
 from dcpy.lifecycle.package import validate
 import dcpy.models.product.dataset.metadata as md
+import dcpy.models.product.dataset.metadata_v2 as md_v2
 
 COLP_PACKAGE_PATH = (
     Path(__file__).parent.resolve() / "resources" / "colp_single_feature_package"
 )
 METADATA_V1_PATH = COLP_PACKAGE_PATH / "metadata_v1.yml"
+METADATA_V2_PATH = COLP_PACKAGE_PATH / "metadata_v2.yml"
 
 COLP_VERSION = "24b"
 RAW_V1_MD = yaml.safe_load(open(METADATA_V1_PATH, "r"))
 
 
-def _get_colp_md():
+def _get_colp_md_v1():
     return md.Metadata.from_path(
         METADATA_V1_PATH, template_vars={"version": COLP_VERSION}
+    )
+
+
+def _get_colp_md_v2():
+    return md.Metadata.from_path(
+        METADATA_V2_PATH, template_vars={"version": COLP_VERSION}
     )
 
 
@@ -31,7 +39,7 @@ def test_colp_single_feature_package():
 
 
 def test_missing_attachments():
-    overridden_md = _get_colp_md()
+    overridden_md = _get_colp_md_v1()
 
     fake_attachment_name = "I_dont_exist.pdf"
     overridden_md.package.attachments.append(
@@ -51,7 +59,7 @@ def test_destination_overrides():
     Tests overrides at both the destination dataset_file level.
     Destination overrides should take priority over dataset_file overrides.
     """
-    colp_md = _get_colp_md()
+    colp_md = _get_colp_md_v1()
     dest = colp_md.get_destination("socrata_prod")
     assert type(dest) == md.SocrataDestination
     soc_md = dest.get_metadata(colp_md)
@@ -81,7 +89,12 @@ def test_destination_overrides():
 
 def test_destination_filename_templating():
     VERSION = "24b"
-    dest = _get_colp_md().get_destination("socrata_unparsed")
+    dest = _get_colp_md_v1().get_destination("socrata_unparsed")
     assert type(dest) == md.SocrataDestination
 
     assert dest.overrides.destination_file_name == f"shapefile_blob_{VERSION}"
+
+
+# TODO Delete after migrating
+def test_v1_to_v2():
+    md_v1 = _get_colp_md_v1()
