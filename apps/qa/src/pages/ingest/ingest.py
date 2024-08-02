@@ -4,6 +4,7 @@ def ingest():
     from pathlib import Path
     import time
     from dcpy.library import utils
+    from streamlit.runtime.uploaded_file_manager import UploadedFile
 
     if "ingest" not in st.session_state:
         st.session_state["ingest"] = {
@@ -15,19 +16,21 @@ def ingest():
             "s3_path": None,
         }
 
-    def lock_for_ingest(dataset_name, version, uploaded_file):
+    def lock_for_ingest(
+        dataset_name: str, version: str, uploaded_file: UploadedFile
+    ) -> None:
         if dataset_name and version and uploaded_file:
             st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
 
-    def lock_for_library(dataset_name, version, s3_path):
+    def lock_for_library(dataset_name: str, version: str, s3_path: str) -> None:
         if dataset_name and version and s3_path:
             st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
 
-    def ingest(dataset_name, version, uploaded_file):
+    def ingest(dataset_name: str, version: str, uploaded_file: UploadedFile) -> None:
         with st.spinner("Ingesting"):
             try:
                 file_path = dummy_archive_raw_data(
@@ -40,7 +43,7 @@ def ingest():
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
-    def library(dataset_name, version, s3_path):
+    def library(dataset_name: str, version: str, s3_path: str) -> None:
         with st.spinner("Calling Library"):
             try:
                 library_path = dummy_library_call(dataset_name, version, s3_path)
