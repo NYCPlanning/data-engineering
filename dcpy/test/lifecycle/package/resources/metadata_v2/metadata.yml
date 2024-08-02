@@ -15,7 +15,7 @@ columns:
     example: cbe20732be28f6ab445289d7a67bb241
     checks:
       is_primary_key: True
-      nullable: True
+      non_nullable: True
     custom:
       # not broadly applicable, so chuck under "custom"
       readme_data_type: string
@@ -36,8 +36,8 @@ files:
     filename: colp_single_feature_shp.zip
     type: shapefile
     overrides:
-      columns_overridden:
-        my_column_id:
+      overridden_columns:
+        - id: my_column_id
           display_name: My Overridden Column ID
           data_type: integer
       display_name: "display_name overridden at the dataset_file level"
@@ -48,7 +48,7 @@ files:
     filename: colp_single_feature.csv
     type: csv
     overrides:
-      columns_omitted: ["GEOM"]
+      omitted_columns: ["GEOM"]
   - id: colp_readme
     filename: colp_readme.pdf
 
@@ -60,7 +60,7 @@ destinations:
     files:
       - id: primary_shapefile
         overrides:
-          columns_omitted: [dcpedited, uid]
+          omitted_columns: [dcpedited, uid]
         custom:
           display_name: "display_name overridden at the destination level"
           destination_use: dataset_file

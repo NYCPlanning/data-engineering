@@ -257,6 +257,8 @@ class Metadata(BaseModel, extra="forbid"):
                 "boolean": "bool",
                 "double": "decimal",
                 "float": "decimal",
+                "geom_point": "geometry",
+                "wkb": "geometry",
             }
             return old_to_new_types.get(s) or s
 
@@ -270,20 +272,23 @@ class Metadata(BaseModel, extra="forbid"):
             return cls(**kwargs_with_custom)
 
         def _v1_overrides_to_v2(v1: DatasetOverrides):
+            overridden_columns = []
+            for k, col_overrides in v1.columns.items():
+                if "data_type" in col_overrides:
+                    col_overrides["data_type"] = _translate_types(
+                        col_overrides["data_type"]
+                    )
+                custom = _construct_with_custom(
+                    md_v2.OverrideableColumnAttrs, id=k, **col_overrides
+                )
+                overridden_columns.append(custom)
+
             return md_v2.FileOverrides(
-                overridden_columns=[
-                    _construct_with_custom(md_v2.OverrideableColumnAttrs, id=k, **v)
-                    for k, v in v1.columns.items()
-                ],
+                overridden_columns=overridden_columns,
                 omitted_columns=v1.omit_columns,
                 display_name=v1.display_name,
                 description=v1.description,
             )
-
-        # def _soc_dest_v1_to_col_overrides_v2(soc_dest_v1: SocrataDestination):
-        #     overrides_v2 = _v1_overrides_to_v2(soc_dest_v1.overrides)
-        #     overrides_v2.columns_omitted = soc_dest_v1.omit_columns
-        #     overrides_v2.columns_omitted = soc_dest_v1.omit_columns
 
         return md_v2.Metadata(
             id=self.name,

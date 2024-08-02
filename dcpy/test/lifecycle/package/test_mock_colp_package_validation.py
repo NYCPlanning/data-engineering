@@ -1,6 +1,5 @@
 from pathlib import Path
 import yaml
-import pytest
 
 from dcpy.lifecycle.package import validate
 import dcpy.models.product.dataset.metadata as md
@@ -10,7 +9,6 @@ COLP_PACKAGE_PATH = (
     Path(__file__).parent.resolve() / "resources" / "colp_single_feature_package"
 )
 METADATA_V1_PATH = COLP_PACKAGE_PATH / "metadata_v1.yml"
-METADATA_V2_PATH = COLP_PACKAGE_PATH / "metadata_v2.yml"
 
 COLP_VERSION = "24b"
 RAW_V1_MD = yaml.safe_load(open(METADATA_V1_PATH, "r"))
@@ -22,17 +20,13 @@ def _get_colp_md_v1():
     )
 
 
-def _get_colp_md_v2():
-    return md.Metadata.from_path(
-        METADATA_V2_PATH, template_vars={"version": COLP_VERSION}
-    )
-
-
 def test_colp_single_feature_package():
     raw_md_dataset_files = RAW_V1_MD["package"]["dataset_files"]
 
     validation = validate.validate_package_from_path(
-        COLP_PACKAGE_PATH, metadata_args={"version": COLP_VERSION}
+        COLP_PACKAGE_PATH,
+        metadata_args={"version": COLP_VERSION},
+        metadata_override_path=METADATA_V1_PATH,
     )
     assert len(raw_md_dataset_files) == len(validation.validations)
     assert not validation.get_dataset_errors()
@@ -97,4 +91,4 @@ def test_destination_filename_templating():
 
 # TODO Delete after migrating
 def test_v1_to_v2():
-    md_v1 = _get_colp_md_v1()
+    _get_colp_md_v1().upgrade_to_v2()

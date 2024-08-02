@@ -3,7 +3,7 @@ from pathlib import Path
 import dcpy.models.product.dataset.metadata_v2 as md
 
 METADATA_PATH = (
-    Path(__file__).parent.resolve() / "resources" / "metadata" / "metadata_v2.yml"
+    Path(__file__).parent.resolve() / "resources" / "metadata_v2" / "metadata.yml"
 )
 VERSION = "24b"
 
