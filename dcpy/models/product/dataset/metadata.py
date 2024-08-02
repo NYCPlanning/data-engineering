@@ -217,13 +217,15 @@ class Metadata(BaseModel, extra="forbid"):
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):
-        logger.info(f"Templating the metadata with vars: {template_vars}")
-        templated = jinja2.Template(yaml_str, undefined=jinja2.StrictUndefined).render(
-            template_vars or {}
-        )
-        return Metadata(
-            templated_source_metadata=templated, **yaml.safe_load(templated)
-        )
+        if template_vars:
+            logger.info(f"Templating metadata with vars: {template_vars}")
+            templated = jinja2.Template(
+                yaml_str, undefined=jinja2.StrictUndefined
+            ).render(template_vars or {})
+            return Metadata(**yaml.safe_load(templated))
+        else:
+            logger.info("No Template vars supplied. Skipping templating.")
+        return Metadata(**yaml.safe_load(yaml_str))
 
     @classmethod
     def from_path(cls, path: Path, *, template_vars=None):
@@ -247,7 +249,6 @@ class Metadata(BaseModel, extra="forbid"):
         ), "There should be no duplicate column names"
         # TODO: all the rest
 
-    # TODO: make a dict that just removes None's. mostly for custom
     def upgrade_to_v2(self):
         def _remove_falsey_from_dict(d):
             return {k: v for k, v in d.items() if v}
@@ -258,6 +259,7 @@ class Metadata(BaseModel, extra="forbid"):
                 "double": "decimal",
                 "float": "decimal",
                 "geom_point": "geometry",
+                "geom_poly": "geometry",
                 "wkb": "geometry",
             }
             return old_to_new_types.get(s) or s
