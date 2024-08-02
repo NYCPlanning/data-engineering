@@ -13,7 +13,7 @@ from dcpy.lifecycle.package import validate
 METADATA_PATH = (
     Path(__file__).parent.resolve() / "resources" / "test_package" / "metadata_v1.yml"
 )
-print(METADATA_PATH)
+
 assert METADATA_PATH.exists()
 
 rd = random.Random()
