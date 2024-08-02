@@ -6,6 +6,7 @@ from typing import Any, Literal
 import yaml
 
 from dcpy.utils.logging import logger
+from . import metadata_v2 as md_v2
 
 # Putting this here so we can have a constant value in all connectors
 # and throw an exception when we attempt to deserialize files that contain it.
@@ -245,3 +246,143 @@ class Metadata(BaseModel, extra="forbid"):
             set(col_names)
         ), "There should be no duplicate column names"
         # TODO: all the rest
+
+    # TODO: make a dict that just removes None's. mostly for custom
+    def upgrade_to_v2(self):
+        def _translate_types(s: str):
+            old_to_new_types = {
+                "boolean": "bool",
+                "double": "decimal",
+                "float": "decimal",
+            }
+            return old_to_new_types.get(s) or s
+
+        def _construct_with_custom(cls, **kwargs):
+            kwargs_with_custom = {"custom": {}}
+            for kwarg in kwargs.items():
+                if kwarg[0] in cls.__fields__:
+                    kwargs_with_custom[kwarg[0]] = kwarg[1]
+                else:
+                    kwargs_with_custom["custom"][kwarg[0]] = kwarg[1]
+            return cls(**kwargs_with_custom)
+
+        def _v1_overrides_to_v2(v1: DatasetOverrides):
+            return md_v2.FileOverrides(
+                columns_overridden=[
+                    _construct_with_custom(md_v2.OverrideableColumnAttrs, id=k, **v)
+                    for k, v in v1.columns.items()
+                ],
+                columns_omitted=v1.omit_columns,
+                display_name=v1.display_name,
+                description=v1.description,
+            )
+
+        # def _soc_dest_v1_to_col_overrides_v2(soc_dest_v1: SocrataDestination):
+        #     overrides_v2 = _v1_overrides_to_v2(soc_dest_v1.overrides)
+        #     overrides_v2.columns_omitted = soc_dest_v1.omit_columns
+        #     overrides_v2.columns_omitted = soc_dest_v1.omit_columns
+
+        return md_v2.Metadata(
+            id=self.name,
+            files=[
+                md_v2.File(
+                    id=dsf.name,
+                    filename=dsf.filename,
+                    type=dsf.type,
+                    overrides=_v1_overrides_to_v2(dsf.overrides),
+                    custom={"ignore_validation": dsf.overrides.ignore_validation},
+                )
+                for dsf in self.package.dataset_files
+            ]
+            + [
+                md_v2.File(id=att.name, filename=att.filename)
+                for att in self.package.attachments
+            ],
+            assembly=[
+                md_v2.Package(
+                    id=zf.name,
+                    type=zf.type,
+                    filename=zf.filename,
+                    contents=[
+                        md_v2.PackageFile(id=pf.name, filename=zf.filename)
+                        for pf in zf.contains
+                    ],
+                )
+                for zf in self.package.zip_files
+            ],
+            destinations=[  # Socrata Dests
+                md_v2.Destination(
+                    id=dest.id,
+                    type="socrata",
+                    files=[
+                        md_v2.DestinationFile(
+                            id=att,
+                            custom={"destination_use": "attachment"},
+                        )
+                        for att in dest.attachments
+                    ]
+                    + [
+                        md_v2.DestinationFile(
+                            id=ds,
+                            custom={"destination_use": "dataset_file"},
+                            overrides=md_v2.FileOverrides(
+                                columns_overridden=[
+                                    md_v2.OverrideableColumnAttrs(
+                                        id=k,
+                                        display_name=v.display_name,
+                                        description=v.description,
+                                        custom={"api_name": v.api_name},
+                                    )
+                                    for k, v in dest.column_details.items()
+                                ]
+                            ),
+                        )
+                        for ds in dest.datasets
+                    ],
+                    custom={
+                        "four_four": dest.four_four,
+                        "is_unparsed_dataset": dest.is_unparsed_dataset,
+                    },
+                )
+                for dest in self.destinations
+                if type(dest) == SocrataDestination
+            ]
+            + [
+                md_v2.Destination(
+                    id=dest.id,
+                    type="bytes",
+                    files=[
+                        md_v2.DestinationFile(id=f.id, custom={"url": f.url})
+                        for f in dest.files
+                    ],
+                )
+                for dest in self.destinations
+                if type(dest) == BytesDestination
+            ],  # md_v2,
+            attributes=md_v2.DatasetAttributes(
+                display_name=self.display_name,
+                description=self.description,
+                each_row_is_a=self.each_row_is_a,
+                tags=self.tags,
+            ),
+            columns=[
+                md_v2.DatasetColumn(
+                    # No Changes
+                    data_type=_translate_types(v1_col.data_type),
+                    display_name=v1_col.display_name,
+                    data_source=v1_col.data_source,
+                    description=v1_col.description,
+                    example=str(v1_col.example),
+                    deprecated=v1_col.deprecated,
+                    values=v1_col.values,
+                    # Cha Cha Cha Cha Chaaaanges
+                    id=v1_col.name,
+                    checks=md_v2.Checks(
+                        is_primary_key=v1_col.is_primary_key,
+                        non_nullable=v1_col.non_nullable,
+                    ),
+                    custom={"readme_data_type": v1_col.readme_data_type},
+                )
+                for v1_col in self.columns
+            ],
+        )
