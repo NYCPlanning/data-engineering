@@ -249,6 +249,9 @@ class Metadata(BaseModel, extra="forbid"):
 
     # TODO: make a dict that just removes None's. mostly for custom
     def upgrade_to_v2(self):
+        def _remove_falsey_from_dict(d):
+            return {k: v for k, v in d.items() if v}
+
         def _translate_types(s: str):
             old_to_new_types = {
                 "boolean": "bool",
@@ -268,11 +271,11 @@ class Metadata(BaseModel, extra="forbid"):
 
         def _v1_overrides_to_v2(v1: DatasetOverrides):
             return md_v2.FileOverrides(
-                columns_overridden=[
+                overridden_columns=[
                     _construct_with_custom(md_v2.OverrideableColumnAttrs, id=k, **v)
                     for k, v in v1.columns.items()
                 ],
-                columns_omitted=v1.omit_columns,
+                omitted_columns=v1.omit_columns,
                 display_name=v1.display_name,
                 description=v1.description,
             )
@@ -290,7 +293,9 @@ class Metadata(BaseModel, extra="forbid"):
                     filename=dsf.filename,
                     type=dsf.type,
                     overrides=_v1_overrides_to_v2(dsf.overrides),
-                    custom={"ignore_validation": dsf.overrides.ignore_validation},
+                    custom=_remove_falsey_from_dict(
+                        {"ignore_validation": dsf.overrides.ignore_validation}
+                    ),
                 )
                 for dsf in self.package.dataset_files
             ]
@@ -326,12 +331,14 @@ class Metadata(BaseModel, extra="forbid"):
                             id=ds,
                             custom={"destination_use": "dataset_file"},
                             overrides=md_v2.FileOverrides(
-                                columns_overridden=[
+                                overridden_columns=[
                                     md_v2.OverrideableColumnAttrs(
                                         id=k,
                                         display_name=v.display_name,
                                         description=v.description,
-                                        custom={"api_name": v.api_name},
+                                        custom=_remove_falsey_from_dict(
+                                            {"api_name": v.api_name}
+                                        ),
                                     )
                                     for k, v in dest.column_details.items()
                                 ]
@@ -339,10 +346,12 @@ class Metadata(BaseModel, extra="forbid"):
                         )
                         for ds in dest.datasets
                     ],
-                    custom={
-                        "four_four": dest.four_four,
-                        "is_unparsed_dataset": dest.is_unparsed_dataset,
-                    },
+                    custom=_remove_falsey_from_dict(
+                        {
+                            "four_four": dest.four_four,
+                            "is_unparsed_dataset": dest.is_unparsed_dataset,
+                        }
+                    ),
                 )
                 for dest in self.destinations
                 if type(dest) == SocrataDestination
@@ -352,7 +361,7 @@ class Metadata(BaseModel, extra="forbid"):
                     id=dest.id,
                     type="bytes",
                     files=[
-                        md_v2.DestinationFile(id=f.id, custom={"url": f.url})
+                        md_v2.DestinationFile(id=f.id, custom={"bytes": {"url": f.url}})
                         for f in dest.files
                     ],
                 )
@@ -374,14 +383,24 @@ class Metadata(BaseModel, extra="forbid"):
                     description=v1_col.description,
                     example=str(v1_col.example),
                     deprecated=v1_col.deprecated,
-                    values=v1_col.values,
-                    # Cha Cha Cha Cha Chaaaanges
+                    values=[
+                        md_v2.ColumnValues(
+                            value=str(cv[0]),
+                            description=(str(cv[1]) if len(cv) > 1 else None),
+                            custom=_remove_falsey_from_dict(
+                                {"other_details": str(cv[2:]) if len(cv) > 2 else None}
+                            ),
+                        )
+                        for cv in v1_col.values or []
+                    ],
                     id=v1_col.name,
                     checks=md_v2.Checks(
                         is_primary_key=v1_col.is_primary_key,
                         non_nullable=v1_col.non_nullable,
                     ),
-                    custom={"readme_data_type": v1_col.readme_data_type},
+                    custom=_remove_falsey_from_dict(
+                        {"readme_data_type": v1_col.readme_data_type}
+                    ),
                 )
                 for v1_col in self.columns
             ],

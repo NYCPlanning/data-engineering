@@ -105,7 +105,17 @@ COLUMN_TYPES = Literal[
 ]
 
 
+class ColumnValues(CustomizableBase):
+    _head_sort_order = ["value", "description"]
+
+    value: str
+    description: str | None = None
+
+
 class OverrideableColumnAttrs(CustomizableBase):
+    _head_sort_order = ["id", "display_name", "data_type", "description"]
+    _tail_sort_order = ["example", "values", "custom"]
+
     id: str  # Note: id isn't overrideable, but is required as a pointer back to the original column
     display_name: str | None = None
     data_type: str | None = None
@@ -114,7 +124,7 @@ class OverrideableColumnAttrs(CustomizableBase):
     example: str | None = None
     checks: Checks | None = None
     deprecated: bool | None = None
-    values: list[list] | None = None
+    values: list[ColumnValues] | None = None
 
     @field_validator("data_type")
     def _validate_colum_types(cls, v):
@@ -130,10 +140,10 @@ class DatasetColumn(OverrideableColumnAttrs):
         assert dn, "display_name may not be null"
         return dn
 
-    # @field_validator("data_type")
-    # def _validate_data_type(cls, dt):
-    #     assert dt, "data_type may not be null"
-    #     return dt
+    @field_validator("data_type")
+    def _validate_data_type(cls, dt):
+        assert dt, "data_type may not be null"
+        return dt
 
 
 class PackageFile(CustomizableBase):
@@ -149,8 +159,15 @@ class Package(CustomizableBase):
 
 
 class FileOverrides(CustomizableBase):
-    columns_overridden: list[OverrideableColumnAttrs] = []
-    columns_omitted: list[str] = []
+    _head_sort_order = [
+        "description",
+        "display_name",
+        "omitted_columns",
+        "overridden_columns",
+    ]
+
+    overridden_columns: list[OverrideableColumnAttrs] = []
+    omitted_columns: list[str] = []
     display_name: str | None = None
     description: str | None = None
 
@@ -194,6 +211,7 @@ class Metadata(CustomizableBase):
         "attributes",
     ]
     _tail_sort_order = ["columns"]
+    _exclude_falsey_values = False  # We never want to prune top-level attrs
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):
