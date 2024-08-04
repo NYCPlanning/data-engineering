@@ -5,44 +5,44 @@ import yaml
 from dcpy.connectors.socrata import publish as pub
 from dcpy.connectors.socrata import metadata
 
-import dcpy.models.product.dataset.metadata as models
+import dcpy.models.product.dataset.metadata_v2 as md_v2
 from dcpy.utils.logging import logger
 
 soc_types_to_dcp_types = {
     "checkbox": "boolean",
     "text": "text",
-    "multipolygon": "wkb",
     "calendar_date": "datetime",
 }
+soc_geom_types = {"multipolygon", "point", "polygon"}
+
+FILL_ME_IN_PLACEHOLDER = "<FILL ME IN>"
 
 
-def make_dcp_col(c: pub.Socrata.Responses.Column):
+def make_dcp_col(c: pub.Socrata.Responses.Column) -> md_v2.DatasetColumn:
+    dcp_col = {
+        "id": c["fieldName"],
+        "display_name": c["name"],
+        "description": c["description"],
+        "data_type": FILL_ME_IN_PLACEHOLDER,
+        "custom": {},
+    }
+
     samples = c.get("cachedContents", {}).get("top", [])
-    sample = models.FILL_ME_IN_PLACEHOLDER
-    dcp_type = None
-
-    if samples:
-        sample = samples[0].get("item")
+    sample = samples[0].get("item") if samples else None
 
     if c["renderTypeName"] == "number":
         if type(sample) == float:
-            dcp_type = "double"
+            dcp_col["data_type"] = "decimal"
         elif type(sample) == int:
-            dcp_type = "integer"
-        else:
-            dcp_type = models.FILL_ME_IN_PLACEHOLDER
-    else:
-        dcp_type = soc_types_to_dcp_types[c["renderTypeName"]]
-
-    dcp_col = {
-        "name": c["fieldName"],
-        "display_name": c["name"],
-        "description": c["description"],
-        "data_type": dcp_type,
-        "example": sample,
-    }
-    if c["renderTypeName"] == "multipolygon":
-        dcp_col["readme_data_type"] = "geometry"
+            dcp_col["data_type"] = "integer"
+        dcp_col["example"] = str(sample)
+    elif c["renderTypeName"] in soc_geom_types:
+        dcp_col["data_type"] = "geometry"
+        dcp_col["custom"]["geometry_type"] = c["renderTypeName"]
+        # Note: don't set the example, as we don't really know what to do with geom types
+    elif c["renderTypeName"] in soc_types_to_dcp_types:
+        dcp_col["data_type"] = soc_types_to_dcp_types[c["renderTypeName"]]
+        dcp_col["example"] = str(sample)
 
     ENTIRELY_ARBITRARY_MAX_STANDARDIZED_VALS = 10
     if (
@@ -51,9 +51,10 @@ def make_dcp_col(c: pub.Socrata.Responses.Column):
         and len(samples) == int(c["cachedContents"].get("cardinality"))  # type: ignore
     ):
         dcp_col["values"] = [
-            [s["item"], models.FILL_ME_IN_PLACEHOLDER] for s in samples
-        ]  # type: ignore
-    return models.Column(**dcp_col)  # type: ignore
+            {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER} for s in samples
+        ]
+    md_v2.DatasetColumn._validate_data_type = False  # type: ignore
+    return md_v2.DatasetColumn(**dcp_col)
 
 
 def _slugify(s):
@@ -65,44 +66,44 @@ def _slugify(s):
     )
 
 
-def make_dcp_metadata(socrata_md: pub.Socrata.Responses.Metadata) -> models.Metadata:
+def make_dcp_metadata(socrata_md) -> md_v2.Metadata:
     columns = [make_dcp_col(c) for c in socrata_md["columns"]]
 
-    return models.Metadata(
-        name=_slugify(
+    return md_v2.Metadata(
+        id=_slugify(
             socrata_md["resourceName"]
             if "resourceName" in socrata_md
             else socrata_md["name"]
         ),
-        display_name=socrata_md["name"],
-        summary="",
-        description=socrata_md["description"],
-        tags=socrata_md.get("tags", []),
-        each_row_is_a=socrata_md["metadata"].get("rowLabel")
-        or models.FILL_ME_IN_PLACEHOLDER,
+        attributes=md_v2.DatasetAttributes(
+            display_name=socrata_md["name"],
+            description=socrata_md["description"],
+            tags=socrata_md.get("tags", []),
+            each_row_is_a=socrata_md["metadata"].get("rowLabel")
+            or FILL_ME_IN_PLACEHOLDER,
+        ),
         columns=columns,
         destinations=[
-            models.SocrataDestination(
+            md_v2.Destination(
                 id="socrata_prod",
-                four_four=socrata_md["id"],
-                datasets=["primary_shapefile"],
-                omit_columns=[],
-            )
+                type="socrata",
+                files=[],
+                custom={
+                    "four_four": socrata_md["id"],
+                },
+            ),
         ],
-        package=models.Package(
-            dataset_files=[
-                models.DatasetFile(
-                    name="primary_shapefile",
-                    filename="shapefile.zip",
-                    type="shapefile",
-                    overrides=models.DatasetOverrides(),
-                )
-            ],
-            attachments=[
-                models.File(name=a["filename"], filename=a["filename"])
-                for a in socrata_md["metadata"].get("attachments", [])
-            ],
-        ),
+        files=[
+            md_v2.File(
+                id=FILL_ME_IN_PLACEHOLDER,
+                filename=FILL_ME_IN_PLACEHOLDER,
+                type="shapefile",
+            )
+        ]
+        + [
+            md_v2.File(id=FILL_ME_IN_PLACEHOLDER, filename=a["filename"])
+            for a in socrata_md["metadata"].get("attachments", [])
+        ],
     )
 
 
