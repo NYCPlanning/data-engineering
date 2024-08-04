@@ -115,8 +115,11 @@ class ColumnValues(CustomizableBase):
 class OverrideableColumnAttrs(CustomizableBase):
     _head_sort_order = ["id", "display_name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
+    _validate_data_type = True  # used to generate md where we don't know the data_type
 
-    id: str  # Note: id isn't overrideable, but is required as a pointer back to the original column
+    # Note: id isn't intended to be overrideable, but is always required as a
+    # pointer back to the original column, so it is required here.
+    id: str
     display_name: str | None = None
     data_type: str | None = None
     data_source: str | None = None
@@ -128,7 +131,8 @@ class OverrideableColumnAttrs(CustomizableBase):
 
     @field_validator("data_type")
     def _validate_colum_types(cls, v):
-        assert v in get_args(COLUMN_TYPES)
+        if cls._validate_data_type:
+            assert v in get_args(COLUMN_TYPES)
         return v
 
 
@@ -152,13 +156,55 @@ class PackageFile(CustomizableBase):
 
 
 class Package(CustomizableBase):
+    """Container for lists of files. Used as assembly instructions."""
+
     id: str
     type: str
     filename: str
     contents: List[PackageFile]
 
 
-class FileOverrides(CustomizableBase):
+class File(CustomizableBase):
+    """Describes an actual dataset file, e.g. dataset files or attachments."""
+
+    id: str
+    filename: str
+    type: str | None = None
+    overrides: FileOverrides | None = None
+
+
+class DestinationFile(CustomizableBase):
+    """Pointer to an actual `File`, with specifiable overrides."""
+
+    id: str
+    overrides: FileOverrides | None = None
+
+
+class Destination(CustomizableBase):
+    id: str
+    type: str
+    files: List[DestinationFile]
+    dataset_overrides: NullableDatasetAttributes | None = None
+
+
+class DatasetAttributes(CustomizableBase):
+    display_name: str
+    description: str
+    each_row_is_a: str
+    tags: List[str]
+
+
+# All overrideable at the Destination/File level
+# It would be nice if this shared ancestry with DatasetAttributes,
+# but that's tricky.
+class NullableDatasetAttributes(CustomizableBase):
+    display_name: str | None = None
+    description: str | None = None
+    each_row_is_a: str | None = None
+    tags: List[str] | None = None
+
+
+class FileOverrides(NullableDatasetAttributes):
     _head_sort_order = [
         "description",
         "display_name",
@@ -168,40 +214,12 @@ class FileOverrides(CustomizableBase):
 
     overridden_columns: list[OverrideableColumnAttrs] = []
     omitted_columns: list[str] = []
-    display_name: str | None = None
-    description: str | None = None
-
-
-class File(CustomizableBase):
-    id: str
-    filename: str
-    type: str | None = None
-    overrides: FileOverrides | None = None
-
-
-class DestinationFile(CustomizableBase):
-    id: str
-    overrides: FileOverrides | None = None
-
-
-class Destination(CustomizableBase):
-    id: str
-    type: str
-    files: List[DestinationFile]
-
-
-# All overrideable at the Destination/File level
-class DatasetAttributes(CustomizableBase):
-    display_name: str
-    description: str
-    each_row_is_a: str
-    tags: List[str]
 
 
 class Metadata(CustomizableBase):
     id: str
     attributes: DatasetAttributes
-    assembly: List[Package]
+    assembly: List[Package] = []
     columns: List[DatasetColumn]
     files: List[File]
     destinations: List[Destination]
