@@ -90,7 +90,7 @@ class SortedSerializedBase(BaseModel):
 
 
 class CustomizableBase(SortedSerializedBase, extra="forbid"):
-    custom: dict[str, Any] | None = None
+    custom: dict[str, Any] = {}
 
 
 # TODO: move to share with ingest.validate
@@ -105,7 +105,7 @@ COLUMN_TYPES = Literal[
 ]
 
 
-class ColumnValues(CustomizableBase):
+class ColumnValue(CustomizableBase):
     _head_sort_order = ["value", "description"]
 
     value: str
@@ -127,7 +127,7 @@ class OverrideableColumnAttrs(CustomizableBase):
     example: str | None = None
     checks: Checks | None = None
     deprecated: bool | None = None
-    values: list[ColumnValues] | None = None
+    values: list[ColumnValue] | None = None
 
     @field_validator("data_type")
     def _validate_colum_types(cls, v):
@@ -137,7 +137,7 @@ class OverrideableColumnAttrs(CustomizableBase):
 
 
 class DatasetColumn(OverrideableColumnAttrs):
-    """Like a OverrideableColumnAttrs, but with constraints for non-null fields"""
+    """Like OverrideableColumnAttrs, but with constraints for non-null fields"""
 
     @field_validator("display_name")
     def _validate_display_name(cls, dn):
@@ -164,29 +164,6 @@ class Package(CustomizableBase):
     contents: List[PackageFile]
 
 
-class File(CustomizableBase):
-    """Describes an actual dataset file, e.g. dataset files or attachments."""
-
-    id: str
-    filename: str
-    type: str | None = None
-    overrides: FileOverrides | None = None
-
-
-class DestinationFile(CustomizableBase):
-    """Pointer to an actual `File`, with specifiable overrides."""
-
-    id: str
-    overrides: FileOverrides | None = None
-
-
-class Destination(CustomizableBase):
-    id: str
-    type: str
-    files: List[DestinationFile]
-    dataset_overrides: NullableDatasetAttributes | None = None
-
-
 class DatasetAttributes(CustomizableBase):
     display_name: str
     description: str
@@ -204,7 +181,15 @@ class NullableDatasetAttributes(CustomizableBase):
     tags: List[str] | None = None
 
 
-class FileOverrides(NullableDatasetAttributes):
+class Destination(CustomizableBase):
+    id: str
+    type: str
+    files: List[DestinationFile]
+
+    dataset_overrides: NullableDatasetAttributes = NullableDatasetAttributes()
+
+
+class FileOverrides(CustomizableBase):
     _head_sort_order = [
         "description",
         "display_name",
@@ -212,8 +197,26 @@ class FileOverrides(NullableDatasetAttributes):
         "overridden_columns",
     ]
 
+    filename: str | None = None
     overridden_columns: list[OverrideableColumnAttrs] = []
     omitted_columns: list[str] = []
+    attributes: NullableDatasetAttributes = NullableDatasetAttributes()
+
+
+class File(CustomizableBase):
+    """Describes an actual dataset file, e.g. dataset files or attachments."""
+
+    id: str
+    filename: str
+    type: str | None = None
+    overrides: FileOverrides = FileOverrides()
+
+
+class DestinationFile(CustomizableBase):
+    """Pointer to an actual `File`, with specifiable overrides."""
+
+    id: str
+    overrides: FileOverrides = FileOverrides()
 
 
 class Metadata(CustomizableBase):
@@ -230,6 +233,12 @@ class Metadata(CustomizableBase):
     ]
     _tail_sort_order = ["columns"]
     _exclude_falsey_values = False  # We never want to prune top-level attrs
+
+    def get_destination(self, id: str) -> Destination:
+        dests = [d for d in self.destinations if d.id == id]
+        if len(dests) != 1:
+            raise Exception(f"There should exist one destination with id: {id}")
+        return dests[0]
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):

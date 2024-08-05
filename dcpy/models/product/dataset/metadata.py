@@ -288,8 +288,10 @@ class Metadata(BaseModel, extra="forbid"):
             return md_v2.FileOverrides(
                 overridden_columns=overridden_columns,
                 omitted_columns=v1.omit_columns,
-                display_name=v1.display_name,
-                description=v1.description,
+                attributes=md_v2.NullableDatasetAttributes(
+                    display_name=v1.display_name,
+                    description=v1.description,
+                ),
             )
 
         return md_v2.Metadata(
@@ -391,7 +393,7 @@ class Metadata(BaseModel, extra="forbid"):
                     example=str(v1_col.example),
                     deprecated=v1_col.deprecated,
                     values=[
-                        md_v2.ColumnValues(
+                        md_v2.ColumnValue(
                             value=str(cv[0]),
                             description=(str(cv[1]) if len(cv) > 1 else None),
                             custom=_remove_falsey_from_dict(
