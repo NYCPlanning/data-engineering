@@ -3,12 +3,36 @@ import argparse
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 import typer
+import subprocess
 
 app = typer.Typer()
 
 
 @app.command()
-def generate_metadata_assets(
+def generate_pdf_from_yml(
+    yaml_file_path: str,
+    html_template_path: str,
+    output_html_path: str,
+    output_pdf_path: str,
+    pdf_metadata_path,
+) -> Path:
+    generate_html_from_yaml(yaml_file_path, html_template_path, output_html_path)
+    subprocess.run(
+        [
+            "pandoc",
+            output_html_path,
+            "o",
+            output_pdf_path,
+            "--metadata-file=",
+            pdf_metadata_path,
+        ],
+        check=True,
+    )
+    return Path(output_pdf_path)
+
+
+@app.command()
+def generate_html_from_yaml(
     yaml_file_path: str, html_template_path: str, output_html_path: str
 ) -> Path:
     html_output = to_html(yaml_file_path, html_template_path)

@@ -1,0 +1,28 @@
+---
+title: "Metadata"
+author: "Department of City Planning"
+date: "2024-08-01"
+documentclass: scrartcl
+geometry:
+  - top=30mm
+  - left=20mm
+  - heightrounded
+hyperrefoptions:
+  - linktoc=all
+  - pdfwindowui
+  - pdfpagemode=FullScreen
+fontfamily: libertinus
+fontfamilyoptions:
+  - osf
+  - p
+mainfont: TeX Gyre Pagella
+mainfontoptions:
+  - Numbers=Lowercase
+  - Numbers=Proportional
+fontsize: 12pt
+colorlinks: true
+linkcolor: blue
+toc: true
+toc-depth: 3
+secnumdepth: 3
+---
