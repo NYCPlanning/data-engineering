@@ -129,8 +129,10 @@ jobs:
         run: |
           echo "path filters with changed files: ${{ inputs.path_filter }}"
           if [[ -z "${{ inputs.path_filter }}" ]]; then
+            echo "Path filters weren't checked, running all tests"
             matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -rc)
           elif [[ "[]" = "${{ inputs.path_filter }}" ]]; then
+            echo "No relevant files changed, not running any tests"
             matrix="[]"
           else
             filter=$(echo '${{ inputs.path_filter }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
