@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import jinja2
+from mergedeep import merge
 from pathlib import Path
 from pydantic import BaseModel, field_validator, model_serializer
 from pydantic.fields import PrivateAttr
@@ -239,6 +240,73 @@ class Metadata(CustomizableBase):
         if len(dests) != 1:
             raise Exception(f"There should exist one destination with id: {id}")
         return dests[0]
+
+    def get_file(self, file_id: str) -> File:
+        files = [f for f in self.files if f.id == file_id]
+        if len(files) != 1:
+            raise Exception(f"There should exist one file with id: {file_id}")
+        return files[0]
+
+    def calculate_overridden_attributes(
+        self, *, file_id: str, destination_id: str = ""
+    ) -> DatasetAttributes:
+        file = self.get_file(file_id)
+
+        dest_file_overrides = {}
+        if destination_id:
+            dest_files = [
+                f for f in self.get_destination(destination_id).files if f.id == file_id
+            ]
+            if len(dest_files) != 1:
+                raise Exception(
+                    f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
+                )
+            dest_file = dest_files[0]
+            dest_file_overrides = dest_file.overrides.attributes.model_dump()
+
+        return DatasetAttributes(
+            **merge(
+                self.attributes.model_dump(),
+                file.overrides.attributes.model_dump(),
+                dest_file_overrides,
+            )
+        )
+
+    def calculate_overridden_columns(
+        self, *, file_id: str, destination_id: str = ""
+    ) -> list[DatasetColumn]:
+        # TODO: duped from `calculate_overridden_attributes`. Dry it up
+        file = self.get_file(file_id)
+        file_overriden_cols_by_id = {
+            c.id: c.model_dump() for c in file.overrides.overridden_columns
+        }
+
+        dest_overriden_cols_by_id = {}
+        if destination_id:
+            dest_files = [
+                f for f in self.get_destination(destination_id).files if f.id == file_id
+            ]
+            if len(dest_files) != 1:
+                raise Exception(
+                    f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
+                )
+            dest_file = dest_files[0]
+            dest_overriden_cols_by_id = {
+                c.id: c.model_dump() for c in dest_file.overrides.overridden_columns
+            }
+
+        columns = [
+            DatasetColumn(
+                **merge(
+                    c.model_dump(),
+                    file_overriden_cols_by_id.get(c.id, {}),
+                    dest_overriden_cols_by_id.get(c.id, {}),
+                )
+            )
+            for c in self.columns
+        ]
+
+        return columns
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):
