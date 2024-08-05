@@ -21,7 +21,7 @@ dataset:
     sql: |
       WITH numbered AS (
         SELECT
-          ROW_NUMBER() OVER (PARTITION BY job_# ORDER BY DOBRunDate DESC) AS row_id,
+          ROW_NUMBER() OVER (PARTITION BY "job_#" ORDER BY DOBRunDate DESC) AS row_id,
           "job_#" AS jobnumber,
           DOBRunDate AS dobrundate,
           J_ENCLOSED_NUM_SPACES AS enclosed_spaces,
