@@ -54,3 +54,4 @@ inputs:
     - name: dob_permitissuance
     - name: dob_jobapplications
     - name: dob_jobapplications_parkingspaces
+    - name: dob_bis_applications_parkingspots
