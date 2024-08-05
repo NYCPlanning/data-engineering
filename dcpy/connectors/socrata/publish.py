@@ -13,6 +13,7 @@ from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+from pydantic import BaseModel
 import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
@@ -21,7 +22,9 @@ import time
 from typing import TypedDict, Literal, NotRequired
 
 from dcpy.utils.logging import logger
-import dcpy.models.product.dataset.metadata as models
+
+# import dcpy.models.product.dataset.metadata as models
+import dcpy.models.product.dataset.metadata_v2 as md_v2
 
 SOCRATA_USER = os.getenv("SOCRATA_USER")
 SOCRATA_PASSWORD = os.getenv("SOCRATA_PASSWORD")
@@ -60,6 +63,22 @@ class Socrata:
 
     class Inputs:
         """Helper classes to model inputs to the Socrata API."""
+
+        class Column(BaseModel, extra="forbid"):
+            name: str | None = None
+            api_name: str | None = None
+            display_name: str | None = None
+            description: str | None = None
+            is_primary_key: bool = False
+
+            def __init__(self, col: md_v2.DatasetColumn):
+                self.name = col.id
+                self.api_name = col.custom["api_name"]
+                self.display_name = col.display_name
+                self.description = col.description
+                self.is_primary_key = (
+                    bool(col.checks.is_primary_key) if col.checks else False
+                )
 
         class Attachment(TypedDict):
             name: str
@@ -125,10 +144,11 @@ class Socrata:
                 return [c["field_name"] for c in self.soc_output_columns]
 
             def update_column_metadata(
-                self, socrata_dest: models.SocrataDestination, metadata: models.Metadata
+                self, socrata_dest: md_v2.Destination, metadata: md_v2.Metadata
             ):
-                # TODO: changing column types. Not strictly required yet, and could be tricky
+                # list[SocrataColumn]
                 dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
+
                 expected_api_names = [
                     c.api_name for c in dest_col_metadata if c.api_name
                 ]
@@ -369,19 +389,8 @@ class Revision:
         )
 
 
-def make_socrata_metadata(dcp_md: models.Metadata):
-    return {
-        "name": dcp_md.display_name,
-        # "resourceName": dcp_md.name,
-        "tags": dcp_md.tags,
-        "metadata": {"rowLabel": dcp_md.each_row_is_a},
-        "description": dcp_md.description,
-        "category": "city government",
-    }
-
-
 def push_dataset(
-    metadata: models.Metadata,
+    metadata: md_v2.Metadata,
     dataset_destination_id: str,
     dataset_package_path: Path,
     *,
@@ -390,45 +399,56 @@ def push_dataset(
 ):
     """Push a dataset and sync metadata."""
     dest = metadata.get_destination(dataset_destination_id)
-    if type(dest) != models.SocrataDestination:
+    if dest.type != "socrata":
         raise Exception("received a non-socrata type destination")
-    md_dataset = metadata.package.get_dataset(dest.datasets[0])
-    file_path = (
-        dataset_package_path / "dataset_files" / md_dataset.filename
-    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
+    four_four = dest.custom.get("four_four")
+    if not four_four:
+        raise Exception("The Socrata Destination has no four-four")
 
-    dataset = Dataset(four_four=dest.four_four)
+    dataset = Dataset(four_four=four_four)
+    dataset_file_id = dest.files[0].id
 
     rev = dataset.create_replace_revision()
 
-    files_by_id = metadata.package.files_by_id()
+    files_by_id = {f.id: f for f in metadata.files}
     attachments_metadata = [
         rev.upload_attachment(
-            dataset_package_path / "attachments" / files_by_id[attachment].filename,
-            dest_file_name=files_by_id[attachment].filename,
+            dataset_package_path / "attachments" / files_by_id[f.id].filename,
+            dest_file_name=files_by_id[f.id].filename,
         )
-        for attachment in dest.attachments
+        for f in dest.files
+        if f.custom["destination_use"] == "attachment"
     ]
 
     rev.patch_metadata(
         attachments=attachments_metadata,
-        metadata=dest.get_metadata(metadata).model_dump(),
+        # TODO: this isn't right. We shouldn't be passing our md...
+        metadata=metadata.calculate_overridden_attributes(
+            file_id=dataset_file_id, destination_id=dataset_destination_id
+        ).model_dump(),
     )
 
+    # The file...
+    # dataset_file = metadata.package.get_dataset(dataset_file_id)
+    dataset_file = [f for f in metadata.files if f.id == dataset_file_id][0]
+    file_path = (
+        dataset_package_path / "dataset_files" / dataset_file.filename
+    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
+
     data_source = None
-    if dest.is_unparsed_dataset:
+    if dest.custom["is_unparsed_dataset"]:
         rev.push_blob(
             file_path,
-            dest_filename=dest.overrides.destination_file_name or file_path.name,
+            dest_filename=dest.files[0].overrides.filename or file_path.name,
         )
-    elif md_dataset.type == "csv":
+    elif dataset_file.type == "csv":
         data_source = rev.push_csv(file_path)
-    elif md_dataset.type == "shapefile":
+    elif dataset_file.type == "shapefile":
         data_source = rev.push_shp(file_path)
     else:
-        raise Exception(f"Pushing unsupported file type: {md_dataset.type}")
+        raise Exception(f"Pushing unsupported file type: {dataset_file.type}")
 
-    if not dest.is_unparsed_dataset and data_source:  # appease the type-checker
+    if not dest.custom.get("is_unparsed_dataset") and data_source:
         try:
             data_source.update_column_metadata(dest, metadata)
         except Exception as e:
