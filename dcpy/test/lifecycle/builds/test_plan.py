@@ -1,4 +1,5 @@
 import os
+from pandas import DataFrame as df
 import pytest
 from unittest import TestCase
 from unittest.mock import patch
@@ -74,3 +75,24 @@ class TestRecipesNoDefaults(TestCase):
         }
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         plan.recipe_from_yaml(lock_file)
+
+
+class TestRepeat(TestCase):
+    def test_repeat_from_source_data_versions(self):
+        recipe = plan.recipe_from_yaml(RECIPE_PATH)
+        version = recipe.version
+        source_data_versions = df(
+            {
+                "dataset": [ds.name for ds in recipe.inputs.datasets],
+                "version": [
+                    MOCKED_LATEST_VERSION,
+                    MOCKED_LATEST_VERSION,
+                    MOCKED_LATEST_VERSION,
+                ],
+            }
+        )
+        source_data_versions.set_index("dataset", inplace=True)
+        repeat = plan.repeat_recipe_from_source_data_versions(
+            version, source_data_versions, recipe
+        )
+        assert repeat.inputs.datasets[0].version == MOCKED_LATEST_VERSION
