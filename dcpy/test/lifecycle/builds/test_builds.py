@@ -5,10 +5,11 @@ import pytest
 import shutil
 from unittest import TestCase
 from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from dcpy.models.lifecycle.builds import InputDataset, DataPreprocessor
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.builds import plan
+from dcpy.lifecycle.builds import plan, load
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
@@ -19,9 +20,6 @@ TEMP_DATA_PATH = RESOURCES_DIR.parent / "temp"
 REQUIRED_VERSION_ENV_VAR = "VERSION_PREV"
 
 MOCKED_LATEST_VERSION = "v1"
-recipes.get_config = MagicMock(
-    return_value={"dataset": {"version": MOCKED_LATEST_VERSION}}
-)
 
 
 @pytest.fixture
@@ -39,6 +37,7 @@ def setup():
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
+@pytest.mark.usefixtures("create_buckets")
 class TestRecipesWithDefaults(TestCase):
     def test_plan_recipe_failing_env_var(self):
         """One of the datasets requires a REQUIRED_VERSION_ENV_VAR environment variable for the version.
@@ -49,9 +48,11 @@ class TestRecipesWithDefaults(TestCase):
             plan.plan(RECIPE_PATH)
         assert REQUIRED_VERSION_ENV_VAR in str(e.exception)
 
-    def test_plan_recipe_defaults(self):
+    @patch("dcpy.connectors.edm.recipes.get_latest_version")
+    def test_plan_recipe_defaults(self, get_latest_version):
         """Tests that defaults are set correctly when a recipe is planned."""
         setup()
+        get_latest_version.return_value = MOCKED_LATEST_VERSION
         planned = plan.plan_recipe(RECIPE_PATH)
 
         had_no_version_or_type = [
@@ -68,17 +69,26 @@ class TestRecipesWithDefaults(TestCase):
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
+@pytest.mark.usefixtures("create_buckets")
+@patch("dcpy.connectors.edm.recipes.get_file_types")
 class TestRecipesNoDefaults(TestCase):
-    def test_plan_recipe_default_type(self):
-        """Tests that default type is pg_dump when not otherwise specified."""
+    def test_plan_recipe_default_type(self, get_file_types):
+        """Tests that default type is pg_dump if found when not otherwise specified."""
         setup()
+        get_file_types.return_value = {
+            recipes.DatasetType.pg_dump,
+            recipes.DatasetType.parquet,
+        }
         planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
         ds = planned.inputs.datasets[0]
-        assert ds.file_name == f"{ds.name}.sql"
         assert planned.inputs.datasets[0].file_type == recipes.DatasetType.pg_dump
 
-    def test_serializing_and_deserializing(self):
+    def test_serializing_and_deserializing(self, get_file_types):
         """Deserializing python models is a minefield."""
+        get_file_types.return_value = {
+            recipes.DatasetType.pg_dump,
+            recipes.DatasetType.parquet,
+        }
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         plan.recipe_from_yaml(lock_file)
 
@@ -103,14 +113,15 @@ def _mock_fetch_parquet(ds, _):
     return out_path
 
 
+@patch("dcpy.preproc", side_effect=_mock_preprocessor, create=True)
 @pytest.mark.usefixtures("file_setup_teardown")
+@pytest.mark.usefixtures("create_buckets")
 class TestImportDatasets(TestCase):
     # TODO: move this functionality into an integration test with an actual database
 
-    def test_import_csv(self):
+    def test_import_csv(self, _patched):
         recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_csv)
 
-        dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
         ds = InputDataset(
             name="test",
@@ -119,7 +130,7 @@ class TestImportDatasets(TestCase):
             file_type=recipes.DatasetType.csv,
             preprocessor=DataPreprocessor(module="dcpy", function="preproc"),
         )
-        plan.import_dataset(ds, pg_mock)
+        load.import_dataset(ds, pg_mock)
 
         assert (
             pg_mock.insert_dataframe.called
@@ -133,10 +144,9 @@ class TestImportDatasets(TestCase):
         assert df_inserted_actual.equals(_mock_preprocessor(ds.name, _test_df))
         assert table_insert_name_actual == ds.import_as
 
-    def test_import_parquet(self):
+    def test_import_parquet(self, _patched):
         recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
 
-        dcpy.preproc = MagicMock(side_effect=_mock_preprocessor)  # type: ignore
         pg_mock = MagicMock()
         ds = InputDataset(
             name="test",
@@ -148,7 +158,7 @@ class TestImportDatasets(TestCase):
 
         recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
 
-        plan.import_dataset(ds, pg_mock)
+        load.import_dataset(ds, pg_mock)
 
         (
             df_inserted_actual,
