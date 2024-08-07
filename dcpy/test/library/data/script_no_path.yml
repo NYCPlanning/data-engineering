@@ -1,0 +1,22 @@
+dataset:
+  name: script_no_path
+  acl: public-read
+  source:
+    script: {}
+    options:
+    geometry:
+      SRS: NONE
+      type: NONE
+
+  destination:
+    geometry:
+      SRS: NONE
+      type: NONE
+    options:
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+
+  info:
+    description: ""
+    url: ""
+    dependents: []

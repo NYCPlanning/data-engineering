@@ -60,6 +60,7 @@ class DatasetDefinition(BaseModel):
 
         class Script(BaseModel, extra="allow"):
             name: str | None = None
+            path: str | None = None
 
     class DestinationSection(BaseModel):
         geometry: GeometryType

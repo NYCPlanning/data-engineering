@@ -24,6 +24,7 @@ class Archive:
         clean: bool = False,
         latest: bool = False,
         name: str | None = None,
+        path_override: str | None = None,
         *args,
         **kwargs,
     ) -> Config:
@@ -85,12 +86,14 @@ class Archive:
             )
 
         # Get ingestor by format
-        ingestor_of_format: Callable[[str, Any, Any], tuple[list[str], Config]] = (
-            getattr(self.ingestor, output_format)
+        ingestor_of_format: Callable[[Any], tuple[list[str], Config]] = getattr(
+            self.ingestor, output_format
         )
 
         # Initiate ingestion
-        output_files, config = ingestor_of_format(path, *args, **kwargs)
+        output_files, config = ingestor_of_format(
+            path, *args, path_override=path_override, **kwargs  # type: ignore
+        )
         version = config.dataset.version
         acl = config.dataset.acl
 
