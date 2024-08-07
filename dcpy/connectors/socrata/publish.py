@@ -423,7 +423,7 @@ def push_dataset(
     rev.patch_metadata(
         attachments=attachments_metadata,
         # TODO: this isn't right. We shouldn't be passing our md...
-        metadata=metadata.calculate_overridden_attributes(
+        metadata=metadata.calculate_overrides(
             file_id=dataset_file_id, destination_id=dataset_destination_id
         ).model_dump(),
     )

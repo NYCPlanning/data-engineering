@@ -1,6 +1,22 @@
 from dcpy.models.product.dataset import metadata_v2 as md_v2
 
 
+OVERRIDDEN_SHP_NAME_AT_DEST = "overridden_shp_name_at_dest.zip"
+
+MYSHAPEFILE_DISPLAY_OVERRIDDEN_AT_FILE_LEVEL = (
+    "myshapefile display overridden at file-level"
+)
+
+BASIC_SHAPEFILE_ID = "my_basic_shapefile"
+OVERRIDDEN_SHAPEFILE_ID = "my_overridden_shapefile"
+
+SOCRATA_DESTINATION_ID = "socrata_shapefile_dest"
+
+# COLUMNS
+OMITTED_FROM_SHAPEFILE_COL_ID = "omitted_from_shapefile_col_id"
+OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID = "omitted_from_socrata_shapefile_col_id"
+
+
 def make_metadata():
     return md_v2.Metadata(
         id="test",
@@ -41,17 +57,23 @@ def make_metadata():
                     md_v2.ColumnValue(value="2", description="Kings"),
                 ],
             ),
+            md_v2.DatasetColumn(
+                id=OMITTED_FROM_SHAPEFILE_COL_ID,
+            ),
+            md_v2.DatasetColumn(
+                id=OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
+            ),
         ],
         files=[
             md_v2.File(
-                id="my_basic_shapefile",
+                id=BASIC_SHAPEFILE_ID,
                 filename="shp.zip",
                 type="shapefile",
                 custom={"hi": "there"},
             ),
             md_v2.File(
-                id="my_overridden_shapefile",
-                filename="shp.zip",
+                id=OVERRIDDEN_SHAPEFILE_ID,
+                filename="overridden_shp.zip",
                 type="shapefile",
                 overrides=md_v2.FileOverrides(
                     attributes=md_v2.NullableDatasetAttributes(
@@ -61,7 +83,7 @@ def make_metadata():
                             "custom_attr_key_to_override": "overridden_custom_attr_key_at_file_level",
                         },
                     ),
-                    omitted_columns=["test"],
+                    omitted_columns=[OMITTED_FROM_SHAPEFILE_COL_ID],
                     overridden_columns=[
                         md_v2.OverrideableColumnAttrs(
                             id="bbl",
@@ -79,18 +101,20 @@ def make_metadata():
         ],
         destinations=[
             md_v2.Destination(
-                id="socrata_dest",
+                id=SOCRATA_DESTINATION_ID,
                 type="socrata",
                 files=[
                     md_v2.DestinationFile(
-                        id="my_overridden_shapefile",
+                        id=OVERRIDDEN_SHAPEFILE_ID,
                         overrides=md_v2.FileOverrides(
+                            filename=OVERRIDDEN_SHP_NAME_AT_DEST,
                             attributes=md_v2.NullableDatasetAttributes(
                                 display_name="display overridden at dest",
                                 custom={
                                     "custom_attr_key_to_override": "overridden_custom_attr_key_at_dest_level",
                                 },
                             ),
+                            omitted_columns=[OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID],
                             overridden_columns=[
                                 md_v2.OverrideableColumnAttrs(
                                     id="bbl",
@@ -114,11 +138,30 @@ def make_metadata():
 
 
 def test_filename_override():
-    assert False, "Implement me!"
+    md = make_metadata()
 
+    # When no destination is provided, the filename shouldn't change
+    file_overrides = md.calculate_overrides(file_id=OVERRIDDEN_SHAPEFILE_ID)
+    assert (
+        file_overrides.file.filename == md.get_file(OVERRIDDEN_SHAPEFILE_ID).filename
+    ), "Filename shouldn't be changed unless a destination is provided"
+    assert [
+        OMITTED_FROM_SHAPEFILE_COL_ID
+    ] == file_overrides.file.omitted_columns, (
+        "Omitted cols shouldn't be changed unless a destination is provided"
+    )
 
-def test_omit_colums():
-    assert False, "Implement me!"
+    dest_overrides = md.calculate_overrides(
+        file_id=OVERRIDDEN_SHAPEFILE_ID, destination_id=SOCRATA_DESTINATION_ID
+    )
+    assert (
+        OVERRIDDEN_SHP_NAME_AT_DEST == dest_overrides.file.filename
+    ), "The filename should have been overridden by the destination"
+
+    assert {
+        OMITTED_FROM_SHAPEFILE_COL_ID,
+        OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
+    } == set(dest_overrides.file.omitted_columns)
 
 
 def test_attribute_overrides_at_file_level():
@@ -126,29 +169,29 @@ def test_attribute_overrides_at_file_level():
 
     # Simple Case: Check Non-overriden files
     basic_shapefile = [f for f in md.files if f.id == "my_basic_shapefile"][0]
-    calculated_basic_shapefile_attrs = md.calculate_overridden_attributes(
-        file_id=basic_shapefile.id
-    )
+    overridden_basic_shapefile = md.calculate_overrides(file_id=basic_shapefile.id)
     assert (
-        md.attributes.description == calculated_basic_shapefile_attrs.description
+        md.attributes.description == overridden_basic_shapefile.attributes.description
     ), "The description shouldn't have changed for the non-overridden shapefile."
 
     # A little more complex: check that Overrides Work for an overridden file
-    overridden_shapefile = [f for f in md.files if f.id == "my_overridden_shapefile"][0]
-    calculated_overridden_shapefile_attrs = md.calculate_overridden_attributes(
-        file_id=overridden_shapefile.id
+    overridden_complex_shapefile = [
+        f for f in md.files if f.id == "my_overridden_shapefile"
+    ][0]
+    calculated_overridden_shapefile_attrs = md.calculate_overrides(
+        file_id=overridden_complex_shapefile.id
     )
     assert (
-        calculated_overridden_shapefile_attrs.display_name
-        == overridden_shapefile.overrides.attributes.display_name
+        calculated_overridden_shapefile_attrs.attributes.display_name
+        == overridden_complex_shapefile.overrides.attributes.display_name
     ), "The display_name field should have been changed by the file override"
 
     # Check that custom values are deep merged
     expected_custom_attrs = (
-        md.attributes.custom | overridden_shapefile.overrides.attributes.custom
+        md.attributes.custom | overridden_complex_shapefile.overrides.attributes.custom
     )
     assert (
-        expected_custom_attrs == calculated_overridden_shapefile_attrs.custom
+        expected_custom_attrs == calculated_overridden_shapefile_attrs.attributes.custom
     ), "The custom attributes should have been merged"
 
 
@@ -163,13 +206,13 @@ def test_attribute_overrides_at_destination_level():
     ][0]
 
     # calc actual
-    calculated_attrs = md.calculate_overridden_attributes(
+    calculated_attrs = md.calculate_overrides(
         file_id=overridden_shapefile.id, destination_id=socrata_dest.id
     )
 
     assert (
         socrata_dest_file_overrides.attributes.display_name
-        == calculated_attrs.display_name
+        == calculated_attrs.attributes.display_name
     )
 
     # Check custom attrs
@@ -178,16 +221,16 @@ def test_attribute_overrides_at_destination_level():
         | overridden_shapefile.overrides.attributes.custom
         | socrata_dest_file_overrides.attributes.custom
     )
-    assert expected_custom_attrs == calculated_attrs.custom
+    assert expected_custom_attrs == calculated_attrs.attributes.custom
 
 
 def test_column_overrides_at_file_level():
     md = make_metadata()
 
-    overridden_shapefile = [f for f in md.files if f.id == "my_overridden_shapefile"][0]
-    calced_overridden_cols = md.calculate_overridden_columns(
+    overridden_shapefile = md.get_file(OVERRIDDEN_SHAPEFILE_ID)
+    calced_overridden_cols = md.calculate_overrides(
         file_id=overridden_shapefile.id
-    )
+    ).columns
 
     # Test that the description colum is overridden for the `bbl` column
     actual_overridden_bbl_col = [c for c in calced_overridden_cols if c.id == "bbl"][0]
@@ -230,9 +273,9 @@ def test_column_overrides_at_destination_level():
     overridden_shapefile = [f for f in md.files if f.id == "my_overridden_shapefile"][0]
     socrata_dest = [d for d in md.destinations if d.type == "socrata"][0]
 
-    calced_overridden_cols = md.calculate_overridden_columns(
+    calced_overridden_cols = md.calculate_overrides(
         file_id=overridden_shapefile.id, destination_id=socrata_dest.id
-    )
+    ).columns
     actual_overridden_bbl_col = [c for c in calced_overridden_cols if c.id == "bbl"][0]
 
     socrata_dest_file_overrides = [

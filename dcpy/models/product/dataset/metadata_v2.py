@@ -247,53 +247,59 @@ class Metadata(CustomizableBase):
             raise Exception(f"There should exist one file with id: {file_id}")
         return files[0]
 
-    def calculate_overridden_attributes(
+    def calculate_overrides(
         self, *, file_id: str, destination_id: str = ""
-    ) -> DatasetAttributes:
+    ) -> OverriddenMetadata:
         file = self.get_file(file_id)
 
-        dest_file_overrides = {}
+        dest_file = None
         if destination_id:
-            dest_files = [
-                f for f in self.get_destination(destination_id).files if f.id == file_id
-            ]
+            destination = self.get_destination(destination_id)
+            dest_files = [f for f in destination.files if f.id == file_id]
             if len(dest_files) != 1:
                 raise Exception(
                     f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
                 )
             dest_file = dest_files[0]
-            dest_file_overrides = dest_file.overrides.attributes.model_dump()
 
-        return DatasetAttributes(
-            **merge(
-                self.attributes.model_dump(),
-                file.overrides.attributes.model_dump(),
-                dest_file_overrides,
-            )
+        return OverriddenMetadata(
+            file=self._calculate_destination_file_overrides(
+                file=file, dest_file=dest_file
+            ),
+            columns=self._calculate_overridden_columns(file=file, dest_file=dest_file),
+            attributes=DatasetAttributes(
+                **merge(
+                    self.attributes.model_dump(),
+                    file.overrides.attributes.model_dump(),
+                    dest_file.overrides.attributes.model_dump() if dest_file else {},
+                )
+            ),
         )
 
-    def calculate_overridden_columns(
-        self, *, file_id: str, destination_id: str = ""
+    def _calculate_destination_file_overrides(
+        self, file: File, dest_file: DestinationFile | None
+    ) -> OverriddenFile:
+        """Calculate Overrides for a single file, including overrides at the destination"""
+        omitted_cols = set(file.overrides.omitted_columns)
+        if dest_file:
+            omitted_cols.update(dest_file.overrides.omitted_columns)
+        return OverriddenFile(
+            filename=dest_file.overrides.filename if dest_file else file.filename,
+            omitted_columns=list(omitted_cols),
+        )
+
+    def _calculate_overridden_columns(
+        self, file: File, dest_file: DestinationFile | None
     ) -> list[DatasetColumn]:
         # TODO: duped from `calculate_overridden_attributes`. Dry it up
-        file = self.get_file(file_id)
         file_overriden_cols_by_id = {
             c.id: c.model_dump() for c in file.overrides.overridden_columns
         }
-
-        dest_overriden_cols_by_id = {}
-        if destination_id:
-            dest_files = [
-                f for f in self.get_destination(destination_id).files if f.id == file_id
-            ]
-            if len(dest_files) != 1:
-                raise Exception(
-                    f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
-                )
-            dest_file = dest_files[0]
-            dest_overriden_cols_by_id = {
-                c.id: c.model_dump() for c in dest_file.overrides.overridden_columns
-            }
+        dest_overriden_cols_by_id = (
+            {c.id: c.model_dump() for c in dest_file.overrides.overridden_columns}
+            if dest_file
+            else {}
+        )
 
         columns = [
             DatasetColumn(
