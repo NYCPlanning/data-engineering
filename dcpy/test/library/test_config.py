@@ -50,7 +50,14 @@ def test_config_compute():
 
 def test_config_script():
     config = Config(f"{template_path}/bpl_libraries.yml").compute
-    assert True
+    assert config.source.gdalpath
+
+
+@patch("dcpy.connectors.esri.arcgis_feature_service.get_dataset")
+def test_arcgis_feature_server(get_dataset):
+    get_dataset.return_value = {}
+    config = Config(get_config_file("arcgis_feature_server")).compute
+    assert config.source.gdalpath.endswith(f"{config.name}.geojson")
 
 
 def test_backwards_compatility_with_jinja_version():
