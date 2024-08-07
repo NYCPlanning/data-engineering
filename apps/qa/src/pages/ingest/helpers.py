@@ -1,9 +1,10 @@
-import shutil
 from pathlib import Path
 import streamlit as st
-from time import sleep
-from dcpy.utils import s3
 from streamlit.runtime.uploaded_file_manager import UploadedFile
+from time import sleep
+
+from dcpy.utils import s3
+from dcpy.library.archive import Archive
 
 BUCKET = "edm-recipes"
 
@@ -36,6 +37,14 @@ def archive_raw_data(
             "Failed to archive Dataset {dataset_name} version {version} to {s3_path}: {e}"
         )
     return file_path
+
+
+def library_archive(
+    dataset_name: str, version: str, s3_path: str, latest: bool
+) -> None:
+    a = Archive()
+    # once we've tested and this is ready to go, need to add `push=True`
+    a(name=dataset_name, version=version, override_path=s3_path, latest=latest)
 
 
 def dummy_archive_raw_data(
