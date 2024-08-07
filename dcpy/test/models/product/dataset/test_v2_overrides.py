@@ -1,4 +1,4 @@
-from dcpy.models.product.dataset import metadata_v2 as md_v2
+from dcpy.models.product.dataset import metadata_v2 as m
 
 
 OVERRIDDEN_SHP_NAME_AT_DEST = "overridden_shp_name_at_dest.zip"
@@ -18,9 +18,9 @@ OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID = "omitted_from_socrata_shapefile_col_id"
 
 
 def make_metadata():
-    return md_v2.Metadata(
+    return m.Metadata(
         id="test",
-        attributes=md_v2.DatasetAttributes(
+        attributes=m.DatasetAttributes(
             display_name="attrs_display_name",
             description="attrs_description",
             each_row_is_a="attrs_each_row_is_a",
@@ -31,17 +31,15 @@ def make_metadata():
             },
         ),
         columns=[
-            md_v2.DatasetColumn(
-                id="id", data_type="text", description="id description"
-            ),
-            md_v2.DatasetColumn(
+            m.DatasetColumn(id="id", data_type="text", description="id description"),
+            m.DatasetColumn(
                 id="geom",
                 data_type="geometry",
                 description="geom description",
                 display_name="the_geom",
                 custom={"api_name": "geom_api_name"},
             ),
-            md_v2.DatasetColumn(
+            m.DatasetColumn(
                 id="bbl",
                 description="bbl description at column level",
                 custom={
@@ -49,34 +47,34 @@ def make_metadata():
                     "api_name": "bbl_col_api_name",
                 },
             ),
-            md_v2.DatasetColumn(
+            m.DatasetColumn(
                 id="borough",
                 description="",
                 values=[
-                    md_v2.ColumnValue(value="1", description="Manhattan"),
-                    md_v2.ColumnValue(value="2", description="Kings"),
+                    m.ColumnValue(value="1", description="Manhattan"),
+                    m.ColumnValue(value="2", description="Kings"),
                 ],
             ),
-            md_v2.DatasetColumn(
+            m.DatasetColumn(
                 id=OMITTED_FROM_SHAPEFILE_COL_ID,
             ),
-            md_v2.DatasetColumn(
+            m.DatasetColumn(
                 id=OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
             ),
         ],
         files=[
-            md_v2.File(
+            m.File(
                 id=BASIC_SHAPEFILE_ID,
                 filename="shp.zip",
                 type="shapefile",
                 custom={"hi": "there"},
             ),
-            md_v2.File(
+            m.File(
                 id=OVERRIDDEN_SHAPEFILE_ID,
                 filename="overridden_shp.zip",
                 type="shapefile",
-                overrides=md_v2.FileOverrides(
-                    attributes=md_v2.NullableDatasetAttributes(
+                overrides=m.FileOverrides(
+                    attributes=m.NullableDatasetAttributes(
                         display_name="myshapefile display overridden at file-level",
                         custom={
                             "api_name": "geom_api_name_at_shapefiles_level",
@@ -85,30 +83,30 @@ def make_metadata():
                     ),
                     omitted_columns=[OMITTED_FROM_SHAPEFILE_COL_ID],
                     overridden_columns=[
-                        md_v2.OverrideableColumnAttrs(
+                        m.OverrideableColumnAttrs(
                             id="bbl",
                             description="bbl overridden at shapefile",
                             custom={"api_name": "bbl_shapefile_api_name"},
                         ),
-                        md_v2.OverrideableColumnAttrs(
+                        m.OverrideableColumnAttrs(
                             id="borough",
                             description="borough overridden at shapefile",
-                            values=[md_v2.ColumnValue(value="3", description="Queens")],
+                            values=[m.ColumnValue(value="3", description="Queens")],
                         ),
                     ],
                 ),
             ),
         ],
         destinations=[
-            md_v2.Destination(
+            m.Destination(
                 id=SOCRATA_DESTINATION_ID,
                 type="socrata",
                 files=[
-                    md_v2.DestinationFile(
+                    m.DestinationFile(
                         id=OVERRIDDEN_SHAPEFILE_ID,
-                        overrides=md_v2.FileOverrides(
+                        overrides=m.FileOverrides(
                             filename=OVERRIDDEN_SHP_NAME_AT_DEST,
-                            attributes=md_v2.NullableDatasetAttributes(
+                            attributes=m.NullableDatasetAttributes(
                                 display_name="display overridden at dest",
                                 custom={
                                     "custom_attr_key_to_override": "overridden_custom_attr_key_at_dest_level",
@@ -116,7 +114,7 @@ def make_metadata():
                             ),
                             omitted_columns=[OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID],
                             overridden_columns=[
-                                md_v2.OverrideableColumnAttrs(
+                                m.OverrideableColumnAttrs(
                                     id="bbl",
                                     description="bbl overridden at destination",
                                     custom={"api_name": "bbl_dest_api_name"},
@@ -126,11 +124,11 @@ def make_metadata():
                     ),
                 ],
             ),
-            md_v2.Destination(
+            m.Destination(
                 id="bytes_dest",
                 type="bytes",
                 files=[
-                    md_v2.DestinationFile(id="my_basic_shapefile"),
+                    m.DestinationFile(id="my_basic_shapefile"),
                 ],
             ),
         ],
@@ -168,18 +166,15 @@ def test_attribute_overrides_at_file_level():
     md = make_metadata()
 
     # Simple Case: Check Non-overriden files
-    basic_shapefile = [f for f in md.files if f.id == "my_basic_shapefile"][0]
-    overridden_basic_shapefile = md.calculate_overrides(file_id=basic_shapefile.id)
+    overridden_basic_shapefile = md.calculate_overrides(file_id=BASIC_SHAPEFILE_ID)
     assert (
         md.attributes.description == overridden_basic_shapefile.attributes.description
     ), "The description shouldn't have changed for the non-overridden shapefile."
 
     # A little more complex: check that Overrides Work for an overridden file
-    overridden_complex_shapefile = [
-        f for f in md.files if f.id == "my_overridden_shapefile"
-    ][0]
+    overridden_complex_shapefile = md.get_file(OVERRIDDEN_SHAPEFILE_ID)
     calculated_overridden_shapefile_attrs = md.calculate_overrides(
-        file_id=overridden_complex_shapefile.id
+        file_id=OVERRIDDEN_SHAPEFILE_ID
     )
     assert (
         calculated_overridden_shapefile_attrs.attributes.display_name
@@ -199,15 +194,15 @@ def test_attribute_overrides_at_destination_level():
     md = make_metadata()
 
     # calc expected
-    overridden_shapefile = [f for f in md.files if f.id == "my_overridden_shapefile"][0]
-    socrata_dest = [d for d in md.destinations if d.type == "socrata"][0]
+    overridden_shapefile = md.get_file(OVERRIDDEN_SHAPEFILE_ID)
+    socrata_dest = md.get_destination(SOCRATA_DESTINATION_ID)
     socrata_dest_file_overrides = [
         f.overrides for f in socrata_dest.files if f.id == overridden_shapefile.id
     ][0]
 
     # calc actual
     calculated_attrs = md.calculate_overrides(
-        file_id=overridden_shapefile.id, destination_id=socrata_dest.id
+        file_id=OVERRIDDEN_SHAPEFILE_ID, destination_id=SOCRATA_DESTINATION_ID
     )
 
     assert (
@@ -229,7 +224,7 @@ def test_column_overrides_at_file_level():
 
     overridden_shapefile = md.get_file(OVERRIDDEN_SHAPEFILE_ID)
     calced_overridden_cols = md.calculate_overrides(
-        file_id=overridden_shapefile.id
+        file_id=OVERRIDDEN_SHAPEFILE_ID
     ).columns
 
     # Test that the description colum is overridden for the `bbl` column
@@ -270,8 +265,8 @@ def test_column_overrides_at_file_level():
 def test_column_overrides_at_destination_level():
     md = make_metadata()
 
-    overridden_shapefile = [f for f in md.files if f.id == "my_overridden_shapefile"][0]
-    socrata_dest = [d for d in md.destinations if d.type == "socrata"][0]
+    overridden_shapefile = md.get_file(OVERRIDDEN_SHAPEFILE_ID)
+    socrata_dest = md.get_destination(SOCRATA_DESTINATION_ID)
 
     calced_overridden_cols = md.calculate_overrides(
         file_id=overridden_shapefile.id, destination_id=socrata_dest.id
