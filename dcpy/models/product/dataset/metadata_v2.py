@@ -12,6 +12,7 @@ import yaml
 from dcpy.utils.logging import logger
 
 
+# BASE
 class YamlTopLevelSpacesDumper(yaml.SafeDumper):
     """YAML serializer that will insert lines between top-level entries,
     which is nice in longer files."""
@@ -94,6 +95,7 @@ class CustomizableBase(SortedSerializedBase, extra="forbid"):
     custom: dict[str, Any] = {}
 
 
+# COLUMNS
 # TODO: move to share with ingest.validate
 class Checks(CustomizableBase):
     is_primary_key: bool | None = None
@@ -113,7 +115,7 @@ class ColumnValue(CustomizableBase):
     description: str | None = None
 
 
-class OverrideableColumnAttrs(CustomizableBase):
+class DatasetColumnOverrides(CustomizableBase):
     _head_sort_order = ["id", "display_name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
     _validate_data_type = True  # used to generate md where we don't know the data_type
@@ -137,7 +139,7 @@ class OverrideableColumnAttrs(CustomizableBase):
         return v
 
 
-class DatasetColumn(OverrideableColumnAttrs):
+class DatasetColumn(DatasetColumnOverrides):
     """Like OverrideableColumnAttrs, but with constraints for non-null fields"""
 
     @field_validator("display_name")
@@ -150,7 +152,30 @@ class DatasetColumn(OverrideableColumnAttrs):
         assert dt, "data_type may not be null"
         return dt
 
+    def override(self, overrides: DatasetColumnOverrides) -> DatasetColumn:
+        return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
 
+
+# FILE
+class FileOverrides(CustomizableBase):
+    filename: str | None = None
+    type: str | None = None
+
+
+class File(CustomizableBase):
+    """Describes an actual dataset file, e.g. dataset files or attachments."""
+
+    id: str
+    filename: str
+    type: str | None = None
+
+    def override(self, overrides: FileOverrides) -> File:
+        return File(
+            **(self.model_dump() | overrides.model_dump()),
+        )
+
+
+# PACKAGE / ASSEMBLY
 class PackageFile(CustomizableBase):
     id: str
     filename: str
@@ -165,59 +190,78 @@ class Package(CustomizableBase):
     contents: List[PackageFile]
 
 
-class DatasetAttributes(CustomizableBase):
-    display_name: str
-    description: str
-    each_row_is_a: str
-    tags: List[str]
-
-
-# All overrideable at the Destination/File level
-# It would be nice if this shared ancestry with DatasetAttributes,
-# but that's tricky.
-class NullableDatasetAttributes(CustomizableBase):
+# DATASET
+class DatasetAttributesOverride(CustomizableBase):
     display_name: str | None = None
     description: str | None = None
     each_row_is_a: str | None = None
     tags: List[str] | None = None
 
 
+class DatasetAttributes(CustomizableBase):
+    display_name: str
+    description: str
+    each_row_is_a: str
+    tags: List[str]
+
+    def override(
+        self,
+        overrides: DatasetAttributesOverride,
+    ) -> DatasetAttributes:
+        return DatasetAttributes(**merge(self.model_dump(), overrides.model_dump()))
+
+
+class DatasetOverrides(CustomizableBase):
+    overridden_columns: list[DatasetColumnOverrides] = []
+    omitted_columns: set[str] = set()
+    attributes: DatasetAttributesOverride = DatasetAttributesOverride()
+
+
+class Dataset(CustomizableBase):
+    columns: list[DatasetColumn]
+    attributes: DatasetAttributes
+
+    def override(self, overrides: DatasetOverrides) -> Dataset:
+        overriden_cols_by_id = {c.id: c for c in overrides.overridden_columns}
+
+        columns = [
+            c.override(overriden_cols_by_id.get(c.id, DatasetColumnOverrides(id=c.id)))
+            for c in self.columns
+            if c.id not in overrides.omitted_columns
+        ]
+
+        return Dataset(
+            columns=columns, attributes=self.attributes.override(overrides.attributes)
+        )
+
+
+# DESTINATION
 class Destination(CustomizableBase):
     id: str
     type: str
+
+
+class DestinationWithFiles(Destination):
     files: List[DestinationFile]
 
-    dataset_overrides: NullableDatasetAttributes = NullableDatasetAttributes()
 
-
-class FileOverrides(CustomizableBase):
-    _head_sort_order = [
-        "description",
-        "display_name",
-        "omitted_columns",
-        "overridden_columns",
-    ]
-
-    filename: str | None = None
-    overridden_columns: list[OverrideableColumnAttrs] = []
-    omitted_columns: list[str] = []
-    attributes: NullableDatasetAttributes = NullableDatasetAttributes()
-
-
-class File(CustomizableBase):
-    """Describes an actual dataset file, e.g. dataset files or attachments."""
-
-    id: str
-    filename: str
-    type: str | None = None
-    overrides: FileOverrides = FileOverrides()
+class FileAndOverrides(SortedSerializedBase):
+    dataset_overrides: DatasetOverrides = DatasetOverrides()
+    file: File
 
 
 class DestinationFile(CustomizableBase):
     """Pointer to an actual `File`, with specifiable overrides."""
 
     id: str
-    overrides: FileOverrides = FileOverrides()
+    dataset_overrides: DatasetOverrides = DatasetOverrides()
+    file_overrides: FileOverrides = FileOverrides()
+
+
+class DestinationFileMetadata(CustomizableBase):
+    dataset: Dataset
+    destination: Destination
+    file: File
 
 
 class Metadata(CustomizableBase):
@@ -225,8 +269,8 @@ class Metadata(CustomizableBase):
     attributes: DatasetAttributes
     assembly: List[Package] = []
     columns: List[DatasetColumn]
-    files: List[File]
-    destinations: List[Destination]
+    files: List[FileAndOverrides]
+    destinations: List[DestinationWithFiles]
 
     _head_sort_order = [
         "id",
@@ -235,84 +279,55 @@ class Metadata(CustomizableBase):
     _tail_sort_order = ["columns"]
     _exclude_falsey_values = False  # We never want to prune top-level attrs
 
-    def get_destination(self, id: str) -> Destination:
+    @property
+    def dataset(self):
+        return Dataset(attributes=self.attributes, columns=self.columns)
+
+    def get_destination(self, id: str) -> DestinationWithFiles:
         dests = [d for d in self.destinations if d.id == id]
         if len(dests) != 1:
             raise Exception(f"There should exist one destination with id: {id}")
         return dests[0]
 
-    def get_file(self, file_id: str) -> File:
-        files = [f for f in self.files if f.id == file_id]
+    def get_file_and_overrides(self, file_id: str) -> FileAndOverrides:
+        files = [f for f in self.files if f.file.id == file_id]
         if len(files) != 1:
             raise Exception(f"There should exist one file with id: {file_id}")
         return files[0]
 
-    def calculate_overrides(
-        self, *, file_id: str, destination_id: str = ""
-    ) -> OverriddenMetadata:
-        file = self.get_file(file_id)
-
-        dest_file = None
-        if destination_id:
-            destination = self.get_destination(destination_id)
-            dest_files = [f for f in destination.files if f.id == file_id]
-            if len(dest_files) != 1:
-                raise Exception(
-                    f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
-                )
-            dest_file = dest_files[0]
-
-        return OverriddenMetadata(
-            file=self._calculate_destination_file_overrides(
-                file=file, dest_file=dest_file
-            ),
-            columns=self._calculate_overridden_columns(file=file, dest_file=dest_file),
-            attributes=DatasetAttributes(
-                **merge(
-                    self.attributes.model_dump(),
-                    file.overrides.attributes.model_dump(),
-                    dest_file.overrides.attributes.model_dump() if dest_file else {},
-                )
-            ),
+    def calculate_file_dataset_metadata(self, *, file_id: str) -> Dataset:
+        return self.dataset.override(
+            self.get_file_and_overrides(file_id).dataset_overrides
         )
 
-    def _calculate_destination_file_overrides(
-        self, file: File, dest_file: DestinationFile | None
-    ) -> OverriddenFile:
-        """Calculate Overrides for a single file, including overrides at the destination"""
-        omitted_cols = set(file.overrides.omitted_columns)
-        if dest_file:
-            omitted_cols.update(dest_file.overrides.omitted_columns)
-        return OverriddenFile(
-            filename=dest_file.overrides.filename if dest_file else file.filename,
-            omitted_columns=list(omitted_cols),
-        )
+    def calculate_destination_file_metadata(
+        self, *, file_id: str, destination_id: str
+    ) -> DestinationFileMetadata:
+        dataset_file = self.get_file_and_overrides(file_id)
 
-    def _calculate_overridden_columns(
-        self, file: File, dest_file: DestinationFile | None
-    ) -> list[DatasetColumn]:
-        # TODO: duped from `calculate_overridden_attributes`. Dry it up
-        file_overriden_cols_by_id = {
-            c.id: c.model_dump() for c in file.overrides.overridden_columns
-        }
-        dest_overriden_cols_by_id = (
-            {c.id: c.model_dump() for c in dest_file.overrides.overridden_columns}
-            if dest_file
-            else {}
-        )
-
-        columns = [
-            DatasetColumn(
-                **merge(
-                    c.model_dump(),
-                    file_overriden_cols_by_id.get(c.id, {}),
-                    dest_overriden_cols_by_id.get(c.id, {}),
-                )
+        destination = self.get_destination(destination_id)
+        dest_files = [f for f in destination.files if f.id == file_id]
+        if len(dest_files) != 1:
+            raise Exception(
+                f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
             )
-            for c in self.columns
-        ]
+        dest_file = dest_files[0]
 
-        return columns
+        dataset_metadata = self.calculate_file_dataset_metadata(
+            file_id=file_id
+        ).override(dest_file.dataset_overrides)
+
+        destination_file = (
+            dataset_file.file
+            if not dest_file
+            else dataset_file.file.override(dest_file.file_overrides)
+        )
+
+        return DestinationFileMetadata(
+            file=destination_file,
+            dataset=dataset_metadata,
+            destination=destination,
+        )
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):

@@ -285,10 +285,10 @@ class Metadata(BaseModel, extra="forbid"):
                 )
                 overridden_columns.append(custom)
 
-            return md_v2.FileOverrides(
+            return md_v2.DatasetOverrides(
                 overridden_columns=overridden_columns,
                 omitted_columns=v1.omit_columns,
-                attributes=md_v2.NullableDatasetAttributes(
+                attributes=md_v2.DatasetAttributesOverride(
                     display_name=v1.display_name,
                     description=v1.description,
                 ),
@@ -297,11 +297,11 @@ class Metadata(BaseModel, extra="forbid"):
         return md_v2.Metadata(
             id=self.name,
             files=[
-                md_v2.File(
+                md_v2.FileAndOverrides(
                     id=dsf.name,
                     filename=dsf.filename,
                     type=dsf.type,
-                    overrides=_v1_overrides_to_v2(dsf.overrides),
+                    dataset_overrides=_v1_overrides_to_v2(dsf.overrides),
                     custom=_remove_falsey_from_dict(
                         {"ignore_validation": dsf.overrides.ignore_validation}
                     ),
@@ -309,7 +309,7 @@ class Metadata(BaseModel, extra="forbid"):
                 for dsf in self.package.dataset_files
             ]
             + [
-                md_v2.File(id=att.name, filename=att.filename)
+                md_v2.FileAndOverrides(id=att.name, filename=att.filename)
                 for att in self.package.attachments
             ],
             assembly=[
@@ -339,7 +339,7 @@ class Metadata(BaseModel, extra="forbid"):
                         md_v2.DestinationFile(
                             id=ds,
                             custom={"destination_use": "dataset_file"},
-                            overrides=md_v2.FileOverrides(
+                            dataset_overrides=md_v2.DatasetOverrides(
                                 overridden_columns=[
                                     md_v2.OverrideableColumnAttrs(
                                         id=k,
