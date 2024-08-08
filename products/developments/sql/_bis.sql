@@ -232,8 +232,8 @@ SELECT
         latitude::double precision
     ), 4326) AS dob_geom
 INTO _init_bis_devdb
-FROM dob_jobapplications bis
-LEFT JOIN dob_jobapplications_parkingspaces ps ON bis.jobnumber = ps.jobnumber
+FROM dob_jobapplications AS bis
+LEFT JOIN dob_jobapplications_parkingspaces AS ps ON bis.jobnumber = ps.jobnumber
 WHERE
     jobdocnumber = '01' AND (
         jobtype ~* 'A1|DM|NB' OR (

@@ -69,7 +69,7 @@ SELECT
     zsfc_prop AS "ZSFC_Prop",
     zsfcf_prop AS "ZSFCF_Prop",
     zsfm_prop AS "ZSFM_Prop",
-    prkng_init AS "Prkng_Init"
+    prkng_init AS "Prkng_Init",
     prkng_prop AS "Prkng_Prop",
     stories_init AS "FloorsInit",
     stories_prop AS "FloorsProp",

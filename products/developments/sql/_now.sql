@@ -233,7 +233,7 @@ SELECT
     (CASE
         WHEN uselabel ~* 'Manufacturing' THEN total_floor_area
     END)::numeric AS zsfm_prop,
-    NULL::numeric AS prkng_init
+    NULL::numeric AS prkng_init,
     no_of_parking_spaces::numeric AS prkng_prop,
     building_type AS bldg_class,
     NULL AS desc_other,
