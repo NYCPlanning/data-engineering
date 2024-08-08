@@ -12,13 +12,13 @@ from rich.progress import (
 )
 import yaml
 
-from dcpy.models.connectors.esri import FeatureServer
+from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer
 import dcpy.models.product.dataset.metadata as models
 from dcpy.utils.logging import logger
 
 
-def get_metadata(dataset: FeatureServer) -> dict:
-    resp = requests.get(f"{dataset.url}", params={"f": "pjson"})
+def get_feature_server_metadata(feature_server: FeatureServer) -> dict:
+    resp = requests.get(f"{feature_server.url}", params={"f": "pjson"})
     resp.raise_for_status()
     error = resp.json().get("error")  # 200 responses might contain error details
     if error:
@@ -26,27 +26,93 @@ def get_metadata(dataset: FeatureServer) -> dict:
     return resp.json()
 
 
-def get_data_last_updated(dataset: FeatureServer) -> datetime:
-    metadata = get_metadata(dataset)
+def get_feature_server_layers(
+    feature_server: FeatureServer,
+) -> list[FeatureServerLayer]:
+    resp = get_feature_server_metadata(feature_server)
+    return [
+        FeatureServerLayer(
+            server=feature_server.server,
+            name=feature_server.name,
+            layer_name=l["name"],
+            layer_id=l["id"],
+        )
+        for l in resp["layers"]
+    ]
+
+
+def resolve_layer_id(
+    feature_server: FeatureServer,
+    layer_name: str | None = None,
+    layer_id: int | None = None,
+) -> FeatureServerLayer:
+    if layer_id is not None and layer_name is not None:
+        return FeatureServerLayer(
+            server=feature_server.server,
+            name=feature_server.name,
+            layer_name=layer_name,
+            layer_id=layer_id,
+        )
+    layers = get_feature_server_layers(feature_server)
+    layer_labels = [l.layer_label for l in layers]
+    if layer_name is None and layer_id is None:
+        if len(layers) > 1:
+            raise ValueError(
+                f"Feature server {feature_server} has mulitple layers: {layer_labels}"
+            )
+        elif len(layers) == 0:
+            raise LookupError(f"Feature server {feature_server} has no layers")
+        else:
+            return layers[0]
+    elif layer_name is not None:
+        layers_by_name = {l.layer_name: l for l in layers}
+        if layer_name in layers_by_name:
+            return layers_by_name[layer_name]
+        else:
+            raise LookupError(
+                f"Layer with name '{layer_name}' not found in feature server {feature_server}. Found layers: {layer_labels}."
+            )
+    else:
+        assert layer_id is not None
+        layers_by_id = {l.layer_id: l for l in layers}
+        if layer_id in layers_by_id:
+            return layers_by_id[layer_id]
+        else:
+            raise LookupError(
+                f"Layer with id {layer_id} not found in feature server {feature_server}. Found layers: {layer_labels}."
+            )
+
+
+def get_layer_metadata(layer: FeatureServerLayer) -> dict:
+    resp = requests.get(f"{layer.url}", params={"f": "pjson"})
+    resp.raise_for_status()
+    error = resp.json().get("error")  # 200 responses might contain error details
+    if error:
+        raise Exception(f"Error fetching ESRI Server metadata: {error}")
+    return resp.json()
+
+
+def get_data_last_updated(layer: FeatureServerLayer) -> datetime:
+    metadata = get_layer_metadata(layer)
     ## returned timestamp has milliseconds, fromtimestamp expects seconds
     return datetime.fromtimestamp(metadata["editingInfo"]["dataLastEditDate"] / 1e3)
 
 
-def query_dataset(dataset: FeatureServer, params: dict) -> dict:
-    resp = requests.post(f"{dataset.url}/query", data=params)
+def query_layer(layer: FeatureServerLayer, params: dict) -> dict:
+    resp = requests.post(f"{layer.url}/query", data=params)
     resp.raise_for_status()
     return resp.json()
 
 
-def get_dataset(dataset: FeatureServer, crs: int) -> dict:
+def get_layer(layer: FeatureServerLayer, crs: int) -> dict:
     CHUNK_SIZE = 100
     params = {"where": "1=1", "outFields": "*", "outSr": crs, "f": "geojson"}
 
     # there is a limit of 2000 features on the server, unless we limit to objectIds only
-    # so first, we get ids, then we chunk to get full dataset
+    # so first, we get ids, then we chunk to get full layer
     obj_params = params.copy()
     obj_params["returnIdsOnly"] = True
-    object_id_resp = query_dataset(dataset, obj_params)
+    object_id_resp = query_layer(layer, obj_params)
     object_ids = cast(list[int], object_id_resp["properties"]["objectIds"])
 
     features = []
@@ -60,7 +126,7 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
         transient=True,
     ) as progress:
         task = progress.add_task(
-            f"[green]Downloading [bold]{dataset.name}[/bold]", total=len(object_ids)
+            f"[green]Downloading [bold]{layer.name}[/bold]", total=len(object_ids)
         )
 
         def _downcase_properties_keys(feat):
@@ -69,7 +135,7 @@ def get_dataset(dataset: FeatureServer, crs: int) -> dict:
 
         for i in range(0, len(object_ids), CHUNK_SIZE):
             params["objectIds"] = object_ids[i : i + CHUNK_SIZE]
-            chunk = query_dataset(dataset, params)
+            chunk = query_layer(layer, params)
             progress.update(task, completed=i + CHUNK_SIZE)
             features += [_downcase_properties_keys(feat) for feat in chunk["features"]]
 
