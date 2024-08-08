@@ -28,6 +28,7 @@ def archive(
     inplace: bool = typer.Option(False, "--inplace", help="Only keeping zipped file"),
     postgres_url: str = typer.Option(None, "--postgres-url", help="Postgres connection url"),
     version: str = typer.Option(None, "--version", "-v", help="Custom version input"),
+    source_path_override: str = typer.Option(None, "--source-path-override", help="Overrides path source if applicable")
 ) -> None:
 # fmt: on
     """
@@ -51,6 +52,7 @@ def archive(
                 inplace=inplace,
                 postgres_url=postgres_url,
                 version=version,
+                source_path_override=source_path_override,
             )
         assert config
         if push:

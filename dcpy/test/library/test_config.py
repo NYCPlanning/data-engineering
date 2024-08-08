@@ -1,6 +1,10 @@
+import pytest
+from unittest.mock import patch
 from dcpy.library.config import Config
 
 from . import template_path, get_config_file
+
+FAKE_PATH = "./fake_file.csv"
 
 
 def test_config_parsed_rendered_template():
@@ -46,10 +50,50 @@ def test_config_compute():
 
 def test_config_script():
     config = Config(f"{template_path}/bpl_libraries.yml").compute
-    assert True
+    assert config.source.gdalpath
+
+
+@patch("dcpy.connectors.esri.arcgis_feature_service.get_dataset")
+def test_arcgis_feature_server(get_dataset):
+    get_dataset.return_value = {}
+    config = Config(get_config_file("arcgis_feature_server")).compute
+    assert config.source.gdalpath.endswith(f"{config.name}.geojson")
 
 
 def test_backwards_compatility_with_jinja_version():
     config = Config(get_config_file("bpl_libraries_sql_deprecated"))
     computed = config.compute
     assert computed.version == config.version_today
+
+
+def test_url_with_override_path():
+    config = Config(get_config_file("url"), source_path_override=FAKE_PATH)
+    dataset = config.compute
+    assert dataset.source.url
+    assert dataset.source.url.path == FAKE_PATH
+    assert dataset.source.gdalpath == f"{FAKE_PATH}/{dataset.source.url.subpath}"
+
+
+@patch("dcpy.library.script.bpl_libraries.Scriptor.runner")
+def test_script_with_override_path(runner):
+    runner.return_value = FAKE_PATH
+    config = Config(
+        get_config_file("bpl_libraries_sql"), source_path_override=FAKE_PATH
+    )
+    dataset = config.compute
+    assert dataset.source.script
+    assert dataset.source.script.path == FAKE_PATH
+    assert dataset.source.gdalpath == FAKE_PATH
+
+
+def test_override_path_failures():
+    with pytest.raises(ValueError, match="Cannot override"):
+        Config(get_config_file("socrata"), source_path_override=FAKE_PATH).compute
+    with pytest.raises(ValueError, match="Cannot override"):
+        Config(
+            get_config_file("arcgis_feature_server"), source_path_override=FAKE_PATH
+        ).compute
+    with pytest.raises(ValueError, match="Cannot override"):
+        Config(
+            get_config_file("script_no_path"), source_path_override=FAKE_PATH
+        ).compute
