@@ -22,11 +22,14 @@ class Config:
     """
 
     def __init__(
-        self, path: str, version: str | None = None, path_override: str | None = None
+        self,
+        path: str,
+        version: str | None = None,
+        source_path_override: str | None = None,
     ):
         self.path = path
         self.version = version
-        self.path_override = path_override
+        self.source_path_override = source_path_override
 
     @property
     def unparsed_unrendered_template(self) -> str:
@@ -90,9 +93,9 @@ class Config:
         config = self.parsed_rendered_template(version=version)
 
         if config.source.script:
-            if self.path_override:
+            if self.source_path_override:
                 if config.source.script.path:
-                    config.source.script.path = self.path_override
+                    config.source.script.path = self.source_path_override
                 else:
                     raise ValueError(
                         "Cannot override path of script dataset without path argument"
@@ -105,7 +108,7 @@ class Config:
             config.source.gdalpath = format_url(path)
 
         elif config.source.socrata:
-            if self.path_override:
+            if self.source_path_override:
                 raise ValueError("Cannot override path of socrata dataset")
             socrata = config.source.socrata
             if socrata.format == "csv":
@@ -124,7 +127,7 @@ class Config:
             config.source.gdalpath = format_url(path)
 
         elif config.source.arcgis_feature_server:
-            if self.path_override:
+            if self.source_path_override:
                 raise ValueError(
                     "Cannot override path of arcgis feature server dataset"
                 )
@@ -142,8 +145,8 @@ class Config:
             config.source.gdalpath = format_url(str(file))
 
         elif config.source.url:
-            if self.path_override:
-                config.source.url.path = self.path_override
+            if self.source_path_override:
+                config.source.url.path = self.source_path_override
             config.source.gdalpath = format_url(
                 config.source.url.path, config.source.url.subpath
             )

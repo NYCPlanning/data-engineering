@@ -24,7 +24,7 @@ class Archive:
         clean: bool = False,
         latest: bool = False,
         name: str | None = None,
-        path_override: str | None = None,
+        source_path_override: str | None = None,
         *args,
         **kwargs,
     ) -> Config:
@@ -38,10 +38,11 @@ class Archive:
         push: if `True` then push to s3
         clean: if `True`, the temporary files created under `.library` will be removed
         latest: if `True` then tag this current version we are processing to be the `latest`
+        name: name of the dataset, if you would like to use templates already included in this package
+        source_path_override: if applicable, a str url/path to override the source path in the template
 
         Optional Parameters
         ----------
-        name: name of the dataset, if you would like to use templates already included in this package
         compress: if compression is needed, this is passed into the `ingestor`
         inplace: if compressed zip file will replace the original file, this is passed into the `ingestor`
         postgres_url: Please specify if `output_format=='postgres'`
@@ -92,7 +93,7 @@ class Archive:
 
         # Initiate ingestion
         output_files, config = ingestor_of_format(
-            path, *args, path_override=path_override, **kwargs  # type: ignore
+            path, *args, source_path_override=source_path_override, **kwargs  # type: ignore
         )
         version = config.dataset.version
         acl = config.dataset.acl

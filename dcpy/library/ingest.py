@@ -37,7 +37,7 @@ def translator(func):
 
         output_files = []
         path = args[0]
-        c = Config(path, kwargs.get("version"), kwargs.get("path_override"))
+        c = Config(path, kwargs.get("version"), kwargs.get("source_path_override"))
         dataset = c.compute
         assert dataset.source.gdalpath
         assert dataset.version
