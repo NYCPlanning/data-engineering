@@ -94,14 +94,14 @@ def make_dcp_metadata(socrata_md) -> md_v2.Metadata:
             ),
         ],
         files=[
-            md_v2.File(
+            md_v2.FileAndOverrides(
                 id=FILL_ME_IN_PLACEHOLDER,
                 filename=FILL_ME_IN_PLACEHOLDER,
                 type="shapefile",
             )
         ]
         + [
-            md_v2.File(id=FILL_ME_IN_PLACEHOLDER, filename=a["filename"])
+            md_v2.FileAndOverrides(id=FILL_ME_IN_PLACEHOLDER, filename=a["filename"])
             for a in socrata_md["metadata"].get("attachments", [])
         ],
     )
