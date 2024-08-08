@@ -67,7 +67,7 @@ def test_backwards_compatility_with_jinja_version():
 
 
 def test_url_with_override_path():
-    config = Config(get_config_file("url"), path_override=FAKE_PATH)
+    config = Config(get_config_file("url"), source_path_override=FAKE_PATH)
     dataset = config.compute
     assert dataset.source.url
     assert dataset.source.url.path == FAKE_PATH
@@ -77,7 +77,9 @@ def test_url_with_override_path():
 @patch("dcpy.library.script.bpl_libraries.Scriptor.runner")
 def test_script_with_override_path(runner):
     runner.return_value = FAKE_PATH
-    config = Config(get_config_file("bpl_libraries_sql"), path_override=FAKE_PATH)
+    config = Config(
+        get_config_file("bpl_libraries_sql"), source_path_override=FAKE_PATH
+    )
     dataset = config.compute
     assert dataset.source.script
     assert dataset.source.script.path == FAKE_PATH
@@ -86,10 +88,12 @@ def test_script_with_override_path(runner):
 
 def test_override_path_failures():
     with pytest.raises(ValueError, match="Cannot override"):
-        Config(get_config_file("socrata"), path_override=FAKE_PATH).compute
+        Config(get_config_file("socrata"), source_path_override=FAKE_PATH).compute
     with pytest.raises(ValueError, match="Cannot override"):
         Config(
-            get_config_file("arcgis_feature_server"), path_override=FAKE_PATH
+            get_config_file("arcgis_feature_server"), source_path_override=FAKE_PATH
         ).compute
     with pytest.raises(ValueError, match="Cannot override"):
-        Config(get_config_file("script_no_path"), path_override=FAKE_PATH).compute
+        Config(
+            get_config_file("script_no_path"), source_path_override=FAKE_PATH
+        ).compute
