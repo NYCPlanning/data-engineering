@@ -28,11 +28,11 @@ def ingest() -> None:
         else:
             st.warning("Please input all fields.")
 
-    def ingest(dataset_name: str, version: str, uploaded_file: UploadedFile) -> None:
+    def ingest(dataset_name: str, version: str, uploaded_file: UploadedFile, allow_override: bool) -> None:
         with st.spinner("Ingesting"):
             try:
-                file_path = dummy_archive_raw_data(
-                    dataset_name, version, uploaded_file, uploaded_file.name
+                file_path = archive_raw_data(
+                    dataset_name, version, uploaded_file, uploaded_file.name, allow_override
                 )
                 if file_path is None:
                     raise ValueError("Dummy error occurred")
@@ -109,6 +109,8 @@ def ingest() -> None:
             "Choose a file", disabled=st.session_state["ingest"]["running"]
         )
 
+        allow_override = st.checkbox("Allow Path/File Override")
+
         if dataset_name and version:
             s3_path = Path("inbox") / dataset_name / version
             st.write("S3 Path:", s3_path)
@@ -125,7 +127,7 @@ def ingest() -> None:
             and st.session_state["ingest"]["running"] == True
             and uploaded_file is not None
         ):
-            ingest(dataset_name, version, uploaded_file)
+            ingest(dataset_name, version, uploaded_file, allow_override)
         if ingest_button_pressed == True and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
@@ -155,13 +157,12 @@ def ingest() -> None:
         version = str(
             st.text_input("Version", disabled=st.session_state["ingest"]["running"])
         )
-        s3_path = Path(
-            st.text_input(
+        s3_path = st.text_input(
                 "S3 File Path",
                 value=st.session_state["ingest"]["s3_path"],
                 disabled=st.session_state["ingest"]["running"],
             )
-        )
+        
         library_button_pressed = st.button(
             "Call Library",
             on_click=lock_for_library,
@@ -172,7 +173,7 @@ def ingest() -> None:
             library_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            library(dataset_name, version, s3_path)
+            library(dataset_name, version, Path(s3_path))
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -201,6 +202,8 @@ def ingest() -> None:
             "Choose a file", disabled=st.session_state["ingest"]["running"]
         )
 
+        allow_override = st.checkbox("Allow Path/File Override")
+
         if dataset_name and version:
             s3_path = Path("inbox") / dataset_name / version
             st.write("S3 Path:", s3_path)
@@ -217,7 +220,7 @@ def ingest() -> None:
             and st.session_state["ingest"]["running"] == True
             and uploaded_file is not None
         ):
-            ingest(dataset_name, version, uploaded_file)
+            ingest(dataset_name, version, uploaded_file, allow_override)
         if ingest_button_pressed == True and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
