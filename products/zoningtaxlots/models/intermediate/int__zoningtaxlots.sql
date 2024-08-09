@@ -47,7 +47,7 @@ insertion AS (
         a.boro AS boroughcode,
         a.block AS taxblock,
         a.lot AS taxlot,
-        a.geom AS geom,
+        a.geom,
         ST_AREA(a.geom) AS area,
         b1.overlay AS commercialoverlay1,
         b2.overlay AS commercialoverlay2,
