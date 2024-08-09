@@ -169,6 +169,8 @@ def mock_request_get(
         "https://health.data.ny.gov/api/views/izta-vnpq/rows.csv": "nysdoh_nursinghomes.csv",
         "https://data.cityofnewyork.us/api/views/w7w3-xahh.json": "dca_operatingbusinesses_metadata.json",
         "https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/National_Register_Building_Listings/FeatureServer": "arcfs_metadata.json",
+        "https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/National_Register_Building_Listings_Zero/FeatureServer": "arcfs_metadata_no_layers.json",
+        "https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/National_Register_Building_Listings_Multiple/FeatureServer": "arcfs_metadata_multiple_layers.json",
         "https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/National_Register_Building_Listings/FeatureServer/13": "arcfs_layer_metadata.json",
     }
 

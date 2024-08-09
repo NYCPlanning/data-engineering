@@ -83,7 +83,7 @@ class Config:
             version = self.version_socrata(_config.source.socrata.uid)
         elif _config.source.arcgis_feature_server:
             fs = _config.source.arcgis_feature_server
-            feature_server_layer = arcgis_feature_service.resolve_layer_id(
+            feature_server_layer = arcgis_feature_service.resolve_layer(
                 feature_server=fs.feature_server,
                 layer_name=fs.layer_name,
                 layer_id=fs.layer_id,

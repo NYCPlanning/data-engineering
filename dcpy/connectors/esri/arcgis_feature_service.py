@@ -41,7 +41,7 @@ def get_feature_server_layers(
     ]
 
 
-def resolve_layer_id(
+def resolve_layer(
     feature_server: FeatureServer,
     layer_name: str | None = None,
     layer_id: int | None = None,
