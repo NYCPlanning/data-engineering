@@ -5,7 +5,7 @@ dataset:
     arcgis_feature_server:
       server: nys_parks
       name: Archaeological_Buffer_Areas
-      layer: 14
+      layer_id: 14
     geometry:
       SRS: EPSG:3857
       type: MULTIPOLYGON
