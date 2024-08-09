@@ -70,7 +70,7 @@ class DatasetDefinition(BaseModel):
 
             @property
             def feature_server(self) -> esri.FeatureServer:
-                return esri.FeatureServer(server=self.server, name=self.server)
+                return esri.FeatureServer(server=self.server, name=self.name)
 
     class DestinationSection(BaseModel):
         geometry: GeometryType

@@ -42,7 +42,7 @@ class FeatureServerLayer(BaseModel, extra="forbid"):
 
     @property
     def feature_server(self) -> FeatureServer:
-        return FeatureServer(server=self.server, name=self.server)
+        return FeatureServer(server=self.server, name=self.name)
 
     @property
     def url(self) -> str:
