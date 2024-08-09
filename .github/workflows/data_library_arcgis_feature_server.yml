@@ -11,7 +11,6 @@ on:
         type: boolean
         required: true
         default: false
-  push:
 
 jobs:
   dataloading:
@@ -61,7 +60,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Library Archive
-        run: library archive --name ${{ matrix.dataset }} --latest
+        run: library archive --name ${{ matrix.dataset }} --latest --s3
 
   create_issue_on_failure:
     needs: dataloading
