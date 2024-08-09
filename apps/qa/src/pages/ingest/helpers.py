@@ -10,7 +10,11 @@ BUCKET = "edm-recipes"
 
 
 def archive_raw_data(
-    dataset_name: str, version: str, uploaded_file: UploadedFile, file_name: str, allow_override: bool
+    dataset_name: str,
+    version: str,
+    uploaded_file: UploadedFile,
+    file_name: str,
+    allow_override: bool,
 ) -> Path:
 
     base_path = Path(".library") / "upload"
@@ -19,13 +23,15 @@ def archive_raw_data(
 
     s3_path = Path("inbox") / dataset_name / version / f"{file_name}"
 
-    exists = s3.exists(BUCKET,str(s3_path))
+    exists = s3.exists(BUCKET, str(s3_path))
     if exists == True:
         st.error("Warning: File path already exists")
         if allow_override == False:
-            st.error("File already exists on S3. Check the allow override box if you wish to continue")       
+            st.error(
+                "File already exists on S3. Check the allow override box if you wish to continue"
+            )
             raise FileExistsError("S3 Path/File Exists")
-            
+
     try:
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())

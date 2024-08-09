@@ -28,11 +28,20 @@ def ingest() -> None:
         else:
             st.warning("Please input all fields.")
 
-    def ingest(dataset_name: str, version: str, uploaded_file: UploadedFile, allow_override: bool) -> None:
+    def ingest(
+        dataset_name: str,
+        version: str,
+        uploaded_file: UploadedFile,
+        allow_override: bool,
+    ) -> None:
         with st.spinner("Ingesting"):
             try:
                 file_path = archive_raw_data(
-                    dataset_name, version, uploaded_file, uploaded_file.name, allow_override
+                    dataset_name,
+                    version,
+                    uploaded_file,
+                    uploaded_file.name,
+                    allow_override,
                 )
                 if file_path is None:
                     raise ValueError("Dummy error occurred")
@@ -158,11 +167,11 @@ def ingest() -> None:
             st.text_input("Version", disabled=st.session_state["ingest"]["running"])
         )
         s3_path = st.text_input(
-                "S3 File Path",
-                value=st.session_state["ingest"]["s3_path"],
-                disabled=st.session_state["ingest"]["running"],
-            )
-        
+            "S3 File Path",
+            value=st.session_state["ingest"]["s3_path"],
+            disabled=st.session_state["ingest"]["running"],
+        )
+
         library_button_pressed = st.button(
             "Call Library",
             on_click=lock_for_library,
