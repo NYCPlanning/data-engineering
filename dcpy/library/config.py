@@ -82,8 +82,19 @@ class Config:
         if _config.source.socrata:
             version = self.version_socrata(_config.source.socrata.uid)
         elif _config.source.arcgis_feature_server:
+            fs = _config.source.arcgis_feature_server
+            feature_server_layer = arcgis_feature_service.resolve_layer(
+                feature_server=fs.feature_server,
+                layer_name=fs.layer_name,
+                layer_id=fs.layer_id,
+            )
+            _config.source.arcgis_feature_server = (
+                DatasetDefinition.SourceSection.FeatureServerLayerDefinition(
+                    **feature_server_layer.model_dump()
+                )
+            )
             version = arcgis_feature_service.get_data_last_updated(
-                _config.source.arcgis_feature_server
+                feature_server_layer
             ).strftime("%Y%m%d")
         else:
             # backwards compatibility before templates were simplified
@@ -135,8 +146,9 @@ class Config:
             tmp_dir.mkdir(exist_ok=True)
             if not (config.source.geometry and config.source.geometry.SRS):
                 raise Exception("Must provide source crs for arcgis feature server")
-            geojson = arcgis_feature_service.get_dataset(
-                config.source.arcgis_feature_server,
+
+            geojson = arcgis_feature_service.get_layer(
+                feature_server_layer,
                 crs=int(config.source.geometry.SRS.strip("EPSG:")),
             )
             file = tmp_dir / f"{config.name}.geojson"

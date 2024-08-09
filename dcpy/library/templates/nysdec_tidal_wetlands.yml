@@ -5,7 +5,7 @@ dataset:
     arcgis_feature_server:
       server: nys_clearinghouse
       name: Regulatory_Tidal_Wetlands
-      layer: 1
+      layer_id: 1
     geometry:
       SRS: EPSG:2263
       type: MULTIPOLYGON

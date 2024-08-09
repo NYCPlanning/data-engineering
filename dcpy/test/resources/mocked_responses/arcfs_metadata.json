@@ -1,0 +1,101 @@
+{
+    "currentVersion": 11.2,
+    "serviceItemId": "aaf1773f65e14e3fabc4dc2e8cbc7ad9",
+    "serviceDescription": "Boundaries for primarily non-archaeological properties in New York State that are listed on the State or National Register of Historic Places, or are National Historic Landmarks.",
+    "hasVersionedData": false,
+    "supportsDisconnectedEditing": false,
+    "hasStaticData": false,
+    "hasSharedDomains": false,
+    "maxRecordCount": 2000,
+    "supportedQueryFormats": "JSON",
+    "supportsVCSProjection": false,
+    "supportedExportFormats": "csv,shapefile,sqlite,geoPackage,filegdb,featureCollection,geojson,kml,excel",
+    "supportedConvertFileFormats": "JSON,PBF",
+    "supportedConvertContentFormats": "LayerEditCollection",
+    "capabilities": "Query",
+    "description": "",
+    "copyrightText": "Division for Historic Preservation, New York State Office of Parks, Recreation and Historic Preservation",
+    "spatialReference": {
+        "wkid": 102100,
+        "latestWkid": 3857
+    },
+    "initialExtent": {
+        "xmin": -8738332.23285584,
+        "ymin": 4888844.147298168,
+        "xmax": -8121200.496344163,
+        "ymax": 5672913.788101833,
+        "spatialReference": {
+            "wkid": 102100,
+            "latestWkid": 3857
+        }
+    },
+    "fullExtent": {
+        "xmin": -8860546.0804,
+        "ymin": 4938680.741599999,
+        "xmax": -7998986.6488,
+        "ymax": 5623077.193799998,
+        "spatialReference": {
+            "wkid": 102100,
+            "latestWkid": 3857
+        }
+    },
+    "allowGeometryUpdates": true,
+    "supportstrueCurve": true,
+    "supportedCurveTypes": [
+        "esriGeometryCircularArc"
+    ],
+    "allowtrueCurvesUpdates": true,
+    "onlyAllowtrueCurveUpdatesBytrueCurveClients": false,
+    "units": "esriMeters",
+    "supportsAppend": true,
+    "supportsSharedDomains": true,
+    "supportsWebHooks": true,
+    "supportsTemporalLayers": true,
+    "layerOverridesEnabled": true,
+    "size": 9805824,
+    "syncEnabled": false,
+    "supportsApplyEditsWithGlobalIds": false,
+    "supportsReturnDeleteResults": true,
+    "supportsLayerOverrides": true,
+    "supportsTilesAndBasicQueriesMode": true,
+    "supportsQueryContingentValues": true,
+    "supportedContingentValuesFormats": "JSON, PBF",
+    "supportsContingentValuesJson": 2,
+    "advancedEditingCapabilities": {
+        "supportsSplit": false,
+        "supportsReturnServiceEditsInSourceSR": false,
+        "supportsAsyncApplyEdits": true,
+        "supportsReturnEditResults": true,
+        "supportsApplyEditsbyUploadID": true,
+        "supportedApplyEditsUploadIDFormats": "JSON"
+    },
+    "editorTrackingInfo": {
+        "enableEditorTracking": false,
+        "enableOwnershipAccessControl": false,
+        "allowOthersToQuery": true,
+        "allowOthersToUpdate": true,
+        "allowOthersToDelete": false,
+        "allowAnonymousToQuery": true,
+        "allowAnonymousToUpdate": true,
+        "allowAnonymousToDelete": true
+    },
+    "xssPreventionInfo": {
+        "xssPreventionEnabled": true,
+        "xssPreventionRule": "InputOnly",
+        "xssInputRule": "rejectInvalid"
+    },
+    "layers": [
+        {
+            "id": 13,
+            "name": "National Register Building Listings",
+            "parentLayerId": -1,
+            "defaultVisibility": true,
+            "subLayerIds": null,
+            "minScale": 0,
+            "maxScale": 0,
+            "type": "Feature Layer",
+            "geometryType": "esriGeometryPolygon"
+        }
+    ],
+    "tables": []
+}
