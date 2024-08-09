@@ -190,7 +190,7 @@ export AS (
         zoningmapnumber::text AS zoning_map_number,
         zoningmapcode::text AS zoning_map_code,
         area::float8,
-        inzonechange::text AS "inzonechange"
+        inzonechange::text
     FROM drop_invalid
 )
 
