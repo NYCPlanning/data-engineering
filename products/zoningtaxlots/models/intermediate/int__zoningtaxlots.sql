@@ -47,6 +47,7 @@ insertion AS (
         a.boro AS boroughcode,
         a.block AS taxblock,
         a.lot AS taxlot,
+        a.geom,
         ST_AREA(a.geom) AS area,
         b1.overlay AS commercialoverlay1,
         b2.overlay AS commercialoverlay2,
@@ -104,6 +105,7 @@ park AS (
         boroughcode,
         taxblock,
         taxlot,
+        geom,
         area,
         notes,
         inzonechange,
@@ -187,7 +189,8 @@ export AS (
         zoningmapnumber::text AS zoning_map_number,
         zoningmapcode::text AS zoning_map_code,
         area::float8,
-        inzonechange::text AS "inzonechange"
+        inzonechange::text,
+        geom::geometry
     FROM drop_invalid
 )
 
