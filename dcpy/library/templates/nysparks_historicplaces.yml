@@ -5,7 +5,7 @@ dataset:
     arcgis_feature_server:
       server: nys_parks
       name: National_Register_Building_Listings
-      layer: 12
+      layer: 13
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
