@@ -175,7 +175,6 @@ export AS (
         boroughcode::text AS borough_code,
         TRUNC(taxblock::numeric)::text AS "tax_block",
         taxlot::text AS tax_lot,
-        geom::geometry,
         bbl::text,
         zoningdistrict1::text AS zoning_district_1,
         zoningdistrict2::text AS zoning_district_2,
@@ -190,7 +189,8 @@ export AS (
         zoningmapnumber::text AS zoning_map_number,
         zoningmapcode::text AS zoning_map_code,
         area::float8,
-        inzonechange::text
+        inzonechange::text,
+        geom::geometry
     FROM drop_invalid
 )
 

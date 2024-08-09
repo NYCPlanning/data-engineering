@@ -118,3 +118,4 @@ models:
       - name: zoningmapcode
       - name: area
       - name: inzonechange
+      - name: geom

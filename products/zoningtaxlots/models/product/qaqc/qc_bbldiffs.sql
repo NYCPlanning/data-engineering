@@ -16,7 +16,6 @@ bbldiffs AS (
         a.tax_block,
         a.tax_lot,
         a.bbl AS bblnew,
-        a.geom,
         a.zoning_district_1 AS zd1new,
         a.zoning_district_2 AS zd2new,
         a.zoning_district_3 AS zd3new,
@@ -43,7 +42,8 @@ bbldiffs AS (
         b.special_district_3 AS sd3prev,
         b.limited_height_district AS lhdprev,
         b.zoning_map_number AS zmnprev,
-        b.zoning_map_code AS zmcprev
+        b.zoning_map_code AS zmcprev,
+        a.geom
     FROM new_version AS a, prev_version AS b
     WHERE
         a.bbl = b.bbl
