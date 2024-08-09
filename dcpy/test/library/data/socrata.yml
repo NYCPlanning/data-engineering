@@ -1,36 +1,34 @@
 dataset:
-  name: dpr_parksproperties
+  name: dca_operatingbusinesses
   acl: public-read
   source:
-    # if source is socrata, the url can be computed
     socrata:
-      # the unique id for this dataset
-      uid: enfh-gkve
-      # file format pulling from socrata (csv, or geojson)
-      format: geojson
+      uid: w7w3-xahh
+      format: csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
+      - "X_POSSIBLE_NAMES=longitude,Longitude,Lon,lon,x"
+      - "Y_POSSIBLE_NAMES=latitude,Latitude,Lat,lat,y"
     geometry:
       SRS: EPSG:4326
-      type: MULTIPOLYGON
+      type: POINT
 
   destination:
     geometry:
       SRS: EPSG:4326
-      type: MULTIPOLYGON
+      type: POINT
     options:
       - "OVERWRITE=YES"
+      - "PRECISION=NO"
+      - "GEOMETRY=AS_WKT"
     fields: []
+    sql: null
 
   info:
     description: |
-      This dataset identifies property managed partially or solely by NYC Parks.
-      This data has been produced in whole or part using secondary data.
-      Data accuracy is limited by the scale and accuracy of the original sources.
-      Site-specific conditions should be field-verified.
-      Records are added as more land is designated under NYC Parks’ jurisdiction.
-      Each record represents an acquisition.
-      User Guide: https://docs.google.com/document/d/1NExNJF5YKID04oOopi0fHainRuGG3Pz_jKSrMujPsPk/edit?usp=sharing
-      Data Dictionary: https://docs.google.com/spreadsheets/d/1Q4DBWu7riNFxWvy1vnTJHoOI3r2L9oW6eCN56jCNyCw/edit?usp=sharing
-    url: https://data.cityofnewyork.us/Recreation/Parks-Properties/enfh-gkve
+      ### DCA Legally Operating Businesses
+      This data set features businesses/individuals holding a DCA license so that they may legally operate in New York City.
+      Note: Sightseeing guides and temporary street fair vendors are not included in this data set.
+    url: "https://data.cityofnewyork.us/Business/Legally-Operating-Businesses/w7w3-xahh"
+    dependents: []
