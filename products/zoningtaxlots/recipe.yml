@@ -1,15 +1,22 @@
 name: Zoning Tax Lots
 product: db-zoningtaxlots
+version: "2024-07-01"
 version_strategy: first_of_month
 inputs:
   missing_versions_strategy: find_latest
   datasets:
     - name: dcp_commercialoverlay
+      version: "20240709"
     - name: dcp_limitedheight
+      version: "20240709"
     - name: dcp_specialpurpose
+      version: "20240709"
     - name: dcp_zoningmapamendments
+      version: "20240709"
     - name: dof_dtm
+      version: "20240709"
     - name: dcp_zoningdistricts
+      version: "20240709"
     - name: dcp_zoningmapindex
     - name: dcp_zoningtaxlots
       version_env_var: VERSION_PREV 
