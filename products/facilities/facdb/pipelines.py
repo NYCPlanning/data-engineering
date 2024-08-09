@@ -695,13 +695,13 @@ def nysopwdd_providers(df: pd.DataFrame):
     return df
 
 
-def nysparks_historicplaces_esri(df: pd.DataFrame):
-    df = df[df.countyname.isin(["Bronx", "New York", "Kings", "Queens", "Richmond"])]
+def nysparks_historicplaces(df: pd.DataFrame):
+    df = df[df.county.isin(["Bronx", "New York", "Kings", "Queens", "Richmond"])]
     df = sanitize_df(df)
     return df
 
 
-def nysparks_parks_polygons(df: pd.DataFrame):
+def nysparks_parks(df: pd.DataFrame):
     df = df[df.county.isin(["Bronx", "New York", "Kings", "Queens", "Richmond"])]
     df = sanitize_df(df)
     return df

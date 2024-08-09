@@ -95,6 +95,6 @@ inputs:
     - name: moeo_socialservicesitelocations
     - name: nycdoc_corrections
     - name: nysopwdd_providers
-    - name: nysparks_historicplaces_esri
-    - name: nysparks_parks_polygons
+    - name: nysparks_historicplaces
+    - name: nysparks_parks
     - name: nysoasas_programs

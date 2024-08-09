@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS _nysparks_parks_polygons;
+DROP TABLE IF EXISTS _nysparks_parks;
 SELECT
     uid,
     source,
@@ -29,7 +29,7 @@ SELECT
     NULL AS geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
-INTO _nysparks_parks_polygons
-FROM nysparks_parks_polygons;
+INTO _nysparks_parks
+FROM nysparks_parks;
 
-CALL append_to_facdb_base('_nysparks_parks_polygons');
+CALL append_to_facdb_base('_nysparks_parks');
