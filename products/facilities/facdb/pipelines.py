@@ -696,7 +696,7 @@ def nysopwdd_providers(df: pd.DataFrame):
 
 
 def nysparks_historicplaces(df: pd.DataFrame):
-    df = df[df.county.isin(["Bronx", "New York", "Kings", "Queens", "Richmond"])]
+    df = df[df.countyname.isin(["Bronx", "New York", "Kings", "Queens", "Richmond"])]
     df = sanitize_df(df)
     return df
 
