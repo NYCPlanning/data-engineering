@@ -20,7 +20,7 @@ SELECT
     'NYSOPRHP' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    ST_TRANSFORM(ST_SETSRID(wkt::geometry, 2263), 4326) AS wkb_geometry,
+    wkt::geometry AS wkb_geometry,
     NULL AS geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
