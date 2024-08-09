@@ -1,11 +1,30 @@
 import pytest
+from tempfile import TemporaryFile
 from unittest.mock import patch
+import yaml
+
+from dcpy.models.library import DatasetDefinition
 from dcpy.library.config import Config
+from dcpy.library import TEMPLATE_DIR
 
 from dcpy.test.conftest import mock_request_get
 from . import template_path, get_config_file
 
 FAKE_PATH = "./fake_file.csv"
+
+
+def test_model_dump():
+    """Ensure that custom serializers don't mutate form of data"""
+    for file in TEMPLATE_DIR.glob("*"):
+        with open(file, "r") as f:
+            config_dict = yaml.safe_load(f)["dataset"]
+        # version is typically set in code after reading in raw template
+        if "version" not in config_dict:
+            config_dict["version"] = "dummy"
+        config = DatasetDefinition(**config_dict)
+        yml_str = yaml.dump(config.model_dump())
+        print(yml_str)
+        config2 = DatasetDefinition(**yaml.safe_load(yml_str))
 
 
 def test_config_parsed_rendered_template():
