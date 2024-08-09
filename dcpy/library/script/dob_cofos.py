@@ -10,7 +10,7 @@ from dcpy.connectors.edm import recipes
 class Scriptor(ScriptorInterface):
     @property
     def previous_version(self) -> str:
-        version = self.config["dataset"]["info"]["previous_version"]
+        version = self.source.get("previous_version")
         if version is None:
             raise Exception(
                 "Cofos requires a previous version specified in its yml input."
@@ -41,7 +41,7 @@ class Scriptor(ScriptorInterface):
             name=self.name,
             version=self.previous_version,
         )
-        return recipes.read_df(previous_dataset, dtype=str)
+        return recipes.read_df(previous_dataset)
 
     def runner(self) -> str:
         previous = self.previous()

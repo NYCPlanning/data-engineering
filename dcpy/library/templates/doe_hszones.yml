@@ -1,10 +1,10 @@
 dataset:
   name: doe_hszones
-  version: "2019-2020"
+  version: "2024-2025"
   acl: public-read
   source:
     socrata:
-      uid: g844-z9rd
+      uid: ruu9-egea
       format: geojson
     options:
       - "AUTODETECT_TYPE=NO"
@@ -25,7 +25,7 @@ dataset:
 
   info:
     description: |
-      ### 2019-2020 School Zones (High School)
+      ### 2024-2025 School Zones (High School)
       Polygon boundaries of school zones used for school assignment and access.
-    url: https://data.cityofnewyork.us/Education/2019-2020-School-Zones-High-School-/g844-z9rd
+    url: https://data.cityofnewyork.us/Education/School-Zones-Map-2024-2025/shkv-c3w7
     dependents: []
