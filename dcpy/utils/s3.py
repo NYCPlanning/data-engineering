@@ -198,15 +198,16 @@ def upload_file(
 
 
 def upload_file_obj(
-    file_obj,
+    file_obj: BytesIO,
     bucket: str,
     key: str,
     acl: ACL,
     *,
     metadata: dict[str, Any] | None = None,
 ) -> None:
+    """https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/upload_fileobj.html"""
     with _progress() as progress:
-        size = len(file_obj)
+        size = file_obj.getbuffer().nbytes
         task = progress.add_task(f"[green]Uploading [bold]{key}[/bold]", total=size)
         standard_metadata = generate_metadata()
         metadata = metadata or {}
