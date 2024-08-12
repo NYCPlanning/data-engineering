@@ -125,8 +125,8 @@ def ingest() -> None:
         allow_override = st.checkbox("Allow Path/File Override")
 
         if dataset_name and version:
-            s3_path = Path("inbox") / dataset_name / version
-            st.write("S3 Path:", s3_path)
+            s3_path_display = f"inbox / {dataset_name} / {version}"
+            st.write("S3 Path:", s3_path_display)
 
         ingest_button_pressed = st.button(
             "Ingest",
