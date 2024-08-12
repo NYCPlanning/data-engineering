@@ -22,8 +22,8 @@ inputs:
     - name: dcp_cscl_complex
     # Natural Resources
     - name: dcp_beaches
-    - name: dcp_wrp_rec
-    - name: dcp_wrp_snwa
+    - name: dcp_wrp_recognized_ecological_complexes
+    - name: dcp_wrp_special_natural_waterfront_areas
     - name: dpr_forever_wild
     - name: nysdec_freshwater_wetlands_checkzones
     - name: nysdec_freshwater_wetlands
@@ -38,7 +38,7 @@ inputs:
     - name: lpc_scenic_landmarks # e.g. Central Park / Ocean Parkway / etc.
     - name: lpc_historic_district_areas # polygons for a neighborhood
     - name: lpc_landmarks # landmark buildings -> ncre-qhxs. In spreadsheet as `Historic Building (NYC)` - 38.8k rows
-    - name: nysparks_historicplaces_esri
+    - name: nysparks_historicplaces
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
     - name: nysshpo_archaeological_buffer_areas
@@ -48,7 +48,7 @@ inputs:
     - name: dcp_pops
     - name: dcp_waterfront_access_map_wpaa
     - name: dcp_waterfront_access_map_pow
-    - name: nysparks_parks_polygons
+    - name: nysparks_parks
     - name: usnps_parks
     # Other
     - name: dcp_edesignation_csv

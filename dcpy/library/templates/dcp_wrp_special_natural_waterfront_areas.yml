@@ -1,22 +1,22 @@
 dataset:
-  name: dcp_wrp_rec
+  name: dcp_wrp_special_natural_waterfront_areas
   acl: public-read
   source:
-    url:
-      path: https://www.nyc.gov/assets/planning/download/zip/data-maps/open-data/nycwrpgdb{{ version }}.zip
-      subpath: NYCWRP_{{ version }}.gdb
-    layer_name: REC
+    arcgis_feature_server:
+      server: dcp
+      name: WRP
+      layer_name: Special Natural Waterfront Area
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
     geometry:
       SRS: EPSG:2263
-      type: POINT
+      type: MULTIPOLYGON
 
   destination:
     geometry:
       SRS: EPSG:2263
-      type: POINT
+      type: MULTIPOLYGON
     options:
       - "PRECISION=NO"
       - "OVERWRITE=YES"
@@ -24,10 +24,10 @@ dataset:
 
   info:
     description: |
-      ## Waterfront Revitalization Program Recognized Ecological Complexes
+      ## Waterfront Revitalization Program Special Natural Waterfront Area
       The Coastal Zone Boundary defines the geographic scope of New York City's Waterfront Revitalization Program (WRP). 
       Pursuant to federal statute, the boundary encompasses all land and water of direct and significant impact on coastal waters. 
       Federal lands and facilities are excluded from the coastal zone and consistency review in accordance with federal legislation.
 
-      Recognized Ecological Complexes (RECs) are a special area designation of the NYC Waterfront Revitalization Program.
+      The Special Natural Waterfront Area (SNWA) is a special area designation of the NYC Waterfront Revitalization Program.
     url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page

@@ -9,8 +9,8 @@ WITH all_natural_resources AS (
         ref('stg__dcp_beaches'),
         ref('stg__nysdec_natural_heritage_communities'),
         ref('stg__usfws_nyc_wetlands'),
-        ref('stg__dcp_wrp_rec'),
-        ref('stg__dcp_wrp_snwa'),
+        ref('stg__dcp_wrp_recognized_ecological_complexes'),
+        ref('stg__dcp_wrp_special_natural_waterfront_areas'),
         ref('stg__dpr_forever_wild')
     ],
     source_column_name="source_relation",
