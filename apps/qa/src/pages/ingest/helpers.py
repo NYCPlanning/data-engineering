@@ -5,6 +5,8 @@ from time import sleep
 
 from dcpy.utils import s3
 from dcpy.library.archive import Archive
+from io import BytesIO
+
 
 BUCKET = "edm-recipes"
 
@@ -15,41 +17,26 @@ def archive_raw_data(
     uploaded_file: UploadedFile,
     file_name: str,
     allow_override: bool,
-) -> Path:
-
-    base_path = Path(".library") / "upload"
-    file_path = base_path / file_name
-    base_path.mkdir(parents=True, exist_ok=True)
+) -> None:
 
     s3_path = Path("inbox") / dataset_name / version / f"{file_name}"
 
     exists = s3.exists(BUCKET, str(s3_path))
     if exists == True:
-        st.error("Warning: File path already exists")
+        st.warning("Warning: File path already exists")
         if allow_override == False:
-            st.error(
+            raise FileExistsError(
                 "File already exists on S3. Check the allow override box if you wish to continue"
             )
-            raise FileExistsError("S3 Path/File Exists")
 
-    try:
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-    except Exception as e:
-        st.error("Failed to save temporary file: {e}")
+    file_obj = BytesIO(uploaded_file.read())
 
-    try:
-        s3.upload_file(
-            BUCKET,
-            file_path,
-            f"inbox/{dataset_name}/{version}/{file_name}",
-            "public-read",
-        )
-    except Exception as e:
-        st.error(
-            "Failed to archive Dataset {dataset_name} version {version} to {s3_path}: {e}"
-        )
-    return file_path
+    s3.upload_file_obj(
+        file_obj,
+        BUCKET,
+        f"inbox/{dataset_name}/{version}/{file_name}",
+        "public-read",
+    )
 
 
 def library_archive(

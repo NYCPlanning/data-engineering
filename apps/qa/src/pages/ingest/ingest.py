@@ -36,17 +36,18 @@ def ingest() -> None:
     ) -> None:
         with st.spinner("Ingesting"):
             try:
-                file_path = archive_raw_data(
+                archive_raw_data(
                     dataset_name,
                     version,
                     uploaded_file,
                     uploaded_file.name,
                     allow_override,
                 )
-                if file_path is None:
-                    raise ValueError("Dummy error occurred")
                 st.session_state["ingest"]["upload_status"] = "success"
             except Exception as e:
+                st.error(
+                    f"Failed to archive Dataset {dataset_name} version {version} to {s3_path}"
+                )
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 

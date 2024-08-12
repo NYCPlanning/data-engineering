@@ -196,6 +196,31 @@ def upload_file(
             Callback=lambda bytes: progress.update(task, advance=bytes),
         )
 
+def upload_file_obj(
+    file_obj,
+    bucket: str,
+    key: str,
+    acl: ACL,
+    *,
+    metadata: dict[str, Any] | None = None,
+) -> None:
+    with _progress() as progress:
+        size = len(file_obj)
+        task = progress.add_task(
+            f"[green]Uploading [bold]{key}[/bold]", total=size
+        )
+        standard_metadata = generate_metadata()
+        metadata = metadata or {}
+        metadata.update(standard_metadata)
+        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
+        client().upload_fileobj(
+            file_obj,
+            bucket,
+            key,
+            ExtraArgs=extra_args,
+            Callback=lambda bytes: progress.update(task, advance=bytes),
+        )
+
 
 def copy_file(
     bucket: str,
