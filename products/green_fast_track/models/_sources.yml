@@ -396,7 +396,7 @@ sources:
             tests:
               - not_null
 
-      - name: dcp_wrp_rec
+      - name: dcp_wrp_recognized_ecological_complexes
         columns:
           - name: site_name
             tests:
@@ -406,7 +406,7 @@ sources:
             tests:
               - not_null
 
-      - name: dcp_wrp_snwa
+      - name: dcp_wrp_special_natural_waterfront_areas
         columns:
           - name: name
             tests:

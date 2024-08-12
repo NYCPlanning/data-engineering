@@ -3,4 +3,4 @@ SELECT
     name AS variable_id,
     shape AS raw_geom,
     NULL AS buffer
-FROM {{ source("recipe_sources", "dcp_wrp_snwa") }}
+FROM {{ source("recipe_sources", "dcp_wrp_special_natural_waterfront_areas") }}
