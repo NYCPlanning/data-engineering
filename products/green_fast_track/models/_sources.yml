@@ -223,7 +223,7 @@ sources:
               - not_null
               - is_epsg_2263
 
-      - name: nysparks_historicplaces_esri
+      - name: nysparks_historicplaces
         columns:
           - name: wkb_geometry
             tests:
