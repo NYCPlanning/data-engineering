@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: library/tmp/All_Institutions_by_County.csv
+      path: s3://edm-recipes/inbox/nysed_activeinstitutions/{{ version }}/All_Institutions_by_County.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
@@ -24,5 +24,7 @@ dataset:
     description: |
       ###  NYSED Active Institutions
       All Institutions: Active Institutions with GIS coordinates and OITS Accuracy Code - Selected by County (CSV version)
+      Select counties "NEW YORK", "KINGS", "BRONX", "QUEENS", "RICHMOND".
+      Note that values in the .csv are comma delimited but isn't recognized as such. Import into either Excel or Numbers and export as as csv.
     url: "https://eservices.nysed.gov/sedreports/list?id=1"
     dependents: []
