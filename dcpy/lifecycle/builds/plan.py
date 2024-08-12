@@ -209,7 +209,7 @@ def plan(recipe_file: Path, version: str | None = None) -> Path:
 
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
-        yaml.dump(recipe.model_dump(), f)
+        yaml.dump(recipe.model_dump(mode="json"), f)
 
     return lock_file
 
@@ -282,7 +282,7 @@ def repeat_build(
     )
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
-        yaml.dump(recipe.model_dump(), f)
+        yaml.dump(recipe.model_dump(mode="json"), f)
     return lock_file
 
 

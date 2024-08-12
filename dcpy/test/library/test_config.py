@@ -1,5 +1,4 @@
 import pytest
-from tempfile import TemporaryFile
 from unittest.mock import patch
 import yaml
 
@@ -22,8 +21,7 @@ def test_model_dump():
         if "version" not in config_dict:
             config_dict["version"] = "dummy"
         config = DatasetDefinition(**config_dict)
-        yml_str = yaml.dump(config.model_dump())
-        print(yml_str)
+        yml_str = yaml.dump(config.model_dump(mode="json"))
         config2 = DatasetDefinition(**yaml.safe_load(yml_str))
 
 

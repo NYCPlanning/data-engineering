@@ -114,7 +114,7 @@ def create_temp_filesystem(mock_data_constants):
             writer.writeheader()
             writer.writerows(file_data)
         with open(data_path / build_metadata_file, "w") as f:
-            yaml.dump(build_metadata.model_dump(), f)
+            yaml.dump(build_metadata.model_dump(mode="json"), f)
         print("Created test filesystem ✅")
 
     except Exception as exc:

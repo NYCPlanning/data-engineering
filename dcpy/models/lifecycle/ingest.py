@@ -14,10 +14,6 @@ class LocalFileSource(BaseModel, extra="forbid"):
     type: Literal["local_file"]
     path: Path
 
-    @field_serializer("path")
-    def _serialize_path(self, path: Path, _info) -> str:
-        return str(path)
-
 
 class S3Source(BaseModel, extra="forbid"):
     type: Literal["s3"]
