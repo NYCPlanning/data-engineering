@@ -118,6 +118,15 @@ def mock_query_layer(url: str, data: dict):
 
 @patch("requests.post", side_effect=mock_query_layer)
 class TestGetLayer:
+    @patch("requests.get", side_effect=mock_request_get)
+    def test_get_layer_metadata_error(self, get, post):
+        with pytest.raises(Exception, match="Error fetching ESRI Server metadata"):
+            arcfs.get_layer_metadata(
+                FeatureServerLayer(
+                    server=Server.nys_parks, name="error", layer_name="", layer_id=13
+                )
+            )
+
     def test_get_layer(self, post: MagicMock):
         a = arcfs.get_layer(MULTIPLE_LAYER, crs=1)
         assert a["crs"] == 1
