@@ -49,7 +49,7 @@ def library_archive(
         version=version,
         override_path=s3_path,
         latest=latest,
-        push=True,
+        clean=True,
     )
 
 
