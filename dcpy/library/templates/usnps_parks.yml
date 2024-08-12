@@ -5,7 +5,7 @@ dataset:
     arcgis_feature_server:
       server: nps
       name: NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service
-      layer: 2
+      layer_name: nps_boundary
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

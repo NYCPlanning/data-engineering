@@ -22,13 +22,35 @@ servers = {
 class FeatureServer(BaseModel, extra="forbid"):
     server: Server
     name: str
-    layer: int = 0
 
     @property
-    def url(self):
+    def url(self) -> str:
         subdomain = servers[self.server].get("subdomain", "services")
         server_id = servers[self.server]["id"]
-        return f"https://{subdomain}.arcgis.com/{server_id}/ArcGIS/rest/services/{self.name}/FeatureServer/{self.layer}"
+        return f"https://{subdomain}.arcgis.com/{server_id}/ArcGIS/rest/services/{self.name}/FeatureServer"
+
+    @field_serializer("server")
+    def _serialize_server(self, s: Server, _info) -> str:
+        return s.value
+
+
+class FeatureServerLayer(BaseModel, extra="forbid"):
+    server: Server
+    name: str
+    layer_name: str
+    layer_id: int
+
+    @property
+    def feature_server(self) -> FeatureServer:
+        return FeatureServer(server=self.server, name=self.name)
+
+    @property
+    def url(self) -> str:
+        return f"{self.feature_server.url}/{self.layer_id}"
+
+    @property
+    def layer_label(self) -> str:
+        return f"{self.layer_name} ({self.layer_id})"
 
     @field_serializer("server")
     def _serialize_server(self, s: Server, _info) -> str:

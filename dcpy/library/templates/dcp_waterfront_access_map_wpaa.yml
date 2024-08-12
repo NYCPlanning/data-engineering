@@ -5,7 +5,6 @@ dataset:
     arcgis_feature_server:
       server: dcp
       name: nywpaa
-      layer: 0
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

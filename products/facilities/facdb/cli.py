@@ -94,7 +94,7 @@ def _cli_run_pipelines(
         if scripts:
             for script in scripts:
                 postgres.execute_file_via_shell(
-                    BUILD_ENGINE, Path(__file__).parent / "sql" / script
+                    BUILD_ENGINE, SQL_PATH / "pipelines" / script
                 )
 
         typer.echo(typer.style(f"SUCCESS: {name}", fg=typer.colors.GREEN))
