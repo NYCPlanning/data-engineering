@@ -3,30 +3,27 @@ dataset:
   acl: public-read
   source:
     url:
-      path: .library/upload/fbop_corrections.csv
+      path: s3://edm-recipes/inbox/fbop_corrections/{{ version }}/fbop_corrections.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
-      - "X_POSSIBLE_NAMES=longitude"
-      - "Y_POSSIBLE_NAMES=latitude"
     geometry:
-      SRS: EPSG:4326
-      type: POINT
+      SRS: null
+      type: NONE
 
   destination:
     geometry:
-      SRS: EPSG:4326
-      type: POINT
+      SRS: null
+      type: NONE
     options:
       - "OVERWRITE=YES"
-      - "PRECISION=NO"
-      - "GEOMETRY=AS_WKT"
     fields: []
     sql: null
 
   info:
     description: |
       ## Federal Bureau of Prisons Locations
-      Hand-check for updates.
+      Check for updates and compare to latest version. If changes are needed, copy and edit latest csv.
+      When searching by state, there should be 5 NY prisons, 3 of which are in NYC (Brooklyn/New York)
     url: https://www.bop.gov/locations/list.jsp
     dependents: []
