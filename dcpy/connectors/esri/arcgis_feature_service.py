@@ -57,46 +57,47 @@ def resolve_layer(
     - neither provided - if feature_server has single layer, return it. Otherwise, error
     """
     layers = get_feature_server_layers(feature_server)
-    if layer_id is not None and layer_name is not None:
-        layer = FeatureServerLayer(
-            server=feature_server.server,
-            name=feature_server.name,
-            layer_name=layer_name,
-            layer_id=layer_id,
-        )
-        if layer not in layers:
-            raise LookupError(
-                f"Layer '{layer}' not found in feature server {feature_server}"
-            )
-        return layer
-    layers = get_feature_server_layers(feature_server)
     layer_labels = [l.layer_label for l in layers]
-    if layer_name is None and layer_id is None:
-        if len(layers) > 1:
-            raise ValueError(
-                f"Feature server {feature_server} has mulitple layers: {layer_labels}"
+
+    match layer_id, layer_name:
+        case None, None:
+            if len(layers) > 1:
+                raise ValueError(
+                    f"Feature server {feature_server} has mulitple layers: {layer_labels}"
+                )
+            elif len(layers) == 0:
+                raise LookupError(f"Feature server {feature_server} has no layers")
+            else:
+                return layers[0]
+        case _, None:
+            assert layer_id is not None
+            layers_by_id = {l.layer_id: l for l in layers}
+            if layer_id in layers_by_id:
+                return layers_by_id[layer_id]
+            else:
+                raise LookupError(
+                    f"Layer with id {layer_id} not found in feature server {feature_server}. Found layers: {layer_labels}."
+                )
+        case None, _:
+            layers_by_name = {l.layer_name: l for l in layers}
+            if layer_name in layers_by_name:
+                return layers_by_name[layer_name]
+            else:
+                raise LookupError(
+                    f"Layer with name '{layer_name}' not found in feature server {feature_server}. Found layers: {layer_labels}."
+                )
+        case _, _:
+            layer = FeatureServerLayer(
+                server=feature_server.server,
+                name=feature_server.name,
+                layer_name=layer_name,
+                layer_id=layer_id,
             )
-        elif len(layers) == 0:
-            raise LookupError(f"Feature server {feature_server} has no layers")
-        else:
-            return layers[0]
-    elif layer_name is not None:
-        layers_by_name = {l.layer_name: l for l in layers}
-        if layer_name in layers_by_name:
-            return layers_by_name[layer_name]
-        else:
-            raise LookupError(
-                f"Layer with name '{layer_name}' not found in feature server {feature_server}. Found layers: {layer_labels}."
-            )
-    else:
-        assert layer_id is not None
-        layers_by_id = {l.layer_id: l for l in layers}
-        if layer_id in layers_by_id:
-            return layers_by_id[layer_id]
-        else:
-            raise LookupError(
-                f"Layer with id {layer_id} not found in feature server {feature_server}. Found layers: {layer_labels}."
-            )
+            if layer not in layers:
+                raise LookupError(
+                    f"Layer '{layer}' not found in feature server {feature_server}"
+                )
+            return layer
 
 
 def get_layer_metadata(layer: FeatureServerLayer) -> dict:
