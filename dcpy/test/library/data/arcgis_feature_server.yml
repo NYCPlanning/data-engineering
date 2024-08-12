@@ -1,5 +1,5 @@
 dataset:
-  name: nysparks_historicplaces_esri
+  name: nysparks_historicplaces
   acl: public-read
   source:
     arcgis_feature_server:

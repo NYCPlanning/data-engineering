@@ -28,8 +28,10 @@ jobs:
           - dcp_waterfront_access_map_pow
           - nysdec_freshwater_wetlands_checkzones
           - nysdec_freshwater_wetlands
+          - nysdec_lands
           - nysdec_natural_heritage_communities
           - nysdec_priority_lakes
+          - nysdec_priority_shorelines
           - nysdec_priority_estuaries
           - nysdec_priority_streams
           - nysdec_tidal_wetlands
