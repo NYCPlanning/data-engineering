@@ -1,6 +1,11 @@
 def ingest() -> None:
     import streamlit as st
-    from .helpers import archive_raw_data, dummy_library_call, dummy_archive_raw_data
+    from .helpers import (
+        archive_raw_data,
+        library_archive,
+        dummy_library_call,
+        dummy_archive_raw_data,
+    )
     from pathlib import Path
     import time
     from dcpy.library import utils
@@ -51,12 +56,10 @@ def ingest() -> None:
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
-    def library(dataset_name: str, version: str, s3_path: Path) -> None:
+    def library(dataset_name: str, version: str, s3_path: Path, latest: bool) -> None:
         with st.spinner("Calling Library"):
             try:
-                library_path = dummy_library_call(dataset_name, version, s3_path)
-                if library_path is None:
-                    raise ValueError("Dummy error occurred")
+                library_archive(dataset_name, version, s3_path, latest)
                 st.session_state["ingest"]["library_status"] = "success"
             except Exception as e:
                 st.session_state["ingest"]["library_status"] = "fail"
@@ -173,6 +176,8 @@ def ingest() -> None:
             disabled=st.session_state["ingest"]["running"],
         )
 
+        latest = st.checkbox("Tag as Latest Version")
+
         library_button_pressed = st.button(
             "Call Library",
             on_click=lock_for_library,
@@ -183,7 +188,7 @@ def ingest() -> None:
             library_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            library(dataset_name, version, Path(s3_path))
+            library(dataset_name, version, Path(s3_path), latest)
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -214,6 +219,8 @@ def ingest() -> None:
 
         allow_override = st.checkbox("Allow Path/File Override")
 
+        latest = st.checkbox("Tag as Latest Version")
+
         if dataset_name and version:
             s3_path = Path("inbox") / dataset_name / version
             st.write("S3 Path:", s3_path)
@@ -236,7 +243,7 @@ def ingest() -> None:
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
-            library(dataset_name, version, s3_path)
+            library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
             st.button("Restart", on_click=unlock)

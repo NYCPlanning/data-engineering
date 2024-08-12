@@ -44,7 +44,13 @@ def library_archive(
 ) -> None:
     a = Archive()
     # once we've tested and this is ready to go, need to add `push=True`
-    a(name=dataset_name, version=version, override_path=s3_path, latest=latest)
+    a(
+        name=dataset_name,
+        version=version,
+        override_path=s3_path,
+        latest=latest,
+        push=True,
+    )
 
 
 def dummy_archive_raw_data(
