@@ -5,7 +5,6 @@ dataset:
     arcgis_feature_server:
       server: nys_parks
       name: Building_District_USN_Polygons
-      layer: 6
     geometry:
       SRS: EPSG:3857
       type: MULTIPOLYGON

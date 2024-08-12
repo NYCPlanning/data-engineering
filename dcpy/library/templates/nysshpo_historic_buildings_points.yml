@@ -5,7 +5,6 @@ dataset:
     arcgis_feature_server:
       server: nys_parks
       name: Building_USN_Points
-      layer: 1
     geometry:
       SRS: EPSG:3857
       type: POINT
