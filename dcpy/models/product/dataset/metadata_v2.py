@@ -5,7 +5,7 @@ from mergedeep import merge
 from pathlib import Path
 from pydantic import BaseModel, field_validator, model_serializer
 from pydantic.fields import PrivateAttr
-from typing import Any, List, Literal, get_args
+from typing import Any, List, Literal, get_args, Self
 import typing
 import yaml
 
@@ -92,6 +92,14 @@ class SortedSerializedBase(BaseModel):
 
 
 class CustomizableBase(SortedSerializedBase, extra="forbid"):
+    """A Base Pydantic class to allow extensibility of our models via a `custom`
+    dictionary.
+
+    Any additional required attributes that aren't defined on our models should
+    be added to `custom`. It's also important that custom be preserved in the
+    course of overriding, specifically with a deep merge of the dictionary elements.
+    """
+
     custom: dict[str, Any] = {}
 
 
@@ -140,7 +148,7 @@ class DatasetColumnOverrides(CustomizableBase):
 
 
 class DatasetColumn(DatasetColumnOverrides):
-    """Like OverrideableColumnAttrs, but with constraints for non-null fields"""
+    """Like DatasetColumnOverrides, but with constraints for non-null fields"""
 
     @field_validator("display_name")
     def _validate_display_name(cls, dn):
@@ -167,7 +175,10 @@ class File(CustomizableBase):
 
     id: str
     filename: str
-    type: str | None = None
+    type: str
+    is_metadata: bool | None = (
+        None  # e.g. readmes, data_dictionaries, version_files, etc.
+    )
 
     def override(self, overrides: FileOverrides) -> File:
         return File(
@@ -177,15 +188,19 @@ class File(CustomizableBase):
 
 # PACKAGE / ASSEMBLY
 class PackageFile(CustomizableBase):
+    """File found in a Package, e.g. a Zip. `filename` here refers to it's name
+    in the package
+    """
+
     id: str
-    filename: str
+    filename: str | None = None
 
 
 class Package(CustomizableBase):
     """Container for lists of files. Used as assembly instructions."""
 
     id: str
-    type: str
+    type: str = "zip"
     filename: str
     contents: List[PackageFile]
 
@@ -222,6 +237,7 @@ class Dataset(CustomizableBase):
     attributes: DatasetAttributes
 
     def override(self, overrides: DatasetOverrides) -> Dataset:
+        """Apply column updates and prune any columns specified as omitted"""
         overriden_cols_by_id = {c.id: c for c in overrides.overridden_columns}
 
         columns = [
@@ -282,6 +298,12 @@ class Metadata(CustomizableBase):
     @property
     def dataset(self):
         return Dataset(attributes=self.attributes, columns=self.columns)
+
+    def get_package(self, id: str) -> Package:
+        packages = [p for p in self.assembly if p.id == id]
+        if len(packages) != 1:
+            raise Exception(f"There should exist one package with id: {id}")
+        return packages[0]
 
     def get_destination(self, id: str) -> DestinationWithFiles:
         dests = [d for d in self.destinations if d.id == id]

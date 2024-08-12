@@ -144,7 +144,7 @@ class Socrata:
                 return [c["field_name"] for c in self.soc_output_columns]
 
             def update_column_metadata(
-                self, socrata_dest: md_v2.Destination, metadata: md_v2.Metadata
+                self, socrata_dest: md_v2.DestinationWithFiles, metadata: md_v2.Metadata
             ):
                 # list[SocrataColumn]
                 dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
@@ -423,7 +423,7 @@ def push_dataset(
     rev.patch_metadata(
         attachments=attachments_metadata,
         # TODO: this isn't right. We shouldn't be passing our md...
-        metadata=metadata.calculate_overrides(
+        metadata=metadata.calculate_destination_file_metadata(
             file_id=dataset_file_id, destination_id=dataset_destination_id
         ).model_dump(),
     )

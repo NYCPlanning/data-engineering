@@ -84,7 +84,7 @@ def make_dcp_metadata(socrata_md) -> md_v2.Metadata:
         ),
         columns=columns,
         destinations=[
-            md_v2.Destination(
+            md_v2.DestinationWithFiles(
                 id="socrata_prod",
                 type="socrata",
                 files=[],

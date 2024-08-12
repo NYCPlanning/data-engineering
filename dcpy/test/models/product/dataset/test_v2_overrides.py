@@ -1,4 +1,5 @@
 from dcpy.models.product.dataset import metadata_v2 as m
+from dcpy.models.product.dataset.metadata import Package
 
 
 OVERRIDDEN_SHP_NAME_AT_DEST = "overridden_shp_name_at_dest.zip"
@@ -7,8 +8,10 @@ MYSHAPEFILE_DISPLAY_OVERRIDDEN_AT_FILE_LEVEL = (
     "myshapefile display overridden at file-level"
 )
 
+# Files
 BASIC_SHAPEFILE_ID = "my_basic_shapefile"
 OVERRIDDEN_SHAPEFILE_ID = "my_overridden_shapefile"
+ZIP_FILE_ID = "my_zip"
 
 SOCRATA_DESTINATION_ID = "socrata_shapefile_dest"
 
@@ -134,9 +137,21 @@ def make_metadata():
                 id="bytes_dest",
                 type="bytes",
                 files=[
-                    m.DestinationFile(id="my_basic_shapefile"),
+                    m.DestinationFile(id=ZIP_FILE_ID),
                 ],
             ),
+        ],
+        assembly=[
+            m.Package(
+                id=ZIP_FILE_ID,
+                filename="my.zip",
+                contents=[
+                    m.PackageFile(id=BASIC_SHAPEFILE_ID),
+                    m.PackageFile(
+                        id=OVERRIDDEN_SHAPEFILE_ID, filename="2024_01.shp.zip"
+                    ),
+                ],
+            )
         ],
     )
 

@@ -281,13 +281,13 @@ class Metadata(BaseModel, extra="forbid"):
                         col_overrides["data_type"]
                     )
                 custom = _construct_with_custom(
-                    md_v2.OverrideableColumnAttrs, id=k, **col_overrides
+                    md_v2.DatasetColumnOverrides, id=k, **col_overrides
                 )
                 overridden_columns.append(custom)
 
             return md_v2.DatasetOverrides(
                 overridden_columns=overridden_columns,
-                omitted_columns=v1.omit_columns,
+                omitted_columns=set(v1.omit_columns),
                 attributes=md_v2.DatasetAttributesOverride(
                     display_name=v1.display_name,
                     description=v1.description,
@@ -298,18 +298,27 @@ class Metadata(BaseModel, extra="forbid"):
             id=self.name,
             files=[
                 md_v2.FileAndOverrides(
-                    id=dsf.name,
-                    filename=dsf.filename,
-                    type=dsf.type,
-                    dataset_overrides=_v1_overrides_to_v2(dsf.overrides),
-                    custom=_remove_falsey_from_dict(
-                        {"ignore_validation": dsf.overrides.ignore_validation}
+                    file=md_v2.File(
+                        id=dsf.name,
+                        filename=dsf.filename,
+                        type=str(dsf.type),
+                        custom=_remove_falsey_from_dict(
+                            {"ignore_validation": dsf.overrides.ignore_validation}
+                        ),
                     ),
+                    dataset_overrides=_v1_overrides_to_v2(dsf.overrides),
                 )
                 for dsf in self.package.dataset_files
             ]
             + [
-                md_v2.FileAndOverrides(id=att.name, filename=att.filename)
+                md_v2.FileAndOverrides(
+                    file=md_v2.File(
+                        id=att.name,
+                        filename=att.filename,
+                        type=str(att.type),
+                        is_metadata=True,
+                    )
+                )
                 for att in self.package.attachments
             ],
             assembly=[
@@ -318,14 +327,14 @@ class Metadata(BaseModel, extra="forbid"):
                     type=zf.type,
                     filename=zf.filename,
                     contents=[
-                        md_v2.PackageFile(id=pf.name, filename=zf.filename)
+                        md_v2.PackageFile(id=pf.name, filename=pf.filename)
                         for pf in zf.contains
                     ],
                 )
                 for zf in self.package.zip_files
             ],
             destinations=[  # Socrata Dests
-                md_v2.Destination(
+                md_v2.DestinationWithFiles(
                     id=dest.id,
                     type="socrata",
                     files=[
@@ -341,7 +350,7 @@ class Metadata(BaseModel, extra="forbid"):
                             custom={"destination_use": "dataset_file"},
                             dataset_overrides=md_v2.DatasetOverrides(
                                 overridden_columns=[
-                                    md_v2.OverrideableColumnAttrs(
+                                    md_v2.DatasetColumnOverrides(
                                         id=k,
                                         display_name=v.display_name,
                                         description=v.description,
@@ -366,11 +375,11 @@ class Metadata(BaseModel, extra="forbid"):
                 if type(dest) == SocrataDestination
             ]
             + [
-                md_v2.Destination(
+                md_v2.DestinationWithFiles(
                     id=dest.id,
                     type="bytes",
                     files=[
-                        md_v2.DestinationFile(id=f.id, custom={"bytes": {"url": f.url}})
+                        md_v2.DestinationFile(id=f.id, custom={"url": f.url})
                         for f in dest.files
                     ],
                 )
