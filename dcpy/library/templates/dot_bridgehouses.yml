@@ -3,8 +3,8 @@ dataset:
   acl: public-read
   source:
     url:
-      path: .library/upload/Bridge_Houses.zip
-      subpath: Bridge_Houses/Bridge_Houses.shp
+      path: s3://edm-recipes/inbox/dot/{{ version }}
+      subpath: BRIDGE_HOUSES.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

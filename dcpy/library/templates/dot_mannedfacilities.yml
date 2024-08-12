@@ -3,8 +3,8 @@ dataset:
   acl: public-read
   source:
     url:
-      path: .library/upload/Manned_Facilities.zip
-      subpath: Manned_Facilities/Manned_Facilities.shp
+      path: s3://edm-recipes/inbox/dot/{{ version }}
+      subpath: MANNED_FACILITIES.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
