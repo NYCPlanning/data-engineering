@@ -27,7 +27,7 @@ def ingest() -> None:
         else:
             st.warning("Please input all fields.")
 
-    def lock_for_library(dataset_name: str, version: str, s3_path: Path) -> None:
+    def lock_for_library(dataset_name: str, version: str, s3_path: str) -> None:
         if dataset_name and version and s3_path:
             st.session_state["ingest"]["running"] = True
         else:
