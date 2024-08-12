@@ -56,7 +56,7 @@ def ingest() -> None:
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
-    def library(dataset_name: str, version: str, s3_path: Path, latest: bool) -> None:
+    def library(dataset_name: str, version: str, s3_path: str, latest: bool) -> None:
         with st.spinner("Calling Library"):
             try:
                 library_archive(dataset_name, version, s3_path, latest)
@@ -188,7 +188,7 @@ def ingest() -> None:
             library_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            library(dataset_name, version, Path(s3_path), latest)
+            library(dataset_name, version, str(s3_path), latest)
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -222,7 +222,7 @@ def ingest() -> None:
         latest = st.checkbox("Tag as Latest Version")
 
         if dataset_name and version:
-            s3_path = Path("inbox") / dataset_name / version
+            s3_path = f"inbox / {dataset_name} / {version}"
             st.write("S3 Path:", s3_path)
 
         ingest_button_pressed = False
@@ -243,7 +243,7 @@ def ingest() -> None:
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
-            library(dataset_name, version, s3_path, latest)
+            library(dataset_name, version, str(s3_path), latest)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
             st.button("Restart", on_click=unlock)
