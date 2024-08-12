@@ -346,7 +346,7 @@ sources:
               config:
                 severity: warn
 
-      - name: nysparks_parks_polygons
+      - name: nysparks_parks
         columns:
           - name: uid
           - name: name
@@ -357,7 +357,7 @@ sources:
               - not_null
         tests:
           - dbt_utils.unique_combination_of_columns:
-              name: nysparks_parks_polygons_compound_key
+              name: nysparks_parks_compound_key
               combination_of_columns:
                 - uid
                 - name

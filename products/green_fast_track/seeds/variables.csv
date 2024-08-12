@@ -43,7 +43,7 @@ shadow_open_spaces,Schoolyard-to-playground,schoolyard_to_playgrounds,dpr_school
 shadow_open_spaces,POPS,pops,dcp_pops,TRUE,200,
 shadow_open_spaces,Waterfront Public Access Areas,waterfront_access_wpaa,dcp_waterfront_access_map_wpaa,FALSE,200,
 shadow_open_spaces,Publicly Owned Waterfront,waterfront_access_pow,dcp_waterfront_access_map_pow,FALSE,200,
-shadow_open_spaces,NYS Parks Property,nys_parks_properties,nysparks_parks_polygons,FALSE,200,
+shadow_open_spaces,NYS Parks Property,nys_parks_properties,nysparks_parks,FALSE,200,
 shadow_open_spaces,Federal Parks property,us_parks_properties,usnps_parks,FALSE,200,
 shadow_nat_resources,NYC Parks Forever Wild,forever_wild,dcp_beaches,FALSE,200,
 shadow_nat_resources,State Regulated Freshwater Wetlands,freshwater_wetlands,dpr_forever_wild,FALSE,200,
