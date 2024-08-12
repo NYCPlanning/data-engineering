@@ -55,6 +55,9 @@ def resolve_layer(
     - layer_name and layer_id provided - validate layer exists, return it
     - layer_name or layer_id provided - lookup layer by provided key
     - neither provided - if feature_server has single layer, return it. Otherwise, error
+
+    `assert` statements can hopefully be dropped - known bug in mypy to not correctly
+    narrow types within tuples. See final comments in https://github.com/python/mypy/issues/12364
     """
     layers = get_feature_server_layers(feature_server)
     layer_labels = [l.layer_label for l in layers]
@@ -79,6 +82,7 @@ def resolve_layer(
                     f"Layer with id {layer_id} not found in feature server {feature_server}. Found layers: {layer_labels}."
                 )
         case None, _:
+            assert layer_name is not None
             layers_by_name = {l.layer_name: l for l in layers}
             if layer_name in layers_by_name:
                 return layers_by_name[layer_name]
@@ -86,7 +90,9 @@ def resolve_layer(
                 raise LookupError(
                     f"Layer with name '{layer_name}' not found in feature server {feature_server}. Found layers: {layer_labels}."
                 )
-        case _, _:
+        case _:
+            assert layer_name is not None
+            assert layer_id is not None
             layer = FeatureServerLayer(
                 server=feature_server.server,
                 name=feature_server.name,
