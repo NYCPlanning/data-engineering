@@ -55,6 +55,25 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                     bump_type=recipe.version_type,
                     bump_by=bump.bump_latest_release,
                 ).label
+            case versions.PinToSourceDataset():
+                dataset = recipe.version_strategy.pin_to_source_dataset
+                inputs_by_name = {d.name: d for d in recipe.inputs.datasets}
+                if dataset not in inputs_by_name:
+                    raise ValueError(
+                        f"Cannot pin build version to dataset '{dataset}' as it is not an input dataset"
+                    )
+                input = inputs_by_name[dataset]
+                if not input.version and (
+                    input.version_env_var
+                    or (
+                        recipe.inputs.missing_versions_strategy
+                        != RecipeInputsVersionStrategy.find_latest
+                    )
+                ):
+                    raise ValueError(
+                        f"To use 'pin to source dataset' version strategy, source input dataset must either be latest or explicit version"
+                    )
+                recipe.version = input.version or recipes.get_latest_version(dataset)
     elif version is not None:
         recipe.version = version
     assert recipe.version is not None

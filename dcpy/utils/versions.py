@@ -163,12 +163,16 @@ class BumpLatestRelease(BaseModel):
     bump_latest_release: int
 
 
+class PinToSourceDataset(BaseModel):
+    pin_to_source_dataset: str
+
+
 class SimpleVersionStrategy(StrEnum):
     first_of_month = "first_of_month"
     bump_latest_release = "bump_latest_release"
 
 
-VersionStrategy = SimpleVersionStrategy | BumpLatestRelease
+VersionStrategy = SimpleVersionStrategy | BumpLatestRelease | PinToSourceDataset
 
 
 class VersionSubType(StrEnum):
