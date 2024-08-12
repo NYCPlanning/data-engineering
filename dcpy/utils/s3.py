@@ -196,6 +196,7 @@ def upload_file(
             Callback=lambda bytes: progress.update(task, advance=bytes),
         )
 
+
 def upload_file_obj(
     file_obj,
     bucket: str,
@@ -206,9 +207,7 @@ def upload_file_obj(
 ) -> None:
     with _progress() as progress:
         size = len(file_obj)
-        task = progress.add_task(
-            f"[green]Uploading [bold]{key}[/bold]", total=size
-        )
+        task = progress.add_task(f"[green]Uploading [bold]{key}[/bold]", total=size)
         standard_metadata = generate_metadata()
         metadata = metadata or {}
         metadata.update(standard_metadata)
