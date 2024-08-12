@@ -23,6 +23,48 @@ RECIPE_FILE_TYPE_PREFERENCE = [
 ]
 
 
+def resolve_version(recipe: Recipe) -> str:
+    match recipe.version_strategy:
+        case None:
+            raise Exception("No version or version_strategy provided")
+        case versions.SimpleVersionStrategy.first_of_month:
+            return versions.generate_first_of_month().label
+        case versions.SimpleVersionStrategy.bump_latest_release:
+            previous_version = publishing.get_latest_version(recipe.product)
+            assert previous_version is not None
+            return versions.bump(
+                previous_version=previous_version,
+                bump_type=recipe.version_type,
+            ).label
+        case versions.BumpLatestRelease() as bump:
+            previous_version = publishing.get_latest_version(recipe.product)
+            assert previous_version is not None
+            return versions.bump(
+                previous_version=previous_version,
+                bump_type=recipe.version_type,
+                bump_by=bump.bump_latest_release,
+            ).label
+        case versions.PinToSourceDataset():
+            dataset = recipe.version_strategy.pin_to_source_dataset
+            inputs_by_name = {d.name: d for d in recipe.inputs.datasets}
+            if dataset not in inputs_by_name:
+                raise ValueError(
+                    f"Cannot pin build version to dataset '{dataset}' as it is not an input dataset"
+                )
+            input = inputs_by_name[dataset]
+            if not input.version and (
+                input.version_env_var
+                or (
+                    recipe.inputs.missing_versions_strategy
+                    != RecipeInputsVersionStrategy.find_latest
+                )
+            ):
+                raise ValueError(
+                    f"To use 'pin to source dataset' version strategy, source input dataset must either be latest or explicit version"
+                )
+            return input.version or recipes.get_latest_version(dataset)
+
+
 def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     """Plan recipe versions and file types for a product.
 
@@ -34,49 +76,11 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     recipe: Recipe = recipe_from_yaml(recipe_path)
 
     # Determine the recipe version
-    if version is None and recipe.version is None:
-        match recipe.version_strategy:
-            case None:
-                raise Exception("No version provided")
-            case versions.SimpleVersionStrategy.first_of_month:
-                recipe.version = versions.generate_first_of_month().label
-            case versions.SimpleVersionStrategy.bump_latest_release:
-                previous_version = publishing.get_latest_version(recipe.product)
-                assert previous_version is not None
-                recipe.version = versions.bump(
-                    previous_version=previous_version,
-                    bump_type=recipe.version_type,
-                ).label
-            case versions.BumpLatestRelease() as bump:
-                previous_version = publishing.get_latest_version(recipe.product)
-                assert previous_version is not None
-                recipe.version = versions.bump(
-                    previous_version=previous_version,
-                    bump_type=recipe.version_type,
-                    bump_by=bump.bump_latest_release,
-                ).label
-            case versions.PinToSourceDataset():
-                dataset = recipe.version_strategy.pin_to_source_dataset
-                inputs_by_name = {d.name: d for d in recipe.inputs.datasets}
-                if dataset not in inputs_by_name:
-                    raise ValueError(
-                        f"Cannot pin build version to dataset '{dataset}' as it is not an input dataset"
-                    )
-                input = inputs_by_name[dataset]
-                if not input.version and (
-                    input.version_env_var
-                    or (
-                        recipe.inputs.missing_versions_strategy
-                        != RecipeInputsVersionStrategy.find_latest
-                    )
-                ):
-                    raise ValueError(
-                        f"To use 'pin to source dataset' version strategy, source input dataset must either be latest or explicit version"
-                    )
-                recipe.version = input.version or recipes.get_latest_version(dataset)
-    elif version is not None:
+    if version:
         recipe.version = version
-    assert recipe.version is not None
+    elif recipe.version is None:
+        recipe.version = resolve_version(recipe)
+
     recipe.vars = recipe.vars or {}
     recipe.vars["VERSION"] = recipe.version
 

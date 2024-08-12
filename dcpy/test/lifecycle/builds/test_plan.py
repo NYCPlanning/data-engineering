@@ -4,6 +4,7 @@ import pytest
 from unittest import TestCase
 from unittest.mock import patch
 
+from dcpy.utils import versions
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.builds import plan
 
@@ -18,6 +19,74 @@ MOCKED_LATEST_VERSION = "v1"
 def setup():
     # TEMP_DATA_PATH.mkdir(exist_ok=True)
     os.environ[REQUIRED_VERSION_ENV_VAR] = "v123"
+
+
+class TestVersionStrategies(TestCase):
+    recipe = plan.recipe_from_yaml(RECIPE_PATH)
+    recipe.version = None
+
+    def test_no_version_strategy_fails(self):
+        self.recipe.version_strategy = None
+        with pytest.raises(Exception, match="No version or version_strategy provided"):
+            plan.resolve_version(self.recipe)
+
+    def test_first_of_month(self):
+        self.recipe.version_strategy = versions.SimpleVersionStrategy.first_of_month
+        assert (
+            plan.resolve_version(self.recipe)
+            == versions.generate_first_of_month().label
+        )
+
+    @patch("dcpy.connectors.edm.publishing.get_latest_version")
+    def test_simple_bump_latest_release(self, get_latest):
+        self.recipe.version_strategy = (
+            versions.SimpleVersionStrategy.bump_latest_release
+        )
+        get_latest.return_value = "24v1"
+        assert plan.resolve_version(self.recipe) == "24v2"
+
+    @patch("dcpy.connectors.edm.publishing.get_latest_version")
+    def test_bump_latest_release(self, get_latest):
+        self.recipe.version_strategy = versions.BumpLatestRelease(bump_latest_release=2)
+        get_latest.return_value = "24v1"
+        assert plan.resolve_version(self.recipe) == "24v3"
+
+    @patch("dcpy.connectors.edm.recipes.get_latest_version")
+    def test_pin_to_source_dataset(self, get_latest):
+        version = "20240101"
+        get_latest.return_value = version
+        self.recipe.version_strategy = versions.PinToSourceDataset(
+            pin_to_source_dataset="has_no_version_or_type"
+        )
+        assert plan.resolve_version(self.recipe) == version
+
+    def test_pin_to_source_dataset_explicit(self):
+        source_dataset = "has_pinned_version"
+        self.recipe.version_strategy = versions.PinToSourceDataset(
+            pin_to_source_dataset=source_dataset
+        )
+        source_dataset_record = self.recipe.inputs.datasets[1]
+        assert (
+            source_dataset_record.name == source_dataset
+        ), "test setup error - check order of source datasets in recipe.yml"
+        assert plan.resolve_version(self.recipe) == source_dataset_record.version
+
+    def test_pin_to_source_dataset_version_env_var(self):
+        self.recipe.version_strategy = versions.PinToSourceDataset(
+            pin_to_source_dataset="has_version_from_env"
+        )
+        with pytest.raises(ValueError, match="To use 'pin to source dataset'"):
+            plan.resolve_version(self.recipe)
+
+    def test_pin_to_source_dataset_missing_dataset(self):
+        dataset = "fake_dataset"
+        self.recipe.version_strategy = versions.PinToSourceDataset(
+            pin_to_source_dataset=dataset
+        )
+        with pytest.raises(
+            ValueError, match=f"Cannot pin build version to dataset '{dataset}'"
+        ):
+            plan.resolve_version(self.recipe)
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
