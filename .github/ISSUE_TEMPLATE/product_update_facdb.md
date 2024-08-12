@@ -31,7 +31,7 @@ Like most of our data products, source data must be updated in data library befo
       Source url: https://webapps.oasas.ny.gov/providerDirectory/index.cfm?search_type=2
       Need to set version to today’s date as DD-Mon-YY. Example: 13-Nov-20
 
-## Source data from OpenData
+## Source data from OpenData portals
 
 To see if a dataset needs to be uploaded, check date last updated in open data/bytes against version in data library.
 
@@ -54,7 +54,6 @@ To see if a dataset needs to be uploaded, check date last updated in open data/b
 - [ ] dsny_leafdrop https://data.cityofnewyork.us/Environment/Leaf-Drop-Off-Locations-in-NYC/8i9k-4gi5
 - [ ] dsny_fooddrop https://data.cityofnewyork.us/Environment/Food-Scrap-Drop-Off-Locations-in-NYC/if26-z6xq
 - [ ] dsny_electronicsdrop https://data.cityofnewyork.us/Environment/Electronics-Drop-Off-Locations-in-NYC/wshr-5vic
-- [ ] dycd_afterschoolprograms https://data.cityofnewyork.us/Education/DYCD-after-school-programs/mbd7-jfnc
 - [ ] fdny_firehouses https://data.cityofnewyork.us/Public-Safety/FDNY-Firehouse-Listing/hc8x-tcnd
 - [ ] hhc_hospitals https://data.cityofnewyork.us/Health/Health-and-Hospitals-Corporation-HHC-Facilities/f7b6-v6v3
 - [ ] hra_jobcenters https://data.cityofnewyork.us/Business/Directory-Of-Job-Centers/9d9t-bmk7
@@ -77,13 +76,12 @@ To see if a dataset needs to be uploaded, check date last updated in open data/b
 - [ ] usdot_airports https://geodata.bts.gov/datasets/aviation-facilities/explore?location=50.755910%2C-117.686932%2C22.58&showTable=true
       Use data-library to extract and archive data. Note, data-library uses a different link to extract the data. This link is provided as a reference for last date updated.
 - [ ] usdot_ports https://data-usdot.opendata.arcgis.com/datasets/usdot::docks/about
-      Use data-library to extract and archive data
+- [ ] nysdec_lands https://data.gis.ny.gov/datasets/84b4cce8a8974c31a1c5584540f3aaae_0/about
+- [ ] usnps_parks https://public-nps.opendata.arcgis.com/datasets/nps::nps-boundary-1/about
 
 ## Manually check data for updates
 
-The source datasets don't currently provide an API or export option on their websites. The data engineering team initially created the datasets
-and continues to maintain them internally, relying on the information available on the websites. Also, the source data websites don't report
-date updated as neatly as the open datasets, have to look at data itself.
+The source datasets don't currently provide an API or export option on their websites. The data engineering team initially created the datasets and continues to maintain them internally, relying on the information available on the websites. Also, the source data websites don't report date updated as neatly as the open datasets, have to look at data itself.
 
 - [ ] fbop_corrections https://www.bop.gov/locations/list.jsp
       When searching by state, there should be 5 NY prisons, 3 of which are in NYC (Brooklyn/New York)
@@ -95,35 +93,11 @@ date updated as neatly as the open datasets, have to look at data itself.
 
 ## Manual download
 
-**`TODO`**: update this section to replace any documentation (or just put a TODO) around any "local machine" steps to indicate that we should put these files in edm-recipes/inbox on S3, and change the library template path to point there, e.g. what we do [here](https://github.com/NYCPlanning/data-engineering/blob/cd5c71319b0c093154baf8885b3badf6709451fd/dcpy/library/templates/panynj_jfk_65db.yml#L6).
+**`TODO`**: see respective `dcpy/library/templates` for details
 
-Manually download the following datasets to your local machine and make tweaks if needed per individual instructions. After downloading,
-use data library CLI to archive the data to S3. Refer to the dataset templates in data library to see where it expects the data – that's where
-it will search when archiving.
-Sample CLI command ran locally to archive the `foodbankny_foodbanks` dataset to S3:
-
-```bash
-library archive --s3 --name foodbankny_foodbanks --latest --version 20240108 --output-format csv
-```
-
-- [ ] nysdec_lands https://data.gis.ny.gov/datasets/84b4cce8a8974c31a1c5584540f3aaae_0/about
 - [ ] doe_lcgms https://data.cityofnewyork.us/Education/LCGMS-DOE-School-Information-Report/3bkj-34v2
-      This dataset is updated for CEQR
 - [ ] foodbankny_foodbanks http://www.foodbanknyc.org/get-help/
-
-  1. head to http://www.foodbanknyc.org/get-help/
-  2. navigate to the map and make a copy of the map. The map can be found in the "Find Food Near You" drop-down menu. Note, you need to be logged in with a google account in order to have an option to copy the map.
-  3. After making a copy, click on the three dots next to the target layer and click "Export Data" and export as a csv
-  4. Rename the file (still as a csv) to match Food_Bank_For_NYC_Open_Members_as_of_DATE(YYYYMMDD). You will need to convert the existing date format MMDDYY to YYYYMMDD so that the version matches existing date format standard in data library. Example: Food_Bank_For_NYC_Open_Members_as_of_20240108.csv
-  5. place it at the library/tmp folder
-  6. then run library archive --name foodbankny_foodbanks with the -version flag set to the DATE in the file path
-     url: "http://www.foodbanknyc.org/get-help/"
-     dependents: []
-
 - [ ] nysed_activeinstitutions https://eservices.nysed.gov/sedreports/list?id=1
-      Active Institutions with GIS coordinates and OITS Accuracy Code - Select by County\_\_ CSV. Note that .csv data is automatically downloaded without comma delimiter. Exporting to csv from numbers is one way to get around this issue. (Exporting as an xls and converting to a csv is also an option)
-- [ ] usnps_parks https://irma.nps.gov/DataStore/Reference/Profile/2302064
-      NOTE: the final number in the URL (2302064) is not always stable. If the data is missing, search through the home.
 
 ### Will receive via email or FTP
 
@@ -135,6 +109,6 @@ library archive --s3 --name foodbankny_foodbanks --latest --version 20240108 --o
 
 ## Last step
 
-- [ ] dcp_pops
+- [ ] dcp*pops
       Source: Download from POPs app, available on DCP Commons. Be sure to only take the public version.
-      _Be sure to do this source last, as the OpenData release of POPs needs to be in sync_
+      \_Be sure to do this source last, as the OpenData release of POPs needs to be in sync*
