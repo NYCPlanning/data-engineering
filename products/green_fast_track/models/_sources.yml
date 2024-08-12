@@ -402,7 +402,7 @@ sources:
             tests:
               - unique
               - not_null
-          - name: shape
+          - name: wkb_geometry
             tests:
               - not_null
 
@@ -412,7 +412,7 @@ sources:
             tests:
               - unique
               - not_null
-          - name: shape
+          - name: wkb_geometry
             tests:
               - not_null
 
