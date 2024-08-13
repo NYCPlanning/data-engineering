@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     socrata:
-      uid: 8b9a-pywy
+      uid: gkd7-3vk7
       format: csv
     options:
       - "AUTODETECT_TYPE=NO"
@@ -24,7 +24,7 @@ dataset:
 
   info:
     description: |
-      ### Enrollment Capacity And Utilization Reports - Target by Organization
-      Enrollment, target capacity and utilization data for every building and schools in those buildings, by school
-    url: "https://data.cityofnewyork.us/Education/Enrollment-Capacity-And-Utilization-Reports-Target/8b9a-pywy"
+      ### Enrollment Capacity And Utilization Reports
+      Enrollment, target capacity and utilization data for every building and schools in those buildings.
+    url: "https://data.cityofnewyork.us/Education/Enrollment-Capacity-And-Utilization-Reports/gkd7-3vk7"
     dependents: []
