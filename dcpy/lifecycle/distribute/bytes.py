@@ -3,6 +3,7 @@ import typer
 import urllib.request
 
 import dcpy.models.product.dataset.metadata_v2 as md_v2
+import dcpy.models.product.dataset.metadata as md_old
 from dcpy.utils.logging import logger
 from dcpy.lifecycle.package import assemble
 
@@ -54,6 +55,7 @@ def pull_destination_files(
         product_metadata=product_metadata, destination_id=destination_id
     )
     assemble.make_package_folder(local_package_path)
+    product_metadata.write_to_yaml(local_package_path / "metadata.yml")
 
     package_ids = {p.id for p in product_metadata.assembly}
     for f in dest.files:
@@ -79,25 +81,28 @@ def pull_all_destination_files(
 ):
     dests = [d for d in product_metadata.destinations if d.type == BYTES_DEST_TYPE]
     for d in dests:
-        pull_destination_files(local_package_path, product_metadata, d.id)
+        pull_destination_files(
+            local_package_path, product_metadata, d.id, unpackage_zips=True
+        )
 
 
 app = typer.Typer()
 
 
-@app.command("dataset_from_bytes")
+@app.command("pull_dataset_from_bytes")
 def _dataset_from_bytes_cli(
     metadata_path: Path, product: str, version: str, dataset: str
 ):
     out_dir = assemble.ASSEMBLY_DIR / product / version / dataset
-    md = md_v2.Metadata.from_path(
+    # TODO: CHANGE ME (after migration)
+    md = md_old.Metadata.from_path(
         metadata_path,
         template_vars={"version": version},
-    )
+    ).upgrade_to_v2()
     pull_all_destination_files(local_package_path=out_dir, product_metadata=md)
 
 
-@app.command("product_from_bytes")
+@app.command("pull_product_from_bytes")
 def _product_from_bytes_cli(product_metadata_path: Path, product: str, version: str):
     for folder in [
         p for p in product_metadata_path.iterdir() if not p.name.startswith(".")

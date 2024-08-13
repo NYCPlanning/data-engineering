@@ -2,12 +2,13 @@ import os
 from pathlib import Path
 import shutil
 import tempfile
+import typer
 
 from dcpy.lifecycle import WORKING_DIRECTORIES
 import dcpy.models.product.dataset.metadata_v2 as md_v2
 from dcpy.utils.logging import logger
 
-ASSEMBLY_DIR = WORKING_DIRECTORIES.packaging / ".assembly"
+ASSEMBLY_DIR = WORKING_DIRECTORIES.packaging / "assembly"
 
 
 def make_package_folder(path: Path):
@@ -83,3 +84,6 @@ def unpackage(
                 copy_from_path,
                 copy_to_path,
             )
+
+
+app = typer.Typer()
