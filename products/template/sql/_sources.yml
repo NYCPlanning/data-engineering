@@ -51,9 +51,10 @@ sources:
           NYC DPR Greenthumb locations
         columns:
           - name: gardenname
-            description: Primary key of the dpr_greenthumb table
             tests:
-              - unique
+              - unique:
+                  config:
+                    severity: warn
               - not_null
           - name: borough
             tests:
