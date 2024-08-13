@@ -7,23 +7,32 @@ from pydantic import BaseModel, field_validator, model_serializer
 from pydantic.fields import PrivateAttr
 from typing import Any, List, Literal, get_args, Self
 import typing
+import unicodedata
 import yaml
 
 from dcpy.utils.logging import logger
 
 
+# MISC UTILS
+def clean_text(s):
+    if not s:
+        return s
+    char_map = {
+        "–": "-",  # en dash to hyphen
+        "—": "-",  # em dash to hyphen
+        "’": "'",  # curly apostrophe
+        "“": '"',  # lcurly quote
+        "”": '"',  # rcurly quote
+    }
+    translator = str.maketrans(char_map)
+    # Normalize Unicode characters
+    normalized = unicodedata.normalize("NFKD", s)
+    # Apply the translation
+    cleaned = normalized.translate(translator)
+    return cleaned.strip()
+
+
 # BASE
-class YamlTopLevelSpacesDumper(yaml.SafeDumper):
-    """YAML serializer that will insert lines between top-level entries,
-    which is nice in longer files."""
-
-    def write_line_break(self, data=None):
-        super().write_line_break(data)
-
-        if len(self.indents) == 1:
-            super().write_line_break()
-
-
 class SortedSerializedBase(BaseModel):
     """A Pydantic BaseModel that will allow for sensible (and overrideable) deserialization order.
 
@@ -95,8 +104,11 @@ class CustomizableBase(SortedSerializedBase, extra="forbid"):
     """A Base Pydantic class to allow extensibility of our models via a `custom`
     dictionary.
 
-    Any additional required attributes that aren't defined on our models should
-    be added to `custom`. It's also important that custom be preserved in the
+    Any additional attributes that aren't defined on our models should
+    be added to `custom`. This is intended for domain-specific, non-generalized uses
+    like data-dictionary generation (e.g. the `readme_data_type` field on the columns)
+
+    It's also important that custom be preserved in the
     course of overriding, specifically with a deep merge of the dictionary elements.
     """
 
@@ -274,7 +286,7 @@ class DestinationFile(CustomizableBase):
     file_overrides: FileOverrides = FileOverrides()
 
 
-class DestinationFileMetadata(CustomizableBase):
+class DestinationFileMetadata(SortedSerializedBase):
     dataset: Dataset
     destination: Destination
     file: File
@@ -365,16 +377,44 @@ class Metadata(CustomizableBase):
 
     @classmethod
     def from_path(cls, path: Path, *, template_vars=None):
-        with open(path, "r") as raw:
+        with open(path, "r", encoding="utf-8") as raw:
             return cls.from_yaml(raw.read(), template_vars=template_vars)
 
     def write_to_yaml(self, path: Path):
-        with open(path, "w") as f:
+        # To maintain readabily for long text. Otherwise the dumped text has no consistency, leading to, e.g.
+        # \ text of varying\n\n \
+        # \ readability\n\n \
+        def str_presenter(dumper, data):
+            """configures yaml for dumping multiline strings
+            Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data
+            """
+            if len(data.splitlines()) > 1:  # check for multiline string
+                return dumper.represent_scalar("tag:yaml.org,2002:str", data, style=">")
+            return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+        yaml.add_representer(str, str_presenter)
+        yaml.representer.SafeRepresenter.add_representer(
+            str, str_presenter
+        )  # to use with safe_dum
+
+        class YamlTopLevelSpacesDumper(yaml.SafeDumper):
+            """YAML serializer that will insert lines between top-level entries,
+            which is nice in longer files."""
+
+            def write_line_break(self, data=None):
+                super().write_line_break(data)
+
+                if len(self.indents) == 1:
+                    super().write_line_break()
+
+        with open(path, "w", encoding="utf8") as f:
+            logger.info("wrriting")
             f.write(
                 yaml.dump(
                     self.model_dump(exclude_none=True),
                     sort_keys=False,
                     default_flow_style=False,
                     Dumper=YamlTopLevelSpacesDumper,
+                    allow_unicode=True,
                 )
             )

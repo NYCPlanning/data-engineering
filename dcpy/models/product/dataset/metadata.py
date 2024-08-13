@@ -290,7 +290,7 @@ class Metadata(BaseModel, extra="forbid"):
                 omitted_columns=set(v1.omit_columns),
                 attributes=md_v2.DatasetAttributesOverride(
                     display_name=v1.display_name,
-                    description=v1.description,
+                    description=md_v2.clean_text(v1.description),
                 ),
             )
 
@@ -353,7 +353,7 @@ class Metadata(BaseModel, extra="forbid"):
                                     md_v2.DatasetColumnOverrides(
                                         id=k,
                                         display_name=v.display_name,
-                                        description=v.description,
+                                        description=md_v2.clean_text(v.description),
                                         custom=_remove_falsey_from_dict(
                                             {"api_name": v.api_name}
                                         ),
@@ -388,7 +388,7 @@ class Metadata(BaseModel, extra="forbid"):
             ],  # md_v2,
             attributes=md_v2.DatasetAttributes(
                 display_name=self.display_name,
-                description=self.description,
+                description=md_v2.clean_text(self.description),
                 each_row_is_a=self.each_row_is_a,
                 tags=self.tags,
             ),
@@ -397,14 +397,16 @@ class Metadata(BaseModel, extra="forbid"):
                     # No Changes
                     data_type=_translate_types(v1_col.data_type),
                     display_name=v1_col.display_name,
-                    data_source=v1_col.data_source,
-                    description=v1_col.description,
+                    data_source=md_v2.clean_text(v1_col.data_source),
+                    description=md_v2.clean_text(v1_col.description),
                     example=str(v1_col.example),
                     deprecated=v1_col.deprecated,
                     values=[
                         md_v2.ColumnValue(
                             value=str(cv[0]),
-                            description=(str(cv[1]) if len(cv) > 1 else None),
+                            description=md_v2.clean_text(
+                                str(cv[1]) if len(cv) > 1 else None
+                            ),
                             custom=_remove_falsey_from_dict(
                                 {"other_details": str(cv[2:]) if len(cv) > 2 else None}
                             ),
@@ -417,7 +419,7 @@ class Metadata(BaseModel, extra="forbid"):
                         non_nullable=v1_col.non_nullable,
                     ),
                     custom=_remove_falsey_from_dict(
-                        {"readme_data_type": v1_col.readme_data_type}
+                        {"readme_data_type": md_v2.clean_text(v1_col.readme_data_type)}
                     ),
                 )
                 for v1_col in self.columns
