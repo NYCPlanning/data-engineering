@@ -6,6 +6,7 @@ from typing import Any, Literal
 import yaml
 
 from dcpy.utils.logging import logger
+from . import metadata_v2 as md_v2
 
 # Putting this here so we can have a constant value in all connectors
 # and throw an exception when we attempt to deserialize files that contain it.
@@ -216,13 +217,15 @@ class Metadata(BaseModel, extra="forbid"):
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):
-        logger.info(f"Templating the metadata with vars: {template_vars}")
-        templated = jinja2.Template(yaml_str, undefined=jinja2.StrictUndefined).render(
-            template_vars or {}
-        )
-        return Metadata(
-            templated_source_metadata=templated, **yaml.safe_load(templated)
-        )
+        if template_vars:
+            logger.info(f"Templating metadata with vars: {template_vars}")
+            templated = jinja2.Template(
+                yaml_str, undefined=jinja2.StrictUndefined
+            ).render(template_vars or {})
+            return Metadata(**yaml.safe_load(templated))
+        else:
+            logger.info("No Template vars supplied. Skipping templating.")
+        return Metadata(**yaml.safe_load(yaml_str))
 
     @classmethod
     def from_path(cls, path: Path, *, template_vars=None):
@@ -245,3 +248,185 @@ class Metadata(BaseModel, extra="forbid"):
             set(col_names)
         ), "There should be no duplicate column names"
         # TODO: all the rest
+
+    def upgrade_to_v2(self):
+        def _remove_falsey_from_dict(d):
+            return {k: v for k, v in d.items() if v}
+
+        def _translate_types(s: str):
+            old_to_new_types = {
+                "boolean": "bool",
+                "double": "decimal",
+                "float": "decimal",
+                "geom_point": "geometry",
+                "geom_poly": "geometry",
+                "wkb": "geometry",
+            }
+            return old_to_new_types.get(s) or s
+
+        def _construct_with_custom(cls, **kwargs):
+            kwargs_with_custom = {"custom": {}}
+            for kwarg in kwargs.items():
+                if kwarg[0] in cls.__fields__:
+                    kwargs_with_custom[kwarg[0]] = kwarg[1]
+                else:
+                    kwargs_with_custom["custom"][kwarg[0]] = kwarg[1]
+            return cls(**kwargs_with_custom)
+
+        def _v1_overrides_to_v2(v1: DatasetOverrides):
+            overridden_columns = []
+            for k, col_overrides in v1.columns.items():
+                if "data_type" in col_overrides:
+                    col_overrides["data_type"] = _translate_types(
+                        col_overrides["data_type"]
+                    )
+                custom = _construct_with_custom(
+                    md_v2.DatasetColumnOverrides, id=k, **col_overrides
+                )
+                overridden_columns.append(custom)
+
+            return md_v2.DatasetOverrides(
+                overridden_columns=overridden_columns,
+                omitted_columns=v1.omit_columns,
+                attributes=md_v2.DatasetAttributesOverride(
+                    display_name=v1.display_name,
+                    description=md_v2.normalize_text(v1.description or ""),
+                ),
+            )
+
+        return md_v2.Metadata(
+            id=self.name,
+            files=[
+                md_v2.FileAndOverrides(
+                    file=md_v2.File(
+                        id=dsf.name,
+                        filename=dsf.filename,
+                        type=str(dsf.type),
+                        custom=_remove_falsey_from_dict(
+                            {"ignore_validation": dsf.overrides.ignore_validation}
+                        ),
+                    ),
+                    dataset_overrides=_v1_overrides_to_v2(dsf.overrides),
+                )
+                for dsf in self.package.dataset_files
+            ]
+            + [
+                md_v2.FileAndOverrides(
+                    file=md_v2.File(
+                        id=att.name,
+                        filename=att.filename,
+                        type=str(att.type),
+                        is_metadata=True,
+                    )
+                )
+                for att in self.package.attachments
+            ],
+            assembly=[
+                md_v2.Package(
+                    id=zf.name,
+                    type=zf.type,
+                    filename=zf.filename,
+                    contents=[
+                        md_v2.PackageFile(id=pf.name, filename=pf.filename)
+                        for pf in zf.contains
+                    ],
+                )
+                for zf in self.package.zip_files
+            ],
+            destinations=[  # Socrata Dests
+                md_v2.DestinationWithFiles(
+                    id=dest.id,
+                    type="socrata",
+                    files=[
+                        md_v2.DestinationFile(
+                            id=att,
+                            custom={"destination_use": "attachment"},
+                        )
+                        for att in dest.attachments
+                    ]
+                    + [
+                        md_v2.DestinationFile(
+                            id=ds,
+                            custom={"destination_use": "dataset_file"},
+                            dataset_overrides=md_v2.DatasetOverrides(
+                                overridden_columns=[
+                                    md_v2.DatasetColumnOverrides(
+                                        id=k,
+                                        name=v.display_name,
+                                        description=md_v2.normalize_text(
+                                            v.description or ""
+                                        ),
+                                        custom=_remove_falsey_from_dict(
+                                            {"api_name": v.api_name}
+                                        ),
+                                    )
+                                    for k, v in dest.column_details.items()
+                                ]
+                            ),
+                        )
+                        for ds in dest.datasets
+                    ],
+                    custom=_remove_falsey_from_dict(
+                        {
+                            "four_four": dest.four_four,
+                            "is_unparsed_dataset": dest.is_unparsed_dataset,
+                        }
+                    ),
+                )
+                for dest in self.destinations
+                if type(dest) == SocrataDestination
+            ]
+            + [
+                md_v2.DestinationWithFiles(
+                    id=dest.id,
+                    type="bytes",
+                    files=[
+                        md_v2.DestinationFile(id=f.id, custom={"url": f.url})
+                        for f in dest.files
+                    ],
+                )
+                for dest in self.destinations
+                if type(dest) == BytesDestination
+            ],  # md_v2,
+            attributes=md_v2.DatasetAttributes(
+                display_name=self.display_name,
+                description=md_v2.normalize_text(self.description or ""),
+                each_row_is_a=self.each_row_is_a,
+                tags=self.tags,
+            ),
+            columns=[
+                md_v2.DatasetColumn(
+                    data_type=_translate_types(v1_col.data_type),
+                    name=v1_col.display_name,
+                    data_source=md_v2.normalize_text(v1_col.data_source or ""),
+                    description=md_v2.normalize_text(v1_col.description or ""),
+                    example=str(v1_col.example),
+                    deprecated=v1_col.deprecated,
+                    values=[
+                        md_v2.ColumnValue(
+                            value=str(cv[0]),
+                            description=md_v2.normalize_text(
+                                str(cv[1]) if len(cv) > 1 else ""
+                            ),
+                            custom=_remove_falsey_from_dict(
+                                {"other_details": str(cv[2:]) if len(cv) > 2 else None}
+                            ),
+                        )
+                        for cv in v1_col.values or []
+                    ],
+                    id=v1_col.name,
+                    checks=md_v2.Checks(
+                        is_primary_key=v1_col.is_primary_key,
+                        non_nullable=v1_col.non_nullable,
+                    ),
+                    custom=_remove_falsey_from_dict(
+                        {
+                            "readme_data_type": md_v2.normalize_text(
+                                v1_col.readme_data_type or ""
+                            )
+                        }
+                    ),
+                )
+                for v1_col in self.columns
+            ],
+        )
