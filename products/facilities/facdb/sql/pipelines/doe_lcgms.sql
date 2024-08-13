@@ -110,7 +110,7 @@ SELECT
         END
     ) AS opabbrev,
     'NYCDOE' AS overabbrev,
-    b.target_capacity AS capacity,
+    b.org_target_cap AS capacity,
     'seats' AS captype,
     NULL AS wkb_geometry,
     a.geo_1b,
