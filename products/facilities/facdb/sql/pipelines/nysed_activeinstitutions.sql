@@ -11,38 +11,38 @@ WITH merged AS (
                     prek::numeric
                     + halfk::numeric
                     + fullk::numeric
-                    + gr1::numeric
-                    + gr2::numeric
-                    + gr3::numeric
-                    + gr4::numeric
-                    + gr5::numeric
-                    + gr6::numeric
+                    + g01::numeric
+                    + g02::numeric
+                    + g03::numeric
+                    + g04::numeric
+                    + g05::numeric
+                    + g06::numeric
                     + uge::numeric
-                    + gr7::numeric
-                    + gr8::numeric
-                    + gr9::numeric
-                    + gr10::numeric
-                    + gr11::numeric
-                    + gr12::numeric
+                    + g07::numeric
+                    + g08::numeric
+                    + g09::numeric
+                    + g10::numeric
+                    + g11::numeric
+                    + g12::numeric
                     + ugs::numeric
                 ) IS NOT NULL
                     THEN (
                         prek::numeric
                         + halfk::numeric
                         + fullk::numeric
-                        + gr1::numeric
-                        + gr2::numeric
-                        + gr3::numeric
-                        + gr4::numeric
-                        + gr5::numeric
-                        + gr6::numeric
+                        + g01::numeric
+                        + g02::numeric
+                        + g03::numeric
+                        + g04::numeric
+                        + g05::numeric
+                        + g06::numeric
                         + uge::numeric
-                        + gr7::numeric
-                        + gr8::numeric
-                        + gr9::numeric
-                        + gr10::numeric
-                        + gr11::numeric
-                        + gr12::numeric
+                        + g07::numeric
+                        + g08::numeric
+                        + g09::numeric
+                        + g10::numeric
+                        + g11::numeric
+                        + g12::numeric
                         + ugs::numeric
                     )
             END
@@ -109,20 +109,20 @@ SELECT
                     prek::numeric
                     + halfk::numeric
                     + fullk::numeric
-                    + gr1::numeric
-                    + gr2::numeric
-                    + gr3::numeric
-                    + gr4::numeric
-                    + gr5::numeric
+                    + g01::numeric
+                    + g02::numeric
+                    + g03::numeric
+                    + g04::numeric
+                    + g05::numeric
                     + uge::numeric
                 ) > 0 THEN 'Elementary School - Non-public'
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
-                AND (gr6::numeric + gr7::numeric + gr8::numeric) > 0 THEN 'Middle School - Non-public'
+                AND (g06::numeric + g07::numeric + g08::numeric) > 0 THEN 'Middle School - Non-public'
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
                 AND (
-                    gr9::numeric + gr10::numeric + gr11::numeric + gr12::numeric + ugs::numeric
+                    g09::numeric + g10::numeric + g11::numeric + g12::numeric + ugs::numeric
                 ) > 0 THEN 'High School - Non-public'
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
