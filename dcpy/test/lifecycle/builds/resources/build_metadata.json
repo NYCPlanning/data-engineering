@@ -1,0 +1,36 @@
+{
+    "timestamp": "2024-05-30T14:01:08.077641-04:00",
+    "commit": "",
+    "run_url": null,
+    "version": "22v1",
+    "recipe": {
+        "name": "Tester",
+        "product": "db-test",
+        "base_recipe": null,
+        "version_type": null,
+        "version_strategy": null,
+        "version": "22v1",
+        "vars": {
+            "VERSION": "22v1"
+        },
+        "inputs": {
+            "missing_versions_strategy": "find_latest",
+            "datasets": [
+                {
+                    "name": "has_no_version_or_type",
+                    "version": "v1",
+                    "file_type": "csv",
+                    "version_env_var": null,
+                    "import_as": null,
+                    "preprocessor": null,
+                    "destination": "postgres"
+                }
+            ],
+            "dataset_defaults": {
+                "file_type": null,
+                "preprocessor": null,
+                "destination": "postgres"
+            }
+        }
+    }
+}
