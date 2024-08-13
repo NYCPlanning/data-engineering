@@ -22,12 +22,10 @@ def archive_raw_data(
     s3_path = Path("inbox") / dataset_name / version / f"{file_name}"
 
     exists = s3.exists(BUCKET, str(s3_path))
-    if exists == True:
-        st.warning("Warning: File path already exists")
-        if allow_override == False:
-            raise FileExistsError(
-                "File already exists on S3. Check the allow override box if you wish to continue"
-            )
+    if exists == True and allow_override == False:
+        raise FileExistsError(
+            "File already exists on S3. Check the allow override box if you wish to continue"
+        )
 
     file_obj = BytesIO(uploaded_file.read())
 
