@@ -5,7 +5,7 @@ qa_checks = pd.DataFrame(
         (
             "Address Points vs PAD",
             "address-points-vs-pad",
-            ["rejects_pad_addrpts"],
+            ["rejects_pad_addrpts", "geocode_bin_diffs_pad_addrpts"],
             ["dcp_addresspoints"],
         ),
         (
