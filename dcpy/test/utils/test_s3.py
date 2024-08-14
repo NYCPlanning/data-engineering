@@ -90,24 +90,26 @@ def test_get_subfolders(create_buckets, prefix, index, expected_num_folders):
 
     assert len(actual_objects) == expected_num_folders
 
+
 def test_upload_file(create_buckets):
     RESOURCES_DIR = Path(__file__).parent / "resources"
     test_file_key = TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME
     test_file_path = Path(RESOURCES_DIR / "data_wkb.csv")
-    s3.client().upload_file(bucket=TEST_BUCKET,
-                            path=test_file_path,
-                            key=test_file_key,
-                            acl="public-read")
-    assert s3.exists(TEST_BUCKET, test_file_key) == True 
+    s3.upload_file(
+        bucket=TEST_BUCKET, path=test_file_path, key=test_file_key, acl="public-read"
+    )
+    assert s3.exists(TEST_BUCKET, test_file_key) == True
+
 
 def test_upload_file_obj(create_buckets):
     test_file_key = TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME
     RESOURCES_DIR = Path(__file__).parent / "resources"
     with open(RESOURCES_DIR / "data_wkb.csv", "rb") as f:
         file_obj = BytesIO(f.read())
-    s3.client().upload_file_obj(
-                            file_obj=file_obj,
-                            bucket=TEST_BUCKET,
-                            key=test_file_key,
-                            acl="public-read")
-    assert s3.exists(TEST_BUCKET, test_file_key) == True 
+    s3.upload_file_obj(
+        finallyile_obj=file_obj,
+        bucket=TEST_BUCKET,
+        key=test_file_key,
+        acl="public-read",
+    )
+    assert s3.exists(TEST_BUCKET, test_file_key) == True
