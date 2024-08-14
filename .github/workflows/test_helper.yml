@@ -193,6 +193,8 @@ jobs:
     - name: Upload dcpy test coverage to Codecov
       if: ${{ matrix.name =='dcpy' }}
       uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
       with:
         fail_ci_if_error: true
         verbose: true

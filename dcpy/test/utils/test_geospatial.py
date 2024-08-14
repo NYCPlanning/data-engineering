@@ -127,7 +127,7 @@ class TestTransform:
 
 
 class TestParquet:
-    def test_read_parquet_metadata(self, gdf):
+    def test_read_geoparquet_metadata(self, gdf):
         with TemporaryDirectory() as dir:
             filepath = f"{dir}/tmp.parquet"
             gdf.to_parquet(filepath)
@@ -135,6 +135,10 @@ class TestParquet:
             meta = parquet.read_metadata(filepath)
 
             assert meta.geo_parquet.primary_column.crs_string == "EPSG:4236"
+
+    def test_read_parquet_metadata(self):
+        with pytest.raises(TypeError, match="is not a geoparquet file."):
+            meta = parquet.read_metadata(RESOURCES_DIR / "simple.parquet")
 
     def test_read_parquet(self):
         df = parquet.read_df(RESOURCES_DIR / "simple.parquet")
