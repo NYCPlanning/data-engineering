@@ -45,18 +45,12 @@ def read_template(
     with open(file, "r") as f:
         template_string = f.read()
     vars = get_jinja_vars(template_string)
-    if not version and len(vars) > 0:
-        if vars == {"version"}:
-            pass
-        else:
-            raise Exception(f"Unsupported jinja vars found in template: {vars}")
-    else:
-        if len(vars) > 0 and vars != {"version"}:
-            vars.discard("version")
-            raise Exception(
-                f"'version' is only suppored jinja var. Unsupported vars in template: {vars}"
-            )
+    if vars == {"version"}:
         template_string = jinja2.Template(template_string).render(version=version)
+    elif vars:
+        raise Exception(
+            f"'version' is only suppored jinja var. Vars in template: {vars}"
+        )
     template_yml = yaml.safe_load(template_string)
     return Template(**template_yml)
 
