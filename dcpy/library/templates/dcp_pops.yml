@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: .library/upload/POPS_Open_Data(2023-5-2_14.45).CSV
+      path: s3://edm-recipes/inbox/dcp/dcp_pops/{{ version }}/POPS_Open_Data.CSV
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
