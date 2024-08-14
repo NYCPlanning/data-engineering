@@ -20,6 +20,11 @@ RESOURCES = Path(__file__).parent / "resources"
 
 
 @pytest.fixture(scope="function")
+def resources_path():
+    return RESOURCES
+
+
+@pytest.fixture(scope="function")
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
     if "AWS_S3_ENDPOINT" in os.environ:
