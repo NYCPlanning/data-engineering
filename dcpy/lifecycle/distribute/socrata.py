@@ -12,9 +12,6 @@ import dcpy.connectors.socrata.publish as soc_pub
 # ie. dcpy.cli lifecycle distribute socrata from_s3
 socrata_app = typer.Typer()
 
-distribute_app = typer.Typer()
-distribute_app.add_typer(socrata_app, name="socrata")
-
 
 @socrata_app.command("from_local")
 def _dist_from_local(
