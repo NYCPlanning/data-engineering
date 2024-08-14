@@ -35,9 +35,29 @@ destinations:
   - id: my_zip
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip.pdf
-- id: soc_dest
+- id: soc_dest_with_no_four_four
   type: socrata
   files: []
+- id: socrata
+  type: socrata
+  files:
+  - id: data_file
+    dataset_overrides:
+      attributes:
+        display_name: Overridden dataset name
+    custom:
+      destination_use: dataset_file
+  - id: readme
+    custom:
+      destination_use: attachment
+  - id: my_zip
+    file_overrides:
+      filename: my_overriden_name.zip
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: "abcd-efgh"
+    is_unparsed_dataset: true
 
 files:
 - file:
@@ -49,5 +69,10 @@ files:
     filename: readme.pdf
     is_metadata: true
     type: pdf
+- file:
+    id: my_zip
+    filename: my.zip
+    is_metadata: true
+    type: zip
 
 columns: []
