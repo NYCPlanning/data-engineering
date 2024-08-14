@@ -21,10 +21,9 @@ def generate_pdf_from_yml(
         [
             "pandoc",
             output_html_path,
-            "o",
+            "-o",
             output_pdf_path,
-            "--metadata-file=",
-            pdf_metadata_path,
+            f"--metadata-file={pdf_metadata_path}",
         ],
         check=True,
     )
