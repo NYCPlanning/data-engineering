@@ -5,7 +5,6 @@ dataset:
     arcgis_feature_server:
       server: nys_clearinghouse
       name: NYS_DEC_Lands
-      layer: 0
     geometry:
       SRS: EPSG:26918
       type: MULTIPOLYGON

@@ -250,7 +250,7 @@ def promote_to_draft(
     build_metadata.draft_revision_name = draft_revision_label
     build_metadata_path = Path("build_metadata.json")
     with open(build_metadata_path, "w", encoding="utf-8") as f:
-        json.dump(build_metadata.model_dump(), f, indent=4)
+        json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
     # promote from build to draft
     source = build_key.path + "/"
@@ -320,7 +320,7 @@ def publish(
         build_metadata.version = new_version
         build_metadata_path = Path("build_metadata.json")
         with open(build_metadata_path, "w", encoding="utf-8") as f:
-            json.dump(build_metadata.model_dump(), f, indent=4)
+            json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{new_version}/"

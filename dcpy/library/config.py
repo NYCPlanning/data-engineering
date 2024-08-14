@@ -21,9 +21,15 @@ class Config:
     file to pass into the Ingestor
     """
 
-    def __init__(self, path: str, version: str | None = None):
+    def __init__(
+        self,
+        path: str,
+        version: str | None = None,
+        source_path_override: str | None = None,
+    ):
         self.path = path
         self.version = version
+        self.source_path_override = source_path_override
 
     @property
     def unparsed_unrendered_template(self) -> str:
@@ -76,8 +82,19 @@ class Config:
         if _config.source.socrata:
             version = self.version_socrata(_config.source.socrata.uid)
         elif _config.source.arcgis_feature_server:
+            fs = _config.source.arcgis_feature_server
+            feature_server_layer = arcgis_feature_service.resolve_layer(
+                feature_server=fs.feature_server,
+                layer_name=fs.layer_name,
+                layer_id=fs.layer_id,
+            )
+            _config.source.arcgis_feature_server = (
+                DatasetDefinition.SourceSection.FeatureServerLayerDefinition(
+                    **feature_server_layer.model_dump()
+                )
+            )
             version = arcgis_feature_service.get_data_last_updated(
-                _config.source.arcgis_feature_server
+                feature_server_layer
             ).strftime("%Y%m%d")
         else:
             # backwards compatibility before templates were simplified
@@ -87,6 +104,14 @@ class Config:
         config = self.parsed_rendered_template(version=version)
 
         if config.source.script:
+            if self.source_path_override:
+                if config.source.script.path:
+                    config.source.script.path = self.source_path_override
+                else:
+                    raise ValueError(
+                        "Cannot override path of script dataset without path argument"
+                    )
+
             name = config.source.script.name or config.name
             module = importlib.import_module(f"dcpy.library.script.{name}")
             scriptor = module.Scriptor(config=config.model_dump())
@@ -94,6 +119,8 @@ class Config:
             config.source.gdalpath = format_url(path)
 
         elif config.source.socrata:
+            if self.source_path_override:
+                raise ValueError("Cannot override path of socrata dataset")
             socrata = config.source.socrata
             if socrata.format == "csv":
                 path = f"https://data.cityofnewyork.us/api/views/{socrata.uid}/rows.csv"
@@ -111,12 +138,17 @@ class Config:
             config.source.gdalpath = format_url(path)
 
         elif config.source.arcgis_feature_server:
+            if self.source_path_override:
+                raise ValueError(
+                    "Cannot override path of arcgis feature server dataset"
+                )
             tmp_dir = Path(__file__).parent / "tmp"
             tmp_dir.mkdir(exist_ok=True)
             if not (config.source.geometry and config.source.geometry.SRS):
                 raise Exception("Must provide source crs for arcgis feature server")
-            geojson = arcgis_feature_service.get_dataset(
-                config.source.arcgis_feature_server,
+
+            geojson = arcgis_feature_service.get_layer(
+                feature_server_layer,
                 crs=int(config.source.geometry.SRS.strip("EPSG:")),
             )
             file = tmp_dir / f"{config.name}.geojson"
@@ -125,6 +157,8 @@ class Config:
             config.source.gdalpath = format_url(str(file))
 
         elif config.source.url:
+            if self.source_path_override:
+                config.source.url.path = self.source_path_override
             config.source.gdalpath = format_url(
                 config.source.url.path, config.source.url.subpath
             )

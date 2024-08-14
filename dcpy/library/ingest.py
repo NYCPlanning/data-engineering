@@ -37,7 +37,7 @@ def translator(func):
 
         output_files = []
         path = args[0]
-        c = Config(path, kwargs.get("version", None))
+        c = Config(path, kwargs.get("version"), kwargs.get("source_path_override"))
         dataset = c.compute
         assert dataset.source.gdalpath
         assert dataset.version
@@ -62,7 +62,7 @@ def translator(func):
             config_dumped = library.Config(
                 dataset=dataset,
                 execution_details=execution_details,
-            ).model_dump()
+            ).model_dump(mode="json")
             with open(f"{folder_path}/config.json", "w") as f:
                 f.write(json.dumps(config_dumped, indent=4))
             output_files.append(f"{folder_path}/config.json")

@@ -1,0 +1,18 @@
+name: Tester
+product: db-test
+inputs:
+  dataset_defaults:
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: has_version_from_env
+    version_env_var: VERSION_PREV
+    file_type: pg_dump
+
+  - name: has_pinned_version
+    version: "pinned_version"
+
+  - name: has_no_version_or_type

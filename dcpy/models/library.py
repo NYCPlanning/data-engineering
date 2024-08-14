@@ -44,7 +44,7 @@ class DatasetDefinition(BaseModel):
         url: Url | None = None
         script: Script | None = None
         socrata: Socrata | None = None
-        arcgis_feature_server: esri.FeatureServer | None = None
+        arcgis_feature_server: FeatureServerLayerDefinition | None = None
         layer_name: str | None = None
         geometry: GeometryType | None = None
         options: list[str] | None = None
@@ -60,6 +60,17 @@ class DatasetDefinition(BaseModel):
 
         class Script(BaseModel, extra="allow"):
             name: str | None = None
+            path: str | None = None
+
+        class FeatureServerLayerDefinition(BaseModel, extra="forbid"):
+            server: esri.Server
+            name: str
+            layer_name: str | None = None
+            layer_id: int | None = None
+
+            @property
+            def feature_server(self) -> esri.FeatureServer:
+                return esri.FeatureServer(server=self.server, name=self.name)
 
     class DestinationSection(BaseModel):
         geometry: GeometryType

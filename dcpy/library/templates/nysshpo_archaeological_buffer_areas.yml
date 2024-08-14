@@ -5,7 +5,6 @@ dataset:
     arcgis_feature_server:
       server: nys_parks
       name: Archaeological_Buffer_Areas
-      layer: 14
     geometry:
       SRS: EPSG:3857
       type: MULTIPOLYGON
@@ -23,4 +22,4 @@ dataset:
     description: |
       ## Buffer areas that are a specified distance around archaeological sites that SHPO has inventoried.
       This feature class comprises areas that are a specified distance around archaeological sites that SHPO has inventoried.
-    url: https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Archaeological_Buffer_Areas/FeatureServer/14
+    url: https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Archaeological_Buffer_Areas/FeatureServer

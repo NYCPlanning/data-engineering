@@ -5,7 +5,7 @@ dataset:
     arcgis_feature_server:
       server: nys_clearinghouse
       name: Waterbody_Inventory_List
-      layer: 3
+      layer_name: Priority Waterbody List - Estuaries
     geometry:
       SRS: EPSG:2263
       type: MULTIPOLYGON

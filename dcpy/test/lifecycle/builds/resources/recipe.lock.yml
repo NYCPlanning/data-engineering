@@ -1,0 +1,43 @@
+base_recipe: null
+inputs:
+  dataset_defaults:
+    destination: postgres
+    file_type: csv
+    preprocessor:
+      function: dispatch
+      module: facdb.pipelines
+  datasets:
+  - destination: postgres
+    file_type: pg_dump
+    import_as: null
+    name: has_version_from_env
+    preprocessor:
+      function: dispatch
+      module: facdb.pipelines
+    version: 21v4
+    version_env_var: VERSION_PREV
+  - destination: postgres
+    file_type: csv
+    import_as: null
+    name: has_pinned_version
+    preprocessor:
+      function: dispatch
+      module: facdb.pipelines
+    version: other_pinned_version
+    version_env_var: null
+  - destination: postgres
+    file_type: csv
+    import_as: null
+    name: has_no_version_or_type
+    preprocessor:
+      function: dispatch
+      module: facdb.pipelines
+    version: v1
+    version_env_var: null
+  missing_versions_strategy: find_latest
+name: Tester
+product: db-test
+vars: null
+version: 23v1
+version_strategy: null
+version_type: null

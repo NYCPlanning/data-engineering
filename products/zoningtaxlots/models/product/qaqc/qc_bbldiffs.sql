@@ -42,7 +42,8 @@ bbldiffs AS (
         b.special_district_3 AS sd3prev,
         b.limited_height_district AS lhdprev,
         b.zoning_map_number AS zmnprev,
-        b.zoning_map_code AS zmcprev
+        b.zoning_map_code AS zmcprev,
+        a.geom
     FROM new_version AS a, prev_version AS b
     WHERE
         a.bbl = b.bbl

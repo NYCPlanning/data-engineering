@@ -1,5 +1,5 @@
 WITH historic_places AS (
-    SELECT * FROM {{ source('recipe_sources', 'nysparks_historicplaces_esri') }}
+    SELECT * FROM {{ source('recipe_sources', 'nysparks_historicplaces') }}
 ),
 
 all_historic_places AS (

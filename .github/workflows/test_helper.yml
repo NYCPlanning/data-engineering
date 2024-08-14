@@ -129,8 +129,10 @@ jobs:
         run: |
           echo "path filters with changed files: ${{ inputs.path_filter }}"
           if [[ -z "${{ inputs.path_filter }}" ]]; then
+            echo "Path filters weren't checked, running all tests"
             matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -rc)
           elif [[ "[]" = "${{ inputs.path_filter }}" ]]; then
+            echo "No relevant files changed, not running any tests"
             matrix="[]"
           else
             filter=$(echo '${{ inputs.path_filter }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
@@ -165,6 +167,7 @@ jobs:
         export-env: true
       env:
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
@@ -186,3 +189,12 @@ jobs:
           IFS=$'\n' arr=( $(xargs -n1 <<<"$call") )
           python3 -m pytest ${arr[@]}
         done
+
+    - name: Upload dcpy test coverage to Codecov
+      if: ${{ matrix.name =='dcpy' }}
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        fail_ci_if_error: true
+        verbose: true

@@ -2,7 +2,7 @@
 
 WITH source AS (
     SELECT *
-    FROM {{ source('recipe_sources', 'nysparks_parks_polygons') }}
+    FROM {{ source('recipe_sources', 'nysparks_parks') }}
 ),
 
 filtered AS (
