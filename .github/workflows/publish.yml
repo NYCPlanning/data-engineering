@@ -15,6 +15,7 @@ on:
           - db-cpdb
           - db-developments
           - db-facilities
+          - db-green-fast-track
           - db-pluto
           - db-zoningtaxlots
           - db-template
