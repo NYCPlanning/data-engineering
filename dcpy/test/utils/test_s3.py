@@ -107,7 +107,7 @@ def test_upload_file_obj(create_buckets):
     with open(RESOURCES_DIR / "data_wkb.csv", "rb") as f:
         file_obj = BytesIO(f.read())
     s3.upload_file_obj(
-        finallyile_obj=file_obj,
+        file_obj=file_obj,
         bucket=TEST_BUCKET,
         key=test_file_key,
         acl="public-read",
