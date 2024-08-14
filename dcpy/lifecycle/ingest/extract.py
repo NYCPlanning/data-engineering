@@ -2,6 +2,7 @@ import importlib
 from pandas import DataFrame
 from pathlib import Path
 import shutil
+from typing import Callable
 
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
@@ -35,11 +36,10 @@ def download_file_from_source(
         case S3Source():
             s3.download_file(source.bucket, source.key, path)
         case ScriptSource():
-            module = importlib.import_module(
-                f"dcpy.connectors.{source.connector}.{source.function}"
-            )
+            module = importlib.import_module(f"dcpy.connectors.{source.connector}")
+            extract: Callable = getattr(module, source.function)
             logger.info(f"Running custom ingestion script {source.function}.py")
-            df: DataFrame = module.extract()
+            df: DataFrame = extract()
             df.to_parquet(path)
 
         ## request-based methods

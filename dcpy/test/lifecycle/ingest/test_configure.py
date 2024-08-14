@@ -1,27 +1,18 @@
 from datetime import datetime
 from pathlib import Path
-from pydantic import TypeAdapter
 import pytest
 from unittest import mock, TestCase
-import yaml
 
 from dcpy.models import file
-from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.models.connectors import socrata, web
-from dcpy.models.lifecycle.ingest import (
-    LocalFileSource,
-    ScriptSource,
-    S3Source,
-    Source,
-)
+from dcpy.models.lifecycle.ingest import LocalFileSource
+
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import configure
 
 from dcpy.test.conftest import mock_request_get
-from . import RESOURCES
-
-TEST_DATASET_NAME = "test_dataset"
+from . import RESOURCES, TEST_DATASET_NAME, Sources, SOURCE_FILENAMES
 
 
 def test_jinja_vars():
@@ -79,8 +70,7 @@ class TestGetVersion(TestCase):
             Bucket=publishing.BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
         )
-        source = GisDataset(type="edm_publishing_gis_dataset", name=TEST_DATASET_NAME)
-        assert configure.get_version(source) == datestring
+        assert configure.get_version(Sources.gis) == datestring
 
     def test_rely_on_timestamp(self):
         timestamp = datetime.today()
@@ -92,35 +82,7 @@ class TestGetVersion(TestCase):
             configure.get_version(LocalFileSource(type="local_file", path=Path(".")))
 
 
-@pytest.mark.parametrize(
-    ["source", "expected"],
-    [
-        (LocalFileSource(type="local_file", path=Path("./dummy.txt")), "dummy.txt"),
-        (GisDataset(type="edm_publishing_gis_dataset", name="dummy"), "dummy.zip"),
-        (
-            ScriptSource(type="script", connector="", function=""),
-            f"{TEST_DATASET_NAME}.parquet",
-        ),
-        (
-            web.FileDownloadSource(type="file_download", url="http://a.c/dummy.txt"),
-            "dummy.txt",
-        ),
-        (
-            web.GenericApiSource(type="api", endpoint="", format="json"),
-            f"{TEST_DATASET_NAME}.json",
-        ),
-        (
-            socrata.Source(
-                type="socrata", org=socrata.Org.nyc, uid="w7w3-xahh", format="csv"
-            ),
-            f"{TEST_DATASET_NAME}.csv",
-        ),
-        (
-            S3Source(type="s3", bucket="dummy_bucket", key="inbox/test/test.txt"),
-            "test.txt",
-        ),
-    ],
-)
+@pytest.mark.parametrize(["source", "expected"], SOURCE_FILENAMES)
 def test_get_filename(source, expected):
     configure.get_filename(source, TEST_DATASET_NAME) == expected
 
