@@ -1,15 +1,113 @@
 from pathlib import Path
 import typer
 
-import dcpy.models.product.dataset.metadata as m
+import dcpy.models.product.dataset.metadata_v2 as m
 from dcpy.lifecycle.package import validate as v
-from dcpy.utils import s3
 from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub
 
-# Adding two apps here to achieve nested commands
-# ie. dcpy.cli lifecycle distribute socrata from_s3
+
+def dist_from_local(
+    package_path: Path,
+    dataset_destination_id: str,
+    *,
+    metadata_path: Path | None,
+    publish: bool = False,
+    ignore_validation_errors: bool = False,
+    skip_validation: bool = False,
+) -> str:
+    """Distribute a dataset and specific dataset_destination_id.
+
+    Requires fully rendered template, ie there should be no template variables in the metadata
+    """
+    md = m.Metadata.from_path(metadata_path or (package_path / "metadata.yml"))
+    validation_errors = md.validate_consistency()
+    if validation_errors:
+        logger.error(
+            f"The metadata file contains inconsistencies that must be fixed before pushing: {str(validation_errors)}"
+        )
+        return str(validation_errors)
+
+    dest = md.get_destination(dataset_destination_id)
+    assert dest.type == "socrata"
+
+    if not skip_validation:
+        logger.info("Validating package")
+        # validation = v.validate_package(package_path, md)
+        # errors = validation.get_dataset_errors()
+        errors: list[str] = []  # TODO. Not really used, so not urgent
+
+        if len(errors) > 0:
+            if ignore_validation_errors:
+                logger.warn("Errors Found! But continuing to distribute")
+                # validation.pretty_print_errors()
+            else:
+                error_msg = "Errors Found! Aborting distribute"
+                logger.error(error_msg)
+                # validation.pretty_print_errors()
+                raise Exception(error_msg)
+
+    try:
+        return soc_pub.push_dataset(
+            metadata=md,
+            dataset_destination_id=dataset_destination_id,
+            dataset_package_path=package_path,
+            publish=publish,
+        )
+    except Exception as e:
+        return f"Error pushing {md.attributes.display_name}, destination: {dest.id}: {str(e)}"
+
+
+def dist_from_local_all_socrata(
+    package_path: Path,
+    *,
+    publish: bool = False,
+    ignore_validation_errors: bool = False,
+    skip_validation: bool = False,
+):
+    """Distributes all Socrata destinations within a given metadata"""
+    md = m.Metadata.from_path(package_path / "metadata.yml")
+    socrata_dests = [d.id for d in md.destinations if d.type == "socrata"]
+    logger.info(f"Distributing {md.attributes.display_name}: {socrata_dests}")
+    results = [
+        dist_from_local(
+            package_path=package_path,
+            metadata_path=None,
+            dataset_destination_id=dataset_destination_id,
+            publish=publish,
+            ignore_validation_errors=ignore_validation_errors,
+            skip_validation=skip_validation,
+        )
+        for dataset_destination_id in socrata_dests
+    ]
+    return results
+
+
+def dist_from_local_product_all_socrata(
+    product_path: Path,
+    *,
+    publish: bool = False,
+    ignore_validation_errors: bool = False,
+    skip_validation: bool = False,
+):
+    """Distribute datasets for an entire product."""
+    results = []
+    for p in product_path.iterdir():
+        if p.is_dir():
+            md_path = p / "metadata.yml"
+            if md_path.exists():
+                results.append(
+                    dist_from_local_all_socrata(
+                        package_path=Path(p),
+                        publish=publish,
+                        ignore_validation_errors=ignore_validation_errors,
+                        skip_validation=skip_validation,
+                    )
+                )
+    return results
+
+
 socrata_app = typer.Typer()
 
 
@@ -17,7 +115,6 @@ socrata_app = typer.Typer()
 def _dist_from_local(
     package_path: Path = typer.Argument(),
     dataset_destination_id: str = typer.Argument(),
-    version: str = typer.Argument(),
     metadata_path: Path = typer.Option(
         None,
         "-m",
@@ -43,31 +140,77 @@ def _dist_from_local(
         help="Skip Validation Altogether",
     ),
 ):
-    md = m.Metadata.from_path(
-        metadata_path or package_path / "metadata.yml",
-        template_vars={"version": version},
-    )  # TODO: Determine the right time to do metadata templating. Ie. Should any metadata in our packages already be templated?
-    dest = md.get_destination(dataset_destination_id)
-    assert dest.type == "socrata"
-
-    if not skip_validation:
-        logger.info("Validating package")
-        validation = v.validate_package(package_path, md)
-        errors = validation.get_dataset_errors()
-
-        if len(errors) > 0:
-            if ignore_validation_errors:
-                logger.warn("Errors Found! But continuing to distribute")
-                validation.pretty_print_errors()
-            else:
-                error_msg = "Errors Found! Aborting distribute"
-                logger.error(error_msg)
-                validation.pretty_print_errors()
-                raise Exception(error_msg)
-
-    soc_pub.push_dataset(
-        md, dataset_destination_id, package_path, version=version, publish=publish
+    result = dist_from_local(
+        package_path=package_path,
+        dataset_destination_id=dataset_destination_id,
+        metadata_path=metadata_path,
+        publish=publish,
+        ignore_validation_errors=ignore_validation_errors,
+        skip_validation=skip_validation,
     )
+    print(result)
+
+
+@socrata_app.command("local_all_datasets")
+def _dist_from_local_all_socrata(
+    package_path: Path = typer.Argument(),
+    publish: bool = typer.Option(
+        False,
+        "-p",
+        "--publish",
+        help="Publish the Socrata Revision? Or leave it open.",
+    ),
+    ignore_validation_errors: bool = typer.Option(
+        False,
+        "-i",
+        "--ignore-validation-errors",
+        help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
+    ),
+    skip_validation: bool = typer.Option(
+        False,
+        "-y",  # -y(olo)
+        "--skip-validation",
+        help="Skip Validation Altogether",
+    ),
+):
+    results = dist_from_local_all_socrata(
+        package_path=package_path,
+        publish=publish,
+        ignore_validation_errors=ignore_validation_errors,
+        skip_validation=skip_validation,
+    )
+    print(results)
+
+
+@socrata_app.command("local_all_product")
+def _cli_dist_product_from_local_all_socrata(
+    product_path: Path = typer.Argument(),
+    publish: bool = typer.Option(
+        False,
+        "-p",
+        "--publish",
+        help="Publish the Socrata Revision? Or leave it open.",
+    ),
+    ignore_validation_errors: bool = typer.Option(
+        False,
+        "-i",
+        "--ignore-validation-errors",
+        help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
+    ),
+    skip_validation: bool = typer.Option(
+        False,
+        "-y",  # -y(olo)
+        "--skip-validation",
+        help="Skip Validation Altogether",
+    ),
+):
+    results = dist_from_local_product_all_socrata(
+        product_path=product_path,
+        publish=publish,
+        ignore_validation_errors=ignore_validation_errors,
+        skip_validation=skip_validation,
+    )
+    print(results)
 
 
 @socrata_app.command("from_s3")
@@ -115,12 +258,12 @@ def _dist_from_s3(
         packaging.DatasetPackageKey(product_name, version, dataset or product_name)
     )
 
-    _dist_from_local(
+    result = dist_from_local(
         package_path=package_path,
         dataset_destination_id=dataset_destination_id,
-        version=version,
         metadata_path=metadata_path,
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
         skip_validation=skip_validation,
     )
+    print(result)

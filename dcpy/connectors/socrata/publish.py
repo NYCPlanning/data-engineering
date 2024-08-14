@@ -9,19 +9,22 @@ quite informative.
 """
 
 from __future__ import annotations
+import copy
 from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+from pydantic import BaseModel
 import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
 from socrata.revisions import Revision as SocrataPyRevision
 import time
-from typing import TypedDict, Literal, NotRequired
+from typing import TypedDict, Literal, NotRequired, Any
 
 from dcpy.utils.logging import logger
-import dcpy.models.product.dataset.metadata as models
+
+import dcpy.models.product.dataset.metadata_v2 as md
 
 SOCRATA_USER = os.getenv("SOCRATA_USER")
 SOCRATA_PASSWORD = os.getenv("SOCRATA_PASSWORD")
@@ -60,6 +63,37 @@ class Socrata:
 
     class Inputs:
         """Helper classes to model inputs to the Socrata API."""
+
+        class DatasetMetadata(BaseModel):
+            name: str
+            description: str
+            tags: list[str]
+            metadata: dict[str, Any]
+
+            @classmethod
+            def from_dataset_attributes(cls, attrs: md.DatasetAttributes):
+                return cls(
+                    name=attrs.display_name,
+                    description=attrs.description,
+                    tags=attrs.tags,
+                    metadata={"rowLabel": attrs.each_row_is_a},
+                )
+
+        class Column(BaseModel, extra="forbid"):
+            name: str | None = None
+            api_name: str | None = None
+            display_name: str | None = None
+            description: str | None = None
+            is_primary_key: bool = False
+
+            def __init__(self, col: md.DatasetColumn):
+                self.name = col.id
+                self.api_name = col.custom.get("api_name", col.id)
+                self.display_name = col.name
+                self.description = col.description
+                self.is_primary_key = (
+                    bool(col.checks.is_primary_key) if col.checks else False
+                )
 
         class Attachment(TypedDict):
             name: str
@@ -102,73 +136,100 @@ class Socrata:
                 self.attachments = self._raw_resource_data["attachments"]
                 self.closed_at = self._raw_resource_data["closed_at"]
 
-        class RevisionDataSource:
-            def __init__(self, socrata_source):
-                self.socrata_source = socrata_source
 
-                # AR Note: It's not clear to me why/when you would have multiple schemas/output
-                # schemas for any one datasource. In any case, I haven't yet encountered it,
-                # and for our use case (single dataset upload per product) I don't expect we will
-                self.soc_output_columns = socrata_source.attributes["schemas"][0][
-                    "output_schemas"
-                ][0]["output_columns"]
+@dataclass(frozen=True)
+class RevisionDataSource:
+    """Wrapper for Socrata's Revision Data Source.
+    A Data Source is what's returned when a dataset is pushed. It contains
+    data about how to modify metadata for the pushed file,
+    e.g. Column Names
+    """
 
-            @property
-            def _column_update_endpoint(self):
-                return (
-                    f"https://{SOCRATA_DOMAIN}"
-                    + self.socrata_source.input_schemas[0].links["transform"]
-                )
+    MISSING_COLUMN_ERROR = (
+        "The field names in the uploaded data do not match our metadata"
+    )
 
-            @property
-            def column_names(self) -> list[str]:
-                return [c["field_name"] for c in self.soc_output_columns]
+    uploaded_columns: list[Any]
+    column_update_endpoint: str
+    _raw_socrata_source: dict[str, Any] | None = None
 
-            def update_column_metadata(
-                self, socrata_dest: models.SocrataDestination, metadata: models.Metadata
-            ):
-                # TODO: changing column types. Not strictly required yet, and could be tricky
-                dest_col_metadata = socrata_dest.destination_column_metadata(metadata)
-                expected_api_names = [
-                    c.api_name for c in dest_col_metadata if c.api_name
-                ]
+    @classmethod
+    def from_socrata_source(cls, socrata_source):
+        return RevisionDataSource(
+            _raw_socrata_source=socrata_source,
+            # AR Note: It's not clear to me why/when you would have multiple schemas/output
+            # schemas for any one datasource. In any case, I haven't yet encountered it,
+            # and for our use case (single dataset upload per product) I don't expect we will
+            uploaded_columns=socrata_source.attributes["schemas"][0]["output_schemas"][
+                0
+            ]["output_columns"],
+            column_update_endpoint=f"https://{SOCRATA_DOMAIN}"
+            + socrata_source.input_schemas[0].links["transform"],
+        )
 
-                logger.info(
-                    f"""Updating Columns at {self._column_update_endpoint}
-                    Columns from dataset page: {sorted(self.column_names)}
-                    Columns from our metadata: {sorted(expected_api_names)}
-                """
-                )
+    @property
+    def column_names(self) -> list[str]:
+        return [c["field_name"] for c in self.uploaded_columns]
 
-                assert set(self.column_names) == set(
-                    expected_api_names
-                ), f"""The field names in the uploaded data do not match our metadata.
-                - Present in our metadata, but not dataset page: {sorted(set(expected_api_names) - set(self.column_names))}
-                - Present in dataset page, but not our metadata: {sorted(set(self.column_names) - set(expected_api_names))}
-                """
+    def calculate_pushed_col_metadata(self, our_columns: list[md.DatasetColumn]):
+        # TODO: using c.id or c.name?
+        our_cols_by_field_name = {
+            (c.custom.get("api_name") or c.id): c for c in our_columns
+        }
+        our_api_names = our_cols_by_field_name.keys()
 
-                for uploaded_col in self.soc_output_columns:
-                    # Take the Socrata metadata for columns that have been uploaded,
-                    # modify them to match our metadata, and post it back.
+        logger.info(
+            f"""Calulating columns to push:
+            Columns from dataset page: {sorted(self.column_names)}
+            Columns from our metadata: {sorted(our_api_names)}
+        """
+        )
 
-                    # Input columns need to be matched to what's been uploaded,
-                    # via the `initial_output_column_id`. Otherwise update
-                    # requests are ignored.
-                    uploaded_col["initial_output_column_id"] = uploaded_col["id"]
-                    our_col_index = expected_api_names.index(uploaded_col["field_name"])
-                    our_col = dest_col_metadata[our_col_index]
+        if set(self.column_names) != our_api_names:
+            raise Exception(
+                {
+                    "type": self.MISSING_COLUMN_ERROR,
+                    # TODO: this should reference our column.ids in addition to the api_names
+                    "missing_from_theirs": sorted(
+                        our_api_names - set(self.column_names)
+                    ),
+                    "missing_from_ours": sorted(set(self.column_names) - our_api_names),
+                }
+            )
 
-                    uploaded_col["position"] = our_col_index + 1
+        new_uploaded_cols = []
+        for uploaded_col in self.uploaded_columns:
+            # Take the Socrata metadata for columns that have been uploaded,
+            # modify them to match our metadata.
 
-                    uploaded_col["is_primary_key"] = our_col.is_primary_key
-                    uploaded_col["display_name"] = our_col.display_name
-                    uploaded_col["description"] = our_col.description
+            # Input columns need to be matched to what's been uploaded,
+            # via the `initial_output_column_id`. Otherwise update
+            # requests are ignored.
+            new_col = copy.deepcopy(uploaded_col)
 
-                return _socrata_request(
-                    self._column_update_endpoint,
-                    "POST",
-                    json={"output_columns": self.soc_output_columns},
-                )
+            our_col = our_cols_by_field_name[uploaded_col["field_name"]]
+            our_col_index = list(our_api_names).index(uploaded_col["field_name"])
+
+            new_col["position"] = our_col_index + 1
+            new_col["initial_output_column_id"] = new_col["id"]
+
+            new_col["is_primary_key"] = (
+                True if (our_col.checks and our_col.checks.is_primary_key) else False
+            )
+
+            new_col["display_name"] = our_col.name
+            new_col["description"] = our_col.description
+            new_uploaded_cols.append(new_col)
+
+        return new_uploaded_cols
+
+    def push_socrata_column_metadata(self, our_cols: list[md.DatasetColumn]):
+        cols = self.calculate_pushed_col_metadata(our_cols)
+        return _socrata_request(
+            self.column_update_endpoint,
+            "POST",
+            json={"output_columns": cols},
+        )
 
 
 @dataclass(frozen=True)
@@ -249,7 +310,9 @@ class Revision:
         )
 
     def patch_metadata(
-        self, metadata: dict, attachments: list[Socrata.Inputs.Attachment]
+        self,
+        metadata: Socrata.Inputs.DatasetMetadata,
+        attachments: list[Socrata.Inputs.Attachment],
     ):
         return Socrata.Responses.Revision(
             _socrata_request(
@@ -262,7 +325,7 @@ class Revision:
                 data=json.dumps(
                     {
                         "attachments": attachments,
-                        "metadata": metadata,
+                        "metadata": metadata.model_dump(),
                     }
                 ),
             )
@@ -295,7 +358,7 @@ class Revision:
 
     def push_csv(
         self, path: Path, *, dest_filename: str | None = None
-    ) -> Socrata.Responses.RevisionDataSource:
+    ) -> RevisionDataSource:
         rev = self._fetch_socratapy_revision()
         with open(path, "rb") as csv:
             logger.info(
@@ -308,11 +371,11 @@ class Revision:
         if error_details:
             logger.error(f"CSV upload failed with {error_details}")
             raise Exception()
-        return Socrata.Responses.RevisionDataSource(push_resp)
+        return RevisionDataSource.from_socrata_source(push_resp)
 
     def push_shp(
         self, path: Path, *, dest_filename: str | None = None
-    ) -> Socrata.Responses.RevisionDataSource:
+    ) -> RevisionDataSource:
         rev = self._fetch_socratapy_revision()
         with open(path, "rb") as shp_zip:
             logger.info(
@@ -327,7 +390,7 @@ class Revision:
         if error_details:
             logger.error(f"Shapefile upload failed with {error_details}")
             raise Exception()
-        return Socrata.Responses.RevisionDataSource(push_resp)
+        return RevisionDataSource.from_socrata_source(push_resp)
 
     def upload_attachment(
         self,
@@ -369,68 +432,113 @@ class Revision:
         )
 
 
-def make_socrata_metadata(dcp_md: models.Metadata):
-    return {
-        "name": dcp_md.display_name,
-        # "resourceName": dcp_md.name,
-        "tags": dcp_md.tags,
-        "metadata": {"rowLabel": dcp_md.each_row_is_a},
-        "description": dcp_md.description,
-        "category": "city government",
-    }
+SOCRATA_DESTINATION_TYPE = "socrata"
+ERROR_WRONG_DESTINATION_TYPE = "Received a non-socrata type destination"
+ERROR_MISSING_FOUR_FOUR = "The Socrata destination has no four-four"
+ERROR_WRONG_DATASET_FILE_COUNT = (
+    "The Socrata destination specifies the wrong number of dataset files."
+)
+
+
+class DestinationUses:
+    attachment = "attachment"
+    dataset_file = "dataset_file"
+
+
+class SocrataDestination:
+    dataset_file_id: str
+    attachment_ids: set[str] = set()
+    four_four: str
+    is_unparsed_dataset: bool = False
+
+    def __init__(self, metadata: md.Metadata, destination_id: str):
+        dest = metadata.get_destination(destination_id)
+        if dest.type != SOCRATA_DESTINATION_TYPE:
+            raise Exception(f"{ERROR_WRONG_DESTINATION_TYPE}: {dest.type}")
+
+        self.four_four = dest.custom.get("four_four", "")
+        if not self.four_four:
+            raise Exception(ERROR_MISSING_FOUR_FOUR)
+
+        dataset_file_ids = []
+        for f in metadata.get_destination(destination_id).files:
+            match f.custom["destination_use"]:
+                case DestinationUses.attachment:
+                    self.attachment_ids.add(f.id)
+                case DestinationUses.dataset_file:
+                    dataset_file_ids.append(f.id)
+        if len(dataset_file_ids) != 1:
+            raise Exception(f"{ERROR_WRONG_DATASET_FILE_COUNT}: {dataset_file_ids}")
+        self.dataset_file_id = dataset_file_ids[0]
+        self.is_unparsed_dataset = dest.custom.get("is_unparsed_dataset", False)
 
 
 def push_dataset(
-    metadata: models.Metadata,
+    metadata: md.Metadata,
     dataset_destination_id: str,
     dataset_package_path: Path,
     *,
-    version: str,
-    publish: bool,
+    publish: bool = False,
 ):
     """Push a dataset and sync metadata."""
-    dest = metadata.get_destination(dataset_destination_id)
-    if type(dest) != models.SocrataDestination:
-        raise Exception("received a non-socrata type destination")
-    md_dataset = metadata.package.get_dataset(dest.datasets[0])
-    file_path = (
-        dataset_package_path / "dataset_files" / md_dataset.filename
-    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
+    socrata_dest = SocrataDestination(metadata, dataset_destination_id)
+    dataset = Dataset(four_four=socrata_dest.four_four)
 
-    dataset = Dataset(four_four=dest.four_four)
+    overridden_attachments = [  # we really just care about the overridden filenames
+        metadata.calculate_destination_metadata(
+            file_id=attachment_id, destination_id=dataset_destination_id
+        )
+        for attachment_id in socrata_dest.attachment_ids
+    ]
 
     rev = dataset.create_replace_revision()
 
-    files_by_id = metadata.package.files_by_id()
     attachments_metadata = [
         rev.upload_attachment(
-            dataset_package_path / "attachments" / files_by_id[attachment].filename,
-            dest_file_name=files_by_id[attachment].filename,
+            dest_file_name=attachment.file.filename,
+            path=dataset_package_path
+            / "attachments"
+            / metadata.get_file_and_overrides(attachment.file.id).file.filename,
         )
-        for attachment in dest.attachments
+        for attachment in overridden_attachments
     ]
 
+    overridden_dataset_md = metadata.calculate_destination_metadata(
+        file_id=socrata_dest.dataset_file_id, destination_id=dataset_destination_id
+    )
     rev.patch_metadata(
         attachments=attachments_metadata,
-        metadata=dest.get_metadata(metadata).model_dump(),
+        metadata=Socrata.Inputs.DatasetMetadata.from_dataset_attributes(
+            overridden_dataset_md.dataset.attributes
+        ),
     )
 
-    data_source = None
-    if dest.is_unparsed_dataset:
-        rev.push_blob(
-            file_path,
-            dest_filename=dest.overrides.destination_file_name or file_path.name,
-        )
-    elif md_dataset.type == "csv":
-        data_source = rev.push_csv(file_path)
-    elif md_dataset.type == "shapefile":
-        data_source = rev.push_shp(file_path)
-    else:
-        raise Exception(f"Pushing unsupported file type: {md_dataset.type}")
+    package_dataset_file_path = (
+        dataset_package_path
+        / "dataset_files"
+        / metadata.get_file_and_overrides(socrata_dest.dataset_file_id).file.filename
+    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
 
-    if not dest.is_unparsed_dataset and data_source:  # appease the type-checker
+    dataset_file = overridden_dataset_md.file
+    data_source = None
+    if socrata_dest.is_unparsed_dataset:
+        rev.push_blob(
+            package_dataset_file_path,
+            dest_filename=overridden_dataset_md.file.filename
+            or package_dataset_file_path.name,
+        )
+    elif dataset_file.type == "csv":
+        data_source = rev.push_csv(package_dataset_file_path)
+    elif dataset_file.type == "shapefile":
+        data_source = rev.push_shp(package_dataset_file_path)
+    else:
+        raise Exception(f"Pushing unsupported file type: {dataset_file.type}")
+
+    if not socrata_dest.is_unparsed_dataset and data_source:
         try:
-            data_source.update_column_metadata(dest, metadata)
+            data_source.push_socrata_column_metadata(
+                overridden_dataset_md.dataset.columns
+            )
         except Exception as e:
             # Upating column Metadata is tricky, and there's still some work to be done
             logger.error(
@@ -438,14 +546,12 @@ def push_dataset(
                 the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
                 Error: {e}"""
             )
-            return
+            return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
 
     if not publish:
-        logger.info(
-            f"""Finished syncing product to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually
-            here {rev.page_url}
-            """
-        )
+        result = f"""Finished syncing product {metadata.attributes.display_name} to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually here {rev.page_url}."""
+        logger.info(result)
+        return result
     else:
         logger.info("Publishing")
         rev.apply()
@@ -467,3 +573,4 @@ def push_dataset(
         logger.info("Job Finished Successfully")
 
         dataset.discard_open_revisions()
+        return f"Published {metadata.attributes.display_name} - destination: {dataset_destination_id}"
