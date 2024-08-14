@@ -98,7 +98,7 @@ def test_upload_file(create_buckets):
     s3.upload_file(
         bucket=TEST_BUCKET, path=test_file_path, key=test_file_key, acl="public-read"
     )
-    assert s3.exists(TEST_BUCKET, test_file_key) == True
+    assert s3.exists(TEST_BUCKET, test_file_key)
 
 
 def test_upload_file_obj(create_buckets):
@@ -112,4 +112,4 @@ def test_upload_file_obj(create_buckets):
         key=test_file_key,
         acl="public-read",
     )
-    assert s3.exists(TEST_BUCKET, test_file_key) == True
+    assert s3.exists(TEST_BUCKET, test_file_key)

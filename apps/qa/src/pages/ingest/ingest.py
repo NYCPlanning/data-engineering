@@ -3,8 +3,6 @@ def ingest() -> None:
     from .helpers import (
         archive_raw_data,
         library_archive,
-        dummy_library_call,
-        dummy_archive_raw_data,
     )
     from pathlib import Path
     import time
@@ -50,9 +48,7 @@ def ingest() -> None:
                 )
                 st.session_state["ingest"]["upload_status"] = "success"
             except Exception as e:
-                st.error(
-                    f"Failed to archive Dataset {dataset_name} version {version} to {s3_path}"
-                )
+                st.error(f"Failed to archive Dataset")
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
@@ -188,7 +184,7 @@ def ingest() -> None:
             library_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            library(dataset_name, version, str(s3_path), latest)
+            library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -243,7 +239,7 @@ def ingest() -> None:
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
-            library(dataset_name, version, str(s3_path), latest)
+            library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
             st.button("Restart", on_click=unlock)
