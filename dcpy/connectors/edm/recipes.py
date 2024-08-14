@@ -292,7 +292,7 @@ def get_archival_metadata(
         name=name,
         version=version,
         timestamp=timestamp,
-        config=config.model_dump(),
+        config=config.model_dump(mode="json"),
         runner=runner,
     )
 

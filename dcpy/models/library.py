@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
 from typing import Literal
 
 from dcpy.utils import metadata
@@ -71,10 +71,6 @@ class DatasetDefinition(BaseModel):
             @property
             def feature_server(self) -> esri.FeatureServer:
                 return esri.FeatureServer(server=self.server, name=self.name)
-
-            @field_serializer("server")
-            def _serialize_server(self, s: esri.Server, _info) -> str:
-                return s.value
 
     class DestinationSection(BaseModel):
         geometry: GeometryType

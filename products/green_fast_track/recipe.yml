@@ -1,6 +1,7 @@
 name: Green Fast Track
 product: green_fast_track
-version: 0.0.1
+version_strategy:
+  pin_to_source_dataset: dcp_mappluto_wi
 inputs:
   datasets:
     # Boundaries

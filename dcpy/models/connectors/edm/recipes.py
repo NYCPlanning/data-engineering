@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
 from typing import Literal
 
 ValidAclValues = Literal["public-read", "private"]
@@ -53,10 +53,3 @@ class Dataset(BaseModel, extra="forbid"):
 
     def s3_file_key(self, prefix: str) -> str:
         return f"{self.s3_folder_key(prefix)}/{self.file_name}"
-
-    @field_serializer("file_type")
-    def _serialize_type(self, t: DatasetType | None, _info) -> str | None:
-        if t is not None:
-            return t.value
-        else:
-            return t

@@ -1,0 +1,21 @@
+base_recipe: null
+inputs:
+  dataset_defaults:
+    destination: postgres
+    file_type: null
+    preprocessor: null
+  datasets:
+  - destination: postgres
+    file_type: null
+    import_as: null
+    name: has_no_version_or_type
+    preprocessor: null
+    version: v1
+    version_env_var: null
+  missing_versions_strategy: null
+name: Tester
+product: db-test
+vars: null
+version: 21v1
+version_strategy: null
+version_type: null

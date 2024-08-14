@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import StrEnum
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
 from typing import Literal
 
 
@@ -39,7 +39,3 @@ class Source(BaseModel, extra="forbid"):
             return "zip"
         else:
             return self.format
-
-    @field_serializer("org")
-    def _serialize_org(self, org: Org, _info) -> str:
-        return org.value
