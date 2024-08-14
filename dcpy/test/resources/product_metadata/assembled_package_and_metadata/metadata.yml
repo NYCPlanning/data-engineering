@@ -1,0 +1,53 @@
+id: test
+
+attributes:
+  description: attrs_description
+  display_name: attrs_display_name
+  each_row_is_a: attrs_each_row_is_a
+  tags:
+  - attrs_1
+  - attrs_2
+  custom:
+    custom_attr_key: custom_attr_val
+    custom_attr_key_to_override: custom_attr_val_to_override
+
+assembly:
+- id: my_zip
+  filename: readme_and_data_file.zip
+  type: zip
+  contents:
+  - id: readme
+    filename: zipped_readme.pdf
+  - id: data_file
+
+custom: {}
+
+destinations:
+- id: bytes_dest_with_individual_files
+  type: bytes
+  files:
+  - id: data_file
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/my_shp.zip
+  - id: readme
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/my_data_dict.pdf
+  - id: my_zip
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip.pdf
+- id: soc_dest
+  type: socrata
+  files: []
+
+files:
+- file:
+    id: data_file
+    filename: data_file.xlsx
+    type: xlsx
+- file:
+    id: readme
+    filename: readme.pdf
+    is_metadata: true
+    type: pdf
+
+columns: []
