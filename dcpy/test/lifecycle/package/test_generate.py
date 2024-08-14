@@ -11,7 +11,7 @@ def test_generate_html_from_yaml():
     html_path = generate_metadata_assets.generate_html_from_yaml(
         yaml_file_path=TEST_METADATA_YAML_PATH,
         output_html_path=TEST_METADATA_HTML_PATH,
-        html_template_path=generate_metadata_assets.DATA_DICTIONARY_TEMPLATE,
+        html_template_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
     )
     assert html_path.exists()
 
@@ -20,7 +20,7 @@ def test_generate_pdf_from_html():
     html_path = generate_metadata_assets.generate_html_from_yaml(
         yaml_file_path=TEST_METADATA_YAML_PATH,
         output_html_path=TEST_METADATA_HTML_PATH,
-        html_template_path=generate_metadata_assets.DATA_DICTIONARY_TEMPLATE,
+        html_template_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
     )
     pdf_path = generate_metadata_assets.generate_pdf_from_html(
         output_html_path=html_path,
