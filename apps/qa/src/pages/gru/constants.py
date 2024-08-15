@@ -74,6 +74,11 @@ readme_markdown_text = """### Source Data Info
 The output of this check contains records that were not successfully geocoded with
 geosupport function 1A, as well as those that only matched a pseudo-address.
 
+#### Identify which CSCL-derived address points existing in PAD don't match PAD BIN
+
+The output of this check contains address point records that were successfully geocoded with
+geosupport function 1A but address point BIN doesn't match with geosupport BIN.
+
 #### Identify address points that match to different atomicids in PAD and Geosupport
 
 The output of this check contains atomic polygon mismatches between results from spatial join and the ones returned by Geosupport function 1E.
