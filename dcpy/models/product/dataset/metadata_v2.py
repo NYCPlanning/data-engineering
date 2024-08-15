@@ -104,7 +104,7 @@ class DatasetColumn(DatasetColumnOverrides):
         return dn
 
     @field_validator("data_type")
-    def _validate_data_type(cls, dt):
+    def _validate_data_type_field(cls, dt):
         assert dt, "data_type may not be null"
         return dt
 
