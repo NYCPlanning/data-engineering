@@ -218,8 +218,8 @@ def ingest() -> None:
         latest = st.checkbox("Tag as Latest Version")
 
         if dataset_name and version:
-            s3_path = f"inbox / {dataset_name} / {version}"
-            st.write("S3 Path:", s3_path)
+            s3_path_display = f"inbox / {dataset_name} / {version}"
+            st.write("S3 Path:", s3_path_display)
 
         ingest_button_pressed = False
         ingest_button_pressed = st.button(
@@ -239,6 +239,8 @@ def ingest() -> None:
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
+            file_name=uploaded_file.name
+            s3_path = f"inbox/{dataset_name}/{version}/{file_name}"
             library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])

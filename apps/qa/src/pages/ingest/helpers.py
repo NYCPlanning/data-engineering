@@ -42,9 +42,9 @@ def library_archive(
     a = Archive()
     # once we've tested and this is ready to go, need to add `push=True`
     a(
-        name=dataset_name,
-        version=version,
-        override_path=s3_path,
-        latest=latest,
         clean=True,
+        latest=latest,
+        name=dataset_name,
+        source_path_override=f"s3://{BUCKET}/{s3_path}",
+        version=version,
     )
