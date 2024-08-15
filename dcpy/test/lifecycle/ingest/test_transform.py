@@ -124,22 +124,32 @@ def test_validate_processing_steps():
             transform.validate_processing_steps("test", [step])
 
 
-def test_validate_pd_series_func():
-    assert not transform.validate_pd_series_func(
-        function_name="str.replace", pat="pat", repl="repl"
-    )
+class TestValidatePdSeriesFunc(TestCase):
+    """transorm.validate_pd_series_func returns dictionary of validation errors"""
 
-    assert not transform.validate_pd_series_func(
-        function_name="map", arg={"value 1": "other value 1"}
-    )
+    def test_first_level(self):
+        assert not transform.validate_pd_series_func(
+            function_name="map", arg={"value 1": "other value 1"}
+        )
 
-    assert "repl" in transform.validate_pd_series_func(
-        function_name="str.replace", pat="pat"
-    )
+    def test_str_series(self):
+        assert not transform.validate_pd_series_func(
+            function_name="str.replace", pat="pat", repl="repl"
+        )
 
-    assert "extra_arg" in transform.validate_pd_series_func(
-        function_name="str.replace", pat="pat", repl="repl", extra_arg="foo"
-    )
+    def test_missing_arg(self):
+        assert "repl" in transform.validate_pd_series_func(
+            function_name="str.replace", pat="pat"
+        )
+
+    def test_extra_arg(self):
+        assert "extra_arg" in transform.validate_pd_series_func(
+            function_name="str.replace", pat="pat", repl="repl", extra_arg="foo"
+        )
+
+    def test_invalid_function(self):
+        res = transform.validate_pd_series_func(function_name="str.fake_function")
+        assert res == "'pd.Series.str' has no attribute 'fake_function'"
 
 
 class TestPreprocessors(TestCase):
