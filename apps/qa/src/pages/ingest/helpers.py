@@ -41,10 +41,13 @@ def library_archive(
 ) -> None:
     a = Archive()
     # once we've tested and this is ready to go, need to add `push=True`
-    a(
-        clean=True,
-        latest=latest,
-        name=dataset_name,
-        source_path_override=f"s3://{BUCKET}/{s3_path}",
-        version=version,
-    )
+    for format in ["pgdump", "parquet"]:
+        a(
+            clean=True,
+            latest=latest,
+            name=dataset_name,
+            source_path_override=f"s3://{BUCKET}/{s3_path}",
+            output_format=format,
+            version=version,
+            push=True,
+        )

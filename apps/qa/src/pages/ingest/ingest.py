@@ -122,7 +122,7 @@ def ingest() -> None:
 
         if dataset_name and version:
             s3_path_display = f"inbox / {dataset_name} / {version}"
-            st.write("S3 Path:", s3_path_display)
+            st.write("To S3 Directory:", s3_path_display)
 
         ingest_button_pressed = st.button(
             "Ingest",
@@ -167,7 +167,7 @@ def ingest() -> None:
             st.text_input("Version", disabled=st.session_state["ingest"]["running"])
         )
         s3_path = st.text_input(
-            "S3 File Path",
+            "S3 File Path (Default Bucket edm-recipes)",
             value=st.session_state["ingest"]["s3_path"],
             disabled=st.session_state["ingest"]["running"],
         )
@@ -219,7 +219,7 @@ def ingest() -> None:
 
         if dataset_name and version:
             s3_path_display = f"inbox / {dataset_name} / {version}"
-            st.write("S3 Path:", s3_path_display)
+            st.write("To S3 Directory:", s3_path_display)
 
         ingest_button_pressed = False
         ingest_button_pressed = st.button(
@@ -234,13 +234,12 @@ def ingest() -> None:
             and uploaded_file is not None
         ):
             ingest(dataset_name, version, uploaded_file, allow_override)
+            s3_path = f"inbox/{dataset_name}/{version}/{uploaded_file.name}"
         if ingest_button_pressed == True and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
-            file_name = uploaded_file.name
-            s3_path = f"inbox/{dataset_name}/{version}/{file_name}"
             library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
