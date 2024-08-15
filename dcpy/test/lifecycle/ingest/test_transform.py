@@ -2,20 +2,21 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from pydantic import TypeAdapter, BaseModel
 import pytest
 import yaml
-from pydantic import TypeAdapter, BaseModel
-from pathlib import Path
+from unittest import TestCase, mock
 
 from dcpy.models.file import Format
 from dcpy.models.lifecycle.ingest import PreprocessingStep
-from dcpy.lifecycle.ingest import transform
 
 from dcpy.utils import data
-from . import RESOURCES, TEST_DATA_DIR
+from dcpy.lifecycle.ingest import transform
+
+from . import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME
 
 
-class TestConfig(BaseModel):
+class FakeConfig(BaseModel):
     """
     Test pydentic class used to validate input yaml file
     """
@@ -30,7 +31,7 @@ def get_fake_data_configs():
     Each dict contains a file.Format object and a path to the test data.
     """
     with open(RESOURCES / "transform_to_parquet_template.yml") as f:
-        configs = TypeAdapter(list[TestConfig]).validate_python(yaml.safe_load(f))
+        configs = TypeAdapter(list[FakeConfig]).validate_python(yaml.safe_load(f))
 
     test_files = []
 
@@ -141,50 +142,128 @@ def test_validate_pd_series_func():
     )
 
 
-def test_call_pd_series_func():
-    def df() -> pd.DataFrame:
-        return pd.DataFrame({"column_a": ["value 1", "value 2"], "column_b": [1, 2]})
-
-    func_name = "pd_series_func"
-
-    pandas_res_1 = df()
-    pandas_res_1["column_a"] = pandas_res_1["column_a"].str.replace(
-        pat="value", repl="VALUE"
+class TestPreprocessors(TestCase):
+    proc = transform.Preprocessor(TEST_DATASET_NAME)
+    gdf: gpd.GeoDataFrame = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
+    basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
+    messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words": [3, 4]})
+    dupe_df = pd.DataFrame({"a": [1, 1, 1, 2], "b": [3, 1, 3, 2]})
+    whitespace_df = pd.DataFrame({"a": [2, 3, 1], "b": [" b_1 ", "  b_2", "c_3 "]})
+    prev_df = pd.DataFrame({"a": [-1], "b": ["z"]})
+    upsert_df = pd.DataFrame(
+        {"a": [3, 2, 1], "b": ["d", "d", "d"], "c": [True, False, True]}
     )
-    manual_1 = pd.DataFrame({"column_a": ["VALUE 1", "VALUE 2"], "column_b": [1, 2]})
 
-    call_1 = PreprocessingStep(
-        name=func_name,
-        args={
-            "column_name": "column_a",
-            "function_name": "str.replace",
-            "pat": "value",
-            "repl": "VALUE",
-        },
-    )
-    [step_1] = transform.validate_processing_steps("dummpy", [call_1])
-    transform_1 = step_1(df())
+    def test_reproject(self):
+        assert self.gdf.crs.to_string() == "EPSG:4326"
+        target = "EPSG:2263"
+        reprojected = self.proc.reproject(self.gdf, target_crs=target)
+        assert reprojected.crs.to_string() == target
 
-    assert transform_1.equals(pandas_res_1)
-    assert transform_1.equals(manual_1)
+    def test_sort(self):
+        sorted = self.proc.sort(self.basic_df, by=["a"])
+        expected = pd.DataFrame({"a": [1, 2, 3], "b": ["c_3", "b_1", "b_2"]})
+        assert sorted.equals(expected)
 
-    pandas_res_2 = df()
-    print(pandas_res_2)
-    pandas_res_2["column_a"] = pandas_res_2["column_a"].map(
-        {"value 1": "other value 1"}
-    )
-    manual_2 = pd.DataFrame({"column_a": ["other value 1", np.nan], "column_b": [1, 2]})
+    def test_filter_rows_equals(self):
+        filtered = self.proc.filter_rows(
+            self.basic_df, type="equals", column_name="a", val=1
+        )
+        expected = pd.DataFrame({"a": [1], "b": ["c_3"]})
+        assert filtered.equals(expected)
 
-    call_2 = PreprocessingStep(
-        name=func_name,
-        args={
-            "column_name": "column_a",
-            "function_name": "map",
-            "arg": {"value 1": "other value 1"},
-        },
-    )
-    [step_2] = transform.validate_processing_steps("dummpy", [call_2])
-    transform_2 = step_2(df())
+    def test_filter_rows_contains(self):
+        filtered = self.proc.filter_rows(
+            self.basic_df, type="contains", column_name="b", val="b_"
+        )
+        expected = pd.DataFrame({"a": [2, 3], "b": ["b_1", "b_2"]})
+        assert filtered.equals(expected)
 
-    assert transform_2.equals(pandas_res_2)
-    assert transform_2.equals(manual_2)
+    def test_rename_columns(self):
+        renamed = self.proc.rename_columns(self.basic_df, {"a": "c"})
+        expected = pd.DataFrame({"c": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
+        assert renamed.equals(expected)
+
+    def test_rename_columns_drop(self):
+        renamed = self.proc.rename_columns(self.basic_df, {"a": "c"}, drop_others=True)
+        expected = pd.DataFrame({"c": [2, 3, 1]})
+        assert renamed.equals(expected)
+
+    def test_clean_column_names(self):
+        cleaned = self.proc.clean_column_names(self.messy_names_df, replace={"_": "-"})
+        expected = pd.DataFrame({"Column": [1, 2], "Two-Words": [3, 4]})
+        assert cleaned.equals(expected)
+
+    def test_clean_column_names_lower(self):
+        cleaned = self.proc.clean_column_names(
+            self.messy_names_df, replace={"_": "-"}, lower=True
+        )
+        expected = pd.DataFrame({"column": [1, 2], "two-words": [3, 4]})
+        assert cleaned.equals(expected)
+
+    def test_update_column(self):
+        updated = self.proc.update_column(self.basic_df, column_name="a", val=5)
+        expected = pd.DataFrame({"a": [5, 5, 5], "b": ["b_1", "b_2", "c_3"]})
+        assert updated.equals(expected)
+
+    @mock.patch("dcpy.connectors.edm.recipes.read_df")
+    def test_append_prev(self, read_df):
+        read_df.return_value = self.prev_df
+        appended = self.proc.append_prev(self.basic_df)
+        expected = pd.DataFrame({"a": [-1, 2, 3, 1], "b": ["z", "b_1", "b_2", "c_3"]})
+        assert appended.equals(expected)
+
+    @mock.patch("dcpy.connectors.edm.recipes.read_df")
+    def test_upsert_column_of_previous_version(self, read_df):
+        read_df.return_value = self.upsert_df
+        upserted = self.proc.upsert_column_of_previous_version(self.basic_df, key=["a"])
+        expected = pd.DataFrame(
+            {"a": [3, 2, 1], "b": ["b_2", "b_1", "c_3"], "c": [True, False, True]}
+        )
+        assert upserted.equals(expected)
+
+    def test_deduplicate(self):
+        deduped = self.proc.deduplicate(self.dupe_df)
+        expected = pd.DataFrame({"a": [1, 1, 2], "b": [3, 1, 2]})
+        assert deduped.equals(expected)
+
+    def test_deduplicate_by(self):
+        deduped = self.proc.deduplicate(self.dupe_df, by="a")
+        expected = pd.DataFrame({"a": [1, 2], "b": [3, 2]})
+        assert deduped.equals(expected)
+
+    def test_deduplicate_by_sort(self):
+        deduped = self.proc.deduplicate(self.dupe_df, by="a", sort_columns="b")
+        expected = pd.DataFrame({"a": [1, 2], "b": [1, 2]})
+        assert deduped.equals(expected)
+
+    def test_drop_columns(self):
+        dropped = self.proc.drop_columns(self.basic_df, columns=["b"])
+        expected = pd.DataFrame({"a": [2, 3, 1]})
+        assert dropped.equals(expected)
+
+    def test_strip_columns(self):
+        stripped = self.proc.strip_columns(self.whitespace_df, ["b"])
+        assert stripped.equals(self.basic_df)
+
+    def test_strip_all_columns(self):
+        stripped = self.proc.strip_columns(self.whitespace_df)
+        assert stripped.equals(self.basic_df)
+
+    def test_pd_series_func(self):
+        transformed = self.proc.pd_series_func(
+            self.basic_df, column_name="b", function_name="map", arg={"b_1": "c_1"}
+        )
+        expected = pd.DataFrame({"a": [2, 3, 1], "b": ["c_1", np.nan, np.nan]})
+        assert transformed.equals(expected)
+
+    def test_pd_series_func_str(self):
+        transformed = self.proc.pd_series_func(
+            self.basic_df,
+            column_name="b",
+            function_name="str.replace",
+            pat="b_",
+            repl="B-",
+        )
+        expected = pd.DataFrame({"a": [2, 3, 1], "b": ["B-1", "B-2", "c_3"]})
+        assert transformed.equals(expected)
