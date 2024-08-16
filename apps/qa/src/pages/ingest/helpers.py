@@ -5,38 +5,35 @@ from time import sleep
 
 from dcpy.utils import s3
 from dcpy.library.archive import Archive
+from io import BytesIO
+
 
 BUCKET = "edm-recipes"
 
 
 def archive_raw_data(
-    dataset_name: str, version: str, uploaded_file: UploadedFile, file_name: str
-) -> Path:
+    dataset_name: str,
+    version: str,
+    uploaded_file: UploadedFile,
+    file_name: str,
+    allow_override: bool,
+) -> None:
 
-    base_path = Path(".library") / "upload"
-    file_path = base_path / file_name
-    base_path.mkdir(parents=True, exist_ok=True)
+    s3_path = f"inbox/{dataset_name}/{version}/{file_name}"
 
-    s3_path = Path("inbox") / dataset_name / version / f"{file_name}"
-
-    try:
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-    except Exception as e:
-        st.error("Failed to save temporary file: {e}")
-
-    try:
-        s3.upload_file(
-            BUCKET,
-            file_path,
-            f"inbox/{dataset_name}/{version}/{file_name}",
-            "public-read",
+    if s3.exists(BUCKET, s3_path) and not allow_override:
+        raise FileExistsError(
+            "File already exists on S3. Check the allow override box if you wish to continue"
         )
-    except Exception as e:
-        st.error(
-            "Failed to archive Dataset {dataset_name} version {version} to {s3_path}: {e}"
-        )
-    return file_path
+
+    file_obj = BytesIO(uploaded_file.read())
+
+    s3.upload_file_obj(
+        file_obj,
+        BUCKET,
+        s3_path,
+        "public-read",
+    )
 
 
 def library_archive(
@@ -44,24 +41,13 @@ def library_archive(
 ) -> None:
     a = Archive()
     # once we've tested and this is ready to go, need to add `push=True`
-    a(name=dataset_name, version=version, override_path=s3_path, latest=latest)
-
-
-def dummy_archive_raw_data(
-    dataset_name: str, version: str, uploaded_file: UploadedFile, file_name: str
-) -> str | None:
-    sleep(5)
-
-    if dataset_name == "error":
-        return None
-    else:
-        return "dummy_path"
-
-
-def dummy_library_call(dataset_name: str, version: str, s3_path: Path) -> str | None:
-    sleep(5)
-
-    if version == "error":
-        return None
-    else:
-        return "dummy_path"
+    for format in ["pgdump", "parquet"]:
+        a(
+            clean=True,
+            latest=latest,
+            name=dataset_name,
+            source_path_override=f"s3://{BUCKET}/{s3_path}",
+            output_format=format,
+            version=version,
+            push=True,
+        )

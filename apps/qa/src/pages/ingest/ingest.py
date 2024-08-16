@@ -1,6 +1,9 @@
 def ingest() -> None:
     import streamlit as st
-    from .helpers import archive_raw_data, dummy_library_call, dummy_archive_raw_data
+    from .helpers import (
+        archive_raw_data,
+        library_archive,
+    )
     from pathlib import Path
     import time
     from dcpy.library import utils
@@ -22,31 +25,37 @@ def ingest() -> None:
         else:
             st.warning("Please input all fields.")
 
-    def lock_for_library(dataset_name: str, version: str, s3_path: Path) -> None:
+    def lock_for_library(dataset_name: str, version: str, s3_path: str) -> None:
         if dataset_name and version and s3_path:
             st.session_state["ingest"]["running"] = True
         else:
             st.warning("Please input all fields.")
 
-    def ingest(dataset_name: str, version: str, uploaded_file: UploadedFile) -> None:
+    def ingest(
+        dataset_name: str,
+        version: str,
+        uploaded_file: UploadedFile,
+        allow_override: bool,
+    ) -> None:
         with st.spinner("Ingesting"):
             try:
-                file_path = dummy_archive_raw_data(
-                    dataset_name, version, uploaded_file, uploaded_file.name
+                archive_raw_data(
+                    dataset_name,
+                    version,
+                    uploaded_file,
+                    uploaded_file.name,
+                    allow_override,
                 )
-                if file_path is None:
-                    raise ValueError("Dummy error occurred")
                 st.session_state["ingest"]["upload_status"] = "success"
             except Exception as e:
+                st.error(f"Failed to archive Dataset")
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
-    def library(dataset_name: str, version: str, s3_path: Path) -> None:
+    def library(dataset_name: str, version: str, s3_path: str, latest: bool) -> None:
         with st.spinner("Calling Library"):
             try:
-                library_path = dummy_library_call(dataset_name, version, s3_path)
-                if library_path is None:
-                    raise ValueError("Dummy error occurred")
+                library_archive(dataset_name, version, s3_path, latest)
                 st.session_state["ingest"]["library_status"] = "success"
             except Exception as e:
                 st.session_state["ingest"]["library_status"] = "fail"
@@ -109,9 +118,11 @@ def ingest() -> None:
             "Choose a file", disabled=st.session_state["ingest"]["running"]
         )
 
+        allow_override = st.checkbox("Allow Path/File Override")
+
         if dataset_name and version:
-            s3_path = Path("inbox") / dataset_name / version
-            st.write("S3 Path:", s3_path)
+            s3_path_display = f"inbox / {dataset_name} / {version}"
+            st.write("To S3 Directory:", s3_path_display)
 
         ingest_button_pressed = st.button(
             "Ingest",
@@ -125,7 +136,7 @@ def ingest() -> None:
             and st.session_state["ingest"]["running"] == True
             and uploaded_file is not None
         ):
-            ingest(dataset_name, version, uploaded_file)
+            ingest(dataset_name, version, uploaded_file, allow_override)
         if ingest_button_pressed == True and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
@@ -155,13 +166,14 @@ def ingest() -> None:
         version = str(
             st.text_input("Version", disabled=st.session_state["ingest"]["running"])
         )
-        s3_path = Path(
-            st.text_input(
-                "S3 File Path",
-                value=st.session_state["ingest"]["s3_path"],
-                disabled=st.session_state["ingest"]["running"],
-            )
+        s3_path = st.text_input(
+            "S3 File Path (Default Bucket edm-recipes)",
+            value=st.session_state["ingest"]["s3_path"],
+            disabled=st.session_state["ingest"]["running"],
         )
+
+        latest = st.checkbox("Tag as Latest Version")
+
         library_button_pressed = st.button(
             "Call Library",
             on_click=lock_for_library,
@@ -172,7 +184,7 @@ def ingest() -> None:
             library_button_pressed == True
             and st.session_state["ingest"]["running"] == True
         ):
-            library(dataset_name, version, s3_path)
+            library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
@@ -201,9 +213,13 @@ def ingest() -> None:
             "Choose a file", disabled=st.session_state["ingest"]["running"]
         )
 
+        allow_override = st.checkbox("Allow Path/File Override")
+
+        latest = st.checkbox("Tag as Latest Version")
+
         if dataset_name and version:
-            s3_path = Path("inbox") / dataset_name / version
-            st.write("S3 Path:", s3_path)
+            s3_path_display = f"inbox / {dataset_name} / {version}"
+            st.write("To S3 Directory:", s3_path_display)
 
         ingest_button_pressed = False
         ingest_button_pressed = st.button(
@@ -217,13 +233,14 @@ def ingest() -> None:
             and st.session_state["ingest"]["running"] == True
             and uploaded_file is not None
         ):
-            ingest(dataset_name, version, uploaded_file)
+            ingest(dataset_name, version, uploaded_file, allow_override)
+            s3_path = f"inbox/{dataset_name}/{version}/{uploaded_file.name}"
         if ingest_button_pressed == True and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
             st.success("Ingest Raw File Successful, Calling Library...")
-            library(dataset_name, version, s3_path)
+            library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["upload_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
             st.button("Restart", on_click=unlock)

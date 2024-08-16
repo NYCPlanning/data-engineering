@@ -197,6 +197,31 @@ def upload_file(
         )
 
 
+def upload_file_obj(
+    file_obj: BytesIO,
+    bucket: str,
+    key: str,
+    acl: ACL,
+    *,
+    metadata: dict[str, Any] | None = None,
+) -> None:
+    """https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/upload_fileobj.html"""
+    with _progress() as progress:
+        size = file_obj.getbuffer().nbytes
+        task = progress.add_task(f"[green]Uploading [bold]{key}[/bold]", total=size)
+        standard_metadata = generate_metadata()
+        metadata = metadata or {}
+        metadata.update(standard_metadata)
+        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
+        client().upload_fileobj(
+            file_obj,
+            bucket,
+            key,
+            ExtraArgs=extra_args,
+            Callback=lambda bytes: progress.update(task, advance=bytes),
+        )
+
+
 def copy_file(
     bucket: str,
     source_key: str,

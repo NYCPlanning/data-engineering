@@ -3,6 +3,8 @@ import os
 from botocore.exceptions import EndpointConnectionError
 from dcpy.utils import s3
 from dcpy.test.conftest import TEST_BUCKET, TEST_BUCKETS
+from pathlib import Path
+from io import BytesIO
 
 TEST_DIR_NAME_1 = "test-dir-1"
 TEST_DIR_NAME_2 = "test-dir-2"
@@ -87,3 +89,27 @@ def test_get_subfolders(create_buckets, prefix, index, expected_num_folders):
     actual_objects = s3.get_subfolders(bucket=TEST_BUCKET, prefix=prefix, index=index)
 
     assert len(actual_objects) == expected_num_folders
+
+
+def test_upload_file(create_buckets):
+    RESOURCES_DIR = Path(__file__).parent / "resources"
+    test_file_key = TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME
+    test_file_path = Path(RESOURCES_DIR / "data_wkb.csv")
+    s3.upload_file(
+        bucket=TEST_BUCKET, path=test_file_path, key=test_file_key, acl="public-read"
+    )
+    assert s3.exists(TEST_BUCKET, test_file_key)
+
+
+def test_upload_file_obj(create_buckets):
+    test_file_key = TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME
+    RESOURCES_DIR = Path(__file__).parent / "resources"
+    with open(RESOURCES_DIR / "data_wkb.csv", "rb") as f:
+        file_obj = BytesIO(f.read())
+    s3.upload_file_obj(
+        file_obj=file_obj,
+        bucket=TEST_BUCKET,
+        key=test_file_key,
+        acl="public-read",
+    )
+    assert s3.exists(TEST_BUCKET, test_file_key)
