@@ -163,9 +163,9 @@ class DatasetAttributesOverride(CustomizableBase):
 
 class DatasetAttributes(CustomizableBase):
     display_name: str
-    description: str
+    description: str = ""
     each_row_is_a: str
-    tags: List[str]
+    tags: List[str] = []
 
     def override(
         self,
@@ -300,6 +300,56 @@ class Metadata(CustomizableBase, YamlWriter):
             dataset=dataset_metadata,
             destination=destination,
         )
+
+    def validate_consistency(self):
+        # validate file references
+        errors = []
+
+        column_ids = {c.id for c in self.columns}
+        dataset_files_and_zip_ids = {f.id for f in self.assembly} | {
+            f.file.id for f in self.files
+        }
+
+        # files
+        for fo in self.files:
+            for c in fo.dataset_overrides.overridden_columns:
+                if c.id not in column_ids:
+                    errors.append(
+                        f"MISSING COLUMN: file {fo.file.id} references undefined column {c.id}"
+                    )
+            for c in fo.dataset_overrides.omitted_columns:
+                if c not in column_ids:
+                    errors.append(
+                        f"MISSING COLUMN: file override for {fo.file.id} references undefined column {c}"
+                    )
+
+        # destinations
+        for d in self.destinations:
+            for df in d.files:
+                if df.id not in dataset_files_and_zip_ids:
+                    errors.append(
+                        f"MISSING FILE: destination {d.id} references undefined file {df.id}"
+                    )
+                for c in df.dataset_overrides.omitted_columns:
+                    if c not in column_ids:
+                        errors.append(
+                            f"MISSING COLUMN: file override for dest {d.id} references undefined omitted column {c}"
+                        )
+                for c in df.dataset_overrides.overridden_columns:
+                    if c.id not in column_ids:
+                        errors.append(
+                            f"MISSING COLUMN: destination {d.id} references undefined column {c.id}"
+                        )
+
+        # assemblies
+        for a in self.assembly:
+            for df in a.contents:
+                if df.id not in dataset_files_and_zip_ids:
+                    errors.append(
+                        f"MISSING FILE: zip {df.id} references undefined file {df.id}"
+                    )
+
+        return errors
 
     @staticmethod
     def from_yaml(yaml_str: str, *, template_vars=None):
