@@ -120,7 +120,7 @@ def test_validate_processing_steps():
         ),
     ],
 )
-def test_errors(step):
+def test_validate_processing_steps_errors(step):
     with pytest.raises(Exception, match="Invalid preprocessing steps"):
         transform.validate_processing_steps("test", [step])
 
