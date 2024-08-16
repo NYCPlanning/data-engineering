@@ -14,15 +14,14 @@ def _cli_wrapper_pdf_from_yml(
     html_template_path: str,
     output_html_path: str,
     output_pdf_path: str,
-    pdf_metadata_path,
 ) -> None:
     generate_html_from_yaml(yaml_file_path, html_template_path, output_html_path)
-    generate_pdf_from_html(output_html_path, pdf_metadata_path, output_pdf_path)
+    generate_pdf_from_html(output_html_path, output_pdf_path)
     return None
 
 
 def generate_pdf_from_html(
-    output_html_path: str, pdf_metadata_path: str, output_pdf_path: str
+    output_html_path: str, output_pdf_path: str
 ) -> Path:
     subprocess.run(
         [
@@ -30,7 +29,7 @@ def generate_pdf_from_html(
             output_html_path,
             "-o",
             output_pdf_path,
-            f"--metadata-file={pdf_metadata_path}",
+            "--pdf-engine=weasyprint",
         ],
         check=True,
     )
