@@ -157,7 +157,9 @@ def md():
             m.DestinationWithFiles(
                 id=NO_FILES_DEST_ID,
                 type="bytes",
-                files=[],
+                files=[
+                    m.DestinationFile(id=OVERRIDDEN_SHAPEFILE_ID),
+                ],
             ),
         ],
         assembly=[
@@ -382,3 +384,76 @@ def test_getting_non_existant_packages_dests_files(md: m.Metadata):
         md.calculate_destination_metadata(
             file_id=BASIC_SHAPEFILE_ID, destination_id=NO_FILES_DEST_ID
         )
+
+
+def test_validating_metadata__files__missing_basic_shapefile(md: m.Metadata):
+    # remove BASIC_SHAPEFILE_ID
+    md.files = [f for f in md.files if f.file.id != BASIC_SHAPEFILE_ID]
+
+    validation = md.validate_consistency()
+    assert len(validation) == 1
+
+    assert (
+        BASIC_SHAPEFILE_ID in validation[0]
+    ), "The validation error should reference the correct file"
+
+
+def test_validating_metadata__files__missing_overridden_shapefile(md: m.Metadata):
+    # Three overrides reference the overridden shapefile.
+    md.files = [f for f in md.files if f.file.id != OVERRIDDEN_SHAPEFILE_ID]
+
+    validation = md.validate_consistency()
+    assert (
+        len(validation) == 3
+    ), "There should be the correct number of validation errors"
+
+
+def test_validating_metadata__files__missing_zip_reference(md: m.Metadata):
+    nonexistant_file_id = "nonexistant_file_id"
+
+    md.assembly[0].contents.append(m.PackageFile(id=nonexistant_file_id))
+
+    validation = md.validate_consistency()
+    assert (
+        len(validation) == 1
+    ), "There should be the correct number of validation errors"
+
+
+def test_validating_metadata__file_missing_columns(md: m.Metadata):
+    nonexistant_file_col_id = "nonexistant_file_col_id"
+
+    file_with_overrides = [f for f in md.files if f.file.id == OVERRIDDEN_SHAPEFILE_ID][
+        0
+    ]
+    file_with_overrides.dataset_overrides.overridden_columns.append(
+        m.DatasetColumnOverrides(id=nonexistant_file_col_id)
+    )
+
+    validation = md.validate_consistency()
+    assert len(validation) == 1, "There should be one column error"
+
+    assert nonexistant_file_col_id in validation[0]
+
+
+def test_validating_metadata__dest_missing_columns(md: m.Metadata):
+    nonexistant_dest_col_id = "nonexistant_dest_col_id"
+    nonexistant_dest_omitted_col_id = "nonexistant_dest_omitted_col_id"
+
+    dest_with_overrides = md.get_destination(SOCRATA_DESTINATION_ID)
+    file_overrides = [
+        f for f in dest_with_overrides.files if f.id == OVERRIDDEN_SHAPEFILE_ID
+    ][0]
+
+    # Add a nonexistant omitted Column to the Socrata Dest
+    file_overrides.dataset_overrides.omitted_columns.append(
+        nonexistant_dest_omitted_col_id
+    )
+    # Add a nonexistant overridden Column to the Socrata Dest
+    file_overrides.dataset_overrides.overridden_columns.append(
+        m.DatasetColumnOverrides(id=nonexistant_dest_col_id)
+    )
+
+    print(md.model_dump())
+
+    validation = md.validate_consistency()
+    assert len(validation) == 2, "There should be the correct number of column errors"
