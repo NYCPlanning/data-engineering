@@ -8,15 +8,22 @@ import subprocess
 app = typer.Typer()
 
 
-@app.command()
-def generate_pdf_from_yml(
+@app.command("pdf_from_yml")
+def _cli_wrapper_pdf_from_yml(
     yaml_file_path: str,
     html_template_path: str,
     output_html_path: str,
     output_pdf_path: str,
     pdf_metadata_path,
-) -> Path:
+) -> None:
     generate_html_from_yaml(yaml_file_path, html_template_path, output_html_path)
+    generate_pdf_from_html(output_html_path, pdf_metadata_path, output_pdf_path)
+    return None
+
+
+def generate_pdf_from_html(
+    output_html_path: str, pdf_metadata_path: str, output_pdf_path: str
+) -> Path:
     subprocess.run(
         [
             "pandoc",
@@ -30,7 +37,6 @@ def generate_pdf_from_yml(
     return Path(output_pdf_path)
 
 
-@app.command()
 def generate_html_from_yaml(
     yaml_file_path: str, html_template_path: str, output_html_path: str
 ) -> Path:
@@ -52,3 +58,7 @@ def get_metadata(yaml_file_path: str) -> SocrataMetada:
         Path(yaml_file_path), template_vars={"var1": "value1"}
     )
     return metadata
+
+
+if __name__ == "__main__":
+    app()
