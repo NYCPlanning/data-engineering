@@ -89,14 +89,6 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
 
 
 def test_validate_processing_steps():
-    """
-    Test the validate_processing_steps function.
-
-    Currently tests using two defined preprocessin functions
-    `no_arg_function` expects no args other than the transformation df
-    `drop_columns` expects a single arg `columns`, a list of columns to drop
-    """
-
     steps = [
         PreprocessingStep(name="no_arg_function"),
         PreprocessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
@@ -107,21 +99,29 @@ def test_validate_processing_steps():
     df = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]})
     for step in compiled_steps:
         df = step(df)
-    assert len(df.columns) == 1
+    expected = pd.DataFrame({"col3": [7, 8, 9]})
+    assert df.equals(expected)
 
-    # test invalid steps
-    error_steps = [
+
+@pytest.mark.parametrize(
+    "step",
+    [
         # Non-existent function
         PreprocessingStep(name="fake_function_name"),
         # Missing arg
         PreprocessingStep(name="drop_columns", args={}),
         # Unexpected arg
         PreprocessingStep(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
-    ]
-    # validate each separately for ease of making sure that each throws an error
-    for step in error_steps:
-        with pytest.raises(Exception, match="Invalid preprocessing steps"):
-            transform.validate_processing_steps("test", [step])
+        # Invalid pd series func
+        PreprocessingStep(
+            name="pd_series_func",
+            args={"function_name": "str.fake_function", "column_name": "_"},
+        ),
+    ],
+)
+def test_errors(step):
+    with pytest.raises(Exception, match="Invalid preprocessing steps"):
+        transform.validate_processing_steps("test", [step])
 
 
 class TestValidatePdSeriesFunc(TestCase):
