@@ -1,33 +1,63 @@
+import pandas as pd
 from pathlib import Path
-from pydantic import TypeAdapter
+import pytest
 from unittest import mock
-import yaml
 
-from dcpy.models.lifecycle.ingest import Source, LocalFileSource
+from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source
+from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import s3
+from dcpy.connectors import web
 from dcpy.connectors.edm import publishing
-from dcpy.lifecycle.ingest import extract, configure
+from dcpy.lifecycle.ingest import extract
 
-from . import RESOURCES
+from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
 from dcpy.test.conftest import mock_request_get
+
+web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
+
+
+def setup(source: Source, filename: str, file_system: Path) -> Source:
+    match source:
+        case LocalFileSource():
+            tmp_file = file_system / source.path
+            tmp_file.parent.mkdir(exist_ok=True)
+            tmp_file.touch()
+            source.path = tmp_file
+        case GisDataset():
+            s3.client().put_object(
+                Bucket=publishing.BUCKET,
+                Key=f"datasets/{TEST_DATASET_NAME}/{FAKE_VERSION}/{filename}",
+            )
+        case S3Source():
+            s3.client().put_object(
+                Bucket=source.bucket,
+                Key=source.key,
+            )
+    return source
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_download_file(mock_request_get, create_buckets, create_temp_filesystem: Path):
-    """Tests extract.download_file_from_source, depends on configure.get_filename"""
-    with open(RESOURCES / "sources.yml") as f:
-        sources = TypeAdapter(list[Source]).validate_python(yaml.safe_load(f))
-    s3.client().put_object(
-        Bucket=publishing.BUCKET,
-        Key="datasets/dcp_borough_boundary/TEST/dcp_borough_boundary.zip",
+@pytest.mark.parametrize(("source", "filename"), SOURCE_FILENAMES)
+def test_download_file(get, source, filename, create_buckets, create_temp_filesystem):
+    setup(source, filename, create_temp_filesystem)
+    extract.download_file_from_source(
+        source, filename, FAKE_VERSION, create_temp_filesystem
     )
-    for source in sources:
-        if isinstance(source, LocalFileSource):
-            tmp_file = create_temp_filesystem / source.path
-            tmp_file.touch()
-            source.path = tmp_file
-        test_filename = configure.get_filename(source, "test")
+    assert (create_temp_filesystem / filename).exists()
+
+
+def test_download_file_invalid_source():
+    with pytest.raises(NotImplementedError):
         extract.download_file_from_source(
-            source, test_filename, "test", dir=create_temp_filesystem
+            mock.MagicMock(), "test.txt", "version", Path(".")
         )
-        assert (create_temp_filesystem / test_filename).exists()
+
+
+def test_local_already_exists(create_temp_filesystem):
+    filename = "dummy.txt"
+    source = LocalFileSource(type="local_file", path=Path(filename))
+    setup(source, filename, create_temp_filesystem)
+    extract.download_file_from_source(
+        source, filename, FAKE_VERSION, create_temp_filesystem
+    )
+    assert (create_temp_filesystem / filename).exists()

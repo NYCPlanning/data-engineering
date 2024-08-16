@@ -75,8 +75,9 @@ class Preprocessor:
     def reproject(self, df: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
         return transform.reproject_gdf(df, target_crs=target_crs)
 
-    def sort(self, df: pd.DataFrame, by: list[str], ascending=False) -> pd.DataFrame:
-        return df.sort_values(by=by, ascending=ascending)
+    def sort(self, df: pd.DataFrame, by: list[str], ascending=True) -> pd.DataFrame:
+        sorted = df.sort_values(by=by, ascending=ascending)
+        return sorted.reset_index(drop=True)
 
     def filter_rows(
         self,
@@ -85,19 +86,21 @@ class Preprocessor:
         column_name: str | int,
         val: str | int,
     ) -> pd.DataFrame:
-        if type == "equals":
-            filter = df[column_name] == val
-        elif type == "contains":
+        if type == "contains":
             filter = df[column_name].str.contains(str(val))
-        return df[filter]
+        else:
+            filter = df[column_name] == val
+        filtered = df[filter]
+        return filtered.reset_index(drop=True)
 
     def rename_columns(
         self, df: pd.DataFrame, map: dict[str, str], drop_others=False
     ) -> pd.DataFrame:
-        df = df.rename(columns=map, errors="raise")
+        renamed = df.copy()
+        renamed = renamed.rename(columns=map, errors="raise")
         if drop_others:
-            df = df[list(map.values())]
-        return df
+            renamed = renamed[list(map.values())]
+        return renamed
 
     def clean_column_names(
         self,
@@ -106,14 +109,15 @@ class Preprocessor:
         replace: dict[str, str] | None = None,
         lower: bool = False,
     ) -> pd.DataFrame:
+        cleaned = df.copy()
         replace = replace or {}
-        columns = list(df.columns)
+        columns = list(cleaned.columns)
         for pattern in replace:
             columns = [c.replace(pattern, replace[pattern]) for c in columns]
         if lower:
             columns = [c.lower() for c in columns]
-        df.columns = pd.Index(columns)
-        return df
+        cleaned.columns = pd.Index(columns)
+        return cleaned
 
     def update_column(
         self,
@@ -121,16 +125,16 @@ class Preprocessor:
         column_name: str,
         val: str | int,
     ) -> pd.DataFrame:
-        df[column_name] = val
-        return df
+        updated = df.copy()
+        updated[column_name] = val
+        return updated
 
     def append_prev(self, df: pd.DataFrame, version: str = "latest") -> pd.DataFrame:
         prev_df = recipes.read_df(
             recipes.Dataset(name=self.dataset_name, version=version)
         )
-
         appended = pd.concat((prev_df, df))
-        return appended
+        return appended.reset_index(drop=True)
 
     def upsert_column_of_previous_version(
         self,
@@ -157,13 +161,14 @@ class Preprocessor:
         self,
         df: pd.DataFrame,
         sort_columns: list[str] | None = None,
-        sort_ascending: bool = False,
+        sort_ascending: bool = True,
         by: list[str] | None = None,
     ) -> pd.DataFrame:
+        deduped = df.copy()
         if sort_columns:
-            df = df.sort_values(by=sort_columns, ascending=sort_ascending)
-        by = by or []
-        return df.drop_duplicates(by)
+            deduped = deduped.sort_values(by=sort_columns, ascending=sort_ascending)
+        deduped = deduped.drop_duplicates(by)
+        return deduped.reset_index(drop=True)
 
     def drop_columns(self, df: pd.DataFrame, columns: list[str | int]) -> pd.DataFrame:
         columns = [df.columns[i] if isinstance(i, int) else i for i in columns]
@@ -208,12 +213,13 @@ class Preprocessor:
         function is called on "column_name" of df
         output of function is assigned to "column_name" (overwriting) unless 'output_column_name' if provided
         """
+        transformed = df.copy()
         parts = function_name.split(".")
-        func = df[column_name]
+        func = transformed[column_name]
         for part in parts:
             func = func.__getattribute__(part)
-        df[output_column_name or column_name] = func(**kwargs)  # type: ignore
-        return df
+        transformed[output_column_name or column_name] = func(**kwargs)  # type: ignore
+        return transformed
 
     def no_arg_function(self, df: pd.DataFrame) -> pd.DataFrame:
         """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""

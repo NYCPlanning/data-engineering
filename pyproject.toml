@@ -106,6 +106,7 @@ exclude_lines =[
     "pragma: no cover",
     # Don't complain if non-runnable code isn't run:
     "if __name__ == .__main__.:",
+    "@app.command",
 ]
 
 [build-system]

@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import geopandas as gpd
 from pathlib import Path
+import shutil
 from typing import Literal
 
 from dcpy.models import file
@@ -28,7 +29,7 @@ def _get_dtype(dtype: str | dict | None) -> str | dict | defaultdict | None:
 
 
 def read_data_to_df(
-    data_format: file.Format, local_data_path: Path
+    data_format: file.Format, local_data_path: Path, clean_extracted_zip: bool = True
 ) -> gpd.GeoDataFrame | pd.DataFrame:
     """
     Reads data from a specified path and returns a pandas or geopandas dataframe depending
@@ -133,6 +134,10 @@ def read_data_to_df(
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
+
+    if data_format.unzipped_filename and clean_extracted_zip:
+        assert extracted_files_dir
+        shutil.rmtree(extracted_files_dir)
 
     return gdf
 

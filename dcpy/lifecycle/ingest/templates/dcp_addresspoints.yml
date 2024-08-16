@@ -7,6 +7,7 @@ file_format:
   unzipped_filename: dcp_address_points.shp
   type: shapefile
   crs: EPSG:2263
+target_crs: EPSG:4326
 
 library_dataset:
   name: dcp_addresspoints

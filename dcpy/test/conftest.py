@@ -132,6 +132,11 @@ def create_temp_filesystem(mock_data_constants):
         raise e
 
 
+@pytest.fixture(scope="class")
+def create_temp_filesystem_class(request, mock_data_constants, create_temp_filesystem):
+    request.cls.temp_filesystem = create_temp_filesystem
+
+
 class MockResponse:
     def __init__(self, content: bytes):
         self.content = content
