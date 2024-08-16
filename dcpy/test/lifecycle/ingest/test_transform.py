@@ -11,6 +11,7 @@ from dcpy.models.file import Format
 from dcpy.models.lifecycle.ingest import PreprocessingStep
 
 from dcpy.utils import data
+from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.lifecycle.ingest import transform
 
 from . import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME
@@ -277,3 +278,34 @@ class TestPreprocessors(TestCase):
         )
         expected = pd.DataFrame({"a": [2, 3, 1], "b": ["B-1", "B-2", "c_3"]})
         assert transformed.equals(expected)
+
+
+def test_preprocess_no_steps(create_temp_filesystem: Path):
+    input = create_temp_filesystem / "input.txt"
+    output = create_temp_filesystem / "output.txt"
+    input.touch()
+
+    transform.preprocess(TEST_DATASET_NAME, [], input, output)
+    assert output.exists()
+
+
+def test_preprocess(create_temp_filesystem: Path):
+    input = RESOURCES / TEST_DATA_DIR / "test.parquet"
+    output = create_temp_filesystem / "output.parquet"
+    expected = RESOURCES / TEST_DATA_DIR / "output.parquet"
+
+    steps = [
+        PreprocessingStep(name="sort", args={"by": ["boro_code", "block", "lot"]}),
+        PreprocessingStep(
+            name="rename_columns", args={"map": {"boro_code": "borough"}}
+        ),
+    ]
+
+    transform.preprocess(TEST_DATASET_NAME, steps, input, output)
+    assert output.exists()
+    output_df = geoparquet.read_df(output)
+    expected_df = geoparquet.read_df(expected)
+    assert output_df.equals(expected_df)
+
+    transform.preprocess(TEST_DATASET_NAME, steps, input, output, output_csv=True)
+    assert (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
