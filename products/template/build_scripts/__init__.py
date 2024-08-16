@@ -3,15 +3,14 @@ from pathlib import Path
 from dcpy.utils import postgres
 from dcpy.lifecycle.builds import metadata
 
+PRODUCT_PATH = Path(__file__).resolve().parent.parent
 
-_product_path = Path(__file__).resolve().parent.parent
+RECIPE_PATH = PRODUCT_PATH / "recipe.yml"
+
+SQL_QUERY_DIR = PRODUCT_PATH / "sql"
+OUTPUT_DIR = PRODUCT_PATH / "output"
 
 PRODUCT_S3_NAME = "db-template"
-
-RECIPE_PATH = _product_path / "recipe.yml"
-
-SQL_QUERY_DIR = _product_path / "sql"
-OUTPUT_DIR = _product_path / "output"
 
 BUILD_NAME = metadata.build_name()
 
