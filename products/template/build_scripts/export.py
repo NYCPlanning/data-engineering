@@ -1,13 +1,15 @@
 import shutil
 
-from dcpy.connectors.edm import publishing
+from dcpy.lifecycle.package import generate_metadata_assets
+from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils.logging import logger
 
-from . import PRODUCT_S3_NAME, BUILD_NAME, OUTPUT_DIR, PG_CLIENT
+from . import PRODUCT_PATH, OUTPUT_DIR, PRODUCT_S3_NAME, BUILD_NAME, PG_CLIENT
 
 METADATA_FILES = [
     "source_data_versions.csv",
     "build_metadata.json",
+    "data_dictionary.pdf",
 ]
 BUILD_TABLES = {
     "templatedb": [
@@ -18,13 +20,27 @@ BUILD_TABLES = {
 }
 
 
+def generate_pdfs():
+    data_dictionary_path = product_metadata.download(
+        "template_db", OUTPUT_DIR / "data_dictionary.yaml", dataset="template_db"
+    )
+    output_html_path = generate_metadata_assets.generate_html_from_yaml(
+        data_dictionary_path,
+        OUTPUT_DIR / "data_dictionary.html",
+        generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
+    )
+    generate_metadata_assets.generate_pdf_from_html(
+        output_html_path, PRODUCT_PATH / "data_dictionary.pdf"
+    )
+
+
 def export():
     if OUTPUT_DIR.exists():
         shutil.rmtree(OUTPUT_DIR)
     OUTPUT_DIR.mkdir(parents=True)
     # export metadata files
     for filename in METADATA_FILES:
-        shutil.copy(OUTPUT_DIR.parent / filename, OUTPUT_DIR / filename)
+        shutil.copy(PRODUCT_PATH / filename, OUTPUT_DIR / filename)
 
     # export builds tables
     for table_name, file_types in BUILD_TABLES.items():
@@ -77,5 +93,6 @@ def upload():
 
 
 if __name__ == "__main__":
+    generate_pdfs()
     export()
     upload()

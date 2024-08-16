@@ -1,5 +1,6 @@
 import requests
 import yaml
+from pathlib import Path
 
 from dcpy.utils.logging import logger
 import dcpy.models.product.dataset.metadata as md
@@ -21,3 +22,10 @@ def fetch_raw(product: str, *, dataset: str | None = None) -> str:
 
 def fetch(product: str, *, dataset: str | None = None) -> md.Metadata:
     return md.Metadata(**yaml.safe_load(fetch_raw(product, dataset=dataset)))
+
+
+def download(product: str, output_path: Path, *, dataset: str | None = None) -> Path:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        f.write(fetch_raw(product, dataset=dataset))
+    return output_path
