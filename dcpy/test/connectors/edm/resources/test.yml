@@ -1,16 +1,7 @@
-dataset:
-  name: test
-  acl: public-read
-  source:
-    url:
-      path: dcpy/test/connectors/edm/resources/test.csv
-
-  destination:
-    geometry:
-      SRS:
-      type: NONE
-
-  info:
-    description: ""
-    url: ""
-    dependents: []
+name: test
+acl: public-read
+source:
+  type: local_file
+  path: dcpy/test/connectors/edm/resources/test.csv
+file_format:
+  type: csv
