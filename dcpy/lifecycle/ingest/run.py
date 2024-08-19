@@ -1,6 +1,7 @@
 from pathlib import Path
 import typer
 
+from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from . import configure, extract, transform
 
@@ -15,7 +16,7 @@ def run(
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
-):
+) -> Config:
     config = configure.get_config(dataset, version=version, mode=mode)
     transform.validate_processing_steps(config.name, config.processing_steps)
 
@@ -48,6 +49,8 @@ def run(
 
     if not skip_archival:
         recipes.archive_dataset(config, staging_dir / config.filename, latest=latest)
+
+    return config
 
 
 app = typer.Typer(add_completion=False)

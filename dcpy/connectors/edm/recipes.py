@@ -38,7 +38,9 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
         with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(json.dumps(config.model_dump(exclude_none=True), indent=4))
+            f.write(
+                json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
+            )
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,

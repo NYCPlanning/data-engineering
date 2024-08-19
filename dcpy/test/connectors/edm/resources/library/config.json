@@ -1,0 +1,42 @@
+{
+    "dataset": {
+        "name": "test",
+        "version": "library",
+        "acl": "public-read",
+        "source": {
+            "url": {
+                "path": "dcpy/test/connectors/edm/resources/test.csv",
+                "subpath": ""
+            },
+            "script": null,
+            "socrata": null,
+            "arcgis_feature_server": null,
+            "layer_name": null,
+            "geometry": null,
+            "options": null,
+            "gdalpath": "dcpy/test/connectors/edm/resources/test.csv"
+        },
+        "destination": {
+            "geometry": {
+                "SRS": null,
+                "type": "NONE"
+            },
+            "options": null,
+            "fields": null,
+            "sql": null
+        },
+        "info": {
+            "info": null,
+            "url": "",
+            "dependents": []
+        }
+    },
+    "execution_details": {
+        "type": "manual",
+        "runner": {
+            "username": "Finn van Krieken"
+        },
+        "timestamp": "2024-09-05T11:36:31.636395-04:00",
+        "logged": true
+    }
+}

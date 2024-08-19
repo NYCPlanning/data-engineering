@@ -1,0 +1,7 @@
+name: test
+acl: public-read
+source:
+  type: local_file
+  path: dcpy/test/connectors/edm/resources/ingest_output/test.csv
+file_format:
+  type: csv
