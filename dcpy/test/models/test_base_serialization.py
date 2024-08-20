@@ -1,9 +1,9 @@
 from typing import Literal
 
-from dcpy.models.product.dataset import metadata_v2 as md_v2
+from dcpy.models.base import SortedSerializedBase
 
 
-class MySortedBaseClass(md_v2.SortedSerializedBase):
+class MySortedBaseClass(SortedSerializedBase):
     _head_sort_order = ["z_put_me_first"]
     _tail_sort_order = ["z_put_me_last"]
     _exclude_falsey_values = False
