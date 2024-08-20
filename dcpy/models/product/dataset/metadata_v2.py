@@ -63,12 +63,14 @@ class SortedSerializedBase(BaseModel):
         other_items = []
 
         for model_field in list(unordered.items()):
-            if not model_field[1] and self._exclude_falsey_values:
+            model_key, model_val = model_field
+
+            if not model_val and model_val != 0 and self._exclude_falsey_values:
                 # If an object's values are all None, it will serialize as {}.
                 # These aren't removed by model_dump(exclude_none=True), so we have to do it manually.
                 continue
             field_type = self.model_fields[
-                model_field[0]
+                model_key
             ].annotation  # Need to retrieve type from the class def, not the instance
             is_literal = type(field_type) is typing._LiteralGenericAlias  # type: ignore
             simple_types = {
@@ -83,9 +85,9 @@ class SortedSerializedBase(BaseModel):
                 type(None),
             }
 
-            if model_field[0] in self._head_sort_order:
+            if model_key in self._head_sort_order:
                 ordered_items_head.append(model_field)
-            elif model_field[0] in self._tail_sort_order:
+            elif model_key in self._tail_sort_order:
                 ordered_items_tail.append(model_field)
             elif field_type in simple_types or is_literal:
                 simple_type_items.append(model_field)

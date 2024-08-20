@@ -43,7 +43,7 @@ ordered_args = {
     "z_put_me_first": ["hi"],
 }
 simple_args = {
-    "a": 1,
+    "a": 0,
     "b": None,
     "c": "hi",
     "d": None,
@@ -68,6 +68,9 @@ def test_dump_prune_falsey_vals():
     assert (
         not "child_to_be_serialized" in dumped
     ), "Falsey values should have been excluded from serialization."
+    assert (
+        "a" in dumped
+    ), "The falsey value of 0 should not have been excluded from the model"
 
 
 def test_dumping():
