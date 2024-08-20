@@ -1,6 +1,8 @@
 from pydantic import BaseModel, model_serializer
 from pydantic.fields import PrivateAttr
 
+import typing
+
 
 # BASE
 class SortedSerializedBase(BaseModel):
