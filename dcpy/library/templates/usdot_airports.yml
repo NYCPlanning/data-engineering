@@ -2,7 +2,8 @@ dataset:
   name: usdot_airports
   acl: public-read
   source:
-    script: {}
+    script:
+      path: https://adip.faa.gov/publishedAirports/all-airport-data.xlsx
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
