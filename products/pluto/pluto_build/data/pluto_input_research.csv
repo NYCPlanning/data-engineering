@@ -27372,16 +27372,29 @@ bbl,field,old_value,new_value,Type,reason,version
 "3020580050",unitsres,229,0,2,PTS error - vacant lot with units,"24v2"
 "3020580050",unitstotal,231,0,2,PTS error - vacant lot with units,"24v2"
 3052497501,unitsres,2025,45,2,PTS error - units,24v3
+3052497501,unitstotal,2117,47,2,PTS error - units,24v3
 3065097501,unitsres,1806,43,2,PTS error - units,24v3
+3065097501,unitstotal,2685,62,2,PTS error - units,24v3
 3038627501,unitsres,469,315,2,PTS error - units,24v3
 4005727502,unitsres,241,16,2,PTS error - units,24v3
+4005727502,unitstotal,385,25,2,PTS error - units,24v3
 3037667501,unitsres,368,184,2,PTS error - units,24v3
+3037667501,unitstotal,370,185,2,PTS error - units,24v3
 4024327502,unitsres,366,183,2,PTS error - units,24v3
+4024327502,unitstotal,369,184,2,PTS error - units,24v3
 4097937502,unitsres,348,174,2,PTS error - units,24v3
+4097937502,unitstotal,352,176,2,PTS error - units,24v3
 1013897503,unitsres,100,10,2,PTS error - units,24v3
+1013897503,unitstotal,106,16,2,PTS error - units,24v3
 3015847501,unitsres,162,81,2,PTS error - units,24v3
+3015847501,unitstotal,164,82,2,PTS error - units,24v3
 1006047502,unitsres,90,22,2,PTS error - units,24v3
+1006047502,unitstotal,114,24,2,PTS error - units,24v3
 1010517502,unitsres,872,814,2,PTS error - units,24v3
+1010517502,unitstotal,881,823,2,PTS error - units,24v3
 1006917503,unitsres,65,9,2,PTS error - units,24v3
+1006917503,unitstotal,65,9,2,PTS error - units,24v3
 3007987501,unitsres,100,50,2,PTS error - units,24v3
+3007987501,unitstotal,101,51,2,PTS error - units,24v3
 2033307501,unitsres,59,118,2,PTS error - units,24v3
+2033307501,unitstotal,60,119,2,PTS error - units,24v3
