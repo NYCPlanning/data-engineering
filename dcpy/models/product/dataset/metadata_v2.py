@@ -3,14 +3,14 @@ from __future__ import annotations
 import jinja2
 
 from pathlib import Path
-from pydantic import BaseModel, field_validator
+from pydantic import field_validator
 from typing import Any, List, Literal, get_args
 import unicodedata
 import yaml
 
 from dcpy.utils.logging import logger
 from dcpy.utils.collections import deep_merge_dict as merge
-from dcpy.models.base import SortedSerializedBase
+from dcpy.models.base import SortedSerializedBase, YamlWriter
 
 
 # MISC UTILS
@@ -47,42 +47,6 @@ class CustomizableBase(SortedSerializedBase, extra="forbid"):
     """
 
     custom: dict[str, Any] = {}
-
-
-class YamlWriter(BaseModel):
-    class _YamlTopLevelSpacesDumper(yaml.SafeDumper):
-        """YAML serializer that will insert lines between top-level entries,
-        which is nice in longer files."""
-
-        def write_line_break(self, data=None):
-            super().write_line_break(data)
-
-            if len(self.indents) == 1:
-                super().write_line_break()
-
-    def write_to_yaml(self, path: Path):
-        def str_presenter(dumper, data):
-            # To maintain readabily for dumping multiline strings. Otherwise the dumped text has no consistency,
-            # leading to, sometimes:
-            # \ text of varying\n\n \
-            # \ readability\n\n \
-            if len(data.splitlines()) > 1:  # check for multiline string
-                return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
-            return dumper.represent_scalar("tag:yaml.org,2002:str", data)
-
-        yaml.add_representer(str, str_presenter)
-        yaml.representer.SafeRepresenter.add_representer(str, str_presenter)
-
-        with open(path, "w", encoding="utf8") as f:
-            f.write(
-                yaml.dump(
-                    self.model_dump(exclude_none=True),
-                    sort_keys=False,
-                    default_flow_style=False,
-                    Dumper=YamlWriter._YamlTopLevelSpacesDumper,
-                    allow_unicode=True,
-                )
-            )
 
 
 # COLUMNS

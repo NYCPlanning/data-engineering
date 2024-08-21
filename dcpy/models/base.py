@@ -1,10 +1,11 @@
+from pathlib import Path
 from pydantic import BaseModel, model_serializer
 from pydantic.fields import PrivateAttr
 
 import typing
+import yaml
 
 
-# BASE
 class SortedSerializedBase(BaseModel):
     """A Pydantic BaseModel that will allow for sensible (and overrideable) deserialization order.
 
@@ -72,3 +73,39 @@ class SortedSerializedBase(BaseModel):
                 ordered_items_tail, key=lambda x: self._tail_sort_order.index(x[0])
             )
         )
+
+
+class YamlWriter(BaseModel):
+    class _YamlTopLevelSpacesDumper(yaml.SafeDumper):
+        """YAML serializer that will insert lines between top-level entries,
+        which is nice in longer files."""
+
+        def write_line_break(self, data=None):
+            super().write_line_break(data)
+
+            if len(self.indents) == 1:
+                super().write_line_break()
+
+    def write_to_yaml(self, path: Path):
+        def str_presenter(dumper, data):
+            # To maintain readabily for dumping multiline strings. Otherwise the dumped text has no consistency,
+            # leading to, sometimes:
+            # \ text of varying\n\n \
+            # \ readability\n\n \
+            if len(data.splitlines()) > 1:  # check for multiline string
+                return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+            return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+        yaml.add_representer(str, str_presenter)
+        yaml.representer.SafeRepresenter.add_representer(str, str_presenter)
+
+        with open(path, "w", encoding="utf8") as f:
+            f.write(
+                yaml.dump(
+                    self.model_dump(exclude_none=True),
+                    sort_keys=False,
+                    default_flow_style=False,
+                    Dumper=YamlWriter._YamlTopLevelSpacesDumper,
+                    allow_unicode=True,
+                )
+            )
