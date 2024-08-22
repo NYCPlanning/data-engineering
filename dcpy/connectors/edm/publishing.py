@@ -283,11 +283,15 @@ def validate_or_patch_version(
 
     if version_already_published:
         if is_patch:
-            return versions.bump(
+            patched_version = versions.bump(
                 previous_version=version,
                 bump_type=versions.VersionSubType.patch,
                 bump_by=1,
             ).label
+            assert patched_version not in get_published_versions(
+                product=product
+            )  # sanity check
+            return patched_version
         else:
             raise ValueError(
                 f"Version '{version}' already exists in published folder and patch wasn't selected"
