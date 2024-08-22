@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from enum import StrEnum
@@ -237,7 +237,7 @@ def sort(versions: list[Version]) -> list[Version]:
     """
     version_types = set([type(v) for v in versions])
     # can't compare different types
-    if len(version_types) != 1:
+    if len(version_types) > 1:
         # only handle date-like versions
         raise TypeError(
             f"Can't sort mixed types of dataset versions: {[v.__name__ for v in version_types]}"
@@ -253,6 +253,51 @@ def is_newer(version_1: str, version_2: str) -> bool:
     version_1_obj = parse(version_1)
     version_2_obj = parse(version_2)
     return version_1_obj > version_2_obj
+
+
+def group_versions_by_base(version: str, versions_list: list[str]) -> list[str]:
+    """
+    Groups versions by their base, ignoring patch differences, and returns a list of matching versions
+    in ascending order (from oldest to newest).
+
+    Example:
+
+    ```python
+    version = '24Q1'
+    versions_list = ['24Q1', '24Q1.1', '24v3', '24v3.0.1', '23Q1']
+
+    matching_versions = group_versions_by_base(version, versions_list)
+    print(matching_versions)  # Output: ['24Q1', '24Q1.1']
+    ```
+    """
+    parsed_version = parse(version)
+    version_list_wo_latest = [v for v in versions_list if v != "latest"]
+    same_version_type_lst = [
+        v for v in version_list_wo_latest if isinstance(parse(v), type(parsed_version))
+    ]
+
+    def is_matching_version(base_version: Version, compare_version: Version) -> bool:
+        """Helper function to check if compare_version matches base_version except for the patch."""
+        base_fields = {
+            field.name: getattr(base_version, field.name)
+            for field in fields(base_version)
+            if field.name != "patch"
+        }
+        compare_fields = {
+            field.name: getattr(compare_version, field.name)
+            for field in fields(compare_version)
+            if field.name != "patch"
+        }
+        return base_fields == compare_fields
+
+    # Filter versions for matching attributes (excluding patch)
+    matching_versions = [
+        v
+        for v in same_version_type_lst
+        if is_matching_version(parsed_version, parse(v))
+    ]
+
+    return sorted(matching_versions)
 
 
 def bump(
