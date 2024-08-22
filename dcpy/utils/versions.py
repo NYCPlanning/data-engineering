@@ -257,7 +257,8 @@ def is_newer(version_1: str, version_2: str) -> bool:
 
 def group_versions_by_base(version: str, versions_list: list[str]) -> list[str]:
     """
-    Groups versions by their base, ignoring patch differences, and returns a list of matching versions.
+    Groups versions by their base, ignoring patch differences, and returns a list of matching versions
+    in ascending order (from oldest to newest).
 
     Example:
 

@@ -279,12 +279,19 @@ def validate_or_patch_version(
     is_patch: bool,
 ) -> str:
     """Given input arguments, determine the publish version, bumping it if necessary."""
-    version_already_published = version in get_published_versions(product=product)
+    published_versions = get_published_versions(product=product)
+
+    # Filters existing published versions for same version (patched or non-patched)
+    published_same_version = versions.group_versions_by_base(
+        version, published_versions
+    )
+    version_already_published = version in published_same_version
 
     if version_already_published:
         if is_patch:
+            latest_version = published_same_version[-1]
             patched_version = versions.bump(
-                previous_version=version,
+                previous_version=latest_version,
                 bump_type=versions.VersionSubType.patch,
                 bump_by=1,
             ).label
