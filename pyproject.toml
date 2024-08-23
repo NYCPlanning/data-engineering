@@ -49,20 +49,20 @@ internal_columns = '"Job_Number","Job_Type"'
 external_columns = '"Job_Number","Job_Type"'
 
 [tool.sqlfluff.templater.jinja.context]
-source_column="bct2020"
-output_column="bct2020"
-additional_column_mappings='[("geoid", "centract2020")]'
-group_by='["boro", "bct2020", "centract2020"]'
-join_table="dcp_ct2020"
-geom_join_column="boroct2020"
-years="['2010', '2011']"
-decade="2020"
-geom="CD"
-CAPTURE_DATE="2024-01-01"
-geography_type="anything"
-geography_name="anything"
-geography_id="anything"
-table_name="anything"
+source_column = "bct2020"
+output_column = "bct2020"
+additional_column_mappings = '[("geoid", "centract2020")]'
+group_by = '["boro", "bct2020", "centract2020"]'
+join_table = "dcp_ct2020"
+geom_join_column = "boroct2020"
+years = "['2010', '2011']"
+decade = "2020"
+geom = "CD"
+CAPTURE_DATE = "2024-01-01"
+geography_type = "anything"
+geography_name = "anything"
+geography_id = "anything"
+table_name = "anything"
 
 [tool.sqlfluff.rules.layout.long_lines]
 ignore_comment_lines = true
@@ -86,22 +86,18 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 xfail_strict = true
 addopts = "--strict-markers"
-markers =[
-    "end_to_end",
-]
+markers = ["end_to_end"]
 
 [tool.coverage.run]
 # Measure branch coverage (https://coverage.readthedocs.io/en/latest/branch.html)
 branch = true
-omit = [
-    "dcpy/test/*",
-]
+omit = ["dcpy/test/*"]
 
 [tool.coverage.report]
 include_namespace_packages = true
 show_missing = true
 # Regexes for lines to exclude from consideration
-exclude_lines =[
+exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",
     # Don't complain if non-runnable code isn't run:
@@ -149,4 +145,7 @@ exclude = ["dcpy.test*"]
 library = "dcpy.library.cli:run"
 
 [tool.setuptools.package-data]
-dcpy = ["library/templates/*.yml"]
+dcpy = [
+    "library/templates/*.yml",
+    "lifecycle/package/resources/data_dictionary_template.jinja",
+]
