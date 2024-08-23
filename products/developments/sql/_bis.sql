@@ -64,7 +64,7 @@ OUTPUTS:
 
 DROP TABLE IF EXISTS _init_bis_devdb;
 SELECT
-    jobnumber::text AS job_number,
+    bis.jobnumber::text AS job_number,
 
     -- Job Type recoding
     CASE
@@ -221,7 +221,8 @@ SELECT
     NULL::numeric AS zsfc_prop,
     NULL::numeric AS zsfcf_prop,
     NULL::numeric AS zsfm_prop,
-    NULL::numeric AS prkngprop,
+    ps.existing_parking_spaces::numeric AS prkng_init,
+    ps.proposed_parking_spaces::numeric AS prkng_prop,
     -- End Dummy columns 
     buildingclass AS bldg_class,
     otherdesc AS desc_other,
@@ -231,7 +232,8 @@ SELECT
         latitude::double precision
     ), 4326) AS dob_geom
 INTO _init_bis_devdb
-FROM dob_jobapplications
+FROM dob_jobapplications AS bis
+LEFT JOIN dob_jobapplications_parkingspaces AS ps ON bis.jobnumber = ps.jobnumber
 WHERE
     jobdocnumber = '01' AND (
         jobtype ~* 'A1|DM|NB' OR (

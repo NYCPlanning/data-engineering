@@ -233,7 +233,8 @@ SELECT
     (CASE
         WHEN uselabel ~* 'Manufacturing' THEN total_floor_area
     END)::numeric AS zsfm_prop,
-    no_of_parking_spaces::numeric AS prkngprop,
+    NULL::numeric AS prkng_init,
+    no_of_parking_spaces::numeric AS prkng_prop,
     building_type AS bldg_class,
     NULL AS desc_other,
     CASE
@@ -246,5 +247,5 @@ SELECT
 INTO _init_now_devdb
 FROM dob_now_applications
 WHERE
-    jobtype ~* 'CO|New'
+    (jobtype IN ('New Building', 'Full Demolition') OR jobtype ~* 'CO')
     AND right(job_filing_number, 2) = 'I1';
