@@ -1,30 +1,11 @@
 from pathlib import Path
 from jinja2 import Template
-import typer
 import subprocess
 from dcpy.models.product.dataset.metadata import Metadata
 
 DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH = (
     Path(__file__).parent / "resources" / "data_dictionary_template.jinja"
 )
-
-app = typer.Typer()
-
-
-@app.command("pdf_from_yml")
-def _cli_wrapper_pdf_from_yml(
-    yaml_file_path: str,
-    html_template_path: str,
-    output_html_path: str,
-    output_pdf_path: str,
-) -> None:
-    generate_html_from_yaml(
-        Path(yaml_file_path),
-        Path(html_template_path),
-        Path(output_html_path),
-    )
-    generate_pdf_from_html(Path(output_html_path), Path(output_pdf_path))
-    return None
 
 
 def generate_pdf_from_html(output_html_path: Path, output_pdf_path: Path) -> Path:
@@ -58,7 +39,3 @@ def generate_html_from_yaml(
         f.write(rendered_template)
 
     return output_html_path
-
-
-if __name__ == "__main__":
-    app()
