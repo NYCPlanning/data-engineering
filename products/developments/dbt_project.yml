@@ -1,0 +1,9 @@
+name: "developments"
+
+profile: "dcp-de-postgres"
+
+model-paths: ["models"]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
