@@ -549,7 +549,7 @@ def push_dataset(
             return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
 
     if not publish:
-        result = f"""Finished syncing product {metadata.attributes.display_name} to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually here {rev.page_url}."""
+        result = f"""Finished syncing product {metadata.attributes.display_name} to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually here {rev.page_url}"""
         logger.info(result)
         return result
     else:

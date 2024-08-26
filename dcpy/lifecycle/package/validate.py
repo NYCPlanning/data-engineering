@@ -106,12 +106,12 @@ def _is_geom_poly(s):
 
 col_validators = {
     "bbl": lambda df, col_name: df[~df[col_name].str.match(r"^\d{10}$")],
-    "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
-    "double": lambda df, col_name: df[~df[col_name].apply(_is_float_or_double)],
     "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
     "geom_point": lambda df, col_name: df[~df[col_name].apply(_is_geom_point)],
     "geom_poly": lambda df, col_name: df[~df[col_name].apply(_is_geom_poly)],
+    "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
     "decimal": lambda df, col_name: df[~df[col_name].str.match(r"^-?\d*\.\d*$")],
+    "number": lambda df, col_name: df[~df[col_name].str.match(r"^-?\d*")],
     # TODO
     "datetime": lambda df, col_name: df.iloc[0:0],
     "uid": lambda df, col_name: df.iloc[0:0],
@@ -188,7 +188,7 @@ def validate_df(
             errors.append(
                 ValidationError(
                     error_type=ErrorType.INVALID_DATA,
-                    message=f"Column {col.name} contains {len(invalids)} invalid record(s), for example: {invalids.iloc[0][col.name]}",
+                    message=f"Column {col.name} contains {len(invalids)} record(s) that don't conform to type: {col.data_type}, for example: {invalids.iloc[0][col.name]}",
                 )
             )
 
