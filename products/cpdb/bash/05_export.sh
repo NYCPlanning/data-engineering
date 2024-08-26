@@ -17,8 +17,6 @@ mkdir -p output && (
     csv_export checkbook_spending_by_year &
     csv_export geospatial_check &
     csv_export cpdb_projects_without_budget_data &
-    
-    cp ../projects_in_geographies.zip ./
 
     cp ../source_data_versions.csv ./
     cp ../build_metadata.json ./
@@ -27,6 +25,8 @@ mkdir -p output && (
     shp_export cpdb_dcpattributes_poly MULTIPOLYGON &
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
+    
+    cp -r ../projects_in_geographies ./
 
     echo $VERSION > version.txt
     wait 

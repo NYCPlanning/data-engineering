@@ -25,6 +25,7 @@ run_sql_file sql/analysis/geospatial_check.sql -v ccp_v=$ccp_v
 
 mkdir -p $(pwd)/output/analysis && (
     cd $(pwd)/output/analysis
+
     csv_export cpdb_summarystats_magency &
     csv_export cpdb_summarystats_sagency &
     csv_export projects_by_communitydist &
