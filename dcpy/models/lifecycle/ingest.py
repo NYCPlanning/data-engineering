@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
-from pydantic import BaseModel, Field, AliasChoices, field_serializer
+from pydantic import BaseModel, Field, AliasChoices
 from typing import Any, Literal, TypeAlias
 
 from dcpy.utils.metadata import RunDetails
@@ -109,7 +109,3 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
 
     def raw_s3_key(self, prefix: str) -> Path:
         return self.raw_dataset_key.s3_path(prefix) / self.raw_filename
-
-    @field_serializer("archival_timestamp")
-    def _serialize_timestamp(self, archival_timestamp: datetime, _info) -> str:
-        return archival_timestamp.isoformat()

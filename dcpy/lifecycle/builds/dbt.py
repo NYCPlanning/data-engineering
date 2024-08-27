@@ -60,7 +60,7 @@ def add_dbt_source(
     with RecipeEditor(project_dir / recipe_path) as recipe:
         recipe["inputs"]["datasets"].append(
             InputDataset(id=dataset).model_dump(
-                exclude_defaults=True, exclude_none=True
+                exclude_defaults=True, exclude_none=True, mode="json"
             )
         )
 

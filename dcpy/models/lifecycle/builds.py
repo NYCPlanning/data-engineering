@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import StrEnum
 import pandas as pd
 from pathlib import Path
-from pydantic import AliasChoices, BaseModel, Field, field_serializer
+from pydantic import AliasChoices, BaseModel, Field
 from typing import List
 
 from dcpy.utils import versions
@@ -118,10 +118,6 @@ class EventLog(BaseModel, extra="forbid"):
     runner: str
     custom_fields: dict = {}
 
-    @field_serializer("timestamp")
-    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
-        return timestamp.isoformat()
-
 
 class BuildMetadata(BaseModel, extra="forbid"):
     timestamp: datetime
@@ -137,7 +133,3 @@ class BuildMetadata(BaseModel, extra="forbid"):
             if recipe.version is not None:
                 data["version"] = recipe.version
         super().__init__(**data)
-
-    @field_serializer("timestamp")
-    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
-        return timestamp.isoformat()
