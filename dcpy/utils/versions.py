@@ -1,11 +1,12 @@
 from __future__ import annotations
 from abc import abstractmethod
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from enum import StrEnum
 from functools import total_ordering
 from pydantic import BaseModel
+from typing import TypeVar
 import re
 
 
@@ -277,6 +278,11 @@ def group_versions_by_base(version: str, versions_list: list[str]) -> list[str]:
 
     def is_matching_version(base_version: Version, compare_version: Version) -> bool:
         """Helper function to check if compare_version matches base_version except for the patch."""
+        assert is_dataclass(base_version) and is_dataclass(
+            compare_version
+        )  # This line is to appease mypy
+
+        # Get Version key-value pairs excluding "patch" attribute to use for comparison
         base_fields = {
             field.name: getattr(base_version, field.name)
             for field in fields(base_version)
