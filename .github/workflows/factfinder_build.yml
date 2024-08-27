@@ -12,6 +12,9 @@ on:
       recipe_file:
         type: string
         required: true
+      dev_bucket:
+        type: string
+        required: false
         
 jobs:
   build:
@@ -25,6 +28,9 @@ jobs:
       image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_NAME: ${{ inputs.build_name }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
