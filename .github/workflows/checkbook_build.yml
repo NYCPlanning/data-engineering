@@ -9,6 +9,9 @@ on:
       build_name:
         type: string
         required: true
+      dev_flag:
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -19,6 +22,7 @@ jobs:
     env:
       BUILD_ENGINE_DB: db-checkbook
       BUILD_NAME: ${{ inputs.build_name }}
+      DEV_FLAG: ${{ inputs.dev_flag }}
     defaults:
       run:
         shell: bash

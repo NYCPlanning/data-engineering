@@ -24,6 +24,11 @@ on:
         type: boolean
         required: true
         default: false
+      dev_flag:
+        description: "Archive to a dev bucket?"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   dataloading:
@@ -33,6 +38,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      DEV_FLAG: ${{ inputs.dev_flag }}
+      BUILD_NAME: ${{ github.head_ref || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
 

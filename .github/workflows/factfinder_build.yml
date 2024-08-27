@@ -12,6 +12,9 @@ on:
       recipe_file:
         type: string
         required: true
+      dev_flag:
+        type: boolean
+        default: false
         
 jobs:
   build:
@@ -25,6 +28,7 @@ jobs:
       image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_NAME: ${{ inputs.build_name }}
+      DEV_FLAG: ${{ inputs.dev_flag }}
     steps:
       - uses: actions/checkout@v4
 
