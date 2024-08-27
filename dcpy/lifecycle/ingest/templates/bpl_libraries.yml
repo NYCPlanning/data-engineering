@@ -1,4 +1,4 @@
-name: bpl_libraries
+id: bpl_libraries
 acl: public-read
 source:
   type: api

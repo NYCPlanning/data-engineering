@@ -73,7 +73,7 @@ def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False
         s3.copy_folder(
             BUCKET,
             f"{s3_path}/",
-            f"{DATASET_FOLDER}/{config.name}/latest/",
+            f"{DATASET_FOLDER}/{config.id}/latest/",
             acl=config.acl,
         )
 
@@ -120,7 +120,7 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
 
 def get_file_types(dataset: Dataset) -> set[DatasetType]:
     suffixes = s3.get_suffixes(
-        bucket=BUCKET, prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.name}"
+        bucket=BUCKET, prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.id}"
     )
     valid_types = {_dataset_type_from_extension(s.strip(".")) for s in suffixes}
     return {t for t in valid_types if t is not None}
@@ -132,14 +132,14 @@ def get_preferred_file_type(
     file_types = get_file_types(dataset)
     if len(file_types.intersection(preferences)) == 0:
         raise FileNotFoundError(
-            f"Dataset {dataset.name} could not find filetype of any of {preferences}. Found filetypes for {dataset.name}: {file_types}"
+            f"Dataset {dataset.id} could not find filetype of any of {preferences}. Found filetypes for {dataset.id}: {file_types}"
         )
     return next(t for t in preferences if t in file_types)
 
 
 def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
-    target_dir = local_library_dir / DATASET_FOLDER / ds.name / ds.version
+    target_dir = local_library_dir / DATASET_FOLDER / ds.id / ds.version
     target_file_path = target_dir / ds.file_name
     if (target_file_path).exists():
         print(f"✅ {ds.file_name} exists in cache")
@@ -197,10 +197,10 @@ def import_dataset(
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
 ) -> str:
     """Import a recipe to local data library folder and build engine."""
-    assert ds.file_type, f"Cannot import dataset {ds.name}, no file type defined."
-    ds_table_name = import_as or ds.name
+    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
+    ds_table_name = import_as or ds.id
     logger.info(
-        f"Importing {ds.name} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
+        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
     )
 
     local_dataset_path = fetch_dataset(ds, local_library_dir)
@@ -208,7 +208,7 @@ def import_dataset(
     if ds.file_type == DatasetType.pg_dump:
         pg_client.import_pg_dump(
             local_dataset_path,
-            pg_dump_table_name=ds.name,
+            pg_dump_table_name=ds.id,
             target_table_name=ds_table_name,
         )
     elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
@@ -218,7 +218,7 @@ def import_dataset(
             else pd.read_parquet(local_dataset_path)
         )
         if preprocessor is not None:
-            df = preprocessor(ds.name, df)
+            df = preprocessor(ds.id, df)
 
         # make column names more sql-friendly
         columns = {

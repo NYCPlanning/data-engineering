@@ -10,19 +10,19 @@ ValidAclValues = Literal["public-read", "private"]
 
 #### extract objects
 class RawDatasetKey(BaseModel, extra="forbid"):
-    name: str
+    id: str
     timestamp: datetime
 
     def s3_path(self, prefix: str) -> Path:
-        return Path(prefix) / self.name / self.timestamp.isoformat()
+        return Path(prefix) / self.id / self.timestamp.isoformat()
 
 
 class DatasetKey(BaseModel, extra="forbid"):
-    name: str
+    id: str
     version: str
 
     def s3_path(self, prefix: str) -> Path:
-        return Path(prefix) / self.name / self.version
+        return Path(prefix) / self.id / self.version
 
 
 class DatasetType(StrEnum):
@@ -38,7 +38,7 @@ def _type_to_extension(dst: DatasetType) -> str:
 
 
 class Dataset(BaseModel, extra="forbid"):
-    name: str
+    id: str
     version: str
     file_type: DatasetType | None = None
 
@@ -46,10 +46,10 @@ class Dataset(BaseModel, extra="forbid"):
     def file_name(self) -> str:
         if self.file_type is None:
             raise Exception("File type must be defined to get file name")
-        return f"{self.name}.{_type_to_extension(self.file_type)}"
+        return f"{self.id}.{_type_to_extension(self.file_type)}"
 
     def s3_folder_key(self, prefix: str) -> str:
-        return f"{prefix}/{self.name}/{self.version}"
+        return f"{prefix}/{self.id}/{self.version}"
 
     def s3_file_key(self, prefix: str) -> str:
         return f"{self.s3_folder_key(prefix)}/{self.file_name}"

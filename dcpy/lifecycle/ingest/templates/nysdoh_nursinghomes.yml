@@ -1,4 +1,4 @@
-name: nysdoh_nursinghomes
+id: nysdoh_nursinghomes
 acl: public-read
 source:
   type: socrata

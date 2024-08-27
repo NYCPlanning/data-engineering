@@ -33,13 +33,13 @@ def get_jinja_vars(s: str) -> set[str]:
 
 
 def read_template(
-    dataset: str, version: str | None = None, template_dir: Path = TEMPLATE_DIR
+    dataset_id: str, version: str | None = None, template_dir: Path = TEMPLATE_DIR
 ) -> Template:
     """
-    Given dataset name, read yml template in template_dir of given dataset
+    Given _id id, read yml template in template_dir of given dataset
     and insert version as jinja var if provided.
     """
-    file = template_dir / f"{dataset}.yml"
+    file = template_dir / f"{dataset_id}.yml"
     logger.info(f"Reading template from {file}")
     with open(file, "r") as f:
         template_string = f.read()
@@ -73,7 +73,7 @@ def get_version(source: Source, timestamp: datetime | None = None) -> str:
             return timestamp.strftime("%Y%m%d")
 
 
-def get_filename(source: Source, ds_name: str) -> str:
+def get_filename(source: Source, ds_id: str) -> str:
     """From parsed config template, determine filename"""
     match source:
         case LocalFileSource():
@@ -81,13 +81,13 @@ def get_filename(source: Source, ds_name: str) -> str:
         case GisDataset():
             return f"{source.name}.zip"
         case ScriptSource():
-            return f"{ds_name}.parquet"
+            return f"{ds_id}.parquet"
         case web_models.FileDownloadSource():
             return os.path.basename(urlparse(source.url).path)
         case web_models.GenericApiSource():
-            return f"{ds_name}.{source.format}"
+            return f"{ds_id}.{source.format}"
         case socrata.Source():
-            return f"{ds_name}.{source.extension}"
+            return f"{ds_id}.{source.extension}"
         case S3Source():
             return Path(source.key).name
         case _:
@@ -97,14 +97,14 @@ def get_filename(source: Source, ds_name: str) -> str:
 
 
 def get_config(
-    dataset: str, version: str | None = None, mode: str | None = None
+    dataset_id: str, version: str | None = None, mode: str | None = None
 ) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
-    template = read_template(dataset, version=version)
-    filename = get_filename(template.source, template.name)
+    template = read_template(dataset_id, version=version)
+    filename = get_filename(template.source, template.id)
     version = version or get_version(template.source, run_details.timestamp)
-    template = read_template(dataset, version=version)
+    template = read_template(dataset_id, version=version)
     processing_steps = template.processing_steps
 
     if template.target_crs:
@@ -116,13 +116,13 @@ def get_config(
     if mode:
         modes = {s.mode for s in processing_steps}
         if mode not in modes:
-            raise ValueError(f"mode '{mode}' is not present in template '{dataset}'")
+            raise ValueError(f"mode '{mode}' is not present in template '{dataset_id}'")
 
     processing_steps = [s for s in processing_steps if s.mode is None or s.mode == mode]
 
     # create config object
     return Config(
-        name=template.name,
+        id=template.id,
         version=version,
         archival_timestamp=run_details.timestamp,
         raw_filename=filename,

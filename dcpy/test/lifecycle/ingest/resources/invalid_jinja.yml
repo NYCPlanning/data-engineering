@@ -1,4 +1,4 @@
-name: dcp_atomicpolygons
+id: dcp_atomicpolygons
 acl: public-read
 source:
   type: file_download

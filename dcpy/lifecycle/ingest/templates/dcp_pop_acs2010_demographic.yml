@@ -1,4 +1,4 @@
-name: dcp_pop_acs2010_demographic
+id: dcp_pop_acs2010_demographic
 acl: public-read
 source:
   type: local_file

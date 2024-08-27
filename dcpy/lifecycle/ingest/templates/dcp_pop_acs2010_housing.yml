@@ -1,4 +1,4 @@
-name: dcp_pop_acs2010_housing
+id: dcp_pop_acs2010_housing
 acl: public-read
 source:
   type: s3

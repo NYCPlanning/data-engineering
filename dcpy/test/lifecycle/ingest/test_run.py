@@ -16,14 +16,14 @@ RAW_FOLDER = f"raw_datasets/{DATASET}"
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run(mock_request_get, create_buckets, create_temp_filesystem):
     """Mainly an integration test to make sure code runs without error"""
-    run(dataset=DATASET, version=FAKE_VERSION, staging_dir=create_temp_filesystem)
+    run(dataset_id=DATASET, version=FAKE_VERSION, staging_dir=create_temp_filesystem)
     assert len(s3.get_subfolders(RECIPES_BUCKET, RAW_FOLDER)) == 1
     assert s3.exists(RECIPES_BUCKET, S3_PATH)
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run_default_folder(mock_request_get, create_buckets, create_temp_filesystem):
-    run(dataset=DATASET, version=FAKE_VERSION)
+    run(dataset_id=DATASET, version=FAKE_VERSION)
     assert s3.exists(RECIPES_BUCKET, S3_PATH)
     assert (TMP_DIR / DATASET).exists()
     shutil.rmtree(TMP_DIR)
@@ -32,7 +32,7 @@ def test_run_default_folder(mock_request_get, create_buckets, create_temp_filesy
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_skip_archival(mock_request_get, create_buckets, create_temp_filesystem):
     run(
-        dataset=DATASET,
+        dataset_id=DATASET,
         version=FAKE_VERSION,
         staging_dir=create_temp_filesystem,
         skip_archival=True,

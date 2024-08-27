@@ -11,7 +11,7 @@ from dcpy.lifecycle.builds import plan
 def get_source_datasets(product: str) -> list[str]:
     root = APP_PATH if "DEPLOY" in os.environ else ROOT_PATH
     recipe = plan.recipe_from_yaml(root / "products" / product / "recipe.yml")
-    return [dataset.name for dataset in recipe.inputs.datasets]
+    return [dataset.id for dataset in recipe.inputs.datasets]
 
 
 def get_dataset_metadata(product: str) -> Dict[str, list[library.ArchivalMetadata]]:

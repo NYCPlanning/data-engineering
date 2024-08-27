@@ -67,8 +67,8 @@ def resolve_latest_recipe(
     os.environ["RECIPES_BUCKET"] = target_bucket
     importlib.reload(configuration)
     assert configuration.RECIPES_BUCKET != PROD_RECIPES_BUCKET
-    input = recipes.Dataset(name=ds, version="latest")
-    resolved = recipes.Dataset(name=ds, version=recipes.get_latest_version(ds))
+    input = recipes.Dataset(id=ds, version="latest")
+    resolved = recipes.Dataset(id=ds, version=recipes.get_latest_version(ds))
     os.environ["RECIPES_BUCKET"] = PROD_RECIPES_BUCKET
     importlib.reload(configuration)
     assert target_bucket.startswith(DEV_BUCKET_PREFIX)
@@ -111,7 +111,7 @@ def clone_recipe(
     Given a dataset id, copy it from edm-recipes
     If provided version is "latest", also resolve it to its versioned folder
     """
-    key = DatasetKey(name=dataset_id, version=version)
+    key = DatasetKey(id=dataset_id, version=version)
     copy_folder_to_dev_bucket(
         source_bucket=PROD_RECIPES_BUCKET,
         target_bucket=target_bucket,
@@ -162,7 +162,7 @@ def clone_data_products(
             recipe = plan.recipe_from_yaml(
                 ROOT_PATH / "products" / product.strip("db-") / "recipe.yml"
             )
-            recipe_datasets += [ds.name for ds in recipe.inputs.datasets]
+            recipe_datasets += [ds.id for ds in recipe.inputs.datasets]
         for ds in set(recipe_datasets):
             clone_recipe(target_bucket, ds)
 
@@ -227,7 +227,7 @@ def setup(id: str, clean: bool = False) -> str:
             aws_secret_access_key=aws_secret_access_key,
             endpoint_url=aws_s3_endpoint,
         ).Bucket(bucket)
-        assert bucket_obj.name.startswith(DEV_BUCKET_PREFIX)
+        assert bucket_obj.id.startswith(DEV_BUCKET_PREFIX)
         bucket_obj.objects.all().delete()
     return bucket
 

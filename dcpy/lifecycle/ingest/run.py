@@ -9,7 +9,7 @@ TMP_DIR = Path("tmp")
 
 
 def run(
-    dataset: str,
+    dataset_id: str,
     version: str | None = None,
     staging_dir: Path | None = None,
     mode: str | None = None,
@@ -17,11 +17,11 @@ def run(
     skip_archival: bool = False,
     output_csv: bool = False,
 ) -> Config:
-    config = configure.get_config(dataset, version=version, mode=mode)
-    transform.validate_processing_steps(config.name, config.processing_steps)
+    config = configure.get_config(dataset_id, version=version, mode=mode)
+    transform.validate_processing_steps(config.id, config.processing_steps)
 
     if not staging_dir:
-        staging_dir = TMP_DIR / dataset / config.archival_timestamp.isoformat()
+        staging_dir = TMP_DIR / dataset_id / config.archival_timestamp.isoformat()
         staging_dir.mkdir(parents=True)
 
     # download dataset
@@ -40,7 +40,7 @@ def run(
     )
 
     transform.preprocess(
-        config.name,
+        config.id,
         config.processing_steps,
         staging_dir / init_parquet,
         staging_dir / config.filename,
@@ -58,7 +58,7 @@ app = typer.Typer(add_completion=False)
 
 @app.command()
 def _cli_wrapper_run(
-    dataset: str = typer.Argument(),
+    dataset_id: str = typer.Argument(),
     version: str = typer.Option(
         None,
         "-v",
@@ -75,7 +75,7 @@ def _cli_wrapper_run(
     ),
 ):
     run(
-        dataset,
+        dataset_id,
         version,
         mode=mode,
         latest=latest,

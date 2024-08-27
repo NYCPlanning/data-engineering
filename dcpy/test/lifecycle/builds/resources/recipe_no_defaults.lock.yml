@@ -8,7 +8,7 @@ inputs:
   - destination: postgres
     file_type: null
     import_as: null
-    name: has_no_version_or_type
+    id: has_no_version_or_type
     preprocessor: null
     version: v1
     version_env_var: null

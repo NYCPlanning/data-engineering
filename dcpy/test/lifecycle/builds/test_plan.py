@@ -71,7 +71,7 @@ class TestVersionStrategies(TestCase):
         )
         source_dataset_record = self.recipe.inputs.datasets[1]
         assert (
-            source_dataset_record.name == source_dataset
+            source_dataset_record.id == source_dataset
         ), "test setup error - check order of source datasets in recipe.yml"
         assert plan.resolve_version(self.recipe) == source_dataset_record.version
 
@@ -120,7 +120,7 @@ class TestRecipesWithDefaults(TestCase):
         planned = plan.plan_recipe(RECIPE_PATH)
 
         had_no_version_or_type = [
-            ds for ds in planned.inputs.datasets if ds.name == "has_no_version_or_type"
+            ds for ds in planned.inputs.datasets if ds.id == "has_no_version_or_type"
         ][0]
 
         assert (

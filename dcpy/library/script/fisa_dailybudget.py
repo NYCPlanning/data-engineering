@@ -63,7 +63,7 @@ class Scriptor(ScriptorInterface):
 
     def ingest(self) -> pd.DataFrame:
         previous_dataset = recipes.Dataset(
-            name=self.name,
+            id=self.name,
             version=self.previous_version,
         )
         previous = recipes.read_df(previous_dataset, dtype=str)

@@ -6,7 +6,7 @@ from dcpy.connectors.edm import publishing
 from src.shared.constants import DATASET_NAMES
 from src.shared.utils.source_report import (
     get_latest_source_data_versions,
-    get_source_dataset_names,
+    get_source_dataset_ids,
     compare_source_data_columns,
     compare_source_data_row_count,
 )
@@ -59,7 +59,7 @@ def test_get_latest_source_data_versions():
 
 
 def test_get_source_dataset_names():
-    source_dataset_names = get_source_dataset_names(
+    source_dataset_names = get_source_dataset_ids(
         publishing.PublishKey(TEST_DATASET_NAME, REFERENCE_VESION)
     )
     assert source_dataset_names == TEST_DATA_SOURCE_NAMES

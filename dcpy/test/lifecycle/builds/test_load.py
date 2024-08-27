@@ -22,13 +22,13 @@ def _mock_preprocessor(name, df):
 
 
 def _mock_fetch_csv(ds, _):
-    out_path = TEMP_DATA_PATH / f"{ds.name}.csv"
+    out_path = TEMP_DATA_PATH / f"{ds.id}.csv"
     _test_df.to_csv(out_path, index=False)
     return out_path
 
 
 def _mock_fetch_parquet(ds, _):
-    out_path = TEMP_DATA_PATH / f"{ds.name}.parquet"
+    out_path = TEMP_DATA_PATH / f"{ds.id}.parquet"
     _test_df.to_parquet(out_path, index=False)
     return out_path
 
@@ -44,7 +44,7 @@ class TestImportDatasets(TestCase):
 
         pg_mock = MagicMock()
         ds = InputDataset(
-            name="test",
+            id="test",
             version="1",
             import_as="new_table_name",
             file_type=recipes.DatasetType.csv,
@@ -61,7 +61,7 @@ class TestImportDatasets(TestCase):
             df_inserted_actual,
             table_insert_name_actual,
         ) = pg_mock.insert_dataframe.call_args_list[0][0]
-        assert df_inserted_actual.equals(_mock_preprocessor(ds.name, _test_df))
+        assert df_inserted_actual.equals(_mock_preprocessor(ds.id, _test_df))
         assert table_insert_name_actual == ds.import_as
 
     @patch("dcpy.preproc", side_effect=_mock_preprocessor, create=True)
@@ -70,7 +70,7 @@ class TestImportDatasets(TestCase):
 
         pg_mock = MagicMock()
         ds = InputDataset(
-            name="test",
+            id="test",
             version="1",
             import_as="new_table_name",
             file_type=recipes.DatasetType.parquet,
@@ -83,15 +83,15 @@ class TestImportDatasets(TestCase):
             df_inserted_actual,
             table_insert_name_actual,
         ) = pg_mock.insert_dataframe.call_args_list[0][0]
-        assert df_inserted_actual.equals(_mock_preprocessor(ds.name, _test_df))
+        assert df_inserted_actual.equals(_mock_preprocessor(ds.id, _test_df))
         assert table_insert_name_actual == ds.import_as
 
     def test_no_version_fails(self):
-        ds = InputDataset(name="test")
+        ds = InputDataset(id="test")
         with pytest.raises(Exception, match="Cannot import"):
             load.import_dataset(ds, MagicMock)
 
     def test_unresolved_version_fails(self):
-        ds = InputDataset(name="test", version="latest")
+        ds = InputDataset(id="test", version="latest")
         with pytest.raises(Exception, match="Cannot import"):
             load.import_dataset(ds, MagicMock)

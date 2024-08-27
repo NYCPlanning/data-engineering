@@ -85,7 +85,7 @@ class DatasetDefinition(BaseModel):
 
     @property
     def dataset(self) -> recipes.Dataset:
-        return recipes.Dataset(name=self.name, version=self.version)
+        return recipes.Dataset(id=self.name, version=self.version)
 
 
 class Config(BaseModel, extra="forbid"):

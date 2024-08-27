@@ -69,7 +69,7 @@ class TestArchiveDataset:
     dataset = "bpl_libraries"  # doesn't actually get queried, just to fill out config
     raw_file_name = "tmp.txt"
     config = ingest.Config(
-        name=dataset,
+        id=dataset,
         version="dummy",
         archival_timestamp=datetime.now(),
         acl="private",
@@ -109,7 +109,7 @@ class TestArchiveDataset:
 
 
 def test_get_preferred_file_type(load_library):
-    dataset = recipes.Dataset(name=TEST_DATASET, version=LIBRARY_VERSION)
+    dataset = recipes.Dataset(id=TEST_DATASET, version=LIBRARY_VERSION)
     file_type = recipes.get_preferred_file_type(
         dataset,
         [
@@ -153,7 +153,7 @@ def test_get_all_versions(load_library, load_ingest):
 def test_fetch_dataset(load_ingest: ingest.Config, create_temp_filesystem: Path):
     ds = load_ingest.dataset
     ds.file_type = DatasetType.parquet
-    folder_path = create_temp_filesystem / recipes.DATASET_FOLDER / ds.name / ds.version
+    folder_path = create_temp_filesystem / recipes.DATASET_FOLDER / ds.id / ds.version
     folder_path.mkdir(parents=True)  # mainly for coverage
     path = recipes.fetch_dataset(ds, create_temp_filesystem)
     print(path)

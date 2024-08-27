@@ -46,7 +46,7 @@ def resolve_version(recipe: Recipe) -> str:
             ).label
         case versions.PinToSourceDataset():
             dataset = recipe.version_strategy.pin_to_source_dataset
-            inputs_by_name = {d.name: d for d in recipe.inputs.datasets}
+            inputs_by_name = {d.id: d for d in recipe.inputs.datasets}
             if dataset not in inputs_by_name:
                 raise ValueError(
                     f"Cannot pin build version to dataset '{dataset}' as it is not an input dataset"
@@ -111,10 +111,10 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         else None
     )
 
-    input_dataset_names = {d.name for d in recipe.inputs.datasets}
+    input_dataset_names = {d.id for d in recipe.inputs.datasets}
     if base_recipe is not None:
         for base_ds in base_recipe.inputs.datasets:
-            if base_ds.name not in input_dataset_names:
+            if base_ds.id not in input_dataset_names:
                 recipe.inputs.datasets.append(base_ds)
 
     # Fill in omitted versions
@@ -133,19 +133,19 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 version = os.getenv(ds.version_env_var)
                 if version is None:
                     raise Exception(
-                        f"Dataset {ds.name} requires version env var: {ds.version_env_var}"
+                        f"Dataset {ds.id} requires version env var: {ds.version_env_var}"
                     )
                 ds.version = version
             elif (
                 recipe.inputs.missing_versions_strategy
                 == RecipeInputsVersionStrategy.copy_latest_release
             ):
-                ds.version = previous_versions[ds.name]
+                ds.version = previous_versions[ds.id]
             else:
                 ds.version = "latest"
 
         if ds.version == "latest":
-            ds.version = recipes.get_latest_version(ds.name)
+            ds.version = recipes.get_latest_version(ds.id)
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
@@ -159,7 +159,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
 def get_source_data_versions(recipe: Recipe):
     """Get source data versions table in form of [schema_name, v, file_type]."""
     return [["schema_name", "v", "file_type"]] + [
-        [d.name, d.version, d.file_type] for d in recipe.inputs.datasets
+        [d.id, d.version, d.file_type] for d in recipe.inputs.datasets
     ]
 
 
@@ -227,8 +227,8 @@ def repeat_recipe_from_source_data_versions(
         name: row["version"] for name, row in source_data_versions.iterrows()
     }
     for ds in recipe.inputs.datasets:
-        if ds.name in version_by_source_data_name:
-            ds.version = version_by_source_data_name[ds.name]
+        if ds.id in version_by_source_data_name:
+            ds.version = version_by_source_data_name[ds.id]
         else:
             raise Exception(
                 "Dataset found in template recipe not found in historical source data versions, \

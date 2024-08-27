@@ -1,4 +1,4 @@
-name: dpr_capitalprojects
+id: dpr_capitalprojects
 acl: public-read
 source:
   type: file_download

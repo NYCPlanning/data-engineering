@@ -1,4 +1,4 @@
-name: fisa_capitalcommitments
+id: fisa_capitalcommitments
 acl: private
 source:
   type: local_file

@@ -1,4 +1,4 @@
-name: fisa_dailybudget
+id: fisa_dailybudget
 acl: private
 source:
   type: local_file

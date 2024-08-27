@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel, Field, AliasChoices, field_serializer
 from typing import Any, Literal, TypeAlias
 
 from dcpy.utils.metadata import RunDetails
@@ -48,7 +48,7 @@ class PreprocessingStep(BaseModel):
 class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
-    name: str
+    id: str
     acl: recipes.ValidAclValues
 
     target_crs: str | None = None
@@ -71,7 +71,7 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     Stored in config.json in edm-recipes/raw_datasets and edm-recipes/datasets
     """
 
-    name: str
+    id: str = Field(validation_alias=AliasChoices("id", "name"))
     version: str
     archival_timestamp: datetime
     raw_filename: str
@@ -89,20 +89,20 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     @property
     def dataset(self) -> recipes.Dataset:
         return recipes.Dataset(
-            name=self.name, version=self.version, file_type=recipes.DatasetType.parquet
+            id=self.id, version=self.version, file_type=recipes.DatasetType.parquet
         )
 
     @property
     def dataset_key(self) -> recipes.DatasetKey:
-        return recipes.DatasetKey(name=self.name, version=self.version)
+        return recipes.DatasetKey(id=self.id, version=self.version)
 
     @property
     def filename(self) -> str:
-        return f"{self.name}.parquet"
+        return f"{self.id}.parquet"
 
     @property
     def raw_dataset_key(self) -> recipes.RawDatasetKey:
-        return recipes.RawDatasetKey(name=self.name, timestamp=self.archival_timestamp)
+        return recipes.RawDatasetKey(id=self.id, timestamp=self.archival_timestamp)
 
     def s3_file_key(self, prefix: str) -> str:
         return self.dataset.s3_file_key(prefix)
