@@ -176,24 +176,17 @@ def upload(
     bucket = configuration.DEV_BUCKET or configuration.PUBLISHING_BUCKET
     build_path = build_key.path
     meta = generate_metadata()
-    if output_path.is_dir():
-        s3.upload_folder(
-            bucket,
-            output_path,
-            Path(build_path),
-            acl,
-            contents_only=True,
-            max_files=max_files,
-            metadata=meta,
-        )
-    else:
-        s3.upload_file(
-            bucket,
-            output_path,
-            f"{build_path}/{output_path.name}",
-            acl,
-            metadata=meta,
-        )
+    if not output_path.is_dir():
+        raise Exception("'upload' expects output_path to be a directory, not a file")
+    s3.upload_folder(
+        bucket,
+        output_path,
+        Path(build_path),
+        acl,
+        contents_only=True,
+        max_files=max_files,
+        metadata=meta,
+    )
 
 
 def legacy_upload(
@@ -207,8 +200,10 @@ def legacy_upload(
     contents_only: bool = False,
     max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
-    """Upload file or folder to publishing, with more flexibility around s3 subpath
-    Currently used only by db-factfinder"""
+    """
+    Upload file or folder to publishing, with more flexibility around s3 subpath
+    Currently used only by db-factfinder
+    """
     bucket = configuration.DEV_BUCKET or configuration.PUBLISHING_BUCKET
     if s3_subpath is None:
         prefix = Path(publishing_folder)

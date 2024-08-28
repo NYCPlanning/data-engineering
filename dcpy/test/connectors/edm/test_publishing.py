@@ -53,6 +53,14 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
     assert publishing.get_version(product_key=build_key) == TEST_VERSION
 
 
+def test_upload_file_fails(create_buckets, create_temp_filesystem, mock_data_constants):
+    data_path = mock_data_constants["TEST_DATA_DIR"] / mock_data_constants["TEST_FILE"]
+    with pytest.raises(
+        Exception, match="'upload' expects output_path to be a directory, not a file"
+    ):
+        publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+
+
 def test_upload_dev(dev_bucket, create_temp_filesystem, mock_data_constants):
     data_path = mock_data_constants["TEST_DATA_DIR"]
 
@@ -61,6 +69,49 @@ def test_upload_dev(dev_bucket, create_temp_filesystem, mock_data_constants):
     assert build_key.build in s3.get_subfolders(
         dev_bucket, f"{build_key.product}/build/"
     )
+
+
+@pytest.mark.parametrize(
+    "latest, contents_only, expected_path, not_expected_paths",
+    [
+        (
+            False,
+            False,
+            "24v2/test_data/file.csv",
+            ["latest/test_data/file.csv", "24v2/file.csv"],
+        ),
+        (True, False, "latest/test_data/file.csv", []),
+        (False, True, "24v2/file.csv", ["24v2/test_data/file.csv"]),
+    ],
+)
+def test_legacy_upload(
+    latest: bool,
+    contents_only: bool,
+    expected_path: str,
+    not_expected_paths: list[str],
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    prefix = "prefix"
+    publishing.legacy_upload(
+        output=data_path,
+        publishing_folder=TEST_PRODUCT_NAME,
+        version=TEST_VERSION,
+        acl=TEST_ACL,
+        s3_subpath=prefix,
+        contents_only=contents_only,
+        latest=latest,
+    )
+    assert s3.exists(
+        configuration.PUBLISHING_BUCKET,
+        f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
+    )
+    for path in not_expected_paths:
+        assert not s3.exists(
+            configuration.PUBLISHING_BUCKET, f"{TEST_PRODUCT_NAME}/{prefix}/{path}"
+        )
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
