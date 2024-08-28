@@ -3,11 +3,11 @@ from pathlib import Path
 import pytest
 from unittest import mock
 
+from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import s3
 from dcpy.connectors import web
-from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import extract
 
 from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
@@ -25,7 +25,7 @@ def setup(source: Source, filename: str, file_system: Path) -> Source:
             source.path = tmp_file
         case GisDataset():
             s3.client().put_object(
-                Bucket=publishing.BUCKET,
+                Bucket=PUBLISHING_BUCKET,
                 Key=f"datasets/{TEST_DATASET_NAME}/{FAKE_VERSION}/{filename}",
             )
         case S3Source():

@@ -3,6 +3,7 @@ from itertools import groupby
 import re
 import streamlit as st
 
+from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.utils import s3
 from dcpy.connectors import github
 from dcpy.connectors.edm import publishing
@@ -26,7 +27,7 @@ geographies = ["citywide", "borough", "puma"]
 def get_active_s3_folders(repo: str, s3_folder: str | None = None):
     default_branch = github.get_default_branch(repo=repo)
     all_branches = github.get_branches(repo=repo, branches_blacklist=[])
-    all_folders = s3.get_subfolders(publishing.BUCKET, (s3_folder or repo))
+    all_folders = s3.get_subfolders(PUBLISHING_BUCKET, (s3_folder or repo))
     folders = sorted(list(set(all_folders).intersection(set(all_branches))))
     folders.remove(default_branch)
     folders = [default_branch] + folders
@@ -39,7 +40,7 @@ def get_demographics_data(branch: str, version: str):
     for category in demographic_categories:
         category_data: dict[str, dict[str, pd.DataFrame]] = {}
         files = s3.get_filenames(
-            publishing.BUCKET, f"{PRODUCT}/{branch}/{version}/{category}"
+            PUBLISHING_BUCKET, f"{PRODUCT}/{branch}/{version}/{category}"
         )
         pattern = r"^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$"
         match_objs = [re.match(pattern, file) for file in files]
