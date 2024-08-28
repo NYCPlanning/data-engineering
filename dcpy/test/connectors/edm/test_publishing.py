@@ -99,7 +99,7 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
     ).label
     bumped_publish_key = publishing.PublishKey(publish_key.product, bumped_version)
     assert set(publishing.get_published_versions(product=draft_key.product)) == set(
-        [TEST_VERSION, bumped_version, "latest"]
+        [TEST_VERSION, bumped_version]
     )
     # tests version in metadata was updated to patched version
     assert publishing.get_version(bumped_publish_key) == bumped_version
