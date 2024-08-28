@@ -107,9 +107,9 @@ def get_imported_df(load_result: LoadResult, ds_id: str) -> pd.DataFrame:
             pg_client = postgres.PostgresClient(schema=load_result.build_name)
             return pg_client.read_table_df(table_name)
         case Path() as file_path:
-            if file_path.suffix == "csv":
-                return pd.read_csv(file_path)
-            elif file_path.suffix == "parquet":
+            if file_path.suffix == ".csv":
+                return pd.read_csv(file_path, dtype=str)
+            elif file_path.suffix == ".parquet":
                 return pd.read_parquet(file_path)
             else:
                 raise Exception(
@@ -129,9 +129,11 @@ def get_imported_filepath(load_result: LoadResult, ds_id: str) -> Path:
         case pd.DataFrame():
             format = "DataFrame"
         case str() as table_name:
-            format = f"Postgres table '{table_name}'"
+            format = f"Postgres table {table_name}"
+        case _:
+            format = "unknown"
     raise Exception(
-        f"Cannot get imported file of dataset {ds_id} because it is of format {format}"
+        f"Cannot get imported file of dataset '{ds_id}' because it is of format '{format}'"
     )
 
 
