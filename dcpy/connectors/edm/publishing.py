@@ -128,6 +128,10 @@ def get_previous_version(
             )
 
 
+def get_filenames(product_key: ProductKey) -> set[str]:
+    return s3.get_filenames(BUCKET, product_key.path)
+
+
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
     """Given product name, gets source data versions of published version"""
     source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
