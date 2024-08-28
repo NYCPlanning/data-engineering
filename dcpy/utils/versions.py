@@ -6,7 +6,6 @@ from dateutil.relativedelta import relativedelta
 from enum import StrEnum
 from functools import total_ordering
 from pydantic import BaseModel
-from typing import TypeVar
 import re
 
 
