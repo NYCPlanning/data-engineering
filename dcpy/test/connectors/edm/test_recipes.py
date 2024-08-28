@@ -4,15 +4,13 @@ import pytest
 from unittest import mock
 import yaml
 
+from dcpy import configuration
 from dcpy.utils import s3, metadata
-from dcpy.models.connectors.edm.recipes import (
-    Dataset,
-    DatasetType,
-)
+from dcpy.models.connectors.edm.recipes import DatasetType
 from dcpy.connectors.edm import recipes
 from dcpy.models import library, file
 from dcpy.models.lifecycle import ingest
-from dcpy.library.archive import Archive
+from dcpy.library import archive
 from dcpy.lifecycle.ingest import run, configure
 from dcpy.lifecycle.ingest.configure import read_template
 
@@ -22,7 +20,6 @@ TEST_METADATA = library.ArchivalMetadata(
 )
 INGEST_TEMPLATE = "ingest.yml"
 INGEST_VERSION = "ingest_version"
-INGEST_DATASETS_FOLDER = "ingest_datasets"
 PARQUET_FILEPATH = (
     f"{recipes.DATASET_FOLDER}/{TEST_DATASET}/parquet/{TEST_DATASET}.parquet"
 )
@@ -31,7 +28,7 @@ RESOURCE_DIR = Path(__file__).parent / "resources"
 
 
 def library_archive(output_format: str, version: str) -> library.Config:
-    a = Archive()
+    a = archive.Archive()
     return a(
         path=str(RESOURCE_DIR / "library.yml"),
         output_format=output_format,
@@ -100,7 +97,7 @@ class TestArchiveDataset:
         tmp_file.touch()
         recipes.archive_raw_dataset(self.config, tmp_file)
         assert s3.exists(
-            recipes.PROD_BUCKET,
+            configuration.RECIPES_BUCKET,
             str(self.config.raw_s3_key(recipes.RAW_FOLDER)),
         )
 
@@ -109,9 +106,9 @@ class TestArchiveDataset:
         tmp_parquet.touch()
         recipes.archive_dataset(self.config, tmp_parquet)
         assert s3.exists(
-            recipes.PROD_BUCKET,
+            configuration.RECIPES_BUCKET,
             str(
-                self.config.s3_file_key(INGEST_DATASETS_FOLDER)
+                self.config.s3_file_key(recipes.DATASET_FOLDER)
             ),  ## TODO don't want to point the code at our "production" folder at the moment
         )
 
@@ -120,8 +117,8 @@ class TestArchiveDataset:
         tmp_parquet.touch()
         recipes.archive_dataset(self.config, tmp_parquet, latest=True)
         assert s3.exists(
-            recipes.PROD_BUCKET,
-            f"{INGEST_DATASETS_FOLDER}/{self.dataset}/latest/{self.config.filename}",
+            configuration.RECIPES_BUCKET,
+            f"{recipes.DATASET_FOLDER}/{self.dataset}/latest/{self.config.filename}",
         )
 
 
@@ -162,9 +159,7 @@ def test_get_library_config(load_library_parquet: library.Config):
 
 
 def test_get_ingest_config(load_ingest: library.Config):
-    config = recipes.get_config(
-        TEST_DATASET, load_ingest.version, INGEST_DATASETS_FOLDER
-    )
+    config = recipes.get_config(TEST_DATASET, load_ingest.version)
     assert config == load_ingest
 
 
@@ -242,3 +237,45 @@ def test_read_df_cache(load_library_all, create_temp_filesystem: Path):
         local_cache_dir=create_temp_filesystem,
     )
     assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+
+class TestDevBuckets:
+    def test_setup(self, dev_bucket):
+        assert configuration.DEV_FLAG, "DEV_FLAG not properly set in setup fixture"
+        assert (
+            configuration.DEV_BUCKET
+        ), "DEV_BUCKET not properly set despite presence of DEV_FLAG in os.environ"
+        assert configuration.BUILD_NAME, "BUILD_NAME not properly set"
+        assert (
+            configuration.BUILD_NAME in configuration.DEV_BUCKET
+        ), "DEV_BUCKET name did not incorporate test BUILD_NAME"
+
+    def test_dev_dataset_exists_fake_dataset(self):
+        assert not recipes._dev_dataset_exists("fake_dataset")
+
+    def test_fetch_prod_dataset(
+        self,
+        load_library_parquet: library.Config,
+        create_temp_filesystem: Path,
+        dev_bucket,
+    ):
+        assert not recipes._dev_dataset_exists(load_library_parquet.dataset.name)
+        ds = load_library_parquet.sparse_dataset
+        ds.file_type = DatasetType.parquet
+        recipes.fetch_dataset(ds, create_temp_filesystem)
+        assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+    def test_fetch_dev_dataset(self, create_temp_filesystem: Path, dev_bucket):
+        config = TestArchiveDataset.config
+        tmp_parquet = create_temp_filesystem / config.filename
+        tmp_parquet.touch()
+        recipes.archive_dataset(config, tmp_parquet)
+        assert recipes._dev_dataset_exists(config.name, config.version)
+        recipes.fetch_dataset(config.dataset, create_temp_filesystem)
+        assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+    def test_log_metadata(self, dev_bucket):
+        with mock.patch("dcpy.utils.postgres.PostgresClient") as pg_client:
+            recipes.log_metadata(None)
+            # when dev_flag present, returns without invoking anything
+            pg_client.assert_not_called()

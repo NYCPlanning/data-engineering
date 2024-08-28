@@ -5,6 +5,8 @@ from pathlib import Path
 import pprint
 from rich.traceback import install
 
+from dcpy import configuration
+
 # Use rich to handle exceptions
 install()
 
@@ -19,8 +21,7 @@ gdal.SetConfigOption("PG_USE_COPY", "YES")
 gdal.SetConfigOption("CPL_LOG", "/dev/null")
 gdal.UseExceptions()
 
-# gdal configure aws s3 connection info
-aws_s3_bucket = "edm-recipes"
+aws_s3_bucket = configuration.DEV_BUCKET or configuration.RECIPES_BUCKET
 
 gdal.SetConfigOption(
     "AWS_S3_ENDPOINT", os.environ["AWS_S3_ENDPOINT"].replace("https://", "")

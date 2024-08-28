@@ -1,21 +1,19 @@
-import os
-from pathlib import Path
-from urllib.parse import urlencode, urljoin
-import pandas as pd
-import geopandas as gpd
+from botocore.exceptions import ClientError
 from datetime import datetime
+import geopandas as gpd
+from io import BytesIO
+import json
+import pandas as pd
+from pathlib import Path
 import pytz
 import re
-from io import BytesIO
-from zipfile import ZipFile
 import typer
 from typing import Callable, TypeVar
+from urllib.parse import urlencode, urljoin
 import yaml
-import json
+from zipfile import ZipFile
 
-from dcpy.utils import s3, git, versions
-from dcpy.utils.logging import logger
-
+from dcpy import configuration
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
@@ -23,17 +21,18 @@ from dcpy.models.connectors.edm.publishing import (
     BuildKey,
 )
 from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.utils import s3, git, versions
+from dcpy.utils.logging import logger
 
-from botocore.exceptions import ClientError
 
-BUCKET = "edm-publishing"
-BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
+BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{configuration.PUBLISHING_BUCKET}"
 
 
 def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     """Retrieve a product build metadata from s3."""
     obj = s3.client().get_object(
-        Bucket=BUCKET, Key=f"{product_key.path}/build_metadata.json"
+        Bucket=configuration.PUBLISHING_BUCKET,
+        Key=f"{product_key.path}/build_metadata.json",
     )
     file_content = str(obj["Body"].read(), "utf-8")
     return BuildMetadata(**yaml.safe_load(file_content))
@@ -55,7 +54,9 @@ def get_latest_version(product: str) -> str | None:
 
 
 def get_published_versions(product: str, exclude_latest: bool = True) -> list[str]:
-    all_versions = s3.get_subfolders(BUCKET, f"{product}/publish/")
+    all_versions = s3.get_subfolders(
+        configuration.PUBLISHING_BUCKET, f"{product}/publish/"
+    )
     output = (
         [v for v in all_versions if v != "latest"] if exclude_latest else all_versions
     )
@@ -63,12 +64,18 @@ def get_published_versions(product: str, exclude_latest: bool = True) -> list[st
 
 
 def get_draft_versions(product: str) -> list[str]:
-    return sorted(s3.get_subfolders(BUCKET, f"{product}/draft/"), reverse=True)
+    return sorted(
+        s3.get_subfolders(configuration.PUBLISHING_BUCKET, f"{product}/draft/"),
+        reverse=True,
+    )
 
 
 def get_draft_version_revisions(product: str, version: str) -> list[str]:
     return sorted(
-        s3.get_subfolders(BUCKET, f"{product}/draft/{version}/"), reverse=True
+        s3.get_subfolders(
+            configuration.PUBLISHING_BUCKET, f"{product}/draft/{version}/"
+        ),
+        reverse=True,
     )
 
 
@@ -90,7 +97,10 @@ def get_draft_revision_label(product: str, version: str, revision_num: int) -> s
 
 
 def get_builds(product: str) -> list[str]:
-    return sorted(s3.get_subfolders(BUCKET, f"{product}/build/"), reverse=True)
+    return sorted(
+        s3.get_subfolders(configuration.PUBLISHING_BUCKET, f"{product}/build/"),
+        reverse=True,
+    )
 
 
 def get_previous_version(
@@ -150,7 +160,7 @@ def generate_metadata() -> dict[str, str]:
         "date_created": datetime.now(pytz.timezone("America/New_York")).isoformat()
     }
     metadata["commit"] = git.commit_hash()
-    if os.environ.get("CI"):
+    if configuration.CI:
         metadata["run_url"] = git.action_url()
     return metadata
 
@@ -163,11 +173,12 @@ def upload(
     max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
     """Upload build output(s) to build folder in edm-publishing"""
+    bucket = configuration.DEV_BUCKET or configuration.PUBLISHING_BUCKET
     build_path = build_key.path
     meta = generate_metadata()
     if output_path.is_dir():
         s3.upload_folder(
-            BUCKET,
+            bucket,
             output_path,
             Path(build_path),
             acl,
@@ -177,7 +188,7 @@ def upload(
         )
     else:
         s3.upload_file(
-            BUCKET,
+            bucket,
             output_path,
             f"{build_path}/{output_path.name}",
             acl,
@@ -198,6 +209,7 @@ def legacy_upload(
 ) -> None:
     """Upload file or folder to publishing, with more flexibility around s3 subpath
     Currently used only by db-factfinder"""
+    bucket = configuration.DEV_BUCKET or configuration.PUBLISHING_BUCKET
     if s3_subpath is None:
         prefix = Path(publishing_folder)
     else:
@@ -206,7 +218,7 @@ def legacy_upload(
     meta = generate_metadata()
     if output.is_dir():
         s3.upload_folder(
-            BUCKET,
+            bucket,
             output,
             key,
             acl,
@@ -217,7 +229,7 @@ def legacy_upload(
         if latest:
             ## much faster than uploading again
             s3.copy_folder(
-                BUCKET,
+                bucket,
                 str(key) + "/",
                 str(prefix / "latest"),
                 acl,
@@ -227,7 +239,7 @@ def legacy_upload(
         s3.upload_file("edm-publishing", output, str(key), "public-read", metadata=meta)
         if latest:
             ## much faster than uploading again
-            s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
+            s3.copy_file(bucket, str(key), str(prefix / "latest" / output.name), acl)
 
 
 def promote_to_draft(
@@ -257,11 +269,13 @@ def promote_to_draft(
     # promote from build to draft
     source = build_key.path + "/"
     target = f"{build_key.product}/draft/{version}/{draft_revision_label}/"
-    s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+    s3.copy_folder(
+        configuration.PUBLISHING_BUCKET, source, target, acl, max_files=max_files
+    )
 
     # upload updated metadata file
     s3.upload_file(
-        BUCKET,
+        configuration.PUBLISHING_BUCKET,
         build_metadata_path,
         f"{target}{build_metadata_path.name}",
         acl,
@@ -272,7 +286,7 @@ def promote_to_draft(
     )
 
     if not keep_build:
-        s3.delete(BUCKET, source)
+        s3.delete(configuration.PUBLISHING_BUCKET, source)
 
 
 def validate_or_patch_version(
@@ -335,12 +349,14 @@ def publish(
 
     source = draft_key.path + "/"
     target = f"{draft_key.product}/publish/{new_version}/"
-    s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
+    s3.copy_folder(
+        configuration.PUBLISHING_BUCKET, source, target, acl, max_files=max_files
+    )
 
     # upload metadata if version was patched
     if build_metadata:
         s3.upload_file(
-            BUCKET,
+            configuration.PUBLISHING_BUCKET,
             build_metadata_path,
             f"{target}{build_metadata_path.name}",
             acl,
@@ -360,7 +376,7 @@ def publish(
 
         if after_latest_version or latest_version is None:
             s3.copy_folder(
-                BUCKET,
+                configuration.PUBLISHING_BUCKET,
                 source,
                 f"{draft_key.product}/publish/latest/",
                 acl,
@@ -368,7 +384,7 @@ def publish(
             )
             if build_metadata:
                 s3.upload_file(
-                    BUCKET,
+                    configuration.PUBLISHING_BUCKET,
                     build_metadata_path,
                     f"{draft_key.product}/publish/latest/{build_metadata_path.name}",
                     acl,
@@ -396,9 +412,9 @@ def download_published_version(
     published_versions = get_published_versions(product=publish_key.product)
     assert (
         publish_key.version in published_versions
-    ), f"{publish_key} not found in S3 bucket '{BUCKET}'. Published versions are {published_versions}"
+    ), f"{publish_key} not found in S3 bucket '{configuration.PUBLISHING_BUCKET}'. Published versions are {published_versions}"
     s3.download_folder(
-        BUCKET,
+        configuration.PUBLISHING_BUCKET,
         f"{publish_key.path}/",
         output_dir,
         include_prefix_in_export=include_prefix_in_export,
@@ -407,19 +423,23 @@ def download_published_version(
 
 def file_exists(product_key: ProductKey, filepath: str) -> bool:
     """Returns true if given file exists within outputs for given product key"""
-    return s3.exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
+    return s3.exists(
+        bucket=configuration.PUBLISHING_BUCKET, key=f"{product_key.path}/{filepath}"
+    )
 
 
 def get_file(product_key: ProductKey, filepath: str) -> BytesIO:
     """Returns file as BytesIO given product key and path within output folder"""
-    return s3.get_file_as_stream(BUCKET, f"{product_key.path}/{filepath}")
+    return s3.get_file_as_stream(
+        configuration.PUBLISHING_BUCKET, f"{product_key.path}/{filepath}"
+    )
 
 
 T = TypeVar("T")
 
 
 def _read_data_helper(path: str, filereader: Callable[[BytesIO], T], **kwargs) -> T:
-    with s3.get_file_as_stream(BUCKET, path) as stream:
+    with s3.get_file_as_stream(configuration.PUBLISHING_BUCKET, path) as stream:
         data = filereader(stream, **kwargs)
     return data
 
@@ -447,7 +467,9 @@ def read_csv_legacy(
     version -- a specific version of a product
     filepath -- the filepath of the desired csv in the output folder
     """
-    with s3.get_file_as_stream(BUCKET, f"{product}/{version}/{filepath}") as stream:
+    with s3.get_file_as_stream(
+        configuration.PUBLISHING_BUCKET, f"{product}/{version}/{filepath}"
+    ) as stream:
         df = pd.read_csv(stream, **kwargs)
     return df
 
@@ -469,7 +491,9 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
-    stream = s3.get_file_as_stream(BUCKET, f"{product_key.path}/{filepath}")
+    stream = s3.get_file_as_stream(
+        configuration.PUBLISHING_BUCKET, f"{product_key.path}/{filepath}"
+    )
     zip = ZipFile(stream)
     return zip
 
@@ -479,7 +503,11 @@ def download_file(
 ) -> Path:
     output_dir = output_dir or Path(".")
     output_filepath = output_dir / Path(filepath).name
-    s3.download_file(BUCKET, f"{product_key.path}/{filepath}", output_filepath)
+    s3.download_file(
+        configuration.PUBLISHING_BUCKET,
+        f"{product_key.path}/{filepath}",
+        output_filepath,
+    )
     return output_filepath
 
 
@@ -495,13 +523,15 @@ def publish_add_created_date(
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     if version is None:
-        with s3.get_file(BUCKET, f"{source}version.txt") as f:
+        with s3.get_file(configuration.PUBLISHING_BUCKET, f"{source}version.txt") as f:
             version = str(f.read())
     print(version)
-    old_metadata = s3.get_metadata(BUCKET, f"{source}{file_for_creation_date}")
+    old_metadata = s3.get_metadata(
+        configuration.PUBLISHING_BUCKET, f"{source}{file_for_creation_date}"
+    )
     target = f"{product}/publish/{version}/"
     s3.copy_folder(
-        BUCKET,
+        configuration.PUBLISHING_BUCKET,
         source,
         target,
         acl,
@@ -529,10 +559,16 @@ def _gis_dataset_path(name: str, version: str) -> str:
 
 def _assert_gis_dataset_exists(name: str, version: str):
     version = version.upper()
-    if not s3.exists(BUCKET, _gis_dataset_path(name, version)):
+    if not s3.exists(configuration.PUBLISHING_BUCKET, _gis_dataset_path(name, version)):
         print(_gis_dataset_path(name, version))
-        print(s3.list_objects(BUCKET, _gis_dataset_path(name, version)))
-        print(s3.exists(BUCKET, _gis_dataset_path(name, version)))
+        print(
+            s3.list_objects(
+                configuration.PUBLISHING_BUCKET, _gis_dataset_path(name, version)
+            )
+        )
+        print(
+            s3.exists(configuration.PUBLISHING_BUCKET, _gis_dataset_path(name, version))
+        )
         raise FileNotFoundError(f"GIS dataset {name} has no version {version}")
 
 
@@ -544,7 +580,9 @@ def get_latest_gis_dataset_version(dataset_name: str) -> str:
     gis_version_formats = [r"^\d{2}[A-Z]$", r"^\d{8}$"]
     subfolders = []
     matched_formats = set()
-    for f in s3.get_subfolders(BUCKET, f"datasets/{dataset_name}"):
+    for f in s3.get_subfolders(
+        configuration.PUBLISHING_BUCKET, f"datasets/{dataset_name}"
+    ):
         for p in gis_version_formats:
             if re.match(p, f):
                 subfolders.append(f)
@@ -570,7 +608,11 @@ def download_gis_dataset(dataset_name: str, version: str, target_folder: Path):
     assert target_folder.is_dir(), f"Target folder '{target_folder}' is not a directory"
     _assert_gis_dataset_exists(dataset_name, version)
     file_path = target_folder / f"{dataset_name}.zip"  ## we assume all gis datasets are
-    s3.download_file(BUCKET, _gis_dataset_path(dataset_name, version), file_path)
+    s3.download_file(
+        configuration.PUBLISHING_BUCKET,
+        _gis_dataset_path(dataset_name, version),
+        file_path,
+    )
     return file_path
 
 
@@ -597,7 +639,7 @@ def _cli_wrapper_upload(
     acl_literal = s3.string_as_acl(acl)
     if not output_path.exists():
         raise FileNotFoundError(f"Path {output_path} does not exist")
-    build_name = build or os.environ["BUILD_NAME"]
+    build_name = build or configuration.BUILD_NAME
     if not build_name:
         raise ValueError(
             f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."

@@ -1,10 +1,10 @@
-from botocore.exceptions import ClientError
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
 import pytest
 from unittest.mock import patch
 
+from dcpy import configuration
 from dcpy.utils import s3, versions
 from dcpy.connectors.edm import publishing
 
@@ -13,7 +13,7 @@ TEST_BUILD = "build-branch"
 TEST_VERSION_OBJ = versions.MajorMinor(year=24, major=2)  # matches conftest.py
 TEST_VERSION = TEST_VERSION_OBJ.label
 TEST_ACL = "bucket-owner-read"
-TEST_BUCKET_NAME = "edm-publishing"
+TEST_BUCKET_NAME = configuration.PUBLISHING_BUCKET
 TEST_GIS_DATASET = "test_gis_dataset"
 DATE_CONSTANT = "20240101"
 DATE_TODAY = datetime.now().strftime("%Y%m%d")
@@ -30,7 +30,7 @@ def add_gis_datasets(create_buckets):
         f"datasets/{TEST_GIS_DATASET}/{DATE_CONSTANT}/{TEST_GIS_DATASET}.zip",
     ]
     for object in test_objects:
-        s3.client().put_object(Bucket=publishing.BUCKET, Key=object)
+        s3.client().put_object(Bucket=TEST_BUCKET_NAME, Key=object)
     yield
 
 
@@ -51,6 +51,16 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
     publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
     assert TEST_BUILD in publishing.get_builds(product=TEST_PRODUCT_NAME)
     assert publishing.get_version(product_key=build_key) == TEST_VERSION
+
+
+def test_upload_dev(dev_bucket, create_temp_filesystem, mock_data_constants):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    assert TEST_BUILD not in publishing.get_builds(product=TEST_PRODUCT_NAME)
+    assert build_key.build in s3.get_subfolders(
+        dev_bucket, f"{build_key.product}/build/"
+    )
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
@@ -209,7 +219,7 @@ def mock_versions_data():
     for product in versions_by_product:
         for version in versions_by_product[product]:
             s3.client().put_object(
-                Bucket=publishing.BUCKET, Key=f"{product}/publish/{version}/dummy.txt"
+                Bucket=TEST_BUCKET_NAME, Key=f"{product}/publish/{version}/dummy.txt"
             )
 
 
@@ -254,7 +264,7 @@ def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
     assert DATE_TODAY == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
 
     s3.client().put_object(
-        Bucket=publishing.BUCKET,
+        Bucket=TEST_BUCKET_NAME,
         Key=f"datasets/{TEST_GIS_DATASET}/24A/{TEST_GIS_DATASET}.zip",
     )
     with pytest.raises(ValueError, match="Multiple"):
