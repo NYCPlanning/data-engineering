@@ -1,0 +1,159 @@
+id: dcp_template_db
+
+attributes:
+  description: |-
+    Template DB is a mock dataset created by the Data Engineering team at the Department of City Planning (DCP).
+
+    More details are available at the DCP Data Engineering wiki [here](https://github.com/NYCPlanning/data-engineering/wiki/).
+  display_name: Template DB
+  each_row_is_a: Interesting place in NYC
+  tags:
+  - Department of City Planning
+  - DCP
+  - New York City
+  - NYC
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_shapefile
+  type: socrata
+  files:
+  - id: source_data_versions.csv
+    custom:
+      destination_use: attachment
+  - id: primary_shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: the_geom
+        name: the_geom_socrata_overridden_display
+        custom:
+          api_name: the_geom_socrata
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: b7pm-uzu7
+- id: socrata_csv
+  type: socrata
+  files:
+  - id: source_data_versions.csv
+    custom:
+      destination_use: attachment
+  - id: primary_csv
+    dataset_overrides:
+      overridden_columns:
+      - id: the_geom
+        custom:
+          api_name: the_geom_socrata
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: b7pm-uzu7
+
+files:
+- file:
+    id: primary_csv
+    filename: test.csv
+    type: csv
+- file:
+    id: primary_shapefile
+    filename: test.shp.zip
+    type: shapefile
+  dataset_overrides:
+    omitted_columns:
+    - omit_me_from_shapefile
+    overridden_columns:
+    - id: wkb_geometry
+      name: the_geom
+- file:
+    id: source_data_versions.csv
+    filename: source_data_versions.csv
+    is_metadata: true
+    type: None
+- file:
+    id: build_metadata.json
+    filename: build_metadata.json
+    is_metadata: true
+    type: None
+
+columns:
+- id: my_uid
+  name: UID
+  data_type: text
+  description: The ID
+  example: None
+- id: borough
+  name: BOROUGH
+  data_type: integer
+  description: The borough
+  example: None
+- id: block
+  name: Block
+  data_type: integer
+  description: The Block
+  example: None
+- id: lot
+  name: Lot
+  data_type: integer
+  description: The Lot
+  example: None
+- id: bbl
+  name: BBL
+  data_type: bbl
+  description: The BBL
+  checks:
+    non_nullable: true
+  example: None
+- id: wkb_geometry
+  name: Geometry
+  data_type: geometry
+  description: The Geom
+  example: None
+- id: lat
+  name: Longitude
+  data_type: decimal
+  description: Latitude
+  checks:
+    non_nullable: true
+  example: None
+- id: long
+  name: Longitude
+  data_type: decimal
+  description: Longitude
+  checks:
+    non_nullable: true
+  example: None
+- id: omit_me_from_shapefile
+  name: nope
+  data_type: geometry
+  description: I shouldn't show up in the Shapefile
+  example: None
+- id: non_nullable_ownership
+  name: Owner type
+  data_type: text
+  description: Type of owner
+  checks:
+    non_nullable: true
+  example: None
+  values:
+  - value: C
+    description: City owned
+  - value: M
+    description: Mixed ownership
+- id: nullable_ownership
+  name: Owner type
+  data_type: text
+  description: Type of owner
+  example: None
+  values:
+  - value: C
+    description: City owned
+  - value: M
+    description: Mixed ownership
+- id: nullable_text
+  name: nullable text field
+  data_type: text
+  description: This is explicitly nullable
+  example: None
