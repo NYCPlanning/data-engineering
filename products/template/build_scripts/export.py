@@ -5,7 +5,7 @@ from dcpy.lifecycle.package import oti_xlsx
 from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils.logging import logger
 
-from . import PRODUCT_PATH, OUTPUT_DIR, PRODUCT_S3_NAME, BUILD_NAME, PG_CLIENT
+from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
 
 METADATA_FILES = [
     "source_data_versions.csv",
@@ -84,18 +84,7 @@ def export():
                 )
 
 
-def upload():
-    logger.info(
-        f"Uploading exported files\n\tfrom {OUTPUT_DIR}\n\tto S3 at {publishing.BUCKET}/{PRODUCT_S3_NAME}/build/{BUILD_NAME}"
-    )
-    publishing.upload(
-        OUTPUT_DIR,
-        publishing.BuildKey(PRODUCT_S3_NAME, BUILD_NAME),
-        acl="public-read",
-    )
-
-
 if __name__ == "__main__":
     generate_metadata()
     export()
-    upload()
+    publishing.upload(OUTPUT_DIR, BUILD_KEY, acl="public-read")

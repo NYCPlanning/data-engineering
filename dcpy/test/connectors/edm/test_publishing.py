@@ -71,6 +71,16 @@ def test_upload_dev(dev_bucket, create_temp_filesystem, mock_data_constants):
     )
 
 
+def test_get_filenames(create_buckets, create_temp_filesystem, mock_data_constants):
+    """Checks build directory is found in s3 "build" directory.
+    Tests version from version.txt file matches actual version."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    expected_filenames = {"file.csv", "version.txt", "build_metadata.json"}
+    assert publishing.get_filenames(build_key) == expected_filenames
+
+
 @pytest.mark.parametrize(
     "latest, contents_only, expected_path, not_expected_paths",
     [
@@ -99,7 +109,7 @@ def test_legacy_upload(
         output=data_path,
         publishing_folder=TEST_PRODUCT_NAME,
         version=TEST_VERSION,
-        acl=TEST_ACL,
+        acl=TEST_ACL,  # type: ignore
         s3_subpath=prefix,
         contents_only=contents_only,
         latest=latest,

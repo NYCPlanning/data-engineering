@@ -136,6 +136,10 @@ def get_previous_version(
             )
 
 
+def get_filenames(product_key: ProductKey) -> set[str]:
+    return s3.get_filenames(configuration.PUBLISHING_BUCKET, product_key.path)
+
+
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
     """Given product name, gets source data versions of published version"""
     source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
@@ -174,14 +178,13 @@ def upload(
 ) -> None:
     """Upload build output(s) to build folder in edm-publishing"""
     bucket = configuration.DEV_BUCKET or configuration.PUBLISHING_BUCKET
-    build_path = build_key.path
     meta = generate_metadata()
     if not output_path.is_dir():
         raise Exception("'upload' expects output_path to be a directory, not a file")
     s3.upload_folder(
         bucket,
         output_path,
-        Path(build_path),
+        Path(build_key.path),
         acl,
         contents_only=True,
         max_files=max_files,
