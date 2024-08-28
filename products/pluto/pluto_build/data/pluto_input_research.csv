@@ -27397,3 +27397,4 @@ bbl,field,old_value,new_value,Type,reason,version
 3007987501,unitstotal,101,51,2,PTS error - units,24v3
 2033307501,unitsres,59,118,2,PTS error - units,24v3
 2033307501,unitstotal,60,119,2,PTS error - units,24v3
+4142600001,bct2020,4066401,4071600,2,Geosupport error - CensusTract,24v3
