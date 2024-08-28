@@ -135,6 +135,20 @@ class TestVersions(TestCase):
         ]:
             self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)
 
+    def test_group_versions_by_base(self):
+        for version, versions_list, expected_output in [
+            [
+                "24v3",
+                ["24v3.0.2", "24v3", "24v3.0.1", "24v3.1", "24Q1"],
+                ["24v3", "24v3.0.1", "24v3.0.2"],
+            ],
+            ["24v4", ["24v3", "24v3.0.1", "24v3.1", "24Q1", "24v4"], ["24v4"]],
+            ["24v3", ["23v2"], []],
+        ]:
+            self.assertEqual(
+                expected_output, versions.group_versions_by_base(version, versions_list)
+            )
+
     def test_parse_draft_version_valid_versions(self):
         for draft_version, expected_draft_num, expected_draft_summary in [
             ["1-start", 1, "start"],
