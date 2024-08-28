@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 from pathlib import Path
 import pytest
+from unittest.mock import patch
 
 from dcpy.utils import s3, versions
 from dcpy.connectors.edm import publishing
@@ -98,7 +99,7 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
     ).label
     bumped_publish_key = publishing.PublishKey(publish_key.product, bumped_version)
     assert set(publishing.get_published_versions(product=draft_key.product)) == set(
-        [TEST_VERSION, bumped_version, "latest"]
+        [TEST_VERSION, bumped_version]
     )
     # tests version in metadata was updated to patched version
     assert publishing.get_version(bumped_publish_key) == bumped_version
@@ -406,3 +407,44 @@ def test_promote_to_draft_revison_versioning(
         "2-correct-zoning",
         "1",
     ]
+
+
+@patch("dcpy.connectors.edm.publishing.get_published_versions")
+def test_validate_or_patch_version_patch_version(get_published_versions):
+    get_published_versions.return_value = [
+        "24v3",
+        "24v3.0.1",
+        "23v3",
+        "24v3.1",
+        "24v3.1.1",
+    ]
+    version_to_patch = "24v3"
+    assert (
+        publishing.validate_or_patch_version(
+            product=TEST_PRODUCT_NAME,
+            version=version_to_patch,
+            is_patch=True,
+        )
+        == "24v3.0.2"
+    )
+
+
+@patch("dcpy.connectors.edm.publishing.get_published_versions")
+def test_validate_or_patch_version_version_already_exists(get_published_versions):
+    get_published_versions.return_value = [
+        "24v3",
+        "24v3.0.1",
+        "23v3",
+        "24v3.1",
+        "24v3.1.1",
+    ]
+    version_to_patch = "24v3"
+    with pytest.raises(
+        ValueError,
+        match="already exists in published",
+    ):
+        publishing.validate_or_patch_version(
+            product=TEST_PRODUCT_NAME,
+            version=version_to_patch,
+            is_patch=False,
+        )
