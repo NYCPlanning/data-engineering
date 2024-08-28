@@ -139,7 +139,7 @@ class TestVersions(TestCase):
         for version, versions_list, expected_output in [
             [
                 "24v3",
-                ["24v3.0.2", "24v3", "24v3.0.1", "24v3.1", "24Q1", "latest"],
+                ["24v3.0.2", "24v3", "24v3.0.1", "24v3.1", "24Q1"],
                 ["24v3", "24v3.0.1", "24v3.0.2"],
             ],
             ["24v4", ["24v3", "24v3.0.1", "24v3.1", "24Q1", "24v4"], ["24v4"]],

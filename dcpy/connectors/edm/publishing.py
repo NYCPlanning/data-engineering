@@ -54,8 +54,12 @@ def get_latest_version(product: str) -> str | None:
         return None
 
 
-def get_published_versions(product: str) -> list[str]:
-    return sorted(s3.get_subfolders(BUCKET, f"{product}/publish/"), reverse=True)
+def get_published_versions(product: str, exclude_latest: bool = True) -> list[str]:
+    all_versions = s3.get_subfolders(BUCKET, f"{product}/publish/")
+    output = (
+        [v for v in all_versions if v != "latest"] if exclude_latest else all_versions
+    )
+    return sorted(output, reverse=True)
 
 
 def get_draft_versions(product: str) -> list[str]:
@@ -100,9 +104,7 @@ def get_previous_version(
 
     published_version_strings = get_published_versions(product)
     logger.info(f"Published versions of {product}: {published_version_strings}")
-    published_versions = [
-        versions.parse(v) for v in published_version_strings if v != "latest"
-    ]
+    published_versions = [versions.parse(v) for v in published_version_strings]
     published_versions.sort()
     if len(published_versions) == 0:
         raise LookupError(f"No published versions found for {product}")
@@ -295,9 +297,7 @@ def validate_or_patch_version(
                 bump_type=versions.VersionSubType.patch,
                 bump_by=1,
             ).label
-            assert patched_version not in get_published_versions(
-                product=product
-            )  # sanity check
+            assert patched_version not in published_versions  # sanity check
             return patched_version
         else:
             raise ValueError(

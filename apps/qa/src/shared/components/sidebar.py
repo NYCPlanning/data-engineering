@@ -43,7 +43,9 @@ def data_selection(
                     )
         case "Published":
             label = "Select a version"
-            options = publishing.get_published_versions(product)
+            options = publishing.get_published_versions(
+                product=product, exclude_latest=False
+            )
             select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
             if select:
                 return publishing.PublishKey(product, select)

@@ -271,9 +271,8 @@ def group_versions_by_base(version: str, versions_list: list[str]) -> list[str]:
     ```
     """
     parsed_version = parse(version)
-    version_list_wo_latest = [v for v in versions_list if v != "latest"]
     same_version_type_lst = [
-        v for v in version_list_wo_latest if isinstance(parse(v), type(parsed_version))
+        v for v in versions_list if isinstance(parse(v), type(parsed_version))
     ]
 
     def is_matching_version(base_version: Version, compare_version: Version) -> bool:
