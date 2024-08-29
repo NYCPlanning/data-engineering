@@ -63,7 +63,7 @@ case $1 in
     analysis ) ./bash/04_analysis.sh ;;
     export ) ./bash/05_export.sh ;;
     archive ) cpdb_archive $@ ;;
-    upload ) python3 -m dcpy.connectors.edm.publishing upload -p db-cpdb -a private ;;
+    upload ) python3 -m dcpy.connectors.edm.publishing upload -p db-cpdb -a private --max_files 200;;
     share ) share $@ ;;
     sql) sql $@;;
     build)
@@ -72,5 +72,5 @@ case $1 in
         ./bash/03_adminbounds.sh
         ./bash/04_analysis.sh
         ./bash/05_export.sh
-        python3 -m dcpy.connectors.edm.publishing upload -p db-cpdb -a private
+        python3 -m dcpy.connectors.edm.publishing upload -p db-cpdb -a private --max_files 200
 esac
