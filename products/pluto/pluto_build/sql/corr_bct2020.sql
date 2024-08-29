@@ -1,5 +1,3 @@
--- Take the year built from researched lpc_historic_districts table
-
 INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
