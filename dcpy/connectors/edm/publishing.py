@@ -590,6 +590,9 @@ def _cli_wrapper_upload(
     ),
     build: str = typer.Option(None, "-b", "--build", help="Label of build"),
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    max_files: int = typer.Option(
+        s3.MAX_FILE_COUNT, "--max_files", help="Max number of files to upload"
+    ),
 ):
     acl_literal = s3.string_as_acl(acl)
     if not output_path.exists():
@@ -602,7 +605,12 @@ def _cli_wrapper_upload(
     logger.info(
         f'Uploading {output_path} to {product}/build/{build_name} with ACL "{acl}"'
     )
-    upload(output_path, BuildKey(product, build_name), acl=acl_literal)
+    upload(
+        output_path,
+        BuildKey(product, build_name),
+        acl=acl_literal,
+        max_files=max_files,
+    )
 
 
 @app.command("publish")
