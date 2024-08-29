@@ -2,26 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Metadata</title>
+    <title>{{ metadata.attributes.display_name }}</title>
 </head>
 
 <body>
-    <h1>{{ metadata.attributes.display_name }}</h1>
-
-    <h2><strong>Description:</strong> </h2>
+    <h1>Data Dictionary</h1>
+    <h2><strong>Description</strong> </h2>
     <p>{{ metadata.attributes.description }}</p>
 
-    <h2><strong>Tags:</strong></h2>
+    <h2><strong>Tags</strong></h2>
     <ul>
         {% for tag in metadata.attributes.tags %}
         <li>{{ tag }}</li>
         {% endfor %}
     </ul>
 
-    <h2><strong>Each row is a: </strong> </h2>
+    <h2><strong>Each row is a</strong> </h2>
     <p>{{ metadata.attributes.each_row_is_a }}</p>
 
-        <h2><strong>Columns:</strong> </h2>
+        <h2><strong>Columns</strong> </h2>
     <ul>
         {% for col in metadata.columns %}
         <li>
