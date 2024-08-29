@@ -6,20 +6,20 @@
 </head>
 
 <body>
-    <h1>{{ metadata.display_name }}</h1>
+    <h1>{{ metadata.attributes.display_name }}</h1>
 
     <h2><strong>Description:</strong> </h2>
-    <p>{{ metadata.description }}</p>
+    <p>{{ metadata.attributes.description }}</p>
 
     <h2><strong>Tags:</strong></h2>
     <ul>
-        {% for tag in metadata.tags %}
+        {% for tag in metadata.attributes.tags %}
         <li>{{ tag }}</li>
         {% endfor %}
     </ul>
 
     <h2><strong>Each row is a: </strong> </h2>
-    <p>{{ metadata.each_row_is_a }}</p>
+    <p>{{ metadata.attributes.each_row_is_a }}</p>
 
         <h2><strong>Columns:</strong> </h2>
     <ul>
