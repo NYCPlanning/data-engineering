@@ -350,7 +350,7 @@ def copy_folder(
         logger.info(
             f"Deleting any existing files in {target_bucket_}/{target} from bucket "
         )
-        delete(bucket, target)
+        delete(target_bucket_, target)
 
     logger.info(f"Copying {bucket}/{source} to {target_bucket_}/{target}")
     for obj in objects:
