@@ -147,5 +147,5 @@ library = "dcpy.library.cli:run"
 [tool.setuptools.package-data]
 dcpy = [
     "library/templates/*.yml",
-    "lifecycle/package/resources/data_dictionary_template.jinja",
+    "lifecycle/package/resources/*",
 ]

@@ -83,6 +83,7 @@ class DatasetColumnOverrides(CustomizableBase):
     data_type: str | None = None
     data_source: str | None = None
     description: str | None = None
+    notes: str | None = None
     example: str | None = None
     checks: Checks | None = None
     deprecated: bool | None = None
@@ -165,6 +166,13 @@ class DatasetAttributes(CustomizableBase):
     display_name: str
     description: str = ""
     each_row_is_a: str
+
+    publishing_purpose: str | None = None
+    potential_uses: str | None = None
+    publishing_frequency: str | None = None  # TODO: picklist values
+    publishing_frequency_details: str | None = None
+    projection: str | None = None  # TODO: does projection belong here?
+
     tags: List[str] = []
 
     def override(

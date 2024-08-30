@@ -24,6 +24,7 @@ msal==1.23.0
 mypy
 numerize
 openpyxl
+openpyxl-stubs
 pandas
 pandas-stubs
 plotly
