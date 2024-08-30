@@ -21,7 +21,7 @@ gdal.SetConfigOption("PG_USE_COPY", "YES")
 gdal.SetConfigOption("CPL_LOG", "/dev/null")
 gdal.UseExceptions()
 
-aws_s3_bucket = configuration.DEV_BUCKET or configuration.RECIPES_BUCKET
+aws_s3_bucket = configuration.RECIPES_BUCKET
 
 gdal.SetConfigOption(
     "AWS_S3_ENDPOINT", os.environ["AWS_S3_ENDPOINT"].replace("https://", "")

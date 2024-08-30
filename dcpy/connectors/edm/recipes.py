@@ -18,6 +18,10 @@ from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.logging import logger
 
+assert (
+    configuration.RECIPES_BUCKET
+), "'RECIPES_BUCKET' must be defined to use edm.recipes connector"
+BUCKET = configuration.RECIPES_BUCKET
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
@@ -42,7 +46,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path) -> N
                 json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
             )
         s3.upload_folder(
-            configuration.DEV_BUCKET or configuration.RECIPES_BUCKET,
+            BUCKET,
             tmp_dir_path,
             s3_path,
             acl=config.acl,
@@ -67,38 +71,20 @@ def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False
     _archive_dataset(config, file_path, s3_path)
     if latest:
         s3.copy_folder(
-            configuration.DEV_BUCKET or configuration.RECIPES_BUCKET,
+            BUCKET,
             f"{s3_path}/",
             f"{DATASET_FOLDER}/{config.name}/latest/",
             acl=config.acl,
         )
 
 
-def _dev_dataset_exists(name: str, version: str = "latest") -> bool:
-    if configuration.DEV_BUCKET:
-        return s3.exists(
-            configuration.DEV_BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"
-        )
-    else:
-        return False
-
-
-def _get_bucket(name: str, version: str = "latest") -> str:
-    return (
-        configuration.DEV_BUCKET
-        if _dev_dataset_exists(name, version) and configuration.DEV_BUCKET
-        else configuration.RECIPES_BUCKET
-    )
-
-
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
     """Retrieve a recipe config from s3."""
-    obj = s3.client().get_object(
-        Bucket=_get_bucket(name, version),
-        Key=f"{DATASET_FOLDER}/{name}/{version}/config.json",
+    obj = s3.get_file_as_stream(
+        BUCKET,
+        f"{DATASET_FOLDER}/{name}/{version}/config.json",
     )
-    file_content = str(obj["Body"].read(), "utf-8")
-    config = yaml.safe_load(file_content)
+    config = yaml.safe_load(obj)
     if "dataset" in config:
         return library.Config(**config)
     else:
@@ -112,10 +98,9 @@ def get_latest_version(name: str) -> str:
 
 def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
-    bucket = _get_bucket(name)
     return [
         folder
-        for folder in s3.get_subfolders(bucket, f"{DATASET_FOLDER}/{name}/")
+        for folder in s3.get_subfolders(BUCKET, f"{DATASET_FOLDER}/{name}/")
         if folder != "latest"
     ]
 
@@ -134,9 +119,9 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
             return None
 
 
-def get_file_types(dataset: Dataset, dev=False) -> set[DatasetType]:
+def get_file_types(dataset: Dataset) -> set[DatasetType]:
     files = s3.get_filenames(
-        bucket=_get_bucket(dataset.name, dataset.version),
+        bucket=BUCKET,
         prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.name}",
     )
     valid_types = {
@@ -168,7 +153,7 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
         print(f"🛠 {ds.file_name} doesn't exists in cache, downloading")
 
         s3.download_file(
-            bucket=_get_bucket(ds.name, ds.version),
+            bucket=BUCKET,
             key=ds.s3_file_key(DATASET_FOLDER),
             path=target_file_path,
         )
@@ -202,9 +187,7 @@ def read_df(
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
-        with s3.get_file_as_stream(
-            _get_bucket(ds.name, ds.version), ds.s3_file_key(DATASET_FOLDER)
-        ) as stream:
+        with s3.get_file_as_stream(BUCKET, ds.s3_file_key(DATASET_FOLDER)) as stream:
             data = reader(stream, **kwargs)
         return data
 
@@ -267,6 +250,8 @@ def purge_recipe_cache():
 
 
 def log_metadata(config: library.Config):
+    # long term, it probably makes more sense to have db interactions isolated by environment as well
+    # at that point, this is unnecessary
     if configuration.DEV_FLAG:
         logger.info("DEV_FLAG found, not library run metadata")
         return
@@ -307,7 +292,7 @@ def get_archival_metadata(
         runner = execution_details.runner_string
     else:
         s3metadata = s3.get_metadata(
-            configuration.RECIPES_BUCKET,
+            BUCKET,
             f"{DATASET_FOLDER}/{name}/{version}/config.json",
         )
         date_created = s3metadata.custom.get("date_created")
@@ -369,7 +354,7 @@ def scrape_metadata(dataset: str) -> None:
 
 
 def scrape_all_metadata(rerun_existing=True) -> None:
-    datasets = s3.get_subfolders(configuration.RECIPES_BUCKET, "datasets")
+    datasets = s3.get_subfolders(BUCKET, "datasets")
     pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
     scraped = pg_client.execute_select_query(
         f"select distinct name from {LOGGING_TABLE_NAME}"

@@ -10,6 +10,8 @@ from dcpy.connectors.edm import publishing
 
 REPO_NAME = "db-equitable-development-tool"
 PRODUCT = "db-eddt"
+assert PUBLISHING_BUCKET, "PUBLISHING_BUCKET must be defined"
+BUCKET = PUBLISHING_BUCKET
 
 demographic_categories = ["demographics", "economics"]
 
@@ -27,7 +29,7 @@ geographies = ["citywide", "borough", "puma"]
 def get_active_s3_folders(repo: str, s3_folder: str | None = None):
     default_branch = github.get_default_branch(repo=repo)
     all_branches = github.get_branches(repo=repo, branches_blacklist=[])
-    all_folders = s3.get_subfolders(PUBLISHING_BUCKET, (s3_folder or repo))
+    all_folders = s3.get_subfolders(BUCKET, (s3_folder or repo))
     folders = sorted(list(set(all_folders).intersection(set(all_branches))))
     folders.remove(default_branch)
     folders = [default_branch] + folders
@@ -39,9 +41,7 @@ def get_demographics_data(branch: str, version: str):
     data = {}
     for category in demographic_categories:
         category_data: dict[str, dict[str, pd.DataFrame]] = {}
-        files = s3.get_filenames(
-            PUBLISHING_BUCKET, f"{PRODUCT}/{branch}/{version}/{category}"
-        )
+        files = s3.get_filenames(BUCKET, f"{PRODUCT}/{branch}/{version}/{category}")
         pattern = r"^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$"
         match_objs = [re.match(pattern, file) for file in files]
         matches = [match for match in match_objs if match]

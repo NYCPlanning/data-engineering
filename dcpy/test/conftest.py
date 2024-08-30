@@ -9,6 +9,18 @@ import pytest
 import shutil
 import yaml
 
+
+TEST_BUCKET = "test-bucket"
+RECIPES_BUCKET = "test-recipes"
+PUBLISHING_BUCKET = "test-publishing"
+TEST_BUCKETS = [
+    TEST_BUCKET,
+    RECIPES_BUCKET,
+    PUBLISHING_BUCKET,
+]
+os.environ["RECIPES_BUCKET"] = RECIPES_BUCKET
+os.environ["PUBLISHING_BUCKET"] = PUBLISHING_BUCKET
+
 from dcpy import configuration
 from dcpy.utils import s3, versions
 from dcpy.models.lifecycle.builds import BuildMetadata
@@ -16,12 +28,6 @@ from dcpy.connectors.edm import publishing, packaging
 from dcpy.lifecycle.builds import plan
 
 
-TEST_BUCKET = "test-bucket"
-TEST_BUCKETS = [
-    TEST_BUCKET,
-    configuration.RECIPES_BUCKET,
-    configuration.PUBLISHING_BUCKET,
-]
 RESOURCES = Path(__file__).parent / "resources"
 
 
@@ -202,12 +208,9 @@ def mock_request_get(
 
 
 @pytest.fixture
-def dev_bucket(create_buckets):
+def dev_flag():
     os.environ["DEV_FLAG"] = "true"
-    os.environ["BUILD_NAME"] = "dev_build"
     importlib.reload(configuration)
-    s3.client().create_bucket(Bucket=configuration.DEV_BUCKET, ACL="private")
-    yield configuration.DEV_BUCKET
+    yield
     os.environ.pop("DEV_FLAG")
-    os.environ.pop("BUILD_NAME")
     importlib.reload(configuration)

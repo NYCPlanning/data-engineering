@@ -4,16 +4,16 @@ from pathlib import Path
 import pytest
 from unittest.mock import patch
 
-from dcpy import configuration
 from dcpy.utils import s3, versions
 from dcpy.connectors.edm import publishing
+from dcpy.test.conftest import PUBLISHING_BUCKET
 
 TEST_PRODUCT_NAME = "test-product"
 TEST_BUILD = "build-branch"
 TEST_VERSION_OBJ = versions.MajorMinor(year=24, major=2)  # matches conftest.py
 TEST_VERSION = TEST_VERSION_OBJ.label
 TEST_ACL = "bucket-owner-read"
-TEST_BUCKET_NAME = configuration.PUBLISHING_BUCKET
+TEST_BUCKET_NAME = PUBLISHING_BUCKET
 TEST_GIS_DATASET = "test_gis_dataset"
 DATE_CONSTANT = "20240101"
 DATE_TODAY = datetime.now().strftime("%Y%m%d")
@@ -61,16 +61,6 @@ def test_upload_file_fails(create_buckets, create_temp_filesystem, mock_data_con
         publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
 
 
-def test_upload_dev(dev_bucket, create_temp_filesystem, mock_data_constants):
-    data_path = mock_data_constants["TEST_DATA_DIR"]
-
-    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
-    assert TEST_BUILD not in publishing.get_builds(product=TEST_PRODUCT_NAME)
-    assert build_key.build in s3.get_subfolders(
-        dev_bucket, f"{build_key.product}/build/"
-    )
-
-
 def test_get_filenames(create_buckets, create_temp_filesystem, mock_data_constants):
     """Checks build directory is found in s3 "build" directory.
     Tests version from version.txt file matches actual version."""
@@ -115,13 +105,11 @@ def test_legacy_upload(
         latest=latest,
     )
     assert s3.exists(
-        configuration.PUBLISHING_BUCKET,
+        TEST_BUCKET_NAME,
         f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
     )
     for path in not_expected_paths:
-        assert not s3.exists(
-            configuration.PUBLISHING_BUCKET, f"{TEST_PRODUCT_NAME}/{prefix}/{path}"
-        )
+        assert not s3.exists(TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}")
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):

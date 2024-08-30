@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 from unittest import mock
 
-from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import s3
@@ -11,7 +10,7 @@ from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
 
 from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
-from dcpy.test.conftest import mock_request_get
+from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
 

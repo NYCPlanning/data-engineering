@@ -15,6 +15,7 @@ def unzip_csv(csv_filename: str, zipfile: ZipFile) -> pd.DataFrame:
 def read_file_metadata(
     product_key: publishing.ProductKey, filepath: str
 ) -> s3.Metadata:
+    assert PUBLISHING_BUCKET, "PUBLISHING_BUCKET must be defined"
     return s3.get_metadata(PUBLISHING_BUCKET, f"{product_key.path}/{filepath}")
 
 
