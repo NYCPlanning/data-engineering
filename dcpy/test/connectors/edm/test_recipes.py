@@ -106,6 +106,15 @@ class TestArchiveDataset:
             f"{recipes.DATASET_FOLDER}/{self.dataset}/latest/{self.config.filename}",
         )
 
+    def test_fails_when_exists(self, create_buckets):
+        folder_path = recipes.s3_folder_path(self.config.dataset)
+        s3.client().put_object(Bucket=RECIPES_BUCKET, Key=folder_path + "/config.json")
+        with pytest.raises(
+            Exception,
+            match=f"Archived dataset at {folder_path} already exists, cannot overwrite",
+        ):
+            recipes.archive_dataset(self.config, Path("."))
+
 
 def test_get_preferred_file_type(load_library):
     dataset = recipes.Dataset(id=TEST_DATASET, version=LIBRARY_VERSION)
@@ -229,6 +238,37 @@ def test_read_df_cache(load_ingest: ingest.Config, create_temp_filesystem: Path)
     )
     print(create_temp_filesystem / PARQUET_FILEPATH)
     assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+
+def test_update_freshness(load_ingest: ingest.Config):
+    def get_config():
+        config = recipes.get_config(load_ingest.id, load_ingest.version)
+        assert isinstance(config, ingest.Config)
+        return config
+
+    config = get_config()
+    assert config.check_timestamps == []
+    assert config.freshness == config.archival_timestamp
+
+    timestamp = datetime.now()
+    recipes.update_freshness(load_ingest.dataset_key, timestamp)
+    config2 = get_config()
+    assert config2.check_timestamps == [timestamp]
+    assert config2.freshness == timestamp
+
+    timestamp2 = datetime.now()
+    recipes.update_freshness(load_ingest.dataset_key, timestamp2)
+    config3 = get_config()
+    assert config3.check_timestamps == [timestamp, timestamp2]
+    assert config3.freshness == timestamp2
+
+
+def test_update_freshness_library_fails(load_library: library.Config):
+    with pytest.raises(
+        TypeError,
+        match=f"Cannot update freshness of dataset {load_library.dataset_key} as it was archived by library, not ingest",
+    ):
+        recipes.update_freshness(load_library.dataset_key, datetime.now())
 
 
 def test_log_metadata(dev_flag):

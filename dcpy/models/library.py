@@ -100,6 +100,10 @@ class Config(BaseModel, extra="forbid"):
     def sparse_dataset(self) -> recipes.Dataset:
         return self.dataset.dataset
 
+    @property
+    def dataset_key(self) -> recipes.DatasetKey:
+        return self.sparse_dataset.key
+
 
 @dataclass
 class ArchivalMetadata:

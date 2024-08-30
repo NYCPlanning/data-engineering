@@ -74,6 +74,7 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     id: str = Field(validation_alias=AliasChoices("id", "name"))
     version: str
     archival_timestamp: datetime
+    check_timestamps: list[datetime] = []
     raw_filename: str
     acl: recipes.ValidAclValues
 
@@ -103,3 +104,11 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     @property
     def raw_dataset_key(self) -> recipes.RawDatasetKey:
         return recipes.RawDatasetKey(id=self.id, timestamp=self.archival_timestamp)
+
+    @property
+    def freshness(self) -> datetime:
+        return (
+            self.archival_timestamp
+            if not self.check_timestamps
+            else max(self.check_timestamps)
+        )

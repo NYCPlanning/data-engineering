@@ -40,3 +40,7 @@ class Dataset(BaseModel, extra="forbid"):
         if self.file_type is None:
             raise Exception("File type must be defined to get file name")
         return f"{self.id}.{_type_to_extension(self.file_type)}"
+
+    @property
+    def key(self) -> DatasetKey:
+        return DatasetKey(id=self.id, version=self.version)

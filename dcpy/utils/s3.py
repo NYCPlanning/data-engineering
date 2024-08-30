@@ -146,6 +146,10 @@ def folder_exists(bucket: str, prefix: str) -> bool:
     return "Contents" in resp
 
 
+def get_custom_metadata(bucket: str, key: str) -> dict:
+    return client().head_object(Bucket=bucket, Key=key)["Metadata"]
+
+
 def get_metadata(bucket: str, key: str) -> Metadata:
     """Gets custom metadata as well as three standard s3 fields"""
     response = client().head_object(Bucket=bucket, Key=key)

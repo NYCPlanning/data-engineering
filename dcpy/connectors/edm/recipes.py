@@ -1,4 +1,5 @@
 from datetime import datetime
+from io import BytesIO
 import json
 import os
 import pandas as pd
@@ -56,6 +57,10 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> No
     It is assumed that s3_path has taken care of figuring out which top-level folder,
     how the dataset is being versioned, etc.
     """
+    if s3.folder_exists(BUCKET, s3_path):
+        raise Exception(
+            f"Archived dataset at {s3_path} already exists, cannot overwrite"
+        )
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
@@ -80,6 +85,15 @@ def archive_raw_dataset(config: ingest.Config, file_path: Path):
     _archive_dataset(config, file_path, s3_raw_folder_path(config.raw_dataset_key))
 
 
+def set_latest(key: DatasetKey, acl):
+    s3.copy_folder(
+        BUCKET,
+        f"{s3_folder_path(key)}/",
+        f"{DATASET_FOLDER}/{key.id}/latest/",
+        acl=acl,
+    )
+
+
 def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False):
     """
     Given a config and a path to a processed parquet file, archive it in edm-recipes
@@ -88,12 +102,26 @@ def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False
     s3_path = s3_folder_path(config.dataset_key)
     _archive_dataset(config, file_path, s3_path)
     if latest:
-        s3.copy_folder(
-            BUCKET,
-            f"{s3_path}/",
-            f"{DATASET_FOLDER}/{config.id}/latest/",
-            acl=config.acl,
+        set_latest(config.dataset_key, config.acl)
+
+
+def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
+    path = f"{DATASET_FOLDER}/{ds.id}/{ds.version}/config.json"
+    config = get_config(ds.id, ds.version)
+    if isinstance(config, library.Config):
+        raise TypeError(
+            f"Cannot update freshness of dataset {ds} as it was archived by library, not ingest"
         )
+    config.check_timestamps.append(timestamp)
+    config_str = json.dumps(config.model_dump(mode="json"))
+    s3.upload_file_obj(
+        BytesIO(config_str.encode()),
+        BUCKET,
+        path,
+        config.acl,
+        metadata=s3.get_custom_metadata(BUCKET, path),
+    )
+    return config.archival_timestamp
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
