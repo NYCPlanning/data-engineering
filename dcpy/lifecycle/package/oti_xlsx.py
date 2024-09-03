@@ -4,10 +4,10 @@ import openpyxl
 from openpyxl import workbook
 from openpyxl.styles import Border, Side, Alignment, Font
 from pathlib import Path
-from tabulate import tabulate
+from tabulate import tabulate  # type: ignore
 import typer
 
-from openpyxl.worksheet.properties import Outline
+from openpyxl.worksheet.properties import Outline  # type: ignore
 
 from dcpy.models.product.dataset import metadata_v2 as md_v2
 from dcpy.utils.logging import logger
