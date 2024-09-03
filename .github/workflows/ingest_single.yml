@@ -24,11 +24,15 @@ on:
         type: boolean
         required: true
         default: false
-      dev_flag:
-        description: "Archive to a dev bucket?"
-        type: boolean
-        required: true
-        default: false
+      dev_bucket:
+        description: "dev bucket to use in place of recipes"
+        type: choice
+        required: false
+        options:
+          - de-dev-a
+          - de-dev-d
+          - de-dev-f
+          - de-dev-s
 
 jobs:
   dataloading:
@@ -39,8 +43,9 @@ jobs:
       run:
         shell: bash
     env:
-      DEV_FLAG: ${{ inputs.dev_flag }}
       BUILD_NAME: ${{ github.head_ref || github.ref_name }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 

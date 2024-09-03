@@ -21,8 +21,8 @@ on:
       plan_command:
         type: string
         default: recipe
-      dev_flag:
-        type: boolean
+      dev_bucket:
+        type: string
         default: false
 
 jobs:
@@ -38,7 +38,9 @@ jobs:
     env:
       BUILD_ENGINE_DB: db-cbbr
       BUILD_NAME: ${{ inputs.build_name }}
-      DEV_FLAG: ${{ inputs.dev_flag }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
 
     steps:
       - name: Checkout

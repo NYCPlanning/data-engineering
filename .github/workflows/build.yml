@@ -56,11 +56,15 @@ on:
         description: "An optional note about this build"
         type: string
         required: false
-      dev_flag:
-        description: "Run using dev bucket for recipes/publishing?"
-        type: boolean
-        required: true
-        default: false
+      dev_bucket:
+        description: "dev bucket to use in place of recipes/publishing"
+        type: choice
+        required: false
+        options:
+          - de-dev-a
+          - de-dev-d
+          - de-dev-f
+          - de-dev-s
   workflow_call:
     inputs:
       dataset_name:
@@ -112,7 +116,7 @@ jobs:
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   cbbr:
     needs: health_check
     if: inputs.dataset_name == 'cbbr' || inputs.dataset_name  == 'all'
@@ -125,7 +129,7 @@ jobs:
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   checkbook:
     needs: health_check
     if: inputs.dataset_name == 'checkbook' || inputs.dataset_name  == 'all'
@@ -134,7 +138,7 @@ jobs:
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   colp:
     needs: health_check
     if: inputs.dataset_name == 'colp' || inputs.dataset_name  == 'all'
@@ -145,7 +149,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   cpdb:
     needs: health_check
     if: inputs.dataset_name == 'cpdb' || inputs.dataset_name  == 'all'
@@ -156,7 +160,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   developments:
     needs: health_check
     if: inputs.dataset_name == 'developments' || inputs.dataset_name  == 'all'
@@ -167,7 +171,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   facilities:
     needs: health_check
     if: inputs.dataset_name == 'facilities' || inputs.dataset_name  == 'all'
@@ -178,7 +182,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   factfinder:
     needs: health_check
     if: inputs.dataset_name == 'factfinder'
@@ -188,7 +192,7 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   green_fast_track:
     needs: health_check
     if: inputs.dataset_name == 'green_fast_track' || inputs.dataset_name  == 'all'
@@ -199,7 +203,7 @@ jobs:
       recipe_file: ${{ inputs.recipe_file }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   knownprojects:
     needs: health_check
     if: inputs.dataset_name == 'knownprojects' || inputs.dataset_name  == 'all'
@@ -208,7 +212,7 @@ jobs:
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   pluto:
     needs: health_check
     if: inputs.dataset_name == 'pluto' || inputs.dataset_name  == 'all'
@@ -219,7 +223,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
   ztl:
     needs: health_check
     if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'
@@ -230,4 +234,4 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
-      dev_flag: ${{ inputs.dev_flag }}
+      dev_bucket: ${{ inputs.dev_bucket || '' }}
