@@ -237,7 +237,7 @@ def upload_build(
     acl: s3.ACL,
     build: str | None = None,
     max_files: int = s3.MAX_FILE_COUNT,
-) -> None:
+) -> BuildKey:
     """
     Uploads a product build to an S3 bucket.
 
@@ -257,10 +257,11 @@ def upload_build(
         raise ValueError(
             f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."
         )
-    logger.info(
-        f'Uploading {output_path} to {product}/build/{build_name} with ACL "{acl}"'
-    )
-    upload(output_path, BuildKey(product, build_name), acl=acl, max_files=max_files)
+    build_key = BuildKey(product, build_name)
+    logger.info(f'Uploading {output_path} to {build_key.path} with ACL "{acl}"')
+    upload(output_path, build_key, acl=acl, max_files=max_files)
+
+    return build_key
 
 
 def promote_to_draft(
@@ -269,7 +270,7 @@ def promote_to_draft(
     keep_build: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     draft_revision_summary: str = "",
-):
+) -> DraftKey:
     version = get_version(build_key)
 
     # generate version draft revision number
@@ -288,8 +289,9 @@ def promote_to_draft(
         json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
     # promote from build to draft
+    draft_key = DraftKey(build_key.product, version, draft_revision_label)
     source = build_key.path + "/"
-    target = f"{build_key.product}/draft/{version}/{draft_revision_label}/"
+    target = draft_key.path + "/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
 
     # upload updated metadata file
@@ -303,9 +305,10 @@ def promote_to_draft(
     logger.info(
         f"Promoted {build_key.product} to drafts as {version}/{draft_revision_label}"
     )
-
     if not keep_build:
         s3.delete(BUCKET, source)
+
+    return draft_key
 
 
 def validate_or_patch_version(
@@ -348,7 +351,7 @@ def publish(
     latest: bool = False,
     is_patch: bool = False,
     download_metadata: bool = False,
-) -> None:
+) -> PublishKey:
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     version = get_version(draft_key)
@@ -366,8 +369,9 @@ def publish(
         with open(build_metadata_path, "w", encoding="utf-8") as f:
             json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
+    publish_key = PublishKey(draft_key.product, new_version)
     source = draft_key.path + "/"
-    target = f"{draft_key.product}/publish/{new_version}/"
+    target = publish_key.path + "/"
     s3.copy_folder(BUCKET, source, target, acl, max_files=max_files)
 
     # upload metadata if version was patched
@@ -417,6 +421,8 @@ def publish(
             filepath="build_metadata.json",
         )
         logger.info(f"Downloaded build_metadata.json from {publish_key.path}")
+
+    return publish_key
 
 
 def download_published_version(
