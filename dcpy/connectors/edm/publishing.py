@@ -13,15 +13,15 @@ from urllib.parse import urlencode, urljoin
 import yaml
 from zipfile import ZipFile
 
-from dcpy.configuration import PUBLISHING_BUCKET, CI, BUILD_NAME
+from dcpy.configuration import PUBLISHING_BUCKET, CI, BUILD_NAME, DEV_FLAG
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
     DraftKey,
     BuildKey,
 )
-from dcpy.models.lifecycle.builds import BuildMetadata
-from dcpy.utils import s3, git, versions
+from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType
+from dcpy.utils import s3, git, versions, metadata, postgres
 from dcpy.utils.logging import logger
 
 assert (
@@ -30,6 +30,21 @@ assert (
 BUCKET = PUBLISHING_BUCKET
 
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
+LOGGING_DB = "edm-qaqc"
+LOGGING_SCHEMA = "product_data"
+LOGGING_TABLE_NAME = "event_logging"
+PRODUCTS_TO_LOG = [
+    "db-cbbr",
+    "db-checkbook",
+    "db-colp",
+    "db-cpdb",
+    "db-developments",
+    "db-facilities",
+    "db-green-fast-track",
+    "db-pluto",
+    "db-template",
+    "db-zoningtaxlots",
+]
 
 
 def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
@@ -261,6 +276,17 @@ def upload_build(
     logger.info(f'Uploading {output_path} to {build_key.path} with ACL "{acl}"')
     upload(output_path, build_key, acl=acl, max_files=max_files)
 
+    version = get_version(build_key)
+    event_metadata = EventLog(
+        event_type=EventType.BUILD,
+        product=build_key.product,
+        release_version=version,
+        new_path=build_key.path,
+        old_path=None,
+        run_details=metadata.get_run_details(),
+    )
+    log_event_in_db(event_metadata)
+
     return build_key
 
 
@@ -307,6 +333,16 @@ def promote_to_draft(
     )
     if not keep_build:
         s3.delete(BUCKET, source)
+
+    event_metadata = EventLog(
+        event_type=EventType.PROMOTE_TO_DRAFT,
+        product=draft_key.product,
+        release_version=draft_key.version,
+        new_path=draft_key.path,
+        old_path=build_key.path,
+        run_details=metadata.get_run_details(),
+    )
+    log_event_in_db(event_metadata)
 
     return draft_key
 
@@ -421,6 +457,16 @@ def publish(
             filepath="build_metadata.json",
         )
         logger.info(f"Downloaded build_metadata.json from {publish_key.path}")
+
+    event_metadata = EventLog(
+        event_type=EventType.PUBLISH,
+        product=publish_key.product,
+        release_version=draft_key.version,  # this is release version, not patched
+        new_path=publish_key.path,
+        old_path=draft_key.path,
+        run_details=metadata.get_run_details(),
+    )
+    log_event_in_db(event_metadata)
 
     return publish_key
 
@@ -613,6 +659,44 @@ def download_gis_dataset(dataset_name: str, version: str, target_folder: Path):
     return file_path
 
 
+def log_event_in_db(event_details: EventLog) -> None:
+    """
+    Logs event metadata to a PostgreSQL database if the product is in the approved list
+    of products and not in a development environment. Otherwise it skips logging.
+    """
+
+    if event_details.product not in PRODUCTS_TO_LOG:
+        logger.warn(
+            f"❗️ Product {event_details.product} not on the list of products to log in db. Skipping event metadata logging..."
+        )
+        return
+    if DEV_FLAG:
+        logger.info("DEV_FLAG env var found, skipping event metadata logging")
+        return
+    logger.info(
+        f"Logging event '{event_details.event_type}' metadata for product {event_details.product} in db..."
+    )
+    pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
+    query = f"""
+        INSERT INTO {LOGGING_SCHEMA}.{LOGGING_TABLE_NAME} 
+        (product, version, event, path, old_path, timestamp, runner_type, runner, custom_fields)
+        VALUES 
+        (:product, :version, :event, :path, :old_path, :timestamp, :runner_type, :runner, :custom_fields)
+        """
+    pg_client.execute_query(
+        query,
+        product=event_details.product,
+        version=event_details.release_version,
+        event=event_details.event_type.value,
+        path=event_details.new_path,
+        old_path=event_details.old_path,
+        timestamp=event_details.run_details.timestamp,
+        runner_type=event_details.run_details.type,
+        runner=event_details.run_details.runner_string,
+        custom_fields=json.dumps(event_details.custom_fields),
+    )
+
+
 app = typer.Typer(add_completion=False)
 
 
@@ -736,9 +820,10 @@ def _cli_wrapper_promote_to_draft(
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
 ):
     acl_literal = s3.string_as_acl(acl)
-    logger.info(f'Promoting {product}/build/{build} to draft with ACL "{acl}"')
+    build_key = BuildKey(product, build)
+    logger.info(f'Promoting {build_key.path} to draft with ACL "{acl}"')
     promote_to_draft(
-        build_key=BuildKey(product, build),
+        build_key=build_key,
         draft_revision_summary=draft_summary,
         acl=acl_literal,
     )
