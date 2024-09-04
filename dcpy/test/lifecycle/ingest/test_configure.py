@@ -3,12 +3,11 @@ from pathlib import Path
 import pytest
 from unittest import mock, TestCase
 
+from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.models import file
 from dcpy.models.connectors import socrata, web
 from dcpy.models.lifecycle.ingest import LocalFileSource
-
 from dcpy.utils import s3
-from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import configure
 
 from dcpy.test.conftest import mock_request_get
@@ -67,7 +66,7 @@ class TestGetVersion(TestCase):
     def test_gis_dataset(self):
         datestring = "20240412"
         s3.client().put_object(
-            Bucket=publishing.BUCKET,
+            Bucket=PUBLISHING_BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
         )
         assert configure.get_version(Sources.gis) == datestring

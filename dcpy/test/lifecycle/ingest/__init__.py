@@ -10,6 +10,7 @@ from dcpy.models.lifecycle.ingest import (
     ScriptSource,
     S3Source,
 )
+from dcpy.test.conftest import RECIPES_BUCKET
 
 RESOURCES = Path(__file__).parent / "resources"
 TEST_DATA_DIR = "test_data"
@@ -33,7 +34,7 @@ class Sources:
     socrata = socrata.Source(
         type="socrata", org=socrata.Org.nyc, uid="w7w3-xahh", format="csv"
     )
-    s3 = S3Source(type="s3", bucket="edm-recipes", key="inbox/test/test.txt")
+    s3 = S3Source(type="s3", bucket=RECIPES_BUCKET, key="inbox/test/test.txt")
 
 
 SOURCE_FILENAMES = [

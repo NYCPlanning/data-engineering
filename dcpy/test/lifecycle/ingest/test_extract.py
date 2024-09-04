@@ -7,11 +7,10 @@ from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import s3
 from dcpy.connectors import web
-from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.ingest import extract
 
 from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
-from dcpy.test.conftest import mock_request_get
+from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
 
@@ -25,7 +24,7 @@ def setup(source: Source, filename: str, file_system: Path) -> Source:
             source.path = tmp_file
         case GisDataset():
             s3.client().put_object(
-                Bucket=publishing.BUCKET,
+                Bucket=PUBLISHING_BUCKET,
                 Key=f"datasets/{TEST_DATASET_NAME}/{FAKE_VERSION}/{filename}",
             )
         case S3Source():
