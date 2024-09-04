@@ -37,6 +37,7 @@ def test_export_files():
         "source_data_versions.csv",
         "build_metadata.json",
         "data_dictionary.pdf",
+        "data_dictionary.xlsx",
         "templatedb.csv",
         "templatedb_polygons.zip",
         "templatedb_points.zip",

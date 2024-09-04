@@ -1,6 +1,7 @@
 import shutil
 
 from dcpy.lifecycle.package import generate_metadata_assets
+from dcpy.lifecycle.package import oti_xlsx
 from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils.logging import logger
 
@@ -10,6 +11,7 @@ METADATA_FILES = [
     "source_data_versions.csv",
     "build_metadata.json",
     "data_dictionary.pdf",
+    "data_dictionary.xlsx",
 ]
 BUILD_TABLES = {
     "templatedb": [
@@ -20,18 +22,19 @@ BUILD_TABLES = {
 }
 
 
-def generate_pdfs():
-    data_dictionary_path = product_metadata.download(
+def generate_metadata():
+    dataset_metadata_yml = product_metadata.download(
         "template_db", OUTPUT_DIR / "data_dictionary.yaml", dataset="template_db"
     )
     output_html_path = generate_metadata_assets.generate_html_from_yaml(
-        data_dictionary_path,
+        dataset_metadata_yml,
         OUTPUT_DIR / "data_dictionary.html",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
     )
     generate_metadata_assets.generate_pdf_from_html(
         output_html_path, PRODUCT_PATH / "data_dictionary.pdf"
     )
+    oti_xlsx.write_oti_xlsx(metadata_path=dataset_metadata_yml)
 
 
 def export():
@@ -93,6 +96,6 @@ def upload():
 
 
 if __name__ == "__main__":
-    generate_pdfs()
+    generate_metadata()
     export()
     upload()
