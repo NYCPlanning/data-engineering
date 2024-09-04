@@ -1,4 +1,3 @@
-from botocore.exceptions import ClientError
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
@@ -7,13 +6,14 @@ from unittest.mock import patch
 
 from dcpy.utils import s3, versions
 from dcpy.connectors.edm import publishing
+from dcpy.test.conftest import PUBLISHING_BUCKET
 
 TEST_PRODUCT_NAME = "test-product"
 TEST_BUILD = "build-branch"
 TEST_VERSION_OBJ = versions.MajorMinor(year=24, major=2)  # matches conftest.py
 TEST_VERSION = TEST_VERSION_OBJ.label
 TEST_ACL = "bucket-owner-read"
-TEST_BUCKET_NAME = "edm-publishing"
+TEST_BUCKET_NAME = PUBLISHING_BUCKET
 TEST_GIS_DATASET = "test_gis_dataset"
 DATE_CONSTANT = "20240101"
 DATE_TODAY = datetime.now().strftime("%Y%m%d")
@@ -30,7 +30,7 @@ def add_gis_datasets(create_buckets):
         f"datasets/{TEST_GIS_DATASET}/{DATE_CONSTANT}/{TEST_GIS_DATASET}.zip",
     ]
     for object in test_objects:
-        s3.client().put_object(Bucket=publishing.BUCKET, Key=object)
+        s3.client().put_object(Bucket=TEST_BUCKET_NAME, Key=object)
     yield
 
 
@@ -209,7 +209,7 @@ def mock_versions_data():
     for product in versions_by_product:
         for version in versions_by_product[product]:
             s3.client().put_object(
-                Bucket=publishing.BUCKET, Key=f"{product}/publish/{version}/dummy.txt"
+                Bucket=TEST_BUCKET_NAME, Key=f"{product}/publish/{version}/dummy.txt"
             )
 
 
@@ -254,7 +254,7 @@ def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
     assert DATE_TODAY == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
 
     s3.client().put_object(
-        Bucket=publishing.BUCKET,
+        Bucket=TEST_BUCKET_NAME,
         Key=f"datasets/{TEST_GIS_DATASET}/24A/{TEST_GIS_DATASET}.zip",
     )
     with pytest.raises(ValueError, match="Multiple"):

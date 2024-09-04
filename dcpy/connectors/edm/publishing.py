@@ -1,21 +1,19 @@
-import os
-from pathlib import Path
-from urllib.parse import urlencode, urljoin
-import pandas as pd
-import geopandas as gpd
+from botocore.exceptions import ClientError
 from datetime import datetime
+import geopandas as gpd
+from io import BytesIO
+import json
+import pandas as pd
+from pathlib import Path
 import pytz
 import re
-from io import BytesIO
-from zipfile import ZipFile
 import typer
 from typing import Callable, TypeVar
+from urllib.parse import urlencode, urljoin
 import yaml
-import json
+from zipfile import ZipFile
 
-from dcpy.utils import s3, git, versions
-from dcpy.utils.logging import logger
-
+from dcpy.configuration import PUBLISHING_BUCKET, CI, BUILD_NAME
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
@@ -23,10 +21,14 @@ from dcpy.models.connectors.edm.publishing import (
     BuildKey,
 )
 from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.utils import s3, git, versions
+from dcpy.utils.logging import logger
 
-from botocore.exceptions import ClientError
+assert (
+    PUBLISHING_BUCKET
+), "'PUBLISHING_BUCKET' must be defined to use edm.publishing connector"
+BUCKET = PUBLISHING_BUCKET
 
-BUCKET = "edm-publishing"
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
 
 
@@ -150,7 +152,7 @@ def generate_metadata() -> dict[str, str]:
         "date_created": datetime.now(pytz.timezone("America/New_York")).isoformat()
     }
     metadata["commit"] = git.commit_hash()
-    if os.environ.get("CI"):
+    if CI:
         metadata["run_url"] = git.action_url()
     return metadata
 
@@ -163,26 +165,18 @@ def upload(
     max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
     """Upload build output(s) to build folder in edm-publishing"""
-    build_path = build_key.path
     meta = generate_metadata()
-    if output_path.is_dir():
-        s3.upload_folder(
-            BUCKET,
-            output_path,
-            Path(build_path),
-            acl,
-            contents_only=True,
-            max_files=max_files,
-            metadata=meta,
-        )
-    else:
-        s3.upload_file(
-            BUCKET,
-            output_path,
-            f"{build_path}/{output_path.name}",
-            acl,
-            metadata=meta,
-        )
+    if not output_path.is_dir():
+        raise Exception("'upload' expects output_path to be a directory, not a file")
+    s3.upload_folder(
+        BUCKET,
+        output_path,
+        Path(build_key.path),
+        acl,
+        contents_only=True,
+        max_files=max_files,
+        metadata=meta,
+    )
 
 
 def legacy_upload(
@@ -196,8 +190,10 @@ def legacy_upload(
     contents_only: bool = False,
     max_files: int = s3.MAX_FILE_COUNT,
 ) -> None:
-    """Upload file or folder to publishing, with more flexibility around s3 subpath
-    Currently used only by db-factfinder"""
+    """
+    Upload file or folder to publishing, with more flexibility around s3 subpath
+    Currently used only by db-factfinder
+    """
     if s3_subpath is None:
         prefix = Path(publishing_folder)
     else:
@@ -224,7 +220,7 @@ def legacy_upload(
                 max_files=max_files,
             )
     else:
-        s3.upload_file("edm-publishing", output, str(key), "public-read", metadata=meta)
+        s3.upload_file(BUCKET, output, str(key), "public-read", metadata=meta)
         if latest:
             ## much faster than uploading again
             s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
@@ -597,7 +593,7 @@ def _cli_wrapper_upload(
     acl_literal = s3.string_as_acl(acl)
     if not output_path.exists():
         raise FileNotFoundError(f"Path {output_path} does not exist")
-    build_name = build or os.environ["BUILD_NAME"]
+    build_name = build or BUILD_NAME
     if not build_name:
         raise ValueError(
             f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."

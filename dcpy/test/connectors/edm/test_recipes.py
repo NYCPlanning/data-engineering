@@ -12,13 +12,15 @@ from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, metadata
 from dcpy.connectors.edm import recipes
 
+from dcpy.test.conftest import RECIPES_BUCKET
+
 TEST_DATASET = "test"
 LIBRARY_VERSION = "library"
 INGEST_VERSION = "ingest"
 TEST_METADATA = library.ArchivalMetadata(
     name=TEST_DATASET, version="parquet", timestamp=datetime.now()
 )
-INGEST_TEMPLATE = "test.yml"
+INGEST_TEMPLATE = "ingest.yml"
 PARQUET_FILEPATH = (
     f"{recipes.DATASET_FOLDER}/{TEST_DATASET}/{INGEST_VERSION}/{TEST_DATASET}.parquet"
 )
@@ -29,14 +31,14 @@ RESOURCE_DIR = Path(__file__).parent / "resources"
 def _load_folder(mode):
     version_folder = f"datasets/{TEST_DATASET}/{mode}/"
     s3.upload_folder(
-        recipes.BUCKET,
+        RECIPES_BUCKET,
         RESOURCE_DIR / mode,
         Path(version_folder),
         "private",
         contents_only=True,
     )
     s3.copy_folder(
-        recipes.BUCKET, version_folder, f"datasets/{TEST_DATASET}/latest", "private"
+        RECIPES_BUCKET, version_folder, f"datasets/{TEST_DATASET}/latest", "private"
     )
     with open(RESOURCE_DIR / mode / "config.json") as f:
         return json.load(f)
@@ -84,7 +86,7 @@ class TestArchiveDataset:
         tmp_file.touch()
         recipes.archive_raw_dataset(self.config, tmp_file)
         assert s3.exists(
-            recipes.BUCKET,
+            RECIPES_BUCKET,
             str(self.config.raw_s3_key(recipes.RAW_FOLDER)),
         )
 
@@ -93,7 +95,7 @@ class TestArchiveDataset:
         tmp_parquet.touch()
         recipes.archive_dataset(self.config, tmp_parquet)
         assert s3.exists(
-            recipes.BUCKET, str(self.config.s3_file_key(recipes.DATASET_FOLDER))
+            RECIPES_BUCKET, str(self.config.s3_file_key(recipes.DATASET_FOLDER))
         )
 
     def test_archive_dataset_latest(self, create_buckets, create_temp_filesystem: Path):
@@ -101,8 +103,8 @@ class TestArchiveDataset:
         tmp_parquet.touch()
         recipes.archive_dataset(self.config, tmp_parquet, latest=True)
         assert s3.exists(
-            recipes.BUCKET,
-            f"datasets/{self.dataset}/latest/{self.config.filename}",
+            RECIPES_BUCKET,
+            f"{recipes.DATASET_FOLDER}/{self.dataset}/latest/{self.config.filename}",
         )
 
 
@@ -228,3 +230,10 @@ def test_read_df_cache(load_ingest: ingest.Config, create_temp_filesystem: Path)
     )
     print(create_temp_filesystem / PARQUET_FILEPATH)
     assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+
+def test_log_metadata(dev_flag):
+    with mock.patch("dcpy.utils.postgres.PostgresClient") as pg_client:
+        recipes.log_metadata(None)
+        # when dev_flag present, returns without invoking anything
+        pg_client.assert_not_called()

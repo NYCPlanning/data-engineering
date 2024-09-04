@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import importlib
 import json
 from moto import mock_aws
 import os
@@ -8,14 +9,25 @@ import pytest
 import shutil
 import yaml
 
+
+TEST_BUCKET = "test-bucket"
+RECIPES_BUCKET = "test-recipes"
+PUBLISHING_BUCKET = "test-publishing"
+TEST_BUCKETS = [
+    TEST_BUCKET,
+    RECIPES_BUCKET,
+    PUBLISHING_BUCKET,
+]
+os.environ["RECIPES_BUCKET"] = RECIPES_BUCKET
+os.environ["PUBLISHING_BUCKET"] = PUBLISHING_BUCKET
+
+from dcpy import configuration
 from dcpy.utils import s3, versions
 from dcpy.models.lifecycle.builds import BuildMetadata
-from dcpy.connectors.edm import recipes, publishing, packaging
+from dcpy.connectors.edm import publishing, packaging
 from dcpy.lifecycle.builds import plan
 
 
-TEST_BUCKET = "test-bucket"
-TEST_BUCKETS = [TEST_BUCKET, publishing.BUCKET, recipes.BUCKET]
 RESOURCES = Path(__file__).parent / "resources"
 
 
@@ -193,3 +205,12 @@ def mock_request_get(
         return MockResponse(b'{"error": "fake api error"}')
 
     raise Exception(f"Url {url} has not been configured with test data")
+
+
+@pytest.fixture
+def dev_flag():
+    os.environ["DEV_FLAG"] = "true"
+    importlib.reload(configuration)
+    yield
+    os.environ.pop("DEV_FLAG")
+    importlib.reload(configuration)
