@@ -1,6 +1,7 @@
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
+import os
 import pytest
 from unittest.mock import patch
 
@@ -110,6 +111,58 @@ def test_legacy_upload(
     )
     for path in not_expected_paths:
         assert not s3.exists(TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}")
+
+
+@patch("dcpy.connectors.edm.publishing.BUILD_NAME", TEST_BUILD)
+def test_upload_build_success(
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    """Tests successful upload of a build, using env variable for build name."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload_build(
+        data_path,
+        product=TEST_PRODUCT_NAME,
+        build=None,
+        acl=TEST_ACL,
+    )
+    build_key = publishing.BuildKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
+    assert TEST_BUILD in publishing.get_builds(product=TEST_PRODUCT_NAME)
+    assert publishing.get_version(product_key=build_key) == TEST_VERSION
+
+
+def test_upload_build_missing_build_name(
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    """Tests failure when build name is not provided and env variable is missing."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    assert os.getenv("BUILD_NAME") == None  # sanity check
+    with pytest.raises(ValueError, match="'BUILD_NAME' cannot be"):
+        publishing.upload_build(
+            data_path,
+            product=TEST_PRODUCT_NAME,
+            build=None,
+            acl=TEST_ACL,
+        )
+
+
+def test_upload_build_file_not_found(create_buckets, mock_data_constants):
+    """Tests failure when the provided output path does not exist."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    assert data_path.exists() == False  # sanity check
+
+    with pytest.raises(FileNotFoundError):
+        publishing.upload_build(
+            data_path,
+            product=TEST_PRODUCT_NAME,
+            build=TEST_BUILD,
+            acl=TEST_ACL,
+        )
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):

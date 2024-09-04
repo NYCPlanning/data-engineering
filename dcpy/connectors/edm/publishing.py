@@ -230,6 +230,39 @@ def legacy_upload(
             s3.copy_file(BUCKET, str(key), str(prefix / "latest" / output.name), acl)
 
 
+def upload_build(
+    output_path: Path,
+    product: str,
+    *,
+    acl: s3.ACL,
+    build: str | None = None,
+    max_files: int = s3.MAX_FILE_COUNT,
+) -> None:
+    """
+    Uploads a product build to an S3 bucket.
+
+    This function handles uploading a local output folder to a specified
+    location in an S3 bucket. The path, product, and build name must be
+    provided, along with an optional ACL (Access Control List) to control
+    file access in S3.
+
+    Raises:
+        FileNotFoundError: If the provided output_path does not exist.
+        ValueError: If the build name is not provided and cannot be found in the environment variables.
+    """
+    if not output_path.exists():
+        raise FileNotFoundError(f"Path {output_path} does not exist")
+    build_name = build or BUILD_NAME
+    if not build_name:
+        raise ValueError(
+            f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."
+        )
+    logger.info(
+        f'Uploading {output_path} to {product}/build/{build_name} with ACL "{acl}"'
+    )
+    upload(output_path, BuildKey(product, build_name), acl=acl, max_files=max_files)
+
+
 def promote_to_draft(
     build_key: BuildKey,
     acl: s3.ACL,
@@ -595,21 +628,8 @@ def _cli_wrapper_upload(
     ),
 ):
     acl_literal = s3.string_as_acl(acl)
-    if not output_path.exists():
-        raise FileNotFoundError(f"Path {output_path} does not exist")
-    build_name = build or BUILD_NAME
-    if not build_name:
-        raise ValueError(
-            f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."
-        )
-    logger.info(
-        f'Uploading {output_path} to {product}/build/{build_name} with ACL "{acl}"'
-    )
-    upload(
-        output_path,
-        BuildKey(product, build_name),
-        acl=acl_literal,
-        max_files=max_files,
+    upload_build(
+        output_path, product, acl=acl_literal, build=build, max_files=max_files
     )
 
 
