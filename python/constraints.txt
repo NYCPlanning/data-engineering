@@ -380,6 +380,8 @@ numpy==2.1.0
     #   streamlit
 openpyxl==3.1.5
     # via -r python/requirements.in
+openpyxl-stubs==0.1.25
+    # via -r python/requirements.in
 ordered-set==4.1.0
     # via deepdiff
 packaging==24.1

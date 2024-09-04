@@ -3,8 +3,10 @@ from jinja2 import Template
 import subprocess
 from dcpy.models.product.dataset.metadata_v2 import Metadata
 
+from . import RESOURCES_PATH
+
 DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH = (
-    Path(__file__).parent / "resources" / "data_dictionary_template.jinja"
+    RESOURCES_PATH / "data_dictionary_template.jinja"
 )
 
 
