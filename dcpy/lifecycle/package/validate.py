@@ -113,6 +113,7 @@ col_validators = {
     "decimal": lambda df, col_name: df[~df[col_name].str.match(r"^-?\d*\.\d*$")],
     "number": lambda df, col_name: df[~df[col_name].str.match(r"^-?\d*")],
     # TODO
+    "geometry": lambda df, col_name: df.iloc[0:0],
     "datetime": lambda df, col_name: df.iloc[0:0],
     "uid": lambda df, col_name: df.iloc[0:0],
     "boro_code": lambda df, col_name: df.iloc[0:0],
@@ -169,7 +170,7 @@ def validate_df(
             df_stringified_nulls[col.name].apply(str).str.len() > 0
         ]
         df_only_col_nulls = df_stringified_nulls[
-            df_stringified_nulls[col.name].str.len() == 0
+            df_stringified_nulls[col.name].apply(str).str.len() == 0
         ]
 
         # Check for unknown types
@@ -194,7 +195,7 @@ def validate_df(
 
         # Validate standardized/enum values
         if col.values:
-            accepted_values = {str(v[0]) for v in col.values} | {""}
+            accepted_values = {str(v.value) for v in col.values} | {""}
             invalids = df_no_col_nulls[~df_no_col_nulls[col.name].isin(accepted_values)]
             if not invalids.empty:
                 invalid_counts = dict(invalids.groupby(by=col.name).size())

@@ -3,7 +3,7 @@ import yaml
 import pytest
 
 from dcpy.lifecycle.package import validate
-import dcpy.models.product.dataset.metadata as md
+import dcpy.models.product.dataset.metadata_v2 as md
 
 COLP_PACKAGE_PATH = (
     Path(__file__).parent.resolve() / "resources" / "colp_single_feature_package"
