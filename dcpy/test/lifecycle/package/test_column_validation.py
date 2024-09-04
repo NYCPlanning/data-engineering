@@ -73,7 +73,7 @@ def _fake_row(columns: list[md.DatasetColumn]):
     found_bbl_name = ""
     for c in columns:
         if c.data_type == "bbl":
-            found_bbl_name = c.name
+            found_bbl_name = c.name or ""
         elif c.values:
             row[c.name] = random.choice(c.values).value
         else:

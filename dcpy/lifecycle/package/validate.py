@@ -126,14 +126,17 @@ col_validators = {
 
 
 def validate_df(
-    df: pd.DataFrame, columns: list[dataset_md.DatasetColumn]
+    df: pd.DataFrame,
+    columns: list[dataset_md.DatasetColumn],
+    *,
+    ignore_columns: list[str] | None = None,
 ) -> list[ValidationError]:
     """Validate a dataframe against a metadata file."""
     df_stringified_nulls = df.fillna("")
 
     errors = []
 
-    column_names = {c.name for c in columns}
+    column_names = {c.name or "" for c in columns}
 
     # Find mismatched columns
     df_headers = set(df.columns)
@@ -158,7 +161,7 @@ def validate_df(
 
     # Validate Data in Columns
     for col in columns:
-        if col.name in not_found_in_source:
+        if col.name in not_found_in_source or col.id in (ignore_columns or []):
             continue
 
         col_type = type(df.dtypes.get(col.name))
@@ -221,17 +224,21 @@ def validate_df(
 
 
 def validate_csv(
-    csv_path: Path, columns: list[dataset_md.DatasetColumn]
+    csv_path: Path,
+    columns: list[dataset_md.DatasetColumn],
+    ignore_columns: list[str] | None = None,
 ) -> list[ValidationError]:
     df = pd.read_csv(csv_path, dtype=str)
-    return validate_df(df, columns)
+    return validate_df(df, columns, ignore_columns=ignore_columns)
 
 
 def validate_shapefile(
-    shp_path: Path, columns: list[dataset_md.DatasetColumn]
+    shp_path: Path,
+    columns: list[dataset_md.DatasetColumn],
+    ignore_columns: list[str] | None = None,
 ) -> list[ValidationError]:
     df = pd.DataFrame(gpd.read_file(shp_path), dtype=str)
-    return validate_df(df, columns)
+    return validate_df(df, columns, ignore_columns=ignore_columns)
 
 
 def validate_package_files(
@@ -244,6 +251,7 @@ def validate_package_files(
 
     for md_file_with_overrides in metadata.files:
         md_file = md_file_with_overrides.file
+        ignored_columns = md_file.custom.get("ignore_validation", [])
 
         if not md_file.is_metadata:
             ds_path = dataset_files_path / md_file.filename
@@ -256,14 +264,22 @@ def validate_package_files(
                         file_validations.append(
                             DatasetFileValidation(
                                 dataset_file_id=md_file.id,
-                                errors=validate_csv(ds_path, dataset.columns),
+                                errors=validate_csv(
+                                    ds_path,
+                                    dataset.columns,
+                                    ignore_columns=ignored_columns,
+                                ),
                             )
                         )
                     case "shapefile":
                         file_validations.append(
                             DatasetFileValidation(
                                 dataset_file_id=md_file.id,
-                                errors=validate_shapefile(ds_path, dataset.columns),
+                                errors=validate_shapefile(
+                                    ds_path,
+                                    dataset.columns,
+                                    ignore_columns=ignored_columns,
+                                ),
                             )
                         )
                     case _:
