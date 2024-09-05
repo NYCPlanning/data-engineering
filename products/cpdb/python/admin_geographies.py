@@ -25,7 +25,7 @@ class CityCouncilDistricts(AdminGeographies):
     cpdb_geography_type: str = "council"
 
     def generate_geography(self, geography_number: int) -> AdminGeography:
-        table_name = "city_council_district_" + str(geography_number).rjust(2, "0")
+        table_name = "city_council_district_" + str(geography_number)
         geography_id = str(geography_number)
         geography_name = "City Council District " + str(geography_number)
 
@@ -48,7 +48,7 @@ class BoroughCommunityDistricts(AdminGeographies):
 
     def generate_geography(self, geography_number: int) -> AdminGeography:
         table_suffix = (
-            self.borough_name.replace(" ", "_") + "_cd" + str(geography_number)
+            self.borough_name.replace(" ", "_") + "_cd" + str(geography_number).zfill(2)
         ).lower()
         table_name = "community_district_" + table_suffix
 
