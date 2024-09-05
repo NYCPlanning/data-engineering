@@ -5,6 +5,7 @@ import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 import pprint
+import re
 from shapely import wkb, wkt
 import typer
 
@@ -76,18 +77,21 @@ def _is_valid_wkb(g):
         return False
 
 
-def _is_float_or_double(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-
 def _is_int(s):
     if s[0] in ("-", "+"):
         return s[1:].isdigit()
     return s.isdigit()
+
+
+_decimal_regex = re.compile(r"^-?\d*\.\d*$")
+
+
+def _is_decimal(s):
+    return bool(_decimal_regex.match(s)) if s else False
+
+
+def _is_number(s):
+    return _is_decimal(s) or _is_int(s)
 
 
 def _is_geom_point(s):
@@ -110,8 +114,8 @@ col_validators = {
     "geom_point": lambda df, col_name: df[~df[col_name].apply(_is_geom_point)],
     "geom_poly": lambda df, col_name: df[~df[col_name].apply(_is_geom_poly)],
     "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
-    "decimal": lambda df, col_name: df[~df[col_name].str.match(r"^-?\d*\.\d*$")],
-    "number": lambda df, col_name: df[~df[col_name].str.match(r"^-?\d*")],
+    "decimal": lambda df, col_name: df[~df[col_name].apply(_is_decimal)],
+    "number": lambda df, col_name: df[~df[col_name].apply(_is_number)],
     # TODO
     "geometry": lambda df, col_name: df.iloc[0:0],
     "datetime": lambda df, col_name: df.iloc[0:0],
