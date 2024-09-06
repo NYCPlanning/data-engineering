@@ -1,9 +1,6 @@
 #!/bin/bash
 source bash/config.sh
 
-# Tables of projects in geographies of interest
-python3 -m python.projects_in_geographies
-
 # Summary table by managing and sponsor agency
 echo 'Creating summary tables by managing and sponsor agency'
 run_sql_file sql/analysis/projects_dollars_mapped_categorized_managing.sql

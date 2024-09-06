@@ -62,3 +62,11 @@ if __name__ == "__main__":
             geography.geography_name,
         )
         export_table(geography.table_name)
+
+    # zip folder with all csv files
+    print(f"Zipping folder\n\t{OUTPUT_DIR}")
+    shutil.make_archive(
+        base_name=OUTPUT_DIR,
+        format="zip",
+        root_dir=OUTPUT_DIR,
+    )
