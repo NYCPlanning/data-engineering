@@ -38,17 +38,15 @@ def create_table(
         conn.execute(text(sql_rendered))
 
 
-def export_table(geography_type: str, table_name: str) -> None:
+def export_table(table_name: str) -> None:
     print(f"pd.read_sql from table {table_name} ...")
     engine = create_engine(os.environ["BUILD_ENGINE"])
     with engine.begin() as conn:
         df = pd.read_sql(text("select * from %(name)s" % {"name": table_name}), conn)
 
-    output_subfolder = OUTPUT_DIR / geography_type
-    if not output_subfolder.exists():
-        output_subfolder.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    output_file_path = output_subfolder / f"{table_name}.csv"
+    output_file_path = OUTPUT_DIR / f"{table_name}.csv"
     print(f"sql_to_csv from {table_name} to {output_file_path} ...")
     df.to_csv(output_file_path, index=False)
 
@@ -63,4 +61,4 @@ if __name__ == "__main__":
             geography.geography_id,
             geography.geography_name,
         )
-        export_table(geography.geography_type, geography.table_name)
+        export_table(geography.table_name)
