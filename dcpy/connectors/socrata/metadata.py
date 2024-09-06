@@ -1,5 +1,6 @@
 from pathlib import Path
 import typer
+from typing import Any
 
 from dcpy.connectors.socrata import publish as pub
 from dcpy.connectors.socrata import metadata
@@ -18,7 +19,7 @@ FILL_ME_IN_PLACEHOLDER = "<FILL ME IN>"
 
 
 def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
-    dcp_col = {
+    dcp_col: dict[str, Any] = {
         "id": c["fieldName"],
         "name": c["name"],
         "description": c["description"],
@@ -37,7 +38,7 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
         dcp_col["example"] = str(sample)
     elif c["renderTypeName"] in soc_geom_types:
         dcp_col["data_type"] = "geometry"
-        dcp_col["custom"]["geometry_type"] = c["renderTypeName"]  # type: ignore
+        dcp_col["custom"]["geometry_type"] = c["renderTypeName"]
         # Unsupported target for indexed assignment ("Collection[str]")  [index]
         # Note: don't set the example, as we don't really know what to do with geom types
     elif c["renderTypeName"] in soc_types_to_dcp_types:
@@ -48,14 +49,13 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
     if (
         samples
         and len(samples) < ENTIRELY_ARBITRARY_MAX_STANDARDIZED_VALS
-        and len(samples) == int(c["cachedContents"].get("cardinality"))  # type: ignore
+        and len(samples) == int(c["cachedContents"].get("cardinality", -1))
     ):
         dcp_col["values"] = [
-            {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER}
-            for s in samples  # type: ignore
+            {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER} for s in samples
         ]
     md.DatasetColumn._validate_data_type = False
-    return md.DatasetColumn(**dcp_col)  # type: ignore
+    return md.DatasetColumn(**dcp_col)
 
 
 def _slugify(s):
