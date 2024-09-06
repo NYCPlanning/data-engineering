@@ -7,6 +7,7 @@ from pydantic import BaseModel, field_serializer
 from typing import List
 
 from dcpy.utils import versions
+from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes
 
 
@@ -99,6 +100,22 @@ class LoadResult(BaseModel, extra="forbid"):
     name: str
     build_name: str
     datasets: dict[str, ImportedDataset]
+
+
+class EventType(StrEnum):
+    BUILD = "build"
+    PROMOTE_TO_DRAFT = "promote_to_draft"
+    PUBLISH = "publish"
+
+
+class EventLog(BaseModel, extra="forbid"):
+    event_type: EventType
+    product: str
+    release_version: str
+    new_path: str
+    old_path: str | None
+    run_details: RunDetails
+    custom_fields: dict = {}
 
 
 class BuildMetadata(BaseModel, extra="forbid"):
