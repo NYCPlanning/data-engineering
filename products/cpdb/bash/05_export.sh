@@ -6,6 +6,9 @@ set_error_traps
 run_sql_file sql/_create_export.sql
 python3 python/checkbook_spending_by_year.py
 
+# Create and export tables of projects in geographies of interest
+python3 -m python.projects_in_geographies
+
 mkdir -p output && (
     cd output
     
@@ -26,7 +29,8 @@ mkdir -p output && (
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
     
-    cp -r ../projects_in_geographies ./
+    mv ../projects_in_geographies.zip ../projects_in_geographies/
+    mv ../projects_in_geographies ./
 
     echo $VERSION > version.txt
     wait 
