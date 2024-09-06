@@ -251,7 +251,7 @@ def log_metadata(config: library.Config):
     # long term, it probably makes more sense to have db interactions isolated by environment as well
     # at that point, this is unnecessary
     if configuration.DEV_FLAG:
-        logger.info("DEV_FLAG found, not library run metadata")
+        logger.info("DEV_FLAG env var found, skipping metadata logging")
         return
     logger.info(f"Logging library run metadata for dataset {config.dataset.name}")
     assert (
