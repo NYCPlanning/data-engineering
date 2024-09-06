@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from typing import Callable
 import yaml
 
+from dcpy import configuration
 from dcpy.models.connectors.edm.recipes import (
     Dataset,
     DatasetType,
@@ -17,7 +18,10 @@ from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.logging import logger
 
-BUCKET = "edm-recipes"
+assert (
+    configuration.RECIPES_BUCKET
+), "'RECIPES_BUCKET' must be defined to use edm.recipes connector"
+BUCKET = configuration.RECIPES_BUCKET
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
@@ -28,7 +32,7 @@ LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
 
 
-def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
+def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path) -> None:
     """
     Given a config and a path to a file and an s3_path, archive it in edm-recipe
     It is assumed that s3_path has taken care of figuring out which top-level folder,
@@ -38,7 +42,9 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path):
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
         with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(json.dumps(config.model_dump(exclude_none=True), indent=4))
+            f.write(
+                json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
+            )
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
@@ -61,24 +67,23 @@ def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False
     Given a config and a path to a processed parquet file, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and its version
     """
-    s3_path = config.dataset_key.s3_path("ingest_datasets")
+    s3_path = config.dataset_key.s3_path(DATASET_FOLDER)
     _archive_dataset(config, file_path, s3_path)
     if latest:
         s3.copy_folder(
             BUCKET,
             f"{s3_path}/",
-            f"ingest_datasets/{config.name}/latest/",
+            f"{DATASET_FOLDER}/{config.name}/latest/",
             acl=config.acl,
         )
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
     """Retrieve a recipe config from s3."""
-    obj = s3.client().get_object(
-        Bucket=BUCKET, Key=f"{DATASET_FOLDER}/{name}/{version}/config.json"
+    obj = s3.get_file_as_stream(
+        BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"
     )
-    file_content = str(obj["Body"].read(), "utf-8")
-    config = yaml.safe_load(file_content)
+    config = yaml.safe_load(obj)
     if "dataset" in config:
         return library.Config(**config)
     else:
@@ -243,6 +248,11 @@ def purge_recipe_cache():
 
 
 def log_metadata(config: library.Config):
+    # long term, it probably makes more sense to have db interactions isolated by environment as well
+    # at that point, this is unnecessary
+    if configuration.DEV_FLAG:
+        logger.info("DEV_FLAG env var found, skipping metadata logging")
+        return
     logger.info(f"Logging library run metadata for dataset {config.dataset.name}")
     assert (
         config.execution_details
@@ -280,7 +290,8 @@ def get_archival_metadata(
         runner = execution_details.runner_string
     else:
         s3metadata = s3.get_metadata(
-            BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"
+            BUCKET,
+            f"{DATASET_FOLDER}/{name}/{version}/config.json",
         )
         date_created = s3metadata.custom.get("date_created")
         if date_created is None:

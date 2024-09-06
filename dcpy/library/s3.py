@@ -50,6 +50,11 @@ class S3:
             config=config,
         )
         self.bucket = aws_s3_bucket
+        print(self.bucket)
+        if not self.bucket in [
+            b["Name"] for b in self.client.list_buckets()["Buckets"]
+        ]:
+            self.client.create_bucket(Bucket=self.bucket)
 
     def upload_file(
         self, name: str, version: str, path: str, acl: ACL = "public-read"

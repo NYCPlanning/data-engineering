@@ -20,6 +20,7 @@ retry
 Shapely
 socrata-py
 SQLAlchemy
+tabulate
 tqdm
 typer
 usaddress

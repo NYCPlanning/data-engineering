@@ -1,57 +1,73 @@
 from datetime import datetime
+import json
+import pandas as pd
 from pathlib import Path
 import pytest
+from unittest import mock
 import yaml
 
+from dcpy.models import library, file
+from dcpy.models.connectors.edm.recipes import DatasetType
+from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, metadata
 from dcpy.connectors.edm import recipes
-from dcpy.models import library, file
-from dcpy.models.lifecycle import ingest
-from dcpy.library.archive import Archive
 
-TEST_LIBRARY_DATASET = "test"
+from dcpy.test.conftest import RECIPES_BUCKET
+
+TEST_DATASET = "test"
+LIBRARY_VERSION = "library"
+INGEST_VERSION = "ingest"
 TEST_METADATA = library.ArchivalMetadata(
-    name=TEST_LIBRARY_DATASET, version="parquet", timestamp=datetime.now()
+    name=TEST_DATASET, version="parquet", timestamp=datetime.now()
+)
+INGEST_TEMPLATE = "ingest.yml"
+PARQUET_FILEPATH = (
+    f"{recipes.DATASET_FOLDER}/{TEST_DATASET}/{INGEST_VERSION}/{TEST_DATASET}.parquet"
 )
 
 RESOURCE_DIR = Path(__file__).parent / "resources"
 
 
-def library_archive(output_format: str, version: str) -> library.Config:
-    a = Archive()
-    return a(
-        path=str(RESOURCE_DIR / "test.yml"),
-        output_format=output_format,
-        version=version,
-        push=True,
-        clean=True,
-        latest=True,
+def _load_folder(mode):
+    version_folder = f"datasets/{TEST_DATASET}/{mode}/"
+    s3.upload_folder(
+        RECIPES_BUCKET,
+        RESOURCE_DIR / mode,
+        Path(version_folder),
+        "private",
+        contents_only=True,
     )
+    s3.copy_folder(
+        RECIPES_BUCKET, version_folder, f"datasets/{TEST_DATASET}/latest", "private"
+    )
+    with open(RESOURCE_DIR / mode / "config.json") as f:
+        return json.load(f)
 
 
 @pytest.fixture(scope="function")
-def load_library_parquet(create_buckets):
-    yield library_archive(output_format="parquet", version="parquet")
+def load_library(create_buckets):
+    """loads pg_dump and csv"""
+    config_json = _load_folder("library")
+    yield library.Config(**config_json)
 
 
 @pytest.fixture(scope="function")
-def load_library_pgdump(create_buckets):
-    yield library_archive(output_format="pgdump", version="pg_dump")
+def load_ingest(create_buckets):
+    config_json = _load_folder("ingest")
+    yield ingest.Config(**config_json)
 
 
-@pytest.fixture(scope="function")
-def load_library_all(create_buckets):
-    version = "all"
-    for output_format in ["parquet", "pgdump", "csv"]:
-        library_config = library_archive(output_format=output_format, version=version)
-    yield library_config
+def test_dataset_type_from_extension():
+    assert recipes._dataset_type_from_extension("sql") == DatasetType.pg_dump
+    assert recipes._dataset_type_from_extension("csv") == DatasetType.csv
+    assert recipes._dataset_type_from_extension("parquet") == DatasetType.parquet
+    assert recipes._dataset_type_from_extension("xlsx") == DatasetType.xlsx
+    assert recipes._dataset_type_from_extension("other") == None
 
 
-def test_archive_dataset(create_buckets, create_temp_filesystem: Path):
+class TestArchiveDataset:
     dataset = "bpl_libraries"  # doesn't actually get queried, just to fill out config
     raw_file_name = "tmp.txt"
-    tmp_file = create_temp_filesystem / raw_file_name
-    tmp_file.touch()
     config = ingest.Config(
         name=dataset,
         version="dummy",
@@ -64,83 +80,160 @@ def test_archive_dataset(create_buckets, create_temp_filesystem: Path):
         file_format=file.Csv(type="csv"),  # easiest to mock
         run_details=metadata.get_run_details(),
     )
-    recipes.archive_raw_dataset(config, tmp_file)
-    assert s3.exists(
-        recipes.BUCKET,
-        str(config.raw_s3_key(recipes.RAW_FOLDER)),
-    )
 
-    tmp_parquet = create_temp_filesystem / config.filename
-    tmp_parquet.touch()
-    recipes.archive_dataset(config, tmp_parquet)
-    assert s3.exists(
-        recipes.BUCKET,
-        str(
-            config.s3_file_key("ingest_datasets")
-        ),  ## TODO don't want to point the code at our "production" folder at the moment
-    )
-
-
-def test_get_preferred_file_type(
-    load_library_parquet: library.Config,
-    load_library_pgdump: library.Config,
-    load_library_all: library.Config,
-):
-    expected_file_types = {
-        load_library_parquet.version: recipes.DatasetType.parquet,
-        load_library_pgdump.version: recipes.DatasetType.pg_dump,
-        load_library_all.version: recipes.DatasetType.parquet,
-    }
-    for version in expected_file_types:
-        dataset = recipes.Dataset(name=TEST_LIBRARY_DATASET, version=version)
-        file_type = recipes.get_preferred_file_type(
-            dataset,
-            [
-                recipes.DatasetType.parquet,
-                recipes.DatasetType.pg_dump,
-                recipes.DatasetType.csv,
-            ],
+    def test_archive_raw_dataset(self, create_buckets, create_temp_filesystem: Path):
+        tmp_file = create_temp_filesystem / self.raw_file_name
+        tmp_file.touch()
+        recipes.archive_raw_dataset(self.config, tmp_file)
+        assert s3.exists(
+            RECIPES_BUCKET,
+            str(self.config.raw_s3_key(recipes.RAW_FOLDER)),
         )
-        assert file_type == expected_file_types[version]
+
+    def test_archive_dataset(self, create_buckets, create_temp_filesystem: Path):
+        tmp_parquet = create_temp_filesystem / self.config.filename
+        tmp_parquet.touch()
+        recipes.archive_dataset(self.config, tmp_parquet)
+        assert s3.exists(
+            RECIPES_BUCKET, str(self.config.s3_file_key(recipes.DATASET_FOLDER))
+        )
+
+    def test_archive_dataset_latest(self, create_buckets, create_temp_filesystem: Path):
+        tmp_parquet = create_temp_filesystem / self.config.filename
+        tmp_parquet.touch()
+        recipes.archive_dataset(self.config, tmp_parquet, latest=True)
+        assert s3.exists(
+            RECIPES_BUCKET,
+            f"{recipes.DATASET_FOLDER}/{self.dataset}/latest/{self.config.filename}",
+        )
 
 
-def test_parse_config():
+def test_get_preferred_file_type(load_library):
+    dataset = recipes.Dataset(name=TEST_DATASET, version=LIBRARY_VERSION)
+    file_type = recipes.get_preferred_file_type(
+        dataset,
+        [
+            recipes.DatasetType.parquet,
+            recipes.DatasetType.pg_dump,
+            recipes.DatasetType.csv,
+        ],
+    )
+    assert file_type == recipes.DatasetType.pg_dump
+
+
+def test_parse_library_config():
     # for backwards compatibility
-    with open(RESOURCE_DIR / "config.json", "r", encoding="utf-8") as f:
+    with open(RESOURCE_DIR / "library" / "config.json", "r", encoding="utf-8") as f:
         yml = yaml.safe_load(f)
         config = library.Config(**yml)
     assert config.execution_details
 
 
-def test_get_config(load_library_parquet: library.Config):
-    config = recipes.get_config(TEST_LIBRARY_DATASET, load_library_parquet.version)
-    assert config == load_library_parquet
+def test_get_library_config(load_library: library.Config):
+    config = recipes.get_config(TEST_DATASET, LIBRARY_VERSION)
+    assert config == load_library
 
 
-def test_get_latest_version(load_library_parquet: library.Config):
-    assert (
-        recipes.get_latest_version(TEST_LIBRARY_DATASET) == load_library_parquet.version
-    )
+def test_get_ingest_config(load_ingest: ingest.Config):
+    config = recipes.get_config(TEST_DATASET, load_ingest.version)
+    assert config == load_ingest
 
 
-def test_get_dataset_metadata(load_library_parquet: library.Config):
-    assert load_library_parquet.execution_details
-    metadata = recipes.get_archival_metadata(TEST_LIBRARY_DATASET)
-    assert metadata.name == TEST_LIBRARY_DATASET
-    assert metadata.version == load_library_parquet.version
-    assert metadata.timestamp == load_library_parquet.execution_details.timestamp
+def test_get_latest_version(load_ingest):
+    assert recipes.get_latest_version(TEST_DATASET) == INGEST_VERSION
 
 
-def test_read_df(load_library_all, load_library_pgdump):
+def test_get_all_versions(load_library, load_ingest):
+    assert set(recipes.get_all_versions(TEST_DATASET)) == {
+        LIBRARY_VERSION,
+        INGEST_VERSION,
+    }
+
+
+def test_fetch_dataset(load_ingest: ingest.Config, create_temp_filesystem: Path):
+    ds = load_ingest.dataset
+    ds.file_type = DatasetType.parquet
+    folder_path = create_temp_filesystem / recipes.DATASET_FOLDER / ds.name / ds.version
+    folder_path.mkdir(parents=True)  # mainly for coverage
+    path = recipes.fetch_dataset(ds, create_temp_filesystem)
+    print(path)
+    assert path.exists()
+
+
+def test_fetch_dataset_cache(load_ingest: ingest.Config, create_temp_filesystem: Path):
+    ds = load_ingest.dataset
+    ds.file_type = DatasetType.parquet
+    recipes.fetch_dataset(ds, create_temp_filesystem)
+
+    with mock.patch("dcpy.utils.s3.download_file") as download_file:
+        recipes.fetch_dataset(ds, create_temp_filesystem)
+        assert (
+            download_file.call_count == 0
+        ), "file did not cache properly, fetch_dataset attempted s3 call"
+
+        recipes.fetch_dataset(ds, create_temp_filesystem / "dummy_folder")
+        assert (
+            download_file.call_count == 1
+        ), "fetch_dataset was refactored, testing of cache functionality no longer valid"
+
+
+def test_invalid_pd_reader():
+    with pytest.raises(Exception, match="Cannot read pandas dataframe"):
+        recipes._pd_reader(DatasetType.pg_dump)
+
+
+def test_get_dataset_metadata(load_ingest: ingest.Config):
+    assert load_ingest.run_details
+    metadata = recipes.get_archival_metadata(TEST_DATASET)
+    assert metadata.name == TEST_DATASET
+    assert metadata.version == INGEST_VERSION
+    assert metadata.timestamp == load_ingest.run_details.timestamp
+
+
+def test_read_df(load_ingest: ingest.Config):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
-    dataset = load_library_all.sparse_dataset
+    dataset = load_ingest.dataset
     dataset.file_type = None
     file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
     assert file_type == recipes.DatasetType.parquet
-    parquet = recipes.read_df(dataset, preferred_file_types=preferred_file_types)
-    dataset.file_type = recipes.DatasetType.csv
-    csv = recipes.read_df(dataset, dtype="object")
-    assert csv.equals(parquet)
+    recipe_df = recipes.read_df(dataset, preferred_file_types=preferred_file_types)
+    input_df = pd.read_parquet(RESOURCE_DIR / "ingest" / "test.parquet")
+    assert recipe_df.equals(input_df)
 
+
+def test_read_df_library_csv(load_library: library.Config):
+    preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
+    dataset = load_library.sparse_dataset
+    file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
+    assert file_type == recipes.DatasetType.csv
+    recipe_df = recipes.read_df(dataset)
+    input_df = pd.read_csv(RESOURCE_DIR / "library" / "test.csv")
+    assert recipe_df.equals(input_df)
+
+
+def test_read_df_missing_filetype(load_library: library.Config):
     with pytest.raises(FileNotFoundError):
-        recipes.read_df(load_library_pgdump.sparse_dataset)
+        recipes.read_df(
+            load_library.sparse_dataset,
+            preferred_file_types=[recipes.DatasetType.parquet],
+        )
+
+
+def test_read_df_cache(load_ingest: ingest.Config, create_temp_filesystem: Path):
+    preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
+    dataset = load_ingest.dataset
+    dataset.file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
+    _df = recipes.read_df(
+        dataset,
+        preferred_file_types=preferred_file_types,
+        local_cache_dir=create_temp_filesystem,
+    )
+    print(create_temp_filesystem / PARQUET_FILEPATH)
+    assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+
+def test_log_metadata(dev_flag):
+    with mock.patch("dcpy.utils.postgres.PostgresClient") as pg_client:
+        recipes.log_metadata(None)
+        # when dev_flag present, returns without invoking anything
+        pg_client.assert_not_called()

@@ -18,6 +18,9 @@ on:
       plan_command:
         type: string
         default: recipe
+      dev_bucket:
+        type: string
+        required: false
 
 jobs:
   build:
@@ -32,6 +35,9 @@ jobs:
     env:
       BUILD_ENGINE_DB: db-ztl
       BUILD_NAME: ${{ inputs.build_name }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 

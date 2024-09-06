@@ -1,4 +1,3 @@
-from botocore.exceptions import ClientError
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
@@ -7,13 +6,14 @@ from unittest.mock import patch
 
 from dcpy.utils import s3, versions
 from dcpy.connectors.edm import publishing
+from dcpy.test.conftest import PUBLISHING_BUCKET
 
 TEST_PRODUCT_NAME = "test-product"
 TEST_BUILD = "build-branch"
 TEST_VERSION_OBJ = versions.MajorMinor(year=24, major=2)  # matches conftest.py
 TEST_VERSION = TEST_VERSION_OBJ.label
 TEST_ACL = "bucket-owner-read"
-TEST_BUCKET_NAME = "edm-publishing"
+TEST_BUCKET_NAME = PUBLISHING_BUCKET
 TEST_GIS_DATASET = "test_gis_dataset"
 DATE_CONSTANT = "20240101"
 DATE_TODAY = datetime.now().strftime("%Y%m%d")
@@ -30,7 +30,7 @@ def add_gis_datasets(create_buckets):
         f"datasets/{TEST_GIS_DATASET}/{DATE_CONSTANT}/{TEST_GIS_DATASET}.zip",
     ]
     for object in test_objects:
-        s3.client().put_object(Bucket=publishing.BUCKET, Key=object)
+        s3.client().put_object(Bucket=TEST_BUCKET_NAME, Key=object)
     yield
 
 
@@ -51,6 +51,65 @@ def test_upload(create_buckets, create_temp_filesystem, mock_data_constants):
     publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
     assert TEST_BUILD in publishing.get_builds(product=TEST_PRODUCT_NAME)
     assert publishing.get_version(product_key=build_key) == TEST_VERSION
+
+
+def test_upload_file_fails(create_buckets, create_temp_filesystem, mock_data_constants):
+    data_path = mock_data_constants["TEST_DATA_DIR"] / mock_data_constants["TEST_FILE"]
+    with pytest.raises(
+        Exception, match="'upload' expects output_path to be a directory, not a file"
+    ):
+        publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+
+
+def test_get_filenames(create_buckets, create_temp_filesystem, mock_data_constants):
+    """Checks build directory is found in s3 "build" directory.
+    Tests version from version.txt file matches actual version."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    publishing.upload(output_path=data_path, build_key=build_key, acl=TEST_ACL)
+    expected_filenames = {"file.csv", "version.txt", "build_metadata.json"}
+    assert publishing.get_filenames(build_key) == expected_filenames
+
+
+@pytest.mark.parametrize(
+    "latest, contents_only, expected_path, not_expected_paths",
+    [
+        (
+            False,
+            False,
+            "24v2/test_data/file.csv",
+            ["latest/test_data/file.csv", "24v2/file.csv"],
+        ),
+        (True, False, "latest/test_data/file.csv", []),
+        (False, True, "24v2/file.csv", ["24v2/test_data/file.csv"]),
+    ],
+)
+def test_legacy_upload(
+    latest: bool,
+    contents_only: bool,
+    expected_path: str,
+    not_expected_paths: list[str],
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    prefix = "prefix"
+    publishing.legacy_upload(
+        output=data_path,
+        publishing_folder=TEST_PRODUCT_NAME,
+        version=TEST_VERSION,
+        acl=TEST_ACL,  # type: ignore
+        s3_subpath=prefix,
+        contents_only=contents_only,
+        latest=latest,
+    )
+    assert s3.exists(
+        TEST_BUCKET_NAME,
+        f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
+    )
+    for path in not_expected_paths:
+        assert not s3.exists(TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}")
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
@@ -209,7 +268,7 @@ def mock_versions_data():
     for product in versions_by_product:
         for version in versions_by_product[product]:
             s3.client().put_object(
-                Bucket=publishing.BUCKET, Key=f"{product}/publish/{version}/dummy.txt"
+                Bucket=TEST_BUCKET_NAME, Key=f"{product}/publish/{version}/dummy.txt"
             )
 
 
@@ -254,7 +313,7 @@ def test_get_latest_gis_dataset_version(create_buckets, add_gis_datasets):
     assert DATE_TODAY == publishing.get_latest_gis_dataset_version(TEST_GIS_DATASET)
 
     s3.client().put_object(
-        Bucket=publishing.BUCKET,
+        Bucket=TEST_BUCKET_NAME,
         Key=f"datasets/{TEST_GIS_DATASET}/24A/{TEST_GIS_DATASET}.zip",
     )
     with pytest.raises(ValueError, match="Multiple"):
