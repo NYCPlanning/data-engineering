@@ -20,7 +20,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from . import pp, aws_s3_bucket
+from . import aws_s3_bucket
 
 # TODO - remove this when data-library moved to dcpy s3 functionality
 ACL = Literal[
@@ -51,7 +51,7 @@ class S3:
         )
         self.bucket = aws_s3_bucket
         print(self.bucket)
-        if not self.bucket in [
+        if self.bucket not in [
             b["Name"] for b in self.client.list_buckets()["Buckets"]
         ]:
             self.client.create_bucket(Bucket=self.bucket)

@@ -59,7 +59,7 @@ def generate_metadata() -> dict[str, str]:
 
 
 def string_as_acl(s: str) -> ACL:
-    if not s in get_args(ACL):
+    if s not in get_args(ACL):
         raise ValueError(f"String '{s}' is not a valid literal 'ACL'")
     return cast(ACL, s)
 

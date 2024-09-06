@@ -23,14 +23,14 @@ def generate_folium_map(gdf: gpd.GeoDataFrame) -> lmf.Map:
 
     if len(gdf_points) > 0:
         basic_map.add_points_from_xy(
-            gdf_points, crs=str(gdf_points.crs), layer_name=f"Points"
+            gdf_points, crs=str(gdf_points.crs), layer_name="Points"
         )
     if len(gdf_polygons) > 0:
-        basic_map.add_gdf(gdf_polygons, layer_name=f"Polygons")
+        basic_map.add_gdf(gdf_polygons, layer_name="Polygons")
     if len(gdf_multipolygons) > 0:
         basic_map.add_gdf(
             gdf_multipolygons,
-            layer_name=f"MultiPolygons",
+            layer_name="MultiPolygons",
         )
 
     return basic_map

@@ -36,10 +36,10 @@ def get_feature_server_layers(
         FeatureServerLayer(
             server=feature_server.server,
             name=feature_server.name,
-            layer_name=l["name"],
-            layer_id=l["id"],
+            layer_name=layer["name"],
+            layer_id=layer["id"],
         )
-        for l in resp["layers"]
+        for layer in resp["layers"]
     ]
 
 
@@ -60,7 +60,7 @@ def resolve_layer(
     narrow types within tuples. See final comments in https://github.com/python/mypy/issues/12364
     """
     layers = get_feature_server_layers(feature_server)
-    layer_labels = [l.layer_label for l in layers]
+    layer_labels = [layer.layer_label for layer in layers]
 
     match layer_id, layer_name:
         case None, None:
@@ -74,7 +74,7 @@ def resolve_layer(
                 return layers[0]
         case _, None:
             assert layer_id is not None
-            layers_by_id = {l.layer_id: l for l in layers}
+            layers_by_id = {layer.layer_id: layer for layer in layers}
             if layer_id in layers_by_id:
                 return layers_by_id[layer_id]
             else:
@@ -83,7 +83,7 @@ def resolve_layer(
                 )
         case None, _:
             assert layer_name is not None
-            layers_by_name = {l.layer_name: l for l in layers}
+            layers_by_name = {layer.layer_name: layer for layer in layers}
             if layer_name in layers_by_name:
                 return layers_by_name[layer_name]
             else:

@@ -1,13 +1,9 @@
-from copy import copy
-from sys import meta_path
 import openpyxl  # type: ignore
-from openpyxl import workbook
 from openpyxl.styles import Border, Side, Alignment, Font  # type: ignore
 from pathlib import Path
 from tabulate import tabulate  # type: ignore
 import typer
 
-from openpyxl.worksheet.properties import Outline  # type: ignore
 
 from dcpy.models.product.dataset import metadata_v2 as md_v2
 from dcpy.utils.logging import logger

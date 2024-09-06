@@ -31,7 +31,7 @@ def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
         geom_column = geometry.geom_column
         assert (
             geom_column in df.columns
-        ), f"❌ Specified geometry column does not exist in the dataset."
+        ), "❌ Specified geometry column does not exist in the dataset."
 
         # replace NaN values with None. Otherwise gpd throws an error
         if df[geom_column].isnull().any():
@@ -62,7 +62,7 @@ def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
         y_column = geometry.geom_column.y
         assert (
             x_column in df.columns and y_column in df.columns
-        ), f"❌ Longitude or latitude columns specified do not exist in the dataset."
+        ), "❌ Longitude or latitude columns specified do not exist in the dataset."
 
         gdf = gpd.GeoDataFrame(
             df,

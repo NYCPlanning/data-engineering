@@ -12,7 +12,7 @@ def extract_date(x: str) -> date | None:
     try:
         dt = dparser.parse(x, fuzzy=True)
         return dt.date()
-    except:
+    except:  # noqa F722
         return None
 
 
@@ -61,7 +61,7 @@ def extract() -> pd.DataFrame:
                             date=date,
                         )
                     )
-            except:
+            except:  # noqa F722
                 pass
         else:
             continue
@@ -86,7 +86,7 @@ def extract() -> pd.DataFrame:
                                 date=date,
                             )
                         )
-                    except:
+                    except:  # noqa F722
                         school_year = get_school_year(readable_url)
                         proposals.append(
                             dict(
@@ -96,7 +96,7 @@ def extract() -> pd.DataFrame:
                                 date="",
                             )
                         )
-            except:
+            except:  # noqa F722
                 pass
         else:
             continue

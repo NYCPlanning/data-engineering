@@ -32,10 +32,10 @@ class Validator:
     # Check that the tree structure fits the specified schema
     @property
     def tree_is_valid(self) -> bool:
-        if self.__parsed_file["dataset"] == None:
+        if self.__parsed_file["dataset"] is None:
             return False
         try:
-            input_ds = Dataset(**self.__parsed_file["dataset"])
+            _input_ds = Dataset(**self.__parsed_file["dataset"])
         except ValidationError as e:
             print(e.json())
             return False

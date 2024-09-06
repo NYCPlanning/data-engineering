@@ -19,7 +19,6 @@ from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
-from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors.edm import publishing
 

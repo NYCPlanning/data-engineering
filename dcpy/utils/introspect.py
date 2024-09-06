@@ -12,14 +12,14 @@ def _isinstance(obj, cls):
     _isinstance extends behavior of basic python `isinstance` to allow for
     parameterized generics (i.e. check if an object is dict[str, str])
     """
-    if get_origin(cls) == Literal:
+    if get_origin(cls) is Literal:
         return obj in get_args(cls)
-    elif (get_origin(cls) == Union) or (get_origin(cls) == UnionType):
+    elif get_origin(cls) in (Union, UnionType):
         return any([_isinstance(obj, param) for param in get_args(cls)])
-    elif get_origin(cls) == list:
+    elif get_origin(cls) is list:
         param = get_args(cls)[0]
-        return isinstance(obj, list) and all([_isinstance(l, param) for l in obj])
-    elif get_origin(cls) == dict:
+        return isinstance(obj, list) and all([_isinstance(e, param) for e in obj])
+    elif get_origin(cls) is dict:
         keytype = get_args(cls)[0]
         valtype = get_args(cls)[1]
         return (

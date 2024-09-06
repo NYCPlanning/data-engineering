@@ -165,7 +165,7 @@ class TestValidateKwargs:
             "a" in empty
             and ("b" not in empty)
             and ("c" in empty)
-            and (not "d" in empty)
+            and ("d" not in empty)
         )
         only_a = introspect.validate_kwargs(kwargs_default, self.a)
         assert (

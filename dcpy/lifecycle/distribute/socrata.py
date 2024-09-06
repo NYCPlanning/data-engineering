@@ -2,7 +2,6 @@ from pathlib import Path
 import typer
 
 import dcpy.models.product.dataset.metadata_v2 as m
-from dcpy.lifecycle.package import validate as v
 from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub

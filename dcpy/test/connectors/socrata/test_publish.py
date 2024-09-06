@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, call
 
 import dcpy.models.product.dataset.metadata_v2 as md
 from dcpy.connectors.socrata import publish
-from dcpy.utils.logging import logger
 
 
 @pytest.fixture
@@ -52,7 +51,7 @@ def test_socrata_destination_file_uses(metadata: md.Metadata):
     socrata_dest = publish.SocrataDestination(metadata, destination_id="socrata")
     assert socrata_dest.attachment_ids == {"readme", "my_zip"}
     assert socrata_dest.dataset_file_id == "data_file"
-    assert socrata_dest.is_unparsed_dataset == True
+    assert socrata_dest.is_unparsed_dataset
 
 
 def test_socrata_destination_file_uses_multiple_dataset_files(metadata: md.Metadata):

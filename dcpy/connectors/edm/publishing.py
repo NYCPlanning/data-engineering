@@ -846,7 +846,7 @@ def _cli_wrapper_download_file(
         None,
         "-pt",
         "--product-type",
-        help=f"Product type to download. Options are: 'build', 'draft', or 'publish'",
+        help="Product type to download. Options are: 'build', 'draft', or 'publish'",
     ),
     version: str = typer.Option(None, "-v", "--version", help="Product version/build"),
     draft_revision: str = typer.Option(

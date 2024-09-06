@@ -1,7 +1,6 @@
 from datetime import datetime
 import os
 from pathlib import Path
-from pydantic import BaseModel
 import pytz
 import json
 

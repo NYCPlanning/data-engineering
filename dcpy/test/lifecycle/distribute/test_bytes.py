@@ -99,7 +99,7 @@ def test_plan():
 
 def test_plan_errors_for_socrata():
     with pytest.raises(Exception, match=bytes.NON_BYTES_DEST_ERROR):
-        plan = bytes.pull_destination_files(Path(""), make_metadata(), SOCRATA_DEST_ID)
+        _plan = bytes.pull_destination_files(Path(""), make_metadata(), SOCRATA_DEST_ID)
 
 
 @patch("dcpy.lifecycle.package.assemble.unzip_into_package")

@@ -24,4 +24,6 @@ TEST_DATASET_OUTPUT_DIRECTORY = (
 TEST_DATASET_OUTPUT_PATH = f"{TEST_DATASET_OUTPUT_DIRECTORY}/{TEST_DATASET_NAME}"
 TEST_DATASET_OUTPUT_PATH_S3 = f"datasets/{TEST_DATASET_NAME}/{TEST_DATASET_VERSION}"
 
-get_config_file = lambda filename: f"{test_root_path}/data/{filename}.yml"
+
+def get_config_file(filename: str) -> str:
+    return f"{test_root_path}/data/{filename}.yml"

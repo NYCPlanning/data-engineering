@@ -56,7 +56,7 @@ def get_run_details() -> RunDetails:
     def try_func(func):
         try:
             return func()
-        except:
+        except Exception:
             return "could not parse"
 
     timestamp = datetime.now(pytz.timezone("America/New_York"))

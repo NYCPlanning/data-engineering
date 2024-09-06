@@ -113,7 +113,7 @@ def _cli_wrapper_package(
     ),
 ):
     logger.info(f"Packaging {product} version {version}")
-    publish_key = publishing.PublishKey(product, version)
+    _publish_key = publishing.PublishKey(product, version)
     # package(publish_key)
 
 

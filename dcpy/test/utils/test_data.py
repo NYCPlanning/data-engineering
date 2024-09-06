@@ -76,7 +76,7 @@ def test_serialize_nested_objects():
 
 def test_upsert_df_columns():
     on = ["key1", "key2"]
-    df = lambda: pd.DataFrame(
+    df = pd.DataFrame(
         {
             "key1": ["foo", "bar", "bar"],
             "key2": [1, 1, 2],
@@ -84,7 +84,7 @@ def test_upsert_df_columns():
             "value": [1, 2, 3],
         }
     )
-    df_upsert = lambda: pd.DataFrame(
+    df_upsert = pd.DataFrame(
         {
             "key1": ["bar", "foo", "bar"],
             "key2": [2, 1, 1],
@@ -94,11 +94,9 @@ def test_upsert_df_columns():
     )
 
     with pytest.raises(ValueError):
-        data.upsert_df_columns(df(), df_upsert(), key=on, insert_behavior="error")
+        data.upsert_df_columns(df, df_upsert, key=on, insert_behavior="error")
 
-    updated = data.upsert_df_columns(
-        df(), df_upsert(), key=on, insert_behavior="ignore"
-    )
+    updated = data.upsert_df_columns(df, df_upsert, key=on, insert_behavior="ignore")
     assert updated.equals(
         pd.DataFrame(
             {
@@ -110,7 +108,7 @@ def test_upsert_df_columns():
         )
     )
 
-    inserted = data.upsert_df_columns(df(), df_upsert(), key=on)
+    inserted = data.upsert_df_columns(df, df_upsert, key=on)
     assert inserted.equals(
         pd.DataFrame(
             {
@@ -125,7 +123,7 @@ def test_upsert_df_columns():
 
     df_missing_key_column = pd.DataFrame({"key1": ["bar", "foo"], "value": [6, 5]})
     with pytest.raises(ValueError):
-        data.upsert_df_columns(df(), df_missing_key_column, key=on)
+        data.upsert_df_columns(df, df_missing_key_column, key=on)
 
     df_multiple = pd.DataFrame(
         {
@@ -136,9 +134,9 @@ def test_upsert_df_columns():
         }
     )
     with pytest.raises(ValueError):
-        data.upsert_df_columns(df(), df_multiple, key=on)
+        data.upsert_df_columns(df, df_multiple, key=on)
     upserted_multiple = data.upsert_df_columns(
-        df(), df_multiple, key=on, allow_duplicate_keys=True
+        df, df_multiple, key=on, allow_duplicate_keys=True
     )
     assert upserted_multiple.equals(
         pd.DataFrame(
@@ -152,13 +150,13 @@ def test_upsert_df_columns():
         )
     )
 
-    df_missing_key = lambda: pd.DataFrame(
+    df_missing_key = pd.DataFrame(
         {"key1": ["bar", "foo"], "key2": [2, 1], "value": [6, 4]}
     )
     with pytest.raises(ValueError):
-        data.upsert_df_columns(df(), df_missing_key(), key=on)
+        data.upsert_df_columns(df, df_missing_key, key=on)
     updated_with_missing = data.upsert_df_columns(
-        df(), df_missing_key(), key=on, missing_key_behavior="null"
+        df, df_missing_key, key=on, missing_key_behavior="null"
     )
     assert updated_with_missing.equals(
         pd.DataFrame(
@@ -172,7 +170,7 @@ def test_upsert_df_columns():
     )
 
     updated_with_missing_coalesced = data.upsert_df_columns(
-        df(), df_missing_key(), key=on, missing_key_behavior="coalesce"
+        df, df_missing_key, key=on, missing_key_behavior="coalesce"
     )
     assert updated_with_missing_coalesced.equals(
         pd.DataFrame(

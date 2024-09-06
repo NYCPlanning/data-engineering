@@ -19,7 +19,6 @@ def _get_colp_md():
 
 def test_colp_single_feature_package():
     md = _get_colp_md()
-    raw_md_dataset_files = RAW_MD["files"]
 
     validation = validate.validate_package_from_path(
         COLP_PACKAGE_PATH, metadata_args={"version": COLP_VERSION}

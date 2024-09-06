@@ -30,9 +30,9 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
     sample = samples[0].get("item") if samples else None
 
     if c["renderTypeName"] == "number":
-        if type(sample) == float:
+        if isinstance(sample, float):
             dcp_col["data_type"] = "decimal"
-        elif type(sample) == int:
+        elif isinstance(sample, int):
             dcp_col["data_type"] = "integer"
         dcp_col["example"] = str(sample)
     elif c["renderTypeName"] in soc_geom_types:

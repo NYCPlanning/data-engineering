@@ -19,8 +19,8 @@ def test_older_execution_details():
 def test_run_details_parsing():
     with open(RESOURCES_DIR / "config.yml") as file:
         obj = yaml.safe_load(file)
-    manual = RunDetails(**obj["manual"])
-    ci = RunDetails(**obj["ci"])
+    _manual = RunDetails(**obj["manual"])
+    _ci = RunDetails(**obj["ci"])
     assert True
 
 

@@ -136,7 +136,11 @@ def translator(func):
             # This addresses a gdal issue where translation will fail
             # to generate a csv from a shapefile if a csv already exists at
             # the target path
-            if type(dstDS) == str and dstDS.endswith(".csv") and Path(dstDS).exists():
+            if (
+                isinstance(dstDS, str)
+                and dstDS.endswith(".csv")
+                and Path(dstDS).exists()
+            ):
                 Path(dstDS).unlink()
 
             srcSRS = dataset.source.geometry.SRS if dataset.source.geometry else None

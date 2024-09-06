@@ -1,6 +1,5 @@
 import pytest
 import os
-from botocore.exceptions import EndpointConnectionError
 from dcpy.utils import s3
 from dcpy.test.conftest import TEST_BUCKET, TEST_BUCKETS
 from pathlib import Path

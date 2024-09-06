@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from dcpy.library import pp
 from dcpy.library.s3 import S3
 
 from . import console
@@ -69,7 +68,7 @@ def test_s3_cp():
     # Make sure the {version} version exists, and the latest version doesn't
     assert s3.exists(f"test/{version}/test.yml")
     assert s3.exists("test/latest/test.yml")
-    s3.rm(f"test/{version}/test.yml", f"test/latest/test.yml")
+    s3.rm(f"test/{version}/test.yml", "test/latest/test.yml")
 
 
 def test_s3_mv():

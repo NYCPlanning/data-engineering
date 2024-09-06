@@ -62,7 +62,7 @@ def test_dataset_type_from_extension():
     assert recipes._dataset_type_from_extension("csv") == DatasetType.csv
     assert recipes._dataset_type_from_extension("parquet") == DatasetType.parquet
     assert recipes._dataset_type_from_extension("xlsx") == DatasetType.xlsx
-    assert recipes._dataset_type_from_extension("other") == None
+    assert recipes._dataset_type_from_extension("other") is None
 
 
 class TestArchiveDataset:

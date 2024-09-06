@@ -60,7 +60,7 @@ def resolve_version(recipe: Recipe) -> str:
                 )
             ):
                 raise ValueError(
-                    f"To use 'pin to source dataset' version strategy, source input dataset must either be latest or explicit version"
+                    "To use 'pin to source dataset' version strategy, source input dataset must either be latest or explicit version"
                 )
             return input.version or recipes.get_latest_version(dataset)
 

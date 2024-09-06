@@ -374,7 +374,7 @@ class Metadata(BaseModel, extra="forbid"):
                     ),
                 )
                 for dest in self.destinations
-                if type(dest) == SocrataDestination
+                if isinstance(dest, SocrataDestination)
             ]
             + [
                 md_v2.DestinationWithFiles(
@@ -386,7 +386,7 @@ class Metadata(BaseModel, extra="forbid"):
                     ],
                 )
                 for dest in self.destinations
-                if type(dest) == BytesDestination
+                if isinstance(dest, BytesDestination)
             ],  # md_v2,
             attributes=md_v2.DatasetAttributes(
                 display_name=self.display_name,
