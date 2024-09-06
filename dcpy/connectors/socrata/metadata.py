@@ -51,7 +51,8 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
         and len(samples) == int(c["cachedContents"].get("cardinality"))  # type: ignore
     ):
         dcp_col["values"] = [
-            {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER} for s in samples  # type: ignore
+            {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER}
+            for s in samples  # type: ignore
         ]
     md.DatasetColumn._validate_data_type = False
     return md.DatasetColumn(**dcp_col)  # type: ignore

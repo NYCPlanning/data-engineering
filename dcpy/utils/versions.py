@@ -35,7 +35,6 @@ class RegexSpmMatch:
 
 @total_ordering
 class Version:
-
     @property
     @abstractmethod
     def label(self) -> str:

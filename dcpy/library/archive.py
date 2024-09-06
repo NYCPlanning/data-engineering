@@ -93,7 +93,10 @@ class Archive:
 
         # Initiate ingestion
         output_files, config = ingestor_of_format(
-            path, *args, source_path_override=source_path_override, **kwargs  # type: ignore
+            path,
+            *args,
+            source_path_override=source_path_override,
+            **kwargs,  # type: ignore
         )
         version = config.dataset.version
         acl = config.dataset.acl

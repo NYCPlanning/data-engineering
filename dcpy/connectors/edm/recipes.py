@@ -254,9 +254,7 @@ def log_metadata(config: library.Config):
         logger.info("DEV_FLAG env var found, skipping metadata logging")
         return
     logger.info(f"Logging library run metadata for dataset {config.dataset.name}")
-    assert (
-        config.execution_details
-    ), f"Provided config for dataset {config.dataset.name} does not have run details specified. Cannot log."
+    assert config.execution_details, f"Provided config for dataset {config.dataset.name} does not have run details specified. Cannot log."
     pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
     query = f"""
         INSERT INTO {LOGGING_SCHEMA}.{LOGGING_TABLE_NAME} (name, version, timestamp, runner, event_source)
