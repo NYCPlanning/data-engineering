@@ -87,4 +87,6 @@ def export():
 if __name__ == "__main__":
     generate_metadata()
     export()
-    publishing.upload(OUTPUT_DIR, BUILD_KEY, acl="public-read")
+    publishing.upload_build(
+        OUTPUT_DIR, BUILD_KEY.product, acl="public-read", build=BUILD_KEY.build
+    )
