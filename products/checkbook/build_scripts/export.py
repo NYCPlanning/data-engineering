@@ -13,7 +13,7 @@ if __name__ == "__main__":
     with open("version.txt", "w") as f:
         f.write(str(date.today()))
     build_environment = git.branch()
-    publishing.upload(
-        OUTPUT_DIR, publishing.BuildKey(PRODUCT, build_environment), acl="public-read"
+    publishing.upload_build(
+        OUTPUT_DIR, PRODUCT, acl="public-read", build=build_environment
     )
     print("Finished export!")
