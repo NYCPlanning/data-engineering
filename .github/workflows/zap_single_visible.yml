@@ -23,7 +23,7 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
       EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
 
     steps:

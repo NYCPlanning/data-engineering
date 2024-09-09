@@ -18,7 +18,7 @@ jobs:
     container:
       image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
     strategy:
       matrix:
         dataset:
