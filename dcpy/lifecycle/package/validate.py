@@ -140,7 +140,11 @@ def validate_df(
 
     errors = []
 
-    column_names = {c.name or "" for c in columns}
+    # the null-check here is mostly appeasing the type-checker for c.name which
+    # is defined on the Pandera model as type `str | None`. However, there's a
+    # validator, so in practice it will never be `None`. Need to figure out a better
+    # solution.
+    column_names = {c.name for c in columns if c.name}
 
     # Find mismatched columns
     df_headers = set(df.columns)
