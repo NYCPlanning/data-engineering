@@ -106,12 +106,14 @@ def test_legacy_upload(
         contents_only=contents_only,
         latest=latest,
     )
-    assert s3.exists(
+    assert s3.object_exists(
         TEST_BUCKET_NAME,
         f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
     )
     for path in not_expected_paths:
-        assert not s3.exists(TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}")
+        assert not s3.object_exists(
+            TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}"
+        )
 
 
 @patch("dcpy.connectors.edm.publishing.BUILD_NAME", TEST_BUILD)

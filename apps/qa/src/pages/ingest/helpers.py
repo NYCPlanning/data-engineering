@@ -17,7 +17,7 @@ def archive_raw_data(
 ) -> None:
     s3_path = f"inbox/{dataset_name}/{version}/{file_name}"
 
-    if s3.exists(BUCKET, s3_path) and not allow_override:
+    if s3.object_exists(BUCKET, s3_path) and not allow_override:
         raise FileExistsError(
             "File already exists on S3. Check the allow override box if you wish to continue"
         )

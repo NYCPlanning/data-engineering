@@ -502,7 +502,7 @@ def download_published_version(
 
 def file_exists(product_key: ProductKey, filepath: str) -> bool:
     """Returns true if given file exists within outputs for given product key"""
-    return s3.exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
+    return s3.object_exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
 
 
 def get_file(product_key: ProductKey, filepath: str) -> BytesIO:
@@ -626,10 +626,10 @@ def _gis_dataset_path(name: str, version: str) -> str:
 
 def _assert_gis_dataset_exists(name: str, version: str):
     version = version.upper()
-    if not s3.exists(BUCKET, _gis_dataset_path(name, version)):
+    if not s3.object_exists(BUCKET, _gis_dataset_path(name, version)):
         print(_gis_dataset_path(name, version))
         print(s3.list_objects(BUCKET, _gis_dataset_path(name, version)))
-        print(s3.exists(BUCKET, _gis_dataset_path(name, version)))
+        print(s3.object_exists(BUCKET, _gis_dataset_path(name, version)))
         raise FileNotFoundError(f"GIS dataset {name} has no version {version}")
 
 

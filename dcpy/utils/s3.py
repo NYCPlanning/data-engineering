@@ -131,13 +131,19 @@ def list_objects(bucket: str, prefix: str) -> list[dict]:
     return objects
 
 
-def exists(bucket: str, key: str) -> bool:
+def object_exists(bucket: str, key: str) -> bool:
     """Returns true if an object with given bucket and key exists"""
     try:
         client().head_object(Bucket=bucket, Key=key)
         return True
     except ClientError:
         return False
+
+
+def folder_exists(bucket: str, prefix: str) -> bool:
+    prefix = _folderize(prefix)
+    resp = client().list_objects(Bucket=bucket, Prefix=prefix, Delimiter="/", MaxKeys=1)
+    return "Contents" in resp
 
 
 def get_metadata(bucket: str, key: str) -> Metadata:
