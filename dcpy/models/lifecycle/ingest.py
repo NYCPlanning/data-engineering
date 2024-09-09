@@ -103,9 +103,3 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     @property
     def raw_dataset_key(self) -> recipes.RawDatasetKey:
         return recipes.RawDatasetKey(id=self.id, timestamp=self.archival_timestamp)
-
-    def s3_file_key(self, prefix: str) -> str:
-        return self.dataset.s3_file_key(prefix)
-
-    def raw_s3_key(self, prefix: str) -> Path:
-        return self.raw_dataset_key.s3_path(prefix) / self.raw_filename

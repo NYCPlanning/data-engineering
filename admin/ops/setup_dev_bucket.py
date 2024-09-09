@@ -75,8 +75,8 @@ def resolve_latest_recipe(
     copy_folder_to_dev_bucket(
         source_bucket=target_bucket,
         target_bucket=target_bucket,
-        source_path=input.s3_folder_key("datasets") + "/",
-        target_path=resolved.s3_folder_key("datasets") + "/",
+        source_path=recipes.s3_folder_path(input) + "/",
+        target_path=recipes.s3_folder_path(resolved) + "/",
     )
 
 
@@ -115,8 +115,8 @@ def clone_recipe(
     copy_folder_to_dev_bucket(
         source_bucket=PROD_RECIPES_BUCKET,
         target_bucket=target_bucket,
-        source_path=f"{key.s3_path("datasets")}/",
-        target_path=f"{key.s3_path("datasets")}/",
+        source_path=f"{recipes.s3_folder_path(key)}/",
+        target_path=f"{recipes.s3_folder_path(key)}/",
     )
     if version == "latest":
         resolve_latest_recipe(target_bucket, dataset_id)

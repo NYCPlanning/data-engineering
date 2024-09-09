@@ -12,6 +12,8 @@ from dcpy import configuration
 from dcpy.models.connectors.edm.recipes import (
     Dataset,
     DatasetType,
+    DatasetKey,
+    RawDatasetKey,
 )
 from dcpy.models import library
 from dcpy.models.lifecycle import ingest
@@ -32,7 +34,23 @@ LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
 
 
-def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path) -> None:
+def s3_folder_path(ds: Dataset | DatasetKey) -> str:
+    return f"{DATASET_FOLDER}/{ds.id}/{ds.version}"
+
+
+def s3_file_path(ds: Dataset) -> str:
+    return f"{s3_folder_path(ds)}/{ds.file_name}"
+
+
+def s3_raw_folder_path(ds: RawDatasetKey) -> str:
+    return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp.isoformat()}"
+
+
+def exists(ds: Dataset) -> bool:
+    return s3.folder_exists(BUCKET, s3_folder_path(ds))
+
+
+def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> None:
     """
     Given a config and a path to a file and an s3_path, archive it in edm-recipe
     It is assumed that s3_path has taken care of figuring out which top-level folder,
@@ -48,7 +66,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path) -> N
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
-            s3_path,
+            Path(s3_path),
             acl=config.acl,
             contents_only=True,
         )
@@ -59,7 +77,7 @@ def archive_raw_dataset(config: ingest.Config, file_path: Path):
     Given a config and a path to a 'raw' input dataset, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and the timestamp of archival
     """
-    _archive_dataset(config, file_path, config.raw_dataset_key.s3_path(RAW_FOLDER))
+    _archive_dataset(config, file_path, s3_raw_folder_path(config.raw_dataset_key))
 
 
 def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False):
@@ -67,7 +85,7 @@ def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False
     Given a config and a path to a processed parquet file, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and its version
     """
-    s3_path = config.dataset_key.s3_path(DATASET_FOLDER)
+    s3_path = s3_folder_path(config.dataset_key)
     _archive_dataset(config, file_path, s3_path)
     if latest:
         s3.copy_folder(
@@ -118,16 +136,16 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
             return None
 
 
-def get_file_types(dataset: Dataset) -> set[DatasetType]:
-    suffixes = s3.get_suffixes(
-        bucket=BUCKET, prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.id}"
-    )
-    valid_types = {_dataset_type_from_extension(s.strip(".")) for s in suffixes}
+def get_file_types(dataset: Dataset | DatasetKey) -> set[DatasetType]:
+    files = s3.get_filenames(bucket=BUCKET, prefix=s3_folder_path(dataset))
+    valid_types = {
+        _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
+    }
     return {t for t in valid_types if t is not None}
 
 
 def get_preferred_file_type(
-    dataset: Dataset, preferences: list[DatasetType]
+    dataset: Dataset | DatasetKey, preferences: list[DatasetType]
 ) -> DatasetType:
     file_types = get_file_types(dataset)
     if len(file_types.intersection(preferences)) == 0:
@@ -150,7 +168,7 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
 
         s3.download_file(
             bucket=BUCKET,
-            key=ds.s3_file_key(DATASET_FOLDER),
+            key=s3_file_path(ds),
             path=target_file_path,
         )
     return target_file_path
@@ -183,7 +201,7 @@ def read_df(
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
-        with s3.get_file_as_stream(BUCKET, ds.s3_file_key(DATASET_FOLDER)) as stream:
+        with s3.get_file_as_stream(BUCKET, s3_file_path(ds)) as stream:
             data = reader(stream, **kwargs)
         return data
 

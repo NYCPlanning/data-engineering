@@ -86,8 +86,7 @@ class TestArchiveDataset:
         tmp_file.touch()
         recipes.archive_raw_dataset(self.config, tmp_file)
         assert s3.folder_exists(
-            RECIPES_BUCKET,
-            str(self.config.raw_s3_key(recipes.RAW_FOLDER)),
+            RECIPES_BUCKET, recipes.s3_raw_folder_path(self.config.raw_dataset_key)
         )
 
     def test_archive_dataset(self, create_buckets, create_temp_filesystem: Path):
@@ -95,7 +94,7 @@ class TestArchiveDataset:
         tmp_parquet.touch()
         recipes.archive_dataset(self.config, tmp_parquet)
         assert s3.object_exists(
-            RECIPES_BUCKET, str(self.config.s3_file_key(recipes.DATASET_FOLDER))
+            RECIPES_BUCKET, recipes.s3_file_path(self.config.dataset)
         )
 
     def test_archive_dataset_latest(self, create_buckets, create_temp_filesystem: Path):
