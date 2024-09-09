@@ -16,7 +16,7 @@ jobs:
       image: nycplanning/build-base:latest
     env:
       EDM_DATA_ZAP_SCHEMA: weekly_export_${{ github.event_name }}_${{ github.ref_name }}
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
     strategy:
       fail-fast: false
       max-parallel: 1

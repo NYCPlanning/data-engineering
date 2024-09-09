@@ -17,7 +17,7 @@ jobs:
     container:
       image: nycplanning/build-geosupport:latest
     env:
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
     strategy:
       matrix:
         dataset:
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         working-directory: products/developments
     env:
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
       BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
     services:
       postgis:

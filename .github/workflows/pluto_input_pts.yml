@@ -15,7 +15,7 @@ jobs:
       image: nycplanning/build-geosupport:latest
     env:
       RECIPE_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine

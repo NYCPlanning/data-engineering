@@ -15,7 +15,7 @@ jobs:
     container: 
       image: nycplanning/build-geosupport:latest
     env:
-      AWS_S3_BUCKET: edm-recipes
+      RECIPES_BUCKET: edm-recipes
       API_TOKEN: ${{ secrets.API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
