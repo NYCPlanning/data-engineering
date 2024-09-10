@@ -18,7 +18,6 @@ def archive_raw_data(
     file_name: str,
     allow_override: bool,
 ) -> None:
-
     s3_path = f"inbox/{dataset_name}/{version}/{file_name}"
 
     if s3.exists(BUCKET, s3_path) and not allow_override:

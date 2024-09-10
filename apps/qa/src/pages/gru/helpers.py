@@ -59,8 +59,9 @@ def get_qaqc_runs(geosupport_version: str) -> dict[str, github.WorkflowRun]:
         for run in raw_workflow_runs:
             match = re.match(r"^(\d+\.\d+\.\d+)\_(.+)$", run.name)
             if match:
-                gs_version, name = map_geosupport_version(match.group(1)), match.group(
-                    2
+                gs_version, name = (
+                    map_geosupport_version(match.group(1)),
+                    match.group(2),
                 )
                 if (
                     name in qa_check_names
