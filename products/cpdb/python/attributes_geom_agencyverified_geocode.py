@@ -20,7 +20,7 @@ def quick_clean(address):
     result = [
         k
         for (k, v) in usaddress.parse(address)
-        if not v in ["OccupancyIdentifier", "OccupancyType"]
+        if v not in ["OccupancyIdentifier", "OccupancyType"]
     ]
     return re.sub(r"[,\%\$\#\@\!\_\.\?\`\"\(\)]", "", " ".join(result))
 
@@ -94,7 +94,7 @@ with engine.begin() as conn:
     for i in records:
         try:
             locs.append(geocode(i))
-        except:
+        except Exception:
             print(i)
 
     locs = pd.DataFrame(locs).replace("", np.nan)
