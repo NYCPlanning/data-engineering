@@ -34,7 +34,7 @@ def quick_clean(address):
     result = [
         k
         for (k, v) in usaddress.parse(address)
-        if not v in ["OccupancyIdentifier", "OccupancyType"]
+        if v not in ["OccupancyIdentifier", "OccupancyType"]
     ]
     return re.sub(r"[,\%\$\#\@\!\_\.\?\`\"\(\)\ï\¿\½\�]", "", " ".join(result))
 
