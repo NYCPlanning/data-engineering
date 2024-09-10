@@ -41,6 +41,8 @@ jobs:
         shell: bash
     container:
       image: nycplanning/build-base:latest
+    env:
+      PUBLISHING_BUCKET: edm-publishing
     steps:
       - uses: actions/checkout@v4
 
