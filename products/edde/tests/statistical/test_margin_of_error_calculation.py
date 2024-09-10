@@ -56,7 +56,7 @@ def test_counts_fractions_demo_add_MOE_and_SE_flags(ind, calculation_type):
 
 @pytest.mark.parametrize("ind", demographic_indicators)
 @pytest.mark.parametrize("calculation_type", calculation_types)
-def test_SE_to_MOE_demographic_indicators_counts_fractions(ind, calculation_type):
+def test_SE_to_MOE_demographic_indicators_counts_fractions_dem(ind, calculation_type):
     """Don't have to test each indicator. Test one crosstabbed by race and one not crosstabbed by race"""
     aggregated = counts_fractions_dem_loader_SE_and_MOE.aggregated
     assert np.allclose(
@@ -153,7 +153,7 @@ def test_eco_counts_fractions_MOE_and_SE_flags(ind, calculation_type):
 @pytest.mark.current_dev
 @pytest.mark.parametrize("ind", economic_indicators)
 @pytest.mark.parametrize("calculation_type", calculation_types)
-def test_SE_to_MOE_demographic_indicators_counts_fractions(ind, calculation_type):
+def test_SE_to_MOE_demographic_indicators_counts_fractions_econ(ind, calculation_type):
     """Don't have to test each indicator. Test one crosstabbed by race and one not crosstabbed by race"""
     aggregated = counts_fraction_eco_loader_with_ME_and_SE.aggregated
     assert np.allclose(

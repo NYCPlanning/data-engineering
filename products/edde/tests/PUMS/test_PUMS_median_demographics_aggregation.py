@@ -1,5 +1,4 @@
 import pytest
-from tests.util import races
 from tests.PUMS.local_loader import LocalLoader
 
 

@@ -105,12 +105,12 @@ class PUMSCleaner:
             rv.extend(self.get_recode_mapper(recode_range.split(" ")[2:]))
         return rv
 
-    def get_recode_mapper(self, l):
+    def get_recode_mapper(self, r):
         """Some categories span multiple discontinuous ranges"""
-        for i, v in enumerate(l):
+        for i, v in enumerate(r):
             if v and v[0].isalpha():
-                numeric_ranges = l[: i - 1]
-                category = " ".join(l[i:])
+                numeric_ranges = r[: i - 1]
+                category = " ".join(r[i:])
                 break
 
         # Hacky fix where this sheet is incorrect

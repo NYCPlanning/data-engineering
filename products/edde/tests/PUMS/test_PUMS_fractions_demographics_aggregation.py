@@ -6,7 +6,6 @@ Note that changes from fraction to pct will break these tests
 """
 
 import pytest
-from tests.util import races
 from tests.PUMS.local_loader import LocalLoader
 import numpy as np
 import itertools

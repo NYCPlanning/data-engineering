@@ -3,7 +3,6 @@ However there are different set variables used in the GET url versus in the fina
 This module can handle each"""
 
 from dotenv import load_dotenv
-from numpy import var
 from utils.make_logger import create_logger
 from typing import List
 

@@ -54,7 +54,7 @@ def traffic_fatalities_injuries(geography, save_for_internal_review=False):
 
     if save_for_internal_review:
         set_internal_review_files(
-            [(final, f"traffic_injuries_fatalities.csv", geography)],
+            [(final, "traffic_injuries_fatalities.csv", geography)],
             "quality_of_life",
         )
     return final

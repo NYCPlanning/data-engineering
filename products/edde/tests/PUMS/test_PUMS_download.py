@@ -2,8 +2,6 @@
 does request module handle errenous status codes correctly, does PUMS data class
 clean/collate data correctly"""
 
-from pickletools import pyset
-import pandas as pd
 from tests.PUMS.local_loader import LocalLoader
 import pytest
 

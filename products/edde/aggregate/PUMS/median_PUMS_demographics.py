@@ -1,6 +1,3 @@
-from audioop import add
-from numpy import var
-from pandas import crosstab
 from aggregate.PUMS.aggregate_medians import PUMSMedians
 
 

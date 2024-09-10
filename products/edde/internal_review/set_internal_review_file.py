@@ -2,7 +2,6 @@
 
 from typing import List, Tuple
 import pandas as pd
-import os
 
 
 def set_internal_review_files(data: List[Tuple[pd.DataFrame, str, str]], category):

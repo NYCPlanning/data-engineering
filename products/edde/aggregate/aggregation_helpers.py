@@ -1,6 +1,4 @@
 import pandas as pd
-from typing import List
-import numpy as np
 
 from utils.PUMA_helpers import (
     census_races,
@@ -58,7 +56,7 @@ def order_aggregated_columns(
                     # if exclude_denom and ind == "LEP":
                     #    col_order.append(f"age_p5pl_{race_crosstab}")
 
-    if exclude_denom and demographics_category == True:
+    if exclude_denom and demographics_category:
         col_order.extend(median_age_col_order(categories["race"]))
     if return_col_order:
         return col_order

@@ -1,13 +1,12 @@
 """Access to ingestion code"""
 
-from typing import List, Tuple
+from typing import List
 import pandas as pd
 
 from os.path import exists
-from typing import List
 from ingest.PUMS.PUMS_data import PUMSData
 from ingest.HVS.HVS_ingestion import create_HVS
-from ingest.make_cache_fn import make_PUMS_cache_fn, make_HVS_cache_fn
+from ingest.make_cache_fn import make_HVS_cache_fn
 
 from utils.make_logger import create_logger
 from utils.setup_directory import setup_directory

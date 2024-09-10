@@ -1,6 +1,4 @@
-from itertools import count
 import pytest
-from tests.util import races
 from tests.PUMS.local_loader import LocalLoader
 from aggregate.PUMS.economic_indicators import industry_mapper, occupation_mapper
 

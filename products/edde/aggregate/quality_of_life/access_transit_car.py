@@ -1,8 +1,7 @@
 import pandas as pd
-from aggregate.clean_aggregated import order_PUMS_QOL, order_PUMS_QOL_multiple_years
+from aggregate.clean_aggregated import order_PUMS_QOL_multiple_years
 from utils.PUMA_helpers import (
     clean_PUMAs,
-    borough_name_mapper,
     acs_years,
     year_range,
     sheet_name,

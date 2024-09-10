@@ -3,9 +3,7 @@ Note that changes from fraction to pct will break these tests
 """
 
 import pytest
-from ingest.load_data import load_PUMS
 from tests.PUMS.local_loader import LocalLoader
-from tests.util import races, race_counts, age_bucket_counts
 
 
 local_loader = LocalLoader()
@@ -20,7 +18,7 @@ def test_local_loader(all_data):
 
 
 @pytest.mark.test_aggregation
-def test_industry_assigned_correctly():
+def test_industry_assigned_correctly_LI():
     """Can parameterize this to include other industries"""
     assert (
         local_loader.by_person[
@@ -32,7 +30,7 @@ def test_industry_assigned_correctly():
 
 
 @pytest.mark.test_aggregation
-def test_industry_assigned_correctly():
+def test_industry_assigned_correctly_MIDI():
     """Can parameterize this to include other industries"""
     assert (
         local_loader.by_person[
