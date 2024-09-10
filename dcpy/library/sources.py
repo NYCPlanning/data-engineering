@@ -1,6 +1,7 @@
 import os
 
 from osgeo import gdal
+from osgeo.ogr import FieldDefn, ALTER_NAME_FLAG
 
 from .utils import parse_engine
 
@@ -16,17 +17,21 @@ def format_field_names(dataset: gdal.Dataset, fields: list[str] | None = None):
     assert dataset, "dataset: gdal.Dataset shouldn't be None"
     fields = fields or []
     layer = dataset.GetLayer(0)
-    layerDefn = layer.GetLayerDefn()
+    layer_definition = layer.GetLayerDefn()
 
     if len(fields) == 0:
-        for i in range(layerDefn.GetFieldCount()):
-            fieldDefn = layerDefn.GetFieldDefn(i)
-            fieldName = fieldDefn.GetName()
-            fieldDefn.SetName(fieldName.replace(" ", "_").lower())
+        for i in range(layer_definition.GetFieldCount()):
+            field_definition = layer_definition.GetFieldDefn(i)
+            field_name = field_definition.GetName()
+            new_field_definition = FieldDefn(
+                field_name.replace(" ", "_").lower(), field_definition.GetType()
+            )
+            layer.AlterFieldDefn(i, new_field_definition, ALTER_NAME_FLAG)
     else:
         for i in range(len(fields)):
-            fieldDefn = layerDefn.GetFieldDefn(i)
-            fieldDefn.SetName(fields[i])
+            field_definition = layer_definition.GetFieldDefn(i)
+            new_field_definition = FieldDefn(fields[i], field_definition.GetType())
+            layer.AlterFieldDefn(i, new_field_definition, ALTER_NAME_FLAG)
 
     return dataset
 
