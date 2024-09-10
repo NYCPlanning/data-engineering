@@ -3,7 +3,6 @@ from sqlalchemy import create_engine, text
 from geosupport import Geosupport, GeosupportError
 from utils import psql_insert_copy
 import pandas as pd
-import json
 import os
 
 g = Geosupport()
