@@ -2,7 +2,6 @@ from typing import Dict
 import pandas as pd
 import requests
 from sqlalchemy import text
-from .recode_id import recode_id
 
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
@@ -119,15 +118,12 @@ def make_staging_table(sql_engine, dataset_name) -> None:
             "staging_table_name": staging_table_name,
         }
     else:
-        statement_staging_table = """
+        statement_staging_table = f"""
             BEGIN;
             DROP TABLE IF EXISTS %{staging_table_name}s;
             CREATE TABLE %{staging_table_name}s as SELECT * FROM %{source_table_name}s;
             COMMIT;
-        """ % {
-            "source_table_name": source_table_name,
-            "staging_table_name": staging_table_name,
-        }
+        """
     with sql_engine.begin() as sql_conn:
         sql_conn.execute(statement=text(statement_staging_table))
 

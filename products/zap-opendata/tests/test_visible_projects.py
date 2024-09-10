@@ -1,5 +1,5 @@
 import pytest
-from src.visible_projects import get_fields, get_metadata, open_data_recode
+from src.visible_projects import get_fields, get_metadata
 
 
 @pytest.fixture(scope="module")
@@ -41,7 +41,8 @@ def test_recode_fields_raise(fields_in_metadata):
 @pytest.mark.skip(reason="in-progress")
 @pytest.mark.parametrize("dataset_name", ["dcp_projects", "dcp_projectbbls"])
 def test_recode_values(all_fields_metadata, dataset_name):
-    df_after_recode = open_data_recode(dataset_name, df_from_crm, headers)
+    # df_after_recode = open_data_recode(dataset_name, df_from_crm, headers)
+    pass
 
 
 @pytest.mark.skip(reason="may not test this yet, was used to print CRM metadata")
@@ -53,7 +54,7 @@ def test_recode_exploration(all_fields_metadata, dataset_name):
         print(f"\n\nField name: {field}")
         field_categories = all_fields_metadata[field]["OptionSet"]["Options"]
         for category in field_categories:
-            print(f"CATEGORY")
+            print("CATEGORY")
             crm_code = category["Value"]
             zap_value = category["Label"]["LocalizedLabels"][0]["Label"]
             print(f"\t{crm_code}")

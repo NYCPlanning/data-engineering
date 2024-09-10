@@ -1,6 +1,5 @@
 import json
 import logging
-import logging
 import os
 from typing import List
 import pandas as pd

@@ -1,4 +1,3 @@
-import pytest
 import pandas as pd
 
 from src.recode_id import recode_id
