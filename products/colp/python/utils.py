@@ -2,7 +2,6 @@ import csv
 from io import StringIO
 import os
 from sqlalchemy import create_engine
-import pandas as pd
 
 engine = create_engine(os.environ["BUILD_ENGINE"])
 
