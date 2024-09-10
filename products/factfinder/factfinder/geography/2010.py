@@ -1,5 +1,4 @@
 import itertools
-import math
 from pathlib import Path
 
 import numpy as np

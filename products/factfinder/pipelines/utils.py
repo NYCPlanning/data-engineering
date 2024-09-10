@@ -85,8 +85,8 @@ def apply_ccd_prefix(
     return df
 
 
-def regex_or(l: list[str]) -> str:
-    return "|".join([re.escape(s) for s in l])
+def regex_or(cases: list[str]) -> str:
+    return "|".join([re.escape(s) for s in cases])
 
 
 def pivot_field_name(

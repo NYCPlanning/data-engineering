@@ -17,7 +17,7 @@ class AggregatedGeography:
     def lookup_geo(self):
         # find the current decennial year based on given year
         lookup_geo = pd.read_csv(
-            Path(__file__).parent.parent / f"data/lookup_geo/2020/lookup_geo.csv",
+            Path(__file__).parent.parent / "data/lookup_geo/2020/lookup_geo.csv",
             dtype="str",
         )
         # Create geoid_tract
@@ -37,7 +37,7 @@ class AggregatedGeography:
     @cached_property
     def ratio(self):
         ratio = pd.read_csv(
-            Path(__file__).parent.parent / f"data/lookup_geo/2010_to_2020/ratio.csv",
+            Path(__file__).parent.parent / "data/lookup_geo/2010_to_2020/ratio.csv",
             dtype="str",
         )
         ratio["ratio"] = ratio.ratio.astype(float).round(18)

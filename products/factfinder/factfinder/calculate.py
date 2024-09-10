@@ -9,7 +9,6 @@ from retry import retry
 from .download import Download
 from .median import Median
 from .metadata import Metadata, Variable
-from .special import *
 from .utils import get_c, get_p, get_z, rounding, write_to_cache
 
 
