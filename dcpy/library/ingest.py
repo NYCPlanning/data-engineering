@@ -45,27 +45,24 @@ def format_field_names(
         for i in range(len(fields)):
             fieldDefn = layer_defn.GetFieldDefn(i)
             field_mapping[fieldDefn.GetName()] = fields[i]
-    select = ",\n\t\t\t".join(
+    select = ",\n\t".join(
         [f"{old} AS {field_mapping[old]}" for old in field_mapping]
     )
     if has_geom:
         geom_columns = {"ESRI Shapefile": "WKT"}
         geom_column = geom_columns.get(dataset.GetDriver().ShortName, "geom")
-        geom_clause = f',\nGeometry AS "{geom_column}"'
+        geom_clause = f',\n\tGeometry AS "{geom_column}"'
     else:
         geom_clause = ""
-    query = f"""
-        SELECT 
-            {select}{geom_clause}
-        FROM {layer_name}
-    """
+    query = f"""SELECT \n\t{select}{geom_clause} FROM {layer_name}"""
     if not sql:
         return query
     else:
         cte_name = "__cte__"
         sql = sql.replace("@filename", cte_name)
         if sql.startswith("WITH "):
-            raise NotImplementedError
+            sql = sql.strip("WITH ")
+            return f"WITH {cte_name} AS ({select}), {sql}"
         else:
             return f"WITH {cte_name} AS ({select}) \n{sql}"
 
