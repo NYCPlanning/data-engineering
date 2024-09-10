@@ -1,4 +1,4 @@
-"""Logic to clean PUMS columns. """
+"""Logic to clean PUMS columns."""
 
 import pandas as pd
 import numpy as np

@@ -17,9 +17,7 @@ class Median:
         self.ranges = ranges
         self.pff_variable = pff_variable
         self.B = row[self.ordered].sum()
-        self.se_50 = (
-            DF * (((93 / (7 * self.B)) * 2500)) ** 0.5 if self.B != 0 else np.nan
-        )
+        self.se_50 = DF * ((93 / (7 * self.B)) * 2500) ** 0.5 if self.B != 0 else np.nan
         self.p_lower = 50 - self.se_50 if self.B != 0 else np.nan
         self.p_upper = 50 + self.se_50 if self.B != 0 else np.nan
         self.cumm_dist = list(np.cumsum(row[self.ordered]) / self.B * 100)

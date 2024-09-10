@@ -1,9 +1,9 @@
-"""EDDT uses three census surveys. ACS PUMS, census PUMS, and the census decennial. 
-ACS PUMS data comes from the MDAT API. 
+"""EDDT uses three census surveys. ACS PUMS, census PUMS, and the census decennial.
+ACS PUMS data comes from the MDAT API.
 The census decennial and census PUMS currently come from spreadsheets prepated by DCP population.
 These data are combined during the export process where files by geography-year are sent
 to digital ocean. These files should be as consistent as possible, using similar column names,
-column orders, etc. 
+column orders, etc.
 """
 
 from external_review.collate_save_census import collate_save_census

@@ -1,4 +1,4 @@
-"""This python script takes the Household Economic Security indicators that Erica initially sent over 
+"""This python script takes the Household Economic Security indicators that Erica initially sent over
 in an xlsx spreadsheet (Educational attainment data points) cleans them and outputs them so
 that they can be collated using the established collate process"""
 

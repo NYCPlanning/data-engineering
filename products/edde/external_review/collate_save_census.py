@@ -1,4 +1,4 @@
-"""This functionality should eventually be in the same file as external_review_collate 
+"""This functionality should eventually be in the same file as external_review_collate
 where housing production is collated and saved. Up against deadline it's easier to
 write a new file but this step can be DRY'd out and brought down to a simplier format"""
 

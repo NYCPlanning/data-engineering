@@ -89,9 +89,7 @@ class Runner:
         with self.engine.begin() as sql_conn:
             statement = """
                 BEGIN; DROP TABLE IF EXISTS %(table_name)s; COMMIT;
-            """ % {
-                "table_name": combine_table_name
-            }
+            """ % {"table_name": combine_table_name}
             sql_conn.execute(statement=text(statement))
 
         # sort file paths by file modification

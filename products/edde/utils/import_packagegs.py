@@ -1,4 +1,4 @@
-"""From """
+"""From"""
 
 # R package names
 packnames = ("ggplot2", "hexbin")

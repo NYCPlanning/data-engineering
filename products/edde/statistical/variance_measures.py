@@ -1,4 +1,4 @@
-"""Functions to add margin of error and remove standard error. 
+"""Functions to add margin of error and remove standard error.
 For final output generally want MOE instead of SE.
 For debugging want both
 """

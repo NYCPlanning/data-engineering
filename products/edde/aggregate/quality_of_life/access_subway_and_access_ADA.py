@@ -1,5 +1,5 @@
-"""Code to output two indicators, 
-"Percent of residents within 1/4 mile of ADA accessible subway stations\" and 
+"""Code to output two indicators,
+"Percent of residents within 1/4 mile of ADA accessible subway stations\" and
 "Percent within 1/4 mile of subway or Select Bus station". Both indicators are similar and quite simple
 """
 

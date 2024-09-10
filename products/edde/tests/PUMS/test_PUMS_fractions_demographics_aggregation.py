@@ -1,4 +1,4 @@
-"""Use process like 
+"""Use process like
 aggregator.aggregated[[f'{r}-fraction' for r in aggregator.categories['race']]].sum(axis=1)
 should all be close to one for each indicator. categories attribute is dictionary created for this purpose
 Note that changes from fraction to pct will break these tests

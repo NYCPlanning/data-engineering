@@ -1,4 +1,4 @@
-"""Eventually this could be rewritten to read from total_pop_by_CD but for now it 
+"""Eventually this could be rewritten to read from total_pop_by_CD but for now it
 uses non_fatal_assault_hospitalizations.csv"""
 
 import pandas as pd

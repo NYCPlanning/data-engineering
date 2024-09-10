@@ -1,4 +1,4 @@
-"""Each fraction comes with a denominator column that has the denominator used in the 
+"""Each fraction comes with a denominator column that has the denominator used in the
 calculation. Some indicators such as limited english proficiency have a custom denominator
 Note that changes from fraction to pct will break these tests
 """

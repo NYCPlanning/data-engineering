@@ -1,4 +1,4 @@
-"""Each variable type (demographic, economic) maps to a certain set of variables. 
+"""Each variable type (demographic, economic) maps to a certain set of variables.
 However there are different set variables used in the GET url versus in the final dataset.
 This module can handle each"""
 
