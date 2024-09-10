@@ -27,6 +27,49 @@ from .config import Config
 from .sources import generic_source, postgres_source
 
 
+def format_field_names(
+    dataset: gdal.Dataset, fields: list[str] | None, sql: str | None, has_geom: bool
+):
+    fields = fields or []
+    layer = dataset.GetLayer(0)
+    layer_defn = layer.GetLayerDefn()
+    layer_name = layer.GetName()
+
+    field_mapping: dict[str, str] = {}
+    if len(fields) == 0:
+        for i in range(layer_defn.GetFieldCount()):
+            fieldDefn = layer_defn.GetFieldDefn(i)
+            fieldName = fieldDefn.GetName()
+            field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
+    else:
+        for i in range(len(fields)):
+            fieldDefn = layer_defn.GetFieldDefn(i)
+            field_mapping[fieldDefn.GetName()] = fields[i]
+    select = ",\n\t\t\t".join(
+        [f"{old} AS {field_mapping[old]}" for old in field_mapping]
+    )
+    if has_geom:
+        geom_columns = {"ESRI Shapefile": "WKT"}
+        geom_column = geom_columns.get(dataset.GetDriver().ShortName, "geom")
+        geom_clause = f',\nGeometry AS "{geom_column}"'
+    else:
+        geom_clause = ""
+    query = f"""
+        SELECT 
+            {select}{geom_clause}
+        FROM {layer_name}
+    """
+    if not sql:
+        return query
+    else:
+        cte_name = "__cte__"
+        sql = sql.replace("@filename", cte_name)
+        if sql.startswith("WITH "):
+            raise NotImplementedError
+        else:
+            return f"WITH {cte_name} AS ({select}) \n{sql}"
+
+
 def translator(func):
     @wraps(func)
     def wrapper(self: Ingestor, *args, **kwargs) -> tuple[list[str], library.Config]:
@@ -87,7 +130,6 @@ def translator(func):
         srcDS = generic_source(
             path=dataset.source.gdalpath,
             options=dataset.source.options,
-            fields=dataset.destination.fields,
         )
 
         if srcDS.GetLayerCount() > 1:
@@ -100,9 +142,12 @@ def translator(func):
         else:
             src_layer = srcDS.GetLayer(0).GetName()
 
-        sql = dataset.destination.sql
-        if sql:
-            sql = sql.replace("@filename", src_layer)
+        sql = format_field_names(
+            srcDS,
+            dataset.destination.fields,
+            dataset.destination.sql,
+            dataset.source.geometry is not None,
+        )
 
         # Create postgres database schema and table version if needed
         if output_format == "PostgreSQL":
@@ -136,7 +181,8 @@ def translator(func):
             # This addresses a gdal issue where translation will fail
             # to generate a csv from a shapefile if a csv already exists at
             # the target path
-            if type(dstDS) == str and dstDS.endswith(".csv") and Path(dstDS).exists():
+            print(output_format)
+            if output_format in ("CSV", "Parquet") and Path(dstDS).exists():
                 Path(dstDS).unlink()
 
             srcSRS = dataset.source.geometry.SRS if dataset.source.geometry else None
