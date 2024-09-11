@@ -37,16 +37,14 @@ zonechange AS (
     SELECT * FROM {{ ref('int__inzonechange') }}
 ),
 
--- insert bbl
-
-insertion AS (
+lots_with_features AS (
     SELECT
         a.id AS dtm_id,
-        (CASE
+        CASE
             WHEN a.bbl IS NULL OR LENGTH(a.bbl) < 10
                 THEN a.boro || LPAD(a.block, 5, '0') || LPAD(a.lot, 4, '0')::text
             ELSE a.bbl
-        END) AS bbl,
+        END AS bbl,
         a.boro AS boroughcode,
         a.block AS taxblock,
         a.lot AS taxlot,
@@ -58,12 +56,12 @@ insertion AS (
         c2.sdlbl AS specialdistrict2,
         c3.sdlbl AS specialdistrict3,
         d.limitedheightdistrict,
-        (CASE
+        CASE
             WHEN e1.perbblgeom >= 10 THEN e1.zoning_map
-        END) AS zoningmapnumber,
-        (CASE
+        END AS zoningmapnumber,
+        CASE
             WHEN e2.row_number = 2 THEN 'Y'
-        END) AS zoningmapcode,
+        END AS zoningmapcode,
         f1.zonedist AS zoningdistrict1,
         f2.zonedist AS zoningdistrict2,
         f3.zonedist AS zoningdistrict3,
@@ -101,7 +99,7 @@ insertion AS (
         ON a.id = h.dtm_id
 ),
 
-park AS (
+clean_park_features AS (
     SELECT
         dtm_id,
         bbl,
@@ -160,41 +158,37 @@ park AS (
         END) AS limitedheightdistrict,
         zoningmapnumber,
         zoningmapcode
-    FROM insertion
+    FROM lots_with_features
 ),
 
 drop_invalid AS (
     SELECT *
-    FROM park
+    FROM clean_park_features
     WHERE
         (boroughcode IS NOT NULL OR boroughcode != '0')
         OR (taxblock IS NOT NULL OR taxblock != '0')
         OR (taxlot IS NOT NULL OR taxlot != '0')
-),
-
-export AS (
-    SELECT
-        dtm_id::int4,
-        boroughcode::text AS borough_code,
-        TRUNC(taxblock::numeric)::text AS "tax_block",
-        taxlot::text AS tax_lot,
-        bbl::text,
-        zoningdistrict1::text AS zoning_district_1,
-        zoningdistrict2::text AS zoning_district_2,
-        zoningdistrict3::text AS zoning_district_3,
-        zoningdistrict4::text AS zoning_district_4,
-        commercialoverlay1::text AS commercial_overlay_1,
-        commercialoverlay2::text AS commercial_overlay_2,
-        specialdistrict1::text AS special_district_1,
-        specialdistrict2::text AS special_district_2,
-        specialdistrict3::text AS special_district_3,
-        limitedheightdistrict::text AS limited_height_district,
-        zoningmapnumber::text AS zoning_map_number,
-        zoningmapcode::text AS zoning_map_code,
-        area::float8,
-        inzonechange::text,
-        geom::geometry
-    FROM drop_invalid
 )
 
-SELECT * FROM export
+SELECT
+    dtm_id::int4,
+    boroughcode::text AS borough_code,
+    TRUNC(taxblock::numeric)::text AS "tax_block",
+    taxlot::text AS tax_lot,
+    bbl::text,
+    zoningdistrict1::text AS zoning_district_1,
+    zoningdistrict2::text AS zoning_district_2,
+    zoningdistrict3::text AS zoning_district_3,
+    zoningdistrict4::text AS zoning_district_4,
+    commercialoverlay1::text AS commercial_overlay_1,
+    commercialoverlay2::text AS commercial_overlay_2,
+    specialdistrict1::text AS special_district_1,
+    specialdistrict2::text AS special_district_2,
+    specialdistrict3::text AS special_district_3,
+    limitedheightdistrict::text AS limited_height_district,
+    zoningmapnumber::text AS zoning_map_number,
+    zoningmapcode::text AS zoning_map_code,
+    area::float8,
+    inzonechange::text,
+    geom::geometry
+FROM drop_invalid
