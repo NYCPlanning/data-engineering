@@ -37,8 +37,8 @@ grouped AS (
         overlay,
         SUM(segbblgeom) AS segbblgeom,
         SUM(segzonegeom) AS segzonegeom,
-        (SUM(segbblgeom) / SUM(allbblgeom)) * 100 AS perbblgeom,
-        (SUM(segzonegeom) / SUM(allzonegeom)) * 100 AS perzonegeom
+        SUM(segbblgeom / allbblgeom) * 100 AS perbblgeom,
+        MAX(segzonegeom / allzonegeom) * 100 AS maxperzonegeom
     FROM commoverlayper
     GROUP BY dtm_id, bbl, overlay
 ),
@@ -51,9 +51,9 @@ filtered AS (
         segbblgeom,
         segzonegeom,
         perbblgeom,
-        perzonegeom
+        maxperzonegeom
     FROM grouped
-    WHERE perbblgeom >= 10 OR perzonegeom >= 50
+    WHERE perbblgeom >= 10 OR maxperzonegeom >= 50
 ),
 
 commoverlayperorder AS (
@@ -63,7 +63,7 @@ commoverlayperorder AS (
         segbblgeom,
         segzonegeom,
         perbblgeom,
-        perzonegeom,
+        maxperzonegeom,
         overlay,
         ROW_NUMBER()
             OVER (
