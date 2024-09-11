@@ -28,7 +28,7 @@ from .sources import generic_source, postgres_source
 
 
 def format_field_names(
-    dataset: gdal.Dataset, fields: list[str] | None, sql: str | None, has_geom: bool
+    dataset: gdal.Dataset, fields: list[str] | None, sql: str | None, has_geom: bool, output_format: str
 ):
     fields = fields or []
     layer = dataset.GetLayer(0)
@@ -49,8 +49,8 @@ def format_field_names(
         [f"{old} AS {field_mapping[old]}" for old in field_mapping]
     )
     if has_geom:
-        geom_columns = {"ESRI Shapefile": "WKT"}
-        geom_column = geom_columns.get(dataset.GetDriver().ShortName, "geom")
+        geom_columns = {"csv": "WKT", "pg_dump": "wkb_geometry", "parquet": "geom"}
+        geom_column = geom_columns.get(output_format, "geom")
         geom_clause = f',\n\tGeometry AS "{geom_column}"'
     else:
         geom_clause = ""
