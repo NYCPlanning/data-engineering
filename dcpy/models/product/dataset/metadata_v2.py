@@ -58,7 +58,7 @@ class Checks(CustomizableBase):
 
 # TODO: move to share with ingest.validate
 COLUMN_TYPES = Literal[
-    "text", "integer", "decimal", "geometry", "bool", "bbl", "datetime"
+    "text", "number", "integer", "decimal", "geometry", "bool", "bbl", "datetime"
 ]
 
 

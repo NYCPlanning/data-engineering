@@ -143,7 +143,7 @@ columns:
   - value: M
     description: Mixed ownership
 - id: nullable_ownership
-  name: Owner type
+  name: Nullable Owner type
   data_type: text
   description: Type of owner
   example: None
