@@ -1,5 +1,8 @@
 {{ config(
-    materialized = 'table'
+    materialized = 'table',
+    indexes=[
+        {'columns': ['dtm_id']},
+    ]
 ) }}
 
 WITH validdtm AS (
