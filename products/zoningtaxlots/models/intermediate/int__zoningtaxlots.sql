@@ -1,5 +1,8 @@
 {{ config(
-    materialized = 'table'
+    materialized = 'table',
+    indexes=[
+        {'columns': ['bbl']},
+    ]
 ) }}
 
 WITH dof_dtm AS (

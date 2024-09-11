@@ -1,3 +1,10 @@
+{{ config(
+    materialized = 'table',
+    indexes=[
+        {'columns': ['dtm_id']},
+    ]
+) }}
+
 WITH validdtm AS (
     SELECT * FROM {{ ref('int__validdtm') }}
 ),
