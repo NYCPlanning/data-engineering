@@ -13,7 +13,17 @@ from urllib.parse import urlencode, urljoin
 import yaml
 from zipfile import ZipFile
 
-from dcpy.configuration import PUBLISHING_BUCKET, CI, BUILD_NAME, DEV_FLAG
+from dcpy.configuration import (
+    PUBLISHING_BUCKET,
+    CI,
+    BUILD_NAME,
+    DEV_FLAG,
+    LOGGING_DB,
+    LOGGING_SCHEMA,
+    LOGGING_TABLE_NAME,
+    PRODUCTS_TO_LOG,
+    IGNORED_LOGGING_BUILDS,
+)
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
@@ -30,22 +40,6 @@ assert (
 BUCKET = PUBLISHING_BUCKET
 
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
-LOGGING_DB = "edm-qaqc"
-LOGGING_SCHEMA = "product_data"
-LOGGING_TABLE_NAME = "event_logging"
-PRODUCTS_TO_LOG = [
-    "db-cbbr",
-    "db-checkbook",
-    "db-colp",
-    "db-cpdb",
-    "db-developments",
-    "db-facilities",
-    "db-green-fast-track",
-    "db-pluto",
-    "db-template",
-    "db-zoningtaxlots",
-]
-IGNORED_LOGGING_BUILDS = ["nightly_qa"]
 
 
 def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
@@ -277,16 +271,16 @@ def upload_build(
     logger.info(f'Uploading {output_path} to {build_key.path} with ACL "{acl}"')
     upload(output_path, build_key, acl=acl, max_files=max_files)
 
-    version = get_version(build_key)
-    event_metadata = EventLog(
-        event_type=EventType.BUILD,
-        product=build_key.product,
-        release_version=version,
-        new_path=build_key.path,
-        old_path=None,
-        run_details=metadata.get_run_details(),
-    )
     if build_key.build not in IGNORED_LOGGING_BUILDS:
+        version = get_version(build_key)
+        event_metadata = EventLog(
+            event_type=EventType.BUILD,
+            product=build_key.product,
+            release_version=version,
+            new_path=build_key.path,
+            old_path=None,
+            run_details=metadata.get_run_details(),
+        )
         log_event_in_db(event_metadata)
 
     return build_key
