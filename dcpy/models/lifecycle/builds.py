@@ -109,13 +109,19 @@ class EventType(StrEnum):
 
 
 class EventLog(BaseModel, extra="forbid"):
-    event_type: EventType
+    event: EventType
     product: str
-    release_version: str
-    new_path: str
+    version: str
+    path: str
     old_path: str | None
-    run_details: RunDetails
+    timestamp: datetime
+    runner_type: str
+    runner: str
     custom_fields: dict = {}
+
+    @field_serializer("timestamp")
+    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
+        return timestamp.isoformat()
 
 
 class BuildMetadata(BaseModel, extra="forbid"):

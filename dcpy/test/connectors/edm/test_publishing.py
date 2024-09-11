@@ -597,13 +597,16 @@ def test_validate_or_patch_version_version_already_exists(get_published_versions
 
 @pytest.fixture(scope="function")
 def mock_event_log():
+    run_details = publishing.metadata.get_run_details()
     return publishing.EventLog(
         product=TEST_PRODUCT_NAME,
-        release_version=TEST_VERSION,
-        event_type=publishing.EventType.BUILD,
-        new_path="/new/path",
+        version=TEST_VERSION,
+        event=publishing.EventType.BUILD,
+        path="/new/path",
         old_path="/old/path",
-        run_details=publishing.metadata.get_run_details(),
+        timestamp=run_details.timestamp,
+        runner_type=run_details.type,
+        runner=run_details.runner_string,
         custom_fields={"key": "value"},
     )
 
@@ -645,12 +648,12 @@ def test_log_event_success(mock_db_client, mock_event_log):
     mock_db_client_instance.execute_query.assert_called_once_with(
         query,
         product=mock_event_log.product,
-        version=mock_event_log.release_version,
-        event=mock_event_log.event_type.value,
-        path=mock_event_log.new_path,
+        version=mock_event_log.version,
+        event=mock_event_log.event.value,
+        path=mock_event_log.path,
         old_path=mock_event_log.old_path,
-        timestamp=mock_event_log.run_details.timestamp,
-        runner_type=mock_event_log.run_details.type,
-        runner=mock_event_log.run_details.runner_string,
+        timestamp=mock_event_log.timestamp,
+        runner_type=mock_event_log.runner_type,
+        runner=mock_event_log.runner,
         custom_fields=json.dumps(mock_event_log.custom_fields),
     )

@@ -273,13 +273,16 @@ def upload_build(
 
     if build_key.build not in IGNORED_LOGGING_BUILDS:
         version = get_version(build_key)
+        run_details = metadata.get_run_details()
         event_metadata = EventLog(
-            event_type=EventType.BUILD,
+            event=EventType.BUILD,
             product=build_key.product,
-            release_version=version,
-            new_path=build_key.path,
+            version=version,
+            path=build_key.path,
             old_path=None,
-            run_details=metadata.get_run_details(),
+            timestamp=run_details.timestamp,
+            runner_type=run_details.type,
+            runner=run_details.runner_string,
         )
         log_event_in_db(event_metadata)
 
@@ -330,13 +333,16 @@ def promote_to_draft(
     if not keep_build:
         s3.delete(BUCKET, source)
 
+    run_details = metadata.get_run_details()
     event_metadata = EventLog(
-        event_type=EventType.PROMOTE_TO_DRAFT,
+        event=EventType.PROMOTE_TO_DRAFT,
         product=draft_key.product,
-        release_version=draft_key.version,
-        new_path=draft_key.path,
+        version=draft_key.version,
+        path=draft_key.path,
         old_path=build_key.path,
-        run_details=metadata.get_run_details(),
+        timestamp=run_details.timestamp,
+        runner_type=run_details.type,
+        runner=run_details.runner_string,
     )
     log_event_in_db(event_metadata)
 
@@ -454,13 +460,16 @@ def publish(
         )
         logger.info(f"Downloaded build_metadata.json from {publish_key.path}")
 
+    run_details = metadata.get_run_details()
     event_metadata = EventLog(
-        event_type=EventType.PUBLISH,
+        event=EventType.PUBLISH,
         product=publish_key.product,
-        release_version=draft_key.version,  # this is release version, not patched
-        new_path=publish_key.path,
+        version=draft_key.version,  # this is release version, not patched
+        path=publish_key.path,
         old_path=draft_key.path,
-        run_details=metadata.get_run_details(),
+        timestamp=run_details.timestamp,
+        runner_type=run_details.type,
+        runner=run_details.runner_string,
     )
     log_event_in_db(event_metadata)
 
@@ -670,7 +679,7 @@ def log_event_in_db(event_details: EventLog) -> None:
         logger.info("DEV_FLAG env var found, skipping event metadata logging")
         return
     logger.info(
-        f"Logging event '{event_details.event_type}' metadata for product {event_details.product} in db..."
+        f"Logging event '{event_details.event}' metadata for product {event_details.product} in db..."
     )
     pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
     query = f"""
@@ -682,13 +691,13 @@ def log_event_in_db(event_details: EventLog) -> None:
     pg_client.execute_query(
         query,
         product=event_details.product,
-        version=event_details.release_version,
-        event=event_details.event_type.value,
-        path=event_details.new_path,
+        version=event_details.version,
+        event=event_details.event.value,
+        path=event_details.path,
         old_path=event_details.old_path,
-        timestamp=event_details.run_details.timestamp,
-        runner_type=event_details.run_details.type,
-        runner=event_details.run_details.runner_string,
+        timestamp=event_details.timestamp,
+        runner_type=event_details.runner_type,
+        runner=event_details.runner,
         custom_fields=json.dumps(event_details.custom_fields),
     )
 
