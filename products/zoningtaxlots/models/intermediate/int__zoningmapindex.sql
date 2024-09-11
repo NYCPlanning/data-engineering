@@ -5,19 +5,12 @@
     ]
 ) }}
 
-WITH validdtm AS (
-    SELECT * FROM {{ ref('int__validdtm') }}
+WITH dtm AS (
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 dcp_zoningmapindex AS (
     SELECT * FROM {{ ref('stg__dcp_zoningmapindex') }}
-),
-
-validindex AS (
-    SELECT
-        a.zoning_map,
-        ST_MAKEVALID(a.geom) AS geom
-    FROM dcp_zoningmapindex AS a
 ),
 
 zoningmapper AS (
@@ -38,8 +31,8 @@ zoningmapper AS (
             END
         ) AS segzonegeom,
         ST_AREA(p.geom) AS allbblgeom
-    FROM validdtm AS p
-    INNER JOIN validindex AS n
+    FROM dtm AS p
+    INNER JOIN dcp_zoningmapindex AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),
 

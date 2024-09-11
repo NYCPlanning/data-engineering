@@ -5,8 +5,8 @@
     ]
 ) }}
 
-WITH validdtm AS (
-    SELECT * FROM {{ ref('int__validdtm') }}
+WITH dtm AS (
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 dcp_commercialoverlay AS (
@@ -32,7 +32,7 @@ commoverlayper AS (
             END
         ) AS segzonegeom,
         ST_AREA(n.geom) AS allzonegeom
-    FROM validdtm AS p
+    FROM dtm AS p
     INNER JOIN dcp_commercialoverlay AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),

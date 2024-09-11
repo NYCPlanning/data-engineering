@@ -5,8 +5,8 @@
     ]
 ) }}
 
-WITH validdtm AS (
-    SELECT * FROM {{ ref('int__validdtm') }}
+WITH dtm AS (
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 dcp_specialpurpose AS (
@@ -36,7 +36,7 @@ specialpurposeper AS (
             END
         ) AS segzonegeom,
         ST_AREA(n.geom) AS allzonegeom
-    FROM validdtm AS p
+    FROM dtm AS p
     INNER JOIN dcp_specialpurpose AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),

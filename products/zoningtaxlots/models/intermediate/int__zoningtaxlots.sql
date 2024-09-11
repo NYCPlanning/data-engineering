@@ -39,7 +39,7 @@ zonechange AS (
 
 lots_with_features AS (
     SELECT
-        a.id AS dtm_id,
+        a.dtm_id,
         CASE
             WHEN a.bbl IS NULL OR LENGTH(a.bbl) < 10
                 THEN a.boro || LPAD(a.block, 5, '0') || LPAD(a.lot, 4, '0')::text
@@ -70,33 +70,33 @@ lots_with_features AS (
         h.inzonechange
     FROM dof_dtm AS a
     LEFT JOIN commercialoverlay AS b1
-        ON a.id = b1.dtm_id AND b1.row_number = 1
+        ON a.dtm_id = b1.dtm_id AND b1.row_number = 1
     LEFT JOIN commercialoverlay AS b2
-        ON a.id = b2.dtm_id AND b2.row_number = 2
+        ON a.dtm_id = b2.dtm_id AND b2.row_number = 2
     LEFT JOIN specialpurpose AS c1
-        ON a.id = c1.dtm_id AND c1.row_number = 1
+        ON a.dtm_id = c1.dtm_id AND c1.row_number = 1
     LEFT JOIN specialpurpose AS c2
-        ON a.id = c2.dtm_id AND c2.row_number = 2
+        ON a.dtm_id = c2.dtm_id AND c2.row_number = 2
     LEFT JOIN specialpurpose AS c3
-        ON a.id = c3.dtm_id AND c3.row_number = 3
+        ON a.dtm_id = c3.dtm_id AND c3.row_number = 3
     LEFT JOIN limitedheight AS d
-        ON a.id = d.dtm_id
+        ON a.dtm_id = d.dtm_id
     LEFT JOIN zoningmapindex AS e1
-        ON a.id = e1.dtm_id AND e1.row_number = 1
+        ON a.dtm_id = e1.dtm_id AND e1.row_number = 1
     LEFT JOIN zoningmapindex AS e2
-        ON a.id = e2.dtm_id AND e2.row_number = 2
+        ON a.dtm_id = e2.dtm_id AND e2.row_number = 2
     LEFT JOIN zoningdistricts AS f1
-        ON a.id = f1.dtm_id AND f1.row_number = 1
+        ON a.dtm_id = f1.dtm_id AND f1.row_number = 1
     LEFT JOIN zoningdistricts AS f2
-        ON a.id = f2.dtm_id AND f2.row_number = 2
+        ON a.dtm_id = f2.dtm_id AND f2.row_number = 2
     LEFT JOIN zoningdistricts AS f3
-        ON a.id = f3.dtm_id AND f3.row_number = 3
+        ON a.dtm_id = f3.dtm_id AND f3.row_number = 3
     LEFT JOIN zoningdistricts AS f4
-        ON a.id = f4.dtm_id AND f4.row_number = 4
+        ON a.dtm_id = f4.dtm_id AND f4.row_number = 4
     LEFT JOIN inwoodrezooning AS g
-        ON a.id = g.dtm_id
+        ON a.dtm_id = g.dtm_id
     LEFT JOIN zonechange AS h
-        ON a.id = h.dtm_id
+        ON a.dtm_id = h.dtm_id
 ),
 
 clean_park_features AS (

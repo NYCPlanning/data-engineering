@@ -9,8 +9,8 @@ WITH validzones AS (
     SELECT * FROM {{ ref('stg__dcp_zoningdistricts') }}
 ),
 
-validdtm AS (
-    SELECT * FROM {{ ref('int__validdtm') }}
+dtm AS (
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 zonedist_priority AS (
@@ -36,7 +36,7 @@ lotzoneper AS (
         ) AS segzonegeom,
         ST_AREA(p.geom::geography) AS allbblgeom,
         ST_AREA(n.geom::geography) AS allzonegeom
-    FROM validdtm AS p
+    FROM dtm AS p
     INNER JOIN validzones AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),

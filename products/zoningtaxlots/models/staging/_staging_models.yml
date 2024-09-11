@@ -8,3 +8,14 @@ models:
   - name: stg__dcp_zoningmapamendments
   - name: stg__dcp_zoningmapindex
   - name: stg__dof_dtm
+    columns:
+      - name: dtm_id
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: bbl
+      - name: boro
+      - name: block
+      - name: lot
+      - name: geom
