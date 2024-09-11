@@ -30,26 +30,30 @@ commoverlayper AS (
         ON ST_INTERSECTS(p.geom, n.geom)
 ),
 
-filtered AS (
-    SELECT
-        dtm_id,
-        bbl,
-        overlay,
-        segbblgeom,
-        segzonegeom
-    FROM commoverlayper
-    WHERE (segbblgeom / allbblgeom) * 100 >= 10 OR (segzonegeom / allzonegeom) * 100 >= 50
-),
-
 grouped AS (
     SELECT
         dtm_id,
         bbl,
         overlay,
         SUM(segbblgeom) AS segbblgeom,
-        SUM(segzonegeom) AS segzonegeom
-    FROM filtered
+        SUM(segzonegeom) AS segzonegeom,
+        (SUM(segbblgeom) / SUM(allbblgeom)) * 100 AS perbblgeom,
+        (SUM(segzonegeom) / SUM(allzonegeom)) * 100 AS perzonegeom
+    FROM commoverlayper
     GROUP BY dtm_id, bbl, overlay
+),
+
+filtered AS (
+    SELECT
+        dtm_id,
+        bbl,
+        overlay,
+        segbblgeom,
+        segzonegeom,
+        perbblgeom,
+        perzonegeom
+    FROM grouped
+    WHERE perbblgeom >= 10 OR perzonegeom >= 50
 ),
 
 commoverlayperorder AS (
@@ -58,6 +62,8 @@ commoverlayperorder AS (
         bbl,
         segbblgeom,
         segzonegeom,
+        perbblgeom,
+        perzonegeom,
         overlay,
         ROW_NUMBER()
             OVER (
@@ -65,8 +71,7 @@ commoverlayperorder AS (
                 ORDER BY segbblgeom DESC, segzonegeom DESC
             )
         AS row_number
-    FROM grouped
+    FROM filtered
 )
-
 
 SELECT * FROM commoverlayperorder
