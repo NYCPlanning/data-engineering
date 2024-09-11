@@ -20,14 +20,14 @@ zoningmapper AS (
         n.zoning_map,
         ST_AREA(
             CASE
-                WHEN ST_COVEREDBY(ST_MAKEVALID(p.geom), n.geom) THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
+                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
             END
         ) AS segbblgeom,
         ST_AREA(
             CASE
-                WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom)) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
+                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
             END
         ) AS segzonegeom,
         ST_AREA(p.geom) AS allbblgeom
