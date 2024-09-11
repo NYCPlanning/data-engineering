@@ -7,6 +7,7 @@ from pydantic import BaseModel, field_serializer
 from typing import List
 
 from dcpy.utils import versions
+from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes
 
 
@@ -99,6 +100,28 @@ class LoadResult(BaseModel, extra="forbid"):
     name: str
     build_name: str
     datasets: dict[str, ImportedDataset]
+
+
+class EventType(StrEnum):
+    BUILD = "build"
+    PROMOTE_TO_DRAFT = "promote_to_draft"
+    PUBLISH = "publish"
+
+
+class EventLog(BaseModel, extra="forbid"):
+    event: EventType
+    product: str
+    version: str
+    path: str
+    old_path: str | None
+    timestamp: datetime
+    runner_type: str
+    runner: str
+    custom_fields: dict = {}
+
+    @field_serializer("timestamp")
+    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
+        return timestamp.isoformat()
 
 
 class BuildMetadata(BaseModel, extra="forbid"):

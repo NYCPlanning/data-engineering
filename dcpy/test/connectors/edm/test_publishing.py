@@ -1,6 +1,8 @@
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
+import os
+import json
 import pytest
 from unittest.mock import patch
 
@@ -110,6 +112,90 @@ def test_legacy_upload(
     )
     for path in not_expected_paths:
         assert not s3.exists(TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}")
+
+
+@patch("dcpy.connectors.edm.publishing.BUILD_NAME", TEST_BUILD)
+def test_upload_build_success(
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    """Tests successful upload of a build, using env variable for build name."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    publishing.upload_build(
+        data_path,
+        product=TEST_PRODUCT_NAME,
+        build=None,
+        acl=TEST_ACL,
+    )
+    build_key = publishing.BuildKey(product=TEST_PRODUCT_NAME, build=TEST_BUILD)
+    assert TEST_BUILD in publishing.get_builds(product=TEST_PRODUCT_NAME)
+    assert publishing.get_version(product_key=build_key) == TEST_VERSION
+
+
+def test_upload_build_missing_build_name(
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    """Tests failure when build name is not provided and env variable is missing."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    assert os.getenv("BUILD_NAME") == None  # sanity check
+    with pytest.raises(ValueError, match="'BUILD_NAME' cannot be"):
+        publishing.upload_build(
+            data_path,
+            product=TEST_PRODUCT_NAME,
+            build=None,
+            acl=TEST_ACL,
+        )
+
+
+def test_upload_build_file_not_found(create_buckets, mock_data_constants):
+    """Tests failure when the provided output path does not exist."""
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+
+    assert data_path.exists() == False  # sanity check
+
+    with pytest.raises(FileNotFoundError):
+        publishing.upload_build(
+            data_path,
+            product=TEST_PRODUCT_NAME,
+            build=TEST_BUILD,
+            acl=TEST_ACL,
+        )
+
+
+@patch("dcpy.connectors.edm.publishing.log_event_in_db")
+def test_upload_build_validate_logging_logic(
+    mock_log_event,
+    create_buckets,
+    create_temp_filesystem,
+    mock_data_constants,
+):
+    data_path = mock_data_constants["TEST_DATA_DIR"]
+    build_to_ignore = publishing.IGNORED_LOGGING_BUILDS[0]
+    publishing.upload_build(
+        data_path,
+        product=TEST_PRODUCT_NAME,
+        build=build_to_ignore,
+        acl=TEST_ACL,
+    )
+    # Ensure log_event_in_db is not called since the build is ignored
+    mock_log_event.assert_not_called()
+
+    mock_log_event.reset_mock()
+
+    non_ignored_build = TEST_BUILD
+    assert non_ignored_build not in publishing.IGNORED_LOGGING_BUILDS  # sanity check
+    publishing.upload_build(
+        data_path,
+        product=TEST_PRODUCT_NAME,
+        build=non_ignored_build,
+        acl=TEST_ACL,
+    )
+    # Ensure log_event_in_db is called
+    mock_log_event.assert_called_once()
 
 
 def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constants):
@@ -507,3 +593,67 @@ def test_validate_or_patch_version_version_already_exists(get_published_versions
             version=version_to_patch,
             is_patch=False,
         )
+
+
+@pytest.fixture(scope="function")
+def mock_event_log():
+    run_details = publishing.metadata.get_run_details()
+    return publishing.EventLog(
+        product=TEST_PRODUCT_NAME,
+        version=TEST_VERSION,
+        event=publishing.EventType.BUILD,
+        path="/new/path",
+        old_path="/old/path",
+        timestamp=run_details.timestamp,
+        runner_type=run_details.type,
+        runner=run_details.runner_string,
+        custom_fields={"key": "value"},
+    )
+
+
+@patch("dcpy.connectors.edm.publishing.postgres.PostgresClient")
+def test_log_event_skipped_conditions(mock_db_client, mock_event_log):
+    """
+    Test the `log_event_in_db` function to ensure that no database query is executed
+    when the product is not in the allowed list or when the DEV_FLAG is set to True.
+    """
+    mock_db_client_instance = mock_db_client.return_value
+    with patch("dcpy.connectors.edm.publishing.DEV_FLAG", False):
+        assert mock_event_log.product not in publishing.PRODUCTS_TO_LOG  # sanity check
+        publishing.log_event_in_db(mock_event_log)
+        mock_db_client_instance.execute_query.assert_not_called()
+
+    with patch("dcpy.connectors.edm.publishing.DEV_FLAG", True):
+        mock_event_log.product = "db-template"
+        assert mock_event_log.product in publishing.PRODUCTS_TO_LOG  # sanity check
+        publishing.log_event_in_db(mock_event_log)
+        mock_db_client_instance.execute_query.assert_not_called()
+
+
+@patch("dcpy.connectors.edm.publishing.postgres.PostgresClient")
+def test_log_event_success(mock_db_client, mock_event_log):
+    mock_db_client_instance = mock_db_client.return_value
+
+    mock_event_log.product = "db-template"
+    assert mock_event_log.product in publishing.PRODUCTS_TO_LOG  # sanity check
+
+    publishing.log_event_in_db(mock_event_log)
+
+    query = f"""
+        INSERT INTO {publishing.LOGGING_SCHEMA}.{publishing.LOGGING_TABLE_NAME} 
+        (product, version, event, path, old_path, timestamp, runner_type, runner, custom_fields)
+        VALUES 
+        (:product, :version, :event, :path, :old_path, :timestamp, :runner_type, :runner, :custom_fields)
+        """
+    mock_db_client_instance.execute_query.assert_called_once_with(
+        query,
+        product=mock_event_log.product,
+        version=mock_event_log.version,
+        event=mock_event_log.event.value,
+        path=mock_event_log.path,
+        old_path=mock_event_log.old_path,
+        timestamp=mock_event_log.timestamp,
+        runner_type=mock_event_log.runner_type,
+        runner=mock_event_log.runner,
+        custom_fields=json.dumps(mock_event_log.custom_fields),
+    )

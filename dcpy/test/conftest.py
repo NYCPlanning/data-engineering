@@ -92,7 +92,7 @@ def mock_data_constants():
     yield constants
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def create_temp_filesystem(mock_data_constants):
     """Creates a new directory with files and removes it upon test completion.
     The directory is created and removed once per script ('module' scope)."""
