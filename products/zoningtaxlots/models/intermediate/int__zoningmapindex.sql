@@ -1,20 +1,16 @@
 {{ config(
-    materialized = 'table'
+    materialized = 'table',
+    indexes=[
+        {'columns': ['dtm_id']},
+    ]
 ) }}
 
-WITH validdtm AS (
-    SELECT * FROM {{ ref('int__validdtm') }}
+WITH dtm AS (
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 dcp_zoningmapindex AS (
     SELECT * FROM {{ ref('stg__dcp_zoningmapindex') }}
-),
-
-validindex AS (
-    SELECT
-        a.zoning_map,
-        ST_MAKEVALID(a.geom) AS geom
-    FROM dcp_zoningmapindex AS a
 ),
 
 zoningmapper AS (
@@ -24,19 +20,19 @@ zoningmapper AS (
         n.zoning_map,
         ST_AREA(
             CASE
-                WHEN ST_COVEREDBY(ST_MAKEVALID(p.geom), n.geom) THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(ST_MAKEVALID(p.geom), n.geom))
+                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
+                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
             END
         ) AS segbblgeom,
         ST_AREA(
             CASE
-                WHEN ST_COVEREDBY(n.geom, ST_MAKEVALID(p.geom)) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, ST_MAKEVALID(p.geom)))
+                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
+                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
             END
         ) AS segzonegeom,
         ST_AREA(p.geom) AS allbblgeom
-    FROM validdtm AS p
-    INNER JOIN validindex AS n
+    FROM dtm AS p
+    INNER JOIN dcp_zoningmapindex AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),
 

@@ -60,15 +60,6 @@ models:
           combination_of_columns:
             - dtm_id
             - sdlbl
-  - name: int__validdtm
-    columns:
-      - name: dtm_id
-        data_type: string
-        tests:
-          - not_null
-          - unique
-      - name: bbl
-      - name: geom 
   - name: int__zoningdistricts
     columns:
       - name: dtm_id

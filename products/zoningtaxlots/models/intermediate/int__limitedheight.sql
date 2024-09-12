@@ -1,5 +1,12 @@
-WITH validdtm AS (
-    SELECT * FROM {{ ref('int__validdtm') }}
+{{ config(
+    materialized = 'table',
+    indexes=[
+        {'columns': ['dtm_id']},
+    ]
+) }}
+
+WITH dtm AS (
+    SELECT * FROM {{ ref('stg__dof_dtm') }}
 ),
 
 dcp_limitedheight AS (
@@ -24,7 +31,7 @@ limitedheightper AS (
             END
         ) AS segzonegeom,
         ST_AREA(p.geom) AS allbblgeom
-    FROM validdtm AS p
+    FROM dtm AS p
     INNER JOIN dcp_limitedheight AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),

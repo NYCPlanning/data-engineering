@@ -1,6 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
+        {'columns': ['dtm_id'], 'unique': True},
         {'columns': ['geom'], 'type': 'gist'},
     ]
 ) }}
@@ -17,18 +18,14 @@ coalesced AS (
         COALESCE(lot::text, SUBSTRING(bbl::text, 7, 4)) AS lot,
         wkb_geometry AS geom
     FROM dof_dtm
-),
-
-dof_dtm_tmp AS (
-    SELECT
-        ROW_NUMBER() OVER () AS id,
-        bbl,
-        boro,
-        block,
-        lot,
-        ST_MULTI(ST_UNION(ST_MAKEVALID(geom))) AS geom
-    FROM coalesced
-    GROUP BY bbl, boro, block, lot
 )
 
-SELECT * FROM dof_dtm_tmp
+SELECT
+    ROW_NUMBER() OVER () AS dtm_id,
+    bbl,
+    boro,
+    block,
+    lot,
+    ST_MULTI(ST_UNION(ST_MAKEVALID(geom))) AS geom
+FROM coalesced
+GROUP BY bbl, boro, block, lot

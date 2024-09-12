@@ -37,8 +37,8 @@ grouped AS (
         overlay,
         SUM(segbblgeom) AS segbblgeom,
         SUM(segzonegeom) AS segzonegeom,
-        (SUM(segbblgeom) / SUM(allbblgeom)) * 100 AS perbblgeom,
-        (SUM(segzonegeom) / SUM(allzonegeom)) * 100 AS perzonegeom
+        SUM(segbblgeom / allbblgeom) * 100 AS perbblgeom,
+        MAX(segzonegeom / allzonegeom) * 100 AS maxperzonegeom
     FROM commoverlayper
     GROUP BY id, bbl, overlay
 )
@@ -49,7 +49,7 @@ SELECT
     overlay,
     segbblgeom,
     perbblgeom,
-    perzonegeom,
+    maxperzonegeom,
     ROW_NUMBER()
         OVER (
             PARTITION BY id
@@ -57,7 +57,7 @@ SELECT
         )
     AS row_number
 FROM grouped
-WHERE perbblgeom >= 10 OR perzonegeom >= 50;
+WHERE perbblgeom >= 10 OR maxperzonegeom >= 50;
 
 UPDATE pluto a
 SET overlay1 = overlay
