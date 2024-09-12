@@ -119,8 +119,8 @@ class OutlierReport:
     def markdown_dict(self):
         return {
             "building_area_increase": f"### Table of BBLs with Unreasonable Increase in Building Area {self.version_pair}",
-            "unitsres_resarea": f"### Report of BBLs with buildings containing unreasonably small apartments",
-            "lotarea_numfloor": f"### Table of BBLs where bldgarea/lotarea > numfloors*2",
+            "unitsres_resarea": "### Report of BBLs with buildings containing unreasonably small apartments",
+            "lotarea_numfloor": "### Table of BBLs where bldgarea/lotarea > numfloors*2",
         }
 
     @property

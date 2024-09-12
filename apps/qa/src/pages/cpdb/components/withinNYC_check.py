@@ -5,9 +5,9 @@ from st_aggrid import AgGrid
 
 
 def withinNYC_check(data):
-    st.header(f"Mapped Capital Projects That Are Not in NYC")
+    st.header("Mapped Capital Projects That Are Not in NYC")
     st.markdown(
-        f"""
+        """
         We check whether all mapped capital projects are located within the NYC borough boundaries (water included).
         """
     )

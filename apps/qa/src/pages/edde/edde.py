@@ -1,7 +1,6 @@
 import streamlit as st
 
 from dcpy.connectors.github import get_default_branch
-from src.shared.constants import COLOR_SCHEME
 from .helpers import (
     REPO_NAME,
     PRODUCT,

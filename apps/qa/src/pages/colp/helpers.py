@@ -12,7 +12,7 @@ def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     def csv_from_DO(file):
         try:
             return publishing.read_csv(product_key, "qaqc/" + file)
-        except:
+        except FileNotFoundError:
             st.warning(f"{file} not found")
 
     rv["modified_names"] = csv_from_DO("ipis_modified_names.csv")

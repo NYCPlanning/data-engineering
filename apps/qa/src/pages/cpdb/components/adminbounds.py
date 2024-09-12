@@ -16,11 +16,11 @@ def get_text(df, pre_df):
 
 def adminbounds(data: dict):
     st.header(
-        f"Compare Administrative Boundary Values Between Previous and Latest Versions"
+        "Compare Administrative Boundary Values Between Previous and Latest Versions"
     )
 
     st.markdown(
-        f"""
+        """
         Is there any differences in the adminstrative boundary values in previous vs. latest version? 
         The intended result is that the list is empty and all the admin boundaries are still present in the new output.
         Otherwise it might indicate that some of spatial join with admin boundaries have failed. 

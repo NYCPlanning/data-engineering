@@ -112,11 +112,11 @@ def load_source_data(dataset_name: str, version: str, pg_client) -> str:
     )
     recipes.fetch_dataset(dataset, SQL_FILE_DIRECTORY)
 
-    dataset_by_version = construct_dataset_by_version(dataset, version)
+    dataset_by_version = construct_dataset_by_version(dataset.name, version)
     schema_tables = pg_client.get_schema_tables()
 
     status_message = None
-    if not dataset_by_version in schema_tables:
+    if dataset_by_version not in schema_tables:
         recipes.import_dataset(dataset, pg_client, local_library_dir=SQL_FILE_DIRECTORY)
         status_message = f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
     else:

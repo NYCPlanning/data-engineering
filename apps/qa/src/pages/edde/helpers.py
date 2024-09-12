@@ -45,7 +45,10 @@ def get_demographics_data(branch: str, version: str):
         pattern = r"^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$"
         match_objs = [re.match(pattern, file) for file in files]
         matches = [match for match in match_objs if match]
-        key = lambda m: (m.group(1), m.group(3))
+
+        def key(m):
+            return (m.group(1), m.group(3))
+
         for (category_match, geography), grouped_matches in groupby(
             sorted(matches, key=key), key=key
         ):

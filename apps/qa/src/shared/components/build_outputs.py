@@ -58,7 +58,7 @@ def generate_geo_data(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
             if build_output.dataframe is None:
                 build_output.geodataframe = None
                 build_output.qa_warnings.append(
-                    f"No DataFrame to generate GeoDataFrame from."
+                    "No DataFrame to generate GeoDataFrame from."
                 )
             elif geometry_column not in build_output.dataframe.columns:
                 build_output.geodataframe = None
@@ -85,7 +85,7 @@ def generate_maps(build_outputs: list[BuildOutput]) -> list[BuildOutput]:
     for build_output in build_outputs:
         if build_output.geodataframe is None:
             build_output.map = None
-            build_output.qa_warnings.append(f"No GeoDataFrame to generate map from.")
+            build_output.qa_warnings.append("No GeoDataFrame to generate map from.")
         else:
             with st.spinner(f"Generating `{build_output.file_name}` map ..."):
                 build_output.map = mapping.generate_folium_map(
@@ -101,10 +101,10 @@ def show_build_output(build_output: BuildOutput) -> None:
     gdf = build_output.geodataframe
     gdf_for_display = build_output.geodataframe_for_display
 
-    st.markdown(f"##### S3 file metadata")
+    st.markdown("##### S3 file metadata")
     st.json(build_output.metadata, expanded=False)
 
-    st.markdown(f"##### DataFrame")
+    st.markdown("##### DataFrame")
     if df is None:
         st.info("No DataFrame")
     else:
@@ -118,7 +118,7 @@ def show_build_output(build_output: BuildOutput) -> None:
     if gdf is None:
         st.info("No GeoDataFrame")
     else:
-        st.markdown(f"##### GeoDataFrame")
+        st.markdown("##### GeoDataFrame")
 
         st.markdown(
             f"""

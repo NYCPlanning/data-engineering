@@ -3,10 +3,10 @@ from src.shared.constants import COLOR_SCHEME
 
 
 def geometry_visualization_report(data: dict):
-    st.header(f"Visualize Geometries")
+    st.header("Visualize Geometries")
 
     st.caption(
-        f"""
+        """
         The intent of these maps is to guide engineers in figuring out if the shapefiles are corrupted or had been loaded improperly; indicators of this include points or polygons falling outside the NYC boundary, geometries appearing to be oversimplified (i.e. roadbeds look like "noodles"), and spatial data simply not existing.
         These maps are meant to be used in addition to the Mapped Capital Projects That Are Not in NYC table, as they may help identify which source spatial data files might be causing the issues. 
         Historically spatial data issues have been introduced when loading spatial files into data library, specifically when the source data projection has changed.

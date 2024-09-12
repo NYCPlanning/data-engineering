@@ -80,11 +80,11 @@ def sources_report(
 
     # TODO (nice-to-have) consider adding table names to source_report_results
     st.subheader("Compare source data shapes")
-    with st.spinner(f"⏳ Comparing columns ..."):
+    with st.spinner("⏳ Comparing columns ..."):
         source_report_results = compare_source_data_columns(
             source_report_results, pg_client=pg_client
         )
-    with st.spinner(f"⏳ Comparing row counts ..."):
+    with st.spinner("⏳ Comparing row counts ..."):
         source_report_results = compare_source_data_row_count(
             source_report_results, pg_client=pg_client
         )

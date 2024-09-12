@@ -4,8 +4,6 @@ def ingest() -> None:
         archive_raw_data,
         library_archive,
     )
-    from pathlib import Path
-    import time
     from dcpy.library import utils
     from streamlit.runtime.uploaded_file_manager import UploadedFile
 
@@ -48,7 +46,7 @@ def ingest() -> None:
                 )
                 st.session_state["ingest"]["upload_status"] = "success"
             except Exception as e:
-                st.error(f"Failed to archive Dataset")
+                st.error("Failed to archive Dataset")
                 st.session_state["ingest"]["upload_status"] = "fail"
                 st.session_state["ingest"]["error_message"] = str(e)
 
@@ -92,7 +90,7 @@ def ingest() -> None:
         disabled=st.session_state["ingest"]["running"],
     )
 
-    if st.session_state["ingest"]["retry"] == True:
+    if st.session_state["ingest"]["retry"]:
         process = "Call Library on S3 Files"
         st.write(
             "You are being re-directed to retry library calls, we autofilled the s3 path to your saved file"
@@ -132,12 +130,12 @@ def ingest() -> None:
         )
 
         if (
-            ingest_button_pressed == True
-            and st.session_state["ingest"]["running"] == True
+            ingest_button_pressed
+            and st.session_state["ingest"]["running"]
             and uploaded_file is not None
         ):
             ingest(dataset_name, version, uploaded_file, allow_override)
-        if ingest_button_pressed == True and uploaded_file is None:
+        if ingest_button_pressed and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
@@ -149,7 +147,7 @@ def ingest() -> None:
 
     if process == "Call Library on S3 Files":
         st.write("Call Library on S3 Files")
-        if st.session_state["ingest"]["retry"] == True:
+        if st.session_state["ingest"]["retry"]:
             st.button(
                 "End Retry",
                 on_click=end_retry,
@@ -180,17 +178,14 @@ def ingest() -> None:
             args=(dataset_name, version, s3_path),
             disabled=st.session_state["ingest"]["running"],
         )
-        if (
-            library_button_pressed == True
-            and st.session_state["ingest"]["running"] == True
-        ):
+        if library_button_pressed and st.session_state["ingest"]["running"]:
             library(dataset_name, version, s3_path, latest)
         if st.session_state["ingest"]["library_status"] == "success":
             st.success("Ingest Successful")
             st.button("Restart", on_click=unlock)
         if st.session_state["ingest"]["library_status"] == "fail":
             st.error(st.session_state["ingest"]["error_message"])
-            if st.session_state["ingest"]["retry"] == True:
+            if st.session_state["ingest"]["retry"]:
                 st.button("Retry", on_click=retry)
             else:
                 st.button("Restart", on_click=unlock)
@@ -229,13 +224,13 @@ def ingest() -> None:
             disabled=st.session_state["ingest"]["running"],
         )
         if (
-            ingest_button_pressed == True
-            and st.session_state["ingest"]["running"] == True
+            ingest_button_pressed
+            and st.session_state["ingest"]["running"]
             and uploaded_file is not None
         ):
             ingest(dataset_name, version, uploaded_file, allow_override)
             s3_path = f"inbox/{dataset_name}/{version}/{uploaded_file.name}"
-        if ingest_button_pressed == True and uploaded_file is None:
+        if ingest_button_pressed and uploaded_file is None:
             st.error("Please upload a valid file")
             st.button("Dismiss", on_click=unlock)
         if st.session_state["ingest"]["upload_status"] == "success":
