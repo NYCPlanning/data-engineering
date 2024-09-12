@@ -71,7 +71,7 @@ def export_data_description(df: pd.DataFrame) -> None:
 
 
 def geometries_summarization_statistics(df: pd.DataFrame) -> None:
-    projects_with_geometry = df[df["has_geometry"] == True]
+    projects_with_geometry = df[df["has_geometry"]]
 
     summary_stat_reports = [
         report_summary_stat(
@@ -106,7 +106,7 @@ def geometries_summarization_statistics(df: pd.DataFrame) -> None:
 
 
 def categorization_summarization_statistics(df: pd.DataFrame) -> None:
-    projects_with_geometry = df[df["has_geometry"] == True]
+    projects_with_geometry = df[df["has_geometry"]]
 
     summary_stat_reports = [
         report_summary_stat(
@@ -135,9 +135,7 @@ def categorization_summarization_statistics(df: pd.DataFrame) -> None:
     categories = df["final_category"].unique()
     for category in categories:
         category_projects = df[(df["final_category"] == category)]
-        cat_geoms = df[
-            (df["has_geometry"] == True) & (df["final_category"] == category)
-        ]
+        cat_geoms = df[df["has_geometry"] & (df["final_category"] == category)]
 
         count_projects = report_summary_stat(
             description=f"# projects with category '{category}'",
