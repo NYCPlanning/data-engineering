@@ -94,13 +94,15 @@ class Socrata:
                                 "Geocoded?": "Yes",
                                 "External Frequency (LL 110/2015)": attrs.publishing_frequency,
                                 "Exists Externally? (LL 110/2015)": "Yes",
-                                "Contains Address?": "Yes"
-                                if attrs.contains_address
-                                else "No",
+                                "Contains Address?": (
+                                    "Yes" if attrs.contains_address else "No"
+                                ),
                                 "Can Dataset Feasibly Be Automated?": "Yes",
-                                "Dataset from the Open Data Plan?": "Yes"
-                                if attrs.custom.get("dataset_from_open_data_plan")
-                                else "No",
+                                "Dataset from the Open Data Plan?": (
+                                    "Yes"
+                                    if attrs.custom.get("dataset_from_open_data_plan")
+                                    else "No"
+                                ),
                             }
                         }
                     },

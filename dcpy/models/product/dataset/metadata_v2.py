@@ -173,7 +173,9 @@ class DatasetAttributes(CustomizableBase):
     description: str = ""
     each_row_is_a: str
 
-    contains_address: bool | None = None  # refers specifcally to addresses containing house numbers + street names. (not just streets, polys, etc.)
+    # `contains_address` refers specifically to addresses containing house
+    # numbers + street names. (ie. not just streets, polys, etc.)
+    contains_address: bool | None = None
     publishing_purpose: str | None = None
     potential_uses: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values
