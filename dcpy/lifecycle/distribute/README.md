@@ -106,3 +106,17 @@ The last resort for grabbing column metadata. This is by far the most fragile of
 ``` sh
 python -m dcpy.cli lifecycle package esri parse_pdf_text {path to your text file}
 ```
+
+
+#### OLD STYLE DATASETS
+
+These are datasets created before 201x (maybe 2016'ish?) and unfortunately we need to distribute them manually.
+
+In this case, make sure you're logged in, and then:
+1) navigate to the dataset itself
+2) Update the dataset itself: Click "Edit" in the top right corner, and follow steps to upload the new dataset
+3) Update the metadata: Click "About" in the top-right, and click "Edit Metadata"
+    - Scroll all the way down
+    - Delete the old attachment(s)
+    - Upload the new attachemt(s)
+
