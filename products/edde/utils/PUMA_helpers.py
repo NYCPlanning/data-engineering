@@ -2,13 +2,9 @@ import geopandas as gp
 from shapely.geometry import Point
 import pandas as pd
 from numpy import nan
-import requests
 from utils.geocode import from_eviction_address
 
 acs_years = ["0812", "1519", "1721"]
-
-year_range = lambda acs_year: f"20{acs_year[:2]}-20{acs_year[2:]}"
-sheet_name = lambda acs_year: f"{acs_year[:2]}-{acs_year[2:]}"
 
 geocode_functions = {"from_eviction_address": from_eviction_address}
 
@@ -31,6 +27,15 @@ borough_name_mapper = {
 census_races = ["anh", "bnh", "hsp", "onh", "wnh"]
 
 dcp_pop_races = ["anh", "bnh", "hsp", "wnh"]
+NYC_PUMAS_url = "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Public_Use_Microdata_Areas_PUMAs_2010/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson"
+
+
+def year_range(acs_year: str) -> str:
+    return f"20{acs_year[:2]}-20{acs_year[2:]}"
+
+
+def sheet_name(acs_year: str) -> str:
+    return f"{acs_year[:2]}-{acs_year[2:]}"
 
 
 def puma_to_borough(record):
@@ -38,9 +43,6 @@ def puma_to_borough(record):
 
     borough = borough_code_mapper.get(borough_code, None)
     return borough
-
-
-NYC_PUMAS_url = "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Public_Use_Microdata_Areas_PUMAs_2010/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson"
 
 
 def clean_PUMAs(puma) -> pd.DataFrame:

@@ -1,8 +1,8 @@
-"""This script takes the xlsx files Erica from DCP Population sent us imports them, 
-cleans the column names to match our column schema naming conventions, filters out 
-unnecessary columns (the Housing Security and Quality Indicators 
-[Total Occupied Units, Owner Occupied, Renter Occupied and the corresponding racial 
-breakdowns]). 
+"""This script takes the xlsx files Erica from DCP Population sent us imports them,
+cleans the column names to match our column schema naming conventions, filters out
+unnecessary columns (the Housing Security and Quality Indicators
+[Total Occupied Units, Owner Occupied, Renter Occupied and the corresponding racial
+breakdowns]).
 """
 
 import pandas as pd

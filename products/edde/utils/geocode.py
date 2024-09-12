@@ -1,5 +1,4 @@
 from geosupport import Geosupport, GeosupportError
-import pandas as pd
 import usaddress
 
 
@@ -56,6 +55,5 @@ def geocode_address(address: dict) -> str:
             mode="extended",
         )
         return geocoded["PUMA Code"]
-    except GeosupportError as e:
-        geo = e.result
+    except GeosupportError:
         return None

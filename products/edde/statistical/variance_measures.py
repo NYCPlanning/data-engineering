@@ -1,11 +1,10 @@
-"""Functions to add margin of error and remove standard error. 
+"""Functions to add margin of error and remove standard error.
 For final output generally want MOE instead of SE.
 For debugging want both
 """
 
 import pandas as pd
 from scipy import stats
-import numpy as np
 
 z_score = stats.norm.ppf(0.95)
 

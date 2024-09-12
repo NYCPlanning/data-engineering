@@ -67,7 +67,7 @@ def clean_boro_name(b):
         b = "STATEN ISLAND"
     if b not in ["BRONX", "MANHATTAN", "BROOKLYN", "QUEENS", "STATEN ISLAND"]:
         b = None
-    if b != None:
+    if b is not None:
         b = b.title()
     return b
 
@@ -296,10 +296,12 @@ def geo_parser(geo):
     )
     try:
         # Parse segment variables if they exist
+        geo_from_node = geo.get("From Node", "")
+        geo_to_node = geo.get("To Node", "")
         parsed_geo.update(
             dict(
-                geo_from_node=geo.get("From Node", ""),
-                geo_to_node=geo.get("To Node", ""),
+                geo_from_node=geo_from_node,
+                geo_to_node=geo_to_node,
                 geo_from_x_coord=g["2"](node=geo_from_node)
                 .get("SPATIAL COORDINATES", {})
                 .get("X Coordinate", ""),
@@ -314,7 +316,7 @@ def geo_parser(geo):
                 .get("Y Coordinate", ""),
             )
         )
-    except:
+    except:  # noqa: E722
         # Keep dict "square" to translate DataFrame
         parsed_geo.update(
             dict(

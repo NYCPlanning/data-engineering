@@ -3,10 +3,7 @@ import sys
 sys.path.insert(0, "..")
 import pandas as pd
 import numpy as np
-import re
 from _helper.geo import (
-    get_hnum,
-    get_sname,
     clean_street,
     clean_house,
     clean_boro_name,
@@ -81,7 +78,7 @@ def _import() -> pd.DataFrame:
     # Clean borough
     df["borough"] = df.borough.apply(clean_boro_name)
     df["borough"] = np.where(
-        (df.streetname.str.contains("JFK")) & (df.borough == None), "Queens", df.borough
+        (df.streetname.str.contains("JFK")) & (df.borough is None), "Queens", df.borough
     )
 
     # Clean house number & street names
@@ -145,7 +142,6 @@ def _output(df: pd.DataFrame):
     df (DataFrame): Contains input fields along
                     with geosupport fields
     """
-    schema_name = "dep_cats_permits"
     cols = [
         "requestid",
         "applicationid",

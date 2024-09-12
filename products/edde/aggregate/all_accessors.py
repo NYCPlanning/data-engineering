@@ -1,5 +1,3 @@
-from geosupport import Geosupport, GeosupportError
-
 # Housing production imports
 from aggregate.housing_production.area_within_historic_district import (
     fraction_historic,

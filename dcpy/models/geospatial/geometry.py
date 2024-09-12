@@ -31,7 +31,9 @@ class PointXYStr(BaseModel, extra="forbid"):
     point_xy_str: str
 
     def wkt(self, s: str) -> str:
-        capture = lambda x: rf"(?P<{x}>-?\d+\.\d+)"
+        def capture(x: str) -> str:
+            return rf"(?P<{x}>-?\d+\.\d+)"
+
         regex_str = (
             re.escape(self.point_xy_str)
             .replace("x", capture("x"))

@@ -13,7 +13,10 @@ def status_details(workflow_run: WorkflowRun) -> None:
     timestamp = workflow_run.timestamp.astimezone(pytz.timezone("US/Eastern")).strftime(
         "%Y-%m-%d %H:%M"
     )
-    format = lambda status: f"{status}  \n[{timestamp}]({workflow_run.url})"
+
+    def format(status: str) -> str:
+        return f"{status}  \n[{timestamp}]({workflow_run.url})"
+
     if workflow_run.is_running:
         st.warning(format(workflow_run.status.capitalize().replace("_", " ")))
         st.spinner()
@@ -71,7 +74,7 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
                             mime="text/csv",
                             help=versions.to_markdown(index=False),
                         )
-                    except:
+                    except FileNotFoundError:
                         st.error("Not found")
 
                 files = "  \n".join(

@@ -1,4 +1,4 @@
-"""Aggregation for this indicator is unusual in that some records have borough 
+"""Aggregation for this indicator is unusual in that some records have borough
 but no CD. Something to watch out for when testing"""
 
 from aggregate.load_aggregated import initialize_dataframe_geo_index

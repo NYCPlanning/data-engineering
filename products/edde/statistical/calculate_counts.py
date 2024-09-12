@@ -1,26 +1,21 @@
 """Generalized code to get counts and associated variances"""
 
-from itertools import count
-from unicodedata import category
 import warnings
 
 warnings.filterwarnings("ignore")
 
-import pandas as pd
-import numpy as np
-import rpy2
-import rpy2.robjects as robjects
-import rpy2.robjects.packages as rpackages
-from rpy2.robjects.vectors import StrVector
+import pandas as pd  # noqa: E402
+import numpy as np  # noqa: E402
+import rpy2.robjects.packages as rpackages  # noqa: E402
 
-from statistical.variance_measures import variance_measures
+from statistical.variance_measures import variance_measures  # noqa: E402
 
 # from statistical.CV import
 
 survey_package = rpackages.importr("survey")
 base = rpackages.importr("base")
 
-from rpy2.robjects import r, pandas2ri
+from rpy2.robjects import pandas2ri  # noqa: E402
 
 pandas2ri.activate()
 

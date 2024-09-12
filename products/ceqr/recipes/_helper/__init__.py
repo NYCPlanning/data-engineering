@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine
 import os
 from datetime import date
 

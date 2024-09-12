@@ -35,7 +35,6 @@ class RegexSpmMatch:
 
 @total_ordering
 class Version:
-
     @property
     @abstractmethod
     def label(self) -> str:
@@ -79,7 +78,7 @@ class MajorMinor(Version):
                     return self_year < other.date.year
                 else:
                     raise ValueError(
-                        f"Cannot compare Date and MajorMinor versions of the same year"
+                        "Cannot compare Date and MajorMinor versions of the same year"
                     )
             case _:
                 raise TypeError(f"Cannot compare Version with type '{type(other)}'")
@@ -138,7 +137,7 @@ class Date(Version):
                     return self.date.year < other_year
                 else:
                     raise ValueError(
-                        f"Cannot compare Date and MajorMinor versions of the same year"
+                        "Cannot compare Date and MajorMinor versions of the same year"
                     )
             case _:
                 raise TypeError(f"Cannot compare Version with type '{type(other)}'")

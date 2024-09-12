@@ -66,7 +66,7 @@ def test_dump_prune_falsey_vals():
     model._exclude_falsey_values = True
     dumped = model.model_dump(exclude_none=True)
     assert (
-        not "child_to_be_serialized" in dumped
+        "child_to_be_serialized" not in dumped
     ), "Falsey values should have been excluded from serialization."
     assert (
         "a" in dumped

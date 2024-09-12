@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 from functools import reduce
 from pathlib import Path
@@ -32,7 +31,7 @@ if __name__ == "__main__":
             ]
             dfs.append(dff)
             print(f"✅ SUCCESS: {var}\t{geo}", file=sys.stdout)
-        except:
+        except:  # noqa: E722
             print(f"⛔️ FAILURE: {var}\t{geo}", file=sys.stdout)
 
     df = reduce(

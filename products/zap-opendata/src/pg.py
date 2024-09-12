@@ -1,7 +1,5 @@
 import pandas as pd
-import string
 from sqlalchemy import create_engine, text
-from sqlalchemy.exc import ProgrammingError
 from psycopg2.extensions import AsIs
 
 

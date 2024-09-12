@@ -1,23 +1,15 @@
-from audioop import cross
-from email.errors import CloseBoundaryNotFoundDefect
-from operator import ge
-from threading import get_ident
 import warnings
-from numpy import single, var
 
 warnings.filterwarnings("ignore")
 
-import pandas as pd
-import rpy2
-import rpy2.robjects as robjects
-import rpy2.robjects.packages as rpackages
-from rpy2.robjects.vectors import DataFrame, StrVector
-from statistical.variance_measures import variance_measures
+import pandas as pd  # noqa: E402
+import rpy2.robjects.packages as rpackages  # noqa: E402
+from statistical.variance_measures import variance_measures  # noqa: E402
 
 survey_package = rpackages.importr("survey")
 base = rpackages.importr("base")
 
-from rpy2.robjects import r, pandas2ri
+from rpy2.robjects import pandas2ri  # noqa: E402
 
 pandas2ri.activate()
 

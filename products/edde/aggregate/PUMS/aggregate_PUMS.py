@@ -5,11 +5,9 @@ Reference for applying weights: https://www2.census.gov/programs-surveys/acs/tec
 To-do: refactor into two files, PUMS aggregator and PUMS demographic aggregator
 """
 
-from email.errors import InvalidMultipartContentTransferEncodingDefect
 import os
 import pandas as pd
 import time
-import numpy as np
 from ingest.load_data import load_PUMS
 from statistical.calculate_counts import calculate_counts
 from aggregate.race_assign import PUMS_race_assign

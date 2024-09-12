@@ -1,7 +1,7 @@
 import pandas as pd
 from utils.PUMA_helpers import clean_PUMAs
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import borough_name_mapper, clean_PUMAs
+from utils.PUMA_helpers import borough_name_mapper
 
 suffix_mapper = {
     "_N": "_count",

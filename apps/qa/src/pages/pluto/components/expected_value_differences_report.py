@@ -41,14 +41,14 @@ class ExpectedValueDifferencesReport:
     def __call__(self):
         st.header("Expected Value Comparison")
         st.markdown(
-            f"""
+            """
             For some fields, we document the expected values and their descriptions in PLUTO documentation.
             Therefore, it's important for us to know when new values are added to a field or if a value is no longer present in that field.
 
             For these checks, we group certain fields together. For example, we want to know if there are new values for zoning districts, not `zonedist1` in particular.
             """
         )
-        st.markdown(f"### Grouped fields of interest")
+        st.markdown("### Grouped fields of interest")
         fields_of_interest = pd.DataFrame.from_dict(
             {f: [v] for f, v in FIELDS_OF_INTEREST.items()},
             orient="index",

@@ -22,7 +22,7 @@ def test_model_dump():
             config_dict["version"] = "dummy"
         config = DatasetDefinition(**config_dict)
         yml_str = yaml.dump(config.model_dump(mode="json"))
-        config2 = DatasetDefinition(**yaml.safe_load(yml_str))
+        _config2 = DatasetDefinition(**yaml.safe_load(yml_str))
 
 
 def test_config_parsed_rendered_template():

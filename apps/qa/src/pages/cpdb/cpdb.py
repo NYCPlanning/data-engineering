@@ -236,7 +236,7 @@ def cpdb():
             colorway=COLOR_SCHEME,
         )
 
-        fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
+        fig3.update_xaxes(title="Percentage", tickformat=".2%")
         fig3.update_yaxes(title=agency_type_title)
         st.plotly_chart(fig3)
 

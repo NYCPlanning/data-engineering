@@ -79,6 +79,6 @@ def parse_pdf_text(
         except Exception as e:
             logger.error(str(e))
 
-    output_path = output_path or Path(f"columns.yml")
+    output_path = output_path or Path("columns.yml")
     with open(output_path, "w") as outfile:
         yaml.dump(fields, outfile, sort_keys=False)

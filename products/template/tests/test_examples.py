@@ -2,7 +2,6 @@
 import pytest
 
 # ensure imports or project modules work
-from python.utils import load_data_file
 
 
 def test_always_passes():

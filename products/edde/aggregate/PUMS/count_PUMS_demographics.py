@@ -1,4 +1,4 @@
-"""indicators_denom attr is defined first as constant outside of class so that it 
+"""indicators_denom attr is defined first as constant outside of class so that it
 can be imported on it's own"""
 
 import pandas as pd

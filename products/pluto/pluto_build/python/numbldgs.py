@@ -1,11 +1,8 @@
 from multiprocessing import Pool, cpu_count
 from geosupport import Geosupport, GeosupportError
 import requests
-from datetime import datetime
 import pandas as pd
-import json
 import os
-import requests
 from io import StringIO
 
 g = Geosupport()

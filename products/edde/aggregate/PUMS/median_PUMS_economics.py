@@ -1,9 +1,6 @@
 """Examine median wages broken out by industry, occupation"""
 
-from re import sub
 import pandas as pd
-from aggregate.PUMS.aggregate_medians import PUMSMedians
-from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics
 from aggregate.PUMS.aggregate_PUMS import PUMSAggregator
 from statistical.calculate_medians import (
     calculate_median_with_crosstab,

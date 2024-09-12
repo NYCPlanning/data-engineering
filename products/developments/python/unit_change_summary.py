@@ -1,5 +1,4 @@
 from jinja2 import Template
-from datetime import datetime
 import os
 import sys
 from sqlalchemy import text

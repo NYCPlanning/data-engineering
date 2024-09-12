@@ -12,7 +12,7 @@ meta = Metadata(year=year, source=source)
 
 
 def test_geoquery():
-    assert type(d.geoqueries["city"]) == list
+    assert isinstance(d.geoqueries["city"], list)
     assert len(d.geoqueries["city"]) == 1
     assert len(d.geoqueries["borough"]) == 5
     assert len(d.geoqueries["tract"]) == 5

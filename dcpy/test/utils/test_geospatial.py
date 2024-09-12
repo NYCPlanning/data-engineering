@@ -138,7 +138,7 @@ class TestParquet:
 
     def test_read_parquet_metadata(self):
         with pytest.raises(TypeError, match="is not a geoparquet file."):
-            meta = parquet.read_metadata(RESOURCES_DIR / "simple.parquet")
+            _meta = parquet.read_metadata(RESOURCES_DIR / "simple.parquet")
 
     def test_read_parquet(self):
         df = parquet.read_df(RESOURCES_DIR / "simple.parquet")

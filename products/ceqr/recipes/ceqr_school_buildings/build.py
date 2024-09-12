@@ -1,10 +1,7 @@
 import sys
-import os
 
 sys.path.insert(0, "..")
 import pandas as pd
-import numpy as np
-import re
 from _helper.geo import get_hnum, get_sname, geocode
 
 # from _helper.geo import get_hnum, get_sname, clean_house, clean_street, geocode
@@ -27,7 +24,7 @@ def _import() -> pd.DataFrame:
         df["address"]
         .astype(str)
         .apply(get_hnum)
-        .apply(lambda x: x.split("/", maxsplit=1)[0] if x != None else x)
+        .apply(lambda x: x.split("/", maxsplit=1)[0] if x is not None else x)
     )
 
     # Parse street names

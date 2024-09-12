@@ -11,7 +11,7 @@ z_score = stats.norm.ppf(0.95)
 def calculate_median_LI(data, variable_col, geo_col, new_col_label=None):
     print(f"calculate median LI for {new_col_label}")
     bin_dict = lookup_metadata(variable_col, "ranges")
-    if new_col_label == None:
+    if new_col_label is None:
         new_col_label = variable_col
     final = pd.DataFrame(index=data[geo_col].unique(), columns=["median", "moe"])
     geo_bin_counts = frequency_per_bin_geo(data, variable_col, geo_col, bin_dict)

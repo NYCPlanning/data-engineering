@@ -45,7 +45,7 @@ def package(
     package_id: str,
     product_metadata: md.Metadata,
 ):
-    package = product_metadata.get_package(package_id)
+    _package = product_metadata.get_package(package_id)
     file_ids_to_paths = _file_id_to_zipped_paths(product_metadata, package_id)
     logger.info(f"Packaging files: {file_ids_to_paths}")
     pass  # TODO: One day, the rest

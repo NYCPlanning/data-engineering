@@ -4,7 +4,6 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import Session
 
 SQL_FILE_DIRECTORY = "sql"
 

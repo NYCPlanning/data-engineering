@@ -4,8 +4,6 @@ import sys
 
 import geopandas as gpd
 import pandas as pd
-import shapely
-from shapely import wkb
 
 from . import RAW_DATA_PATH
 from .utils import ETL

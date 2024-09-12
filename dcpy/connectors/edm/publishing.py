@@ -1,4 +1,3 @@
-from botocore.exceptions import ClientError
 from datetime import datetime
 import geopandas as gpd
 from io import BytesIO
@@ -44,6 +43,9 @@ BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
 
 def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     """Retrieve a product build metadata from s3."""
+    key = f"{product_key.path}/build_metadata.json"
+    if not s3.exists(BUCKET, key):
+        raise FileNotFoundError(f"Build metadata not found for product {product_key}")
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"{product_key.path}/build_metadata.json"
     )
@@ -62,7 +64,7 @@ def get_latest_version(product: str) -> str | None:
     """
     try:
         return get_version(PublishKey(product, "latest"))
-    except ClientError:
+    except FileNotFoundError:
         return None
 
 
@@ -509,6 +511,8 @@ T = TypeVar("T")
 
 
 def _read_data_helper(path: str, filereader: Callable[[BytesIO], T], **kwargs) -> T:
+    if not s3.exists(BUCKET, path):
+        raise FileNotFoundError(f"publishing file {path} not found.")
     with s3.get_file_as_stream(BUCKET, path) as stream:
         data = filereader(stream, **kwargs)
     return data
@@ -846,7 +850,7 @@ def _cli_wrapper_download_file(
         None,
         "-pt",
         "--product-type",
-        help=f"Product type to download. Options are: 'build', 'draft', or 'publish'",
+        help="Product type to download. Options are: 'build', 'draft', or 'publish'",
     ),
     version: str = typer.Option(None, "-v", "--version", help="Product version/build"),
     draft_revision: str = typer.Option(

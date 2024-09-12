@@ -1,13 +1,10 @@
 """Similar to load_data in ingest process. MAybe this is supposed to live in
- external review, I'm not sure"""
+external review, I'm not sure"""
 
 # from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics
 # from aggregate.PUMS.count_PUMS_households import PUMSCountHouseholds
 # from aggregate.PUMS.median_PUMS_economics import PUMSMedianEconomics
-from aggregate.aggregated_cache_fn import PUMS_cache_fn
 from utils.PUMA_helpers import get_all_NYC_PUMAs, get_all_boroughs
-from utils.setup_directory import setup_directory
-from os import path
 import pandas as pd
 from aggregate.clean_aggregated import rename_columns_demo
 from utils.PUMA_helpers import sheet_name, year_range, acs_years

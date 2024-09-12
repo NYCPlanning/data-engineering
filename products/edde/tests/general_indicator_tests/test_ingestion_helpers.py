@@ -1,4 +1,3 @@
-import pytest
 import pandas as pd
 from ingest.ingestion_helpers import read_from_excel
 

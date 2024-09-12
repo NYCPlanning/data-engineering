@@ -141,7 +141,7 @@ def test_upload_build_missing_build_name(
     """Tests failure when build name is not provided and env variable is missing."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
 
-    assert os.getenv("BUILD_NAME") == None  # sanity check
+    assert os.getenv("BUILD_NAME") is None  # sanity check
     with pytest.raises(ValueError, match="'BUILD_NAME' cannot be"):
         publishing.upload_build(
             data_path,
@@ -155,7 +155,7 @@ def test_upload_build_file_not_found(create_buckets, mock_data_constants):
     """Tests failure when the provided output path does not exist."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
 
-    assert data_path.exists() == False  # sanity check
+    assert not data_path.exists()  # sanity check
 
     with pytest.raises(FileNotFoundError):
         publishing.upload_build(
@@ -223,7 +223,7 @@ def test_publish_patch(create_buckets, create_temp_filesystem, mock_data_constan
         is_patch=False,
     )
     # re-publish and assert an error is thrown when is_patch = False
-    with pytest.raises(ValueError) as e_info:
+    with pytest.raises(ValueError):
         publishing.publish(
             draft_key=draft_key,
             acl=TEST_ACL,
@@ -298,7 +298,7 @@ def test_publish_excludes_latest_when_flag_false(
     publishing.publish(draft_key=draft_key, acl=TEST_ACL, latest=False)
 
     # assert that latest folder was not populated
-    publishing.get_latest_version(TEST_PRODUCT_NAME) == None
+    publishing.get_latest_version(TEST_PRODUCT_NAME) is None
 
     s3.delete(TEST_BUCKET_NAME, publish_key.path + "/")
 

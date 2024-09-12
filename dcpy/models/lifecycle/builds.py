@@ -7,7 +7,6 @@ from pydantic import BaseModel, field_serializer
 from typing import List
 
 from dcpy.utils import versions
-from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes
 
 

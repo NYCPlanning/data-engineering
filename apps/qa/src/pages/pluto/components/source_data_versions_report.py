@@ -7,7 +7,6 @@ SOURCE_NAME_MAPPINGS = {
     "dcp_colp": "Department of City Planning - NYC City Owned and Leased Properties",
     "dcp_zoningdistricts": "Department of City Planning - NYC GIS Zoning Features",
     "dcp_cdboundaries_wi": "Department of City Planning - Political and Administrative Districts",
-    "dcp_cdboundaries_wi": "Department of City Planning - Geosupport version",
     "dof_dtm": "Department of Finance - Digital Tax Map (DTM)",
     "pluto_input_cama_dof": "Department of Finance - Mass Appraisal System (CAMA)",
     "pluto_pts": "Department of Finance - Property Tax System (PTS)",

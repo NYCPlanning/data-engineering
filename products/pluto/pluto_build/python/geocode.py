@@ -1,9 +1,6 @@
 from multiprocessing import Pool, cpu_count
 from geosupport import Geosupport, GeosupportError
-from datetime import date
 import pandas as pd
-import json
-import os
 
 g = Geosupport()
 
@@ -29,7 +26,7 @@ def get_address(bbl):
             hnum=hnum,
             numberOfExistingStructures=numberOfExistingStructures,
         )
-    except:
+    except:  # noqa: E722
         return dict(sname="", hnum="", numberOfExistingStructures="")
 
 
@@ -37,7 +34,7 @@ def get_sname(b5sc):
     try:
         geo = g["D"](B5SC=b5sc)
         return geo.get("First Street Name Normalized", "")
-    except:
+    except:  # noqa: E722
         return ""
 
 
@@ -80,7 +77,7 @@ def geocode(inputs):
             geo = parse_output(geo)
             geo.update(extra)
             return geo
-        except GeosupportError as e2:
+        except GeosupportError:
             geo = parse_output(e1.result)
             geo.update(extra)
             return geo

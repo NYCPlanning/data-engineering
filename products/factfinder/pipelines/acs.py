@@ -6,7 +6,7 @@ from pathos.pools import ProcessPool
 from factfinder.calculate import Calculate
 
 from . import API_KEY
-from .utils import parse_args, s3_upload
+from .utils import parse_args
 
 
 def _calculate(args):
@@ -15,7 +15,7 @@ def _calculate(args):
         df = calculate(var, geo).assign(domain=domain)
         print(f"✅ SUCCESS: {var}\t{geo}", file=sys.stdout)
         return df
-    except:
+    except:  # noqa: E722
         print(f"⛔️ FAILURE: {var}\t{geo}", file=sys.stdout)
 
 

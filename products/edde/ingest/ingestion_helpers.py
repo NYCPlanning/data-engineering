@@ -1,15 +1,12 @@
 """Miscellaneous ingestion related tasks"""
 
-import json
-import os
 from pathlib import Path
 
 from pandas import DataFrame
 import pandas as pd
-import boto3
 import yaml
 from .data_library.metadata import add_version, dump_metadata
-from . import BASE_URL, BASE_PATH
+from . import BASE_URL
 
 
 def add_leading_zero_PUMA(df: DataFrame) -> DataFrame:

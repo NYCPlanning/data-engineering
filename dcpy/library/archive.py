@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from dcpy.models.library import Config
-from . import base_path, pp
+from . import base_path
 from .ingest import Ingestor
 from .s3 import S3
 
@@ -93,7 +93,10 @@ class Archive:
 
         # Initiate ingestion
         output_files, config = ingestor_of_format(
-            path, *args, source_path_override=source_path_override, **kwargs  # type: ignore
+            path,
+            *args,
+            source_path_override=source_path_override,
+            **kwargs,  # type: ignore
         )
         version = config.dataset.version
         acl = config.dataset.acl

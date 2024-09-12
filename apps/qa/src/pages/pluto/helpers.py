@@ -31,7 +31,7 @@ def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     # only PLUTO 23v3+ versions are expected to have a bbl_diffs table
     try:
         data["df_bbl_diffs"] = read_pluto_csv("bbl_diffs")
-    except:
+    except FileNotFoundError:
         pass
 
     data = data | get_changes(product_key)

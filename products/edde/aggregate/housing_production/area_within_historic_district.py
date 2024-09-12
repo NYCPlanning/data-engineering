@@ -1,6 +1,4 @@
-from gettext import find
 from typing import List
-from json import load
 import geopandas as gp
 from shapely import wkt
 from utils.PUMA_helpers import puma_to_borough, PUMAs

@@ -35,8 +35,6 @@ beautifulsoup4==4.12.3
     # via
     #   -r python/requirements.in
     #   gdown
-black==24.8.0
-    # via -r python/requirements.in
 blinker==1.8.2
     # via streamlit
 boto3==1.35.14
@@ -81,7 +79,6 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via
-    #   black
     #   click-plugins
     #   cligj
     #   dbt-core
@@ -346,7 +343,6 @@ mypy-boto3-s3==1.35.2
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via
-    #   black
     #   mypy
 nest-asyncio==1.6.0
     # via ipykernel
@@ -389,7 +385,6 @@ ordered-set==4.1.0
     # via deepdiff
 packaging==24.1
     # via
-    #   black
     #   dbt-core
     #   geoalchemy2
     #   geopandas
@@ -417,7 +412,6 @@ parso==0.8.4
     # via jedi
 pathspec==0.12.1
     # via
-    #   black
     #   dbt-common
     #   dbt-core
     #   sqlfluff
@@ -430,7 +424,6 @@ pillow==10.4.0
     #   streamlit
 platformdirs==4.3.1
     # via
-    #   black
     #   jupyter-core
     #   virtualenv
 plotly==5.24.0
@@ -594,6 +587,8 @@ rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
+ruff==0.6.4
+    # via -r python/requirements.in
 s3transfer==0.10.2
     # via boto3
 scikit-learn==1.5.1

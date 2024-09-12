@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from pathlib import Path
 import requests
 from sqlalchemy import text
 
@@ -13,12 +12,12 @@ from dcpy.utils.postgres import insert_copy
 from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_DB_URL
 from .client import Client
 from .pg import PG
+from .recode_id import recode_id
 from .visible_projects import (
     OPEN_DATA,
     make_staging_table,
     make_open_data_table,
     open_data_recode,
-    recode_id,
 )
 from .util import timestamp_to_date
 
@@ -75,7 +74,6 @@ class Runner:
         counter = 0
         while nextlink != "":
             response = requests.get(nextlink, headers=self.headers)
-            result = response.text
             result_json = response.json()
             if list(result_json.keys()) == ["error"]:
                 raise FileNotFoundError(result_json["error"])
@@ -89,9 +87,7 @@ class Runner:
         with self.engine.begin() as sql_conn:
             statement = """
                 BEGIN; DROP TABLE IF EXISTS %(table_name)s; COMMIT;
-            """ % {
-                "table_name": combine_table_name
-            }
+            """ % {"table_name": combine_table_name}
             sql_conn.execute(statement=text(statement))
 
         # sort file paths by file modification

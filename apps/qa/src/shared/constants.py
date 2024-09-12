@@ -51,6 +51,6 @@ DATASET_SOURCE_VERSIONS = {
     )
 }
 
-construct_dataset_by_version = (
-    lambda dataset, version: f"{dataset}_{version.replace('/', '_')}"
-)
+
+def construct_dataset_by_version(dataset: str, version: str) -> str:
+    return f"{dataset}_{version.replace('/', '_')}"

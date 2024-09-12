@@ -1,5 +1,3 @@
-from statistics import variance
-from numpy import var
 from aggregate.PUMS.count_PUMS_households import PUMSCountHouseholds
 from ingest.load_data import load_PUMS
 from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics

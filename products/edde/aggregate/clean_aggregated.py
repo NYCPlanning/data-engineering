@@ -1,4 +1,3 @@
-from curses import COLOR_RED
 from typing import List
 import pandas as pd
 from utils.dcp_population_excel_helpers import (
@@ -95,11 +94,11 @@ def rename_columns_demo(df: pd.DataFrame, end_year: str):
     # cols = [col.replace(f"_{end_year}p", f"_{year}_pct") for col in cols]
     # cols = [col.replace(f"_{end_year}z", f"_{year}_pct_moe") for col in cols]
 
-    cols = [col.replace(f"_{end_year}e", f"_count") for col in cols]
-    cols = [col.replace(f"_{end_year}m", f"_count_moe") for col in cols]
-    cols = [col.replace(f"_{end_year}c", f"_count_cv") for col in cols]
-    cols = [col.replace(f"_{end_year}p", f"_pct") for col in cols]
-    cols = [col.replace(f"_{end_year}z", f"_pct_moe") for col in cols]
+    cols = [col.replace(f"_{end_year}e", "_count") for col in cols]
+    cols = [col.replace(f"_{end_year}m", "_count_moe") for col in cols]
+    cols = [col.replace(f"_{end_year}c", "_count_cv") for col in cols]
+    cols = [col.replace(f"_{end_year}p", "_pct") for col in cols]
+    cols = [col.replace(f"_{end_year}z", "_pct_moe") for col in cols]
 
     cols = [col.replace("mdage", "age_median") for col in cols]
     cols = [col.replace("pu16", "age_popu16") for col in cols]

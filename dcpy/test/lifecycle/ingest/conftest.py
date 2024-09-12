@@ -51,7 +51,7 @@ def generate_fake_data(gdf: gpd.GeoDataFrame = None):
 
 
 def generate_gdf(
-    columns: list = ["boro_code", "block", "lot", "bbl", "text", "wkt"]
+    columns: list = ["boro_code", "block", "lot", "bbl", "text", "wkt"],
 ) -> gpd.GeoDataFrame | pd.DataFrame:
     """Generates a geodataframe with specified columns using fake data."""
 

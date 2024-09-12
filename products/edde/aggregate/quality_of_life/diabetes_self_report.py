@@ -1,5 +1,3 @@
-import pandas as pd
-
 from ingest.ingestion_helpers import read_from_excel
 from utils.CD_helpers import community_district_to_PUMA, borough_name_mapper
 from internal_review.set_internal_review_file import set_internal_review_files

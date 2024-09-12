@@ -170,13 +170,13 @@ def add_zero(num):
             return "0" + num
         else:
             return num
-    except:
+    except:  # noqa: E722
         return num
 
 
 if __name__ == "__main__":
     df = pd.read_sql(
-        f"""
+        """
             SELECT 
                 geoid, 
                 lineno AS variable, 

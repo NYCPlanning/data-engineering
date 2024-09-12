@@ -2,7 +2,6 @@ from pathlib import Path
 import typer
 from ruamel.yaml import YAML
 
-from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.builds import InputDataset, Recipe
 from dcpy.lifecycle.builds import plan
 

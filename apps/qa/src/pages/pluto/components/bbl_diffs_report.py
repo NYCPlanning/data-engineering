@@ -6,9 +6,9 @@ class BblDiffsReport:
         self.df_bbl_diffs = data
 
     def __call__(self):
-        st.header(f"New and Vanished BBLs")
+        st.header("New and Vanished BBLs")
         st.markdown(
-            f"""
+            """
             The table of BBLs in the current PLUTO that were added (new) and removed (vanished) since its previous version. 
             """
         )
@@ -24,7 +24,7 @@ class BblDiffsReport:
         )
 
         if self.df_bbl_diffs is None:
-            st.warning(f"QAQC table for vanished and new BBLs was not found.")
+            st.warning("QAQC table for vanished and new BBLs was not found.")
             return
 
         df = self.df_bbl_diffs

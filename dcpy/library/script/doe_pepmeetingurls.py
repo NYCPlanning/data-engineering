@@ -14,7 +14,7 @@ def extract_date(x):
     try:
         dt = dparser.parse(x, fuzzy=True)
         return dt.date()
-    except:
+    except:  # noqa F722
         pass
 
 
@@ -37,7 +37,6 @@ class Scriptor:
         self.__dict__.update(kwargs)
 
     def ingest(self) -> pd.DataFrame:
-        base_url = "https://www.schools.nyc.gov"
         url = (
             "https://www.schools.nyc.gov/about-us/leadership/panel-for-education-policy"
         )
@@ -70,7 +69,7 @@ class Scriptor:
                                 date=date,
                             )
                         )
-                except:
+                except:  # noqa F722
                     pass
             else:
                 continue
@@ -95,7 +94,7 @@ class Scriptor:
                                     date=date,
                                 )
                             )
-                        except:
+                        except:  # noqa F722
                             school_year = get_school_year(readable_url)
                             proposals.append(
                                 dict(
@@ -105,7 +104,7 @@ class Scriptor:
                                     date="",
                                 )
                             )
-                except:
+                except:  # noqa F722
                     pass
             else:
                 continue

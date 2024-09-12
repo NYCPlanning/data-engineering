@@ -424,7 +424,7 @@ def create_data_dir(data_path: Path = DEFAULT_DATA_PATH) -> None:
     try:
         data_path.mkdir(parents=False, exist_ok=False)
     except Exception as err:
-        print(f"❌ Unable to create data directory.")
+        print("❌ Unable to create data directory.")
         raise err
 
 

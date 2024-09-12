@@ -1,9 +1,9 @@
 """
-This class is responsible for generating list of variables and associated URLs for a 
-given set of variable types. 
+This class is responsible for generating list of variables and associated URLs for a
+given set of variable types.
 
 Use https://data.census.gov/mdat/#/search?ds=ACSPUMS5Y2019 as a reference.
-That website provides an interface to construct a query and then see the url to 
+That website provides an interface to construct a query and then see the url to
 access that query via an input.
 
 Refactor: call this from PUMS data init instead of from PUMS_request

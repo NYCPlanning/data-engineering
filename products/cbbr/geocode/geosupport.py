@@ -113,7 +113,6 @@ GEOSUPPORT_FUNCTION_HIERARCHY = [
 
 
 def geocode_record(inputs: dict) -> dict:
-    geo_error = None
     outputs = copy.deepcopy(inputs)
 
     input_location = inputs.get("location")
@@ -139,7 +138,7 @@ def geocode_record(inputs: dict) -> dict:
 
             return outputs
 
-        except GeosupportError as e:
+        except GeosupportError:
             # # try the next function but remember this error
             # geo_error = e
             continue
@@ -152,7 +151,7 @@ def geocode_record(inputs: dict) -> dict:
     # TODO for a record, store all errors as each function is attempted
     # maybe format as geosupport_1B_address: Error message; geosupport_1B_place: Error message;
     # shorter function names would help
-    outputs.update(dict(geo_function=f"GEOCODING FAILED"))
+    outputs.update(dict(geo_function="GEOCODING FAILED"))
 
     return outputs
 

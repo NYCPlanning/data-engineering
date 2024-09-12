@@ -304,7 +304,7 @@ class PostgresClient:
             with conn.begin():
                 if if_exists == "replace":
                     self.execute_query(
-                        f'DROP TABLE IF EXISTS ":table_name" CASCADE;',
+                        'DROP TABLE IF EXISTS ":table_name" CASCADE;',
                         table_name=AsIs(table_name),
                         conn=conn,
                     )

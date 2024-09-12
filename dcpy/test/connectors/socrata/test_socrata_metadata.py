@@ -27,7 +27,7 @@ def test_creating_dcp_metadata():
 
     assert (
         len(boro_col.values) == 5
-    ), f"The boro column should have registered 5 standardized values"
+    ), "The boro column should have registered 5 standardized values"
 
     # Dataset Checks
     assert len(dcp_md.files) == 2, "Two files should be found"

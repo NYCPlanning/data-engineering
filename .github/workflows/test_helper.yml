@@ -12,8 +12,20 @@ on:
         default: "latest"
 
 jobs:
-  check_formatting:
-    name: Check formatting of files
+  ruff:
+    name: Lint/check formatting of python files
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:${{ inputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint python files
+        run: ruff check .
+      - name: Check format of python files
+        run: ruff format . --check
+
+  sqlfluff:
+    name: Check formatting of sql files
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
@@ -23,9 +35,6 @@ jobs:
       - name: Setup build environment (envars only)
         run: |
           ./bash/build_env_setup.sh
-
-      - name: Check python files
-        run: black --diff --color --check .
 
       - name: Check sql files in products
         run: |
@@ -41,7 +50,7 @@ jobs:
           sqlfluff lint products/knownprojects/sql --templater=jinja
           sqlfluff lint products/pluto/pluto_build/sql/
           
-  dbt_tests:
+  dbt:
     name: dbt tests
     runs-on: ubuntu-22.04
     container:
