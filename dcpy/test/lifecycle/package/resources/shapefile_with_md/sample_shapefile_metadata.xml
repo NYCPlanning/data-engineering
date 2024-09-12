@@ -1,0 +1,982 @@
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <title>Digital City Map (DCM) - Street Name Changes (Points)
+        </title>
+        <geoform>vector digital data
+        </geoform>
+        <CreaDate>20200511
+        </CreaDate>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>Local Law name changes to corners or intersections (points). Point features of official street and honorary name changes established by City Council Local Law. Years included are from 1998 to current. This dataset is featured on the Department of City Planning's Street Map application: https://streets.planning.nyc.gov/
+      </abstract>
+      <purpose>Local Law name changes to to corners or intersections (points). Dataset last updated: March 31, 2024.
+      </purpose>
+    </descript>
+    <status>
+      <update>Monthly
+      </update>
+    </status>
+    <spdom>
+      <bounding>
+        <westbc>-74.247748
+        </westbc>
+        <eastbc>-73.712061
+        </eastbc>
+        <northbc>40.909274
+        </northbc>
+        <southbc>40.499649
+        </southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>None
+        </themekt>
+        <themekey>Local Law
+        </themekey>
+        <themekey>official street name
+        </themekey>
+        <themekey>honorary street name
+        </themekey>
+        <themekey>conames
+        </themekey>
+        <themekey>New York City City Council
+        </themekey>
+        <themekey>street name change
+        </themekey>
+        <themekey>Introduction
+        </themekey>
+        <themekey>City Map of New York City
+        </themekey>
+        <themekey>New York Department of City Planning
+        </themekey>
+        <themekey>DCP
+        </themekey>
+        <themekey>NYC
+        </themekey>
+        <themekey>New York City base map
+        </themekey>
+        <themekey>New York Streets
+        </themekey>
+        <themekey>NYC Streets
+        </themekey>
+        <themekey>Mapped Streets
+        </themekey>
+        <themekey>Official Map
+        </themekey>
+        <themekey>Archive
+        </themekey>
+      </theme>
+    </keywords>
+    <accconst>None
+    </accconst>
+    <useconst>Digital City Map (DCM) data changes often and is updated monthly. Updates will include recent city map alterations adopted by City Council.This dataset is provided by the Department of City Planning (DCP) on DCP's website for informational purposes only. DCP does not warranty the completeness, accuracy, content, or fitness for any particular purpose or use of the dataset, nor are any such warranties to be implied or inferred with respect to the dataset as furnished on the website. DCP and the City are not liable for any deficiencies in the completeness, accuracy, content, or fitness for any particular purpose or use the dataset, or applications utilizing the dataset, provided by any third party.
+    </useconst>
+    <datacred>NYC Department of City Planning
+    </datacred>
+    <native> Version 6.2 (Build 9200) ; Esri ArcGIS 10.6.0.8321
+    </native>
+  </idinfo>
+  <spdoinfo>
+    <direct>Vector
+    </direct>
+    <ptvctinf>
+      <esriterm Name="DCM_StreetNameChanges_Points">
+        <efeatyp Sync="TRUE">Simple
+        </efeatyp>
+        <efeageom Sync="TRUE" code="1"/>
+        <esritopo Sync="TRUE">FALSE
+        </esritopo>
+        <efeacnt Sync="TRUE">1042
+        </efeacnt>
+        <spindex Sync="TRUE">TRUE
+        </spindex>
+        <linrefer Sync="TRUE">FALSE
+        </linrefer>
+      </esriterm>
+    </ptvctinf>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <planar>
+        <planci>
+          <plance>coordinate pair
+          </plance>
+          <coordrep>
+            <absres>0.0003280833333333333
+            </absres>
+            <ordres>0.0003280833333333333
+            </ordres>
+          </coordrep>
+          <plandu>foot_us
+          </plandu>
+        </planci>
+      </planar>
+      <geodetic>
+        <horizdn>D North American 1983
+        </horizdn>
+        <ellips>GRS 1980
+        </ellips>
+        <semiaxis>6378137.0
+        </semiaxis>
+        <denflat>298.257222101
+        </denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <eainfo>
+    <detailed Name="DCM_StreetNameChanges_Points">
+      <enttyp>
+        <enttypl>Digital City Map (DCM) - Street Name Changes (Points)
+        </enttypl>
+        <enttypt Sync="TRUE">Feature Class
+        </enttypt>
+        <enttypc Sync="TRUE">1042
+        </enttypc>
+      </enttyp>
+      <attr>
+        <attrlabl Sync="TRUE">FID
+        </attrlabl>
+        <attalias Sync="TRUE">FID
+        </attalias>
+        <attrtype Sync="TRUE">OID
+        </attrtype>
+        <attwidth Sync="TRUE">4
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+        <attrdef Sync="TRUE">Internal feature number.
+        </attrdef>
+        <attrdefs Sync="TRUE">Esri
+        </attrdefs>
+        <attrdomv>
+          <udom Sync="TRUE">Sequential unique whole numbers that are automatically generated.
+          </udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Borough
+        </attrlabl>
+        <attrdef>The borough in which the area or place named by the Local Law is located.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>Bronx
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Brooklyn
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Manhattan
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Queens
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Staten Island
+            </edomv>
+          </edom>
+        </attrdomv>
+        <attalias>Borough
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Feat_Type
+        </attrlabl>
+        <attrdef>The type of feature that is being renamed in the Local Law (e.g. street, corner, etc).
+        </attrdef>
+        <attrdomv>
+          <edom>
+            <edomv>Bike lane name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Boardwalk name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Corner name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Intersection name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Park name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Plaza name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Square name
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>Triangle name
+            </edomv>
+          </edom>
+        </attrdomv>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Feature Type
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>OfficialNM
+        </attrlabl>
+        <attrdef>Official Street name shown on the City Map. This is the renaming of a street or public place through Local Law legislation and should be considered an official name change. This is different from an honorary name change which is a designation of an additional name to an existing official name.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Official Street Name
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">100
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Honor_Name
+        </attrlabl>
+        <attrdef>A co-name or additional but secondary name given to an official place name through Local Law legislation.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Honorary Name
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">100
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Old_Name
+        </attrlabl>
+        <attrdef>The retired official name being renamed by Local Law legislation. Specifically when the Local Law designates a new name with the aim to replace an old one.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Old Name
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">100
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>ULURPCPNUM
+        </attrlabl>
+        <attrdef>The City planning (CP) or Uniform Land Use Review Process (ULURP) application number associated with the street name change.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>ULURP CP Number
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">20
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Intro_NUM
+        </attrlabl>
+        <attrdef>Introduction number associated with the Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Intro Number
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">20
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Intro_Year
+        </attrlabl>
+        <attrdef>The Introduction year associated with the Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Intro Year
+        </attalias>
+        <attrtype Sync="TRUE">Integer
+        </attrtype>
+        <attwidth Sync="TRUE">5
+        </attwidth>
+        <atprecis Sync="TRUE">5
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>IntroMonth
+        </attrlabl>
+        <attrdef>The Introduction month associated with the Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Intro Month
+        </attalias>
+        <attrtype Sync="TRUE">Integer
+        </attrtype>
+        <attwidth Sync="TRUE">5
+        </attwidth>
+        <atprecis Sync="TRUE">5
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Intro_Day
+        </attrlabl>
+        <attrdef>The Introduction day associated with the Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Intro Day
+        </attalias>
+        <attrtype Sync="TRUE">Integer
+        </attrtype>
+        <attwidth Sync="TRUE">5
+        </attwidth>
+        <atprecis Sync="TRUE">5
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>LL_NUM
+        </attrlabl>
+        <attrdef>Local Law number assigned to Local Law legistlation.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Local Law Number
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">20
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>LL_SEC
+        </attrlabl>
+        <attrdef>The Local Law section number found within the legislation.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Loca Law Section
+        </attalias>
+        <attrtype Sync="TRUE">Integer
+        </attrtype>
+        <attwidth Sync="TRUE">5
+        </attwidth>
+        <atprecis Sync="TRUE">5
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>LL_Type
+        </attrlabl>
+        <attrdef>The type of name change by the Local Law; Official, Renaming or Honorary. Honorary is a co-name or secondary name designated in addition to the official name.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Local Law Type
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>LLEffectDT
+        </attrlabl>
+        <attrdef>The effective date of the Local Law. The effective date is when City Council adopts the Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>LL Effective Date
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>LL_Limits
+        </attrlabl>
+        <attrdef>The limits text included with the Local Law. The limits text describes the extent of where the Local Law applies.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Local Law Limits
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">254
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Limits_ER
+        </attrlabl>
+        <attrdef>Flag that indicates and desdribes errors found in the limits section of the Local Law (if applicable).
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Limits Error
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">150
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Repealed
+        </attrlabl>
+        <attrdef>Flag that indicates whether the Local Law was repealed by another Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>Yes
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>No
+            </edomv>
+          </edom>
+        </attrdomv>
+        <attalias>Repealed
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Repeal_DT
+        </attrlabl>
+        <attrdef>The date the Local Law was repealed (if applicable).
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Repealed Date
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Amended
+        </attrlabl>
+        <attrdef>Flag that indicates whether the Local Law was amended by another Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>Yes
+            </edomv>
+          </edom>
+          <edom>
+            <edomv>No
+            </edomv>
+          </edom>
+        </attrdomv>
+        <attalias>Amended
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Amend_DT
+        </attrlabl>
+        <attrdef>The date the Local Law was amended (if applicable).
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Amended Date
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>Amendt_TXT
+        </attrlabl>
+        <attrdef>Text included with the Local Law amendment action that describes the amendment provision in relation to the original Local Law.
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Amendment Text
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">250
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>AMDYRLLSEC
+        </attrlabl>
+        <attrdef>A unique identifier concatenating Local Law amendment year, Local Law section (in that order).
+        </attrdef>
+        <attrdefs>NYCDCP
+        </attrdefs>
+        <attalias>Amend Year LL SEC
+        </attalias>
+        <attrtype Sync="TRUE">String
+        </attrtype>
+        <attwidth Sync="TRUE">50
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+      <attr>
+        <attrlabl>SHAPE
+        </attrlabl>
+        <attrdef>Feature geometry.
+        </attrdef>
+        <attrdefs>Esri
+        </attrdefs>
+        <attrdomv>
+          <udom>Coordinates defining the features.
+          </udom>
+        </attrdomv>
+        <attalias>Shape
+        </attalias>
+        <attrtype Sync="TRUE">Geometry
+        </attrtype>
+        <attwidth Sync="TRUE">0
+        </attwidth>
+        <atprecis Sync="TRUE">0
+        </atprecis>
+        <attscale Sync="TRUE">0
+        </attscale>
+      </attr>
+    </detailed>
+  </eainfo>
+  <metainfo>
+    <metd>20200507
+    </metd>
+    <metstdn>FGDC Content Standard for Digital Geospatial Metadata
+    </metstdn>
+    <metstdv>FGDC-STD-001-1998
+    </metstdv>
+    <mettc>local time
+    </mettc>
+  </metainfo>
+  <dataIdInfo>
+    <idPurp>Local Law name changes to to corners or intersections (points). Dataset last updated: March 31, 2024.
+    </idPurp>
+    <idAbs>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Local Law name changes to corners or intersections (points). Point features of official street and honorary name changes established by City Council Local Law. Years included are from 1998 to current. &lt;/SPAN&gt;&lt;SPAN&gt;This dataset is featured on the Department of City Planning's Street Map application: https://streets.planning.nyc.gov/&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
+    </idAbs>
+    <idCredit>NYC Department of City Planning
+    </idCredit>
+    <idCitation>
+      <resTitle>Digital City Map (DCM) - Street Name Changes (Points)
+      </resTitle>
+      <date>
+        <createDate>2020-05-15
+        </createDate>
+        <pubDate>20240331
+        </pubDate>
+      </date>
+      <presForm>
+        <PresFormCd Sync="TRUE" value="005"/>
+      </presForm>
+    </idCitation>
+    <searchKeys>
+      <keyword>Digital City Map
+      </keyword>
+      <keyword>DCM
+      </keyword>
+      <keyword>Official City Map
+      </keyword>
+      <keyword>official street name changes
+      </keyword>
+      <keyword>renaming
+      </keyword>
+      <keyword>honorary
+      </keyword>
+      <keyword>conames
+      </keyword>
+      <keyword>local law
+      </keyword>
+      <keyword>City Council
+      </keyword>
+      <keyword>Department of City Planning
+      </keyword>
+      <keyword>DCP
+      </keyword>
+      <keyword>New York City
+      </keyword>
+      <keyword>NYC
+      </keyword>
+    </searchKeys>
+    <resConst>
+      <Consts>
+        <useLimit>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Digital City Map (DCM) data changes often and is updated monthly. Updates will include recent city map alterations adopted by City Council.This dataset is provided by the Department of City Planning (DCP) on DCP's website for informational purposes only. DCP does not warranty the completeness, accuracy, content, or fitness for any particular purpose or use of the dataset, nor are any such warranties to be implied or inferred with respect to the dataset as furnished on the website. DCP and the City are not liable for any deficiencies in the completeness, accuracy, content, or fitness for any particular purpose or use the dataset, or applications utilizing the dataset, provided by any third party.&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;
+        </useLimit>
+      </Consts>
+    </resConst>
+    <idPoC>
+      <rpOrgName>New York City Department of City Planning
+      </rpOrgName>
+      <rpCntInfo>
+        <cntAddress addressType="">
+          <eMailAdd>DCPOpendata@planning.nyc.gov
+          </eMailAdd>
+        </cntAddress>
+      </rpCntInfo>
+    </idPoC>
+    <envirDesc Sync="TRUE"> Version 6.2 (Build 9200) ; Esri ArcGIS 10.6.0.8321
+    </envirDesc>
+    <dataLang>
+      <languageCode Sync="TRUE" value="eng"/>
+      <countryCode Sync="TRUE" value="USA"/>
+    </dataLang>
+    <spatRpType>
+      <SpatRepTypCd Sync="TRUE" value="001"/>
+    </spatRpType>
+    <dataExt>
+      <geoEle>
+        <GeoBndBox esriExtentType="search">
+          <exTypeCode Sync="TRUE">1
+          </exTypeCode>
+          <westBL Sync="TRUE">-74.247748
+          </westBL>
+          <eastBL Sync="TRUE">-73.712061
+          </eastBL>
+          <northBL Sync="TRUE">40.909274
+          </northBL>
+          <southBL Sync="TRUE">40.499649
+          </southBL>
+        </GeoBndBox>
+      </geoEle>
+    </dataExt>
+  </dataIdInfo>
+  <Esri>
+    <ModDate>20210407
+    </ModDate>
+    <ModTime>12570300
+    </ModTime>
+    <scaleRange>
+      <minScale>150000000
+      </minScale>
+      <maxScale>5000
+      </maxScale>
+    </scaleRange>
+    <ArcGISFormat>1.0
+    </ArcGISFormat>
+    <ArcGISProfile>FGDC
+    </ArcGISProfile>
+    <DataProperties>
+      <itemProps>
+        <itemName Sync="TRUE">DCM_StreetNameChanges_Points
+        </itemName>
+        <imsContentType Sync="TRUE">002
+        </imsContentType>
+        <nativeExtBox>
+          <westBL Sync="TRUE">915769.637933
+          </westBL>
+          <eastBL Sync="TRUE">1063839.635100
+          </eastBL>
+          <southBL Sync="TRUE">121442.239121
+          </southBL>
+          <northBL Sync="TRUE">270551.440574
+          </northBL>
+          <exTypeCode Sync="TRUE">1
+          </exTypeCode>
+        </nativeExtBox>
+        <itemSize Sync="TRUE">0.028
+        </itemSize>
+        <itemLocation>
+          <linkage Sync="FALSE">withheld
+          </linkage>
+          <protocol Sync="TRUE">Local Area Network
+          </protocol>
+        </itemLocation>
+      </itemProps>
+      <coordRef>
+        <type Sync="TRUE">Projected
+        </type>
+        <geogcsn Sync="TRUE">GCS_North_American_1983
+        </geogcsn>
+        <csUnits Sync="TRUE">Linear Unit: Foot_US (0.304801)
+        </csUnits>
+        <projcsn Sync="TRUE">NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet
+        </projcsn>
+        <peXml Sync="TRUE">&lt;ProjectedCoordinateSystem xsi:type='typens:ProjectedCoordinateSystem' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns:typens='http://www.esri.com/schemas/ArcGIS/10.6'&gt;&lt;WKT&gt;PROJCS[&amp;quot;NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet&amp;quot;,GEOGCS[&amp;quot;GCS_North_American_1983&amp;quot;,DATUM[&amp;quot;D_North_American_1983&amp;quot;,SPHEROID[&amp;quot;GRS_1980&amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;quot;Greenwich&amp;quot;,0.0],UNIT[&amp;quot;Degree&amp;quot;,0.0174532925199433]],PROJECTION[&amp;quot;Lambert_Conformal_Conic&amp;quot;],PARAMETER[&amp;quot;False_Easting&amp;quot;,984250.0],PARAMETER[&amp;quot;False_Northing&amp;quot;,0.0],PARAMETER[&amp;quot;Central_Meridian&amp;quot;,-74.0],PARAMETER[&amp;quot;Standard_Parallel_1&amp;quot;,40.66666666666666],PARAMETER[&amp;quot;Standard_Parallel_2&amp;quot;,41.03333333333333],PARAMETER[&amp;quot;Latitude_Of_Origin&amp;quot;,40.16666666666666],UNIT[&amp;quot;Foot_US&amp;quot;,0.3048006096012192],AUTHORITY[&amp;quot;EPSG&amp;quot;,2263]]&lt;/WKT&gt;&lt;XOrigin&gt;-120039300&lt;/XOrigin&gt;&lt;YOrigin&gt;-96540300&lt;/YOrigin&gt;&lt;XYScale&gt;37212589.015695661&lt;/XYScale&gt;&lt;ZOrigin&gt;-100000&lt;/ZOrigin&gt;&lt;ZScale&gt;10000&lt;/ZScale&gt;&lt;MOrigin&gt;-100000&lt;/MOrigin&gt;&lt;MScale&gt;10000&lt;/MScale&gt;&lt;XYTolerance&gt;0.0032808333333333331&lt;/XYTolerance&gt;&lt;ZTolerance&gt;0.001&lt;/ZTolerance&gt;&lt;MTolerance&gt;0.001&lt;/MTolerance&gt;&lt;HighPrecision&gt;true&lt;/HighPrecision&gt;&lt;WKID&gt;102718&lt;/WKID&gt;&lt;LatestWKID&gt;2263&lt;/LatestWKID&gt;&lt;/ProjectedCoordinateSystem&gt;
+        </peXml>
+      </coordRef>
+    </DataProperties>
+    <SyncDate>20210407
+    </SyncDate>
+    <SyncTime>12440200
+    </SyncTime>
+  </Esri>
+  <mdHrLv>
+    <ScopeCd value="005"/>
+  </mdHrLv>
+  <Binary>
+    <Thumbnail>
+      <Data EsriPropertyType="PictureX">/9j/4AAQSkZJRgABAQEAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsK
+CwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQU
+FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCACFAMgDASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9U6KK
+KACiiigAooooAKKKKACiiigAooooAKKKKACqVzdwWpi8+RVMjbI0Zsb2wW2r/eb5TXlvjT462fw1
+8TaxZeI7JEtkggl0K30q5+26rrbs+ydYdPRfN/dM0W5vmXD7jt2NXJ6v+0N8I9a+E/gL4j/Ee3j8
+N2cuprNplj4jsma7tNUiZ4W2RbWbfEwk+dfTdQB7T4J8XReOPC+na7BpuqaRFfRCVbLWbNrW7i9p
+Ym5U10VfNngH4nfFOb4ySeFdV1X4b+KNCt7loJrzTNSaz1MOgla4C2e6X5ovNs42VmX727+P5PpO
+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK8u+Pnx08Kfs+/Dq+8T+K
+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
+UAFFFFABRRRQB//Z
+</Data>
+</Thumbnail>
+</Binary>
+<mdLang>
+  <languageCode Sync="TRUE" value="eng"/>
+  <countryCode Sync="TRUE" value="USA"/>
+</mdLang>
+<distInfo>
+  <distFormat>
+    <formatName Sync="TRUE">Shapefile
+    </formatName>
+  </distFormat>
+  <distTranOps>
+    <transSize Sync="TRUE">0.028
+    </transSize>
+  </distTranOps>
+</distInfo>
+<mdHrLvName Sync="TRUE">dataset
+</mdHrLvName>
+<refSysInfo>
+  <RefSystem>
+    <refSysID>
+      <identCode Sync="TRUE" code="2263"/>
+      <idCodeSpace Sync="TRUE">EPSG
+      </idCodeSpace>
+      <idVersion Sync="TRUE">5.3(9.0.0)
+      </idVersion>
+    </refSysID>
+  </RefSystem>
+</refSysInfo>
+<spatRepInfo>
+  <VectSpatRep>
+    <geometObjs Name="DCM_StreetNameChanges_Points">
+      <geoObjTyp>
+        <GeoObjTypCd Sync="TRUE" value="004"/>
+      </geoObjTyp>
+      <geoObjCnt Sync="TRUE">1042
+      </geoObjCnt>
+    </geometObjs>
+    <topLvl>
+      <TopoLevCd Sync="TRUE" value="001"/>
+    </topLvl>
+  </VectSpatRep>
+</spatRepInfo>
+<mdDateSt Sync="TRUE">20210407
+</mdDateSt>
+</metadata>
