@@ -160,6 +160,12 @@ class DatasetAttributesOverride(CustomizableBase):
     description: str | None = None
     each_row_is_a: str | None = None
     tags: List[str] | None = None
+    publishing_purpose: str | None = None
+    potential_uses: str | None = None
+    publishing_frequency: str | None = None  # TODO: picklist values
+    publishing_frequency_details: str | None = None
+    projection: str | None = None  # TODO: does projection belong here?
+    contains_address: bool | None = None
 
 
 class DatasetAttributes(CustomizableBase):
@@ -167,6 +173,7 @@ class DatasetAttributes(CustomizableBase):
     description: str = ""
     each_row_is_a: str
 
+    contains_address: bool | None = None  # refers specifcally to addresses containing house numbers + street names. (not just streets, polys, etc.)
     publishing_purpose: str | None = None
     potential_uses: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values

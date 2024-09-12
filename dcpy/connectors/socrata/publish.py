@@ -69,6 +69,7 @@ class Socrata:
             description: str
             tags: list[str]
             metadata: dict[str, Any]
+            privateMetadata: dict[str, Any]
 
             @classmethod
             def from_dataset_attributes(cls, attrs: md.DatasetAttributes):
@@ -76,7 +77,33 @@ class Socrata:
                     name=attrs.display_name,
                     description=attrs.description,
                     tags=attrs.tags,
-                    metadata={"rowLabel": attrs.each_row_is_a},
+                    metadata={
+                        "rowLabel": attrs.each_row_is_a,
+                        "custom_fields": {
+                            "Update": {
+                                "Update Frequency": attrs.publishing_frequency,
+                                "Automation": "Yes",
+                            }
+                        },
+                    },
+                    privateMetadata={
+                        "custom_fields": {
+                            "Legislative Compliance": {
+                                "Removed Records?": "Yes",  # refers to row removal at time of push to Socrata. Always true since we overwrite the existing dataset.
+                                "Has Data Dictionary?": "Yes",
+                                "Geocoded?": "Yes",
+                                "External Frequency (LL 110/2015)": attrs.publishing_frequency,
+                                "Exists Externally? (LL 110/2015)": "Yes",
+                                "Contains Address?": "Yes"
+                                if attrs.contains_address
+                                else "No",
+                                "Can Dataset Feasibly Be Automated?": "Yes",
+                                "Dataset from the Open Data Plan?": "Yes"
+                                if attrs.custom.get("dataset_from_open_data_plan")
+                                else "No",
+                            }
+                        }
+                    },
                 )
 
         class Column(BaseModel, extra="forbid"):
