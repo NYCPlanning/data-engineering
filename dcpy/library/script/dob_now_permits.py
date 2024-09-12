@@ -21,10 +21,10 @@ class Scriptor(ScriptorInterface):
         )
         obj = client.get_object(
             Bucket="edm-private",
-            Key=f"dob_now/dob_now_permits/DOB_Now_Permit_Filing_File_{self.version}.csv",
+            Key=f"dob_now/dob_now_permits/DOB_Now_Permit_Filing_Data_for_DCP_{self.version}.csv",
         )
         data = obj["Body"].read()
-        df = pd.read_csv(io.BytesIO(data))
+        df = pd.read_csv(io.BytesIO(data), encoding="cp1252", sep="|")
         return df
 
     def runner(self) -> str:
