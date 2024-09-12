@@ -1,0 +1,172 @@
+id: digital_city_map_(dcm)_-_street_name_changes_(points)
+
+attributes:
+  description: 'Local Law name changes to corners or intersections (points). Point
+    features of official street and honorary name changes established by City Council
+    Local Law. Years included are from 1998 to current. This dataset is featured on
+    the Department of City Planning''s Street Map application: https://streets.planning.nyc.gov/'
+  display_name: Digital City Map (DCM) - Street Name Changes (Points)
+  publishing_frequency: Monthly
+  publishing_purpose: 'Local Law name changes to to corners or intersections (points).
+    Dataset last updated: March 31, 2024.'
+  tags:
+  - Local Law
+  - official street name
+  - honorary street name
+  - conames
+  - New York City City Council
+  - street name change
+  - Introduction
+  - City Map of New York City
+  - New York Department of City Planning
+  - DCP
+  - NYC
+  - New York City base map
+  - New York Streets
+  - NYC Streets
+  - Mapped Streets
+  - Official Map
+  - Archive
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files: []
+
+columns:
+- id: fid
+  name: FID
+  data_type: integer
+  description: Internal feature number.
+- id: borough
+  name: Borough
+  data_type: text
+  description: The borough in which the area or place named by the Local Law is located.
+  values:
+  - value: Bronx
+  - value: Brooklyn
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: feat_type
+  name: Feature Type
+  data_type: text
+  description: The type of feature that is being renamed in the Local Law (e.g. street,
+    corner, etc).
+  values:
+  - value: Bike lane name
+  - value: Boardwalk name
+  - value: Corner name
+  - value: Intersection name
+  - value: Park name
+  - value: Plaza name
+  - value: Square name
+  - value: Triangle name
+- id: officialnm
+  name: Official Street Name
+  data_type: text
+  description: Official Street name shown on the City Map. This is the renaming of
+    a street or public place through Local Law legislation and should be considered
+    an official name change. This is different from an honorary name change which
+    is a designation of an additional name to an existing official name.
+- id: honor_name
+  name: Honorary Name
+  data_type: text
+  description: A co-name or additional but secondary name given to an official place
+    name through Local Law legislation.
+- id: old_name
+  name: Old Name
+  data_type: text
+  description: The retired official name being renamed by Local Law legislation. Specifically
+    when the Local Law designates a new name with the aim to replace an old one.
+- id: ulurpcpnum
+  name: ULURP CP Number
+  data_type: text
+  description: The City planning (CP) or Uniform Land Use Review Process (ULURP) application
+    number associated with the street name change.
+- id: intro_num
+  name: Intro Number
+  data_type: text
+  description: Introduction number associated with the Local Law.
+- id: intro_year
+  name: Intro Year
+  data_type: integer
+  description: The Introduction year associated with the Local Law.
+- id: intromonth
+  name: Intro Month
+  data_type: integer
+  description: The Introduction month associated with the Local Law.
+- id: intro_day
+  name: Intro Day
+  data_type: integer
+  description: The Introduction day associated with the Local Law.
+- id: ll_num
+  name: Local Law Number
+  data_type: text
+  description: Local Law number assigned to Local Law legistlation.
+- id: ll_sec
+  name: Loca Law Section
+  data_type: integer
+  description: The Local Law section number found within the legislation.
+- id: ll_type
+  name: Local Law Type
+  data_type: text
+  description: The type of name change by the Local Law; Official, Renaming or Honorary.
+    Honorary is a co-name or secondary name designated in addition to the official
+    name.
+- id: lleffectdt
+  name: LL Effective Date
+  data_type: text
+  description: The effective date of the Local Law. The effective date is when City
+    Council adopts the Local Law.
+- id: ll_limits
+  name: Local Law Limits
+  data_type: text
+  description: The limits text included with the Local Law. The limits text describes
+    the extent of where the Local Law applies.
+- id: limits_er
+  name: Limits Error
+  data_type: text
+  description: Flag that indicates and desdribes errors found in the limits section
+    of the Local Law (if applicable).
+- id: repealed
+  name: Repealed
+  data_type: text
+  description: Flag that indicates whether the Local Law was repealed by another Local
+    Law.
+  values:
+  - value: 'Yes'
+  - value: 'No'
+- id: repeal_dt
+  name: Repealed Date
+  data_type: text
+  description: The date the Local Law was repealed (if applicable).
+- id: amended
+  name: Amended
+  data_type: text
+  description: Flag that indicates whether the Local Law was amended by another Local
+    Law.
+  values:
+  - value: 'Yes'
+  - value: 'No'
+- id: amend_dt
+  name: Amended Date
+  data_type: text
+  description: The date the Local Law was amended (if applicable).
+- id: amendt_txt
+  name: Amendment Text
+  data_type: text
+  description: Text included with the Local Law amendment action that describes the
+    amendment provision in relation to the original Local Law.
+- id: amdyrllsec
+  name: Amend Year LL SEC
+  data_type: text
+  description: A unique identifier concatenating Local Law amendment year, Local Law
+    section (in that order).
+- id: shape
+  name: Shape
+  data_type: geometry
+  description: Feature geometry.

@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<metadata xml:lang="en">
+	<Esri>
+		<CreaDate>20240715</CreaDate>
+		<CreaTime>16102000</CreaTime>
+		<SyncOnce>FALSE</SyncOnce>
+		<SyncDate>20240715</SyncDate>
+		<SyncTime>16362900</SyncTime>
+		<ModDate>20240715</ModDate>
+		<ModTime>16362900</ModTime>
+		<DataProperties>
+			<itemProps>
+				<itemName Sync="FALSE">DCP_PC_nyih2</itemName>
+				<nativeExtBox>
+					<westBL Sync="TRUE">978303.163785</westBL>
+					<eastBL Sync="TRUE">1044795.809671</eastBL>
+					<southBL Sync="TRUE">147758.666803</southBL>
+					<northBL Sync="TRUE">257641.515935</northBL>
+					<exTypeCode Sync="TRUE">1</exTypeCode>
+				</nativeExtBox>
+				<itemSize Sync="TRUE">0.052</itemSize>
+				<itemLocation>
+					<linkage Sync="TRUE">file://\\120BFS03\VOL2\DATA\GIS\BytesProduction\IHDA\2024\20240630\shp\nycihda_20240630.shp</linkage>
+					<protocol Sync="TRUE">Local Area Network</protocol>
+				</itemLocation>
+				<imsContentType Sync="TRUE">002</imsContentType></itemProps>
+			<coordRef>
+				<type Sync="TRUE">Projected</type>
+				<geogcsn Sync="TRUE">GCS_North_American_1983</geogcsn>
+				<csUnits Sync="TRUE">Linear Unit: Foot_US (0.304801)</csUnits>
+				<projcsn Sync="TRUE">NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet</projcsn>
+				<peXml Sync="TRUE">&lt;ProjectedCoordinateSystem xsi:type='typens:ProjectedCoordinateSystem' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns:typens='http://www.esri.com/schemas/ArcGIS/3.1.0'&gt;&lt;WKT&gt;PROJCS[&amp;quot;NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet&amp;quot;,GEOGCS[&amp;quot;GCS_North_American_1983&amp;quot;,DATUM[&amp;quot;D_North_American_1983&amp;quot;,SPHEROID[&amp;quot;GRS_1980&amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;quot;Greenwich&amp;quot;,0.0],UNIT[&amp;quot;Degree&amp;quot;,0.0174532925199433]],PROJECTION[&amp;quot;Lambert_Conformal_Conic&amp;quot;],PARAMETER[&amp;quot;False_Easting&amp;quot;,984250.0],PARAMETER[&amp;quot;False_Northing&amp;quot;,0.0],PARAMETER[&amp;quot;Central_Meridian&amp;quot;,-74.0],PARAMETER[&amp;quot;Standard_Parallel_1&amp;quot;,40.66666666666666],PARAMETER[&amp;quot;Standard_Parallel_2&amp;quot;,41.03333333333333],PARAMETER[&amp;quot;Latitude_Of_Origin&amp;quot;,40.16666666666666],UNIT[&amp;quot;Foot_US&amp;quot;,0.3048006096012192],AUTHORITY[&amp;quot;EPSG&amp;quot;,2263]]&lt;/WKT&gt;&lt;XOrigin&gt;-120039300&lt;/XOrigin&gt;&lt;YOrigin&gt;-96540300&lt;/YOrigin&gt;&lt;XYScale&gt;37212589.015695661&lt;/XYScale&gt;&lt;ZOrigin&gt;-100000&lt;/ZOrigin&gt;&lt;ZScale&gt;10000&lt;/ZScale&gt;&lt;MOrigin&gt;-100000&lt;/MOrigin&gt;&lt;MScale&gt;10000&lt;/MScale&gt;&lt;XYTolerance&gt;0.0032808333333333331&lt;/XYTolerance&gt;&lt;ZTolerance&gt;0.001&lt;/ZTolerance&gt;&lt;MTolerance&gt;0.001&lt;/MTolerance&gt;&lt;HighPrecision&gt;true&lt;/HighPrecision&gt;&lt;WKID&gt;102718&lt;/WKID&gt;&lt;LatestWKID&gt;2263&lt;/LatestWKID&gt;&lt;/ProjectedCoordinateSystem&gt;</peXml>
+			</coordRef>
+			<copyHistory>
+				<copy source="M:\GIS\BytesProduction\IHDA\2024\20240331\shp\nycihda_20240331" dest="\\120BFS03\VOL2\DATA\GIS\BytesProduction\IHDA\2024\20240630\shp\nycihda_20240331" date="20240715" time="16102000"></copy>
+			</copyHistory>
+			<lineage>
+				<Process ToolSource="c:\program files (x86)\arcgis\desktop10.8\ArcToolbox\Toolboxes\Analysis Tools.tbx\Erase" Date="20240402" Time="120912" Name="" export="">Erase nycihda_20230229 "nycmih_20240229 selection" M:\GIS\BytesProduction\IHDA\2024\20240229\shp\nycihda_20230229_erase.shp #</Process>
+				<Process ToolSource="c:\program files (x86)\arcgis\desktop10.8\ArcToolbox\Toolboxes\Analysis Tools.tbx\Erase" Date="20240402" Time="134521" Name="" export="">Erase nycihda_20230229_erase "nycmih_20240331 selection" M:\GIS\BytesProduction\IHDA\2024\20240331\shp\nycihda_20240331_erase.shp #</Process>
+				<Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\Toolboxes\Data Management Tools.tbx\Copy" Date="20240715" Time="161020" Name="" export="">Copy M:\GIS\BytesProduction\IHDA\2024\20240331\shp\nycihda_20240331.shp M:\GIS\BytesProduction\IHDA\2024\20240630\shp\nycihda_20240331.shp Shapefile #</Process>
+				<Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\Toolboxes\Data Management Tools.tbx\Rename" Date="20240715" Time="161030" Name="" export="">Rename M:\GIS\BytesProduction\IHDA\2024\20240630\shp\nycihda_20240331.shp M:\GIS\BytesProduction\IHDA\2024\20240630\shp\nycihda_20240630.shp ShapeFile</Process>
+				<Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Analysis Tools.tbx\PairwiseErase" Date="20240715" Time="161257" Name="" export="">PairwiseErase nycihda_20240630 nycmih_20240630 "C:\Users\J_Rosack\OneDrive - NYC O365 HOSTED\Projects\misc_testing_\misc_testing_aprx\misc_testing.gdb\nycihda_20240630_PairwiseErase" #</Process>
+				<Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Conversion Tools.tbx\ExportFeatures" Date="20240715" Time="161436" Name="" export="">ExportFeatures nycihda_20240630_PairwiseErase M:\GIS\BytesProduction\IHDA\2024\20240630\shp\nycihda_20240630.shp # NOT_USE_ALIAS "Boro "Boro" true true false 3 Text 0 0,First,#,nycihda_20240630_PairwiseErase,Boro,0,3;Status "Status" true true false 15 Text 0 0,First,#,nycihda_20240630_PairwiseErase,Status,0,15;ProjectNam "ProjectNam" true true false 254 Text 0 0,First,#,nycihda_20240630_PairwiseErase,ProjectNam,0,254;DateAdopte "DateAdopte" true true false 8 Date 0 0,First,#,nycihda_20240630_PairwiseErase,DateAdopte,-1,-1;ZR_Map "ZR_Map" true true false 50 Text 0 0,First,#,nycihda_20240630_PairwiseErase,ZR_Map,0,50;LeadAction "LeadAction" true true false 50 Text 0 0,First,#,nycihda_20240630_PairwiseErase,LeadAction,0,50;CD "CD" true true false 20 Text 0 0,First,#,nycihda_20240630_PairwiseErase,CD,0,20;Shape_STAr "Shape_STAr" true true false 8 Double 0 0,First,#,nycihda_20240630_PairwiseErase,Shape_STAr,-1,-1;Shape_STLe "Shape_STLe" true true false 8 Double 0 0,First,#,nycihda_20240630_PairwiseErase,Shape_STLe,-1,-1;Shape_Length "Shape_Length" false true true 8 Double 0 0,First,#,nycihda_20240630_PairwiseErase,Shape_Length,-1,-1;Shape_Area "Shape_Area" false true true 8 Double 0 0,First,#,nycihda_20240630_PairwiseErase,Shape_Area,-1,-1" #</Process>
+			</lineage>
+		</DataProperties>
+		<ArcGISFormat>1.0</ArcGISFormat>
+		<ArcGISstyle>FGDC CSDGM Metadata</ArcGISstyle>
+		<ArcGISProfile>FGDC</ArcGISProfile>
+	</Esri>
+	<Binary>
+		<Thumbnail>
+			<Data EsriPropertyType="PictureX">/9j/4AAQSkZJRgABAQEAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a
+HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCACFAMgDASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iii
+gAooooAKKKKACiiigAooooAKKKKACmeahmMIb94F3EY6Cob+ZoLORoyPNxhASOWJwAM98kD8aLKE
+wQFDEsZ3HOH3bufvEnnJoAs0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUA
+FFFFABRUUhi82JHfa+SyLvIzjr9evSqX2uK41uSxaNy8UO7epIADYzk9jwMY9+lAFm7sLa9aN50J
+eLOxlYqVz6EfQflRYytNAzMWKh2VHbq4Bxk8DvmrNIAFAAAAHAAoAWiiigAooooAKKKKACiiigAo
+oooAKKKKACiiigAooooAKKKKACiiigAqK5MotpTAu6badgJ/i7VLTIZUnhSWNtyOoZTjGQaAEMKS
+RqkwWXbjllHX1ogh8iMJ5kkmOjSHJx6Z7/jUlQQXImlljKbGjYjBdST74ByOMHn1FAE9FFFABRRR
+QAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBU1C4ENuyKW86QEIqfePTJH0zmr
+EKqsEaohRQoAU9QMdKRoY2l8xlBbbt5GeKjWS3vI5Io5FdUbY6qemOxoAsVVjFm13MsaL5wx5nyk
+dOR7d6itNS+06nd2nl4EGMN6+v65/Src0TyqAk8kJB6oFJP/AH0DSTuBJRVcx3SKgjnRsfeMseS3
+4qQB+VWKYBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBWNs39oG7D5Hk+
+Xsx3znOazLHSpdPup76eYHIMkmw5Mhx3PHA5wMcZPJrcqvKiJbzi4aSeKTIKFN2AeNoCjJH50Ac+
+mpwqYbgs0U0kwYoUI6g5zuJPTcMDHIx9OnVg6KwzgjIyMfpWVJqsNxdpb2plaeKRfMjMOCAQeu8r
+gY7/AP6qs2VzMT5N6FjuCSVUDAK+xyc/ofapjHl6gXaKKKoAoopsm7y22AFsHAJxzQAye6gtUDTy
+rGD03Hr9B3qRWDKGGcEZ5GD+RrP06weKOOS5wLhSS207gTyM5PJznP49K0amLbWqAKKKKoAooooA
+KKKKACiiigAooooAKKKKACiiigAooooAKiki85RuJjdSSrIeR2/H6GiVySYY2xKVzkDOwc8/n/nr
+T0UIioCSFGMscn8SetAGXEupJePF59vKyqhMkkJUsp3dw2M5B7Dr+dyU3WIcW8Ep3fOTIV2+44NW
+A6MzKrKWX7wB5H1p1ABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUjbg
+p2gFscAnAJpaKAKUNpJ5++Zs4O4kH77ev0HQD8fQ1bkQSRshJAYYypwfzp1FAGNDdzQ6kHkt5Ggv
+SAj+XtZCBwGHpjHXvmtmiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoooo
+AKKKKACiioop/NllQRyKI2272AAY98d+Pp9M0AS0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUA
+FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB/
+/9k=</Data>
+		</Thumbnail>
+	</Binary>
+	<mdChar>
+		<CharSetCd value="004"/>
+	</mdChar>
+	<mdHrLv>
+		<ScopeCd value="005"/>
+	</mdHrLv>
+	<mdDateSt>20240715</mdDateSt>
+	<mdStanName>ArcGIS Metadata</mdStanName>
+	<mdStanVer>1.0</mdStanVer>
+	<distInfo>
+		<distributor>
+			<distorFormat>
+				<formatName>Feature Class</formatName>
+			</distorFormat>
+		</distributor>
+		<distFormat><formatName Sync="TRUE">Shapefile</formatName></distFormat><distTranOps><transSize Sync="TRUE">0.052</transSize></distTranOps></distInfo>
+	<dataIdInfo>
+		<idCitation>
+			<resTitle>Inclusionary Housing Designated Area (IHDA)</resTitle>
+			<date>
+				<pubDate>2024-06-30</pubDate>
+			</date>
+			<presForm>
+				<PresFormCd value="005"/>
+			</presForm>
+			<presForm>
+				<fgdcGeoform>vector digital data</fgdcGeoform>
+			</presForm>
+		</idCitation>
+		<idAbs>The Inclusionary Housing Designated Areas (IHDA) Program was created in 2005 to encourage the creation and preservation of affordable housing in medium and high-density neighborhoods being rezoned to create new housing opportunities. The program modifies the base floor area ratio (FAR) available for developments and offers a floor area bonus for developments that provide affordable housing either on-site or within the surrounding community. All mapped IHDAs are included in Appendix F of the Zoning Resolution.</idAbs>
+		<idPurp>A specified area in which the Inclusionary Housing Program is applicable.
+
+The June 2024 release contains slight boundary corrections and removes mapped Mandatory Inclusionary Housing (MIH) areas from Inclusionary Housing Designated Areas (IHDA). All mapped IHDAs are included in Appendix F of the Zoning Resolution.</idPurp>
+		<idCredit>NYC Department of City Planning (DCP)
+</idCredit>
+		<themeKeys>
+			<keyword>Inclusionary Housing Designated Area</keyword>
+			<keyword>IHDA</keyword>
+			<keyword>zoning</keyword>
+			<keyword>affordable housing</keyword>
+			<keyword>Department of City Planning</keyword>
+			<keyword>DCP</keyword>
+			<keyword>New York City</keyword>
+			<keyword>NYC</keyword>
+		</themeKeys>
+		<searchKeys>
+			<keyword>Inclusionary Housing Designated Area</keyword>
+			<keyword>IHDA</keyword>
+			<keyword>zoning</keyword>
+			<keyword>affordable housing</keyword>
+			<keyword>Department of City Planning</keyword>
+			<keyword>DCP</keyword>
+			<keyword>New York City</keyword>
+			<keyword>NYC</keyword>
+		</searchKeys>
+		<resConst>
+			<Consts><useLimit>The Department of City Planning makes no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.</useLimit>
+			</Consts>
+		</resConst>
+		<resConst>
+			<LegConsts>
+				<useLimit>See access and use constraints information.</useLimit>
+			</LegConsts>
+		</resConst>
+		<spatRpType>
+			<SpatRepTypCd value="001"/>
+		</spatRpType>
+		<envirDesc>Esri ArcGIS 10.6</envirDesc>
+		<dataExt>
+			<geoEle>
+				<GeoBndBox>
+					<exTypeCode>true</exTypeCode>
+					<westBL>-74.021503</westBL>
+					<eastBL>-73.781074</eastBL>
+					<northBL>40.873841</northBL>
+					<southBL>40.572033</southBL>
+				</GeoBndBox>
+			</geoEle>
+		</dataExt>
+		<dataLang><languageCode value="eng" Sync="TRUE"></languageCode><countryCode value="USA" Sync="TRUE"></countryCode></dataLang><dataExt><geoEle><GeoBndBox esriExtentType="search"><exTypeCode Sync="TRUE">1</exTypeCode><westBL Sync="TRUE">-74.021503</westBL><eastBL Sync="TRUE">-73.781074</eastBL><northBL Sync="TRUE">40.873841</northBL><southBL Sync="TRUE">40.572033</southBL></GeoBndBox></geoEle></dataExt></dataIdInfo>
+	<spatRepInfo>
+		<VectSpatRep><geometObjs Name="nycihda_20240630"><geoObjTyp><GeoObjTypCd value="002" Sync="TRUE"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">55</geoObjCnt></geometObjs><topLvl><TopoLevCd value="001" Sync="TRUE"></TopoLevCd></topLvl></VectSpatRep></spatRepInfo>
+	<eainfo>
+		<detailed Name="nycihda_20240630">
+			<enttyp>
+				<enttypl>nycihda_20220430</enttypl>
+				<enttypt Sync="TRUE">Feature Class</enttypt><enttypc Sync="TRUE">55</enttypc></enttyp>
+			<attr>
+				<attrlabl>FID</attrlabl>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdefs>Esri</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>Boro</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>Shape</attrlabl>
+				<attrdef>Feature geometry.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Coordinates defining the features.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>Status</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>ProjectNam</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>DateAdopte</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>ZR_Map</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>LeadAction</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>CD</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>Shape_STAr</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>Shape_STLe</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>Shape_Leng</attrlabl>
+			</attr>
+			<attr>
+				<attrlabl>Shape_Area</attrlabl>
+				<attrdef>Area of feature in internal units squared.</attrdef>
+				<attrdefs>Esri</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+		</detailed>
+	</eainfo>
+	<mdLang><languageCode value="eng" Sync="TRUE"></languageCode><countryCode value="USA" Sync="TRUE"></countryCode></mdLang><mdHrLvName Sync="TRUE">dataset</mdHrLvName><refSysInfo><RefSystem><refSysID><identCode code="2263" Sync="TRUE"></identCode><idCodeSpace Sync="TRUE">EPSG</idCodeSpace><idVersion Sync="TRUE">5.3(9.0.0)</idVersion></refSysID></RefSystem></refSysInfo><spdoinfo><ptvctinf><esriterm Name="nycihda_20240630"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom code="4" Sync="TRUE"></efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">55</efeacnt><spindex Sync="TRUE">TRUE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm></ptvctinf></spdoinfo></metadata>
