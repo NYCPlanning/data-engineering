@@ -467,6 +467,25 @@ class Revision:
             raise Exception()
         return RevisionDataSource.from_socrata_source(push_resp)
 
+    def push_xlsx(
+        self, path: Path, *, dest_filename: str | None = None
+    ) -> RevisionDataSource:
+        rev = self._fetch_socratapy_revision()
+        with open(path, "rb") as xlsx:
+            logger.info(
+                f"Pushing xlsx at {path} to {self.four_four} - rev: {self.revision_num}"
+            )
+            push_resp = (
+                rev.create_upload(dest_filename or path.name)
+                .xlsx(xlsx)
+                .wait_for_finish()
+            )
+        error_details: dict | None = push_resp.attributes["failure_details"]
+        if error_details:
+            logger.error(f"XLSX upload failed with {error_details}")
+            raise Exception()
+        return RevisionDataSource.from_socrata_source(push_resp)
+
     def upload_attachment(
         self,
         path: Path,
@@ -606,6 +625,8 @@ def push_dataset(
         data_source = rev.push_csv(package_dataset_file_path)
     elif dataset_file.type == "shapefile":
         data_source = rev.push_shp(package_dataset_file_path)
+    elif dataset_file.type == "xlsx":
+        data_source = rev.push_xlsx(package_dataset_file_path)
     else:
         raise Exception(f"Pushing unsupported file type: {dataset_file.type}")
 
