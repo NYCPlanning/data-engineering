@@ -22,7 +22,7 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
     dcp_col: dict[str, Any] = {
         "id": c["fieldName"],
         "name": c["name"],
-        "description": c["description"],
+        "description": c.get("description", FILL_ME_IN_PLACEHOLDER),
         "data_type": FILL_ME_IN_PLACEHOLDER,
         "custom": {},
     }
