@@ -14,7 +14,6 @@ LOGGING_SCHEMA = "product_data"
 LOGGING_TABLE_NAME = "event_logging"
 PRODUCTS_TO_LOG = [
     "db-cbbr",
-    "db-checkbook",
     "db-colp",
     "db-cpdb",
     "db-developments",
