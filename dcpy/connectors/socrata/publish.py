@@ -55,6 +55,49 @@ def _socrata_request(
     return resp.json()
 
 
+# There are required publishing frequency fields in two different sections of
+# the required metadata, and they're different. Below are the shared fields
+UPDATE_SECTION_FREQUENCIES = {
+    "Annually",
+    "As needed",
+    "Daily",
+    "Every 10 years",
+    "Every 2 months",
+    "Every 2 weeks",
+    "Every 2 years",
+    "Every 3 years",
+    "Every 4 months",
+    "Every 4 years",
+    "Every 5 years",
+    "Every 6 months",
+    "Every weekday",
+    "Historical data",
+    "Monthly",
+    "Other",
+    "Quarterly",
+    "To be determined",
+    "Weekly",
+}
+# Mapping of frequencies between the Legislative and Update sections.
+# Not comprehensive, just values we might encounter and need to translate.
+LEGISLATIVE_FREQUENCY_TO_UPDATE_FREQUENCY = {
+    "As-Needed": "As needed",
+    "Bimonthly": "Every 2 weeks",
+    "Tri-annually": "Every 4 months",
+    "Bi-annually": "Every 6 months",
+    "Biennially": "Every 2 years",
+    "Historical": "Historical data",
+}
+
+
+def translate_legislative_freq_to_update_freq(leg_freq: str):
+    return (
+        leg_freq
+        if leg_freq in UPDATE_SECTION_FREQUENCIES
+        else LEGISLATIVE_FREQUENCY_TO_UPDATE_FREQUENCY.get(leg_freq, "Other")
+    )
+
+
 class Socrata:
     """Helper classes for working with responses from/inputs to the Socrata Rest APIs.
 
@@ -81,7 +124,10 @@ class Socrata:
                         "rowLabel": attrs.each_row_is_a,
                         "custom_fields": {
                             "Update": {
-                                "Update Frequency": attrs.publishing_frequency,
+                                "Update Frequency": translate_legislative_freq_to_update_freq(
+                                    attrs.publishing_frequency or ""
+                                )
+                                or attrs.publishing_frequency,
                                 "Automation": "Yes",
                             }
                         },
