@@ -1,4 +1,5 @@
 from pathlib import Path
+import typer
 import xml.etree.ElementTree as ET
 
 from dcpy.models.product.dataset.metadata_v2 import (
@@ -7,6 +8,7 @@ from dcpy.models.product.dataset.metadata_v2 import (
     DatasetColumn,
     ColumnValue,
 )
+from dcpy.utils.logging import logger
 
 _shapefile_to_dcpy_types = {
     "OID": "integer",
@@ -104,3 +106,21 @@ def parse_shapefile_metadata(file_path: Path) -> Metadata:
     )
 
     return metadata
+
+
+app = typer.Typer()
+
+
+@app.command("to_metadata")
+def _write_metadata(
+    shp_xml_path: Path,
+    output_path: Path = typer.Option(
+        None,
+        "--output-path",
+        "-o",
+        help="Output Path. Defaults to ./data_dictionary.xlsx",
+    ),
+):
+    out_path = output_path or Path("./metadata.yml")
+    parse_shapefile_metadata(shp_xml_path).write_to_yaml(out_path)
+    logger.info(f"Wrote metadata to {out_path}")
