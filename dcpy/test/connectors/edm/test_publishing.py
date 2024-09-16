@@ -187,10 +187,12 @@ def test_upload_build_validate_logging_logic(
     mock_log_event.reset_mock()
 
     non_ignored_build = TEST_BUILD
+    non_ignored_product = "db-template"
+    assert non_ignored_product in publishing.PRODUCTS_TO_LOG  # sanity check
     assert non_ignored_build not in publishing.IGNORED_LOGGING_BUILDS  # sanity check
     publishing.upload_build(
         data_path,
-        product=TEST_PRODUCT_NAME,
+        product=non_ignored_product,
         build=non_ignored_build,
         acl=TEST_ACL,
     )
