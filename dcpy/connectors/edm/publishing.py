@@ -273,7 +273,10 @@ def upload_build(
     logger.info(f'Uploading {output_path} to {build_key.path} with ACL "{acl}"')
     upload(output_path, build_key, acl=acl, max_files=max_files)
 
-    if build_key.build not in IGNORED_LOGGING_BUILDS:
+    if (
+        build_key.build not in IGNORED_LOGGING_BUILDS
+        and build_key.product in PRODUCTS_TO_LOG
+    ):
         version = get_version(build_key)
         run_details = metadata.get_run_details()
         event_metadata = EventLog(
