@@ -305,3 +305,28 @@ def test_column_reconcilation_happy_path():
             c["field_name"]
             for c in sorted(updated_soc_cols, key=lambda c: c["position"])
         ], "The socrata columns should have correct positions"
+
+
+@mock.patch("dcpy.connectors.socrata.publish.Dataset")
+def test_metadata_only_deployments(mock_dataset, metadata: md.Metadata):
+    mock_dataset_instance = mock_dataset.return_value
+
+    mock_revision = MagicMock(name="mock_revision")
+    mock_dataset_instance.create_replace_revision.return_value = mock_revision
+
+    destination = "socrata"
+
+    publish.push_dataset(
+        metadata=metadata,
+        dataset_destination_id=destination,
+        dataset_package_path=Path("./"),
+        publish=True,
+        metadata_only=True,
+    )
+
+    mock_dataset_instance.create_replace_revision.assert_called_once()
+
+    assert not mock_revision.push_csv.called
+    assert not mock_revision.push_xlsx.called
+    assert not mock_revision.push_blob.called
+    assert not mock_revision.push_shp.called

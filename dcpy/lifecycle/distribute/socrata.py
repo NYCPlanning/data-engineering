@@ -15,6 +15,7 @@ def dist_from_local(
     publish: bool = False,
     ignore_validation_errors: bool = False,
     skip_validation: bool = False,
+    metadata_only: bool = False,
 ) -> str:
     """Distribute a dataset and specific dataset_destination_id.
 
@@ -31,7 +32,7 @@ def dist_from_local(
     dest = md.get_destination(dataset_destination_id)
     assert dest.type == "socrata"
 
-    if not skip_validation:
+    if not (skip_validation or metadata_only):
         logger.info("Validating package")
         # validation = v.validate_package(package_path, md)
         # errors = validation.get_dataset_errors()
@@ -53,6 +54,7 @@ def dist_from_local(
             dataset_destination_id=dataset_destination_id,
             dataset_package_path=package_path,
             publish=publish,
+            metadata_only=metadata_only,
         )
     except Exception as e:
         return f"Error pushing {md.attributes.display_name}, destination: {dest.id}: {str(e)}"
@@ -60,10 +62,7 @@ def dist_from_local(
 
 def dist_from_local_all_socrata(
     package_path: Path,
-    *,
-    publish: bool = False,
-    ignore_validation_errors: bool = False,
-    skip_validation: bool = False,
+    **pub_kwargs,
 ):
     """Distributes all Socrata destinations within a given metadata"""
     md = m.Metadata.from_path(package_path / "metadata.yml")
@@ -74,9 +73,7 @@ def dist_from_local_all_socrata(
             package_path=package_path,
             metadata_path=None,
             dataset_destination_id=dataset_destination_id,
-            publish=publish,
-            ignore_validation_errors=ignore_validation_errors,
-            skip_validation=skip_validation,
+            **pub_kwargs,
         )
         for dataset_destination_id in socrata_dests
     ]
@@ -85,10 +82,7 @@ def dist_from_local_all_socrata(
 
 def dist_from_local_product_all_socrata(
     product_path: Path,
-    *,
-    publish: bool = False,
-    ignore_validation_errors: bool = False,
-    skip_validation: bool = False,
+    **pub_kwargs,
 ):
     """Distribute datasets for an entire product."""
     results = []
@@ -97,12 +91,7 @@ def dist_from_local_product_all_socrata(
             md_path = p / "metadata.yml"
             if md_path.exists():
                 results.append(
-                    dist_from_local_all_socrata(
-                        package_path=Path(p),
-                        publish=publish,
-                        ignore_validation_errors=ignore_validation_errors,
-                        skip_validation=skip_validation,
-                    )
+                    dist_from_local_all_socrata(package_path=Path(p), **pub_kwargs)
                 )
     return results
 
@@ -138,6 +127,12 @@ def _dist_from_local(
         "--skip-validation",
         help="Skip Validation Altogether",
     ),
+    metadata_only: bool = typer.Option(
+        False,
+        "-z",
+        "--metadata-only",
+        help="Only push metadata (including attachments).",
+    ),
 ):
     result = dist_from_local(
         package_path=package_path,
@@ -146,6 +141,7 @@ def _dist_from_local(
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
         skip_validation=skip_validation,
+        metadata_only=metadata_only,
     )
     print(result)
 
@@ -171,12 +167,19 @@ def _dist_from_local_all_socrata(
         "--skip-validation",
         help="Skip Validation Altogether",
     ),
+    metadata_only: bool = typer.Option(
+        False,
+        "-z",
+        "--metadata-only",
+        help="Only push metadata (including attachments).",
+    ),
 ):
     results = dist_from_local_all_socrata(
         package_path=package_path,
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
         skip_validation=skip_validation,
+        metadata_only=metadata_only,
     )
     print(results)
 
@@ -202,12 +205,19 @@ def _cli_dist_product_from_local_all_socrata(
         "--skip-validation",
         help="Skip Validation Altogether",
     ),
+    metadata_only: bool = typer.Option(
+        False,
+        "-z",
+        "--metadata-only",
+        help="Only push metadata (including attachments).",
+    ),
 ):
     results = dist_from_local_product_all_socrata(
         product_path=product_path,
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
         skip_validation=skip_validation,
+        metadata_only=metadata_only,
     )
     print(results)
 
@@ -247,6 +257,12 @@ def _dist_from_s3(
         "--skip-validation",
         help="Skip Validation Altogether",
     ),
+    metadata_only: bool = typer.Option(
+        False,
+        "-z",
+        "--metadata-only",
+        help="Only push metadata (including attachments).",
+    ),
 ):
     logger.info(
         f"Distributing {product_name}-{version} to {dataset_destination_id}. Publishing: {publish}. Ignoring Validation Errors: {ignore_validation_errors}"
@@ -264,5 +280,6 @@ def _dist_from_s3(
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
         skip_validation=skip_validation,
+        metadata_only=metadata_only,
     )
     print(result)
