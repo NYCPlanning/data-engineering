@@ -219,6 +219,18 @@ class PostgresClient:
         )
         return sorted(column_names["column_name"])
 
+    def get_column_types(self, table_name: str) -> dict[str, str]:
+        columns = self.execute_select_query(
+            """
+            SELECT column_name, data_type from information_schema.columns
+            WHERE table_schema = ':table_schema'
+            AND table_name   = ':table_name';
+            """,
+            table_schema=AsIs(self.schema),
+            table_name=AsIs(table_name),
+        )
+        return {r["column_name"]: r["data_type"] for _, r in columns.iterrows()}
+
     def add_pk(self, table: str, id_column: str = "id"):
         self.execute_query(
             'ALTER TABLE ":schema".":table" ADD COLUMN ":id_column" SERIAL CONSTRAINT ":constraint" PRIMARY KEY;',
@@ -226,6 +238,13 @@ class PostgresClient:
             table=AsIs(table),
             id_column=AsIs(id_column),
             constraint=AsIs(f"{table}_pk"),
+        )
+
+    def drop_table(self, table):
+        self.execute_query(
+            'DROP TABLE IF EXISTS ":schema".":table" CASCADE;',
+            schema=AsIs(self.schema),
+            table=AsIs(table),
         )
 
     def add_table_column(
