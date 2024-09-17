@@ -19,6 +19,7 @@ from dcpy.models.connectors.edm.recipes import (
 from dcpy.models import library
 from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
+from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
 assert (
@@ -241,6 +242,7 @@ def import_dataset(
     local_library_dir=LIBRARY_DEFAULT_PATH,
     import_as: str | None = None,
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
+    rename_pk: bool = False,
 ) -> str:
     """Import a recipe to local data library folder and build engine."""
     assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
@@ -257,11 +259,23 @@ def import_dataset(
             pg_dump_table_name=ds.id,
             target_table_name=ds_table_name,
         )
+
+        if rename_pk:
+            pg_client.execute_query(
+                f"ALTER TABLE {ds_table_name} RENAME CONSTRAINT {ds.id}_pk TO {ds.id}_{ds.version}_pk"
+            )
+            pg_client.execute_query(
+                f"ALTER INDEX IF EXISTS {ds.id}_wkb_geometry_geom_idx RENAME TO {ds.id}_{ds.version}_wkb_geometry_geom_idx"
+            )
+            pg_client.execute_query(
+                f"ALTER SEQUENCE IF EXISTS {ds.id}_ogc_fid_seq RENAME TO {ds.id}_{ds.version}_ogc_fid_seq"
+            )
+
     elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
         df = (
             pd.read_csv(local_dataset_path, dtype=str)
             if ds.file_type == DatasetType.csv
-            else pd.read_parquet(local_dataset_path)
+            else geoparquet.read_df(local_dataset_path)
         )
         if preprocessor is not None:
             df = preprocessor(ds.id, df)
