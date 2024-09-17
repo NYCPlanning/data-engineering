@@ -42,6 +42,10 @@ def _simple_auth():
     return (SOCRATA_USER, SOCRATA_PASSWORD)
 
 
+def _socratapy_client():
+    return SocrataPy(Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD))
+
+
 def _socrata_request(
     url,
     method: Literal["GET", "PUT", "POST", "PATCH", "DELETE"],
@@ -409,10 +413,7 @@ class Revision:
     def _fetch_socratapy_revision(self) -> SocrataPyRevision:
         """Fetches the SocrataPy object wrapper around the revision object.
         This is useful for uploading to open revisions."""
-        _socratapy_client = SocrataPy(
-            Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD)
-        )
-        view = _socratapy_client.views.lookup(self.four_four)
+        view = _socratapy_client().views.lookup(self.four_four)
         return view.revisions.lookup(self.revision_num)
 
     def push_blob(self, path: Path, *, dest_filename: str):
@@ -573,6 +574,7 @@ def push_dataset(
     dataset_package_path: Path,
     *,
     publish: bool = False,
+    metadata_only: bool = False,
 ):
     """Push a dataset and sync metadata."""
     socrata_dest = SocrataDestination(metadata, dataset_destination_id)
@@ -613,36 +615,37 @@ def push_dataset(
         / metadata.get_file_and_overrides(socrata_dest.dataset_file_id).file.filename
     )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
 
-    dataset_file = overridden_dataset_md.file
-    data_source = None
-    if socrata_dest.is_unparsed_dataset:
-        rev.push_blob(
-            package_dataset_file_path,
-            dest_filename=overridden_dataset_md.file.filename
-            or package_dataset_file_path.name,
-        )
-    elif dataset_file.type == "csv":
-        data_source = rev.push_csv(package_dataset_file_path)
-    elif dataset_file.type == "shapefile":
-        data_source = rev.push_shp(package_dataset_file_path)
-    elif dataset_file.type == "xlsx":
-        data_source = rev.push_xlsx(package_dataset_file_path)
-    else:
-        raise Exception(f"Pushing unsupported file type: {dataset_file.type}")
+    if not metadata_only:
+        data_source = None
+        dataset_file = overridden_dataset_md.file
+        if socrata_dest.is_unparsed_dataset:
+            rev.push_blob(
+                package_dataset_file_path,
+                dest_filename=overridden_dataset_md.file.filename
+                or package_dataset_file_path.name,
+            )
+        elif dataset_file.type == "csv":
+            data_source = rev.push_csv(package_dataset_file_path)
+        elif dataset_file.type == "shapefile":
+            data_source = rev.push_shp(package_dataset_file_path)
+        elif dataset_file.type == "xlsx":
+            data_source = rev.push_xlsx(package_dataset_file_path)
+        else:
+            raise Exception(f"Pushing unsupported file type: {dataset_file.type}")
 
-    if not socrata_dest.is_unparsed_dataset and data_source:
-        try:
-            data_source.push_socrata_column_metadata(
-                overridden_dataset_md.dataset.columns
-            )
-        except Exception as e:
-            # Upating column Metadata is tricky, and there's still some work to be done
-            logger.error(
-                f"""Error Updating Column Metadata! However,
-                the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
-                Error: {e}"""
-            )
-            return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
+        if not socrata_dest.is_unparsed_dataset and data_source:
+            try:
+                data_source.push_socrata_column_metadata(
+                    overridden_dataset_md.dataset.columns
+                )
+            except Exception as e:
+                # Upating column Metadata is tricky, and there's still some work to be done
+                logger.error(
+                    f"""Error Updating Column Metadata! However,
+                    the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
+                    Error: {e}"""
+                )
+                return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
 
     if not publish:
         result = f"""Finished syncing product {metadata.attributes.display_name} to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually here {rev.page_url}"""
