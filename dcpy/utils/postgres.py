@@ -308,19 +308,28 @@ class PostgresClient:
                         table_name=AsIs(table_name),
                         conn=conn,
                     )
-                df.to_sql(
-                    table_name,
-                    schema=schema or self.schema,
-                    con=conn,
-                    if_exists=if_exists,
-                    index=False,
-                    dtype={
-                        "geo_1b": dialects.postgresql.JSON,
-                        "geo_bl": dialects.postgresql.JSON,
-                        "geo_bn": dialects.postgresql.JSON,
-                    },
-                    method=insert_copy,
-                )
+                if isinstance(df, gpd.GeoDataFrame):
+                    df.to_postgis(
+                        name=table_name,
+                        schema=schema or self.schema,
+                        con=conn,
+                        if_exists=if_exists,
+                        index=False,
+                    )
+                else:
+                    df.to_sql(
+                        table_name,
+                        schema=schema or self.schema,
+                        con=conn,
+                        if_exists=if_exists,
+                        index=False,
+                        dtype={
+                            "geo_1b": dialects.postgresql.JSON,
+                            "geo_bl": dialects.postgresql.JSON,
+                            "geo_bn": dialects.postgresql.JSON,
+                        },
+                        method=insert_copy,
+                    )
 
 
 def insert_copy(table, conn, keys, data_iter):
