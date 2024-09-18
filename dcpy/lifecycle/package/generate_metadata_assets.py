@@ -35,8 +35,7 @@ def generate_html_from_yaml(
         template_text = f.read()
     rendered_template = Template(template_text).render({"metadata": metadata})
 
-    if not output_html_path.parent.exists():
-        output_html_path.parent.mkdir(parents=True)
+    output_html_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_html_path, "w") as f:
         f.write(rendered_template)
 
