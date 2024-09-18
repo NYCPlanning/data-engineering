@@ -32,48 +32,40 @@ jobs:
             dcpy:
               - dcpy/**
               - pyproject.toml
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             template:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
               - .github/workflows/template_test.yml
               - products/template/**
               - dcpy/**
-              - docker/**
-              - python/**
+              - admin/run_environment/**
             qa:
               - apps/qa/**
               - dcpy/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             cbbr:
               - products/cbbr/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             checkbook:
               - products/checkbook/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             zap:
               - products/zap-opendata/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             docker:
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             docker_base:
-              - docker/base/**
+              - admin/run_environment/docker/base/**
       - uses: fvankrieken/paths-filter@master
         if: github.event_name == 'pull_request'
         id: push_changes
         with:
           filters: |
             docker:
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             docker_base:
-              - docker/base/**
+              - admin/run_environment/docker/base/**
           treat-pr-as-push: true
 
   base_image:
@@ -126,8 +118,7 @@ jobs:
         if: >
           contains(needs.check_changes.outputs.pr_changes, 'docker_base')
           && contains(needs.check_changes.outputs.push_changes, 'docker_base')
-        working-directory: docker
-        run: ./publish.sh base "${{ env.base_tag }}"
+        run: ./admin/run_environment/docker/publish.sh base "${{ env.base_tag }}"
 
   build_docker_images:
     name: >
@@ -167,8 +158,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
         if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
-        working-directory: docker
-        run: ./publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}" "${{ needs.base_image.outputs.base_tag }}"
+        run: ./admin/run_environment/docker/publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}" "${{ needs.base_image.outputs.base_tag }}"
 
   test:
     uses: ./.github/workflows/test_helper.yml

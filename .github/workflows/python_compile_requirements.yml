@@ -26,7 +26,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           commit-message: automated compiling of python requirements
-          add-paths: python/
+          add-paths: admin/run_environment
           title: Compile python requirements
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey, sf-dcp' || '' }}

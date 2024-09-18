@@ -4,20 +4,20 @@ image=$1
 tag=$2
 base_tag=$3
 
-DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-ROOT_DIR=$(dirname ${DIR})
+DOCKER_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+IMAGE_DIR="${DOCKER_DIR}/$1"
 
-source $ROOT_DIR/bash/utils.sh
+source bash/utils.sh
 set_error_traps
 
 pip3 install requests beautifulsoup4 pip-tools
 
 function generate_dcpy_requirements {
-    pip-compile ../pyproject.toml -o $image/dcpy_requirements.txt -c $image/constraints.txt
+    pip-compile ./pyproject.toml -o $IMAGE_DIR/dcpy_requirements.txt -c $IMAGE_DIR/constraints.txt
 }
 
 function export_geosupport_versions {
-    VERSIONSTRING=$(python3 geosupport_versions.py)
+    VERSIONSTRING=$(python3 $DOCKER_DIR/geosupport_versions.py)
     echo $VERSIONSTRING
     export $(echo "$VERSIONSTRING" | sed 's/#.*//g' | xargs)
     export VERSION=$MAJOR.$MINOR.$PATCH
@@ -27,8 +27,8 @@ function export_geosupport_versions {
 
 function common {
     DOCKER_IMAGE_NAME=nycplanning/$image
-    cp $ROOT_DIR/python/constraints.txt $image
-    cp $DIR/config.sh $image
+    cp $DOCKER_DIR/../python/constraints.txt $IMAGE_DIR
+    cp $DOCKER_DIR/config.sh $IMAGE_DIR
 
     docker_login
 
@@ -37,12 +37,12 @@ function common {
     fi
 
     if [[ -z $tag ]]; then
-        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME latest $base_tag_command"
-        GEO_COMMAND="build_and_publish_versioned_docker_image $image $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS $base_tag_command"
+        COMMAND="build_and_publish_docker_image $IMAGE_DIR $DOCKER_IMAGE_NAME latest $base_tag_command"
+        GEO_COMMAND="build_and_publish_versioned_docker_image $IMAGE_DIR $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS $base_tag_command"
     else
-        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $base_tag_command"
+        COMMAND="build_and_publish_docker_image $IMAGE_DIR $DOCKER_IMAGE_NAME $tag $base_tag_command"
         echo "$COMMAND"
-        GEO_COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $BUILD_ARGS $base_tag_command"
+        GEO_COMMAND="build_and_publish_docker_image $IMAGE_DIR $DOCKER_IMAGE_NAME $tag $BUILD_ARGS $base_tag_command"
     fi
 }
 
@@ -54,7 +54,7 @@ case $image in
     dev)
         export_geosupport_versions
         common
-        cp $ROOT_DIR/python/requirements.txt $1
+        cp $DOCKER_DIR/../python/requirements.txt $IMAGE_DIR
         $GEO_COMMAND;;
     build-base) 
         common
