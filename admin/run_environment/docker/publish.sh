@@ -5,15 +5,15 @@ tag=$2
 base_tag=$3
 
 DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-ROOT_DIR=$(dirname ${DIR})
+DOCKER_DIR="${DIR}/$1"
 
-source $ROOT_DIR/bash/utils.sh
+source bash/utils.sh
 set_error_traps
 
 pip3 install requests beautifulsoup4 pip-tools
 
 function generate_dcpy_requirements {
-    pip-compile ../pyproject.toml -o $image/dcpy_requirements.txt -c $image/constraints.txt
+    pip-compile ../pyproject.toml -o $DOCKER_DIR/dcpy_requirements.txt -c $DOCKER_DIR/constraints.txt
 }
 
 function export_geosupport_versions {
@@ -27,8 +27,8 @@ function export_geosupport_versions {
 
 function common {
     DOCKER_IMAGE_NAME=nycplanning/$image
-    cp $ROOT_DIR/python/constraints.txt $image
-    cp $DIR/config.sh $image
+    cp $DIR/../python/constraints.txt $DOCKER_DIR
+    cp $DIR/config.sh $DOCKER_DIR
 
     docker_login
 
@@ -37,12 +37,12 @@ function common {
     fi
 
     if [[ -z $tag ]]; then
-        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME latest $base_tag_command"
-        GEO_COMMAND="build_and_publish_versioned_docker_image $image $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS $base_tag_command"
+        COMMAND="build_and_publish_docker_image $DOCKER_DIR $DOCKER_IMAGE_NAME latest $base_tag_command"
+        GEO_COMMAND="build_and_publish_versioned_docker_image $DOCKER_DIR $DOCKER_IMAGE_NAME $VERSION $BUILD_ARGS $base_tag_command"
     else
-        COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $base_tag_command"
+        COMMAND="build_and_publish_docker_image $DOCKER_DIR $DOCKER_IMAGE_NAME $tag $base_tag_command"
         echo "$COMMAND"
-        GEO_COMMAND="build_and_publish_docker_image $image $DOCKER_IMAGE_NAME $tag $BUILD_ARGS $base_tag_command"
+        GEO_COMMAND="build_and_publish_docker_image $DOCKER_DIR $DOCKER_IMAGE_NAME $tag $BUILD_ARGS $base_tag_command"
     fi
 }
 
@@ -54,7 +54,7 @@ case $image in
     dev)
         export_geosupport_versions
         common
-        cp $ROOT_DIR/python/requirements.txt $1
+        cp $DIR/../python/requirements.txt $1
         $GEO_COMMAND;;
     build-base) 
         common
