@@ -1,25 +1,20 @@
 from typing import Callable
 from faker import Faker
 from pandas import DataFrame as df
-from pathlib import Path
 import random
 from shapely import wkb, wkt
 import uuid
 
+from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
+
 import dcpy.models.product.dataset.metadata_v2 as md
 from dcpy.lifecycle.package import validate
-
-METADATA_PATH = (
-    Path(__file__).parent.resolve() / "resources" / "test_package" / "metadata.yml"
-)
-print(METADATA_PATH)
-assert METADATA_PATH.exists()
 
 rd = random.Random()
 rd.seed(0)
 faker = Faker()
 
-metadata = md.Metadata.from_path(METADATA_PATH)
+metadata = md.Metadata.from_path(TEST_METADATA_YAML_PATH)
 
 
 class DCPFakes:

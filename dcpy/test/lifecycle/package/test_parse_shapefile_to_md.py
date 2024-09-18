@@ -3,7 +3,7 @@ import yaml
 
 from dcpy.lifecycle.package import shapefiles
 from dcpy.models.product.dataset import metadata_v2 as dsmd
-from . import RESOURCES_PATH
+from dcpy.test.lifecycle.package.conftest import RESOURCES_PATH
 
 
 # TODO remove noqas
