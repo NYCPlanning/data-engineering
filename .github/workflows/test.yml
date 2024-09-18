@@ -32,46 +32,38 @@ jobs:
             dcpy:
               - dcpy/**
               - pyproject.toml
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             template:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
               - .github/workflows/template_test.yml
               - products/template/**
               - dcpy/**
-              - docker/**
-              - python/**
+              - admin/run_environment/**
             qa:
               - apps/qa/**
               - dcpy/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             cbbr:
               - products/cbbr/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             checkbook:
               - products/checkbook/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             zap:
               - products/zap-opendata/**
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             docker:
-              - python/**
-              - docker/**
+              - admin/run_environment/**
             docker_base:
-              - docker/base/**
+              - admin/run_environment/docker/base/**
       - uses: fvankrieken/paths-filter@master
         if: github.event_name == 'pull_request'
         id: push_changes
         with:
           filters: |
             docker:
-              - python/**
-              - docker/**
+            - admin/run_environment/**
             docker_base:
               - docker/base/**
           treat-pr-as-push: true

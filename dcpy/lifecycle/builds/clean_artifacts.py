@@ -66,7 +66,7 @@ def delete_stale_image_tags(active_build_names: list[str]) -> None:
                 logger.warning(f"Deleting tag {image}:{tag}")
                 # Should we include this file in dcpy? A little odd to rely on this file existing, but it's going to be a bit hacky regardless
                 # The intonation seems a bit finicky so don't really want to implement in python rather than bash
-                subprocess.call(["docker/delete.sh", image, tag])
+                subprocess.call(["admin/environement/docker/delete.sh", image, tag])
             else:
                 logger.info(f"Keeping tag {image}.{tag}")
 
