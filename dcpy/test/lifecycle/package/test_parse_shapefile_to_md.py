@@ -3,13 +3,17 @@ import yaml
 
 from dcpy.lifecycle.package import shapefiles
 from dcpy.models.product.dataset import metadata_v2 as dsmd
-from dcpy.test.lifecycle.package.conftest import RESOURCES_PATH
+from dcpy.test.lifecycle.package.conftest import PACKAGE_RESOURCES_PATH
 
 
 # TODO remove noqas
 def test_parsing_shapefile_md():
-    shape_path = RESOURCES_PATH / "shapefile_with_md" / "sample_shapefile_metadata.xml"
-    md_path = RESOURCES_PATH / "shapefile_with_md" / "sample_shapefile_metadata.yml"
+    shape_path = (
+        PACKAGE_RESOURCES_PATH / "shapefile_with_md" / "sample_shapefile_metadata.xml"
+    )
+    md_path = (
+        PACKAGE_RESOURCES_PATH / "shapefile_with_md" / "sample_shapefile_metadata.yml"
+    )
 
     md = None
     with open(md_path, "r", encoding="utf-8") as raw:
