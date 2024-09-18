@@ -4,9 +4,12 @@ from dcpy.utils import s3
 from dcpy.test.conftest import (
     TEST_BUCKET,
     TEST_BUCKETS,
+    RECIPES_BUCKET,
+    PUBLISHING_BUCKET,
 )
 from pathlib import Path
 from io import BytesIO
+from unittest.mock import patch, MagicMock
 
 TEST_DIR_NAME_1 = "test-dir-1"
 TEST_DIR_NAME_2 = "test-dir-2"
@@ -118,3 +121,71 @@ def test_upload_file_obj(create_buckets):
         acl="public-read",
     )
     assert s3.exists(TEST_BUCKET, test_file_key)
+
+
+def test_copy_folder_via_download(create_buckets, put_test_objects):
+    s3.copy_folder_via_download(
+        TEST_BUCKET, RECIPES_BUCKET, TEST_DIR_NAME_1, TEST_DIR_NAME_1, acl="public-read"
+    )
+    assert s3.get_filenames(RECIPES_BUCKET, "") == set(TEST_OBJECTS[:2])
+
+
+@patch("dcpy.utils.s3.copy_folder_via_download")
+def test_copy_folder_within_bucket(copy: MagicMock, create_buckets, put_test_objects):
+    new_folder = "new_folder"
+    s3.copy_folder(TEST_BUCKET, TEST_DIR_NAME_1, new_folder, acl="public-read")
+    assert not copy.called
+    assert s3.get_filenames(TEST_BUCKET, new_folder) == s3.get_filenames(
+        TEST_BUCKET, TEST_DIR_NAME_1
+    )
+
+
+mock_regions = {
+    TEST_BUCKET: "nyc3b",
+    RECIPES_BUCKET: "nyc3b",
+    PUBLISHING_BUCKET: "nyc3d",
+}
+
+
+@patch("dcpy.utils.s3.copy_folder_via_download")
+@patch("dcpy.utils.s3.get_bucket_region", side_effect=lambda b: mock_regions[b])
+def test_copy_folder_within_region(
+    bucket_region, copy, create_buckets, put_test_objects
+):
+    s3.copy_folder(
+        TEST_BUCKET,
+        TEST_DIR_NAME_1,
+        TEST_DIR_NAME_1,
+        acl="public-read",
+        target_bucket=RECIPES_BUCKET,
+    )
+    assert not copy.called
+    assert s3.get_filenames(RECIPES_BUCKET, "") == set(TEST_OBJECTS[:2])
+
+
+@patch("dcpy.utils.s3.copy_folder_via_download")
+@patch("dcpy.utils.s3.get_bucket_region", side_effect=lambda b: mock_regions[b])
+def test_copy_folder_across_regions_calls_manual_copy(
+    bucket_region, copy, create_buckets, put_test_objects
+):
+    s3.copy_folder(
+        TEST_BUCKET,
+        TEST_DIR_NAME_1,
+        TEST_DIR_NAME_1,
+        acl="public-read",
+        target_bucket=PUBLISHING_BUCKET,
+    )
+    assert copy.called
+    assert len(s3.get_filenames(PUBLISHING_BUCKET, "")) == 0
+
+
+@patch("dcpy.utils.s3.get_bucket_region", side_effect=lambda b: mock_regions[b])
+def test_copy_folder_across_regions(bucket_region, create_buckets, put_test_objects):
+    s3.copy_folder(
+        TEST_BUCKET,
+        TEST_DIR_NAME_1,
+        TEST_DIR_NAME_1,
+        acl="public-read",
+        target_bucket=PUBLISHING_BUCKET,
+    )
+    assert s3.get_filenames(PUBLISHING_BUCKET, "") == set(TEST_OBJECTS[:2])

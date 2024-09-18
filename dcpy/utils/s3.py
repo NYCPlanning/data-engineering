@@ -14,6 +14,7 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+from tempfile import TemporaryDirectory
 import typer
 from typing import Any, Literal, TYPE_CHECKING, cast, get_args
 from pydantic import BaseModel
@@ -107,7 +108,12 @@ def list_buckets() -> list[str]:
 
 
 def get_bucket_region(bucket: str) -> str:
-    """Gets region (with subregion suffix) of specific bucket"""
+    """
+    Gets region (with subregion suffix) of specific bucket
+    DISCLAIMER - this might only work for Digital Ocean Spaces.
+        Documentation on format of these responses is not the clearest,
+        nor is there evident documentation on format of these id strings
+    """
     bucket_id = client().head_bucket(Bucket=bucket)["ResponseMetadata"]["RequestId"]
     return bucket_id.split("-")[-1]
 
@@ -266,11 +272,11 @@ def download_folder(
     *,
     include_prefix_in_export: bool = True,
 ) -> list[dict]:
-    """Download contents of folder from s3 recursively.
+    """
+    Download contents of folder from s3 recursively.
     Returns list of objects downloaded.
     """
-    if prefix[-1] != "/":
-        raise NotADirectoryError("prefix must be a folder path, ending with '/'")
+    prefix = _folderize(prefix)
 
     objs = list_objects(bucket, prefix)
     if not objs:
@@ -323,10 +329,28 @@ def upload_folder(
         upload_file(bucket, file, str(key), acl=acl, metadata=metadata)
 
 
+def copy_folder_via_download(
+    source_bucket: str, target_bucket: str, source_path: str, target_path: str, acl: ACL
+) -> None:
+    """If cross-bucket copying is not possible, this utility downloads and then uploads a folder"""
+    with TemporaryDirectory() as _dir:
+        dir = Path(_dir)
+        logger.info(f"Copying {source_bucket}/{source_path} to temporary directory")
+        download_folder(source_bucket, prefix=source_path, export_path=dir)
+        logger.info(f"Copying temporary directory to {target_bucket}/{source_path}")
+        upload_folder(
+            target_bucket,
+            dir / source_path,
+            Path(target_path),
+            acl,
+            contents_only=True,
+        )
+
+
 def copy_folder(
     bucket: str,
-    source: str,
-    target: str,
+    source_path: str,
+    target_path: str,
     acl: ACL,
     *,
     max_files: int = MAX_FILE_COUNT,
@@ -335,35 +359,44 @@ def copy_folder(
     keep_existing: bool = False,
 ) -> None:
     """Given bucket, prefix filter, and export path, download contents of folder from s3 recursively"""
-    if source[-1] != "/":
-        raise NotADirectoryError("prefix must be a folder path, ending with '/'")
-    target = _folderize(target)
+    source_path = _folderize(source_path)
+    target_path = _folderize(target_path)
 
-    objects = list_objects(bucket, source)
+    objects = list_objects(bucket, source_path)
     if max_files and (len(objects) > max_files):
         raise Exception(
-            f"{len(objects)} found in folder '{source}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
+            f"{len(objects)} found in folder '{source_path}' which is greater than limit. Make sure target folder is correct, then supply 'max_files' arg"
         )
-
     target_bucket_ = target_bucket or bucket
     if not keep_existing:
         logger.info(
-            f"Deleting any existing files in {target_bucket_}/{target} from bucket "
+            f"Deleting any existing files in {target_bucket_}/{target_path} from bucket "
         )
-        delete(target_bucket_, target)
+        delete(target_bucket_, target_path)
 
-    logger.info(f"Copying {bucket}/{source} to {target_bucket_}/{target}")
-    for obj in objects:
-        key = obj["Key"].replace(source, "")
-        if key and (key[-1] != "/"):
-            copy_file(
-                bucket,
-                obj["Key"],
-                f"{target}{key}",
-                acl,
-                metadata=metadata,
-                target_bucket=target_bucket,
+    if target_bucket and get_bucket_region(bucket) != get_bucket_region(target_bucket):
+        if get_bucket_region(bucket) != get_bucket_region(target_bucket):
+            copy_folder_via_download(
+                bucket, target_bucket, source_path, target_path, acl
             )
+            return
+    else:
+        target_bucket = target_bucket or bucket
+
+        logger.info(f"Copying {bucket}/{source_path} to {target_bucket}/{target_path}")
+        for obj in objects:
+            key = obj["Key"].replace(source_path, "")
+            print(key)
+            print(target_path)
+            if key and (key[-1] != "/"):
+                copy_file(
+                    bucket,
+                    obj["Key"],
+                    f"{target_path}{key}",
+                    acl,
+                    metadata=metadata,
+                    target_bucket=target_bucket,
+                )
 
 
 def delete(bucket: str, path: str) -> None:

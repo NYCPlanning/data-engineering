@@ -38,27 +38,6 @@ PRODUCTS = [
 ]
 
 
-def copy_folder(
-    source_bucket: str,
-    target_bucket: str,
-    path: str,
-) -> None:
-    """Copies folder from a production bucket to a dev bucket"""
-    assert target_bucket.startswith(BUCKET_PREFIX)
-    logger.info(f"Copying {source_bucket}/{path} to ./tmp")
-    s3.download_folder(
-        source_bucket, prefix=path, export_path=Path("./tmp/dev_bucket_setup")
-    )
-    logger.info(f"Copying ./tmp to {target_bucket}/{path}")
-    s3.upload_folder(
-        target_bucket,
-        Path(f"./tmp/dev_bucket_setup/{path}"),
-        Path(path),
-        "private",
-        contents_only=True,
-    )
-
-
 def resolve_latest_recipe(
     target_bucket: str,
     ds: str,
@@ -76,10 +55,10 @@ def resolve_latest_recipe(
     importlib.reload(configuration)
     assert target_bucket.startswith(BUCKET_PREFIX)
     s3.copy_folder(
-        target_bucket,
-        input.s3_folder_key("datasets") + "/",
-        resolved.s3_folder_key("datasets") + "/",
-        "private",
+        bucket=target_bucket,
+        source_path=input.s3_folder_key("datasets") + "/",
+        target_path=resolved.s3_folder_key("datasets") + "/",
+        acl="private",
     )
 
 
@@ -98,10 +77,10 @@ def resolve_latest_publish(target_bucket: str, data_product: str):
     os.environ["PUBLISHING_BUCKET"] = PROD_PUBLISHING_BUCKET
     importlib.reload(configuration)
     s3.copy_folder(
-        target_bucket,
-        input.path + "/",
-        resolved.path + "/",
-        "private",
+        bucket=target_bucket,
+        source_path=input.path + "/",
+        target_path=resolved.path + "/",
+        acl="private",
     )
 
 
@@ -115,10 +94,12 @@ def clone_recipe(
     If provided version is "latest", also resolve it to its versioned folder
     """
     key = DatasetKey(name=dataset_id, version=version)
-    copy_folder(
-        source_bucket=PROD_RECIPES_BUCKET,
+    s3.copy_folder(
+        bucket=PROD_RECIPES_BUCKET,
         target_bucket=target_bucket,
-        path=f"{key.s3_path("datasets")}/",
+        source_path=f"{key.s3_path("datasets")}/",
+        target_path=key.path + "/",
+        acl="private",
     )
     if version == "latest":
         resolve_latest_recipe(target_bucket, dataset_id)
@@ -170,10 +151,12 @@ def clone_data_products(
 
     for product in data_products:
         key = PublishKey(product=product, version="latest")
-        copy_folder(
-            source_bucket=PROD_PUBLISHING_BUCKET,
+        s3.copy_folder(
+            bucket=PROD_PUBLISHING_BUCKET,
             target_bucket=target_bucket,
-            path=key.path + "/",
+            source_path=key.path + "/",
+            target_path=key.path + "/",
+            acl="private",
         )
 
         resolve_latest_publish(target_bucket, product)
@@ -189,10 +172,12 @@ def clone_data_product_by_key(
 
     This is a good target if working on an enhancement that involves rebuilding a specific product instance
     """
-    copy_folder(
-        source_bucket=PROD_PUBLISHING_BUCKET,
+    s3.copy_folder(
+        bucket=PROD_PUBLISHING_BUCKET,
         target_bucket=target_bucket,
-        path=key.path + "/",
+        source_path=key.path + "/",
+        target_path=key.path + "/",
+        acl="private",
     )
     if include_recipe_datasets:
         for _index, row in publishing.get_source_data_versions(key).iterrows():
