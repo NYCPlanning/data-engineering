@@ -1,13 +1,28 @@
 import pytest
 import os
 from dcpy.utils import s3
-from dcpy.test.conftest import TEST_BUCKET, TEST_BUCKETS
+from dcpy.test.conftest import (
+    TEST_BUCKET,
+    TEST_BUCKETS,
+)
 from pathlib import Path
 from io import BytesIO
 
 TEST_DIR_NAME_1 = "test-dir-1"
 TEST_DIR_NAME_2 = "test-dir-2"
 TEST_FILE_NAME = "test-file"
+
+TEST_OBJECTS = [
+    f"{TEST_DIR_NAME_1}/{TEST_FILE_NAME}",
+    f"{TEST_DIR_NAME_1}/{TEST_DIR_NAME_2}/{TEST_FILE_NAME}",
+    f"{TEST_DIR_NAME_2}/{TEST_FILE_NAME}",
+]
+
+
+@pytest.fixture()
+def put_test_objects(create_buckets):
+    for obj in TEST_OBJECTS:
+        s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
 
 
 # assert that the default mock credentials work
@@ -32,62 +47,53 @@ def test_client_create_errors(aws_credentials):
 
 def test_list_buckets(create_buckets):
     """Tests listing s3 buckets."""
-    buckets = [bucket["Name"] for bucket in s3.client().list_buckets()["Buckets"]]
+    buckets = s3.list_buckets()
     assert buckets == TEST_BUCKETS
 
 
 @pytest.mark.parametrize(
     "prefix, expected_num_objects",
     [
-        ("", 2),
-        (TEST_DIR_NAME_1, 1),
+        ("", 3),
+        (TEST_DIR_NAME_1, 2),
         (TEST_DIR_NAME_2, 1),
     ],
 )
-def test_list_objects(create_buckets, prefix, expected_num_objects):
+def test_list_objects(create_buckets, put_test_objects, prefix, expected_num_objects):
     """Tests total number of objects with given prefix."""
-    objects_to_add = [TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME, TEST_DIR_NAME_2]
-    for obj in objects_to_add:
-        s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
     actual_objects = s3.list_objects(bucket=TEST_BUCKET, prefix=prefix)
     assert len(actual_objects) == expected_num_objects
 
 
 @pytest.mark.parametrize(
-    "prefix, expected_num_objects",
-    [("", 2), (TEST_DIR_NAME_1, 1)],
+    "prefix, expected_files",
+    [
+        ("", set(TEST_OBJECTS)),
+        (TEST_DIR_NAME_1, {TEST_FILE_NAME, f"{TEST_DIR_NAME_2}/{TEST_FILE_NAME}"}),
+    ],
 )
-def test_get_filenames(create_buckets, prefix, expected_num_objects):
+def test_get_filenames(create_buckets, put_test_objects, prefix, expected_files):
     """Tests total number of objects with given prefix."""
-    objects_to_add = [TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME, TEST_DIR_NAME_2]
-    for obj in objects_to_add:
-        s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
     actual_objects = s3.get_filenames(bucket=TEST_BUCKET, prefix=prefix)
-    assert len(actual_objects) == expected_num_objects
+    assert actual_objects == expected_files
 
 
 @pytest.mark.parametrize(
-    "prefix, index, expected_num_folders",
+    "prefix, index, expected_folders",
     [
-        ("", 1, 2),
-        ("", 2, 1),
-        (TEST_DIR_NAME_1, 1, 1),
-        (TEST_DIR_NAME_1, 2, 0),
-        (TEST_DIR_NAME_2, 1, 0),
+        ("", 1, [TEST_DIR_NAME_1, TEST_DIR_NAME_2]),
+        ("", 2, [f"{TEST_DIR_NAME_1}/{TEST_DIR_NAME_2}"]),
+        (TEST_DIR_NAME_1, 1, [TEST_DIR_NAME_2]),
+        (TEST_DIR_NAME_1, 2, []),
+        (TEST_DIR_NAME_2, 1, []),
     ],
 )
-def test_get_subfolders(create_buckets, prefix, index, expected_num_folders):
+def test_get_subfolders(
+    create_buckets, put_test_objects, prefix, index, expected_folders
+):
     """Tests total number of folders with given prefix and depth (index)."""
-    objects_to_add = [
-        TEST_DIR_NAME_1 + "/" + TEST_FILE_NAME,
-        TEST_DIR_NAME_1 + "/" + TEST_DIR_NAME_2 + "/",
-        TEST_DIR_NAME_2 + "/",
-    ]
-    for obj in objects_to_add:
-        s3.client().put_object(Bucket=TEST_BUCKET, Key=obj)
     actual_objects = s3.get_subfolders(bucket=TEST_BUCKET, prefix=prefix, index=index)
-
-    assert len(actual_objects) == expected_num_folders
+    assert actual_objects == expected_folders
 
 
 def test_upload_file(create_buckets):

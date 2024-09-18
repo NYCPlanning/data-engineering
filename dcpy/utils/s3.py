@@ -101,6 +101,17 @@ def client() -> S3Client:
     )
 
 
+def list_buckets() -> list[str]:
+    """Get list of buckets for the defined connection variables"""
+    return [b["Name"] for b in client().list_buckets()["Buckets"]]
+
+
+def get_bucket_region(bucket: str) -> str:
+    """Gets region (with subregion suffix) of specific bucket"""
+    bucket_id = client().head_bucket(Bucket=bucket)["ResponseMetadata"]["RequestId"]
+    return bucket_id.split("-")[-1]
+
+
 def list_objects(bucket: str, prefix: str) -> list[dict]:
     """Lists all objects with given prefix within bucket"""
     objects: list[dict] = []
@@ -367,12 +378,19 @@ def delete(bucket: str, path: str) -> None:
     client_.delete_object(Bucket=bucket, Key=path)
 
 
-def get_filenames(bucket: str, prefix: str) -> set[str]:
+def get_suffixes(bucket: str, prefix: str) -> set[str]:
+    """Gets all suffixes of objects in bucket given a prefix"""
     return {
-        obj["Key"].split("/")[-1]
+        obj["Key"].removeprefix(prefix)
         for obj in list_objects(bucket, prefix)
-        if obj["Key"].split("/")[-1] != ""
+        if obj["Key"].removeprefix(prefix) != ""
     }
+
+
+def get_filenames(bucket: str, prefix: str) -> set[str]:
+    """Given folder path prefix, gets filenames of all objects within folder"""
+    prefix = _folderize(prefix)
+    return get_suffixes(bucket, prefix)
 
 
 def get_subfolders(bucket: str, prefix: str, index=1) -> list[str]:

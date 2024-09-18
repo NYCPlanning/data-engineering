@@ -119,12 +119,10 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
 
 
 def get_file_types(dataset: Dataset) -> set[DatasetType]:
-    files = s3.get_filenames(
+    suffixes = s3.get_suffixes(
         bucket=BUCKET, prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.name}"
     )
-    valid_types = {
-        _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
-    }
+    valid_types = {_dataset_type_from_extension(s.strip(".")) for s in suffixes}
     return {t for t in valid_types if t is not None}
 
 
