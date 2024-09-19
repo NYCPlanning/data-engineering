@@ -27,7 +27,7 @@ function export_geosupport_versions {
 
 function common {
     DOCKER_IMAGE_NAME=nycplanning/$image
-    cp $DOCKER_DIR/../python/constraints.txt $IMAGE_DIR
+    cp $DOCKER_DIR/../constraints.txt $IMAGE_DIR
     cp $DOCKER_DIR/config.sh $IMAGE_DIR
 
     docker_login
@@ -54,7 +54,7 @@ case $image in
     dev)
         export_geosupport_versions
         common
-        cp $DOCKER_DIR/../python/requirements.txt $IMAGE_DIR
+        cp $DOCKER_DIR/../requirements.txt $IMAGE_DIR
         $GEO_COMMAND;;
     build-base) 
         common
