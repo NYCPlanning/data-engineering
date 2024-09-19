@@ -18,7 +18,6 @@ from dcpy.models.connectors.edm.publishing import (
     PublishKey,
 )
 from dcpy.utils import s3
-from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
 
