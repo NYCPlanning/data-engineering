@@ -9,7 +9,17 @@ python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade pip-tools wheel
 
 # Set GDAL verion
-sed -i "" -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" requirements.in
+# sed behaves differently in linux and macos
+case "$OSTYPE" in
+  "darwin"*|"bsd"*)
+    echo "Using BSD sed style"
+    sed -i "" -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" requirements.in
+    ;; 
+  *)
+    echo "Using GNU sed style"
+    sed -i -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" requirements.in
+    ;;
+esac
 
 # Compile requirements
 echo -e "🛠 compiling from requirements.in"
