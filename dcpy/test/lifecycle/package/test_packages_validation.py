@@ -21,7 +21,6 @@ def colp_metadata(COLP_PACKAGE_PATH):
 
 
 def test_colp_single_feature_package(colp_metadata, COLP_PACKAGE_PATH):
-
     validation = validate.validate_package_from_path(
         COLP_PACKAGE_PATH, metadata_args={"version": COLP_VERSION}
     )

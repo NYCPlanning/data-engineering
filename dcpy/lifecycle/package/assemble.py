@@ -5,6 +5,8 @@ import tempfile
 import typer
 
 from dcpy.lifecycle import WORKING_DIRECTORIES
+from dcpy.lifecycle.distribute import bytes
+from dcpy.lifecycle.package import oti_xlsx
 import dcpy.models.product.dataset.metadata_v2 as md
 from dcpy.utils.logging import logger
 
@@ -96,4 +98,49 @@ def unzip_into_package(
             )
 
 
+def assemble_dataset_from_bytes(
+    dataset_metadata: md.Metadata,
+    *,
+    destination_id: str,
+    out_path: Path | None,
+):
+    out_path = out_path or ASSEMBLY_DIR / dataset_metadata.id
+    logger.info(f"Assembling dataset from BYTES. Writing to: {out_path}")
+    bytes.pull_destination_files(
+        out_path, dataset_metadata, destination_id, unpackage_zips=True
+    )
+
+    oti_data_dictionaries = [
+        f.file
+        for f in dataset_metadata.files
+        if f.file.type == oti_xlsx.OTI_METADATA_FILE_TYPE
+    ]
+    for f in oti_data_dictionaries:
+        # this should eventually be generalized into something that will
+        # generate all required missing files, or just running through a list of
+        # packaging steps. But for now, it's just the OTI files.
+        logger.info(f"Generating OTI XLSX for file {f.filename}")
+        oti_xlsx.write_oti_xlsx(
+            metadata_path=out_path / "metadata.yml",
+            output_path=out_path / "attachments" / f.filename,
+        )
+
+
 app = typer.Typer()
+
+
+@app.command("from_bytes")
+def assemble_dataset_from_bytes_cli(
+    metadata_path: Path,
+    destination_id: str,
+    out_path: Path = typer.Option(
+        None,
+        "--output-path",
+        "-o",
+        help="Output Path. Defaults to ./data_dictionary.xlsx",
+    ),
+):
+    dataset_metadata = md.Metadata.from_path(metadata_path)
+    assemble_dataset_from_bytes(
+        dataset_metadata, destination_id=destination_id, out_path=out_path
+    )
