@@ -27,6 +27,9 @@ jobs:
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
       - name: Run Container Setup
         working-directory: ./
