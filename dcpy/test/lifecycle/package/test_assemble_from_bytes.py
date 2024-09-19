@@ -1,9 +1,11 @@
 from pathlib import Path
 import pytest
+import shutil
 from unittest.mock import patch, call
 
-from dcpy.lifecycle.distribute import bytes
+from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as ds
+from dcpy.lifecycle.package.oti_xlsx import OTI_METADATA_FILE_TYPE
 
 SHAPEFILE = ds.File(
     id="shp",
@@ -92,20 +94,22 @@ def test_plan():
             "url": DATA_DICT_URL,
         },
         ZIP_FILE.id: {"path": f"zip_files/{ZIP_FILE.filename}", "url": ZIP_URL},
-    } == bytes._get_file_url_mappings_by_id(
+    } == assemble._get_file_url_mappings_by_id(
         make_metadata(), BYTES_DEST_WITH_INDIVIDUAL_FILES
     )
 
 
 def test_plan_errors_for_socrata():
-    with pytest.raises(Exception, match=bytes.NON_BYTES_DEST_ERROR):
-        _plan = bytes.pull_destination_files(Path(""), make_metadata(), SOCRATA_DEST_ID)
+    with pytest.raises(Exception, match=assemble.NON_BYTES_DEST_ERROR):
+        _plan = assemble.pull_destination_files(
+            Path(""), make_metadata(), SOCRATA_DEST_ID
+        )
 
 
 @patch("dcpy.lifecycle.package.assemble.unzip_into_package")
 @patch("urllib.request.urlretrieve")
 def test_pull_destination_files_mocked(mock_urlretrieve, mock_unpackage, tmp_path):
-    bytes.pull_destination_files(
+    assemble.pull_destination_files(
         tmp_path, make_metadata(), BYTES_DEST_WITH_INDIVIDUAL_FILES, unpackage_zips=True
     )
 
@@ -130,3 +134,41 @@ def test_pull_destination_files_mocked(mock_urlretrieve, mock_unpackage, tmp_pat
     assert (
         1 == mock_unpackage.call_count
     ), "`unpackage` should have been invoked on the zipfile."
+
+
+@pytest.fixture
+def colp_package_path(resources_path: Path):
+    return resources_path / "product_metadata" / "colp_single_feature_package"
+
+
+@patch("dcpy.lifecycle.package.assemble.pull_destination_files")
+def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package_path):
+    OTI_DD_FILENAME = "oti_dd.xlsx"
+    MOCK_PULLED_PACKAGE_PATH = tmp_path
+
+    pull_destination_files_mock.side_effect = lambda *args, **kwargs: shutil.copytree(
+        colp_package_path, MOCK_PULLED_PACKAGE_PATH, dirs_exist_ok=True
+    )
+
+    # Add an oti_xlsx file type, which we'll then have to generate
+    metadata = ds.Metadata.from_path(
+        colp_package_path / "metadata.yml", template_vars={"version": "24b"}
+    )
+    metadata.files.append(
+        ds.FileAndOverrides(
+            file=ds.File(
+                id="oti_xlsx", filename=OTI_DD_FILENAME, type=OTI_METADATA_FILE_TYPE
+            )
+        )
+    )
+
+    assemble.assemble_dataset_from_bytes(
+        metadata, destination_id="socrata", out_path=tmp_path
+    )
+
+    attachments_path = MOCK_PULLED_PACKAGE_PATH / "attachments"
+    assert attachments_path.exists(), "Sanity check that the mock side_effect works"
+
+    assert (
+        attachments_path / OTI_DD_FILENAME
+    ).exists(), "The OTI XLSX should have been generated"
