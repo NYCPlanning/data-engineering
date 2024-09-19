@@ -1,6 +1,10 @@
 #!/bin/bash
 
+# deletes a specific tag of a docker image in dockerhub
 # big thanks to https://devopscell.com/docker/dockerhub/2018/04/09/delete-docker-image-tag-dockerhub.html
+# 2 arguments
+#   1 - image
+#   2 - tag
 ORGANIZATION="nycplanning"
 IMAGE="$1"
 TAG="$2"

@@ -4,8 +4,7 @@ on:
     branches:
       - main
     paths:
-      - python/**
-      - docker/**
+      - admin/run_environment/**
       - pyproject.toml
   workflow_dispatch:
     inputs:
@@ -41,7 +40,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: docker
     steps:
       - uses: actions/checkout@v4
         if: inputs.base || github.event_name == 'push'
@@ -57,7 +55,7 @@ jobs:
 
       - name: Build and publish base
         if: inputs.base || github.event_name == 'push'
-        run: ./publish.sh base
+        run: ./admin/ops/docker_build_and_publish.sh base
 
   build-base:
     runs-on: ubuntu-22.04
@@ -66,7 +64,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: docker
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
@@ -79,7 +76,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish build-base
-        run: ./publish.sh build-base
+        run: ./admin/ops/docker_build_and_publish.sh build-base
 
   build-geosupport:
     runs-on: ubuntu-22.04
@@ -88,7 +85,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: docker
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
@@ -101,7 +97,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish build-geosupport
-        run: ./publish.sh build-geosupport
+        run: ./admin/ops/docker_build_and_publish.sh build-geosupport
 
   dev:
     runs-on: ubuntu-22.04
@@ -110,7 +106,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: docker
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
@@ -123,7 +118,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish dev
-        run: ./publish.sh dev
+        run: ./admin/ops/docker_build_and_publish.sh dev
 
   docker-geosupport:
     runs-on: ubuntu-22.04
@@ -131,7 +126,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: docker
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
@@ -144,4 +138,4 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish docker-geosupport
-        run: ./publish.sh docker-geosupport
+        run: ./admin/ops/docker_build_and_publish.sh docker-geosupport
