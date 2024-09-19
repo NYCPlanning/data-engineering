@@ -37,4 +37,6 @@ ssh qa "\
         -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID\
         -e BUILD_ENGINE_SERVER=$BUILD_ENGINE_SERVER\
         -e GHP_TOKEN=$GHP_TOKEN\
+        -e PUBLISHING_BUCKET=edm-publishing\
+        -e RECIPES_BUCKET=edm-recipes\
         $DOCKER_IMAGE_NAME"
