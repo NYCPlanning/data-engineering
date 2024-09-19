@@ -5,9 +5,7 @@ import typer
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 from dcpy.connectors import github
-from dcpy.lifecycle.builds import metadata
-
-from . import BUILD_REPO, BUILD_DBS
+from dcpy.lifecycle.builds import metadata, BUILD_REPO, BUILD_DBS
 
 PROTECTED_BUILD_NAMES = ["nightly_qa"]
 
@@ -64,9 +62,8 @@ def delete_stale_image_tags(active_build_names: list[str]) -> None:
         for tag in dev_tags:
             if tag.removeprefix("dev-") not in active_build_names:
                 logger.warning(f"Deleting tag {image}:{tag}")
-                # Should we include this file in dcpy? A little odd to rely on this file existing, but it's going to be a bit hacky regardless
                 # The intonation seems a bit finicky so don't really want to implement in python rather than bash
-                subprocess.call(["admin/environement/docker/delete.sh", image, tag])
+                subprocess.call(["admin/ops/docker_delete.sh", image, tag])
             else:
                 logger.info(f"Keeping tag {image}.{tag}")
 

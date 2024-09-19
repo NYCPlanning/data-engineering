@@ -55,7 +55,7 @@ jobs:
 
       - name: Build and publish base
         if: inputs.base || github.event_name == 'push'
-        run: ./admin/run_environment/docker/publish.sh base
+        run: ./admin/ops/docker_build_and_publish.sh base
 
   build-base:
     runs-on: ubuntu-22.04
@@ -76,7 +76,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish build-base
-        run: ./admin/run_environment/docker/publish.sh build-base
+        run: ./admin/ops/docker_build_and_publish.sh build-base
 
   build-geosupport:
     runs-on: ubuntu-22.04
@@ -97,7 +97,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish build-geosupport
-        run: ./admin/run_environment/docker/publish.sh build-geosupport
+        run: ./admin/ops/docker_build_and_publish.sh build-geosupport
 
   dev:
     runs-on: ubuntu-22.04
@@ -118,7 +118,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish dev
-        run: ./admin/run_environment/docker/publish.sh dev
+        run: ./admin/ops/docker_build_and_publish.sh dev
 
   docker-geosupport:
     runs-on: ubuntu-22.04
@@ -138,4 +138,4 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
 
       - name: Build and publish docker-geosupport
-        run: ./admin/run_environment/docker/publish.sh docker-geosupport
+        run: ./admin/ops/docker_build_and_publish.sh docker-geosupport

@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Compile requirements
-        run: ./bash/compile_python_packages.sh
+        run: ./admin/ops/python_compile_requirements.sh
 
       - name: Create PR
         uses: peter-evans/create-pull-request@v5

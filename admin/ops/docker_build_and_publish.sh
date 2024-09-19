@@ -1,11 +1,21 @@
 #!/bin/bash
 
+# Publish a docker image
+# 3 arguments
+#   1 - image. This must match both folder name in admin/run_environments/docker as well as name of pubished image
+#   2 - tag. The tag of the image being published
+#   3 - base_tag. Optional. Provided as build-arg to docker build (within which defaults to latest)
+#                 This is used when building non-base images off of a base image tag other than latest
+#
+# This must be run from the root of the project to run correctly.
+# Assumes existence of admin/run_environment folder with docker folder and python requirements/constraints inside
+
 image=$1
 tag=$2
 base_tag=$3
 
-DOCKER_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-IMAGE_DIR="${DOCKER_DIR}/$1"
+DOCKER_DIR=admin/run_environment/docker
+IMAGE_DIR=$DOCKER_DIR/$1
 
 source bash/utils.sh
 set_error_traps

@@ -118,7 +118,7 @@ jobs:
         if: >
           contains(needs.check_changes.outputs.pr_changes, 'docker_base')
           && contains(needs.check_changes.outputs.push_changes, 'docker_base')
-        run: ./admin/run_environment/docker/publish.sh base "${{ env.base_tag }}"
+        run: ./admin/ops/docker_build_and_publish.sh base "${{ env.base_tag }}"
 
   build_docker_images:
     name: >
@@ -158,7 +158,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
         if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
-        run: ./admin/run_environment/docker/publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}" "${{ needs.base_image.outputs.base_tag }}"
+        run: ./admin/ops/docker_build_and_publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}" "${{ needs.base_image.outputs.base_tag }}"
 
   test:
     uses: ./.github/workflows/test_helper.yml

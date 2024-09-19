@@ -27,10 +27,16 @@ jobs:
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
+      - name: Run Container Setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
       - name: Delete build artifacts
-        run: python3 -m dcpy.lifecycle.builds.clean_artifacts schemas
+        run: python3 admin/ops/clean_build_artifacts.py schemas
+
       - name: Delete docker images
-        run: python3 -m dcpy.lifecycle.builds.clean_artifacts dockerhub_tags
+        run: python3 admin/ops/clean_build_artifacts.py dockerhub_tags
           
   create_issue_on_failure:
     needs: clean
