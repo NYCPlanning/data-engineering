@@ -11,6 +11,6 @@ else
     export workspace=/__w/data-engineering/data-engineering
 fi 
 
-python3 -m pip install $option . -c ./python/constraints.txt --no-deps
+python3 -m pip install $option ./dcpy -c ./python/constraints.txt --no-deps
 
 git config --global --add safe.directory $workspace

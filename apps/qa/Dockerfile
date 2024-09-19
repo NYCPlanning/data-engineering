@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 
 ## assumes dcpy, pyproject.toml, constraints copied in
-RUN python3 -m pip install . -c constraints.txt
+RUN python3 -m pip install ./dcpy -c constraints.txt
 RUN python3 -m pip install -r requirements.txt -c constraints.txt
 
 ENV DEPLOY=true

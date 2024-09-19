@@ -13,7 +13,7 @@ set_error_traps
 pip3 install requests beautifulsoup4 pip-tools
 
 function generate_dcpy_requirements {
-    pip-compile ../pyproject.toml -o $image/dcpy_requirements.txt -c $image/constraints.txt
+    pip-compile ../dcpy/pyproject.toml -o $image/dcpy_requirements.txt -c $image/constraints.txt
 }
 
 function export_geosupport_versions {
