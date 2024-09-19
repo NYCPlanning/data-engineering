@@ -22,7 +22,7 @@ from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
 
 
-ROOT_PATH = Path(__file__).parent.parent
+ROOT_PATH = Path(__file__).parent.parent.parent
 BUCKET_PREFIX = "de-dev-"
 PRODUCTS = [
     "db-cbbr",
@@ -47,7 +47,7 @@ def resolve_latest_recipe(
     """
     os.environ["RECIPES_BUCKET"] = target_bucket
     importlib.reload(configuration)
-    assert PROD_RECIPES_BUCKET != PROD_RECIPES_BUCKET
+    assert configuration.RECIPES_BUCKET != PROD_RECIPES_BUCKET
     input = recipes.Dataset(name=ds, version="latest")
     resolved = recipes.Dataset(name=ds, version=recipes.get_latest_version(ds))
     os.environ["RECIPES_BUCKET"] = PROD_RECIPES_BUCKET
@@ -97,7 +97,7 @@ def clone_recipe(
         bucket=PROD_RECIPES_BUCKET,
         target_bucket=target_bucket,
         source_path=f"{key.s3_path("datasets")}/",
-        target_path=key.path + "/",
+        target_path=f"{key.s3_path("datasets")}/",
         acl="private",
     )
     if version == "latest":
