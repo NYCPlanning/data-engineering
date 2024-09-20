@@ -3,6 +3,7 @@ import importlib
 import os
 from pathlib import Path
 import typer
+from typing import Literal
 
 PROD_RECIPES_BUCKET = "edm-recipes"
 PROD_PUBLISHING_BUCKET = "edm-publishing"
@@ -24,6 +25,7 @@ from dcpy.lifecycle.builds import plan
 
 ROOT_PATH = Path(__file__).parent.parent.parent
 BUCKET_PREFIX = "de-dev-"
+ACL: Literal["private"] = "private"
 PRODUCTS = [
     "db-cbbr",
     "db-colp",
@@ -57,7 +59,7 @@ def resolve_latest_recipe(
         bucket=target_bucket,
         source_path=input.s3_folder_key("datasets") + "/",
         target_path=resolved.s3_folder_key("datasets") + "/",
-        acl="private",
+        acl=ACL,
     )
 
 
@@ -79,7 +81,7 @@ def resolve_latest_publish(target_bucket: str, data_product: str):
         bucket=target_bucket,
         source_path=input.path + "/",
         target_path=resolved.path + "/",
-        acl="private",
+        acl=ACL,
     )
 
 
@@ -98,7 +100,7 @@ def clone_recipe(
         target_bucket=target_bucket,
         source_path=f"{key.s3_path("datasets")}/",
         target_path=f"{key.s3_path("datasets")}/",
-        acl="private",
+        acl=ACL,
     )
     if version == "latest":
         resolve_latest_recipe(target_bucket, dataset_id)
@@ -155,7 +157,7 @@ def clone_data_products(
             target_bucket=target_bucket,
             source_path=key.path + "/",
             target_path=key.path + "/",
-            acl="private",
+            acl=ACL,
         )
 
         resolve_latest_publish(target_bucket, product)
@@ -176,7 +178,7 @@ def clone_data_product_by_key(
         target_bucket=target_bucket,
         source_path=key.path + "/",
         target_path=key.path + "/",
-        acl="private",
+        acl=ACL,
     )
     if include_recipe_datasets:
         for _index, row in publishing.get_source_data_versions(key).iterrows():
@@ -193,7 +195,7 @@ def setup(id: str, clean: bool = False) -> str:
     if bucket not in [
         bucket["Name"] for bucket in s3.client().list_buckets()["Buckets"]
     ]:
-        s3.client().create_bucket(Bucket=bucket, ACL="private")
+        s3.client().create_bucket(Bucket=bucket, ACL=ACL)
     else:
         if not clean:
             raise Exception(
