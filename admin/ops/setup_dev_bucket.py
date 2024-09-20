@@ -18,7 +18,7 @@ from dcpy.models.connectors.edm.publishing import (
     DraftKey,
     PublishKey,
 )
-from dcpy.utils import s3
+from dcpy.utils.s3 import get_subfolders
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
 
@@ -39,6 +39,23 @@ PRODUCTS = [
 ]
 
 
+def copy_folder_to_dev_bucket(source_bucket, target_bucket, source_path, target_path):
+    """
+    Thin wrapper over s3.copy_folder
+    Ensures that bucket being copied to is a dev bucket
+    """
+    from dcpy.utils import s3
+
+    assert target_bucket.startswith(DEV_BUCKET_PREFIX)
+    s3.copy_folder(
+        bucket=source_bucket,
+        target_bucket=target_bucket,
+        source_path=source_path,
+        target_path=target_path,
+        acl=ACL,
+    )
+
+
 def resolve_latest_recipe(
     target_bucket: str,
     ds: str,
@@ -55,11 +72,11 @@ def resolve_latest_recipe(
     os.environ["RECIPES_BUCKET"] = PROD_RECIPES_BUCKET
     importlib.reload(configuration)
     assert target_bucket.startswith(DEV_BUCKET_PREFIX)
-    s3.copy_folder(
-        bucket=target_bucket,
+    copy_folder_to_dev_bucket(
+        source_bucket=target_bucket,
+        target_bucket=target_bucket,
         source_path=input.s3_folder_key("datasets") + "/",
         target_path=resolved.s3_folder_key("datasets") + "/",
-        acl=ACL,
     )
 
 
@@ -77,11 +94,11 @@ def resolve_latest_publish(target_bucket: str, data_product: str):
     resolved = PublishKey(product=data_product, version=latest)
     os.environ["PUBLISHING_BUCKET"] = PROD_PUBLISHING_BUCKET
     importlib.reload(configuration)
-    s3.copy_folder(
-        bucket=target_bucket,
+    copy_folder_to_dev_bucket(
+        source_bucket=target_bucket,
+        target_bucket=target_bucket,
         source_path=input.path + "/",
         target_path=resolved.path + "/",
-        acl=ACL,
     )
 
 
@@ -95,12 +112,11 @@ def clone_recipe(
     If provided version is "latest", also resolve it to its versioned folder
     """
     key = DatasetKey(name=dataset_id, version=version)
-    s3.copy_folder(
-        bucket=PROD_RECIPES_BUCKET,
+    copy_folder_to_dev_bucket(
+        source_bucket=PROD_RECIPES_BUCKET,
         target_bucket=target_bucket,
         source_path=f"{key.s3_path("datasets")}/",
         target_path=f"{key.s3_path("datasets")}/",
-        acl=ACL,
     )
     if version == "latest":
         resolve_latest_recipe(target_bucket, dataset_id)
@@ -119,7 +135,7 @@ def clone_recipes_latest(
     """
     if include and exclude:
         raise ValueError("Only one of `include` and `exclude` may be provided")
-    datasets = s3.get_subfolders(bucket=PROD_RECIPES_BUCKET, prefix="datasets/")
+    datasets = get_subfolders(bucket=PROD_RECIPES_BUCKET, prefix="datasets/")
     if include:
         datasets = include
     if exclude == "exclude":
@@ -152,12 +168,11 @@ def clone_data_products(
 
     for product in data_products:
         key = PublishKey(product=product, version="latest")
-        s3.copy_folder(
-            bucket=PROD_PUBLISHING_BUCKET,
+        copy_folder_to_dev_bucket(
+            source_bucket=PROD_PUBLISHING_BUCKET,
             target_bucket=target_bucket,
             source_path=key.path + "/",
             target_path=key.path + "/",
-            acl=ACL,
         )
 
         resolve_latest_publish(target_bucket, product)
@@ -173,12 +188,11 @@ def clone_data_product_by_key(
 
     This is a good target if working on an enhancement that involves rebuilding a specific product instance
     """
-    s3.copy_folder(
-        bucket=PROD_PUBLISHING_BUCKET,
+    copy_folder_to_dev_bucket(
+        source_bucket=PROD_PUBLISHING_BUCKET,
         target_bucket=target_bucket,
         source_path=key.path + "/",
         target_path=key.path + "/",
-        acl=ACL,
     )
     if include_recipe_datasets:
         for _index, row in publishing.get_source_data_versions(key).iterrows():
@@ -191,6 +205,8 @@ def setup(id: str, clean: bool = False) -> str:
     Creates bucket if it doesn't exist.
     If clean flag provided, deletes all objects within bucket
     """
+    from dcpy.utils import s3
+
     bucket = f"{DEV_BUCKET_PREFIX}{id}"
     if bucket not in [
         bucket["Name"] for bucket in s3.client().list_buckets()["Buckets"]
