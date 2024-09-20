@@ -5,6 +5,7 @@ mapclassify
 matplotlib
 numerize
 plotly
+setuptools
 streamlit
 streamlit-aggrid
 streamlit-folium
