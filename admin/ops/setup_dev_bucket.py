@@ -24,7 +24,7 @@ from dcpy.lifecycle.builds import plan
 
 
 ROOT_PATH = Path(__file__).parent.parent.parent
-BUCKET_PREFIX = "de-dev-"
+DEV_BUCKET_PREFIX = "de-dev-"
 ACL: Literal["private"] = "private"
 PRODUCTS = [
     "db-cbbr",
@@ -54,7 +54,7 @@ def resolve_latest_recipe(
     resolved = recipes.Dataset(name=ds, version=recipes.get_latest_version(ds))
     os.environ["RECIPES_BUCKET"] = PROD_RECIPES_BUCKET
     importlib.reload(configuration)
-    assert target_bucket.startswith(BUCKET_PREFIX)
+    assert target_bucket.startswith(DEV_BUCKET_PREFIX)
     s3.copy_folder(
         bucket=target_bucket,
         source_path=input.s3_folder_key("datasets") + "/",
@@ -191,7 +191,7 @@ def setup(id: str, clean: bool = False) -> str:
     Creates bucket if it doesn't exist.
     If clean flag provided, deletes all objects within bucket
     """
-    bucket = f"{BUCKET_PREFIX}{id}"
+    bucket = f"{DEV_BUCKET_PREFIX}{id}"
     if bucket not in [
         bucket["Name"] for bucket in s3.client().list_buckets()["Buckets"]
     ]:
@@ -204,14 +204,14 @@ def setup(id: str, clean: bool = False) -> str:
         aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
         aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-        assert bucket.startswith(BUCKET_PREFIX)
+        assert bucket.startswith(DEV_BUCKET_PREFIX)
         bucket_obj = boto3.resource(
             "s3",
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
             endpoint_url=aws_s3_endpoint,
         ).Bucket(bucket)
-        assert bucket_obj.name.startswith(BUCKET_PREFIX)
+        assert bucket_obj.name.startswith(DEV_BUCKET_PREFIX)
         bucket_obj.objects.all().delete()
     return bucket
 
@@ -225,7 +225,7 @@ def _recipe_single(
     dataset_id: str = typer.Option(None, "--dataset", "-d"),
     version: str = typer.Option(None, "--version", "-v"),
 ):
-    clone_recipe(f"{BUCKET_PREFIX}{target_bucket_id}", dataset_id, version)
+    clone_recipe(f"{DEV_BUCKET_PREFIX}{target_bucket_id}", dataset_id, version)
 
 
 @app.command("recipes_all")
@@ -234,7 +234,7 @@ def _recipes(
     include: list[str] | None = typer.Option(None, "--include", "-i"),
     exclude: list[str] | None = typer.Option(None, "--exclude", "-e"),
 ):
-    clone_recipes_latest(f"{BUCKET_PREFIX}{target_bucket_id}", include, exclude)
+    clone_recipes_latest(f"{DEV_BUCKET_PREFIX}{target_bucket_id}", include, exclude)
 
 
 @app.command("product")
@@ -242,7 +242,7 @@ def _publishing_single(
     target_bucket_id: str = typer.Option(None, "--bucket-id"),
     product: str = typer.Option(None, "--product", "-p"),
 ):
-    clone_data_products(f"{BUCKET_PREFIX}{target_bucket_id}", [product])
+    clone_data_products(f"{DEV_BUCKET_PREFIX}{target_bucket_id}", [product])
 
 
 @app.command("publishing_build_key")
@@ -253,7 +253,7 @@ def _build_key(
     include_sources: bool = typer.Option(False, "--include-sources"),
 ):
     clone_data_product_by_key(
-        f"{BUCKET_PREFIX}{target_bucket_id}",
+        f"{DEV_BUCKET_PREFIX}{target_bucket_id}",
         BuildKey(product=product, build=build),
         include_recipe_datasets=include_sources,
     )
@@ -268,7 +268,7 @@ def _draft_key(
     include_sources: bool = typer.Option(False, "--include-sources"),
 ):
     clone_data_product_by_key(
-        f"{BUCKET_PREFIX}{target_bucket_id}",
+        f"{DEV_BUCKET_PREFIX}{target_bucket_id}",
         DraftKey(product=product, version=version, revision=revision),
         include_recipe_datasets=include_sources,
     )
@@ -282,7 +282,7 @@ def _publish_key(
     include_sources: bool = typer.Option(False, "--include-sources"),
 ):
     clone_data_product_by_key(
-        f"{BUCKET_PREFIX}{target_bucket_id}",
+        f"{DEV_BUCKET_PREFIX}{target_bucket_id}",
         PublishKey(product=product, version=version),
         include_recipe_datasets=include_sources,
     )
@@ -293,7 +293,7 @@ def _publish(
     target_bucket_id: str = typer.Option(None, "--bucket-id"),
 ):
     clone_data_products(
-        f"{BUCKET_PREFIX}{target_bucket_id}",
+        f"{DEV_BUCKET_PREFIX}{target_bucket_id}",
         PRODUCTS,
         include_recipe_datasets=False,
     )
@@ -316,7 +316,7 @@ def _standard(
     assert set(products).issubset(set(PRODUCTS))
 
     clone_data_products(
-        f"{BUCKET_PREFIX}{target_bucket_id}",
+        f"{DEV_BUCKET_PREFIX}{target_bucket_id}",
         products,
         include_recipe_datasets=True,
     )
