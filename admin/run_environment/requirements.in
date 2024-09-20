@@ -42,6 +42,7 @@ PyYAML>=6.0.1
 types-PyYAML>=6.0.1
 rich>=13.4.2
 ruff
+setuptools
 socrata-py==1.1.13
 sqlalchemy
 sqlalchemy-stubs
