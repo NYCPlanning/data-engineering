@@ -13,6 +13,9 @@ from . import RESOURCES_PATH
 DEFAULT_TEMPLATE_PATH = RESOURCES_PATH / "oti_data_dictionary_template.xlsx"
 
 
+OTI_METADATA_FILE_TYPE = "oti_data_dictionary"
+
+
 class OTI_XLSX_TABS:
     dataset_info = "Dataset Information"
     column_information = "Column Information"

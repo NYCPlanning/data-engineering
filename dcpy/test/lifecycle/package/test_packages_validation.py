@@ -1,41 +1,40 @@
 from pathlib import Path
-import yaml
+import pytest
 
 from dcpy.lifecycle.package import validate
 import dcpy.models.product.dataset.metadata_v2 as md
 
-COLP_PACKAGE_PATH = (
-    Path(__file__).parent.resolve() / "resources" / "colp_single_feature_package"
-)
-METADATA_PATH = COLP_PACKAGE_PATH / "metadata.yml"
+
+@pytest.fixture
+def COLP_PACKAGE_PATH(resources_path: Path):
+    return resources_path / "product_metadata" / "colp_single_feature_package"
+
 
 COLP_VERSION = "24b"
-RAW_MD = yaml.safe_load(open(METADATA_PATH, "r"))
 
 
-def _get_colp_md():
-    return md.Metadata.from_path(METADATA_PATH, template_vars={"version": COLP_VERSION})
+@pytest.fixture
+def colp_metadata(COLP_PACKAGE_PATH):
+    return md.Metadata.from_path(
+        COLP_PACKAGE_PATH / "metadata.yml", template_vars={"version": COLP_VERSION}
+    )
 
 
-def test_colp_single_feature_package():
-    md = _get_colp_md()
-
+def test_colp_single_feature_package(colp_metadata, COLP_PACKAGE_PATH):
     validation = validate.validate_package_from_path(
         COLP_PACKAGE_PATH, metadata_args={"version": COLP_VERSION}
     )
-    assert len([f for f in md.files if not f.file.is_metadata]) == len(
+    assert len([f for f in colp_metadata.files if not f.file.is_metadata]) == len(
         validation
     ), "There should be a validation for each dataset file"
     errors = sum([v.errors for v in validation], [])
     assert 0 == len(errors), "No Errors should have been found"
 
 
-def test_missing_attachments():
-    overridden_md = _get_colp_md()
-
+def test_missing_attachments(colp_metadata, COLP_PACKAGE_PATH):
     fake_attachment_name = "I_dont_exist.pdf"
     fake_attachment_id = "I_dont_exist"
-    overridden_md.files.append(
+    colp_metadata.files.append(
         md.FileAndOverrides(
             file=md.File(
                 id=fake_attachment_id, filename=fake_attachment_name, is_metadata=True
@@ -43,7 +42,7 @@ def test_missing_attachments():
         )
     )
 
-    validations = validate.validate_package_files(COLP_PACKAGE_PATH, overridden_md)
+    validations = validate.validate_package_files(COLP_PACKAGE_PATH, colp_metadata)
     errors = sum([v.errors for v in validations], [])
 
     assert (
