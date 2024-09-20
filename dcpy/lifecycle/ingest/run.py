@@ -9,11 +9,10 @@ from . import configure, extract, transform
 TMP_DIR = Path("tmp")
 
 
-def update_freshness_or_patch_existing_dataset(
+def update_freshness(
     config: Config,
     staging_dir: Path,
     latest: bool,
-    allow_patch: bool,
 ) -> Config:
     """
     This function is called after a dataset has been preprocessed, just before archival
@@ -35,25 +34,9 @@ def update_freshness_or_patch_existing_dataset(
             recipes.set_latest(config.dataset_key, config.acl)
         return config
     else:
-        if not allow_patch:
-            raise FileExistsError(
-                f"Archived dataset '{config.dataset_key}' already exists and has different data. "
-                "Rerun with `allow_patch`=True to patch this version, or specify version manually."
-            )
-        if "." in config.dataset.version:
-            raise ValueError(
-                f"Archived dataset '{config.dataset_key}' already exists and has different data. "
-                "Due to period in version name, cannot patch automatically. "
-                "Specify version manually."
-            )
-        patch = 0
-        patched = config.dataset
-        while recipes.exists(patched):
-            patch += 1
-            patched = recipes.Dataset(id=config.id, version=f"{config.version}.{patch}")
-        config.version = patched.version
-        recipes.archive_dataset(config, staging_dir / config.filename, latest=latest)
-        return config
+        raise FileExistsError(
+            f"Archived dataset '{config.dataset_key}' already exists and has different data."
+        )
 
 
 def run(
@@ -64,7 +47,6 @@ def run(
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
-    allow_patch: bool = False,
 ) -> Config:
     config = configure.get_config(dataset_id, version=version, mode=mode)
     transform.validate_processing_steps(config.id, config.processing_steps)
@@ -98,9 +80,7 @@ def run(
 
     if not skip_archival:
         if recipes.exists(config.dataset):
-            config = update_freshness_or_patch_existing_dataset(
-                config, staging_dir, latest, allow_patch
-            )
+            config = update_freshness(config, staging_dir, latest)
         else:
             recipes.archive_dataset(
                 config, staging_dir / config.filename, latest=latest
