@@ -1,0 +1,45 @@
+version: 2
+
+seeds:
+  - name: corr_hny_matches
+    columns:
+    - name: hny_id
+    - name: job_number
+    - name: hny_project_id
+    - name: action
+  - name: housing_input_hny
+    columns:
+    - name: job_number
+    - name: hny_id
+  - name: lookup_occ
+    columns:
+    - name: dob_occ
+      tests:
+      - unique
+    - name: occ
+  - name: lookup_ownership
+    columns:
+    - name: cityowned
+    - name: ownertype
+    - name: nonprofit
+    - name: ownership
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+          - cityowned
+          - ownertype
+          - nonprofit
+  - name: manual_corrections
+    columns: 
+    - name: job_number
+    - name: field
+    - name: old_value
+    - name: new_value
+    - name: reason
+    - name: edited_date
+    - name: editor
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+          - job_number
+          - field

@@ -1,0 +1,119 @@
+cityowned,ownertype,nonprofit,ownership
+N,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,N,Private For-Profit: Condo/Co-Op
+N,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,Y,Private Non-Profit: Condo/Co-Op
+N,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,,Private For-Profit: Condo/Co-Op
+Y,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,N,"Government, City: Condo/Co-Op"
+Y,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,,"Government, City: Condo/Co-Op"
+,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,N,Private For-Profit: Condo/Co-Op
+,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,Y,Private Non-Profit: Condo/Co-Op
+,CONDO UNIT OWNER OR CO-OP TENANT-SHAREHOLDER,,Private For-Profit: Condo/Co-Op
+,CONDO/CO-OP,N,Private For-Profit: Condo/Co-Op
+,CONDO/CO-OP,Y,Private Non-Profit: Condo/Co-Op
+N,CORPORATION,N,Private For-Profit: Corporation
+N,CORPORATION,Y,Private Non-Profit: Corporation
+N,CORPORATION,,Private For-Profit: Corporation
+Y,CORPORATION,N,"Government, City: Corporation"
+Y,CORPORATION,Y,"Government, City: Corporation"
+Y,CORPORATION,,"Government, City: Corporation"
+,CORPORATION,N,Private For-Profit: Corporation
+,CORPORATION,Y,Private Non-Profit: Corporation
+,CORPORATION,,Private For-Profit: Corporation
+Y,DCAS,N,"Government, City: DCAS"
+Y,DCAS,Y,"Government, City: DCAS"
+,DCAS,N,"Government, City: DCAS"
+,DCAS,Y,"Government, City: DCAS"
+Y,DOE,N,"Government, City: DOE"
+Y,DOE,Y,"Government, City: DOE"
+,DOE,N,"Government, City: DOE"
+Y,HHC,N,"Government, City: HHC"
+Y,HHC,Y,"Government, City: HHC"
+,HHC,N,"Government, City: HHC"
+,HHC,Y,"Government, City: HHC"
+Y,HPD,N,"Government, City: HPD"
+Y,HPD,Y,"Government, City: HPD"
+,HPD,N,"Government, City: HPD"
+,HPD,Y,"Government, City: HPD"
+N,INDIVIDUAL,N,Private For-Profit: Individual
+N,INDIVIDUAL,Y,Private Non-Profit: Individual
+N,INDIVIDUAL,,Private For-Profit: Individual
+Y,INDIVIDUAL,N,"Government, City: Individual"
+Y,INDIVIDUAL,Y,"Government, City: Individual"
+Y,INDIVIDUAL,,"Government, City: Individual"
+,INDIVIDUAL,N,Private For-Profit: Individual
+,INDIVIDUAL,Y,Private Non-Profit: Individual
+,INDIVIDUAL,,Private For-Profit: Individual
+N,NON-PROFIT ORGANIZATION OWNED AND OPERATED,N,Private Non-Profit: Unspecified
+N,NON-PROFIT ORGANIZATION OWNED AND OPERATED,Y,Private Non-Profit: Unspecified
+N,NON-PROFIT ORGANIZATION OWNED AND OPERATED,,Private Non-Profit: Unspecified
+Y,NON-PROFIT ORGANIZATION OWNED AND OPERATED,N,Private Non-Profit: Unspecified
+Y,NON-PROFIT ORGANIZATION OWNED AND OPERATED,Y,Private Non-Profit: Unspecified
+Y,NON-PROFIT ORGANIZATION OWNED AND OPERATED,,Private Non-Profit: Unspecified
+,NON-PROFIT ORGANIZATION OWNED AND OPERATED,N,Private Non-Profit: Unspecified
+,NON-PROFIT ORGANIZATION OWNED AND OPERATED,Y,Private Non-Profit: Unspecified
+,NON-PROFIT ORGANIZATION OWNED AND OPERATED,,Private Non-Profit: Unspecified
+Y,NY STATE,N,"Government, State: NY State"
+Y,NY STATE,Y,"Government, State: NY State"
+,NY STATE,N,"Government, State: NY State"
+,NY STATE,Y,"Government, State: NY State"
+N,NYC AGENCY,N,"Government, City: City Agency"
+N,NYC AGENCY,Y,"Government, City: City Agency"
+N,NYC AGENCY,,"Government, City: City Agency"
+Y,NYC AGENCY,N,"Government, City: City Agency"
+Y,NYC AGENCY,Y,"Government, City: City Agency"
+Y,NYC AGENCY,,"Government, City: City Agency"
+,NYC AGENCY,N,"Government, City: City Agency"
+,NYC AGENCY,Y,"Government, City: City Agency"
+,NYC AGENCY,,"Government, City: City Agency"
+Y,NYCHA,N,"Government, City: NYCHA"
+Y,NYCHA,Y,"Government, City: NYCHA"
+,NYCHA,N,"Government, City: NYCHA"
+,NYCHA,Y,"Government, City: NYCHA"
+N,NYCHA / HHC,N,"Government, City: NYCHA/HHC"
+N,NYCHA / HHC,Y,"Government, City: NYCHA/HHC"
+N,NYCHA / HHC,,"Government, City: NYCHA/HHC"
+Y,NYCHA / HHC,N,"Government, City: NYCHA/HHC"
+Y,NYCHA / HHC,Y,"Government, City: NYCHA/HHC"
+Y,NYCHA / HHC,,"Government, City: NYCHA/HHC"
+,NYCHA / HHC,N,"Government, City: NYCHA/HHC"
+,NYCHA / HHC,Y,"Government, City: NYCHA/HHC"
+,NYCHA / HHC,,"Government, City: NYCHA/HHC"
+Y,NYCHA/HHC,N,"Government, City: NYCHA/HHC"
+,NYCHA/HHC,N,"Government, City: NYCHA/HHC"
+Y,OTHER,N,"Government, City: Other"
+Y,OTHER,Y,"Government, City: Other"
+,OTHER,N,Private For-Profit: Other
+,OTHER,Y,Private Non-Profit: Other 
+Y,OTHER GOV'T AGENCY,N,"Government, City: City Agency"
+Y,OTHER GOV'T AGENCY,Y,"Government, City: City Agency"
+,OTHER GOV'T AGENCY,N,"Government, Unspecified: Government Agency"
+,OTHER GOV'T AGENCY,Y,"Government, Unspecified: Government Agency"
+N,OTHER GOVERNMENT OWNED AND OPERATED,N,"Government, Unspecified: Government Agency"
+N,OTHER GOVERNMENT OWNED AND OPERATED,Y,"Government, Unspecified: Government Agency"
+N,OTHER GOVERNMENT OWNED AND OPERATED,,"Government, Unspecified: Government Agency"
+Y,OTHER GOVERNMENT OWNED AND OPERATED,N,"Government, City: City Agency"
+Y,OTHER GOVERNMENT OWNED AND OPERATED,Y,"Government, City: City Agency"
+Y,OTHER GOVERNMENT OWNED AND OPERATED,,"Government, City: City Agency"
+,OTHER GOVERNMENT OWNED AND OPERATED,N,"Government, Unspecified: Government Agency"
+,OTHER GOVERNMENT OWNED AND OPERATED,Y,"Government, Unspecified: Government Agency"
+N,PARTNERSHIP,N,Private For-Profit: Partnership
+N,PARTNERSHIP,Y,Private Non-Profit: Partnership
+N,PARTNERSHIP,,Private For-Profit: Partnership
+Y,PARTNERSHIP,N,"Government, City: Partnership"
+Y,PARTNERSHIP,Y,"Government, City: Partnership"
+Y,PARTNERSHIP,,"Government, City: Partnership"
+,PARTNERSHIP,N,Private For-Profit: Partnership
+,PARTNERSHIP,Y,Private Non-Profit: Partnership
+,PARTNERSHIP,,Private For-Profit: Partnership
+N,SCHOOL CONSTRUCTION AUTHORITY,N,"Government, City: SCA"
+N,SCHOOL CONSTRUCTION AUTHORITY,,"Government, City: SCA"
+Y,SCHOOL CONSTRUCTION AUTHORITY,N,"Government, City: SCA"
+Y,SCHOOL CONSTRUCTION AUTHORITY,Y,"Government, City: SCA"
+Y,SCHOOL CONSTRUCTION AUTHORITY,,"Government, City: SCA"
+,SCHOOL CONSTRUCTION AUTHORITY,N,"Government, City: SCA"
+N,,N,Private For-Profit: Unspecified
+N,,Y,Private Non-Profit: Unspecified
+N,,,Private For-Profit: Unspecified
+Y,,N,"Government, City: Unspecified"
+Y,,Y,"Government, City: Unspecified"
+,,N,Private For-Profit: Unspecified
+,,Y,Private Non-Profit: Unspecified
