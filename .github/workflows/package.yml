@@ -37,7 +37,7 @@ jobs:
           sparse-checkout: |
             dcpy 
             bash
-            python
+            admin/run_environment
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
