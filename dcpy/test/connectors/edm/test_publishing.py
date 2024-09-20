@@ -479,6 +479,22 @@ def test_get_draft_revision_label(
     )
 
 
+def test_read_csv_error(create_buckets):
+    with pytest.raises(FileNotFoundError, match="publishing file"):
+        publishing.read_csv(publishing.PublishKey("test", "test"), "file.csv")
+
+
+def test_missing_build_metadata_error(create_buckets):
+    product_key = publishing.PublishKey("test", "test")
+    s3.client().put_object(
+        Bucket=PUBLISHING_BUCKET, Key=product_key.path + "/fake_file.txt"
+    )
+    with pytest.raises(
+        FileNotFoundError, match=f"Build metadata not found for product {product_key}."
+    ):
+        publishing.get_build_metadata(product_key)
+
+
 def test_promote_to_draft_build_folder(
     create_buckets, create_temp_filesystem, mock_data_constants
 ):

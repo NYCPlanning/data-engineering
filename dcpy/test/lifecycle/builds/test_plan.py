@@ -4,6 +4,7 @@ import pytest
 from unittest import TestCase
 from unittest.mock import patch
 
+from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
@@ -23,6 +24,13 @@ MOCKED_LATEST_VERSION = "v1"
 def setup():
     # TEMP_DATA_PATH.mkdir(exist_ok=True)
     os.environ[REQUIRED_VERSION_ENV_VAR] = "v123"
+
+
+def test_resolve_dataset_fails_without_version():
+    ds_id = "test"
+    ds = InputDataset(id=ds_id)
+    with pytest.raises(Exception, match=f"Dataset '{ds_id}' requires version"):
+        ds.dataset
 
 
 class TestVersionStrategies(TestCase):

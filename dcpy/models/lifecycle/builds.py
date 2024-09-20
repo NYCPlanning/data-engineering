@@ -42,7 +42,7 @@ class InputDataset(BaseModel, extra="forbid"):
     @property
     def dataset(self):
         if self.version is None:
-            raise Exception(f"Dataset {self.id} requires version")
+            raise ValueError(f"Dataset '{self.id}' requires version")
 
         return recipes.Dataset(
             id=self.id, version=self.version, file_type=self.file_type
