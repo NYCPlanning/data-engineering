@@ -12,6 +12,7 @@ TMP_DIR = Path("tmp")
 def update_freshness(
     config: Config,
     staging_dir: Path,
+    *,
     latest: bool,
 ) -> Config:
     """
@@ -42,6 +43,7 @@ def update_freshness(
 def run(
     dataset_id: str,
     version: str | None = None,
+    *,
     staging_dir: Path | None = None,
     mode: str | None = None,
     latest: bool = False,
@@ -80,7 +82,7 @@ def run(
 
     if not skip_archival:
         if recipes.exists(config.dataset):
-            config = update_freshness(config, staging_dir, latest)
+            config = update_freshness(config, staging_dir, latest=latest)
         else:
             recipes.archive_dataset(
                 config, staging_dir / config.filename, latest=latest

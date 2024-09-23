@@ -94,7 +94,7 @@ def set_latest(key: DatasetKey, acl):
     )
 
 
-def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False):
+def archive_dataset(config: ingest.Config, file_path: Path, *, latest: bool = False):
     """
     Given a config and a path to a processed parquet file, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and its version
