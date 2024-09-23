@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import StrEnum
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel, field_serializer
+from pydantic import AliasChoices, BaseModel, Field
 from typing import List
 
 from dcpy.utils import versions
@@ -27,7 +27,7 @@ class InputDatasetDestination(StrEnum):
 
 
 class InputDataset(BaseModel, extra="forbid"):
-    name: str
+    id: str = Field(validation_alias=AliasChoices("id", "name"))
     version: str | None = None
     file_type: recipes.DatasetType | None = None
     version_env_var: str | None = None
@@ -42,10 +42,10 @@ class InputDataset(BaseModel, extra="forbid"):
     @property
     def dataset(self):
         if self.version is None:
-            raise Exception(f"Dataset {self.name} requires version")
+            raise ValueError(f"Dataset '{self.id}' requires version")
 
         return recipes.Dataset(
-            name=self.name, version=self.version, file_type=self.file_type
+            id=self.id, version=self.version, file_type=self.file_type
         )
 
 
@@ -79,7 +79,7 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
 
 
 class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
-    name: str
+    id: str
     version: str
     file_type: recipes.DatasetType
     destination: str | pd.DataFrame | Path
@@ -88,10 +88,10 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     def from_input(
         ds: InputDataset, result: str | pd.DataFrame | Path
     ) -> ImportedDataset:
-        assert ds.version, f"Version of {ds.name} not resolved"
-        assert ds.file_type, f"File type of {ds.name} not resolved"
+        assert ds.version, f"Version of {ds.id} not resolved"
+        assert ds.file_type, f"File type of {ds.id} not resolved"
         return ImportedDataset(
-            name=ds.name, version=ds.version, file_type=ds.file_type, destination=result
+            id=ds.id, version=ds.version, file_type=ds.file_type, destination=result
         )
 
 
@@ -118,10 +118,6 @@ class EventLog(BaseModel, extra="forbid"):
     runner: str
     custom_fields: dict = {}
 
-    @field_serializer("timestamp")
-    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
-        return timestamp.isoformat()
-
 
 class BuildMetadata(BaseModel, extra="forbid"):
     timestamp: datetime
@@ -137,7 +133,3 @@ class BuildMetadata(BaseModel, extra="forbid"):
             if recipe.version is not None:
                 data["version"] = recipe.version
         super().__init__(**data)
-
-    @field_serializer("timestamp")
-    def _serialize_timestamp(self, timestamp: datetime, _info) -> str:
-        return timestamp.isoformat()

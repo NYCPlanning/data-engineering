@@ -69,8 +69,8 @@ class Preprocessor:
     This should/will be iterated on when implementing actual preprocessing steps for chosen templates
     """
 
-    def __init__(self, dataset_name: str):
-        self.dataset_name = dataset_name
+    def __init__(self, dataset_id: str):
+        self.dataset_id = dataset_id
 
     def reproject(self, df: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
         return transform.reproject_gdf(df, target_crs=target_crs)
@@ -130,9 +130,7 @@ class Preprocessor:
         return updated
 
     def append_prev(self, df: pd.DataFrame, version: str = "latest") -> pd.DataFrame:
-        prev_df = recipes.read_df(
-            recipes.Dataset(name=self.dataset_name, version=version)
-        )
+        prev_df = recipes.read_df(recipes.Dataset(id=self.dataset_id, version=version))
         appended = pd.concat((prev_df, df))
         return appended.reset_index(drop=True)
 
@@ -145,9 +143,7 @@ class Preprocessor:
         missing_key_behavior: Literal["null", "coalesce", "error"] = "error",
     ) -> pd.DataFrame:
         assert key, "Must provide non-empty list of columns to be used as keys"
-        prev_df = recipes.read_df(
-            recipes.Dataset(name=self.dataset_name, version=version)
-        )
+        prev_df = recipes.read_df(recipes.Dataset(id=self.dataset_id, version=version))
         df = data.upsert_df_columns(
             prev_df,
             df,
@@ -241,7 +237,7 @@ def validate_pd_series_func(
 
 
 def validate_processing_steps(
-    dataset_name: str, processing_steps: list[PreprocessingStep]
+    dataset_id: str, processing_steps: list[PreprocessingStep]
 ) -> list[Callable]:
     """
     Given config of ingest dataset, violates that defined preprocessing steps
@@ -252,7 +248,7 @@ def validate_processing_steps(
     """
     violations: dict[str, str | dict[str, str]] = {}
     compiled_steps: list[Callable] = []
-    preprocessor = Preprocessor(dataset_name)
+    preprocessor = Preprocessor(dataset_id)
     for step in processing_steps:
         if step.name not in preprocessor.__dir__():
             violations[step.name] = "Function not found"
@@ -281,7 +277,7 @@ def validate_processing_steps(
 
 
 def preprocess(
-    dataset_name: str,
+    dataset_id: str,
     processing_steps: list[PreprocessingStep],
     input_path: Path,
     output_path: Path,
@@ -292,12 +288,12 @@ def preprocess(
         shutil.copy(input_path, output_path)
     else:
         df = geoparquet.read_df(input_path)
-        compiled_steps = validate_processing_steps(dataset_name, processing_steps)
+        compiled_steps = validate_processing_steps(dataset_id, processing_steps)
 
         for step in compiled_steps:
             df = step(df)
 
         if output_csv:
-            df.to_csv(output_path.parent / f"{dataset_name}.csv")
+            df.to_csv(output_path.parent / f"{dataset_id}.csv")
 
         df.to_parquet(output_path)

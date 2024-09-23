@@ -1,4 +1,4 @@
-name: dob_cofos
+id: dob_cofos
 acl: public-read
 source:
   type: local_file

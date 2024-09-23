@@ -1,0 +1,17 @@
+inputs:
+  datasets:
+  - destination: postgres
+    file_type: pg_dump
+    name: pg_dump
+    version: df
+  - destination: df
+    file_type: csv
+    name: df
+    version: df
+  - destination: file
+    file_type: csv
+    name: file
+    version: file
+name: Tester
+product: db-test
+version: 23v1

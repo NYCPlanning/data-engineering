@@ -11,4 +11,4 @@ def test_validate_all_datasets():
         with open(file, "r") as f:
             s = yaml.safe_load(f)
         template = Template(**s)
-        transform.validate_processing_steps(template.name, template.processing_steps)
+        transform.validate_processing_steps(template.id, template.processing_steps)

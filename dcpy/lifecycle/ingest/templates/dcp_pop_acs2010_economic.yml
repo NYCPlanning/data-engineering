@@ -1,4 +1,4 @@
-name: dcp_pop_acs2010_economic
+id: dcp_pop_acs2010_economic
 acl: public-read
 source:
   type: local_file

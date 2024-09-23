@@ -1,4 +1,4 @@
-name: dob_now_applications
+id: dob_now_applications
 acl: public-read
 source:
   type: s3

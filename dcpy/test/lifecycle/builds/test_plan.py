@@ -4,6 +4,7 @@ import pytest
 from unittest import TestCase
 from unittest.mock import patch
 
+from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
@@ -23,6 +24,13 @@ MOCKED_LATEST_VERSION = "v1"
 def setup():
     # TEMP_DATA_PATH.mkdir(exist_ok=True)
     os.environ[REQUIRED_VERSION_ENV_VAR] = "v123"
+
+
+def test_resolve_dataset_fails_without_version():
+    ds_id = "test"
+    ds = InputDataset(id=ds_id)
+    with pytest.raises(Exception, match=f"Dataset '{ds_id}' requires version"):
+        ds.dataset
 
 
 class TestVersionStrategies(TestCase):
@@ -71,7 +79,7 @@ class TestVersionStrategies(TestCase):
         )
         source_dataset_record = self.recipe.inputs.datasets[1]
         assert (
-            source_dataset_record.name == source_dataset
+            source_dataset_record.id == source_dataset
         ), "test setup error - check order of source datasets in recipe.yml"
         assert plan.resolve_version(self.recipe) == source_dataset_record.version
 
@@ -120,7 +128,7 @@ class TestRecipesWithDefaults(TestCase):
         planned = plan.plan_recipe(RECIPE_PATH)
 
         had_no_version_or_type = [
-            ds for ds in planned.inputs.datasets if ds.name == "has_no_version_or_type"
+            ds for ds in planned.inputs.datasets if ds.id == "has_no_version_or_type"
         ][0]
 
         assert (

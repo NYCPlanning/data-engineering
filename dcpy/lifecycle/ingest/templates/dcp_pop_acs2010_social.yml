@@ -1,4 +1,4 @@
-name: dcp_pop_acs2010_social
+id: dcp_pop_acs2010_social
 acl: public-read
 source:
   type: local_file

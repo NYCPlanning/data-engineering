@@ -1,4 +1,4 @@
-name: dcp_sfpsd
+id: dcp_sfpsd
 acl: public-read
 source:
   type: file_download

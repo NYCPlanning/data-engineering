@@ -38,7 +38,7 @@ class Scriptor(ScriptorInterface):
 
     def previous(self) -> pd.DataFrame:
         previous_dataset = recipes.Dataset(
-            name=self.name,
+            id=self.name,
             version=self.previous_version,
         )
         return recipes.read_df(previous_dataset)

@@ -1,4 +1,4 @@
-name: dcp_pad
+id: dcp_pad
 acl: public-read
 source:
   type: file_download

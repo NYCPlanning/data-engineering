@@ -41,11 +41,20 @@ BUCKET = PUBLISHING_BUCKET
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
 
 
+def exists(key: ProductKey) -> bool:
+    return s3.folder_exists(BUCKET, key.path)
+
+
 def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     """Retrieve a product build metadata from s3."""
     key = f"{product_key.path}/build_metadata.json"
-    if not s3.exists(BUCKET, key):
-        raise FileNotFoundError(f"Build metadata not found for product {product_key}")
+    if not s3.object_exists(BUCKET, key):
+        if not exists(product_key):
+            raise FileNotFoundError(f"Product {product_key} does not exist.")
+        else:
+            raise FileNotFoundError(
+                f"Build metadata not found for product {product_key}."
+            )
     obj = s3.client().get_object(
         Bucket=BUCKET, Key=f"{product_key.path}/build_metadata.json"
     )
@@ -502,7 +511,7 @@ def download_published_version(
 
 def file_exists(product_key: ProductKey, filepath: str) -> bool:
     """Returns true if given file exists within outputs for given product key"""
-    return s3.exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
+    return s3.object_exists(bucket=BUCKET, key=f"{product_key.path}/{filepath}")
 
 
 def get_file(product_key: ProductKey, filepath: str) -> BytesIO:
@@ -514,7 +523,7 @@ T = TypeVar("T")
 
 
 def _read_data_helper(path: str, filereader: Callable[[BytesIO], T], **kwargs) -> T:
-    if not s3.exists(BUCKET, path):
+    if not s3.object_exists(BUCKET, path):
         raise FileNotFoundError(f"publishing file {path} not found.")
     with s3.get_file_as_stream(BUCKET, path) as stream:
         data = filereader(stream, **kwargs)
@@ -626,10 +635,10 @@ def _gis_dataset_path(name: str, version: str) -> str:
 
 def _assert_gis_dataset_exists(name: str, version: str):
     version = version.upper()
-    if not s3.exists(BUCKET, _gis_dataset_path(name, version)):
+    if not s3.object_exists(BUCKET, _gis_dataset_path(name, version)):
         print(_gis_dataset_path(name, version))
         print(s3.list_objects(BUCKET, _gis_dataset_path(name, version)))
-        print(s3.exists(BUCKET, _gis_dataset_path(name, version)))
+        print(s3.object_exists(BUCKET, _gis_dataset_path(name, version)))
         raise FileNotFoundError(f"GIS dataset {name} has no version {version}")
 
 

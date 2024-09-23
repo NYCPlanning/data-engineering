@@ -1,4 +1,4 @@
-name: nypl_libraries
+id: nypl_libraries
 acl: public-read
 source:
   type: api

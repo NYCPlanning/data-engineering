@@ -1,4 +1,4 @@
-name: dob_permitissuance
+id: dob_permitissuance
 acl: public-read
 source:
   type: socrata

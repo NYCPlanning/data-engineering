@@ -106,12 +106,14 @@ def test_legacy_upload(
         contents_only=contents_only,
         latest=latest,
     )
-    assert s3.exists(
+    assert s3.object_exists(
         TEST_BUCKET_NAME,
         f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
     )
     for path in not_expected_paths:
-        assert not s3.exists(TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}")
+        assert not s3.object_exists(
+            TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}"
+        )
 
 
 @patch("dcpy.connectors.edm.publishing.BUILD_NAME", TEST_BUILD)
@@ -475,6 +477,22 @@ def test_get_draft_revision_label(
         publishing.get_draft_revision_label(build_key.product, TEST_VERSION, 2)
         == "2-second-draft"
     )
+
+
+def test_read_csv_error(create_buckets):
+    with pytest.raises(FileNotFoundError, match="publishing file"):
+        publishing.read_csv(publishing.PublishKey("test", "test"), "file.csv")
+
+
+def test_missing_build_metadata_error(create_buckets):
+    product_key = publishing.PublishKey("test", "test")
+    s3.client().put_object(
+        Bucket=PUBLISHING_BUCKET, Key=product_key.path + "/fake_file.txt"
+    )
+    with pytest.raises(
+        FileNotFoundError, match=f"Build metadata not found for product {product_key}."
+    ):
+        publishing.get_build_metadata(product_key)
 
 
 def test_promote_to_draft_build_folder(

@@ -39,14 +39,14 @@ def import_dataset(
         preproc_func = getattr(preproc_mod, ds.preprocessor.function)
         if ds.file_type == recipes.DatasetType.pg_dump:
             logger.warning(
-                f"Preprocessor {ds.preprocessor.module} cannot be applied to pg_dump dataset {ds.name}."
+                f"Preprocessor {ds.preprocessor.module} cannot be applied to pg_dump dataset {ds.id}."
             )
     else:
         preproc_func = None
 
     if pg_client and (not ds.destination):
         ds.destination = InputDatasetDestination.postgres
-    assert ds.destination, f"Dataset destination not resolved for dataset {ds.name}"
+    assert ds.destination, f"Dataset destination not resolved for dataset {ds.id}"
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
@@ -90,53 +90,55 @@ def load_source_data(
     else:
         pg_client = None
 
-    results = {ds.name: import_dataset(ds, pg_client) for ds in recipe.inputs.datasets}
+    results = {ds.id: import_dataset(ds, pg_client) for ds in recipe.inputs.datasets}
     if not keep_files:
         recipes.purge_recipe_cache()
     return LoadResult(name=recipe.name, build_name=build_name, datasets=results)
 
 
-def get_imported_df(load_result: LoadResult, ds_name: str) -> pd.DataFrame:
+def get_imported_df(load_result: LoadResult, ds_id: str) -> pd.DataFrame:
     assert (
-        ds_name in load_result.datasets
-    ), f"No dataset of name {ds_name} imported in build {load_result.build_name} of {load_result.name}"
-    match load_result.datasets[ds_name].destination:
+        ds_id in load_result.datasets
+    ), f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
+    match load_result.datasets[ds_id].destination:
         case pd.DataFrame() as df:
             return df
         case str() as table_name:
             pg_client = postgres.PostgresClient(schema=load_result.build_name)
             return pg_client.read_table_df(table_name)
         case Path() as file_path:
-            if file_path.suffix == "csv":
-                return pd.read_csv(file_path)
-            elif file_path.suffix == "parquet":
+            if file_path.suffix == ".csv":
+                return pd.read_csv(file_path, dtype=str)
+            elif file_path.suffix == ".parquet":
                 return pd.read_parquet(file_path)
             else:
                 raise Exception(
                     f"File {file_path} cannot be simply read by pandas, use 'load.get_imported_file' instead."
                 )
         case _ as d:
-            raise Exception(f"Unknown type of imported dataset {ds_name}: {type(d)}")
+            raise Exception(f"Unknown type of imported dataset {ds_id}: {type(d)}")
 
 
-def get_imported_filepath(load_result: LoadResult, ds_name: str) -> Path:
+def get_imported_filepath(load_result: LoadResult, ds_id: str) -> Path:
     assert (
-        ds_name in load_result.datasets
-    ), f"No dataset of name {ds_name} imported in build {load_result.build_name} of {load_result.name}"
-    match load_result.datasets[ds_name].destination:
+        ds_id in load_result.datasets
+    ), f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
+    match load_result.datasets[ds_id].destination:
         case Path() as file_path:
             return file_path
         case pd.DataFrame():
             format = "DataFrame"
         case str() as table_name:
-            format = f"Postgres table '{table_name}'"
+            format = f"Postgres table {table_name}"
+        case _:
+            format = "unknown"
     raise Exception(
-        f"Cannot get imported file of dataset {ds_name} because it is of format {format}"
+        f"Cannot get imported file of dataset '{ds_id}' because it is of format '{format}'"
     )
 
 
-def get_imported_file(load_result: LoadResult, ds_name: str):  # -> TextIOWrapper:
-    return open(get_imported_filepath(load_result, ds_name))
+def get_imported_file(load_result: LoadResult, ds_id: str):  # -> TextIOWrapper:
+    return open(get_imported_filepath(load_result, ds_id))
 
 
 app = typer.Typer(add_completion=False)
@@ -214,7 +216,7 @@ def _import_dataset(
     database_schema = database_schema or os.environ["BUILD_SCHEMA"]
     import_dataset(
         InputDataset(
-            name=dataset_name,
+            id=dataset_name,
             version=version,
             file_type=dataset_type,
             import_as=import_as,

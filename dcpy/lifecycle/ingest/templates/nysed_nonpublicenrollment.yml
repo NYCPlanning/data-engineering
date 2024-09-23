@@ -1,4 +1,4 @@
-name: nysed_nonpublicenrollment
+id: nysed_nonpublicenrollment
 acl: public-read
 source:
   type: file_download

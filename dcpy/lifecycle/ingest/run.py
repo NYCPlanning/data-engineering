@@ -1,3 +1,4 @@
+import pandas as pd
 from pathlib import Path
 import typer
 
@@ -8,20 +9,52 @@ from . import configure, extract, transform
 TMP_DIR = Path("tmp")
 
 
+def update_freshness(
+    config: Config,
+    staging_dir: Path,
+    *,
+    latest: bool,
+) -> Config:
+    """
+    This function is called after a dataset has been preprocessed, just before archival
+    It's called in the case that the version of the dataset in the config (either provided or calculated)
+      already exists
+
+    The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
+    If they are identical, the last archived dataset has its config updated to reflect that it was checked but not re-archived
+    If they differ, the version is "patched" and a new patched version is archived
+    """
+    new = pd.read_parquet(staging_dir / config.filename)
+    comparison = recipes.read_df(config.dataset)
+    if new.equals(comparison):
+        original_archival_timestamp = recipes.update_freshness(
+            config.dataset_key, config.archival_timestamp
+        )
+        config.archival_timestamp = original_archival_timestamp
+        if latest:
+            recipes.set_latest(config.dataset_key, config.acl)
+        return config
+    else:
+        raise FileExistsError(
+            f"Archived dataset '{config.dataset_key}' already exists and has different data."
+        )
+
+
 def run(
-    dataset: str,
+    dataset_id: str,
     version: str | None = None,
+    *,
     staging_dir: Path | None = None,
     mode: str | None = None,
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
 ) -> Config:
-    config = configure.get_config(dataset, version=version, mode=mode)
-    transform.validate_processing_steps(config.name, config.processing_steps)
+    config = configure.get_config(dataset_id, version=version, mode=mode)
+    transform.validate_processing_steps(config.id, config.processing_steps)
 
     if not staging_dir:
-        staging_dir = TMP_DIR / dataset / config.archival_timestamp.isoformat()
+        staging_dir = TMP_DIR / dataset_id / config.archival_timestamp.isoformat()
         staging_dir.mkdir(parents=True)
 
     # download dataset
@@ -40,7 +73,7 @@ def run(
     )
 
     transform.preprocess(
-        config.name,
+        config.id,
         config.processing_steps,
         staging_dir / init_parquet,
         staging_dir / config.filename,
@@ -48,7 +81,12 @@ def run(
     )
 
     if not skip_archival:
-        recipes.archive_dataset(config, staging_dir / config.filename, latest=latest)
+        if recipes.exists(config.dataset):
+            config = update_freshness(config, staging_dir, latest=latest)
+        else:
+            recipes.archive_dataset(
+                config, staging_dir / config.filename, latest=latest
+            )
 
     return config
 
@@ -58,7 +96,7 @@ app = typer.Typer(add_completion=False)
 
 @app.command()
 def _cli_wrapper_run(
-    dataset: str = typer.Argument(),
+    dataset_id: str = typer.Argument(),
     version: str = typer.Option(
         None,
         "-v",
@@ -75,7 +113,7 @@ def _cli_wrapper_run(
     ),
 ):
     run(
-        dataset,
+        dataset_id,
         version,
         mode=mode,
         latest=latest,

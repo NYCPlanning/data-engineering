@@ -1,4 +1,5 @@
 from datetime import datetime
+from io import BytesIO
 import json
 import os
 import pandas as pd
@@ -12,6 +13,8 @@ from dcpy import configuration
 from dcpy.models.connectors.edm.recipes import (
     Dataset,
     DatasetType,
+    DatasetKey,
+    RawDatasetKey,
 )
 from dcpy.models import library
 from dcpy.models.lifecycle import ingest
@@ -32,12 +35,32 @@ LOGGING_SCHEMA = "source_data"
 LOGGING_TABLE_NAME = "metadata_logging"
 
 
-def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path) -> None:
+def s3_folder_path(ds: Dataset | DatasetKey) -> str:
+    return f"{DATASET_FOLDER}/{ds.id}/{ds.version}"
+
+
+def s3_file_path(ds: Dataset) -> str:
+    return f"{s3_folder_path(ds)}/{ds.file_name}"
+
+
+def s3_raw_folder_path(ds: RawDatasetKey) -> str:
+    return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp.isoformat()}"
+
+
+def exists(ds: Dataset) -> bool:
+    return s3.folder_exists(BUCKET, s3_folder_path(ds))
+
+
+def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> None:
     """
     Given a config and a path to a file and an s3_path, archive it in edm-recipe
     It is assumed that s3_path has taken care of figuring out which top-level folder,
     how the dataset is being versioned, etc.
     """
+    if s3.folder_exists(BUCKET, s3_path):
+        raise Exception(
+            f"Archived dataset at {s3_path} already exists, cannot overwrite"
+        )
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
@@ -48,7 +71,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: Path) -> N
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
-            s3_path,
+            Path(s3_path),
             acl=config.acl,
             contents_only=True,
         )
@@ -59,23 +82,46 @@ def archive_raw_dataset(config: ingest.Config, file_path: Path):
     Given a config and a path to a 'raw' input dataset, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and the timestamp of archival
     """
-    _archive_dataset(config, file_path, config.raw_dataset_key.s3_path(RAW_FOLDER))
+    _archive_dataset(config, file_path, s3_raw_folder_path(config.raw_dataset_key))
 
 
-def archive_dataset(config: ingest.Config, file_path: Path, latest: bool = False):
+def set_latest(key: DatasetKey, acl):
+    s3.copy_folder(
+        BUCKET,
+        f"{s3_folder_path(key)}/",
+        f"{DATASET_FOLDER}/{key.id}/latest/",
+        acl=acl,
+    )
+
+
+def archive_dataset(config: ingest.Config, file_path: Path, *, latest: bool = False):
     """
     Given a config and a path to a processed parquet file, archive it in edm-recipes
     Unique identifier of a raw dataset is its name and its version
     """
-    s3_path = config.dataset_key.s3_path(DATASET_FOLDER)
+    s3_path = s3_folder_path(config.dataset_key)
     _archive_dataset(config, file_path, s3_path)
     if latest:
-        s3.copy_folder(
-            BUCKET,
-            f"{s3_path}/",
-            f"{DATASET_FOLDER}/{config.name}/latest/",
-            acl=config.acl,
+        set_latest(config.dataset_key, config.acl)
+
+
+def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
+    path = f"{DATASET_FOLDER}/{ds.id}/{ds.version}/config.json"
+    config = get_config(ds.id, ds.version)
+    if isinstance(config, library.Config):
+        raise TypeError(
+            f"Cannot update freshness of dataset {ds} as it was archived by library, not ingest"
         )
+    config.check_timestamps.append(timestamp)
+    config_str = json.dumps(config.model_dump(mode="json"))
+    s3.upload_file_obj(
+        BytesIO(config_str.encode()),
+        BUCKET,
+        path,
+        config.acl,
+        metadata=s3.get_custom_metadata(BUCKET, path),
+    )
+    return config.archival_timestamp
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
@@ -118,28 +164,28 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
             return None
 
 
-def get_file_types(dataset: Dataset) -> set[DatasetType]:
-    suffixes = s3.get_suffixes(
-        bucket=BUCKET, prefix=f"{dataset.s3_folder_key(DATASET_FOLDER)}/{dataset.name}"
-    )
-    valid_types = {_dataset_type_from_extension(s.strip(".")) for s in suffixes}
+def get_file_types(dataset: Dataset | DatasetKey) -> set[DatasetType]:
+    files = s3.get_filenames(bucket=BUCKET, prefix=s3_folder_path(dataset))
+    valid_types = {
+        _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
+    }
     return {t for t in valid_types if t is not None}
 
 
 def get_preferred_file_type(
-    dataset: Dataset, preferences: list[DatasetType]
+    dataset: Dataset | DatasetKey, preferences: list[DatasetType]
 ) -> DatasetType:
     file_types = get_file_types(dataset)
     if len(file_types.intersection(preferences)) == 0:
         raise FileNotFoundError(
-            f"Dataset {dataset.name} could not find filetype of any of {preferences}. Found filetypes for {dataset.name}: {file_types}"
+            f"Dataset {dataset.id} could not find filetype of any of {preferences}. Found filetypes for {dataset.id}: {file_types}"
         )
     return next(t for t in preferences if t in file_types)
 
 
 def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
     """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
-    target_dir = local_library_dir / DATASET_FOLDER / ds.name / ds.version
+    target_dir = local_library_dir / DATASET_FOLDER / ds.id / ds.version
     target_file_path = target_dir / ds.file_name
     if (target_file_path).exists():
         print(f"✅ {ds.file_name} exists in cache")
@@ -150,7 +196,7 @@ def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
 
         s3.download_file(
             bucket=BUCKET,
-            key=ds.s3_file_key(DATASET_FOLDER),
+            key=s3_file_path(ds),
             path=target_file_path,
         )
     return target_file_path
@@ -183,7 +229,7 @@ def read_df(
         path = fetch_dataset(ds, local_library_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
-        with s3.get_file_as_stream(BUCKET, ds.s3_file_key(DATASET_FOLDER)) as stream:
+        with s3.get_file_as_stream(BUCKET, s3_file_path(ds)) as stream:
             data = reader(stream, **kwargs)
         return data
 
@@ -197,10 +243,10 @@ def import_dataset(
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
 ) -> str:
     """Import a recipe to local data library folder and build engine."""
-    assert ds.file_type, f"Cannot import dataset {ds.name}, no file type defined."
-    ds_table_name = import_as or ds.name
+    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
+    ds_table_name = import_as or ds.id
     logger.info(
-        f"Importing {ds.name} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
+        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
     )
 
     local_dataset_path = fetch_dataset(ds, local_library_dir)
@@ -208,7 +254,7 @@ def import_dataset(
     if ds.file_type == DatasetType.pg_dump:
         pg_client.import_pg_dump(
             local_dataset_path,
-            pg_dump_table_name=ds.name,
+            pg_dump_table_name=ds.id,
             target_table_name=ds_table_name,
         )
     elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
@@ -218,7 +264,7 @@ def import_dataset(
             else pd.read_parquet(local_dataset_path)
         )
         if preprocessor is not None:
-            df = preprocessor(ds.name, df)
+            df = preprocessor(ds.id, df)
 
         # make column names more sql-friendly
         columns = {

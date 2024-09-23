@@ -1,4 +1,4 @@
-name: doe_pepmeetingurls
+id: doe_pepmeetingurls
 acl: public-read
 source:
   type: script

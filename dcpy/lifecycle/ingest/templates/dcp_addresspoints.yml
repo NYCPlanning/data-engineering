@@ -1,4 +1,4 @@
-name: dcp-addresspoints
+id: dcp-addresspoints
 acl: public-read
 source:
   type: edm_publishing_gis_dataset
