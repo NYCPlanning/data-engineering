@@ -80,6 +80,7 @@ ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "E402"]
 "conftest.py" = ["E402"]
+"setup_dev_bucket.py" = ["E402"]
 
 [[tool.mypy.overrides]]
 module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,socrata.*,faker.*,ruamel.*" # no stubs available

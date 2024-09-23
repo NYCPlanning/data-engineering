@@ -116,6 +116,7 @@ jobs:
           mypy apps/qa/src
           mypy products/facilities
           mypy products/template
+          mypy admin/ops
 
   template-db:
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
