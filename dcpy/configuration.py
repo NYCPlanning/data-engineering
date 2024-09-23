@@ -23,4 +23,4 @@ PRODUCTS_TO_LOG = [
     "db-template",
     "db-zoningtaxlots",
 ]
-IGNORED_LOGGING_BUILDS = ["nightly_qa"]
+IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
