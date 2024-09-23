@@ -138,8 +138,8 @@ def clone_recipes_latest(
     datasets = get_subfolders(bucket=PROD_RECIPES_BUCKET, prefix="datasets/")
     if include:
         datasets = include
-    if exclude == "exclude":
-        datasets = [ds for ds in datasets if ds not in datasets]
+    if exclude:
+        datasets = [ds for ds in datasets if ds not in exclude]
 
     for ds in datasets:
         clone_recipe(target_bucket, ds)
