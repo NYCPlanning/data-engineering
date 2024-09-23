@@ -227,7 +227,7 @@ def setup(id: str, clean: bool = False) -> str:
             aws_secret_access_key=aws_secret_access_key,
             endpoint_url=aws_s3_endpoint,
         ).Bucket(bucket)
-        assert bucket_obj.id.startswith(DEV_BUCKET_PREFIX)
+        assert bucket_obj.name.startswith(DEV_BUCKET_PREFIX)
         bucket_obj.objects.all().delete()
     return bucket
 
