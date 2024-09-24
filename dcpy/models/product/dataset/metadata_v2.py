@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-import jinja2
-
-from pathlib import Path
 from pydantic import field_validator
 from typing import Any, List, Literal, get_args
 import unicodedata
-import yaml
 
-from dcpy.utils.logging import logger
+
 from dcpy.utils.collections import deep_merge_dict as merge
-from dcpy.models.base import SortedSerializedBase, YamlWriter
+from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 
 
 # MISC UTILS
@@ -176,6 +172,7 @@ class DatasetAttributes(CustomizableBase):
     # `contains_address` refers specifically to addresses containing house
     # numbers + street names. (ie. not just streets, polys, etc.)
     contains_address: bool | None = None
+    date_made_public: str | None = None
     publishing_purpose: str | None = None
     potential_uses: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values
@@ -247,7 +244,7 @@ class DestinationMetadata(SortedSerializedBase):
     file: File
 
 
-class Metadata(CustomizableBase, YamlWriter):
+class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
     id: str
     attributes: DatasetAttributes
     assembly: List[Package] = []
@@ -367,20 +364,3 @@ class Metadata(CustomizableBase, YamlWriter):
                     )
 
         return errors
-
-    @staticmethod
-    def from_yaml(yaml_str: str, *, template_vars=None):
-        if template_vars:
-            logger.info(f"Templating metadata with vars: {template_vars}")
-            templated = jinja2.Template(
-                yaml_str, undefined=jinja2.StrictUndefined
-            ).render(template_vars or {})
-            return Metadata(**yaml.safe_load(templated))
-        else:
-            logger.info("No Template vars supplied. Skipping templating.")
-        return Metadata(**yaml.safe_load(yaml_str))
-
-    @classmethod
-    def from_path(cls, path: Path, *, template_vars=None):
-        with open(path, "r", encoding="utf-8") as raw:
-            return cls.from_yaml(raw.read(), template_vars=template_vars)
