@@ -1,4 +1,5 @@
 import jinja2
+from pandas import DataFrame
 from pathlib import Path
 from pydantic import BaseModel, model_serializer
 from pydantic.fields import PrivateAttr
@@ -131,3 +132,119 @@ class TemplatedYamlReader(BaseModel):
     def from_path(cls, path: Path, *, template_vars=None) -> typing.Self:
         with open(path, "r", encoding="utf-8") as raw:
             return cls.from_yaml(raw.read(), template_vars=template_vars)
+
+
+class IndentedPrint(BaseModel, arbitrary_types_allowed=True):
+    """
+    A class meant to print out a relatively nicely formatted layout of its nested structure
+    It has a few main attribute functions.
+
+    The IntendedPrint represented by
+    {
+        "a": "b",
+        "c": ["d", "e"],
+        "f": {
+            "g": ["h"],
+        },
+    }
+    Would output the following from `to_list_structure`
+    [
+        "a: b",
+        "c",
+        ["d", "e"],
+        "f",
+        ["g", ["h"]],
+    ]
+    Which then fed to `indent_and_flatten` would output
+    [
+        "a",
+        "b",
+        "c",
+        "    d",
+        "    e",
+        "f",
+        "    g",
+        "        h",
+    ]
+    Which would then be printed line by line by `report`
+    """
+
+    _title: str | None = PrivateAttr(default=None)
+    _include_line_breaks: bool = PrivateAttr(default=False)
+    _pretty_print_fields: bool = PrivateAttr(default=True)
+    _display_names: dict[str, str] = PrivateAttr(default={})
+    _max_df_length: int = PrivateAttr(default=20)
+
+    def to_list_structure(self):
+        a = []
+        if self._title:
+            a.append(self._title)
+        for field in self.model_fields:
+            value = getattr(self, field)
+
+            if field in self._display_names:
+                field = self._display_names[field]
+            elif self._pretty_print_fields:
+                field = field.replace("_", " ").capitalize()
+            if self._include_line_breaks:
+                a.append("_" * 80)
+
+            if not isinstance(value, DataFrame) and not value and value != 0:
+                value_element = None
+            else:
+                value_element = value
+
+            if (
+                isinstance(value_element, str)
+                or isinstance(value_element, int)
+                or isinstance(value_element, float)
+                or isinstance(value_element, bool)
+                or value_element is None
+            ):
+                a.append(f"{field}: {value_element}")
+            else:
+                a += [field + ":", value_element]
+        return a
+
+    def indent_and_flatten(self, indent: str, offset: str):
+        def apply_indent(el, level):
+            i = offset + indent * level
+            return i + str(el)
+
+        def flatten(li: list, level) -> list:
+            if li == []:
+                return li
+            if isinstance(li[0], IndentedPrint):
+                first = li[0].indent_and_flatten(
+                    indent=indent, offset=offset + indent * (level + 1)
+                )
+            elif isinstance(li[0], list):
+                first = flatten(li[0], level + 1)
+            elif isinstance(li[0], set):
+                first = flatten(sorted(list(li[0])), level + 1)
+            elif isinstance(li[0], dict):
+                first = []
+                for key in li[0]:
+                    first.append(key)
+                    first.append([li[0][key]])
+                first = flatten(first, level + 1)
+            elif isinstance(li[0], DataFrame):
+                df = li[0]
+                if len(df) > self._max_df_length:
+                    first = [
+                        apply_indent(
+                            f"{len(df)} rows. First {self._max_df_length} shown", level
+                        )
+                    ] + flatten(
+                        df.head(self._max_df_length).to_string().split("\n"), level + 1
+                    )
+                else:
+                    first = flatten(df.to_string().split("\n"), level + 1)
+            else:
+                first = [apply_indent(li[0], level)]
+            return first + flatten(li[1:], level)
+
+        return flatten(self.to_list_structure(), level=0)
+
+    def report(self):
+        return "\n".join(self.indent_and_flatten(offset="", indent="    "))
