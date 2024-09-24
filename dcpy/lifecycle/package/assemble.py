@@ -207,6 +207,8 @@ app = typer.Typer()
 def assemble_dataset_from_bytes_cli(
     metadata_path: Path,
     destination_id: str,
+    product: str,
+    version: str,
     out_path: Path = typer.Option(
         None,
         "--output-path",
@@ -214,7 +216,10 @@ def assemble_dataset_from_bytes_cli(
         help="Output Path. Defaults to ./data_dictionary.xlsx",
     ),
 ):
-    dataset_metadata = md.Metadata.from_path(metadata_path)
+    dataset_metadata = md.Metadata.from_path(
+        metadata_path, template_vars={"version": version}
+    )
+    out_path = out_path or ASSEMBLY_DIR / product / version / dataset_metadata.id
     assemble_dataset_from_bytes(
         dataset_metadata, destination_id=destination_id, out_path=out_path
     )
