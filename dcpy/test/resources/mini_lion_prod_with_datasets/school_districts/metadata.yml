@@ -1,0 +1,16 @@
+id: school_districts
+
+attributes:
+  description: |-
+    Boundaries of school districts.
+
+    All previously released versions of this data are available at <a href="https://www.nyc.gov/site/planning/data-maps/open-data/bytes-archive.page?sorts%5Byear%5D=0">BYTES of the BIG APPLE - Archive</a>.
+  display_name: School Districts
+  each_row_is_a: School district
+  tags:
+  - school districts
+  - education
+  - dcp
+  - city planning
+  - maps
+  date_made_public: '1/31/2013'

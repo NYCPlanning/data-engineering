@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pydantic import field_validator
+from pydantic import BaseModel
 from typing import Any, List, Literal, get_args
 import unicodedata
 
@@ -184,11 +185,11 @@ class DatasetAttributes(CustomizableBase):
 
     tags: List[str] = []
 
-    def override(
-        self,
-        overrides: DatasetAttributesOverride,
-    ) -> DatasetAttributes:
+    def override(self, overrides: DatasetAttributesOverride) -> DatasetAttributes:
         return DatasetAttributes(**merge(self.model_dump(), overrides.model_dump()))
+
+    def apply_defaults(self, defaults: BaseModel) -> DatasetAttributes:
+        return DatasetAttributes(**merge(defaults.model_dump(), self.model_dump()))
 
 
 class DatasetOverrides(CustomizableBase):

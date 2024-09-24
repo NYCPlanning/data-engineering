@@ -1,0 +1,11 @@
+id: lion
+
+attributes:
+  display_name: LION Product Display Name
+  description: The lion dataset blah blah
+  publishing_frequency: "{{ lion_prod_level_pub_freq }}"
+  publishing_purpose: "legal compliance."
+
+datasets:
+  - pseudo_lots
+  - school_districts
