@@ -95,11 +95,21 @@ class TestGetConfig:
     def test_standard(self):
         config = configure.get_config("dca_operatingbusinesses")
         # ensure no reprojection step
-        assert not config.processing_steps
+        # ensure default 'clean_column_names' step is added
+        assert len(config.processing_steps) == 1
+        assert config.processing_steps[0].name == "clean_column_names"
+
+    def test_clean_column_names_defined(self):
+        config = configure.get_config("bpl_libraries")
+        # ensure no reprojection step
+        # ensure default 'clean_column_names' step is added
+        assert len(config.processing_steps) == 1
+        assert config.processing_steps[0].name == "clean_column_names"
+        assert config.processing_steps[0].args == {"replace": {"data.": ""}}
 
     def test_reproject(self):
         config = configure.get_config("dcp_addresspoints", version="24c")
-        assert len(config.processing_steps) == 1
+        assert len(config.processing_steps) == 2
         assert config.processing_steps[0].name == "reproject"
 
     def test_no_mode(self):
