@@ -50,10 +50,11 @@ def test_dataset_md_overrides(lion_md_path: Path):
     ), "The missing field `publishing_purpose` should use the product-level default"
 
 
-def test_get_all_product_dataset_metadata(lion_md_path: Path):
+def test_get_tagged_destinations(lion_md_path: Path):
     product_folder = md.ProductFolder(root_path=lion_md_path)
-    datasets = product_folder.get_datasets_by_id()
 
-    assert set(product_folder.get_product_metadata().datasets) == set(
-        datasets.keys()
-    ), "All datasets should be returned"
+    TAG = "prod_tag"
+    datasets = product_folder.get_tagged_destinations(TAG)
+
+    assert 1 == len(datasets)
+    assert datasets[0] == ("school_districts", "socrata")

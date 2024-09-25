@@ -221,6 +221,7 @@ class Dataset(CustomizableBase):
 class Destination(CustomizableBase):
     id: str
     type: str
+    tags: list[str] = []
 
 
 class DestinationWithFiles(Destination):

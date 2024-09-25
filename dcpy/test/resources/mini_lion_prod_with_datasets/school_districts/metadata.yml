@@ -14,3 +14,8 @@ attributes:
   - city planning
   - maps
   date_made_public: '1/31/2013'
+
+destinations:
+  - id: socrata
+    type: socrata
+    tags: [prod_tag]
