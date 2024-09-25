@@ -457,3 +457,39 @@ def test_validating_metadata__dest_missing_columns(md: m.Metadata):
 
     validation = md.validate_consistency()
     assert len(validation) == 2, "There should be the correct number of column errors"
+
+
+def test_column_defaults(md: m.Metadata):
+    md.columns = [
+        m.DatasetColumn(
+            id="bbl",
+            data_type="bbl",
+        )
+    ]
+    column_default_definitions = [
+        m.DatasetColumn(
+            id="bbl",
+            name="BBL",
+            data_type="bbl",
+            description="sample bbl description",
+            example="1016370141",
+        ),
+        m.DatasetColumn(
+            id="other",
+            name="other",
+            data_type="text",
+        ),
+    ]
+    column_defaults = {
+        (c.id, c.data_type): c for c in column_default_definitions if c.data_type
+    }
+
+    assert md.apply_column_defaults(column_defaults) == [
+        m.DatasetColumn(
+            id="bbl",
+            name="BBL",
+            data_type="bbl",
+            description="sample bbl description",
+            example="1016370141",
+        )
+    ]

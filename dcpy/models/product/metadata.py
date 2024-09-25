@@ -1,9 +1,14 @@
 from collections import defaultdict
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, TypeAdapter
+import yaml
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
-from dcpy.models.product.dataset.metadata_v2 import Metadata as DatasetMetadata
+from dcpy.models.product.dataset.metadata_v2 import (
+    Metadata as DatasetMetadata,
+    DatasetColumn,
+)
+from dcpy.utils.collections import deep_merge_dict as merge
 
 
 ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
@@ -47,6 +52,7 @@ class OrgMetadataFile(TemplatedYamlReader, SortedSerializedBase, extra="forbid")
 class ProductFolder(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = {}
+    column_defaults: dict[tuple[str, str], DatasetColumn] = {}
 
     def _dataset_folders(self):
         return [p.parent.name for p in self.root_path.glob("*/*.yml")]
@@ -70,6 +76,9 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
         ds_md.attributes = ds_md.attributes.apply_defaults(
             product_metadata.attributes.to_dataset_attributes()
         )
+
+        ds_md.columns = ds_md.apply_column_defaults(self.column_defaults)
+
         return ds_md
 
     def get_datasets_by_id(self) -> dict[str, DatasetMetadata]:
@@ -113,19 +122,43 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
+    column_defaults: dict[tuple[str, str], DatasetColumn]
+
+    @classmethod
+    def get_yml(cls, path: Path):
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as raw:
+                return yaml.safe_load(raw)
+        else:
+            return None
+
+    @classmethod
+    def get_string_snippets(cls, path: Path) -> dict:
+        yml = cls.get_yml(path / "snippets" / "strings.yml") or {}
+        if not isinstance(yml, dict):
+            raise ValueError("snippets must be valid yml dict, not array")
+        return yml
+
+    @classmethod
+    def get_column_defaults(cls, path: Path) -> dict[tuple[str, str], DatasetColumn]:
+        yml = cls.get_yml(path / "snippets" / "column_defaults.yml")
+        columns = TypeAdapter(list[DatasetColumn]).validate_python(yml or [])
+        return {(c.id, c.data_type): c for c in columns if c.data_type}
 
     @classmethod
     def from_path(cls, path: Path, template_vars: dict | None = None):
         return OrgMetadata(
             root_path=path,
             metadata=OrgMetadataFile.from_path(path / "metadata.yml"),
-            template_vars=template_vars or {},
+            template_vars=merge(cls.get_string_snippets(path), template_vars or {}),
+            column_defaults=cls.get_column_defaults(path),
         )
 
     def product(self, name) -> ProductFolder:
         return ProductFolder(
             root_path=self.root_path / "products" / name,
             template_vars=self.template_vars,
+            column_defaults=self.column_defaults,
         )
 
     def validate_metadata(self) -> dict[str, dict[str, list[str]]]:

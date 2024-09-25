@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from typing import Any, List, Literal, get_args
 import unicodedata
 
-
 from dcpy.utils.collections import deep_merge_dict as merge
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 
@@ -109,6 +108,18 @@ class DatasetColumn(DatasetColumnOverrides):
         return dt
 
     def override(self, overrides: DatasetColumnOverrides) -> DatasetColumn:
+        return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
+
+
+class DatasetColumnTemplate(CustomizableBase):
+    """A more sparse field that requires an org-level default/override"""
+
+    id: str
+    data_type: str
+
+    def override(self, overrides: DatasetColumnOverrides) -> DatasetColumn:
+        if not overrides.name:
+            raise ValueError("Cannot app")
         return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
 
 
@@ -371,3 +382,13 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
                     )
 
         return errors
+
+    def apply_column_defaults(
+        self, column_defaults: dict[tuple[str, str], DatasetColumn]
+    ) -> list[DatasetColumn]:
+        return [
+            c.override(column_defaults[c.id, c.data_type])
+            if c.data_type and (c.id, c.data_type) in column_defaults
+            else c
+            for c in self.columns
+        ]
