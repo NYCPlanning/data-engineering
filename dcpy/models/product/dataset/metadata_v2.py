@@ -155,13 +155,16 @@ class DatasetAttributesOverride(CustomizableBase):
     display_name: str | None = None
     description: str | None = None
     each_row_is_a: str | None = None
-    tags: List[str] | None = None
+
+    contains_address: bool | None = None
+    date_made_public: str | None = None
     publishing_purpose: str | None = None
     potential_uses: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values
     publishing_frequency_details: str | None = None
     projection: str | None = None  # TODO: does projection belong here?
-    contains_address: bool | None = None
+
+    tags: List[str] | None = None
 
 
 class DatasetAttributes(CustomizableBase):
@@ -248,9 +251,9 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
     id: str
     attributes: DatasetAttributes
     assembly: List[Package] = []
-    columns: List[DatasetColumn]
-    files: List[FileAndOverrides]
-    destinations: List[DestinationWithFiles]
+    columns: List[DatasetColumn] = []
+    files: List[FileAndOverrides] = []
+    destinations: List[DestinationWithFiles] = []
 
     _head_sort_order = [
         "id",
