@@ -64,7 +64,7 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
         dataset_mds = [self.get_product_dataset(ds_id, md) for ds_id in md.datasets]
         return {m.id: m for m in dataset_mds}
 
-    def get_tagged_destinations(self, tag) -> dict[str, dict[str, Metadata]]:
+    def get_tagged_destinations(self, tag) -> dict[str, dict[str, DatasetMetadata]]:
         datasets = self.get_datasets_by_id()
         found_tagged_dests = defaultdict(dict)
         for ds in datasets.values():
