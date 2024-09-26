@@ -1,0 +1,13 @@
+id: dcp_commercialoverlay
+acl: public-read
+target_crs: EPSG:4326
+source:
+  type: edm_publishing_gis_dataset
+  name: dcp_commercial_overlays
+file_format:
+  type: shapefile
+  crs: EPSG:2263
+processing_steps:
+- name: rename_columns
+  args:
+    map: {"geom": "wkb_geometry"}
