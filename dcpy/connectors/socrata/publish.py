@@ -542,11 +542,12 @@ class DestinationUses:
 
 class SocrataDestination:
     dataset_file_id: str
-    attachment_ids: set[str] = set()
+    attachment_ids: set[str]
     four_four: str
     is_unparsed_dataset: bool = False
 
     def __init__(self, metadata: md.Metadata, destination_id: str):
+        self.attachment_ids = set()
         dest = metadata.get_destination(destination_id)
         if dest.type != SOCRATA_DESTINATION_TYPE:
             raise Exception(f"{ERROR_WRONG_DESTINATION_TYPE}: {dest.type}")
@@ -577,6 +578,9 @@ def push_dataset(
     metadata_only: bool = False,
 ):
     """Push a dataset and sync metadata."""
+    logger.info(
+        f"Pushing dataset {metadata.id} -> {dataset_destination_id} from {dataset_package_path}"
+    )
     socrata_dest = SocrataDestination(metadata, dataset_destination_id)
     dataset = Dataset(four_four=socrata_dest.four_four)
 

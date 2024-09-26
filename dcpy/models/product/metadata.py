@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
@@ -63,11 +64,11 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
         dataset_mds = [self.get_product_dataset(ds_id, md) for ds_id in md.datasets]
         return {m.id: m for m in dataset_mds}
 
-    def get_tagged_destinations(self, tag) -> list[tuple[str, str]]:
+    def get_tagged_destinations(self, tag) -> dict[str, dict[str, Metadata]]:
         datasets = self.get_datasets_by_id()
-        found_tagged_dests = []
+        found_tagged_dests = defaultdict(dict)
         for ds in datasets.values():
             for dest in ds.destinations:
                 if tag in dest.tags:
-                    found_tagged_dests.append((ds.id, dest.id))
+                    found_tagged_dests[ds.id][dest.id] = ds
         return found_tagged_dests

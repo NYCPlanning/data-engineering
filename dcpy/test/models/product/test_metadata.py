@@ -56,5 +56,6 @@ def test_get_tagged_destinations(lion_md_path: Path):
     TAG = "prod_tag"
     datasets = product_folder.get_tagged_destinations(TAG)
 
-    assert 1 == len(datasets)
-    assert datasets[0] == ("school_districts", "socrata")
+    assert 1 == len(datasets.keys())
+    assert "school_districts" in datasets
+    assert datasets["school_districts"].keys() == {"socrata"}
