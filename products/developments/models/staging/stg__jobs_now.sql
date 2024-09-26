@@ -1,3 +1,7 @@
+WITH dob_now_applications AS (
+    SELECT * FROM {{ ref("sources.dob_now_applications" )}}
+),
+
 SELECT
     left(job_filing_number, strpos(job_filing_number, '-') - 1)::text AS job_number,
     CASE
@@ -52,12 +56,6 @@ SELECT
         WHEN landmark ~* 'L' THEN 'Yes'
     END AS landmark,
 
-    ownership_translate(
-        left(city_owned, 1),
-        upper(ownertype),
-        left(nonprofit, 1)
-    ) AS ownership,
-
     NULL AS owner_name,
     owner_s_business_name AS owner_biznm,
     owner_s_street_name AS owner_address,
@@ -68,7 +66,6 @@ SELECT
         WHEN jobtype ~* 'Alteration'
             THEN nullif(existingbuildingheight, '0')
     END)::numeric AS height_init,
-
     (CASE
         WHEN jobtype ~* 'Alteration'
             THEN nullif(proposedbuildingheight, '0')
