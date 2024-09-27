@@ -163,7 +163,11 @@ def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package
     )
 
     assemble.assemble_dataset_from_bytes(
-        metadata, destination_id="socrata", out_path=tmp_path
+        metadata,
+        source_destination_id="socrata",
+        out_path=tmp_path,
+        product="colp",
+        version="24c",
     )
 
     attachments_path = MOCK_PULLED_PACKAGE_PATH / "attachments"

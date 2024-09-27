@@ -175,13 +175,15 @@ def pull_all_destination_files(local_package_path: Path, product_metadata: md.Me
 def assemble_dataset_from_bytes(
     dataset_metadata: md.Metadata,
     *,
-    destination_id: str,
-    out_path: Path | None,
-):
-    out_path = out_path or ASSEMBLY_DIR / dataset_metadata.id
+    product: str,
+    version: str,
+    source_destination_id: str,
+    out_path: Path | None = None,
+) -> Path:
+    out_path = out_path or ASSEMBLY_DIR / product / version / dataset_metadata.id
     logger.info(f"Assembling dataset from BYTES. Writing to: {out_path}")
     assemble.pull_destination_files(
-        out_path, dataset_metadata, destination_id, unpackage_zips=True
+        out_path, dataset_metadata, source_destination_id, unpackage_zips=True
     )
 
     oti_data_dictionaries = [
@@ -198,6 +200,7 @@ def assemble_dataset_from_bytes(
             metadata_path=out_path / "metadata.yml",
             output_path=out_path / "attachments" / f.filename,
         )
+    return out_path
 
 
 app = typer.Typer()
@@ -206,7 +209,9 @@ app = typer.Typer()
 @app.command("from_bytes")
 def assemble_dataset_from_bytes_cli(
     metadata_path: Path,
-    destination_id: str,
+    source_destination_id: str,
+    product: str,
+    version: str,
     out_path: Path = typer.Option(
         None,
         "--output-path",
@@ -214,9 +219,12 @@ def assemble_dataset_from_bytes_cli(
         help="Output Path. Defaults to ./data_dictionary.xlsx",
     ),
 ):
-    dataset_metadata = md.Metadata.from_path(metadata_path)
     assemble_dataset_from_bytes(
-        dataset_metadata, destination_id=destination_id, out_path=out_path
+        md.Metadata.from_path(metadata_path, template_vars={"version": version}),
+        source_destination_id=source_destination_id,
+        product=product,
+        version=version,
+        out_path=out_path,
     )
 
 

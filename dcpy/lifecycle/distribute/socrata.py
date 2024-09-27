@@ -11,7 +11,7 @@ def dist_from_local(
     package_path: Path,
     dataset_destination_id: str,
     *,
-    metadata_path: Path | None,
+    metadata_path: Path | None = None,
     publish: bool = False,
     ignore_validation_errors: bool = False,
     skip_validation: bool = False,
