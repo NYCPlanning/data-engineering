@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: qaqc_reports__dof_incorrect_condo_res_units
+    description: |
+      This report is to be shared with DOF.
+      It contains DOF records that need to be corrected for res unit count at the source, supplied with DevDB unit counts
+
+    columns:
+      - name: primebbl
+      - name: units
+        description: DOF number of total units (including non-residential) per BBL
+      - name: coop_apts
+        description: DOF number of residential units per BBL
+      - name: units_co
+        description: DevDB number of units on Certificate of Occupancy
+      - name: classa_prop
+        description: DevDB number of class A units
+      - name: dof_matches_devdb_units
+        description: Flag to indicate whether DOF res units match DevDB res units (coop_apts == classa_prop)
+      - name: diff
+        description: Difference in residential units between
+
+  - name: qaqc_reports__dof_pts_incorrect_condo_res_units
+    description: |
+      This report is to be shared with DOF. 
+      It contains raw DOF PTS data filtered for condo records in `qaqc_reports__dof_incorrect_condo_res_units``
