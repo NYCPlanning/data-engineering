@@ -3,7 +3,6 @@ from pathlib import Path
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 from dcpy.models.product.dataset.metadata_v2 import Metadata as DatasetMetadata
-# from dcpy.models.product.dataset.metadata_v2 import DatasetAttributes
 
 
 class DefaultDatasetAttributes(SortedSerializedBase):
