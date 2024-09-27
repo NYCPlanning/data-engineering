@@ -118,13 +118,13 @@ class TemplatedYamlReader(BaseModel):
     @classmethod
     def from_yaml(cls, yaml_str: str, *, template_vars=None) -> typing.Self:
         if template_vars:
-            logger.info(f"Templating metadata with vars: {template_vars}")
+            logger.debug(f"Templating metadata with vars: {template_vars}")
             templated = jinja2.Template(
                 yaml_str, undefined=jinja2.StrictUndefined
             ).render(template_vars or {})
             return cls(**yaml.safe_load(templated))
         else:
-            logger.info("No Template vars supplied. Skipping templating.")
+            logger.debug("No Template vars supplied. Skipping templating.")
         return cls(**yaml.safe_load(yaml_str))
 
     @classmethod

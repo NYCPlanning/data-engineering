@@ -1,5 +1,6 @@
 from collections import defaultdict
 from pathlib import Path
+from pydantic import Field
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 from dcpy.models.product.dataset.metadata_v2 import Metadata as DatasetMetadata
@@ -28,14 +29,15 @@ class Attributes(DefaultDatasetAttributes, extra="ignore"):
 class Metadata(SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"):
     id: str
     datasets: list[str] = []
-    dataset_collections: dict[str, list[str]] = {}
-
-    attributes: Attributes
+    attributes: Attributes = Field(default_factory=Attributes)
 
 
 class ProductFolder(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = {}
+
+    def _dataset_folders(self):
+        return [p.parent.name for p in self.root_path.glob("*/*.yml")]
 
     def get_product_metadata(self) -> Metadata:
         return Metadata.from_path(
@@ -71,3 +73,52 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
                 if tag in dest.tags:
                     found_tagged_dests[ds.id][dest.id] = ds
         return found_tagged_dests
+
+    def validate_dataset_metadata(self):
+        md = self.get_product_metadata()
+        product_errors = []
+
+        for ds_id in md.datasets:
+            try:
+                ds_md = self.get_product_dataset(ds_id, md)
+                ds_errors = ds_md.validate_consistency()
+                if ds_errors:
+                    product_errors.append([f"{md.id}-{ds_id}", ds_errors])
+            except Exception as e:
+                product_errors.append(
+                    f"Error instantiating dataset metadata for {md.id}: {ds_id}: {e}"
+                )
+        return product_errors
+
+
+class RepoMetadata(TemplatedYamlReader, SortedSerializedBase, extra="forbid"):
+    products: list[str]
+
+
+class Repo(SortedSerializedBase, extra="forbid"):
+    root_path: Path
+    template_vars: dict = Field(default_factory=dict)
+    metadata: RepoMetadata
+
+    @classmethod
+    def from_path(cls, path: Path):
+        return Repo(
+            root_path=path, metadata=RepoMetadata.from_path(path / "metadata.yml")
+        )
+
+    def product(self, name) -> ProductFolder:
+        return ProductFolder(
+            root_path=self.root_path / "products" / name,
+            template_vars=self.template_vars,
+        )
+
+    def validate_metadata(self):
+        product_errors = []
+        for p in self.metadata.products:
+            try:
+                product_errors += self.product(p).validate_dataset_metadata()
+            except Exception as e:
+                product_errors.append(
+                    f"Error instantiating product metadata for {p}: {e}"
+                )
+        return product_errors
