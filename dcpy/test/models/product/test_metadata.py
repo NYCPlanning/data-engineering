@@ -59,3 +59,8 @@ def test_get_tagged_destinations(lion_md_path: Path):
     assert 1 == len(datasets.keys())
     assert "school_districts" in datasets
     assert datasets["school_districts"].keys() == {"socrata"}
+
+
+def test_product_metadata_validation(lion_md_path: Path):
+    lion_product = md.ProductFolder(root_path=lion_md_path)
+    assert lion_product.validate_dataset_metadata() == []
