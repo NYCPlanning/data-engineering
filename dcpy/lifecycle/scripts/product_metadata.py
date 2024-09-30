@@ -5,7 +5,7 @@ from dcpy.models.product import metadata as product_metadata
 
 
 def validate_repo(repo_path: Path):
-    return product_metadata.MetadataRepoFolder.from_path(repo_path).validate_metadata()
+    return product_metadata.OrgMetadata.from_path(repo_path).validate_metadata()
 
 
 app = typer.Typer()

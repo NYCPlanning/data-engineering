@@ -74,14 +74,14 @@ def test_product_metadata_validation(lion_md_path: Path):
 
 
 def test_product_validation_happy_path(test_metadata_repo: Path):
-    repo = md.MetadataRepoFolder.from_path(test_metadata_repo)
+    repo = md.OrgMetadata.from_path(test_metadata_repo)
     validation = repo.validate_metadata()
     assert validation == {}, "No errors should have been found"
 
 
 def test_product_validation_with_error_product(test_metadata_repo: Path):
     """Tests that validation produces the expected errors."""
-    repo = md.MetadataRepoFolder.from_path(test_metadata_repo)
+    repo = md.OrgMetadata.from_path(test_metadata_repo)
     repo.metadata.products.append(PRODUCT_WITH_ERRORS)
 
     validation_errors = repo.validate_metadata()

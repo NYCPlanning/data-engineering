@@ -103,15 +103,17 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
         return product_errors
 
 
-class MetadataRepoFolder(SortedSerializedBase, extra="forbid"):
+class OrgMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
 
     @classmethod
-    def from_path(cls, path: Path):
-        return MetadataRepoFolder(
-            root_path=path, metadata=OrgMetadataFile.from_path(path / "metadata.yml")
+    def from_path(cls, path: Path, template_vars: dict | None = None):
+        return OrgMetadata(
+            root_path=path,
+            metadata=OrgMetadataFile.from_path(path / "metadata.yml"),
+            template_vars=template_vars or {},
         )
 
     def product(self, name) -> ProductFolder:
