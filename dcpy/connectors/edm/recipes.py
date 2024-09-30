@@ -73,7 +73,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> No
             BUCKET,
             tmp_dir_path,
             Path(s3_path),
-            acl=config.acl,
+            acl=config.archival.acl,
             contents_only=True,
         )
 
@@ -103,7 +103,7 @@ def archive_dataset(config: ingest.Config, file_path: Path, *, latest: bool = Fa
     s3_path = s3_folder_path(config.dataset_key)
     _archive_dataset(config, file_path, s3_path)
     if latest:
-        set_latest(config.dataset_key, config.acl)
+        set_latest(config.dataset_key, config.archival.acl)
 
 
 def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
@@ -113,16 +113,16 @@ def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
         raise TypeError(
             f"Cannot update freshness of dataset {ds} as it was archived by library, not ingest"
         )
-    config.check_timestamps.append(timestamp)
+    config.archival.check_timestamps.append(timestamp)
     config_str = json.dumps(config.model_dump(mode="json"))
     s3.upload_file_obj(
         BytesIO(config_str.encode()),
         BUCKET,
         path,
-        config.acl,
+        config.archival.acl,
         metadata=s3.get_custom_metadata(BUCKET, path),
     )
-    return config.archival_timestamp
+    return config.archival.archival_timestamp
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
