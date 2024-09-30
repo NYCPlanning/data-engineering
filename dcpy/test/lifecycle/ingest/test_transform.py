@@ -8,7 +8,7 @@ import yaml
 from unittest import TestCase, mock
 
 from dcpy.models.file import Format
-from dcpy.models.lifecycle.ingest import PreprocessingStep
+from dcpy.models.lifecycle.ingest import PreprocessingStep, Column
 
 from dcpy.utils import data
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -281,17 +281,22 @@ class TestPreprocessors(TestCase):
 
 
 def test_preprocess_no_steps(create_temp_filesystem: Path):
-    input = create_temp_filesystem / "input.txt"
-    output = create_temp_filesystem / "output.txt"
-    input.touch()
+    input = RESOURCES / TEST_DATA_DIR / "test.parquet"
+    output = create_temp_filesystem / "output.parquet"
+    assert (
+        not output.exists()
+    ), "Error in setup of test - output file should not exist yet"
 
-    transform.preprocess(TEST_DATASET_NAME, [], input, output)
+    transform.preprocess(TEST_DATASET_NAME, [], [], input, output)
     assert output.exists()
 
 
 def test_preprocess(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
     output = create_temp_filesystem / "output.parquet"
+    assert (
+        not output.exists()
+    ), "Error in setup of test - output file should not exist yet"
     expected = RESOURCES / TEST_DATA_DIR / "output.parquet"
 
     steps = [
@@ -301,11 +306,41 @@ def test_preprocess(create_temp_filesystem: Path):
         ),
     ]
 
-    transform.preprocess(TEST_DATASET_NAME, steps, input, output)
+    columns = [
+        Column(id="borough", data_type="integer"),
+        Column(id="block", data_type="integer"),
+        Column(id="lot", data_type="integer"),
+        Column(id="bbl", data_type="text"),
+        Column(id="text", data_type="text"),
+        Column(id="wkt", data_type="geometry"),
+    ]
+
+    transform.preprocess(TEST_DATASET_NAME, steps, columns, input, output)
     assert output.exists()
     output_df = geoparquet.read_df(output)
     expected_df = geoparquet.read_df(expected)
     assert output_df.equals(expected_df)
 
-    transform.preprocess(TEST_DATASET_NAME, steps, input, output, output_csv=True)
+    assert not (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
+    transform.preprocess(TEST_DATASET_NAME, steps, [], input, output, output_csv=True)
     assert (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
+
+
+class TestValidateColumns:
+    df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
+
+    def test_validate_all_columns(self):
+        transform.validate_columns(
+            self.df,
+            [Column(id="a", data_type="integer"), Column(id="b", data_type="text")],
+        )
+
+    def test_validate_partial_columns(self):
+        transform.validate_columns(self.df, [Column(id="a", data_type="integer")])
+
+    def test_validate_columns_fails(self):
+        with pytest.raises(
+            ValueError,
+            match="defined in template but not found in processed dataset",
+        ):
+            transform.validate_columns(self.df, [Column(id="c", data_type="integer")])

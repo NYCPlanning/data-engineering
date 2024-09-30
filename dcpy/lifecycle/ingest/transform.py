@@ -2,11 +2,10 @@ from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-import shutil
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import PreprocessingStep
+from dcpy.models.lifecycle.ingest import PreprocessingStep, Column
 from dcpy.utils import data, introspect
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -276,24 +275,36 @@ def validate_processing_steps(
     return compiled_steps
 
 
+def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
+    """
+    For now, simply validates that expected columns exists
+    Does not validate data_type or other data checks
+    """
+    missing_columns = [c.id for c in columns if c.id not in df.columns]
+    if missing_columns:
+        raise ValueError(
+            f"Columns {missing_columns} defined in template but not found in processed dataset.\n Existing columns: {list(df.columns)}"
+        )
+
+
 def preprocess(
     dataset_id: str,
     processing_steps: list[PreprocessingStep],
+    expected_columns: list[Column],
     input_path: Path,
     output_path: Path,
     output_csv: bool = False,
 ):
     """Validates and runs preprocessing steps defined in config object"""
-    if len(processing_steps) == 0:
-        shutil.copy(input_path, output_path)
-    else:
-        df = geoparquet.read_df(input_path)
-        compiled_steps = validate_processing_steps(dataset_id, processing_steps)
+    df = geoparquet.read_df(input_path)
+    compiled_steps = validate_processing_steps(dataset_id, processing_steps)
 
-        for step in compiled_steps:
-            df = step(df)
+    for step in compiled_steps:
+        df = step(df)
 
-        if output_csv:
-            df.to_csv(output_path.parent / f"{dataset_id}.csv")
+    validate_columns(df, expected_columns)
 
-        df.to_parquet(output_path)
+    if output_csv:
+        df.to_csv(output_path.parent / f"{dataset_id}.csv")
+
+    df.to_parquet(output_path)

@@ -70,6 +70,12 @@ class Ingestion(SortedSerializedBase):
     processing_steps: list[PreprocessingStep] = []
 
 
+class Column(SortedSerializedBase):
+    id: str
+    data_type: Literal["text", "integer", "decimal", "geometry", "bool", "datetime"]
+    description: str | None = None
+
+
 class Template(BaseModel, extra="forbid"):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
@@ -78,6 +84,7 @@ class Template(BaseModel, extra="forbid"):
 
     attributes: DatasetAttributes | None = None
     ingestion: Ingestion
+    columns: list[Column] = []
 
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: library.DatasetDefinition | None = None
@@ -96,6 +103,7 @@ class Config(SortedSerializedBase, extra="forbid"):
     attributes: DatasetAttributes | None = None
     archival: ArchivalMetadata
     ingestion: Ingestion
+    columns: list[Column] = []
     run_details: RunDetails
 
     _head_sort_order = [
