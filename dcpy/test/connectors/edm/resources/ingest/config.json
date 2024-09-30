@@ -1,15 +1,19 @@
 {
     "name": "test",
     "version": "ingest",
-    "archival_timestamp": "2024-09-05T12:04:03.450135-04:00",
-    "raw_filename": "dummy.csv",
-    "acl": "public-read",
-    "source": {
-        "type": "local_file",
-        "path": "dummy.csv"
+    "archival": {
+        "archival_timestamp": "2024-09-05T12:04:03.450135-04:00",
+        "raw_filename": "dummy.csv",
+        "acl": "public-read"
     },
-    "file_format": {
-        "type": "csv"
+    "ingestion": {
+        "source": {
+            "type": "local_file",
+            "path": "dummy.csv"
+        },
+        "file_format": {
+            "type": "csv"
+        }
     },
     "run_details": {
         "type": "manual",

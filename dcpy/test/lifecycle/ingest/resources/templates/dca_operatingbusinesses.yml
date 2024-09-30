@@ -1,0 +1,14 @@
+id: dca_operatingbusinesses
+acl: public-read
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: w7w3-xahh
+    format: csv
+  file_format:
+    type: csv
+    geometry:
+      geom_column: location
+      crs: EPSG:4326

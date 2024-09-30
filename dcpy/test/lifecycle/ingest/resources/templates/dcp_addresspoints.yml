@@ -1,0 +1,12 @@
+id: dcp-addresspoints
+acl: public-read
+
+ingestion:
+  source:
+    type: edm_publishing_gis_dataset
+    name: dcp_address_points
+  file_format:
+    unzipped_filename: dcp_address_points.shp
+    type: shapefile
+    crs: EPSG:2263
+  target_crs: EPSG:4326

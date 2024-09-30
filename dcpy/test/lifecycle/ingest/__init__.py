@@ -11,6 +11,7 @@ from dcpy.models.lifecycle.ingest import (
 from dcpy.test.conftest import RECIPES_BUCKET
 
 RESOURCES = Path(__file__).parent / "resources"
+TEMPLATE_DIR = RESOURCES / "templates"
 TEST_DATA_DIR = "test_data"
 TEST_DATASET_NAME = "test_dataset"
 FAKE_VERSION = "20240101"
