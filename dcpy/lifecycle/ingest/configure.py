@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 import yaml
 
 from dcpy.models.lifecycle.ingest import (
+    ArchivalMetadata,
+    Ingestion,
     LocalFileSource,
     S3Source,
     ScriptSource,
@@ -97,19 +99,25 @@ def get_filename(source: Source, ds_id: str) -> str:
 
 
 def get_config(
-    dataset_id: str, version: str | None = None, mode: str | None = None
+    dataset_id: str,
+    version: str | None = None,
+    *,
+    mode: str | None = None,
+    template_dir: Path = TEMPLATE_DIR,
 ) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
-    template = read_template(dataset_id, version=version)
-    filename = get_filename(template.source, template.id)
-    version = version or get_version(template.source, run_details.timestamp)
-    template = read_template(dataset_id, version=version)
-    processing_steps = template.processing_steps
+    template = read_template(dataset_id, version=version, template_dir=template_dir)
 
-    if template.target_crs:
+    filename = get_filename(template.ingestion.source, template.id)
+    version = version or get_version(template.ingestion.source, run_details.timestamp)
+    template = read_template(dataset_id, version=version, template_dir=template_dir)
+
+    processing_steps = template.ingestion.processing_steps
+
+    if template.ingestion.target_crs:
         reprojection = PreprocessingStep(
-            name="reproject", args={"target_crs": template.target_crs}
+            name="reproject", args={"target_crs": template.ingestion.target_crs}
         )
         processing_steps = [reprojection] + processing_steps
 
@@ -128,18 +136,28 @@ def get_config(
 
     processing_steps = [s for s in processing_steps if s.mode is None or s.mode == mode]
 
+    archival = ArchivalMetadata(
+        archival_timestamp=run_details.timestamp,
+        raw_filename=filename,
+        acl=template.acl,
+    )
+
+    ingestion = Ingestion(
+        target_crs=template.ingestion.target_crs,
+        source=template.ingestion.source,
+        file_format=template.ingestion.file_format,
+        processing_mode=mode,
+        processing_steps=processing_steps,
+    )
+
     # create config object
     return Config(
         id=template.id,
         version=version,
+        crs=ingestion.target_crs,
         attributes=template.attributes,
-        archival_timestamp=run_details.timestamp,
-        raw_filename=filename,
-        acl=template.acl,
-        target_crs=template.target_crs,
-        source=template.source,
-        file_format=template.file_format,
-        processing_mode=mode,
-        processing_steps=processing_steps,
+        archival=archival,
+        ingestion=ingestion,
+        columns=template.columns,
         run_details=run_details,
     )
