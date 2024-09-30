@@ -32,10 +32,16 @@ class Attributes(DefaultDatasetAttributes, extra="ignore"):
         return DefaultDatasetAttributes(**self.model_dump())
 
 
-class Metadata(SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"):
+class ProductMetadataFile(
+    SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"
+):
     id: str
     datasets: list[str] = []
     attributes: Attributes = Field(default_factory=Attributes)
+
+
+class OrgMetadataFile(TemplatedYamlReader, SortedSerializedBase, extra="forbid"):
+    products: list[str]
 
 
 class ProductFolder(SortedSerializedBase, extra="forbid"):
@@ -45,8 +51,8 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
     def _dataset_folders(self):
         return [p.parent.name for p in self.root_path.glob("*/*.yml")]
 
-    def get_product_metadata(self) -> Metadata:
-        return Metadata.from_path(
+    def get_product_metadata(self) -> ProductMetadataFile:
+        return ProductMetadataFile.from_path(
             self.root_path / "metadata.yml",
             template_vars=self.template_vars,
         )
@@ -54,7 +60,7 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
     def get_product_dataset(
         self,
         dataset_id,
-        product_metadata: Metadata,
+        product_metadata: ProductMetadataFile,
     ) -> DatasetMetadata:
         ds_md = DatasetMetadata.from_path(
             self.root_path / dataset_id / "metadata.yml",
@@ -97,19 +103,15 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
         return product_errors
 
 
-class RepoMetadata(TemplatedYamlReader, SortedSerializedBase, extra="forbid"):
-    products: list[str]
-
-
-class Repo(SortedSerializedBase, extra="forbid"):
+class MetadataRepoFolder(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
-    metadata: RepoMetadata
+    metadata: OrgMetadataFile
 
     @classmethod
     def from_path(cls, path: Path):
-        return Repo(
-            root_path=path, metadata=RepoMetadata.from_path(path / "metadata.yml")
+        return MetadataRepoFolder(
+            root_path=path, metadata=OrgMetadataFile.from_path(path / "metadata.yml")
         )
 
     def product(self, name) -> ProductFolder:
