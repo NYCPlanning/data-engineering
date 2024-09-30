@@ -20,3 +20,13 @@ ingestion:
   - name: rename_columns
     args:
       map: {"geom": "wkb_geometry"}
+
+columns:
+- id: overlay
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

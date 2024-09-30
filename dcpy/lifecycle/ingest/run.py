@@ -89,6 +89,7 @@ def run(
     transform.preprocess(
         config.id,
         config.ingestion.processing_steps,
+        config.columns,
         staging_dir / init_parquet,
         staging_dir / config.filename,
         output_csv=output_csv,
