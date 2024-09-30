@@ -11,7 +11,7 @@ from dcpy.utils import s3
 from dcpy.lifecycle.ingest import configure
 
 from dcpy.test.conftest import mock_request_get
-from . import RESOURCES, TEST_DATASET_NAME, Sources, SOURCE_FILENAMES
+from . import RESOURCES, TEST_DATASET_NAME, Sources, SOURCE_FILENAMES, TEMPLATE_DIR
 
 
 def test_jinja_vars():
@@ -28,18 +28,20 @@ class TestReadTemplate:
     """
 
     def test_simple(self):
-        template = configure.read_template("bpl_libraries")
-        assert isinstance(template.source, web.GenericApiSource)
+        template = configure.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
+        assert isinstance(template.ingestion.source, web.GenericApiSource)
         assert isinstance(
-            template.file_format,
+            template.ingestion.file_format,
             file.Json,
         )
 
     def test_jinja(self):
-        template = configure.read_template("dcp_atomicpolygons", version="test")
-        assert isinstance(template.source, web.FileDownloadSource)
+        template = configure.read_template(
+            "dcp_atomicpolygons", version="test", template_dir=TEMPLATE_DIR
+        )
+        assert isinstance(template.ingestion.source, web.FileDownloadSource)
         assert isinstance(
-            template.file_format,
+            template.ingestion.file_format,
             file.Shapefile,
         )
 
@@ -93,37 +95,52 @@ def test_get_filename_invalid_source():
 
 class TestGetConfig:
     def test_standard(self):
-        config = configure.get_config("dca_operatingbusinesses")
+        config = configure.get_config(
+            "dca_operatingbusinesses", template_dir=TEMPLATE_DIR
+        )
         # ensure no reprojection step
         # ensure default 'clean_column_names' step is added
-        assert len(config.processing_steps) == 1
-        assert config.processing_steps[0].name == "clean_column_names"
+        assert len(config.ingestion.processing_steps) == 1
+        assert config.ingestion.processing_steps[0].name == "clean_column_names"
 
     def test_clean_column_names_defined(self):
-        config = configure.get_config("bpl_libraries")
+        config = configure.get_config("bpl_libraries", template_dir=TEMPLATE_DIR)
         # ensure no reprojection step
         # ensure default 'clean_column_names' step is added
-        assert len(config.processing_steps) == 1
-        assert config.processing_steps[0].name == "clean_column_names"
-        assert config.processing_steps[0].args == {"replace": {"data.": ""}}
+        assert len(config.ingestion.processing_steps) == 1
+        assert config.ingestion.processing_steps[0].name == "clean_column_names"
+        assert config.ingestion.processing_steps[0].args == {"replace": {"data.": ""}}
 
     def test_reproject(self):
-        config = configure.get_config("dcp_addresspoints", version="24c")
-        assert len(config.processing_steps) == 2
-        assert config.processing_steps[0].name == "reproject"
+        config = configure.get_config(
+            "dcp_addresspoints", version="24c", template_dir=TEMPLATE_DIR
+        )
+        assert len(config.ingestion.processing_steps) == 2
+        assert config.ingestion.processing_steps[0].name == "reproject"
 
     def test_no_mode(self):
-        standard = configure.get_config("dcp_pop_acs2010_demographic", version="test")
-        assert standard.processing_steps
-        assert "append_prev" not in [s.name for s in standard.processing_steps]
+        standard = configure.get_config(
+            "dcp_pop_acs2010_demographic", version="test", template_dir=TEMPLATE_DIR
+        )
+        assert standard.ingestion.processing_steps
+        assert "append_prev" not in [
+            s.name for s in standard.ingestion.processing_steps
+        ]
 
     def test_mode(self):
         append = configure.get_config(
-            "dcp_pop_acs2010_demographic", version="test", mode="append"
+            "dcp_pop_acs2010_demographic",
+            version="test",
+            mode="append",
+            template_dir=TEMPLATE_DIR,
         )
-        assert "append_prev" in [s.name for s in append.processing_steps]
+        assert "append_prev" in [s.name for s in append.ingestion.processing_steps]
 
+    def test_invalid_mode(self):
         with pytest.raises(ValueError):
             configure.get_config(
-                "dcp_pop_acs2010_demographic", version="test", mode="fake_mode"
+                "dcp_pop_acs2010_demographic",
+                version="test",
+                mode="fake_mode",
+                template_dir=TEMPLATE_DIR,
             )

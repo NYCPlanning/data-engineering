@@ -50,8 +50,11 @@ def run(
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
+    template_dir: Path = configure.TEMPLATE_DIR,
 ) -> Config:
-    config = configure.get_config(dataset_id, version=version, mode=mode)
+    config = configure.get_config(
+        dataset_id, version=version, mode=mode, template_dir=template_dir
+    )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     if not staging_dir:
