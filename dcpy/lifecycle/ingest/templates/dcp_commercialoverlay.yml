@@ -1,5 +1,13 @@
 id: dcp_commercialoverlay
 acl: public-read
+
+attributes:
+  name: DCP NYC Commercial Overlay Districts
+  description: |
+    Polygon features representing the within-tax-block limits for commercial overlay districts,
+    as shown on the DCP zoning maps. Commercial overlay district designations are indicated in the OVERLAY attribute.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata
+
 target_crs: EPSG:4326
 source:
   type: edm_publishing_gis_dataset

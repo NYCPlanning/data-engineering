@@ -132,6 +132,7 @@ def get_config(
     return Config(
         id=template.id,
         version=version,
+        attributes=template.attributes,
         archival_timestamp=run_details.timestamp,
         raw_filename=filename,
         acl=template.acl,

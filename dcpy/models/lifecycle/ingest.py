@@ -45,20 +45,24 @@ class PreprocessingStep(BaseModel):
     mode: str | None = None
 
 
+class DatasetAttributes(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    url: str | None = None
+    custom: dict | None = None
+
+
 class Template(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
     id: str
     acl: recipes.ValidAclValues
 
-    target_crs: str | None = None
+    attributes: DatasetAttributes | None = None
 
-    ## these two fields might merge to "source" or something equivalent at some point
-    ## for now, they are distinct so that they can be worked on separately
-    ## when implemented, "None" should not be valid type
+    target_crs: str | None = None
     source: Source
     file_format: file.Format
-
     processing_steps: list[PreprocessingStep] = []
 
     ## this is the original library template, included just for reference while we build out our new templates
@@ -72,6 +76,9 @@ class Config(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """
 
     id: str = Field(validation_alias=AliasChoices("id", "name"))
+
+    attributes: DatasetAttributes | None = None
+
     version: str
     archival_timestamp: datetime
     check_timestamps: list[datetime] = []
