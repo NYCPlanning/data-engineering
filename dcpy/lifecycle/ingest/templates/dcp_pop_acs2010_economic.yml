@@ -1,0 +1,28 @@
+id: dcp_pop_acs2010_economic
+acl: public-read
+
+attributes:
+  name: DCP Population 2010 ACS Economic Data
+  description: |
+    This file is produced internally by the Population division. 2010 version is used as a reference dataset
+    for the latest ACS data, and occasionally is modified so these different subsections are archived as their
+    own recipe datasets so that they can easily be updated individually
+
+ingestion:
+  source:
+    type: local_file
+    path: .library/upload/CCD2023_ACS0610Data_for1822Update.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: CCD2023_Econ0610_NotInflated
+    dtype:
+      GeoID: str
+  processing_steps:
+  - name: append_prev
+    mode: append
+  - name: upsert_column_of_previous_version
+    args:
+      key: [geotype, geoid]
+      insert_behavior: error
+      missing_key_behavior: error
+    mode: update_column
