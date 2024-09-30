@@ -2,6 +2,7 @@ from pathlib import Path
 import pytest
 
 from dcpy.models.product import metadata as md
+from dcpy.models.product.dataset import metadata_v2 as ds_md
 
 
 @pytest.fixture
@@ -21,6 +22,7 @@ template_vars = {
     "lion_prod_level_pub_freq": lion_product_level_pub_freq,
     "pseudo_lots_pub_freq": pseudo_lots_pub_freq,
 }
+PRODUCT_WITH_ERRORS = "mock_product_with_errors"
 
 
 def test_dataset_md_overrides(lion_md_path: Path):
@@ -68,10 +70,45 @@ def test_get_tagged_destinations(lion_md_path: Path):
 
 def test_product_metadata_validation(lion_md_path: Path):
     lion_product = md.ProductFolder(root_path=lion_md_path)
-    assert lion_product.validate_dataset_metadata() == []
+    assert not lion_product.validate_dataset_metadata()
 
 
 def test_product_validation_happy_path(test_metadata_repo: Path):
     repo = md.Repo.from_path(test_metadata_repo)
     validation = repo.validate_metadata()
-    assert validation == [], "No errors should have been found"
+    assert validation == {}, "No errors should have been found"
+
+
+def test_product_validation_with_error_product(test_metadata_repo: Path):
+    """Tests that validation produces the expected errors."""
+    repo = md.Repo.from_path(test_metadata_repo)
+    repo.metadata.products.append(PRODUCT_WITH_ERRORS)
+
+    validation_errors = repo.validate_metadata()
+    assert (
+        len(validation_errors.keys()) == 1
+    ), "The correct number of products should have errors"
+
+    assert (
+        PRODUCT_WITH_ERRORS in validation_errors
+    ), "The correct product should have the errors."
+    all_dataset_errors = validation_errors[PRODUCT_WITH_ERRORS]
+    assert (
+        len(all_dataset_errors.keys()) == 3
+    ), "The product should report the correct num of errors"
+
+    # The following two datasets should have thrown an exception when being
+    # instantiated
+    instantiaton_error = all_dataset_errors["dataset_with_bad_yaml"][0]
+    assert instantiaton_error.startswith(
+        md.ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION
+    )
+
+    nonexistent_dataset_error = all_dataset_errors["nonexistent_dataset"][0]
+    assert nonexistent_dataset_error.startswith(
+        md.ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION
+    )
+
+    # This column has a missing reference
+    reference_error = all_dataset_errors["dataset_with_reference_errors"][0]
+    assert reference_error.startswith(ds_md.ERROR_MISSING_COLUMN)

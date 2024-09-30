@@ -13,4 +13,4 @@ app = typer.Typer()
 
 @app.command("validate_repo")
 def validate_repo_cli(repo_path: Path):
-    [print(f"{e}\n") for e in validate_repo(repo_path)]
+    [print(f"{e}\n") for e in validate_repo(repo_path).items()]

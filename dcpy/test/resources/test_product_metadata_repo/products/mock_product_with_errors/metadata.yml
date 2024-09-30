@@ -1,0 +1,8 @@
+# Add me to your project at your peril
+
+id: mock_product_with_errors
+
+datasets:
+ - nonexistent_dataset
+ - dataset_with_reference_errors
+ - dataset_with_bad_yaml

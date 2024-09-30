@@ -6,6 +6,12 @@ from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlRead
 from dcpy.models.product.dataset.metadata_v2 import Metadata as DatasetMetadata
 
 
+ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
+    "Error instantiating dataset metadata for"
+)
+ERROR_PRODUCT_METADATA_INSTANTIATION = "Error instantiating product metadata"
+
+
 class DefaultDatasetAttributes(SortedSerializedBase):
     """Anything overrideable at the dataset level"""
 
@@ -74,20 +80,20 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
                     found_tagged_dests[ds.id][dest.id] = ds
         return found_tagged_dests
 
-    def validate_dataset_metadata(self):
+    def validate_dataset_metadata(self) -> dict[str, list[str]]:
         md = self.get_product_metadata()
-        product_errors = []
+        product_errors = {}
 
         for ds_id in md.datasets:
+            errors = []
             try:
-                ds_md = self.get_product_dataset(ds_id, md)
-                ds_errors = ds_md.validate_consistency()
-                if ds_errors:
-                    product_errors.append([f"{md.id}-{ds_id}", ds_errors])
+                errors = self.get_product_dataset(ds_id, md).validate_consistency()
             except Exception as e:
-                product_errors.append(
+                errors = [
                     f"Error instantiating dataset metadata for {md.id}: {ds_id}: {e}"
-                )
+                ]
+            if errors:
+                product_errors[ds_id] = errors
         return product_errors
 
 
@@ -112,13 +118,17 @@ class Repo(SortedSerializedBase, extra="forbid"):
             template_vars=self.template_vars,
         )
 
-    def validate_metadata(self):
-        product_errors = []
+    def validate_metadata(self) -> dict[str, dict[str, list[str]]]:
+        product_errors = {}
         for p in self.metadata.products:
             try:
-                product_errors += self.product(p).validate_dataset_metadata()
+                errors = self.product(p).validate_dataset_metadata()
+                if errors:
+                    product_errors[p] = errors
             except Exception as e:
-                product_errors.append(
-                    f"Error instantiating product metadata for {p}: {e}"
-                )
+                product_errors[p] = {
+                    "product-level-metadata": [
+                        f"{ERROR_PRODUCT_METADATA_INSTANTIATION}: {e}"
+                    ]
+                }
         return product_errors
