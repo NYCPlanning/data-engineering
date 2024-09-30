@@ -5,8 +5,13 @@ from dcpy.models.product import metadata as md
 
 
 @pytest.fixture
-def lion_md_path(resources_path: Path):
-    return resources_path / "mini_lion_prod_with_datasets"
+def test_metadata_repo(resources_path: Path):
+    return resources_path / "test_product_metadata_repo"
+
+
+@pytest.fixture
+def lion_md_path(test_metadata_repo: Path):
+    return test_metadata_repo / "products" / "lion"
 
 
 lion_product_level_pub_freq = "monthly"
@@ -64,3 +69,9 @@ def test_get_tagged_destinations(lion_md_path: Path):
 def test_product_metadata_validation(lion_md_path: Path):
     lion_product = md.ProductFolder(root_path=lion_md_path)
     assert lion_product.validate_dataset_metadata() == []
+
+
+def test_product_validation_happy_path(test_metadata_repo: Path):
+    repo = md.Repo.from_path(test_metadata_repo)
+    validation = repo.validate_metadata()
+    assert validation == [], "No errors should have been found"
