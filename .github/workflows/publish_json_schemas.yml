@@ -1,4 +1,36 @@
 name: Publish Model JSON Schemas
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - dcpy/models/**
   workflow_dispatch:
+
+jobs:
+  test:
+    name: Publish JSON Schemas
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:latest
+    env:
+      RECIPES_BUCKET: edm-recipes
+      PUBLISHING_BUCKET: edm-publishing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: NYCPlanning/data-engineering
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Publish
+        run: python -m admin.ops.update_product_metadata_schemas
