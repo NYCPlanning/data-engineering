@@ -1,4 +1,0 @@
-name: Product_metadata_checks
-
-on:
-  workflow_dispatch:
