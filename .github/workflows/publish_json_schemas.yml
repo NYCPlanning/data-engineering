@@ -1,0 +1,4 @@
+name: Publish Model JSON Schemas
+
+on:
+  workflow_dispatch:
