@@ -1,8 +1,15 @@
 from collections import defaultdict
 from pathlib import Path
+from pydantic import Field
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 from dcpy.models.product.dataset.metadata_v2 import Metadata as DatasetMetadata
+
+
+ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
+    "Error instantiating dataset metadata for"
+)
+ERROR_PRODUCT_METADATA_INSTANTIATION = "Error instantiating product metadata"
 
 
 class DefaultDatasetAttributes(SortedSerializedBase):
@@ -25,20 +32,27 @@ class Attributes(DefaultDatasetAttributes, extra="ignore"):
         return DefaultDatasetAttributes(**self.model_dump())
 
 
-class Metadata(SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"):
+class ProductMetadataFile(
+    SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"
+):
     id: str
     datasets: list[str] = []
-    dataset_collections: dict[str, list[str]] = {}
+    attributes: Attributes = Field(default_factory=Attributes)
 
-    attributes: Attributes
+
+class OrgMetadataFile(TemplatedYamlReader, SortedSerializedBase, extra="forbid"):
+    products: list[str]
 
 
 class ProductFolder(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = {}
 
-    def get_product_metadata(self) -> Metadata:
-        return Metadata.from_path(
+    def _dataset_folders(self):
+        return [p.parent.name for p in self.root_path.glob("*/*.yml")]
+
+    def get_product_metadata(self) -> ProductMetadataFile:
+        return ProductMetadataFile.from_path(
             self.root_path / "metadata.yml",
             template_vars=self.template_vars,
         )
@@ -46,7 +60,7 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
     def get_product_dataset(
         self,
         dataset_id,
-        product_metadata: Metadata,
+        product_metadata: ProductMetadataFile,
     ) -> DatasetMetadata:
         ds_md = DatasetMetadata.from_path(
             self.root_path / dataset_id / "metadata.yml",
@@ -71,3 +85,54 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
                 if tag in dest.tags:
                     found_tagged_dests[ds.id][dest.id] = ds
         return found_tagged_dests
+
+    def validate_dataset_metadata(self) -> dict[str, list[str]]:
+        md = self.get_product_metadata()
+        product_errors = {}
+
+        for ds_id in md.datasets:
+            errors = []
+            try:
+                errors = self.get_product_dataset(ds_id, md).validate_consistency()
+            except Exception as e:
+                errors = [
+                    f"Error instantiating dataset metadata for {md.id}: {ds_id}: {e}"
+                ]
+            if errors:
+                product_errors[ds_id] = errors
+        return product_errors
+
+
+class OrgMetadata(SortedSerializedBase, extra="forbid"):
+    root_path: Path
+    template_vars: dict = Field(default_factory=dict)
+    metadata: OrgMetadataFile
+
+    @classmethod
+    def from_path(cls, path: Path, template_vars: dict | None = None):
+        return OrgMetadata(
+            root_path=path,
+            metadata=OrgMetadataFile.from_path(path / "metadata.yml"),
+            template_vars=template_vars or {},
+        )
+
+    def product(self, name) -> ProductFolder:
+        return ProductFolder(
+            root_path=self.root_path / "products" / name,
+            template_vars=self.template_vars,
+        )
+
+    def validate_metadata(self) -> dict[str, dict[str, list[str]]]:
+        product_errors = {}
+        for p in self.metadata.products:
+            try:
+                errors = self.product(p).validate_dataset_metadata()
+                if errors:
+                    product_errors[p] = errors
+            except Exception as e:
+                product_errors[p] = {
+                    "product-level-metadata": [
+                        f"{ERROR_PRODUCT_METADATA_INSTANTIATION}: {e}"
+                    ]
+                }
+        return product_errors

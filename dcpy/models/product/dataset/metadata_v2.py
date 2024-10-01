@@ -9,6 +9,8 @@ import unicodedata
 from dcpy.utils.collections import deep_merge_dict as merge
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 
+ERROR_MISSING_COLUMN = "MISSING COLUMN"
+
 
 # MISC UTILS
 def normalize_text(s):
@@ -334,12 +336,12 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             for c in fo.dataset_overrides.overridden_columns:
                 if c.id not in column_ids:
                     errors.append(
-                        f"MISSING COLUMN: file {fo.file.id} references undefined column {c.id}"
+                        f"{ERROR_MISSING_COLUMN}: file {fo.file.id} references undefined column {c.id}"
                     )
             for c in fo.dataset_overrides.omitted_columns:
                 if c not in column_ids:
                     errors.append(
-                        f"MISSING COLUMN: file override for {fo.file.id} references undefined column {c}"
+                        f"{ERROR_MISSING_COLUMN}: file override for {fo.file.id} references undefined column {c}"
                     )
 
         # destinations
@@ -352,12 +354,12 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
                 for c in df.dataset_overrides.omitted_columns:
                     if c not in column_ids:
                         errors.append(
-                            f"MISSING COLUMN: file override for dest {d.id} references undefined omitted column {c}"
+                            f"{ERROR_MISSING_COLUMN}: file override for dest {d.id} references undefined omitted column {c}"
                         )
                 for c in df.dataset_overrides.overridden_columns:
                     if c.id not in column_ids:
                         errors.append(
-                            f"MISSING COLUMN: destination {d.id} references undefined column {c.id}"
+                            f"{ERROR_MISSING_COLUMN}: destination {d.id} references undefined column {c.id}"
                         )
 
         # assemblies
