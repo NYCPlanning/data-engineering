@@ -208,3 +208,24 @@ jobs:
       with:
         fail_ci_if_error: true
         verbose: true
+
+  validate_product_metadata:
+    if: contains(inputs.path_filter, 'dcpy')
+    name: Validate Product Metadata
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:${{ inputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: NYCPlanning/product-metadata
+          path: product-metadata
+      - uses: actions/checkout@v4
+        with:
+          repository: NYCPlanning/data-engineering
+          path: data-engineering
+      - name: Validate All Metadata Files
+        run: cd data-engineering; python -m dcpy.cli lifecycle scripts product_metadata validate_repo ../product-metadata
+        env:
+          RECIPES_BUCKET: edm-recipes
+          PUBLISHING_BUCKET: edm-publishing
