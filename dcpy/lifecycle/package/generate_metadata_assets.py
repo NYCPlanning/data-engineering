@@ -8,16 +8,21 @@ from . import RESOURCES_PATH
 DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH = (
     RESOURCES_PATH / "data_dictionary_template.jinja"
 )
+DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH = RESOURCES_PATH / "data_dictionary.css"
 
 
-def generate_pdf_from_html(output_html_path: Path, output_pdf_path: Path) -> Path:
+def generate_pdf_from_html(
+    output_html_path: Path,
+    output_pdf_path: Path,
+    stylesheet_path: Path,
+) -> Path:
     subprocess.run(
         [
-            "pandoc",
+            "weasyprint",
             output_html_path,
-            "-o",
             output_pdf_path,
-            "--pdf-engine=weasyprint",
+            "-s",
+            stylesheet_path,
         ],
         check=True,
     )
