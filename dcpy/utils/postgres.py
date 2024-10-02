@@ -96,28 +96,48 @@ class PostgresClient:
         self,
         query: str,
         *,
+        geom_column: str | None = None,
         conn=None,
         **kwargs,
     ) -> pd.DataFrame:
+        if geom_column:
+
+            def call(c):
+                return gpd.read_postgis(sql=text(query), con=c, **kwargs)
+        else:
+
+            def call(c):
+                return pd.read_sql(sql=text(query), con=c, **kwargs)
         if conn is None:
             with self.engine.connect() as conn:
-                select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
+                return call(conn)
         else:
-            select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
-        return select_records
+            return call(conn)
 
     def read_table_df(
         self,
         table_name: str,
         *,
         conn=None,
+        geom_column: str | None = None,
         **kwargs,
     ) -> pd.DataFrame:
+        if not geom_column:
+            geom_column = self.get_geometry_column(table_name)
+        if geom_column:
+
+            def call(c):
+                return gpd.read_postgis(table_name, con=c, **kwargs)
+        else:
+
+            def call(c):
+                return pd.read_sql_table(table_name=table_name, con=c, **kwargs)
+
         if conn is None:
             with self.engine.connect() as conn:
-                return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
+                return call(conn)
         else:
-            return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
+            return call(conn)
 
     def read_table_gdf(
         self,
@@ -212,12 +232,31 @@ class PostgresClient:
             """
             SELECT column_name FROM information_schema.columns
             WHERE table_schema = ':table_schema'
-            AND table_name   = ':table_name';
+            AND table_name = ':table_name';
             """,
             table_schema=AsIs(self.schema),
             table_name=AsIs(table_name),
         )
         return sorted(column_names["column_name"])
+
+    def get_geometry_column(self, table_name: str) -> str | None:
+        column_names = self.execute_select_query(
+            """
+            SELECT column_name FROM information_schema.columns
+            WHERE table_schema = ':table_schema'
+            AND table_name = ':table_name'
+            AND udt_name = 'geometry';
+            """,
+            table_schema=AsIs(self.schema),
+            table_name=AsIs(table_name),
+        )
+        c = column_names["column_name"]
+        if len(c) > 1:
+            raise ValueError(f"Multiple geometry columns present: {c}")
+        elif len(c) == 0:
+            return None
+        else:
+            return c[0]
 
     def get_column_types(self, table_name: str) -> dict[str, str]:
         columns = self.execute_select_query(
