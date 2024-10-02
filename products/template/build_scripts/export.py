@@ -32,7 +32,9 @@ def generate_metadata():
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
     )
     generate_metadata_assets.generate_pdf_from_html(
-        output_html_path, PRODUCT_PATH / "data_dictionary.pdf"
+        output_html_path,
+        PRODUCT_PATH / "data_dictionary.pdf",
+        generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
     oti_xlsx.write_oti_xlsx(metadata_path=dataset_metadata_yml)
 

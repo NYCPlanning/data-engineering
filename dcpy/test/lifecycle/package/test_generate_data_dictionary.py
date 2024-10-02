@@ -17,15 +17,7 @@ class TestDataDictionary(TestCase):
     output_pdf_path = TEMP_DATA_PATH / "metadata.pdf"
     output_xlsx_path = TEMP_DATA_PATH / "my_data_dictionary.xlsx"
 
-    def test_generate_html_from_yaml(self):
-        html_path = generate_metadata_assets.generate_html_from_yaml(
-            yaml_file_path=self.yaml_file_path,
-            output_html_path=self.output_html_path,
-            html_template_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
-        )
-        assert html_path.exists()
-
-    def test_generate_pdf_from_html(self):
+    def test_generate_pdf_from_yaml(self):
         html_path = generate_metadata_assets.generate_html_from_yaml(
             yaml_file_path=self.yaml_file_path,
             output_html_path=self.output_html_path,
@@ -34,6 +26,7 @@ class TestDataDictionary(TestCase):
         pdf_path = generate_metadata_assets.generate_pdf_from_html(
             output_html_path=html_path,
             output_pdf_path=self.output_pdf_path,
+            stylesheet_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
         )
         assert pdf_path.exists()
 
