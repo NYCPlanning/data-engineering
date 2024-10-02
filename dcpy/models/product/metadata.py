@@ -1,6 +1,6 @@
 from collections import defaultdict
 from pathlib import Path
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 from dcpy.models.product.dataset.metadata_v2 import Metadata as DatasetMetadata
@@ -103,6 +103,12 @@ class ProductFolder(SortedSerializedBase, extra="forbid"):
         return product_errors
 
 
+class ProductDatasetDestinationKey(BaseModel):
+    product: str
+    dataset: str
+    destination: str
+
+
 class OrgMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
@@ -136,3 +142,18 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
                     ]
                 }
         return product_errors
+
+    def query_dataset_destinations(
+        self, tag: str
+    ) -> list[ProductDatasetDestinationKey]:
+        keys = []
+        for p_name in self.metadata.products:
+            for ds_id, ds_md in self.product(p_name).get_datasets_by_id().items():
+                keys += [
+                    ProductDatasetDestinationKey(
+                        product=p_name, dataset=ds_id, destination=dest.id
+                    )
+                    for dest in ds_md.destinations
+                    if tag in dest.tags
+                ]
+        return keys
