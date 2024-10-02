@@ -26,13 +26,13 @@ def generate_metadata():
     dataset_metadata_yml = product_metadata.download(
         "template_db", OUTPUT_DIR / "data_dictionary.yaml", dataset="template_db"
     )
-    output_html_path = generate_metadata_assets.generate_html_from_yaml(
+    html_path = generate_metadata_assets.generate_html_from_yaml(
         dataset_metadata_yml,
         OUTPUT_DIR / "data_dictionary.html",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
     )
     generate_metadata_assets.generate_pdf_from_html(
-        output_html_path,
+        html_path,
         PRODUCT_PATH / "data_dictionary.pdf",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )

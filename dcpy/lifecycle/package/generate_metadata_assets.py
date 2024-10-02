@@ -12,36 +12,36 @@ DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH = RESOURCES_PATH / "data_dictionary.css"
 
 
 def generate_pdf_from_html(
-    output_html_path: Path,
-    output_pdf_path: Path,
+    html_path: Path,
+    output_path: Path,
     stylesheet_path: Path,
 ) -> Path:
     subprocess.run(
         [
             "weasyprint",
-            output_html_path,
-            output_pdf_path,
+            html_path,
+            output_path,
             "-s",
             stylesheet_path,
         ],
         check=True,
     )
-    return Path(output_pdf_path)
+    return output_path
 
 
 def generate_html_from_yaml(
-    yaml_file_path: Path,
-    output_html_path: Path,
+    metadata_path: Path,
+    output_path: Path,
     html_template_path: Path,
 ) -> Path:
-    metadata = Metadata.from_path(yaml_file_path, template_vars={"var1": "value1"})
+    metadata = Metadata.from_path(metadata_path, template_vars={"var1": "value1"})
 
     with open(html_template_path, "r") as f:
         template_text = f.read()
     rendered_template = Template(template_text).render({"metadata": metadata})
 
-    output_html_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_html_path, "w") as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
         f.write(rendered_template)
 
-    return output_html_path
+    return output_path
