@@ -32,8 +32,19 @@ DISCLAIMER = """\
   use the dataset, or applications utilizing the dataset, provided by any third party.\
 """
 
+# pulling this out solely for a test case.
+_DESCRIPTION_ROW_INDEX = 15
 
-def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Metadata):
+
+def _get_dataset_description(path: Path):
+    xlsx_wb = openpyxl.load_workbook(filename=path)
+    ds_info = xlsx_wb[OTI_XLSX_TABS.dataset_info]
+
+    rows = [r for r in ds_info.rows]
+    return rows[_DESCRIPTION_ROW_INDEX][1].value
+
+
+def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Dataset):
     ds_info_sheet = xlsx_wb[OTI_XLSX_TABS.dataset_info]
 
     rows = [r for r in ds_info_sheet.rows]
@@ -60,7 +71,7 @@ def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Metad
     rows[14][1].value = metadata.attributes.publishing_frequency_details
 
     # Dataset Description. Overview of the information this dataset contains, including overall context and definitions of key terms. This field may include links to supporting datasets, agency websites, or external resources for additional context. ": 15
-    rows[15][1].value = metadata.attributes.description
+    rows[_DESCRIPTION_ROW_INDEX][1].value = metadata.attributes.description
 
     # Why is this dataset collected. Purpose behind the collection of this data, including any legal or policy requirements for this data by NYC Executive Order, Local Law, or other policy directive.": 16
     rows[16][1].value = metadata.attributes.publishing_purpose

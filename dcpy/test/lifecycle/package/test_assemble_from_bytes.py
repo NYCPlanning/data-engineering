@@ -1,11 +1,12 @@
 from pathlib import Path
+from typing import override
 import pytest
 import shutil
 from unittest.mock import patch, call
 
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as ds
-from dcpy.lifecycle.package.oti_xlsx import OTI_METADATA_FILE_TYPE
+from dcpy.lifecycle.package import oti_xlsx
 
 SHAPEFILE = ds.File(
     id="shp",
@@ -143,24 +144,55 @@ def colp_package_path(resources_path: Path):
 
 @patch("dcpy.lifecycle.package.assemble.pull_destination_files")
 def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package_path):
-    OTI_DD_FILENAME = "oti_dd.xlsx"
+    OTI_DD_FILENAME_BASIC = "oti_dd_1.xlsx"
+    OTI_DD_FILENAME_SHP = "oti_dd_2.xlsx"
+    OTI_DD_FILENAME_SOC_SHP = "oti_dd_3.xlsx"
     MOCK_PULLED_PACKAGE_PATH = tmp_path
 
     pull_destination_files_mock.side_effect = lambda *args, **kwargs: shutil.copytree(
         colp_package_path, MOCK_PULLED_PACKAGE_PATH, dirs_exist_ok=True
     )
 
-    # Add an oti_xlsx file type, which we'll then have to generate
+    # Add a few oti_xlsx file types, which we'll then have to generate
     metadata = ds.Metadata.from_path(
         colp_package_path / "metadata.yml", template_vars={"version": "24b"}
     )
-    metadata.files.append(
+    metadata.files += [
         ds.FileAndOverrides(
             file=ds.File(
-                id="oti_xlsx", filename=OTI_DD_FILENAME, type=OTI_METADATA_FILE_TYPE
+                id="oti_xlsx",
+                filename=OTI_DD_FILENAME_BASIC,
+                type=oti_xlsx.OTI_METADATA_FILE_TYPE,
             )
-        )
-    )
+        ),
+        ds.FileAndOverrides(
+            file=ds.File(
+                id="oti_xlsx_2",
+                filename=OTI_DD_FILENAME_SHP,
+                type=oti_xlsx.OTI_METADATA_FILE_TYPE,
+                custom={
+                    assemble.ASSEMBLY_INSTRUCTIONS_KEY: {
+                        assemble.METADATA_OVERRIDE_KEY: {"file_id": "primary_shapefile"}
+                    }
+                },
+            )
+        ),
+        ds.FileAndOverrides(
+            file=ds.File(
+                id="oti_xlsx_3",
+                filename=OTI_DD_FILENAME_SOC_SHP,
+                type=oti_xlsx.OTI_METADATA_FILE_TYPE,
+                custom={
+                    assemble.ASSEMBLY_INSTRUCTIONS_KEY: {
+                        assemble.METADATA_OVERRIDE_KEY: {
+                            "file_id": "primary_shapefile",
+                            "destination_id": "socrata_prod",
+                        }
+                    }
+                },
+            )
+        ),
+    ]
 
     assemble.assemble_dataset_from_bytes(
         metadata,
@@ -173,6 +205,25 @@ def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package
     attachments_path = MOCK_PULLED_PACKAGE_PATH / "attachments"
     assert attachments_path.exists(), "Sanity check that the mock side_effect works"
 
-    assert (
-        attachments_path / OTI_DD_FILENAME
-    ).exists(), "The OTI XLSX should have been generated"
+    xlsx_filenames_to_expected_desc = [
+        (OTI_DD_FILENAME_BASIC, metadata.attributes.description),
+        (
+            OTI_DD_FILENAME_SHP,
+            metadata.get_file_and_overrides(
+                "primary_shapefile"
+            ).dataset_overrides.attributes.description,
+        ),
+        (
+            OTI_DD_FILENAME_SOC_SHP,
+            metadata.calculate_metadata(
+                file_id="primary_shapefile", destination_id="socrata_prod"
+            ).attributes.description,
+        ),
+    ]
+
+    for filename, desc in xlsx_filenames_to_expected_desc:
+        xlsx_path = attachments_path / filename
+        assert xlsx_path.exists(), "The OTI XLSX should have been generated"
+        assert (
+            oti_xlsx._get_dataset_description(xlsx_path) == desc
+        ), "The XLSX should have the correct description"
