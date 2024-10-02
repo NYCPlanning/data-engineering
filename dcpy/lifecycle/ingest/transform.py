@@ -96,6 +96,8 @@ class Preprocessor:
         self, df: pd.DataFrame, map: dict[str, str], drop_others=False
     ) -> pd.DataFrame:
         renamed = df.copy()
+        if isinstance(renamed, gpd.GeoDataFrame) and renamed.geometry.name in map:
+            renamed.rename_geometry(map.pop(renamed.geometry.name), inplace=True)
         renamed = renamed.rename(columns=map, errors="raise")
         if drop_others:
             renamed = renamed[list(map.values())]
