@@ -279,6 +279,14 @@ class TestPreprocessors(TestCase):
         expected = pd.DataFrame({"a": [2, 3, 1], "b": ["B-1", "B-2", "c_3"]})
         assert transformed.equals(expected)
 
+    def test_rename_geodataframe(self):
+        transformed: gpd.GeoDataFrame = self.proc.rename_columns(
+            self.gdf, map={"wkt": "geom"}
+        )
+        assert transformed.active_geometry_name == "geom"
+        expected = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "renamed.parquet")
+        assert transformed.equals(expected)
+
 
 def test_preprocess_no_steps(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
