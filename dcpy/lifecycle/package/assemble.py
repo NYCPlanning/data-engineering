@@ -6,6 +6,7 @@ import tempfile
 import typer
 
 from dcpy.lifecycle import WORKING_DIRECTORIES
+from dcpy.lifecycle.builds import metadata
 from dcpy.lifecycle.package import oti_xlsx
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as md
@@ -172,6 +173,10 @@ def pull_all_destination_files(local_package_path: Path, product_metadata: md.Me
     product_metadata.write_to_yaml(local_package_path / "metadata.yml")
 
 
+ASSEMBLY_INSTRUCTIONS_KEY = "assembly"
+METADATA_OVERRIDE_KEY = "with_metadata_from"
+
+
 def assemble_dataset_from_bytes(
     dataset_metadata: md.Metadata,
     *,
@@ -195,9 +200,18 @@ def assemble_dataset_from_bytes(
         # this should eventually be generalized into something that will
         # generate all required missing files, or just running through a list of
         # packaging steps. But for now, it's just the OTI files.
+        overridden_md_key = f.custom.get(ASSEMBLY_INSTRUCTIONS_KEY, {}).get(
+            METADATA_OVERRIDE_KEY
+        )
+
+        ds_md = (
+            dataset_metadata.calculate_metadata(**overridden_md_key)
+            if overridden_md_key
+            else dataset_metadata.dataset
+        )
         logger.info(f"Generating OTI XLSX for file {f.filename}")
         oti_xlsx.write_oti_xlsx(
-            metadata_path=out_path / "metadata.yml",
+            dataset=ds_md,
             output_path=out_path / "attachments" / f.filename,
         )
     return out_path

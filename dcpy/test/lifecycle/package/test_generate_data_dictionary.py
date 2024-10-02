@@ -7,6 +7,7 @@ from dcpy.test.lifecycle.package.conftest import (
 )
 
 from dcpy.lifecycle.package import generate_metadata_assets, oti_xlsx
+from dcpy.models.product.dataset import metadata_v2 as md
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
@@ -32,7 +33,7 @@ class TestDataDictionary(TestCase):
 
     def test_generate_xslx(self):
         oti_xlsx.write_oti_xlsx(
-            metadata_path=self.package_path / "metadata.yml",
+            dataset=md.Metadata.from_path(self.package_path / "metadata.yml").dataset,
             output_path=self.output_xlsx_path,
         )
         assert self.output_xlsx_path.exists()

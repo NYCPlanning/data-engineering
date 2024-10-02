@@ -104,7 +104,7 @@ def _format_row_slice(row_slice, is_last_row=False):
     _set_default_style(rightmost_cell, is_last_row=is_last_row, is_rightmost=True)
 
 
-def _write_column_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Metadata):
+def _write_column_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Dataset):
     ds_info_sheet = xlsx_wb[OTI_XLSX_TABS.column_information]
 
     header_description_row_index = 2
@@ -165,18 +165,17 @@ def _write_change_history(xlsx_wb: openpyxl.Workbook, change_log: list[list[str]
 
 def write_oti_xlsx(
     *,
-    metadata_path: Path,
+    dataset: md_v2.Dataset,
     output_path: Path | None = None,
     template_path_override: Path | None = None,
 ):
     xlsx_wb = openpyxl.load_workbook(
         filename=template_path_override or DEFAULT_TEMPLATE_PATH
     )
-    metadata = md_v2.Metadata.from_path(metadata_path)
-    _write_dataset_information(xlsx_wb, metadata)
-    _write_column_information(xlsx_wb, metadata)
+    _write_dataset_information(xlsx_wb, dataset)
+    _write_column_information(xlsx_wb, dataset)
     # TODO: this locationw will change
-    _write_change_history(xlsx_wb, metadata.attributes.custom.get("change_log", []))
+    _write_change_history(xlsx_wb, dataset.attributes.custom.get("change_log", []))
 
     out_path = output_path or Path("./data_dictionary.xlsx")
     logger.info(f"Saving OTI XLSX to {out_path}")
@@ -203,7 +202,7 @@ def _write_oti_xlsx_cli(
     ),
 ):
     write_oti_xlsx(
-        metadata_path=metadata_path,
+        dataset=md_v2.Metadata.from_path(metadata_path).dataset,
         output_path=output_path,
         template_path_override=template_path_override,
     )
