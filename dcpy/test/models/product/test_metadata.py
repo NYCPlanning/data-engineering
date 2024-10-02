@@ -112,3 +112,13 @@ def test_product_validation_with_error_product(test_metadata_repo: Path):
     # This column has a missing reference
     reference_error = all_dataset_errors["dataset_with_reference_errors"][0]
     assert reference_error.startswith(ds_md.ERROR_MISSING_COLUMN)
+
+
+def test_query_product_dataset_tags(test_metadata_repo: Path):
+    TAG = "prod_tag"
+    repo = md.OrgMetadata.from_path(test_metadata_repo)
+    assert [
+        md.ProductDatasetDestinationKey(
+            product="lion", dataset="school_districts", destination="socrata"
+        )
+    ] == repo.query_dataset_destinations(TAG)
