@@ -104,12 +104,12 @@ def md():
                     ),
                     omitted_columns=[OMITTED_FROM_SHAPEFILE_COL_ID],
                     overridden_columns=[
-                        m.DatasetColumnOverrides(
+                        m.DatasetColumn(
                             id="bbl",
                             description=BBL_SHAPEFILE_COL_DESC,
                             custom={"api_name": "bbl_shapefile_api_name"},
                         ),
-                        m.DatasetColumnOverrides(
+                        m.DatasetColumn(
                             id="borough",
                             description="borough overridden at shapefile",
                             values=[m.ColumnValue(value="3", description="Queens")],
@@ -137,7 +137,7 @@ def md():
                             ),
                             omitted_columns=[OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID],
                             overridden_columns=[
-                                m.DatasetColumnOverrides(
+                                m.DatasetColumn(
                                     id="bbl",
                                     description=BBL_SOCRATA_COL_DESC,
                                     custom={"api_name": "bbl_dest_api_name"},
@@ -426,7 +426,7 @@ def test_validating_metadata__file_missing_columns(md: m.Metadata):
         0
     ]
     file_with_overrides.dataset_overrides.overridden_columns.append(
-        m.DatasetColumnOverrides(id=nonexistant_file_col_id)
+        m.DatasetColumn(id=nonexistant_file_col_id)
     )
 
     validation = md.validate_consistency()
@@ -450,7 +450,7 @@ def test_validating_metadata__dest_missing_columns(md: m.Metadata):
     )
     # Add a nonexistant overridden Column to the Socrata Dest
     file_overrides.dataset_overrides.overridden_columns.append(
-        m.DatasetColumnOverrides(id=nonexistant_dest_col_id)
+        m.DatasetColumn(id=nonexistant_dest_col_id)
     )
 
     print(md.model_dump())
