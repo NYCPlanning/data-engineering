@@ -1,4 +1,4 @@
-id: db-colp
+id: test_dataset
 
 attributes:
   description: Raw Description {{ sample_text }}
@@ -19,8 +19,6 @@ assembly:
     filename: colp_readme.pdf
   - id: colp_metadata
     filename: colp_metadata.pdf
-
-custom: {}
 
 destinations:
 - id: socrata_prod
@@ -47,3 +45,5 @@ columns:
   data_source: Department of City Planning
   checks:
     is_primary_key: true
+- id: bbl
+  data_type: bbl

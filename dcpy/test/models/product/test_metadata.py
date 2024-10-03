@@ -122,3 +122,40 @@ def test_query_product_dataset_tags(test_metadata_repo: Path):
             product="lion", dataset="school_districts", destination="socrata"
         )
     ] == repo.query_dataset_destinations(TAG)
+
+
+@pytest.fixture
+def test_metadata_repo_snippets(resources_path: Path):
+    return resources_path / "test_product_metadata_repo_with_snippets"
+
+
+@pytest.fixture
+def dataset_with_snippets(test_metadata_repo_snippets: Path):
+    repo = md.OrgMetadata.from_path(
+        test_metadata_repo_snippets, template_vars={"version": "VERSION"}
+    )
+    product = repo.product("test_product")
+    return product.get_product_dataset("test_dataset", product.get_product_metadata())
+
+
+def test_string_snippets_applied(dataset_with_snippets: ds_md.Metadata):
+    assert dataset_with_snippets.attributes.description == "Raw Description SAMPLE_TEXT"
+
+
+def test_column_defaults_applied(dataset_with_snippets: ds_md.Metadata):
+    assert dataset_with_snippets.columns == [
+        ds_md.DatasetColumn(
+            id="uid",
+            name="uid",
+            data_type="text",
+            data_source="Department of City Planning",
+            checks=ds_md.Checks(is_primary_key=True),
+        ),
+        ds_md.DatasetColumn(
+            id="bbl",
+            data_type="bbl",
+            name="BBL",
+            description="sample bbl description",
+            example="1016370141",
+        ),
+    ]

@@ -1,0 +1,10 @@
+id: test_product
+
+attributes:
+  display_name: LION Product Display Name
+  description: The lion dataset blah blah
+  publishing_frequency: yearly
+  publishing_purpose: "legal compliance."
+
+datasets:
+  - test_dataset
