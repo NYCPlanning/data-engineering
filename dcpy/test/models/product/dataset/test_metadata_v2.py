@@ -48,7 +48,9 @@ def md():
             },
         ),
         columns=[
-            m.DatasetColumn(id="id", data_type="text", description="id description"),
+            m.DatasetColumn(
+                id="id", name="id", data_type="text", description="id description"
+            ),
             m.DatasetColumn(
                 id="geom",
                 data_type="geometry",
@@ -58,6 +60,8 @@ def md():
             ),
             m.DatasetColumn(
                 id="bbl",
+                data_type="bbl",
+                name="bbl",
                 description="bbl description at column level",
                 custom={
                     "not_overridden": "should_not_be_overridden",
@@ -66,6 +70,8 @@ def md():
             ),
             m.DatasetColumn(
                 id="borough",
+                data_type="text",
+                name="borough",
                 description="",
                 values=[
                     m.ColumnValue(value="1", description="Manhattan"),
@@ -74,9 +80,13 @@ def md():
             ),
             m.DatasetColumn(
                 id=OMITTED_FROM_SHAPEFILE_COL_ID,
+                name=OMITTED_FROM_SHAPEFILE_COL_ID,
+                data_type="text",
             ),
             m.DatasetColumn(
                 id=OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
+                name=OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
+                data_type="text",
             ),
         ],
         files=[
