@@ -469,6 +469,24 @@ def test_validating_metadata__dest_missing_columns(md: m.Metadata):
     assert len(validation) == 2, "There should be the correct number of column errors"
 
 
+def test_missing_column_names(md: m.Metadata):
+    md.columns[0] = m.DatasetColumn(
+        id="bbl",
+        data_type="bbl",
+    )
+    validation = md.validate_consistency()
+    assert len(validation) == 1
+
+
+def test_missing_column_data_types(md: m.Metadata):
+    md.columns[0] = m.DatasetColumn(
+        id="bbl",
+        name="bbl",
+    )
+    validation = md.validate_consistency()
+    assert len(validation) == 1
+
+
 def test_column_defaults(md: m.Metadata):
     md.columns = [
         m.DatasetColumn(
