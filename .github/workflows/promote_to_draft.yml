@@ -36,6 +36,9 @@ on:
         options:
           - public-read 
           - private
+      dev_bucket:
+        type: string
+        default: false
   workflow_call:
     inputs:
       product:
@@ -51,6 +54,9 @@ on:
       product_acl:
         type: string
         required: true
+      dev_bucket:
+        type: string
+        default: false
 
 jobs:
   promote:
@@ -61,7 +67,7 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      PUBLISHING_BUCKET: edm-publishing
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
     steps:
       - uses: actions/checkout@v4
         with:

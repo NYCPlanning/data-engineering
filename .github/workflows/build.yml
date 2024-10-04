@@ -78,6 +78,9 @@ on:
       build_name:
         type: string
         required: false
+      dev_bucket:
+        type: string
+        required: false
 
 
 env:

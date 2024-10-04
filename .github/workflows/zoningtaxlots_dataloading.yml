@@ -21,6 +21,10 @@ on:
         type: boolean
         required: true
         default: false
+      dev_bucket:
+        description: "Dev bucket in DO to use, if not a production run."
+        type: string
+        required: false
 
 jobs:
   dataloading:
@@ -28,7 +32,7 @@ jobs:
     container:
       image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
-      RECIPES_BUCKET: edm-recipes
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
     strategy:
       matrix:
         dataset:
@@ -73,6 +77,7 @@ jobs:
     with:
       dataset_name: ztl
       dev_image: ${{ inputs.dev_image }}
+      dev_bucket: ${{ inputs.dev_bucket }}
       recipe_file: recipe
 
   pluto_minor:
@@ -84,6 +89,7 @@ jobs:
     with:
       dataset_name: pluto
       dev_image: ${{ inputs.dev_image }}
+      dev_bucket: ${{ inputs.dev_bucket }}
       recipe_file: recipe-minor
 
   promote_ztl_to_draft:
@@ -96,6 +102,7 @@ jobs:
       product: db-zoningtaxlots
       build: ${{ github.head_ref || github.ref_name }}
       product_acl: public-read
+      dev_bucket: ${{ inputs.dev_bucket }}
 
   promote_pluto_to_draft:
     needs: [dataloading, pluto_minor]
@@ -107,3 +114,4 @@ jobs:
       product: db-pluto
       build: ${{ github.head_ref || github.ref_name }}
       product_acl: public-read
+      dev_bucket: ${{ inputs.dev_bucket }}
