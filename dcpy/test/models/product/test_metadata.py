@@ -126,20 +126,53 @@ def test_query_product_dataset_tags(test_metadata_repo: Path):
 
 @pytest.fixture
 def test_metadata_repo_snippets(resources_path: Path):
-    return resources_path / "test_product_metadata_repo_with_snippets"
+    yield resources_path / "test_product_metadata_repo_with_snippets"
 
 
 @pytest.fixture
-def dataset_with_snippets(test_metadata_repo_snippets: Path):
+def product_with_snippets(test_metadata_repo_snippets: Path):
     repo = md.OrgMetadata.from_path(
         test_metadata_repo_snippets, template_vars={"version": "VERSION"}
     )
-    product = repo.product("test_product")
-    return product.get_product_dataset("test_dataset", product.get_product_metadata())
+    yield repo.product("test_product")
 
 
-def test_string_snippets_applied(dataset_with_snippets: ds_md.Metadata):
-    assert dataset_with_snippets.attributes.description == "Raw Description SAMPLE_TEXT"
+@pytest.fixture
+def dataset_with_snippets(product_with_snippets: md.ProductFolder):
+    product_md = product_with_snippets.get_product_metadata()
+    yield product_with_snippets.get_product_dataset("test_dataset", product_md)
+
+
+def test_org_get_snippets(test_metadata_repo_snippets: Path):
+    assert md.OrgMetadata.get_string_snippets(test_metadata_repo_snippets) == {
+        "sample_text": "SAMPLE_TEXT"
+    }
+
+
+def test_org_get_column_defaults(test_metadata_repo_snippets: Path):
+    assert md.OrgMetadata.get_column_defaults(test_metadata_repo_snippets) == {
+        ("bbl", "bbl"): ds_md.DatasetColumn(
+            id="bbl",
+            name="BBL",
+            data_type="bbl",
+            description="sample bbl description",
+            example="1016370141",
+        )
+    }
+
+
+def test_product_snippets_applied(product_with_snippets: md.ProductFolder):
+    assert (
+        product_with_snippets.get_product_metadata().attributes.description
+        == "Product description SAMPLE_TEXT"
+    )
+
+
+def test_dataset_snippets_applied(dataset_with_snippets: ds_md.Metadata):
+    assert (
+        dataset_with_snippets.attributes.description
+        == "Dataset description SAMPLE_TEXT"
+    )
 
 
 def test_column_defaults_applied(dataset_with_snippets: ds_md.Metadata):

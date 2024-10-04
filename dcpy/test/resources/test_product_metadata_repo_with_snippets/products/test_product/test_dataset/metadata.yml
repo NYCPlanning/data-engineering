@@ -1,7 +1,7 @@
 id: test_dataset
 
 attributes:
-  description: Raw Description {{ sample_text }}
+  description: Dataset description {{ sample_text }}
   display_name: City Owned and Leased Property (COLP)
   each_row_is_a: City Owned Property
   tags:
