@@ -26,19 +26,16 @@ PRODUCT_WITH_ERRORS = "mock_product_with_errors"
 
 
 def test_dataset_md_overrides(lion_md_path: Path):
-    product_folder = md.ProductFolder(
+    lion_md = md.ProductMetadata.from_path(
         root_path=lion_md_path, template_vars=template_vars
     )
-    lion_md = product_folder.get_product_metadata()
-    pseudo_lots_with_defaults = product_folder.get_product_dataset(
-        "pseudo_lots", product_metadata=lion_md
-    )
+    pseudo_lots_with_defaults = lion_md.dataset("pseudo_lots")
 
     # Display name is both a product and dataset field. However, the product.display_name
     # should not act as a default for the dataset
     assert (
         pseudo_lots_with_defaults.attributes.display_name
-        != lion_md.attributes.display_name
+        != lion_md.metadata.attributes.display_name
     ), "Product-level attrbite `display_name` should not be overridden."
 
     assert (
@@ -53,12 +50,12 @@ def test_dataset_md_overrides(lion_md_path: Path):
 
     assert (
         pseudo_lots_with_defaults.attributes.publishing_purpose
-        == lion_md.attributes.publishing_purpose
+        == lion_md.metadata.attributes.publishing_purpose
     ), "The missing field `publishing_purpose` should use the product-level default"
 
 
 def test_get_tagged_destinations(lion_md_path: Path):
-    product_folder = md.ProductFolder(root_path=lion_md_path)
+    product_folder = md.ProductMetadata.from_path(root_path=lion_md_path)
 
     TAG = "prod_tag"
     datasets = product_folder.get_tagged_destinations(TAG)
@@ -69,7 +66,7 @@ def test_get_tagged_destinations(lion_md_path: Path):
 
 
 def test_product_metadata_validation(lion_md_path: Path):
-    lion_product = md.ProductFolder(root_path=lion_md_path)
+    lion_product = md.ProductMetadata.from_path(root_path=lion_md_path)
     assert not lion_product.validate_dataset_metadata()
 
 
@@ -122,3 +119,72 @@ def test_query_product_dataset_tags(test_metadata_repo: Path):
             product="lion", dataset="school_districts", destination="socrata"
         )
     ] == repo.query_dataset_destinations(TAG)
+
+
+@pytest.fixture
+def test_metadata_repo_snippets(resources_path: Path):
+    yield resources_path / "test_product_metadata_repo_with_snippets"
+
+
+@pytest.fixture
+def product_with_snippets(test_metadata_repo_snippets: Path):
+    repo = md.OrgMetadata.from_path(
+        test_metadata_repo_snippets, template_vars={"version": "VERSION"}
+    )
+    yield repo.product("test_product")
+
+
+@pytest.fixture
+def dataset_with_snippets(product_with_snippets: md.ProductMetadata):
+    yield product_with_snippets.dataset("test_dataset")
+
+
+def test_org_get_snippets(test_metadata_repo_snippets: Path):
+    assert md.OrgMetadata.get_string_snippets(test_metadata_repo_snippets) == {
+        "sample_text": "SAMPLE_TEXT"
+    }
+
+
+def test_org_get_column_defaults(test_metadata_repo_snippets: Path):
+    assert md.OrgMetadata.get_column_defaults(test_metadata_repo_snippets) == {
+        ("bbl", "bbl"): ds_md.DatasetColumn(
+            id="bbl",
+            name="BBL",
+            data_type="bbl",
+            description="sample bbl description",
+            example="1016370141",
+        )
+    }
+
+
+def test_product_snippets_applied(product_with_snippets: md.ProductMetadata):
+    assert (
+        product_with_snippets.metadata.attributes.description
+        == "Product description SAMPLE_TEXT"
+    )
+
+
+def test_dataset_snippets_applied(dataset_with_snippets: ds_md.Metadata):
+    assert (
+        dataset_with_snippets.attributes.description
+        == "Dataset description SAMPLE_TEXT"
+    )
+
+
+def test_column_defaults_applied(dataset_with_snippets: ds_md.Metadata):
+    assert dataset_with_snippets.columns == [
+        ds_md.DatasetColumn(
+            id="uid",
+            name="uid",
+            data_type="text",
+            data_source="Department of City Planning",
+            checks=ds_md.Checks(is_primary_key=True),
+        ),
+        ds_md.DatasetColumn(
+            id="bbl",
+            data_type="bbl",
+            name="BBL",
+            description="sample bbl description",
+            example="1016370141",
+        ),
+    ]

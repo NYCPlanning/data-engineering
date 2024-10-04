@@ -15,20 +15,19 @@ def from_bytes_to_tagged_socrata(
     **publish_kwargs,
 ):
     """Package from bytes, and"""
-    f = product_metadata.ProductFolder(
+    product = product_metadata.ProductMetadata.from_path(
         root_path=product_metadata_path,
         template_vars={"version": version},
     )
-    dests = f.get_tagged_destinations(destination_tag)
-    product = f.get_product_metadata()
+    dests = product.get_tagged_destinations(destination_tag)
 
-    logger.info(f"Packaging {product.id}. Datasets: {list(dests.keys())}")
+    logger.info(f"Packaging {product.metadata.id}. Datasets: {list(dests.keys())}")
     package_paths = {}
     for ds_id, dests_to_mds in dests.items():
         dataset_metadata = list(dests_to_mds.values())[0]
         out_path = assemble.assemble_dataset_from_bytes(
             dataset_metadata,
-            product=product.id,
+            product=product.metadata.id,
             version=version,
             source_destination_id=source_destination_id,
         )

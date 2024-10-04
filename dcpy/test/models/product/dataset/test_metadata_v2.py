@@ -48,7 +48,9 @@ def md():
             },
         ),
         columns=[
-            m.DatasetColumn(id="id", data_type="text", description="id description"),
+            m.DatasetColumn(
+                id="id", name="id", data_type="text", description="id description"
+            ),
             m.DatasetColumn(
                 id="geom",
                 data_type="geometry",
@@ -58,6 +60,8 @@ def md():
             ),
             m.DatasetColumn(
                 id="bbl",
+                data_type="bbl",
+                name="bbl",
                 description="bbl description at column level",
                 custom={
                     "not_overridden": "should_not_be_overridden",
@@ -66,6 +70,8 @@ def md():
             ),
             m.DatasetColumn(
                 id="borough",
+                data_type="text",
+                name="borough",
                 description="",
                 values=[
                     m.ColumnValue(value="1", description="Manhattan"),
@@ -74,9 +80,13 @@ def md():
             ),
             m.DatasetColumn(
                 id=OMITTED_FROM_SHAPEFILE_COL_ID,
+                name=OMITTED_FROM_SHAPEFILE_COL_ID,
+                data_type="text",
             ),
             m.DatasetColumn(
                 id=OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
+                name=OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID,
+                data_type="text",
             ),
         ],
         files=[
@@ -104,12 +114,12 @@ def md():
                     ),
                     omitted_columns=[OMITTED_FROM_SHAPEFILE_COL_ID],
                     overridden_columns=[
-                        m.DatasetColumnOverrides(
+                        m.DatasetColumn(
                             id="bbl",
                             description=BBL_SHAPEFILE_COL_DESC,
                             custom={"api_name": "bbl_shapefile_api_name"},
                         ),
-                        m.DatasetColumnOverrides(
+                        m.DatasetColumn(
                             id="borough",
                             description="borough overridden at shapefile",
                             values=[m.ColumnValue(value="3", description="Queens")],
@@ -137,7 +147,7 @@ def md():
                             ),
                             omitted_columns=[OMITTED_FROM_SOCRATA_SHAPEFILE_COL_ID],
                             overridden_columns=[
-                                m.DatasetColumnOverrides(
+                                m.DatasetColumn(
                                     id="bbl",
                                     description=BBL_SOCRATA_COL_DESC,
                                     custom={"api_name": "bbl_dest_api_name"},
@@ -426,7 +436,7 @@ def test_validating_metadata__file_missing_columns(md: m.Metadata):
         0
     ]
     file_with_overrides.dataset_overrides.overridden_columns.append(
-        m.DatasetColumnOverrides(id=nonexistant_file_col_id)
+        m.DatasetColumn(id=nonexistant_file_col_id)
     )
 
     validation = md.validate_consistency()
@@ -450,10 +460,64 @@ def test_validating_metadata__dest_missing_columns(md: m.Metadata):
     )
     # Add a nonexistant overridden Column to the Socrata Dest
     file_overrides.dataset_overrides.overridden_columns.append(
-        m.DatasetColumnOverrides(id=nonexistant_dest_col_id)
+        m.DatasetColumn(id=nonexistant_dest_col_id)
     )
 
     print(md.model_dump())
 
     validation = md.validate_consistency()
     assert len(validation) == 2, "There should be the correct number of column errors"
+
+
+def test_missing_column_names(md: m.Metadata):
+    md.columns[0] = m.DatasetColumn(
+        id="bbl",
+        data_type="bbl",
+    )
+    validation = md.validate_consistency()
+    assert len(validation) == 1
+
+
+def test_missing_column_data_types(md: m.Metadata):
+    md.columns[0] = m.DatasetColumn(
+        id="bbl",
+        name="bbl",
+    )
+    validation = md.validate_consistency()
+    assert len(validation) == 1
+
+
+def test_column_defaults(md: m.Metadata):
+    md.columns = [
+        m.DatasetColumn(
+            id="bbl",
+            data_type="bbl",
+        )
+    ]
+    column_default_definitions = [
+        m.DatasetColumn(
+            id="bbl",
+            name="BBL",
+            data_type="bbl",
+            description="sample bbl description",
+            example="1016370141",
+        ),
+        m.DatasetColumn(
+            id="other",
+            name="other",
+            data_type="text",
+        ),
+    ]
+    column_defaults = {
+        (c.id, c.data_type): c for c in column_default_definitions if c.data_type
+    }
+
+    assert md.apply_column_defaults(column_defaults) == [
+        m.DatasetColumn(
+            id="bbl",
+            name="BBL",
+            data_type="bbl",
+            description="sample bbl description",
+            example="1016370141",
+        )
+    ]

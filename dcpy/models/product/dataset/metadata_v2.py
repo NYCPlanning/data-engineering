@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from typing import Any, List, Literal, get_args
 import unicodedata
 
-
 from dcpy.utils.collections import deep_merge_dict as merge
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 
@@ -68,7 +67,7 @@ class ColumnValue(CustomizableBase):
     description: str | None = None
 
 
-class DatasetColumnOverrides(CustomizableBase):
+class DatasetColumn(CustomizableBase):
     _head_sort_order = ["id", "name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
     _validate_data_type = (
@@ -94,21 +93,7 @@ class DatasetColumnOverrides(CustomizableBase):
             assert v in get_args(COLUMN_TYPES)
         return v
 
-
-class DatasetColumn(DatasetColumnOverrides):
-    """Like DatasetColumnOverrides, but with constraints for non-null fields"""
-
-    @field_validator("name")
-    def _validate_name(cls, dn):
-        assert dn, "name may not be null"
-        return dn
-
-    @field_validator("data_type")
-    def _validate_data_type_field(cls, dt):
-        assert dt, "data_type may not be null"
-        return dt
-
-    def override(self, overrides: DatasetColumnOverrides) -> DatasetColumn:
+    def override(self, overrides: DatasetColumn) -> DatasetColumn:
         return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
 
 
@@ -195,7 +180,7 @@ class DatasetAttributes(CustomizableBase):
 
 
 class DatasetOverrides(CustomizableBase):
-    overridden_columns: list[DatasetColumnOverrides] = []
+    overridden_columns: list[DatasetColumn] = []
     omitted_columns: list[str] = []
     attributes: DatasetAttributesOverride = DatasetAttributesOverride()
 
@@ -209,7 +194,7 @@ class Dataset(CustomizableBase):
         overriden_cols_by_id = {c.id: c for c in overrides.overridden_columns}
 
         columns = [
-            c.override(overriden_cols_by_id.get(c.id, DatasetColumnOverrides(id=c.id)))
+            c.override(overriden_cols_by_id.get(c.id, DatasetColumn(id=c.id)))
             for c in self.columns
             if c.id not in overrides.omitted_columns
         ]
@@ -370,4 +355,20 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
                         f"MISSING FILE: zip {df.id} references undefined file {df.id}"
                     )
 
+        for c in self.columns:
+            if c.name is None:
+                errors.append(f"MISSING COLUMN NAME: column id {c.id}")
+            if c.data_type is None:
+                errors.append(f"MISSING COLUMN DATA TYPE: column id {c.id}")
+
         return errors
+
+    def apply_column_defaults(
+        self, column_defaults: dict[tuple[str, str], DatasetColumn]
+    ) -> list[DatasetColumn]:
+        return [
+            c.override(column_defaults[c.id, c.data_type])
+            if c.data_type and (c.id, c.data_type) in column_defaults
+            else c
+            for c in self.columns
+        ]

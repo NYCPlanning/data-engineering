@@ -281,7 +281,7 @@ class Metadata(BaseModel, extra="forbid"):
                         col_overrides["data_type"]
                     )
                 custom = _construct_with_custom(
-                    md_v2.DatasetColumnOverrides, id=k, **col_overrides
+                    md_v2.DatasetColumn, id=k, **col_overrides
                 )
                 overridden_columns.append(custom)
 
@@ -350,7 +350,7 @@ class Metadata(BaseModel, extra="forbid"):
                             custom={"destination_use": "dataset_file"},
                             dataset_overrides=md_v2.DatasetOverrides(
                                 overridden_columns=[
-                                    md_v2.DatasetColumnOverrides(
+                                    md_v2.DatasetColumn(
                                         id=k,
                                         name=v.display_name,
                                         description=md_v2.normalize_text(
