@@ -24,5 +24,3 @@ PRODUCTS_TO_LOG = [
     "db-zoningtaxlots",
 ]
 IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
-
-PRODUCT_METADATA_SNIPPETS = env.get("PRODUCT_METADATA_SNIPPITS_PATH")
