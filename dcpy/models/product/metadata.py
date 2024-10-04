@@ -131,24 +131,25 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     column_defaults: dict[tuple[str, str], DatasetColumn]
 
     @classmethod
-    def get_yml(cls, path: Path):
-        if path.exists():
-            with open(path, "r", encoding="utf-8") as raw:
-                return yaml.safe_load(raw)
-        else:
-            return None
-
-    @classmethod
     def get_string_snippets(cls, path: Path) -> dict:
-        yml = cls.get_yml(path / "snippets" / "strings.yml") or {}
+        s_path = path / "snippets" / "strings.yml"
+        if not s_path.exists():
+            return {}
+
+        with open(s_path, "r", encoding="utf-8") as raw:
+            yml = yaml.safe_load(raw) or {}
         if not isinstance(yml, dict):
             raise ValueError("snippets must be valid yml dict, not array")
         return yml
 
     @classmethod
     def get_column_defaults(cls, path: Path) -> dict[tuple[str, str], DatasetColumn]:
-        yml = cls.get_yml(path / "snippets" / "column_defaults.yml")
-        columns = TypeAdapter(list[DatasetColumn]).validate_python(yml or [])
+        c_path = path / "snippets" / "column_defaults.yml"
+        if not c_path.exists():
+            return {}
+        with open(c_path, "r", encoding="utf-8") as raw:
+            yml = yaml.safe_load(raw) or []
+        columns = TypeAdapter(list[DatasetColumn]).validate_python(yml)
         return {(c.id, c.data_type): c for c in columns if c.data_type}
 
     @classmethod
