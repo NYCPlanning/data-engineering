@@ -3,7 +3,6 @@ import shutil
 from dcpy.lifecycle.package import generate_metadata_assets
 from dcpy.lifecycle.package import oti_xlsx
 from dcpy.connectors.edm import product_metadata, publishing
-from dcpy.models.geospatial.parquet import MetaData
 from dcpy.utils.logging import logger
 from dcpy.models.product.dataset import metadata_v2 as md
 

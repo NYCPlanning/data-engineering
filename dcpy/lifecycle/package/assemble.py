@@ -6,7 +6,6 @@ import tempfile
 import typer
 
 from dcpy.lifecycle import WORKING_DIRECTORIES
-from dcpy.lifecycle.builds import metadata
 from dcpy.lifecycle.package import oti_xlsx
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as md

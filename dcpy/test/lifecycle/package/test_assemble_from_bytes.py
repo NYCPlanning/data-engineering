@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import override
 import pytest
 import shutil
 from unittest.mock import patch, call
