@@ -8,11 +8,11 @@ on:
         type: boolean
         default: true
       build_pluto_minor:
-        description: "Build Pluto (minor) after dataloading is complete"
+        description: "Build PLUTO (Minor) after dataloading is complete"
         type: boolean
         default: false
-      promote_ztl:
-        description: "Promote Zoning Tax Lots to Draft folder after build?"
+      promote:
+        description: "Promote ZTL (and PLUTO if built) to `draft` folder after build"
         type: boolean
         required: true
         default: true
@@ -66,7 +66,7 @@ jobs:
 
   build_ztl:
     needs: [dataloading]
-    name: Build Ztl
+    name: Build ZTL
     if: inputs.build_ztl
     uses: ./.github/workflows/build.yml
     secrets: inherit
@@ -86,13 +86,24 @@ jobs:
       dev_image: ${{ inputs.dev_image }}
       recipe_file: recipe-minor
 
-  promote_to_draft:
+  promote_ztl_to_draft:
     needs: [dataloading, build_ztl]
-    name: Promote Ztl build to Draft folder
-    if: inputs.build_ztl && inputs.promote_ztl
+    name: Promote ZTL build to Draft folder
+    if: inputs.build_pluto_minor && inputs.promote
     uses: ./.github/workflows/promote_to_draft.yml
     secrets: inherit
     with:
       product: db-zoningtaxlots
+      build: ${{ github.head_ref || github.ref_name }}
+      product_acl: public-read
+
+  promote_pluto_to_draft:
+    needs: [dataloading, pluto_minor]
+    name: Promote PLUTO build to Draft folder
+    if: inputs.build_ztl && inputs.promote
+    uses: ./.github/workflows/promote_to_draft.yml
+    secrets: inherit
+    with:
+      product: db-pluto
       build: ${{ github.head_ref || github.ref_name }}
       product_acl: public-read
