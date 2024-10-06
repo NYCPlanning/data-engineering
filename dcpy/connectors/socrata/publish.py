@@ -114,7 +114,11 @@ class Socrata:
         class DatasetMetadata(BaseModel):
             name: str
             description: str
+            category: str
+            attribution: str
+            attributionLink: str
             tags: list[str]
+            # licenseId: str
             metadata: dict[str, Any]
             privateMetadata: dict[str, Any]
 
@@ -123,20 +127,28 @@ class Socrata:
                 return cls(
                     name=attrs.display_name,
                     description=attrs.description,
+                    category="City Government",
+                    attribution="Department of City Planning (DCP)",
+                    attributionLink="https://www.nyc.gov/site/planning/data-maps/open-data.page",
+                    # licenseId="ODC_BY", # TODO: what's the right license?
                     tags=attrs.tags,
                     metadata={
                         "rowLabel": attrs.each_row_is_a,
                         "custom_fields": {
+                            "Dataset Information": {
+                                "Agency": "Department of City Planning (DCP)"
+                            },
                             "Update": {
                                 "Update Frequency": translate_legislative_freq_to_update_freq(
                                     attrs.publishing_frequency or ""
                                 )
                                 or attrs.publishing_frequency,
                                 "Automation": "Yes",
-                            }
+                            },
                         },
                     },
                     privateMetadata={
+                        # "contactEmail": "opendata@planning.nyc.gov", # what's the right email?
                         "custom_fields": {
                             "Legislative Compliance": {
                                 "Removed Records?": "Yes",  # refers to row removal at time of push to Socrata. Always true since we overwrite the existing dataset.
@@ -153,8 +165,8 @@ class Socrata:
                                     if attrs.custom.get("dataset_from_open_data_plan")
                                     else "No"
                                 ),
-                            }
-                        }
+                            },
+                        },
                     },
                 )
 
