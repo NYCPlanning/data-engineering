@@ -267,6 +267,9 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             raise Exception(f"There should exist one destination with id: {id}")
         return dests[0]
 
+    def get_file_ids(self):
+        return {f.file.id for f in self.files}
+
     def get_file_and_overrides(self, file_id: str) -> FileAndOverrides:
         files = [f for f in self.files if f.file.id == file_id]
         if len(files) != 1:

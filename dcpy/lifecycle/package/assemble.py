@@ -125,6 +125,7 @@ def pull_destination_files(
     destination_id: str,
     *,
     unpackage_zips: bool = False,
+    metadata_only: bool = False,
 ):
     """Pull all files for a given destination."""
     dest = product_metadata.get_destination(destination_id)
@@ -141,6 +142,12 @@ def pull_destination_files(
     package_ids = {p.id for p in product_metadata.assembly}
     for f in dest.files:
         paths_and_dests = ids_to_paths_and_dests[f.id]
+        f_is_metadata = (
+            f.id in product_metadata.get_file_ids()
+            and product_metadata.get_file_and_overrides(f.id).file.is_metadata
+        )
+        if metadata_only and not f_is_metadata:
+            continue
         file_path = local_package_path / (paths_and_dests["path"])
         logger.info(f"{local_package_path} - {paths_and_dests['path']} - {file_path}")
 
@@ -183,11 +190,16 @@ def assemble_dataset_from_bytes(
     version: str,
     source_destination_id: str,
     out_path: Path | None = None,
+    metadata_only: bool = False,
 ) -> Path:
     out_path = out_path or ASSEMBLY_DIR / product / version / dataset_metadata.id
     logger.info(f"Assembling dataset from BYTES. Writing to: {out_path}")
     assemble.pull_destination_files(
-        out_path, dataset_metadata, source_destination_id, unpackage_zips=True
+        out_path,
+        dataset_metadata,
+        source_destination_id,
+        unpackage_zips=True,
+        metadata_only=metadata_only,
     )
 
     oti_data_dictionaries = [
@@ -231,6 +243,12 @@ def assemble_dataset_from_bytes_cli(
         "-o",
         help="Output Path. Defaults to ./data_dictionary.xlsx",
     ),
+    metadata_only: bool = typer.Option(
+        False,
+        "--output-path",
+        "-m",
+        help="Only Assemble Metadata.",
+    ),
 ):
     assemble_dataset_from_bytes(
         md.Metadata.from_path(metadata_path, template_vars={"version": version}),
@@ -238,6 +256,7 @@ def assemble_dataset_from_bytes_cli(
         product=product,
         version=version,
         out_path=out_path,
+        metadata_only=metadata_only,
     )
 
 

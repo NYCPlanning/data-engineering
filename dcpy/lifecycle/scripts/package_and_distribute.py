@@ -1,5 +1,6 @@
 from pathlib import Path
 import typer
+from typing import Unpack
 
 from dcpy.models.product import metadata as product_metadata
 from dcpy.lifecycle.distribute import socrata as soc_dist
@@ -12,9 +13,9 @@ def from_bytes_to_tagged_socrata(
     version: str,
     destination_tag: str,
     source_destination_id: str = "bytes",
-    **publish_kwargs,
+    **publish_kwargs: Unpack[soc_dist.PublishKwargs],
 ):
-    """Package from bytes, and"""
+    """Package tagged datsets from bytes, and distribute to Socrata."""
     product = product_metadata.ProductMetadata.from_path(
         root_path=product_metadata_path,
         template_vars={"version": version},
@@ -30,6 +31,7 @@ def from_bytes_to_tagged_socrata(
             product=product.metadata.id,
             version=version,
             source_destination_id=source_destination_id,
+            metadata_only=publish_kwargs["metadata_only"],
         )
         package_paths[ds_id] = out_path
 
@@ -78,7 +80,7 @@ def from_bytes_to_tagged_socrata_cli(
     ),
     metadata_only: bool = typer.Option(
         False,
-        "-z",
+        "-m",
         "--metadata-only",
         help="Only push metadata (including attachments).",
     ),
