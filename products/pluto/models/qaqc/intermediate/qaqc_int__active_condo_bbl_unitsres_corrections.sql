@@ -16,7 +16,7 @@ primebbl_condo_units AS (
         primebbl,
         sum(coop_apts) AS coop_apts,
         sum(units) AS units
-    FROM {{ ref('pluto_rpad_geo') }}
+    FROM {{ source("build_sources", "pluto_rpad_geo") }}
     WHERE tl NOT LIKE '75%'
     GROUP BY primebbl
 )

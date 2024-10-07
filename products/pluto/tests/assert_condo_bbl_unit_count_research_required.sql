@@ -20,7 +20,7 @@
 -- Find records where multiple unit BBLs have coop_apts > 1
 WITH condo_prime_bbls AS (
     SELECT primebbl
-    FROM {{ ref('pluto_rpad_geo') }}
+    FROM {{ source("build_sources", "pluto_rpad_geo") }}
     WHERE coop_apts > 1
     GROUP BY primebbl
     HAVING count(*) > 1
@@ -31,7 +31,7 @@ primebbl_offenders AS (
         primebbl,
         sum(coop_apts) AS coop_apts,
         sum(units) AS units
-    FROM {{ ref('pluto_rpad_geo') }}
+    FROM {{ source("build_sources", "pluto_rpad_geo") }}
     WHERE
         primebbl IN (SELECT primebbl FROM condo_prime_bbls)
         AND tl NOT LIKE '75%'

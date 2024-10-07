@@ -5,7 +5,7 @@ WITH active_condo_unitsres_corrections AS (
 
 filtered_dof_pts_propmaster AS (
     SELECT boro || tb || tl AS bbl
-    FROM {{ ref('dof_pts_propmaster') }}
+    FROM {{ source("build_sources", "dof_pts_propmaster") }}
     WHERE primebbl IN (
         SELECT bbl FROM active_condo_unitsres_corrections
     )

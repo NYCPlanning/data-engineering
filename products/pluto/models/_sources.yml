@@ -41,3 +41,14 @@ sources:
           - name: date_complete
 
       - name: pluto_pts
+
+  - name: build_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: dof_pts_propmaster
+        description: |
+          Raw PTS data + prime bbl column that was added during PLUTO build.
+      - name: pluto_rpad_geo
+        description: |
+          Processed PTS data where each record is a UNIT BBL: i.e. there are multiple
+          records per a condominium.
