@@ -73,6 +73,8 @@ def run_ingest_and_library(
     print(ingest_dir)
     ingest.run(dataset, staging_dir=ingest_dir, skip_archival=True)
 
+    # BEWARE: once you import library, parquet file writing fails
+    # Something to do with gdal's interaction with parquet file driver
     from dcpy.library.archive import Archive
 
     a = Archive()
