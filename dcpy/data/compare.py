@@ -208,9 +208,7 @@ def compare_sql_keyed_rows(
             FROM {left} AS "left" 
                 INNER JOIN {right} AS "right"
                 ON {on}
-            WHERE NOT ({lc} = {rc})
-                OR ({lc} IS NULL and {rc} IS NOT NULL)
-                OR ({rc} IS NULL and {lc} IS NOT NULL)
+            WHERE {lc} IS DISTINCT FROM {rc}
         """
 
     for column in non_key_columns:
