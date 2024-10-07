@@ -4,6 +4,7 @@ from dcpy.lifecycle.package import generate_metadata_assets
 from dcpy.lifecycle.package import oti_xlsx
 from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils.logging import logger
+from dcpy.models.product.dataset import metadata_v2 as md
 
 from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
 
@@ -36,7 +37,7 @@ def generate_metadata():
         PRODUCT_PATH / "data_dictionary.pdf",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
-    oti_xlsx.write_oti_xlsx(metadata_path=dataset_metadata_yml)
+    oti_xlsx.write_oti_xlsx(dataset=md.Metadata.from_path(dataset_metadata_yml).dataset)
 
 
 def export():

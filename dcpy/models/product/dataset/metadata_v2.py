@@ -273,6 +273,16 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             raise Exception(f"There should exist one file with id: {file_id}")
         return files[0]
 
+    def calculate_metadata(
+        self, *, file_id: str, destination_id: str | None = None
+    ) -> Dataset:
+        if destination_id:
+            return self.calculate_destination_metadata(
+                file_id=file_id, destination_id=destination_id
+            ).dataset
+        else:
+            return self.calculate_file_dataset_metadata(file_id=file_id)
+
     def calculate_file_dataset_metadata(self, *, file_id: str) -> Dataset:
         return self.dataset.override(
             self.get_file_and_overrides(file_id).dataset_overrides

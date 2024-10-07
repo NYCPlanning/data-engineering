@@ -32,8 +32,19 @@ DISCLAIMER = """\
   use the dataset, or applications utilizing the dataset, provided by any third party.\
 """
 
+# pulling this out solely for a test case.
+_DESCRIPTION_ROW_INDEX = 15
 
-def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Metadata):
+
+def _get_dataset_description(path: Path):
+    xlsx_wb = openpyxl.load_workbook(filename=path)
+    ds_info = xlsx_wb[OTI_XLSX_TABS.dataset_info]
+
+    rows = [r for r in ds_info.rows]
+    return rows[_DESCRIPTION_ROW_INDEX][1].value
+
+
+def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Dataset):
     ds_info_sheet = xlsx_wb[OTI_XLSX_TABS.dataset_info]
 
     rows = [r for r in ds_info_sheet.rows]
@@ -60,7 +71,7 @@ def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Metad
     rows[14][1].value = metadata.attributes.publishing_frequency_details
 
     # Dataset Description. Overview of the information this dataset contains, including overall context and definitions of key terms. This field may include links to supporting datasets, agency websites, or external resources for additional context. ": 15
-    rows[15][1].value = metadata.attributes.description
+    rows[_DESCRIPTION_ROW_INDEX][1].value = metadata.attributes.description
 
     # Why is this dataset collected. Purpose behind the collection of this data, including any legal or policy requirements for this data by NYC Executive Order, Local Law, or other policy directive.": 16
     rows[16][1].value = metadata.attributes.publishing_purpose
@@ -104,7 +115,7 @@ def _format_row_slice(row_slice, is_last_row=False):
     _set_default_style(rightmost_cell, is_last_row=is_last_row, is_rightmost=True)
 
 
-def _write_column_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Metadata):
+def _write_column_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Dataset):
     ds_info_sheet = xlsx_wb[OTI_XLSX_TABS.column_information]
 
     header_description_row_index = 2
@@ -165,18 +176,17 @@ def _write_change_history(xlsx_wb: openpyxl.Workbook, change_log: list[list[str]
 
 def write_oti_xlsx(
     *,
-    metadata_path: Path,
+    dataset: md_v2.Dataset,
     output_path: Path | None = None,
     template_path_override: Path | None = None,
 ):
     xlsx_wb = openpyxl.load_workbook(
         filename=template_path_override or DEFAULT_TEMPLATE_PATH
     )
-    metadata = md_v2.Metadata.from_path(metadata_path)
-    _write_dataset_information(xlsx_wb, metadata)
-    _write_column_information(xlsx_wb, metadata)
+    _write_dataset_information(xlsx_wb, dataset)
+    _write_column_information(xlsx_wb, dataset)
     # TODO: this locationw will change
-    _write_change_history(xlsx_wb, metadata.attributes.custom.get("change_log", []))
+    _write_change_history(xlsx_wb, dataset.attributes.custom.get("change_log", []))
 
     out_path = output_path or Path("./data_dictionary.xlsx")
     logger.info(f"Saving OTI XLSX to {out_path}")
@@ -203,7 +213,7 @@ def _write_oti_xlsx_cli(
     ),
 ):
     write_oti_xlsx(
-        metadata_path=metadata_path,
+        dataset=md_v2.Metadata.from_path(metadata_path).dataset,
         output_path=output_path,
         template_path_override=template_path_override,
     )
