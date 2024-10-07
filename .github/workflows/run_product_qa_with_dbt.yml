@@ -1,0 +1,64 @@
+name: QAQC with dbt
+
+on:
+  workflow_call:
+    inputs:
+      dataset_name:
+        type: string
+        required: true
+      build_name:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      dataset_name:
+        description: "Which dataset to build"
+        type: choice
+        required: true
+        options:
+          - pluto
+      build_name:
+        description: "Build name to run dbt checks on?"
+        type: string
+        required: true
+
+jobs:
+  run_dbt_qa:
+    name: Run dbt checks
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
+    env:
+      BUILD_ENGINE_DB: ${{ inputs.dataset_name }}
+      BUILD_NAME: ${{ inputs.build_name }}
+      DEV_FLAG: 'false'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
+  
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+  
+      - name: Set dbt environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
+
+      - name: Run dbt QAQC for PLUTO
+        if: ${{ inputs.dataset_name == 'pluto' }}
+        working-directory: ./products/pluto
+        run: ./pluto_build/07_custom_qaqc.sh
