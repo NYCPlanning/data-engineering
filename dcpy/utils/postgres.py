@@ -310,6 +310,15 @@ class PostgresClient:
 
         if target_table_name is not None and target_table_name != pg_dump_table_name:
             self.rename_table(old_name=pg_dump_table_name, new_name=target_table_name)
+            self.execute_query(
+                f"ALTER TABLE {target_table_name} RENAME CONSTRAINT {pg_dump_table_name}_pk TO {target_table_name}_pk"
+            )
+            self.execute_query(
+                f"ALTER INDEX IF EXISTS {pg_dump_table_name}_wkb_geometry_geom_idx RENAME TO {target_table_name}_wkb_geometry_geom_idx"
+            )
+            self.execute_query(
+                f"ALTER SEQUENCE IF EXISTS {pg_dump_table_name}_ogc_fid_seq RENAME TO {target_table_name}_ogc_fid_seq"
+            )
 
     def insert_dataframe(
         self,
