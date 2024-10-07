@@ -52,7 +52,7 @@ not_ignored_primebbls AS (
     SELECT *
     FROM uncorrected_primebbl_offenders
     WHERE primebbl NOT IN (
-        SELECT bbl::decimal::bigint::text
+        SELECT bbl
         FROM {{ ref('ignored_bbls_for_unit_count_test') }}
     )
 ),
