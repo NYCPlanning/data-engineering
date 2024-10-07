@@ -37,18 +37,18 @@ beautifulsoup4==4.12.3
     #   gdown
 blinker==1.8.2
     # via streamlit
-boto3==1.35.29
+boto3==1.35.34
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs[s3]==1.35.29
+boto3-stubs[s3]==1.35.34
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.35.29
+botocore==1.35.34
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.35.29
+botocore-stubs==1.35.34
     # via boto3-stubs
 bqplot==0.12.43
     # via leafmap
@@ -158,7 +158,7 @@ et-xmlfile==1.1.0
     # via openpyxl
 executing==2.1.0
     # via stack-data
-faker==30.0.0
+faker==30.1.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 filelock==3.16.1
     # via
@@ -171,8 +171,6 @@ folium==0.17.0
     #   streamlit-folium
 fonttools==4.54.1
     # via matplotlib
-future==1.0.0
-    # via usaddress
 gdal==3.8.3
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 gdown==5.2.0
@@ -215,7 +213,7 @@ ipykernel==6.29.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 ipyleaflet==0.19.2
     # via leafmap
-ipython==8.27.0
+ipython==8.28.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -290,7 +288,7 @@ jupyterlab-widgets==3.0.13
     # via ipywidgets
 kiwisolver==1.4.7
     # via matplotlib
-leafmap==0.38.1
+leafmap==0.38.3
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 leather==0.4.0
     # via agate
@@ -328,7 +326,7 @@ minimal-snowplow-tracker==0.0.2
     # via dbt-core
 more-itertools==10.5.0
     # via dbt-semantic-interfaces
-moto[s3]==5.0.15
+moto[s3]==5.0.16
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 msal==1.23.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -339,7 +337,7 @@ mypy==1.11.2
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   openpyxl-stubs
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.35.22
+mypy-boto3-s3==1.35.32
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via mypy
@@ -486,19 +484,19 @@ pyjwt[crypto]==2.9.0
     # via
     #   msal
     #   pyjwt
-pyogrio==0.9.0
+pyogrio==0.10.0
     # via geopandas
 pyparsing==3.1.4
     # via
     #   matplotlib
     #   rasterio
-pyproj==3.6.1
+pyproj==3.7.0
     # via geopandas
 pyshp==2.3.1
     # via leafmap
 pysocks==1.7.1
     # via requests
-pystac[validation]==1.10.1
+pystac[validation]==1.11.0
     # via pystac-client
 pystac-client==0.8.3
     # via leafmap
@@ -511,7 +509,7 @@ pytest-cov==5.0.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 python-box==7.2.0
     # via leafmap
-python-crfsuite==0.9.10
+python-crfsuite==0.9.11
     # via usaddress
 python-dateutil==2.9.0.post0
     # via
@@ -554,7 +552,7 @@ pyzmq==26.2.0
     # via
     #   ipykernel
     #   jupyter-client
-rasterio==1.4.0
+rasterio==1.4.1
     # via contextily
 referencing==0.35.1
     # via
@@ -578,7 +576,7 @@ requests[socks]==2.32.3
     #   streamlit
 responses==0.25.3
     # via moto
-rich==13.8.1
+rich==13.9.2
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit
@@ -587,7 +585,7 @@ rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.6.8
+ruff==0.6.9
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 s3transfer==0.10.2
     # via boto3
@@ -631,20 +629,20 @@ sqlparse==0.5.1
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.38.0
+streamlit==1.39.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit-aggrid
     #   streamlit-folium
 streamlit-aggrid==1.0.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-streamlit-folium==0.22.1
+streamlit-folium==0.23.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 tabulate==0.9.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 tblib==3.0.0
     # via sqlfluff
-tenacity==8.5.0
+tenacity==9.0.0
     # via
     #   plotly
     #   streamlit
@@ -654,7 +652,7 @@ threadpoolctl==3.5.0
     # via scikit-learn
 toml==0.10.2
     # via streamlit
-toolz==0.12.1
+toolz==1.0.0
     # via altair
 tornado==6.4.1
     # via
@@ -685,7 +683,7 @@ typed-ast==1.5.5
     # via diagrams
 typer==0.12.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-types-awscrt==0.21.5
+types-awscrt==0.22.0
     # via botocore-stubs
 types-beautifulsoup4==4.12.0.20240907
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -693,9 +691,9 @@ types-html5lib==1.1.11.20240806
     # via types-beautifulsoup4
 types-psycopg2==2.9.21.20240819
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-types-python-dateutil==2.9.0.20240906
+types-python-dateutil==2.9.0.20241003
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-types-pytz==2024.2.0.20240913
+types-pytz==2024.2.0.20241003
     # via pandas-stubs
 types-pyyaml==6.0.12.20240917
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -714,6 +712,7 @@ typing-extensions==4.12.2
     #   dbt-common
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   faker
     #   mashumaro
     #   mypy
     #   openpyxl-stubs
@@ -734,11 +733,11 @@ urllib3==2.2.3
     #   types-requests
 us==3.2.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-usaddress==0.5.10
+usaddress==0.5.11
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 virtualenv==20.26.6
     # via pre-commit
-watchdog==4.0.2
+watchdog==5.0.3
     # via streamlit
 wcwidth==0.2.13
     # via prompt-toolkit
