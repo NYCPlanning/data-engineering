@@ -14,12 +14,6 @@ class SimpleComparison(IndentedPrint, Generic[T]):
     right: T
 
 
-class EntryWiseComparison(BaseModel, Generic[T]):
-    left_only: T
-    right_only: T
-    both: T
-
-
 class ColumnsComparison(IndentedPrint):
     both: set[str]
     left_only: set[str]
