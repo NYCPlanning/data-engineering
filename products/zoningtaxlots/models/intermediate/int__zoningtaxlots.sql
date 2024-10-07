@@ -173,7 +173,7 @@ drop_invalid AS (
 SELECT
     dtm_id::int4,
     boroughcode::text AS borough_code,
-    TRUNC(taxblock::numeric)::text AS "tax_block",
+    TRUNC(taxblock::numeric)::text AS tax_block,
     taxlot::text AS tax_lot,
     bbl::text,
     zoningdistrict1::text AS zoning_district_1,

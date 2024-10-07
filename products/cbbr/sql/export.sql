@@ -20,13 +20,13 @@ SELECT
     commdist,
     cb_label,
     type_br,
-    "type",
+    type,
     need,
     request,
     explanation,
-    "location",
+    location,
     facility_or_park_name AS site_name,
-    "address",
+    address,
     street_name,
     between_cross_street_1 AS street_cross_1,
     and_cross_street_2 AS street_cross_2,
@@ -41,7 +41,7 @@ FROM _cbbr_submissions
 WHERE geom IS NULL
 ORDER BY
     cb_label ASC,
-    "location" ASC;
+    location ASC;
 
 -- cbbr_submissions_needgeoms_b
 DROP TABLE IF EXISTS cbbr_submissions_needgeoms_b;
@@ -52,7 +52,7 @@ FROM cbbr_submissions_needgeoms_c
 WHERE type_br = 'C'
 ORDER BY
     cb_label ASC,
-    "location" ASC;
+    location ASC;
 
 -- remove B from C table
 DELETE FROM cbbr_submissions_needgeoms_c
@@ -69,10 +69,10 @@ DROP TABLE IF EXISTS cbbr_submissions_needgeoms_a;
 SELECT *
 INTO cbbr_submissions_needgeoms_a
 FROM cbbr_submissions_needgeoms_b
-WHERE "type" = 'site'
+WHERE type = 'site'
 ORDER BY
     cb_label ASC,
-    "location" ASC;
+    location ASC;
 
 -- remove A from B table
 DELETE FROM cbbr_submissions_needgeoms_b
@@ -94,14 +94,14 @@ SELECT
     commdist,
     cb_label,
     type_br,
-    "type",
+    type,
     priority,
     need,
     request,
     explanation,
-    "location",
+    location,
     facility_or_park_name AS site_name,
-    "address",
+    address,
     street_name,
     between_cross_street_1 AS street_cross_1,
     and_cross_street_2 AS street_cross_2,

@@ -87,7 +87,7 @@ FROM (
     FROM _init_now_devdb
 ) AS t;
 
-ALTER TABLE _init_devdb ADD COLUMN "id" serial CONSTRAINT "_init_devdb_pk" PRIMARY KEY;
+ALTER TABLE _init_devdb ADD COLUMN id serial CONSTRAINT _init_devdb_pk PRIMARY KEY;
 /*
 CORRECTIONS:
 	stories_prop
