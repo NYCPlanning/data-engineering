@@ -1,66 +1,44 @@
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import TypeVar, Generic
 
-from dcpy.models.base import IndentedPrint
 from dcpy.utils import postgres
 
 
 T = TypeVar("T")
 
 
-class SimpleComparison(IndentedPrint, Generic[T]):
+class SimpleComparison(BaseModel, Generic[T]):
     left: T
     right: T
 
 
-class ColumnsComparison(IndentedPrint):
+class ColumnsComparison(BaseModel):
     both: set[str]
     left_only: set[str]
     right_only: set[str]
     type_differences: dict[str, SimpleComparison[str]]
 
-    def to_list_structure(self):
-        return [
-            "Column Comparison",
-            "Columns in both:",
-            self.both,
-            "Column found in left only:",
-            self.left_only,
-            "Column found in right only:",
-            self.right_only,
-            "Columns in both with different types:",
-            *[
-                [column, self.type_differences[column]]
-                for column in self.type_differences
-            ],
-        ]
 
-
-class KeyedTableComparison(IndentedPrint, arbitrary_types_allowed=True):
-    _title = "Keyed Table Comparison"
-    _display_names = {
-        "left_only": "Keys found in left only",
-        "right_only": "Keys found in right only",
-        "columns_with_diffs": "Columns with changed values for specific keys",
-        "differences_by_column": "Changed values by column",
-    }
+class KeyedTableComparison(BaseModel, arbitrary_types_allowed=True):
     key_columns: list[str]
-    left_only: set
-    right_only: set
-    columns_with_diffs: set[str]
-    differences_by_column: dict[str, pd.DataFrame]
+    left_only: set = Field(serialization_alias="Keys found in left only")
+    right_only: set = Field(serialization_alias="Keys found in right only")
+    columns_with_diffs: set[str] = Field(
+        serialization_alias="Columns with changed values for specific keys"
+    )
+    differences_by_column: dict[str, pd.DataFrame] = Field(
+        serialization_alias="Changed values by column"
+    )
 
 
-class SimpleTableComparison(IndentedPrint, arbitrary_types_allowed=True):
+class SimpleTableComparison(BaseModel, arbitrary_types_allowed=True):
     compared_columns: set[str]
     left_only: pd.DataFrame | None
     right_only: pd.DataFrame | None
 
 
-class ComparisonReport(IndentedPrint, arbitrary_types_allowed=True):
-    _include_line_breaks = True
-
+class ComparisonReport(BaseModel, arbitrary_types_allowed=True):
     row_count: SimpleComparison[int]
     column_comparison: ColumnsComparison
     data_comparison: KeyedTableComparison | SimpleTableComparison
