@@ -351,7 +351,7 @@ nodeenv==1.9.1
     # via pre-commit
 numerize==0.12
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-numpy==2.1.1
+numpy==2.1.2
     # via
     #   altair
     #   bqplot
@@ -430,7 +430,7 @@ pluggy==1.5.0
     # via
     #   diff-cover
     #   pytest
-pre-commit==3.8.0
+pre-commit==4.0.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 probableparsing==0.0.1
     # via usaddress
@@ -619,11 +619,11 @@ sqlalchemy==2.0.35
     #   geoalchemy2
 sqlalchemy-stubs==0.4
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-sqlfluff==3.1.1
+sqlfluff==3.2.2
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   sqlfluff-templater-dbt
-sqlfluff-templater-dbt==3.1.1
+sqlfluff-templater-dbt==3.2.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 sqlparse==0.5.1
     # via dbt-core
