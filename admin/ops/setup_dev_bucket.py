@@ -196,7 +196,8 @@ def clone_data_product_by_key(
     )
     if include_recipe_datasets:
         for index, row in publishing.get_source_data_versions(key).iterrows():
-            clone_recipe(target_bucket, index, row["version"])
+            dataset_id = str(index)
+            clone_recipe(target_bucket, dataset_id, row["version"])
 
 
 def setup(id: str, clean: bool = False) -> str:
