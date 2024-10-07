@@ -37,8 +37,9 @@ on:
           - public-read 
           - private
       dev_bucket:
+        description: "dev bucket to use in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'"
         type: string
-        default: false
+        required: false
   workflow_call:
     inputs:
       product:

@@ -45,6 +45,10 @@ on:
         options:
           - public-read 
           - private
+      dev_bucket:
+        description: "dev bucket to use in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'"
+        type: string
+        required: false
 
 jobs:
   publish:
@@ -55,7 +59,7 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      PUBLISHING_BUCKET: edm-publishing
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,6 +100,7 @@ jobs:
           echo "commit=$(cat build_metadata.json | jq -r .commit)" >> $GITHUB_ENV
 
       - name: create tag
+        if: ${{ env.PUBLISHING_BUCKET == 'edm-publishing' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GHP_TOKEN }}
