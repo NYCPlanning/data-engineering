@@ -9,3 +9,4 @@ seeds:
     config:
       column_types:
         bbl: text
+        pluto_version: text

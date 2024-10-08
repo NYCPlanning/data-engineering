@@ -54,6 +54,7 @@ not_ignored_primebbls AS (
     WHERE primebbl NOT IN (
         SELECT bbl
         FROM {{ ref('ignored_bbls_for_unit_count_test') }}
+        WHERE '{{ var('version') }}' = pluto_version
     )
 ),
 
