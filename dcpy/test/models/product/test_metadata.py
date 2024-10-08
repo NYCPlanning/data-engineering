@@ -50,7 +50,7 @@ def test_dataset_md_overrides(lion_md_path: Path):
 
     assert (
         pseudo_lots_with_defaults.attributes.publishing_purpose
-        == lion_md.metadata.attributes.publishing_purpose
+        == lion_md.metadata.dataset_defaults.publishing_purpose
     ), "The missing field `publishing_purpose` should use the product-level default"
 
 
