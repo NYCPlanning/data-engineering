@@ -95,7 +95,7 @@ jobs:
   promote_ztl_to_draft:
     needs: [dataloading, build_ztl]
     name: Promote ZTL build to Draft folder
-    if: inputs.build_pluto_minor && inputs.promote
+    if: inputs.promote
     uses: ./.github/workflows/promote_to_draft.yml
     secrets: inherit
     with:
@@ -107,7 +107,7 @@ jobs:
   promote_pluto_to_draft:
     needs: [dataloading, pluto_minor]
     name: Promote PLUTO build to Draft folder
-    if: inputs.build_ztl && inputs.promote
+    if: inputs.promote
     uses: ./.github/workflows/promote_to_draft.yml
     secrets: inherit
     with:
