@@ -2,6 +2,7 @@ from pathlib import Path
 import typer
 from typing import Unpack
 
+from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.models.product import metadata as product_metadata
 from dcpy.lifecycle.distribute import socrata as soc_dist
 from dcpy.lifecycle.package import assemble
@@ -52,9 +53,14 @@ app = typer.Typer()
 
 @app.command("from_bytes_to_tagged_socrata")
 def from_bytes_to_tagged_socrata_cli(
-    org_metadata_path: Path,
     product: str,
     version: str,
+    org_metadata_path: Path = typer.Option(
+        PRODUCT_METADATA_REPO_PATH,
+        "-o",
+        "--metadata-path",
+        help="Path to metadata repo. Optionally, set in your env.",
+    ),
     destination_tag: str = typer.Option(
         None,
         "-t",

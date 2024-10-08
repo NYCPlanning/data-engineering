@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import typer
 
+from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle import WORKING_DIRECTORIES
 from dcpy.lifecycle.package import oti_xlsx
 from dcpy.lifecycle.package import assemble
@@ -232,11 +233,16 @@ def assemble_dataset_from_bytes(
 app = typer.Typer()
 
 
-@app.command("from_bytes")
+@app.command("assemble_from_bytes")
 def assemble_dataset_from_bytes_cli(
-    metadata_repo_path: Path,
     product: str,
     version: str,
+    org_metadata_path: Path = typer.Option(
+        PRODUCT_METADATA_REPO_PATH,
+        "-z",
+        "--metadata-path",
+        help="Path to metadata repo. Optionally, set in your env.",
+    ),
     dataset: str = typer.Option(
         None,
         "--dataset",
@@ -264,7 +270,7 @@ def assemble_dataset_from_bytes_cli(
 ):
     dataset_name = dataset or product
     org_md = prod_md.OrgMetadata.from_path(
-        metadata_repo_path, template_vars={"version": version}
+        org_metadata_path, template_vars={"version": version}
     )
 
     assemble_dataset_from_bytes(
@@ -279,20 +285,27 @@ def assemble_dataset_from_bytes_cli(
 
 @app.command("pull_dataset")
 def _dataset_from_bytes_cli(
-    metadata_path: Path, product: str, version: str, dataset: str
+    product: str,
+    version: str,
+    dataset: str = typer.Option(
+        None,
+        "--dataset",
+        "-d",
+        help="Dataset, if different from product",
+    ),
+    org_metadata_path: Path = typer.Option(
+        PRODUCT_METADATA_REPO_PATH,
+        "-z",
+        "--metadata-path",
+        help="Path to metadata repo. Optionally, set in your env.",
+    ),
 ):
-    out_dir = ASSEMBLY_DIR / product / version / dataset
-    md_instance = md.Metadata.from_path(
-        metadata_path,
-        template_vars={"version": version},
+    dataset = dataset or product
+    org_md = prod_md.OrgMetadata.from_path(
+        org_metadata_path, template_vars={"version": version}
     )
-    pull_all_destination_files(local_package_path=out_dir, product_metadata=md_instance)
-
-
-@app.command("pull_product")
-def _product_from_bytes_cli(product_metadata_path: Path, product: str, version: str):
-    for folder in [
-        p for p in product_metadata_path.iterdir() if not p.name.startswith(".")
-    ]:
-        # assumes the folders == the name of the dataset, which is true. For now.
-        _dataset_from_bytes_cli(folder / "metadata.yml", product, version, folder.name)
+    out_dir = ASSEMBLY_DIR / product / version / dataset
+    dataset_metadata = org_md.product(product).dataset(dataset)
+    pull_all_destination_files(
+        local_package_path=out_dir, product_metadata=dataset_metadata
+    )
