@@ -16,7 +16,7 @@ def compare_recipes_in_postgres(
     build_name: str,
     key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
-    local_library_dir: str = recipes.LIBRARY_DEFAULT_PATH,
+    local_library_dir: Path = recipes.LIBRARY_DEFAULT_PATH,
     left_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
     right_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
 ):
@@ -37,14 +37,12 @@ def compare_recipes_in_postgres(
         left_ds,
         client,
         import_as=left_table,
-        rename_pk=True,
         local_library_dir=local_library_dir,
     )
     recipes.import_dataset(
         right_ds,
         client,
         import_as=right_table,
-        rename_pk=True,
         local_library_dir=local_library_dir,
     )
     if key_columns:
@@ -70,7 +68,6 @@ def run_ingest_and_library(
     library_file_type: str = "pg_dump",
 ):
     ingest_dir = ingest_parent_dir / dataset / "special_folder"
-    print(ingest_dir)
     ingest.run(dataset, staging_dir=ingest_dir, skip_archival=True)
 
     # BEWARE: once you import library, parquet file writing fails
