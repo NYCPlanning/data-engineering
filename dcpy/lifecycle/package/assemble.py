@@ -9,6 +9,7 @@ from dcpy.lifecycle import WORKING_DIRECTORIES
 from dcpy.lifecycle.package import oti_xlsx
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.metadata as prod_md
 from dcpy.utils.logging import logger
 
 
@@ -184,8 +185,8 @@ METADATA_OVERRIDE_KEY = "with_metadata_from"
 
 
 def assemble_dataset_from_bytes(
-    dataset_metadata: md.Metadata,
     *,
+    dataset_metadata: md.Metadata,
     product: str,
     version: str,
     source_destination_id: str,
@@ -233,10 +234,15 @@ app = typer.Typer()
 
 @app.command("from_bytes")
 def assemble_dataset_from_bytes_cli(
-    metadata_path: Path,
-    source_destination_id: str,
+    metadata_repo_path: Path,
     product: str,
     version: str,
+    dataset: str = typer.Option(
+        None,
+        "--dataset",
+        "-d",
+        help="Dataset, if different from product",
+    ),
     out_path: Path = typer.Option(
         None,
         "--output-path",
@@ -249,11 +255,22 @@ def assemble_dataset_from_bytes_cli(
         "-m",
         help="Only Assemble Metadata.",
     ),
+    source_destination_id: str = typer.Option(
+        BYTES_DEST_TYPE,
+        "--source-destination-id",
+        "-s",
+        help="Only Assemble Metadata.",
+    ),
 ):
+    dataset_name = dataset or product
+    org_md = prod_md.OrgMetadata.from_path(
+        metadata_repo_path, template_vars={"version": version}
+    )
+
     assemble_dataset_from_bytes(
-        md.Metadata.from_path(metadata_path, template_vars={"version": version}),
-        source_destination_id=source_destination_id,
+        dataset_metadata=org_md.product(product).dataset(dataset_name),
         product=product,
+        source_destination_id=source_destination_id,
         version=version,
         out_path=out_path,
         metadata_only=metadata_only,
