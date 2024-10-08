@@ -28,7 +28,7 @@ def from_bytes_to_tagged_socrata(
     package_paths = {}
     for ds_id, dests_to_mds in dests.items():
         out_path = assemble.assemble_dataset_from_bytes(
-            dataset_md=product_md.dataset(ds_id),
+            dataset_metadata=product_md.dataset(ds_id),
             product=product,
             version=version,
             source_destination_id="bytes",

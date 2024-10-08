@@ -182,7 +182,7 @@ def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package
         )
 
     assemble.assemble_dataset_from_bytes(
-        metadata,
+        dataset_metadata=metadata,
         source_destination_id="socrata",
         out_path=tmp_path,
         product="colp",
