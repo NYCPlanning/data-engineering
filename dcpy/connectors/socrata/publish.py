@@ -127,18 +127,18 @@ class Socrata:
                 return cls(
                     name=attrs.display_name,
                     description=attrs.description,
-                    category="City Government",
-                    attribution="Department of City Planning (DCP)",
-                    attributionLink="https://www.nyc.gov/site/planning/data-maps/open-data.page",
-                    # licenseId="ODC_BY", # TODO: what's the right license?
-                    tags=attrs.tags,
+                    category=attrs.category or "",
+                    attribution=attrs.attribution or "",
+                    attributionLink=attrs.attributionLink or "",
+                    tags=attrs.tags or [],
                     metadata={
                         "rowLabel": attrs.each_row_is_a,
                         "custom_fields": {
-                            "Dataset Information": {
-                                "Agency": "Department of City Planning (DCP)"
-                            },
+                            "Dataset Information": {"Agency": attrs.agency or ""},
                             "Update": {
+                                "Data Change Frequency": attrs.publishing_frequency,
+                                "Date Made Public": attrs.date_made_public,
+                                "Update Frequency Details": attrs.publishing_frequency_details,
                                 "Update Frequency": translate_legislative_freq_to_update_freq(
                                     attrs.publishing_frequency or ""
                                 )
