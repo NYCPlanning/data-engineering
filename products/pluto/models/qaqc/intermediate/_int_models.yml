@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: qaqc_int__active_condo_bbl_unitsres_corrections
+    description: |
+      Contains condo bbls that are being corrected for res units in final PLUTO, using `pluto_input_research.csv` file
+    columns:
+      - name: bbl
+      - name: old_value
+
+  - name: qaqc_int__devdb_bbl_units_summary
+    description: |
+      This table provides total number of units per bbl, based on the most recent construction records in DevDB, excluding demolitions.
+
+    columns:
+      - name: bbl
+      - name: units_co
+        description: Total number of certificate of occupancy (CO) units
+      - name: classa_prop
+        description: Total number of Class A units (residential units)
+      - name: count_bins
+        description: Total number of BINs per BBL that had modification in DevDB. Note, this may not represent all building on a lot

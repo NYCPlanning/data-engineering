@@ -6,7 +6,7 @@ on:
       image_tag:
         type: string
         required: false
-      build_name: 
+      build_name:
         type: string
         required: true
       recipe_file:
@@ -51,6 +51,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
           EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
 
       - name: Finish container setup
@@ -67,7 +71,7 @@ jobs:
 
       - name: Set recipe env vars
         working-directory: ./
-        run: source ./bash/export_recipe_env.sh products/pluto/${{ inputs.recipe_file }}.lock.yml 
+        run: source ./bash/export_recipe_env.sh products/pluto/${{ inputs.recipe_file }}.lock.yml
 
       - name: Dataloading
         working-directory: products/pluto
@@ -90,3 +94,7 @@ jobs:
 
       - name: Export and Upload
         run: ./06_export.sh
+
+      - name: Custom QAQC
+        working-directory: products/pluto
+        run: ./pluto_build/07_custom_qaqc.sh
