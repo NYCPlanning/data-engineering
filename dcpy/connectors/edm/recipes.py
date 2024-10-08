@@ -19,6 +19,7 @@ from dcpy.models.connectors.edm.recipes import (
 from dcpy.models import library
 from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
+from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
 assert (
@@ -257,11 +258,12 @@ def import_dataset(
             pg_dump_table_name=ds.id,
             target_table_name=ds_table_name,
         )
+
     elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
         df = (
             pd.read_csv(local_dataset_path, dtype=str)
             if ds.file_type == DatasetType.csv
-            else pd.read_parquet(local_dataset_path)
+            else geoparquet.read_df(local_dataset_path)
         )
         if preprocessor is not None:
             df = preprocessor(ds.id, df)

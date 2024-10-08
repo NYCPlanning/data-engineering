@@ -56,6 +56,8 @@ def run(
     if not staging_dir:
         staging_dir = TMP_DIR / dataset_id / config.archival_timestamp.isoformat()
         staging_dir.mkdir(parents=True)
+    else:
+        staging_dir.mkdir(parents=True, exist_ok=True)
 
     # download dataset
     extract.download_file_from_source(

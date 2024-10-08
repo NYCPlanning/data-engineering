@@ -113,6 +113,14 @@ def get_config(
         )
         processing_steps = [reprojection] + processing_steps
 
+    # TODO default steps like this should probably be configuration
+    processing_step_names = {p.name for p in processing_steps}
+    if "clean_column_names" not in processing_step_names:
+        clean_column_names = PreprocessingStep(
+            name="clean_column_names", args={"replace": {" ": "_"}, "lower": True}
+        )
+        processing_steps.append(clean_column_names)
+
     if mode:
         modes = {s.mode for s in processing_steps}
         if mode not in modes:

@@ -219,6 +219,18 @@ class PostgresClient:
         )
         return sorted(column_names["column_name"])
 
+    def get_column_types(self, table_name: str) -> dict[str, str]:
+        columns = self.execute_select_query(
+            """
+            SELECT column_name, data_type from information_schema.columns
+            WHERE table_schema = ':table_schema'
+            AND table_name   = ':table_name';
+            """,
+            table_schema=AsIs(self.schema),
+            table_name=AsIs(table_name),
+        )
+        return {r["column_name"]: r["data_type"] for _, r in columns.iterrows()}
+
     def add_pk(self, table: str, id_column: str = "id"):
         self.execute_query(
             'ALTER TABLE ":schema".":table" ADD COLUMN ":id_column" SERIAL CONSTRAINT ":constraint" PRIMARY KEY;',
@@ -226,6 +238,13 @@ class PostgresClient:
             table=AsIs(table),
             id_column=AsIs(id_column),
             constraint=AsIs(f"{table}_pk"),
+        )
+
+    def drop_table(self, table):
+        self.execute_query(
+            'DROP TABLE IF EXISTS ":schema".":table" CASCADE;',
+            schema=AsIs(self.schema),
+            table=AsIs(table),
         )
 
     def add_table_column(
@@ -291,6 +310,15 @@ class PostgresClient:
 
         if target_table_name is not None and target_table_name != pg_dump_table_name:
             self.rename_table(old_name=pg_dump_table_name, new_name=target_table_name)
+            self.execute_query(
+                f"ALTER TABLE {target_table_name} RENAME CONSTRAINT {pg_dump_table_name}_pk TO {target_table_name}_pk"
+            )
+            self.execute_query(
+                f"ALTER INDEX IF EXISTS {pg_dump_table_name}_wkb_geometry_geom_idx RENAME TO {target_table_name}_wkb_geometry_geom_idx"
+            )
+            self.execute_query(
+                f"ALTER SEQUENCE IF EXISTS {pg_dump_table_name}_ogc_fid_seq RENAME TO {target_table_name}_ogc_fid_seq"
+            )
 
     def insert_dataframe(
         self,
@@ -308,19 +336,28 @@ class PostgresClient:
                         table_name=AsIs(table_name),
                         conn=conn,
                     )
-                df.to_sql(
-                    table_name,
-                    schema=schema or self.schema,
-                    con=conn,
-                    if_exists=if_exists,
-                    index=False,
-                    dtype={
-                        "geo_1b": dialects.postgresql.JSON,
-                        "geo_bl": dialects.postgresql.JSON,
-                        "geo_bn": dialects.postgresql.JSON,
-                    },
-                    method=insert_copy,
-                )
+                if isinstance(df, gpd.GeoDataFrame):
+                    df.to_postgis(
+                        name=table_name,
+                        schema=schema or self.schema,
+                        con=conn,
+                        if_exists=if_exists,
+                        index=False,
+                    )
+                else:
+                    df.to_sql(
+                        table_name,
+                        schema=schema or self.schema,
+                        con=conn,
+                        if_exists=if_exists,
+                        index=False,
+                        dtype={
+                            "geo_1b": dialects.postgresql.JSON,
+                            "geo_bl": dialects.postgresql.JSON,
+                            "geo_bn": dialects.postgresql.JSON,
+                        },
+                        method=insert_copy,
+                    )
 
 
 def insert_copy(table, conn, keys, data_iter):
