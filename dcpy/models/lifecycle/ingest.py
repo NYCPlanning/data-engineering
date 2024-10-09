@@ -89,6 +89,14 @@ class Template(BaseModel, extra="forbid"):
     ## this is the original library template, included just for reference while we build out our new templates
     library_dataset: library.DatasetDefinition | None = None
 
+    @property
+    def has_geom(self):
+        match self.ingestion.file_format:
+            case file.Shapefile() | file.Geodatabase() | file.GeoJson():
+                return True
+            case file.Csv() | file.Xlsx() | file.Json() as format:
+                return format.geometry is not None
+
 
 class Config(SortedSerializedBase, extra="forbid"):
     """

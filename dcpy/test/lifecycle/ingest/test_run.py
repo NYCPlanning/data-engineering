@@ -1,4 +1,4 @@
-import pandas as pd
+import geopandas as gpd
 import pytest
 from unittest import mock
 import shutil
@@ -59,7 +59,6 @@ def test_run_update_freshness(mock_request_get, create_buckets, create_temp_file
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
     assert config.archival.check_timestamps == []
-
     run(
         dataset_id=DATASET,
         version=FAKE_VERSION,
@@ -90,7 +89,7 @@ def test_run_update_freshness_fails_if_data_diff(
 
     # this time, replace the dataframe with a different one in the middle of the ingest process
     with mock.patch("dcpy.utils.geospatial.parquet.read_df") as patch_read_df:
-        patch_read_df.return_value = pd.DataFrame({"a": ["b"]})
+        patch_read_df.return_value = gpd.GeoDataFrame({"a": [None]}).set_geometry("a")
         with pytest.raises(
             FileExistsError,
             match=f"Archived dataset 'id='{DATASET}' version='{FAKE_VERSION}'' already exists and has different data.",

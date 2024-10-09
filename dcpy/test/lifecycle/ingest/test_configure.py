@@ -94,20 +94,27 @@ def test_get_filename_invalid_source():
 
 
 class TestGetConfig:
+    def test_standard_no_geom(self):
+        config = configure.get_config("dob_now_permits", template_dir=TEMPLATE_DIR)
+        # ensure no reprojection or multi step (no target_crs, no geom respectively)
+        # ensure default 'clean_column_names' step is added
+        assert len(config.ingestion.processing_steps) == 1
+        assert config.ingestion.processing_steps[0].name == "clean_column_names"
+
     def test_standard(self):
         config = configure.get_config(
             "dca_operatingbusinesses", template_dir=TEMPLATE_DIR
         )
-        # ensure no reprojection step
-        # ensure default 'clean_column_names' step is added
-        assert len(config.ingestion.processing_steps) == 1
+        # ensure no reprojection
+        # ensure default 'clean_column_names' and multi steps are added
+        assert len(config.ingestion.processing_steps) == 2
         assert config.ingestion.processing_steps[0].name == "clean_column_names"
 
     def test_clean_column_names_defined(self):
         config = configure.get_config("bpl_libraries", template_dir=TEMPLATE_DIR)
         # ensure no reprojection step
-        # ensure default 'clean_column_names' step is added
-        assert len(config.ingestion.processing_steps) == 1
+        # ensure default 'clean_column_names' and 'multi' steps are added
+        assert len(config.ingestion.processing_steps) == 2
         assert config.ingestion.processing_steps[0].name == "clean_column_names"
         assert config.ingestion.processing_steps[0].args == {"replace": {"data.": ""}}
 
@@ -115,7 +122,7 @@ class TestGetConfig:
         config = configure.get_config(
             "dcp_addresspoints", version="24c", template_dir=TEMPLATE_DIR
         )
-        assert len(config.ingestion.processing_steps) == 2
+        assert len(config.ingestion.processing_steps) == 3
         assert config.ingestion.processing_steps[0].name == "reproject"
 
     def test_no_mode(self):

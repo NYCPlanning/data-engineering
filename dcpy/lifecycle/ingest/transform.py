@@ -181,6 +181,14 @@ class Preprocessor:
             df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return df
 
+    def multi(self, df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        multi_gdf = df.copy()
+        multi_gdf.set_geometry(
+            gpd.GeoSeries([transform.multi(feature) for feature in multi_gdf.geometry]),
+            inplace=True,
+        )
+        return multi_gdf
+
     def pd_series_func(
         self,
         df: pd.DataFrame,
@@ -217,10 +225,6 @@ class Preprocessor:
             func = func.__getattribute__(part)
         transformed[output_column_name or column_name] = func(**kwargs)  # type: ignore
         return transformed
-
-    def no_arg_function(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
-        return df
 
 
 def validate_pd_series_func(
