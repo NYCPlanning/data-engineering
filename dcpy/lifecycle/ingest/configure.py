@@ -129,6 +129,10 @@ def get_config(
         )
         processing_steps.append(clean_column_names)
 
+    if "multi" not in processing_step_names and template.has_geom:
+        multi = PreprocessingStep(name="multi")
+        processing_steps.append(multi)
+
     if mode:
         modes = {s.mode for s in processing_steps}
         if mode not in modes:

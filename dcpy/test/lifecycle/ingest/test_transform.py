@@ -4,6 +4,7 @@ import pandas as pd
 from pathlib import Path
 from pydantic import TypeAdapter, BaseModel
 import pytest
+from shapely import Polygon, MultiPolygon
 import yaml
 from unittest import TestCase, mock
 
@@ -91,16 +92,24 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
 
 def test_validate_processing_steps():
     steps = [
-        PreprocessingStep(name="no_arg_function"),
+        PreprocessingStep(name="multi"),
         PreprocessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
     ]
     compiled_steps = transform.validate_processing_steps("test", steps)
     assert len(compiled_steps) == 2
 
-    df = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]})
+    df = gpd.GeoDataFrame(
+        {
+            "col1": [1, 2, 3],
+            "col2": [4, 5, 6],
+            "col3": gpd.GeoSeries([None, None, None]),
+        }
+    ).set_geometry("col3")
     for step in compiled_steps:
         df = step(df)
-    expected = pd.DataFrame({"col3": [7, 8, 9]})
+    expected = gpd.GeoDataFrame(
+        {"col3": gpd.GeoSeries([None, None, None])}
+    ).set_geometry("col3")
     assert df.equals(expected)
 
 
@@ -155,7 +164,7 @@ class TestValidatePdSeriesFunc(TestCase):
 
 class TestPreprocessors(TestCase):
     proc = transform.Preprocessor(TEST_DATASET_NAME)
-    gdf: gpd.GeoDataFrame = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
+    gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
     basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
     messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words": [3, 4]})
     dupe_df = pd.DataFrame({"a": [1, 1, 1, 2], "b": [3, 1, 3, 2]})
@@ -285,6 +294,44 @@ class TestPreprocessors(TestCase):
         )
         assert transformed.active_geometry_name == "geom"
         expected = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "renamed.parquet")
+        assert transformed.equals(expected)
+
+    def test_multi(self):
+        gdf = gpd.GeoDataFrame(
+            {
+                "a": [1, 2, 3],
+                "wkt": gpd.GeoSeries(
+                    [
+                        None,
+                        Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                        MultiPolygon(
+                            [
+                                Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                                Polygon([(0, 0), (0, -1), (-1, 0), (0, 0)]),
+                            ]
+                        ),
+                    ]
+                ),
+            }
+        ).set_geometry("wkt")
+        transformed = self.proc.multi(gdf)
+        expected = gpd.GeoDataFrame(
+            {
+                "a": [1, 2, 3],
+                "wkt": gpd.GeoSeries(
+                    [
+                        None,
+                        MultiPolygon([Polygon([(0, 0), (0, 1), (1, 0), (0, 0)])]),
+                        MultiPolygon(
+                            [
+                                Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                                Polygon([(0, 0), (0, -1), (-1, 0), (0, 0)]),
+                            ]
+                        ),
+                    ]
+                ),
+            }
+        )
         assert transformed.equals(expected)
 
 
