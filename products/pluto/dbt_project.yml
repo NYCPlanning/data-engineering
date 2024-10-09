@@ -8,3 +8,6 @@ test-paths: ["tests"]
 tests:
   +store_failures: true
   schema: "_tests"
+
+vars:
+  version: "{{ env_var('VERSION') }}"
