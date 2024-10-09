@@ -121,7 +121,7 @@ class Date(Version):
                 if self.patch == 0:
                     return self.date.strftime("%Y-%m-%d")
                 else:
-                    return f"{self.date.strftime('%Y-%m')}.{self.patch}"
+                    return f"{self.date.strftime('%Y-%m-%d')}.{self.patch}"
 
     def __lt__(self, other) -> bool:
         match other:
