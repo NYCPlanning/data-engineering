@@ -8,11 +8,11 @@ on:
         type: boolean
         default: true
       build_pluto_minor:
-        description: "Build Pluto (minor) after dataloading is complete"
+        description: "Build PLUTO (Minor) after dataloading is complete"
         type: boolean
         default: false
-      promote_ztl:
-        description: "Promote Zoning Tax Lots to Draft folder after build?"
+      promote:
+        description: "Promote ZTL (and PLUTO if built) to `draft` folder after build"
         type: boolean
         required: true
         default: true
@@ -21,6 +21,10 @@ on:
         type: boolean
         required: true
         default: false
+      dev_bucket:
+        description: "Dev bucket in DO to use, if not a production run."
+        type: string
+        required: false
 
 jobs:
   dataloading:
@@ -28,7 +32,7 @@ jobs:
     container:
       image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
-      RECIPES_BUCKET: edm-recipes
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
     strategy:
       matrix:
         dataset:
@@ -66,13 +70,14 @@ jobs:
 
   build_ztl:
     needs: [dataloading]
-    name: Build Ztl
+    name: Build ZTL
     if: inputs.build_ztl
     uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
       dataset_name: ztl
       dev_image: ${{ inputs.dev_image }}
+      dev_bucket: ${{ inputs.dev_bucket }}
       recipe_file: recipe
 
   pluto_minor:
@@ -84,15 +89,29 @@ jobs:
     with:
       dataset_name: pluto
       dev_image: ${{ inputs.dev_image }}
+      dev_bucket: ${{ inputs.dev_bucket }}
       recipe_file: recipe-minor
 
-  promote_to_draft:
+  promote_ztl_to_draft:
     needs: [dataloading, build_ztl]
-    name: Promote Ztl build to Draft folder
-    if: inputs.build_ztl && inputs.promote_ztl
+    name: Promote ZTL build to Draft folder
+    if: inputs.promote
     uses: ./.github/workflows/promote_to_draft.yml
     secrets: inherit
     with:
       product: db-zoningtaxlots
       build: ${{ github.head_ref || github.ref_name }}
       product_acl: public-read
+      dev_bucket: ${{ inputs.dev_bucket }}
+
+  promote_pluto_to_draft:
+    needs: [dataloading, pluto_minor]
+    name: Promote PLUTO build to Draft folder
+    if: inputs.promote
+    uses: ./.github/workflows/promote_to_draft.yml
+    secrets: inherit
+    with:
+      product: db-pluto
+      build: ${{ github.head_ref || github.ref_name }}
+      product_acl: public-read
+      dev_bucket: ${{ inputs.dev_bucket }}
