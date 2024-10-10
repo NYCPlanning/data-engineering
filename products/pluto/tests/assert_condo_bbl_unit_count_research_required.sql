@@ -1,6 +1,6 @@
 {{ 
     config(
-        tags = ['de_check'], 
+        tags = ['de_check', 'major'], 
         meta = {
             'description': '''
 				This test identifies condo records that likely have incorrect unit counts in DOF PTS data, affecting the final PLUTO table. 
