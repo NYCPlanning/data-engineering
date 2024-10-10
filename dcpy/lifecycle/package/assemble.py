@@ -265,7 +265,7 @@ def assemble_dataset_from_bytes_cli(
         BYTES_DEST_TYPE,
         "--source-destination-id",
         "-s",
-        help="Only Assemble Metadata.",
+        help="The Destination which acts as a source for this assembly",
     ),
 ):
     dataset_name = dataset or product

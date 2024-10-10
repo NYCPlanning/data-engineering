@@ -108,7 +108,7 @@ def test_plan_errors_for_socrata():
 
 @patch("dcpy.lifecycle.package.assemble.unzip_into_package")
 @patch("urllib.request.urlretrieve")
-def test_pull_destination_files_mocked(mock_urlretrieve, mock_unpackage, tmp_path):
+def test_pull_destination_files(mock_urlretrieve, mock_unpackage, tmp_path):
     assemble.pull_destination_files(
         tmp_path, make_metadata(), BYTES_DEST_WITH_INDIVIDUAL_FILES, unpackage_zips=True
     )
@@ -134,6 +134,26 @@ def test_pull_destination_files_mocked(mock_urlretrieve, mock_unpackage, tmp_pat
     assert (
         1 == mock_unpackage.call_count
     ), "`unpackage` should have been invoked on the zipfile."
+
+
+@patch("urllib.request.urlretrieve")
+def test_pull_destination_files_md_only(mock_urlretrieve, tmp_path):
+    assemble.pull_destination_files(
+        tmp_path,
+        make_metadata(),
+        BYTES_DEST_WITH_INDIVIDUAL_FILES,
+        metadata_only=True,
+    )
+
+    expected_calls = [
+        call(
+            "https://s-media.nyc.gov/agencies/dcp/assets/files/my_data_dict.pdf",
+            tmp_path / Path("attachments/data_dict.pdf"),
+        ),
+    ]
+
+    assert len(expected_calls) == mock_urlretrieve.call_count
+    mock_urlretrieve.assert_has_calls(expected_calls)
 
 
 @pytest.fixture
