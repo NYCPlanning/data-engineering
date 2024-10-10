@@ -114,29 +114,46 @@ class Socrata:
         class DatasetMetadata(BaseModel):
             name: str
             description: str
+            category: str
+            attribution: str
+            attributionLink: str
             tags: list[str]
+            # licenseId: str
             metadata: dict[str, Any]
             privateMetadata: dict[str, Any]
 
             @classmethod
             def from_dataset_attributes(cls, attrs: md.DatasetAttributes):
+                if not (attrs.category and attrs.agency and attrs.publishing_frequency):
+                    raise Exception(
+                        f"Required metadata fields are missing. Found category: {attrs.category}, agency: {attrs.agency} or publishing_frequency: {attrs.publishing_frequency}"
+                    )
+
                 return cls(
                     name=attrs.display_name,
                     description=attrs.description,
-                    tags=attrs.tags,
+                    category=attrs.category,
+                    attribution=attrs.attribution or "",
+                    attributionLink=attrs.attributionLink or "",
+                    tags=attrs.tags or [],
                     metadata={
                         "rowLabel": attrs.each_row_is_a,
                         "custom_fields": {
+                            "Dataset Information": {"Agency": attrs.agency},
                             "Update": {
+                                "Data Change Frequency": attrs.publishing_frequency,
+                                "Date Made Public": attrs.date_made_public,
+                                "Update Frequency Details": attrs.publishing_frequency_details,
                                 "Update Frequency": translate_legislative_freq_to_update_freq(
-                                    attrs.publishing_frequency or ""
+                                    attrs.publishing_frequency
                                 )
                                 or attrs.publishing_frequency,
                                 "Automation": "Yes",
-                            }
+                            },
                         },
                     },
                     privateMetadata={
+                        # "contactEmail": "", # Leaving this here in case we want to add it, so we don't have to remember what the field is called
                         "custom_fields": {
                             "Legislative Compliance": {
                                 "Removed Records?": "Yes",  # refers to row removal at time of push to Socrata. Always true since we overwrite the existing dataset.
@@ -153,8 +170,8 @@ class Socrata:
                                     if attrs.custom.get("dataset_from_open_data_plan")
                                     else "No"
                                 ),
-                            }
-                        }
+                            },
+                        },
                     },
                 )
 

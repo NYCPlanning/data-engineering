@@ -3,8 +3,6 @@ id: test_product
 attributes:
   display_name: Test Product
   description: Product description {{ sample_text }}
-  publishing_frequency: yearly
-  publishing_purpose: "legal compliance."
 
 datasets:
   - test_dataset

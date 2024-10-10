@@ -1,2 +1,5 @@
+attributes:
+  agency: DCP
+
 products:
   - test_product

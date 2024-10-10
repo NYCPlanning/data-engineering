@@ -15,20 +15,21 @@ def lion_md_path(test_metadata_repo: Path):
     return test_metadata_repo / "products" / "lion"
 
 
-lion_product_level_pub_freq = "monthly"
-pseudo_lots_pub_freq = "bimonthly"
+lion_product_level_pub_freq = "lion_product_freq"
+pseudo_lots_pub_freq = "pseudo_lots-freq"
+agency = "DCP"
 template_vars = {
     "version": "24c",
     "lion_prod_level_pub_freq": lion_product_level_pub_freq,
     "pseudo_lots_pub_freq": pseudo_lots_pub_freq,
+    "agency": agency,
 }
 PRODUCT_WITH_ERRORS = "mock_product_with_errors"
 
 
-def test_dataset_md_overrides(lion_md_path: Path):
-    lion_md = md.ProductMetadata.from_path(
-        root_path=lion_md_path, template_vars=template_vars
-    )
+def test_org_md_overrides(test_metadata_repo: Path):
+    org_md = md.OrgMetadata.from_path(test_metadata_repo, template_vars=template_vars)
+    lion_md = org_md.product("lion")
     pseudo_lots_with_defaults = lion_md.dataset("pseudo_lots")
 
     # Display name is both a product and dataset field. However, the product.display_name
@@ -36,22 +37,21 @@ def test_dataset_md_overrides(lion_md_path: Path):
     assert (
         pseudo_lots_with_defaults.attributes.display_name
         != lion_md.metadata.attributes.display_name
-    ), "Product-level attrbite `display_name` should not be overridden."
+    ), "Product-level attribute `display_name` should not be overridden."
 
     assert (
         pseudo_lots_with_defaults.attributes.publishing_frequency
         == pseudo_lots_pub_freq
-    ), "Pseudo lots pub-freq should not be effected by the defaults."
-
-    assert (
-        pseudo_lots_with_defaults.attributes.publishing_frequency
-        == pseudo_lots_pub_freq
-    ), "Pseudo lots pub-freq should not be effected by the defaults."
+    ), "Pseudo lots pub-freq should not be affected by the product defaults."
 
     assert (
         pseudo_lots_with_defaults.attributes.publishing_purpose
-        == lion_md.metadata.attributes.publishing_purpose
+        == lion_md.metadata.dataset_defaults.publishing_purpose
     ), "The missing field `publishing_purpose` should use the product-level default"
+
+    assert (
+        pseudo_lots_with_defaults.attributes.agency == agency
+    ), "The field `agency` should use the org-level default"
 
 
 def test_get_tagged_destinations(lion_md_path: Path):

@@ -1,6 +1,8 @@
 from pathlib import Path
 import typer
+from typing import Unpack
 
+from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.models.product import metadata as product_metadata
 from dcpy.lifecycle.distribute import socrata as soc_dist
 from dcpy.lifecycle.package import assemble
@@ -8,28 +10,29 @@ from dcpy.utils.logging import logger
 
 
 def from_bytes_to_tagged_socrata(
-    product_metadata_path: Path,
+    org_metadata_path: Path,
+    product: str,
     version: str,
     destination_tag: str,
-    source_destination_id: str = "bytes",
-    **publish_kwargs,
+    **publish_kwargs: Unpack[soc_dist.PublishKwargs],
 ):
-    """Package from bytes, and"""
-    product = product_metadata.ProductMetadata.from_path(
-        root_path=product_metadata_path,
+    """Package tagged datsets from bytes, and distribute to Socrata."""
+    org_md = product_metadata.OrgMetadata.from_path(
+        path=org_metadata_path,
         template_vars={"version": version},
     )
-    dests = product.get_tagged_destinations(destination_tag)
+    product_md = org_md.product(product)
+    dests = product_md.get_tagged_destinations(destination_tag)
 
-    logger.info(f"Packaging {product.metadata.id}. Datasets: {list(dests.keys())}")
+    logger.info(f"Packaging {product_md.metadata.id}. Datasets: {list(dests.keys())}")
     package_paths = {}
     for ds_id, dests_to_mds in dests.items():
-        dataset_metadata = list(dests_to_mds.values())[0]
         out_path = assemble.assemble_dataset_from_bytes(
-            dataset_metadata,
-            product=product.metadata.id,
+            dataset_metadata=product_md.dataset(ds_id),
+            product=product,
             version=version,
-            source_destination_id=source_destination_id,
+            source_destination_id="bytes",
+            metadata_only=publish_kwargs["metadata_only"],
         )
         package_paths[ds_id] = out_path
 
@@ -50,8 +53,14 @@ app = typer.Typer()
 
 @app.command("from_bytes_to_tagged_socrata")
 def from_bytes_to_tagged_socrata_cli(
-    product_metadata_path: Path,
+    product: str,
     version: str,
+    org_metadata_path: Path = typer.Option(
+        PRODUCT_METADATA_REPO_PATH,
+        "-o",
+        "--metadata-path",
+        help="Path to metadata repo. Optionally, set in your env.",
+    ),
     destination_tag: str = typer.Option(
         None,
         "-t",
@@ -78,13 +87,14 @@ def from_bytes_to_tagged_socrata_cli(
     ),
     metadata_only: bool = typer.Option(
         False,
-        "-z",
+        "-m",
         "--metadata-only",
         help="Only push metadata (including attachments).",
     ),
 ):
     results = from_bytes_to_tagged_socrata(
-        product_metadata_path,
+        org_metadata_path,
+        product,
         version,
         destination_tag,
         publish=publish,

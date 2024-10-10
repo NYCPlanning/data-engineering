@@ -1,10 +1,19 @@
 from pathlib import Path
 import typer
+from typing import TypedDict, Unpack, NotRequired, Required
 
 import dcpy.models.product.dataset.metadata_v2 as m
 from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub
+
+
+class PublishKwargs(TypedDict):
+    metadata_path: NotRequired[Path]
+    publish: Required[bool]
+    ignore_validation_errors: Required[bool]
+    skip_validation: Required[bool]
+    metadata_only: Required[bool]
 
 
 def dist_from_local(
@@ -53,8 +62,8 @@ def dist_from_local(
             metadata=md,
             dataset_destination_id=dataset_destination_id,
             dataset_package_path=package_path,
-            publish=publish,
-            metadata_only=metadata_only,
+            publish=bool(publish),
+            metadata_only=bool(metadata_only),
         )
     except Exception as e:
         return f"Error pushing {md.attributes.display_name}, destination: {dest.id}: {str(e)}"
@@ -62,18 +71,22 @@ def dist_from_local(
 
 def dist_from_local_all_socrata(
     package_path: Path,
-    **pub_kwargs,
+    **pub_kwargs: Unpack[PublishKwargs],
 ):
     """Distributes all Socrata destinations within a given metadata"""
     md = m.Metadata.from_path(package_path / "metadata.yml")
+    local_pub_kwargs = pub_kwargs.copy()
+    local_pub_kwargs.pop(
+        "metadata_path"
+    ) if "metadata_path" in local_pub_kwargs else None
+
     socrata_dests = [d.id for d in md.destinations if d.type == "socrata"]
     logger.info(f"Distributing {md.attributes.display_name}: {socrata_dests}")
     results = [
         dist_from_local(
             package_path=package_path,
-            metadata_path=None,
             dataset_destination_id=dataset_destination_id,
-            **pub_kwargs,
+            **local_pub_kwargs,
         )
         for dataset_destination_id in socrata_dests
     ]
@@ -82,7 +95,7 @@ def dist_from_local_all_socrata(
 
 def dist_from_local_product_all_socrata(
     product_path: Path,
-    **pub_kwargs,
+    **pub_kwargs: Unpack[PublishKwargs],
 ):
     """Distribute datasets for an entire product."""
     results = []

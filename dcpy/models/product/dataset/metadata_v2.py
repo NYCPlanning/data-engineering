@@ -138,39 +138,36 @@ class Package(CustomizableBase):
     contents: List[PackageFile]
 
 
-# DATASET
-class DatasetAttributesOverride(CustomizableBase):
-    display_name: str | None = None
-    description: str | None = None
-    each_row_is_a: str | None = None
+class DatasetOrgProductAttributesOverride(CustomizableBase):
+    """Fields that might be set as a default at the Product/Org level."""
 
-    contains_address: bool | None = None
+    agency: str | None = None
+    attribution: str | None = None
+    attributionLink: str | None = None
+    category: str | None = None
+    contact_email: str | None = None
+    contains_address: bool | None = (
+        None  # `contains_address` refers specifically to addresses containing house, numbers + street names. (ie. not just streets, polys, etc.)
+    )
     date_made_public: str | None = None
-    publishing_purpose: str | None = None
     potential_uses: str | None = None
+    projection: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values
     publishing_frequency_details: str | None = None
-    projection: str | None = None  # TODO: does projection belong here?
+    publishing_purpose: str | None = None
+    tags: List[str] | None = []
 
-    tags: List[str] | None = None
+
+class DatasetAttributesOverride(DatasetOrgProductAttributesOverride):
+    description: str | None = None
+    display_name: str | None = None
+    each_row_is_a: str | None = None
 
 
-class DatasetAttributes(CustomizableBase):
+class DatasetAttributes(DatasetOrgProductAttributesOverride):
     display_name: str
     description: str = ""
     each_row_is_a: str
-
-    # `contains_address` refers specifically to addresses containing house
-    # numbers + street names. (ie. not just streets, polys, etc.)
-    contains_address: bool | None = None
-    date_made_public: str | None = None
-    publishing_purpose: str | None = None
-    potential_uses: str | None = None
-    publishing_frequency: str | None = None  # TODO: picklist values
-    publishing_frequency_details: str | None = None
-    projection: str | None = None  # TODO: does projection belong here?
-
-    tags: List[str] = []
 
     def override(self, overrides: DatasetAttributesOverride) -> DatasetAttributes:
         return DatasetAttributes(**merge(self.model_dump(), overrides.model_dump()))
@@ -266,6 +263,9 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         if len(dests) != 1:
             raise Exception(f"There should exist one destination with id: {id}")
         return dests[0]
+
+    def get_file_ids(self):
+        return {f.file.id for f in self.files}
 
     def get_file_and_overrides(self, file_id: str) -> FileAndOverrides:
         files = [f for f in self.files if f.file.id == file_id]

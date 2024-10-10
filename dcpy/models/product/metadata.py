@@ -8,6 +8,7 @@ from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlRead
 from dcpy.models.product.dataset.metadata_v2 import (
     Metadata as DatasetMetadata,
     DatasetColumn,
+    DatasetOrgProductAttributesOverride,
 )
 from dcpy.utils.collections import deep_merge_dict as merge
 
@@ -18,36 +19,20 @@ ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
 ERROR_PRODUCT_METADATA_INSTANTIATION = "Error instantiating product metadata"
 
 
-class DefaultDatasetAttributes(SortedSerializedBase):
-    """Anything overrideable at the dataset level"""
-
-    contains_address: bool | None = None
-    date_made_public: str | None = None
-    publishing_purpose: str | None = None
-    potential_uses: str | None = None
-    publishing_frequency: str | None = None  # TODO: picklist values
-    publishing_frequency_details: str | None = None
-    tags: list[str] | None = None
-
-
-class Attributes(DefaultDatasetAttributes, extra="ignore"):
+class ProductAttributes(SortedSerializedBase, extra="forbid"):
     display_name: str | None = None
     description: str | None = None
-
-    def to_dataset_attributes(self):
-        return DefaultDatasetAttributes(**self.model_dump())
 
 
 class ProductMetadataFile(
     SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"
 ):
     id: str
+    attributes: ProductAttributes = Field(default_factory=ProductAttributes)
+    dataset_defaults: DatasetOrgProductAttributesOverride = Field(
+        default_factory=DatasetOrgProductAttributesOverride
+    )
     datasets: list[str] = []
-    attributes: Attributes = Field(default_factory=Attributes)
-
-
-class OrgMetadataFile(TemplatedYamlReader, SortedSerializedBase, extra="forbid"):
-    products: list[str]
 
 
 class ProductMetadata(SortedSerializedBase, extra="forbid"):
@@ -55,6 +40,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
     metadata: ProductMetadataFile
     template_vars: dict = {}
     column_defaults: dict[tuple[str, str], DatasetColumn] = {}
+    org_attributes: DatasetOrgProductAttributesOverride
 
     @classmethod
     def from_path(
@@ -62,6 +48,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         root_path: Path,
         template_vars: dict = {},
         column_defaults: dict[tuple[str, str], DatasetColumn] = {},
+        org_attributes: DatasetOrgProductAttributesOverride = DatasetOrgProductAttributesOverride(),
     ) -> ProductMetadata:
         return ProductMetadata(
             root_path=root_path,
@@ -70,6 +57,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
             ),
             template_vars=template_vars,
             column_defaults=column_defaults,
+            org_attributes=org_attributes,
         )
 
     def _dataset_folders(self):
@@ -82,8 +70,8 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         )
 
         ds_md.attributes = ds_md.attributes.apply_defaults(
-            self.metadata.attributes.to_dataset_attributes()
-        )
+            self.metadata.dataset_defaults
+        ).apply_defaults(self.org_attributes)
 
         ds_md.columns = ds_md.apply_column_defaults(self.column_defaults)
 
@@ -124,6 +112,11 @@ class ProductDatasetDestinationKey(BaseModel):
     destination: str
 
 
+class OrgMetadataFile(TemplatedYamlReader, SortedSerializedBase, extra="forbid"):
+    products: list[str]
+    attributes: DatasetOrgProductAttributesOverride
+
+
 class OrgMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
@@ -154,10 +147,13 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
 
     @classmethod
     def from_path(cls, path: Path, template_vars: dict | None = None):
+        template_vars = merge(cls.get_string_snippets(path), template_vars or {}) or {}
         return OrgMetadata(
             root_path=path,
-            metadata=OrgMetadataFile.from_path(path / "metadata.yml"),
-            template_vars=merge(cls.get_string_snippets(path), template_vars or {}),
+            metadata=OrgMetadataFile.from_path(
+                path / "metadata.yml", template_vars=template_vars
+            ),
+            template_vars=template_vars,
             column_defaults=cls.get_column_defaults(path),
         )
 
@@ -166,6 +162,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
             root_path=self.root_path / "products" / name,
             template_vars=self.template_vars,
             column_defaults=self.column_defaults,
+            org_attributes=self.metadata.attributes,
         )
 
     def validate_metadata(self) -> dict[str, dict[str, list[str]]]:

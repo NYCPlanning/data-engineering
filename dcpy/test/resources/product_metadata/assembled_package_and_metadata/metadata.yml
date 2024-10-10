@@ -1,6 +1,9 @@
 id: test
 
 attributes:
+  agency: DCP
+  category: City Gov
+  publishing_frequency: often
   description: attrs_description
   display_name: attrs_display_name
   each_row_is_a: attrs_each_row_is_a

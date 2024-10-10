@@ -2,7 +2,9 @@ id: lion
 
 attributes:
   display_name: LION Product Display Name
-  description: The lion dataset blah blah
+  description: The entire lion product
+
+dataset_defaults:
   publishing_frequency: "{{ lion_prod_level_pub_freq }}"
   publishing_purpose: "legal compliance."
 
