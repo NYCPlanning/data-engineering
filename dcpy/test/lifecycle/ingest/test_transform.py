@@ -4,11 +4,12 @@ import pandas as pd
 from pathlib import Path
 from pydantic import TypeAdapter, BaseModel
 import pytest
+from shapely import Polygon, MultiPolygon
 import yaml
 from unittest import TestCase, mock
 
 from dcpy.models.file import Format
-from dcpy.models.lifecycle.ingest import PreprocessingStep
+from dcpy.models.lifecycle.ingest import PreprocessingStep, Column
 
 from dcpy.utils import data
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -91,16 +92,24 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
 
 def test_validate_processing_steps():
     steps = [
-        PreprocessingStep(name="no_arg_function"),
+        PreprocessingStep(name="multi"),
         PreprocessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
     ]
     compiled_steps = transform.validate_processing_steps("test", steps)
     assert len(compiled_steps) == 2
 
-    df = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6], "col3": [7, 8, 9]})
+    df = gpd.GeoDataFrame(
+        {
+            "col1": [1, 2, 3],
+            "col2": [4, 5, 6],
+            "col3": gpd.GeoSeries([None, None, None]),
+        }
+    ).set_geometry("col3")
     for step in compiled_steps:
         df = step(df)
-    expected = pd.DataFrame({"col3": [7, 8, 9]})
+    expected = gpd.GeoDataFrame(
+        {"col3": gpd.GeoSeries([None, None, None])}
+    ).set_geometry("col3")
     assert df.equals(expected)
 
 
@@ -155,7 +164,7 @@ class TestValidatePdSeriesFunc(TestCase):
 
 class TestPreprocessors(TestCase):
     proc = transform.Preprocessor(TEST_DATASET_NAME)
-    gdf: gpd.GeoDataFrame = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
+    gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
     basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
     messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words": [3, 4]})
     dupe_df = pd.DataFrame({"a": [1, 1, 1, 2], "b": [3, 1, 3, 2]})
@@ -279,19 +288,70 @@ class TestPreprocessors(TestCase):
         expected = pd.DataFrame({"a": [2, 3, 1], "b": ["B-1", "B-2", "c_3"]})
         assert transformed.equals(expected)
 
+    def test_rename_geodataframe(self):
+        transformed: gpd.GeoDataFrame = self.proc.rename_columns(
+            self.gdf, map={"wkt": "geom"}
+        )
+        assert transformed.active_geometry_name == "geom"
+        expected = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "renamed.parquet")
+        assert transformed.equals(expected)
+
+    def test_multi(self):
+        gdf = gpd.GeoDataFrame(
+            {
+                "a": [1, 2, 3],
+                "wkt": gpd.GeoSeries(
+                    [
+                        None,
+                        Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                        MultiPolygon(
+                            [
+                                Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                                Polygon([(0, 0), (0, -1), (-1, 0), (0, 0)]),
+                            ]
+                        ),
+                    ]
+                ),
+            }
+        ).set_geometry("wkt")
+        transformed = self.proc.multi(gdf)
+        expected = gpd.GeoDataFrame(
+            {
+                "a": [1, 2, 3],
+                "wkt": gpd.GeoSeries(
+                    [
+                        None,
+                        MultiPolygon([Polygon([(0, 0), (0, 1), (1, 0), (0, 0)])]),
+                        MultiPolygon(
+                            [
+                                Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                                Polygon([(0, 0), (0, -1), (-1, 0), (0, 0)]),
+                            ]
+                        ),
+                    ]
+                ),
+            }
+        )
+        assert transformed.equals(expected)
+
 
 def test_preprocess_no_steps(create_temp_filesystem: Path):
-    input = create_temp_filesystem / "input.txt"
-    output = create_temp_filesystem / "output.txt"
-    input.touch()
+    input = RESOURCES / TEST_DATA_DIR / "test.parquet"
+    output = create_temp_filesystem / "output.parquet"
+    assert (
+        not output.exists()
+    ), "Error in setup of test - output file should not exist yet"
 
-    transform.preprocess(TEST_DATASET_NAME, [], input, output)
+    transform.preprocess(TEST_DATASET_NAME, [], [], input, output)
     assert output.exists()
 
 
 def test_preprocess(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
     output = create_temp_filesystem / "output.parquet"
+    assert (
+        not output.exists()
+    ), "Error in setup of test - output file should not exist yet"
     expected = RESOURCES / TEST_DATA_DIR / "output.parquet"
 
     steps = [
@@ -301,11 +361,41 @@ def test_preprocess(create_temp_filesystem: Path):
         ),
     ]
 
-    transform.preprocess(TEST_DATASET_NAME, steps, input, output)
+    columns = [
+        Column(id="borough", data_type="integer"),
+        Column(id="block", data_type="integer"),
+        Column(id="lot", data_type="integer"),
+        Column(id="bbl", data_type="text"),
+        Column(id="text", data_type="text"),
+        Column(id="wkt", data_type="geometry"),
+    ]
+
+    transform.preprocess(TEST_DATASET_NAME, steps, columns, input, output)
     assert output.exists()
     output_df = geoparquet.read_df(output)
     expected_df = geoparquet.read_df(expected)
     assert output_df.equals(expected_df)
 
-    transform.preprocess(TEST_DATASET_NAME, steps, input, output, output_csv=True)
+    assert not (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
+    transform.preprocess(TEST_DATASET_NAME, steps, [], input, output, output_csv=True)
     assert (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
+
+
+class TestValidateColumns:
+    df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
+
+    def test_validate_all_columns(self):
+        transform.validate_columns(
+            self.df,
+            [Column(id="a", data_type="integer"), Column(id="b", data_type="text")],
+        )
+
+    def test_validate_partial_columns(self):
+        transform.validate_columns(self.df, [Column(id="a", data_type="integer")])
+
+    def test_validate_columns_fails(self):
+        with pytest.raises(
+            ValueError,
+            match="defined in template but not found in processed dataset",
+        ):
+            transform.validate_columns(self.df, [Column(id="c", data_type="integer")])

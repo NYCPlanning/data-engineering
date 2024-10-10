@@ -3,6 +3,14 @@ from pathlib import Path
 import pandas as pd
 import geopandas as gpd
 import shapely
+from shapely import (
+    Point,
+    MultiPoint,
+    LineString,
+    MultiLineString,
+    Polygon,
+    MultiPolygon,
+)
 from tempfile import TemporaryDirectory
 
 from dcpy.models.geospatial import geometry
@@ -146,3 +154,38 @@ class TestParquet:
 
         gdf = parquet.read_df(RESOURCES_DIR / "geo.parquet")
         assert isinstance(gdf, gpd.GeoDataFrame)
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        (None, None),
+        (Point(0, 1), MultiPoint([(0, 1)])),
+        (MultiPoint([(2, 3), (4, 5)]), MultiPoint([(2, 3), (4, 5)])),
+        (LineString([(0, 0), (1, 1)]), MultiLineString([[(0, 0), (1, 1)]])),
+        (
+            MultiLineString([[(0, 0), (-1, 1)], [(0, 0), (1, -1)]]),
+            MultiLineString([[(0, 0), (-1, 1)], [(0, 0), (1, -1)]]),
+        ),
+        (
+            Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+            MultiPolygon([Polygon([(0, 0), (0, 1), (1, 0), (0, 0)])]),
+        ),
+        (
+            MultiPolygon(
+                [
+                    Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                    Polygon([(0, 0), (0, -1), (-1, 0), (0, 0)]),
+                ]
+            ),
+            MultiPolygon(
+                [
+                    Polygon([(0, 0), (0, 1), (1, 0), (0, 0)]),
+                    Polygon([(0, 0), (0, -1), (-1, 0), (0, 0)]),
+                ]
+            ),
+        ),
+    ],
+)
+def test_multi(input, expected):
+    assert transform.multi(input) == expected

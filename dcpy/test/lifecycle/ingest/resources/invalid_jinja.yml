@@ -1,6 +1,7 @@
 id: dcp_atomicpolygons
 acl: public-read
-source:
-  type: file_download
-  url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/{{ dummy_jinja_var }}/bytes/nyap_{{ version }}.zip
-file_format:
+ingestion:
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/{{ dummy_jinja_var }}/bytes/nyap_{{ version }}.zip
+  file_format:

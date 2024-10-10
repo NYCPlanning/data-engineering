@@ -143,6 +143,59 @@ class TestIndentedPrint:
             "        1  2  4",
         ]
 
+    def test_max_df_length(self):
+        assert collections.flatten_and_indent(
+            self.outer.model_dump(), max_df_length=1
+        ) == [
+            "a",
+            "    b",
+            "    c",
+            "d",
+            "    2 rows. First 1 shown",
+            "       x  y",
+            "    0  1  3",
+            "e: None",
+            "f",
+            "    g: h",
+            "    i",
+            "            j",
+            "            k",
+            "            l",
+            "    m",
+            "        n: o",
+            "        p: q",
+            "    r",
+            "        2 rows. First 1 shown",
+            "           x  y",
+            "        0  1  3",
+        ]
+
+    def test_max_recursion_depth(self):
+        assert collections.flatten_and_indent(
+            self.outer.model_dump(), max_recursion_depth=2
+        ) == [
+            "a",
+            "    b",
+            "    c",
+            "d",
+            "       x  y",
+            "    0  1  3",
+            "    1  2  4",
+            "e: None",
+            "f",
+            "    g: h",
+            "    i",
+            "            [Truncated - max depth exceeded]",
+            "            [Truncated - max depth exceeded]",
+            "    m",
+            "        n: o",
+            "        p: q",
+            "    r",
+            "           x  y",
+            "        0  1  3",
+            "        1  2  4",
+        ]
+
     def test_to_report(self):
         collections.indented_report(self.outer.model_dump()) == """a
             b
