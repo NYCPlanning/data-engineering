@@ -19,4 +19,4 @@ echo "Build intermediate QAQC tables"
 dbt build --select qaqc --exclude tag:de_check
 
 echo "🔥 Run DE aka important tests 🔥"
-dbt test --select tag:de_check
+dbt test --select tag:de_check,tag:$VERSION_TYPE    # this will only run tests that have both tags, not just one of them
