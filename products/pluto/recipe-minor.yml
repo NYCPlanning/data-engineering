@@ -3,6 +3,8 @@ base_recipe: recipe.yml
 version_type: minor
 version_strategy: bump_latest_release
 product: db-pluto
+vars:
+  VERSION_TYPE: minor
 inputs:
   missing_versions_strategy: copy_latest_release
   datasets:
@@ -24,5 +26,5 @@ inputs:
       version: latest
     - name: dcp_pluto
       # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
-      version_env_var: VERSION_PREV 
+      version_env_var: VERSION_PREV
       import_as: previous_pluto
