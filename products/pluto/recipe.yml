@@ -2,6 +2,8 @@ name: Pluto Major
 version_strategy: bump_latest_release
 version_type: major
 product: db-pluto
+vars:
+  VERSION_TYPE: major
 inputs:
   missing_versions_strategy: find_latest
   datasets:
