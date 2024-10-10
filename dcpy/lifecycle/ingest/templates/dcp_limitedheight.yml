@@ -17,6 +17,10 @@ ingestion:
   file_format:
     type: shapefile
     crs: EPSG:2263
+  processing_steps:
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
 
 columns:
 - id: lhname
@@ -27,5 +31,5 @@ columns:
   data_type: decimal
 - id: shape_area
   data_type: decimal
-- id: geom
+- id: wkb_geometry
   data_type: geometry
