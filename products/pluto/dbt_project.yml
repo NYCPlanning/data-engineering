@@ -11,3 +11,4 @@ tests:
 
 vars:
   version: "{{ env_var('VERSION') }}"
+  version_type: "{{ env_var('VERSION_TYPE') }}"
