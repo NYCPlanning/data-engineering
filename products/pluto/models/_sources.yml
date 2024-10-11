@@ -52,3 +52,7 @@ sources:
         description: |
           Processed PTS data where each record is a UNIT BBL: i.e. there are multiple
           records per a condominium.
+
+      - name: previous_pluto
+      - name: export_pluto
+        description: final PLUTO table
