@@ -28,3 +28,6 @@ inputs:
       # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
       version_env_var: VERSION_PREV
       import_as: previous_pluto
+
+    - name: dcp_developments # this dataset isn't actually used in PLUTO minor; this is a temp fix to address current code limitations when planning a recipe
+      version: latest
