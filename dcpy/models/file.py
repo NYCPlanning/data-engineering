@@ -1,5 +1,4 @@
 from __future__ import annotations
-from pydantic import BaseModel
 from typing import Literal, TypeAlias
 
 from dcpy.models.base import SortedSerializedBase
@@ -20,7 +19,7 @@ class Geometry(SortedSerializedBase, extra="forbid"):
     crs: str
     format: geometry.GeometryFormat | None = None
 
-    class PointColumns(BaseModel, extra="forbid"):
+    class PointColumns(SortedSerializedBase, extra="forbid"):
         """This class defines longitude and latitude column names."""
 
         x: str
