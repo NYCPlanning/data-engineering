@@ -6,8 +6,7 @@ ALTER TABLE _cbbr_submissions
 ADD COLUMN agency_normalized text;
 
 -- setting the agency name
-UPDATE
-_cbbr_submissions
+UPDATE _cbbr_submissions
 SET
     agency_normalized = (
         CASE
