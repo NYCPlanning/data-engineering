@@ -20,8 +20,7 @@ SET
     geo_y_coord = nullif(geo_y_coord, '');
 
 -- Assign geoms based on the centroid of the bin
-UPDATE
-_cbbr_submissions a
+UPDATE _cbbr_submissions a
 SET
     geom = (
         CASE
@@ -37,8 +36,7 @@ WHERE
 
 -- Convert from_x_coord, from_y_coord to from_geom
 -- Convert to_x_coord, to_y_coord to to_geom
-UPDATE
-_cbbr_submissions
+UPDATE _cbbr_submissions
 SET
     geo_from_geom
     = st_transform(st_setsrid(st_makepoint(geo_from_x_coord::NUMERIC, geo_from_y_coord::NUMERIC), 2263), 4326),
@@ -46,8 +44,7 @@ SET
 
 -- Assign geoms based on the centroid of the bin
 -- based on geo_longitude, geo_latitude, geo_x_coord and geo_y_coord
-UPDATE
-_cbbr_submissions
+UPDATE _cbbr_submissions
 SET
     geom = (
         CASE
