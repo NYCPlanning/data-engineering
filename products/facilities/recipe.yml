@@ -10,91 +10,156 @@ inputs:
   missing_versions_strategy: find_latest
   datasets:
     - name: dcp_facilities_with_unmapped
-      version_env_var: VERSION_PREV
       file_type: pg_dump
+      version: "24v1"
     - name: dcp_mappluto_wi
       file_type: pg_dump
+      version: "24v2"
     - name: dcp_boroboundaries_wi
       file_type: pg_dump
+      version: "24c"
     - name: dcp_ct2010
       file_type: pg_dump
+      version: "24c"
     - name: dcp_ct2020
       file_type: pg_dump
+      version: "24c"
     - name: dcp_councildistricts
       file_type: pg_dump
-      version: 22c
+      version: "22c"
     - name: dcp_cdboundaries
       file_type: pg_dump
+      version: "24c"
     - name: dcp_nta2010
       file_type: pg_dump
+      version: "24c"
     - name: dcp_nta2020
       file_type: pg_dump
+      version: "24c"
     - name: dcp_policeprecincts
       file_type: pg_dump
+      version: "24c"
     - name: doitt_zipcodeboundaries
       file_type: pg_dump
+      version: "20180910"
     - name: doitt_buildingfootprints
       file_type: pg_dump
+      version: "20240812"
     - name: dcp_school_districts
       file_type: pg_dump
+      version: "24c"
 
     # CSVs
     - name: nypl_libraries
+      version: "20240813"
     - name: bpl_libraries
+      version: "20240813"
     - name: dcp_colp
+      version: "20240630"
     - name: dca_operatingbusinesses
+      version: "20240809"
     - name: dcla_culturalinstitutions
+      version: "20210625"
     - name: dcp_sfpsd
       version: "20210409"
     - name: dcp_pops
+      version: "20240814"
     - name: dsny_garages
+      version: "20240817"
     - name: dsny_specialwastedrop
+      version: "20240813"
     - name: dsny_donatenycdirectory
+      version: "20240108"
     - name: dsny_leafdrop
+      version: "20240802"
     - name: dsny_fooddrop
+      version: "20240812"
     - name: dsny_electronicsdrop
+      version: "20240813"
     - name: hra_snapcenters
+      version: "20231101"
     - name: hra_jobcenters
+      version: "20231101"
     - name: hra_medicaid
+      version: "20221216"
     - name: nycha_communitycenters
+      version: "20191118"
     - name: nycha_policeservice
+      version: "20160915"
     - name: nycourts_courts
+      version: "20210413"
     - name: nysdec_lands
+      version: "20240817"
     - name: dot_bridgehouses
+      version: "20240805"
     - name: dot_ferryterminals
+      version: "20240805"
     - name: dot_mannedfacilities
+      version: "20240805"
     - name: dot_pedplazas
+      version: "20231212"
     - name: dot_publicparking
+      version: "20240805"
     - name: qpl_libraries
+      version: "20180620"
     - name: sbs_workforce1
+      version: "20170426"
     - name: uscourts_courts
+      version: "20240813"
     - name: usdot_airports
+      version: "20240820"
     - name: usdot_ports
+      version: "20240813"
     - name: usnps_parks
+      version: "20240702"
     - name: nysdec_solidwaste
+      version: "20230817"
     - name: nysdoh_healthfacilities
+      version: "20240813"
     - name: nysdoh_nursinghomes
+      version: "20240813"
     - name: nysdoccs_corrections
+      version: "20240812"
     - name: nysed_nonpublicenrollment
+      version: "2023-24"
     - name: nysed_activeinstitutions
+      version: "20240812"
     - name: nysomh_mentalhealth
+      version: "20240813"
     - name: dpr_parksproperties
+      version: "20240814"
     - name: dycd_service_sites
+      version: "20230607"
     - name: fbop_corrections
+      version: "20240812"
     - name: fdny_firehouses
+      version: "20220408"
     - name: dep_wwtc
       version: "20210413"
     - name: dfta_contracts
+      version: "20240715"
     - name: doe_busroutesgarages
+      version: "20240801"
     - name: sca_enrollment_capacity
+      version: "20230105"
     - name: doe_lcgms
+      version: "20240812"
     - name: doe_universalprek
+      version: "20240111"
     - name: dohmh_daycare
+      version: "20230426"
     - name: foodbankny_foodbanks
+      version: "20240812"
     - name: hhc_hospitals
+      version: "20170908"
     - name: moeo_socialservicesitelocations
+      version: "20230719"
     - name: nycdoc_corrections
+      version: "20240812"
     - name: nysopwdd_providers
+      version: "20240813"
     - name: nysparks_historicplaces
+      version: "20240812"
     - name: nysparks_parks
+      version: "20240731"
     - name: nysoasas_programs
