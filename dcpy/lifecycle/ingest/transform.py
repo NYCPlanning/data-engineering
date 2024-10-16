@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import PreprocessingStep, Column
+from dcpy.models.lifecycle.ingest import ProcessingStep, Column
 from dcpy.utils import data, introspect
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -62,10 +62,10 @@ def to_parquet(
     )
 
 
-class Preprocessor:
+class ProcessingFunctions:
     """
     This class is very much a first pass at something that would support the validate/run_processing_steps functions
-    This should/will be iterated on when implementing actual preprocessing steps for chosen templates
+    This should/will be iterated on when implementing actual processing steps for chosen templates
     """
 
     def __init__(self, dataset_id: str):
@@ -242,10 +242,10 @@ def validate_pd_series_func(
 
 
 def validate_processing_steps(
-    dataset_id: str, processing_steps: list[PreprocessingStep]
+    dataset_id: str, processing_steps: list[ProcessingStep]
 ) -> list[Callable]:
     """
-    Given config of ingest dataset, violates that defined preprocessing steps
+    Given config of ingest dataset, violates that defined processing steps
     exist and that appropriate arguments are supplied. Raises error detailing
     violations if any are found
 
@@ -253,12 +253,12 @@ def validate_processing_steps(
     """
     violations: dict[str, str | dict[str, str]] = {}
     compiled_steps: list[Callable] = []
-    preprocessor = Preprocessor(dataset_id)
+    processor = ProcessingFunctions(dataset_id)
     for step in processing_steps:
-        if step.name not in preprocessor.__dir__():
+        if step.name not in processor.__dir__():
             violations[step.name] = "Function not found"
         else:
-            func = getattr(preprocessor, step.name)
+            func = getattr(processor, step.name)
 
             # assume that function takes args "self, df"
             kw_error = introspect.validate_kwargs(
@@ -276,7 +276,7 @@ def validate_processing_steps(
             compiled_steps.append(partial(func, **step.args))
 
     if violations:
-        raise Exception(f"Invalid preprocessing steps:\n{violations}")
+        raise Exception(f"Invalid processing steps:\n{violations}")
 
     return compiled_steps
 
@@ -293,15 +293,15 @@ def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
         )
 
 
-def preprocess(
+def process(
     dataset_id: str,
-    processing_steps: list[PreprocessingStep],
+    processing_steps: list[ProcessingStep],
     expected_columns: list[Column],
     input_path: Path,
     output_path: Path,
     output_csv: bool = False,
 ):
-    """Validates and runs preprocessing steps defined in config object"""
+    """Validates and runs processing steps defined in config object"""
     df = geoparquet.read_df(input_path)
     compiled_steps = validate_processing_steps(dataset_id, processing_steps)
 

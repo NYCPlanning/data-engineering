@@ -13,7 +13,7 @@ from dcpy.models.lifecycle.ingest import (
     S3Source,
     ScriptSource,
     Source,
-    PreprocessingStep,
+    ProcessingStep,
     Template,
     Config,
 )
@@ -99,29 +99,27 @@ def get_filename(source: Source, ds_id: str) -> str:
 
 
 def determine_processing_steps(
-    steps: list[PreprocessingStep],
+    steps: list[ProcessingStep],
     *,
     target_crs: str | None,
     has_geom: bool,
     mode: str | None,
-) -> list[PreprocessingStep]:
+) -> list[ProcessingStep]:
     # TODO default steps like this should probably be configuration
     step_names = {p.name for p in steps}
 
     if target_crs and "clean_column_names" not in step_names:
-        reprojection = PreprocessingStep(
-            name="reproject", args={"target_crs": target_crs}
-        )
+        reprojection = ProcessingStep(name="reproject", args={"target_crs": target_crs})
         steps = [reprojection] + steps
 
     if "clean_column_names" not in step_names:
-        clean_column_names = PreprocessingStep(
+        clean_column_names = ProcessingStep(
             name="clean_column_names", args={"replace": {" ": "_"}, "lower": True}
         )
         steps.append(clean_column_names)
 
     if has_geom and "multi" not in step_names:
-        multi = PreprocessingStep(name="multi")
+        multi = ProcessingStep(name="multi")
         steps.append(multi)
 
     if mode:

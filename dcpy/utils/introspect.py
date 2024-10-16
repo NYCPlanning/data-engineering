@@ -58,7 +58,7 @@ def validate_kwargs(
     ]
     if pos:
         raise TypeError(
-            f"Positional args not supported, {function.__name__} is invalid preprocessing function"
+            f"Positional args not supported in `validate_kwargs`, {function.__name__} is invalid"
         )
 
     expected_args = [

@@ -39,10 +39,10 @@ Source: TypeAlias = (
 )
 
 
-class PreprocessingStep(SortedSerializedBase):
+class ProcessingStep(SortedSerializedBase):
     name: str
     args: dict[str, Any] = {}
-    # mode allows for certain preprocessing steps only to be run if specified at runtime
+    # mode allows for certain processing steps only to be run if specified at runtime
     mode: str | None = None
 
 
@@ -67,7 +67,7 @@ class Ingestion(SortedSerializedBase):
     source: Source
     file_format: file.Format
     processing_mode: str | None = None
-    processing_steps: list[PreprocessingStep] = []
+    processing_steps: list[ProcessingStep] = []
 
 
 class Column(SortedSerializedBase):

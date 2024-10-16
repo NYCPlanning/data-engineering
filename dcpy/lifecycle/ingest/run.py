@@ -86,7 +86,7 @@ def run(
         output_filename=init_parquet,
     )
 
-    transform.preprocess(
+    transform.process(
         config.id,
         config.ingestion.processing_steps,
         config.columns,
