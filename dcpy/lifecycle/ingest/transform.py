@@ -71,7 +71,7 @@ class Preprocessor:
     def __init__(self, dataset_id: str):
         self.dataset_id = dataset_id
 
-    def reproject(self, df: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
+    def reproject(self, df: gpd.GeoDataFrame, target_crs: str) -> gpd.GeoDataFrame:
         return transform.reproject_gdf(df, target_crs=target_crs)
 
     def sort(self, df: pd.DataFrame, by: list[str], ascending=True) -> pd.DataFrame:
