@@ -57,7 +57,6 @@ inputs:
     - name: dcp_colp
       version: "20240630"
     - name: dca_operatingbusinesses
-      version: "20240809"
     - name: dcla_culturalinstitutions
       version: "20210625"
     - name: dcp_sfpsd
@@ -127,7 +126,6 @@ inputs:
     - name: nysomh_mentalhealth
       version: "20240813"
     - name: dpr_parksproperties
-      version: "20240814"
     - name: dycd_service_sites
       version: "20230607"
     - name: fbop_corrections
