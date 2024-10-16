@@ -33,4 +33,4 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
       - name: Publish
-        run: python -m admin.ops.update_product_metadata_schemas
+        run: python -m admin.ops.publish_json_schemas
