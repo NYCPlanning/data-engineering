@@ -39,7 +39,6 @@ class Sources:
 SOURCE_FILENAMES = [
     (Sources.local_file, "dummy.txt"),
     (Sources.gis, f"{TEST_DATASET_NAME}.zip"),
-    (Sources.script, f"{TEST_DATASET_NAME}.parquet"),
     (Sources.file_download, "pad_24a.zip"),
     (Sources.api, f"{TEST_DATASET_NAME}.json"),
     (Sources.socrata, f"{TEST_DATASET_NAME}.csv"),

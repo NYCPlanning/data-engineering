@@ -1,8 +1,5 @@
-import importlib
-from pandas import DataFrame
 from pathlib import Path
 import shutil
-from typing import Callable
 
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
@@ -13,7 +10,6 @@ from dcpy.models.lifecycle.ingest import (
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import s3
-from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors import web
@@ -36,11 +32,7 @@ def download_file_from_source(
         case S3Source():
             s3.download_file(source.bucket, source.key, path)
         case ScriptSource():
-            module = importlib.import_module(f"dcpy.connectors.{source.connector}")
-            extract: Callable = getattr(module, source.function)
-            logger.info(f"Running custom ingestion script {source.function}.py")
-            df: DataFrame = extract()
-            df.to_parquet(path)
+            raise NotImplementedError("Custom scripts not yet supported in ingest.")
 
         ## request-based methods
         case web_models.FileDownloadSource():
