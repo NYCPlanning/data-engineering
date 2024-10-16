@@ -30,6 +30,7 @@ def flatten_and_indent(
     max_df_length: int = 20,
     include_line_breaks: bool = False,
     pretty_print_fields: bool = False,
+    max_recursion_depth: int = 10,
 ) -> list[str]:
     """
     Recursively prints a dictionary or list, indenting as the nested structure goes deeper.
@@ -65,8 +66,8 @@ def flatten_and_indent(
             return df.to_string().split("\n")
 
     def flatten(li: list | dict, level: int) -> list:
-        if level == 10:
-            return []
+        if level > max_recursion_depth:
+            return [apply_indent("[Truncated - max depth exceeded]", level)]
         if isinstance(li, dict):
             return flatten([Pair(key=k, value=li[k]) for k in li], level)
 

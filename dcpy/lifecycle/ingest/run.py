@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 from pathlib import Path
 import typer
@@ -28,11 +29,11 @@ def update_freshness(
     comparison = recipes.read_df(config.dataset)
     if new.equals(comparison):
         original_archival_timestamp = recipes.update_freshness(
-            config.dataset_key, config.archival_timestamp
+            config.dataset_key, config.archival.archival_timestamp
         )
-        config.archival_timestamp = original_archival_timestamp
+        config.archival.archival_timestamp = original_archival_timestamp
         if latest:
-            recipes.set_latest(config.dataset_key, config.acl)
+            recipes.set_latest(config.dataset_key, config.archival.acl)
         return config
     else:
         raise FileExistsError(
@@ -49,34 +50,46 @@ def run(
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
+    template_dir: Path = configure.TEMPLATE_DIR,
 ) -> Config:
-    config = configure.get_config(dataset_id, version=version, mode=mode)
-    transform.validate_processing_steps(config.id, config.processing_steps)
+    config = configure.get_config(
+        dataset_id, version=version, mode=mode, template_dir=template_dir
+    )
+    transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     if not staging_dir:
-        staging_dir = TMP_DIR / dataset_id / config.archival_timestamp.isoformat()
+        staging_dir = (
+            TMP_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
+        )
         staging_dir.mkdir(parents=True)
     else:
         staging_dir.mkdir(parents=True, exist_ok=True)
 
     # download dataset
     extract.download_file_from_source(
-        config.source, config.raw_filename, config.version, staging_dir
+        config.ingestion.source,
+        config.archival.raw_filename,
+        config.version,
+        staging_dir,
     )
-    file_path = staging_dir / config.raw_filename
+    file_path = staging_dir / config.archival.raw_filename
 
     if not skip_archival:
         # archive to edm-recipes/raw_datasets
-        recipes.archive_raw_dataset(config, staging_dir / config.raw_filename)
+        recipes.archive_raw_dataset(config, file_path)
 
     init_parquet = "init.parquet"
     transform.to_parquet(
-        config.file_format, file_path, dir=staging_dir, output_filename=init_parquet
+        config.ingestion.file_format,
+        file_path,
+        dir=staging_dir,
+        output_filename=init_parquet,
     )
 
     transform.preprocess(
         config.id,
-        config.processing_steps,
+        config.ingestion.processing_steps,
+        config.columns,
         staging_dir / init_parquet,
         staging_dir / config.filename,
         output_csv=output_csv,
@@ -90,6 +103,8 @@ def run(
                 config, staging_dir / config.filename, latest=latest
             )
 
+    with open(staging_dir / "config.json", "w") as f:
+        json.dump(config.model_dump(mode="json"), f, indent=4)
     return config
 
 

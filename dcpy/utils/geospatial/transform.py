@@ -8,10 +8,31 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+from shapely import (
+    Geometry,
+    Point,
+    MultiPoint,
+    LineString,
+    MultiLineString,
+    Polygon,
+    MultiPolygon,
+)
 
 from dcpy.models import file
 from dcpy.models.geospatial import geometry as geom
 from dcpy.utils.logging import logger
+
+
+def multi(geom: Geometry | None) -> Geometry | None:
+    match geom:
+        case Point():
+            return MultiPoint([geom])
+        case LineString():
+            return MultiLineString([geom])
+        case Polygon():
+            return MultiPolygon([geom])
+        case _:
+            return geom
 
 
 def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:

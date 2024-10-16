@@ -2,11 +2,10 @@ from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-import shutil
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import PreprocessingStep
+from dcpy.models.lifecycle.ingest import PreprocessingStep, Column
 from dcpy.utils import data, introspect
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -72,7 +71,7 @@ class Preprocessor:
     def __init__(self, dataset_id: str):
         self.dataset_id = dataset_id
 
-    def reproject(self, df: gpd.GeoDataFrame, target_crs) -> gpd.GeoDataFrame:
+    def reproject(self, df: gpd.GeoDataFrame, target_crs: str) -> gpd.GeoDataFrame:
         return transform.reproject_gdf(df, target_crs=target_crs)
 
     def sort(self, df: pd.DataFrame, by: list[str], ascending=True) -> pd.DataFrame:
@@ -97,6 +96,8 @@ class Preprocessor:
         self, df: pd.DataFrame, map: dict[str, str], drop_others=False
     ) -> pd.DataFrame:
         renamed = df.copy()
+        if isinstance(renamed, gpd.GeoDataFrame) and renamed.geometry.name in map:
+            renamed.rename_geometry(map.pop(renamed.geometry.name), inplace=True)
         renamed = renamed.rename(columns=map, errors="raise")
         if drop_others:
             renamed = renamed[list(map.values())]
@@ -180,6 +181,14 @@ class Preprocessor:
             df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return df
 
+    def multi(self, df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        multi_gdf = df.copy()
+        multi_gdf.set_geometry(
+            gpd.GeoSeries([transform.multi(feature) for feature in multi_gdf.geometry]),
+            inplace=True,
+        )
+        return multi_gdf
+
     def pd_series_func(
         self,
         df: pd.DataFrame,
@@ -216,10 +225,6 @@ class Preprocessor:
             func = func.__getattribute__(part)
         transformed[output_column_name or column_name] = func(**kwargs)  # type: ignore
         return transformed
-
-    def no_arg_function(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Dummy/stub for testing. Can be dropped if we implement actual function with no args other than df"""
-        return df
 
 
 def validate_pd_series_func(
@@ -276,24 +281,36 @@ def validate_processing_steps(
     return compiled_steps
 
 
+def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
+    """
+    For now, simply validates that expected columns exists
+    Does not validate data_type or other data checks
+    """
+    missing_columns = [c.id for c in columns if c.id not in df.columns]
+    if missing_columns:
+        raise ValueError(
+            f"Columns {missing_columns} defined in template but not found in processed dataset.\n Existing columns: {list(df.columns)}"
+        )
+
+
 def preprocess(
     dataset_id: str,
     processing_steps: list[PreprocessingStep],
+    expected_columns: list[Column],
     input_path: Path,
     output_path: Path,
     output_csv: bool = False,
 ):
     """Validates and runs preprocessing steps defined in config object"""
-    if len(processing_steps) == 0:
-        shutil.copy(input_path, output_path)
-    else:
-        df = geoparquet.read_df(input_path)
-        compiled_steps = validate_processing_steps(dataset_id, processing_steps)
+    df = geoparquet.read_df(input_path)
+    compiled_steps = validate_processing_steps(dataset_id, processing_steps)
 
-        for step in compiled_steps:
-            df = step(df)
+    for step in compiled_steps:
+        df = step(df)
 
-        if output_csv:
-            df.to_csv(output_path.parent / f"{dataset_id}.csv")
+    validate_columns(df, expected_columns)
 
-        df.to_parquet(output_path)
+    if output_csv:
+        df.to_csv(output_path.parent / f"{dataset_id}.csv")
+
+    df.to_parquet(output_path)

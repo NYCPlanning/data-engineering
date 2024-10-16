@@ -1,11 +1,11 @@
 from __future__ import annotations
-from pydantic import BaseModel
 from typing import Literal, TypeAlias
 
+from dcpy.models.base import SortedSerializedBase
 from dcpy.models.geospatial import geometry
 
 
-class Geometry(BaseModel, extra="forbid"):
+class Geometry(SortedSerializedBase, extra="forbid"):
     """
     Represents the geometric configuration for geospatial data.
     Attributes:
@@ -19,14 +19,14 @@ class Geometry(BaseModel, extra="forbid"):
     crs: str
     format: geometry.GeometryFormat | None = None
 
-    class PointColumns(BaseModel, extra="forbid"):
+    class PointColumns(SortedSerializedBase, extra="forbid"):
         """This class defines longitude and latitude column names."""
 
         x: str
         y: str
 
 
-class Csv(BaseModel, extra="forbid"):
+class Csv(SortedSerializedBase, extra="forbid"):
     type: Literal["csv"]
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
@@ -36,7 +36,7 @@ class Csv(BaseModel, extra="forbid"):
     geometry: Geometry | None = None
 
 
-class Xlsx(BaseModel, extra="forbid"):
+class Xlsx(SortedSerializedBase, extra="forbid"):
     type: Literal["xlsx"]
     unzipped_filename: str | None = None
     sheet_name: str
@@ -44,14 +44,14 @@ class Xlsx(BaseModel, extra="forbid"):
     geometry: Geometry | None = None
 
 
-class Shapefile(BaseModel, extra="forbid"):
+class Shapefile(SortedSerializedBase, extra="forbid"):
     type: Literal["shapefile"]
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
     crs: str
 
 
-class Geodatabase(BaseModel, extra="forbid"):
+class Geodatabase(SortedSerializedBase, extra="forbid"):
     type: Literal["geodatabase"]
     unzipped_filename: str | None = None
     layer: str | None = None
@@ -59,7 +59,7 @@ class Geodatabase(BaseModel, extra="forbid"):
     crs: str
 
 
-class Json(BaseModel, extra="forbid"):
+class Json(SortedSerializedBase, extra="forbid"):
     type: Literal["json"]
     json_read_fn: Literal["normalize", "read_json"]
     json_read_kwargs: dict = {}
@@ -67,7 +67,7 @@ class Json(BaseModel, extra="forbid"):
     geometry: Geometry | None = None
 
 
-class GeoJson(BaseModel, extra="forbid"):
+class GeoJson(SortedSerializedBase, extra="forbid"):
     type: Literal["geojson"]
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
