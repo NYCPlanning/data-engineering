@@ -2,28 +2,46 @@
 from dcpy.utils import s3
 from dcpy.models.product import metadata as product_metadata
 from dcpy.models.product.dataset import metadata_v2 as dataset_metadata
+from dcpy.models.lifecycle import ingest as ingest_models
 
 import json
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
+RECIPES_BUCKET = "edm-recipes"
+PUBLISHING_BUCKET = "edm-publishing"
 DO_SCHEMA_FOLDER = "data-engineering-devops/schemas/"
 
 schemas = [
     {
         "name": "org_metadata.schema.json",
+        "bucket": PUBLISHING_BUCKET,
         "folder": "product/",
         "schema": product_metadata.OrgMetadataFile.model_json_schema(),
     },
     {
         "name": "product_metadata.schema.json",
+        "bucket": PUBLISHING_BUCKET,
         "folder": "product/",
         "schema": product_metadata.ProductMetadataFile.model_json_schema(),
     },
     {
         "name": "dataset_metadata.schema.json",
+        "bucket": PUBLISHING_BUCKET,
         "folder": "product/dataset/",
         "schema": dataset_metadata.Metadata.model_json_schema(),
+    },
+    {
+        "name": "template.json",
+        "bucket": RECIPES_BUCKET,
+        "folder": "ingest/",
+        "schema": ingest_models.Template.model_json_schema(),
+    },
+    {
+        "name": "config.json",
+        "bucket": RECIPES_BUCKET,
+        "folder": "ingest/",
+        "schema": ingest_models.Config.model_json_schema(),
     },
 ]
 
@@ -32,7 +50,7 @@ for schema in schemas:
         p = Path(_dir) / schema["name"]
         open(p, "w").write(json.dumps(schema["schema"]))
         s3.upload_file(
-            bucket="edm-publishing",
+            bucket=schema["bucket"],
             path=p,
             key=DO_SCHEMA_FOLDER + schema["folder"] + schema["name"],
             acl="public-read",
