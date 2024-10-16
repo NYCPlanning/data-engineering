@@ -16,7 +16,7 @@ echo "Build staging tables"
 dbt build --select staging --exclude tag:de_check
 
 echo "Build intermediate QAQC tables"
-dbt run --select qaqc --exclude tag:de_check  # need to use 'dbt run' because otherwise it fails if downstream test fails
+dbt build --select qaqc --exclude tag:de_check
 
 echo "🔥 Run DE aka important tests 🔥"
-dbt test --select tag:de_check
+dbt test --select tag:de_check,tag:$VERSION_TYPE    # this will only run tests that have both tags, not just one of them
