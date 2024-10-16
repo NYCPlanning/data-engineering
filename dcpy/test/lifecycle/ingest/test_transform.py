@@ -9,7 +9,7 @@ import yaml
 from unittest import TestCase, mock
 
 from dcpy.models.file import Format
-from dcpy.models.lifecycle.ingest import PreprocessingStep, Column
+from dcpy.models.lifecycle.ingest import ProcessingStep, Column
 
 from dcpy.utils import data
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -92,8 +92,8 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
 
 def test_validate_processing_steps():
     steps = [
-        PreprocessingStep(name="multi"),
-        PreprocessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
+        ProcessingStep(name="multi"),
+        ProcessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
     ]
     compiled_steps = transform.validate_processing_steps("test", steps)
     assert len(compiled_steps) == 2
@@ -117,20 +117,20 @@ def test_validate_processing_steps():
     "step",
     [
         # Non-existent function
-        PreprocessingStep(name="fake_function_name"),
+        ProcessingStep(name="fake_function_name"),
         # Missing arg
-        PreprocessingStep(name="drop_columns", args={}),
+        ProcessingStep(name="drop_columns", args={}),
         # Unexpected arg
-        PreprocessingStep(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
+        ProcessingStep(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
         # Invalid pd series func
-        PreprocessingStep(
+        ProcessingStep(
             name="pd_series_func",
             args={"function_name": "str.fake_function", "column_name": "_"},
         ),
     ],
 )
 def test_validate_processing_steps_errors(step):
-    with pytest.raises(Exception, match="Invalid preprocessing steps"):
+    with pytest.raises(Exception, match="Invalid processing steps"):
         transform.validate_processing_steps("test", [step])
 
 
@@ -162,8 +162,8 @@ class TestValidatePdSeriesFunc(TestCase):
         assert res == "'pd.Series.str' has no attribute 'fake_function'"
 
 
-class TestPreprocessors(TestCase):
-    proc = transform.Preprocessor(TEST_DATASET_NAME)
+class TestProcessors(TestCase):
+    proc = transform.ProcessingFunctions(TEST_DATASET_NAME)
     gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
     basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
     messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words": [3, 4]})
@@ -335,18 +335,18 @@ class TestPreprocessors(TestCase):
         assert transformed.equals(expected)
 
 
-def test_preprocess_no_steps(create_temp_filesystem: Path):
+def test_processing_no_steps(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
     output = create_temp_filesystem / "output.parquet"
     assert (
         not output.exists()
     ), "Error in setup of test - output file should not exist yet"
 
-    transform.preprocess(TEST_DATASET_NAME, [], [], input, output)
+    transform.process(TEST_DATASET_NAME, [], [], input, output)
     assert output.exists()
 
 
-def test_preprocess(create_temp_filesystem: Path):
+def test_processing(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
     output = create_temp_filesystem / "output.parquet"
     assert (
@@ -355,10 +355,8 @@ def test_preprocess(create_temp_filesystem: Path):
     expected = RESOURCES / TEST_DATA_DIR / "output.parquet"
 
     steps = [
-        PreprocessingStep(name="sort", args={"by": ["boro_code", "block", "lot"]}),
-        PreprocessingStep(
-            name="rename_columns", args={"map": {"boro_code": "borough"}}
-        ),
+        ProcessingStep(name="sort", args={"by": ["boro_code", "block", "lot"]}),
+        ProcessingStep(name="rename_columns", args={"map": {"boro_code": "borough"}}),
     ]
 
     columns = [
@@ -370,14 +368,14 @@ def test_preprocess(create_temp_filesystem: Path):
         Column(id="wkt", data_type="geometry"),
     ]
 
-    transform.preprocess(TEST_DATASET_NAME, steps, columns, input, output)
+    transform.process(TEST_DATASET_NAME, steps, columns, input, output)
     assert output.exists()
     output_df = geoparquet.read_df(output)
     expected_df = geoparquet.read_df(expected)
     assert output_df.equals(expected_df)
 
     assert not (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
-    transform.preprocess(TEST_DATASET_NAME, steps, [], input, output, output_csv=True)
+    transform.process(TEST_DATASET_NAME, steps, [], input, output, output_csv=True)
     assert (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()
 
 

@@ -2,6 +2,7 @@
 from dcpy.utils import s3
 from dcpy.models.product import metadata as product_metadata
 from dcpy.models.product.dataset import metadata_v2 as dataset_metadata
+from dcpy.models.lifecycle import ingest as ingest_models
 
 import json
 from tempfile import TemporaryDirectory
@@ -24,6 +25,16 @@ schemas = [
         "name": "dataset_metadata.schema.json",
         "folder": "product/dataset/",
         "schema": dataset_metadata.Metadata.model_json_schema(),
+    },
+    {
+        "name": "template.json",
+        "folder": "ingest/",
+        "schema": ingest_models.Template.model_json_schema(),
+    },
+    {
+        "name": "config.json",
+        "folder": "ingest/",
+        "schema": ingest_models.Config.model_json_schema(),
     },
 ]
 

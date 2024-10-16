@@ -9,7 +9,7 @@ from dcpy.utils import s3
 from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
 
-from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
+from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES, Sources
 from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
@@ -49,6 +49,16 @@ def test_download_file_invalid_source():
     with pytest.raises(NotImplementedError):
         extract.download_file_from_source(
             mock.MagicMock(), "test.txt", "version", Path(".")
+        )
+
+
+def test_script_source(create_temp_filesystem):
+    with pytest.raises(NotImplementedError):
+        extract.download_file_from_source(
+            Sources.script,
+            f"{TEST_DATASET_NAME}.parquet",
+            FAKE_VERSION,
+            create_temp_filesystem,
         )
 
 
