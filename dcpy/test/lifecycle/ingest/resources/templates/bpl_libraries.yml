@@ -1,6 +1,9 @@
 id: bpl_libraries
 acl: public-read
 
+attributes:
+  name: BPL Libraries
+
 ingestion:
   source:
     type: api

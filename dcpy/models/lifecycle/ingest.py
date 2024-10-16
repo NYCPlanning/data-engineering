@@ -82,7 +82,7 @@ class Template(BaseModel, extra="forbid"):
     id: str
     acl: recipes.ValidAclValues
 
-    attributes: DatasetAttributes | None = None
+    attributes: DatasetAttributes
     ingestion: Ingestion
     columns: list[Column] = []
 
@@ -108,7 +108,7 @@ class Config(SortedSerializedBase, extra="forbid"):
     version: str
     crs: str | None = None
 
-    attributes: DatasetAttributes | None = None
+    attributes: DatasetAttributes
     archival: ArchivalMetadata
     ingestion: Ingestion
     columns: list[Column] = []

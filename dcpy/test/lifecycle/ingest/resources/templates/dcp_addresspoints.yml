@@ -1,5 +1,8 @@
-id: dcp-addresspoints
+id: dcp_addresspoints
 acl: public-read
+
+attributes:
+  name:  DCP Address Points
 
 ingestion:
   source:

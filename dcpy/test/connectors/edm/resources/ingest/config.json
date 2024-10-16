@@ -1,6 +1,9 @@
 {
     "name": "test",
     "version": "ingest",
+    "attributes": {
+        "name": "Test"
+    },
     "archival": {
         "archival_timestamp": "2024-09-05T12:04:03.450135-04:00",
         "raw_filename": "dummy.csv",

@@ -1,6 +1,9 @@
 id: dcp_atomicpolygons
 acl: public-read
 
+attributes:
+  name: DCP Atomic Polygons
+
 ingestion:
   source:
     type: file_download

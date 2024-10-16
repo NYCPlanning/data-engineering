@@ -71,6 +71,7 @@ class TestArchiveDataset:
     config = ingest.Config(
         id=dataset,
         version="dummy",
+        attributes=ingest.DatasetAttributes(name=dataset),
         archival=ingest.ArchivalMetadata(
             archival_timestamp=datetime.now(),
             acl="private",

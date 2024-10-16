@@ -1,6 +1,9 @@
 id: dcp_pop_acs2010_demographic
 acl: public-read
 
+attributes:
+  name: DCP Population 2010 ACS Demographic Data
+
 ingestion:
   source:
     type: local_file

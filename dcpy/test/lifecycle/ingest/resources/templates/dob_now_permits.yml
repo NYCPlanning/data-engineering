@@ -1,6 +1,9 @@
 id: dob_now_permits
 acl: public-read
 
+attributes:
+  name: DOB Now Job Permits
+
 ingestion:
   source:
     type: s3
