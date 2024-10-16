@@ -98,6 +98,42 @@ def get_filename(source: Source, ds_id: str) -> str:
             )
 
 
+def determine_processing_steps(
+    steps: list[PreprocessingStep],
+    *,
+    target_crs: str | None,
+    has_geom: bool,
+    mode: str | None,
+) -> list[PreprocessingStep]:
+    # TODO default steps like this should probably be configuration
+    step_names = {p.name for p in steps}
+
+    if target_crs and "clean_column_names" not in step_names:
+        reprojection = PreprocessingStep(
+            name="reproject", args={"target_crs": target_crs}
+        )
+        steps = [reprojection] + steps
+
+    if "clean_column_names" not in step_names:
+        clean_column_names = PreprocessingStep(
+            name="clean_column_names", args={"replace": {" ": "_"}, "lower": True}
+        )
+        steps.append(clean_column_names)
+
+    if has_geom and "multi" not in step_names:
+        multi = PreprocessingStep(name="multi")
+        steps.append(multi)
+
+    if mode:
+        modes = {s.mode for s in steps}
+        if mode not in modes:
+            raise ValueError(f"mode '{mode}' is not present in template")
+
+    steps = [s for s in steps if s.mode is None or s.mode == mode]
+
+    return steps
+
+
 def get_config(
     dataset_id: str,
     version: str | None = None,
@@ -113,37 +149,11 @@ def get_config(
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
-    processing_steps = template.ingestion.processing_steps
-
-    if template.ingestion.target_crs:
-        reprojection = PreprocessingStep(
-            name="reproject", args={"target_crs": template.ingestion.target_crs}
-        )
-        processing_steps = [reprojection] + processing_steps
-
-    # TODO default steps like this should probably be configuration
-    processing_step_names = {p.name for p in processing_steps}
-    if "clean_column_names" not in processing_step_names:
-        clean_column_names = PreprocessingStep(
-            name="clean_column_names", args={"replace": {" ": "_"}, "lower": True}
-        )
-        processing_steps.append(clean_column_names)
-
-    if "multi" not in processing_step_names and template.has_geom:
-        multi = PreprocessingStep(name="multi")
-        processing_steps.append(multi)
-
-    if mode:
-        modes = {s.mode for s in processing_steps}
-        if mode not in modes:
-            raise ValueError(f"mode '{mode}' is not present in template '{dataset_id}'")
-
-    processing_steps = [s for s in processing_steps if s.mode is None or s.mode == mode]
-
-    archival = ArchivalMetadata(
-        archival_timestamp=run_details.timestamp,
-        raw_filename=filename,
-        acl=template.acl,
+    processing_steps = determine_processing_steps(
+        template.ingestion.processing_steps,
+        target_crs=template.ingestion.target_crs,
+        has_geom=template.has_geom,
+        mode=mode,
     )
 
     ingestion = Ingestion(
@@ -152,6 +162,12 @@ def get_config(
         file_format=template.ingestion.file_format,
         processing_mode=mode,
         processing_steps=processing_steps,
+    )
+
+    archival = ArchivalMetadata(
+        archival_timestamp=run_details.timestamp,
+        raw_filename=filename,
+        acl=template.acl,
     )
 
     # create config object

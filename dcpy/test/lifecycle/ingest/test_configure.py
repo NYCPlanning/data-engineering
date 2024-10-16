@@ -94,6 +94,8 @@ def test_get_filename_invalid_source():
 
 
 class TestGetConfig:
+    """Tests both get_config and determine_processing_steps"""
+
     def test_standard_no_geom(self):
         config = configure.get_config("dob_now_permits", template_dir=TEMPLATE_DIR)
         # ensure no reprojection or multi step (no target_crs, no geom respectively)
