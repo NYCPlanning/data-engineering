@@ -341,11 +341,13 @@ def _cli_wrapper_repeat_recipe(
     ),
 ):
     product_key: publishing.BuildKey | publishing.DraftKey | publishing.PublishKey
-
+    product_label = (
+        "db-green-fast-track" if product == "green_fast_track" else f"db-{product}"
+    )
     match product_type:
         case "build":
             product_key = publishing.BuildKey(
-                product=f"db-{product}", build=version_or_build
+                product=product_label, build=version_or_build
             )
         case "draft":
             if draft_revision_number is None:
@@ -353,18 +355,18 @@ def _cli_wrapper_repeat_recipe(
                     "For repeating builds of 'draft' type, need to provide draft revision number"
                 )
             draft_revision = publishing.get_draft_revision_label(
-                product=f"db-{product}",
+                product=product_label,
                 version=version_or_build,
                 revision_num=draft_revision_number,
             )
             product_key = publishing.DraftKey(
-                product=f"db-{product}",
+                product=product_label,
                 version=version_or_build,
                 revision=draft_revision,
             )
         case "publish":
             product_key = publishing.PublishKey(
-                product=f"db-{product}", version=version_or_build
+                product=product_label, version=version_or_build
             )
         case _:
             raise ValueError(

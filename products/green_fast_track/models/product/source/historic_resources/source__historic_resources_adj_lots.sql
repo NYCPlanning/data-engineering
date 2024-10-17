@@ -3,3 +3,4 @@ SELECT
     variable_id,
     lot_geom
 FROM {{ ref("int_spatial__historic_resources_adj") }}
+WHERE lot_geom IS NOT NULL
