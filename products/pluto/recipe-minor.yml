@@ -3,8 +3,6 @@ base_recipe: recipe.yml
 version_type: minor
 version_strategy: bump_latest_release
 product: db-pluto
-vars:
-  VERSION_TYPE: minor
 inputs:
   missing_versions_strategy: copy_latest_release
   datasets:
