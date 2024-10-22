@@ -51,14 +51,16 @@ def dca_operatingbusinesses(df: pd.DataFrame):
         "Tow Truck Company",
     ]
     # TODO rather than "today", the cutoff date should be determined by the build version
-    today = datetime.datetime.today()
+    # HACK for 24v2
+    # today = datetime.datetime.today()
+    today_24v2 = datetime.datetime.strptime("06/01/2024", "%m/%d/%Y")
     covid_freeze = datetime.datetime.strptime("03/12/2020", "%m/%d/%Y")
     df.license_expiration_date = pd.to_datetime(
         df["license_expiration_date"], format="%m/%d/%Y"
     )
     df = df.loc[
         (
-            (df.license_expiration_date >= today)
+            (df.license_expiration_date >= today_24v2)
             & (df.industry == "Scrap Metal Processor")
         )
         | (

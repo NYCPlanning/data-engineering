@@ -57,6 +57,7 @@ inputs:
     - name: dcp_colp
       version: "20240630"
     - name: dca_operatingbusinesses
+      version: "20240809"
     - name: dcla_culturalinstitutions
       version: "20210625"
     - name: dcp_sfpsd
