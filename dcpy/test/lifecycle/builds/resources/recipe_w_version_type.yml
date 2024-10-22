@@ -1,0 +1,9 @@
+name: Tester
+version: 23v1
+
+product: db-test
+version_type: major
+inputs:
+  datasets:
+    - name: has_pinned_version
+      file_type: csv

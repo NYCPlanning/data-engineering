@@ -14,6 +14,7 @@ from dcpy.test.lifecycle.builds.conftest import REQUIRED_VERSION_ENV_VAR, RESOUR
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
 RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"
 RECIPE_NO_VERSION_PATH = RESOURCES_DIR / "recipe_no_version.yml"
+RECIPE_W_VERSION_TYPE = RESOURCES_DIR / "recipe_w_version_type.yml"
 BUILD_METADATA_PATH = RESOURCES_DIR / "build_metadata.json"
 SOURCE_VERSIONS_PATH = RESOURCES_DIR / "source_data_versions.csv"
 
@@ -179,6 +180,30 @@ class TestRecipesNoDefaults(TestCase):
         }
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         plan.recipe_from_yaml(lock_file)
+
+
+@pytest.mark.usefixtures("file_setup_teardown")
+@pytest.mark.usefixtures("create_buckets")
+@patch("dcpy.connectors.edm.recipes.get_latest_version")
+class TestRecipeVars(TestCase):
+    def test_version_type_var_is_absent(self, get_latest_version):
+        """Ensures VERSION_TYPE is absent in recipe 'vars' attribute when version_type is None."""
+        setup()
+        version = "test_version"
+        planned = plan.plan_recipe(RECIPE_PATH, version=version)
+        assert planned.version_type is None  # sanity check
+        assert "VERSION_TYPE" not in planned.vars
+
+    def test_version_type_is_present(self, get_latest_version):
+        """Test that the version_type is set correctly and matches env 'VERSION_TYPE' variable."""
+        planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE)
+        assert planned.version_type is not None  # sanity check
+        assert (
+            planned.version_type == planned.vars["VERSION_TYPE"]
+        ), "version_type mismatch with recipe.vars"
+        assert (
+            planned.vars["VERSION_TYPE"] == os.environ["VERSION_TYPE"]
+        ), "'version_type' recipe variable mismatch with 'VERSION_TYPE' env variable"
 
 
 def build_metadata_exists(key, file):
