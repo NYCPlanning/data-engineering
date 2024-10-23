@@ -7,7 +7,9 @@ test-paths: ["tests"]
 
 tests:
   +store_failures: true
+  +severity: "{{ env_var('TEST_SEVERITY') }}"
   schema: "_tests"
 
 vars:
   version: "{{ env_var('VERSION') }}"
+  version_type: "{{ env_var('VERSION_TYPE') }}"

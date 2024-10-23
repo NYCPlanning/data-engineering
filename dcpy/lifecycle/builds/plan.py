@@ -84,6 +84,9 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     recipe.vars = recipe.vars or {}
     recipe.vars["VERSION"] = recipe.version
 
+    if recipe.version_type is not None:
+        recipe.vars["VERSION_TYPE"] = recipe.version_type.value
+
     # Determine previous version
     try:
         previous_recipe = publishing.get_previous_version(

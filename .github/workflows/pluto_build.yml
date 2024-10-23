@@ -38,6 +38,7 @@ jobs:
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+      TEST_SEVERITY: ${{ contains(inputs.build_name, 'nightly_qa') && 'warn' || 'error' }}
     steps:
       - uses: actions/checkout@v4
 

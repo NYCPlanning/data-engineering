@@ -14,6 +14,7 @@ from dcpy.test.lifecycle.builds.conftest import REQUIRED_VERSION_ENV_VAR, RESOUR
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
 RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"
 RECIPE_NO_VERSION_PATH = RESOURCES_DIR / "recipe_no_version.yml"
+RECIPE_W_VERSION_TYPE = RESOURCES_DIR / "recipe_w_version_type.yml"
 BUILD_METADATA_PATH = RESOURCES_DIR / "build_metadata.json"
 SOURCE_VERSIONS_PATH = RESOURCES_DIR / "source_data_versions.csv"
 
@@ -21,8 +22,7 @@ PRODUCT = "Tester"
 MOCKED_LATEST_VERSION = "v1"
 
 
-def setup():
-    # TEMP_DATA_PATH.mkdir(exist_ok=True)
+def add_required_version_var_to_env():
     os.environ[REQUIRED_VERSION_ENV_VAR] = "v123"
 
 
@@ -115,7 +115,7 @@ class TestRecipesWithDefaults(TestCase):
             assert REQUIRED_VERSION_ENV_VAR in str(e.exception)
 
     def test_provide_manual_version(self, get_latest_version):
-        setup()
+        add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_PATH, version=version)
         assert planned.version == version
@@ -123,7 +123,7 @@ class TestRecipesWithDefaults(TestCase):
 
     def test_plan_recipe_defaults(self, get_latest_version):
         """Tests that defaults are set correctly when a recipe is planned."""
-        setup()
+        add_required_version_var_to_env()
         get_latest_version.return_value = MOCKED_LATEST_VERSION
         planned = plan.plan_recipe(RECIPE_PATH)
 
@@ -149,7 +149,7 @@ class TestRecipesWithNoVersion(TestCase):
 
     @patch("dcpy.connectors.edm.recipes.get_latest_version")
     def test_provide_manual_version(self, get_latest_version):
-        setup()
+        add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_NO_VERSION_PATH, version=version)
         assert planned.version == version
@@ -162,7 +162,7 @@ class TestRecipesWithNoVersion(TestCase):
 class TestRecipesNoDefaults(TestCase):
     def test_plan_recipe_default_type(self, get_file_types):
         """Tests that default type is pg_dump if found when not otherwise specified."""
-        setup()
+        add_required_version_var_to_env()
         get_file_types.return_value = {
             recipes.DatasetType.pg_dump,
             recipes.DatasetType.parquet,
@@ -179,6 +179,29 @@ class TestRecipesNoDefaults(TestCase):
         }
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         plan.recipe_from_yaml(lock_file)
+
+
+@patch("dcpy.connectors.edm.recipes.get_latest_version")
+class TestRecipeVars(TestCase):
+    def test_version_type_var_is_absent(self, get_latest_version):
+        """Ensures VERSION_TYPE is absent in recipe 'vars' attribute when version_type is None."""
+        add_required_version_var_to_env()
+        version = "test_version"
+        planned = plan.plan_recipe(RECIPE_PATH, version=version)
+        assert planned.version_type is None  # sanity check
+        assert "VERSION_TYPE" not in planned.vars
+
+    def test_version_type_is_present(self, get_latest_version):
+        """Test that the version_type is set correctly and matches env 'VERSION_TYPE' variable."""
+        version = "test_version"
+        planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE, version)
+        assert planned.version_type is not None  # sanity check
+        assert (
+            planned.version_type == planned.vars["VERSION_TYPE"]
+        ), "version_type mismatch with recipe.vars"
+        assert (
+            planned.vars["VERSION_TYPE"] == os.environ["VERSION_TYPE"]
+        ), "'version_type' recipe variable mismatch with 'VERSION_TYPE' env variable"
 
 
 def build_metadata_exists(key, file):
