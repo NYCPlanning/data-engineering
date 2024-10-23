@@ -1,4 +1,5 @@
 folium
+gdal
 geoalchemy2
 leafmap
 mapclassify
