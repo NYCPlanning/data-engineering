@@ -22,8 +22,7 @@ PRODUCT = "Tester"
 MOCKED_LATEST_VERSION = "v1"
 
 
-def setup():
-    # TEMP_DATA_PATH.mkdir(exist_ok=True)
+def add_required_version_var_to_env():
     os.environ[REQUIRED_VERSION_ENV_VAR] = "v123"
 
 
@@ -116,7 +115,7 @@ class TestRecipesWithDefaults(TestCase):
             assert REQUIRED_VERSION_ENV_VAR in str(e.exception)
 
     def test_provide_manual_version(self, get_latest_version):
-        setup()
+        add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_PATH, version=version)
         assert planned.version == version
@@ -124,7 +123,7 @@ class TestRecipesWithDefaults(TestCase):
 
     def test_plan_recipe_defaults(self, get_latest_version):
         """Tests that defaults are set correctly when a recipe is planned."""
-        setup()
+        add_required_version_var_to_env()
         get_latest_version.return_value = MOCKED_LATEST_VERSION
         planned = plan.plan_recipe(RECIPE_PATH)
 
@@ -150,7 +149,7 @@ class TestRecipesWithNoVersion(TestCase):
 
     @patch("dcpy.connectors.edm.recipes.get_latest_version")
     def test_provide_manual_version(self, get_latest_version):
-        setup()
+        add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_NO_VERSION_PATH, version=version)
         assert planned.version == version
@@ -163,7 +162,7 @@ class TestRecipesWithNoVersion(TestCase):
 class TestRecipesNoDefaults(TestCase):
     def test_plan_recipe_default_type(self, get_file_types):
         """Tests that default type is pg_dump if found when not otherwise specified."""
-        setup()
+        add_required_version_var_to_env()
         get_file_types.return_value = {
             recipes.DatasetType.pg_dump,
             recipes.DatasetType.parquet,
@@ -186,7 +185,7 @@ class TestRecipesNoDefaults(TestCase):
 class TestRecipeVars(TestCase):
     def test_version_type_var_is_absent(self, get_latest_version):
         """Ensures VERSION_TYPE is absent in recipe 'vars' attribute when version_type is None."""
-        setup()
+        add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_PATH, version=version)
         assert planned.version_type is None  # sanity check
