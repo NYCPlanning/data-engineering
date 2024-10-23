@@ -92,11 +92,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 102610060,otherb_init,82,0,,8/29/20,TD
 102610060,otherb_prop,80,0,,8/29/20,TD
 102615788,classa_init,,0,change u_init,8/13/19,
-102622208,otherb_prop,,0,,10/10/24,ML
-102622208,otherb_init,,0,,10/10/24,ML
-102622208,hotel_prop,,0,,10/10/24,ML
-102622208,hotel_init,,0,,10/10/24,ML
 102622208,classa_init,,12,,10/10/24,ML
+102622208,hotel_init,,0,,10/10/24,ML
+102622208,hotel_prop,9,0,,10/10/24,ML
+102622208,otherb_init,,0,,10/10/24,ML
+102622208,otherb_prop,9,0,,10/10/24,ML
 102624019,classa_init,,4,,8/30/21,AP
 102624019,classa_prop,2,2,,8/30/21,AP
 102624019,hotel_init,,0,,8/30/21,AP
@@ -241,11 +241,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 102965070,hotel_prop,2,0,,8/29/20,TD
 102965070,otherb_init,10,10,,1/31/20,
 102965070,otherb_prop,2,0,,8/29/20,TD
-102965098,otherb_prop,,0,,10/10/24,ML
-102965098,otherb_init,,0,,10/10/24,ML
-102965098,hotel_prop,,0,,10/10/24,ML
-102965098,hotel_init,,0,,10/10/24,ML
 102965098,classa_init,,0,,10/10/24,ML
+102965098,hotel_init,,0,,10/10/24,ML
+102965098,hotel_prop,1,0,,10/10/24,ML
+102965098,otherb_init,,0,,10/10/24,ML
+102965098,otherb_prop,1,0,,10/10/24,ML
 102965105,classa_init,,0,,8/24/20,KS
 102965105,classa_prop,5,1,,8/24/20,KS
 102965105,hotel_init,,0,,8/24/20,KS
@@ -352,11 +352,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 103098489,hotel_prop,10,0,,8/29/20,KS
 103098489,otherb_init,15,15,,8/5/20,KS
 103098489,otherb_prop,10,0,,8/5/20,KS
-103099629,hotel_init,0,0,,10/2/24,ML
-103099629,hotel_prop,0,0,,10/2/24,ML
-103099629,otherb_init,0,0,,10/2/24,ML
-103099629,otherb_prop,0,0,,10/2/24,ML
 103099629,classa_init,6,0,change u_init,10/2/24,ML
+103099629,hotel_init,6,0,,10/2/24,ML
+103099629,hotel_prop,6,0,,10/2/24,ML
+103099629,otherb_init,6,0,,10/2/24,ML
+103099629,otherb_prop,6,0,,10/2/24,ML
 103099647,classa_init,,0,,7/23/20,TD
 103099656,classa_init,,0,,7/23/20,TD
 103099665,classa_init,,0,,7/23/20,TD
@@ -416,11 +416,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 103178669,hotel_prop,,0,,8/29/20,TD
 103178669,otherb_init,,2,,7/29/20,TD
 103178669,otherb_prop,,0,,7/29/20,TD
-103182985,otherb_prop,,0,,10/10/24,ML
-103182985,otherb_init,,0,,10/10/24,ML
-103182985,hotel_prop,,0,,10/10/24,ML
-103182985,hotel_init,,0,,10/10/24,ML
 103182985,classa_init,,2,,10/10/24,ML
+103182985,hotel_init,,0,,10/10/24,ML
+103182985,hotel_prop,2,0,,10/10/24,ML
+103182985,otherb_init,,0,,10/10/24,ML
+103182985,otherb_prop,2,0,,10/10/24,ML
 103184037,classa_init,,0,,1/31/20,
 103184037,hotel_init,,0,,8/29/20,TD
 103184037,hotel_prop,2,0,,8/29/20,TD
@@ -549,11 +549,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 103406690,otherb_init,10,0,,8/28/20,AP
 103406690,otherb_prop,1,0,,8/28/20,AP
 103420861,classa_init,,4,,7/23/20,TD
-103426543,otherb_prop,,0,,10/10/24,ML
-103426543,otherb_init,,0,,10/10/24,ML
-103426543,hotel_prop,,0,,10/10/24,ML
-103426543,hotel_init,,0,,10/10/24,ML
 103426543,classa_init,,16,,10/10/24,ML
+103426543,hotel_init,,0,,10/10/24,ML
+103426543,hotel_prop,16,0,,10/10/24,ML
+103426543,otherb_init,,0,,10/10/24,ML
+103426543,otherb_prop,16,0,,10/10/24,ML
 103428863,classa_init,24,26,,4/26/23,SL
 103428863,classa_prop,26,28,,4/26/23,SL
 103428863,hotel_init,24,0,,4/26/23,SL
@@ -1259,11 +1259,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 104276999,hotel_prop,96,95,,4/28/22,AP
 104276999,otherb_init,96,0,,4/28/22,AP
 104276999,otherb_prop,96,0,,4/28/22,AP
-104277523,hotel_init,0,0,,10/7/24,ML
-104277523,hotel_prop,0,0,,10/7/24,ML
-104277523,otherb_init,0,0,,10/7/24,ML
-104277523,otherb_prop,0,0,,10/7/24,ML
 104277523,classa_init,13,13,change u_init,10/7/24,ML
+104277523,hotel_init,13,0,,10/7/24,ML
+104277523,hotel_prop,13,0,,10/7/24,ML
+104277523,otherb_init,13,0,,10/7/24,ML
+104277523,otherb_prop,13,0,,10/7/24,ML
 104278041,classa_init,,5,"change u_init, change u_prop",8/13/19,
 104278041,classa_prop,,0,"change u_init, change u_prop",8/13/19,
 104282303,classa_init,,9,,12/1/19,
@@ -1303,11 +1303,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 104301970,hotel_prop,1,0,,8/29/20,TD
 104301970,otherb_init,,6,,8/3/20,TD
 104301970,otherb_prop,1,0,,8/3/20,TD
-104302050,otherb_prop,,0,,10/10/24,ML
-104302050,otherb_init,,0,,10/10/24,ML
-104302050,hotel_prop,,0,,10/10/24,ML
-104302050,hotel_init,,0,,10/10/24,ML
 104302050,classa_init,,4,,10/10/24,ML
+104302050,hotel_init,,0,,10/10/24,ML
+104302050,hotel_prop,3,0,,10/10/24,ML
+104302050,otherb_init,,0,,10/10/24,ML
+104302050,otherb_prop,3,0,,10/10/24,ML
 104303004,classa_init,,9,,4/21/22,VB
 104303004,classa_prop,10,8,,4/21/22,VB
 104304691,classa_prop,106,0,,1/28/20,
@@ -1330,11 +1330,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 104314519,otherb_init,,0,,8/29/20,KS
 104314519,otherb_prop,155,0,,8/29/20,KS
 104315108,classa_init,,6,change u_init,8/13/19,
-104319051,otherb_prop,,0,,10/10/24,ML
-104319051,otherb_init,,0,,10/10/24,ML
-104319051,hotel_prop,,0,,10/10/24,ML
-104319051,hotel_init,,0,,10/10/24,ML
 104319051,classa_init,,0,,10/10/24,ML
+104319051,hotel_init,,0,,10/10/24,ML
+104319051,hotel_prop,2,0,,10/10/24,ML
+104319051,otherb_init,,0,,10/10/24,ML
+104319051,otherb_prop,2,0,,10/10/24,ML
 104328675,classa_init,3,0,,2/3/20,
 104328675,hotel_init,3,0,,8/29/20,TD
 104328675,hotel_prop,2,0,,8/29/20,TD
@@ -1515,11 +1515,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 104443498,hotel_prop,14,0,,8/25/21,AP
 104443498,otherb_init,,0,,8/25/21,AP
 104443498,otherb_prop,14,0,,8/25/21,AP
-104444736,hotel_init,0,0,,10/7/24,ML
-104444736,hotel_prop,0,0,,10/7/24,ML
-104444736,otherb_init,0,0,,10/7/24,ML
-104444736,otherb_prop,0,0,,10/7/24,ML
 104444736,classa_init,0,0,change u_init,10/7/24,ML
+104444736,hotel_init,0,0,,10/7/24,ML
+104444736,hotel_prop,1,0,,10/7/24,ML
+104444736,otherb_init,0,0,,10/7/24,ML
+104444736,otherb_prop,1,0,,10/7/24,ML
 104445405,hotel_init,10,0,,8/28/20,TD
 104445405,hotel_prop,1,0,,8/28/20,TD
 104445405,otherb_init,10,0,,8/28/20,TD
@@ -9591,11 +9591,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 200790475,classa_init,,2,,12/1/19,
 200790803,classa_init,,2,change u_init,8/13/19,
 200794033,classa_init,,2,change u_init,8/13/19,
-200794042,otherb_prop,,0,,10/10/24,ML
-200794042,otherb_init,,0,,10/10/24,ML
-200794042,hotel_prop,,0,,10/10/24,ML
-200794042,hotel_init,,0,,10/10/24,ML
 200794042,classa_init,,2,,10/10/24,ML
+200794042,hotel_init,,0,,10/10/24,ML
+200794042,hotel_prop,3,0,,10/10/24,ML
+200794042,otherb_init,,0,,10/10/24,ML
+200794042,otherb_prop,3,0,,10/10/24,ML
 200803791,hotel_init,2,0,,4/17/23,VB
 200803791,hotel_prop,2,0,,4/17/23,VB
 200803791,otherb_init,2,0,,4/17/23,VB
@@ -9795,11 +9795,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 201070410,classa_init,,1,change u_init,8/13/19,
 201071099,classa_init,,2,change u_init,8/13/19,
 201071268,classa_init,,1,change u_init,8/13/19,
-201072105,otherb_prop,,0,,10/10/24,ML
-201072105,otherb_init,,0,,10/10/24,ML
-201072105,hotel_prop,,0,,10/10/24,ML
-201072105,hotel_init,,0,,10/10/24,ML
 201072105,classa_init,,1,,10/10/24,ML
+201072105,hotel_init,,0,,10/10/24,ML
+201072105,hotel_prop,2,0,,10/10/24,ML
+201072105,otherb_init,,0,,10/10/24,ML
+201072105,otherb_prop,2,0,,10/10/24,ML
 201076655,classa_init,,1,change u_init,8/13/19,
 201078751,classa_init,,1,,7/14/22,VB
 201079135,classa_init,,1,,12/1/19,
@@ -9814,11 +9814,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 201086537,otherb_init,,0,,4/18/23,VB
 201086537,otherb_prop,1,0,,4/18/23,VB
 201091004,classa_init,,2,,12/1/19,
-201092986,otherb_prop,,0,,10/10/24,ML
-201092986,otherb_init,,0,,10/10/24,ML
-201092986,hotel_prop,,0,,10/10/24,ML
-201092986,hotel_init,,0,,10/10/24,ML
 201092986,classa_init,,1,,10/10/24,ML
+201092986,hotel_init,,0,,10/10/24,ML
+201092986,hotel_prop,1,0,,10/10/24,ML
+201092986,otherb_init,,0,,10/10/24,ML
+201092986,otherb_prop,1,0,,10/10/24,ML
 201092995,classa_init,,4,,4/27/22,VB
 201097874,classa_init,,1,,12/1/19,
 201099097,classa_init,,2,,4/7/23,BL
@@ -12391,27 +12391,27 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301020286,otherb_init,10,0,,8/28/20,KS
 301020286,otherb_prop,4,0,,8/28/20,KS
 301020758,classa_init,,1,change u_init,8/13/19,
-301020874,otherb_prop,,0,,10/10/24,ML
-301020874,otherb_init,,0,,10/10/24,ML
-301020874,hotel_prop,,0,,10/10/24,ML
-301020874,hotel_init,,0,,10/10/24,ML
 301020874,classa_init,,1,,10/10/24,ML
+301020874,hotel_init,,0,,10/10/24,ML
+301020874,hotel_prop,1,0,,10/10/24,ML
+301020874,otherb_init,,0,,10/10/24,ML
+301020874,otherb_prop,1,0,,10/10/24,ML
 301021533,latitude,,40.58182162,,8/23/21,AP
 301021533,longitude,,-73.98661996,,8/23/21,AP
-301022168,hotel_init,0,0,,10/8/24,ML
-301022168,hotel_prop,0,0,,10/8/24,ML
-301022168,otherb_init,0,0,,10/8/24,ML
-301022168,otherb_prop,0,0,,10/8/24,ML
 301022168,classa_init,1,1,,10/8/24,ML
 301022168,classa_prop,1,1,,10/8/24,ML
+301022168,hotel_init,1,0,,10/8/24,ML
+301022168,hotel_prop,1,0,,10/8/24,ML
+301022168,otherb_init,1,0,,10/8/24,ML
+301022168,otherb_prop,1,0,,10/8/24,ML
 301022328,classa_init,,1,,12/1/19,
 301022658,classa_init,,2,,12/1/19,
 301022676,classa_init,,2,,12/1/19,
-301023611,otherb_prop,,0,,10/10/24,ML
-301023611,otherb_init,,0,,10/10/24,ML
-301023611,hotel_prop,,0,,10/10/24,ML
-301023611,hotel_init,,0,,10/10/24,ML
 301023611,classa_init,,2,,10/10/24,ML
+301023611,hotel_init,,0,,10/10/24,ML
+301023611,hotel_prop,3,0,,10/10/24,ML
+301023611,otherb_init,,0,,10/10/24,ML
+301023611,otherb_prop,3,0,,10/10/24,ML
 301024834,latitude,,40.58182162,,8/23/21,AP
 301024834,longitude,,-73.98661996,,8/23/21,AP
 301025842,latitude,,40.58182162,,8/23/21,AP
@@ -12567,11 +12567,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301149424,hotel_prop,3,0,,8/31/21,TD
 301149424,otherb_init,,0,,8/31/21,TD
 301149424,otherb_prop,3,0,,8/31/21,TD
-301154060,otherb_prop,,0,,10/10/24,ML
-301154060,otherb_init,,0,,10/10/24,ML
-301154060,hotel_prop,,0,,10/10/24,ML
-301154060,hotel_init,,0,,10/10/24,ML
 301154060,classa_init,,2,,10/10/24,ML
+301154060,hotel_init,,0,,10/10/24,ML
+301154060,hotel_prop,2,0,,10/10/24,ML
+301154060,otherb_init,,0,,10/10/24,ML
+301154060,otherb_prop,2,0,,10/10/24,ML
 301155194,classa_init,,2,,12/1/19,
 301157593,classa_init,,1,"change u_init, change u_prop",8/13/19,
 301157593,classa_prop,,3,"change u_init, change u_prop",8/13/19,
@@ -12812,11 +12812,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301345970,otherb_init,,0,,8/27/20,KS
 301345970,otherb_prop,,0,,8/27/20,KS
 301346050,classa_init,,6,,7/16/20,TD
-301347353,hotel_init,0,0,,10/8/24,ML
-301347353,hotel_prop,0,0,,10/8/24,ML
-301347353,otherb_init,0,0,,10/8/24,ML
-301347353,otherb_prop,0,0,,10/8/24,ML
 301347353,classa_init,1,1,,7/14/22,VB
+301347353,hotel_init,1,0,,10/8/24,ML
+301347353,hotel_prop,2,0,,10/8/24,ML
+301347353,otherb_init,1,0,,10/8/24,ML
+301347353,otherb_prop,2,0,,10/8/24,ML
 301348931,date_permittd,,8/28/02,,1/19/21,KS
 301350071,classa_init,,12,,4/21/22,VB
 301350071,classa_prop,16,12,,4/21/22,VB
@@ -12849,11 +12849,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301375205,classa_init,,1,,12/1/19,
 301375250,classa_init,,2,"change u_init, change u_prop",8/13/19,
 301375250,classa_prop,,1,"change u_init, change u_prop",8/13/19,
-301375928,otherb_prop,,0,,10/10/24,ML
-301375928,otherb_init,,0,,10/10/24,ML
-301375928,hotel_prop,,0,,10/10/24,ML
-301375928,hotel_init,,0,,10/10/24,ML
 301375928,classa_init,,1,,10/10/24,ML
+301375928,hotel_init,,0,,10/10/24,ML
+301375928,hotel_prop,2,0,,10/10/24,ML
+301375928,otherb_init,,0,,10/10/24,ML
+301375928,otherb_prop,2,0,,10/10/24,ML
 301379737,classa_init,,2,change u_init,8/13/19,
 301382073,classa_init,,2,change u_init,8/13/19,
 301382082,classa_init,,2,change u_init,8/13/19,
@@ -13156,11 +13156,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301634998,hotel_prop,2,0,,8/4/23,VB
 301634998,otherb_init,,0,,8/4/23,VB
 301634998,otherb_prop,2,0,,8/4/23,VB
-301635167,otherb_prop,,0,,10/10/24,ML
-301635167,otherb_init,,0,,10/10/24,ML
-301635167,hotel_prop,,0,,10/10/24,ML
-301635167,hotel_init,,0,,10/10/24,ML
 301635167,classa_init,,3,,10/10/24,ML
+301635167,hotel_init,,0,,10/10/24,ML
+301635167,hotel_prop,2,0,,10/10/24,ML
+301635167,otherb_init,,0,,10/10/24,ML
+301635167,otherb_prop,2,0,,10/10/24,ML
 301635899,classa_init,,2,,12/1/19,
 301635899,classa_prop,2,1,,12/1/19,
 301638404,classa_init,,1,,12/1/19,
@@ -13344,11 +13344,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301763777,classa_init,,1,,12/1/19,
 301765169,classa_init,,3,,12/1/19,
 301765533,classa_init,,1,change u_init,8/13/19,
-301766211,hotel_init,0,0,,10/8/24,ML
-301766211,hotel_prop,0,0,,10/8/24,ML
-301766211,otherb_init,0,0,,10/8/24,ML
-301766211,otherb_prop,0,0,,10/8/24,ML
 301766211,classa_init,1,1,,10/8/24,VB
+301766211,hotel_init,1,0,,10/8/24,ML
+301766211,hotel_prop,1,0,,10/8/24,ML
+301766211,otherb_init,1,0,,10/8/24,ML
+301766211,otherb_prop,1,0,,10/8/24,ML
 301766765,classa_init,,9,change u_init,8/13/19,
 301766765,hotel_init,,0,,8/25/21,JS
 301766765,hotel_prop,9,0,,8/25/21,JS
@@ -13488,11 +13488,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301825602,classa_init,,2,,12/1/19,
 301826246,classa_init,,0,change occ_prop,8/13/19,
 301827593,classa_init,,1,,1/27/20,
-301828896,otherb_prop,,0,,10/10/24,ML
-301828896,otherb_init,,0,,10/10/24,ML
-301828896,hotel_prop,,0,,10/10/24,ML
-301828896,hotel_init,,0,,10/10/24,ML
 301828896,classa_init,,1,,10/10/24,ML
+301828896,hotel_init,,0,,10/10/24,ML
+301828896,hotel_prop,1,0,,10/10/24,ML
+301828896,otherb_init,,0,,10/10/24,ML
+301828896,otherb_prop,1,0,,10/10/24,ML
 301831169,classa_init,,2,,8/14/20,SL
 301831463,classa_init,,0,,8/4/23,VB
 301831463,classa_prop,3,0,,8/4/23,VB
@@ -13737,11 +13737,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 301930864,classa_init,,3,,12/1/19,
 301931140,classa_init,,1,,1/27/20,
 301931694,classa_init,,1,,1/27/20,
-301932390,otherb_prop,,0,,10/10/24,ML
-301932390,otherb_init,,0,,10/10/24,ML
-301932390,hotel_prop,,0,,10/10/24,ML
-301932390,hotel_init,,0,,10/10/24,ML
 301932390,classa_init,,1,,10/10/24,ML
+301932390,hotel_init,,0,,10/10/24,ML
+301932390,hotel_prop,1,0,,10/10/24,ML
+301932390,otherb_init,,0,,10/10/24,ML
+301932390,otherb_prop,1,0,,10/10/24,ML
 301935342,classa_init,,2,,8/14/20,SL
 301936369,classa_init,,4,change u_init,8/13/19,
 301937073,classa_init,,3,change u_init,8/13/19,
@@ -14121,11 +14121,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 302071996,classa_init,,2,,12/1/19,
 302072478,classa_init,,2,change u_init,8/13/19,
 302072931,classa_init,,2,,12/1/19,
-302073084,hotel_init,0,0,,10/8/24,ML
-302073084,hotel_prop,0,0,,10/8/24,ML
-302073084,otherb_init,0,0,,10/8/24,ML
-302073084,otherb_prop,0,0,,10/8/24,ML
 302073084,classa_init,2,2,,10/8/24,ML
+302073084,hotel_init,2,0,,10/8/24,ML
+302073084,hotel_prop,3,0,,10/8/24,ML
+302073084,otherb_init,2,0,,10/8/24,ML
+302073084,otherb_prop,3,0,,10/8/24,ML
 302073725,classa_init,,0,,4/28/22,SL
 302073725,classa_prop,10,11,,4/28/22,SL
 302073725,hotel_init,,0,,4/28/22,SL
@@ -14143,7 +14143,7 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 302077277,classa_init,3,3,,10/8/24,ML
 302077277,hotel_init,3,0,,10/8/24,ML
 302077277,hotel_prop,2,0,,10/8/24,ML
-302077277,otherb_init,2,0,,10/8/24,ML
+302077277,otherb_init,3,0,,10/8/24,ML
 302077277,otherb_prop,2,0,,10/8/24,ML
 302078150,classa_init,,6,,12/1/19,
 302078757,classa_init,,1,change u_init,8/13/19,
@@ -14459,11 +14459,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 302214351,otherb_init,,5,,8/5/20,SL
 302214351,otherb_prop,4,0,,8/5/20,SL
 302215314,classa_init,,0,change u_init,8/13/19,
-302215984,otherb_prop,,0,,10/10/24,ML
-302215984,otherb_init,,0,,10/10/24,ML
-302215984,hotel_prop,,0,,10/10/24,ML
-302215984,hotel_init,,0,,10/10/24,ML
 302215984,classa_init,,0,,10/10/24,ML
+302215984,hotel_init,,0,,10/10/24,ML
+302215984,hotel_prop,2,0,,10/10/24,ML
+302215984,otherb_init,,0,,10/10/24,ML
+302215984,otherb_prop,2,0,,10/10/24,ML
 302216224,classa_init,,2,,12/1/19,
 302217116,classa_init,,2,,12/1/19,
 302217143,classa_init,,1,,1/21/21,TD
@@ -14710,11 +14710,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 302289191,classa_init,,3,,12/1/19,
 302289404,classa_init,,1,,12/1/19,
 302289583,classa_init,,3,change u_init,8/13/19,
-302289663,otherb_prop,,0,,10/10/24,ML
-302289663,otherb_init,,0,,10/10/24,ML
-302289663,hotel_prop,,0,,10/10/24,ML
-302289663,hotel_init,,0,,10/10/24,ML
 302289663,classa_init,,2,,10/10/24,ML
+302289663,hotel_init,,0,,10/10/24,ML
+302289663,hotel_prop,2,0,,10/10/24,ML
+302289663,otherb_init,,0,,10/10/24,ML
+302289663,otherb_prop,2,0,,10/10/24,ML
 302289869,classa_init,,1,,1/27/20,
 302289878,classa_init,,2,,12/1/19,
 302290214,classa_init,,3,change u_init,8/13/19,
@@ -21750,11 +21750,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 322087727,classa_init,1,0,,2/1/21,SL
 322087772,classa_init,1,0,,2/1/21,SL
 322087905,classa_init,1,0,,2/1/21,SL
-322088094,hotel_init,,0,,10/10/24,ML
-322088094,hotel_prop,,0,,10/10/24,ML
 322088094,classa_init,8,2,,8/3/20,TD
 322088094,otherb_init,8,6,,8/3/20,TD
 322088094,otherb_prop,2,0,,8/3/20,TD
+322088094,hotel_init,8,0,,10/10/24,ML
+322088094,hotel_prop,2,0,,10/10/24,ML
 322088147,classa_init,,0,,7/23/20,TD
 322088307,classa_init,1,0,,2/1/21,SL
 322088352,classa_init,1,0,,2/1/21,SL
@@ -22272,9 +22272,9 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 340765693,hotel_prop,2,0,,1/26/21,TD
 340765693,otherb_init,2,0,,1/26/21,TD
 340765693,otherb_prop,2,0,,1/26/21,TD
-340766852,job_inactive,,Inactive: Duplicate,duplicate of 340766816,10/11/24,ML
 340766852,latitude,40.635598,40.63560265,,3/7/23,AP
 340766852,longitude,-73.942154,-73.94238524,,3/7/23,AP
+340766852,job_inactive,,Inactive: Duplicate,duplicate of 340766816,10/11/24,ML
 340768495,classa_init,30,6,,1/26/21,TD
 340768495,classa_prop,30,18,,1/26/21,TD
 340768495,hotel_init,30,24,,1/26/21,TD
@@ -22432,11 +22432,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401135455,otherb_init,,0,,4/7/23,BL
 401135455,otherb_prop,1,0,,4/7/23,BL
 401137916,classa_init,,1,change u_init,8/13/19,
-401165500,otherb_prop,,0,,10/10/24,ML
-401165500,otherb_init,,0,,10/10/24,ML
-401165500,hotel_prop,,0,,10/10/24,ML
-401165500,hotel_init,,0,,10/10/24,ML
 401165500,classa_init,,2,,10/10/24,ML
+401165500,hotel_init,,0,,10/10/24,ML
+401165500,hotel_prop,2,0,,10/10/24,ML
+401165500,otherb_init,,0,,10/10/24,ML
+401165500,otherb_prop,2,0,,10/10/24,ML
 401165715,classa_init,,1,,2/1/21,SL
 401165715,hotel_init,,0,,4/17/23,VB
 401165715,hotel_prop,1,0,,4/17/23,VB
@@ -22662,11 +22662,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401400569,classa_init,,2,,12/1/19,
 401401826,classa_init,,1,,7/14/22,VB
 401404388,classa_init,,1,,12/1/19,
-401407410,otherb_prop,,0,,10/10/24,ML
-401407410,otherb_init,,0,,10/10/24,ML
-401407410,hotel_prop,,0,,10/10/24,ML
-401407410,hotel_init,,0,,10/10/24,ML
 401407410,classa_init,,2,,10/10/24,ML
+401407410,hotel_init,,0,,10/10/24,ML
+401407410,hotel_prop,3,0,,10/10/24,ML
+401407410,otherb_init,,0,,10/10/24,ML
+401407410,otherb_prop,3,0,,10/10/24,ML
 401407688,classa_init,,1,,1/27/20,
 401412057,classa_init,,1,change u_init,8/13/19,
 401413751,classa_init,,2,,8/4/23,VB
@@ -22866,11 +22866,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401554821,hotel_prop,1,0,,8/8/22,VB
 401554821,otherb_init,,0,,8/8/22,VB
 401554821,otherb_prop,1,0,,8/8/22,VB
-401562554,otherb_prop,,0,,10/10/24,ML
-401562554,otherb_init,,0,,10/10/24,ML
-401562554,hotel_prop,,0,,10/10/24,ML
-401562554,hotel_init,,0,,10/10/24,ML
 401562554,classa_init,,8,,10/10/24,ML
+401562554,hotel_init,,0,,10/10/24,ML
+401562554,hotel_prop,4,0,,10/10/24,ML
+401562554,otherb_init,,0,,10/10/24,ML
+401562554,otherb_prop,4,0,,10/10/24,ML
 401562901,classa_init,,2,change u_init,8/13/19,
 401563955,classa_init,,1,,12/1/19,
 401564348,classa_init,,1,,4/7/23,BL
@@ -22901,11 +22901,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401573463,otherb_init,,0,,1/21/21,TD
 401573463,otherb_prop,2,0,,1/21/21,TD
 401574186,classa_init,,1,,12/1/19,
-401574827,otherb_prop,,0,,10/10/24,ML
-401574827,otherb_init,,0,,10/10/24,ML
-401574827,hotel_prop,,0,,10/10/24,ML
-401574827,hotel_init,,0,,10/10/24,ML
 401574827,classa_init,,1,,10/10/24,ML
+401574827,hotel_init,,0,,10/10/24,ML
+401574827,hotel_prop,2,0,,10/10/24,ML
+401574827,otherb_init,,0,,10/10/24,ML
+401574827,otherb_prop,2,0,,10/10/24,ML
 401575265,classa_init,,1,,8/24/20,KS
 401575265,hotel_init,,0,,8/24/20,KS
 401575265,hotel_prop,1,0,,8/24/20,KS
@@ -23372,11 +23372,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401869484,otherb_init,,0,,8/2/23,VB
 401869484,otherb_prop,2,0,,8/2/23,VB
 401869894,classa_init,,1,,12/1/19,
-401870953,otherb_prop,,0,,10/10/24,ML
-401870953,otherb_init,,0,,10/10/24,ML
-401870953,hotel_prop,,0,,10/10/24,ML
-401870953,hotel_init,,0,,10/10/24,ML
 401870953,classa_init,,2,,10/10/24,ML
+401870953,hotel_init,,0,,10/10/24,ML
+401870953,hotel_prop,3,0,,10/10/24,ML
+401870953,otherb_init,,0,,10/10/24,ML
+401870953,otherb_prop,3,0,,10/10/24,ML
 401872309,classa_init,,1,,12/1/19,
 401873308,classa_init,,1,,12/1/19,
 401876350,classa_init,,1,,12/1/19,
@@ -23400,11 +23400,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401879963,classa_init,,2,change u_init,8/13/19,
 401882227,classa_init,,1,,12/1/19,
 401882628,classa_init,,1,,1/27/20,
-401944688,otherb_prop,,0,,10/10/24,ML
-401944688,otherb_init,,0,,10/10/24,ML
-401944688,hotel_prop,,0,,10/10/24,ML
-401944688,hotel_init,,0,,10/10/24,ML
 401944688,classa_init,,1,,10/10/24,ML
+401944688,hotel_init,,0,,10/10/24,ML
+401944688,hotel_prop,1,0,,10/10/24,ML
+401944688,otherb_init,,0,,10/10/24,ML
+401944688,otherb_prop,1,0,,10/10/24,ML
 401945179,classa_init,,2,,12/1/19,
 401945892,classa_init,,2,change u_init,8/13/19,
 401946025,classa_init,,1,,12/1/19,
@@ -23415,11 +23415,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401947248,otherb_init,,0,,8/3/23,VB
 401947248,otherb_prop,1,0,,8/3/23,VB
 401949013,classa_init,,1,change u_init,8/13/19,
-401949433,otherb_prop,,0,,10/10/24,ML
-401949433,otherb_init,,0,,10/10/24,ML
-401949433,hotel_prop,,0,,10/10/24,ML
-401949433,hotel_init,,0,,10/10/24,ML
 401949433,classa_init,,1,,10/10/24,ML
+401949433,hotel_init,,0,,10/10/24,ML
+401949433,hotel_prop,2,0,,10/10/24,ML
+401949433,otherb_init,,0,,10/10/24,ML
+401949433,otherb_prop,2,0,,10/10/24,ML
 401949479,classa_init,,1,,1/27/20,
 401949781,classa_init,,1,,8/5/22,VB
 401949781,hotel_init,,0,,8/5/22,VB
@@ -23485,11 +23485,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 401972530,hotel_prop,1,0,,8/3/23,VB
 401972530,otherb_init,,0,,8/3/23,VB
 401972530,otherb_prop,1,0,,8/3/23,VB
-401973469,otherb_prop,,0,,10/10/24,ML
-401973469,otherb_init,,0,,10/10/24,ML
-401973469,hotel_prop,,0,,10/10/24,ML
-401973469,hotel_init,,0,,10/10/24,ML
 401973469,classa_init,,1,,10/10/24,ML
+401973469,hotel_init,,0,,10/10/24,ML
+401973469,hotel_prop,1,0,,10/10/24,ML
+401973469,otherb_init,,0,,10/10/24,ML
+401973469,otherb_prop,1,0,,10/10/24,ML
 401973575,classa_init,,1,,2/5/24,VB
 401973575,hotel_init,,0,,2/5/24,VB
 401973575,hotel_prop,1,0,,2/5/24,VB
@@ -24027,11 +24027,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402198215,classa_init,,1,,12/1/19,
 402199820,classa_init,,2,change u_init,8/13/19,
 402200284,classa_init,,2,,12/1/19,
-402200738,otherb_prop,,0,,10/10/24,ML
-402200738,otherb_init,,0,,10/10/24,ML
-402200738,hotel_prop,,0,,10/10/24,ML
-402200738,hotel_init,,0,,10/10/24,ML
 402200738,classa_init,,1,,10/10/24,ML
+402200738,hotel_init,,0,,10/10/24,ML
+402200738,hotel_prop,2,0,,10/10/24,ML
+402200738,otherb_init,,0,,10/10/24,ML
+402200738,otherb_prop,2,0,,10/10/24,ML
 402201210,classa_init,,1,,1/27/20,
 402202503,classa_init,,1,,1/27/20,
 402205724,hotel_init,0,0,,2/1/21,TD
@@ -24341,11 +24341,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402304083,classa_init,,1,change u_init,8/13/19,
 402304671,classa_init,,1,change u_init,8/13/19,
 402305260,classa_init,,1,,12/1/19,
-402306786,otherb_prop,,0,,10/10/24,ML
-402306786,otherb_init,,0,,10/10/24,ML
-402306786,hotel_prop,,0,,10/10/24,ML
-402306786,hotel_init,,0,,10/10/24,ML
 402306786,classa_init,,2,,10/10/24,ML
+402306786,hotel_init,,0,,10/10/24,ML
+402306786,hotel_prop,2,0,,10/10/24,ML
+402306786,otherb_init,,0,,10/10/24,ML
+402306786,otherb_prop,2,0,,10/10/24,ML
 402306866,classa_init,,1,,12/1/19,
 402308524,classa_init,,1,,12/1/19,
 402308659,classa_init,,1,,12/1/19,
@@ -24391,11 +24391,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402368228,classa_init,,1,,12/1/19,
 402369469,classa_init,,1,,12/1/19,
 402370643,classa_init,,1,,12/1/19,
-402370830,otherb_prop,,0,,10/10/24,ML
-402370830,otherb_init,,0,,10/10/24,ML
-402370830,hotel_prop,,0,,10/10/24,ML
-402370830,hotel_init,,0,,10/10/24,ML
 402370830,classa_init,,1,,10/10/24,ML
+402370830,hotel_init,,0,,10/10/24,ML
+402370830,hotel_prop,2,0,,10/10/24,ML
+402370830,otherb_init,,0,,10/10/24,ML
+402370830,otherb_prop,2,0,,10/10/24,ML
 402370894,classa_init,,1,,1/27/20,
 402371009,classa_init,,1,change u_init,8/13/19,
 402372295,classa_init,,1,,2/1/21,SL
@@ -24535,11 +24535,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402421321,otherb_init,,0,,2/5/24,VB
 402421321,otherb_prop,2,0,,2/5/24,VB
 402421330,classa_init,,1,,12/1/19,
-402422473,hotel_init,0,0,,10/8/24,ML
-402422473,hotel_prop,0,0,,10/8/24,ML
-402422473,otherb_init,0,0,,10/8/24,ML
-402422473,otherb_prop,0,0,,10/8/24,ML
 402422473,classa_init,1,1,,10/8/24,ML
+402422473,hotel_init,1,0,,10/8/24,ML
+402422473,hotel_prop,1,0,,10/8/24,ML
+402422473,otherb_init,1,0,,10/8/24,ML
+402422473,otherb_prop,1,0,,10/8/24,ML
 402423070,classa_init,,1,,12/1/19,
 402423551,classa_init,,1,,1/27/20,
 402424836,classa_init,,1,,2/1/21,SL
@@ -24720,11 +24720,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402481499,classa_init,,1,,12/1/19,
 402481685,classa_init,,2,change u_init,8/13/19,
 402482256,classa_init,,1,,1/27/20,
-402482452,hotel_init,0,0,,10/8/24,ML
-402482452,hotel_prop,0,0,,10/8/24,ML
-402482452,otherb_init,0,0,,10/8/24,ML
-402482452,otherb_prop,0,0,,10/8/24,ML
 402482452,classa_init,13,13,,10/8/24,ML
+402482452,hotel_init,13,0,,10/8/24,ML
+402482452,hotel_prop,15,0,,10/8/24,ML
+402482452,otherb_init,13,0,,10/8/24,ML
+402482452,otherb_prop,15,0,,10/8/24,ML
 402482764,classa_init,1,0,,7/27/20,SL
 402483193,classa_init,,1,change u_init,8/13/19,
 402484085,classa_init,,2,change u_init,8/13/19,
@@ -24826,19 +24826,19 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402517503,classa_init,,1,,1/27/20,
 402518067,classa_init,,1,,12/1/19,
 402518352,classa_init,,2,,12/1/19,
-402520214,otherb_prop,,0,,10/10/24,ML
-402520214,otherb_init,,0,,10/10/24,ML
-402520214,hotel_prop,,0,,10/10/24,ML
-402520214,hotel_init,,0,,10/10/24,ML
 402520214,classa_init,,2,,10/10/24,ML
+402520214,hotel_init,,0,,10/10/24,ML
+402520214,hotel_prop,2,0,,10/10/24,ML
+402520214,otherb_init,,0,,10/10/24,ML
+402520214,otherb_prop,2,0,,10/10/24,ML
 402520697,classa_init,,1,,8/14/20,SL
 402520964,classa_init,,1,,12/1/19,
-402521614,hotel_init,0,0,,10/8/24,ML
-402521614,hotel_prop,0,0,,10/8/24,ML
-402521614,otherb_init,0,0,,10/8/24,ML
-402521614,otherb_prop,0,0,,10/8/24,ML
 402521614,classa_init,4,4,,10/8/24,ML
 402521614,classa_prop,5,5,,10/8/24,ML
+402521614,hotel_init,4,0,,10/8/24,ML
+402521614,hotel_prop,5,0,,10/8/24,ML
+402521614,otherb_init,4,0,,10/8/24,ML
+402521614,otherb_prop,5,0,,10/8/24,ML
 402521981,classa_init,,1,change u_init,8/13/19,
 402522178,classa_init,,1,,12/1/19,
 402522356,classa_init,,2,change u_init,8/13/19,
@@ -25070,11 +25070,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 402570106,otherb_init,,0,,8/31/21,TD
 402570106,otherb_prop,2,0,,8/31/21,TD
 402570464,classa_init,,1,,12/1/19,
-402570632,otherb_prop,,0,,10/10/24,ML
-402570632,otherb_init,,0,,10/10/24,ML
-402570632,hotel_prop,,0,,10/10/24,ML
-402570632,hotel_init,,0,,10/10/24,ML
 402570632,classa_init,,1,,10/10/24,ML
+402570632,hotel_init,,0,,10/10/24,ML
+402570632,hotel_prop,1,0,,10/10/24,ML
+402570632,otherb_init,,0,,10/10/24,ML
+402570632,otherb_prop,1,0,,10/10/24,ML
 402570669,classa_init,,2,,12/1/19,
 402571150,classa_init,,1,,12/1/19,
 402571365,classa_init,,2,,12/1/19,
@@ -25738,11 +25738,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 410022871,classa_init,,2,,8/14/20,SL
 410023200,classa_init,,1,change u_init,8/13/19,
 410023512,classa_init,,2,change u_init,8/13/19,
-410023594,otherb_prop,,0,,10/10/24,ML
-410023594,otherb_init,,0,,10/10/24,ML
-410023594,hotel_prop,,0,,10/10/24,ML
-410023594,hotel_init,,0,,10/10/24,ML
 410023594,classa_init,,2,,10/10/24,ML
+410023594,hotel_init,,0,,10/10/24,ML
+410023594,hotel_prop,3,0,,10/10/24,ML
+410023594,otherb_init,,0,,10/10/24,ML
+410023594,otherb_prop,3,0,,10/10/24,ML
 410024076,classa_init,,2,,12/1/19,
 410024575,classa_init,,1,change u_init,8/13/19,
 410025057,classa_init,,1,,8/31/21,JS
@@ -30870,11 +30870,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 421621640,classa_prop,2,0,,7/21/20,SL
 421622382,classa_init,1,0,,7/20/20,SL
 421622756,classa_init,1,0,,7/27/20,SL
-421624255,hotel_init,0,0,,10/8/24,ML
-421624255,hotel_prop,0,0,,10/8/24,ML
-421624255,otherb_init,0,0,,10/8/24,ML
-421624255,otherb_prop,0,0,,10/8/24,ML
 421624255,classa_prop,20,20,,10/8/24,ML
+421624255,hotel_init,0,0,,10/8/24,ML
+421624255,hotel_prop,20,0,,10/8/24,ML
+421624255,otherb_init,0,0,,10/8/24,ML
+421624255,otherb_prop,20,0,,10/8/24,ML
 421624335,classa_init,1,0,,7/20/20,SL
 421624380,latitude,,40.79694761,,8/23/21,AP
 421624380,longitude,,-73.81611192,,8/23/21,AP
@@ -32477,11 +32477,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 445120011,remove,,,DOB Test Record,4/11/23,SL
 500310558,classa_init,,1,,12/1/19,
 500311851,date_permittd,,11/5/01,,1/19/21,KS
-500317757,otherb_prop,,0,,10/10/24,ML
-500317757,otherb_init,,0,,10/10/24,ML
-500317757,hotel_prop,,0,,10/10/24,ML
-500317757,hotel_init,,0,,10/10/24,ML
 500317757,classa_init,,1,,10/10/24,ML
+500317757,hotel_init,,0,,10/10/24,ML
+500317757,hotel_prop,1,0,,10/10/24,ML
+500317757,otherb_init,,0,,10/10/24,ML
+500317757,otherb_prop,1,0,,10/10/24,ML
 500319602,classa_init,,1,,12/1/19,
 500397466,classa_init,,2,change u_init,8/13/19,
 500397466,hotel_init,,0,,8/2/23,VB
@@ -32555,11 +32555,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500447260,otherb_init,1,0,,10/8/24,ML
 500447288,classa_init,,1,,12/1/19,
 500449892,classa_init,,1,,12/1/19,
-500450772,otherb_prop,,0,,10/10/24,ML
-500450772,otherb_init,,0,,10/10/24,ML
-500450772,hotel_prop,,0,,10/10/24,ML
-500450772,hotel_init,,0,,10/10/24,ML
 500450772,classa_init,,1,,10/10/24,ML
+500450772,hotel_init,,0,,10/10/24,ML
+500450772,hotel_prop,1,0,,10/10/24,ML
+500450772,otherb_init,,0,,10/10/24,ML
+500450772,otherb_prop,1,0,,10/10/24,ML
 500452137,classa_init,,1,,2/1/21,SL
 500452137,hotel_init,,0,,8/2/23,VB
 500452137,hotel_prop,2,0,,8/2/23,VB
@@ -32574,11 +32574,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500453644,classa_init,,1,change u_init,8/13/19,
 500453653,classa_init,,1,change u_init,8/13/19,
 500461760,classa_init,,2,change u_init,8/13/19,
-500465276,otherb_prop,,0,,10/10/24,ML
-500465276,otherb_init,,0,,10/10/24,ML
-500465276,hotel_prop,,0,,10/10/24,ML
-500465276,hotel_init,,0,,10/10/24,ML
 500465276,classa_init,,2,,10/10/24,ML
+500465276,hotel_init,,0,,10/10/24,ML
+500465276,hotel_prop,3,0,,10/10/24,ML
+500465276,otherb_init,,0,,10/10/24,ML
+500465276,otherb_prop,3,0,,10/10/24,ML
 500465935,classa_init,,1,,8/24/20,KS
 500465935,hotel_init,,0,,8/24/20,KS
 500465935,hotel_prop,2,0,,8/24/20,KS
@@ -32612,16 +32612,16 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500485717,otherb_init,,0,,8/31/21,JS
 500485717,otherb_prop,1,0,,8/31/21,JS
 500486949,classa_init,,1,,12/1/19,
-500488304,otherb_prop,,0,,10/10/24,ML
-500488304,otherb_init,,0,,10/10/24,ML
-500488304,hotel_prop,,0,,10/10/24,ML
-500488304,hotel_init,,0,,10/10/24,ML
 500488304,classa_init,,5,,10/10/24,ML
-500488313,otherb_prop,,0,,10/10/24,ML
-500488313,otherb_init,,0,,10/10/24,ML
-500488313,hotel_prop,,0,,10/10/24,ML
-500488313,hotel_init,,0,,10/10/24,ML
+500488304,hotel_init,,0,,10/10/24,ML
+500488304,hotel_prop,5,0,,10/10/24,ML
+500488304,otherb_init,,0,,10/10/24,ML
+500488304,otherb_prop,5,0,,10/10/24,ML
 500488313,classa_init,,5,,10/10/24,ML
+500488313,hotel_init,,0,,10/10/24,ML
+500488313,hotel_prop,5,0,,10/10/24,ML
+500488313,otherb_init,,0,,10/10/24,ML
+500488313,otherb_prop,5,0,,10/10/24,ML
 500488803,classa_init,,1,,7/14/22,VB
 500488803,hotel_init,,0,,8/2/23,VB
 500488803,hotel_prop,1,0,,8/2/23,VB
@@ -32686,11 +32686,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500509540,otherb_init,1,0,,4/17/23,VB
 500509540,otherb_prop,1,0,,4/17/23,VB
 500510280,classa_init,,1,,12/1/19,
-500510510,otherb_prop,,0,,10/10/24,ML
-500510510,otherb_init,,0,,10/10/24,ML
-500510510,hotel_prop,,0,,10/10/24,ML
-500510510,hotel_init,,0,,10/10/24,ML
 500510510,classa_init,,1,,10/10/24,ML
+500510510,hotel_init,,0,,10/10/24,ML
+500510510,hotel_prop,1,0,,10/10/24,ML
+500510510,otherb_init,,0,,10/10/24,ML
+500510510,otherb_prop,1,0,,10/10/24,ML
 500511109,classa_init,,2,,12/1/19,
 500511467,classa_init,2,1,,3/1/24,SL
 500511467,hotel_init,2,0,,3/1/24,SL
@@ -32784,11 +32784,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500603411,classa_init,,1,,12/1/19,
 500603929,classa_init,,1,,12/1/19,
 500604232,classa_init,,2,,1/27/20,
-500606800,otherb_prop,,0,,10/10/24,ML
-500606800,otherb_init,,0,,10/10/24,ML
-500606800,hotel_prop,,0,,10/10/24,ML
-500606800,hotel_init,,0,,10/10/24,ML
 500606800,classa_init,,1,,10/10/24,ML
+500606800,hotel_init,,0,,10/10/24,ML
+500606800,hotel_prop,2,0,,10/10/24,ML
+500606800,otherb_init,,0,,10/10/24,ML
+500606800,otherb_prop,2,0,,10/10/24,ML
 500609424,date_permittd,,7/8/04,,1/19/21,KS
 500609736,classa_init,,1,,12/1/19,
 500621339,classa_init,,1,,4/7/23,BL
@@ -32797,11 +32797,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500621339,hotel_prop,1,0,,4/7/23,BL
 500621339,otherb_init,,0,,4/7/23,BL
 500621339,otherb_prop,1,0,,4/7/23,BL
-500621909,otherb_prop,,0,,10/10/24,ML
-500621909,otherb_init,,0,,10/10/24,ML
-500621909,hotel_prop,,0,,10/10/24,ML
-500621909,hotel_init,,0,,10/10/24,ML
 500621909,classa_init,,2,,10/10/24,ML
+500621909,hotel_init,,0,,10/10/24,ML
+500621909,hotel_prop,1,0,,10/10/24,ML
+500621909,otherb_init,,0,,10/10/24,ML
+500621909,otherb_prop,1,0,,10/10/24,ML
 500625184,classa_init,,1,,2/1/21,SL
 500625184,hotel_init,,0,,4/18/23,BL
 500625184,hotel_prop,1,0,,4/18/23,BL
@@ -32887,11 +32887,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500646456,hotel_prop,2,0,,1/21/21,TD
 500646456,otherb_init,,0,,1/21/21,TD
 500646456,otherb_prop,2,0,,1/21/21,TD
-500646465,otherb_prop,,0,,10/10/24,ML
-500646465,otherb_init,,0,,10/10/24,ML
-500646465,hotel_prop,,0,,10/10/24,ML
-500646465,hotel_init,,0,,10/10/24,ML
 500646465,classa_init,,1,,10/10/24,ML
+500646465,hotel_init,,0,,10/10/24,ML
+500646465,hotel_prop,1,0,,10/10/24,ML
+500646465,otherb_init,,0,,10/10/24,ML
+500646465,otherb_prop,1,0,,10/10/24,ML
 500646697,classa_init,,1,,12/1/19,
 500646759,hotel_init,1,0,,4/21/23,VB
 500646759,hotel_prop,1,0,,4/21/23,VB
@@ -32905,11 +32905,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500649391,otherb_init,,0,,4/7/23,BL
 500649391,otherb_prop,1,0,,4/7/23,BL
 500651001,classa_init,,1,,12/1/19,
-500651421,otherb_prop,,0,,10/10/24,ML
-500651421,otherb_init,,0,,10/10/24,ML
-500651421,hotel_prop,,0,,10/10/24,ML
-500651421,hotel_init,,0,,10/10/24,ML
 500651421,classa_init,,1,,10/10/24,ML
+500651421,hotel_init,,0,,10/10/24,ML
+500651421,hotel_prop,1,0,,10/10/24,ML
+500651421,otherb_init,,0,,10/10/24,ML
+500651421,otherb_prop,1,0,,10/10/24,ML
 500652260,classa_init,,1,,12/1/19,
 500652723,classa_init,,1,,12/1/19,
 500653394,classa_init,,2,,12/1/19,
@@ -33090,21 +33090,21 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500733245,otherb_init,,0,,1/21/21,TD
 500733245,otherb_prop,1,0,,1/21/21,TD
 500733307,classa_init,,1,,7/14/22,VB
-500733959,otherb_prop,,0,,10/10/24,ML
-500733959,otherb_init,,0,,10/10/24,ML
-500733959,hotel_prop,,0,,10/10/24,ML
-500733959,hotel_init,,0,,10/10/24,ML
 500733959,classa_init,,1,,10/10/24,ML
+500733959,hotel_init,,0,,10/10/24,ML
+500733959,hotel_prop,1,0,,10/10/24,ML
+500733959,otherb_init,,0,,10/10/24,ML
+500733959,otherb_prop,1,0,,10/10/24,ML
 500735412,classa_init,,1,,12/1/19,
 500735733,classa_init,,1,change u_init,8/13/19,
 500736242,classa_init,,1,,12/1/19,
 500736714,classa_init,,1,,12/1/19,
 500738017,classa_init,,1,,12/1/19,
-500738044,otherb_prop,,0,,10/10/24,ML
-500738044,otherb_init,,0,,10/10/24,ML
-500738044,hotel_prop,,0,,10/10/24,ML
-500738044,hotel_init,,0,,10/10/24,ML
 500738044,classa_init,,1,,10/10/24,ML
+500738044,hotel_init,,0,,10/10/24,ML
+500738044,hotel_prop,1,0,,10/10/24,ML
+500738044,otherb_init,,0,,10/10/24,ML
+500738044,otherb_prop,1,0,,10/10/24,ML
 500738455,classa_init,,1,,2/1/21,SL
 500738455,hotel_init,,0,,8/2/23,VB
 500738455,hotel_prop,1,0,,8/2/23,VB
@@ -33490,11 +33490,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500835313,hotel_prop,1,0,,4/7/23,BL
 500835313,otherb_init,,0,,4/7/23,BL
 500835313,otherb_prop,1,0,,4/7/23,BL
-500835368,otherb_prop,,0,,10/10/24,ML
-500835368,otherb_init,,0,,10/10/24,ML
-500835368,hotel_prop,,0,,10/10/24,ML
-500835368,hotel_init,,0,,10/10/24,ML
 500835368,classa_init,,1,,10/10/24,ML
+500835368,hotel_init,,0,,10/10/24,ML
+500835368,hotel_prop,1,0,,10/10/24,ML
+500835368,otherb_init,,0,,10/10/24,ML
+500835368,otherb_prop,1,0,,10/10/24,ML
 500835457,classa_init,,1,,12/1/19,
 500835714,classa_init,,1,,4/7/23,BL
 500835714,hotel_init,,0,,4/7/23,BL
@@ -33668,11 +33668,11 @@ job_number,field,old_value,new_value,reason,edited_date,editor
 500902106,classa_prop,,1,change u_prop,8/13/19,
 500902268,classa_init,,1,,12/1/19,
 500902776,classa_init,,1,,12/1/19,
-500903098,otherb_prop,,0,,10/10/24,ML
-500903098,otherb_init,,0,,10/10/24,ML
-500903098,hotel_prop,,0,,10/10/24,ML
-500903098,hotel_init,,0,,10/10/24,ML
 500903098,classa_init,,1,,10/10/24,ML
+500903098,hotel_init,,0,,10/10/24,ML
+500903098,hotel_prop,1,0,,10/10/24,ML
+500903098,otherb_init,,0,,10/10/24,ML
+500903098,otherb_prop,1,0,,10/10/24,ML
 500903677,classa_init,,1,,8/31/21,AP
 500903677,classa_prop,1,1,,8/31/21,AP
 500903677,hotel_init,,0,,8/31/21,AP
@@ -38540,10 +38540,10 @@ M00787472,hotel_init,16,0,,8/10/23,VB
 M00787472,hotel_prop,10,0,,8/10/23,VB
 M00787472,otherb_init,16,0,,8/10/23,VB
 M00787472,otherb_prop,10,0,,8/10/23,VB
-M00788522,classa_init,81,72,,10/7/24,ML
-M00788522,classa_prop,71,64,,10/7/24,ML
 M00788522,hotel_prop,66,0,,8/10/23,VB
 M00788522,otherb_prop,66,0,,8/10/23,VB
+M00788522,classa_init,74,72,,10/7/24,ML
+M00788522,classa_prop,64,64,,10/7/24,ML
 M00805103,classa_init,959,1,,2/28/24,SL
 M00805103,classa_prop,346,346,,2/28/24,SL
 M00805103,hotel_init,959,1014,,2/28/24,SL
@@ -38885,8 +38885,8 @@ Q00487394,classa_prop,351,0,,2/28/24,SL
 Q00487394,hotel_prop,351,351,,2/28/24,SL
 Q00487394,otherb_prop,351,0,,2/28/24,SL
 Q00487705,classa_prop,213,0,,10/7/24,VB
-Q00487705,hotel_prop,213,260,,10/7/24,ML
 Q00487705,otherb_prop,213,0,,10/7/24,VB
+Q00487705,hotel_prop,260,260,,10/7/24,ML
 Q00487880,hotel_init,1,0,,4/25/23,WS
 Q00487880,hotel_prop,2,0,,4/25/23,WS
 Q00487880,otherb_init,1,0,,4/25/23,WS
@@ -38969,6 +38969,8 @@ Q00551936,hotel_prop,1,0,,4/25/23,WS
 Q00551936,otherb_init,1,0,,4/25/23,WS
 Q00551936,otherb_prop,1,0,,4/25/23,WS
 Q00555969,hotel_prop,75,0,,10/8/24,ML
+Q00555969,hotel_prop,75,0,,10/8/24,ML
+Q00555969,otherb_prop,75,0,,10/8/24,ML
 Q00555969,otherb_prop,75,0,,10/8/24,ML
 Q00558823,remove,,,DOB Test Record,7/12/22,SL
 Q00562256,classa_prop,1,0,,8/30/23,VB
@@ -39487,10 +39489,10 @@ Q00972905,hotel_init,2,0,,3/29/24,VB
 Q00972905,hotel_prop,2,0,,3/29/24,VB
 Q00972905,otherb_init,2,9,,3/29/24,VB
 Q00972905,otherb_prop,2,0,,3/29/24,VB
+Q01043294,hotel_prop,50,0,,10/10/24,ML
+Q01043294,otherb_prop,50,0,,10/10/24,ML
 Q01043294,classa_init,0,0,,10/11/24,ML
 Q01043294,classa_prop,50,0,,10/11/24,ML
-Q01043294,hotel_prop,,0,,10/10/24,ML
-Q01043294,otherb_prop,,0,,10/10/24,ML
 Q07994574,classa_prop,1,0,,4/18/23,BL
 Q07994574,hotel_init,0,0,,4/18/23,BL
 Q07994574,hotel_prop,1,0,,4/18/23,BL
@@ -40931,9 +40933,9 @@ X00902721,hotel_prop,136,0,,3/29/24,VB
 X00902721,otherb_init,0,0,,3/29/24,VB
 X00902721,otherb_prop,136,136,,3/29/24,VB
 X00914648,classa_init,84,0,,10/7/24,ML
-X00914648,classa_prop,0,84,,10/7/24,ML
+X00914648,classa_prop,84,84,,10/7/24,ML
 X00914648,hotel_init,84,0,,10/7/24,ML
-X00914648,hotel_prop,0,0,,10/7/24,ML
+X00914648,hotel_prop,84,0,,10/7/24,ML
 X00914648,otherb_init,84,0,,10/7/24,ML
 X00914648,otherb_prop,84,0,,10/7/24,ML
 X00919954,classa_init,44,44,,3/29/24,VB
