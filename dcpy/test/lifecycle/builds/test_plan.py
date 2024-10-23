@@ -182,8 +182,6 @@ class TestRecipesNoDefaults(TestCase):
         plan.recipe_from_yaml(lock_file)
 
 
-@pytest.mark.usefixtures("file_setup_teardown")
-@pytest.mark.usefixtures("create_buckets")
 @patch("dcpy.connectors.edm.recipes.get_latest_version")
 class TestRecipeVars(TestCase):
     def test_version_type_var_is_absent(self, get_latest_version):
@@ -196,7 +194,8 @@ class TestRecipeVars(TestCase):
 
     def test_version_type_is_present(self, get_latest_version):
         """Test that the version_type is set correctly and matches env 'VERSION_TYPE' variable."""
-        planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE)
+        version = "test_version"
+        planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE, version)
         assert planned.version_type is not None  # sanity check
         assert (
             planned.version_type == planned.vars["VERSION_TYPE"]
