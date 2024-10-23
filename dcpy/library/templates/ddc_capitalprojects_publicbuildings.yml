@@ -1,9 +1,9 @@
 dataset:
   name: ddc_capitalprojects_publicbuildings
-  acl: private
+  acl: public-read
   source:
     url:
-      path: .library/upload/PBProjects.zip
+      path: s3://edm-recipes/inbox/ddc_capitalprojects/DDCProjects_{{ version }}.zip
       subpath: PBProjects.shp
     options:
       - "AUTODETECT_TYPE=NO"

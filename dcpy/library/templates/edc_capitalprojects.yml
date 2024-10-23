@@ -1,10 +1,10 @@
 dataset:
   name: edc_capitalprojects
-  acl: private
+  acl: public-read
   source:
     url:
-      path: .library/upload/EDCCapital.zip
-      subpath: EDCCapital.shp
+      path: s3://edm-recipes/inbox/edc_capitalprojects/CCP_EDC_{{ version }}.zip
+      # subpath: EDCCapital.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

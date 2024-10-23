@@ -1,9 +1,9 @@
 dataset:
   name: ddc_capitalprojects_infrastructure
-  acl: private
+  acl: public-read
   source:
     url:
-      path: .library/upload/IFRProjects.zip
+      path: s3://edm-recipes/inbox/ddc_capitalprojects/DDCProjects_{{ version }}.zip
       subpath: IFRProjects.shp
     options:
       - "AUTODETECT_TYPE=NO"

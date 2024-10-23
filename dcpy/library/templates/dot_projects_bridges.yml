@@ -1,10 +1,10 @@
 dataset:
   name: dot_projects_bridges
-  acl: private
+  acl: public-read
   source:
     url:
-      path: .library/upload/DOTBridges.zip
-      subpath: DOTBridges.shp
+      path: s3://edm-recipes/inbox/dot_projects_bridges/{{ version }}.zip
+      # subpath: MUNICIPAL_PARKING.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
