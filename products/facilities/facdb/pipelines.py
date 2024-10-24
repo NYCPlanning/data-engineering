@@ -50,15 +50,25 @@ def dca_operatingbusinesses(df: pd.DataFrame):
         "Garage and Parking Lot",
         "Tow Truck Company",
     ]
-    today = datetime.datetime.today()
+    # TODO rather than "today", the cutoff date should be determined by the build version
+    # HACK for 24v2
+    # today = datetime.datetime.today()
+    today_24v2 = datetime.datetime.strptime("06/01/2024", "%m/%d/%Y")
     covid_freeze = datetime.datetime.strptime("03/12/2020", "%m/%d/%Y")
     df.license_expiration_date = pd.to_datetime(
         df["license_expiration_date"], format="%m/%d/%Y"
     )
-    # fmt:off
-    df = df.loc[((df.license_expiration_date >= today) & (df.industry == "Scrap Metal Processor"))|((df.license_expiration_date >= covid_freeze) & (df.industry != "Scrap Metal Processor")), :]\
-        .loc[df.industry.isin(industry), :]
-    # fmt:on
+    df = df.loc[
+        (
+            (df.license_expiration_date >= today_24v2)
+            & (df.industry == "Scrap Metal Processor")
+        )
+        | (
+            (df.license_expiration_date >= covid_freeze)
+            & (df.industry != "Scrap Metal Processor")
+        ),
+        :,
+    ].loc[df.industry.isin(industry), :]
     df = sanitize_df(df)
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
     df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
