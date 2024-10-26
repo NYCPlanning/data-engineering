@@ -37,18 +37,18 @@ beautifulsoup4==4.12.3
     #   gdown
 blinker==1.8.2
     # via streamlit
-boto3==1.35.44
+boto3==1.35.49
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs==1.35.44
+boto3-stubs==1.35.49
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.35.44
+botocore==1.35.49
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.35.44
+botocore-stubs==1.35.49
     # via boto3-stubs
 bqplot==0.12.43
     # via leafmap
@@ -57,7 +57,7 @@ branca==0.8.0
     #   folium
     #   ipyleaflet
     #   streamlit-folium
-cached-property==1.5.2
+cached-property==2.0.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 cachetools==5.5.0
     # via streamlit
@@ -107,7 +107,7 @@ contextily==1.6.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 contourpy==1.3.0
     # via matplotlib
-coverage==7.6.3
+coverage==7.6.4
     # via pytest-cov
 cryptography==43.0.3
     # via
@@ -122,12 +122,12 @@ dbt-adapters==1.7.0
     # via
     #   dbt-core
     #   dbt-postgres
-dbt-common==1.11.0
+dbt-common==1.10.0
     # via
     #   dbt-adapters
     #   dbt-core
     #   dbt-postgres
-dbt-core==1.8.7
+dbt-core==1.8.8
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   dbt-postgres
@@ -154,17 +154,17 @@ duckdb==1.1.2
     # via leafmap
 entrypoints==0.4
     # via altair
-et-xmlfile==1.1.0
+et-xmlfile==2.0.0
     # via openpyxl
 executing==2.1.0
     # via stack-data
-faker==30.6.0
+faker==30.8.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 filelock==3.16.1
     # via
     #   gdown
     #   virtualenv
-folium==0.17.0
+folium==0.18.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   leafmap
@@ -213,7 +213,7 @@ ipykernel==6.29.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 ipyleaflet==0.19.2
     # via leafmap
-ipython==8.28.0
+ipython==8.29.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -288,7 +288,7 @@ jupyterlab-widgets==3.0.13
     # via ipywidgets
 kiwisolver==1.4.7
     # via matplotlib
-leafmap==0.38.6
+leafmap==0.38.10
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 leather==0.4.0
     # via agate
@@ -304,7 +304,7 @@ markupsafe==3.0.2
     # via
     #   jinja2
     #   werkzeug
-mashumaro==3.13.1
+mashumaro==3.14
     # via
     #   dbt-adapters
     #   dbt-common
@@ -326,24 +326,24 @@ minimal-snowplow-tracker==0.0.2
     # via dbt-core
 more-itertools==10.5.0
     # via dbt-semantic-interfaces
-moto==5.0.17
+moto==5.0.18
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 msal==1.23.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 msgpack==1.1.0
     # via mashumaro
-mypy==1.12.0
+mypy==1.13.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   openpyxl-stubs
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.35.42
+mypy-boto3-s3==1.35.46
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via mypy
 nest-asyncio==1.6.0
     # via ipykernel
-networkx==3.4.1
+networkx==3.4.2
     # via
     #   dbt-core
     #   mapclassify
@@ -463,7 +463,7 @@ pyarrow==17.0.0
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   pyarrow-stubs
     #   streamlit
-pyarrow-stubs==17.8
+pyarrow-stubs==17.10
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 pycparser==2.22
     # via cffi
@@ -498,7 +498,7 @@ pysocks==1.7.1
     # via requests
 pystac==1.11.0
     # via pystac-client
-pystac-client==0.8.4
+pystac-client==0.8.5
     # via leafmap
 pytest==8.3.3
     # via
@@ -576,7 +576,7 @@ requests==2.32.3
     #   streamlit
 responses==0.25.3
     # via moto
-rich==13.9.2
+rich==13.9.3
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit
@@ -585,7 +585,7 @@ rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.7.0
+ruff==0.7.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 s3transfer==0.10.3
     # via boto3
@@ -619,11 +619,11 @@ sqlalchemy==2.0.36
     #   geoalchemy2
 sqlalchemy-stubs==0.4
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-sqlfluff==3.2.4
+sqlfluff==3.2.5
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   sqlfluff-templater-dbt
-sqlfluff-templater-dbt==3.2.4
+sqlfluff-templater-dbt==3.2.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 sqlparse==0.5.1
     # via dbt-core
@@ -683,9 +683,9 @@ typed-ast==1.5.5
     # via diagrams
 typer==0.12.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-types-awscrt==0.22.0
+types-awscrt==0.23.0
     # via botocore-stubs
-types-beautifulsoup4==4.12.0.20240907
+types-beautifulsoup4==4.12.0.20241020
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-html5lib==1.1.11.20241018
     # via types-beautifulsoup4
@@ -701,7 +701,7 @@ types-requests==2.32.0.20241016
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-s3transfer==0.10.3
     # via boto3-stubs
-types-setuptools==75.2.0.20241019
+types-setuptools==75.2.0.20241025
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-tqdm==4.66.0.20240417
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -741,7 +741,7 @@ watchdog==5.0.3
     # via streamlit
 wcwidth==0.2.13
     # via prompt-toolkit
-werkzeug==3.0.4
+werkzeug==3.0.6
     # via moto
 whitebox==2.3.5
     # via whiteboxgui
