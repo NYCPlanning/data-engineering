@@ -3,7 +3,7 @@ import leafmap.foliumap as lmf
 
 
 DEFAULT_MAP_SIZE = {"width": 900, "height": 700}
-DEFAULT_BASEMAP = "Stadia.AlidadeSmoothDark"
+DEFAULT_BASEMAP = "CartoDB.Positron"
 NYC_CENTER_COORDS = [40.726446, -73.983307]
 NYC_CENTER_ZOOM = 13
 
