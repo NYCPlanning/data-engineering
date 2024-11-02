@@ -37,18 +37,18 @@ beautifulsoup4==4.12.3
     #   gdown
 blinker==1.8.2
     # via streamlit
-boto3==1.35.49
+boto3==1.35.54
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs==1.35.49
+boto3-stubs==1.35.54
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.35.49
+botocore==1.35.54
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.35.49
+botocore-stubs==1.35.54
     # via boto3-stubs
 bqplot==0.12.43
     # via leafmap
@@ -158,7 +158,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 executing==2.1.0
     # via stack-data
-faker==30.8.1
+faker==30.8.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 filelock==3.16.1
     # via
@@ -288,7 +288,7 @@ jupyterlab-widgets==3.0.13
     # via ipywidgets
 kiwisolver==1.4.7
     # via matplotlib
-leafmap==0.38.10
+leafmap==0.38.14
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 leather==0.4.0
     # via agate
@@ -363,7 +363,6 @@ numpy==2.1.2
     #   matplotlib
     #   pandas
     #   pandas-stubs
-    #   pyarrow
     #   pydeck
     #   pyogrio
     #   rasterio
@@ -458,12 +457,12 @@ pure-eval==0.2.3
     # via stack-data
 py-partiql-parser==0.5.6
     # via moto
-pyarrow==17.0.0
+pyarrow==18.0.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   pyarrow-stubs
     #   streamlit
-pyarrow-stubs==17.10
+pyarrow-stubs==17.11
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 pycparser==2.22
     # via cffi
@@ -505,7 +504,7 @@ pytest==8.3.3
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   pytest-cov
     #   sqlfluff
-pytest-cov==5.0.0
+pytest-cov==6.0.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 python-box==7.2.0
     # via leafmap
@@ -552,7 +551,7 @@ pyzmq==26.2.0
     # via
     #   ipykernel
     #   jupyter-client
-rasterio==1.4.1
+rasterio==1.4.2
     # via contextily
 referencing==0.35.1
     # via
@@ -576,16 +575,16 @@ requests==2.32.3
     #   streamlit
 responses==0.25.3
     # via moto
-rich==13.9.3
+rich==13.9.4
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit
     #   typer
-rpds-py==0.20.0
+rpds-py==0.20.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.7.1
+ruff==0.7.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 s3transfer==0.10.3
     # via boto3
@@ -659,7 +658,7 @@ tornado==6.4.1
     #   ipykernel
     #   jupyter-client
     #   streamlit
-tqdm==4.66.5
+tqdm==4.66.6
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   gdown
@@ -735,13 +734,13 @@ us==3.2.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 usaddress==0.5.11
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-virtualenv==20.27.0
+virtualenv==20.27.1
     # via pre-commit
 watchdog==5.0.3
     # via streamlit
 wcwidth==0.2.13
     # via prompt-toolkit
-werkzeug==3.0.6
+werkzeug==3.1.1
     # via moto
 whitebox==2.3.5
     # via whiteboxgui
