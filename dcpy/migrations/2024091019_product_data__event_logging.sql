@@ -4,6 +4,8 @@ The table is used to track the lifecycle of data products,
 from building to publishing, and is part of the de-qaqc database.
 */
 
+CREATE SCHEMA product_data;
+
 CREATE TABLE product_data.event_logging (
     product VARCHAR(50) NOT NULL,
     version VARCHAR(20) NOT NULL,
