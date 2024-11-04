@@ -1,6 +1,8 @@
 import calendar
 import datetime as dt
 from io import StringIO
+import os
+from dcpy.utils.logging import logger
 import pandas as pd
 from pathlib import Path
 import pytz
@@ -48,8 +50,23 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
 ]
-# user_agent = random.choice(USER_AGENTS)   # TODO: uncomment or remove completely
-user_agent = None
+
+# NOTE for when you're running locally:
+# Checkbook appears to use incapsula to prevent automated scraping from non-whitelisted IPs
+# So you may need to set the env vars below.
+#
+# To obtain, visit the api url in your browser, open the network panel, verify that you're not a robot,
+# then inspect the get request for the `Cookie` value and User-Agent.
+# It's unclear if the cookie and User-Agent are linked.
+VISID_COOKIE_TOKEN_ENV_VAR = "NYCOC_CHECKBOOK_VISID_COOKIE_TOKEN"
+MAYBE_VISID_TOKEN: str | None = os.environ.get(VISID_COOKIE_TOKEN_ENV_VAR)
+
+if not MAYBE_VISID_TOKEN:
+    logger.warn(
+        "Running nycoc ingestion without an incapsula token. This could cause problems if your IP is not whitelisted"
+    )
+NYCOC_USER_AGENT_ENV_VAR = "NYCOC_CHECKBOOK_USER_AGENT"
+MAYBE_NYCOC_USER_AGENT: str | None = os.environ.get(NYCOC_USER_AGENT_ENV_VAR)
 
 
 class CriteriaValue(TypedDict):
@@ -71,7 +88,6 @@ class Scriptor(ScriptorInterface):
 
     def ingest(
         self,
-        user_agent: str | None = None,
         type_of_data: TYPE_OF_DATA = "Spending",
         records_from: str = DEFAULT_RECORDS_FROM,
         max_records: str = DEFAULT_MAX_RECORDS,
@@ -104,7 +120,6 @@ class Scriptor(ScriptorInterface):
             }
             search_criteria_modified = search_criteria + [month_criteria]
             df = get_data(
-                user_agent=user_agent,
                 type_of_data=type_of_data,
                 records_from=records_from,
                 max_records=max_records,
@@ -134,7 +149,6 @@ class Scriptor(ScriptorInterface):
 
     def runner(self) -> str:
         df = self.ingest(
-            user_agent=user_agent,
             search_criteria=[
                 {"name": "spending_category", "type": "value", "value": "cc"}
             ],
@@ -144,7 +158,6 @@ class Scriptor(ScriptorInterface):
 
 
 def get_data(
-    user_agent: str | None,
     type_of_data: TYPE_OF_DATA,
     records_from: str,
     max_records: str,
@@ -161,7 +174,6 @@ def get_data(
     df_list = []
     while not all_records:
         response = get_response(
-            user_agent=user_agent,
             type_of_data=type_of_data,
             records_from=records_from,
             max_records=max_records,
@@ -197,7 +209,6 @@ def get_data(
 
 
 def get_response(
-    user_agent: str | None,
     type_of_data: TYPE_OF_DATA,
     records_from: str,
     max_records: str,
@@ -214,8 +225,11 @@ def get_response(
     xml = dict_to_xml_obj(request_dict)
     xml_string = xml_obj_to_string(xml)
     headers = {"Content-Type": "application/xml"}
-    if user_agent:
-        headers["User-Agent"] = user_agent
+
+    if MAYBE_VISID_TOKEN:
+        headers["Cookie"] = MAYBE_VISID_TOKEN
+    if MAYBE_NYCOC_USER_AGENT:
+        headers["User-Agent"] = MAYBE_NYCOC_USER_AGENT
 
     for n in range(num_retries):
         try:
