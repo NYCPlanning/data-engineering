@@ -103,27 +103,20 @@ class Scriptor(ScriptorInterface):
                 "end": end,
             }
             search_criteria_modified = search_criteria + [month_criteria]
-            try:
-                df = get_data(
-                    user_agent=user_agent,
-                    type_of_data=type_of_data,
-                    records_from=records_from,
-                    max_records=max_records,
-                    response_columns=response_columns,
-                    search_criteria=search_criteria_modified,
-                    num_retries=num_retries,
-                )
-                print(f"There are {len(df)} records for period {start}-{end}.")
-            except Exception as e:
-                print(
-                    f"Unable to extract data for period: {start}-{end}...Exception: {e}"
-                )
-                df = None
+            df = get_data(
+                user_agent=user_agent,
+                type_of_data=type_of_data,
+                records_from=records_from,
+                max_records=max_records,
+                response_columns=response_columns,
+                search_criteria=search_criteria_modified,
+                num_retries=num_retries,
+            )
+            print(f"There are {len(df)} records for period {start}-{end}.")
 
-            if df is not None:
-                filename = f"{start}-{end}_checkbook.parquet"
-                filepath = str(data_dir / filename)
-                df.to_parquet(filepath)
+            filename = f"{start}-{end}_checkbook.parquet"
+            filepath = str(data_dir / filename)
+            df.to_parquet(filepath)
 
             # pausing before next request: we don't want to overload API
             time.sleep(random.randint(10, 15))
