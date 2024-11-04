@@ -375,6 +375,8 @@ def generate_monthly_ranges(
     ```python
     """
 
+    # TODO: AR: fix bug that generated the following: <start>2024-11-01</start><end>2024-10-31</end>.
+    # Skipping for now, to get CPDB out.
     start_period_dt = dt.datetime.strptime(start_period, date_format)
     end_period_dt = dt.datetime.strptime(end_period, date_format)
 
