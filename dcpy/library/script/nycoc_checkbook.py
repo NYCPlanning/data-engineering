@@ -169,8 +169,6 @@ def get_data(
             search_criteria=search_criteria,
             num_retries=num_retries,
         )
-        if response is None:
-            raise Exception("Error occurred when sending request to API.")
         xml_response = response.text
 
         # get total record count from response string
@@ -206,7 +204,7 @@ def get_response(
     response_columns: list[str] | None,
     search_criteria: list[CriteriaValue | CriteriaRange],
     num_retries: int,
-) -> requests.Response | None:
+) -> requests.Response:
     """
     Makes a request call to api and returns Response object.
     """
@@ -223,9 +221,8 @@ def get_response(
         try:
             response = requests.post(url=api_endpoint, data=xml_string, headers=headers)
             response.raise_for_status()
-            break
+            return response
         except requests.exceptions.RequestException as e:
-            response = None
             # user_agent = random.choice(USER_AGENTS)   # TODO: uncomment or remove completely
             timestamp = (
                 dt.datetime.utcnow()
@@ -239,8 +236,7 @@ def get_response(
             )
             # pausing before next request: we don't want to overload API
             time.sleep(random.randint(15, 20))
-
-    return response
+    raise Exception(f"Exceeded maximum tries to retrieve data from {records_from}")
 
 
 def create_request_dict(
