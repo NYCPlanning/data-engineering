@@ -11,6 +11,10 @@ on:
         type: boolean
         required: true
         default: false
+      dev_bucket:
+        description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
+        type: string
+        required: false
 
 jobs:
   dataloading:
@@ -18,7 +22,8 @@ jobs:
     container:
       image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
-      RECIPES_BUCKET: edm-recipes
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     strategy:
       matrix:
         dataset:
