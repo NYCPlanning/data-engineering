@@ -52,12 +52,10 @@ def dca_operatingbusinesses(df: pd.DataFrame):
     ]
     today = datetime.datetime.today()
     covid_freeze = datetime.datetime.strptime("03/12/2020", "%m/%d/%Y")
-    df.license_expiration_date = pd.to_datetime(
-        df["license_expiration_date"], format="%m/%d/%Y"
-    )
+    df.expiration_date = pd.to_datetime(df["expiration_date"], format="%m/%d/%Y")
     # fmt:off
-    df = df.loc[((df.license_expiration_date >= today) & (df.industry == "Scrap Metal Processor"))|((df.license_expiration_date >= covid_freeze) & (df.industry != "Scrap Metal Processor")), :]\
-        .loc[df.industry.isin(industry), :]
+    df = df.loc[((df.expiration_date >= today) & (df.business_category == "Scrap Metal Processor"))|((df.expiration_date >= covid_freeze) & (df.business_category != "Scrap Metal Processor")), :]\
+        .loc[df.business_category.isin(industry), :]
     # fmt:on
     df = sanitize_df(df)
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
