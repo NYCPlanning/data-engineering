@@ -4,29 +4,29 @@ SELECT
     uid,
     source,
     initcap(business_name) AS facname,
-    address_building AS addressnum,
-    address_street_name AS streetname,
-    address_building || ' ' || address_street_name AS address,
-    address_city AS city,
-    address_zip AS zipcode,
-    address_borough AS boro,
-    borough_code AS borocode,
+    building_number AS addressnum,
+    street1 AS streetname,
+    building_number || ' ' || street1 AS address,
+    city,
+    zip_code AS zipcode,
+    borough AS boro,
+    NULL AS borocode,
     bin,
     bbl,
     (
         CASE
-            WHEN industry LIKE '%Scrap Metal%' THEN 'Scrap Metal Processing'
-            WHEN industry LIKE '%Tow%' THEN 'Tow Truck Company'
-            ELSE concat('Commercial ', industry)
+            WHEN business_category LIKE '%Scrap Metal%' THEN 'Scrap Metal Processing'
+            WHEN business_category LIKE '%Tow%' THEN 'Tow Truck Company'
+            ELSE concat('Commercial ', business_category)
         END
     ) AS factype,
     (
         CASE
-            WHEN industry = 'Scrap Metal Processor' THEN 'Solid Waste Processing'
-            WHEN industry = 'Parking Lot' THEN 'Parking Lots and Garages'
-            WHEN industry = 'Garage' THEN 'Parking Lots and Garages'
-            WHEN industry = 'Garage and Parking Lot' THEN 'Parking Lots and Garages'
-            WHEN industry = 'Tow Truck Company' THEN 'Parking Lots and Garages'
+            WHEN business_category = 'Scrap Metal Processor' THEN 'Solid Waste Processing'
+            WHEN business_category = 'Parking Lot' THEN 'Parking Lots and Garages'
+            WHEN business_category = 'Garage' THEN 'Parking Lots and Garages'
+            WHEN business_category = 'Garage and Parking Lot' THEN 'Parking Lots and Garages'
+            WHEN business_category = 'Tow Truck Company' THEN 'Parking Lots and Garages'
         END
     ) AS facsubgrp,
     initcap(business_name) AS opname,
