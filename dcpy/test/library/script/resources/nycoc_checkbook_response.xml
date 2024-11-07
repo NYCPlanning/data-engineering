@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+<response>
+  <status>
+    <result>success</result>
+  </status>
+  <request_criteria>
+    <request>
+      <type_of_data>Spending</type_of_data>
+      <records_from>1</records_from>
+      <max_records>20000</max_records>
+      <search_criteria>
+        <criteria>
+          <name>spending_category</name>
+          <type>value</type>
+          <value>cc</value>
+        </criteria>
+        <criteria>
+          <name>issue_date</name>
+          <type>range</type>
+          <start>2010-01-01</start>
+          <end>2010-01-02</end>
+        </criteria>
+      </search_criteria>
+    </request>
+  </request_criteria>
+  <result_records>
+    <record_count>11</record_count>
+    <spending_transactions>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>30706.57</check_amount>
+        <department>402-044-78R</department>
+        <document_id>20100000063-1-DSB-AD</document_id>
+        <expense_category>IOTB CONSTRUCTION</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>HERCULES CONSTRUCTION COR</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>17149.16</check_amount>
+        <department>402-044-78R</department>
+        <document_id>20100000063-1-DSB-AD</document_id>
+        <expense_category>CONSTRUCTION-BUILDINGS</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>HERCULES CONSTRUCTION COR</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>7763.01</check_amount>
+        <department>402-044-EMR</department>
+        <document_id>20100000064-1-DSB-AD</document_id>
+        <expense_category>CONSTRUCTION-BUILDINGS</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>CHRIST GATZONIS ELECTRICAL CONT INCORP</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>Department of Correction</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>072C75ASBES2001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>3807.18</check_amount>
+        <department>400-072-202</department>
+        <document_id>20100000015-1-DSB-EFT</document_id>
+        <expense_category>IOTB CONSTRUCTION</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>SUNSHINE ENVIRONMENTAL INC</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCA AGENCY FOR BOE DECREASES</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>3559.79</check_amount>
+        <department>MODERNIZATION AND</department>
+        <document_id>20100000061-1-DSB-AD</document_id>
+        <expense_category>CONSTRUCTION-BUILDINGS</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>CHRIST GATZONIS ELECTRICAL CONT INCORP</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>3152.37</check_amount>
+        <department>402-044-78R</department>
+        <document_id>20100000063-1-DSB-AD</document_id>
+        <expense_category>IFA-OTHER THAN BUILDINGS</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>HERCULES CONSTRUCTION COR</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>Department of Correction</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>072C75ASBES2001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>2144.39</check_amount>
+        <department>400-072-202</department>
+        <document_id>20100000015-1-DSB-EFT</document_id>
+        <expense_category>IOTB CONSTRUCTION</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>SUNSHINE ENVIRONMENTAL INC</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>1945.55</check_amount>
+        <department>402-044-78K</department>
+        <document_id>20100000062-1-DSB-AD</document_id>
+        <expense_category>IOTB CONSTRUCTION</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>GEORGE F KOLSCH INC</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>Department of Correction</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>072C75ASBES2001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>1167.76</check_amount>
+        <department>400-072-202</department>
+        <document_id>20100000015-1-DSB-EFT</document_id>
+        <expense_category>IOTB CONSTRUCTION</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>SUNSHINE ENVIRONMENTAL INC</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>277.01</check_amount>
+        <department>402-044-78R</department>
+        <document_id>20100000063-1-DSB-AD</document_id>
+        <expense_category>IOTB CONSTRUCTION</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>HERCULES CONSTRUCTION COR</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+      <transaction>
+        <agency>SCHOOL CONSTRUCTION AUTHORITY</agency>
+        <associated_prime_vendor>N/A</associated_prime_vendor>
+        <budget_code/>
+        <capital_project>040CONVERTED001</capital_project>
+        <contract_id/>
+        <mocs_registered/>
+        <contract_purpose/>
+        <check_amount>1.45</check_amount>
+        <department>402-044-EMR</department>
+        <document_id>20100000001-1-DSB-AD</document_id>
+        <expense_category>CONSTRUCTION-BUILDINGS</expense_category>
+        <fiscal_year>2010</fiscal_year>
+        <industry/>
+        <issue_date>2010-01-01</issue_date>
+        <mwbe_category>Non-M/WBE</mwbe_category>
+        <woman_owned_business>No </woman_owned_business>
+        <emerging_business>No </emerging_business>
+        <payee_name>CHRIST GATZONIS ELECTRICAL CONT INCORP</payee_name>
+        <spending_category>Capital Contracts</spending_category>
+        <sub_contract_reference_id/>
+        <sub_vendor>No</sub_vendor>
+      </transaction>
+    </spending_transactions>
+  </result_records>
+</response>

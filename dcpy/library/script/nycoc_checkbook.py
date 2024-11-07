@@ -1,6 +1,8 @@
 import calendar
 import datetime as dt
 from io import StringIO
+import os
+from dcpy.utils.logging import logger
 import pandas as pd
 from pathlib import Path
 import pytz
@@ -48,8 +50,23 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
 ]
-# user_agent = random.choice(USER_AGENTS)   # TODO: uncomment or remove completely
-user_agent = None
+
+# NOTE for when you're running locally:
+# Checkbook appears to use incapsula to prevent automated scraping from non-whitelisted IPs
+# So you may need to set the env vars below.
+#
+# To obtain, visit the api url in your browser, open the network panel, verify that you're not a robot,
+# then inspect the get request for the `Cookie` value and User-Agent.
+# It's unclear if the cookie and User-Agent are linked.
+VISID_COOKIE_TOKEN_ENV_VAR = "NYCOC_CHECKBOOK_VISID_COOKIE_TOKEN"
+MAYBE_VISID_TOKEN: str | None = os.environ.get(VISID_COOKIE_TOKEN_ENV_VAR)
+
+if not MAYBE_VISID_TOKEN:
+    logger.warn(
+        "Running nycoc ingestion without an incapsula token. This could cause problems if your IP is not whitelisted"
+    )
+NYCOC_USER_AGENT_ENV_VAR = "NYCOC_CHECKBOOK_USER_AGENT"
+MAYBE_NYCOC_USER_AGENT: str | None = os.environ.get(NYCOC_USER_AGENT_ENV_VAR)
 
 
 class CriteriaValue(TypedDict):
@@ -71,7 +88,6 @@ class Scriptor(ScriptorInterface):
 
     def ingest(
         self,
-        user_agent: str | None = None,
         type_of_data: TYPE_OF_DATA = "Spending",
         records_from: str = DEFAULT_RECORDS_FROM,
         max_records: str = DEFAULT_MAX_RECORDS,
@@ -103,27 +119,19 @@ class Scriptor(ScriptorInterface):
                 "end": end,
             }
             search_criteria_modified = search_criteria + [month_criteria]
-            try:
-                df = get_data(
-                    user_agent=user_agent,
-                    type_of_data=type_of_data,
-                    records_from=records_from,
-                    max_records=max_records,
-                    response_columns=response_columns,
-                    search_criteria=search_criteria_modified,
-                    num_retries=num_retries,
-                )
-                print(f"There are {len(df)} records for period {start}-{end}.")
-            except Exception as e:
-                print(
-                    f"Unable to extract data for period: {start}-{end}...Exception: {e}"
-                )
-                df = None
+            df = get_data(
+                type_of_data=type_of_data,
+                records_from=records_from,
+                max_records=max_records,
+                response_columns=response_columns,
+                search_criteria=search_criteria_modified,
+                num_retries=num_retries,
+            )
+            print(f"There are {len(df)} records for period {start}-{end}.")
 
-            if df is not None:
-                filename = f"{start}-{end}_checkbook.parquet"
-                filepath = str(data_dir / filename)
-                df.to_parquet(filepath)
+            filename = f"{start}-{end}_checkbook.parquet"
+            filepath = str(data_dir / filename)
+            df.to_parquet(filepath)
 
             # pausing before next request: we don't want to overload API
             time.sleep(random.randint(10, 15))
@@ -141,7 +149,6 @@ class Scriptor(ScriptorInterface):
 
     def runner(self) -> str:
         df = self.ingest(
-            user_agent=user_agent,
             search_criteria=[
                 {"name": "spending_category", "type": "value", "value": "cc"}
             ],
@@ -151,7 +158,6 @@ class Scriptor(ScriptorInterface):
 
 
 def get_data(
-    user_agent: str | None,
     type_of_data: TYPE_OF_DATA,
     records_from: str,
     max_records: str,
@@ -168,7 +174,6 @@ def get_data(
     df_list = []
     while not all_records:
         response = get_response(
-            user_agent=user_agent,
             type_of_data=type_of_data,
             records_from=records_from,
             max_records=max_records,
@@ -176,8 +181,6 @@ def get_data(
             search_criteria=search_criteria,
             num_retries=num_retries,
         )
-        if response is None:
-            raise Exception("Error occurred when sending request to API.")
         xml_response = response.text
 
         # get total record count from response string
@@ -206,14 +209,13 @@ def get_data(
 
 
 def get_response(
-    user_agent: str | None,
     type_of_data: TYPE_OF_DATA,
     records_from: str,
     max_records: str,
     response_columns: list[str] | None,
     search_criteria: list[CriteriaValue | CriteriaRange],
     num_retries: int,
-) -> requests.Response | None:
+) -> requests.Response:
     """
     Makes a request call to api and returns Response object.
     """
@@ -223,16 +225,18 @@ def get_response(
     xml = dict_to_xml_obj(request_dict)
     xml_string = xml_obj_to_string(xml)
     headers = {"Content-Type": "application/xml"}
-    if user_agent:
-        headers["User-Agent"] = user_agent
+
+    if MAYBE_VISID_TOKEN:
+        headers["Cookie"] = MAYBE_VISID_TOKEN
+    if MAYBE_NYCOC_USER_AGENT:
+        headers["User-Agent"] = MAYBE_NYCOC_USER_AGENT
 
     for n in range(num_retries):
         try:
             response = requests.post(url=api_endpoint, data=xml_string, headers=headers)
             response.raise_for_status()
-            break
+            return response
         except requests.exceptions.RequestException as e:
-            response = None
             # user_agent = random.choice(USER_AGENTS)   # TODO: uncomment or remove completely
             timestamp = (
                 dt.datetime.utcnow()
@@ -246,8 +250,7 @@ def get_response(
             )
             # pausing before next request: we don't want to overload API
             time.sleep(random.randint(15, 20))
-
-    return response
+    raise Exception(f"Exceeded maximum tries to retrieve data from {records_from}")
 
 
 def create_request_dict(
@@ -382,6 +385,8 @@ def generate_monthly_ranges(
     ```python
     """
 
+    # TODO: AR: fix bug that generated the following: <start>2024-11-01</start><end>2024-10-31</end>.
+    # Skipping for now, to get CPDB out.
     start_period_dt = dt.datetime.strptime(start_period, date_format)
     end_period_dt = dt.datetime.strptime(end_period, date_format)
 
