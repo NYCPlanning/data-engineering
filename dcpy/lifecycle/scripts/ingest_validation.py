@@ -2,10 +2,10 @@ from pathlib import Path
 import shutil
 
 from dcpy.utils import postgres
-from dcpy.connectors.edm import recipes
-
-from dcpy.lifecycle.ingest import run as ingest
+from dcpy.models.data import Comparison
 from dcpy.data import compare
+from dcpy.connectors.edm import recipes
+from dcpy.lifecycle.ingest import run as ingest
 
 
 def compare_recipes_in_postgres(
@@ -19,7 +19,7 @@ def compare_recipes_in_postgres(
     local_library_dir: Path = recipes.LIBRARY_DEFAULT_PATH,
     left_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
     right_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
-):
+) -> Comparison.Report:
     ignore_columns = ignore_columns or []
     ignore_columns.append("data_library_version")
     left_table = dataset + "_left"
@@ -66,7 +66,7 @@ def run_ingest_and_library(
     dataset: str,
     ingest_parent_dir: Path = Path("."),
     library_file_type: str = "pg_dump",
-):
+) -> None:
     ingest_dir = ingest_parent_dir / dataset / "special_folder"
     ingest.run(dataset, staging_dir=ingest_dir, skip_archival=True)
 
@@ -93,7 +93,7 @@ def compare_ingest_and_library(
     ignore_columns: list[str] | None = None,
     library_file_type: str = "pgdump",
     ingest_parent_dir: Path = Path("."),
-):
+) -> Comparison.Report:
     run_ingest_and_library(
         dataset,
         ingest_parent_dir=ingest_parent_dir,
