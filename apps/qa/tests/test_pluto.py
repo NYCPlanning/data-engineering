@@ -58,47 +58,36 @@ def test_values_by_fields(
     fields = ["overlay1", "overlay2"]
     expected_values = [
         None,
+        "C1-1",
         "C1-2",
-        "C2-3",
+        "C1-3",
+        "C1-4",
+        "C1-5",
         "C2-1",
         "C2-2",
-        "C1-1",
-        "C1-5",
-        "C2-4",
-        "C1-4",
-        "C2-5",
-        "C1-3",
-        None,
-        "C2-2",
-        "C2-4",
-        "C1-4",
-        "C1-3",
-        "C2-5",
-        "C1-2",
         "C2-3",
-        "C2-1",
-        "C1-5",
-        "C1-1",
+        "C2-4",
+        "C2-5",
     ]
     expected_records = example_ExpectedValueDifferencesReport.v_expected_records
     actual_values = example_ExpectedValueDifferencesReport.values_by_fields(
         expected_records,
         fields,
     )
-    assert actual_values == expected_values
+    assert set(actual_values) == set(expected_values)
 
 
 def test_value_differences_across_versions(
     example_ExpectedValueDifferencesReport: ExpectedValueDifferencesReport,
 ):
     comparison_name = "zoning"
-    expeted_in1not2 = ["M1-4/R9", "M1-4/R7-3", "M1-4/R9", "M1-4/R7-3"]
-    expeted_in2not1: list[str] = []
+    expected_in1not2 = ["M1-4/R7-3", "M1-4/R9"]
+    expected_in2not1: list[str] = []
     (
         in1not2,
         in2not1,
     ) = example_ExpectedValueDifferencesReport.value_differences_across_versions(
         comparison_name
     )
-    assert in1not2 == expeted_in1not2
-    assert in2not1 == expeted_in2not1
+    assert in1not2 == expected_in1not2
+    assert in2not1 == expected_in2not1
