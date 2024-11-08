@@ -93,6 +93,7 @@ class Template(BaseModel, extra="forbid"):
     attributes: DatasetAttributes
     ingestion: Ingestion
     columns: list[Column] = []
+    checks: list[str | dict[str, Any]] | None = None
 
     @property
     def has_geom(self):

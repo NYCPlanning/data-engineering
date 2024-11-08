@@ -1,5 +1,7 @@
 from dcpy.models.base import SortedSerializedBase
-from typing import Literal
+from typing import Literal, Any
+
+from pydantic import field_validator
 
 COLUMN_TYPES = Literal[
     "text",
@@ -14,10 +16,20 @@ COLUMN_TYPES = Literal[
 ]
 
 
-# TODO: extend/modify Checks model
+# TODO: DELETE
 class Checks(SortedSerializedBase):
     is_primary_key: bool | None = None
     non_nullable: bool | None = None
+
+
+class CheckAttributes(SortedSerializedBase, extra="forbid"):
+    """
+    Represents constraints and optional metadata for column checks.
+    """
+
+    args: dict[str, Any]
+    description: str | None = None
+    warn_only: bool = False
 
 
 class Column(SortedSerializedBase, extra="forbid"):
@@ -29,4 +41,15 @@ class Column(SortedSerializedBase, extra="forbid"):
     data_type: COLUMN_TYPES | None = None
     description: str | None = None
     is_required: bool = True
-    checks: Checks | None = None
+    checks: Checks | list[str | dict[str, CheckAttributes]] | None = (
+        None  # TODO: delete Checks after refactoring metadata
+    )
+
+    @field_validator("checks", mode="after")
+    @classmethod
+    def check_checks(cls, checks: list[str | dict[str, CheckAttributes]]):
+        if isinstance(checks, list):
+            for check in checks:
+                if isinstance(check, dict) and len(check) != 1:
+                    raise ValueError(f"{check} must contain exactly one key-value pair")
+        return checks
