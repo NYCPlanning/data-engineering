@@ -1,6 +1,6 @@
 import pandas as pd
 
-from dcpy.models.data import Comparison
+from dcpy.models.data import comparison
 from dcpy.utils import postgres
 
 
@@ -15,11 +15,11 @@ def compare_df_columns(left: pd.DataFrame, right: pd.DataFrame):
         right_dtype = str(right[column].dtype)
 
         if left_dtype != right_dtype:
-            type_differences[column] = Comparison.Simple[str](
+            type_differences[column] = comparison.Simple[str](
                 left=left_dtype, right=right_dtype
             )
 
-    return Comparison.Columns(
+    return comparison.Columns(
         both=lc_set & rc_set,
         left_only=lc_set - rc_set,
         right_only=rc_set - lc_set,
@@ -61,7 +61,7 @@ def compare_df_keyed_rows(
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
 
-    return Comparison.KeyedTable(
+    return comparison.KeyedTable(
         key_columns=key_columns,
         left_only=left_only,
         right_only=right_only,
@@ -88,11 +88,11 @@ def compare_sql_columns(left: str, right: str, client: postgres.PostgresClient):
         right_dtype = right_types[column]
 
         if left_dtype != right_dtype:
-            type_differences[column] = Comparison.Simple[str](
+            type_differences[column] = comparison.Simple[str](
                 left=left_dtype, right=right_dtype
             )
 
-    return Comparison.Columns(
+    return comparison.Columns(
         both=left_columns & right_columns,
         left_only=left_columns - right_columns,
         right_only=right_columns - left_columns,
@@ -150,7 +150,7 @@ def compare_sql_keyed_rows(
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
 
-    return Comparison.KeyedTable(
+    return comparison.KeyedTable(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
@@ -179,7 +179,7 @@ def compare_sql_rows(
             SELECT {query_columns} FROM {two}
         """)
 
-    return Comparison.SimpleTable(
+    return comparison.SimpleTable(
         compared_columns=columns,
         left_only=query(left, right),
         right_only=query(right, left),
@@ -189,8 +189,8 @@ def compare_sql_rows(
 def get_df_keyed_report(
     left: pd.DataFrame, right: pd.DataFrame, key_columns: list[str]
 ):
-    return Comparison.Report(
-        row_count=Comparison.Simple[int](left=len(left), right=len(right)),
+    return comparison.Report(
+        row_count=comparison.Simple[int](left=len(left), right=len(right)),
         column_comparison=compare_df_columns(left, right),
         data_comparison=compare_df_keyed_rows(left, right, key_columns),
     )
@@ -203,11 +203,11 @@ def get_sql_keyed_report(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
-) -> Comparison.Report:
+) -> comparison.Report:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return Comparison.Report(
-        row_count=Comparison.Simple[int](
+    return comparison.Report(
+        row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),
@@ -227,11 +227,11 @@ def get_sql_report(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
-) -> Comparison.Report:
+) -> comparison.Report:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return Comparison.Report(
-        row_count=Comparison.Simple[int](
+    return comparison.Report(
+        row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),

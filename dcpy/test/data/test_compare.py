@@ -1,6 +1,6 @@
 import pandas as pd
 
-from dcpy.models.data import Comparison
+from dcpy.models.data import comparison
 from dcpy.data import compare
 
 
@@ -27,15 +27,15 @@ class TestDataFrame:
         key_difference = pd.DataFrame(
             {"b": [2], "l": [1], "left": ["test"], "right": ["test2"]}
         ).set_index(keys)
-        expected = Comparison.Report(
-            row_count=Comparison.Simple[int](left=3, right=3),
-            column_comparison=Comparison.Columns(
+        expected = comparison.Report(
+            row_count=comparison.Simple[int](left=3, right=3),
+            column_comparison=comparison.Columns(
                 both={"b", "l", "c"},
                 left_only=set(),
                 right_only=set(),
                 type_differences={},
             ),
-            data_comparison=Comparison.KeyedTable(
+            data_comparison=comparison.KeyedTable(
                 key_columns=keys,
                 left_only=set(),
                 right_only=set(),
@@ -61,17 +61,17 @@ class TestDataFrame:
                 "right": [3, 4, 5],
             }
         ).set_index(keys)
-        expected = Comparison.Report(
-            row_count=Comparison.Simple[int](left=3, right=3),
-            column_comparison=Comparison.Columns(
+        expected = comparison.Report(
+            row_count=comparison.Simple[int](left=3, right=3),
+            column_comparison=comparison.Columns(
                 both={"b", "l", "c"},
                 left_only=set(),
                 right_only=set(),
                 type_differences={
-                    "c": Comparison.Simple[str](left="object", right="int64")
+                    "c": comparison.Simple[str](left="object", right="int64")
                 },
             ),
-            data_comparison=Comparison.KeyedTable(
+            data_comparison=comparison.KeyedTable(
                 key_columns=keys,
                 left_only=set(),
                 right_only=set(),
@@ -87,15 +87,15 @@ class TestDataFrame:
 
     def test_different_columns(self):
         keys = ["b", "l"]
-        expected = Comparison.Report(
-            row_count=Comparison.Simple[int](left=3, right=3),
-            column_comparison=Comparison.Columns(
+        expected = comparison.Report(
+            row_count=comparison.Simple[int](left=3, right=3),
+            column_comparison=comparison.Columns(
                 both={"b", "l"},
                 left_only={"c"},
                 right_only={"d"},
                 type_differences={},
             ),
-            data_comparison=Comparison.KeyedTable(
+            data_comparison=comparison.KeyedTable(
                 key_columns=keys,
                 left_only=set(),
                 right_only=set(),
@@ -109,15 +109,15 @@ class TestDataFrame:
 
     def test_missing_key(self):
         keys = ["b", "l"]
-        expected = Comparison.Report(
-            row_count=Comparison.Simple[int](left=3, right=2),
-            column_comparison=Comparison.Columns(
+        expected = comparison.Report(
+            row_count=comparison.Simple[int](left=3, right=2),
+            column_comparison=comparison.Columns(
                 both={"b", "l", "c"},
                 left_only=set(),
                 right_only=set(),
                 type_differences={},
             ),
-            data_comparison=Comparison.KeyedTable(
+            data_comparison=comparison.KeyedTable(
                 key_columns=keys,
                 left_only={(2, 1)},
                 right_only=set(),
@@ -131,15 +131,15 @@ class TestDataFrame:
 
     def test_different_keys(self):
         keys = ["b", "l"]
-        expected = Comparison.Report(
-            row_count=Comparison.Simple[int](left=3, right=3),
-            column_comparison=Comparison.Columns(
+        expected = comparison.Report(
+            row_count=comparison.Simple[int](left=3, right=3),
+            column_comparison=comparison.Columns(
                 both={"b", "l", "c"},
                 left_only=set(),
                 right_only=set(),
                 type_differences={},
             ),
-            data_comparison=Comparison.KeyedTable(
+            data_comparison=comparison.KeyedTable(
                 key_columns=keys,
                 left_only={(2, 1)},
                 right_only={(2, 2)},
