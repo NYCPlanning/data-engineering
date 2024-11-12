@@ -1,4 +1,4 @@
-name: Data Library - 📁 Bytes Quaterly Updates
+name: Ingest - 📁 Bytes Quaterly Updates
 
 on:
   workflow_dispatch:
@@ -23,6 +23,7 @@ jobs:
       image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     strategy:
       fail-fast: false
@@ -74,8 +75,7 @@ jobs:
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
       - name: Finish container setup ...
-        working-directory: ./
         run: ./bash/docker_container_setup.sh
 
-      - name: Library Archive
-        run: library archive --name ${{ matrix.dataset }} --version ${{ inputs.version }} --latest --s3
+      - name: Ingest
+        run: python3 -m dcpy.cli lifecycle ingest fall_back_to_library ${{ matrix.dataset }} --version ${{ inputs.version }} --latest
