@@ -1,7 +1,8 @@
 from __future__ import annotations
+import pandas as pd
 from typing import Literal
 
-from dcpy.models.base import SortedSerializedBase
+from dcpy.models.base import SortedSerializedBase, ModelWithDataFrame
 
 
 class TestSerialization:
@@ -95,3 +96,67 @@ class TestSerialization:
         assert model.child_to_be_serialized._head_sort_order == list(
             dumped["child_to_be_serialized"].keys()
         ), "Child objects should also deserialize in order."
+
+
+class TestModelWithDataFrame:
+    class Model(ModelWithDataFrame):
+        a: int
+        b: pd.DataFrame
+        c: dict[str, pd.DataFrame]
+
+    base = Model(
+        a=1,
+        b=pd.DataFrame({"a": [1], "b": [2]}),
+        c={"c": pd.DataFrame({"a": [1], "b": [2]})},
+    )
+
+    basic_diff = Model(
+        a=2,
+        b=pd.DataFrame({"a": [1], "b": [2]}),
+        c={"c": pd.DataFrame({"a": [1], "b": [2]})},
+    )
+
+    df_diff = Model(
+        a=1,
+        b=pd.DataFrame({"a": [1], "b": [3]}),
+        c={"c": pd.DataFrame({"a": [1], "b": [2]})},
+    )
+
+    dict_diff_key = Model(
+        a=1,
+        b=pd.DataFrame({"a": [1], "b": [2]}),
+        c={
+            "c": pd.DataFrame({"a": [1], "b": [2]}),
+            "d": pd.DataFrame({"a": [1], "b": [2]}),
+        },
+    )
+
+    dict_diff_df = Model(
+        a=1,
+        b=pd.DataFrame({"a": [1], "b": [2]}),
+        c={
+            "c": pd.DataFrame({"a": [1], "b": [2]}),
+            "d": pd.DataFrame({"a": [1], "b": [3]}),
+        },
+    )
+
+    def test_equality(self):
+        assert self.base == self.base
+        assert self.df_diff == self.df_diff
+        assert self.dict_diff_key == self.dict_diff_key
+        assert self.dict_diff_df == self.dict_diff_df
+
+    def test_other_obj(self):
+        assert self.base != 1
+
+    def test_basic_diff(self):
+        assert self.base != self.basic_diff
+
+    def test_df_diff(self):
+        assert self.base != self.df_diff
+
+    def test_dict_key_diff(self):
+        assert self.base != self.dict_diff_key
+
+    def test_dict_df_diff(self):
+        assert self.dict_diff_key != self.dict_diff_df
