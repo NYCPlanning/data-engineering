@@ -8,17 +8,11 @@ def compare_df_columns(left: pd.DataFrame, right: pd.DataFrame):
     lc_set = set(left.columns)
     rc_set = set(right.columns)
 
-    def get_dtype(column: str, df: pd.DataFrame) -> str:
-        if column in df.columns:
-            return str(df[column].dtype)
-        else:
-            return "None"
-
     type_differences = {}
 
     for column in lc_set & rc_set:
-        left_dtype = get_dtype(column, left)
-        right_dtype = get_dtype(column, right)
+        left_dtype = str(left[column].dtype)
+        right_dtype = str(right[column].dtype)
 
         if left_dtype != right_dtype:
             type_differences[column] = Comparison.Simple[str](
@@ -90,8 +84,8 @@ def compare_sql_columns(left: str, right: str, client: postgres.PostgresClient):
     right_types = client.get_column_types(right)
 
     for column in left_columns & right_columns:
-        left_dtype = left_types.get(column, "None")
-        right_dtype = right_types.get(column, "None")
+        left_dtype = left_types[column]
+        right_dtype = right_types[column]
 
         if left_dtype != right_dtype:
             type_differences[column] = Comparison.Simple[str](
