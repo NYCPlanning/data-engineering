@@ -111,7 +111,7 @@ def run(
 app = typer.Typer(add_completion=False)
 
 
-@app.command()
+@app.command("run")
 def _cli_wrapper_run(
     dataset_id: str = typer.Argument(),
     version: str = typer.Option(
