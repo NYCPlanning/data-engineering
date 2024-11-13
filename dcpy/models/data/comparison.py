@@ -2,7 +2,7 @@ import pandas as pd
 from pydantic import BaseModel, Field
 from typing import TypeVar, Generic
 
-from dcpy.models.base import ModelWithDataFrame
+from dcpy.models.base import SortedSerializedBase, ModelWithDataFrame
 
 T = TypeVar("T")
 
@@ -37,7 +37,21 @@ class SimpleTable(ModelWithDataFrame):
     right_only: pd.DataFrame | None
 
 
-class Report(BaseModel):
+class Report(SortedSerializedBase):
     row_count: Simple[int]
     column_comparison: Columns
     data_comparison: KeyedTable | SimpleTable
+
+    _exclude_falsey_values: bool = False
+    _head_sort_order: list[str] = ["row_count", "column_comparison", "data_comparison"]
+
+
+class SqlReport(Report):
+    tables: Simple[str]
+
+    _head_sort_order: list[str] = [
+        "tables",
+        "row_count",
+        "column_comparison",
+        "data_comparison",
+    ]

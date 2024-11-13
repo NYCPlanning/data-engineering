@@ -234,10 +234,11 @@ def get_sql_keyed_report(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
-) -> comparison.Report:
+) -> comparison.SqlReport:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return comparison.Report(
+    return comparison.SqlReport(
+        tables=comparison.Simple[str](left=left, right=right),
         row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
@@ -258,10 +259,11 @@ def get_sql_report(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
-) -> comparison.Report:
+) -> comparison.SqlReport:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return comparison.Report(
+    return comparison.SqlReport(
+        tables=comparison.Simple[str](left=left, right=right),
         row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
