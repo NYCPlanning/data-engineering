@@ -131,6 +131,7 @@ class ProcessingFunctions:
         return updated
 
     def append_prev(self, df: pd.DataFrame, version: str = "latest") -> pd.DataFrame:
+        # TODO - resolve version and store result
         prev_df = recipes.read_df(recipes.Dataset(id=self.dataset_id, version=version))
         appended = pd.concat((prev_df, df))
         return appended.reset_index(drop=True)
