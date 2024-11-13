@@ -131,7 +131,7 @@ def compare_sql_keyed_rows(
 
     comps: dict[str, pd.DataFrame] = {}
 
-    def query(column):
+    def query(column: str) -> str:
         lc = f'"left"."{column}"'
         rc = f'"right"."{column}"'
         return f"""
@@ -143,10 +143,41 @@ def compare_sql_keyed_rows(
             WHERE {lc} IS DISTINCT FROM {rc}
         """
 
+    def spatial_query(column: str) -> str:
+        lc = f'"left"."{column}"'
+        rc = f'"right"."{column}"'
+        return f"""
+            SELECT 
+                {left_keys},
+                st_orderingequals({lc}, {rc}) AS "ordering_equal",
+                st_equals({lc}, {rc}) AS "spatially_equal"
+            FROM {left} AS "left" 
+                INNER JOIN {right} AS "right"
+                ON {on}
+            WHERE {lc} IS DISTINCT FROM {rc}
+        """
+
+    left_geom_columns = client.get_geometry_columns(left)
+    right_geom_columns = client.get_geometry_columns(right)
+
     for column in non_key_columns:
-        comp_df = client.execute_select_query(query(column))
-        comp_df = comp_df.set_index(key_columns)
-        comp_df.columns = pd.Index(["left", "right"])
+        # simple inequality is not informative for spatial columns
+        if (column in left_geom_columns) and (column in right_geom_columns):
+            comp_df = client.execute_select_query(spatial_query(column))
+            comp_df = comp_df.set_index(key_columns)
+            comp_df.columns = pd.Index(["ordering_equal", "spatially_equal"])
+
+        elif (column not in left_geom_columns) and (column not in right_geom_columns):
+            comp_df = client.execute_select_query(query(column))
+            comp_df = comp_df.set_index(key_columns)
+            comp_df.columns = pd.Index(["left", "right"])
+
+        # No point comparing geom and non-geom.
+        # This should be caught in `column_comparison` of report
+        # Other non-equivalent types are allowed - text vs varchar can produce valid comps
+        else:
+            continue
+
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
 
