@@ -78,4 +78,4 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Ingest
-        run: python3 -m dcpy.cli lifecycle ingest fall_back_to_library ${{ matrix.dataset }} --version ${{ inputs.version }} --latest
+        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --version ${{ inputs.version }} --latest
