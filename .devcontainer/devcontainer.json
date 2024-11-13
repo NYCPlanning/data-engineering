@@ -4,7 +4,7 @@
 {
 	"name": "Data Engineering",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"service": "de",
 	"workspaceFolder": "/home/vscode/workspace",
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
