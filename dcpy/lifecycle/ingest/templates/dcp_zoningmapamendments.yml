@@ -1,0 +1,45 @@
+id: dcp_zoningmapamendments
+acl: public-read
+
+attributes:
+  name: NYC Zoning Map Amendments
+  description: |
+    Polygon features representing the boundaries for all rezonings adopted since January 1, 2002 (STATUS = "Adopted")
+    and current proposed rezonings (STATUS = "Certified"). Selected city-initiated text amendments to the Zoning
+    Resolution since 2002 that have discrete geographical boundaries may be included.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dcp_zoning_map_amendments
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: coerce_column_types
+    args:
+      column_types: {"effective": "date"}
+      errors: coerce
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+
+columns:
+- id: effective
+  data_type: date
+- id: status
+  data_type: text
+- id: ulurpno
+  data_type: text
+- id: lucats
+  data_type: text
+- id: project_na
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry
