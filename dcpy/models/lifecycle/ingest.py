@@ -72,7 +72,9 @@ class Ingestion(SortedSerializedBase):
 
 class Column(SortedSerializedBase):
     id: str
-    data_type: Literal["text", "integer", "decimal", "geometry", "bool", "datetime"]
+    data_type: Literal[
+        "text", "integer", "decimal", "geometry", "bool", "date", "datetime"
+    ]
     description: str | None = None
 
 

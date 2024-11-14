@@ -1,5 +1,6 @@
 from functools import partial
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Callable, Literal
@@ -180,6 +181,29 @@ class ProcessingFunctions:
                 df[col] = df[col].str.strip()
         else:
             df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        return df
+
+    def coerce_column_types(
+        self,
+        df: pd.DataFrame,
+        column_types: dict[str, Literal["numeric", "string", "date", "datetime"]],
+        errors: Literal["raise", "coerce"] = "raise",
+    ):
+        df = df.copy()
+        for column in column_types:
+            match column_types[column]:
+                case "numeric":
+                    df[column] = pd.to_numeric(df[column], errors=errors)
+                case "string":
+                    df[column] = df[column].apply(
+                        lambda s: None if s is None or s is np.nan else str(s)
+                    )
+                case "date":
+                    df[column] = pd.to_datetime(df[column], errors=errors).dt.date
+                    df[column] = df[column].replace(pd.NaT, None)  # type: ignore
+                case "datetime":
+                    df[column] = pd.to_datetime(df[column], errors=errors)
+                    df[column] = df[column].replace(pd.NaT, None)  # type: ignore
         return df
 
     def multi(self, df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:

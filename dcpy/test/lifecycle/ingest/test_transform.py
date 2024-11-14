@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -162,7 +163,7 @@ class TestValidatePdSeriesFunc(TestCase):
         assert res == "'pd.Series.str' has no attribute 'fake_function'"
 
 
-class TestProcessors(TestCase):
+class TestProcessors:
     proc = transform.ProcessingFunctions(TEST_DATASET_NAME)
     gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
     basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
@@ -172,6 +173,19 @@ class TestProcessors(TestCase):
     prev_df = pd.DataFrame({"a": [-1], "b": ["z"]})
     upsert_df = pd.DataFrame(
         {"a": [3, 2, 1], "b": ["d", "d", "d"], "c": [True, False, True]}
+    )
+    coerce_df = pd.DataFrame(
+        {
+            "simple_str": ["a", "b", "c"],
+            "date_str": ["2024-01-01", None, None],
+            "datetime_str": ["2024-01-01 12:57:01", None, None],
+            "datetime_str_error": ["2024-01-01 12:57:01", "not a date", None],
+            "numeric_str": ["1", None, "1.2"],
+            "numeric_str_error": ["1", "not an int", "1.2"],
+            "date": [date(2024, 1, 1), None, None],
+            "datetime": [datetime(2024, 1, 1, 12, 57, 1), None, None],
+            "numeric": [1, np.nan, 1.2],
+        }
     )
 
     def test_reproject(self):
@@ -269,6 +283,45 @@ class TestProcessors(TestCase):
     def test_strip_all_columns(self):
         stripped = self.proc.strip_columns(self.whitespace_df)
         assert stripped.equals(self.basic_df)
+
+    @pytest.mark.parametrize(
+        "original_column, cast, errors, expected_column",
+        [
+            # preserve columns when coercing to self
+            ("simple_str", "string", None, "simple_str"),
+            ("date", "date", None, "date"),
+            ("datetime", "datetime", None, "datetime"),
+            ("numeric", "numeric", None, "numeric"),
+            # datetime conversions
+            ("date_str", "date", None, "date"),
+            ("datetime_str", "datetime", None, "datetime"),
+            pytest.param(
+                "datetime_str_error",
+                "datetime",
+                None,
+                "datetime",
+                marks=pytest.mark.xfail,
+            ),
+            ("datetime_str_error", "datetime", "coerce", "datetime"),
+            # numeric conversions
+            ("numeric_str", "numeric", None, "numeric"),
+            pytest.param(
+                "numeric_str_errors",
+                "numeric",
+                None,
+                "numeric",
+                marks=pytest.mark.xfail,
+            ),
+            ("numeric_str_error", "numeric", "coerce", "numeric"),
+        ],
+    )
+    def test_coerce_column_type(self, original_column, cast, errors, expected_column):
+        errors = errors or "raise"
+        coerced = self.proc.coerce_column_types(
+            self.coerce_df, {original_column: cast}, errors=errors
+        )
+        print(coerced[original_column])
+        assert coerced[original_column].equals(self.coerce_df[expected_column])
 
     def test_pd_series_func(self):
         transformed = self.proc.pd_series_func(
