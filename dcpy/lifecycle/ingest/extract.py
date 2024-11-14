@@ -5,6 +5,7 @@ from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     S3Source,
     ScriptSource,
+    DEPublished,
     Source,
 )
 from dcpy.models.connectors import socrata, web as web_models
@@ -29,6 +30,12 @@ def download_file_from_source(
                 shutil.copy(source.path, path)
         case GisDataset():
             publishing.download_gis_dataset(source.name, version, dir)
+        case DEPublished():
+            publishing.download_file(
+                publishing.PublishKey(product=source.product, version=version),
+                filepath=source.filename,
+                output_dir=dir,
+            )
         case S3Source():
             s3.download_file(source.bucket, source.key, path)
         case ScriptSource():
