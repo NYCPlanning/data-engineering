@@ -1,0 +1,88 @@
+id: dcp_addresspoints
+acl: public-read
+
+attributes:
+  name: NYC Address Points
+  description: |
+    Address points created from data in the Department of City Planning Property Address Directory (PAD) file.
+    Address points were developed to supplement the address information supplied by the CSCL centerline.
+    Some computer aided dispatch systems use address points as the primary source for locating an address
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dcp_address_points
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: coerce_column_types
+    args:
+      column_types: {"modified_d": "date", "created_da": "date"}
+      errors: coerce
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+
+columns:
+- id: objectid
+  data_type: integer
+- id: segmentid
+  data_type: integer
+- id: addresspoi
+  data_type: integer
+- id: complexid
+  data_type: integer
+- id: house_numb
+  data_type: text
+- id: hyphen_typ
+  data_type: text
+- id: sosindicat
+  data_type: text
+- id: special_co
+  data_type: text
+- id: address_so
+  data_type: text
+- id: address_st
+  data_type: text
+- id: validation
+  data_type: text
+- id: boroughcod
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: collection
+  data_type: text
+- id: created_by
+  data_type: text
+- id: created_da
+  data_type: date
+- id: modified_b
+  data_type: text
+- id: modified_d
+  data_type: date
+- id: b7sc_actua
+  data_type: text
+- id: b7sc_vanit
+  data_type: text
+- id: a4id
+  data_type: integer
+- id: house_nu_1
+  data_type: text
+- id: house_nu_2
+  data_type: text
+- id: house_nu_3
+  data_type: text
+- id: bin
+  data_type: integer
+- id: globalid
+  data_type: text
+- id: doitt_exce
+  data_type: text
+- id: remotebldg
+  data_type: text
+- id: subaddress
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry
