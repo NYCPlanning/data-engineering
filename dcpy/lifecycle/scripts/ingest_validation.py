@@ -1,50 +1,95 @@
+import os
 from pathlib import Path
 import shutil
+import typer
+from typing import Literal
 
 from dcpy.utils import postgres
-from dcpy.connectors.edm import recipes
-
-from dcpy.lifecycle.ingest import run as ingest
+from dcpy.utils.collections import indented_report
+from dcpy.models.data import comparison
 from dcpy.data import compare
+from dcpy.connectors.edm import recipes
+from dcpy.lifecycle.ingest.run import TMP_DIR, run as run_ingest
+from dcpy.lifecycle.builds import metadata as build_metadata
+
+DATABASE = "sandbox"
+LIBRARY_PATH = recipes.LIBRARY_DEFAULT_PATH / "datasets"
+SCHEMA = build_metadata.build_name(os.environ.get("BUILD_NAME"))
+
+
+def library_archive(dataset: str, version: str | None = None, file_type="pgdump"):
+    # BEWARE: once you import library, parquet file writing fails
+    # Something to do with gdal's interaction with parquet file driver
+    from dcpy.library.archive import Archive
+
+    a = Archive()
+    config = a(name=dataset, output_format=file_type, version=version)
+    # We're running ingest too, so change version after the fact
+    # Can't just feed this version to archive call because of datasets that template in the version
+    target_dir = LIBRARY_PATH / dataset / "library"
+    if target_dir.is_dir():
+        shutil.rmtree(target_dir)
+    os.rename(LIBRARY_PATH / dataset / config.version, target_dir)
+
+
+def ingest(
+    dataset: str,
+    version: str | None = None,
+    ingest_parent_dir: Path = TMP_DIR,
+) -> None:
+    ingest_dir = ingest_parent_dir / dataset / "staging"
+    if ingest_dir.is_dir():
+        shutil.rmtree(ingest_dir)
+    run_ingest(dataset, version=version, staging_dir=ingest_dir, skip_archival=True)
+
+    ingest_output_path = ingest_dir / f"{dataset}.parquet"
+    ingest_path = LIBRARY_PATH / dataset / "ingest" / f"{dataset}.parquet"
+
+    ingest_path.parent.mkdir(exist_ok=True, parents=True)
+    shutil.copy(ingest_output_path, ingest_path)
+
+
+def load_recipe(
+    dataset: str,
+    version: Literal["library", "ingest"],
+    file_type: recipes.DatasetType | None = None,
+) -> None:
+    if not file_type:
+        if version == "library":
+            file_type = recipes.DatasetType.pg_dump
+        else:
+            file_type = recipes.DatasetType.parquet
+
+    target_table = f"{dataset}_{version}"
+
+    client = postgres.PostgresClient(schema=SCHEMA, database=DATABASE)
+    client.drop_table(dataset)
+    client.drop_table(target_table)
+
+    left_ds = recipes.Dataset(id=dataset, version=version, file_type=file_type)
+    recipes.import_dataset(
+        left_ds,
+        client,
+        import_as=target_table,
+    )
 
 
 def compare_recipes_in_postgres(
     dataset: str,
-    left_version: str,
-    right_version: str,
+    left_version: str = "library",
+    right_version: str = "ingest",
     *,
-    build_name: str,
     key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
-    local_library_dir: Path = recipes.LIBRARY_DEFAULT_PATH,
-    left_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
-    right_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
-):
+) -> comparison.SqlReport:
     ignore_columns = ignore_columns or []
+    ignore_columns.append("ogc_fid")
     ignore_columns.append("data_library_version")
-    left_table = dataset + "_left"
-    right_table = dataset + "_right"
 
-    client = postgres.PostgresClient(schema=build_name, database="sandbox")
-    client.drop_table(dataset)
-    client.drop_table(left_table)
-    client.drop_table(right_table)
+    client = postgres.PostgresClient(schema=SCHEMA, database="sandbox")
+    left_table = dataset + "_" + left_version
+    right_table = dataset + "_" + right_version
 
-    left_ds = recipes.Dataset(id=dataset, version=left_version, file_type=left_type)
-    right_ds = recipes.Dataset(id=dataset, version=right_version, file_type=right_type)
-
-    recipes.import_dataset(
-        left_ds,
-        client,
-        import_as=left_table,
-        local_library_dir=local_library_dir,
-    )
-    recipes.import_dataset(
-        right_ds,
-        client,
-        import_as=right_table,
-        local_library_dir=local_library_dir,
-    )
     if key_columns:
         return compare.get_sql_keyed_report(
             left_table,
@@ -62,50 +107,70 @@ def compare_recipes_in_postgres(
         )
 
 
-def run_ingest_and_library(
-    dataset: str,
-    ingest_parent_dir: Path = Path("."),
-    library_file_type: str = "pg_dump",
+app = typer.Typer()
+
+
+@app.command("run_single")
+def run_single(
+    tool: str = typer.Argument(),
+    dataset: str = typer.Argument(),
+    version: str | None = typer.Option(None, "--version", "-v"),
 ):
-    ingest_dir = ingest_parent_dir / dataset / "special_folder"
-    ingest.run(dataset, staging_dir=ingest_dir, skip_archival=True)
+    if tool == "library":
+        library_archive(dataset, version)
+    elif tool == "ingest":
+        ingest(dataset, version)
+    else:
+        raise NotImplementedError("'tool' must be either 'library' or 'ingest'")
 
-    # BEWARE: once you import library, parquet file writing fails
-    # Something to do with gdal's interaction with parquet file driver
-    from dcpy.library.archive import Archive
-
-    a = Archive()
-    a(name=dataset, output_format=library_file_type, version="library")
-
-    ingest_output_path = ingest_dir / f"{dataset}.parquet"
-    ingest_path = (
-        Path(".library") / "datasets" / dataset / "ingest" / f"{dataset}.parquet"
-    )
-    ingest_path.parent.mkdir(exist_ok=True, parents=True)
-    shutil.copy(ingest_output_path, ingest_path)
+    load_recipe(dataset, tool)  # type: ignore
 
 
-def compare_ingest_and_library(
-    dataset: str,
-    key_columns: list[str] | None,
-    build_name: str,
-    *,
-    ignore_columns: list[str] | None = None,
-    library_file_type: str = "pgdump",
-    ingest_parent_dir: Path = Path("."),
+@app.command("run")
+def _run_both(
+    dataset: str = typer.Argument(),
+    version: str | None = typer.Option(None, "--version", "-v"),
 ):
-    run_ingest_and_library(
-        dataset,
-        ingest_parent_dir=ingest_parent_dir,
-        library_file_type=library_file_type,
+    ingest(dataset, version)
+    library_archive(dataset, version)
+
+    load_recipe(dataset, "library")
+    load_recipe(dataset, "ingest")
+
+
+@app.command("compare")
+def _compare(
+    dataset: str = typer.Argument(),
+    key_columns: list[str] = typer.Option(None, "-k", "--key"),
+    ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
+):
+    report = compare_recipes_in_postgres(
+        dataset, key_columns=key_columns, ignore_columns=ignore_columns
     )
-    return compare_recipes_in_postgres(
-        dataset,
-        "library",
-        "ingest",
-        key_columns=key_columns,
-        build_name=build_name,
-        left_type=recipes.DatasetType.pg_dump,
-        right_type=recipes.DatasetType.parquet,
-        ignore_columns=ignore_columns,
+    print(
+        indented_report(
+            report.model_dump(), pretty_print_fields=True, include_line_breaks=True
+        )
+    )
+
+
+@app.command("run_and_compare")
+def _run_and_compare(
+    dataset: str = typer.Argument(),
+    version: str | None = typer.Option(None, "--version", "-v"),
+    key_columns: list[str] = typer.Option(None, "-k", "--key"),
+    ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
+):
+    ingest(dataset, version)
+    library_archive(dataset, version)
+
+    load_recipe(dataset, "library")
+    load_recipe(dataset, "ingest")
+    report = compare_recipes_in_postgres(
+        dataset, key_columns=key_columns, ignore_columns=ignore_columns
+    )
+    print(
+        indented_report(
+            report.model_dump(), pretty_print_fields=True, include_line_breaks=True
+        )
     )

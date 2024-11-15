@@ -1,71 +1,25 @@
 import pandas as pd
-from pydantic import BaseModel, Field
-from typing import TypeVar, Generic
 
+from dcpy.models.data import comparison
 from dcpy.utils import postgres
-
-
-T = TypeVar("T")
-
-
-class SimpleComparison(BaseModel, Generic[T]):
-    left: T
-    right: T
-
-
-class ColumnsComparison(BaseModel):
-    both: set[str]
-    left_only: set[str]
-    right_only: set[str]
-    type_differences: dict[str, SimpleComparison[str]]
-
-
-class KeyedTableComparison(BaseModel, arbitrary_types_allowed=True):
-    key_columns: list[str]
-    left_only: set = Field(serialization_alias="Keys found in left only")
-    right_only: set = Field(serialization_alias="Keys found in right only")
-    columns_with_diffs: set[str] = Field(
-        serialization_alias="Columns with changed values for specific keys"
-    )
-    differences_by_column: dict[str, pd.DataFrame] = Field(
-        serialization_alias="Changed values by column"
-    )
-
-
-class SimpleTableComparison(BaseModel, arbitrary_types_allowed=True):
-    compared_columns: set[str]
-    left_only: pd.DataFrame | None
-    right_only: pd.DataFrame | None
-
-
-class ComparisonReport(BaseModel, arbitrary_types_allowed=True):
-    row_count: SimpleComparison[int]
-    column_comparison: ColumnsComparison
-    data_comparison: KeyedTableComparison | SimpleTableComparison
 
 
 def compare_df_columns(left: pd.DataFrame, right: pd.DataFrame):
     lc_set = set(left.columns)
     rc_set = set(right.columns)
 
-    def get_dtype(column: str, df: pd.DataFrame) -> str:
-        if column in df.columns:
-            return str(df[column].dtype)
-        else:
-            return "None"
-
     type_differences = {}
 
     for column in lc_set & rc_set:
-        left_dtype = get_dtype(column, left)
-        right_dtype = get_dtype(column, right)
+        left_dtype = str(left[column].dtype)
+        right_dtype = str(right[column].dtype)
 
         if left_dtype != right_dtype:
-            type_differences[column] = SimpleComparison[str](
+            type_differences[column] = comparison.Simple[str](
                 left=left_dtype, right=right_dtype
             )
 
-    return ColumnsComparison(
+    return comparison.Columns(
         both=lc_set & rc_set,
         left_only=lc_set - rc_set,
         right_only=rc_set - lc_set,
@@ -107,7 +61,7 @@ def compare_df_keyed_rows(
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
 
-    return KeyedTableComparison(
+    return comparison.KeyedTable(
         key_columns=key_columns,
         left_only=left_only,
         right_only=right_only,
@@ -130,15 +84,15 @@ def compare_sql_columns(left: str, right: str, client: postgres.PostgresClient):
     right_types = client.get_column_types(right)
 
     for column in left_columns & right_columns:
-        left_dtype = left_types.get(column, "None")
-        right_dtype = right_types.get(column, "None")
+        left_dtype = left_types[column]
+        right_dtype = right_types[column]
 
         if left_dtype != right_dtype:
-            type_differences[column] = SimpleComparison[str](
+            type_differences[column] = comparison.Simple[str](
                 left=left_dtype, right=right_dtype
             )
 
-    return ColumnsComparison(
+    return comparison.Columns(
         both=left_columns & right_columns,
         left_only=left_columns - right_columns,
         right_only=right_columns - left_columns,
@@ -177,7 +131,7 @@ def compare_sql_keyed_rows(
 
     comps: dict[str, pd.DataFrame] = {}
 
-    def query(column):
+    def query(column: str) -> str:
         lc = f'"left"."{column}"'
         rc = f'"right"."{column}"'
         return f"""
@@ -189,14 +143,45 @@ def compare_sql_keyed_rows(
             WHERE {lc} IS DISTINCT FROM {rc}
         """
 
+    def spatial_query(column: str) -> str:
+        lc = f'"left"."{column}"'
+        rc = f'"right"."{column}"'
+        return f"""
+            SELECT 
+                {left_keys},
+                st_orderingequals({lc}, {rc}) AS "ordering_equal",
+                st_equals({lc}, {rc}) AS "spatially_equal"
+            FROM {left} AS "left" 
+                INNER JOIN {right} AS "right"
+                ON {on}
+            WHERE {lc} IS DISTINCT FROM {rc}
+        """
+
+    left_geom_columns = client.get_geometry_columns(left)
+    right_geom_columns = client.get_geometry_columns(right)
+
     for column in non_key_columns:
-        comp_df = client.execute_select_query(query(column))
-        comp_df = comp_df.set_index(key_columns)
-        comp_df.columns = pd.Index(["left", "right"])
+        # simple inequality is not informative for spatial columns
+        if (column in left_geom_columns) and (column in right_geom_columns):
+            comp_df = client.execute_select_query(spatial_query(column))
+            comp_df = comp_df.set_index(key_columns)
+            comp_df.columns = pd.Index(["ordering_equal", "spatially_equal"])
+
+        elif (column not in left_geom_columns) and (column not in right_geom_columns):
+            comp_df = client.execute_select_query(query(column))
+            comp_df = comp_df.set_index(key_columns)
+            comp_df.columns = pd.Index(["left", "right"])
+
+        # No point comparing geom and non-geom.
+        # This should be caught in `column_comparison` of report
+        # Other non-equivalent types are allowed - text vs varchar can produce valid comps
+        else:
+            continue
+
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
 
-    return KeyedTableComparison(
+    return comparison.KeyedTable(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
@@ -225,7 +210,7 @@ def compare_sql_rows(
             SELECT {query_columns} FROM {two}
         """)
 
-    return SimpleTableComparison(
+    return comparison.SimpleTable(
         compared_columns=columns,
         left_only=query(left, right),
         right_only=query(right, left),
@@ -235,8 +220,8 @@ def compare_sql_rows(
 def get_df_keyed_report(
     left: pd.DataFrame, right: pd.DataFrame, key_columns: list[str]
 ):
-    return ComparisonReport(
-        row_count=SimpleComparison[int](left=len(left), right=len(right)),
+    return comparison.Report(
+        row_count=comparison.Simple[int](left=len(left), right=len(right)),
         column_comparison=compare_df_columns(left, right),
         data_comparison=compare_df_keyed_rows(left, right, key_columns),
     )
@@ -249,11 +234,12 @@ def get_sql_keyed_report(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
-) -> ComparisonReport:
+) -> comparison.SqlReport:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return ComparisonReport(
-        row_count=SimpleComparison[int](
+    return comparison.SqlReport(
+        tables=comparison.Simple[str](left=left, right=right),
+        row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),
@@ -273,11 +259,12 @@ def get_sql_report(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
-) -> ComparisonReport:
+) -> comparison.SqlReport:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return ComparisonReport(
-        row_count=SimpleComparison[int](
+    return comparison.SqlReport(
+        tables=comparison.Simple[str](left=left, right=right),
+        row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),

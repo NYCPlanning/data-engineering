@@ -1,4 +1,5 @@
 import jinja2
+import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel, model_serializer
 from pydantic.fields import PrivateAttr
@@ -131,3 +132,49 @@ class TemplatedYamlReader(BaseModel):
     def from_path(cls, path: Path, *, template_vars=None) -> typing.Self:
         with open(path, "r", encoding="utf-8") as raw:
             return cls.from_yaml(raw.read(), template_vars=template_vars)
+
+
+class ModelWithDataFrame(BaseModel, arbitrary_types_allowed=True):
+    def __eq__(self, other):
+        """
+        pandas DataFrames make simple equality checks a pain
+        naively checking equality of df-containing model produces 'ValueError: The truth value of a DataFrame is ambiguous'
+        therefore, df.equals() must be used
+
+        Only supported types so far are
+        - DataFrame
+        - dict[Any, DataFrame]
+
+        This could be extended to include other parameterized generic types
+        """
+
+        if type(other) is not type(self):
+            return False
+
+        field_equalities = []
+
+        for field in self.model_fields:
+            self_field = getattr(self, field)
+            other_field = getattr(other, field)
+
+            field_type = self.model_fields[field]
+            if field_type.annotation is pd.DataFrame:
+                val = self_field.equals(other_field)
+            elif (
+                typing.get_origin(field_type.annotation) is dict
+                and typing.get_args(field_type.annotation)[1] is pd.DataFrame
+            ):
+                if self_field.keys() != other_field.keys():
+                    val = False
+                else:
+                    pd_result = [
+                        self_field[key].equals(other_field[key]) for key in self_field
+                    ]
+                    val = all(pd_result)
+
+            else:
+                val = self_field == other_field
+
+            field_equalities.append(val)
+
+        return all(field_equalities)
