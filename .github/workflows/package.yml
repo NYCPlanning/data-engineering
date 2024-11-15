@@ -1,5 +1,5 @@
 name: 🚀 Package a Dataset
-run-name: "🚀 Package a Dataset: ${{ inputs.product }}"
+run-name: "🚀 Package a Dataset: ${{ inputs.product }} - ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
