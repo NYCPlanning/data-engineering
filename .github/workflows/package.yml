@@ -31,6 +31,9 @@ jobs:
         shell: bash
     container:
       image: nycplanning/build-base:latest
+    env:
+      RECIPES_BUCKET: edm-recipes
+      PUBLISHING_BUCKET: edm-publishing
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,6 +58,6 @@ jobs:
 
       - name: package
         run: |
-          python3 -m dcpy.connectors edm packaging package \
+          python3 -m dcpy.cli connectors edm packaging package \
             --product ${{ inputs.product }} \
             --version ${{ inputs.version }}
