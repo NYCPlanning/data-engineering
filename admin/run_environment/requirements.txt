@@ -37,18 +37,18 @@ beautifulsoup4==4.12.3
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.35.57
+boto3==1.35.63
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs[s3]==1.35.57
+boto3-stubs[s3]==1.35.63
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.35.57
+botocore==1.35.63
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.35.57
+botocore-stubs==1.35.63
     # via boto3-stubs
 bqplot==0.12.43
     # via leafmap
@@ -105,9 +105,9 @@ comm==0.2.2
     #   ipywidgets
 contextily==1.6.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-contourpy==1.3.0
+contourpy==1.3.1
     # via matplotlib
-coverage[toml]==7.6.4
+coverage[toml]==7.6.7
     # via pytest-cov
 cryptography==43.0.3
     # via
@@ -158,7 +158,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 executing==2.1.0
     # via stack-data
-faker==30.8.2
+faker==33.0.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 filelock==3.16.1
     # via
@@ -169,13 +169,13 @@ folium==0.18.0
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.54.1
+fonttools==4.55.0
     # via matplotlib
 gdal==3.8.3
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 gdown==5.2.0
     # via leafmap
-geoalchemy2==0.15.2
+geoalchemy2==0.16.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 geographiclib==2.0
     # via geopy
@@ -195,7 +195,7 @@ graphviz==0.20.3
     #   diagrams
 greenlet==3.1.1
     # via sqlalchemy
-identify==2.6.1
+identify==2.6.2
     # via pre-commit
 idna==3.10
     # via requests
@@ -219,7 +219,7 @@ ipython==8.29.0
     #   ipywidgets
 ipytree==0.2.2
     # via whiteboxgui
-ipyvue==1.11.1
+ipyvue==1.11.2
     # via ipyvuetify
 ipyvuetify==1.10.0
     # via leafmap
@@ -238,7 +238,7 @@ isodate==0.6.1
     # via
     #   agate
     #   dbt-common
-jedi==0.19.1
+jedi==0.19.2
     # via ipython
 jellyfish==1.1.0
     # via us
@@ -288,7 +288,7 @@ jupyterlab-widgets==3.0.13
     # via ipywidgets
 kiwisolver==1.4.7
     # via matplotlib
-leafmap==0.38.16
+leafmap==0.39.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 leather==0.4.0
     # via agate
@@ -337,7 +337,7 @@ mypy==1.13.0
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   openpyxl-stubs
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.35.46
+mypy-boto3-s3==1.35.61
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via mypy
@@ -462,7 +462,7 @@ pyarrow==18.0.0
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   pyarrow-stubs
     #   streamlit
-pyarrow-stubs==17.11
+pyarrow-stubs==17.12
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 pycparser==2.22
     # via cffi
@@ -584,7 +584,7 @@ rpds-py==0.21.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.7.3
+ruff==0.7.4
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 s3transfer==0.10.3
     # via boto3
@@ -624,18 +624,18 @@ sqlfluff==3.2.5
     #   sqlfluff-templater-dbt
 sqlfluff-templater-dbt==3.2.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-sqlparse==0.5.1
+sqlparse==0.5.2
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.40.0
+streamlit==1.40.1
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit-aggrid
     #   streamlit-folium
 streamlit-aggrid==1.0.5
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-streamlit-folium==0.23.1
+streamlit-folium==0.23.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 tabulate==0.9.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -698,7 +698,7 @@ types-requests==2.32.0.20241016
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-s3transfer==0.10.3
     # via boto3-stubs
-types-setuptools==75.3.0.20241107
+types-setuptools==75.5.0.20241116
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-tqdm==4.66.0.20240417
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -734,7 +734,7 @@ usaddress==0.5.11
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 virtualenv==20.27.1
     # via pre-commit
-watchdog==5.0.3
+watchdog==6.0.0
     # via streamlit
 wcwidth==0.2.13
     # via prompt-toolkit
@@ -756,7 +756,7 @@ xyzservices==2024.9.0
     #   folium
     #   ipyleaflet
     #   leafmap
-zipp==3.20.2
+zipp==3.21.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
