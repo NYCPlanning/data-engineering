@@ -15,6 +15,8 @@ ingestion:
     type: shapefile
     crs: EPSG:2263
   processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
   - name: coerce_column_types
     args:
       column_types: {"created_da": "date", "last_edi_1": "date"}

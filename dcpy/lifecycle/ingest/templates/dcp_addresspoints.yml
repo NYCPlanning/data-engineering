@@ -17,13 +17,15 @@ ingestion:
     type: shapefile
     crs: EPSG:2263
   processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
   - name: coerce_column_types
     args:
       column_types: {"modified_d": "date", "created_da": "date"}
       errors: coerce
-  - name: rename_columns
-    args:
-      map: {"geom": "wkb_geometry"}
 
 columns:
 - id: objectid

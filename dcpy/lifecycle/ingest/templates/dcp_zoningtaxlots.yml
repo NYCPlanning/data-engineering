@@ -19,6 +19,8 @@ ingestion:
   file_format:
     type: csv
   processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
   - name: coerce_column_types
     args:
       # TODO - boro, block, and lot as individual fields should be int, not text/string
