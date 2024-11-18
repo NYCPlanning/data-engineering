@@ -4,8 +4,8 @@ WITH clipped_to_nyc AS (
 
 SELECT
     'natural_heritage_communities' AS variable_type,
-    commonname AS variable_id,
+    common_name AS variable_id,
     st_union(geom) AS raw_geom,
     NULL AS buffer
 FROM clipped_to_nyc
-GROUP BY commonname
+GROUP BY common_name
