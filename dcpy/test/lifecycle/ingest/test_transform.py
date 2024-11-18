@@ -320,6 +320,8 @@ class TestProcessors:
                 marks=pytest.mark.xfail,
             ),
             ("numeric_str_error", "numeric", "coerce", "numeric"),
+            # numeric to string conversion
+            ("numeric", "string", None, "numeric_str"),
         ],
     )
     def test_coerce_column_type(self, original_column, cast, errors, expected_column):

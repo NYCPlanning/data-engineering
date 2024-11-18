@@ -1,6 +1,5 @@
 from functools import partial
 import geopandas as gpd
-import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Callable, Literal
@@ -189,15 +188,23 @@ class ProcessingFunctions:
         column_types: dict[str, Literal["numeric", "string", "date", "datetime"]],
         errors: Literal["raise", "coerce"] = "raise",
     ):
+        def to_str(obj):
+            if isinstance(obj, int):
+                return str(obj)
+            elif isinstance(obj, float) and obj.is_integer():
+                return str(int(obj))
+            elif pd.isna(obj):
+                return None
+            else:
+                return str(obj)
+
         df = df.copy()
         for column in column_types:
             match column_types[column]:
                 case "numeric":
                     df[column] = pd.to_numeric(df[column], errors=errors)
                 case "string":
-                    df[column] = df[column].apply(
-                        lambda s: None if s is None or s is np.nan else str(s)
-                    )
+                    df[column] = df[column].apply(to_str)
                 case "date":
                     df[column] = pd.to_datetime(df[column], errors=errors).dt.date
                     df[column] = df[column].replace(pd.NaT, None)  # type: ignore
