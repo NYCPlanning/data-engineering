@@ -455,7 +455,7 @@ sources:
 
       - name: nysdec_natural_heritage_communities
         columns:
-          - name: commonname
+          - name: common_name
             tests:
               - not_null
           - name: wkb_geometry
