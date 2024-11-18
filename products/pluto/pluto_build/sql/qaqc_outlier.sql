@@ -16,16 +16,16 @@ building_area_increase AS (
         jsonb_agg(json_build_object(
             'pair', :'VERSION' || ' - ' || :'VERSION_PREV',
             'bbl', current.bbl,
-            'building_area_current', current.lotarea::float,
-            'building_area_previous', prev.lotarea::float,
-            'percent_change', (current.lotarea::float - prev.lotarea::float) / prev.lotarea::float * 100
+            'building_area_current', current.bldgarea::float,
+            'building_area_previous', prev.bldgarea::float,
+            'percent_change', (current.bldgarea::float - prev.bldgarea::float) / prev.bldgarea::float * 100
         )) AS values,
         'building_area_increase' AS field
     FROM pluto_filtered AS current
     INNER JOIN previous_pluto AS prev ON current.bbl::float = prev.bbl::float
     WHERE
-        current.lotarea::float > 2 * prev.lotarea::float
-        AND prev.lotarea::float != 0
+        current.bldgarea::float > 2 * prev.bldgarea::float
+        AND prev.bldgarea::float != 0
 ),
 -- unreasonably small apartments based on area/unit ratio
 small_apartments AS (
