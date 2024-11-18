@@ -33,3 +33,41 @@ ingestion:
         "created_date": "date",
         "last_edited_date": "date"
       }
+
+columns:
+- id: oid_
+  data_type: text
+- id: condo_base_boro
+  data_type: text
+- id: condo_base_block
+  data_type: text
+- id: condo_base_lot
+  data_type: text
+- id: condo_base_bbl
+  data_type: text
+- id: condo_base_bbl_key
+  data_type: text
+- id: condo_key
+  data_type: text
+- id: condo_number
+  data_type: text
+- id: condo_name
+  data_type: text
+- id: condo_billing_bbl
+  data_type: text
+- id: cinc_parent_flag
+  data_type: text
+- id: cinc_condo_parent
+  data_type: text
+- id: cinc_unit_parent
+  data_type: text
+- id: cinc_gen
+  data_type: text
+- id: created_user
+  data_type: text
+- id: created_date
+  data_type: date
+- id: last_edited_user
+  data_type: text
+- id: last_edited_date
+  data_type: date
