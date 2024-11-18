@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from pydantic import TypeAdapter, BaseModel
 import pytest
-from shapely import Polygon, MultiPolygon
+from shapely import Polygon, MultiPolygon, Point
 import yaml
 from unittest import TestCase, mock
 
@@ -161,6 +161,13 @@ class TestValidatePdSeriesFunc(TestCase):
     def test_invalid_function(self):
         res = transform.validate_pd_series_func(function_name="str.fake_function")
         assert res == "'pd.Series.str' has no attribute 'fake_function'"
+
+    def test_gpd_without_flag(self):
+        res = transform.validate_pd_series_func(function_name="force_2d")
+        assert res == "'pd.Series' has no attribute 'force_2d'"
+
+    def test_gpd(self):
+        assert not transform.validate_pd_series_func(function_name="force_2d", geo=True)
 
 
 class TestProcessors:
@@ -320,7 +327,6 @@ class TestProcessors:
         coerced = self.proc.coerce_column_types(
             self.coerce_df, {original_column: cast}, errors=errors
         )
-        print(coerced[original_column])
         assert coerced[original_column].equals(self.coerce_df[expected_column])
 
     def test_pd_series_func(self):
@@ -340,6 +346,33 @@ class TestProcessors:
         )
         expected = pd.DataFrame({"a": [2, 3, 1], "b": ["B-1", "B-2", "c_3"]})
         assert transformed.equals(expected)
+
+    def test_gpd_series_func(self):
+        gdf = gpd.GeoDataFrame(
+            {
+                "a": [1, 2],
+                "wkt": gpd.GeoSeries([None, Point(1, 2, 3)]),
+            }
+        )
+        transformed = self.proc.pd_series_func(
+            gdf, column_name="wkt", function_name="force_2d", geo=True
+        )
+        assert transformed.equals(
+            gpd.GeoDataFrame(
+                {
+                    "a": [1, 2],
+                    "wkt": gpd.GeoSeries([None, Point(1, 2)]),
+                }
+            )
+        )
+
+    def test_geoseries_on_non_gdf(self):
+        with pytest.raises(
+            TypeError, match="GeoSeries processing function specified for non-geo df"
+        ):
+            self.proc.pd_series_func(
+                self.basic_df, column_name="wkt", function_name="force_2d", geo=True
+            )
 
     def test_rename_geodataframe(self):
         transformed: gpd.GeoDataFrame = self.proc.rename_columns(
