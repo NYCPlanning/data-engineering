@@ -81,6 +81,7 @@ def compare_recipes_in_postgres(
     *,
     key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
+    columns_only_comparison: bool = False,
 ) -> comparison.SqlReport:
     ignore_columns = ignore_columns or []
     ignore_columns.append("ogc_fid")
@@ -90,21 +91,14 @@ def compare_recipes_in_postgres(
     left_table = dataset + "_" + left_version
     right_table = dataset + "_" + right_version
 
-    if key_columns:
-        return compare.get_sql_keyed_report(
-            left_table,
-            right_table,
-            key_columns,
-            client,
-            ignore_columns=ignore_columns,
-        )
-    else:
-        return compare.get_sql_report(
-            left_table,
-            right_table,
-            client,
-            ignore_columns=ignore_columns,
-        )
+    return compare.get_sql_report(
+        left_table,
+        right_table,
+        client,
+        key_columns=key_columns,
+        ignore_columns=ignore_columns,
+        columns_only_comparison=columns_only_comparison,
+    )
 
 
 app = typer.Typer()
@@ -143,9 +137,13 @@ def _compare(
     dataset: str = typer.Argument(),
     key_columns: list[str] = typer.Option(None, "-k", "--key"),
     ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
+    columns_only_comparison: bool = typer.Option(False, "--columns-only", "-c"),
 ):
     report = compare_recipes_in_postgres(
-        dataset, key_columns=key_columns, ignore_columns=ignore_columns
+        dataset,
+        key_columns=key_columns,
+        ignore_columns=ignore_columns,
+        columns_only_comparison=columns_only_comparison,
     )
     print(
         indented_report(
@@ -160,6 +158,7 @@ def _run_and_compare(
     version: str | None = typer.Option(None, "--version", "-v"),
     key_columns: list[str] = typer.Option(None, "-k", "--key"),
     ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
+    columns_only_comparison: bool = typer.Option(False, "--columns-only", "-c"),
 ):
     ingest(dataset, version)
     library_archive(dataset, version)
@@ -167,7 +166,10 @@ def _run_and_compare(
     load_recipe(dataset, "library")
     load_recipe(dataset, "ingest")
     report = compare_recipes_in_postgres(
-        dataset, key_columns=key_columns, ignore_columns=ignore_columns
+        dataset,
+        key_columns=key_columns,
+        ignore_columns=ignore_columns,
+        columns_only_comparison=columns_only_comparison,
     )
     print(
         indented_report(
