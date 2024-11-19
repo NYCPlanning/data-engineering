@@ -104,7 +104,7 @@ jobs:
           echo "${{ toJSON(github.event.inputs) }}"
   template:
     needs: health_check
-    if: inputs.dataset_name == 'template'
+    if: inputs.dataset_name == 'template' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/template_build.yml
     secrets: inherit
     with:
@@ -183,7 +183,7 @@ jobs:
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   factfinder:
     needs: health_check
-    if: inputs.dataset_name == 'factfinder'
+    if: inputs.dataset_name == 'factfinder' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/factfinder_build.yml
     secrets: inherit
     with:
