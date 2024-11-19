@@ -2,7 +2,7 @@ import typer
 from .package_and_distribute import app as package_dist_app
 from .product_metadata import app as product_metadata_app
 from .ingest_with_library_fallback import run as ingest_or_library_archive
-from .ingest_validation import app as ingest_validation_app
+from .validate_ingest import app as ingest_validation_app
 
 app = typer.Typer()
 
