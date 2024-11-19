@@ -110,13 +110,13 @@ class ExpectedValueDifferencesReport:
         return [i["values"] for i in df if i["field"] == field][0]
 
     def values_by_fields(self, df: dict, fields: list[str]) -> list:
-        values: list = []
+        values: set = set()
         for field in fields:
-            values = values + self.values_by_field(df, field)
-        return values
+            values.update(self.values_by_field(df, field))
+        return list(values)
 
     def value_differences(self, df1, df2) -> list:
-        return [i for i in df1 if i not in df2]
+        return sorted([i for i in df1 if i not in df2])
 
     def value_differences_across_versions(
         self, comparison_name: str

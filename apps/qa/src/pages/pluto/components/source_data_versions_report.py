@@ -12,6 +12,8 @@ SOURCE_NAME_MAPPINGS = {
     "pluto_pts": "Department of Finance - Property Tax System (PTS)",
     "lpc_historic_districts": "Landmarks Preservation Commission - Historic Districts",
     "lpc_landmarks": "Landmarks Preservation Commission - Individual Landmarks",
+    "pluto_input_numbldgs": "Office of Technology & Innovation – Building Footprint Centroids",  # this dataset is based on OTI building footprints
+    "dpr_greenthumb": "Department of Parks and Recreation – GreenThumb Garden Info",
 }
 
 
@@ -55,5 +57,7 @@ class SourceDataVersionsReport:
             inplace=True,
         )
         source_data_versions.index.names = ["dataset name"]
+
+        source_data_versions.sort_values("dataset name", inplace=True)
 
         st.dataframe(source_data_versions)

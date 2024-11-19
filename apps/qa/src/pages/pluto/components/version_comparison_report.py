@@ -65,6 +65,8 @@ def version_comparison_report(product_key, data, comp_type):
     """
     )
 
+    SourceDataVersionsReport(version_text=data["version_text"])()
+
     MismatchReport(
         data=data["df_mismatch"],
         v=v,
@@ -94,8 +96,6 @@ def version_comparison_report(product_key, data, comp_type):
         condo=condo,
         mapped=mapped,
     )()
-
-    SourceDataVersionsReport(version_text=data["version_text"])()
 
     ExpectedValueDifferencesReport(data=data["df_expected"], v=v, v_prev=v_prev)()
 
