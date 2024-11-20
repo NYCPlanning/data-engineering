@@ -40,7 +40,7 @@ class SimpleTable(ModelWithDataFrame):
 class Report(SortedSerializedBase):
     row_count: Simple[int]
     column_comparison: Columns
-    data_comparison: KeyedTable | SimpleTable
+    data_comparison: KeyedTable | SimpleTable | None
 
     _exclude_falsey_values: bool = False
     _head_sort_order: list[str] = ["row_count", "column_comparison", "data_comparison"]

@@ -227,51 +227,39 @@ def get_df_keyed_report(
     )
 
 
-def get_sql_keyed_report(
-    left: str,
-    right: str,
-    key_columns: list[str],
-    client: postgres.PostgresClient,
-    *,
-    ignore_columns: list[str] | None = None,
-) -> comparison.SqlReport:
-    left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
-    right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
-    return comparison.SqlReport(
-        tables=comparison.Simple[str](left=left, right=right),
-        row_count=comparison.Simple[int](
-            left=left_rows["count"][0], right=right_rows["count"][0]
-        ),
-        column_comparison=compare_sql_columns(left, right, client),
-        data_comparison=compare_sql_keyed_rows(
-            left,
-            right,
-            key_columns,
-            client,
-            ignore_columns=ignore_columns,
-        ),
-    )
-
-
 def get_sql_report(
     left: str,
     right: str,
     client: postgres.PostgresClient,
     *,
+    key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
+    columns_only_comparison: bool = False,
 ) -> comparison.SqlReport:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
+    if columns_only_comparison:
+        data_comp: comparison.KeyedTable | comparison.SimpleTable | None = None
+    elif key_columns:
+        data_comp = compare_sql_keyed_rows(
+            left,
+            right,
+            key_columns,
+            client,
+            ignore_columns=ignore_columns,
+        )
+    else:
+        data_comp = compare_sql_rows(
+            left,
+            right,
+            client,
+            ignore_columns=ignore_columns,
+        )
     return comparison.SqlReport(
         tables=comparison.Simple[str](left=left, right=right),
         row_count=comparison.Simple[int](
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),
-        data_comparison=compare_sql_rows(
-            left,
-            right,
-            client,
-            ignore_columns=ignore_columns,
-        ),
+        data_comparison=data_comp,
     )

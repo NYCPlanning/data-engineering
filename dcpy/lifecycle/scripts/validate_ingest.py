@@ -81,6 +81,7 @@ def compare_recipes_in_postgres(
     *,
     key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
+    columns_only_comparison: bool = False,
 ) -> comparison.SqlReport:
     ignore_columns = ignore_columns or []
     ignore_columns.append("ogc_fid")
@@ -90,21 +91,14 @@ def compare_recipes_in_postgres(
     left_table = dataset + "_" + left_version
     right_table = dataset + "_" + right_version
 
-    if key_columns:
-        return compare.get_sql_keyed_report(
-            left_table,
-            right_table,
-            key_columns,
-            client,
-            ignore_columns=ignore_columns,
-        )
-    else:
-        return compare.get_sql_report(
-            left_table,
-            right_table,
-            client,
-            ignore_columns=ignore_columns,
-        )
+    return compare.get_sql_report(
+        left_table,
+        right_table,
+        client,
+        key_columns=key_columns,
+        ignore_columns=ignore_columns,
+        columns_only_comparison=columns_only_comparison,
+    )
 
 
 app = typer.Typer()
@@ -143,9 +137,13 @@ def _compare(
     dataset: str = typer.Argument(),
     key_columns: list[str] = typer.Option(None, "-k", "--key"),
     ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
+    columns_only_comparison: bool = typer.Option(False, "--columns-only", "-c"),
 ):
     report = compare_recipes_in_postgres(
-        dataset, key_columns=key_columns, ignore_columns=ignore_columns
+        dataset,
+        key_columns=key_columns,
+        ignore_columns=ignore_columns,
+        columns_only_comparison=columns_only_comparison,
     )
     print(
         indented_report(
@@ -160,6 +158,7 @@ def _run_and_compare(
     version: str | None = typer.Option(None, "--version", "-v"),
     key_columns: list[str] = typer.Option(None, "-k", "--key"),
     ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
+    columns_only_comparison: bool = typer.Option(False, "--columns-only", "-c"),
 ):
     ingest(dataset, version)
     library_archive(dataset, version)
@@ -167,10 +166,57 @@ def _run_and_compare(
     load_recipe(dataset, "library")
     load_recipe(dataset, "ingest")
     report = compare_recipes_in_postgres(
-        dataset, key_columns=key_columns, ignore_columns=ignore_columns
+        dataset,
+        key_columns=key_columns,
+        ignore_columns=ignore_columns,
+        columns_only_comparison=columns_only_comparison,
     )
     print(
         indented_report(
             report.model_dump(), pretty_print_fields=True, include_line_breaks=True
         )
     )
+
+
+@app.command("get_columns")
+def _get_columns(
+    dataset: str = typer.Argument(),
+):
+    client = postgres.PostgresClient(schema=SCHEMA, database="sandbox")
+
+    res = client.execute_select_query(f"""
+        with setup(schema, table_name) as (select '{SCHEMA}', '{dataset}'),
+        all_rows as (
+        select 
+            '- id: ' || column_name as t,
+            ordinal_position as n
+        from information_schema."columns" c
+        inner join setup s 
+            on c.table_name = s.table_name || '_ingest' 
+            and c.table_schema = s.schema
+        where column_name not in ('ogc_fid', 'data_library_version')
+        union all
+        select 
+            '  data_type: ' || (
+                CASE 
+                    WHEN data_type = 'USER-DEFINED' THEN udt_name
+                    when data_type = 'bigint' then 'integer'
+                    when data_type = 'smallint' then 'integer'
+                    when data_type = 'double precision' then 'decimal'
+                    when data_type = 'timestamp with time zone' then 'datetime'
+                    when data_type = 'timestamp without time zone' then 'datetime'
+                    ELSE data_type
+                END
+            ) as t, 
+            ordinal_position + 0.5 as n
+        from information_schema."columns" c
+        inner join setup s 
+            on c.table_name = s.table_name || '_ingest' 
+            and c.table_schema = s.schema
+        where column_name not in ('ogc_fid', 'data_library_version')
+        )
+        select t from all_rows order by n
+    """)
+
+    for _, row in res.iterrows():
+        print(row["t"])

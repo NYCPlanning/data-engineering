@@ -182,6 +182,37 @@ class ProcessingFunctions:
             df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return df
 
+    def coerce_column_types(
+        self,
+        df: pd.DataFrame,
+        column_types: dict[str, Literal["numeric", "string", "date", "datetime"]],
+        errors: Literal["raise", "coerce"] = "raise",
+    ):
+        def to_str(obj):
+            if isinstance(obj, int):
+                return str(obj)
+            elif isinstance(obj, float) and obj.is_integer():
+                return str(int(obj))
+            elif pd.isna(obj):
+                return None
+            else:
+                return str(obj)
+
+        df = df.copy()
+        for column in column_types:
+            match column_types[column]:
+                case "numeric":
+                    df[column] = pd.to_numeric(df[column], errors=errors)
+                case "string":
+                    df[column] = df[column].apply(to_str)
+                case "date":
+                    df[column] = pd.to_datetime(df[column], errors=errors).dt.date
+                    df[column] = df[column].replace(pd.NaT, None)  # type: ignore
+                case "datetime":
+                    df[column] = pd.to_datetime(df[column], errors=errors)
+                    df[column] = df[column].replace(pd.NaT, None)  # type: ignore
+        return df
+
     def multi(self, df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         multi_gdf = df.copy()
         multi_gdf.set_geometry(
@@ -196,6 +227,7 @@ class ProcessingFunctions:
         column_name: str,
         function_name: str,
         output_column_name: str | None = None,
+        geo: bool = False,  # only used for validation
         **kwargs,
     ) -> pd.DataFrame:
         """
@@ -219,6 +251,10 @@ class ProcessingFunctions:
         function is called on "column_name" of df
         output of function is assigned to "column_name" (overwriting) unless 'output_column_name' if provided
         """
+        if geo and not isinstance(df, gpd.GeoDataFrame):
+            raise TypeError(
+                "GeoSeries processing function specified for non-geo df. Specify pd Series function instead, or ensure that gdf is read in properly"
+            )
         transformed = df.copy()
         parts = function_name.split(".")
         func = transformed[column_name]
@@ -229,11 +265,15 @@ class ProcessingFunctions:
 
 
 def validate_pd_series_func(
-    *, function_name: str, column_name: str = "", **kwargs
+    *, function_name: str, column_name: str = "", geo=False, **kwargs
 ) -> str | dict[str, str]:
     parts = function_name.split(".")
-    func = pd.Series()
-    func_str = "pd.Series"
+    if geo:
+        func = gpd.GeoSeries()
+        func_str = "gpd.GeoSeries"
+    else:
+        func = pd.Series()
+        func_str = "pd.Series"
     for part in parts:
         if part not in func.__dir__():
             return f"'{func_str}' has no attribute '{part}'"
