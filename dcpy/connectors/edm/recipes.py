@@ -4,6 +4,7 @@ import json
 import os
 import pandas as pd
 from pathlib import Path
+from pyarrow import parquet
 import shutil
 from tempfile import TemporaryDirectory
 from typing import Callable
@@ -135,6 +136,16 @@ def get_config(name: str, version="latest") -> library.Config | ingest.Config:
         return library.Config(**config)
     else:
         return ingest.Config(**config)
+
+
+def get_parquet_metadata(id: str, version="latest") -> parquet.FileMetaData:
+    s3_fs = s3.pyarrow_fs()
+    ds = parquet.ParquetDataset(
+        f"{BUCKET}/{DATASET_FOLDER}/{id}/{version}/{id}.parquet", filesystem=s3_fs
+    )
+
+    assert len(ds.fragments) == 1, "recipes does not support multi-fragment datasets"
+    return ds.fragments[0].metadata
 
 
 def get_latest_version(name: str) -> str:

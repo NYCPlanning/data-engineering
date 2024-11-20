@@ -6,6 +6,7 @@ from datetime import datetime
 from io import BytesIO
 import os
 from pathlib import Path
+from pyarrow import fs
 import pytz
 from rich.progress import (
     BarColumn,
@@ -500,6 +501,14 @@ def get_file_as_text(bucket: str, path: str) -> str:
         return resp.read().decode()
     else:
         raise Exception(f"No body found for file '{path}' in bucket '{bucket}'.")
+
+
+def pyarrow_fs() -> fs.S3FileSystem:
+    return fs.S3FileSystem(
+        access_key=os.environ["AWS_ACCESS_KEY_ID"],
+        secret_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+        endpoint_override=os.environ.get("AWS_S3_ENDPOINT"),
+    )
 
 
 app = typer.Typer(add_completion=False)
