@@ -2,6 +2,7 @@ from pathlib import Path
 from jinja2 import Template
 import subprocess
 from dcpy.models.product.dataset.metadata_v2 import Metadata
+from dcpy.utils.logging import logger
 
 from . import RESOURCES_PATH
 
@@ -16,6 +17,7 @@ def generate_pdf_from_html(
     output_path: Path,
     stylesheet_path: Path,
 ) -> Path:
+    logger.info(f"Saving DCP PDF to {output_path}")
     subprocess.run(
         [
             "weasyprint",
@@ -41,6 +43,7 @@ def generate_html_from_yaml(
     rendered_template = Template(template_text).render({"metadata": metadata})
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Saving DCP HTML to {output_path}")
     with open(output_path, "w") as f:
         f.write(rendered_template)
 
