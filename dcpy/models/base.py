@@ -80,6 +80,8 @@ class SortedSerializedBase(BaseModel):
 
 
 class YamlWriter(BaseModel):
+    _exclude_none: bool = True
+
     class _YamlTopLevelSpacesDumper(yaml.SafeDumper):
         """YAML serializer that will insert lines between top-level entries,
         which is nice in longer files."""
@@ -106,7 +108,7 @@ class YamlWriter(BaseModel):
         with open(path, "w", encoding="utf8") as f:
             f.write(
                 yaml.dump(
-                    self.model_dump(exclude_none=True),
+                    self.model_dump(exclude_none=self._exclude_none),
                     sort_keys=False,
                     default_flow_style=False,
                     Dumper=YamlWriter._YamlTopLevelSpacesDumper,
