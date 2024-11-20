@@ -1,4 +1,4 @@
-job_number,field,old_value,new_value,reason,edited_date,editor
+﻿job_number,field,old_value,new_value,reason,edited_date,editor
 322101435,classa_init,1,0,,11/4/24,ML
 X00978265,remove,,,DOB Test Record,11/4/24,ML
 X00977524,remove,,,DOB Test Record,11/4/24,ML
@@ -6417,7 +6417,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 121207050,hotel_prop,168,0,,8/28/20,SL
 121207050,otherb_init,177,176,,8/28/20,SL
 121207050,otherb_prop,168,172,,8/28/20,SL
-121207210,job_inactive,,Inactive: Duplicate,duplicate of M00700585,8/5/22,VB
 121207238,classa_init,17,2,,1/27/21,KS
 121207238,hotel_init,17,0,,1/27/21,KS
 121207238,hotel_prop,7,0,,1/27/21,KS
@@ -13357,7 +13356,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 240294999,otherb_init,1,0,,4/25/23,WS
 240294999,otherb_prop,1,0,,4/25/23,WS
 240295989,classa_prop,1,0,,1/27/21,KS
-240295989,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
 240297184,classa_prop,1,0,,1/27/21,KS
 240299155,latitude,40.871801,40.87181487,,1/25/21,KS
 240299155,longitude,-73.903491,-73.90372943,,1/25/21,KS
@@ -21377,7 +21375,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 321592433,hotel_prop,4,0,,1/26/21,TD
 321592433,otherb_init,0,0,,1/26/21,TD
 321592433,otherb_prop,4,0,,1/26/21,TD
-321592530,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
 321592594,latitude,40.636723,40.63659742,,1/25/21,KS
 321592594,longitude,-73.947064,-73.94691825,,1/25/21,KS
 321592647,hotel_init,2,0,,4/25/23,WS
@@ -22468,7 +22465,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 321998674,classa_init,1,0,,1/29/21,ks
 321999842,classa_init,1,0,,7/27/20,SL
 321999851,classa_init,1,0,,7/20/20,SL
-321999959,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
 322000026,classa_prop,1,0,,7/20/20,SL
 322000384,classa_init,1,1,,8/3/22,VB
 322000384,hotel_init,1,0,,8/3/22,VB
@@ -23350,9 +23346,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 340795483,classa_prop,149,22,,5/6/22,SL
 340795483,hotel_prop,149,127,,5/6/22,SL
 340795483,otherb_prop,149,0,,5/6/22,SL
-340797463,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
-340799416,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
-340799434,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
 340801500,classa_prop,105,0,,4/28/22,AP
 340801500,hotel_prop,105,105,,4/28/22,AP
 340801500,otherb_prop,105,0,,4/28/22,AP
@@ -33390,7 +33383,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 440604446,hotel_prop,10,0,,2/1/21,TD
 440604446,otherb_init,0,0,,2/1/21,TD
 440604446,otherb_prop,10,0,,2/1/21,TD
-440606275,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
 440606845,hotel_init,2,0,,4/25/23,WS
 440606845,hotel_prop,2,0,,4/25/23,WS
 440606845,otherb_init,2,0,,4/25/23,WS
@@ -33403,7 +33395,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 440609637,hotel_prop,2,0,,4/25/23,WS
 440609637,otherb_init,1,0,,4/25/23,WS
 440609637,otherb_prop,2,0,,4/25/23,WS
-440611928,job_inactive,,Inactive: Duplicate,duplicate,1/21/21,KS
 440614211,classa_init,1,0,,2/1/21,SL
 440614211,classa_prop,1,0,,2/1/21,SL
 440617922,hotel_init,1,0,,4/25/23,WS
@@ -33486,7 +33477,6 @@ B00975043,otherb_prop,1,0,,10/29/24,ML
 440651046,otherb_init,,0,,1/21/21,TD
 440651046,otherb_prop,15,0,,1/21/21,TD
 440651322,classa_prop,1,0,,1/27/21,KS
-440652410,job_inactive,,Inactive: Duplicate,duplicate of 421460635,8/18/23,SL
 440653669,classa_init,1,0,,2/1/21,SL
 440653669,classa_prop,1,0,,2/1/21,SL
 440654089,classa_init,,0,,2/28/24,SL
@@ -38593,7 +38583,6 @@ B00483096,longitude,-73.9697,-73.9699876,,7/14/22,AP
 B00485312,classa_prop,96,0,,8/3/22,VB
 B00485312,hotel_prop,96,96,,8/3/22,VB
 B00485312,otherb_prop,96,0,,8/3/22,VB
-B00488630,job_inactive,,Inactive: Duplicate,duplicate of B00520784,8/4/22,VB
 B00490749,remove,,,DOB Test Record,7/12/22,SL
 B00499143,classa_init,70,0,,8/3/22,VB
 B00499143,classa_prop,69,0,,8/3/22,VB
@@ -38788,7 +38777,6 @@ B00680529,hotel_init,7,0,,7/21/22,SL
 B00680529,hotel_prop,1,0,,7/21/22,SL
 B00680529,otherb_init,7,0,,7/21/22,SL
 B00680529,otherb_prop,1,0,,7/21/22,SL
-B00681056,job_inactive,,Inactive: Duplicate,duplicate of B00716498,8/4/22,VB
 B00683855,classa_init,13,0,,3/9/23,VB
 B00683855,hotel_init,13,0,,3/9/23,VB
 B00683855,hotel_prop,10,0,,3/9/23,VB
@@ -39940,7 +39928,6 @@ Q00501523,remove,,,DOB Test Record,8/10/21,AP
 Q00506224,classa_prop,1,0,,7/21/22,SL
 Q00506224,hotel_prop,1,0,,7/21/22,SL
 Q00506224,otherb_prop,1,0,,7/21/22,SL
-Q00506386,job_inactive,,Inactive: Duplicate,Older permit,8/5/22,AP
 Q00507912,hotel_prop,0,0,,7/21/22,SL
 Q00507912,otherb_prop,0,0,,7/21/22,SL
 Q00511537,hotel_init,2,0,,4/25/23,WS
@@ -41753,7 +41740,6 @@ X00487833,classa_prop,106,0,,10/8/24,ML
 X00487833,hotel_prop,106,98,,10/8/24,ML
 X00487833,otherb_prop,106,0,,10/8/24,ML
 X00496315,remove,,,DOB Test Record,8/9/21,AP
-X00502795,job_inactive,,Inactive: Duplicate,Older permit,8/5/22,AP
 X00510163,hotel_init,2,0,,8/3/22,VB
 X00510163,hotel_prop,2,0,,8/3/22,VB
 X00510163,otherb_init,2,0,,8/3/22,VB
