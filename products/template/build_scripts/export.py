@@ -25,11 +25,11 @@ BUILD_TABLES = {
 
 def generate_metadata():
     dataset_metadata_yml = product_metadata.download(
-        "template_db", OUTPUT_DIR / "data_dictionary.yaml", dataset="template_db"
+        "template_db", PRODUCT_PATH / "data_dictionary.yaml", dataset="template_db"
     )
     html_path = generate_metadata_assets.generate_html_from_yaml(
         dataset_metadata_yml,
-        OUTPUT_DIR / "data_dictionary.html",
+        PRODUCT_PATH / "data_dictionary.html",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
     )
     generate_metadata_assets.generate_pdf_from_html(
