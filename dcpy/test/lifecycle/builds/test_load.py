@@ -239,7 +239,7 @@ class TestGetDataset:
     @patch("dcpy.utils.postgres.PostgresClient")
     def test_df_from_pg(self, pg_client):
         _df = load.get_imported_df(self.load_result, "pg_dump")
-        pg_client.return_value.read_table_df.assert_called_with("pg_dump")
+        pg_client.return_value.read_table.assert_called_with("pg_dump")
 
     def test_df_from_csv(self):
         df = load.get_imported_df(self.load_result, "csv")

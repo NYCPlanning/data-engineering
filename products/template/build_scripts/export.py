@@ -56,7 +56,7 @@ def export():
                 f"Exporting table\n\t{table_name}\n\tas a {file_type} to\n\t{OUTPUT_DIR}"
             )
             if file_type == "csv":
-                data = PG_CLIENT.read_table_df(table_name)
+                data = PG_CLIENT.read_table(table_name)
                 data.to_csv(file_path.with_suffix(".csv"), index=False)
             elif "shapefile" in file_type:
                 data = PG_CLIENT.read_table_gdf(table_name, geom_column="wkb_geometry")

@@ -2,6 +2,8 @@ from io import StringIO
 from pathlib import Path
 import csv
 import os
+import contextlib
+
 import geopandas as gpd
 import pandas as pd
 from psycopg2.extensions import AsIs
@@ -106,34 +108,39 @@ class PostgresClient:
             select_records = pd.read_sql(sql=text(query), con=conn, params=kwargs)
         return select_records
 
-    def read_table_df(
-        self,
-        table_name: str,
-        *,
-        conn=None,
-        **kwargs,
+    def _read_table(
+        self, table_name: str, conn, *, geom_column: str | None = None, **kwargs
     ) -> pd.DataFrame:
-        if conn is None:
-            with self.engine.connect() as conn:
-                return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
-        else:
+        geom_columns = self.get_geometry_columns(table_name=table_name)
+        if len(geom_columns) == 0:
             return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
-
-    def read_table_gdf(
-        self,
-        table_name: str,
-        geom_column: str = "geom",
-        *,
-        conn=None,
-        **kwargs,
-    ) -> gpd.GeoDataFrame:
-        if conn is None:
-            with self.engine.connect() as conn:
+        elif len(geom_columns) == 1:
+            return gpd.read_postgis(
+                table_name, conn, geom_col=geom_columns[0], **kwargs
+            )
+        else:
+            if geom_column:
                 return gpd.read_postgis(
                     table_name, conn, geom_col=geom_column, **kwargs
                 )
+            else:
+                print(
+                    "Multiple geom columns found. Returning as pd DataFrame with wkb geom columns."
+                )
+                return pd.read_sql_table(table_name=table_name, con=conn, **kwargs)
+
+    def read_table(
+        self, table_name: str, conn, *, geom_column: str | None = None, **kwargs
+    ) -> pd.DataFrame:
+        if conn is None:
+            with self.engine.connect() as conn:
+                return self._read_table(
+                    table_name=table_name, con=conn, geom_column=geom_column, **kwargs
+                )
         else:
-            return gpd.read_postgis(table_name, conn, geom_col=geom_column, **kwargs)
+            return self._read_table(
+                table_name=table_name, con=conn, geom_column=geom_column, **kwargs
+            )
 
     def create_postigs_extension(self) -> None:
         self.execute_query("CREATE EXTENSION POSTGIS")
