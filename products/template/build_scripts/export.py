@@ -37,7 +37,10 @@ def generate_metadata():
         PRODUCT_PATH / "data_dictionary.pdf",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
-    oti_xlsx.write_oti_xlsx(dataset=md.Metadata.from_path(dataset_metadata_yml).dataset)
+    oti_xlsx.write_oti_xlsx(
+        dataset=md.Metadata.from_path(dataset_metadata_yml).dataset,
+        output_path=PRODUCT_PATH / "data_dictionary.xlsx",
+    )
 
 
 def export():
