@@ -67,6 +67,7 @@ def compare_df_keyed_rows(
         right_only=right_only,
         columns_with_diffs=set(comps.keys()),
         differences_by_column=comps,
+        duplicate_keys={},
     )
 
 
@@ -129,6 +130,15 @@ def compare_sql_keyed_rows(
         f'SELECT {right_keys_alias} {from_clause} WHERE "left"."{key_columns[0]}" IS NULL'
     )
 
+    key_columns_str = ",".join(key_columns)
+    duplicate_keys = client.execute_select_query(
+        f"""
+            SELECT {key_columns_str} FROM {left} GROUP BY {key_columns_str} HAVING count(*) > 1
+            UNION ALL
+            SELECT {key_columns_str} FROM {right} GROUP BY {key_columns_str} HAVING count(*) > 1
+        """
+    )
+
     comps: dict[str, pd.DataFrame] = {}
 
     def query(column: str) -> str:
@@ -185,6 +195,7 @@ def compare_sql_keyed_rows(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
+        duplicate_keys={},
         columns_with_diffs=set(comps.keys()),
         differences_by_column=comps,
     )

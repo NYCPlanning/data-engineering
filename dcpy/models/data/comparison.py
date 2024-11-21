@@ -19,22 +19,23 @@ class Columns(BaseModel):
     type_differences: dict[str, Simple[str]]
 
 
+class SimpleTable(ModelWithDataFrame):
+    compared_columns: set[str]
+    left_only: pd.DataFrame | None
+    right_only: pd.DataFrame | None
+
+
 class KeyedTable(ModelWithDataFrame):
     key_columns: list[str]
     left_only: set = Field(serialization_alias="Keys found in left only")
     right_only: set = Field(serialization_alias="Keys found in right only")
+    duplicate_keys: dict[set[str], SimpleTable]
     columns_with_diffs: set[str] = Field(
         serialization_alias="Columns with changed values for specific keys"
     )
     differences_by_column: dict[str, pd.DataFrame] = Field(
         serialization_alias="Changed values by column"
     )
-
-
-class SimpleTable(ModelWithDataFrame):
-    compared_columns: set[str]
-    left_only: pd.DataFrame | None
-    right_only: pd.DataFrame | None
 
 
 class Report(SortedSerializedBase):
