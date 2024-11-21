@@ -11,7 +11,6 @@ ingestion:
     name: dof_dtm_condo
   file_format:
     type: csv
-    unzipped_filename: dof_dtm_condo.csv
   processing_steps:
   - name: clean_column_names
     args: {"replace": {" ": "_"}, "lower": True}
