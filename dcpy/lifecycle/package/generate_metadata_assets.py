@@ -1,5 +1,7 @@
 from pathlib import Path
-from jinja2 import Template
+from jinja2 import Template, Environment, FileSystemLoader
+import css_inline
+from bs4 import BeautifulSoup
 import subprocess
 from dcpy.models.product.dataset.metadata_v2 import Metadata
 from dcpy.utils.logging import logger
@@ -10,6 +12,37 @@ DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH = (
     RESOURCES_PATH / "data_dictionary_template.jinja"
 )
 DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH = RESOURCES_PATH / "data_dictionary.css"
+
+
+def _format_html(html: str) -> str:
+    return BeautifulSoup(html, "html.parser").prettify(formatter="html")
+
+
+def _render_html_template(template_path: Path, template_vars: dict) -> str:
+    with open(template_path, "r") as f:
+        template_text = f.read()
+
+    compiled_template = Environment(
+        loader=FileSystemLoader(template_path.parent)
+    ).from_string(template_text)
+
+    return _format_html(compiled_template.render(template_vars))
+
+
+def _style_html(html: str, stylesheet_path: Path) -> str:
+    with open(stylesheet_path, "r") as f:
+        css = f.read()
+
+    return _format_html(css_inline.inline_fragment(html, css))
+
+
+def _style_html_document(html: str, stylesheet_path: Path) -> str:
+    with open(stylesheet_path, "r") as f:
+        css = f.read()
+
+    inliner = css_inline.CSSInliner(extra_css=css)
+
+    return _format_html(inliner.inline(html))
 
 
 def generate_pdf_from_html(
