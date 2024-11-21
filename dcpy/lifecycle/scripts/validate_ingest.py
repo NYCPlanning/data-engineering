@@ -3,10 +3,12 @@ from pathlib import Path
 import shutil
 import typer
 from typing import Literal
+import yaml
 
 from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
 from dcpy.models.data import comparison
+from dcpy.models.base import SortedSerializedBase, YamlWriter
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import TMP_DIR, run as run_ingest
@@ -15,6 +17,67 @@ from dcpy.lifecycle.builds import metadata as build_metadata
 DATABASE = "sandbox"
 LIBRARY_PATH = recipes.LIBRARY_DEFAULT_PATH / "datasets"
 SCHEMA = build_metadata.build_name(os.environ.get("BUILD_NAME"))
+
+
+class Converter(SortedSerializedBase, YamlWriter):
+    _exclude_falsey_values: bool = False
+    _exclude_none: bool = False
+    _head_sort_order: list[str] = [
+        "id",
+        "acl",
+        "ingestion",
+        "columns",
+        "library_dataset",
+    ]
+
+    id: str
+    acl: str
+    ingestion: dict
+    columns: list = []
+    library_dataset: dict
+
+
+def convert_template(dataset: str):
+    library_path = (
+        Path(__file__).parent.parent.parent / "library" / "templates" / f"{dataset}.yml"
+    )
+    ingest_path = (
+        Path(__file__).parent.parent.parent
+        / "lifecycle"
+        / "ingest"
+        / "templates"
+        / f"{dataset}.yml"
+    )
+    with open(library_path) as library_file:
+        library_template = yaml.safe_load(library_file)
+    converter = Converter(
+        id=library_template["dataset"]["name"],
+        acl=library_template["dataset"]["acl"],
+        ingestion={
+            "source": {
+                "one_of": [
+                    {"type": "local_file", "path": ""},
+                    {"type": "file_download", "url": ""},
+                    {"type": "api", "endpoint": "", "format": ""},
+                    {"type": "s3", "bucket": "", "key": ""},
+                    {
+                        "type": "socrata",
+                        "org": "",
+                        "uid": "",
+                        "format": "",
+                    },
+                    {"type": "edm_publishing_gis_dataset", "name": ""},
+                ]
+            },
+            "file_format": {
+                "type": "csv, json, xlsx, shapefile, geojson, geodatabase",
+                "crs": "EPSG:2263",
+            },
+            "processing_steps": [],
+        },
+        library_dataset=library_template["dataset"],
+    )
+    converter.write_to_yaml(ingest_path)
 
 
 def library_archive(dataset: str, version: str | None = None, file_type="pgdump"):
@@ -102,6 +165,11 @@ def compare_recipes_in_postgres(
 
 
 app = typer.Typer()
+
+
+@app.command("convert")
+def _convert(dataset: str = typer.Argument()):
+    convert_template(dataset)
 
 
 @app.command("run_single")

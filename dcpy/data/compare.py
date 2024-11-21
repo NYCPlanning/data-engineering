@@ -150,7 +150,9 @@ def compare_sql_keyed_rows(
             SELECT 
                 {left_keys},
                 st_orderingequals({lc}, {rc}) AS "ordering_equal",
-                st_equals({lc}, {rc}) AS "spatially_equal"
+                st_equals({lc}, {rc}) AS "spatially_equal",
+                st_geometrytype({lc}) AS "left_geom_type",
+                st_geometrytype({rc}) AS "right_geom_type"
             FROM {left} AS "left" 
                 INNER JOIN {right} AS "right"
                 ON {on}
@@ -165,7 +167,14 @@ def compare_sql_keyed_rows(
         if (column in left_geom_columns) and (column in right_geom_columns):
             comp_df = client.execute_select_query(spatial_query(column))
             comp_df = comp_df.set_index(key_columns)
-            comp_df.columns = pd.Index(["ordering_equal", "spatially_equal"])
+            comp_df.columns = pd.Index(
+                [
+                    "ordering_equal",
+                    "spatially_equal",
+                    "left_geom_type",
+                    "right_geom_type",
+                ]
+            )
 
         elif (column not in left_geom_columns) and (column not in right_geom_columns):
             comp_df = client.execute_select_query(query(column))
