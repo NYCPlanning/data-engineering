@@ -139,9 +139,18 @@ def compare_sql_keyed_rows(
         """
     )
 
+    def query():
+        pass
+
+    duplicate_key_tables: dict[set, comparison.SimpleTable] = {}
+
+    for keys, row in duplicate_keys.iterrows():
+        continue
+        duplicate_key_tables[set(keys)] = None
+
     comps: dict[str, pd.DataFrame] = {}
 
-    def query(column: str) -> str:
+    def keyed_diff_query(column: str) -> str:
         lc = f'"left"."{column}"'
         rc = f'"right"."{column}"'
         return f"""
@@ -178,7 +187,7 @@ def compare_sql_keyed_rows(
             comp_df.columns = pd.Index(["ordering_equal", "spatially_equal"])
 
         elif (column not in left_geom_columns) and (column not in right_geom_columns):
-            comp_df = client.execute_select_query(query(column))
+            comp_df = client.execute_select_query(keyed_diff_query(column))
             comp_df = comp_df.set_index(key_columns)
             comp_df.columns = pd.Index(["left", "right"])
 
@@ -195,7 +204,7 @@ def compare_sql_keyed_rows(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
-        duplicate_keys={},
+        duplicate_keys=duplicate_key_tables,
         columns_with_diffs=set(comps.keys()),
         differences_by_column=comps,
     )
