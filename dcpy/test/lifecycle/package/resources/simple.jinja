@@ -1,0 +1,9 @@
+<div>
+  <h1>My document heading is "{{ heading }}"</h1>
+  {% for section in sections %}
+  <div>
+    <h2>My section heading is "{{ section.heading }}"</h2>
+    <ul><li>{{ section.content }}</li></ul>
+  </div>
+  {% endfor %}
+</div>

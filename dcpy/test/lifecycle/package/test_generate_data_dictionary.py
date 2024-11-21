@@ -1,6 +1,7 @@
 import pytest
 from unittest import TestCase
 from dcpy.test.lifecycle.package.conftest import (
+    PACKAGE_RESOURCES_PATH,
     TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH,
     TEST_METADATA_YAML_PATH,
     TEMP_DATA_PATH,
@@ -17,6 +18,59 @@ class TestDataDictionary(TestCase):
     html_path = TEMP_DATA_PATH / "metadata.html"
     pdf_path = TEMP_DATA_PATH / "metadata.pdf"
     output_xlsx_path = TEMP_DATA_PATH / "my_data_dictionary.xlsx"
+    template_vars = {
+        "heading": "Simple Heading",
+        "sections": [
+            {"heading": "Section 1", "content": "First section"},
+            {"heading": "Section 2", "content": "Second section"},
+        ],
+    }
+
+    def test_render_html_template(self):
+        with open(PACKAGE_RESOURCES_PATH / "simple.html", "r") as f:
+            expected = f.read()
+
+        actual = generate_metadata_assets._render_html_template(
+            template_path=PACKAGE_RESOURCES_PATH / "simple.jinja",
+            template_vars=self.template_vars,
+        )
+        assert actual == expected
+
+    def test_render_html_template_document(self):
+        with open(PACKAGE_RESOURCES_PATH / "document.html", "r") as f:
+            expected = f.read()
+
+        actual = generate_metadata_assets._render_html_template(
+            template_path=PACKAGE_RESOURCES_PATH / "document.jinja",
+            template_vars=self.template_vars,
+        )
+        assert actual == expected
+
+    def test_style_html(self):
+        with open(PACKAGE_RESOURCES_PATH / "simple_styled.html", "r") as f:
+            expected = f.read()
+
+        with open(PACKAGE_RESOURCES_PATH / "simple.html", "r") as f:
+            html = f.read()
+
+        actual = generate_metadata_assets._style_html(
+            html=html,
+            stylesheet_path=PACKAGE_RESOURCES_PATH / "simple_style.css",
+        )
+        assert actual == expected
+
+    def test_style_html_document(self):
+        with open(PACKAGE_RESOURCES_PATH / "document_styled.html", "r") as f:
+            expected = f.read()
+
+        with open(PACKAGE_RESOURCES_PATH / "document.html", "r") as f:
+            html = f.read()
+
+        actual = generate_metadata_assets._style_html_document(
+            html=html,
+            stylesheet_path=PACKAGE_RESOURCES_PATH / "simple_style.css",
+        )
+        assert actual == expected
 
     def test_generate_pdf_from_yaml(self):
         html_path = generate_metadata_assets.generate_html_from_yaml(
