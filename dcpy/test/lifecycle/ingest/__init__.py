@@ -7,6 +7,7 @@ from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     ScriptSource,
     S3Source,
+    DEPublished,
 )
 from dcpy.test.conftest import RECIPES_BUCKET
 
@@ -34,6 +35,9 @@ class Sources:
         type="socrata", org=socrata.Org.nyc, uid="w7w3-xahh", format="csv"
     )
     s3 = S3Source(type="s3", bucket=RECIPES_BUCKET, key="inbox/test/test.txt")
+    de_publish = DEPublished(
+        type="de-published", product=TEST_DATASET_NAME, filename="file.csv"
+    )
 
 
 SOURCE_FILENAMES = [
