@@ -1,0 +1,69 @@
+id: dcp_zoningtaxlots
+acl: public-read
+
+attributes:
+  name: NYC Zoning Tax Lot Database
+  description: |
+    The Zoning Tax Lot Database is a comma-separated values (CSV) file format that contains up-to-date zoning by parcel.
+    The Database includes the zoning designations and zoning map associated with a specific tax block and lot.
+    The Database is updated on a monthly basis to reflect rezoning and corrections to the file.
+    The downloadable zoning data will be updated on a monthly basis or as needed.
+    Updates will include recent zoning changes adopted by the City Council.
+  url: https://www.nyc.gov/site/planning/data-maps/open-data.page#zoning_related
+
+ingestion:
+  source:
+    type: de-published
+    product: db-zoningtaxlots
+    filename: zoningtaxlot_db.csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      # TODO - boro, block, and lot as individual fields should be int, not text/string
+      # This change should also take place in stg__dof_dtm of ztl, though then this is a broader discussion
+      # dof_dtm comes in as bbl: text, the others all int
+      column_types: {
+        "bbl": "string",
+        "borough_code": "string",
+        "tax_block": "string",
+        "tax_lot": "string",
+        "special_district_3": "string"
+      }
+
+columns:
+- id: borough_code
+  data_type: integer
+- id: tax_block
+  data_type: integer
+- id: tax_lot
+  data_type: integer
+- id: bbl
+  data_type: text
+- id: zoning_district_1
+  data_type: text
+- id: zoning_district_2
+  data_type: text
+- id: zoning_district_3
+  data_type: text
+- id: zoning_district_4
+  data_type: text
+- id: commercial_overlay_1
+  data_type: text
+- id: commercial_overlay_2
+  data_type: text
+- id: special_district_1
+  data_type: text
+- id: special_district_2
+  data_type: text
+- id: special_district_3
+  data_type: text
+- id: limited_height_district
+  data_type: text
+- id: zoning_map_number
+  data_type: text
+- id: zoning_map_code
+  data_type: text

@@ -1,0 +1,42 @@
+id: dof_shoreline
+acl: public-read
+
+attributes:
+  name: DOF Condo
+  description: Shoreline from DOF DTM, uploaded by GIS
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dof_dtm_shoreline_polygon
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      column_types: {"created_da": "date", "last_mod_1": "date"}
+      errors: coerce
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: created_by
+  data_type: text
+- id: created_da
+  data_type: date
+- id: last_modif
+  data_type: text
+- id: last_mod_1
+  data_type: date
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

@@ -12,6 +12,7 @@ from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     S3Source,
     ScriptSource,
+    DEPublished,
     Source,
     ProcessingStep,
     Template,
@@ -67,6 +68,13 @@ def get_version(source: Source, timestamp: datetime | None = None) -> str:
             return extract_socrata.get_version(source)
         case GisDataset():
             return publishing.get_latest_gis_dataset_version(source.name)
+        case DEPublished():
+            version = publishing.get_latest_version(source.product)
+            if not version:
+                raise FileNotFoundError(
+                    "Unable to determine latest version. If archiving known version, please provide it."
+                )
+            return version
         case _:
             if timestamp is None:
                 raise TypeError(
@@ -80,6 +88,8 @@ def get_filename(source: Source, ds_id: str) -> str:
     match source:
         case LocalFileSource():
             return source.path.name
+        case DEPublished():
+            return source.filename
         case GisDataset():
             return f"{source.name}.zip"
         case ScriptSource():

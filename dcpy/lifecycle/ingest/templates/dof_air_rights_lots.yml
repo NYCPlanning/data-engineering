@@ -1,0 +1,60 @@
+id: dof_air_rights_lots
+acl: public-read
+
+attributes:
+  name: DOF's Air Rights Lots Table
+  description: Received through EDM>GIS
+  url: http://gis.nyc.gov/taxmap/
+
+ingestion:
+  source:
+    type: edm_publishing_gis_dataset
+    name: dof_dtm_air_rights_lots
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      column_types: {
+        "created_date": "date", 
+        "last_edited_date": "date",
+        "air_lot_bbl": "string",
+        "air_lot_number": "string",
+        "oid_": "string",
+        "parent_bbl": "string",
+        "parent_boro": "string",
+        "parent_block": "string",
+        "parent_lot": "string",
+      }
+
+columns:
+- id: oid_
+  data_type: text
+- id: parent_boro
+  data_type: text
+- id: parent_block
+  data_type: text
+- id: parent_lot
+  data_type: text
+- id: parent_bbl
+  data_type: text
+- id: air_lot_number
+  data_type: text
+- id: air_lot_bbl
+  data_type: text
+- id: model
+  data_type: text
+- id: geometry_type
+  data_type: text
+- id: created_user
+  data_type: text
+- id: created_date
+  data_type: date
+- id: last_edited_user
+  data_type: text
+- id: last_edited_date
+  data_type: date
+- id: effective_tax_year
+  data_type: text

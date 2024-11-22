@@ -28,12 +28,19 @@ class ScriptSource(BaseModel, extra="forbid"):
     function: str
 
 
+class DEPublished(BaseModel, extra="forbid"):
+    type: Literal["de-published"]
+    product: str
+    filename: str
+
+
 Source: TypeAlias = (
     LocalFileSource
     | web.FileDownloadSource
     | web.GenericApiSource
     | socrata.Source
     | publishing.GisDataset
+    | DEPublished
     | S3Source
     | ScriptSource
 )

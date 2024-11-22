@@ -1,0 +1,38 @@
+id: dcp_limitedheight
+acl: public-read
+
+attributes:
+  name: DCP NYC Limited Height Districts (Zoning)
+  description: |
+    Polygon features representing the Limited Height Districts.
+    The main district designation is indicated in the LHNAME attribute.
+    The abbreviation as shown on the zoning map is indicated in the LHLBL attribute.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dcp_limited_height_districts
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: lhname
+  data_type: text
+- id: lhlbl
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

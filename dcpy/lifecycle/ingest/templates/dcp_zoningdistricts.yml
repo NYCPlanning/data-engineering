@@ -1,0 +1,37 @@
+id: dcp_zoningdistricts
+acl: public-read
+
+attributes:
+  name: NYC Zoning Districts
+  description: |
+    Polygon features representing the zoning districts.
+    These features are continuous over the entire city.
+    They extend to the city limits on land and out to the US Army Corps of Engineers Pierhead lines over water.
+    Zoning district designations are indicated in the ZONEDIST attribute.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dcp_zoning_districts
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: zonedist
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

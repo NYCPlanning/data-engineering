@@ -1,0 +1,72 @@
+id: dof_condo
+acl: public-read
+
+attributes:
+  name: DOF Condo
+  description: Condo-level infomration from DOF DTM, uploaded by GIS
+
+ingestion:
+  source:
+    type: edm_publishing_gis_dataset
+    name: dof_dtm_condo
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      column_types: {
+        "oid_": "string",
+        "condo_base_boro": "string",
+        "condo_base_block": "string",
+        "condo_base_lot": "string",
+        "condo_base_bbl": "string",
+        "condo_base_bbl_key": "string",
+        "condo_key": "string",
+        "condo_number": "string",
+        "condo_billing_bbl": "string",
+        "cinc_condo_parent": "string",
+        "cinc_unit_parent": "string",
+        "cinc_gen": "string",
+        "created_date": "date",
+        "last_edited_date": "date"
+      }
+
+columns:
+- id: oid_
+  data_type: text
+- id: condo_base_boro
+  data_type: text
+- id: condo_base_block
+  data_type: text
+- id: condo_base_lot
+  data_type: text
+- id: condo_base_bbl
+  data_type: text
+- id: condo_base_bbl_key
+  data_type: text
+- id: condo_key
+  data_type: text
+- id: condo_number
+  data_type: text
+- id: condo_name
+  data_type: text
+- id: condo_billing_bbl
+  data_type: text
+- id: cinc_parent_flag
+  data_type: text
+- id: cinc_condo_parent
+  data_type: text
+- id: cinc_unit_parent
+  data_type: text
+- id: cinc_gen
+  data_type: text
+- id: created_user
+  data_type: text
+- id: created_date
+  data_type: date
+- id: last_edited_user
+  data_type: text
+- id: last_edited_date
+  data_type: date

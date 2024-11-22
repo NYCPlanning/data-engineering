@@ -1,7 +1,8 @@
 from datetime import datetime
 from pathlib import Path
 import pytest
-from unittest import mock, TestCase
+from unittest import mock
+from pydantic import BaseModel
 
 from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.models import file
@@ -55,7 +56,11 @@ class TestReadTemplate:
             )
 
 
-class TestGetVersion(TestCase):
+class SparseBuildMetadata(BaseModel):
+    version: str
+
+
+class TestGetVersion:
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_socrata(self, get):
         source = socrata.Source(
@@ -64,14 +69,23 @@ class TestGetVersion(TestCase):
         ### based on mocked response in dcpy/test/conftest.py
         assert configure.get_version(source) == "20240412"
 
-    @pytest.mark.usefixtures("create_buckets")
-    def test_gis_dataset(self):
+    def test_gis_dataset(self, create_buckets):
         datestring = "20240412"
         s3.client().put_object(
             Bucket=PUBLISHING_BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
         )
         assert configure.get_version(Sources.gis) == datestring
+
+    @mock.patch("dcpy.connectors.edm.publishing.BuildMetadata", SparseBuildMetadata)
+    def test_de_publishing(self, create_buckets):
+        datestring = "20240412"
+        s3.client().put_object(
+            Bucket=PUBLISHING_BUCKET,
+            Key=f"{TEST_DATASET_NAME}/publish/latest/build_metadata.json",
+            Body=f"{{'version': '{datestring}'}}".encode(),
+        )
+        assert configure.get_version(Sources.de_publish) == datestring
 
     def test_rely_on_timestamp(self):
         timestamp = datetime.today()

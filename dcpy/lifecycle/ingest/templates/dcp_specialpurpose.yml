@@ -1,0 +1,38 @@
+id: dcp_specialpurpose
+acl: public-read
+
+attributes:
+  name: NYC Special Purpose Districts (Zoning)
+  description: |
+    Polygon features representing the Special Purpose Districts and their associated sub-districts.
+    The main district designation is indicated in the SDNAME attribute.
+    The abbreviation as shown on the zoning map is indicated in the SDLBL attribute.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page#metadata
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dcp_special_purpose_districts
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: sdname
+  data_type: text
+- id: sdlbl
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

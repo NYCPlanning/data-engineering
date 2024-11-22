@@ -1,0 +1,73 @@
+id: dof_dtm
+acl: public-read
+
+attributes:
+  name: DOF's Digital Tax Map
+  description: Received through EDM>GIS
+  url: http://gis.nyc.gov/taxmap
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: edm_publishing_gis_dataset
+    name: dof_dtm_tax_lot_polygon
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      column_types: {"created_da": "date", "last_edi_1": "date"}
+      errors: coerce
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: boro
+  data_type: text
+- id: block
+  data_type: integer
+- id: lot
+  data_type: integer
+- id: bbl
+  data_type: text
+- id: condo_flag
+  data_type: text
+- id: reuc_flag
+  data_type: text
+- id: air_lot_fl
+  data_type: text
+- id: sub_lot_fl
+  data_type: text
+- id: easement_f
+  data_type: text
+- id: lot_note
+  data_type: text
+- id: effective_
+  data_type: text
+- id: bill_bbl_f
+  data_type: integer
+- id: nycmap_bld
+  data_type: integer
+- id: conversion
+  data_type: integer
+- id: value_refl
+  data_type: integer
+- id: created_us
+  data_type: text
+- id: created_da
+  data_type: date
+- id: last_edite
+  data_type: text
+- id: last_edi_1
+  data_type: date
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry
