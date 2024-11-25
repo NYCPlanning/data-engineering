@@ -3,6 +3,7 @@ import pytest
 
 from dcpy.models.product import metadata as md
 from dcpy.models.product.dataset import metadata_v2 as ds_md
+from dcpy.models import dataset
 
 
 @pytest.fixture
@@ -178,7 +179,7 @@ def test_column_defaults_applied(dataset_with_snippets: ds_md.Metadata):
             name="uid",
             data_type="text",
             data_source="Department of City Planning",
-            checks=ds_md.Checks(is_primary_key=True),
+            checks=dataset.Checks(is_primary_key=True),
         ),
         ds_md.DatasetColumn(
             id="bbl",

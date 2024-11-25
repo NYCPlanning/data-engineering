@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from pydantic import field_validator
 from pydantic import BaseModel
-from typing import Any, List, get_args
+from typing import Any, List
 import unicodedata
 
 from dcpy.utils.collections import deep_merge_dict as merge
@@ -49,12 +48,6 @@ class CustomizableBase(SortedSerializedBase, extra="forbid"):
 
 
 # COLUMNS
-# TODO: move to share with ingest.validate
-class Checks(CustomizableBase):
-    is_primary_key: bool | None = None
-    non_nullable: bool | None = None
-
-
 class ColumnValue(CustomizableBase):
     _head_sort_order = ["value", "description"]
 

@@ -1,7 +1,4 @@
 from dcpy.models.base import SortedSerializedBase
-from dcpy.models.product.dataset.metadata_v2 import (
-    Checks,
-)  # TODO: implement Checks in this file
 from typing import Literal
 
 COLUMN_TYPES = Literal[
@@ -16,8 +13,11 @@ COLUMN_TYPES = Literal[
     "datetime",
 ]
 
-# TODO: implement checks
-# class Checks(SortedSerializedBase):
+
+# TODO: extend/modify Checks model
+class Checks(SortedSerializedBase):
+    is_primary_key: bool | None = None
+    non_nullable: bool | None = None
 
 
 class Column(SortedSerializedBase, extra="forbid"):
