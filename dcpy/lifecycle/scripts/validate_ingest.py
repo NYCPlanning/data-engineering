@@ -57,8 +57,7 @@ def convert_template(dataset: str):
         id=library_template["dataset"]["name"],
         acl=library_template["dataset"]["acl"],
         attributes=DatasetAttributes(
-            _exclude_falsey_values=False,
-            name=library_template["dataset"]["name"],
+            name="<CHANGE ME>",
             description=library_template["dataset"].get("info", {}).get("description"),
             url=library_template["dataset"].get("info", {}).get("url"),
         ),
