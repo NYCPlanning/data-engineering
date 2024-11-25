@@ -54,7 +54,7 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
         dcp_col["values"] = [
             {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER} for s in samples
         ]
-    md.DatasetColumn._validate_data_type = False
+    # md.DatasetColumn._validate_data_type = False # legacy attribute used during migration, no longer there
     return md.DatasetColumn(**dcp_col)
 
 

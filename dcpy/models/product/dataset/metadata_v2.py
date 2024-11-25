@@ -65,9 +65,6 @@ class ColumnValue(CustomizableBase):
 class DatasetColumn(Column):
     _head_sort_order = ["id", "name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
-    _validate_data_type = (
-        True  # override, to generate md where we don't know the data_type
-    )
 
     # Note: id isn't intended to be overrideable, but is always required as a
     # pointer back to the original column.
@@ -78,12 +75,6 @@ class DatasetColumn(Column):
     deprecated: bool | None = None
     values: list[ColumnValue] | None = None
     custom: dict[str, Any] = {}
-
-    @field_validator("data_type")
-    def _validate_colum_types(cls, v):
-        if cls._validate_data_type:
-            assert v in get_args(COLUMN_TYPES)
-        return v
 
     def override(self, overrides: DatasetColumn) -> DatasetColumn:
         return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
