@@ -1,49 +1,43 @@
 from __future__ import annotations
+from abc import ABC
 from datetime import datetime
 from pathlib import Path
 from pydantic import BaseModel, Field, AliasChoices
-from typing import Any, Literal, TypeAlias
+from typing import Any, Literal, Annotated
 
 from dcpy.utils.metadata import RunDetails
-from dcpy.models.connectors.edm import recipes, publishing
-from dcpy.models.connectors import web, socrata
+from dcpy.models.connectors.edm import recipes
 from dcpy.models import file
 from dcpy.models.base import SortedSerializedBase
 
-
-class LocalFileSource(BaseModel, extra="forbid"):
-    type: Literal["local_file"]
-    path: Path
+from pydantic import PlainValidator, ValidationError
 
 
-class S3Source(BaseModel, extra="forbid"):
-    type: Literal["s3"]
-    bucket: str
-    key: str
+class Source(BaseModel, ABC):
+    type: str
+
+    def download(self, version: str, output_dir: Path):
+        raise NotImplementedError
+
+    def filename(self):
+        raise NotImplementedError
+
+    def version(self, timestamp: datetime):
+        raise NotImplementedError
 
 
-class ScriptSource(BaseModel, extra="forbid"):
-    type: Literal["script"]
-    connector: str
-    function: str
-
-
-class DEPublished(BaseModel, extra="forbid"):
-    type: Literal["de-published"]
-    product: str
-    filename: str
-
-
-Source: TypeAlias = (
-    LocalFileSource
-    | web.FileDownloadSource
-    | web.GenericApiSource
-    | socrata.Source
-    | publishing.GisDataset
-    | DEPublished
-    | S3Source
-    | ScriptSource
-)
+def _validate_source(obj) -> Source:
+    if isinstance(obj, Source):
+        return obj
+    errors = []
+    for c in Source.__subclasses__():
+        print(obj)
+        print(c)
+        try:
+            return c(**obj)
+        except ValidationError as e:
+            errors.append(str(e))
+    raise ValidationError(errors)
 
 
 class ProcessingStep(SortedSerializedBase):
@@ -71,7 +65,7 @@ class ArchivalMetadata(SortedSerializedBase):
 
 class Ingestion(SortedSerializedBase):
     target_crs: str | None = None
-    source: Source
+    source: Annotated[Source, PlainValidator(_validate_source)]
     file_format: file.Format
     processing_mode: str | None = None
     processing_steps: list[ProcessingStep] = []

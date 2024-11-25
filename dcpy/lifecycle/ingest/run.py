@@ -5,7 +5,7 @@ import typer
 
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
-from . import configure, extract, transform
+from . import configure, transform
 
 TMP_DIR = Path("tmp")
 
@@ -66,12 +66,7 @@ def run(
         staging_dir.mkdir(parents=True, exist_ok=True)
 
     # download dataset
-    extract.download_file_from_source(
-        config.ingestion.source,
-        config.archival.raw_filename,
-        config.version,
-        staging_dir,
-    )
+    config.ingestion.source.download(config.version, staging_dir)
     file_path = staging_dir / config.archival.raw_filename
 
     if not skip_archival:

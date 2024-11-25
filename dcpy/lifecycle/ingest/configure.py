@@ -1,29 +1,17 @@
-from datetime import datetime
 import jinja2
 from jinja2 import meta
-import os
 from pathlib import Path
-from urllib.parse import urlparse
 import yaml
 
 from dcpy.models.lifecycle.ingest import (
     ArchivalMetadata,
     Ingestion,
-    LocalFileSource,
-    S3Source,
-    ScriptSource,
-    DEPublished,
-    Source,
     ProcessingStep,
     Template,
     Config,
 )
-from dcpy.models.connectors import socrata, web as web_models
-from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
-from dcpy.connectors.socrata import extract as extract_socrata
-from dcpy.connectors.edm import publishing
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 
@@ -55,57 +43,6 @@ def read_template(
         )
     template_yml = yaml.safe_load(template_string)
     return Template(**template_yml)
-
-
-def get_version(source: Source, timestamp: datetime | None = None) -> str:
-    """
-    Given parsed dataset template, determine version.
-    If version's source has no custom logic, returns formatted date
-    from provided datetime
-    """
-    match source:
-        case socrata.Source():
-            return extract_socrata.get_version(source)
-        case GisDataset():
-            return publishing.get_latest_gis_dataset_version(source.name)
-        case DEPublished():
-            version = publishing.get_latest_version(source.product)
-            if not version:
-                raise FileNotFoundError(
-                    "Unable to determine latest version. If archiving known version, please provide it."
-                )
-            return version
-        case _:
-            if timestamp is None:
-                raise TypeError(
-                    f"Version cannot be dynamically determined for source of type {source.type}"
-                )
-            return timestamp.strftime("%Y%m%d")
-
-
-def get_filename(source: Source, ds_id: str) -> str:
-    """From parsed config template, determine filename"""
-    match source:
-        case LocalFileSource():
-            return source.path.name
-        case DEPublished():
-            return source.filename
-        case GisDataset():
-            return f"{source.name}.zip"
-        case ScriptSource():
-            return f"{ds_id}.parquet"
-        case web_models.FileDownloadSource():
-            return os.path.basename(urlparse(source.url).path)
-        case web_models.GenericApiSource():
-            return f"{ds_id}.{source.format}"
-        case socrata.Source():
-            return f"{ds_id}.{source.extension}"
-        case S3Source():
-            return Path(source.key).name
-        case _:
-            raise NotImplementedError(
-                f"Source type {source} not supported for get_filename"
-            )
 
 
 def determine_processing_steps(
@@ -143,8 +80,8 @@ def get_config(
     run_details = metadata.get_run_details()
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
-    filename = get_filename(template.ingestion.source, template.id)
-    version = version or get_version(template.ingestion.source, run_details.timestamp)
+    filename = template.ingestion.source.filename()
+    version = version or template.ingestion.source.version(run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
     processing_steps = determine_processing_steps(
