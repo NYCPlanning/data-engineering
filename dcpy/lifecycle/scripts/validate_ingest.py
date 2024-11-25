@@ -9,6 +9,7 @@ from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
 from dcpy.models.data import comparison
 from dcpy.models.base import SortedSerializedBase, YamlWriter
+from dcpy.models.lifecycle.ingest import DatasetAttributes
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import TMP_DIR, run as run_ingest
@@ -25,6 +26,7 @@ class Converter(SortedSerializedBase, YamlWriter):
     _head_sort_order: list[str] = [
         "id",
         "acl",
+        "attributes",
         "ingestion",
         "columns",
         "library_dataset",
@@ -32,6 +34,7 @@ class Converter(SortedSerializedBase, YamlWriter):
 
     id: str
     acl: str
+    attributes: DatasetAttributes
     ingestion: dict
     columns: list = []
     library_dataset: dict
@@ -53,6 +56,12 @@ def convert_template(dataset: str):
     converter = Converter(
         id=library_template["dataset"]["name"],
         acl=library_template["dataset"]["acl"],
+        attributes=DatasetAttributes(
+            _exclude_falsey_values=False,
+            name=library_template["dataset"]["name"],
+            description=library_template["dataset"].get("info", {}).get("description"),
+            url=library_template["dataset"].get("info", {}).get("url"),
+        ),
         ingestion={
             "source": {
                 "one_of": [
