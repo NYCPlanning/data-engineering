@@ -51,6 +51,7 @@ def generate_pdf_from_html(
     stylesheet_path: Path,
 ) -> Path:
     logger.info(f"Saving DCP PDF to {output_path}")
+    # TODO style HTML before converting to PDF
     subprocess.run(
         [
             "weasyprint",
@@ -71,6 +72,7 @@ def generate_html_from_yaml(
 ) -> Path:
     metadata = Metadata.from_path(metadata_path, template_vars={"var1": "value1"})
 
+    # TODO use _render_html_template and _compose_html_document
     with open(html_template_path, "r") as f:
         template_text = f.read()
     rendered_template = Template(template_text).render({"metadata": metadata})
