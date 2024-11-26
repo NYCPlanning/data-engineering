@@ -7,10 +7,11 @@ from dcpy.models.product.dataset.metadata_v2 import (
     DatasetAttributes,
     DatasetColumn,
     ColumnValue,
+    COLUMN_TYPES,
 )
 from dcpy.utils.logging import logger
 
-_shapefile_to_dcpy_types = {
+_shapefile_to_dcpy_types: dict[str, COLUMN_TYPES] = {
     "OID": "integer",
     "Integer": "integer",
     "SmallInteger": "integer",
@@ -19,7 +20,7 @@ _shapefile_to_dcpy_types = {
     "String": "text",
     "Date": "datetime",
     "Geometry": "geometry",
-    "Boolean": "boolean",
+    "Boolean": "bool",
 }
 
 

@@ -350,7 +350,7 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         return errors
 
     def apply_column_defaults(
-        self, column_defaults: dict[tuple[str, str], DatasetColumn]
+        self, column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
     ) -> list[DatasetColumn]:
         return [
             (

@@ -9,6 +9,7 @@ from dcpy.models.product.dataset.metadata_v2 import (
     Metadata as DatasetMetadata,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
+    COLUMN_TYPES,
 )
 from dcpy.utils.collections import deep_merge_dict as merge
 
@@ -39,7 +40,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     metadata: ProductMetadataFile
     template_vars: dict = {}
-    column_defaults: dict[tuple[str, str], DatasetColumn] = {}
+    column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn] = {}
     org_attributes: DatasetOrgProductAttributesOverride
 
     @classmethod
@@ -47,7 +48,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         cls,
         root_path: Path,
         template_vars: dict = {},
-        column_defaults: dict[tuple[str, str], DatasetColumn] = {},
+        column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn] = {},
         org_attributes: DatasetOrgProductAttributesOverride = DatasetOrgProductAttributesOverride(),
     ) -> ProductMetadata:
         return ProductMetadata(
@@ -121,7 +122,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
-    column_defaults: dict[tuple[str, str], DatasetColumn]
+    column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
 
     @classmethod
     def get_string_snippets(cls, path: Path) -> dict:
@@ -136,7 +137,9 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
         return yml
 
     @classmethod
-    def get_column_defaults(cls, path: Path) -> dict[tuple[str, str], DatasetColumn]:
+    def get_column_defaults(
+        cls, path: Path
+    ) -> dict[tuple[str, COLUMN_TYPES], DatasetColumn]:
         c_path = path / "snippets" / "column_defaults.yml"
         if not c_path.exists():
             return {}
