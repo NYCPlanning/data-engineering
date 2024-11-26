@@ -192,6 +192,9 @@ class TestProcessors:
             "date": [date(2024, 1, 1), None, None],
             "datetime": [datetime(2024, 1, 1, 12, 57, 1), None, None],
             "numeric": [1, np.nan, 1.2],
+            "integer_str": ["1", None, "2"],
+            "integer_numeric": [1, np.nan, 2.0],
+            "integer": pd.array([1, pd.NA, 2], dtype="Int32"),
         }
     )
 
@@ -322,6 +325,9 @@ class TestProcessors:
             ("numeric_str_error", "numeric", "coerce", "numeric"),
             # numeric to string conversion
             ("numeric", "string", None, "numeric_str"),
+            # int conversions
+            ("integer_str", "integer", None, "integer"),
+            ("integer_numeric", "integer", None, "integer"),
         ],
     )
     def test_coerce_column_type(self, original_column, cast, errors, expected_column):

@@ -1,0 +1,85 @@
+id: dcp_atomicpolygons
+acl: public-read
+
+attributes:
+  name: Atomic Polygons
+  description: Atomic Polygon numbers are unique within 2010 Census tracts.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nyap_{{ version }}/nyap.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+
+columns:
+- id: borough
+  data_type: text
+- id: censusbloc
+  data_type: text
+- id: censusbl_1
+  data_type: text
+- id: censustrac
+  data_type: text
+- id: censusbl_2
+  data_type: text
+- id: censusbl_3
+  data_type: text
+- id: censustr_1
+  data_type: text
+- id: censustr_2
+  data_type: text
+- id: admin_fire
+  data_type: text
+- id: water_flag
+  data_type: text
+- id: assemdist
+  data_type: text
+- id: electdist
+  data_type: text
+- id: schooldist
+  data_type: text
+- id: commdist
+  data_type: text
+- id: sb1_volume
+  data_type: text
+- id: sb1_page
+  data_type: text
+- id: sb2_volume
+  data_type: text
+- id: sb2_page
+  data_type: text
+- id: sb3_volume
+  data_type: text
+- id: sb3_page
+  data_type: text
+- id: atomicid
+  data_type: text
+- id: atomic_num
+  data_type: text
+- id: hurricane_
+  data_type: text
+- id: censustr_3
+  data_type: text
+- id: censusbl_4
+  data_type: text
+- id: censusbl_5
+  data_type: text
+- id: commercial
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

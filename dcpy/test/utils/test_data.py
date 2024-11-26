@@ -47,7 +47,7 @@ def test_unzip_file(temp_zip_file):
 
         expected_file_path = output_dir / unzipped_filename
 
-        assert extracted_files == [unzipped_filename]
+        assert extracted_files == {unzipped_filename}
         assert expected_file_path.exists()
 
 

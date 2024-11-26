@@ -2,6 +2,7 @@ from collections import defaultdict
 import json
 import pandas as pd
 import geopandas as gpd
+import os
 from pathlib import Path
 import shutil
 from typing import Literal
@@ -65,10 +66,6 @@ def read_data_to_df(
         unzipped_files = unzip_file(
             zipped_filename=local_data_path, output_dir=extracted_files_dir
         )
-
-        # remove leading and trailing slashes
-        unzipped_filename = unzipped_filename.strip("/")
-        unzipped_files = [filename.strip("/") for filename in unzipped_files]
 
         assert (
             unzipped_filename in unzipped_files
@@ -142,7 +139,7 @@ def read_data_to_df(
     return gdf
 
 
-def unzip_file(zipped_filename: Path, output_dir: Path) -> list[str]:
+def unzip_file(zipped_filename: Path, output_dir: Path) -> set[str]:
     """
     Extracts file(s) from a specified zipped file into an output directory.
     Output directory doesn't need to exist.
@@ -164,7 +161,13 @@ def unzip_file(zipped_filename: Path, output_dir: Path) -> list[str]:
 
     with zipfile.ZipFile(zipped_filename, "r") as zip_ref:
         zip_ref.extractall(output_dir)
-        extracted_files = zip_ref.namelist()
+        extracted_files = set()
+
+        for info in zip_ref.infolist():
+            extracted_files.add(info.filename.rstrip("/"))
+            dir = os.path.dirname(info.filename).rstrip("/")
+            if dir:
+                extracted_files.add(dir)
 
     logger.info(
         f"✅ Successfully extracted the following file(s) from {zipped_filename}: {extracted_files}"

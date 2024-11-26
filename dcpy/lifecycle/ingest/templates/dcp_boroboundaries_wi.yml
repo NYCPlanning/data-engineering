@@ -1,0 +1,36 @@
+id: dcp_boroboundaries_wi
+acl: public-read
+
+attributes:
+  name: NYC Boroughs
+  description: The borough boundaries of New York City including portions of the borough under water.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nybbwi_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nybbwi_{{ version }}/nybbwi.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: borocode
+  data_type: integer
+- id: boroname
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

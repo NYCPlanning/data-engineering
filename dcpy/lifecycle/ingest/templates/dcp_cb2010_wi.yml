@@ -1,0 +1,41 @@
+id: dcp_cb2010_wi
+acl: public-read
+
+attributes:
+  name: Census Blocks for the 2010 US Census (**Water included**)
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycb2010wi_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nycb2010wi_{{ version }}/nycb2010wi.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: cb2010
+  data_type: text
+- id: borocode
+  data_type: text
+- id: boroname
+  data_type: text
+- id: ct2010
+  data_type: text
+- id: bctcb2010
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

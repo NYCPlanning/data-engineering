@@ -185,7 +185,9 @@ class ProcessingFunctions:
     def coerce_column_types(
         self,
         df: pd.DataFrame,
-        column_types: dict[str, Literal["numeric", "string", "date", "datetime"]],
+        column_types: dict[
+            str, Literal["numeric", "integer", "bigint", "string", "date", "datetime"]
+        ],
         errors: Literal["raise", "coerce"] = "raise",
     ):
         def to_str(obj):
@@ -203,6 +205,9 @@ class ProcessingFunctions:
             match column_types[column]:
                 case "numeric":
                     df[column] = pd.to_numeric(df[column], errors=errors)
+                case "integer" | "bigint" as t:
+                    mapping = {"integer": "Int32", "bigint": "Int64"}
+                    df[column] = pd.array(df[column], dtype=mapping[t])  # type: ignore
                 case "string":
                     df[column] = df[column].apply(to_str)
                 case "date":
