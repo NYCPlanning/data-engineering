@@ -216,6 +216,7 @@ def run_single(
         "pgdump", "--library-format", "--lf", help="one of 'pgdump', 'csv'`, 'parquet'"
     ),
 ):
+    """
     if tool == "library":
         library_archive(dataset, version, file_type=library_format)
         load_recipe(dataset, tool, _library_format_to_recipe_file_type(library_format))  # type: ignore
@@ -224,6 +225,8 @@ def run_single(
         load_recipe(dataset, tool)  # type: ignore
     else:
         raise NotImplementedError("'tool' must be either 'library' or 'ingest'")
+    """
+    load_recipe(dataset, tool)  # type: ignore
 
 
 @app.command("run")
