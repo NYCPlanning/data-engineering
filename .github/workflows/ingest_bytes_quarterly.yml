@@ -61,6 +61,7 @@ jobs:
           - dcp_policeprecincts
           - dcp_school_districts
           - dcp_stateassemblydistricts
+          - dcp_stateassemblydistricts_wi
           - dcp_statesenatedistricts
     steps:
       - uses: actions/checkout@v4
