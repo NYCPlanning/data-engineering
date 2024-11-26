@@ -63,8 +63,6 @@ fakes: dict[str, Callable] = {
 def _fake_row(columns: list[md.DatasetColumn]):
     row = {}
 
-    found_bbl_parts = {}
-    bbl_parts = {"boro_code", "block", "lot"}
     found_bbl_name = ""
     for c in columns:
         if c.data_type == "bbl":
@@ -74,23 +72,14 @@ def _fake_row(columns: list[md.DatasetColumn]):
         else:
             val = fakes[c.data_type or ""]()
             row[c.name] = val
-            if c.data_type in {"boro_code", "block", "lot"}:
-                found_bbl_parts[c.data_type] = val
 
-    # Construct a BBL from found parts, or generate a new one
+    # Generate a new bbl value
     if found_bbl_name:
-        if set(found_bbl_parts.keys()) == bbl_parts:
-            row[found_bbl_name] = fakes["bbl"](
-                found_bbl_parts["boro_code"],
-                found_bbl_parts["block"],
-                found_bbl_parts["lot"],
-            )
-        else:
-            row[found_bbl_name] = fakes["bbl"](
-                fakes["boro_code"](),
-                fakes["block"](),
-                fakes["lot"](),
-            )
+        row[found_bbl_name] = fakes["bbl"](
+            fakes["boro_code"](),
+            fakes["block"](),
+            fakes["lot"](),
+        )
 
     for c in columns:
         if c.checks and not c.checks.non_nullable and random.choice([True, False]):
