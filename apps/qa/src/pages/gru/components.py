@@ -1,5 +1,6 @@
 import pytz
 import pandas as pd
+from urllib.error import HTTPError
 import streamlit as st
 import time
 
@@ -74,7 +75,9 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
                             mime="text/csv",
                             help=versions.to_markdown(index=False),
                         )
-                    except FileNotFoundError:
+                    # TODO - this should probably use publishing api, FileNotFoundError
+                    # However, GRU is a special "product" that doesn't follow our norms yet
+                    except HTTPError:
                         st.error("Not found")
 
                 files = "  \n".join(
