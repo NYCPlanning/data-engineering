@@ -54,6 +54,7 @@ jobs:
           - dcp_healthcenters
           - dcp_lion
           - dcp_municipalcourtdistricts
+          - dcp_municipalcourtdistricts_wi
           - dcp_nta2010
           - dcp_nta2020
           - dcp_pad
