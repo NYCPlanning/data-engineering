@@ -63,6 +63,7 @@ jobs:
           - dcp_stateassemblydistricts
           - dcp_stateassemblydistricts_wi
           - dcp_statesenatedistricts
+          - dcp_statesenatedistricts_wi
     steps:
       - uses: actions/checkout@v4
 
