@@ -40,6 +40,7 @@ jobs:
           - dcp_cdboundaries_wi
           - dcp_cdta2020
           - dcp_congressionaldistricts
+          - dcp_congressionaldistricts_wi
           - dcp_councildistricts
           - dcp_councildistricts_wi
           - dcp_ct2010
