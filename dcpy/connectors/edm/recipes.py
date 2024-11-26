@@ -19,7 +19,7 @@ from dcpy.models.connectors.edm.recipes import (
 )
 from dcpy.models import library
 from dcpy.models.lifecycle import ingest
-from dcpy.utils import s3, postgres
+from dcpy.utils import s3, postgres, duckdb
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
@@ -283,21 +283,19 @@ def import_dataset(
         )
 
     elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
-        df = (
-            pd.read_csv(local_dataset_path, dtype=str)
-            if ds.file_type == DatasetType.csv
-            else geoparquet.read_df(local_dataset_path)
-        )
         if preprocessor is not None:
+            df = (
+                pd.read_csv(local_dataset_path, dtype=str)
+                if ds.file_type == DatasetType.csv
+                else geoparquet.read_df(local_dataset_path)
+            )
             df = preprocessor(ds.id, df)
-
-        # make column names more sql-friendly
-        columns = {
-            column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
-            for column in df.columns
-        }
-        df.rename(columns=columns, inplace=True)
-        pg_client.insert_dataframe(df, ds_table_name)
+            pg_client.insert_dataframe(df, ds_table_name)
+        else:
+            duckdb.setup_postgres(pg_client.database)
+            duckdb.copy_file_to_table(
+                local_dataset_path, ds_table_name, pg_client=pg_client
+            )
         pg_client.add_pk(ds_table_name, "ogc_fid")
 
     pg_client.add_table_column(

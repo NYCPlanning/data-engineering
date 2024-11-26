@@ -186,13 +186,14 @@ def run_single(
     dataset: str = typer.Argument(),
     version: str | None = typer.Option(None, "--version", "-v"),
 ):
+    """
     if tool == "library":
         library_archive(dataset, version)
     elif tool == "ingest":
         ingest(dataset, version)
     else:
         raise NotImplementedError("'tool' must be either 'library' or 'ingest'")
-
+    """
     load_recipe(dataset, tool)  # type: ignore
 
 
