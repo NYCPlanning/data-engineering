@@ -58,7 +58,9 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
 
     # model_construct() method doesn't perform validation on keys, need this sanity check here
     # instance keys == column model keys below:
-    dataset_column.__dict__.keys() == dataset_column.model_fields.keys()
+    assert (
+        dataset_column.__dict__.keys() == dataset_column.model_fields.keys()
+    ), "DatasetColumn instance keys don't match the DatasetColumn class keys"
 
     return dataset_column
 
