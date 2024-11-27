@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from pydantic import field_validator
 from pydantic import BaseModel
-from typing import Any, List, Literal, get_args
+from typing import Any, List
 import unicodedata
 
 from dcpy.utils.collections import deep_merge_dict as merge
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
+from dcpy.models.dataset import Column, COLUMN_TYPES
 
 ERROR_MISSING_COLUMN = "MISSING COLUMN"
 
@@ -48,18 +48,6 @@ class CustomizableBase(SortedSerializedBase, extra="forbid"):
 
 
 # COLUMNS
-# TODO: move to share with ingest.validate
-class Checks(CustomizableBase):
-    is_primary_key: bool | None = None
-    non_nullable: bool | None = None
-
-
-# TODO: move to share with ingest.validate
-COLUMN_TYPES = Literal[
-    "text", "number", "integer", "decimal", "geometry", "bool", "bbl", "datetime"
-]
-
-
 class ColumnValue(CustomizableBase):
     _head_sort_order = ["value", "description"]
 
@@ -67,31 +55,19 @@ class ColumnValue(CustomizableBase):
     description: str | None = None
 
 
-class DatasetColumn(CustomizableBase):
+class DatasetColumn(Column):
     _head_sort_order = ["id", "name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
-    _validate_data_type = (
-        True  # override, to generate md where we don't know the data_type
-    )
 
     # Note: id isn't intended to be overrideable, but is always required as a
-    # pointer back to the original column, so it is required here.
-    id: str
+    # pointer back to the original column.
     name: str | None = None
-    data_type: str | None = None
     data_source: str | None = None
-    description: str | None = None
     notes: str | None = None
     example: str | None = None
-    checks: Checks | None = None
     deprecated: bool | None = None
     values: list[ColumnValue] | None = None
-
-    @field_validator("data_type")
-    def _validate_colum_types(cls, v):
-        if cls._validate_data_type:
-            assert v in get_args(COLUMN_TYPES)
-        return v
+    custom: dict[str, Any] = {}
 
     def override(self, overrides: DatasetColumn) -> DatasetColumn:
         return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
@@ -374,7 +350,7 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         return errors
 
     def apply_column_defaults(
-        self, column_defaults: dict[tuple[str, str], DatasetColumn]
+        self, column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
     ) -> list[DatasetColumn]:
         return [
             c.override(column_defaults[c.id, c.data_type])

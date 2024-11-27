@@ -9,6 +9,7 @@ from dcpy.models.connectors.edm import recipes, publishing
 from dcpy.models.connectors import web, socrata
 from dcpy.models import file
 from dcpy.models.base import SortedSerializedBase
+from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
 
 
 class LocalFileSource(BaseModel, extra="forbid"):
@@ -77,12 +78,10 @@ class Ingestion(SortedSerializedBase):
     processing_steps: list[ProcessingStep] = []
 
 
-class Column(SortedSerializedBase):
-    id: str
-    data_type: Literal[
-        "text", "integer", "decimal", "geometry", "bool", "date", "datetime"
-    ]
-    description: str | None = None
+class Column(BaseColumn):
+    _head_sort_order = ["id", "data_type", "description"]
+
+    data_type: COLUMN_TYPES  # override BaseColumn `data_type` to be required field
 
 
 class Template(BaseModel, extra="forbid"):
