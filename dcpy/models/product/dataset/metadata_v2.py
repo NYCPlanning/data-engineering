@@ -353,10 +353,8 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         self, column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
     ) -> list[DatasetColumn]:
         return [
-            (
-                c.override(column_defaults[c.id, c.data_type])
-                if c.data_type and (c.id, c.data_type) in column_defaults
-                else c
-            )
+            c.override(column_defaults[c.id, c.data_type])
+            if c.data_type and (c.id, c.data_type) in column_defaults
+            else c
             for c in self.columns
         ]
