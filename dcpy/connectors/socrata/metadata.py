@@ -54,7 +54,13 @@ def make_dcp_col(c: pub.Socrata.Responses.Column) -> md.DatasetColumn:
         dcp_col["values"] = [
             {"value": s["item"], "description": FILL_ME_IN_PLACEHOLDER} for s in samples
         ]
-    return md.DatasetColumn.model_construct(**dcp_col)
+    dataset_column = md.DatasetColumn.model_construct(**dcp_col)
+    
+    # model_construct() method doesn't perform validation on keys, need this sanity check here
+    # instance keys == column model keys below:
+    dataset_column.__dict__.keys() == dataset_column.model_fields.keys()
+    
+    return dataset_column
 
 
 def _slugify(s):
