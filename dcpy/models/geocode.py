@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 
 
-class BoroughBlockLotBbl(BaseModel):
-    borough_block_lot_bbl: str = Field(alias="BOROUGH BLOCK LOT (BBL)")
+class BBL(BaseModel):
+    bbl: str = Field(alias="BOROUGH BLOCK LOT (BBL)")
     borough_code: str = Field(alias="Borough Code")
     tax_block: str = Field(alias="Tax Block")
     tax_lot: str = Field(alias="Tax Lot")
@@ -15,7 +15,7 @@ class UnitSortFormat(BaseModel):
 
 
 class LowBblOfThisBuildingSCondominiumUnits(BaseModel):
-    low_bbl_of_this_building_s_condominium_units: str = Field(
+    low_bbl_of_this_buildings_condominium_units: str = Field(
         alias="LOW BBL OF THIS BUILDING'S CONDOMINIUM UNITS"
     )
     borough_code: str = Field(alias="Borough Code")
@@ -24,7 +24,7 @@ class LowBblOfThisBuildingSCondominiumUnits(BaseModel):
 
 
 class HighBblOfThisBuildingSCondominiumUnits(BaseModel):
-    high_bbl_of_this_building_s_condominium_units: str = Field(
+    high_bbl_of_this_buildings_condominium_units: str = Field(
         alias="HIGH BBL OF THIS BUILDING'S CONDOMINIUM UNITS"
     )
     borough_code: str = Field(alias="Borough Code")
@@ -33,7 +33,7 @@ class HighBblOfThisBuildingSCondominiumUnits(BaseModel):
 
 
 class SbvpSanbornMapIdentifier(BaseModel):
-    sbvp_sanborn_map_identifier: str = Field(alias="SBVP (SANBORN MAP IDENTIFIER)")
+    sbvp: str = Field(alias="SBVP (SANBORN MAP IDENTIFIER)")
     sanborn_borough_code: str = Field(alias="Sanborn Borough Code")
     volume_number: str = Field(alias="Volume Number")
     volume_number_suffix: str = Field(alias="Volume Number Suffix")
@@ -46,10 +46,8 @@ class ListOfGeographicIdentifiers(BaseModel):
     high_house_number: str = Field(alias="High House Number")
     borough_code: str = Field(alias="Borough Code")
     five_digit_street_code: str = Field(alias="5-Digit Street Code")
-    dcp_preferred_local_group_code_lgc: str = Field(
-        alias="DCP-Preferred Local Group Code (LGC)"
-    )
-    building_identification_number: str = Field(alias="Building Identification Number")
+    dcp_preferred_lgc: str = Field(alias="DCP-Preferred Local Group Code (LGC)")
+    bin: str = Field(alias="Building Identification Number")
     side_of_street_indicator: str = Field(alias="Side of Street Indicator")
     geographic_identifier_entry_type_code: str = Field(
         alias="Geographic Identifier Entry Type Code"
@@ -61,19 +59,19 @@ class Result1A(BaseModel):
     first_borough_name: str = Field(alias="First Borough Name")
     house_number_display_format: str = Field(alias="House Number - Display Format")
     house_number_sort_format: str = Field(alias="House Number - Sort Format")
-    b10_sc_first_borough_and_street_code: str = Field(
+    b10sc_first_borough_and_street_code: str = Field(
         alias="B10SC - First Borough and Street Code"
     )
     first_street_name_normalized: str = Field(alias="First Street Name Normalized")
-    b10_sc_second_borough_and_street_code: str = Field(
+    b10sc_second_borough_and_street_code: str = Field(
         alias="B10SC - Second Borough and Street Code"
     )
     second_street_name_normalized: str = Field(alias="Second Street Name Normalized")
-    b10_sc_third_borough_and_street_code: str = Field(
+    b10sc_third_borough_and_street_code: str = Field(
         alias="B10SC - Third Borough and Street Code"
     )
     third_street_name_normalized: str = Field(alias="Third Street Name Normalized")
-    borough_block_lot_bbl: BoroughBlockLotBbl = Field(alias="BOROUGH BLOCK LOT (BBL)")
+    bbl: BBL = Field(alias="BOROUGH BLOCK LOT (BBL)")
     filler_for_tax_lot_version_number: str = Field(
         alias="Filler for Tax Lot Version Number"
     )
@@ -81,16 +79,12 @@ class Result1A(BaseModel):
         alias="Low House Number - Display Format"
     )
     low_house_number_sort_format: str = Field(alias="Low House Number - Sort Format")
-    building_identification_number_bin: str = Field(
-        alias="Building Identification Number (BIN)"
-    )
+    bin: str = Field(alias="Building Identification Number (BIN)")
     street_attribute_indicators: str = Field(alias="Street Attribute Indicators")
     reason_code_2: str = Field(alias="Reason Code 2")
     reason_code_qualifier_2: str = Field(alias="Reason Code Qualifier 2")
     warning_code_2: str = Field(alias="Warning Code 2")
-    geosupport_return_code_2_grc_2: str = Field(
-        alias="Geosupport Return Code 2 (GRC 2)"
-    )
+    geosupport_return_code_2: str = Field(alias="Geosupport Return Code 2 (GRC 2)")
     message_2: str = Field(alias="Message 2")
     node_number: str = Field(alias="Node Number")
     unit_sort_format: UnitSortFormat = Field(alias="UNIT - SORT FORMAT")
@@ -100,7 +94,7 @@ class Result1A(BaseModel):
     reason_code: str = Field(alias="Reason Code")
     reason_code_qualifier: str = Field(alias="Reason Code Qualifier")
     warning_code: str = Field(alias="Warning Code")
-    geosupport_return_code_grc: str = Field(alias="Geosupport Return Code (GRC)")
+    geosupport_return_code: str = Field(alias="Geosupport Return Code (GRC)")
     message: str = Field(alias="Message")
     number_of_street_codes_and_street_names_in_list: str = Field(
         alias="Number of Street Codes and Street Names in List"
@@ -113,7 +107,7 @@ class Result1A(BaseModel):
     low_house_number_of_defining_address_range: str = Field(
         alias="Low House Number of Defining Address Range"
     )
-    rpad_self_check_code_scc_for_bbl: str = Field(
+    rpad_self_check_code_for_bbl: str = Field(
         alias="RPAD Self-Check Code (SCC) for BBL"
     )
     rpad_building_classification_code: str = Field(
@@ -132,7 +126,7 @@ class Result1A(BaseModel):
     marble_hill_rikers_island_alternate_borough_flag: str = Field(
         alias="Marble Hill/Rikers Island Alternate Borough Flag"
     )
-    list_of_geographic_identifiers_lgi_overflow_flag: str = Field(
+    lgi_overflow_flag: str = Field(
         alias="List of Geographic Identifiers (LGI) Overflow Flag"
     )
     strolling_key: str = Field(alias="STROLLING KEY")
@@ -143,7 +137,7 @@ class Result1A(BaseModel):
     side_of_street_indicator: str = Field(alias="Side of Street Indicator")
     high_house_number_sort_format: str = Field(alias="High House Number - Sort Format")
     reserved_for_internal_use: str = Field(alias="Reserved for Internal Use")
-    building_identification_number_bin_of_input_address_or_nap: str = Field(
+    bin_of_input_address_or_nap: str = Field(
         alias="Building Identification Number (BIN) of Input Address or NAP"
     )
     condominium_flag: str = Field(alias="Condominium Flag")
@@ -155,16 +149,16 @@ class Result1A(BaseModel):
     filler_tax_lot_version_no_for_billing_bbl: str = Field(
         alias="Filler - Tax Lot Version No. for Billing BBL"
     )
-    self_check_code_scc_of_billing_bbl: str = Field(
+    self_check_code_of_billing_bbl: str = Field(
         alias="Self-Check Code (SCC) of Billing BBL"
     )
-    low_bbl_of_this_building_s_condominium_units: LowBblOfThisBuildingSCondominiumUnits = Field(
+    low_bbl_of_this_buildings_condominium_units: LowBblOfThisBuildingSCondominiumUnits = Field(
         alias="LOW BBL OF THIS BUILDING'S CONDOMINIUM UNITS"
     )
     filler_for_tax_lot_version_no_of_low_bbl: str = Field(
         alias="Filler for Tax Lot Version No. of Low BBL"
     )
-    high_bbl_of_this_building_s_condominium_units: HighBblOfThisBuildingSCondominiumUnits = Field(
+    high_bbl_of_this_buildings_condominium_units: HighBblOfThisBuildingSCondominiumUnits = Field(
         alias="HIGH BBL OF THIS BUILDING'S CONDOMINIUM UNITS"
     )
     filler_for_tax_lot_version_no_of_high_bbl: str = Field(
@@ -184,7 +178,7 @@ class Result1A(BaseModel):
     x_y_coordinates_of_tax_lot_centroid_internal_to_lot: str = Field(
         alias="X-Y Coordinates of Tax Lot Centroid (Internal to Lot)"
     )
-    business_improvement_district_bid: str = Field(
+    business_improvement_district: str = Field(
         alias="Business Improvement District (BID)"
     )
     tpad_bin_status_for_dm_job: str = Field(alias="TPAD BIN Status (for DM job)")
