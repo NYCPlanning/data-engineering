@@ -5,190 +5,11 @@ import pandas as pd
 from pydantic import BaseModel
 from typing import Literal, Callable, TypeAlias
 
+from dcpy.models import geocode
+
 
 # GEOSUPPORT - map more 1-1 with underlying functionality
 g = Geosupport()
-
-# Notes
-# 1b seems to just be combo of 1a and 1e??
-
-# Inputs
-# - house/street
-# - bbl
-
-
-# Outputs
-# "Property-level" (1A)
-# "centerline-level" (1E)
-
-
-# abstract ish stuff
-class BlockFace(BaseModel):
-    pass
-
-
-class AddressPoint(BaseModel):
-    pass
-
-
-class Intersection(BaseModel):
-    pass
-
-
-class Lot(BaseModel):
-    pass
-
-
-### Property-level
-class AddressRange(BaseModel):
-    type: str
-    low_address_number: str
-    high_address_number: str
-    street_name: str
-    bin: str
-    bin_status: str
-
-
-class TPAD(BaseModel):
-    bin: str
-    bin_status: str
-    bin_conflict: bool
-
-
-class RPAD(BaseModel):
-    scc: int
-    building_class: str
-    interior_lot: bool
-    irregular_lot: bool
-    condo_number: int
-    coop_number: int | None = None
-
-
-class Property(BaseModel):
-    block: int
-    lot: int
-    bbl: str
-    n_block_faces: int
-    sanborn_bvp: str
-    epsg2263_xy: Point
-    lat_long: Point
-    condo_lot: str
-    vacant: bool
-    taxmap_section_volume: str
-    n_structures: int
-    zoningmap: str
-    condo_base_bbl: str | None = None
-    condo_billing_bbl: str | None = None
-    condo_low_bbl: str | None = None
-    condo_high_bbl: str | None = None
-    tpad: TPAD
-    rpad: RPAD
-    address_ranges: list[AddressRange]
-
-
-# centerline
-class Node(BaseModel):
-    id: int  # or str?? maybe non-functional leading zeroes
-    coordinate: Point
-
-
-class CrossStreet(BaseModel):
-    b7sc: int
-    name: str
-
-
-class Segment(BaseModel):
-    id: int
-    length: int
-    epsg2263_xy: Point
-    lat_long: Point
-    from_node: Node
-    to_node: Node
-    segment_from_node: Node
-    segment_to_node: Node
-    community_district: str
-    lion_face_code: int  # or str?? maybe non-functional leading zeroes
-    lion_sequence_number: int  # or str?? maybe non-functional leading zeroes
-    b10sc: str
-    alley_cross_street_flag: bool
-    traffic_direction: str  # todo lookup codes
-    speed_limit: int
-    coincident_segment_count: int
-    curve_flag: bool
-    segment_type: str  # todo lookup possible vals
-    feature_type: str  # todo lookup possible vals
-    right_of_way_type: str  # todo lookup possible vals
-    roadway_type: str  # todo lookup possible vals
-    n_parking_lanes: int
-    n_travel_lanes: int
-    n_total_lanes: int
-    bike_lane: str  # todo lookup possible vals
-    bike_name_traffic_direction: str  # todo lookup possible vals
-    street_width_min_max: tuple[int, int]
-    atomic_polygon: int
-    physical_id: int  # or str - leading zeroes
-    block_face_id: int  # or str - leading zeroes
-    generic_id: int  # or str - leading zeroes
-    cd_eligible: bool  # (or str if more than 2 vals)
-    special_address: str | None = None
-    zip_code: int
-    usps_city_name: str
-    dcp_preferred_b7sc: int
-    dcp_preferred_street_name: str
-    low_house_number: str
-    high_house_number: str
-    truck_route_type: int
-    low_end_cross_streets: list[CrossStreet]
-    high_end_cross_streets: list[CrossStreet]
-
-
-# Other
-class CityServices(BaseModel):
-    police_patrol_borough: str
-    police_precinct: int
-    police_sector: str
-    police_service_area: str | None = None
-    fire_division: int
-    fire_battalion: int
-    fire_company: str
-    health_area: str
-    health_center_district: int
-    school_district: int
-    sanitation_district_section: str
-    sanitation_subsection: str
-    sanitation_pickup_regular: str
-    sanitation_pickup_recycling: str
-    sanitation_pickup_organics: str
-    sanitation_pickup_bulk: str
-    dsny_snow_priority: str
-    dsny_commercial_waste_zone: str
-    hurrican_evac_zone: int
-    dot_street_light_area: int
-
-
-class CensusGeographicInformation(BaseModel):
-    ct_2020: int
-    cb_2020: int
-    ct_2010: int
-    cb_2010: int
-    ct_2000: int
-    cb_2000: int
-    cdta_2020: str
-    nta_2020: str
-    nta_2020_name: str
-    puma_2020: str
-    nta_2010: str
-    puma_2010: str
-
-
-class PoliticalInformation(BaseModel):
-    city_council_district: int
-    assembly_district: int
-    congressional_district: int
-    municipal_court_district: int
-    election_district: int  # maybe str - leading zeroes
-    state_senate_district: int
-    boe_preferred_b7sc_street_name: str
 
 
 def function1(
@@ -200,7 +21,7 @@ def function1(
     street_name_normalization: bool = False,
     zip_code: int | str | None = None,
     roadbed_request_switch: bool = False,
-    browse_flag: bool = False,
+    browse_flag: Literal["P", "F", "R"] | None = None,
 ):
     """
     Function 1 processes an input address or input Non-Addressable Place name (NAP) (see Chapter III.6).  When called using two work areas, Function 1 returns information about the blockface containing the input address or NAP.  This information includes the cross streets at the two intersections delimiting the blockface, and a set of geographic district identifiers including ZIP code, census tract and community district.  Function 1 may be called with the Extended Mode Switch.
@@ -227,10 +48,11 @@ def function1(
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix01/#function-1
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix13/#work-area-2-cow-functions-1-1e
     """
-    kwargs = locals()
-    if len(kwargs.keys() & {"borough_code", "zip_code"}) != 1:
+    if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
-    return g["1"](kwargs_dict=kwargs)
+    res = g["1"](kwargs_dict=locals())
+    print(res)
+    return geocode.Result1(**res)
 
 
 def function1a(
@@ -241,7 +63,7 @@ def function1a(
     snl: int = 32,
     street_name_normalization: bool = False,
     zip_code: int | str | None = None,
-    browse_flag: bool = False,
+    browse_flag: Literal["P", "F", "R"] | None = None,
     long_work_area_2: bool = False,
     tpad: bool = False,
 ):
@@ -275,10 +97,11 @@ def function1a(
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix01/#function-1a
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix13/#work-area-2-cow-functions-1a-bl-bn
     """
-    kwargs = locals()
-    if len(kwargs.keys() & {"borough_code", "zip_code"}) != 1:
+    if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
-    return g["1A"](kwargs_dict=kwargs)
+    res = g["1A"](kwargs_dict=locals())
+    print(res)
+    return geocode.Result1A(**res)
 
 
 def function1b(
@@ -289,7 +112,7 @@ def function1b(
     snl: int = 32,
     street_name_normalization: bool = False,
     zip_code: int | str | None = None,
-    browse_flag: bool = False,
+    browse_flag: Literal["P", "F", "R"] | None = None,
 ):
     """
     Function 1B processes an input address or input Non-Addressable Place name (NAP) (see Chapter III.6).  Function 1B returns information about the blockface as well as information about the tax lot and the building (if any) identified by the input address or NAP. The information that is returned includes the cross streets at the two intersections delimiting the blockface, and a set of geographic district identifiers including ZIP code, census tract and community district. Information about the tax lot and the building (if any) identified by the input address or NAP is also returned. This information includes the Borough, Block, and, Lot (BBL), which is the Department of Finance's (DOF) identifier for the tax lot; the DOF building class code; the number of buildings on the lot; the number of street frontages of the lot; a flag indicating whether the lot is a condominium; and the Building Identification Number (BIN) (see Chapter VI.3) of the building identified by the input address
@@ -329,7 +152,7 @@ def function1e(
     cross_street_names: bool = False,
     zip_code: int | str | None = None,
     roadbed_request_switch: bool = False,
-    browse_flag: bool = False,
+    browse_flag: Literal["P", "F", "R"] | None = None,
 ):
     """
     Function 1E processes an input address or input NAP. It returns the same WA2 information that is returned by Function 1, and additionally, it returns a set of political districts, including Election, State Assembly and Senate, City Council and Congressional Districts.
@@ -355,10 +178,10 @@ def function1e(
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix01/#function-1e
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix13/#work-area-2-cow-functions-1-1e
     """
-    kwargs = locals()
-    if len(kwargs.keys() & {"borough_code", "zip_code"}) != 1:
+    if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
-    return g["1E"](kwargs_dict=kwargs)
+    res = g["1E"](kwargs_dict=locals())
+    return geocode.Result1E(**res)
 
 
 def function1n(
@@ -368,7 +191,7 @@ def function1n(
     snl: int = 32,
     street_name_normalization: bool = False,
     zip_code: int | str | None = None,
-    browse_flag: bool = False,
+    browse_flag: Literal["P", "F", "R"] | None = None,
 ):
     """
     1N (street_name_to_street_code, get_street_code)
@@ -392,10 +215,10 @@ def function1n(
     ========================================
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix01/#function-1n
     """
-    kwargs = locals()
-    if len(kwargs.keys() & {"borough_code", "zip_code"}) != 1:
+    if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
-    return g["1E"](kwargs_dict=kwargs)
+    res = g["1N"](kwargs_dict=locals())
+    return  # geocode.BlockFace(**res)
 
 
 # GEOCODE - How I actually want to interact with i
