@@ -1,0 +1,55 @@
+id: dcp_ct2020
+acl: public-read
+
+attributes:
+  name: Census Tracts for the 2020 US Census (Clipped to shoreline)
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyct2020_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nyct2020_{{ version }}/nyct2020.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: ctlabel
+  data_type: text
+- id: borocode
+  data_type: text
+- id: boroname
+  data_type: text
+- id: ct2020
+  data_type: text
+- id: boroct2020
+  data_type: text
+- id: cdeligibil
+  data_type: text
+- id: ntaname
+  data_type: text
+- id: nta2020
+  data_type: text
+- id: cdta2020
+  data_type: text
+- id: cdtaname
+  data_type: text
+- id: geoid
+  data_type: text
+- id: puma
+  data_type: text
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

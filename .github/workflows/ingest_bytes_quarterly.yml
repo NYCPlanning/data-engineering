@@ -40,6 +40,7 @@ jobs:
           - dcp_cdboundaries_wi
           - dcp_cdta2020
           - dcp_congressionaldistricts
+          - dcp_congressionaldistricts_wi
           - dcp_councildistricts
           - dcp_councildistricts_wi
           - dcp_ct2010
@@ -53,13 +54,16 @@ jobs:
           - dcp_healthcenters
           - dcp_lion
           - dcp_municipalcourtdistricts
+          - dcp_municipalcourtdistricts_wi
           - dcp_nta2010
           - dcp_nta2020
           - dcp_pad
           - dcp_policeprecincts
           - dcp_school_districts
           - dcp_stateassemblydistricts
+          - dcp_stateassemblydistricts_wi
           - dcp_statesenatedistricts
+          - dcp_statesenatedistricts_wi
     steps:
       - uses: actions/checkout@v4
 

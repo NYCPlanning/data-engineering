@@ -1,0 +1,33 @@
+id: dcp_school_districts
+acl: public-read
+
+attributes:
+  name: NYC School Districts
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nysd_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nysd_{{ version }}/nysd.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
+  - name: rename_columns
+    args:
+      map: {"geom": "wkb_geometry"}
+  - name: multi
+
+columns:
+- id: schooldist
+  data_type: integer
+- id: shape_leng
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: wkb_geometry
+  data_type: geometry

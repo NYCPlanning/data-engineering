@@ -1,0 +1,74 @@
+id: dcp_pad
+acl: public-read
+
+attributes:
+  name: Property Address Directory
+  description: >
+    The PAD (Property Address Directory) file contains additional geographic information at 
+    the tax lot level not found in the PLUTO files. This data includes alias addresses and 
+    Building Identification Numbers (BINs). It consists of two ASCII, comma delimited files: 
+    tax lot file and an address file.
+  url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/padgui.pdf
+
+ingestion:
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_{{ version }}.zip
+  file_format:
+    type: csv
+    unzipped_filename: bobaadr.txt
+    dtype: str
+
+columns:
+- id: boro
+  data_type: text
+- id: block
+  data_type: text
+- id: lot
+  data_type: text
+- id: bin
+  data_type: text
+- id: lhnd
+  data_type: text
+- id: lhns
+  data_type: text
+- id: lcontpar
+  data_type: text
+- id: lsos
+  data_type: text
+- id: hhnd
+  data_type: text
+- id: hhns
+  data_type: text
+- id: hcontpar
+  data_type: text
+- id: hsos
+  data_type: text
+- id: scboro
+  data_type: text
+- id: sc5
+  data_type: text
+- id: sclgc
+  data_type: text
+- id: stname
+  data_type: text
+- id: addrtype
+  data_type: text
+- id: realb7sc
+  data_type: text
+- id: validlgcs
+  data_type: text
+- id: dapsflag
+  data_type: text
+- id: naubflag
+  data_type: text
+- id: parity
+  data_type: text
+- id: b10sc
+  data_type: text
+- id: segid
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: physical_id
+  data_type: text
