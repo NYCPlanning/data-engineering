@@ -1,5 +1,5 @@
 from pathlib import Path
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 import css_inline
 from bs4 import BeautifulSoup
 import subprocess
@@ -8,10 +8,13 @@ from dcpy.utils.logging import logger
 
 from . import RESOURCES_PATH
 
+DEFAULT_PDF_STYLESHEET_PATH = RESOURCES_PATH / "document_templates" / "paged_media.css"
 DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH = (
-    RESOURCES_PATH / "data_dictionary_template.jinja"
+    RESOURCES_PATH / "document_templates" / "data_dictionary.jinja"
 )
-DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH = RESOURCES_PATH / "data_dictionary.css"
+DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH = (
+    RESOURCES_PATH / "document_templates" / "document.css"
+)
 
 
 def _format_html(html: str) -> str:
@@ -48,10 +51,9 @@ def _style_html_document(html: str, stylesheet_path: Path) -> str:
 def generate_pdf_from_html(
     html_path: Path,
     output_path: Path,
-    stylesheet_path: Path,
+    stylesheet_path: Path = DEFAULT_PDF_STYLESHEET_PATH,
 ) -> Path:
     logger.info(f"Saving DCP PDF to {output_path}")
-    # TODO style HTML before converting to PDF
     subprocess.run(
         [
             "weasyprint",
@@ -69,17 +71,16 @@ def generate_html_from_yaml(
     metadata_path: Path,
     output_path: Path,
     html_template_path: Path,
+    stylesheet_path: Path,
 ) -> Path:
-    metadata = Metadata.from_path(metadata_path, template_vars={"var1": "value1"})
+    metadata = Metadata.from_path(metadata_path)
 
-    # TODO use _render_html_template and _compose_html_document
-    with open(html_template_path, "r") as f:
-        template_text = f.read()
-    rendered_template = Template(template_text).render({"metadata": metadata})
+    html = _render_html_template(html_template_path, {"metadata": metadata})
+    styled_html = _style_html_document(html, stylesheet_path)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Saving DCP HTML to {output_path}")
     with open(output_path, "w") as f:
-        f.write(rendered_template)
+        f.write(styled_html)
 
     return output_path

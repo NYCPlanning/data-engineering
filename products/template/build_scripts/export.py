@@ -36,11 +36,11 @@ def generate_metadata():
         dataset_metadata_yml,
         PRODUCT_PATH / "data_dictionary.html",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
+        generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
     generate_metadata_assets.generate_pdf_from_html(
         html_path,
         PRODUCT_PATH / "data_dictionary.pdf",
-        generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
     xlsx_writer.write_xlsx(
         org_md=org_metadata,
