@@ -1,0 +1,31 @@
+<div class="attributes">
+
+  <h2>Columns</h2>
+
+  {% for column in metadata.columns %}
+  <div class="column">
+
+    <h3>{{ column.name }} ({{ column.id }})</h3>
+
+    <p class="column-field">
+      <span class="field-name">Description:</span> {{ column.description }}
+    </p>
+    <p class="column-field">
+      <span class="field-name">Type:</span>
+      {% if column.custom.readme_data_type %}
+      {{ column.custom.readme_data_type }}
+      {% else %}
+      {{ column.data_type }}
+      {% endif %}
+    </p>
+    <p class="column-field">
+      <span class="field-name">Source:</span> {{ column.data_source }}
+    </p>
+    <p class="column-field">
+      <span class="field-name">Example:</span> {{ column.example }}
+    </p>
+
+  </div>
+  {% endfor %}
+
+</div>

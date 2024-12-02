@@ -82,6 +82,7 @@ class TestDataDictionary(object):
             metadata_path=self.yaml_path,
             output_path=self.html_path,
             html_template_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
+            stylesheet_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
         )
         pdf_path = generate_metadata_assets.generate_pdf_from_html(
             html_path=html_path,

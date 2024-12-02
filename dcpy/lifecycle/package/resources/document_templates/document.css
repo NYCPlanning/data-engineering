@@ -1,0 +1,12 @@
+html {
+  color: #393939;
+  font-family: Fira Sans;
+  font-size: 10pt;
+}
+
+.field-name {
+  font-weight: bold;
+}
+.column-field {
+  text-indent: 1cm;
+}

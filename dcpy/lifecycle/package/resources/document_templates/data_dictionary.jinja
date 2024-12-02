@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ metadata.attributes.display_name }} Data Dictionary</title>
+</head>
+
+<body>
+    <h1>{{ metadata.attributes.display_name }} - Data Dictionary</h1>
+
+    {% include 'attributes.jinja' %}
+
+    {% include 'columns.jinja' %}
+</body>
+
+</html>

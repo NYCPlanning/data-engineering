@@ -1,0 +1,21 @@
+<div class="attributes">
+
+  <h2>Attributes</h2>
+
+  <div class="field">
+
+    <p class="field-content">
+      <span class="field-name">Description:</span> {{ metadata.attributes.description }}
+    </p>
+
+    <p class="field-content">
+      <span class="field-name">Each row is a:</span> {{ metadata.attributes.each_row_is_a }}
+    </p>
+
+    <p class="field-content">
+      <span class="field-name">Tags:</span> {{ metadata.attributes.tags|join(', ') }}
+    </p>
+
+  </div>
+
+</div>

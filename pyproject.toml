@@ -150,5 +150,5 @@ library = "dcpy.library.cli:run"
 [tool.setuptools.package-data]
 dcpy = [
     "library/templates/*.yml",
-    "lifecycle/package/resources/*",
+    "lifecycle/package/resources/**",
 ]

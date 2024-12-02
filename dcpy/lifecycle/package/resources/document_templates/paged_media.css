@@ -1,0 +1,12 @@
+@page {
+  @top-left {
+    content: url("../dcp_logo.png");
+  }
+  @top-right {
+    content: string(top-right-text);
+  }
+  @bottom-right-corner {
+    content: counter(page);
+    text-align: center;
+  }
+}
