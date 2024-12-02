@@ -126,12 +126,11 @@ sources:
         columns:
           - name: bbl
           - name: last_actio
-          - name: latitude
           - name: lm_name
           - name: lm_type
-          - name: longitude
           - name: most_curre
           - name: status
+          - name: wkb_geometry
 
       - name: lpc_scenic_landmarks
         columns:
@@ -524,4 +523,4 @@ sources:
               - unique
           - name: coastal_hazard_area_flag
           - name: fresh_water_wetlands_flag
-          - name: tidal_coastal_wetlands_flag 
+          - name: tidal_coastal_wetlands_flag
