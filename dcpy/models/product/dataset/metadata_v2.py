@@ -168,9 +168,16 @@ class DatasetOverrides(CustomizableBase):
     attributes: DatasetAttributesOverride = DatasetAttributesOverride()
 
 
+class Revision(CustomizableBase):
+    date: str
+    summary: str
+    notes: str
+
+
 class Dataset(CustomizableBase):
     columns: list[DatasetColumn]
     attributes: DatasetAttributes
+    revisions: list[Revision] = []
 
     def override(self, overrides: DatasetOverrides) -> Dataset:
         """Apply column updates and prune any columns specified as omitted"""
@@ -183,7 +190,9 @@ class Dataset(CustomizableBase):
         ]
 
         return Dataset(
-            columns=columns, attributes=self.attributes.override(overrides.attributes)
+            columns=columns,
+            attributes=self.attributes.override(overrides.attributes),
+            revisions=self.revisions,
         )
 
 
@@ -226,6 +235,7 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
     columns: List[DatasetColumn] = []
     files: List[FileAndOverrides] = []
     destinations: List[DestinationWithFiles] = []
+    revisions: list[Revision] = []
 
     _head_sort_order = [
         "id",
@@ -236,7 +246,9 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
 
     @property
     def dataset(self):
-        return Dataset(attributes=self.attributes, columns=self.columns)
+        return Dataset(
+            attributes=self.attributes, columns=self.columns, revisions=self.revisions
+        )
 
     def get_package(self, id: str) -> Package:
         packages = [p for p in self.assembly if p.id == id]

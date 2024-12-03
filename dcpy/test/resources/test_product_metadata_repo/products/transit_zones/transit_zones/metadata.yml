@@ -57,3 +57,34 @@ columns:
     name: Shape_Area
     data_type: decimal
     description: Area of feature in internal units squared.
+  - id: fake_borough
+    name: Borough
+    data_type: text
+    description:
+      NYC borough - 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
+      (Staten Island)
+    checks:
+      non_nullable: true
+    example: None
+    values:
+      - value: "1"
+        description: Manhattan
+      - value: "2"
+        description: Bronx
+      - value: "3"
+        description: Brooklyn
+      - value: "4"
+        description: Queens
+      - value: "5"
+        description: Staten Island
+
+revisions:
+  - date: "2024-01-01"
+    summary: added column
+    notes: explanation for why we added a column
+  - date: "2024-03-01"
+    summary: removed column
+    notes: explanation for why we removed a column
+  - date: "2024-04-01"
+    summary: one more for good measure
+    notes: Another revision
