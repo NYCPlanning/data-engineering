@@ -1,5 +1,5 @@
+from pathlib import Path
 import pytest
-from unittest import TestCase
 from dcpy.test.lifecycle.package.conftest import (
     PACKAGE_RESOURCES_PATH,
     TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH,
@@ -8,11 +8,16 @@ from dcpy.test.lifecycle.package.conftest import (
 )
 
 from dcpy.lifecycle.package import generate_metadata_assets, oti_xlsx
-from dcpy.models.product.dataset import metadata_v2 as md
+from dcpy.models.product.metadata import OrgMetadata
+
+
+@pytest.fixture
+def org_metadata(resources_path: Path):
+    return OrgMetadata.from_path(resources_path / "test_product_metadata_repo")
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
-class TestDataDictionary(TestCase):
+class TestDataDictionary(object):
     package_path = TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH
     yaml_path = TEST_METADATA_YAML_PATH
     html_path = TEMP_DATA_PATH / "metadata.html"
@@ -85,9 +90,10 @@ class TestDataDictionary(TestCase):
         )
         assert pdf_path.exists()
 
-    def test_generate_xslx(self):
+    def test_generate_xslx(self, org_metadata):
         oti_xlsx.write_oti_xlsx(
-            dataset=md.Metadata.from_path(self.package_path / "metadata.yml").dataset,
-            output_path=self.output_xlsx_path,
+            org_md=org_metadata,
+            product="transit_zones",  # This one has some mock revision history, so it's a good test case.
+            output_path=TestDataDictionary.output_xlsx_path,
         )
-        assert self.output_xlsx_path.exists()
+        assert TestDataDictionary.output_xlsx_path.exists()

@@ -1,193 +1,213 @@
+from copy import copy
 import openpyxl  # type: ignore
-from openpyxl.styles import Border, Side, Alignment, Font  # type: ignore
+from openpyxl.styles import Border, Side, Alignment  # type: ignore
+from openpyxl.cell.text import InlineFont  # type: ignore
+from openpyxl.cell.rich_text import TextBlock, CellRichText  # type: ignore
+from openpyxl.drawing.image import Image  # type: ignore
+from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder  # type: ignore
+from openpyxl.utils import get_column_letter
 from pathlib import Path
-from tabulate import tabulate  # type: ignore
 import typer
 
-
-from dcpy.models.product.dataset import metadata_v2 as md_v2
+from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
+from dcpy.models.product.metadata import OrgMetadata
+from dcpy.models.design import elements as de
 from dcpy.utils.logging import logger
 
 from . import RESOURCES_PATH
+from . import abstract_doc
 
 DEFAULT_TEMPLATE_PATH = RESOURCES_PATH / "oti_data_dictionary_template.xlsx"
-
-
 OTI_METADATA_FILE_TYPE = "oti_data_dictionary"
+DEFAULT_FONT = "Arial"
 
 
-class OTI_XLSX_TABS:
-    dataset_info = "Dataset Information"
-    column_information = "Column Information"
-    revision_history_information = "Dataset Revision History"
-
-
-DISCLAIMER = """\
-  This dataset is being provided by the Department of City Planning (DCP) on DCP’s\
-  website for informational purposes only. DCP does not warranty the completeness,\
-  accuracy, content, or fitness for any particular purpose or use of the dataset,\
-  nor are any such warranties to be implied or inferred with respect to the dataset\
-  as furnished on the website. DCP and the City are not liable for any deficiencies\
-  in the completeness, accuracy, content, or fitness for any particular purpose or\
-  use the dataset, or applications utilizing the dataset, provided by any third party.\
-"""
-
-# pulling this out solely for a test case.
-_DESCRIPTION_ROW_INDEX = 15
-
-
-def _get_dataset_description(path: Path):
-    xlsx_wb = openpyxl.load_workbook(filename=path)
-    ds_info = xlsx_wb[OTI_XLSX_TABS.dataset_info]
-
-    rows = [r for r in ds_info.rows]
-    return rows[_DESCRIPTION_ROW_INDEX][1].value
-
-
-def _write_dataset_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Dataset):
-    ds_info_sheet = xlsx_wb[OTI_XLSX_TABS.dataset_info]
-
-    rows = [r for r in ds_info_sheet.rows]
-
-    # Dataset Name: 8
-    rows[8][1].value = metadata.attributes.display_name
-
-    # Dataset URL: 9
-    # TODO
-
-    # The name of the NYC agency providing this data to the public.": 10
-    rows[10][1].value = metadata.attributes.display_name
-
-    # Each Row Is A: The unit of analysis/level of aggregation of the dataset": 11
-    rows[11][1].value = metadata.attributes.each_row_is_a
-
-    # Publishing Frequency. How often changed data is published to this dataset. For an automatically updated dataset, this is the frequency of that automation": 12
-    rows[12][1].value = metadata.attributes.publishing_frequency
-
-    # How often the data underlying this dataset is changed": 13
-    rows[13][1].value = metadata.attributes.publishing_frequency
-
-    # Frequency Details. Additional details about the publishing or data change frequency, if needed": 14
-    rows[14][1].value = metadata.attributes.publishing_frequency_details
-
-    # Dataset Description. Overview of the information this dataset contains, including overall context and definitions of key terms. This field may include links to supporting datasets, agency websites, or external resources for additional context. ": 15
-    rows[_DESCRIPTION_ROW_INDEX][1].value = metadata.attributes.description
-
-    # Why is this dataset collected. Purpose behind the collection of this data, including any legal or policy requirements for this data by NYC Executive Order, Local Law, or other policy directive.": 16
-    rows[16][1].value = metadata.attributes.publishing_purpose
-
-    # How is this data collectred? If data collection includes fielding applications, requests, or complaints, this field includes details about the forms, applications, and processes used.  ": 17
-    rows[17][1].value = metadata.attributes.publishing_purpose
-
-    # "How can this data be used? What are some questions one might answer using this dataset?": 18
-    rows[18][1].value = metadata.attributes.potential_uses
-
-    # What are the unique characteristics or limitations of this dataset? Unique characteristics of this dataset to be aware of, specifically, constraints or limitations to the use of the data.": 19
-    rows[19][1].value = DISCLAIMER
-    # For any datasets with geospatial data, specify the coordinate reference system or projection used and other relevant details.": 20
-    rows[20][1].value = metadata.attributes.projection
-
-
-def _set_default_style(cell, *, is_rightmost=True, is_last_row=False):
+def _set_default_style(cell, *, is_rightmost=True, is_topmost=False, is_last_row=False):
     border_side_thin = Side(border_style="thin", color="000000")
     border_side_medium = Side(border_style="medium", color="000000")
 
-    cell.alignment = Alignment(wrapText=True, vertical="top")
+    cell.alignment = Alignment(wrapText=True, vertical="center")
     cell.border = Border(
-        top=border_side_thin,
+        top=border_side_medium if is_topmost else border_side_thin,
         left=border_side_thin,
         right=border_side_medium if is_rightmost else border_side_thin,
         bottom=border_side_medium if is_last_row else border_side_thin,
     )
 
 
-def _format_row_slice(row_slice, is_last_row=False):
+def _format_row_slice(row_slice, is_first_row=False, is_last_row=False):
     """Format a row slice with OTI's table formatting."""
     *left_cells, rightmost_cell = row_slice
     [
         _set_default_style(
             c,
             is_last_row=is_last_row,
+            is_topmost=is_first_row,
             is_rightmost=False,
         )
         for c in left_cells
     ]
-    _set_default_style(rightmost_cell, is_last_row=is_last_row, is_rightmost=True)
+    _set_default_style(
+        rightmost_cell,
+        is_topmost=is_first_row,
+        is_last_row=is_last_row,
+        is_rightmost=True,
+    )
 
 
-def _write_column_information(xlsx_wb: openpyxl.Workbook, metadata: md_v2.Dataset):
-    ds_info_sheet = xlsx_wb[OTI_XLSX_TABS.column_information]
+def _abstract_style_to_xlsx(c: de.CellStyle):
+    return {
+        k: v
+        for k, v in {
+            "rFont": c.font.name or DEFAULT_FONT,
+            "color": c.font.rgb,
+            "b": c.font.bold,
+            "sz": c.font.size,
+            "i": c.font.italic,
+        }.items()
+        if v
+    }
 
-    header_description_row_index = 2
-    ds_info_sheet.insert_rows(header_description_row_index + 2, len(metadata.columns))
 
-    rows = [r for r in ds_info_sheet.rows]
+def _to_human_readable_val(v) -> str:
+    if type(v) is bool:
+        return "Yes" if v else "No"
+    elif not v:
+        return ""
+    else:
+        return str(v)
 
-    for idx, md_col in enumerate(metadata.columns):
-        new_row_idx = idx + header_description_row_index + 1
 
-        row_slice = rows[new_row_idx][0:5]
-        col_name, col_val, col_expected_values, col_field_limits, col_notes = row_slice
+def generate_table_sheet(
+    xlsx_wb: openpyxl.Workbook,
+    table: de.Table,
+    *,
+    tab_name: str,
+    tab_index: int = -1,
+    table_row_start_index=1,
+):
+    new_sheet = xlsx_wb.create_sheet(title=tab_name, index=tab_index)
+    new_sheet.sheet_view.showGridLines = False
 
-        # The basics
-        col_name.value = md_col.name
-        col_val.value = md_col.description
-        col_field_limits.value = ""  # TODO: field limitations
-        col_notes.value = md_col.notes
+    new_sheet.insert_rows(table_row_start_index, len(table.rows))
+    new_sheet.insert_cols(1, table.total_cols() - 1)
+    new_sheet_rows = [r for r in new_sheet.rows]
 
-        # Standardized Values Table
-        col_expected_values.font = Font(
-            name="Consolas"
-        )  # Need a monospaced font for tables columns to align
-        col_expected_values.value = (
-            tabulate(
-                [
-                    [str(v.value) + " ", str(v.description or " ") + " "]  # bool issue
-                    for v in md_col.values
-                ],
-                headers=["Value", "Description"],
-                tablefmt="presto",
-                maxcolwidths=[10, 40],
-            )
-            if md_col.values
-            else ""
+    # Set Column Widths when specified
+    dim_holder = DimensionHolder(worksheet=new_sheet)  # type: ignore
+    for idx, col in enumerate(range(new_sheet.min_column, new_sheet.max_column + 1)):
+        col_dim = ColumnDimension(new_sheet, min=col, max=col)
+
+        maybe_width = (
+            table.column_widths[idx]
+            if table.column_widths and len(table.column_widths) > idx
+            else None
         )
+        if maybe_width:
+            col_dim.width = maybe_width
 
-        _format_row_slice(row_slice, is_last_row=idx == (len(metadata.columns) - 1))
+        dim_holder[get_column_letter(col)] = col_dim
+    new_sheet.column_dimensions = dim_holder
 
+    for r_idx, r in enumerate(table.rows):
+        row = new_sheet_rows[r_idx]
+        if r.merge_cells:
+            # for merged cells, just format the top-leftmost cell
+            if not r.skip_default_styling:
+                _format_row_slice(
+                    row[0:1],
+                    is_first_row=r.is_top_row,
+                    is_last_row=r_idx == len(table.rows) - 1,
+                )
+            new_sheet.merge_cells(
+                start_row=r_idx + 1,
+                end_row=r_idx + 1,
+                start_column=1,
+                end_column=table.total_cols(),
+            )
+        else:
+            if not r.skip_default_styling:
+                _format_row_slice(row, is_last_row=r_idx == len(table.rows) - 1)
 
-def _write_change_history(xlsx_wb: openpyxl.Workbook, change_log: list[list[str]]):
-    rev_sheet = xlsx_wb[OTI_XLSX_TABS.revision_history_information]
-    header_description_row_index = 2
-
-    rev_sheet.insert_rows(header_description_row_index + 2, len(change_log))
-
-    rows = [r for r in rev_sheet.rows]
-    for idx, rev in enumerate(change_log):
-        row_slice = rows[idx + header_description_row_index + 1][0:3]
-        col_date, col_change_highlights, col_comments = row_slice
-
-        col_date.value = rev[0]
-        col_change_highlights.value = rev[1]
-        col_comments.value = rev[2]
-
-        _format_row_slice(row_slice, is_last_row=idx == (len(change_log) - 1))
+        if r.height:
+            new_sheet.row_dimensions[r_idx + 1].height = r.height
+        for c_idx, c in enumerate(r.cells):
+            if type(c.value) is list and c.value and type(c.value[0]) is de.Cell:
+                # Inline Cells
+                cell = CellRichText(
+                    [
+                        TextBlock(
+                            InlineFont(**_abstract_style_to_xlsx(ic.style)),
+                            _to_human_readable_val(ic.value),
+                        )
+                        for ic in c.value
+                    ]
+                )
+                row[c_idx].value = cell
+            elif type(c.value) is de.Image:
+                cell = row[c_idx]
+                PIXELS_PER_INCH = 96.0
+                img = Image(c.value.path)
+                img.height = int(1.01 * PIXELS_PER_INCH)
+                img.width = int(6.15 * PIXELS_PER_INCH)
+                new_sheet.add_image(img, cell.coordinate)  # type: ignore
+            else:
+                row[c_idx].value = CellRichText(
+                    TextBlock(
+                        InlineFont(**_abstract_style_to_xlsx(c.style)),
+                        _to_human_readable_val(c.value),
+                    )
+                )
+            if c.style.text_alignment_vertical or c.style.text_alignment_horizontal:
+                alignment = copy(row[c_idx].alignment)
+                if c.style.text_alignment_vertical:
+                    alignment.vertical = c.style.text_alignment_vertical
+                if c.style.text_alignment_horizontal:
+                    alignment.horizontal = c.style.text_alignment_horizontal
+                row[c_idx].alignment = alignment
 
 
 def write_oti_xlsx(
     *,
-    dataset: md_v2.Dataset,
+    org_md: OrgMetadata,
+    product: str,
+    dataset: str | None = None,
     output_path: Path | None = None,
     template_path_override: Path | None = None,
+    artifact_name: str | None = None,
 ):
+    artifacts = org_md.get_packaging_artifacts()
+    dataset = dataset or product
+
+    xlsx_artifacts = [a for a in artifacts if a.type == "xlsx"]
+    artifact = None
+    if artifact_name:
+        matched = [a for a in xlsx_artifacts if a.name == artifact_name]
+        if len(matched) != 1:
+            raise Exception(f"Expected exactly one artifact named {matched}")
+        artifact = matched[0]
+    else:
+        if len(xlsx_artifacts) == 1:
+            artifact = xlsx_artifacts[0]
+        else:
+            raise Exception("An artifact name must be specified")
+
+    tables = abstract_doc.generate_abstract_artifact(
+        product=product, dataset=dataset, org_metadata=org_md, artifact=artifact
+    )
     xlsx_wb = openpyxl.load_workbook(
         filename=template_path_override or DEFAULT_TEMPLATE_PATH
     )
-    _write_dataset_information(xlsx_wb, dataset)
-    _write_column_information(xlsx_wb, dataset)
-    # TODO: this locationw will change
-    _write_change_history(xlsx_wb, dataset.attributes.custom.get("change_log", []))
 
+    tab_and_tables = zip(artifact.components, tables)
+    for tab, table in tab_and_tables:
+        generate_table_sheet(
+            xlsx_wb, table=table, tab_index=tab.index, tab_name=tab.name
+        )
+
+    if "delete_me" in xlsx_wb.sheetnames:
+        # A saved worksheet requires at least one visible tab, so we left one called `delete_me`
+        del xlsx_wb["delete_me"]
     out_path = output_path or Path("./data_dictionary.xlsx")
     logger.info(f"Saving OTI XLSX to {out_path}")
     xlsx_wb.save(out_path)
@@ -198,9 +218,16 @@ app = typer.Typer()
 
 @app.command("generate_xlsx")
 def _write_oti_xlsx_cli(
-    metadata_path: Path,
-    output_path: Path = typer.Option(
+    product: str,
+    dataset: str,
+    artifact_name: Path = typer.Option(
         None,
+        "--artifact-name",
+        "-n",
+        help="Name of the xlsx artifact to generate",
+    ),
+    output_path: Path = typer.Option(
+        Path("data_dictionary.xlsx"),
         "--output-path",
         "-o",
         help="Output Path. Defaults to ./data_dictionary.xlsx",
@@ -211,9 +238,21 @@ def _write_oti_xlsx_cli(
         "-t",
         help="(Override) Template Path",
     ),
+    metadata_path_override: Path = typer.Option(
+        None,
+        "--metadata-path",
+        "-m",
+        help="Metadata repo path override",
+    ),
 ):
+    assert metadata_path_override or PRODUCT_METADATA_REPO_PATH
+    org_md = OrgMetadata.from_path(
+        metadata_path_override or Path(PRODUCT_METADATA_REPO_PATH)  # type: ignore
+    )
     write_oti_xlsx(
-        dataset=md_v2.Metadata.from_path(metadata_path).dataset,
+        product=product,
+        dataset=dataset,
+        org_md=org_md,
         output_path=output_path,
         template_path_override=template_path_override,
     )

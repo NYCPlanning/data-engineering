@@ -50,6 +50,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/checkout@v4
+        with:
+          repository: NYCPlanning/product-metadata
+          path: product_metadata
+
+      - name: set_product_metadata_path
+        run:  echo "PRODUCT_METADATA_REPO_PATH=$(pwd)/product_metadata" >> $GITHUB_ENV
+        working-directory: ./
+
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
