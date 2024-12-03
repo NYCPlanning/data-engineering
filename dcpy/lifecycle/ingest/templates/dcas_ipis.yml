@@ -1,0 +1,85 @@
+id: dcas_ipis
+acl: private
+
+attributes:
+  name: DCAS IPIS
+  description: >
+    Primary input for COLP. Recieved from DCAS via email update. 
+    
+    *WARNING* Do not open this data in Excel at any point before the ingestion process is complete, 
+    addresses in Queens and other hyphenated addresses will be converted to date if opened in excel.
+    (e.g. "11-27 27th Blvd -> Nov 27 27th Blvd")
+
+    Dataset comes with x and y coord. However, these are not used in our build, rather we geocode to get geom. 
+    Because of this, we currently don't convert the dataset to geom. If this is done, COLP should be refactored
+    to ensure nothing goes wrong.
+
+ingestion:
+  source:
+    type: local_file
+    path: ./tmp/upload/COLPDATA.csv
+  file_format:
+    type: csv
+    encoding: ISO-8859-1
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_", "-": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      column_types: {
+        "bbl": "string",
+        "boro": "string",
+        "block": "string",
+        "lot": "string",
+        "cd": "string",
+        "primary_use_code": "string",
+        "u_a_use_code": "string", 
+        "u_f_use_code": "string", 
+      }
+      errors: coerce
+
+columns:
+- id: bbl
+  data_type: text
+- id: boro
+  data_type: text
+- id: borough
+  data_type: text
+- id: block
+  data_type: text
+- id: lot
+  data_type: text
+- id: cd
+  data_type: text
+- id: house_number
+  data_type: text
+- id: street_name
+  data_type: text
+- id: alternate_address
+  data_type: text
+- id: parcel_name
+  data_type: text
+- id: agency
+  data_type: text
+- id: primary_use_code
+  data_type: text
+- id: primary_use_text
+  data_type: text
+- id: owner
+  data_type: text
+- id: owned/leased
+  data_type: text
+- id: u_f_use_code
+  data_type: text
+- id: u_f_use_text
+  data_type: text
+- id: u_a_use_code
+  data_type: text
+- id: u_a_use_text
+  data_type: text
+- id: use_status
+  data_type: text
+- id: x_coord
+  data_type: text
+- id: y_coord
+  data_type: text
