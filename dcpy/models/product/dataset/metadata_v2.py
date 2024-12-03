@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel
+from tabulate import tabulate  # type: ignore
 from typing import Any, List
 import unicodedata
 
@@ -55,10 +56,26 @@ class ColumnValue(CustomizableBase):
     description: str | None = None
 
 
-class DatasetColumn(Column):
+def make_value_table(values: list[ColumnValue]) -> str:
+    return (
+        tabulate(
+            [
+                [str(v.value) + " ", str(v.description or " ") + " "]  # bool issue
+                for v in values
+            ],
+            headers=["Value", "Description"],
+            tablefmt="presto",
+            maxcolwidths=[10, 40],
+        )
+        if values
+        else ""
+    )
+
+
 class DatasetColumn(CustomizableBase, Column):
     _head_sort_order = ["id", "name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
+    _repr_functions = {"values": make_value_table}
 
     # Note: id isn't intended to be overrideable, but is always required as a
     # pointer back to the original column.

@@ -26,6 +26,19 @@ class SortedSerializedBase(BaseModel):
     _exclude_falsey_values: bool = True
     _head_sort_order: list[str] = PrivateAttr(default=["id"])
     _tail_sort_order: list[str] = PrivateAttr(default=["custom"])
+    _repr_functions: dict[str, typing.Callable[[typing.Any], str]] = {}
+
+    def field_repr(self, field_name: str):
+        """overrideable method to mimic __repr__ when we have class attributes that
+        aren't pydantic classes. e.g. list[DatasetColumn]"""
+        attr = getattr(self, field_name)
+        if field_name in self._repr_functions:
+            repr_fn = self._repr_functions[field_name]
+            return repr_fn(attr)
+        return str(attr or "")
+
+    def all_fields_repr(self) -> dict[str, str]:
+        return {k: self.field_repr(k) for k, _ in self.model_fields.items()}
 
     @model_serializer(mode="wrap")
     def _model_dump_ordered(self, handler):
