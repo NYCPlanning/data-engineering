@@ -56,6 +56,7 @@ class ColumnValue(CustomizableBase):
 
 
 class DatasetColumn(Column):
+class DatasetColumn(CustomizableBase, Column):
     _head_sort_order = ["id", "name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
 
@@ -63,11 +64,12 @@ class DatasetColumn(Column):
     # pointer back to the original column.
     name: str | None = None
     data_source: str | None = None
+    description: str | None = None
+    limitations: str | None = None
     notes: str | None = None
     example: str | None = None
     deprecated: bool | None = None
     values: list[ColumnValue] | None = None
-    custom: dict[str, Any] = {}
 
     def override(self, overrides: DatasetColumn) -> DatasetColumn:
         return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
@@ -118,19 +120,27 @@ class DatasetOrgProductAttributesOverride(CustomizableBase):
     """Fields that might be set as a default at the Product/Org level."""
 
     agency: str | None = None
+    agency_website_data_updated_automatically: bool | None = None
     attribution: str | None = None
-    attributionLink: str | None = None
+    attribution_link: str | None = None
+    can_be_automated: bool | None = None
     category: str | None = None
     contact_email: str | None = None
     contains_address: bool | None = (
         None  # `contains_address` refers specifically to addresses containing house, numbers + street names. (ie. not just streets, polys, etc.)
     )
+    data_collection_method: str | None = None
+    data_change_frequency: str | None = None
     date_made_public: str | None = None
+    disclaimer: str | None = None
+    geocoded: bool | None = None
+    on_agency_website: bool | None = None
     potential_uses: str | None = None
     projection: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values
     publishing_frequency_details: str | None = None
     publishing_purpose: str | None = None
+    rows_removed: bool | None = None
     tags: List[str] | None = []
 
 
