@@ -33,6 +33,7 @@ jobs:
       image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
     strategy:
       matrix:
         dataset:
@@ -66,7 +67,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Library Archive
-        run: library archive --name ${{ matrix.dataset }} --latest --s3
+        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --latest
 
   build_ztl:
     needs: [dataloading]
