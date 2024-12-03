@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, TypeAdapter
 import yaml
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
+from dcpy.models.product.artifacts import Artifacts, Artifact
 from dcpy.models.product.data_dictionary import DataDictionary
 from dcpy.models.product.dataset.metadata_v2 import (
     Metadata as DatasetMetadata,
@@ -188,6 +189,14 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
                     ]
                 }
         return product_errors
+
+    def get_packaging_artifacts(self) -> list[Artifact]:
+        return Artifacts.from_path(
+            self.root_path / "packaging" / "artifacts.yml"
+        ).artifacts
+
+    def get_full_resource_path(self, file: str | Path):
+        return self.root_path / "packaging" / "resources" / file
 
     def query_dataset_destinations(
         self, tag: str

@@ -1,0 +1,44 @@
+artifacts:
+  - name: oti_xlsx
+    type: xlsx
+    components:
+      - id: dataset_information
+        name: Dataset Information
+        type: object_table
+        index: 0
+        title: Data Dictionary
+        subtitle: Dataset Information
+        extra_field_description_field: third_party_extra
+        image_path: Open_Data_Logo.png
+        data_source: dataset.attributes
+        rows:
+          - display_name
+          - agency
+          - each_row_is_a
+          - attribution_link
+      - id: revisions
+        name: Revisions
+        description: my test description
+        type: list_table
+        index: 1
+        title: Revisions
+        subtitle: Product Revisions
+        data_source: dataset.revisions
+        columns:
+          - date
+          - summary
+          - notes
+        include_column_description_row: False
+      - id: columns
+        name: Column Docs
+        type: list_table
+        index: 2
+        title: Data Dictionary
+        subtitle: Column Information
+        data_source: dataset.columns
+        columns:
+          - name
+          - description
+          - values
+          - limitations
+          - notes
