@@ -7,7 +7,7 @@ import typer
 
 from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle import WORKING_DIRECTORIES
-from dcpy.lifecycle.package import oti_xlsx
+from dcpy.lifecycle.package import xlsx_writer
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as md
 import dcpy.models.product.metadata as prod_md
@@ -207,17 +207,17 @@ def assemble_dataset_from_bytes(
         metadata_only=metadata_only,
     )
 
-    oti_data_dictionaries = [
+    excel_data_dictionaries = [
         f.file
         for f in dataset_metadata.files
-        if f.file.type == oti_xlsx.OTI_METADATA_FILE_TYPE
+        if f.file.type == xlsx_writer.EXCEL_DATA_DICT_METADATA_FILE_TYPE
     ]
-    for f in oti_data_dictionaries:
+    for f in excel_data_dictionaries:
         # this should eventually be generalized into something that will
         # generate all required missing files, or just running through a list of
         # packaging steps. But for now, it's just the OTI files.
         logger.info(f"Generating OTI XLSX for file {f.filename}")
-        oti_xlsx.write_oti_xlsx(
+        xlsx_writer.write_xlsx(
             org_md=org_md,
             product=product,
             dataset=dataset,

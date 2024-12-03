@@ -17,8 +17,9 @@ from dcpy.utils.logging import logger
 from . import RESOURCES_PATH
 from . import abstract_doc
 
+# TODO: Move template to Product Metadata Repo. Rename to be non-OTI specific
 DEFAULT_TEMPLATE_PATH = RESOURCES_PATH / "oti_data_dictionary_template.xlsx"
-OTI_METADATA_FILE_TYPE = "oti_data_dictionary"
+EXCEL_DATA_DICT_METADATA_FILE_TYPE = "excel_data_dictionary"
 DEFAULT_FONT = "Arial"
 
 
@@ -167,7 +168,7 @@ def generate_table_sheet(
                 row[c_idx].alignment = alignment
 
 
-def write_oti_xlsx(
+def write_xlsx(
     *,
     org_md: OrgMetadata,
     product: str,
@@ -217,7 +218,7 @@ app = typer.Typer()
 
 
 @app.command("generate_xlsx")
-def _write_oti_xlsx_cli(
+def _write_xlsx_cli(
     product: str,
     dataset: str,
     artifact_name: Path = typer.Option(
@@ -249,7 +250,7 @@ def _write_oti_xlsx_cli(
     org_md = OrgMetadata.from_path(
         metadata_path_override or Path(PRODUCT_METADATA_REPO_PATH)  # type: ignore
     )
-    write_oti_xlsx(
+    write_xlsx(
         product=product,
         dataset=dataset,
         org_md=org_md,

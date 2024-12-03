@@ -7,7 +7,7 @@ from dcpy.test.lifecycle.package.conftest import (
     TEMP_DATA_PATH,
 )
 
-from dcpy.lifecycle.package import generate_metadata_assets, oti_xlsx
+from dcpy.lifecycle.package import generate_metadata_assets, xlsx_writer
 from dcpy.models.product.metadata import OrgMetadata
 
 
@@ -91,7 +91,7 @@ class TestDataDictionary(object):
         assert pdf_path.exists()
 
     def test_generate_xslx(self, org_metadata):
-        oti_xlsx.write_oti_xlsx(
+        xlsx_writer.write_xlsx(
             org_md=org_metadata,
             product="transit_zones",  # This one has some mock revision history, so it's a good test case.
             output_path=TestDataDictionary.output_xlsx_path,
