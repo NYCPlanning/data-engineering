@@ -51,7 +51,6 @@ def function1(
     if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
     res = g["1"](kwargs_dict=locals())
-    print(res)
     return geocode.Result1(**res)
 
 
@@ -100,7 +99,6 @@ def function1a(
     if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
     res = g["1A"](kwargs_dict=locals())
-    print(res)
     return geocode.Result1A(**res)
 
 
@@ -136,10 +134,14 @@ def function1b(
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix01/#function-1b
     https://nycplanning.github.io/Geosupport-UPG/appendices/appendix13/#work-area-2-cow-function-1b
     """
-    kwargs = locals()
-    if len(kwargs.keys() & {"borough_code", "zip_code"}) != 1:
+    if borough and zip_code:
         raise ValueError("Only borough_code or zip_code may be supplied")
-    return g["1B"](kwargs_dict=kwargs)
+    res = g["1B"](kwargs_dict=locals())
+    for key in res:
+        if key.startswith("Continu"):
+            print(key)
+            print(res[key])
+    return geocode.Result1B(**res)
 
 
 def function1e(
@@ -229,10 +231,18 @@ Borough: TypeAlias = Literal[
 ]
 
 
-class GeoInput(BaseModel):
-    borough: Borough | BoroughCode | None = None
-    street_name: str | None = None
-    house_number: str | None = None  # TODO - allow coercion from int
+class StreetAddress(BaseModel):
+    borough: Borough | BoroughCode
+    street_name: str
+    house_number: str  # TODO - allow coercion from int
+
+
+class NonAddressPlace(BaseModel):
+    borough: Borough | BoroughCode
+    name: str
+
+
+AddressInput: TypeAlias = StreetAddress | NonAddressPlace
 
 
 def geocode_df(
@@ -245,11 +255,7 @@ def geocode_df(
     snl: int = 32,
     street_name_normalization: bool = False,
     browse_flag: bool = False,
-):
-    # assume 1b for now
-    if zip_code_column:
-        borough_column = None
-
+) -> pd.DataFrame:
     data_records = df.to_dict("records")
 
     def func(dict):
