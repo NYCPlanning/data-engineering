@@ -256,6 +256,10 @@ def geocode_df(
     street_name_normalization: bool = False,
     browse_flag: bool = False,
 ) -> pd.DataFrame:
+    # todo - definitely need some sort of caching for individual functions
+    # unless we can improve inner workings of geosupport, there are cases where
+    # we need to go BBL -> geographic identifiers / 5-digit street code -> address -> 1a
+    # though performance test for sure - maybe minimal benefit
     data_records = df.to_dict("records")
 
     def func(dict):
