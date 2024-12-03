@@ -1,0 +1,36 @@
+id: lpc_historic_district_areas
+acl: public-read
+
+attributes:
+  name: Historic Districts
+  description: |
+    Provides information regarding all historic districts that have calendared, 
+    heard, or designated by the Landmarks Preservation Commission, or for which 
+    an LP number has been issued, as well as many proposed districts in the study 
+    area phase.
+  url: https://data.cityofnewyork.us/Housing-Development/Historic-Districts/skyk-mpzq
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: skyk-mpzq
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+    - name: coerce_column_types
+      args:
+        column_types: { "caldate": "date", "desdate": "date" }
+        errors: coerce
+
+columns:
+  - id: lp_number
+    data_type: text
+  - id: area_name
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
