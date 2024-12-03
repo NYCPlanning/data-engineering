@@ -210,7 +210,7 @@ def compare_sql_rows(
     right_columns = client.get_table_columns(right)
 
     columns = set(left_columns) & set(right_columns) - set(ignore_columns or [])
-    query_columns = ",".join(list(columns))
+    query_columns = ",".join(f'"{c}"' for c in columns)
 
     def query(one, two):
         return client.execute_select_query(f"""
