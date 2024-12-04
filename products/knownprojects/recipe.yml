@@ -1,0 +1,26 @@
+name: Known Projects Database
+product: db-kpdb
+vars:
+  ZAP_VERSION: "20230905"
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_projects
+    version_env_var: ZAP_VERSION
+  - name: dcp_projectactions
+    version_env_var: ZAP_VERSION
+  - name: dcp_projectbbls
+    version_env_var: ZAP_VERSION
+  - name: dcp_dcpprojectteams
+    version_env_var: ZAP_VERSION
+  - name: dcp_mappluto_wi
+  - name: dcp_boroboundaries
+  - name: dcp_housing
+  - name: dcp_zoningmapamendments
+  - name: doe_eszones
+  - name: doe_school_subdistricts
+  - name: dcp_school_districts
+  - name: dcp_ct2020_wi
+  - name: dcp_nta2020
+  - name: dcp_cdta2020
+  - name: dcp_cdboundaries_wi

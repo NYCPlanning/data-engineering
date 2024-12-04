@@ -210,6 +210,8 @@ jobs:
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      recipe_file: ${{ inputs.recipe_file }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   pluto:
     needs: health_check
