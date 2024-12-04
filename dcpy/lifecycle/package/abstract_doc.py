@@ -4,7 +4,7 @@ from typing import Any
 from dcpy.models.design import elements as de
 from dcpy.models.product.dataset.metadata_v2 import Dataset
 from dcpy.models.product.metadata import OrgMetadata
-from dcpy.models.product.artifacts import Artifact, ComponentDefinition
+from dcpy.models.product.artifacts import Artifact, ExcelTableComponentDefinition
 from dcpy.utils.logging import logger
 
 
@@ -256,7 +256,9 @@ def get_data_source(
 
 
 def construct_component(
-    component_def: ComponentDefinition, dataset: Dataset, org_metadata: OrgMetadata
+    component_def: ExcelTableComponentDefinition,
+    dataset: Dataset,
+    org_metadata: OrgMetadata,
 ) -> de.Table:
     full_image_path = (
         org_metadata.get_full_resource_path(component_def.image_path)

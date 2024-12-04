@@ -87,6 +87,7 @@ def generate_table_sheet(
     tab_index: int = -1,
     table_row_start_index=1,
 ):
+    """Adds a worksheet + table to and XLSX file."""
     new_sheet = xlsx_wb.create_sheet(title=tab_name, index=tab_index)
     new_sheet.sheet_view.showGridLines = False
 
@@ -147,6 +148,8 @@ def generate_table_sheet(
                 row[c_idx].value = cell
             elif type(c.value) is de.Image:
                 cell = row[c_idx]
+
+                # TODO: should probably use: https://openpyxl.readthedocs.io/en/3.1/api/openpyxl.utils.units.html
                 PIXELS_PER_INCH = 96.0
                 img = Image(c.value.path)
                 img.height = int(1.01 * PIXELS_PER_INCH)
@@ -177,6 +180,12 @@ def write_xlsx(
     template_path_override: Path | None = None,
     artifact_name: str | None = None,
 ):
+    """Adds Metadata Tables to an Excel Template.
+
+    For a given product.dataset, this will add a worksheet + table for each component specified
+    in the artifacts.yml in the metadata repo.
+    """
+
     artifacts = org_md.get_packaging_artifacts()
     dataset = dataset or product
 
