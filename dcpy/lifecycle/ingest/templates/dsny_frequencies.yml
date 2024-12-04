@@ -1,0 +1,28 @@
+id: dsny_frequencies
+acl: public-read
+
+attributes:
+  name: DSNY Frequencies
+  description: |
+    Citywide DSNY frequency boundaries for collection operation (refuse, recycling, organics, bulk items).
+    These boundaries are sub-divisions of DSNY sections.
+  url: https://data.cityofnewyork.us/City-Government/DSNY-Frequencies/rv63-53db
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: rv63-53db
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: schedulecode
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
