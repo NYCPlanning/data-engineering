@@ -1,0 +1,53 @@
+id: fdny_firehouses
+acl: public-read
+
+attributes:
+  name: FDNY Firehouse Listing
+  description: |
+    Location of Firehouses and companies
+  url: https://data.cityofnewyork.us/Public-Safety/FDNY-Firehouse-Listing/hc8x-tcnd
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: hc8x-tcnd
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    geometry:
+      crs: EPSG:4326
+      geom_column:
+        x: Longitude
+        y: Latitude
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+    - name: clean_column_names
+      args: { "lower": True }
+    - name: coerce_column_types
+      args:
+        column_types: { "longitude": "numeric", "latitude": "numeric" }
+        errors: coerce
+
+columns:
+  - id: facilityname
+    data_type: text
+  - id: facilityaddress
+    data_type: text
+  - id: borough
+    data_type: text
+  - id: postcode
+    data_type: text
+  - id: latitude
+    data_type: decimal
+  - id: longitude
+    data_type: decimal
+  - id: bin
+    data_type: text
+  - id: bbl
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
