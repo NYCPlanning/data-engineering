@@ -38,33 +38,6 @@ python3 -m python.extractors dcp_knownprojects
 # Load corrections tables
 run_sql_file sql/create_corrections.sql
 
-# Load ZAP tables
-# * Versions pinned for Housing team's Text Amendment model
-zap_version=20230905
-import_recipe dcp_projects ${zap_version}
-import_recipe dcp_projectactions ${zap_version}
-import_recipe dcp_projectbbls ${zap_version}
-import_recipe dcp_dcpprojectteams ${zap_version}
-
-# Load other tables
-# * Versions pinned for Housing team's Text Amendment model
-housingdb_verion=23Q2
-import_recipe dcp_mappluto_wi
-import_recipe dcp_boroboundaries
-import_recipe dcp_housing ${housingdb_verion}
-import_recipe dcp_zoningmapamendments
-
-# Load SCA Geometry Aggregate Tables
-import_recipe doe_eszones
-import_recipe doe_school_subdistricts
-import_recipe dcp_school_districts
-
-# Load geographic boundaries Aggregate Tables
-import_recipe dcp_ct2020_wi
-import_recipe dcp_nta2020
-import_recipe dcp_cdta2020
-import_recipe dcp_cdboundaries_wi
-
 echo
 echo "data loading complate"
 echo
