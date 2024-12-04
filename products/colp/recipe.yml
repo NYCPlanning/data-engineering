@@ -1,5 +1,4 @@
 name: COLP
-version: "2024-06-01"
 product: db-colp
 inputs:
   missing_versions_strategy: find_latest
