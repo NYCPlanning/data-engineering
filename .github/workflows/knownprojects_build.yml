@@ -79,23 +79,23 @@ jobs:
       - name: Dataloading
         run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
-      - name: dataloading ..
+      - name: Non-recipe dataloading
         run: ./bash/01_dataloading.sh
 
-      - name: build ...
+      - name: Build
         run: ./bash/02_build.sh
 
-      - name: test build tables ...
+      - name: Test build tables
         run: dbt test --select kpdb
 
-      - name: aggregate ...
+      - name: Aggregate
         run: ./bash/03_aggregate.sh
 
-      - name: test aggregate tables ...
+      - name: Test aggregate tables
         run: dbt test --select aggregate
 
-      - name: export ...
+      - name: Export
         run: ./bash/04_export.sh
 
-      - name: upload ...
+      - name: Upload
         run: python3 -m python.upload
