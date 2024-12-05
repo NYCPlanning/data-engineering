@@ -1,0 +1,32 @@
+id: dpr_greenthumb
+acl: public-read
+
+attributes:
+  name: Department of Parks and Recreation – GreenThumb Garden Info
+  description: |
+    GreenThumb provides programming and material support to over 550 community gardens in New York City.
+    The data contains garden information and is part of the GreenThumb Gardens Data Collection.
+  url: https://data.cityofnewyork.us/dataset/GreenThumb-Garden-Info/p78i-pat6
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: p78i-pat6
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: bbl
+    data_type: text
+  - id: gardenname
+    data_type: text
+  - id: borough
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
