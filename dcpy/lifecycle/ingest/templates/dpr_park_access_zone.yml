@@ -1,0 +1,48 @@
+id: dpr_park_access_zone
+acl: public-read
+
+attributes:
+  name: Walk-to-a-Park Service area
+  description: |
+    The Walk to a Park initiative focuses on increasing access to parks and open 
+    spaces, concentrating on areas of the city that are under-resourced and where 
+    residents are living further than a walk to a park. NYC Parks calculates the 
+    number of New Yorkers within walking distance of a park and reports on this as 
+    part of the Mayor’s Management Report. “Walking distance” is defined as a 1/4-mile 
+    or less for sites such as small playgrounds and sitting areas; or a 1/2-mile or 
+    less for larger parks that serve a wider region, typically over 8 acres or situated on 
+    the waterfront. Certain properties in NYC Parks' portfolio, such as cemeteries, 
+    community gardens, or sites with no recreational equipment were not included in 
+    this analysis. Similarly, some parks and open-space amenities not under the 
+    jurisdiction of NYC Parks were included in this analysis, as they provide 
+    recreational value. 
+
+    This dataset includes two ESRI shapefiles of access points, one for sites that get 
+    a 1/4-mile buffer and one for sites that get a 1/2-mile buffer. This polygon represents 
+    the total area within walking distance of a park. To generate the number of 
+    New Yorkers within that distance, the polygon is compared with data from the 
+    U.S. Census.
+
+    This information is only current as of the publication date. For more information 
+    about this analysis and the Walk to a Park Initiative, visit: 
+    https://www.nycgovparks.org/planning-and-building/planning/walk-to-a-park
+  url: https://data.cityofnewyork.us/Recreation/1_4MilePoints/99ii-hwh9/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 99ii-hwh9
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: id
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
