@@ -6,53 +6,27 @@ WITH merged AS (
         nysed_activeinstitutions.*,
         nysed_nonpublicenrollment.*,
         (
-            CASE
-                WHEN (
-                    prek::numeric
-                    + halfk::numeric
-                    + fullk::numeric
-                    + g01::numeric
-                    + g02::numeric
-                    + g03::numeric
-                    + g04::numeric
-                    + g05::numeric
-                    + g06::numeric
-                    + uge::numeric
-                    + g07::numeric
-                    + g08::numeric
-                    + g09::numeric
-                    + g10::numeric
-                    + g11::numeric
-                    + g12::numeric
-                    + ugs::numeric
-                ) IS NOT NULL
-                    THEN (
-                        prek::numeric
-                        + halfk::numeric
-                        + fullk::numeric
-                        + g01::numeric
-                        + g02::numeric
-                        + g03::numeric
-                        + g04::numeric
-                        + g05::numeric
-                        + g06::numeric
-                        + uge::numeric
-                        + g07::numeric
-                        + g08::numeric
-                        + g09::numeric
-                        + g10::numeric
-                        + g11::numeric
-                        + g12::numeric
-                        + ugs::numeric
-                    )
-            END
+            prek
+            + halfk
+            + fullk
+            + g01
+            + g02
+            + g03
+            + g04
+            + g05
+            + g06
+            + uge
+            + g07
+            + g08
+            + g09
+            + g10
+            + g11
+            + g12
+            + ugs
         ) AS enrollment
     FROM nysed_activeinstitutions
     LEFT JOIN nysed_nonpublicenrollment
-        ON trim(
-            replace(nysed_nonpublicenrollment.beds_code, ',', ''),
-            ' '
-        )::text = nysed_activeinstitutions.sed_code::text
+        ON nysed_activeinstitutions.sed_code = nysed_nonpublicenrollment.beds_code
     WHERE (
         inst_type_description = 'PUBLIC SCHOOLS'
         AND inst_sub_type_description LIKE '%GED%'
@@ -105,25 +79,14 @@ SELECT
                 )
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
-                AND (
-                    prek::numeric
-                    + halfk::numeric
-                    + fullk::numeric
-                    + g01::numeric
-                    + g02::numeric
-                    + g03::numeric
-                    + g04::numeric
-                    + g05::numeric
-                    + uge::numeric
-                ) > 0 THEN 'Elementary School - Non-public'
+                AND prek + halfk + fullk + g01 + g02 + g03 + g04 + g05 + uge > 0
+                THEN 'Elementary School - Non-public'
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
-                AND (g06::numeric + g07::numeric + g08::numeric) > 0 THEN 'Middle School - Non-public'
+                AND g06 + g07 + g08 > 0 THEN 'Middle School - Non-public'
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
-                AND (
-                    g09::numeric + g10::numeric + g11::numeric + g12::numeric + ugs::numeric
-                ) > 0 THEN 'High School - Non-public'
+                AND g09 + g10 + g11 + g12 + ugs > 0 THEN 'High School - Non-public'
             WHEN
                 inst_type_description = 'NON-PUBLIC SCHOOLS'
                 AND inst_sub_type_description NOT LIKE 'ESL'
