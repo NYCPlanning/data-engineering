@@ -1,0 +1,22 @@
+id: dob_now_applications
+acl: public-read
+
+attributes:
+  name: DOB NOW Job Applications
+  description: |
+    DOB NOW job applications received from DOB via the DOB FTP which can be accessed via CyberDuck on DCP 
+    Windows machines (see internal documentation for credentials). The encoding standard of 
+    the file should be double checked before and after uploading to Digital Ocean as it 
+    has changed between versions (from "Windows-1252" to "utf-8", etc).
+    
+    There is an extensive writeup in a github issue about DOB NOW custom job filing data
+    https://github.com/NYCPlanning/db-developments/issues/386#issue-864138806
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: dob_now/dob_now_job_applications/DOB_Now_Job_Filing_Data_for_DCP_{{ version }}.csv
+  file_format:
+    type: csv
+    encoding: windows-1252
