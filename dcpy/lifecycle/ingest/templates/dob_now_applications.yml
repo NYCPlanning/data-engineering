@@ -23,4 +23,38 @@ ingestion:
     encoding: cp1252
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: {"replace": {" ": "_", "-": "_"}, "lower": True}
+  - name: coerce_column_types
+    args:
+      column_types: {
+        "bin": "string",
+        "total_construction_floor_area": "string",
+        "proposedoccupancyclassification": "string",
+        "horizontalenlargement": "string",
+        "verticalenlargement": "string",
+        "existing_height": "string",
+        "proposed_height": "string",
+        "initial_cost": "string",
+        "existing_dwelling_units": "string",
+        "latitude": "string",
+        "longitude": "string",
+        "existingbuildingheight": "string",
+        "proposed_no_of_stories": "string",
+        "existing_stories": "string",
+        "proposed_zsf": "string",
+        "existingoccupancyclassification": "string",
+        "floor_area_ratio_(far)": "string",
+        "proposed_dwelling_units": "string",
+        "nta": "string",
+        "proposedbuildingheight": "string",
+        "no_of_parking_spaces": "string",
+        "council_district": "string",
+        "census_tract": "string",
+        "use": "string",
+        "block": "string",
+        "lot": "string",
+        "total_floor_area": "string",
+        "enlargement_sq_footage": "string",
+        "total_far": "string",
+        "commmunity___board": "string",
+      }
