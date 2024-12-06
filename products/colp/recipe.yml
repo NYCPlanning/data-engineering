@@ -1,5 +1,6 @@
 name: COLP
 product: db-colp
+version_strategy: first_of_month
 inputs:
   missing_versions_strategy: find_latest
   datasets:
