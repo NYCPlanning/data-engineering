@@ -1,18 +1,18 @@
-from pathlib import Path
 import shutil
 
-from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
-from dcpy.lifecycle.package import generate_metadata_assets
-from dcpy.lifecycle.package import xlsx_writer
-from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils.logging import logger
 from dcpy.models.product.metadata import OrgMetadata
+from dcpy.connectors.github import download_repo
+from dcpy.connectors.edm import publishing
+from dcpy.lifecycle.package import generate_metadata_assets
+from dcpy.lifecycle.package import xlsx_writer
 
 from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
 
 METADATA_FILES = [
     "source_data_versions.csv",
     "build_metadata.json",
+    "data_dictionary.yml",
     "data_dictionary.pdf",
     "data_dictionary.xlsx",
 ]
@@ -24,16 +24,18 @@ BUILD_TABLES = {
     ],
 }
 
-assert PRODUCT_METADATA_REPO_PATH
-org_metadata = OrgMetadata.from_path(Path(PRODUCT_METADATA_REPO_PATH))
 
+def generate_data_dictionaries():
+    dataset_metadata_path = PRODUCT_PATH / "data_dictionary.yml"
 
-def generate_metadata():
-    dataset_metadata_yml = product_metadata.download(
-        "template_db", PRODUCT_PATH / "data_dictionary.yaml", dataset="template_db"
-    )
+    org_metadata_path = download_repo("product-metadata", PRODUCT_PATH)
+    org_metadata = OrgMetadata.from_path(org_metadata_path)
+
+    metadata = org_metadata.product("template_db").dataset("template_db")
+    metadata.write_to_yaml(dataset_metadata_path)
+
     html_path = generate_metadata_assets.generate_html_from_yaml(
-        dataset_metadata_yml,
+        dataset_metadata_path,
         PRODUCT_PATH / "data_dictionary.html",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
@@ -97,7 +99,7 @@ def export():
 
 
 if __name__ == "__main__":
-    generate_metadata()
+    generate_data_dictionaries()
     export()
     publishing.upload_build(
         OUTPUT_DIR, BUILD_KEY.product, acl="public-read", build=BUILD_KEY.build
