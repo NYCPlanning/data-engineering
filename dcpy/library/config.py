@@ -3,13 +3,13 @@ from functools import cached_property
 from jinja2 import Template
 import json
 import importlib
-import os
 from pathlib import Path
-import requests
 import yaml
 
 from dcpy.models.library import DatasetDefinition
+from dcpy.models.connectors.socrata import Org as SocrataOrg
 from dcpy.connectors.esri import arcgis_feature_service
+from dcpy.connectors.socrata import extract as socrata
 from .utils import format_url
 from .validator import Validator, Dataset
 
@@ -49,14 +49,6 @@ class Config:
         loaded["version"] = version
         return Dataset(**loaded)
 
-    def version_socrata(self, uid: str) -> str:
-        """using the socrata API, collect the 'data last update' date"""
-        metadata = requests.get(
-            f"https://data.cityofnewyork.us/api/views/{uid}.json"
-        ).json()
-        version = datetime.fromtimestamp(metadata["rowsUpdatedAt"]).strftime("%Y%m%d")
-        return version
-
     # @property
     # def version_bytes(self) -> str:
     #     """parsing bytes of the big apple to get the latest bytes version"""
@@ -80,7 +72,13 @@ class Config:
 
         _config = self.parsed_unrendered_template
         if _config.source.socrata:
-            version = self.version_socrata(_config.source.socrata.uid)
+            socrata_source = socrata.Source(
+                type="socrata",
+                org=SocrataOrg.nyc,
+                uid=_config.source.socrata.uid,
+                format=_config.source.socrata.format,
+            )
+            version = socrata.get_version(socrata_source)
         elif _config.source.arcgis_feature_server:
             fs = _config.source.arcgis_feature_server
             feature_server_layer = arcgis_feature_service.resolve_layer(
@@ -121,21 +119,25 @@ class Config:
         elif config.source.socrata:
             if self.source_path_override:
                 raise ValueError("Cannot override path of socrata dataset")
-            socrata = config.source.socrata
-            if socrata.format == "csv":
-                path = f"https://data.cityofnewyork.us/api/views/{socrata.uid}/rows.csv"
-            elif socrata.format == "geojson":
-                path = f"https://nycopendata.socrata.com/api/geospatial/{socrata.uid}?method=export&format=GeoJSON"
-            elif socrata.format == "shapefile":
+            source = config.source.socrata
+            if source.format == "csv":
+                path = f"library/tmp/{config.name}.csv"
+            elif source.format == "geojson":
+                path = f"library/tmp/{config.name}.geojson"
+            elif source.format == "shapefile":
                 path = f"library/tmp/{config.name}.zip"
-                url = f"https://data.cityofnewyork.us/api/geospatial/{socrata.uid}?method=export&format=Shapefile"
-                os.system("mkdir -p library/tmp")
-                os.system(f'curl -o {path} "{url}"')
             else:
                 raise Exception(
                     "Socrata source format must be 'csv', 'geojson', or 'shapefile'."
                 )
-            config.source.gdalpath = format_url(path)
+            socrata_source = socrata.Source(
+                type="socrata",
+                org=SocrataOrg.nyc,
+                uid=source.uid,
+                format=source.format,
+            )
+            socrata.download(socrata_source, Path(path))
+            config.source.gdalpath = path
 
         elif config.source.arcgis_feature_server:
             if self.source_path_override:
