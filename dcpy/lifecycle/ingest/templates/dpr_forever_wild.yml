@@ -1,0 +1,38 @@
+id: dpr_forever_wild
+acl: public-read
+
+attributes:
+  name: NYC Parks Forever Wild
+  description: The Forever Wild layer delineates the location of ecologically
+    important natural resources within NYC Parks property. Approximately 12,500
+    acres of NYC Parks' 30,000 acres of land is comprised of natural areas -
+    forests, salt marshes, open water, grasslands, streams, and freshwater wetlands.
+    The vast majority of these natural areas are accessible to residents and visitors.
+    These areas provide valuable habitat for wildlife and a variety of environmental
+    services to all New Yorkers including carbon sequestration, air quality improvement,
+    cooling, and stormwater capture.
+  url: https://data.cityofnewyork.us/Environment/NYC-Parks-Forever-Wild/48va-85tp/about_data
+
+ingestion:
+  target_crs: EPSG:2263
+  source:
+    type: socrata
+    org: nyc
+    uid: 48va-85tp
+    format: shapefile
+  file_format:
+    type: shapefile
+    crs: EPSG:4326
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+    - name: multi
+
+columns:
+  - id: gispropnum
+    data_type: text
+  - id: propertyna
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
