@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, TypeAdapter
 import yaml
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
+from dcpy.models.product.artifacts import Artifacts, Artifact
+from dcpy.models.product.data_dictionary import DataDictionary
 from dcpy.models.product.dataset.metadata_v2 import (
     Metadata as DatasetMetadata,
     DatasetColumn,
@@ -123,6 +125,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
     column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
+    data_dictionary: DataDictionary = DataDictionary()
 
     @classmethod
     def get_string_snippets(cls, path: Path) -> dict:
@@ -151,6 +154,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     @classmethod
     def from_path(cls, path: Path, template_vars: dict | None = None):
         template_vars = merge(cls.get_string_snippets(path), template_vars or {}) or {}
+        dd_default_path = path / "data_dictionary.yml"
         return OrgMetadata(
             root_path=path,
             metadata=OrgMetadataFile.from_path(
@@ -158,6 +162,9 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
             ),
             template_vars=template_vars,
             column_defaults=cls.get_column_defaults(path),
+            data_dictionary=DataDictionary.from_path(dd_default_path)
+            if dd_default_path.exists()
+            else DataDictionary(),
         )
 
     def product(self, name: str) -> ProductMetadata:
@@ -182,6 +189,14 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
                     ]
                 }
         return product_errors
+
+    def get_packaging_artifacts(self) -> list[Artifact]:
+        return Artifacts.from_path(
+            self.root_path / "packaging" / "artifacts.yml"
+        ).artifacts
+
+    def get_full_resource_path(self, file: str | Path):
+        return self.root_path / "packaging" / "resources" / file
 
     def query_dataset_destinations(
         self, tag: str

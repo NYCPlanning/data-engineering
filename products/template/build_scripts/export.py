@@ -1,10 +1,12 @@
+from pathlib import Path
 import shutil
 
+from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle.package import generate_metadata_assets
-from dcpy.lifecycle.package import oti_xlsx
+from dcpy.lifecycle.package import xlsx_writer
 from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils.logging import logger
-from dcpy.models.product.dataset import metadata_v2 as md
+from dcpy.models.product.metadata import OrgMetadata
 
 from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
 
@@ -22,6 +24,9 @@ BUILD_TABLES = {
     ],
 }
 
+assert PRODUCT_METADATA_REPO_PATH
+org_metadata = OrgMetadata.from_path(Path(PRODUCT_METADATA_REPO_PATH))
+
 
 def generate_metadata():
     dataset_metadata_yml = product_metadata.download(
@@ -37,8 +42,9 @@ def generate_metadata():
         PRODUCT_PATH / "data_dictionary.pdf",
         generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
-    oti_xlsx.write_oti_xlsx(
-        dataset=md.Metadata.from_path(dataset_metadata_yml).dataset,
+    xlsx_writer.write_xlsx(
+        org_md=org_metadata,
+        product="template_db",
         output_path=PRODUCT_PATH / "data_dictionary.xlsx",
     )
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel
+from tabulate import tabulate  # type: ignore
 from typing import Any, List
 import unicodedata
 
@@ -55,19 +56,37 @@ class ColumnValue(CustomizableBase):
     description: str | None = None
 
 
-class DatasetColumn(Column):
+def make_value_table(values: list[ColumnValue]) -> str:
+    return (
+        tabulate(
+            [
+                [str(v.value) + " ", str(v.description or " ") + " "]  # bool issue
+                for v in values
+            ],
+            headers=["Value", "Description"],
+            tablefmt="presto",
+            maxcolwidths=[10, 40],
+        )
+        if values
+        else ""
+    )
+
+
+class DatasetColumn(CustomizableBase, Column):
     _head_sort_order = ["id", "name", "data_type", "description"]
     _tail_sort_order = ["example", "values", "custom"]
+    _repr_functions = {"values": make_value_table}
 
     # Note: id isn't intended to be overrideable, but is always required as a
     # pointer back to the original column.
     name: str | None = None
     data_source: str | None = None
+    description: str | None = None
+    limitations: str | None = None
     notes: str | None = None
     example: str | None = None
     deprecated: bool | None = None
     values: list[ColumnValue] | None = None
-    custom: dict[str, Any] = {}
 
     def override(self, overrides: DatasetColumn) -> DatasetColumn:
         return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
@@ -118,19 +137,27 @@ class DatasetOrgProductAttributesOverride(CustomizableBase):
     """Fields that might be set as a default at the Product/Org level."""
 
     agency: str | None = None
+    agency_website_data_updated_automatically: bool | None = None
     attribution: str | None = None
-    attributionLink: str | None = None
+    attribution_link: str | None = None
+    can_be_automated: bool | None = None
     category: str | None = None
     contact_email: str | None = None
     contains_address: bool | None = (
         None  # `contains_address` refers specifically to addresses containing house, numbers + street names. (ie. not just streets, polys, etc.)
     )
+    data_collection_method: str | None = None
+    data_change_frequency: str | None = None
     date_made_public: str | None = None
+    disclaimer: str | None = None
+    geocoded: bool | None = None
+    on_agency_website: bool | None = None
     potential_uses: str | None = None
     projection: str | None = None
     publishing_frequency: str | None = None  # TODO: picklist values
     publishing_frequency_details: str | None = None
     publishing_purpose: str | None = None
+    rows_removed: bool | None = None
     tags: List[str] | None = []
 
 
@@ -158,9 +185,16 @@ class DatasetOverrides(CustomizableBase):
     attributes: DatasetAttributesOverride = DatasetAttributesOverride()
 
 
+class Revision(CustomizableBase):
+    date: str
+    summary: str
+    notes: str
+
+
 class Dataset(CustomizableBase):
     columns: list[DatasetColumn]
     attributes: DatasetAttributes
+    revisions: list[Revision] = []
 
     def override(self, overrides: DatasetOverrides) -> Dataset:
         """Apply column updates and prune any columns specified as omitted"""
@@ -173,7 +207,9 @@ class Dataset(CustomizableBase):
         ]
 
         return Dataset(
-            columns=columns, attributes=self.attributes.override(overrides.attributes)
+            columns=columns,
+            attributes=self.attributes.override(overrides.attributes),
+            revisions=self.revisions,
         )
 
 
@@ -216,6 +252,7 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
     columns: List[DatasetColumn] = []
     files: List[FileAndOverrides] = []
     destinations: List[DestinationWithFiles] = []
+    revisions: list[Revision] = []
 
     _head_sort_order = [
         "id",
@@ -226,7 +263,9 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
 
     @property
     def dataset(self):
-        return Dataset(attributes=self.attributes, columns=self.columns)
+        return Dataset(
+            attributes=self.attributes, columns=self.columns, revisions=self.revisions
+        )
 
     def get_package(self, id: str) -> Package:
         packages = [p for p in self.assembly if p.id == id]

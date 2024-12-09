@@ -7,7 +7,7 @@ import typer
 
 from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle import WORKING_DIRECTORIES
-from dcpy.lifecycle.package import oti_xlsx
+from dcpy.lifecycle.package import xlsx_writer
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as md
 import dcpy.models.product.metadata as prod_md
@@ -187,15 +187,18 @@ METADATA_OVERRIDE_KEY = "with_metadata_from"
 
 def assemble_dataset_from_bytes(
     *,
-    dataset_metadata: md.Metadata,
+    org_md: prod_md.OrgMetadata,
     product: str,
+    dataset: str,
     version: str,
     source_destination_id: str,
     out_path: Path | None = None,
     metadata_only: bool = False,
 ) -> Path:
-    out_path = out_path or ASSEMBLY_DIR / product / version / dataset_metadata.id
+    out_path = out_path or ASSEMBLY_DIR / product / version / dataset
     logger.info(f"Assembling dataset from BYTES. Writing to: {out_path}")
+
+    dataset_metadata = org_md.product(product).dataset(dataset)
     assemble.pull_destination_files(
         out_path,
         dataset_metadata,
@@ -204,27 +207,20 @@ def assemble_dataset_from_bytes(
         metadata_only=metadata_only,
     )
 
-    oti_data_dictionaries = [
+    excel_data_dictionaries = [
         f.file
         for f in dataset_metadata.files
-        if f.file.type == oti_xlsx.OTI_METADATA_FILE_TYPE
+        if f.file.type == xlsx_writer.EXCEL_DATA_DICT_METADATA_FILE_TYPE
     ]
-    for f in oti_data_dictionaries:
+    for f in excel_data_dictionaries:
         # this should eventually be generalized into something that will
         # generate all required missing files, or just running through a list of
         # packaging steps. But for now, it's just the OTI files.
-        overridden_md_key = f.custom.get(ASSEMBLY_INSTRUCTIONS_KEY, {}).get(
-            METADATA_OVERRIDE_KEY
-        )
-
-        ds_md = (
-            dataset_metadata.calculate_metadata(**overridden_md_key)
-            if overridden_md_key
-            else dataset_metadata.dataset
-        )
         logger.info(f"Generating OTI XLSX for file {f.filename}")
-        oti_xlsx.write_oti_xlsx(
-            dataset=ds_md,
+        xlsx_writer.write_xlsx(
+            org_md=org_md,
+            product=product,
+            dataset=dataset,
             output_path=out_path / "attachments" / f.filename,
         )
     return out_path
@@ -274,8 +270,9 @@ def assemble_dataset_from_bytes_cli(
     )
 
     assemble_dataset_from_bytes(
-        dataset_metadata=org_md.product(product).dataset(dataset_name),
+        org_md=org_md,
         product=product,
+        dataset=dataset_name,
         source_destination_id=source_destination_id,
         version=version,
         out_path=out_path,

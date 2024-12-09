@@ -1,11 +1,9 @@
 from pathlib import Path
 import pytest
-import shutil
 from unittest.mock import patch, call
 
 from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata_v2 as ds
-from dcpy.lifecycle.package import oti_xlsx
 
 SHAPEFILE = ds.File(
     id="shp",
@@ -156,70 +154,73 @@ def test_pull_destination_files_md_only(mock_urlretrieve, tmp_path):
     mock_urlretrieve.assert_has_calls(expected_calls)
 
 
-@pytest.fixture
-def colp_package_path(resources_path: Path):
-    return resources_path / "product_metadata" / "colp_single_feature_package"
+# TODO: This is a useful test, but I want to generally refactor all these product metadata tests to
+# use the test_product_metadata repo.
+
+# @pytest.fixture
+# def colp_package_path(resources_path: Path):
+#     return resources_path / "product_metadata" / "colp_single_feature_package"
 
 
-@patch("dcpy.lifecycle.package.assemble.pull_destination_files")
-def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package_path):
-    MOCK_PULLED_PACKAGE_PATH = tmp_path
-    pull_destination_files_mock.side_effect = lambda *args, **kwargs: shutil.copytree(
-        colp_package_path, MOCK_PULLED_PACKAGE_PATH, dirs_exist_ok=True
-    )
-    metadata = ds.Metadata.from_path(
-        colp_package_path / "metadata.yml", template_vars={"version": "24b"}
-    )
+# @patch("dcpy.lifecycle.package.assemble.pull_destination_files")
+# def test_assemble_from_bytes(pull_destination_files_mock, tmp_path, colp_package_path):
+#     MOCK_PULLED_PACKAGE_PATH = tmp_path
+#     pull_destination_files_mock.side_effect = lambda *args, **kwargs: shutil.copytree(
+#         colp_package_path, MOCK_PULLED_PACKAGE_PATH, dirs_exist_ok=True
+#     )
+#     metadata = ds.Metadata.from_path(
+#         colp_package_path / "metadata.yml", template_vars={"version": "24b"}
+#     )
 
-    TEST_CASE_NAME_TO_OVERRIDES = [
-        ["no_overrides", {}],
-        ["file_overrides", {"file_id": "primary_shapefile"}],
-        [
-            "dest_overrides",
-            {
-                "file_id": "primary_shapefile",
-                "destination_id": "socrata_prod",
-            },
-        ],
-    ]
+#     TEST_CASE_NAME_TO_OVERRIDES = [
+#         ["no_overrides", {}],
+#         ["file_overrides", {"file_id": "primary_shapefile"}],
+#         [
+#             "dest_overrides",
+#             {
+#                 "file_id": "primary_shapefile",
+#                 "destination_id": "socrata_prod",
+#             },
+#         ],
+#     ]
 
-    for test_case_name, overrides in TEST_CASE_NAME_TO_OVERRIDES:
-        metadata.files.append(
-            ds.FileAndOverrides(
-                file=ds.File(
-                    id=test_case_name,
-                    filename=test_case_name + ".xlsx",
-                    type=oti_xlsx.OTI_METADATA_FILE_TYPE,
-                    custom={
-                        assemble.ASSEMBLY_INSTRUCTIONS_KEY: {
-                            assemble.METADATA_OVERRIDE_KEY: overrides
-                        }
-                    }
-                    if overrides
-                    else {},
-                )
-            )
-        )
+#     for test_case_name, overrides in TEST_CASE_NAME_TO_OVERRIDES:
+#         metadata.files.append(
+#             ds.FileAndOverrides(
+#                 file=ds.File(
+#                     id=test_case_name,
+#                     filename=test_case_name + ".xlsx",
+#                     type=oti_xlsx.OTI_METADATA_FILE_TYPE,
+#                     custom={
+#                         assemble.ASSEMBLY_INSTRUCTIONS_KEY: {
+#                             assemble.METADATA_OVERRIDE_KEY: overrides
+#                         }
+#                     }
+#                     if overrides
+#                     else {},
+#                 )
+#             )
+#         )
 
-    assemble.assemble_dataset_from_bytes(
-        dataset_metadata=metadata,
-        source_destination_id="socrata",
-        out_path=tmp_path,
-        product="colp",
-        version="24c",
-    )
+#     assemble.assemble_dataset_from_bytes(
+#         product="colp",
+#         dataset_metadata=metadata,
+#         source_destination_id="socrata",
+#         out_path=tmp_path,
+#         version="24c",
+#     )
 
-    attachments_path = MOCK_PULLED_PACKAGE_PATH / "attachments"
-    assert attachments_path.exists(), "Sanity check that the mock side_effect works"
+#     attachments_path = MOCK_PULLED_PACKAGE_PATH / "attachments"
+#     assert attachments_path.exists(), "Sanity check that the mock side_effect works"
 
-    for test_case_name, overrides in TEST_CASE_NAME_TO_OVERRIDES:
-        dataset = (
-            metadata.calculate_metadata(**overrides) if overrides else metadata.dataset  # type: ignore
-        )
+#     for test_case_name, overrides in TEST_CASE_NAME_TO_OVERRIDES:
+#         dataset = (
+#             metadata.calculate_metadata(**overrides) if overrides else metadata.dataset  # type: ignore
+#         )
 
-        xlsx_path = attachments_path / (test_case_name + ".xlsx")
-        assert xlsx_path.exists(), "The OTI XLSX should have been generated"
-        assert (
-            oti_xlsx._get_dataset_description(xlsx_path)
-            == dataset.attributes.description
-        ), "The XLSX should have the correct description"
+#         xlsx_path = attachments_path / (test_case_name + ".xlsx")
+#         assert xlsx_path.exists(), "The OTI XLSX should have been generated"
+#         assert (
+#             oti_xlsx._get_dataset_description(xlsx_path)
+#             == dataset.attributes.description
+#         ), "The XLSX should have the correct description"

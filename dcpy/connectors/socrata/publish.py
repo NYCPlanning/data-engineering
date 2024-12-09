@@ -134,7 +134,7 @@ class Socrata:
                     description=attrs.description,
                     category=attrs.category,
                     attribution=attrs.attribution or "",
-                    attributionLink=attrs.attributionLink or "",
+                    attributionLink=attrs.attribution_link or "",
                     tags=attrs.tags or [],
                     metadata={
                         "rowLabel": attrs.each_row_is_a,
@@ -158,7 +158,7 @@ class Socrata:
                             "Legislative Compliance": {
                                 "Removed Records?": "Yes",  # refers to row removal at time of push to Socrata. Always true since we overwrite the existing dataset.
                                 "Has Data Dictionary?": "Yes",
-                                "Geocoded?": "Yes",
+                                "Geocoded?": "Yes" if attrs.geocoded else "No",
                                 "External Frequency (LL 110/2015)": attrs.publishing_frequency,
                                 "Exists Externally? (LL 110/2015)": "Yes",
                                 "Contains Address?": (

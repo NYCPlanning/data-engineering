@@ -2,7 +2,7 @@ attributes:
   agency: "{{ agency }}"
   category: City Government
   attribution: DCP
-  attributionLink: https://www.nyc.gov/site/planning/data-maps/open-data.page
+  attribution_link: https://www.nyc.gov/site/planning/data-maps/open-data.page
   contact_email: opendata@planning.nyc.gov
 
 products:
