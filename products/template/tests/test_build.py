@@ -32,6 +32,7 @@ def test_export_files():
     expected_export_file_names = {
         "source_data_versions.csv",
         "build_metadata.json",
+        "data_dictionary.yml",
         "data_dictionary.pdf",
         "data_dictionary.xlsx",
         "templatedb.csv",

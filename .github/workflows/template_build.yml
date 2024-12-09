@@ -30,6 +30,7 @@ on:
 
 env:
   TOY_SECRET_GITHUB: ${{ secrets.TOY_SECRET }}
+  GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
   BUILD_ENGINE_DB: db-template
   BUILD_NAME: ${{ inputs.build_name || github.head_ref || github.ref_name }}
   LOGGING_LEVEL: ${{ inputs.logging_level }}
