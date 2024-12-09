@@ -1,6 +1,9 @@
 from __future__ import annotations
 import os
 import requests
+import shutil
+from pathlib import Path
+from git import Repo
 from datetime import datetime
 from dateutil.parser import parse as datetime_parse
 from typing import List, Dict, Any
@@ -34,6 +37,19 @@ class WorkflowRun:
     @property
     def is_running(self) -> bool:
         return self.status in ["queued", "in_progress"]
+
+
+def download_repo(
+    repo: str, output_directory: Path, *, branch: str | None = None
+) -> Path:
+    output_path = output_directory / repo
+    if not branch:
+        branch = get_default_branch(repo)
+    url = f"https://github.com/NYCPlanning/{repo}"
+    if output_path.exists():
+        shutil.rmtree(output_path)
+    Repo.clone_from(url, output_path)
+    return output_path
 
 
 def get_default_branch(repo: str) -> str:
