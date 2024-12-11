@@ -2,7 +2,7 @@ import shutil
 
 from dcpy.utils.logging import logger
 from dcpy.models.product.metadata import OrgMetadata
-from dcpy.connectors.github import download_repo
+from dcpy.connectors.github import clone_repo
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.package import generate_metadata_assets
 from dcpy.lifecycle.package import xlsx_writer
@@ -28,7 +28,7 @@ BUILD_TABLES = {
 def generate_data_dictionaries():
     dataset_metadata_path = PRODUCT_PATH / "data_dictionary.yml"
 
-    org_metadata_path = download_repo("product-metadata", PRODUCT_PATH)
+    org_metadata_path = clone_repo("product-metadata", PRODUCT_PATH)
     org_metadata = OrgMetadata.from_path(org_metadata_path)
 
     metadata = org_metadata.product("template_db").dataset("template_db")
