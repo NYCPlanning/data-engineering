@@ -16,14 +16,14 @@ jobs:
   dataloading:
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image: nycplanning/build-base:latest
     defaults:
       run:
         shell: bash
     env:
       BUILD_ENGINE_SCHEMA: ${{ github.schema_name }}
-      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
-      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      RECIPES_BUCKET: edm-recipes
+      PUBLISHING_BUCKET: edm-publishing
     steps:
       - uses: actions/checkout@v4
 
