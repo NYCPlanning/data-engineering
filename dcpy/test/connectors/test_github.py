@@ -1,4 +1,4 @@
-from dcpy.connectors.github import download_repo, get_default_branch, get_branches
+from dcpy.connectors.github import clone_repo, get_default_branch, get_branches
 
 TEST_REPO = "data-engineering"
 
@@ -9,7 +9,7 @@ def test_get_default_branch():
 
 
 def test_download_repo(create_temp_filesystem):
-    repo_path = download_repo(
+    repo_path = clone_repo(
         repo=TEST_REPO,
         output_directory=create_temp_filesystem,
         branch="main",

@@ -39,9 +39,7 @@ class WorkflowRun:
         return self.status in ["queued", "in_progress"]
 
 
-def download_repo(
-    repo: str, output_directory: Path, *, branch: str | None = None
-) -> Path:
+def clone_repo(repo: str, output_directory: Path, *, branch: str | None = None) -> Path:
     output_path = output_directory / repo
     if not branch:
         branch = get_default_branch(repo)
