@@ -1,0 +1,44 @@
+name: Ingest 'Run and Compare' Tool
+run-name: "Ingest 'Run and Compare' Tool: ${{ inputs.dataset }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Name of the dataset (required)"
+        required: true
+        default: dcp_mappluto
+      schema_name:
+        description: "Schema name where to store data tables (required)"
+        required: true
+
+jobs:
+  dataloading:
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      BUILD_ENGINE_SCHEMA: ${{ github.schema_name }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup ...
+        run: ./bash/docker_container_setup.sh
+
+      - name: Extract dataset with ingest & library and upload results to database
+        run: python3 -m dcpy.cli lifecycle scripts validate_ingest run_and_compare ${{ inputs.dataset }}
