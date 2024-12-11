@@ -1,0 +1,47 @@
+id: doitt_buildingfootprints
+acl: public-read
+
+attributes:
+  name: Building Footprints
+  description: |
+    Shapefile of footprint outlines of buildings in New York City.
+    Please see the following link for additional documentation-
+    https://github.com/CityOfNewYork/nyc-geo-metadata/blob/master/Metadata/Metadata_BuildingFootprints.md
+
+    Previously posted versions of the data are retained to comply with 
+    Local Law 106 of 2015 and can be provided upon request made to Open Data.
+  url: https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: qb5r-6dgf
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+    - name: coerce_column_types
+      args:
+        column_types: { 
+            "bin": "integer", 
+            "heightroof": "numeric", 
+            "cnstrct_yr": "integer", 
+            "feat_code": "numeric", 
+            "groundelev": "numeric" 
+        }
+        errors: coerce
+    - name: multi
+
+columns:
+- id: base_bbl
+  data_type: text
+- id: mpluto_bbl
+  data_type: text
+- id: bin
+  data_type: integer
+- id: wkb_geometry
+  data_type: geometry
