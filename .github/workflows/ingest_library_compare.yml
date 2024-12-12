@@ -7,7 +7,6 @@ on:
       dataset:
         description: "Name of the dataset (required)"
         required: true
-        default: dcp_mappluto
       schema_name:
         description: "Schema name where to store data tables (required)"
         required: true
