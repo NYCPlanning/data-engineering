@@ -35,7 +35,7 @@ jobs:
       run:
         shell: bash
     env:
-      BUILD_ENGINE_SCHEMA: ${{ github.schema_name }}
+      BUILD_NAME: ${{ github.schema_name }}
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
     steps:
