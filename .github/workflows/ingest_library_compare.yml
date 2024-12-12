@@ -34,7 +34,7 @@ jobs:
       run:
         shell: bash
     env:
-      BUILD_NAME: ${{ github.schema_name }}
+      BUILD_NAME: ${{ inputs.schema_name }}
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
     steps:
@@ -59,6 +59,6 @@ jobs:
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
           key_columns: ${{ github.event.inputs.key_columns && format('--key {0}', github.event.inputs.key_columns) || '' }}
           ignore_columns: ${{ github.event.inputs.ignore_columns && format('--ignore {0}', github.event.inputs.ignore_columns) || '' }}
-          columns_only_comparison: ${{ github.event.inputs.columns_only_comparison && '--columns-only' || '' }}
+          columns_only_comparison: ${{ github.event.inputs.columns_only_comparison == 'true' && '--columns-only' || '' }}
         run: |
           python3 -m dcpy.cli lifecycle scripts validate_ingest run_and_compare ${{ inputs.dataset }} $version $key_columns $ignore_columns $columns_only_comparison
