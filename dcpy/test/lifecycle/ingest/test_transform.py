@@ -180,7 +180,7 @@ class TestProcessors:
     whitespace_df = pd.DataFrame({"a": [2, 3, 1], "b": [" b_1 ", "  b_2", "c_3 "]})
     prev_df = pd.DataFrame({"a": [-1], "b": ["z"]})
     upsert_df = pd.DataFrame(
-        {"a": [3, 2, 1], "b": ["d", "d", "d"], "c": [True, False, True]}
+        {"a": [3, 2, 1], "b": ["d", "d", "d"], "c": [True, False, True], "d": [1, 2, 3]}
     )
     coerce_df = pd.DataFrame(
         {
@@ -204,11 +204,38 @@ class TestProcessors:
         target = "EPSG:2263"
         reprojected = self.proc.reproject(self.gdf, target_crs=target)
         assert reprojected.df.crs.to_string() == target
+        assert (
+            len(self.gdf) == reprojected.summary.data_modifications["rows_updated"]
+        ), "All the rows should report as modified"
+        assert reprojected.summary.description.startswith(
+            self.proc._REPROJECTION_DESCRIPTION_PREFIX
+        )
+
+    def test_reproject_no_changes(self):
+        starting_crs = self.gdf.crs.to_string()
+        assert starting_crs == "EPSG:4326"
+        reprojected = self.proc.reproject(self.gdf, target_crs=starting_crs)
+        assert reprojected.df.crs.to_string() == starting_crs
+        assert not reprojected.summary.data_modifications, (
+            "No rows show report as modified, since the crs didn't change."
+        )
+        assert reprojected.summary.description.startswith(
+            self.proc._REPROJECTION_NOT_REQUIRED_DESCRIPTION
+        )
 
     def test_sort(self):
         sorted = self.proc.sort(self.basic_df, by=["a"])
         expected = pd.DataFrame({"a": [1, 2, 3], "b": ["c_3", "b_1", "b_2"]})
         assert sorted.df.equals(expected)
+
+        # TODO: do we care how many rows are modified... can we tell? Maybe we just check whether it was sorted to begin with?
+        assert len(sorted.df) == sorted.summary.data_modifications["rows_updated"]
+
+        sorted_again = self.proc.sort(sorted.df, by=["a"])
+        assert sorted.df.equals(sorted_again.df), (
+            "nothing should have changed from re-sorting the df"
+        )
+        assert 0 == sorted_again.summary.data_modifications["rows_updated"]
 
     def test_filter_rows_equals(self):
         filtered = self.proc.filter_rows(
@@ -216,6 +243,10 @@ class TestProcessors:
         )
         expected = pd.DataFrame({"a": [1], "b": ["c_3"]})
         assert filtered.df.equals(expected)
+        assert (
+            len(self.basic_df) - len(expected)
+            == filtered.summary.data_modifications["rows_removed"]
+        ), "The correct number of rows should report as filtered out."
 
     def test_filter_rows_contains(self):
         filtered = self.proc.filter_rows(
@@ -223,94 +254,157 @@ class TestProcessors:
         )
         expected = pd.DataFrame({"a": [2, 3], "b": ["b_1", "b_2"]})
         assert filtered.df.equals(expected)
+        assert (
+            len(self.basic_df) - len(expected)
+            == filtered.summary.data_modifications["rows_removed"]
+        ), "The correct number of rows should report as filtered out."
 
     def test_filter_columns_keep(self):
         filtered = self.proc.filter_columns(self.basic_df, ["a"])
-        assert filtered.equals(self.df_a)
+        assert filtered.df.equals(self.df_a)
+        assert filtered.summary.column_modifications["dropped"] == {"b"}, (
+            "The summary should reflect the dropped columns"
+        )
 
     def test_filter_columns_drop(self):
         filtered = self.proc.filter_columns(self.basic_df, ["b"], mode="drop")
-        assert filtered.equals(self.df_a)
+        assert filtered.df.equals(self.df_a)
+        assert filtered.summary.column_modifications["dropped"] == {"b"}, (
+            "The summary should reflect the dropped columns"
+        )
 
     def test_rename_columns(self):
-        renamed = self.proc.rename_columns(self.basic_df, {"a": "c"}).df
+        col_renames = {"a": "c"}
+        renamed = self.proc.rename_columns(self.basic_df, map=col_renames)
         expected = pd.DataFrame({"c": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
-        assert renamed.equals(expected)
+        assert renamed.df.equals(expected)
+        assert col_renames == renamed.summary.column_modifications["renamed"]
 
+    # TODO: test cols spec'd as rename, that don't exist
     def test_rename_columns_drop(self):
-        renamed = self.proc.rename_columns(self.basic_df, {"a": "c"}, drop_others=True)
+        col_renames = {"a": "c"}
+        renamed = self.proc.rename_columns(
+            self.basic_df, map=col_renames, drop_others=True
+        )
         expected = pd.DataFrame({"c": [2, 3, 1]})
         assert renamed.df.equals(expected)
+        assert {
+            "renamed": col_renames,
+            "removed": ["b"],
+        } == renamed.summary.column_modifications
 
-    def test_clean_column_names(self):
-        cleaned = self.proc.clean_column_names(self.messy_names_df, replace={"_": "-"})
-        expected = pd.DataFrame({"Column": [1, 2], "Two-Words ": [3, 4]})
-        assert cleaned.df.equals(expected)
+    @pytest.mark.parametrize(
+        "expected_cols_and_kwargs",
+        [
+            ("Column", "Two-Words ", {"replace": {"_": "-"}}),
+            ("column", "two-words ", {"replace": {"_": "-"}, "lower": True}),
+            ("Column", "Two-Words", {"replace": {"_": "-"}, "strip": True}),
+            (
+                "column",
+                "two-words",
+                {"replace": {"_": "-"}, "strip": True, "lower": True},
+            ),
+        ],
+    )
+    def test_clean_column_names(self, expected_cols_and_kwargs):
+        *EXPECTED_COLS, INPUT_ARGS = expected_cols_and_kwargs
+        ORIGINAL_COLS = self.messy_names_df.columns
 
-    def test_clean_column_names_lower(self):
-        cleaned = self.proc.clean_column_names(
-            self.messy_names_df, replace={"_": "-"}, lower=True
+        cleaned = self.proc.clean_column_names(self.messy_names_df, **INPUT_ARGS)
+        expected = pd.DataFrame({EXPECTED_COLS[0]: [1, 2], EXPECTED_COLS[1]: [3, 4]})
+        assert cleaned.df.equals(expected), "The cleaned df should match the expected"
+
+        zipped = zip(ORIGINAL_COLS, EXPECTED_COLS)
+        modified_columns = {c[0]: c[1] for c in zipped if c[0] != c[1]}
+        assert modified_columns == cleaned.summary.column_modifications["renamed"], (
+            "The summary should be correct"
         )
-        expected = pd.DataFrame({"column": [1, 2], "two-words ": [3, 4]})
-        assert cleaned.df.equals(expected)
-
-    def test_clean_column_names_strip(self):
-        cleaned = self.proc.clean_column_names(
-            self.messy_names_df, replace={"_": "-"}, strip=True
-        )
-        expected = pd.DataFrame({"Column": [1, 2], "Two-Words": [3, 4]})
-        assert cleaned.df.equals(expected)
-        expected = pd.DataFrame({"column": [1, 2], "two-words ": [3, 4]})
-        assert cleaned.df.equals(expected)
 
     def test_update_column(self):
         updated = self.proc.update_column(self.basic_df, column_name="a", val=5)
         expected = pd.DataFrame({"a": [5, 5, 5], "b": ["b_1", "b_2", "c_3"]})
         assert updated.df.equals(expected)
+        assert len(self.basic_df) == updated.summary.data_modifications["rows_updated"]
 
     @mock.patch("dcpy.connectors.edm.recipes.read_df")
     def test_append_prev(self, read_df):
+        PREV_VERSION = "24c"
         read_df.return_value = self.prev_df
-        appended = self.proc.append_prev(self.basic_df)
+        appended = self.proc.append_prev(self.basic_df, version=PREV_VERSION)
         expected = pd.DataFrame({"a": [-1, 2, 3, 1], "b": ["z", "b_1", "b_2", "c_3"]})
         assert appended.df.equals(expected)
+        assert PREV_VERSION == appended.summary.custom["previous_version"]
+        assert len(self.prev_df) == appended.summary.data_modifications["added"]
 
     @mock.patch("dcpy.connectors.edm.recipes.read_df")
     def test_upsert_column_of_previous_version(self, read_df):
+        PREV_VERSION = "24c"
         read_df.return_value = self.upsert_df
-        upserted = self.proc.upsert_column_of_previous_version(self.basic_df, key=["a"])
+        upserted = self.proc.upsert_column_of_previous_version(
+            self.basic_df, key=["a"], version=PREV_VERSION
+        )
         expected = pd.DataFrame(
-            {"a": [3, 2, 1], "b": ["b_2", "b_1", "c_3"], "c": [True, False, True]}
+            {
+                "a": [3, 2, 1],
+                "b": ["b_2", "b_1", "c_3"],
+                "c": [True, False, True],
+                "d": [1, 2, 3],
+            }
         )
         assert upserted.df.equals(expected)
+        assert PREV_VERSION == upserted.summary.custom["previous_version"]
+        assert ["c", "d"] == upserted.summary.column_modifications["added"], (
+            "The extra columns should have been added"
+        )
 
     def test_deduplicate(self):
         deduped = self.proc.deduplicate(self.dupe_df)
         expected = pd.DataFrame({"a": [1, 1, 2], "b": [3, 1, 2]})
         assert deduped.df.equals(expected)
+        assert (
+            len(self.dupe_df) - len(deduped.df)
+            == deduped.summary.data_modifications["rows_removed"]
+        )
 
     def test_deduplicate_by(self):
         deduped = self.proc.deduplicate(self.dupe_df, by="a")
         expected = pd.DataFrame({"a": [1, 2], "b": [3, 2]})
         assert deduped.df.equals(expected)
+        assert (
+            len(self.dupe_df) - len(deduped.df)
+            == deduped.summary.data_modifications["rows_removed"]
+        )
 
     def test_deduplicate_by_sort(self):
         deduped = self.proc.deduplicate(self.dupe_df, by="a", sort_columns="b")
         expected = pd.DataFrame({"a": [1, 2], "b": [1, 2]})
         assert deduped.df.equals(expected)
+        assert (
+            len(self.dupe_df) - len(deduped.df)
+            == deduped.summary.data_modifications["rows_removed"]
+        )
 
     def test_drop_columns(self):
         dropped = self.proc.drop_columns(self.basic_df, columns=["b"])
         expected = pd.DataFrame({"a": [2, 3, 1]})
         assert dropped.df.equals(expected)
+        assert ["b"] == dropped.summary.column_modifications["dropped"]
 
     def test_strip_columns(self):
         stripped = self.proc.strip_columns(self.whitespace_df, ["b"])
         assert stripped.df.equals(self.basic_df)
+        assert {"b": len(self.whitespace_df)} == stripped.summary.data_modifications[
+            "by_column"
+        ]
 
     def test_strip_all_columns(self):
         stripped = self.proc.strip_columns(self.whitespace_df)
         assert stripped.df.equals(self.basic_df)
+        assert {
+            "b": len(self.whitespace_df),
+        } == stripped.summary.data_modifications["by_column"], (
+            "The rows modified count should be correct"
+        )
 
     @pytest.mark.parametrize(
         "original_column, cast, errors, expected_column",
@@ -354,6 +448,25 @@ class TestProcessors:
             self.coerce_df, {original_column: cast}, errors=errors
         )
         assert coerced.df[original_column].equals(self.coerce_df[expected_column])
+
+        # TODO This is a little janky, esp with `object` pandas column types
+        was_column_coerced = (
+            coerced.df[expected_column].dtype != self.coerce_df[original_column]
+        )
+        expected_mods = (
+            {
+                original_column: {
+                    "from": str(self.coerce_df[original_column].dtype),
+                    "to": str(self.coerce_df[expected_column].dtype),
+                }
+            }
+            if was_column_coerced
+            else {}
+        )
+
+        assert coerced.summary.column_modifications["modified"] == expected_mods, (
+            "The logged column changes should be correct"
+        )
 
     def test_pd_series_func(self):
         transformed = self.proc.pd_series_func(

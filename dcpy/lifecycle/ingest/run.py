@@ -78,7 +78,7 @@ def ingest(
         output_filename=init_parquet,
     )
 
-    transform.process(
+    config.ingestion.processing_steps_summaries = transform.process(
         config.id,
         config.ingestion.processing_steps,
         config.columns,
@@ -86,6 +86,9 @@ def ingest(
         dataset_staging_dir / config.filename,
         output_csv=output_csv,
     )
+
+    with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
+        json.dump(config.model_dump(mode="json"), f, indent=4)
 
     dataset_output_dir = ingest_output_dir / dataset_id / config.version
     dataset_output_dir.mkdir(parents=True, exist_ok=True)
