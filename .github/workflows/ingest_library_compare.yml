@@ -7,23 +7,36 @@ on:
       dataset:
         description: "Name of the dataset (required)"
         required: true
-        default: dcp_mappluto
       schema_name:
         description: "Schema name where to store data tables (required)"
         required: true
+      version:
+        description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
+        required: false
+      key_columns:
+        description: "Key columns for comparison. Ex: 'column1,column2' (optional)"
+        required: false
+      ignore_columns:
+        description: "Columns to ignore during comparison. Ex: 'column1,column2' (optional)"
+        required: false
+      columns_only_comparison:
+        description: "Compare only column names (optional)"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   dataloading:
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image: nycplanning/build-base:latest
     defaults:
       run:
         shell: bash
     env:
-      BUILD_ENGINE_SCHEMA: ${{ github.schema_name }}
-      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
-      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      BUILD_NAME: ${{ github.schema_name }}
+      RECIPES_BUCKET: edm-recipes
+      PUBLISHING_BUCKET: edm-publishing
     steps:
       - uses: actions/checkout@v4
 
@@ -36,9 +49,16 @@ jobs:
           AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
       - name: Finish container setup ...
         run: ./bash/docker_container_setup.sh
 
       - name: Extract dataset with ingest & library and upload results to database
-        run: python3 -m dcpy.cli lifecycle scripts validate_ingest run_and_compare ${{ inputs.dataset }}
+        env:
+          version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+          key_columns: ${{ github.event.inputs.key_columns && format('--key {0}', github.event.inputs.key_columns) || '' }}
+          ignore_columns: ${{ github.event.inputs.ignore_columns && format('--ignore {0}', github.event.inputs.ignore_columns) || '' }}
+          columns_only_comparison: ${{ github.event.inputs.columns_only_comparison && '--columns-only' || '' }}
+        run: |
+          python3 -m dcpy.cli lifecycle scripts validate_ingest run_and_compare ${{ inputs.dataset }} $version $key_columns $ignore_columns $columns_only_comparison
