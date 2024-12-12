@@ -4,8 +4,7 @@ from dcpy.utils.logging import logger
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.connectors.github import clone_repo
 from dcpy.connectors.edm import publishing
-from dcpy.lifecycle.package import generate_metadata_assets
-from dcpy.lifecycle.package import xlsx_writer
+from dcpy.lifecycle.package import xlsx_writer, pdf_writer
 
 from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
 
@@ -34,13 +33,13 @@ def generate_data_dictionaries():
     metadata = org_metadata.product("template_db").dataset("template_db")
     metadata.write_to_yaml(dataset_metadata_path)
 
-    html_path = generate_metadata_assets.generate_html_from_yaml(
+    html_path = pdf_writer.generate_html_from_yaml(
         dataset_metadata_path,
         PRODUCT_PATH / "data_dictionary.html",
-        generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
-        generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
+        pdf_writer.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
+        pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )
-    generate_metadata_assets.generate_pdf_from_html(
+    pdf_writer.generate_pdf_from_html(
         html_path,
         PRODUCT_PATH / "data_dictionary.pdf",
     )

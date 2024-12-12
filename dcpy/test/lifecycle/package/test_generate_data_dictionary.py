@@ -7,7 +7,7 @@ from dcpy.test.lifecycle.package.conftest import (
     TEMP_DATA_PATH,
 )
 
-from dcpy.lifecycle.package import generate_metadata_assets, xlsx_writer
+from dcpy.lifecycle.package import pdf_writer, xlsx_writer
 from dcpy.models.product.metadata import OrgMetadata
 
 
@@ -35,7 +35,7 @@ class TestDataDictionary(object):
         with open(PACKAGE_RESOURCES_PATH / "simple.html", "r") as f:
             expected = f.read()
 
-        actual = generate_metadata_assets._render_html_template(
+        actual = pdf_writer._render_html_template(
             template_path=PACKAGE_RESOURCES_PATH / "simple.jinja",
             template_vars=self.template_vars,
         )
@@ -45,7 +45,7 @@ class TestDataDictionary(object):
         with open(PACKAGE_RESOURCES_PATH / "document.html", "r") as f:
             expected = f.read()
 
-        actual = generate_metadata_assets._render_html_template(
+        actual = pdf_writer._render_html_template(
             template_path=PACKAGE_RESOURCES_PATH / "document.jinja",
             template_vars=self.template_vars,
         )
@@ -58,7 +58,7 @@ class TestDataDictionary(object):
         with open(PACKAGE_RESOURCES_PATH / "simple.html", "r") as f:
             html = f.read()
 
-        actual = generate_metadata_assets._style_html(
+        actual = pdf_writer._style_html(
             html=html,
             stylesheet_path=PACKAGE_RESOURCES_PATH / "simple_style.css",
         )
@@ -71,23 +71,23 @@ class TestDataDictionary(object):
         with open(PACKAGE_RESOURCES_PATH / "document.html", "r") as f:
             html = f.read()
 
-        actual = generate_metadata_assets._style_html_document(
+        actual = pdf_writer._style_html_document(
             html=html,
             stylesheet_path=PACKAGE_RESOURCES_PATH / "simple_style.css",
         )
         assert actual == expected
 
     def test_generate_pdf_from_yaml(self):
-        html_path = generate_metadata_assets.generate_html_from_yaml(
+        html_path = pdf_writer.generate_html_from_yaml(
             metadata_path=self.yaml_path,
             output_path=self.html_path,
-            html_template_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
-            stylesheet_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
+            html_template_path=pdf_writer.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
+            stylesheet_path=pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
         )
-        pdf_path = generate_metadata_assets.generate_pdf_from_html(
+        pdf_path = pdf_writer.generate_pdf_from_html(
             html_path=html_path,
             output_path=self.pdf_path,
-            stylesheet_path=generate_metadata_assets.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
+            stylesheet_path=pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
         )
         assert pdf_path.exists()
 
