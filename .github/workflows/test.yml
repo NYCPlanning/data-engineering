@@ -13,6 +13,9 @@ concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  branch_tag: ${{ format('dev-{0}', github.head_ref || github.ref_name) }}
+
 jobs:
   check_changes:
     name: Check changed files
@@ -68,45 +71,80 @@ jobs:
               - admin/run_environment/docker/base/**
           treat-pr-as-push: true
 
-  base_image:
-    name: >
-      ${{
-        (
-          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
-          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
-        )
-        && format(
-          'Build base:{0} docker image', 
-          contains(needs.check_changes.outputs.pr_changes, 'docker_base') && (format('dev-{0}', github.head_ref || github.ref_name)) || 'latest'
-        ) || format(
-          'Use existing base:{0} docker image', 
-          contains(needs.check_changes.outputs.pr_changes, 'docker_base') && (format('dev-{0}', github.head_ref || github.ref_name)) || 'latest'
-        )
-      }}
+  determine_image_logic:
+    # See https://github.com/NYCPlanning/data-engineering/wiki/Docker-Image-Management for convoluted logic for docker images
+    # For our "base" image and 3 "children" images, determines whether 
+    #   1. what appropriate tag is ("latest" or "dev-{ branch name }")
+    #   2. if "dev", whether to build or use existing based on if there are changes in latest push
+    # Exception is the compile_python_requirements branch, which runs weekly and always rebuilds everything
+    name: Determine which docker images to build/use
     needs: check_changes
     runs-on: ubuntu-22.04
-    env:
-      branch_tag: ${{ format('dev-{0}', github.head_ref || github.ref_name) }}
     outputs:
-      base_tag: ${{ steps.tag.outputs.base_tag }}
-      tag: ${{ steps.tag.outputs.tag }}
+      base_tag: ${{ steps.tag.outputs.base }}
+      child_tag: ${{ steps.tag.outputs.child }}
+      base_action: ${{ steps.action.outputs.base }}
+      child_action: ${{ steps.action.outputs.child }}
     steps:
-      - name: set image tag
-        id: tag
-        run: |
-          base_tag="${{ contains(needs.check_changes.outputs.pr_changes, 'docker_base') && env.branch_tag || 'latest'}}"
-          echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
-          echo "base_tag=$base_tag" >> $GITHUB_ENV
-          tag="${{ contains(needs.check_changes.outputs.pr_changes, 'docker') && env.branch_tag || 'latest'}}"
-          echo "tag=$tag" >> $GITHUB_OUTPUT
+    - name: set image tags
+      id: tag
+      run: |
+        base="${{ 
+          (github.head_ref == 'compile_python_reqs' || contains(needs.check_changes.outputs.pr_changes, 'docker_base'))
+          && env.branch_tag || 'latest'
+        }}"
+        child="${{ 
+          (github.head_ref == 'compile_python_reqs' || contains(needs.check_changes.outputs.pr_changes, 'docker'))
+          && env.branch_tag || 'latest'
+        }}"
+        echo "base tag: \"$base\""
+        echo "child tag: \"$child\""
+        echo "base=$base" >> $GITHUB_OUTPUT
+        echo "child=$child" >> $GITHUB_OUTPUT
+    - name: set actions
+      id: action
+      run: |
+        base="${{ 
+          (
+            github.head_ref == 'compile_python_reqs'
+            || (
+              contains(needs.check_changes.outputs.pr_changes, 'docker_base')
+              && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+            )
+          )
+          && 'Build' || 'Use existing'
+        }}"
+        child="${{ 
+          (
+            github.head_ref == 'compile_python_reqs'
+            || (
+              contains(needs.check_changes.outputs.pr_changes, 'docker')
+              && contains(needs.check_changes.outputs.push_changes, 'docker')
+            )
+          )
+          && 'Build' || 'Use existing'
+        }}"
+        echo "base action: $base"
+        echo "child action: $child"
+        echo "base=$base" >> $GITHUB_OUTPUT
+        echo "child=$child" >> $GITHUB_OUTPUT
+
+  docker_base_image:
+    name: >
+      ${{ 
+        format(
+          '{0} base:{1} docker image',
+          needs.determine_image_logic.outputs.base_action, 
+          needs.determine_image_logic.outputs.base_tag
+        )
+      }}
+    needs: determine_image_logic
+    runs-on: ubuntu-22.04
+    steps:
       - uses: actions/checkout@v4
-        if: >
-          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
-          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        if: needs.determine_image_logic.outputs.base_action == 'Build'
       - name: Load Secrets
-        if: >
-          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
-          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
+        if: needs.determine_image_logic.outputs.base_action == 'Build'
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
@@ -115,24 +153,22 @@ jobs:
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
-        if: >
-          contains(needs.check_changes.outputs.pr_changes, 'docker_base')
-          && contains(needs.check_changes.outputs.push_changes, 'docker_base')
-        run: ./admin/ops/docker_build_and_publish.sh base "${{ env.base_tag }}"
+        if: needs.determine_image_logic.outputs.base_action == 'Build'
+        run: ./admin/ops/docker_build_and_publish.sh base "${{ needs.determine_image_logic.outputs.base_tag }}"
 
-  build_docker_images:
+  docker_child_images:
     name: >
-      ${{
-        (
-          contains(needs.check_changes.outputs.pr_changes, 'docker')
-          && contains(needs.check_changes.outputs.push_changes, 'docker')
+      ${{ 
+        format(
+          '{0} {1}:{2} docker image',
+          needs.determine_image_logic.outputs.child_action, 
+          matrix.image,
+          needs.determine_image_logic.outputs.child_tag
         )
-        && format('Build {0}:{1} docker image', matrix.image, needs.base_image.outputs.tag)
-        || format('Use existing {0}:{1} docker image', matrix.image, needs.base_image.outputs.tag)
       }}
     needs: 
-      - check_changes
-      - base_image
+      - determine_image_logic
+      - docker_base_image
     runs-on: ubuntu-22.04
     strategy: 
       matrix: 
@@ -142,13 +178,9 @@ jobs:
           - dev
     steps:
       - uses: actions/checkout@v4
-        if: >
-          contains(needs.check_changes.outputs.pr_changes, 'docker')
-          && contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: needs.determine_image_logic.outputs.child_action == 'Build'
       - name: Load Secrets
-        if: >
-          contains(needs.check_changes.outputs.pr_changes, 'docker')
-          && contains(needs.check_changes.outputs.push_changes, 'docker')
+        if: needs.determine_image_logic.outputs.child_action == 'Build'
         uses: 1password/load-secrets-action@v1
         with:
           export-env: true
@@ -157,22 +189,22 @@ jobs:
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
-        if: contains(needs.check_changes.outputs.pr_changes, 'docker') && contains(needs.check_changes.outputs.push_changes, 'docker')
-        run: ./admin/ops/docker_build_and_publish.sh "${{ matrix.image }}" "${{ needs.base_image.outputs.tag }}" "${{ needs.base_image.outputs.base_tag }}"
+        if: needs.determine_image_logic.outputs.child_action == 'Build'
+        run: ./admin/ops/docker_build_and_publish.sh "${{ matrix.image }}" "${{ needs.determine_image_logic.outputs.base_tag }}" "${{ needs.determine_image_logic.outputs.child_tag }}"
 
   test:
     uses: ./.github/workflows/test_helper.yml
     needs: 
       - check_changes
-      - base_image
-      - build_docker_images
+      - determine_image_logic
+      - docker_child_images
     with:
-      image_tag: ${{ needs.base_image.outputs.tag }}
+      image_tag: ${{ needs.determine_image_logic.outputs.child_tag }}
       path_filter: ${{ needs.check_changes.outputs.pr_changes }}
     secrets: inherit
 
   build:
-    needs: build_docker_images
+    needs: docker_child_images
     # only run build as part of tests in the case of the PRs generated by python_compile_requirements.yml
     if: ${{ github.head_ref == 'compile_python_reqs' }}
     uses: ./.github/workflows/build.yml
