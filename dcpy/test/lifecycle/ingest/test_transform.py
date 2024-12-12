@@ -203,11 +203,38 @@ class TestProcessors:
         target = "EPSG:2263"
         reprojected = self.proc.reproject(self.gdf, target_crs=target)
         assert reprojected.df.crs.to_string() == target
+        assert (
+            len(self.gdf) == reprojected.summary.row_modifications["modified"]
+        ), "All the rows should report as modified"
+        assert reprojected.summary.description.startswith(
+            self.proc._REPROJECTION_DESCRIPTION_PREFIX
+        )
+
+    def test_reproject_no_changes(self):
+        starting_crs = self.gdf.crs.to_string()
+        assert starting_crs == "EPSG:4326"
+        reprojected = self.proc.reproject(self.gdf, target_crs=starting_crs)
+        assert reprojected.df.crs.to_string() == starting_crs
+        assert (
+            not reprojected.summary.row_modifications
+        ), "No rows show report as modified, since the crs didn't change."
+        assert reprojected.summary.description.startswith(
+            self.proc._REPROJECTION_NOT_REQUIRED_DESCRIPTION
+        )
 
     def test_sort(self):
         sorted = self.proc.sort(self.basic_df, by=["a"])
         expected = pd.DataFrame({"a": [1, 2, 3], "b": ["c_3", "b_1", "b_2"]})
         assert sorted.df.equals(expected)
+
+        # TODO: do we care how many rows are modified... can we tell? Maybe we just check whether it was sorted to begin with?
+        assert len(sorted.df) == sorted.summary.row_modifications["modified"]
+
+        sorted_again = self.proc.sort(sorted.df, by=["a"])
+        assert sorted.df.equals(
+            sorted_again.df
+        ), "nothing should have changed from re-sorting the df"
+        assert 0 == sorted_again.summary.row_modifications["modified"]
 
     def test_filter_rows_equals(self):
         filtered = self.proc.filter_rows(

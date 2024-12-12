@@ -18,9 +18,9 @@ OUTPUT_GEOM_COLUMN = "geom"
 class ProcessingSummary(SortedSerializedBase):
     """Summary of the changes from a data processing function."""
 
-    description: str | None = None
-    row_modifications: dict
-    column_modifications: dict
+    description: str
+    row_modifications: dict = {}
+    column_modifications: dict = {}
 
 
 class ProcessingResult(SortedSerializedBase, arbitrary_types_allowed=True):
@@ -29,7 +29,7 @@ class ProcessingResult(SortedSerializedBase, arbitrary_types_allowed=True):
 
 
 def make_generic_change_stats(
-    before: pd.DataFrame, after: pd.DataFrame, *, description: str | None
+    before: pd.DataFrame, after: pd.DataFrame, *, description: str
 ) -> ProcessingSummary:
     """Generate a ProcessingSummary by comparing two dataframes before and after processing."""
     initial_columns = set(before.columns)
@@ -102,19 +102,39 @@ class ProcessingFunctions:
 
     def __init__(self, dataset_id: str):
         self.dataset_id = dataset_id
+        self._REPROJECTION_DESCRIPTION_PREFIX = "Reprojected geometries"
+        self._REPROJECTION_NOT_REQUIRED_DESCRIPTION = (
+            "No reprojection required, as source and target crs are the same."
+        )
+        self._SORTED_BY_COLUMNS_DESCRIPTION_PREFIX = "Sorted by columns"
+
 
     def reproject(self, df: gpd.GeoDataFrame, target_crs: str) -> ProcessingResult:
-        result = transform.reproject_gdf(df, target_crs=target_crs)
-        summary = make_generic_change_stats(
-            df, result, description=f"Reprojected geometries to {target_crs}"
+        starting_crs = df.crs.to_string()
+        needs_reproject = starting_crs != target_crs
+        result = (
+            transform.reproject_gdf(df, target_crs=target_crs)
+            if needs_reproject
+            else df
         )
-        return ProcessingResult(df=result, summary=summary)
+        return ProcessingResult(
+            df=result,
+            summary=ProcessingSummary(
+                row_modifications={"modified": len(df)} if needs_reproject else {},
+                description=f"{self._REPROJECTION_DESCRIPTION_PREFIX} from {starting_crs} to {target_crs}"
+                if needs_reproject
+                else self._REPROJECTION_NOT_REQUIRED_DESCRIPTION,
+            ),
+        )
 
     def sort(self, df: pd.DataFrame, by: list[str], ascending=True) -> ProcessingResult:
         sorted = df.sort_values(by=by, ascending=ascending).reset_index(drop=True)
         summary = make_generic_change_stats(
-            df, sorted, description=f"Sorted by columns: {', '.join(by)}"
+            df,
+            sorted,
+            description=f"{self._SORTED_BY_COLUMNS_DESCRIPTION_PREFIX}: {', '.join(by)}",
         )
+        summary.row_modifications["modified"] = len(df) if not sorted.equals(df) else 0
         return ProcessingResult(df=sorted, summary=summary)
 
     def filter_rows(
@@ -275,17 +295,17 @@ class ProcessingFunctions:
                     result[column] = pd.to_numeric(result[column], errors=errors)
                 case "integer" | "bigint" as t:
                     mapping = {"integer": "Int32", "bigint": "Int64"}
-                    result[column] = pd.array(result[column], dtype=mapping[t]) # type: ignore
+                    result[column] = pd.array(result[column], dtype=mapping[t])  # type: ignore
                 case "string":
                     result[column] = result[column].apply(to_str)
                 case "date":
                     result[column] = pd.to_datetime(
                         result[column], errors=errors
                     ).dt.date
-                    result[column] = result[column].replace(pd.NaT, None) # type: ignore
+                    result[column] = result[column].replace(pd.NaT, None)  # type: ignore
                 case "datetime":
                     result[column] = pd.to_datetime(result[column], errors=errors)
-                    result[column] = result[column].replace(pd.NaT, None) # type: ignore
+                    result[column] = result[column].replace(pd.NaT, None)  # type: ignore
         summary = make_generic_change_stats(
             df, result, description="Coerced column types"
         )
