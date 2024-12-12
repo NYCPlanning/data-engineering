@@ -1,5 +1,6 @@
 --Update lines to be polygons
-UPDATE cpdb_dcpattributes SET geom = ST_SNAPTOGRID(geom, .00001) WHERE ST_GEOMETRYTYPE(geom) = 'ST_MultiLineString';
+UPDATE cpdb_dcpattributes SET geom = ST_SNAPTOGRID(geom, .00001)
+WHERE ST_GEOMETRYTYPE(geom) = 'ST_MultiLineString';
 UPDATE cpdb_dcpattributes
 SET geom = ST_BUFFER(geom::geography, 15)::geometry
 WHERE ST_GEOMETRYTYPE(geom) = 'ST_MultiLineString';

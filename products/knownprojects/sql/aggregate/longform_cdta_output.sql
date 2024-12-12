@@ -412,7 +412,10 @@ FROM (
         ) AS cdta
     --geometry_webmercator 
     FROM
-        (SELECT * FROM aggregated_cdta_longform ORDER BY cdta ASC) AS a
+        (
+            SELECT * FROM aggregated_cdta_longform
+            ORDER BY cdta ASC
+        ) AS a
     GROUP BY
         geometry,
         --geometry_webmercator,

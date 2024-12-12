@@ -399,7 +399,10 @@ FROM (
         ) AS csd
     --geometry_webmercator 
     FROM
-        (SELECT * FROM aggregated_csd_longform ORDER BY csd ASC) AS a
+        (
+            SELECT * FROM aggregated_csd_longform
+            ORDER BY csd ASC
+        ) AS a
     GROUP BY
         geometry,
         --geometry_webmercator,

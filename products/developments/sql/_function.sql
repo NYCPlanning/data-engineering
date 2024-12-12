@@ -228,7 +228,9 @@ RETURNS varchar AS $$
 DROP TABLE IF EXISTS dof_shoreline_subdivide;
 DROP INDEX IF EXISTS dof_shoreline_subdivide_wkb_geometry_geom_idx;
 SELECT
-    row_number() OVER (ORDER BY wkb_geometry) AS id,
+    row_number() OVER (
+        ORDER BY wkb_geometry
+    ) AS id,
     st_makevalid(wkb_geometry) AS wkb_geometry
 INTO dof_shoreline_subdivide
 FROM (

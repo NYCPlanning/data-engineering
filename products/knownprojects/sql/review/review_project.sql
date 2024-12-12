@@ -9,7 +9,8 @@ WITH dcp_planner AS (
             b.project_id
         FROM dcp_dcpprojectteams AS a LEFT JOIN dcp_projects AS b
             ON SPLIT_PART(a.dcp_dmsourceid, '_', 1) = b.project_id
-    ) AS a GROUP BY project_id
+    ) AS a
+    GROUP BY project_id
 )
 
 SELECT
@@ -53,7 +54,9 @@ LEFT JOIN (
     SELECT
         project_record_ids,
         UNNEST(project_record_ids) AS record_id,
-        ROW_NUMBER() OVER (ORDER BY project_record_ids) AS dummy_id
+        ROW_NUMBER() OVER (
+            ORDER BY project_record_ids
+        ) AS dummy_id
     FROM _project_record_ids
 ) AS b
     ON a.record_id = b.record_id

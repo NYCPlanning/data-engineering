@@ -44,7 +44,10 @@ lib_master AS (
         b.uid,
         b.wkb_geometry AS geom
     FROM cpdb_dcpattributes AS a,
-        (SELECT * FROM dcp_facilities WHERE facgroup = 'Libraries') AS b
+        (
+            SELECT * FROM dcp_facilities
+            WHERE facgroup = 'Libraries'
+        ) AS b
     WHERE
         a.magency::int IN (39, 37, 38, 35)
         AND UPPER(a.description) NOT LIKE '%AND%'

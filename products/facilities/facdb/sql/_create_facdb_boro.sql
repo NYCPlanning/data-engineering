@@ -30,7 +30,10 @@ FROM (
                 borocode,
                 geo_1b -> 'inputs' ->> 'input_zipcode' AS input_zipcode
             FROM facdb_base
-            WHERE uid NOT IN (SELECT uid FROM facdb_spatial WHERE borocode IS NOT NULL)
+            WHERE uid NOT IN (
+                SELECT uid FROM facdb_spatial
+                WHERE borocode IS NOT NULL
+            )
         ) AS a LEFT JOIN doitt_zipcodeboundaries AS b
             ON a.input_zipcode = b.zipcode
     ) AS a

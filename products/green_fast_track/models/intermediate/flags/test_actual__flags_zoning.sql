@@ -14,7 +14,8 @@ expected_flags_zoning AS (
 ),
 
 flags_zoning_districts AS (
-    SELECT * FROM flags_zoning WHERE variable_type = 'zoning_districts'
+    SELECT * FROM flags_zoning
+    WHERE variable_type = 'zoning_districts'
 ),
 
 flags_with_zonedists AS (
@@ -37,4 +38,5 @@ final AS (
         ON flags_with_zonedists.bbl = expected_flags_zoning.bbl
 )
 
-SELECT * FROM final ORDER BY lot_label ASC, bbl ASC
+SELECT * FROM final
+ORDER BY lot_label ASC, bbl ASC
