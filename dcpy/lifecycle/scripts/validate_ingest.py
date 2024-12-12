@@ -153,6 +153,7 @@ def compare_recipes_in_postgres(
     key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
     columns_only_comparison: bool = False,
+    cast_to_numeric: list[str] | None = None,
 ) -> comparison.SqlReport:
     ignore_columns = ignore_columns or []
     ignore_columns.append("ogc_fid")
@@ -169,6 +170,7 @@ def compare_recipes_in_postgres(
         key_columns=key_columns,
         ignore_columns=ignore_columns,
         columns_only_comparison=columns_only_comparison,
+        cast_to_numeric=cast_to_numeric,
     )
 
 
@@ -214,12 +216,16 @@ def _compare(
     key_columns: list[str] = typer.Option(None, "-k", "--key"),
     ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
     columns_only_comparison: bool = typer.Option(False, "--columns-only", "-c"),
+    cast_to_numeric_columns: list[str] = typer.Option(
+        None, "--cast-to-numeric", "--c2n"
+    ),
 ):
     report = compare_recipes_in_postgres(
         dataset,
         key_columns=key_columns,
         ignore_columns=ignore_columns,
         columns_only_comparison=columns_only_comparison,
+        cast_to_numeric=cast_to_numeric_columns,
     )
     print(
         indented_report(
@@ -235,6 +241,9 @@ def _run_and_compare(
     key_columns: list[str] = typer.Option(None, "-k", "--key"),
     ignore_columns: list[str] = typer.Option(None, "-i", "--ignore"),
     columns_only_comparison: bool = typer.Option(False, "--columns-only", "-c"),
+    cast_to_numeric_columns: list[str] = typer.Option(
+        None, "--cast-to-numeric", "--c2n"
+    ),
 ):
     ingest(dataset, version)
     library_archive(dataset, version)
@@ -246,6 +255,7 @@ def _run_and_compare(
         key_columns=key_columns,
         ignore_columns=ignore_columns,
         columns_only_comparison=columns_only_comparison,
+        cast_to_numeric=cast_to_numeric_columns,
     )
     print(
         indented_report(
