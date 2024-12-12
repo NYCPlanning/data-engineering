@@ -1,9 +1,8 @@
 from datetime import datetime
 from pathlib import Path
-import requests
 
 from dcpy.models.connectors.socrata import Source
-from dcpy.connectors import web
+from .utils import _socrata_request
 
 
 def get_base_url(source: Source):
@@ -31,18 +30,16 @@ def get_download_url(source: Source):
     return url
 
 
-def _get_version_from_resp(resp: dict) -> str:
-    return datetime.fromtimestamp(resp["rowsUpdatedAt"]).strftime("%Y%m%d")
-
-
 def get_version(source: Source):
     """For given socrata dataset, get date last updated formatted as a string.
     This is used as a proxy for a 'version' of the dataset."""
     url = get_metadata_url(source)
-    resp = requests.get(url)
-    resp.raise_for_status()
-    return _get_version_from_resp(resp.json())
+    resp = _socrata_request(url, "GET")
+    return datetime.fromtimestamp(resp.json()["rowsUpdatedAt"]).strftime("%Y%m%d")
 
 
 def download(source: Source, path: Path):
-    web.download_file(get_download_url(source), path)
+    path.parent.mkdir(exist_ok=True, parents=True)
+    response = _socrata_request(get_download_url(source), "GET")
+    with open(path, "wb") as f:
+        f.write(response.content)

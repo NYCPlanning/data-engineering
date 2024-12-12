@@ -38,17 +38,6 @@ def test_config_source_type():
     assert c.source.url
 
 
-@patch("requests.get", side_effect=mock_request_get)
-def test_config_version_socrata(request_get):
-    c = Config(get_config_file("socrata"))
-    assert c.parsed_unrendered_template.source.socrata
-    uid = c.parsed_unrendered_template.source.socrata.uid
-    version = c.version_socrata(uid)
-    assert len(version) == 8  # format: YYYYMMDD
-    assert int(version[-2:]) <= 31  # check date
-    assert int(version[-4:-2]) <= 12  # check month
-
-
 def test_config_version_today():
     c = Config(get_config_file("socrata"))
     version = c.version_today
