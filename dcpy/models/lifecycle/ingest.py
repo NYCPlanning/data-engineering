@@ -1,6 +1,7 @@
 from __future__ import annotations
 from functools import cached_property
 from datetime import datetime
+import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel, Field, AliasChoices
 from typing import Any, Literal, TypeAlias
@@ -96,12 +97,28 @@ class ArchivalMetadata(SortedSerializedBase):
     acl: recipes.ValidAclValues | None = None
 
 
+class ProcessingSummary(SortedSerializedBase):
+    """Summary of the changes from a data processing function."""
+
+    name: str
+    description: str
+    data_modifications: dict = {}
+    column_modifications: dict = {}
+    custom: dict = {}
+
+
+class ProcessingResult(SortedSerializedBase, arbitrary_types_allowed=True):
+    df: pd.DataFrame
+    summary: ProcessingSummary
+
+
 class Ingestion(SortedSerializedBase):
     target_crs: str | None = None
     source: Source
     file_format: file.Format
     processing_mode: str | None = None
     processing_steps: list[ProcessingStep] = []
+    processing_steps_summaries: list[ProcessingSummary] = []
 
 
 class Column(BaseColumn):
