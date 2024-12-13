@@ -63,6 +63,9 @@ FROM manual_corrections
 WHERE uid NOT IN (SELECT uid FROM facdb));
 
 DELETE FROM facdb
-WHERE uid IN (SELECT uid FROM corrections_applied WHERE field = 'remove');
+WHERE uid IN (
+    SELECT uid FROM corrections_applied
+    WHERE field = 'remove'
+);
 
 CALL APPLY_CORRECTION(:'build_schema', 'facdb', 'manual_corrections');

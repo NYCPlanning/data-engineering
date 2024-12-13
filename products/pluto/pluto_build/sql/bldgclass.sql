@@ -27,7 +27,8 @@ maxnum AS (
     SELECT
         billingbbl,
         MAX(row_number) AS maxrow_number
-    FROM bldgclass GROUP BY billingbbl
+    FROM bldgclass
+    GROUP BY billingbbl
 )
 
 UPDATE pluto a
@@ -70,7 +71,8 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
         SELECT
             billingbbl,
             MAX(row_number) AS maxrow_number
-        FROM bldgclass GROUP BY billingbbl
+        FROM bldgclass
+        GROUP BY billingbbl
     ),
 
     bldgclassmed AS (
@@ -208,7 +210,10 @@ bldgclass AS (
         bbl,
         bldgcl,
         ROW_NUMBER()
-            OVER (PARTITION BY bbl ORDER BY bldgcl)
+            OVER (
+                PARTITION BY bbl
+                ORDER BY bldgcl
+            )
         AS row_number
     FROM (
         SELECT DISTINCT

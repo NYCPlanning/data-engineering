@@ -249,12 +249,14 @@ FROM (
     SELECT
         source AS datasource,
         count(*) AS raw_record_counts
-    FROM facdb_base GROUP BY source
+    FROM facdb_base
+    GROUP BY source
 ) AS a LEFT JOIN (
     SELECT
         datasource,
         count(*) AS final_record_counts
-    FROM facdb GROUP BY datasource
+    FROM facdb
+    GROUP BY datasource
 ) AS b ON a.datasource = b.datasource
 ORDER BY diff DESC;
 

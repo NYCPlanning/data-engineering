@@ -413,7 +413,10 @@ FROM (
         ) AS cd
     --geometry_webmercator 
     FROM
-        (SELECT * FROM aggregated_cd_longform ORDER BY cd ASC) AS a
+        (
+            SELECT * FROM aggregated_cd_longform
+            ORDER BY cd ASC
+        ) AS a
     GROUP BY
         geometry,
         --geometry_webmercator,

@@ -413,7 +413,10 @@ FROM (
         ) AS nta
     --geometry_webmercator 
     FROM
-        (SELECT * FROM aggregated_nta_longform ORDER BY nta ASC) AS a
+        (
+            SELECT * FROM aggregated_nta_longform
+            ORDER BY nta ASC
+        ) AS a
     GROUP BY
         geometry,
         --geometry_webmercator,

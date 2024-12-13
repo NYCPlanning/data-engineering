@@ -32,7 +32,8 @@ count_old AS (
                 sum((zoning_map_code IS NOT null)::int) AS zoning_map_code
             FROM prev_version
         ) AS row
-    ) AS a, json_each_text(_col) AS b
+    ) AS a
+    CROSS JOIN LATERAL json_each_text(a._col) AS b
 ),
 
 count_new AS (
@@ -57,7 +58,8 @@ count_new AS (
                 sum((zoning_map_code IS NOT null)::int) AS zoning_map_code
             FROM new_version
         ) AS row
-    ) AS a, json_each_text(_col) AS b
+    ) AS a
+    CROSS JOIN LATERAL json_each_text(a._col) AS b
 ),
 
 qaqc_frequency_change AS (

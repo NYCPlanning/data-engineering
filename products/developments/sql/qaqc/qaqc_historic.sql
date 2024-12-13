@@ -1,4 +1,5 @@
-DELETE FROM qaqc_historic WHERE version = :'VERSION';
+DELETE FROM qaqc_historic
+WHERE version = :'VERSION';
 
 INSERT INTO qaqc_historic (
     SELECT

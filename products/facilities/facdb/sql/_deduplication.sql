@@ -17,7 +17,8 @@ WHERE uid IN (
                     opabbrev
             ) AS rownum
         FROM facdb
-    ) AS a WHERE rownum > 1
+    ) AS a
+    WHERE rownum > 1
 );
 
 -- For factype NYCHA COMMUNITY CENTER - CHILD CARE,
@@ -134,8 +135,14 @@ WHERE
     AND bin IS NOT NULL
     AND uid IN (
         SELECT a.uid
-        FROM (SELECT * FROM facdb WHERE datasource = 'nysed_activeinstitutions') AS a
-        INNER JOIN (SELECT * FROM facdb WHERE datasource = 'doe_lcgms') AS b
+        FROM (
+            SELECT * FROM facdb
+            WHERE datasource = 'nysed_activeinstitutions'
+        ) AS a
+        INNER JOIN (
+            SELECT * FROM facdb
+            WHERE datasource = 'doe_lcgms'
+        ) AS b
             ON
                 a.facsubgrp = b.facsubgrp
                 AND a.facsubgrp = 'CHARTER K-12 SCHOOLS'
@@ -145,11 +152,14 @@ WHERE
     );
 
 -- Remove records outside of NYC based on geometry
-DELETE FROM facdb WHERE geom IS NOT NULL AND uid NOT IN (
+DELETE FROM facdb
+WHERE geom IS NOT NULL AND uid NOT IN (
     SELECT a.uid FROM facdb AS a, (
         SELECT ST_UNION(wkb_geometry) AS geom FROM dcp_boroboundaries_wi
-    ) AS b WHERE ST_CONTAINS(ST_SETSRID(b.geom, 4326), a.geom)
+    ) AS b
+    WHERE ST_CONTAINS(ST_SETSRID(b.geom, 4326), a.geom)
 );
 
 -- remove all facdb_duplicates records in facdb
-DELETE FROM facdb WHERE uid IN (SELECT DISTINCT uid FROM facdb_duplicates);
+DELETE FROM facdb
+WHERE uid IN (SELECT DISTINCT uid FROM facdb_duplicates);

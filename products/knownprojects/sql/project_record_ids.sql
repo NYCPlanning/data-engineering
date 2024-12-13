@@ -103,7 +103,8 @@ SELECT
     record_id_match,
     ARRAY_AGG(record_id) AS dob_record_ids
 INTO dob_record_ids
-FROM verified_matches GROUP BY record_id_match;
+FROM verified_matches
+GROUP BY record_id_match;
 
 UPDATE project_record_ids a
 SET project_record_ids = a.project_record_ids || b.dob_record_ids

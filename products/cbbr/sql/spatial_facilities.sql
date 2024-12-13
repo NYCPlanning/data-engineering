@@ -23,8 +23,8 @@ master AS (
     WHERE
         a.geom IS NULL
         AND a.facility_or_park_name IS NOT NULL
-        AND b.facname LIKE '%' || ' ' || '%' || ' ' || '%'
-        AND '%' || UPPER(a.facility_or_park_name) || '%' = '%' || UPPER(b.facname) || '%'
+        AND b.facname LIKE ('%' || ' ' || '%' || ' ' || '%')
+        AND '%' || UPPER(a.facility_or_park_name) || '%' LIKE '%' || UPPER(b.facname) || '%'
         AND b.facname IN (
             SELECT facname
             FROM

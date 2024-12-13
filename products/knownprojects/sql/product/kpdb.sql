@@ -45,10 +45,12 @@ SELECT
     inactive,
     geometry
 INTO kpdb
-FROM _kpdb WHERE geometry IS NOT NULL;
+FROM _kpdb
+WHERE geometry IS NOT NULL;
 
 DROP TABLE IF EXISTS review_no_geometry;
-SELECT * INTO review_no_geometry FROM _kpdb WHERE geometry IS NULL;
+SELECT * INTO review_no_geometry FROM _kpdb
+WHERE geometry IS NULL;
 
 DROP TABLE IF EXISTS kpdb_deduplicated;
 DROP INDEX IF EXISTS kpdb_deduplicated_gix;

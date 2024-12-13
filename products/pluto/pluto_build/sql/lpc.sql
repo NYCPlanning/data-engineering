@@ -82,7 +82,8 @@ maxnum AS (
     SELECT
         bbl,
         MAX(row_number) AS maxrow_number
-    FROM landmarks GROUP BY bbl
+    FROM landmarks
+    GROUP BY bbl
 )
 
 UPDATE pluto a

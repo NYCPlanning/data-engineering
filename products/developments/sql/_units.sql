@@ -111,7 +111,8 @@ Separate A2 job types from other types of records with units
 */
 DROP TABLE IF EXISTS export_a2_devdb;
 SELECT * INTO export_a2_devdb
-FROM _units_devdb_resid_flag WHERE job_type = 'Alteration (A2)';
+FROM _units_devdb_resid_flag
+WHERE job_type = 'Alteration (A2)';
 
 DROP TABLE IF EXISTS _units_devdb;
 SELECT

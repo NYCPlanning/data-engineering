@@ -136,5 +136,6 @@ LEFT JOIN (
     SELECT
         job_number,
         string_agg(field, '/') AS dcpeditfields
-    FROM corrections_applied GROUP BY job_number
+    FROM corrections_applied
+    GROUP BY job_number
 ) AS corr_lists ON mid_devdb.job_number = corr_lists.job_number;

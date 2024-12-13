@@ -15,7 +15,10 @@ FROM pluto AS a
 WHERE
     a.lotarea = '0'
     AND a.geom IS NOT NULL
-    AND a.bbl NOT IN (SELECT bbl FROM pluto_input_research WHERE field = 'lotarea');
+    AND a.bbl NOT IN (
+        SELECT bbl FROM pluto_input_research
+        WHERE field = 'lotarea'
+    );
 
 -- -- Redundant code	
 -- -- Apply correction
@@ -94,7 +97,10 @@ SET builtfar = round(bldgarea::numeric / lotarea::numeric, 2)
 WHERE
     lotarea != '0'
     AND lotarea IS NOT NULL
-    AND bbl IN (SELECT bbl FROM pluto_changes_applied WHERE field = 'lotarea' OR field = 'bldgarea');
+    AND bbl IN (
+        SELECT bbl FROM pluto_changes_applied
+        WHERE field = 'lotarea' OR field = 'bldgarea'
+    );
 
 
 -- lot frontage

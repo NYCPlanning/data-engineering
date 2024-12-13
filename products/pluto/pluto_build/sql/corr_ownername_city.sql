@@ -12,7 +12,10 @@ SELECT DISTINCT
 FROM pluto AS a, pluto_input_research AS b
 WHERE
     a.ownername = b.old_value
-    AND a.bbl NOT IN (SELECT bbl FROM pluto_changes_applied WHERE field = 'ownername');
+    AND a.bbl NOT IN (
+        SELECT bbl FROM pluto_changes_applied
+        WHERE field = 'ownername'
+    );
 
 INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT

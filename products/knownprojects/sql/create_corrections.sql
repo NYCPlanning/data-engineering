@@ -34,7 +34,8 @@ CREATE TABLE corrections_main (
 \COPY corrections_main FROM 'data/corrections/corrections_main.csv' DELIMITER ',' CSV HEADER;
 -- workaround - needed to apply subset of corrections at end of pipeline and did not want to cause
 -- side effects on a short timeline
-SELECT * INTO corrections_borough FROM corrections_main WHERE field = 'borough';
+SELECT * INTO corrections_borough FROM corrections_main
+WHERE field = 'borough';
 
 DROP TABLE IF EXISTS zap_record_ids;
 CREATE TABLE zap_record_ids (

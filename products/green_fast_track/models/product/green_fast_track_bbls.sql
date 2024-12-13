@@ -29,7 +29,10 @@ flags_wide AS (
         {% for row in question_flags -%}
             /* construct a comma-separated list of values ordered by distance and value */
             array_to_string(
-                array_agg(variable_id ORDER BY flag_id_field_name ASC) FILTER (
+                array_agg(
+                    variable_id
+                    ORDER BY flag_id_field_name ASC
+                ) FILTER (
                     WHERE flag_id_field_name = '{{ row["flag_id_field_name"] }}'
                 ),
                 ', '

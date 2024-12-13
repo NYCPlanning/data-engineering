@@ -14,7 +14,9 @@ WITH overlap_projects AS (
     SELECT
         project_record_ids,
         unnest(project_record_ids) AS record_id,
-        row_number() OVER (ORDER BY project_record_ids) AS project_id
+        row_number() OVER (
+            ORDER BY project_record_ids
+        ) AS project_id
     FROM _project_record_ids
 ),
 
@@ -23,7 +25,10 @@ stand_alone_projects AS (
     SELECT
         record_id,
         ARRAY[]::text [] || record_id AS project_record_ids,
-        row_number() OVER (ORDER BY record_id)
+        row_number()
+            OVER (
+                ORDER BY record_id
+            )
         + (SELECT max(project_id) FROM overlap_projects
         ) AS project_id
     FROM (
@@ -146,7 +151,8 @@ combined_dob AS (
 ),
 
 multimatch AS (
-    SELECT record_id FROM matches GROUP BY record_id
+    SELECT record_id FROM matches
+    GROUP BY record_id
     HAVING count(DISTINCT project_id) > 1
 ),
 

@@ -12,7 +12,8 @@ DROP TABLE _combined;
 WITH straddling_records AS (
     SELECT record_id
     FROM combined
-    GROUP BY record_id HAVING COUNT(borough) > 1
+    GROUP BY record_id
+    HAVING COUNT(borough) > 1
 ),
 
 max_area AS (
