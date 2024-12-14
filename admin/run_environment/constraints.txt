@@ -35,18 +35,18 @@ beautifulsoup4==4.12.3
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.35.79
+boto3==1.35.81
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs==1.35.79
+boto3-stubs==1.35.81
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.35.79
+botocore==1.35.81
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.35.79
+botocore-stubs==1.35.81
     # via boto3-stubs
 bqplot==0.12.43
     # via leafmap
@@ -59,7 +59,7 @@ cached-property==2.0.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 cachetools==5.5.0
     # via streamlit
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   pyogrio
     #   pyproj
@@ -138,7 +138,7 @@ dbt-postgres==1.9.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 dbt-semantic-interfaces==0.7.4
     # via dbt-core
-debugpy==1.8.9
+debugpy==1.8.11
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -146,7 +146,7 @@ deepdiff==7.0.1
     # via dbt-common
 diagrams==0.24.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-diff-cover==9.2.0
+diff-cover==9.2.1
     # via sqlfluff
 distlib==0.3.9
     # via virtualenv
@@ -164,7 +164,7 @@ filelock==3.16.1
     # via
     #   gdown
     #   virtualenv
-folium==0.19.1
+folium==0.19.2
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   leafmap
@@ -307,7 +307,7 @@ mashumaro==3.14
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
-matplotlib==3.9.3
+matplotlib==3.10.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   contextily
@@ -625,7 +625,7 @@ sqlparse==0.5.3
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.41.0
+streamlit==1.41.1
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit-aggrid
