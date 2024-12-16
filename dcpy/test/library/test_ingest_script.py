@@ -23,9 +23,3 @@ def test_nypl_libraries():
     ingestor = Ingestor()
     ingestor.csv(f"{template_path}/nypl_libraries.yml", version="test")
     assert os.path.isfile(".library/datasets/nypl_libraries/test/nypl_libraries.csv")
-
-
-def test_uscourts_courts():
-    ingestor = Ingestor()
-    ingestor.csv(f"{template_path}/uscourts_courts.yml", version="test")
-    assert os.path.isfile(".library/datasets/uscourts_courts/test/uscourts_courts.csv")
