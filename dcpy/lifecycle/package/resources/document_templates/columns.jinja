@@ -1,31 +1,38 @@
-<div class="attributes">
+<div class="doc-section">
 
-  <h2>Columns</h2>
+  <div class="doc-section-title">Columns</div>
 
-  {% for column in metadata.columns %}
-  <div class="column">
+  <div class="doc-section-content">
+    {% for column in metadata.columns %}
+    <div class="column-section">
 
-    <h3>{{ column.name }} ({{ column.id }})</h3>
+      <div class="column-name">{{ column.name }} ({{ column.id }})</div>
 
-    <p class="column-field">
-      <span class="field-name">Description:</span> {{ column.description }}
-    </p>
-    <p class="column-field">
-      <span class="field-name">Type:</span>
-      {% if column.custom.readme_data_type %}
-      {{ column.custom.readme_data_type }}
-      {% else %}
-      {{ column.data_type }}
-      {% endif %}
-    </p>
-    <p class="column-field">
-      <span class="field-name">Source:</span> {{ column.data_source }}
-    </p>
-    <p class="column-field">
-      <span class="field-name">Example:</span> {{ column.example }}
-    </p>
+      <div class="column-field">
+        <span class="column-field-name">Description:</span>
+        <span class="column-field-value">{{ column.description }}</span>
+      </div>
+      <div class="column-field">
+        <span class="column-field-name">Type:</span>
+        <span class="column-field-value">
+          {% if column.custom.readme_data_type %}
+          {{ column.custom.readme_data_type }}
+          {% else %}
+          {{ column.data_type }}
+          {% endif %}
+        </span>
+      </div>
+      <div class="column-field">
+        <span class="column-field-name">Source:</span>
+        <span class="column-field-value">{{ column.data_source }}</span>
+      </div>
+      <div class="column-field">
+        <span class="column-field-name">Example:</span>
+        <span class="column-field-value">{{ column.example }}</span>
+      </div>
 
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 
 </div>

@@ -1,24 +1,27 @@
-<div class="attributes">
+<div class="doc-section">
 
-  <h2>Attributes</h2>
+  <div class="doc-section-title">Attributes</div>
 
-  <div class="field">
+  <div class="doc-section-content">
+    <div class="attribute-section">
+      <span class="attribute-name">Agency: </span>
+      <span class="attribute-value">{{ metadata.attributes.agency }}</span>
+    </div>
 
-    <p class="field-content">
-      <span class="field-name">Agency:</span> {{ metadata.attributes.agency }}
-    </p>
+    <div class="attribute-section">
+      <span class="attribute-name">Description: </span>
+      <span class="attribute-value">{{ metadata.attributes.description }}</span>
+    </div>
 
-    <p class="field-content">
-      <span class="field-name">Description:</span> {{ metadata.attributes.description }}
-    </p>
+    <div class="attribute-section">
+      <span class="attribute-name">Each row is a: </span>
+      <span class="attribute-value">{{ metadata.attributes.each_row_is_a }}</span>
+    </div>
 
-    <p class="field-content">
-      <span class="field-name">Each row is a:</span> {{ metadata.attributes.each_row_is_a }}
-    </p>
-
-    <p class="field-content">
-      <span class="field-name">Tags:</span> {{ metadata.attributes.tags|join(', ') }}
-    </p>
+    <div class="attribute-section">
+      <span class="attribute-name">Tags: </span>
+      <span class="attribute-value">{{ metadata.attributes.tags|join(', ') }}</span>
+    </div>
 
   </div>
 
