@@ -4,9 +4,35 @@ html {
   font-size: 10pt;
 }
 
-.field-name {
+.doc-section {
+  padding-bottom: 10px;
+  display: flex;
+}
+.doc-section-title {
+  flex: 1;
   font-weight: bold;
 }
+.doc-section-content {
+  flex: 3;
+}
+
+.attribute-section {
+  padding-bottom: 15px;
+}
+.attribute-name {
+  font-weight: bold;
+}
+
+.column-section {
+  padding-bottom: 15px;
+}
+.column-name {
+  font-weight: bold;
+  padding-bottom: 5px;
+}
 .column-field {
-  text-indent: 1cm;
+  text-indent: 10px;
+}
+.column-field-name {
+  font-weight: bold;
 }
