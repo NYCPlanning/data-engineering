@@ -407,7 +407,9 @@ def publish(
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     version = get_version(draft_key)
-    new_version = validate_or_patch_version(draft_key.product, version, is_patch)
+    # HACK avoid versions.parse for a CPDB version
+    # new_version = validate_or_patch_version(draft_key.product, version, is_patch)
+    new_version = version
 
     logger.info(
         f'Publishing {draft_key.path} as version {new_version} with ACL "{acl}"'
@@ -439,11 +441,13 @@ def publish(
     if latest:
         latest_version = get_latest_version(draft_key.product)
         if latest_version:
-            # Both latest_version and version are expected to be of same version schema
-            after_latest_version = (
-                versions.is_newer(version_1=new_version, version_2=latest_version)
-                or new_version == latest_version
-            )
+            # HACK avoid versions.parse for a CPDB version
+            # # Both latest_version and version are expected to be of same version schema
+            # after_latest_version = (
+            #     versions.is_newer(version_1=new_version, version_2=latest_version)
+            #     or new_version == latest_version
+            # )
+            after_latest_version = True
         else:
             after_latest_version = None
 
