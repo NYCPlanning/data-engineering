@@ -3,26 +3,38 @@ import typer
 from typing import Unpack
 
 from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
+
 from dcpy.models.product import metadata as product_metadata
 from dcpy.lifecycle.distribute import socrata as soc_dist
 from dcpy.lifecycle.package import assemble
 from dcpy.utils.logging import logger
 
 
-def from_bytes_to_tagged_socrata(
+def package_and_dist_from_bytes(
     org_metadata_path: Path,
     product: str,
     version: str,
     destination_tag: str,
+    destination_id: str | None,
+    datasets: set[str],
+    destination_type: str,
     **publish_kwargs: Unpack[soc_dist.PublishKwargs],
 ):
+    logger.info(
+        f"Packaging and Distributing with filters: tag={destination_tag}, datasets: {datasets}, destination_type: {destination_type} "
+    )
     """Package tagged datsets from bytes, and distribute to Socrata."""
     org_md = product_metadata.OrgMetadata.from_path(
         path=org_metadata_path,
         template_vars={"version": version},
     )
     product_md = org_md.product(product)
-    dests = product_md.get_tagged_destinations(destination_tag)
+    dests = product_md.query_destinations(
+        tag=destination_tag,
+        datasets=set(datasets),
+        destination_type=destination_type,
+        destination_id=destination_id,
+    )
 
     logger.info(f"Packaging {product_md.metadata.id}. Datasets: {list(dests.keys())}")
     package_paths = {}
@@ -52,21 +64,41 @@ def from_bytes_to_tagged_socrata(
 app = typer.Typer()
 
 
-@app.command("from_bytes_to_tagged_socrata")
+@app.command("from_bytes_to_socrata")
 def from_bytes_to_tagged_socrata_cli(
     product: str,
     version: str,
-    org_metadata_path: Path = typer.Option(
-        PRODUCT_METADATA_REPO_PATH,
-        "-o",
-        "--metadata-path",
-        help="Path to metadata repo. Optionally, set in your env.",
+    # Filters
+    datasets: str = typer.Option(
+        None,
+        "-d",
+        "--datasets",
+        help="comma delimited list of dataset names to filter for.",
     ),
     destination_tag: str = typer.Option(
         None,
         "-t",
         "--dest-tag",
-        help="Destination tag to package and distribute",
+        help="Destination tag to filter for.",
+    ),
+    destination_id: str = typer.Option(
+        None,
+        "-a",
+        "--dest-id",
+        help="Destination ID",
+    ),
+    destination_type: str = typer.Option(
+        None,
+        "-e",
+        "--dest-type",
+        help="Destination type for filter for. e.g. 'Socrata'",
+    ),
+    # Overrides
+    org_metadata_path: Path = typer.Option(
+        PRODUCT_METADATA_REPO_PATH,
+        "-o",
+        "--metadata-path",
+        help="Path to metadata repo. Optionally, set in your env.",
     ),
     publish: bool = typer.Option(
         False,
@@ -93,11 +125,18 @@ def from_bytes_to_tagged_socrata_cli(
         help="Only push metadata (including attachments).",
     ),
 ):
-    results = from_bytes_to_tagged_socrata(
+    datasets_set: set[str] = set()
+    if datasets:  # TODO: can typer do this natively?
+        datasets_set = {d.strip() for d in datasets.split(",")}
+
+    results = package_and_dist_from_bytes(
         org_metadata_path,
         product,
         version,
-        destination_tag,
+        datasets=datasets_set,
+        destination_id=destination_id,
+        destination_type=destination_type,
+        destination_tag=destination_tag,
         publish=publish,
         ignore_validation_errors=ignore_validation_errors,
         skip_validation=skip_validation,

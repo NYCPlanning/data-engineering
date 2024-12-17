@@ -55,15 +55,41 @@ def test_org_md_overrides(test_metadata_repo: Path):
     ), "The field `agency` should use the org-level default"
 
 
+def test_query_destinations_by_type(lion_md_path: Path):
+    lion_product = md.ProductMetadata.from_path(root_path=lion_md_path)
+
+    DEST_TYPE = "socrata"
+    datasets = lion_product.query_destinations(destination_type=DEST_TYPE)
+
+    assert 2 == len(datasets.keys())
+    assert "school_districts" in datasets
+    assert datasets["school_districts"].keys() == {"socrata", "socrata_2"}
+
+
 def test_get_tagged_destinations(lion_md_path: Path):
     product_folder = md.ProductMetadata.from_path(root_path=lion_md_path)
 
-    TAG = "prod_tag"
-    datasets = product_folder.get_tagged_destinations(TAG)
+    TAG = "school_districts_tag"
+    datasets = product_folder.query_destinations(tag=TAG)
 
     assert 1 == len(datasets.keys())
     assert "school_districts" in datasets
-    assert datasets["school_districts"].keys() == {"socrata"}
+    assert datasets["school_districts"].keys() == {"socrata_2"}
+
+
+def test_query_multiple_filters_destinations(lion_md_path: Path):
+    product_folder = md.ProductMetadata.from_path(root_path=lion_md_path)
+
+    TAG = "prod_tag"
+    DEST_TYPE = "socrata"
+    DATASET_NAMES = {"pseudo_lots", "school_districts"}
+    datasets = product_folder.query_destinations(
+        tag=TAG, destination_type=DEST_TYPE, datasets=DATASET_NAMES
+    )
+
+    assert DATASET_NAMES == datasets.keys(), "The correct datasets should be returned"
+    for ds in DATASET_NAMES:
+        assert datasets[ds].keys() == {"socrata"}
 
 
 def test_product_metadata_validation(lion_md_path: Path):
@@ -110,16 +136,6 @@ def test_product_validation_with_error_product(test_metadata_repo: Path):
     # This column has a missing reference
     reference_error = all_dataset_errors["dataset_with_reference_errors"][0]
     assert reference_error.startswith(ds_md.ERROR_MISSING_COLUMN)
-
-
-def test_query_product_dataset_tags(test_metadata_repo: Path):
-    TAG = "prod_tag"
-    repo = md.OrgMetadata.from_path(test_metadata_repo)
-    assert [
-        md.ProductDatasetDestinationKey(
-            product="lion", dataset="school_districts", destination="socrata"
-        )
-    ] == repo.query_dataset_destinations(TAG)
 
 
 @pytest.fixture
