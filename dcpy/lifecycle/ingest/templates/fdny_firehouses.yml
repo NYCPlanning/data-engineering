@@ -3,8 +3,7 @@ acl: public-read
 
 attributes:
   name: FDNY Firehouse Listing
-  description: |
-    Location of Firehouses and companies
+  description: Location of Firehouses and companies
   url: https://data.cityofnewyork.us/Public-Safety/FDNY-Firehouse-Listing/hc8x-tcnd
 
 ingestion:

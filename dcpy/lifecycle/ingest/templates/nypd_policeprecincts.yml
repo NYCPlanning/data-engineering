@@ -3,8 +3,7 @@ acl: public-read
 
 attributes:
   name: NYPD Police Precincts
-  description: |
-    GIS data: Boundaries of Police Precincts
+  description: "GIS data: Boundaries of Police Precincts"
   url: https://data.cityofnewyork.us/Public-Safety/Police-Precincts/78dh-3ptz
 
 ingestion:
