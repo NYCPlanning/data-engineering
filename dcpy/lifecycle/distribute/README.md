@@ -50,6 +50,24 @@ python -m dcpy.cli lifecycle package validate [your package path here]
 
 Note: this is a low-risk operation when you don't tick the box to publish the dataset. 
 
+
+#### Assembling and Pushing from Bytes (local flow)
+1. Ensure you have the product-metadata repo cloned locally, and have set the `PRODUCT_METADATA_REPO_PATH` var
+2. Run the lifecycle package and dist command in scripts. This will allow you to target specific destinations for a given dataset. For each dataset specified, this command will pull relevant files from `bytes`, generate the OTI XLSX when specified in the files, then distribute the data to Socrata. This command can filter by dataset name, and destination tag. (note: the conditions are combined with AND logic)
+
+For Example
+``` sh
+python -m dcpy.cli lifecycle scripts package_and_dist from_bytes_to_socrata 
+lion \ # Product 
+24d  \ # version 
+-y \ # skip data validation (yolo) 
+-e socrata  \ # filter for destination type is `socrata` 
+-d "atomic_polygons, other_dataset" \ # filter for the two datasets
+-t socrata_unpublished # filter for destinations tagged as `socrata_unpublished`
+```
+This will return all socrata destinations for two datasets, where the destination is also tagged as `socrata_unpublished`.
+
+
 ## The Socrata Publish Flow
 In our publishing connector, the flow for distributing is as follows: 
 
@@ -75,6 +93,9 @@ INFO:dcpy:            here https://data.cityofnewyork.us/d/b7pm-uzu7/revisions/3
 Follow the provided link. Here you can review the modified data and metadata. Hit `Update` in the top right to apply the revision. 
 ![template_db_socrata](https://github.com/NYCPlanning/data-engineering/assets/11164730/b0c24251-00e3-4be1-99a6-6cf015240cc6)
 
+Before publishing, 
+- check the row count
+- review the "Metadata Changes" (hit the Details dropdown). Make sure that everything looks fine. (e.g. you haven't removed fields, or completely removed an attachment, etc.)
 
 ## Generating Metadata
 
@@ -120,3 +141,12 @@ In this case, make sure you're logged in, and then:
     - Delete the old attachment(s)
     - Upload the new attachemt(s)
 
+
+
+
+#### POTENTIAL ISSUES
+
+##### I've pushed to socrata, but when I visit the revision page, the `Update` button is greyed out. 
+Hover over the `Update` button, and it should point you towards the cause. Usually it's a metadata problem. 
+
+*If it's a metadata problem, but nothing seems wrong (ie nothing is bright red in the metadata modal)* Usually you can fix this by adding a space and removing it, or some similar non-change. Hit `Save`, and likely you'll be able to update.
