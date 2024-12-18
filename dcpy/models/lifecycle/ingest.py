@@ -35,6 +35,15 @@ class DEPublished(BaseModel, extra="forbid"):
     filename: str
 
 
+class ESRIFeatureServer(BaseModel, extra="forbid"):
+    type: Literal["esri"]
+    server: str
+    dataset: str
+    layer_name: str
+    layer_id: str
+    crs: str
+
+
 Source: TypeAlias = (
     LocalFileSource
     | web.FileDownloadSource
@@ -44,6 +53,7 @@ Source: TypeAlias = (
     | DEPublished
     | S3Source
     | ScriptSource
+    | ESRIFeatureServer
 )
 
 

@@ -13,6 +13,7 @@ from dcpy.models.lifecycle.ingest import (
     S3Source,
     ScriptSource,
     DEPublished,
+    ESRIFeatureServer,
     Source,
     ProcessingStep,
     Template,
@@ -102,6 +103,8 @@ def get_filename(source: Source, ds_id: str) -> str:
             return f"{ds_id}.{source.extension}"
         case S3Source():
             return Path(source.key).name
+        case ESRIFeatureServer():
+            return f"{ds_id}.geojson"
         case _:
             raise NotImplementedError(
                 f"Source type {source} not supported for get_filename"
