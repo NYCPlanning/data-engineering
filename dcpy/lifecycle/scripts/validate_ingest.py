@@ -88,7 +88,9 @@ def convert_template(dataset: str):
     converter.write_to_yaml(ingest_path)
 
 
-def library_archive(dataset: str, version: str | None = None, file_type="pgdump"):
+def library_archive(
+    dataset: str, version: str | None = None, file_type: str = "pgdump"
+):
     # BEWARE: once you import library, parquet file writing fails
     # Something to do with gdal's interaction with parquet file driver
     from dcpy.library.archive import Archive
@@ -174,6 +176,18 @@ def compare_recipes_in_postgres(
     )
 
 
+def _library_format_to_recipe_file_type(library_format: str) -> recipes.DatasetType:
+    match library_format:
+        case "pgdump":
+            return recipes.DatasetType.pg_dump
+        case "parquet":
+            return recipes.DatasetType.parquet
+        case "csv":
+            return recipes.DatasetType.csv
+        case _:
+            raise ValueError(f"Unsupport library format '{library_format}'")
+
+
 app = typer.Typer()
 
 
@@ -187,26 +201,32 @@ def run_single(
     tool: str = typer.Argument(),
     dataset: str = typer.Argument(),
     version: str | None = typer.Option(None, "--version", "-v"),
+    library_format: str = typer.Option(
+        "pgdump", "--library-format", "--lf", help="one of 'pgdump', 'csv'`, 'parquet'"
+    ),
 ):
     if tool == "library":
-        library_archive(dataset, version)
+        library_archive(dataset, version, file_type=library_format)
+        load_recipe(dataset, tool, _library_format_to_recipe_file_type(library_format))  # type: ignore
     elif tool == "ingest":
         ingest(dataset, version)
+        load_recipe(dataset, tool)  # type: ignore
     else:
         raise NotImplementedError("'tool' must be either 'library' or 'ingest'")
-
-    load_recipe(dataset, tool)  # type: ignore
 
 
 @app.command("run")
 def _run_both(
     dataset: str = typer.Argument(),
-    version: str | None = typer.Option(None, "--version", "-v"),
+    version: str = typer.Option(None, "--version", "-v"),
+    library_format: str = typer.Option(
+        "pgdump", "--library-format", "--lf", help="one of 'pgdump', 'csv'`, 'parquet'"
+    ),
 ):
     ingest(dataset, version)
-    library_archive(dataset, version)
+    library_archive(dataset, version, file_type=library_format)
 
-    load_recipe(dataset, "library")
+    load_recipe(dataset, "library", _library_format_to_recipe_file_type(library_format))
     load_recipe(dataset, "ingest")
 
 
@@ -244,11 +264,14 @@ def _run_and_compare(
     cast_to_numeric_columns: list[str] = typer.Option(
         None, "--cast-to-numeric", "--c2n"
     ),
+    library_format: str = typer.Option(
+        "pgdump", "--library-format", "--lf", help="one of 'pgdump', 'csv'`, 'parquet'"
+    ),
 ):
     ingest(dataset, version)
-    library_archive(dataset, version)
+    library_archive(dataset, version, file_type=library_format)
 
-    load_recipe(dataset, "library")
+    load_recipe(dataset, "library", _library_format_to_recipe_file_type(library_format))
     load_recipe(dataset, "ingest")
     report = compare_recipes_in_postgres(
         dataset,
