@@ -27,9 +27,6 @@ ingestion:
         y: Latitude
 
   processing_steps:
-    - name: drop_columns
-      args:
-        columns: ["name"]
     - name: rename_columns
       args:
         map:
