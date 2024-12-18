@@ -1,0 +1,33 @@
+id: lpc_historic_districts
+acl: public-read
+
+attributes:
+  name: Landmarks Preservation Commission - Historic Districts
+  description: |
+    The LPC’s Individual Landmark and Historic District Building Database
+    contains building-by-building information from the more than 50 years
+    of the Commission’s individual landmark and historic district designation
+    reports. The data set contains detailed information on close to 36,000
+    buildings or sites, including the nearly 34,000 historic buildings
+    within the city’s 141 historic districts and the 1,408 individual landmarks
+    (note: some individual landmarks include multiple buildings).
+  url: https://data.cityofnewyork.us/Housing-Development/Individual-Landmark-and-Historic-District-Building/gpmc-yuvp
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: gpmc-yuvp
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: bbl
+    data_type: text
+  - id: hist_dist
+    data_type: text

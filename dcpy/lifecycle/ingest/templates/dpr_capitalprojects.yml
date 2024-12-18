@@ -1,0 +1,63 @@
+id: dpr_capitalprojects
+acl: public-read
+
+attributes:
+  name: DPR Capital Projects
+  description: |
+    check [here](https://www.nycgovparks.org/bigapps/desc/DPR_CapitalProjectTracker_001.txt) for metadata
+  url: https://www.nycgovparks.org/bigapps
+
+ingestion:
+  source:
+    type: file_download
+    url: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
+
+  file_format:
+    type: json
+    json_read_fn: normalize
+    json_read_kwargs:
+      {
+        "record_path": ["Locations", "Location"],
+        "meta": ["TrackerID", "FMSID", "Title", "TotalFunding"],
+      }
+    geometry:
+      crs: EPSG:4326
+      geom_column:
+        x: Longitude
+        y: Latitude
+
+  processing_steps:
+    - name: rename_columns
+      args:
+        map:
+          {
+            "TrackerID": "proj_id",
+            "FMSID": "fmsid",
+            "Title": "desc",
+            "TotalFunding": "total_funding",
+            "ParkID": "park_id",
+            "Latitude": "lat",
+            "Longitude": "lon",
+            "geom": "wkb_geometry",
+          }
+    - name: coerce_column_types
+      args:
+        column_types: { "proj_id": "string" }
+
+columns:
+  - id: park_id
+    data_type: text
+  - id: lat
+    data_type: decimal
+  - id: lon
+    data_type: decimal
+  - id: proj_id
+    data_type: text
+  - id: fmsid
+    data_type: text
+  - id: desc
+    data_type: text
+  - id: total_funding
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry

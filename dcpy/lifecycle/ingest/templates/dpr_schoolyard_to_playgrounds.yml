@@ -1,0 +1,55 @@
+id: dpr_schoolyard_to_playgrounds
+acl: public-read
+
+attributes:
+  name: Schoolyard to Playgrounds
+  description: |
+    The Schoolyards to Playgrounds initiative began with PlaNYC 2007 as 
+    a way to expand public use at existing City facilities and improve access 
+    to open spaces during non-school hours which includes weekends, holidays, 
+    and during the summer.
+
+    NYC Parks, in collaboration with the Department of Education (DOE) and the nonprofit 
+    Trust for Public Land \nhave improved hundreds of DOE operated schoolyards through 
+    capital improvements, including play equipment, painted sports surfaces, trees, and 
+    benches.
+
+    The program is an important approach to reaching the city’s target to getting more New 
+    Yorkers within walking distance to open-space. In many neighborhoods, these DOE 
+    schoolyards are one of the few resources that can be improved and provide publicly
+    accessible open space.
+
+    Each record in this dataset represents a participating DOE Schoolyard at the time of the 
+    dataset's publication. The schoolyard's boundaries have been drawn in whole or part 
+    using secondary data. Data accuracy is limited by the scale and accuracy of the original 
+    sources. Site-specific conditions should be field-verified.
+
+    For more information on the Schoolyard to Playgrounds program, visit: 
+    https://www.nycgovparks.org/greening/planyc/schoolyards
+
+    This dataset may be updated throughout the year as school's join or exit the program.
+
+    Data Dictionary: https://docs.google.com/spreadsheets/d/10yVRhmdIAS1g8c3L0jC4XxSTptdIf5wESL5ks1e6Gto/edit?usp=sharing\n"
+  url: https://data.cityofnewyork.us/dataset/Schoolyard-to-Playgrounds/bbtf-6p3c/about_data
+
+ingestion:
+  target_crs: EPSG:2263
+  source:
+    type: socrata
+    org: nyc
+    uid: bbtf-6p3c
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: location
+    data_type: text
+  - id: gispropnum
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry

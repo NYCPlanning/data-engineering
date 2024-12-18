@@ -1,0 +1,61 @@
+id: lpc_landmarks
+acl: public-read
+
+attributes:
+  name: Landmarks Preservation Commission - Individual Landmarks
+  description: |
+    Provides information on all items designated or under consideration for designation
+    (i.e. calendared) by the New York City Landmarks Preservation Commission (LPC).
+
+    The dataset contains records for each individual, scenic, or interior landmark, as well as 
+    properties or sites located within the boundaries of historic districts. 
+
+    Please note that points in this dataset represent individual buildings in addition to 
+    non-building sites (such as vacant lots or monuments) regulated by LPC. It is possible 
+    for a single property to have multiple designations (such as individual and interior 
+    designations, or individual and historic district). For this reason, it is not uncommon 
+    to see multiple points on a single tax lot and multiple records for a single property within 
+    the database.
+  url: https://data.cityofnewyork.us/Housing-Development/Individual-Landmark-Sites/ncre-qhxs
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: ncre-qhxs
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+    - name: coerce_column_types
+      args:
+        column_types: { "caldate": "date", "desdate": "date" }
+        errors: coerce
+    - name: pd_series_func
+      args:
+        column_name: desig_addr
+        function_name: str.replace
+        pat: "\r\n"
+        repl: "\n"
+        regex: True
+
+columns:
+  - id: last_actio
+    data_type: text
+  - id: bbl
+    data_type: text
+  - id: status
+    data_type: text
+  - id: lm_type
+    data_type: text
+  - id: most_curre
+    data_type: text
+  - id: boroughid
+    data_type: text
+  - id: lm_name
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry

@@ -1,0 +1,62 @@
+id: dcp_edesignation_csv
+acl: public-read
+
+attributes:
+  name: NYC (E) Designations
+  description: |
+    (E) Designations are established to provide notice of the presence of an environmental
+    requirement pertaining to potential hazardous materials contamination, high ambient noise
+    levels or air emission concerns on a particular tax lot. This includes CEQR Environment
+    Requirements and CEQR Restrictive Declarations, in Appendix C of the
+    Zoning Resolution.
+
+    Not all columns are currently included in shapefile, hence why we need this table.
+    This should be fixed sometime before 2024 Q3, and at that point this template can be archived
+  url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/nyedes_metadata.pdf
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: hxm3-23vy
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    - name: clean_column_names
+      args: { "lower": True }
+
+columns:
+  - id: enumber
+    data_type: text
+  - id: e_effective_date
+    data_type: text
+  - id: borocode
+    data_type: text
+  - id: taxblock
+    data_type: text
+  - id: taxlot
+    data_type: text
+  - id: hazmat_code
+    data_type: text
+  - id: air_code
+    data_type: text
+  - id: noise_code
+    data_type: text
+  - id: hazmat_date
+    data_type: text
+  - id: air_date
+    data_type: text
+  - id: noise_date
+    data_type: text
+  - id: ceqr_num
+    data_type: text
+  - id: ulurp_num
+    data_type: text
+  - id: zoning_map
+    data_type: text
+  - id: description
+    data_type: text
+  - id: bbl
+    data_type: text

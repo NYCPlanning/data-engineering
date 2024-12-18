@@ -34,7 +34,6 @@ jobs:
           - doitt_buildingfootprints_historical
           - dot_projects_intersections
           - dot_projects_streets
-          - dpr_capitalprojects
           - dpr_forever_wild
           - dpr_greenthumb
           - dpr_park_access_zone

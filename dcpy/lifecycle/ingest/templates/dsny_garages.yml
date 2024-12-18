@@ -1,0 +1,43 @@
+id: dsny_garages
+acl: public-read
+
+attributes:
+  name: DSNY Garages
+  description: |
+    Location of DSNY garages. Essential to DSNY operations are our 59 garages across the five boroughs. 
+    This structure enables the Department’s uniformed personnel to efficiently perform regular duties – and 
+    quickly execute emergency response.
+  url: https://data.cityofnewyork.us/Environment/DSNY-Garages/xw3j-2yxf
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: xw3j-2yxf
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: city
+    data_type: text
+  - id: name
+    data_type: text
+  - id: zip
+    data_type: text
+  - id: bbl
+    data_type: text
+  - id: address
+    data_type: text
+  - id: boro
+    data_type: text
+  - id: bin
+    data_type: text
+  - id: type
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
