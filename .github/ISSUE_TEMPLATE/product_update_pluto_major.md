@@ -23,7 +23,7 @@ labels: 'data update'
 
 #### Open data automated pull
 
-> Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/data_library_open_data.yml) to see the latest run
+> Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/ingest_open_data.yml) to see the latest run
 
 - [ ] **dsny_frequencies**
 - [ ] **dpr_greenthumb**
@@ -37,7 +37,7 @@ labels: 'data update'
 - [ ] **pluto_input_cama_dof** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_cama.yml))
 - [ ] **pluto_input_numbldgs** (Check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/pluto_input_numbldgs.yml))
 
-### Updated with Quarterly updates (check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/data_library_quarterly.yml))
+### Updated with Quarterly updates (check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/ingest_bytes_quarterly.yml))
 
 - [ ] **dcp_cdboundaries_wi**
 - [ ] **dcp_ct2010**
