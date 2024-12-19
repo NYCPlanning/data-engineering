@@ -8,6 +8,7 @@ from dcpy.models.lifecycle.ingest import (
     ScriptSource,
     S3Source,
     DEPublished,
+    ESRIFeatureServer,
 )
 from dcpy.test.conftest import RECIPES_BUCKET
 
@@ -38,6 +39,14 @@ class Sources:
     de_publish = DEPublished(
         type="de-published", product=TEST_DATASET_NAME, filename="file.csv"
     )
+    esri = ESRIFeatureServer(
+        type="esri",
+        server="nys_parks",
+        dataset="National_Register_Building_Listings",
+        layer_name="MADE_UP_LAYER_NAME",
+        layer_id="13",
+        crs="EPSG:3857",
+    )
 
 
 SOURCE_FILENAMES = [
@@ -47,4 +56,5 @@ SOURCE_FILENAMES = [
     (Sources.api, f"{TEST_DATASET_NAME}.json"),
     (Sources.socrata, f"{TEST_DATASET_NAME}.csv"),
     (Sources.s3, "test.txt"),
+    (Sources.esri, f"{TEST_DATASET_NAME}.geojson"),
 ]

@@ -141,3 +141,23 @@ class TestGetLayer:
 
         # one call to get ids, three calls to get data
         assert post.call_count == 4
+
+
+@patch("requests.get", side_effect=mock_request_get)
+@patch("requests.post", side_effect=mock_query_layer)
+def test_download_layer(get, post, create_temp_filesystem):
+    filename = "does_not_exist.geojson"
+    dataset = "National_Register_Building_Listings"
+    layer = FeatureServerLayer(
+        server=Server.nys_parks,
+        name=dataset,
+        layer_name=LAYER_NAME,
+        layer_id=LAYER_ID,
+    )
+    arcfs.download_layer(
+        layer=layer,
+        crs="EPSG:3857",
+        path=create_temp_filesystem / filename,
+    )
+    print(create_temp_filesystem / filename)
+    assert (create_temp_filesystem / filename).exists()

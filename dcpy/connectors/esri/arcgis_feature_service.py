@@ -11,6 +11,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 import yaml
+import json
 
 from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer
 import dcpy.models.product.dataset.metadata as models
@@ -182,6 +183,12 @@ def get_layer(layer: FeatureServerLayer, crs: int, chunk_size=100) -> dict:
             features += [_downcase_properties_keys(feat) for feat in chunk["features"]]
 
     return {"type": "FeatureCollection", "crs": crs, "features": features}
+
+
+def download_layer(layer: FeatureServerLayer, crs: str, path: Path) -> None:
+    geojson = get_layer(layer, crs=int(crs.strip("EPSG:")))
+    with open(path, "w") as f:
+        json.dump(geojson, f)
 
 
 def make_dcp_metadata(layer_url: str) -> models.Metadata:
