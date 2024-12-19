@@ -138,6 +138,14 @@ def get_config(name: str, version="latest") -> library.Config | ingest.Config:
         return ingest.Config(**config)
 
 
+def try_get_config(dataset: Dataset) -> library.Config | ingest.Config | None:
+    """Retrieve a recipe config object, if exists"""
+    if not exists(dataset):
+        return None
+    else:
+        return get_config(dataset.id, dataset.version)
+
+
 def get_parquet_metadata(id: str, version="latest") -> parquet.FileMetaData:
     s3_fs = s3.pyarrow_fs()
     ds = parquet.ParquetDataset(
