@@ -21,7 +21,7 @@ class TestDataDictionary(object):
     package_path = TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH
     yaml_path = TEST_METADATA_YAML_PATH
     html_path = TEMP_DATA_PATH / "metadata.html"
-    pdf_path = TEMP_DATA_PATH / "metadata.pdf"
+    output_pdf_path = TEMP_DATA_PATH / "metadata.pdf"
     output_xlsx_path = TEMP_DATA_PATH / "my_data_dictionary.xlsx"
     template_vars = {
         "heading": "Simple Heading",
@@ -78,18 +78,18 @@ class TestDataDictionary(object):
         assert actual == expected
 
     def test_generate_pdf_from_yaml(self):
-        html_path = pdf_writer.generate_html_from_yaml(
+        pdf_writer.generate_html_from_yaml(
             metadata_path=self.yaml_path,
             output_path=self.html_path,
             html_template_path=pdf_writer.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
             stylesheet_path=pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
         )
-        pdf_path = pdf_writer.generate_pdf_from_html(
-            html_path=html_path,
-            output_path=self.pdf_path,
+        pdf_writer.generate_pdf_from_html(
+            html_path=self.html_path,
+            output_path=self.output_pdf_path,
             stylesheet_path=pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
         )
-        assert pdf_path.exists()
+        assert self.output_pdf_path.exists()
 
     def test_generate_xslx(self, org_metadata):
         xlsx_writer.write_xlsx(
