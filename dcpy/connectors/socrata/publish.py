@@ -303,6 +303,22 @@ class RevisionDataSource:
 
             new_col["display_name"] = our_col.name
             new_col["description"] = our_col.description
+            if new_col["transform"]["failure_details"]:
+                if uploaded_col["field_name"] != our_col.id:
+                    logger.info(
+                        f"Mapping column {our_col.id} to {uploaded_col['field_name']}"
+                    )
+                    assert (
+                        uploaded_col["field_name"]
+                        in new_col["transform"]["transform_expr"]
+                    )
+                    new_col["transform"]["transform_expr"] = new_col["transform"][
+                        "transform_expr"
+                    ].replace(uploaded_col["field_name"], our_col.id)
+                    new_col["transform"]["failure_details"] = None
+                    new_col["transform"]["failure_at"] = None
+
+            print(new_col)
             new_uploaded_cols.append(new_col)
 
         return new_uploaded_cols
@@ -465,6 +481,7 @@ class Revision:
                 .shapefile(shp_zip)
                 .wait_for_finish()
             )
+
         error_details: dict | None = push_resp.attributes["failure_details"]
         if error_details:
             logger.error(f"Shapefile upload failed with {error_details}")
@@ -631,6 +648,7 @@ def push_dataset(
                 dest_filename=overridden_dataset_md.file.filename
                 or package_dataset_file_path.name,
             )
+
         elif dataset_file.type == "csv":
             data_source = rev.push_csv(package_dataset_file_path)
         elif dataset_file.type == "shapefile":
