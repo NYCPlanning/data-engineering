@@ -26,16 +26,16 @@ BUILD_TABLES = {
 
 
 def generate_data_dictionaries():
-    dataset_metadata_path = PRODUCT_PATH / "data_dictionary.yml"
-
     org_metadata = OrgMetadata.from_path(Path(PRODUCT_METADATA_REPO_PATH))
 
+    dataset_metadata_path = PRODUCT_PATH / "data_dictionary.yml"
     metadata = org_metadata.product("template_db").dataset("template_db")
     metadata.write_to_yaml(dataset_metadata_path)
 
-    html_path = pdf_writer.generate_html_from_yaml(
+    html_path = PRODUCT_PATH / "data_dictionary.html"
+    pdf_writer.generate_html_from_yaml(
         dataset_metadata_path,
-        PRODUCT_PATH / "data_dictionary.html",
+        html_path,
         pdf_writer.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
         pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
     )

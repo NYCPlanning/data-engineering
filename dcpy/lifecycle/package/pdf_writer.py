@@ -52,7 +52,7 @@ def generate_pdf_from_html(
     html_path: Path,
     output_path: Path,
     stylesheet_path: Path = DEFAULT_PDF_STYLESHEET_PATH,
-) -> Path:
+) -> None:
     logger.info(f"Saving DCP PDF to {output_path}")
     subprocess.run(
         [
@@ -64,7 +64,6 @@ def generate_pdf_from_html(
         ],
         check=True,
     )
-    return output_path
 
 
 def generate_html_from_yaml(
@@ -72,7 +71,7 @@ def generate_html_from_yaml(
     output_path: Path,
     html_template_path: Path,
     stylesheet_path: Path,
-) -> Path:
+) -> None:
     metadata = Metadata.from_path(metadata_path)
 
     html = _render_html_template(html_template_path, {"metadata": metadata})
@@ -82,5 +81,3 @@ def generate_html_from_yaml(
     logger.info(f"Saving DCP HTML to {output_path}")
     with open(output_path, "w") as f:
         f.write(styled_html)
-
-    return output_path
