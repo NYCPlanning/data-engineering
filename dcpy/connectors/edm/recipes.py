@@ -65,7 +65,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> No
         )
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
-        shutil.copy(file_path, tmp_dir_path)
+        shutil.copy(file_path, tmp_dir_path / config.filename)
         with open(tmp_dir_path / "config.json", "w") as f:
             f.write(
                 json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
