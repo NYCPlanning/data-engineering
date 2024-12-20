@@ -236,27 +236,21 @@ class RevisionDataSource:
         "The field names in the uploaded data do not match our metadata"
     )
 
-    uploaded_columns: list[Any]
-    column_update_endpoint: str
     _raw_socrata_source: dict[str, Any] | None = None
 
     @classmethod
     def from_socrata_source(cls, socrata_source):
-        return RevisionDataSource(
-            _raw_socrata_source=socrata_source,
-            # AR Note: It's not clear to me why/when you would have multiple schemas/output
-            # schemas for any one datasource. In any case, I haven't yet encountered it,
-            # and for our use case (single dataset upload per product) I don't expect we will
-            uploaded_columns=socrata_source.attributes["schemas"][0]["output_schemas"][
-                0
-            ]["output_columns"],
-            column_update_endpoint=f"https://{SOCRATA_DOMAIN}"
-            + socrata_source.input_schemas[0].links["transform"],
-        )
+        return RevisionDataSource(_raw_socrata_source=socrata_source)
+
+    def get_latest_output_schema(self):
+        return self._raw_socrata_source.get_latest_input_schema().get_latest_output_schema()
 
     @property
     def column_names(self) -> list[str]:
-        return [c["field_name"] for c in self.uploaded_columns]
+        return [
+            c["field_name"]
+            for c in self.get_latest_output_schema().attributes["output_columns"]
+        ]
 
     def calculate_pushed_col_metadata(self, our_columns: list[md.DatasetColumn]):
         # TODO: using c.id or c.name?
@@ -284,41 +278,37 @@ class RevisionDataSource:
                 }
             )
 
-        new_uploaded_cols = []
-        for uploaded_col in self.uploaded_columns:
+        output_schema = self.get_latest_output_schema()
+        for col in output_schema.attributes["output_columns"]:
             # Take the Socrata metadata for columns that have been uploaded,
             # modify them to match our metadata.
 
-            # Input columns need to be matched to what's been uploaded,
-            # via the `initial_output_column_id`. Otherwise update
-            # requests are ignored.
-            new_col = copy.deepcopy(uploaded_col)
+            field_name = col["field_name"]
+            our_col = our_cols_by_field_name[field_name]
+            our_col_index = list(our_api_names).index(field_name)
 
-            our_col = our_cols_by_field_name[uploaded_col["field_name"]]
-            our_col_index = list(our_api_names).index(uploaded_col["field_name"])
+            output_schema.change_column_metadata(field_name, "position").to(
+                our_col_index + 1
+            )
 
-            new_col["position"] = our_col_index + 1
-            new_col["initial_output_column_id"] = new_col["id"]
-
-            new_col["is_primary_key"] = (
+            output_schema.change_column_metadata(field_name, "is_primary_key").to(
                 bool(our_col.checks.is_primary_key)
                 if isinstance(our_col.checks, dataset.Checks)
                 else False
             )
 
-            new_col["display_name"] = our_col.name
-            new_col["description"] = our_col.description
-            new_uploaded_cols.append(new_col)
+            output_schema.change_column_metadata(field_name, "display_name").to(
+                our_col.name
+            )
+            output_schema.change_column_metadata(field_name, "description").to(
+                our_col.description
+            )
 
-        return new_uploaded_cols
+        return output_schema
 
     def push_socrata_column_metadata(self, our_cols: list[md.DatasetColumn]):
-        cols = self.calculate_pushed_col_metadata(our_cols)
-        return _request(
-            self.column_update_endpoint,
-            "POST",
-            json={"output_columns": cols},
-        )
+        new_schema = self.calculate_pushed_col_metadata(our_cols)
+        return new_schema.run()
 
 
 @dataclass(frozen=True)
