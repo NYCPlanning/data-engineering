@@ -12,7 +12,13 @@ from dcpy.utils import s3
 from dcpy.lifecycle.ingest import configure
 
 from dcpy.test.conftest import mock_request_get
-from . import RESOURCES, TEST_DATASET_NAME, Sources, SOURCE_FILENAMES, TEMPLATE_DIR
+from .shared import (
+    RESOURCES,
+    TEST_DATASET_NAME,
+    Sources,
+    SOURCE_FILENAMES,
+    TEMPLATE_DIR,
+)
 
 
 def test_jinja_vars():
