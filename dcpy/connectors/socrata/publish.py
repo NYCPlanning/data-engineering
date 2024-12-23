@@ -276,28 +276,36 @@ class RevisionDataSource:
             )
 
         output_schema = self.get_latest_output_schema()
-
-        for col in self.column_names:
+        for col in output_schema.attributes["output_columns"]:
             # Take the Socrata metadata for columns that have been uploaded,
             # modify them to match our metadata.
 
-            our_col = our_cols_by_field_name[col]
-            our_col_index = list(our_api_names).index(col)
+            field_name = col["field_name"]
+            our_col = our_cols_by_field_name[field_name]
+            our_col_index = list(our_api_names).index(field_name)
 
-            output_schema.change_column_metadata(col, "position").to(our_col_index + 1)
+            output_schema.change_column_metadata(field_name, "position").to(
+                our_col_index + 1
+            )
             #    .change_column_metadata(col, "initial_output_column_id").to(col.id)
 
-            output_schema.change_column_metadata(col, "is_primary_key").to(
+            output_schema.change_column_metadata(field_name, "is_primary_key").to(
                 True if (our_col.checks and our_col.checks.is_primary_key) else False
             )
 
-            output_schema.change_column_metadata(col, "display_name").to(our_col.name)
-            output_schema.change_column_metadata(col, "description").to(
+            output_schema.change_column_metadata(field_name, "display_name").to(
+                our_col.name
+            )
+            output_schema.change_column_metadata(field_name, "description").to(
                 our_col.description
             )
             if our_col.custom and our_col.custom.get("api_name"):
-                logger.info(f"Mapping column {our_col.id} to {col}")
-                output_schema.change_column_transform(col).to(f"`{our_col.id}`")
+                default_transform = col["transform"]["transform_expr"]
+                assert field_name in default_transform
+                logger.info(f"Mapping column {our_col.id} to {field_name}")
+                output_schema.change_column_transform(field_name).to(
+                    default_transform.replace(field_name, our_col.id)
+                )
 
         return output_schema
 
