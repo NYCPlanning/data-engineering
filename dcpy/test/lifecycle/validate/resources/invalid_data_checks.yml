@@ -1,0 +1,9 @@
+- unregistered_func_with_args:
+    args:
+      min_value: 100
+- unregistered_func_without_args
+- greater_than  # missing args
+- greater_than:
+    args:
+      min_value: 5
+      unexpected_key: value
