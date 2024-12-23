@@ -140,7 +140,9 @@ def pull_destination_files(
     )
     make_package_folder(local_package_path)
     product_metadata.write_to_yaml(local_package_path / "metadata.yml")
+    import ssl
 
+    ssl._create_default_https_context = ssl._create_unverified_context
     package_ids = {p.id for p in product_metadata.assembly}
     for f in dest.files:
         paths_and_dests = ids_to_paths_and_dests[f.id]
