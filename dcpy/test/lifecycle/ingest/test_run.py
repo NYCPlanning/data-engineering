@@ -9,7 +9,7 @@ from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import run, TMP_DIR
 
 from dcpy.test.conftest import mock_request_get
-from . import FAKE_VERSION, TEMPLATE_DIR
+from .shared import FAKE_VERSION, TEMPLATE_DIR
 
 DATASET = "bpl_libraries"
 S3_PATH = f"datasets/{DATASET}/{FAKE_VERSION}/{DATASET}.parquet"

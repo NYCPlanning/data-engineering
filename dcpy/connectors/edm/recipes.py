@@ -65,7 +65,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> No
         )
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
-        shutil.copy(file_path, tmp_dir_path)
+        shutil.copy(file_path, tmp_dir_path / config.filename)
         with open(tmp_dir_path / "config.json", "w") as f:
             f.write(
                 json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
@@ -136,6 +136,14 @@ def get_config(name: str, version="latest") -> library.Config | ingest.Config:
         return library.Config(**config)
     else:
         return ingest.Config(**config)
+
+
+def try_get_config(dataset: Dataset) -> library.Config | ingest.Config | None:
+    """Retrieve a recipe config object, if exists"""
+    if not exists(dataset):
+        return None
+    else:
+        return get_config(dataset.id, dataset.version)
 
 
 def get_parquet_metadata(id: str, version="latest") -> parquet.FileMetaData:

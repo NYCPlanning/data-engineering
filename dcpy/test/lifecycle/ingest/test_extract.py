@@ -9,8 +9,8 @@ from dcpy.utils import s3
 from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
 
-from . import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES, Sources
 from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
+from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES, Sources
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
 

@@ -16,7 +16,7 @@ from dcpy.utils import data
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.lifecycle.ingest import transform
 
-from . import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME
+from .shared import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME
 
 
 class FakeConfig(BaseModel):

@@ -1,44 +1,12 @@
 import json
-import pandas as pd
 from pathlib import Path
 import typer
 
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
-from . import configure, extract, transform
+from . import configure, extract, transform, validate
 
 TMP_DIR = Path("tmp")
-
-
-def update_freshness(
-    config: Config,
-    staging_dir: Path,
-    *,
-    latest: bool,
-) -> Config:
-    """
-    This function is called after a dataset has been preprocessed, just before archival
-    It's called in the case that the version of the dataset in the config (either provided or calculated)
-      already exists
-
-    The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
-    If they are identical, the last archived dataset has its config updated to reflect that it was checked but not re-archived
-    If they differ, the version is "patched" and a new patched version is archived
-    """
-    new = pd.read_parquet(staging_dir / config.filename)
-    comparison = recipes.read_df(config.dataset)
-    if new.equals(comparison):
-        original_archival_timestamp = recipes.update_freshness(
-            config.dataset_key, config.archival.archival_timestamp
-        )
-        config.archival.archival_timestamp = original_archival_timestamp
-        if latest:
-            recipes.set_latest(config.dataset_key, config.archival.acl)
-        return config
-    else:
-        raise FileExistsError(
-            f"Archived dataset '{config.dataset_key}' already exists and has different data."
-        )
 
 
 def run(
@@ -95,16 +63,26 @@ def run(
         output_csv=output_csv,
     )
 
-    if not skip_archival:
-        if recipes.exists(config.dataset):
-            config = update_freshness(config, staging_dir, latest=latest)
-        else:
-            recipes.archive_dataset(
-                config, staging_dir / config.filename, latest=latest
-            )
-
     with open(staging_dir / "config.json", "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
+
+    action = validate.validate_against_existing_versions(
+        config.dataset, staging_dir / config.filename
+    )
+    if not skip_archival:
+        match action:
+            case validate.ArchiveAction.push:
+                recipes.archive_dataset(
+                    config, staging_dir / config.filename, latest=latest
+                )
+            case validate.ArchiveAction.update_freshness:
+                recipes.update_freshness(
+                    config.dataset_key, config.archival.archival_timestamp
+                )
+                if latest:
+                    recipes.set_latest(config.dataset_key, config.archival.acl)
+            case _:
+                pass
     return config
 
 
