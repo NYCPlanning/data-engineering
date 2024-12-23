@@ -463,7 +463,6 @@ class Revision:
                 .shapefile(shp_zip)
                 .wait_for_finish()
             )
-
         error_details: dict | None = push_resp.attributes["failure_details"]
         if error_details:
             logger.error(f"Shapefile upload failed with {error_details}")
@@ -631,7 +630,6 @@ def push_dataset(
                 dest_filename=overridden_dataset_md.file.filename
                 or package_dataset_file_path.name,
             )
-
         elif dataset_file.type == "csv":
             data_source = rev.push_csv(package_dataset_file_path)
         elif dataset_file.type == "shapefile":
