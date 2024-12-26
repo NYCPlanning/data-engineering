@@ -2,12 +2,10 @@ from pathlib import Path
 import pytest
 from dcpy.test.lifecycle.package.conftest import (
     PACKAGE_RESOURCES_PATH,
-    TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH,
-    TEST_METADATA_YAML_PATH,
     TEMP_DATA_PATH,
 )
 
-from dcpy.lifecycle.package import pdf_writer, xlsx_writer
+from dcpy.lifecycle.package import yaml_writer, pdf_writer, xlsx_writer
 from dcpy.models.product.metadata import OrgMetadata
 
 
@@ -18,11 +16,37 @@ def org_metadata(resources_path: Path):
 
 @pytest.mark.usefixtures("file_setup_teardown")
 class TestDataDictionary(object):
-    package_path = TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH
-    yaml_path = TEST_METADATA_YAML_PATH
-    html_path = TEMP_DATA_PATH / "metadata.html"
-    output_pdf_path = TEMP_DATA_PATH / "metadata.pdf"
+    output_yml_path = TEMP_DATA_PATH / "my_data_dictionary.yml"
+    output_pdf_path = TEMP_DATA_PATH / "my_data_dictionary.pdf"
     output_xlsx_path = TEMP_DATA_PATH / "my_data_dictionary.xlsx"
+
+    def test_generate_yml(self, org_metadata):
+        yaml_writer.write_yaml(
+            org_metadata=org_metadata,
+            product="transit_zones",
+            output_path=TestDataDictionary.output_yml_path,
+        )
+        assert TestDataDictionary.output_yml_path.exists()
+
+    def test_generate_pdf(self, org_metadata):
+        pdf_writer.write_pdf(
+            org_metadata=org_metadata,
+            product="transit_zones",
+            output_path=TestDataDictionary.output_pdf_path,
+        )
+        assert TestDataDictionary.output_pdf_path.exists()
+
+    def test_generate_xslx(self, org_metadata):
+        xlsx_writer.write_xlsx(
+            org_md=org_metadata,
+            product="transit_zones",  # This one has some mock revision history, so it's a good test case.
+            output_path=TestDataDictionary.output_xlsx_path,
+        )
+        assert TestDataDictionary.output_xlsx_path.exists()
+
+
+@pytest.mark.usefixtures("file_setup_teardown")
+class TestHTMLRender(object):
     template_vars = {
         "heading": "Simple Heading",
         "sections": [
@@ -76,25 +100,3 @@ class TestDataDictionary(object):
             stylesheet_path=PACKAGE_RESOURCES_PATH / "simple_style.css",
         )
         assert actual == expected
-
-    def test_generate_pdf_from_yaml(self):
-        pdf_writer.generate_html_from_yaml(
-            metadata_path=self.yaml_path,
-            output_path=self.html_path,
-            html_template_path=pdf_writer.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
-            stylesheet_path=pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
-        )
-        pdf_writer.generate_pdf_from_html(
-            html_path=self.html_path,
-            output_path=self.output_pdf_path,
-            stylesheet_path=pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
-        )
-        assert self.output_pdf_path.exists()
-
-    def test_generate_xslx(self, org_metadata):
-        xlsx_writer.write_xlsx(
-            org_md=org_metadata,
-            product="transit_zones",  # This one has some mock revision history, so it's a good test case.
-            output_path=TestDataDictionary.output_xlsx_path,
-        )
-        assert TestDataDictionary.output_xlsx_path.exists()

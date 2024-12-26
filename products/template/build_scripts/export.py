@@ -5,7 +5,7 @@ from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.utils.logging import logger
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.connectors.edm import publishing
-from dcpy.lifecycle.package import xlsx_writer, pdf_writer
+from dcpy.lifecycle.package import xlsx_writer, pdf_writer, yaml_writer
 
 from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
 
@@ -28,20 +28,15 @@ BUILD_TABLES = {
 def generate_data_dictionaries():
     org_metadata = OrgMetadata.from_path(Path(PRODUCT_METADATA_REPO_PATH))
 
-    dataset_metadata_path = PRODUCT_PATH / "data_dictionary.yml"
-    metadata = org_metadata.product("template_db").dataset("template_db")
-    metadata.write_to_yaml(dataset_metadata_path)
-
-    html_path = PRODUCT_PATH / "data_dictionary.html"
-    pdf_writer.generate_html_from_yaml(
-        dataset_metadata_path,
-        html_path,
-        pdf_writer.DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
-        pdf_writer.DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
+    yaml_writer.write_yaml(
+        org_metadata=org_metadata,
+        product="template_db",
+        output_path=PRODUCT_PATH / "data_dictionary.yml",
     )
-    pdf_writer.generate_pdf_from_html(
-        html_path,
-        PRODUCT_PATH / "data_dictionary.pdf",
+    pdf_writer.write_pdf(
+        org_metadata=org_metadata,
+        product="template_db",
+        output_path=PRODUCT_PATH / "data_dictionary.pdf",
     )
     xlsx_writer.write_xlsx(
         org_md=org_metadata,
