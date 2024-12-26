@@ -1,0 +1,341 @@
+name: Facilities
+version_strategy: bump_latest_release
+product: db-facilities
+inputs:
+  dataset_defaults:
+    file_type: parquet
+  missing_versions_strategy: find_latest
+  datasets:
+  - file_type: pg_dump
+    id: dcp_facilities_with_unmapped
+    version: 24v1
+  - id: dcp_mappluto_wi
+    version: 24v2
+  - id: dcp_boroboundaries_wi
+    version: 24c
+  - id: dcp_ct2010
+    version: 24c
+  - id: dcp_ct2020
+    version: 24c
+  - file_type: pg_dump
+    id: dcp_councildistricts
+    version: 22c
+  - id: dcp_cdboundaries
+    version: 24c
+  - id: dcp_nta2010
+    version: 24c
+  - id: dcp_nta2020
+    version: 24c
+  - id: dcp_policeprecincts
+    version: 24c
+  - file_type: pg_dump
+    id: doitt_zipcodeboundaries
+    version: '20180910'
+  - id: doitt_buildingfootprints
+    version: '20240812'
+  - id: dcp_school_districts
+    version: 24c
+  - id: nypl_libraries
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: bpl_libraries
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dcp_colp
+    version: '20240630'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dca_operatingbusinesses
+    version: '20240809'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dcla_culturalinstitutions
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20210625'
+  - id: dcp_sfpsd
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20210409'
+  - id: dcp_pops
+    version: '20240814'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dsny_garages
+    version: '20240817'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dsny_specialwastedrop
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dsny_donatenycdirectory
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20240108'
+  - id: dsny_leafdrop
+    version: '20240802'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dsny_fooddrop
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dsny_electronicsdrop
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: hra_snapcenters
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20231101'
+  - id: hra_jobcenters
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20231101'
+  - id: hra_medicaid
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20221216'
+  - id: nycha_communitycenters
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20191118'
+  - id: nycha_policeservice
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20160915'
+  - id: nycourts_courts
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20210413'
+  - id: nysdec_lands
+    version: '20240817'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dot_bridgehouses
+    version: '20240805'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dot_ferryterminals
+    version: '20240805'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dot_mannedfacilities
+    version: '20240805'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dot_pedplazas
+    version: '20231212'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dot_publicparking
+    version: '20240805'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: qpl_libraries
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20180620'
+  - id: sbs_workforce1
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20170426'
+  - id: uscourts_courts
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20240813'
+  - id: usdot_airports
+    version: '20240820'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: usdot_ports
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: usnps_parks
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20240702'
+  - id: nysdec_solidwaste
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20230817'
+  - id: nysdoh_healthfacilities
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysdoh_nursinghomes
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysdoccs_corrections
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysed_nonpublicenrollment
+    version: 2023-24
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysed_activeinstitutions
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysomh_mentalhealth
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dpr_parksproperties
+    version: '20241013'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dycd_service_sites
+    version: '20230607'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: fbop_corrections
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: fdny_firehouses
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20220408'
+  - id: dep_wwtc
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20210413'
+  - id: dfta_contracts
+    version: '20240715'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: doe_busroutesgarages
+    version: '20240801'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: sca_enrollment_capacity
+    version: '20230105'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: doe_lcgms
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: doe_universalprek
+    version: '20240111'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: dohmh_daycare
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20230426'
+  - id: foodbankny_foodbanks
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: hhc_hospitals
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20170908'
+  - id: moeo_socialservicesitelocations
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: '20230719'
+  - id: nycdoc_corrections
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysopwdd_providers
+    version: '20240813'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysparks_historicplaces
+    version: '20240812'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysparks_parks
+    version: '20240731'
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - id: nysoasas_programs
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+    version: 03-Oct-24
