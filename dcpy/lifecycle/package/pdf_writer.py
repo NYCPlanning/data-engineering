@@ -3,6 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 import css_inline
 from bs4 import BeautifulSoup
 import subprocess
+from dcpy.models.product.metadata import OrgMetadata
 from dcpy.models.product.dataset.metadata import Metadata
 from dcpy.utils.logging import logger
 
@@ -66,14 +67,12 @@ def generate_pdf_from_html(
     )
 
 
-def generate_html_from_yaml(
-    metadata_path: Path,
+def generate_html_from_metadata(
+    metadata: Metadata,
     output_path: Path,
     html_template_path: Path,
     stylesheet_path: Path,
 ) -> None:
-    metadata = Metadata.from_path(metadata_path)
-
     html = _render_html_template(html_template_path, {"metadata": metadata})
     styled_html = _style_html_document(html, stylesheet_path)
 
@@ -81,3 +80,28 @@ def generate_html_from_yaml(
     logger.info(f"Saving DCP HTML to {output_path}")
     with open(output_path, "w") as f:
         f.write(styled_html)
+
+
+def write_pdf(
+    *,
+    org_metadata: OrgMetadata,
+    product: str,
+    output_path: Path,
+    dataset: str | None = None,
+) -> None:
+    if not dataset:
+        dataset = product
+
+    metadata = org_metadata.product(product).dataset(dataset)
+
+    html_path = output_path.parent / "data_dictionary.html"
+    generate_html_from_metadata(
+        metadata,
+        html_path,
+        DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH,
+        DEFAULT_DATA_DICTIONARY_STYLESHEET_PATH,
+    )
+    generate_pdf_from_html(
+        html_path,
+        output_path,
+    )
