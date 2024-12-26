@@ -3,98 +3,271 @@ version_strategy: bump_latest_release
 product: db-facilities
 inputs:
   dataset_defaults:
+    file_type: parquet
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_facilities_with_unmapped
+    version_env_var: VERSION_PREV
+    file_type: pg_dump
+  - name: dcp_mappluto_wi
+  - name: dcp_boroboundaries_wi
+  - name: dcp_ct2010
+  - name: dcp_ct2020
+  - name: dcp_councildistricts
+    file_type: pg_dump
+    version: 22c
+  - name: dcp_cdboundaries
+  - name: dcp_nta2010
+  - name: dcp_nta2020
+  - name: dcp_policeprecincts
+  - name: doitt_zipcodeboundaries
+    file_type: pg_dump
+  - name: doitt_buildingfootprints
+  - name: dcp_school_districts
+    # CSVs
+  - name: nypl_libraries
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: bpl_libraries
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dcp_colp
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dca_operatingbusinesses
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dcla_culturalinstitutions
     file_type: csv
     preprocessor:
       module: facdb.pipelines
       function: dispatch
-  missing_versions_strategy: find_latest
-  datasets:
-    - name: dcp_facilities_with_unmapped
-      version_env_var: VERSION_PREV
-      file_type: pg_dump
-    - name: dcp_mappluto_wi
-      file_type: pg_dump
-    - name: dcp_boroboundaries_wi
-      file_type: pg_dump
-    - name: dcp_ct2010
-      file_type: pg_dump
-    - name: dcp_ct2020
-      file_type: pg_dump
-    - name: dcp_councildistricts
-      file_type: pg_dump
-      version: 22c
-    - name: dcp_cdboundaries
-      file_type: pg_dump
-    - name: dcp_nta2010
-      file_type: pg_dump
-    - name: dcp_nta2020
-      file_type: pg_dump
-    - name: dcp_policeprecincts
-      file_type: pg_dump
-    - name: doitt_zipcodeboundaries
-      file_type: pg_dump
-    - name: doitt_buildingfootprints
-      file_type: pg_dump
-    - name: dcp_school_districts
-      file_type: pg_dump
-
-    # CSVs
-    - name: nypl_libraries
-    - name: bpl_libraries
-    - name: dcp_colp
-    - name: dca_operatingbusinesses
-    - name: dcla_culturalinstitutions
-    - name: dcp_sfpsd
-      version: "20210409"
-    - name: dcp_pops
-    - name: dsny_garages
-    - name: dsny_specialwastedrop
-    - name: dsny_donatenycdirectory
-    - name: dsny_leafdrop
-    - name: dsny_fooddrop
-    - name: dsny_electronicsdrop
-    - name: hra_snapcenters
-    - name: hra_jobcenters
-    - name: hra_medicaid
-    - name: nycha_communitycenters
-    - name: nycha_policeservice
-    - name: nycourts_courts
-    - name: nysdec_lands
-    - name: dot_bridgehouses
-    - name: dot_ferryterminals
-    - name: dot_mannedfacilities
-    - name: dot_pedplazas
-    - name: dot_publicparking
-    - name: qpl_libraries
-    - name: sbs_workforce1
-    - name: uscourts_courts
-    - name: usdot_airports
-    - name: usdot_ports
-    - name: usnps_parks
-    - name: nysdec_solidwaste
-    - name: nysdoh_healthfacilities
-    - name: nysdoh_nursinghomes
-    - name: nysdoccs_corrections
-    - name: nysed_nonpublicenrollment
-    - name: nysed_activeinstitutions
-    - name: nysomh_mentalhealth
-    - name: dpr_parksproperties
-    - name: dycd_service_sites
-    - name: fbop_corrections
-    - name: fdny_firehouses
-    - name: dep_wwtc
-      version: "20210413"
-    - name: dfta_contracts
-    - name: doe_busroutesgarages
-    - name: sca_enrollment_capacity
-    - name: doe_lcgms
-    - name: doe_universalprek
-    - name: dohmh_daycare
-    - name: foodbankny_foodbanks
-    - name: hhc_hospitals
-    - name: moeo_socialservicesitelocations
-    - name: nycdoc_corrections
-    - name: nysopwdd_providers
-    - name: nysparks_historicplaces
-    - name: nysparks_parks
-    - name: nysoasas_programs
+  - name: dcp_sfpsd
+    file_type: csv
+    version: "20210409"
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dcp_pops
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dsny_garages
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dsny_specialwastedrop
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dsny_donatenycdirectory
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dsny_leafdrop
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dsny_fooddrop
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dsny_electronicsdrop
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: hra_snapcenters
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: hra_jobcenters
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: hra_medicaid
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nycha_communitycenters
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nycha_policeservice
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nycourts_courts
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysdec_lands
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dot_bridgehouses
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dot_ferryterminals
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dot_mannedfacilities
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dot_pedplazas
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dot_publicparking
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: qpl_libraries
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: sbs_workforce1
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: uscourts_courts
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: usdot_airports
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: usdot_ports
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: usnps_parks
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysdec_solidwaste
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysdoh_healthfacilities
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysdoh_nursinghomes
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysdoccs_corrections
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysed_nonpublicenrollment
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysed_activeinstitutions
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysomh_mentalhealth
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dpr_parksproperties
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dycd_service_sites
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: fbop_corrections
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: fdny_firehouses
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dep_wwtc
+    file_type: csv
+    version: "20210413"
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dfta_contracts
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: doe_busroutesgarages
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: sca_enrollment_capacity
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: doe_lcgms
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: doe_universalprek
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: dohmh_daycare
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: foodbankny_foodbanks
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: hhc_hospitals
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: moeo_socialservicesitelocations
+    file_type: csv
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nycdoc_corrections
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysopwdd_providers
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysparks_historicplaces
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysparks_parks
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
+  - name: nysoasas_programs
