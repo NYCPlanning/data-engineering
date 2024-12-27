@@ -56,12 +56,18 @@ sources:
           - name: hazmat_code
             tests:
               - not_null
+              - accepted_values:
+                  values: ['true', 'false']
           - name: air_code
             tests:
               - not_null
+              - accepted_values:
+                  values: ['true', 'false']
           - name: noise_code
             tests:
               - not_null
+              - accepted_values:
+                  values: ['true', 'false']
           - name: ceqr_num
 
       - name: dcp_lion
