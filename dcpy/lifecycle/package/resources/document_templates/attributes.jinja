@@ -20,7 +20,9 @@
 
     <div class="attribute-section">
       <span class="attribute-name">Tags: </span>
-      <span class="attribute-value">{{ metadata.attributes.tags|join(', ') }}</span>
+      {% for tag in metadata.attributes.tags %}
+      <span class="attribute-value-tag">{{ tag }}</span>
+      {% endfor %}
     </div>
 
   </div>
