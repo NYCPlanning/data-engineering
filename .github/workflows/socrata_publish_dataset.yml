@@ -42,6 +42,7 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
+      RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
     steps:
       - uses: actions/checkout@v4
