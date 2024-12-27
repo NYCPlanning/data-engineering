@@ -19,7 +19,7 @@ SELECT
     'e_designations_hazmat' AS variable_type,
     variable_id
 FROM ids
-WHERE hazmat_code = '1'
+WHERE hazmat_code = 'true'
 UNION ALL
 SELECT
     bbl,
@@ -27,7 +27,7 @@ SELECT
     'e_designations_air' AS variable_type,
     variable_id
 FROM ids
-WHERE air_code = '1'
+WHERE air_code = 'true'
 UNION ALL
 SELECT
     bbl,
@@ -35,4 +35,4 @@ SELECT
     'e_designations_noise' AS variable_type,
     variable_id
 FROM ids
-WHERE noise_code = '1'
+WHERE noise_code = 'true'
