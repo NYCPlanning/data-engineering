@@ -3,7 +3,9 @@ import pandera as pa
 import pandas as pd
 import yaml
 from pydantic import TypeAdapter
-
+from inspect import (
+    signature,
+)  # used for checking expected attributes in a class signuture
 
 from dcpy.models.dataset import Column, CheckAttributes
 from dcpy.lifecycle.validate import pandera_utils
@@ -85,3 +87,27 @@ def test_create_check_success(input_data, expected_pa_check):
 def test_create_check_failure(input_data, error_message_substring):
     with pytest.raises(ValueError, match=error_message_substring):
         pandera_utils.create_check(input_data)
+
+
+def test_check_attributes_consistency_with_pa_check():
+    """
+    Ensures that all attributes in CheckAttributes.model_fields (excluding "args")
+    are valid parameters for the pa.Check class.
+
+    This test is necessary because feeding invalid attributes to pa.Check() does
+    not raise an error, which could lead to silent failures. It is particularly
+    important for long-term stability, as Pandera's API may change before it
+    reaches version 1.0, including potential renaming of pa.Check parameters.
+    """
+    check_attributes = pandera_utils.CheckAttributes.model_fields
+
+    # rename check_attributes keys to match with pandera keys
+    check_attributes["check_kwargs"] = check_attributes.pop("args")
+    check_attributes["raise_warning"] = check_attributes.pop("warn_only")
+
+    check_expected_params = signature(pa.Check).parameters
+
+    invalid_check_keys = set(check_attributes.keys()) - set(
+        check_expected_params.keys()
+    )
+    assert len(invalid_check_keys) == 0
