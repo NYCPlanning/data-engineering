@@ -16,6 +16,7 @@ def org_metadata(resources_path: Path):
 
 @pytest.mark.usefixtures("file_setup_teardown")
 class TestDataDictionary(object):
+    product = "transit_zones"  # This one has some mock revision history, so it's a good test case.
     output_yml_path = TEMP_DATA_PATH / "my_data_dictionary.yml"
     output_pdf_path = TEMP_DATA_PATH / "my_data_dictionary.pdf"
     output_xlsx_path = TEMP_DATA_PATH / "my_data_dictionary.xlsx"
@@ -23,7 +24,7 @@ class TestDataDictionary(object):
     def test_generate_yml(self, org_metadata):
         yaml_writer.write_yaml(
             org_metadata=org_metadata,
-            product="transit_zones",
+            product=self.product,
             output_path=TestDataDictionary.output_yml_path,
         )
         assert TestDataDictionary.output_yml_path.exists()
@@ -31,7 +32,7 @@ class TestDataDictionary(object):
     def test_generate_pdf(self, org_metadata):
         pdf_writer.write_pdf(
             org_metadata=org_metadata,
-            product="transit_zones",
+            product=self.product,
             output_path=TestDataDictionary.output_pdf_path,
         )
         assert TestDataDictionary.output_pdf_path.exists()
@@ -39,7 +40,52 @@ class TestDataDictionary(object):
     def test_generate_xslx(self, org_metadata):
         xlsx_writer.write_xlsx(
             org_md=org_metadata,
-            product="transit_zones",  # This one has some mock revision history, so it's a good test case.
+            product=self.product,
+            output_path=TestDataDictionary.output_xlsx_path,
+        )
+        assert TestDataDictionary.output_xlsx_path.exists()
+
+
+@pytest.mark.usefixtures("file_setup_teardown")
+class TestDataDictionaryDataset(object):
+    product = "lion"
+    dataset = "school_districts"
+
+    output_yml_path = TEMP_DATA_PATH / "my_data_dictionary.yml"
+    output_pdf_path = TEMP_DATA_PATH / "my_data_dictionary.pdf"
+    output_xlsx_path = TEMP_DATA_PATH / "my_data_dictionary.xlsx"
+
+    def test_generate_yml(self, org_metadata):
+        yaml_writer.write_yaml(
+            org_metadata=org_metadata,
+            product=self.product,
+            dataset=self.dataset,
+            output_path=TestDataDictionary.output_yml_path,
+        )
+        assert TestDataDictionary.output_yml_path.exists()
+
+        yaml_writer.write_yaml(
+            org_metadata=org_metadata,
+            product=self.product,
+            dataset=self.dataset,
+            output_path=TestDataDictionary.output_yml_path,
+        )
+        assert TestDataDictionary.output_yml_path.exists()
+
+    def test_generate_pdf(self, org_metadata):
+        pdf_writer.write_pdf(
+            org_metadata=org_metadata,
+            product=self.product,
+            dataset=self.dataset,
+            output_path=TestDataDictionary.output_pdf_path,
+        )
+        assert TestDataDictionary.output_pdf_path.exists()
+
+    def test_generate_xslx(self, org_metadata):
+        xlsx_writer.write_xlsx(
+            org_md=org_metadata,
+            product=self.product,
+            dataset=self.dataset,
             output_path=TestDataDictionary.output_xlsx_path,
         )
         assert TestDataDictionary.output_xlsx_path.exists()
