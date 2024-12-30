@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest import mock
 from unittest.mock import MagicMock, call
 
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 from dcpy.connectors.socrata import publish
 
 

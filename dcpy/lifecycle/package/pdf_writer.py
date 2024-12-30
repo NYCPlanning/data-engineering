@@ -3,7 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 import css_inline
 from bs4 import BeautifulSoup
 import subprocess
-from dcpy.models.product.dataset.metadata_v2 import Metadata
+from dcpy.models.product.dataset.metadata import Metadata
 from dcpy.utils.logging import logger
 
 from . import RESOURCES_PATH

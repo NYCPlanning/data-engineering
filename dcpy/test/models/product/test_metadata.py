@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 
 from dcpy.models.product import metadata as md
-from dcpy.models.product.dataset import metadata_v2 as ds_md
+from dcpy.models.product.dataset import metadata as ds_md
 from dcpy.models import dataset
 
 

@@ -1,432 +1,399 @@
 from __future__ import annotations
-import jinja2
-from pathlib import Path
-from pydantic import BaseModel, conlist
-from typing import Any, Literal
-import yaml
 
-from dcpy.utils.logging import logger
-from . import metadata_v2 as md_v2
+from pydantic import BaseModel
+from tabulate import tabulate  # type: ignore
+from typing import Any, List
+import unicodedata
 
-# Putting this here so we can have a constant value in all connectors
-# and throw an exception when we attempt to deserialize files that contain it.
-FILL_ME_IN_PLACEHOLDER = "<FILL ME IN!>"
+from dcpy.utils.collections import deep_merge_dict as merge
+from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
+from dcpy.models.dataset import Column, COLUMN_TYPES
 
-
-class Column(BaseModel, extra="forbid"):
-    name: str
-    display_name: str
-    description: str
-    data_type: str
-
-    # Optional
-    data_source: str | None = None
-    example: Any | None = None
-    non_nullable: bool | None = None
-    is_primary_key: bool | None = None
-    readme_data_type: str | None = None
-    deprecated: bool | None = None
-    values: list[list] | None = None
+ERROR_MISSING_COLUMN = "MISSING COLUMN"
 
 
-class SocrataColumn(BaseModel, extra="forbid"):
-    name: str | None = None
-    api_name: str | None = None
-    display_name: str | None = None
+# MISC UTILS
+def normalize_text(s):
+    """
+    Normalize the text we may receive from the various metadata sources.
+    Primarily useful for cleaning long-text like descriptions.
+    """
+    char_map = {
+        "–": "-",  # en dash to hyphen
+        "—": "-",  # em dash to hyphen
+        "’": "'",  # curly apostrophe
+        "“": '"',  # lcurly quote
+        "”": '"',  # rcurly quote
+    }
+    translator = str.maketrans(char_map)
+    # Normalize Unicode characters
+    normalized = unicodedata.normalize("NFKD", s)
+    # Apply the translation
+    cleaned = normalized.translate(translator)
+    return cleaned.strip()
+
+
+class CustomizableBase(SortedSerializedBase, extra="forbid"):
+    """A Base Pydantic class to allow extensibility of our models via a `custom`
+    dictionary.
+
+    Any additional attributes that aren't defined on our models should
+    be added to `custom`. This is intended for domain-specific, non-generalized uses
+    like data-dictionary generation (e.g. the `readme_data_type` field on the columns)
+
+    It's also important that custom be preserved in the
+    course of overriding, specifically with a deep merge of the dictionary elements.
+    """
+
+    custom: dict[str, Any] = {}
+
+
+# COLUMNS
+class ColumnValue(CustomizableBase):
+    _head_sort_order = ["value", "description"]
+
+    value: str
     description: str | None = None
-    is_primary_key: bool = False
 
 
-class DatasetOverrides(BaseModel, extra="forbid"):
-    omit_columns: list[str] = []
-    ignore_validation: list[str] = []
-    columns: dict = {}
-    display_name: str | None = None
-    description: str | None = None
-    tags: list[str] = []
-    destination_file_name: str | None = None  # TODO filename
-
-
-class RemoteFile(BaseModel, extra="forbid"):
-    id: str
-    url: str
-
-
-class BytesDestination(BaseModel, extra="forbid"):
-    type: Literal["bytes"]
-    id: str
-    files: list[RemoteFile]
-    overrides: DatasetOverrides = DatasetOverrides()
-
-
-DEFAULT_SOCRATA_CATEGORY = "city government"
-
-
-class SocrataMetada(BaseModel, extra="forbid"):
-    name: str
-    description: str
-    tags: list[str] = []
-    metadata: dict[str, str] = {}
-    # category: str = DEFAULT_SOCRATA_CATEGORY
-
-
-class SocrataDestination(BaseModel, extra="forbid"):
-    id: str
-    type: Literal["socrata"] = "socrata"
-    four_four: str
-    attachments: list[str] = []
-    datasets: conlist(item_type=str, max_length=1)  # type:ignore
-    omit_columns: list[str] = []
-    column_details: dict[str, SocrataColumn] = {}
-    overrides: DatasetOverrides = DatasetOverrides()
-    is_unparsed_dataset: bool = False
-
-    def get_metadata(self, md: Metadata) -> SocrataMetada:
-        dataset_file_overrides = md.package.get_dataset(self.datasets[0]).overrides
-
-        # It would be nice to have a more comprehensive way to combine these overrides
-        return SocrataMetada(
-            name=self.overrides.display_name
-            or dataset_file_overrides.display_name
-            or md.display_name,
-            description=self.overrides.description
-            or dataset_file_overrides.description
-            or md.description,
-            tags=self.overrides.tags or dataset_file_overrides.tags or md.tags,
-            metadata={"rowLabel": md.each_row_is_a},
+def make_value_table(values: list[ColumnValue]) -> str:
+    return (
+        tabulate(
+            [
+                [str(v.value) + " ", str(v.description or " ") + " "]  # bool issue
+                for v in values
+            ],
+            headers=["Value", "Description"],
+            tablefmt="presto",
+            maxcolwidths=[10, 40],
         )
-
-    def get_column_overrides(self, col_name):
-        col = self.column_details.get(col_name, SocrataColumn())
-        # Unfortunate reality of serializing with pydantic from a yaml dictionary.
-        # columns overrides aren't deserialized with their name value,
-        # since the name is a dictionary key in the metadata. So:
-        col.name = col_name
-        return col
-
-    def destination_column_metadata(self, metadata: Metadata) -> list[SocrataColumn]:
-        soc_cols = []
-        dataset = metadata.package.get_dataset(self.datasets[0])
-        for col in dataset.get_columns(metadata):
-            if col.name in self.omit_columns:
-                continue
-            overrides = self.get_column_overrides(col.name)
-
-            soc_cols.append(
-                SocrataColumn(
-                    name=col.name,
-                    api_name=overrides.api_name or col.name,
-                    display_name=overrides.display_name or col.display_name,
-                    description=overrides.description or col.description,
-                )
-            )
-        return soc_cols
+        if values
+        else ""
+    )
 
 
-class File(BaseModel, extra="forbid"):
-    name: str  # TODO: migrate to `key` or `id`
-    filename: str
+class DatasetColumn(CustomizableBase, Column):
+    _head_sort_order = ["id", "name", "data_type", "description"]
+    _tail_sort_order = ["example", "values", "custom"]
+    _repr_functions = {"values": make_value_table}
+
+    # Note: id isn't intended to be overrideable, but is always required as a
+    # pointer back to the original column.
+    name: str | None = None
+    data_source: str | None = None
+    description: str | None = None
+    limitations: str | None = None
+    notes: str | None = None
+    example: str | None = None
+    deprecated: bool | None = None
+    values: list[ColumnValue] | None = None
+
+    def override(self, overrides: DatasetColumn) -> DatasetColumn:
+        return DatasetColumn(**merge(self.model_dump(), overrides.model_dump()))
+
+
+# FILE
+class FileOverrides(CustomizableBase):
+    filename: str | None = None
     type: str | None = None
 
-    @property
-    def id(self):  # TODO: remove when we migrate
-        return self.name
+
+class File(CustomizableBase):
+    """Describes an actual dataset file, e.g. dataset files or attachments."""
+
+    id: str
+    filename: str
+    type: str | None = None
+    is_metadata: bool | None = (
+        None  # e.g. readmes, data_dictionaries, version_files, etc.
+    )
+
+    def override(self, overrides: FileOverrides) -> File:
+        return File(
+            **(self.model_dump() | overrides.model_dump()),
+        )
 
 
-class DatasetFile(File, extra="forbid"):
-    overrides: DatasetOverrides = DatasetOverrides()
+# PACKAGE / ASSEMBLY
+class PackageFile(CustomizableBase):
+    """File found in a Package, e.g. a Zip. `filename` here refers to it's name
+    in the package
+    """
 
-    def get_columns(self, metadata: Metadata) -> list[Column]:
-        cols = []
-        for col in metadata.columns:
-            if col.name in self.overrides.omit_columns:
-                continue
-            overrides = self.overrides.columns.get(col.name, {})
-            new_col = col.model_dump()
-            new_col.update(overrides)
-            cols.append(Column(**new_col))
-        return cols
+    id: str
+    filename: str | None = None
 
 
-class ZipFile(File, extra="forbid"):
-    type: Literal["Zip"] = "Zip"
-    contains: list[File]
+class Package(CustomizableBase):
+    """Container for lists of files. Used as assembly instructions."""
+
+    id: str
+    type: str = "zip"
+    filename: str
+    contents: List[PackageFile]
 
 
-class Package(BaseModel, extra="forbid"):
-    # TODO: should these just be combined into one flat list of files? Why have three distinctions
-    dataset_files: list[DatasetFile]
-    attachments: list[File]
-    zip_files: list[ZipFile] = []
+class DatasetOrgProductAttributesOverride(CustomizableBase):
+    """Fields that might be set as a default at the Product/Org level."""
 
-    _ASSET_TYPES = Literal["dataset_files", "attachments", "zip_files"]
-
-    def __init__(self, **data):
-        file_attachments = []
-        for a in data["attachments"]:
-            if type(a) is str:
-                logger.warning(
-                    f"Found string attachment type: {a}. Migrate to File type."
-                )
-                file_attachments.append(File(name=a, filename=a).model_dump())
-            else:
-                file_attachments.append(a)
-        data["attachments"] = file_attachments
-        super().__init__(**data)
-
-    def asset_types_by_file_id(self) -> dict[str, _ASSET_TYPES]:
-        return (
-            {dsf.id: "dataset_files" for dsf in self.dataset_files}
-            | {a.id: "attachments" for a in self.attachments}
-            | {z.id: "zip_files" for z in self.zip_files}
-        )  # type: ignore
-
-    def get_files(self) -> list[File]:
-        return self.dataset_files + self.zip_files + self.attachments
-
-    def get_dataset(self, ds_id: str) -> DatasetFile:
-        ds = [d for d in self.dataset_files if d.id == ds_id]
-        if len(ds) == 1:
-            return ds[0]
-        raise Exception(f"No dataset named {ds_id}")
-
-    def files_by_id(self) -> dict[str, File]:
-        return {f.id: f for f in self.get_files()}
+    agency: str | None = None
+    agency_website_data_updated_automatically: bool | None = None
+    attribution: str | None = None
+    attribution_link: str | None = None
+    can_be_automated: bool | None = None
+    category: str | None = None
+    contact_email: str | None = None
+    contains_address: bool | None = (
+        None  # `contains_address` refers specifically to addresses containing house, numbers + street names. (ie. not just streets, polys, etc.)
+    )
+    data_collection_method: str | None = None
+    data_change_frequency: str | None = None
+    date_made_public: str | None = None
+    disclaimer: str | None = None
+    geocoded: bool | None = None
+    on_agency_website: bool | None = None
+    potential_uses: str | None = None
+    projection: str | None = None
+    publishing_frequency: str | None = None  # TODO: picklist values
+    publishing_frequency_details: str | None = None
+    publishing_purpose: str | None = None
+    rows_removed: bool | None = None
+    tags: List[str] | None = []
 
 
-class Metadata(BaseModel, extra="forbid"):
-    name: str
+class DatasetAttributesOverride(DatasetOrgProductAttributesOverride):
+    description: str | None = None
+    display_name: str | None = None
+    each_row_is_a: str | None = None
+
+
+class DatasetAttributes(DatasetOrgProductAttributesOverride):
     display_name: str
-    summary: str  # TODO: potentially remove this field
-    description: str
-    tags: list[str]
+    description: str = ""
     each_row_is_a: str
 
-    destinations: list[
-        BytesDestination | SocrataDestination
-    ]  # TODO: Destination superclass
-    package: Package
-    columns: list[Column]
+    def override(self, overrides: DatasetAttributesOverride) -> DatasetAttributes:
+        return DatasetAttributes(**merge(self.model_dump(), overrides.model_dump()))
 
-    # Hold onto this for serialization, to avoid Pydantics reformatting of the metadata.yml
-    _templated_source_metadata: str
+    def apply_defaults(self, defaults: BaseModel) -> DatasetAttributes:
+        return DatasetAttributes(**merge(defaults.model_dump(), self.model_dump()))
 
-    def __init__(self, templated_source_metadata: str = "", **data):
-        super().__init__(**data)
-        self._templated_source_metadata = templated_source_metadata
 
-    @staticmethod
-    def from_yaml(yaml_str: str, *, template_vars=None):
-        if template_vars:
-            logger.info(f"Templating metadata with vars: {template_vars}")
-            templated = jinja2.Template(
-                yaml_str, undefined=jinja2.StrictUndefined
-            ).render(template_vars or {})
-            return Metadata(**yaml.safe_load(templated))
-        else:
-            logger.info("No Template vars supplied. Skipping templating.")
-        return Metadata(**yaml.safe_load(yaml_str))
+class DatasetOverrides(CustomizableBase):
+    overridden_columns: list[DatasetColumn] = []
+    omitted_columns: list[str] = []
+    attributes: DatasetAttributesOverride = DatasetAttributesOverride()
 
-    @classmethod
-    def from_path(cls, path: Path, *, template_vars=None):
-        with open(path, "r") as raw:
-            return cls.from_yaml(raw.read(), template_vars=template_vars)
 
-    def write_source_metadata_to_file(self, path: Path):
-        with open(path, "w") as f:
-            f.write(self._templated_source_metadata)
+class Revision(CustomizableBase):
+    date: str
+    summary: str
+    notes: str
 
-    def get_destination(self, dest_id) -> BytesDestination | SocrataDestination:
-        ds = [d for d in self.destinations if d.id == dest_id]
-        if len(ds) == 1:
-            return ds[0]
-        raise Exception(f"No destination named {dest_id}")
 
-    def validate(self):
-        col_names = [c.name for c in self.columns]
-        assert len(col_names) == len(
-            set(col_names)
-        ), "There should be no duplicate column names"
-        # TODO: all the rest
+class Dataset(CustomizableBase):
+    columns: list[DatasetColumn]
+    attributes: DatasetAttributes
+    revisions: list[Revision] = []
 
-    def upgrade_to_v2(self):
-        def _remove_falsey_from_dict(d):
-            return {k: v for k, v in d.items() if v}
+    def override(self, overrides: DatasetOverrides) -> Dataset:
+        """Apply column updates and prune any columns specified as omitted"""
+        overriden_cols_by_id = {c.id: c for c in overrides.overridden_columns}
 
-        def _translate_types(s: str):
-            old_to_new_types = {
-                "boolean": "bool",
-                "double": "decimal",
-                "float": "decimal",
-                "geom_point": "geometry",
-                "geom_poly": "geometry",
-                "wkb": "geometry",
-            }
-            return old_to_new_types.get(s) or s
+        columns = [
+            c.override(overriden_cols_by_id.get(c.id, DatasetColumn(id=c.id)))
+            for c in self.columns
+            if c.id not in overrides.omitted_columns
+        ]
 
-        def _construct_with_custom(cls, **kwargs):
-            kwargs_with_custom = {"custom": {}}
-            for kwarg in kwargs.items():
-                if kwarg[0] in cls.__fields__:
-                    kwargs_with_custom[kwarg[0]] = kwarg[1]
-                else:
-                    kwargs_with_custom["custom"][kwarg[0]] = kwarg[1]
-            return cls(**kwargs_with_custom)
-
-        def _v1_overrides_to_v2(v1: DatasetOverrides):
-            overridden_columns = []
-            for k, col_overrides in v1.columns.items():
-                if "data_type" in col_overrides:
-                    col_overrides["data_type"] = _translate_types(
-                        col_overrides["data_type"]
-                    )
-                custom = _construct_with_custom(
-                    md_v2.DatasetColumn, id=k, **col_overrides
-                )
-                overridden_columns.append(custom)
-
-            return md_v2.DatasetOverrides(
-                overridden_columns=overridden_columns,
-                omitted_columns=v1.omit_columns,
-                attributes=md_v2.DatasetAttributesOverride(
-                    display_name=v1.display_name,
-                    description=md_v2.normalize_text(v1.description or ""),
-                ),
-            )
-
-        return md_v2.Metadata(
-            id=self.name,
-            files=[
-                md_v2.FileAndOverrides(
-                    file=md_v2.File(
-                        id=dsf.name,
-                        filename=dsf.filename,
-                        type=str(dsf.type),
-                        custom=_remove_falsey_from_dict(
-                            {"ignore_validation": dsf.overrides.ignore_validation}
-                        ),
-                    ),
-                    dataset_overrides=_v1_overrides_to_v2(dsf.overrides),
-                )
-                for dsf in self.package.dataset_files
-            ]
-            + [
-                md_v2.FileAndOverrides(
-                    file=md_v2.File(
-                        id=att.name,
-                        filename=att.filename,
-                        type=str(att.type),
-                        is_metadata=True,
-                    )
-                )
-                for att in self.package.attachments
-            ],
-            assembly=[
-                md_v2.Package(
-                    id=zf.name,
-                    type=zf.type,
-                    filename=zf.filename,
-                    contents=[
-                        md_v2.PackageFile(id=pf.name, filename=pf.filename)
-                        for pf in zf.contains
-                    ],
-                )
-                for zf in self.package.zip_files
-            ],
-            destinations=[  # Socrata Dests
-                md_v2.DestinationWithFiles(
-                    id=dest.id,
-                    type="socrata",
-                    files=[
-                        md_v2.DestinationFile(
-                            id=att,
-                            custom={"destination_use": "attachment"},
-                        )
-                        for att in dest.attachments
-                    ]
-                    + [
-                        md_v2.DestinationFile(
-                            id=ds,
-                            custom={"destination_use": "dataset_file"},
-                            dataset_overrides=md_v2.DatasetOverrides(
-                                overridden_columns=[
-                                    md_v2.DatasetColumn(
-                                        id=k,
-                                        name=v.display_name,
-                                        description=md_v2.normalize_text(
-                                            v.description or ""
-                                        ),
-                                        custom=_remove_falsey_from_dict(
-                                            {"api_name": v.api_name}
-                                        ),
-                                    )
-                                    for k, v in dest.column_details.items()
-                                ]
-                            ),
-                        )
-                        for ds in dest.datasets
-                    ],
-                    custom=_remove_falsey_from_dict(
-                        {
-                            "four_four": dest.four_four,
-                            "is_unparsed_dataset": dest.is_unparsed_dataset,
-                        }
-                    ),
-                )
-                for dest in self.destinations
-                if isinstance(dest, SocrataDestination)
-            ]
-            + [
-                md_v2.DestinationWithFiles(
-                    id=dest.id,
-                    type="bytes",
-                    files=[
-                        md_v2.DestinationFile(id=f.id, custom={"url": f.url})
-                        for f in dest.files
-                    ],
-                )
-                for dest in self.destinations
-                if isinstance(dest, BytesDestination)
-            ],  # md_v2,
-            attributes=md_v2.DatasetAttributes(
-                display_name=self.display_name,
-                description=md_v2.normalize_text(self.description or ""),
-                each_row_is_a=self.each_row_is_a,
-                tags=self.tags,
-            ),
-            columns=[
-                md_v2.DatasetColumn(
-                    data_type=_translate_types(v1_col.data_type),
-                    name=v1_col.display_name,
-                    data_source=md_v2.normalize_text(v1_col.data_source or ""),
-                    description=md_v2.normalize_text(v1_col.description or ""),
-                    example=str(v1_col.example),
-                    deprecated=v1_col.deprecated,
-                    values=[
-                        md_v2.ColumnValue(
-                            value=str(cv[0]),
-                            description=md_v2.normalize_text(
-                                str(cv[1]) if len(cv) > 1 else ""
-                            ),
-                            custom=_remove_falsey_from_dict(
-                                {"other_details": str(cv[2:]) if len(cv) > 2 else None}
-                            ),
-                        )
-                        for cv in v1_col.values or []
-                    ],
-                    id=v1_col.name,
-                    checks=md_v2.Checks(
-                        is_primary_key=v1_col.is_primary_key,
-                        non_nullable=v1_col.non_nullable,
-                    ),
-                    custom=_remove_falsey_from_dict(
-                        {
-                            "readme_data_type": md_v2.normalize_text(
-                                v1_col.readme_data_type or ""
-                            )
-                        }
-                    ),
-                )
-                for v1_col in self.columns
-            ],
+        return Dataset(
+            columns=columns,
+            attributes=self.attributes.override(overrides.attributes),
+            revisions=self.revisions,
         )
+
+
+# DESTINATION
+class Destination(CustomizableBase):
+    id: str
+    type: str
+    tags: list[str] = []
+
+
+class DestinationWithFiles(Destination):
+    files: List[DestinationFile] = []
+
+
+class FileAndOverrides(SortedSerializedBase):
+    _head_sort_order = ["file"]
+
+    dataset_overrides: DatasetOverrides = DatasetOverrides()
+    file: File
+
+
+class DestinationFile(CustomizableBase):
+    """Pointer to an actual `File`, with specifiable overrides."""
+
+    id: str
+    dataset_overrides: DatasetOverrides = DatasetOverrides()
+    file_overrides: FileOverrides = FileOverrides()
+
+
+class DestinationMetadata(SortedSerializedBase):
+    dataset: Dataset
+    destination: Destination
+    file: File
+
+
+class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
+    id: str
+    attributes: DatasetAttributes
+    assembly: List[Package] = []
+    columns: List[DatasetColumn] = []
+    files: List[FileAndOverrides] = []
+    destinations: List[DestinationWithFiles] = []
+    revisions: list[Revision] = []
+
+    _head_sort_order = [
+        "id",
+        "attributes",
+    ]
+    _tail_sort_order = ["columns"]
+    _exclude_falsey_values = False  # We never want to prune top-level attrs
+
+    @property
+    def dataset(self):
+        return Dataset(
+            attributes=self.attributes, columns=self.columns, revisions=self.revisions
+        )
+
+    def get_package(self, id: str) -> Package:
+        packages = [p for p in self.assembly if p.id == id]
+        if len(packages) != 1:
+            raise Exception(f"There should exist one package with id: {id}")
+        return packages[0]
+
+    def get_destination(self, id: str) -> DestinationWithFiles:
+        dests = [d for d in self.destinations if d.id == id]
+        if len(dests) != 1:
+            raise Exception(f"There should exist one destination with id: {id}")
+        return dests[0]
+
+    def get_file_ids(self):
+        return {f.file.id for f in self.files}
+
+    def get_file_and_overrides(self, file_id: str) -> FileAndOverrides:
+        files = [f for f in self.files if f.file.id == file_id]
+        if len(files) != 1:
+            raise Exception(f"There should exist one file with id: {file_id}")
+        return files[0]
+
+    def calculate_metadata(
+        self, *, file_id: str, destination_id: str | None = None
+    ) -> Dataset:
+        if destination_id:
+            return self.calculate_destination_metadata(
+                file_id=file_id, destination_id=destination_id
+            ).dataset
+        else:
+            return self.calculate_file_dataset_metadata(file_id=file_id)
+
+    def calculate_file_dataset_metadata(self, *, file_id: str) -> Dataset:
+        return self.dataset.override(
+            self.get_file_and_overrides(file_id).dataset_overrides
+        )
+
+    def calculate_destination_metadata(
+        self, *, file_id: str, destination_id: str
+    ) -> DestinationMetadata:
+        dataset_file = self.get_file_and_overrides(file_id)
+
+        destination = self.get_destination(destination_id)
+        dest_files = [f for f in destination.files if f.id == file_id]
+        if len(dest_files) != 1:
+            raise Exception(
+                f"Can't calculate overrides, because destination: {destination_id} doesn't reference file: {file_id}"
+            )
+        dest_file = dest_files[0]
+
+        dataset_metadata = self.calculate_file_dataset_metadata(
+            file_id=file_id
+        ).override(dest_file.dataset_overrides)
+
+        destination_file = (
+            dataset_file.file
+            if not dest_file
+            else dataset_file.file.override(dest_file.file_overrides)
+        )
+
+        return DestinationMetadata(
+            file=destination_file,
+            dataset=dataset_metadata,
+            destination=destination,
+        )
+
+    def validate_consistency(self):
+        # validate file references
+        errors = []
+
+        column_ids = {c.id for c in self.columns}
+        dataset_files_and_zip_ids = {f.id for f in self.assembly} | {
+            f.file.id for f in self.files
+        }
+
+        # files
+        for fo in self.files:
+            for c in fo.dataset_overrides.overridden_columns:
+                if c.id not in column_ids:
+                    errors.append(
+                        f"{ERROR_MISSING_COLUMN}: file {fo.file.id} references undefined column {c.id}"
+                    )
+            for c in fo.dataset_overrides.omitted_columns:
+                if c not in column_ids:
+                    errors.append(
+                        f"{ERROR_MISSING_COLUMN}: file override for {fo.file.id} references undefined column {c}"
+                    )
+
+        # destinations
+        for d in self.destinations:
+            for df in d.files:
+                if df.id not in dataset_files_and_zip_ids:
+                    errors.append(
+                        f"MISSING FILE: destination {d.id} references undefined file {df.id}"
+                    )
+                for c in df.dataset_overrides.omitted_columns:
+                    if c not in column_ids:
+                        errors.append(
+                            f"{ERROR_MISSING_COLUMN}: file override for dest {d.id} references undefined omitted column {c}"
+                        )
+                for c in df.dataset_overrides.overridden_columns:
+                    if c.id not in column_ids:
+                        errors.append(
+                            f"{ERROR_MISSING_COLUMN}: destination {d.id} references undefined column {c.id}"
+                        )
+
+        # assemblies
+        for a in self.assembly:
+            for df in a.contents:
+                if df.id not in dataset_files_and_zip_ids:
+                    errors.append(
+                        f"MISSING FILE: zip {df.id} references undefined file {df.id}"
+                    )
+
+        for c in self.columns:
+            if c.name is None:
+                errors.append(f"MISSING COLUMN NAME: column id {c.id}")
+            if c.data_type is None:
+                errors.append(f"MISSING COLUMN DATA TYPE: column id {c.id}")
+
+        return errors
+
+    def apply_column_defaults(
+        self, column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
+    ) -> list[DatasetColumn]:
+        return [
+            c.override(column_defaults[c.id, c.data_type])
+            if c.data_type and (c.id, c.data_type) in column_defaults
+            else c
+            for c in self.columns
+        ]

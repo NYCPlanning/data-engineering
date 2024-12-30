@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .dataset.metadata_v2 import CustomizableBase
+from .dataset.metadata import CustomizableBase
 from dcpy.models.base import TemplatedYamlReader
 
 

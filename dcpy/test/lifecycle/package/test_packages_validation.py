@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 
 from dcpy.lifecycle.package import validate
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 
 
 @pytest.fixture

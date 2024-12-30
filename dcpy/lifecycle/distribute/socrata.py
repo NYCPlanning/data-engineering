@@ -2,7 +2,7 @@ from pathlib import Path
 import typer
 from typing import TypedDict, Unpack, NotRequired, Required
 
-import dcpy.models.product.dataset.metadata_v2 as m
+import dcpy.models.product.dataset.metadata as m
 from dcpy.utils.logging import logger
 import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub

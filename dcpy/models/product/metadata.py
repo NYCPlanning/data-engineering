@@ -7,7 +7,7 @@ import yaml
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 from dcpy.models.product.artifacts import Artifacts, Artifact
 from dcpy.models.product.data_dictionary import DataDictionary
-from dcpy.models.product.dataset.metadata_v2 import (
+from dcpy.models.product.dataset.metadata import (
     Metadata as DatasetMetadata,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,

@@ -9,7 +9,7 @@ import re
 from shapely import wkb, wkt
 import typer
 
-import dcpy.models.product.dataset.metadata_v2 as dataset_md
+import dcpy.models.product.dataset.metadata as dataset_md
 from dcpy.utils.logging import logger
 
 

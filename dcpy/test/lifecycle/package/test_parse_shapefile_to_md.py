@@ -2,7 +2,7 @@
 import yaml
 
 from dcpy.lifecycle.package import shapefiles
-from dcpy.models.product.dataset import metadata_v2 as dsmd
+from dcpy.models.product.dataset import metadata as dsmd
 from dcpy.test.lifecycle.package.conftest import PACKAGE_RESOURCES_PATH
 
 

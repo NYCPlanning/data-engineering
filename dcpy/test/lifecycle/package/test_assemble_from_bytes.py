@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import patch, call
 
 from dcpy.lifecycle.package import assemble
-import dcpy.models.product.dataset.metadata_v2 as ds
+import dcpy.models.product.dataset.metadata as ds
 
 SHAPEFILE = ds.File(
     id="shp",
