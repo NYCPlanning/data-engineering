@@ -1,0 +1,9 @@
+name: Community Development Block Grant
+product: db-cdbg
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_mappluto_clipped
+  - name: dcp_cb2020_wi # maybe not needed. including for now in case it's helpful for block groups
+  - name: dcp_ct2020_wi
+  - name: hud_lowmodincomebyblockgroup
