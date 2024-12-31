@@ -19,7 +19,7 @@ from . import abstract_doc
 
 # TODO: Move template to Product Metadata Repo. Rename to be non-OTI specific
 DEFAULT_TEMPLATE_PATH = RESOURCES_PATH / "oti_data_dictionary_template.xlsx"
-EXCEL_DATA_DICT_METADATA_FILE_TYPE = "excel_data_dictionary"
+EXCEL_DATA_DICT_METADATA_FILE_TYPE = "oti_data_dictionary"
 DEFAULT_FONT = "Arial"
 
 

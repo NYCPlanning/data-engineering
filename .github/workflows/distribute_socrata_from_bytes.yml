@@ -1,5 +1,5 @@
-name: 🚀 Distribute Socrata From Bytes
-run-name: "🚀 Distribute Socrata From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
+name: 📬 Distribute Socrata From Bytes
+run-name: "📬 Distribute Socrata From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
 
 on:
   workflow_dispatch:

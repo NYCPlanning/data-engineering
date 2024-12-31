@@ -19,3 +19,8 @@ destinations:
   - id: socrata
     type: socrata
     tags: [prod_tag]
+  - id: socrata_2
+    type: socrata
+    tags: [school_districts_tag]
+  - id: other
+    type: bytes
