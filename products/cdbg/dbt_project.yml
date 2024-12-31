@@ -13,7 +13,7 @@ models:
     staging:
       +materialized: view
     intermediate:
-      +materialized: view
+      +materialized: table
     product:
       +materialized: table
 
