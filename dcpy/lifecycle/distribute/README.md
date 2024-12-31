@@ -57,15 +57,16 @@ Note: this is a low-risk operation when you don't tick the box to publish the da
 
 For Example
 ``` sh
-python -m dcpy.cli lifecycle scripts package_and_dist from_bytes_to_socrata 
-lion \ # Product 
-24d  \ # version 
--y \ # skip data validation (yolo) 
--e socrata  \ # filter for destination type is `socrata` 
--d "atomic_polygons, other_dataset" \ # filter for the two datasets
--t socrata_unpublished # filter for destinations tagged as `socrata_unpublished`
+python -m dcpy.cli lifecycle scripts package_and_dist from_bytes_to_socrata \
+  lion \
+  24d \
+  -y \
+  -e socrata \
+  -d atomic_polygons \
+  -d other_dataset \
+  -t socrata_unpublished
 ```
-This will return all socrata destinations for two datasets, where the destination is also tagged as `socrata_unpublished`.
+This will package and distribute to all socrata destinations for the `lion` product, version 24d (-y will skip dataset file validation) where the dataset is either `atomic_polygons` or `other_dataset`, where the destination is tagged as `socrata_unpublished`.
 
 
 ## The Socrata Publish Flow

@@ -69,11 +69,11 @@ def from_bytes_to_tagged_socrata_cli(
     product: str,
     version: str,
     # Filters
-    datasets: str = typer.Option(
+    datasets: list[str] = typer.Option(
         None,
         "-d",
         "--datasets",
-        help="comma delimited list of dataset names to filter for.",
+        help="list of dataset names to include.",
     ),
     destination_tag: str = typer.Option(
         None,
@@ -125,15 +125,11 @@ def from_bytes_to_tagged_socrata_cli(
         help="Only push metadata (including attachments).",
     ),
 ):
-    datasets_set: set[str] = set()
-    if datasets:  # TODO: can typer do this natively?
-        datasets_set = {d.strip() for d in datasets.split(",")}
-
     results = package_and_dist_from_bytes(
         org_metadata_path,
         product,
         version,
-        datasets=datasets_set,
+        datasets=set(datasets or []),
         destination_id=destination_id,
         destination_type=destination_type,
         destination_tag=destination_tag,
