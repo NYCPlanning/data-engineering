@@ -121,6 +121,7 @@ models:
       contract:
         enforced: true
 
+    columns:
       - name: borough_name
         data_type: string
         tests: [not_null]
