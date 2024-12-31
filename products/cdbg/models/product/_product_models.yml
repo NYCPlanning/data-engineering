@@ -38,6 +38,10 @@ models:
         data_type: integer
         tests: [not_null]
 
+      - name: residential_floor_area_percentage
+        data_type: float
+        tests: [not_null]
+
       - name: low_mod_income_population
         data_type: integer
         tests: [not_null]
@@ -99,6 +103,10 @@ models:
         data_type: integer
         tests: [not_null]
 
+      - name: residential_floor_area_percentage
+        data_type: float
+        tests: [not_null]
+
       - name: low_mod_income_population
         data_type: integer
         tests: [not_null]
@@ -132,6 +140,10 @@ models:
 
       - name: residential_floor_area
         data_type: integer
+        tests: [not_null]
+
+      - name: residential_floor_area_percentage
+        data_type: float
         tests: [not_null]
 
       - name: low_mod_income_population

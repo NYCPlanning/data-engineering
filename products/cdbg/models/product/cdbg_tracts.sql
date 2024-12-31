@@ -1,0 +1,22 @@
+with tracts as (
+  select * from {{ ref("int__tracts") }}
+),
+
+eligibility_calculation as (
+  select
+    *,
+    low_mod_income_population_percentage > 51 and residential_floor_area_percentage > 50 as eligibility_flag
+  from tracts
+),
+
+eligibility as (
+  select
+    *,
+    case
+      when eligibility_flag then 'CD Eligible'
+      else 'Ineligible'
+    end as eligibility
+  from eligibility_calculation
+)
+
+select * from eligibility
