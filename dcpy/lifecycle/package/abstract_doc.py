@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any
 
 from dcpy.models.design import elements as de
-from dcpy.models.product.dataset.metadata_v2 import Dataset
+from dcpy.models.product.dataset.metadata import Dataset
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.models.product.artifacts import Artifact, ExcelTableComponentDefinition
 from dcpy.utils.logging import logger

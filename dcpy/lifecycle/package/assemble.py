@@ -9,7 +9,7 @@ from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle import WORKING_DIRECTORIES
 from dcpy.lifecycle.package import xlsx_writer
 from dcpy.lifecycle.package import assemble
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 import dcpy.models.product.metadata as prod_md
 from dcpy.utils.logging import logger
 

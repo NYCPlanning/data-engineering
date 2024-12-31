@@ -2,7 +2,7 @@ from pathlib import Path
 import typer
 import xml.etree.ElementTree as ET
 
-from dcpy.models.product.dataset.metadata_v2 import (
+from dcpy.models.product.dataset.metadata import (
     Metadata,
     DatasetAttributes,
     DatasetColumn,

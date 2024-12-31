@@ -191,48 +191,45 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
     resp = requests.get(layer_url).json()
     esri_to_dcp = {
         "esriFieldTypeString": "text",
-        "esriFieldTypeDouble": "double",
+        "esriFieldTypeDouble": "decimal",
         "esriFieldTypeSmallInteger": "integer",
     }
 
     raw_cols = resp.get("fields")
     our_cols = [
-        models.Column(
-            name=c.get("name"),
-            display_name=c.get("alias"),
+        models.DatasetColumn(
+            id=c.get("name"),
+            name=c.get("alias"),
             description="",
-            data_type=esri_to_dcp[c.get("type")],
+            data_type=esri_to_dcp[c.get("type")],  # type: ignore
         )
         for c in raw_cols
         if c["name"] != "OBJECTID"
     ]
 
     return models.Metadata(
-        name=resp.get("name"),
-        display_name=models.FILL_ME_IN_PLACEHOLDER,
-        package=models.Package(
-            dataset_files=[
-                models.DatasetFile(
-                    name="primary_shapefile",
+        id=resp.get("name"),
+        attributes=models.DatasetAttributes(
+            display_name="FILL ME IN",
+            description=resp.get("description"),
+            tags=[],
+            each_row_is_a="",
+        ),
+        files=[
+            models.FileAndOverrides(
+                file=models.File(
+                    id="primary_shapefile",
                     filename="shapefile.zip",
                     type="shapefile",
-                    overrides=models.DatasetOverrides(),
                 )
-            ],
-            attachments=[],
-        ),
-        destinations=[
-            models.SocrataDestination(
-                id="socrata_prod",
-                four_four="",
-                datasets=["primary_shapefile"],
-                omit_columns=[],
             )
         ],
-        summary="",
-        description=resp.get("description"),
-        tags=[],
-        each_row_is_a="",
+        destinations=[
+            models.DestinationWithFiles(
+                id="socrata_prod",
+                type="socrata",
+            )
+        ],
         columns=our_cols,
     )
 
@@ -257,7 +254,7 @@ def _export_metadata(
     md = make_dcp_metadata(layer_url)
     md_json = md.model_dump(exclude_none=True)
 
-    output_path = output_path or Path(f"{md.name}.yml")
+    output_path = output_path or Path(f"{md.id}.yml")
 
     logger.info(f"exporting metadata to {output_path}")
     with open(output_path, "w") as outfile:

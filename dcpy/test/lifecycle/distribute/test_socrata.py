@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 from unittest.mock import patch
 
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 import dcpy.lifecycle.distribute.socrata as soc_dist
 
 

@@ -1,7 +1,7 @@
 # type: ignore
 from dcpy.utils import s3
 from dcpy.models.product import metadata as product_metadata
-from dcpy.models.product.dataset import metadata_v2 as dataset_metadata
+from dcpy.models.product.dataset import metadata as dataset_metadata
 from dcpy.models.lifecycle import ingest as ingest_models
 
 import json

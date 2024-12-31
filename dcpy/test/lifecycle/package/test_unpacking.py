@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 from dcpy.lifecycle.package import assemble
 
 

@@ -3,7 +3,7 @@ from pytest import fixture
 import pytest
 import tempfile
 
-from dcpy.models.product.dataset import metadata_v2 as m
+from dcpy.models.product.dataset import metadata as m
 
 OVERRIDDEN_SHP_NAME_AT_DEST = "overridden_shp_name_at_dest.zip"
 DESTINATION_OVERRIDDEN_DISPLAY_NAME = "overridden dest display name"

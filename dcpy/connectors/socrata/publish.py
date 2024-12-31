@@ -22,7 +22,7 @@ from typing import TypedDict, Literal, NotRequired, Any
 
 from dcpy.utils.logging import logger
 
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 from .utils import SOCRATA_USER, SOCRATA_PASSWORD, _socrata_request
 
 SOCRATA_REVISION_APPLY_TIMEOUT_SECS = 10 * 60  # Ten Mins

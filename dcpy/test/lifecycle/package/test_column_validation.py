@@ -7,7 +7,7 @@ import uuid
 
 from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
 
-import dcpy.models.product.dataset.metadata_v2 as md
+import dcpy.models.product.dataset.metadata as md
 from dcpy.lifecycle.package import validate
 
 rd = random.Random()
