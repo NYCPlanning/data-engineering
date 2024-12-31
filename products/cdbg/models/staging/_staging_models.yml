@@ -2,3 +2,4 @@ version: 2
 
 models:
   - name: stg__census_block_groups
+  - name: stg__low_mod_by_block_group
