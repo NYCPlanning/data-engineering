@@ -11,6 +11,7 @@ on:
         options:
           - template
           - cbbr
+          - cdbg
           - checkbook
           - colp
           - cpdb
@@ -127,6 +128,17 @@ jobs:
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
+  cdbg:
+    needs: health_check
+    if: inputs.dataset_name == 'cdbg' || inputs.dataset_name  == 'all'
+    uses: ./.github/workflows/cdbg_build.yml
+    secrets: inherit
+    with:
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   checkbook:
     needs: health_check

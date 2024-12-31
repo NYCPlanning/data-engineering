@@ -88,6 +88,7 @@ jobs:
         project:
           - green_fast_track
           - zoningtaxlots
+          - cdbg
     steps:
       - uses: actions/checkout@v4
       - name: setup
