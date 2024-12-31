@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: recipe_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: dcp_mappluto_clipped
+        columns:
+          - name: bbl
+            tests:
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null
+      - name: dcp_cb2020_wi
+      - name: dcp_ct2020_wi
+      - name: hud_lowmodincomebyblockgroup

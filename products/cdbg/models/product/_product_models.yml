@@ -1,0 +1,155 @@
+version: 2
+
+models:
+  - name: cdbg_tracts
+    description: Census tracts and their Community Development Block Grant (CDBG) eligibility details
+    config:
+      contract:
+        enforced: false
+
+    columns:
+      - name: geoid
+        data_type: string
+        tests:
+          - not_null
+          - unique
+
+      - name: borough_name
+        data_type: string
+        tests: [not_null]
+
+#      - name: borough_code
+#        data_type: integer
+#        tests: [not_null]
+#
+#      - name: borough_tract
+#        data_type: string
+#        tests: [not_null]
+#
+#      - name: tract
+#        data_type: string
+#        tests: [not_null]
+
+      - name: total_floor_area
+        data_type: integer
+        tests: [not_null]
+
+      - name: residential_floor_area
+        data_type: integer
+        tests: [not_null]
+
+      - name: residential_floor_area_percentage
+        data_type: float
+        tests: [not_null]
+
+      - name: low_mod_income_population
+        data_type: integer
+        tests: [not_null]
+
+      - name: low_mod_income_population_percentage
+        data_type: float
+        tests: [not_null]
+
+      - name: eligibility_flag
+        data_type: boolean
+        tests: [not_null]
+
+      - name: eligibility
+        data_type: string
+        tests: [not_null]
+
+  - name: cdbg_block_groups
+    description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
+    config:
+      contract:
+        enforced: false
+
+    columns:
+      - name: geoid
+        data_type: string
+        tests:
+          - not_null
+          - unique
+
+      - name: borough_name
+        data_type: string
+        tests: [not_null]
+
+#      - name: borough_code
+#        data_type: integer
+#        tests: [not_null]
+#
+#      - name: borough_tract
+#        data_type: string
+#        tests: [not_null]
+#
+#      - name: tract
+#        data_type: string
+#        tests: [not_null]
+#
+#      - name: borough_tract_block_group
+#        data_type: string
+#        tests: [not_null]
+#
+#      - name: block_group
+#        data_type: string
+#        tests: [not_null]
+
+      - name: total_floor_area
+        data_type: integer
+        tests: [not_null]
+
+      - name: residential_floor_area
+        data_type: integer
+        tests: [not_null]
+
+      - name: residential_floor_area_percentage
+        data_type: float
+        tests: [not_null]
+
+      - name: low_mod_income_population
+        data_type: integer
+        tests: [not_null]
+
+      - name: low_mod_income_population_percentage
+        data_type: float
+        tests: [not_null]
+
+      - name: eligibility_flag
+        data_type: boolean
+        tests: [not_null]
+
+      - name: eligibility
+        data_type: string
+        tests: [not_null]
+
+#  - name: cdbg_borough
+#    description: Borough and city-wide Community Development Block Grant (CDBG) details
+#    config:
+#      contract:
+#        enforced: true
+#
+#    columns:
+#      - name: borough_name
+#        data_type: string
+#        tests: [not_null]
+#
+#      - name: total_floor_area
+#        data_type: integer
+#        tests: [not_null]
+#
+#      - name: residential_floor_area
+#        data_type: integer
+#        tests: [not_null]
+#
+#      - name: residential_floor_area_percentage
+#        data_type: float
+#        tests: [not_null]
+#
+#      - name: low_mod_income_population
+#        data_type: integer
+#        tests: [not_null]
+#
+#      - name: low_mod_income_population_percentage
+#        data_type: float
+#        tests: [not_null]

@@ -1,0 +1,21 @@
+name: "cdbg"
+
+profile: "dcp-de-postgres"
+
+model-paths: ["models"]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
+
+models:
+  cdbg:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: table
+    product:
+      +materialized: table
+
+flags:
+  fail-fast: true
