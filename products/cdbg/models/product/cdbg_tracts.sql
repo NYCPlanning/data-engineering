@@ -1,22 +1,22 @@
-with tracts as (
-  select * from {{ ref("int__tracts") }}
+WITH tracts AS (
+    SELECT * FROM {{ ref("int__tracts") }}
 ),
 
-eligibility_calculation as (
-  select
-    *,
-    low_mod_income_population_percentage > 51 and residential_floor_area_percentage > 50 as eligibility_flag
-  from tracts
+eligibility_calculation AS (
+    SELECT
+        *,
+        low_mod_income_population_percentage > 51 AND residential_floor_area_percentage > 50 AS eligibility_flag
+    FROM tracts
 ),
 
-eligibility as (
-  select
-    *,
-    case
-      when eligibility_flag then 'CD Eligible'
-      else 'Ineligible'
-    end as eligibility
-  from eligibility_calculation
+eligibility AS (
+    SELECT
+        *,
+        CASE
+            WHEN eligibility_flag THEN 'CD Eligible'
+            ELSE 'Ineligible'
+        END AS eligibility
+    FROM eligibility_calculation
 )
 
-select * from eligibility
+SELECT * FROM eligibility

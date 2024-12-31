@@ -1,22 +1,22 @@
-with block_groups as (
-  select * from {{ ref("int__block_groups") }}
+WITH block_groups AS (
+    SELECT * FROM {{ ref("int__block_groups") }}
 ),
 
-eligibility_calculation as (
-  select
-    *,
-    low_mod_income_population_percentage > 51 and residential_floor_area_percentage > 50 as eligibility_flag
-  from block_groups
+eligibility_calculation AS (
+    SELECT
+        *,
+        low_mod_income_population_percentage > 51 AND residential_floor_area_percentage > 50 AS eligibility_flag
+    FROM block_groups
 ),
 
-eligibility as (
-  select
-    *,
-    case
-      when eligibility_flag then 'CD Eligible'
-      else 'Ineligible'
-    end as eligibility
-  from eligibility_calculation
+eligibility AS (
+    SELECT
+        *,
+        CASE
+            WHEN eligibility_flag THEN 'CD Eligible'
+            ELSE 'Ineligible'
+        END AS eligibility
+    FROM eligibility_calculation
 )
 
-select * from eligibility
+SELECT * FROM eligibility

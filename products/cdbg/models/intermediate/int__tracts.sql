@@ -1,36 +1,36 @@
-with block_groups as (
-  select
-    *,
-    left(geoid, -1) as tract_id
-  from {{ ref("int__block_groups") }}
+WITH block_groups AS (
+    SELECT
+        *,
+        left(geoid, -1) AS tract_id
+    FROM {{ ref("int__block_groups") }}
 ),
 
-tracts as (
-  select
-    tract_id as geoid,
-    max(borough_name) as borough_name,
-    sum(total_floor_area) as total_floor_area,
-    sum(residential_floor_area) as residential_floor_area,
-    sum(total_population) as total_population,
-    sum(low_mod_income_population) as low_mod_income_population
-  from block_groups
-  group by tract_id
+tracts AS (
+    SELECT
+        tract_id AS geoid,
+        max(borough_name) AS borough_name,
+        sum(total_floor_area) AS total_floor_area,
+        sum(residential_floor_area) AS residential_floor_area,
+        sum(total_population) AS total_population,
+        sum(low_mod_income_population) AS low_mod_income_population
+    FROM block_groups
+    GROUP BY tract_id
 ),
 
-tracts_calculation as (
-  select
-    *,
-    case
-      when total_floor_area = 0
-        then 0
-      else (residential_floor_area / total_floor_area) * 100
-    end as residential_floor_area_percentage,
-    case
-      when total_population = 0
-        then 0
-      else (low_mod_income_population / total_population) * 100
-    end as low_mod_income_population_percentage
-  from tracts
+tracts_calculation AS (
+    SELECT
+        *,
+        CASE
+            WHEN total_floor_area = 0
+                THEN 0
+            ELSE (residential_floor_area / total_floor_area) * 100
+        END AS residential_floor_area_percentage,
+        CASE
+            WHEN total_population = 0
+                THEN 0
+            ELSE (low_mod_income_population / total_population) * 100
+        END AS low_mod_income_population_percentage
+    FROM tracts
 )
 
-select * from tracts_calculation
+SELECT * FROM tracts_calculation

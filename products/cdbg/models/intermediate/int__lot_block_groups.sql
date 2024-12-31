@@ -1,36 +1,35 @@
-with lot_block_groups as (
-  select
-    bbl,
-    block_group_geoid,
-    overlap_ratio
-  from {{ ref("int__lot_block_groups_raw") }}
+WITH lot_block_groups AS (
+    SELECT
+        bbl,
+        block_group_geoid,
+        overlap_ratio
+    FROM {{ ref("int__lot_block_groups_raw") }}
 ),
 
-valid_lot_block_groups as (
-  select * from lot_block_groups
-  where overlap_ratio is not null
+valid_lot_block_groups AS (
+    SELECT * FROM lot_block_groups
+    WHERE overlap_ratio IS NOT null
 ),
 
-lots_easy as (
-  select
-    bbl,
-    block_group_geoid,
-    1 as overlap_ratio
-  from valid_lot_block_groups
-    where overlap_ratio > 0.9
+lots_easy AS (
+    SELECT
+        bbl,
+        block_group_geoid,
+        1 AS overlap_ratio
+    FROM valid_lot_block_groups
+    WHERE overlap_ratio > 0.9
 ),
 
-lots_split as (
-  select
-    *
-  from valid_lot_block_groups
-    where bbl not in (select bbl from lots_easy)
+lots_split AS (
+    SELECT *
+    FROM valid_lot_block_groups
+    WHERE bbl NOT IN (SELECT bbl FROM lots_easy)
 ),
 
-lots as (
-  select * from lots_easy
-  union all
-  select * from lots_split
+lots AS (
+    SELECT * FROM lots_easy
+    UNION ALL
+    SELECT * FROM lots_split
 )
 
-select * from lots
+SELECT * FROM lots
