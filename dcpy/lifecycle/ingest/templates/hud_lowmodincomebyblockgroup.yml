@@ -1,0 +1,60 @@
+id: hud_lowmodincomebyblockgroup
+acl: public-read
+
+attributes:
+  name: HUD Low to Moderate Income Population by Block Group
+  description: >-
+    This particular version of this dataset has come from OMB. We haven't fully assessed whether
+    we could just pull from the linked feature service instead and filter to NYC or if OMB has
+    done any other preprocessing.
+
+    This service identifies U.S. Census Block Groups in which 51% or more of the households earn 
+    less than 80 percent of the Area Median Income (AMI). The Community Development Block Grant 
+    (CDBG) program requires that each CDBG funded activity must either principally benefit low- 
+    and moderate-income persons, aid in the prevention or elimination of slums or blight, or meet 
+    a community development need having a particular urgency because existing conditions pose a 
+    serious and immediate threat to the health or welfare of the community and other financial 
+    resources are not available to meet that need. With respect to activities that principally 
+    benefit low- and moderate-income persons, at least 51 percent of the activity's beneficiaries 
+    must be low and moderate income.
+
+    The Community Development Block Grant (CDBG) program requires that each CDBG funded activity 
+    must either principally benefit low- and moderate-income persons, aid in the prevention or 
+    elimination of slums or blight, or meet a community development need having a particular urgency 
+    because existing conditions pose a serious and immediate threat to the health or welfare of 
+    the community and other financial resources are not available to meet that need. With respect 
+    to activities that principally benefit low- and moderate-income persons, at least 51 percent 
+    of the activity's beneficiaries must be low and moderate income. For CDBG, a person is considered 
+    to be of low income only if he or she is a member of a household whose income would qualify as 
+    "very low income" under the Section 8 Housing Assistance Payments program. Generally, these 
+    Section 8 limits are based on 50% of area median. Similarly, CDBG moderate income relies on 
+    Section 8 "lower income" limits, which are generally tied to 80% of area median. These data 
+    are from the 2011-2015 American Community Survey (ACS).
+  url: https://hudgis-hud.opendata.arcgis.com/datasets/HUD::low-to-moderate-income-population-by-block-group/about
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/omb/20241227/ACS-2020-Low-Mod-Summarized-All-Block-Groups-2023.csv
+  file_format:
+    type: csv
+
+#columns:
+#- id: CDBGUOGID
+#- id: GEOID
+#- id: CDBGNAME
+#- id: STUSAB
+#- id: STATE
+#- id: CDBGTYPE
+#- id: Geoname
+#- id: COUNTY
+#- id: TRACT
+#- id: BLKGRP
+#- id: LOW
+#- id: LOWMOD
+#- id: LMMI
+#- id: LOWMODUNIV
+#- id: LOWMOD_PCT
+#- id: MOE_LOWMODPCT
+#- id: Column1
