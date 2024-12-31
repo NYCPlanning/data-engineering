@@ -66,6 +66,7 @@ jobs:
 
       - name: Build
         run: |
+          dbt deps
           dbt debug
           dbt build
 
