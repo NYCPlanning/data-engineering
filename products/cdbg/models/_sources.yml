@@ -4,7 +4,7 @@ sources:
   - name: recipe_sources
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
     tables:
-      - name: dcp_mappluto_wi
+      - name: dcp_mappluto_clipped
         columns:
           - name: bbl
             tests:
