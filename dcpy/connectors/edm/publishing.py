@@ -174,11 +174,11 @@ def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
 def generate_metadata() -> dict[str, str]:
     """Generates "standard" s3 metadata for our files"""
     metadata = {
-        "date_created": datetime.now(pytz.timezone("America/New_York")).isoformat()
+        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
     }
     metadata["commit"] = git.commit_hash()
     if CI:
-        metadata["run_url"] = git.action_url()
+        metadata["run-url"] = git.action_url()
     return metadata
 
 
@@ -612,9 +612,9 @@ def publish_add_created_date(
         target,
         acl,
         max_files=max_files,
-        metadata={"date_created": old_metadata.last_modified.isoformat()},
+        metadata={"date-created": old_metadata.last_modified.isoformat()},
     )
-    return {"date_created": old_metadata.last_modified.isoformat()}
+    return {"date-created": old_metadata.last_modified.isoformat()}
 
 
 def get_data_directory_url(product_key: ProductKey) -> str:

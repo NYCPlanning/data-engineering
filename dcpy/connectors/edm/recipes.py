@@ -356,7 +356,7 @@ def get_archival_metadata(
             BUCKET,
             f"{DATASET_FOLDER}/{name}/{version}/config.json",
         )
-        date_created = s3metadata.custom.get("date_created")
+        date_created = s3metadata.custom.get("date-created")
         if date_created is None:
             timestamp = s3metadata.last_modified
         else:
