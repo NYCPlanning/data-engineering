@@ -14,4 +14,5 @@ sources:
               - not_null
       - name: dcp_cb2020_wi
       - name: dcp_ct2020_wi
+      - name: dcp_censusdata_blocks
       - name: hud_lowmodincomebyblockgroup
