@@ -28,6 +28,18 @@ models:
   - name: total_population
     tests: [not_null]
 
+- name: int__boros
+  description: residential area and low-to-moderate income data aggregated by boro
+  columns:
+  - name: borough_name
+    tests: [unique, not_null]
+  - name: total_floor_area
+  - name: residential_floor_area
+  - name: residential_floor_area_percentage
+  - name: total_population
+  - name: lowmod_population
+  - name: lowmod_population_percentage
+
 - name: int__lot_block_groups_details
   description: int__lot_block_groups joined to pluto for lot info
   columns:
