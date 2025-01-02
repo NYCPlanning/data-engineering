@@ -27,6 +27,7 @@ openpyxl
 openpyxl-stubs
 pandas
 pandas-stubs
+pandera
 plotly
 pre-commit
 psycopg2-binary
