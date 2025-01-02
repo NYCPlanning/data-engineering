@@ -13,8 +13,10 @@ models:
   - name: residential_floor_area
   - name: residential_floor_area_percentage
   - name: total_population
+  - name: potential_lowmod_population
   - name: lowmod_population
   - name: lowmod_population_percentage
+  - name: low_mod_income_population_percentage_source
 
 - name: int__block_groups_raw
   description: census block group geoemtries and demographic data
