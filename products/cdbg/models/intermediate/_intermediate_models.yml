@@ -16,11 +16,26 @@ models:
   - name: lowmod_population
   - name: lowmod_population_percentage
 
+- name: int__block_groups_raw
+  description: census block group geoemtries and demographic data
+  columns:
+  - name: geoid
+    tests:
+    - not_null
+    - unique
+  - name: total_population
+    tests: [not_null]
+
 - name: int__lot_block_groups_details
   description: int__lot_block_groups joined to pluto for lot info
   columns:
   - name: bbl
   - name: block_group_geoid
+    tests:
+    - not_null
+    - relationships:
+        to: ref('int__block_groups_raw')
+        field: geoid
   - name: overlap_ratio
   - name: bldgarea
   - name: bldgarea_in_block_group
