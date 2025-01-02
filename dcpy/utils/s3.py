@@ -49,14 +49,14 @@ class Metadata(BaseModel):
 
 def generate_metadata() -> dict[str, str]:
     metadata = {
-        "date_created": datetime.now(pytz.timezone("America/New_York")).isoformat()
+        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
     }
     try:
         metadata["commit"] = git.commit_hash()
     except Exception:
         pass
     if os.environ.get("CI"):
-        metadata["run_url"] = git.action_url()
+        metadata["run-url"] = git.action_url()
     return metadata
 
 
@@ -154,13 +154,11 @@ def get_custom_metadata(bucket: str, key: str) -> dict:
 def get_metadata(bucket: str, key: str) -> Metadata:
     """Gets custom metadata as well as three standard s3 fields"""
     response = client().head_object(Bucket=bucket, Key=key)
-    metadata = response["Metadata"]
-    cleaned_metadata = {key.replace("-", "_"): metadata[key] for key in metadata}
     return Metadata(
         last_modified=response["LastModified"],
         content_length=response["ContentLength"],
         content_type=response["ContentType"],
-        custom=cleaned_metadata,
+        custom=response["Metadata"],
     )
 
 
