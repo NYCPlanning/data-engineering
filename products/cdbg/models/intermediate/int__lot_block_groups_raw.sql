@@ -9,7 +9,7 @@ block_groups AS (
     SELECT
         geoid,
         geom
-    FROM {{ ref("stg__census_block_groups") }}
+    FROM {{ ref("int__block_groups_raw") }}
 ),
 
 lot_block_group_intersections AS (

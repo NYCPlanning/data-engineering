@@ -1,5 +1,23 @@
 version: 2
 
 models:
-  - name: stg__census_block_groups
+  - name: stg__census_blocks
+    columns:
+      - name: geoid
+        tests:
+          - not_null
+          - unique
+
+  - name: stg__census_data_blocks
+    columns:
+      - name: bctcb2020
+        tests:
+          - not_null
+          - unique
+
   - name: stg__low_mod_by_block_group
+    columns:
+      - name: geoid
+        tests:
+          - not_null
+          - unique
