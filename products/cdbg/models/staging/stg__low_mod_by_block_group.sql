@@ -8,7 +8,7 @@ SELECT
     "BORO" AS boro,
     "TRACT" AS tract,
     "BLKGRP" AS block_group,
-    REPLACE("LOWMODUNIV", ',', '')::numeric AS total_population,
-    REPLACE("LOWMOD", ',', '')::numeric AS lowmod_population,
-    RTRIM("LOWMOD_PCT", '%')::numeric AS lowmod_pct
+    REPLACE("LOWMODUNIV", ',', '')::numeric AS potential_lowmod_population,
+    REPLACE("LOWMOD", ',', '')::numeric AS low_mod_income_population,
+    RTRIM("LOWMOD_PCT", '%')::numeric AS low_mod_income_population_percentage
 FROM {{ source("recipe_sources", "hud_lowmodincomebyblockgroup") }}
