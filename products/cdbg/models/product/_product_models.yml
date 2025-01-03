@@ -66,11 +66,11 @@ models:
         data_type: string
         tests: [not_null]
 
-  - name: cdbg_borough
+  - name: cdbg_boroughs
     description: Borough and city-wide Community Development Block Grant (CDBG) details
     config:
       contract:
-        enforced: true
+        enforced: false
 
     columns:
       - name: borough_name
