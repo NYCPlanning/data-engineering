@@ -39,6 +39,7 @@ block_group_details AS (
     SELECT
         block_groups_floor_area.geoid,
         block_groups_demographics.borough_name,
+        block_groups_demographics.borough_code,
         block_groups_demographics.tract,
         block_groups_demographics.block_group,
         block_groups_floor_area.total_floor_area,

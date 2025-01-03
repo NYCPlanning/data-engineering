@@ -5,7 +5,7 @@ models:
     description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
     config:
       contract:
-        enforced: false
+        enforced: true
 
     columns:
       - name: geoid
@@ -18,25 +18,17 @@ models:
         data_type: string
         tests: [not_null]
 
-#      - name: borough_code
-#        data_type: integer
-#        tests: [not_null]
-#
-#      - name: borough_tract
-#        data_type: string
-#        tests: [not_null]
-#
-#      - name: tract
-#        data_type: string
-#        tests: [not_null]
-#
-#      - name: borough_tract_block_group
-#        data_type: string
-#        tests: [not_null]
-#
-#      - name: block_group
-#        data_type: string
-#        tests: [not_null]
+      - name: borough_code
+        data_type: integer
+        tests: [not_null]
+
+      - name: tract
+        data_type: string
+        tests: [not_null]
+
+      - name: block_group
+        data_type: string
+        tests: [not_null]
 
       - name: total_floor_area
         data_type: integer
@@ -47,7 +39,7 @@ models:
         tests: [not_null]
 
       - name: residential_floor_area_percentage
-        data_type: float
+        data_type: decimal
         tests: [not_null]
 
       - name: low_mod_income_population
@@ -55,7 +47,7 @@ models:
         tests: [not_null]
 
       - name: low_mod_income_population_percentage
-        data_type: float
+        data_type: decimal
         tests: [not_null]
 
       - name: eligibility_flag
