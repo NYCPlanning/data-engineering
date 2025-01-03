@@ -17,6 +17,9 @@ mkdir -p output && (
 
     echo "export cdbg_tracts.csv ..."
     csv_export cdbg_tracts cdbg_tracts
+
+    echo "export cdbg_boroughs.csv ..."
+    csv_export cdbg_boroughs cdbg_boroughs
 )
 
 zip -r output/output.zip output
