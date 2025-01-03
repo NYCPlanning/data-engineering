@@ -190,7 +190,7 @@ jobs:
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
       - name: publish images
         if: needs.determine_image_logic.outputs.child_action == 'Build'
-        run: ./admin/ops/docker_build_and_publish.sh "${{ matrix.image }}" "${{ needs.determine_image_logic.outputs.base_tag }}" "${{ needs.determine_image_logic.outputs.child_tag }}"
+        run: ./admin/ops/docker_build_and_publish.sh "${{ matrix.image }}" "${{ needs.determine_image_logic.outputs.child_tag }}" "${{ needs.determine_image_logic.outputs.base_tag }}"
 
   test:
     uses: ./.github/workflows/test_helper.yml
