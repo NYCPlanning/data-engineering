@@ -49,6 +49,10 @@ def s3_raw_folder_path(ds: RawDatasetKey) -> str:
     return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp.isoformat()}"
 
 
+def s3_raw_file_path(ds: RawDatasetKey) -> str:
+    return f"{s3_raw_folder_path(ds)}/{ds.filename}"
+
+
 def exists(ds: Dataset) -> bool:
     return s3.folder_exists(BUCKET, s3_folder_path(ds))
 
