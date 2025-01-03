@@ -276,6 +276,7 @@ class RevisionDataSource:
             )
 
         output_schema = self.get_latest_output_schema()
+        print(output_schema)
         for col in output_schema.attributes["output_columns"]:
             # Take the Socrata metadata for columns that have been uploaded,
             # modify them to match our metadata.
@@ -304,7 +305,9 @@ class RevisionDataSource:
                 assert field_name in default_transform
                 logger.info(f"Mapping column {our_col.id} to {field_name}")
                 output_schema.change_column_transform(field_name).to(
-                    default_transform.replace(field_name, our_col.id)
+                    default_transform.replace(
+                        f"`{field_name}`", f"`{our_col.custom['api_name']}`"
+                    )
                 )
 
         return output_schema
