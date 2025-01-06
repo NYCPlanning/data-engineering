@@ -76,3 +76,16 @@ def create_checks(checks: list[str | dict[str, CheckAttributes]]) -> list[pa.Che
     """Create Pandera checks."""
     checks = [create_check(check) for check in checks]
     return checks
+
+
+def create_column_with_checks(column: Column) -> pa.Column:
+    """Create Pandera column validator object."""
+    data_checks = create_checks(column.checks) if column.checks else None
+    return pa.Column(
+        # TODO: implement `dtype` param
+        coerce=True,  # coerce column to defined data type. This decision is up for debate
+        checks=data_checks,
+        required=column.is_required,
+        description=column.description,
+        nullable=True,  # TODO: temp solution. Need to figure out what to do with this (equivalent to can be null)
+    )
