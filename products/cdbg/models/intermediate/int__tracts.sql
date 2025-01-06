@@ -8,13 +8,17 @@ WITH block_groups AS (
 tracts AS (
     SELECT
         tract_id AS geoid,
-        max(borough_name) AS borough_name,
+        borough_name,
+        borough_code,
         sum(total_floor_area) AS total_floor_area,
         sum(residential_floor_area) AS residential_floor_area,
         sum(total_population) AS total_population,
         sum(low_mod_income_population) AS low_mod_income_population
     FROM block_groups
-    GROUP BY tract_id
+    GROUP BY
+        tract_id,
+        borough_name,
+        borough_code
 ),
 
 tracts_calculation AS (
