@@ -1,4 +1,6 @@
 import pandera as pa
+import pandas as pd
+import geopandas as gpd
 from inspect import (
     signature,
 )  # used for checking expected attributes in a class signuture
@@ -89,3 +91,29 @@ def create_column_with_checks(column: Column) -> pa.Column:
         description=column.description,
         nullable=True,  # TODO: temp solution. Need to figure out what to do with this (equivalent to can be null)
     )
+
+
+def run_data_checks(
+    df: pd.DataFrame | gpd.GeoDataFrame, columns: list[Column]
+) -> pd.DataFrame | gpd.GeoDataFrame:
+    """
+    Validate a DataFrame or GeoDataFrame against a schema defined by a list of columns with Pandera.
+
+    Args:
+        df (pd.DataFrame | gpd.GeoDataFrame): The input DataFrame to validate.
+        columns (list[Column]): List of column definitions specifying validation rules.
+
+    Raises:
+        AssertionError: If column names in `columns` are not unique.
+    """
+
+    column_names = [column.id for column in columns]
+    assert len(column_names) == len(
+        set(column_names)
+    ), "Columns should have unique names"
+
+    dataframe_checks = {}
+    for column in columns:
+        dataframe_checks[column.id] = create_column_with_checks(column)
+
+    return pa.DataFrameSchema(dataframe_checks).validate(df)

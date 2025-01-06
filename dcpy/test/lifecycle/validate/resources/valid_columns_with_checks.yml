@@ -1,0 +1,22 @@
+- id: bbl
+  data_type: text
+  is_required: True
+  checks:
+    - str_contains:
+        args:
+          pattern: "75"
+        warn_only: False
+
+- id: custom_value
+  data_type: integer
+  is_required: False
+  checks:
+    - greater_than:
+        description: This column must be greater than zero
+        args:
+          min_value: 0
+    - unique_values_eq:
+        description: This column must contain at least these values.
+        warn_only: True
+        args:
+          values: [5, 10]

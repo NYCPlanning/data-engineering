@@ -111,3 +111,74 @@ def test_check_attributes_consistency_with_pa_check():
         check_expected_params.keys()
     )
     assert len(invalid_check_keys) == 0
+
+
+def get_valid_columns():
+    """A list of test models.dataset.Column objects."""
+    with open(RESOURCES / "valid_columns_with_checks.yml") as f:
+        columns = TypeAdapter(list[Column]).validate_python(yaml.safe_load(f))
+    return columns
+
+
+@pytest.mark.parametrize(
+    "test_df",
+    [
+        pd.DataFrame(
+            {
+                "bbl": ["1000157502", "1000157501", None],
+                "custom_value": [1, 5, 10],
+            }
+        ),
+        pd.DataFrame(
+            {
+                "bbl": ["1000157502", "1000157501", None],
+                "custom_value": [1, 5, 10],
+                "extra_column": ["a", "b", None],
+            }
+        ),  # df with a column that doesn't have data checks
+        pd.DataFrame(
+            {
+                "bbl": ["1000157502", "1000157501", None, None],
+                "custom_value": [None, 1, 5, 10],
+            }
+        ),  # df with warning only data check
+    ],
+)
+def test_run_data_checks_success(test_df):
+    """
+    Test the `run_data_checks` function for passing, warning, and expected failing scenarios.
+
+    Verifies:
+        - Valid data passes checks.
+        - Data with extra columns passes checks.
+        - Data with warnings still passes checks.
+    """
+    columns = get_valid_columns()
+    pandera_utils.run_data_checks(df=test_df, columns=columns)
+
+
+def test_run_data_checks_fail():
+    """Test that data fails data checks as expected."""
+    columns = get_valid_columns()
+    data_checks_fail = pd.DataFrame(
+        {"bbl": ["1000150002", "1000157501"], "custom_value": [0, 1]}
+    )
+    with pytest.raises(
+        pa.errors.SchemaError, match="failed element-wise validator number 0"
+    ):
+        pandera_utils.run_data_checks(df=data_checks_fail, columns=columns)
+
+
+def test_run_data_checks_duplicate_columns_error():
+    """Test the `run_data_checks` function for handling duplicate column names."""
+
+    columns = get_valid_columns()
+    df = pd.DataFrame(
+        {"bbl": ["1000157502", "1000157501", None], "custom_value": [1, 5, 10]}
+    )
+    # create a fail test case with same column names
+    for col in columns:
+        col.id = "duplicate_name"
+
+    with pytest.raises(AssertionError, match="Columns should have unique names"):
+        pandera_utils.run_data_checks(df=df, columns=columns)
