@@ -12,7 +12,7 @@ eligibility_calculation AS (
         round(residential_floor_area_percentage::numeric, 2) AS residential_floor_area_percentage,
         low_mod_income_population,
         round(low_mod_income_population_percentage::numeric, 2) AS low_mod_income_population_percentage,
-        low_mod_income_population_percentage > 51 AND residential_floor_area_percentage > 50 AS eligibility_flag
+        low_mod_income_population_percentage >= 51 AND residential_floor_area_percentage >= 50 AS eligibility_flag
     FROM tracts
 ),
 
