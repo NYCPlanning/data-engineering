@@ -1,5 +1,7 @@
 name: Community Development Block Grant
 product: db-cdbg
+version_strategy:
+  pin_to_source_dataset: hud_lowmodincomebyblockgroup
 inputs:
   missing_versions_strategy: find_latest
   datasets:
