@@ -46,6 +46,10 @@ models:
         data_type: integer
         tests: [not_null]
 
+      - name: potential_lowmod_population
+        data_type: integer
+        tests: [not_null]
+
       - name: low_mod_income_population_percentage
         data_type: decimal
         tests: [not_null]
@@ -86,6 +90,10 @@ models:
         tests: [not_null]
 
       - name: low_mod_income_population
+        data_type: integer
+        tests: [not_null]
+
+      - name: potential_lowmod_population
         data_type: integer
         tests: [not_null]
 
@@ -135,6 +143,10 @@ models:
         tests: [not_null]
 
       - name: low_mod_income_population
+        data_type: integer
+        tests: [not_null]
+
+      - name: potential_lowmod_population
         data_type: integer
         tests: [not_null]
 
