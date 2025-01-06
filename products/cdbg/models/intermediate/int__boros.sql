@@ -5,12 +5,15 @@ WITH tracts AS (
 boros AS (
     SELECT
         borough_name,
+        borough_code,
         sum(total_floor_area) AS total_floor_area,
         sum(residential_floor_area) AS residential_floor_area,
         sum(total_population) AS total_population,
         sum(low_mod_income_population) AS low_mod_income_population
     FROM tracts
-    GROUP BY borough_name
+    GROUP BY
+        borough_name,
+        borough_code
 ),
 
 boro_calculation AS (
