@@ -12,7 +12,6 @@ tracts AS (
         borough_code,
         sum(total_floor_area) AS total_floor_area,
         sum(residential_floor_area) AS residential_floor_area,
-        sum(total_population) AS total_population,
         sum(potential_lowmod_population) AS potential_lowmod_population,
         sum(low_mod_income_population) AS low_mod_income_population
     FROM block_groups
