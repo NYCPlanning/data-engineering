@@ -16,7 +16,7 @@ from dcpy.utils import data
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.lifecycle.ingest import transform
 
-from .shared import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME
+from .shared import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME, TEST_OUTPUT
 
 
 class FakeConfig(BaseModel):
@@ -446,7 +446,6 @@ def test_processing(create_temp_filesystem: Path):
     assert (
         not output.exists()
     ), "Error in setup of test - output file should not exist yet"
-    expected = RESOURCES / TEST_DATA_DIR / "output.parquet"
 
     steps = [
         ProcessingStep(name="sort", args={"by": ["boro_code", "block", "lot"]}),
@@ -465,7 +464,7 @@ def test_processing(create_temp_filesystem: Path):
     transform.process(TEST_DATASET_NAME, steps, columns, input, output)
     assert output.exists()
     output_df = geoparquet.read_df(output)
-    expected_df = geoparquet.read_df(expected)
+    expected_df = geoparquet.read_df(TEST_OUTPUT)
     assert output_df.equals(expected_df)
 
     assert not (create_temp_filesystem / f"{TEST_DATASET_NAME}.csv").exists()

@@ -21,8 +21,8 @@ from dcpy.test.conftest import RECIPES_BUCKET
 RESOURCES = Path(__file__).parent / "resources"
 TEMPLATE_DIR = RESOURCES / "templates"
 TEST_DATA_DIR = "test_data"
-TEST_OUTPUT = RESOURCES / TEST_DATA_DIR / "output.parquet"
 TEST_DATASET_NAME = "test_dataset"
+TEST_OUTPUT = RESOURCES / TEST_DATA_DIR / f"{TEST_DATASET_NAME}.parquet"
 FAKE_VERSION = "20240101"
 TEST_DATASET = Dataset(id=TEST_DATASET_NAME, version=FAKE_VERSION)
 

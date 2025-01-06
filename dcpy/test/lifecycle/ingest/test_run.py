@@ -6,7 +6,7 @@ import shutil
 from dcpy.configuration import RECIPES_BUCKET
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import run, TMP_DIR
+from dcpy.lifecycle.ingest.run import run as run_ingest, TMP_DIR
 
 from dcpy.test.conftest import mock_request_get
 from .shared import FAKE_VERSION, TEMPLATE_DIR
@@ -16,22 +16,37 @@ S3_PATH = f"datasets/{DATASET}/{FAKE_VERSION}/{DATASET}.parquet"
 RAW_FOLDER = f"raw_datasets/{DATASET}"
 
 
+@pytest.fixture
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_run(mock_request_get, create_buckets, create_temp_filesystem):
-    """Mainly an integration test to make sure code runs without error"""
-    run(
+def run_basic(mock_request_get, create_buckets, create_temp_filesystem):
+    return run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         staging_dir=create_temp_filesystem,
         template_dir=TEMPLATE_DIR,
     )
-    assert len(s3.get_subfolders(RECIPES_BUCKET, RAW_FOLDER)) == 1
+
+
+def test_run(run_basic):
+    """Mainly an integration test to make sure code runs without error"""
+    assert True
+
+
+def test_run_raw_output_exists(run_basic):
+    """Copy of run, but asserts that raw file in s3 properly archived"""
+    assert s3.object_exists(
+        RECIPES_BUCKET, recipes.s3_raw_file_path(run_basic.raw_dataset_key)
+    )
+
+
+def test_run_output_exists(run_basic):
+    """Copy of run, but asserts that output in s3 properly generated"""
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run_default_folder(mock_request_get, create_buckets, create_temp_filesystem):
-    run(dataset_id=DATASET, version=FAKE_VERSION, template_dir=TEMPLATE_DIR)
+    run_ingest(dataset_id=DATASET, version=FAKE_VERSION, template_dir=TEMPLATE_DIR)
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
     assert (TMP_DIR / DATASET).exists()
     shutil.rmtree(TMP_DIR)
@@ -39,7 +54,7 @@ def test_run_default_folder(mock_request_get, create_buckets, create_temp_filesy
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_skip_archival(mock_request_get, create_buckets, create_temp_filesystem):
-    run(
+    run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         staging_dir=create_temp_filesystem,
@@ -51,7 +66,7 @@ def test_skip_archival(mock_request_get, create_buckets, create_temp_filesystem)
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run_update_freshness(mock_request_get, create_buckets, create_temp_filesystem):
-    run(
+    run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         staging_dir=create_temp_filesystem,
@@ -59,7 +74,7 @@ def test_run_update_freshness(mock_request_get, create_buckets, create_temp_file
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
     assert config.archival.check_timestamps == []
-    run(
+    run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         staging_dir=create_temp_filesystem,
@@ -80,7 +95,7 @@ def test_run_update_freshness_fails_if_data_diff(
     mock_request_get, create_buckets, create_temp_filesystem
 ):
     """Mainly an integration test to make sure code runs without error"""
-    run(
+    run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         staging_dir=create_temp_filesystem,
@@ -94,7 +109,7 @@ def test_run_update_freshness_fails_if_data_diff(
             FileExistsError,
             match=f"Archived dataset 'id='{DATASET}' version='{FAKE_VERSION}'' already exists and has different data.",
         ):
-            run(
+            run_ingest(
                 dataset_id=DATASET,
                 version=FAKE_VERSION,
                 staging_dir=create_temp_filesystem,

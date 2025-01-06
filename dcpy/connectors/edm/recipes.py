@@ -49,6 +49,10 @@ def s3_raw_folder_path(ds: RawDatasetKey) -> str:
     return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp.isoformat()}"
 
 
+def s3_raw_file_path(ds: RawDatasetKey) -> str:
+    return f"{s3_raw_folder_path(ds)}/{ds.filename}"
+
+
 def exists(ds: Dataset) -> bool:
     return s3.folder_exists(BUCKET, s3_folder_path(ds))
 
@@ -65,7 +69,7 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> No
         )
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
-        shutil.copy(file_path, tmp_dir_path / config.filename)
+        shutil.copy(file_path, tmp_dir_path)
         with open(tmp_dir_path / "config.json", "w") as f:
             f.write(
                 json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)

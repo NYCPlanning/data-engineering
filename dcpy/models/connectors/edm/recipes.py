@@ -11,6 +11,7 @@ ValidAclValues = Literal["public-read", "private"]
 class RawDatasetKey(BaseModel, extra="forbid"):
     id: str
     timestamp: datetime
+    filename: str
 
 
 class DatasetKey(BaseModel, extra="forbid"):
