@@ -86,7 +86,7 @@ models:
         tests: [not_null]
 
       - name: low_mod_income_population
-        data_type: bigint
+        data_type: integer
         tests: [not_null]
 
       - name: low_mod_income_population_percentage
@@ -135,7 +135,7 @@ models:
         tests: [not_null]
 
       - name: low_mod_income_population
-        data_type: bigint
+        data_type: integer
         tests: [not_null]
 
       - name: low_mod_income_population_percentage
