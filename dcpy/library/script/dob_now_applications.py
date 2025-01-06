@@ -1,34 +1,17 @@
 import pandas as pd
 
+from dcpy.utils import s3
 from .scriptor import ScriptorInterface
 from . import df_to_tempfile
-from dotenv import load_dotenv
-import boto3
-import os
-
-from io import StringIO
-
-# Load environmental variables
-load_dotenv()
 
 
 class Scriptor(ScriptorInterface):
     def ingest(self) -> pd.DataFrame:
-        client = boto3.client(
-            "s3",
-            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-            endpoint_url=os.environ["AWS_S3_ENDPOINT"],
+        data = s3.get_file_as_stream(
+            "edm-private",
+            f"dob_now/dob_now_job_applications/DOB_Now_Job_Filing_Data_for_DCP_{self.version}.csv",
         )
-        obj = client.get_object(
-            Bucket="edm-private",
-            Key=f"dob_now/dob_now_job_applications/DOB_Now_Job_Filing_Data_for_DCP_{self.version}.csv",
-        )
-        # convert to a literal string of bytes with correct encoding
-        s = str(obj["Body"].read(), "utf-8")
-        # use StringIO to convert consumable format for pd.read_csv
-        data = StringIO(s)
-        df = pd.read_csv(data, encoding="utf-8")
+        df = pd.read_csv(data, encoding="cp1252", sep="\t")
         return df
 
     def runner(self) -> str:
