@@ -13,6 +13,7 @@ tracts AS (
         sum(total_floor_area) AS total_floor_area,
         sum(residential_floor_area) AS residential_floor_area,
         sum(total_population) AS total_population,
+        sum(potential_lowmod_population) AS potential_lowmod_population,
         sum(low_mod_income_population) AS low_mod_income_population
     FROM block_groups
     GROUP BY
@@ -30,9 +31,9 @@ tracts_calculation AS (
             ELSE (residential_floor_area / total_floor_area) * 100
         END AS residential_floor_area_percentage,
         CASE
-            WHEN total_population = 0
+            WHEN potential_lowmod_population = 0
                 THEN 0
-            ELSE (low_mod_income_population / total_population) * 100
+            ELSE (low_mod_income_population / potential_lowmod_population) * 100
         END AS low_mod_income_population_percentage
     FROM tracts
 )
