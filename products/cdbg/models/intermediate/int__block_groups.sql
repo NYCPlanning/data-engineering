@@ -15,7 +15,6 @@ block_groups_demographics AS (
         block_groups_population.geoid,
         block_groups_population.borough_code,
         block_groups_population.borough_name,
-        block_groups_population.total_population,
         block_groups_income.tract,
         block_groups_income.block_group,
         block_groups_income.potential_lowmod_population,
@@ -49,7 +48,6 @@ block_group_details AS (
                 THEN 0
             ELSE (block_groups_floor_area.residential_floor_area / block_groups_floor_area.total_floor_area) * 100
         END AS residential_floor_area_percentage,
-        block_groups_demographics.total_population,
         block_groups_demographics.potential_lowmod_population,
         block_groups_demographics.low_mod_income_population,
         block_groups_demographics.low_mod_income_population_percentage

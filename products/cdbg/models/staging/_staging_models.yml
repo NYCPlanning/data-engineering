@@ -8,13 +8,6 @@ models:
           - not_null
           - unique
 
-  - name: stg__census_data_blocks
-    columns:
-      - name: bctcb2020
-        tests:
-          - not_null
-          - unique
-
   - name: stg__low_mod_by_block_group
     columns:
       - name: geoid
