@@ -52,13 +52,7 @@ block_group_details AS (
         block_groups_demographics.total_population,
         block_groups_demographics.potential_lowmod_population,
         block_groups_demographics.low_mod_income_population,
-        CASE
-            WHEN block_groups_demographics.total_population = 0
-                THEN 0
-            ELSE
-                (block_groups_demographics.low_mod_income_population / block_groups_demographics.total_population) * 100
-        END AS low_mod_income_population_percentage,
-        block_groups_demographics.low_mod_income_population_percentage AS low_mod_income_population_percentage_source
+        block_groups_demographics.low_mod_income_population_percentage
     FROM block_groups_floor_area
     LEFT JOIN block_groups_demographics
         ON block_groups_floor_area.geoid = block_groups_demographics.geoid
