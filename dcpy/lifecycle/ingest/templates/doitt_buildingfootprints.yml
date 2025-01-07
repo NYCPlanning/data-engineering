@@ -10,13 +10,13 @@ attributes:
 
     Previously posted versions of the data are retained to comply with 
     Local Law 106 of 2015 and can be provided upon request made to Open Data.
-  url: https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh
+  url: https://data.cityofnewyork.us/City-Government/Building-Footprints/5zhs-2jue/about_data
 
 ingestion:
   source:
     type: socrata
     org: nyc
-    uid: qb5r-6dgf
+    uid: 5zhs-2jue
     format: geojson
   file_format:
     type: geojson
