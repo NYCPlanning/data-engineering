@@ -9,9 +9,21 @@ sources:
           - name: bbl
             tests:
               - not_null
+              - unique
           - name: wkb_geometry
             tests:
               - not_null
       - name: dcp_cb2020_wi
       - name: dcp_ct2020_wi
       - name: hud_lowmodincomebyblockgroup
+      - name: dcp_projectbbls_cy
+        columns:
+          - name: '"Project_Id"'
+            tests:
+              - not_null
+              - unique
+          - name: '"ALL_ZAP_BBLs"'
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
