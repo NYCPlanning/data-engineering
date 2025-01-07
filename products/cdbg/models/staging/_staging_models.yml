@@ -14,3 +14,13 @@ models:
         tests:
           - not_null
           - unique
+
+  - name: stg__zap_projects
+    columns:
+      - name: project_id
+        tests:
+          - not_null
+          - unique
+      - name: bbls
+        tests:
+          - not_null

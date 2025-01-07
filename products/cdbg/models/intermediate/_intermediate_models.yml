@@ -95,3 +95,61 @@ models:
   - name: eligibility
   - name: geom
     tests: [not_null]
+
+- name: int__eligible_tracts
+  description: eligible tracts and their buffered geometries
+  columns:
+  - name: geoid
+    tests: [unique, not_null]
+  - name: geom
+    tests: [not_null]
+  - name: quarter_mile_buffer_geom
+    tests: [not_null]
+  - name: half_mile_buffer_geom
+    tests: [not_null]
+
+- name: int__zap_lots
+  description: ZAP projects and each lot associated with them
+  columns:
+  - name: project_id
+    tests: [not_null]
+  - name: bbl
+    tests: [not_null]
+  - name: geom
+    tests:
+      - not_null:
+          config:
+            severity: warn
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns: [project_id, bbl]
+
+- name: int__zap_lot_tracts
+  description: ZAP project lots which insect with an eligible tract buffer
+  columns:
+  - name: project_id
+    tests: [not_null]
+  - name: bbl
+    tests: [not_null]
+  - name: geoid
+    tests: [not_null]
+  - name: intersection_type
+    tests: [not_null]
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns: [project_id, bbl, geoid, intersection_type]
+
+- name: int__zap_lots_eligiblity
+  description: ZAP project lots and their eligibility details
+  columns:
+  - name: project_id
+    tests: [not_null]
+  - name: bbl
+    tests: [not_null]
+  - name: within_quarter_mile
+    tests: [not_null]
+  - name: within_half_mile
+    tests: [not_null]
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns: [project_id, bbl]
