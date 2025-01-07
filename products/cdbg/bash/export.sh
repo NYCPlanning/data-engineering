@@ -20,6 +20,9 @@ mkdir -p output && (
 
     echo "export cdbg_boroughs.csv ..."
     csv_export cdbg_boroughs cdbg_boroughs
+
+    echo "export cdbg_zap_eligiblity.csv ..."
+    csv_export cdbg_zap_eligiblity cdbg_zap_eligiblity
 )
 
 zip -r output/output.zip output

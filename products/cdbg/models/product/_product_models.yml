@@ -161,3 +161,34 @@ models:
       - name: eligibility
         data_type: string
         tests: [not_null]
+
+  - name: cdbg_zap_eligiblity
+    description: ZAP projects and their Community Development Block Grant (CDBG) eligibility details
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: project_id
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: bbls
+        data_type: string
+        tests: [not_null]
+
+      - name: all_lots_within_quarter_mile_of_eligible_tract
+        data_type: string
+        tests: [not_null]
+
+      - name: all_lots_within_half_mile_of_eligible_tract
+        data_type: string
+        tests: [not_null]
+
+      - name: a_lot_within_quarter_mile_of_eligible_tract
+        data_type: string
+        tests: [not_null]
+
+      - name: a_lot_within_half_mile_of_eligible_tract
+        data_type: string
+        tests: [not_null]
