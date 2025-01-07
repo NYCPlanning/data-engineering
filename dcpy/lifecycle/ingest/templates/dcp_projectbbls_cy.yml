@@ -1,0 +1,49 @@
+id: dcp_projectbbls_cy
+acl: private
+
+attributes:
+  name: HUD Low to Moderate Income Population by Block Group
+  description: >-
+    This dataset has ZAP project bbls for a specific year of project completion. It's useful for
+    determining the Community Development Block Grant (CDBG) eligiblity of projects.
+
+    It's currently generated manually by DCP staff.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcp/dcp_projectbbls_cy/20250106/Multiple BBL CY24 Community Development Block Grant.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: CY24 CDBG
+    dtype:
+      ALL ZAP BBLs: str
+      Validated City Council Districts: str
+
+#columns:
+#- id: Project Id
+#- id: Project Status Start Date
+#- id: Project Status End Date
+#- id: ALL ZAP BBLs
+#- id: Project Name
+#- id: Applicant Type
+#- id: CEQR Complexity
+#- id: ULURP / Non-ULURP
+#- id: System Lead Action
+#- id: Certified/Referred
+#- id: Validated City Council Districts
+#- id: CEQR Type
+#- id: Lead Division
+#- id: Lead Planner
+#- id: Major Initiative
+#- id: Current Milestone
+#- id: Actual Start Date (Current Milestone) (Project Milestone)
+#- id: Project Status
+#- id: Project Brief
+#- id: EAS / EIS
+#- id: Pre-Cert Start Date
+#- id: Borough
+#- id: Last Milestone
+#- id: Last Milestone Date
+#- id: Validated Community Districts
