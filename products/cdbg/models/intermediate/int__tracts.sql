@@ -35,6 +35,23 @@ tracts_calculation AS (
             ELSE (low_mod_income_population / potential_lowmod_population) * 100
         END AS low_mod_income_population_percentage
     FROM tracts
+),
+
+eligibility_calculation AS (
+    SELECT
+        *,
+        low_mod_income_population_percentage >= 51 AND residential_floor_area_percentage >= 50 AS eligibility_flag
+    FROM tracts_calculation
+),
+
+eligibility_labels AS (
+    SELECT
+        *,
+        CASE
+            WHEN eligibility_flag THEN 'CD Eligible'
+            ELSE 'Ineligible'
+        END AS eligibility
+    FROM eligibility_calculation
 )
 
-SELECT * FROM tracts_calculation
+SELECT * FROM eligibility_labels

@@ -89,3 +89,5 @@ models:
   - name: residential_floor_area_percentage
   - name: lowmod_population
   - name: lowmod_population_percentage
+  - name: eligibility_flag
+  - name: eligibility
