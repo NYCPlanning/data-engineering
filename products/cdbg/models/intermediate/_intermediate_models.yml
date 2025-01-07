@@ -15,6 +15,8 @@ models:
   - name: potential_lowmod_population
   - name: lowmod_population
   - name: low_mod_income_population_percentage
+  - name: geom
+    tests: [not_null]
 
 - name: int__block_groups_raw
   description: census block group geoemtries
@@ -91,3 +93,5 @@ models:
   - name: lowmod_population_percentage
   - name: eligibility_flag
   - name: eligibility
+  - name: geom
+    tests: [not_null]

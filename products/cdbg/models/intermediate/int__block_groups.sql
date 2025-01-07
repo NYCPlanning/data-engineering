@@ -2,7 +2,7 @@ WITH lot_block_groups AS (
     SELECT * FROM {{ ref("int__lot_block_groups_details") }}
 ),
 
-block_groups_population AS (
+block_groups AS (
     SELECT * FROM {{ ref("int__block_groups_raw") }}
 ),
 
@@ -12,17 +12,18 @@ block_groups_income AS (
 
 block_groups_demographics AS (
     SELECT
-        block_groups_population.geoid,
-        block_groups_population.borough_code,
-        block_groups_population.borough_name,
+        block_groups.geoid,
+        block_groups.borough_code,
+        block_groups.borough_name,
+        block_groups.geom,
         block_groups_income.tract,
         block_groups_income.block_group,
         block_groups_income.potential_lowmod_population,
         block_groups_income.low_mod_income_population,
         block_groups_income.low_mod_income_population_percentage
-    FROM block_groups_population
+    FROM block_groups
     LEFT JOIN block_groups_income
-        ON block_groups_population.geoid = block_groups_income.geoid
+        ON block_groups.geoid = block_groups_income.geoid
 ),
 
 block_groups_floor_area AS (
@@ -50,7 +51,8 @@ block_group_details AS (
         END AS residential_floor_area_percentage,
         block_groups_demographics.potential_lowmod_population,
         block_groups_demographics.low_mod_income_population,
-        block_groups_demographics.low_mod_income_population_percentage
+        block_groups_demographics.low_mod_income_population_percentage,
+        block_groups_demographics.geom
     FROM block_groups_floor_area
     LEFT JOIN block_groups_demographics
         ON block_groups_floor_area.geoid = block_groups_demographics.geoid

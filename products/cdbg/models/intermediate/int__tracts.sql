@@ -13,7 +13,8 @@ tracts AS (
         sum(total_floor_area) AS total_floor_area,
         sum(residential_floor_area) AS residential_floor_area,
         sum(potential_lowmod_population) AS potential_lowmod_population,
-        sum(low_mod_income_population) AS low_mod_income_population
+        sum(low_mod_income_population) AS low_mod_income_population,
+        st_union(geom) AS geom
     FROM block_groups
     GROUP BY
         tract_id,
