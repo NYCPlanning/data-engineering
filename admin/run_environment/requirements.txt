@@ -35,18 +35,18 @@ beautifulsoup4==4.12.3
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.35.90
+boto3==1.35.92
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs[s3]==1.35.90
+boto3-stubs[s3]==1.35.92
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.35.90
+botocore==1.35.92
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.35.90
+botocore-stubs==1.35.92
     # via boto3-stubs
 bqplot==0.12.44
     # via leafmap
@@ -158,13 +158,13 @@ et-xmlfile==2.0.0
     # via openpyxl
 executing==2.1.0
     # via stack-data
-faker==33.1.0
+faker==33.3.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 filelock==3.16.1
     # via
     #   gdown
     #   virtualenv
-folium==0.19.2
+folium==0.19.3
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   leafmap
@@ -185,9 +185,9 @@ geopandas==1.0.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 geopy==2.4.1
     # via contextily
-gitdb==4.0.11
+gitdb==4.0.12
     # via gitpython
-gitpython==3.1.43
+gitpython==3.1.44
     # via streamlit
 graphviz==0.20.3
     # via
@@ -195,7 +195,7 @@ graphviz==0.20.3
     #   diagrams
 greenlet==3.1.1
     # via sqlalchemy
-identify==2.6.3
+identify==2.6.5
     # via pre-commit
 idna==3.10
     # via requests
@@ -328,12 +328,12 @@ msal==1.23.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 msgpack==1.1.0
     # via mashumaro
-mypy==1.14.0
+mypy==1.14.1
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   openpyxl-stubs
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.35.81
+mypy-boto3-s3==1.35.92
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via mypy
@@ -408,7 +408,7 @@ pathspec==0.12.1
     #   sqlfluff
 pexpect==4.9.0
     # via ipython
-pillow==11.0.0
+pillow==11.1.0
     # via
     #   contextily
     #   matplotlib
@@ -482,7 +482,7 @@ pyjwt[crypto]==2.10.1
     #   pyjwt
 pyogrio==0.10.0
     # via geopandas
-pyparsing==3.2.0
+pyparsing==3.2.1
     # via
     #   matplotlib
     #   rasterio
@@ -581,13 +581,13 @@ rpds-py==0.22.3
     # via
     #   jsonschema
     #   referencing
-ruff==0.8.4
+ruff==0.8.6
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 s3transfer==0.10.4
     # via boto3
 scikit-learn==1.6.0
     # via mapclassify
-scipy==1.14.1
+scipy==1.15.0
     # via
     #   mapclassify
     #   scikit-learn
@@ -601,7 +601,7 @@ six==1.17.0
     # via
     #   isodate
     #   python-dateutil
-smmap==5.0.1
+smmap==5.0.2
     # via gitdb
 snowplow-tracker==1.0.4
     # via dbt-core
@@ -689,7 +689,7 @@ types-python-dateutil==2.9.0.20241206
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-pytz==2024.2.0.20241221
     # via pandas-stubs
-types-pyyaml==6.0.12.20241221
+types-pyyaml==6.0.12.20241230
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-requests==2.32.0.20241016
     # via
@@ -733,7 +733,7 @@ us==3.2.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 usaddress==0.5.11
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-virtualenv==20.28.0
+virtualenv==20.28.1
     # via pre-commit
 watchdog==6.0.0
     # via streamlit
