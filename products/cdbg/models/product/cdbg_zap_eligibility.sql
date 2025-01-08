@@ -1,3 +1,6 @@
+-- Ignore "Line is too long" sqlfluff rule
+-- noqa: disable=LT05
+
 WITH eligibility AS (
     SELECT * FROM {{ ref("int__zap_projects_tracts") }}
 ),
