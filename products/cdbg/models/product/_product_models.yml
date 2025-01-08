@@ -56,6 +56,14 @@ models:
     data_type: decimal
     tests: [ not_null ]
 
+  - name: low_income_population
+    data_type: integer
+    tests: [ not_null ]
+
+  - name: mod_income_population
+    data_type: integer
+    tests: [ not_null ]
+
   - name: eligibility_flag
     data_type: boolean
     tests: [ not_null ]
