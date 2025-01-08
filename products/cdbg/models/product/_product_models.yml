@@ -66,9 +66,6 @@ models:
 
 - name: cdbg_block_groups_excel
   description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
-  config:
-    contract:
-      enforced: true
   columns:
   - name: '"Borough Name"'
   - name: '"Borough Code"'
@@ -138,18 +135,24 @@ models:
       enforced: true
 
   columns:
-  - name: geoid
-    data_type: string
-    tests:
-    - not_null
-    - unique
-
   - name: borough_name
     data_type: string
     tests: [ not_null ]
 
   - name: borough_code
     data_type: integer
+    tests: [ not_null ]
+
+  - name: bct2020
+    data_type: string
+    tests: [ unique, not_null ]
+
+  - name: ct2020
+    data_type: string
+    tests: [ not_null ]
+
+  - name: ctlabel
+    data_type: string
     tests: [ not_null ]
 
   - name: total_floor_area

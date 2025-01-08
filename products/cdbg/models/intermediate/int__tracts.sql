@@ -1,25 +1,37 @@
 WITH block_groups AS (
+    SELECT * FROM {{ ref("int__block_groups") }}
+),
+
+raw_tracts AS (
+    SELECT * FROM {{ ref("stg__census_tracts") }}
+),
+
+grouped_tracts AS (
     SELECT
-        *,
-        left(geoid, -1) AS tract_id
-    FROM {{ ref("int__block_groups") }}
+        left(geoid, -1) AS geoid,
+        sum(total_floor_area) AS total_floor_area,
+        sum(residential_floor_area) AS residential_floor_area,
+        sum(potential_lowmod_population) AS potential_lowmod_population,
+        sum(low_mod_income_population) AS low_mod_income_population
+    FROM block_groups
+    GROUP BY left(geoid, -1)
 ),
 
 tracts AS (
     SELECT
-        tract_id AS geoid,
-        borough_name,
-        borough_code,
-        sum(total_floor_area) AS total_floor_area,
-        sum(residential_floor_area) AS residential_floor_area,
-        sum(potential_lowmod_population) AS potential_lowmod_population,
-        sum(low_mod_income_population) AS low_mod_income_population,
-        st_union(geom) AS geom
-    FROM block_groups
-    GROUP BY
-        tract_id,
-        borough_name,
-        borough_code
+        ct.geoid,
+        ct.borough_name,
+        ct.borough_code,
+        ct.bct2020,
+        ct.ct2020,
+        ct.ctlabel,
+        bg2t.total_floor_area,
+        bg2t.residential_floor_area,
+        bg2t.potential_lowmod_population,
+        bg2t.low_mod_income_population,
+        ct.geom
+    FROM raw_tracts AS ct
+    INNER JOIN grouped_tracts AS bg2t ON ct.geoid = bg2t.geoid
 ),
 
 tracts_calculation AS (
