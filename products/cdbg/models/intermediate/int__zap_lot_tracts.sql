@@ -4,7 +4,7 @@ WITH eligible_tracts AS (
 
 lots AS (
     SELECT * FROM {{ ref('int__zap_lots') }}
-),
+)
 
 SELECT
     lots.project_id,
