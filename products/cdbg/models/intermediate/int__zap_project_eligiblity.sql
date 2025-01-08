@@ -28,7 +28,7 @@ quarter_mile AS (
     SELECT
         projects.project_id,
         projects.project_geom,
-        COALESCE(all_tracts_quarter_mile.geom IS NOT NULL, TRUE) AS contained_quarter_mile
+        COALESCE(all_tracts_quarter_mile.geom IS NOT NULL, FALSE) AS contained_quarter_mile
     FROM projects
     LEFT JOIN all_tracts_quarter_mile
         ON ST_CONTAINS(all_tracts_quarter_mile.geom, projects.project_geom)
@@ -37,7 +37,7 @@ quarter_mile AS (
 quarter_and_half_mile AS (
     SELECT
         quarter_mile.*,
-        COALESCE(all_tracts_half_mile.geom IS NOT NULL, TRUE) AS contained_half_mile
+        COALESCE(all_tracts_half_mile.geom IS NOT NULL, FALSE) AS contained_half_mile
     FROM quarter_mile
     LEFT JOIN all_tracts_half_mile
         ON ST_CONTAINS(all_tracts_half_mile.geom, quarter_mile.project_geom)
