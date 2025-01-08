@@ -13,19 +13,28 @@ mkdir -p output && (
     cp ../build_metadata.json .
     
     echo "export cdbg_block_groups.csv ..."
-    csv_export cdbg_block_groups cdbg_block_groups
+    csv_export cdbg_block_groups
+    
+    echo "export cdbg_block_groups_excel.csv ..."
+    csv_export cdbg_block_groups_excel
 
     echo "export cdbg_tracts.csv ..."
-    csv_export cdbg_tracts cdbg_tracts
+    csv_export cdbg_tracts
+
+    echo "export cdbg_tracts_excel.csv ..."
+    csv_export cdbg_tracts_excel
 
     echo "export cdbg_boroughs.csv ..."
-    csv_export cdbg_boroughs cdbg_boroughs
+    csv_export cdbg_boroughs
+
+    echo "export cdbg_boroughs_excel.csv ..."
+    csv_export cdbg_boroughs_excel
 
     echo "export cdbg_zap_eligibility.csv ..."
-    csv_export cdbg_zap_eligibility cdbg_zap_eligibility
+    csv_export cdbg_zap_eligibility
 
     echo "export cdbg_zap_eligibility_excel.csv ..."
-    csv_export cdbg_zap_eligibility_excel cdbg_zap_eligibility_excel
+    csv_export cdbg_zap_eligibility_excel
 )
 
 zip -r output/output.zip output
