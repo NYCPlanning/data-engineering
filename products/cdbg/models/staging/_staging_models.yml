@@ -22,5 +22,3 @@ models:
           - not_null
           - unique
       - name: bbls
-        tests:
-          - not_null

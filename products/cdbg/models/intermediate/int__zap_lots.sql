@@ -14,6 +14,7 @@ project_bbls AS (
         project_id,
         TRIM(UNNEST(STRING_TO_ARRAY(bbls, ','))) AS bbl
     FROM projects
+    WHERE bbls IS NOT NULL
 ),
 
 zap_lots AS (
