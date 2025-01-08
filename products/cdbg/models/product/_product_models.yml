@@ -169,11 +169,15 @@ models:
       enforced: true
 
   columns:
+  - name: project_row_number
+    data_type: integer
+    tests: [ not_null, unique ]
+
   - name: project_id
     data_type: string
     tests: [ not_null, unique ]
 
-  - name: all_zap_bbls
+  - name: bbls
     data_type: string
 
   - name: distinct_bbls
@@ -194,6 +198,81 @@ models:
   - name: partially_within_half_mile_of_eligible_tract
     data_type: string
     tests: [ not_null ]
+
+  - name: '"Project_Status_Start_Date"'
+    data_type: string
+
+  - name: '"Project_Status_End_Date"'
+    data_type: string
+
+  - name: '"Project_Name"'
+    data_type: string
+
+  - name: '"Applicant_Type"'
+    data_type: string
+
+  - name: '"CEQR_Complexity"'
+    data_type: string
+
+  - name: '"ULURP_/_Non_ULURP"'
+    data_type: string
+
+  - name: '"System_Lead_Action"'
+    data_type: string
+
+  - name: '"ZR_Section_Number"'
+    data_type: string
+
+  - name: '"Certified/Referred"'
+    data_type: string
+
+  - name: '"Validated_City_Council_Districts"'
+    data_type: string
+
+  - name: '"CEQR_Type"'
+    data_type: string
+
+  - name: '"Lead_Agency"'
+    data_type: string
+
+  - name: '"Lead_Division"'
+    data_type: string
+
+  - name: '"Lead_Planner"'
+    data_type: string
+
+  - name: '"Major_Initiative"'
+    data_type: string
+
+  - name: '"Current_Milestone"'
+    data_type: string
+
+  - name: '"Actual_Start_Date_(Current_Milestone)_(Project_Milestone)"'
+    data_type: string
+
+  - name: '"Project_Status"'
+    data_type: string
+
+  - name: '"Project_Brief"'
+    data_type: string
+
+  - name: '"EAS_/_EIS"'
+    data_type: string
+
+  - name: '"Pre_Cert_Start_Date"'
+    data_type: string
+
+  - name: '"Borough"'
+    data_type: string
+
+  - name: '"Last_Milestone"'
+    data_type: string
+
+  - name: '"Last_Milestone_Date"'
+    data_type: string
+
+  - name: '"Validated_Community_Districts"'
+    data_type: string
 
   tests:
     # test expectations of projects being within different buffers
