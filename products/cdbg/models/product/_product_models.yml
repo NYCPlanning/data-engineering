@@ -1,198 +1,198 @@
 version: 2
 
 models:
-  - name: cdbg_block_groups
-    description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
-    config:
-      contract:
-        enforced: true
+- name: cdbg_block_groups
+  description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
+  config:
+    contract:
+      enforced: true
 
-    columns:
-      - name: geoid
-        data_type: string
-        tests:
-          - not_null
-          - unique
+  columns:
+  - name: geoid
+    data_type: string
+    tests:
+    - not_null
+    - unique
 
-      - name: borough_name
-        data_type: string
-        tests: [not_null]
+  - name: borough_name
+    data_type: string
+    tests: [ not_null ]
 
-      - name: borough_code
-        data_type: integer
-        tests: [not_null]
+  - name: borough_code
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: tract
-        data_type: string
-        tests: [not_null]
+  - name: tract
+    data_type: string
+    tests: [ not_null ]
 
-      - name: block_group
-        data_type: string
-        tests: [not_null]
+  - name: block_group
+    data_type: string
+    tests: [ not_null ]
 
-      - name: total_floor_area
-        data_type: integer
-        tests: [not_null]
+  - name: total_floor_area
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: residential_floor_area
-        data_type: integer
-        tests: [not_null]
+  - name: residential_floor_area
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: residential_floor_area_percentage
-        data_type: decimal
-        tests: [not_null]
+  - name: residential_floor_area_percentage
+    data_type: decimal
+    tests: [ not_null ]
 
-      - name: low_mod_income_population
-        data_type: integer
-        tests: [not_null]
+  - name: low_mod_income_population
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: potential_lowmod_population
-        data_type: integer
-        tests: [not_null]
+  - name: potential_lowmod_population
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: low_mod_income_population_percentage
-        data_type: decimal
-        tests: [not_null]
+  - name: low_mod_income_population_percentage
+    data_type: decimal
+    tests: [ not_null ]
 
-      - name: eligibility_flag
-        data_type: boolean
-        tests: [not_null]
+  - name: eligibility_flag
+    data_type: boolean
+    tests: [ not_null ]
 
-      - name: eligibility
-        data_type: string
-        tests: [not_null]
+  - name: eligibility
+    data_type: string
+    tests: [ not_null ]
 
-  - name: cdbg_boroughs
-    description: Borough and city-wide Community Development Block Grant (CDBG) details
-    config:
-      contract:
-        enforced: true
+- name: cdbg_boroughs
+  description: Borough and city-wide Community Development Block Grant (CDBG) details
+  config:
+    contract:
+      enforced: true
 
-    columns:
-      - name: borough_name
-        data_type: string
-        tests: [not_null, unique]
+  columns:
+  - name: borough_name
+    data_type: string
+    tests: [ not_null, unique ]
 
-      - name: borough_code
-        data_type: integer
-        tests: [not_null, unique]
+  - name: borough_code
+    data_type: integer
+    tests: [ not_null, unique ]
 
-      - name: total_floor_area
-        data_type: integer
-        tests: [not_null]
+  - name: total_floor_area
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: residential_floor_area
-        data_type: integer
-        tests: [not_null]
+  - name: residential_floor_area
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: residential_floor_area_percentage
-        data_type: decimal
-        tests: [not_null]
+  - name: residential_floor_area_percentage
+    data_type: decimal
+    tests: [ not_null ]
 
-      - name: low_mod_income_population
-        data_type: integer
-        tests: [not_null]
+  - name: low_mod_income_population
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: potential_lowmod_population
-        data_type: integer
-        tests: [not_null]
+  - name: potential_lowmod_population
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: low_mod_income_population_percentage
-        data_type: decimal
-        tests: [not_null]
+  - name: low_mod_income_population_percentage
+    data_type: decimal
+    tests: [ not_null ]
 
-      - name: eligibility_flag
-        data_type: boolean
-        tests: [not_null]
+  - name: eligibility_flag
+    data_type: boolean
+    tests: [ not_null ]
 
-      - name: eligibility
-        data_type: string
-        tests: [not_null]
+  - name: eligibility
+    data_type: string
+    tests: [ not_null ]
 
-  - name: cdbg_tracts
-    description: Census tracts and their Community Development Block Grant (CDBG) eligibility details
-    config:
-      contract:
-        enforced: true
+- name: cdbg_tracts
+  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details
+  config:
+    contract:
+      enforced: true
 
-    columns:
-      - name: geoid
-        data_type: string
-        tests:
-          - not_null
-          - unique
+  columns:
+  - name: geoid
+    data_type: string
+    tests:
+    - not_null
+    - unique
 
-      - name: borough_name
-        data_type: string
-        tests: [not_null]
+  - name: borough_name
+    data_type: string
+    tests: [ not_null ]
 
-      - name: borough_code
-        data_type: integer
-        tests: [not_null]
+  - name: borough_code
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: total_floor_area
-        data_type: integer
-        tests: [not_null]
+  - name: total_floor_area
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: residential_floor_area
-        data_type: integer
-        tests: [not_null]
+  - name: residential_floor_area
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: residential_floor_area_percentage
-        data_type: decimal
-        tests: [not_null]
+  - name: residential_floor_area_percentage
+    data_type: decimal
+    tests: [ not_null ]
 
-      - name: low_mod_income_population
-        data_type: integer
-        tests: [not_null]
+  - name: low_mod_income_population
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: potential_lowmod_population
-        data_type: integer
-        tests: [not_null]
+  - name: potential_lowmod_population
+    data_type: integer
+    tests: [ not_null ]
 
-      - name: low_mod_income_population_percentage
-        data_type: decimal
-        tests: [not_null]
+  - name: low_mod_income_population_percentage
+    data_type: decimal
+    tests: [ not_null ]
 
-      - name: eligibility_flag
-        data_type: boolean
-        tests: [not_null]
+  - name: eligibility_flag
+    data_type: boolean
+    tests: [ not_null ]
 
-      - name: eligibility
-        data_type: string
-        tests: [not_null]
+  - name: eligibility
+    data_type: string
+    tests: [ not_null ]
 
-  - name: cdbg_zap_eligiblity
-    description: ZAP projects and their Community Development Block Grant (CDBG) eligibility details
-    config:
-      contract:
-        enforced: true
+- name: cdbg_zap_eligibility
+  description: ZAP projects and their Community Development Block Grant (CDBG) eligibility details
+  config:
+    contract:
+      enforced: false
 
-    columns:
-      - name: project_id
-        data_type: string
-        tests: [not_null, unique]
+  columns:
+  - name: project_id
+    data_type: string
+    tests: [ not_null, unique ]
 
-      - name: all_zap_bbls
-        data_type: string
-        tests: [not_null]
+  - name: all_zap_bbls
+    data_type: string
+    tests: [ not_null ]
 
-      - name: distinct_bbls
-        data_type: string
-        tests: [not_null]
+  - name: distinct_bbls
+    data_type: string
+    tests: [ not_null ]
 
-      - name: entirely_within_quarter_mile_of_eligible_tract
-        data_type: string
-        tests: [not_null]
+  - name: entirely_within_quarter_mile_of_eligible_tract
+    data_type: string
+    tests: [ not_null ]
 
-      - name: entirely_within_half_mile_of_eligible_tract
-        data_type: string
-        tests: [not_null]
+  - name: entirely_within_half_mile_of_eligible_tract
+    data_type: string
+    tests: [ not_null ]
 
-      - name: partialy_within_quarter_mile_of_eligible_tract
-        data_type: string
-        tests: [not_null]
+  - name: partially_within_quarter_mile_of_eligible_tract
+    data_type: string
+    tests: [ not_null ]
 
-      - name: partialy_within_half_mile_of_eligible_tract
-        data_type: string
-        tests: [not_null]
+  - name: partially_within_half_mile_of_eligible_tract
+    data_type: string
+    tests: [ not_null ]

@@ -10,8 +10,8 @@ grouped_by_project AS (
             ORDER BY bbl ASC
         ) AS bbls,
         ST_UNION(lot_geom) AS project_geom,
-        ANY(intersects_half_mile) AS partially_within_half_mile_of_eligible_tract,
-        ANY(intersects_quarter_mile) AS partially_within_quarter_mile_of_eligible_tract,
+        BOOL_OR(intersects_half_mile) AS partially_within_half_mile_of_eligible_tract,
+        BOOL_OR(intersects_quarter_mile) AS partially_within_quarter_mile_of_eligible_tract,
         ST_UNION(tract_buffer_half_mile) AS eligibility_buffer_half_mile,
         ST_UNION(tract_buffer_quarter_mile) AS eligibility_buffer_quarter_mile
     FROM lots_to_tracts

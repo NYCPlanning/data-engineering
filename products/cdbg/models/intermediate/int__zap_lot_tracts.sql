@@ -1,3 +1,10 @@
+{{ config(
+    materialized = 'table',
+    indexes=[
+      {'columns': ['project_id', 'bbl']},
+    ]
+) }}
+
 WITH eligible_tracts AS (
     SELECT * FROM {{ ref('int__eligible_tracts') }}
 ),
