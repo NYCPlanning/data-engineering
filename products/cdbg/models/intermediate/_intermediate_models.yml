@@ -139,6 +139,7 @@ models:
   - dbt_utils.unique_combination_of_columns:
       combination_of_columns: [project_id, bbl, geoid, intersection_type]
 
+
 - name: int__zap_lots_eligiblity
   description: ZAP project lots and their eligibility details
   columns:
@@ -153,3 +154,18 @@ models:
   tests:
   - dbt_utils.unique_combination_of_columns:
       combination_of_columns: [project_id, bbl]
+
+- name: int__zap_project_eligiblity
+  description: ZAP projects which are entirely within eligible tracts
+  columns:
+  - name: project_id
+    tests: [not_null, unique]
+  - name: project_geom
+    tests:
+      - not_null:
+          config:
+            severity: warn
+  - name: contained_quarter_mile
+    tests: [not_null]
+  - name: contained_half_mile
+    tests: [not_null]

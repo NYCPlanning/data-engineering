@@ -181,18 +181,18 @@ models:
         data_type: string
         tests: [not_null]
 
-      - name: all_lots_within_quarter_mile_of_eligible_tract
+      - name: entirely_within_quarter_mile_of_eligible_tract
         data_type: string
         tests: [not_null]
 
-      - name: all_lots_within_half_mile_of_eligible_tract
+      - name: entirely_within_half_mile_of_eligible_tract
         data_type: string
         tests: [not_null]
 
-      - name: a_lot_within_quarter_mile_of_eligible_tract
+      - name: partialy_within_quarter_mile_of_eligible_tract
         data_type: string
         tests: [not_null]
 
-      - name: a_lot_within_half_mile_of_eligible_tract
+      - name: partialy_within_half_mile_of_eligible_tract
         data_type: string
         tests: [not_null]
