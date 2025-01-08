@@ -7,7 +7,10 @@ projects_eligibility AS (
 ),
 
 zap_projects AS (
-    SELECT * FROM {{ ref("stg__zap_projects") }}
+    SELECT
+        ROW_NUMBER() OVER () AS project_row_number,
+        *
+    FROM {{ ref("stg__zap_projects") }}
 ),
 
 project_lot_arrays AS (
@@ -80,6 +83,7 @@ original_order AS (
     FROM zap_projects
     LEFT JOIN eligiblity
         ON zap_projects.project_id = eligiblity.project_id
+    ORDER BY project_row_number ASC
 )
 
 SELECT * FROM original_order
