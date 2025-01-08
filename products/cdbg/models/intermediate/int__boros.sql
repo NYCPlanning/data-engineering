@@ -18,8 +18,13 @@ boros AS (
 
 boro_calculation AS (
     SELECT
-        *,
+        borough_name,
+        borough_code,
+        total_floor_area,
+        residential_floor_area,
         (residential_floor_area / total_floor_area) * 100 AS residential_floor_area_percentage,
+        potential_lowmod_population,
+        low_mod_income_population,
         (low_mod_income_population / potential_lowmod_population) * 100 AS low_mod_income_population_percentage
     FROM boros
 )
