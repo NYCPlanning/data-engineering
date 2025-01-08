@@ -8,12 +8,6 @@ models:
       enforced: true
 
   columns:
-  - name: geoid
-    data_type: string
-    tests:
-    - not_null
-    - unique
-
   - name: borough_name
     data_type: string
     tests: [ not_null ]
@@ -22,13 +16,21 @@ models:
     data_type: integer
     tests: [ not_null ]
 
-  - name: tract
+  - name: bct2020
+    data_type: string
+    tests: [ not_null ]
+
+  - name: ct2020
     data_type: string
     tests: [ not_null ]
 
   - name: block_group
     data_type: string
     tests: [ not_null ]
+
+  - name: bctbg2020
+    data_type: string
+    tests: [ unique, not_null ]
 
   - name: total_floor_area
     data_type: integer
@@ -42,11 +44,11 @@ models:
     data_type: decimal
     tests: [ not_null ]
 
-  - name: low_mod_income_population
+  - name: potential_lowmod_population
     data_type: integer
     tests: [ not_null ]
 
-  - name: potential_lowmod_population
+  - name: low_mod_income_population
     data_type: integer
     tests: [ not_null ]
 
@@ -61,6 +63,23 @@ models:
   - name: eligibility
     data_type: string
     tests: [ not_null ]
+
+- name: cdbg_block_groups_excel
+  description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
+  columns:
+  - name: '"Borough Name"'
+  - name: '"Borough Code"'
+  - name: '"BoroCT"'
+  - name: '"Census Tract Long"'
+  - name: '"Block Group"'
+  - name: '"BoroCTBG"'
+  - name: '"Total Floor Area"'
+  - name: '"Total Residential Floor Area"'
+  - name: '"% of Floor Area Residential"'
+  - name: '"Total Population"'
+  - name: '"Number of Low-/ Moderate-Income Persons"'
+  - name: '"% of Low-/ Moderate-Income Persons"'
+  - name: '"Eligibility"'
 
 - name: cdbg_boroughs
   description: Borough and city-wide Community Development Block Grant (CDBG) details
@@ -75,14 +94,14 @@ models:
 
   - name: borough_code
     data_type: integer
-    tests: [ not_null, unique ]
+    tests: [ unique ]
 
   - name: total_floor_area
-    data_type: integer
+    data_type: bigint
     tests: [ not_null ]
 
   - name: residential_floor_area
-    data_type: integer
+    data_type: bigint
     tests: [ not_null ]
 
   - name: residential_floor_area_percentage
@@ -90,24 +109,28 @@ models:
     tests: [ not_null ]
 
   - name: low_mod_income_population
-    data_type: integer
+    data_type: bigint
     tests: [ not_null ]
 
   - name: potential_lowmod_population
-    data_type: integer
+    data_type: bigint
     tests: [ not_null ]
 
   - name: low_mod_income_population_percentage
     data_type: decimal
     tests: [ not_null ]
 
-  - name: eligibility_flag
-    data_type: boolean
-    tests: [ not_null ]
-
-  - name: eligibility
-    data_type: string
-    tests: [ not_null ]
+- name: cdbg_boroughs_excel
+  description: Borough and city-wide Community Development Block Grant (CDBG) details
+  columns:
+  - name: '"Borough Name"'
+  - name: '"Borough Code"'
+  - name: '"Total Floor Area"'
+  - name: '"Total Residential Floor Area"'
+  - name: '"% of Floor Area Residential"'
+  - name: '"Total Population"'
+  - name: '"Number of Low-/ Moderate-Income Persons"'
+  - name: '"% of Low-/ Moderate-Income Persons"'
 
 - name: cdbg_tracts
   description: Census tracts and their Community Development Block Grant (CDBG) eligibility details
@@ -116,18 +139,24 @@ models:
       enforced: true
 
   columns:
-  - name: geoid
-    data_type: string
-    tests:
-    - not_null
-    - unique
-
   - name: borough_name
     data_type: string
     tests: [ not_null ]
 
   - name: borough_code
     data_type: integer
+    tests: [ not_null ]
+
+  - name: bct2020
+    data_type: string
+    tests: [ unique, not_null ]
+
+  - name: ct2020
+    data_type: string
+    tests: [ not_null ]
+
+  - name: ctlabel
+    data_type: string
     tests: [ not_null ]
 
   - name: total_floor_area
@@ -161,6 +190,22 @@ models:
   - name: eligibility
     data_type: string
     tests: [ not_null ]
+
+- name: cdbg_tracts_excel
+  description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
+  columns:
+  - name: '"Borough Name"'
+  - name: '"Borough Code"'
+  - name: '"BoroCT"'
+  - name: '"Census Tract Long"'
+  - name: '"Census Tract (with decimal)"'
+  - name: '"Total Floor Area"'
+  - name: '"Total Residential Floor Area"'
+  - name: '"% of Floor Area Residential"'
+  - name: '"Total Population"'
+  - name: '"Number of Low-/ Moderate-Income Persons"'
+  - name: '"% of Low-/ Moderate-Income Persons"'
+  - name: '"Eligibility"'
 
 - name: cdbg_zap_eligibility
   description: ZAP projects and their Community Development Block Grant (CDBG) eligibility details

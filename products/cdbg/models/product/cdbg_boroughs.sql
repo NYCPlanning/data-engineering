@@ -2,28 +2,33 @@ WITH boros AS (
     SELECT * FROM {{ ref("int__boros") }}
 ),
 
-eligibility_calculation AS (
+nyc AS (
     SELECT
-        borough_name,
-        borough_code,
-        round(total_floor_area::numeric)::integer AS total_floor_area,
-        round(residential_floor_area::numeric)::integer AS residential_floor_area,
-        round(residential_floor_area_percentage::numeric, 2) AS residential_floor_area_percentage,
-        low_mod_income_population::integer,
-        potential_lowmod_population::integer,
-        round(low_mod_income_population_percentage::numeric, 2) AS low_mod_income_population_percentage,
-        low_mod_income_population_percentage >= 51 AND residential_floor_area_percentage >= 50 AS eligibility_flag
+        'New York City' AS borough_name,
+        NULL::int AS borough_code,
+        SUM(total_floor_area) AS total_floor_area,
+        SUM(residential_floor_area) AS residential_floor_area,
+        SUM(residential_floor_area) / SUM(total_floor_area) * 100 AS residential_floor_area_percentage,
+        SUM(potential_lowmod_population) AS potential_lowmod_population,
+        SUM(low_mod_income_population) AS low_mod_income_population,
+        SUM(low_mod_income_population) / SUM(potential_lowmod_population) * 100 AS low_mod_income_population_percentage
     FROM boros
 ),
 
-eligibility AS (
-    SELECT
-        *,
-        CASE
-            WHEN eligibility_flag THEN 'CD Eligible'
-            ELSE 'Ineligible'
-        END AS eligibility
-    FROM eligibility_calculation
+boros_with_nyc AS (
+    SELECT * FROM nyc
+    UNION ALL
+    SELECT * FROM boros
 )
 
-SELECT * FROM eligibility
+SELECT
+    borough_name,
+    borough_code,
+    (ROUND(total_floor_area::numeric))::bigint AS total_floor_area,
+    (ROUND(residential_floor_area::numeric))::bigint AS residential_floor_area,
+    ROUND(residential_floor_area_percentage::numeric, 2) AS residential_floor_area_percentage,
+    low_mod_income_population::bigint,
+    potential_lowmod_population::bigint,
+    ROUND(low_mod_income_population_percentage::numeric, 2) AS low_mod_income_population_percentage
+FROM boros_with_nyc
+ORDER BY borough_code IS NOT NULL, borough_code

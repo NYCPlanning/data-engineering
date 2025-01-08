@@ -12,10 +12,7 @@ block_groups_income AS (
 
 block_groups_demographics AS (
     SELECT
-        block_groups.geoid,
-        block_groups.borough_code,
-        block_groups.borough_name,
-        block_groups.geom,
+        block_groups.*,
         block_groups_income.tract,
         block_groups_income.block_group,
         block_groups_income.potential_lowmod_population,
@@ -37,22 +34,14 @@ block_groups_floor_area AS (
 
 block_group_details AS (
     SELECT
-        block_groups_floor_area.geoid,
-        block_groups_demographics.borough_name,
-        block_groups_demographics.borough_code,
-        block_groups_demographics.tract,
-        block_groups_demographics.block_group,
+        block_groups_demographics.*,
         block_groups_floor_area.total_floor_area,
         block_groups_floor_area.residential_floor_area,
         CASE
             WHEN block_groups_floor_area.total_floor_area = 0
                 THEN 0
             ELSE (block_groups_floor_area.residential_floor_area / block_groups_floor_area.total_floor_area) * 100
-        END AS residential_floor_area_percentage,
-        block_groups_demographics.potential_lowmod_population,
-        block_groups_demographics.low_mod_income_population,
-        block_groups_demographics.low_mod_income_population_percentage,
-        block_groups_demographics.geom
+        END AS residential_floor_area_percentage
     FROM block_groups_floor_area
     LEFT JOIN block_groups_demographics
         ON block_groups_floor_area.geoid = block_groups_demographics.geoid
