@@ -1,7 +1,8 @@
 SELECT
-    geoid,
-    borough_name,
-    borough_code,
+    borough_name AS "Borough Name",
+    '' AS "BoroCT",
+    '' AS "Census Tract Long",
+    '' AS "Census Tract (with decimal)",
     round(total_floor_area::numeric)::integer AS total_floor_area,
     round(residential_floor_area::numeric)::integer AS residential_floor_area,
     round(residential_floor_area_percentage::numeric, 2) AS residential_floor_area_percentage,

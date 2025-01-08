@@ -8,57 +8,56 @@ models:
       enforced: true
 
   columns:
-  - name: geoid
-    data_type: string
-    tests:
-    - not_null
-    - unique
-
-  - name: borough_name
+  - name: '"Borough Name"'
     data_type: string
     tests: [ not_null ]
 
-  - name: borough_code
+  - name: '"Borough Code"'
     data_type: integer
     tests: [ not_null ]
 
-  - name: tract
+  - name: '"BoroCT"'
     data_type: string
     tests: [ not_null ]
 
-  - name: block_group
+  - name: '"Census Tract Long"'
     data_type: string
     tests: [ not_null ]
 
-  - name: total_floor_area
+  - name: '"Block Group"'
+    data_type: string
+    tests: [ unique, not_null ]
+
+  - name: '"BoroCTBG"'
+    data_type: string
+    tests: [ unique, not_null ]
+
+  - name: '"Total Floor Area"'
     data_type: integer
     tests: [ not_null ]
 
-  - name: residential_floor_area
+  - name: '"Total Residential Floor Area"'
     data_type: integer
     tests: [ not_null ]
 
-  - name: residential_floor_area_percentage
+  - name: '"% of Floor Area Residential"'
     data_type: decimal
     tests: [ not_null ]
 
-  - name: low_mod_income_population
+  - name: '"Total Population"'
+    description: Potential number of low-/ moderate-income persons
     data_type: integer
     tests: [ not_null ]
 
-  - name: potential_lowmod_population
+  - name: '"Number of Low-/ Moderate-Income Persons"'
     data_type: integer
     tests: [ not_null ]
 
-  - name: low_mod_income_population_percentage
+  - name: '"% of Low-/ Moderate-Income Persons"'
     data_type: decimal
     tests: [ not_null ]
 
-  - name: eligibility_flag
-    data_type: boolean
-    tests: [ not_null ]
-
-  - name: eligibility
+  - name: '"Eligibility"'
     data_type: string
     tests: [ not_null ]
 

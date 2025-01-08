@@ -12,13 +12,17 @@ WITH census_blocks AS (
 
 SELECT
     block_group_geoid AS geoid,
+    bctbg2020,
     borough_code,
     borough_name,
+    bct2020,
     ct2020,
     st_union(geom) AS geom
 FROM census_blocks
 GROUP BY
     block_group_geoid,
+    bctbg2020,
     borough_code,
     borough_name,
+    bct2020,
     ct2020
