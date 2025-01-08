@@ -194,3 +194,28 @@ models:
   - name: partially_within_half_mile_of_eligible_tract
     data_type: string
     tests: [ not_null ]
+
+  tests:
+    # test expectations of projects being within different buffers
+    - dbt_utils.expression_is_true:
+        name: entirely_both
+        expression: entirely_within_half_mile_of_eligible_tract = 'Yes'
+        config:
+          where: entirely_within_quarter_mile_of_eligible_tract = 'Yes'
+
+        name: partially_both
+        expression: partially_within_half_mile_of_eligible_tract = 'Yes'
+        config:
+          where: partially_within_quarter_mile_of_eligible_tract = 'Yes'
+
+    - dbt_utils.expression_is_true:
+        name: entirely_partially_quarter_mile
+        expression: partially_within_quarter_mile_of_eligible_tract = 'Yes'
+        config:
+          where: entirely_within_quarter_mile_of_eligible_tract = 'Yes'
+
+    - dbt_utils.expression_is_true:
+        name: entirely_partially_half_mile
+        expression: partially_within_half_mile_of_eligible_tract = 'Yes'
+        config:
+          where: entirely_within_half_mile_of_eligible_tract = 'Yes'
