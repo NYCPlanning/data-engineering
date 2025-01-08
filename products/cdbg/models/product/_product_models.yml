@@ -8,58 +8,81 @@ models:
       enforced: true
 
   columns:
+  - name: borough_name
+    data_type: string
+    tests: [ not_null ]
+
+  - name: borough_code
+    data_type: integer
+    tests: [ not_null ]
+
+  - name: bct2020
+    data_type: string
+    tests: [ not_null ]
+
+  - name: ct2020
+    data_type: string
+    tests: [ not_null ]
+
+  - name: block_group
+    data_type: string
+    tests: [ not_null ]
+
+  - name: bctbg2020
+    data_type: string
+    tests: [ unique, not_null ]
+
+  - name: total_floor_area
+    data_type: integer
+    tests: [ not_null ]
+
+  - name: residential_floor_area
+    data_type: integer
+    tests: [ not_null ]
+
+  - name: residential_floor_area_percentage
+    data_type: decimal
+    tests: [ not_null ]
+
+  - name: potential_lowmod_population
+    data_type: integer
+    tests: [ not_null ]
+
+  - name: low_mod_income_population
+    data_type: integer
+    tests: [ not_null ]
+
+  - name: low_mod_income_population_percentage
+    data_type: decimal
+    tests: [ not_null ]
+
+  - name: eligibility_flag
+    data_type: boolean
+    tests: [ not_null ]
+
+  - name: eligibility
+    data_type: string
+    tests: [ not_null ]
+
+- name: cdbg_block_groups_excel
+  description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
+  config:
+    contract:
+      enforced: true
+  columns:
   - name: '"Borough Name"'
-    data_type: string
-    tests: [ not_null ]
-
   - name: '"Borough Code"'
-    data_type: integer
-    tests: [ not_null ]
-
   - name: '"BoroCT"'
-    data_type: string
-    tests: [ not_null ]
-
   - name: '"Census Tract Long"'
-    data_type: string
-    tests: [ not_null ]
-
   - name: '"Block Group"'
-    data_type: string
-    tests: [ unique, not_null ]
-
   - name: '"BoroCTBG"'
-    data_type: string
-    tests: [ unique, not_null ]
-
   - name: '"Total Floor Area"'
-    data_type: integer
-    tests: [ not_null ]
-
   - name: '"Total Residential Floor Area"'
-    data_type: integer
-    tests: [ not_null ]
-
   - name: '"% of Floor Area Residential"'
-    data_type: decimal
-    tests: [ not_null ]
-
   - name: '"Total Population"'
-    description: Potential number of low-/ moderate-income persons
-    data_type: integer
-    tests: [ not_null ]
-
   - name: '"Number of Low-/ Moderate-Income Persons"'
-    data_type: integer
-    tests: [ not_null ]
-
   - name: '"% of Low-/ Moderate-Income Persons"'
-    data_type: decimal
-    tests: [ not_null ]
-
   - name: '"Eligibility"'
-    data_type: string
-    tests: [ not_null ]
 
 - name: cdbg_boroughs
   description: Borough and city-wide Community Development Block Grant (CDBG) details
