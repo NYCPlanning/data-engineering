@@ -1,3 +1,6 @@
+-- Ignore "Line is too long" sqlfluff rule
+-- noqa: disable=LT05
+
 SELECT
     project_id AS "Project ID",
     "Project_Status_Start_Date" AS "Project Status Start Date",
