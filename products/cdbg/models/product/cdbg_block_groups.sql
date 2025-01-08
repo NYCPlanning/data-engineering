@@ -27,3 +27,4 @@ SELECT
         ELSE 'Ineligible'
     END AS eligibility
 FROM renamed
+ORDER BY bctbg2020

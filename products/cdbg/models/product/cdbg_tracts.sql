@@ -13,3 +13,4 @@ SELECT
     eligibility_flag,
     eligibility
 FROM {{ ref("int__tracts") }}
+ORDER BY bct2020
