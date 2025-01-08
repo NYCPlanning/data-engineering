@@ -173,7 +173,11 @@ models:
         data_type: string
         tests: [not_null, unique]
 
-      - name: bbls
+      - name: all_zap_bbls
+        data_type: string
+        tests: [not_null]
+
+      - name: distinct_bbls
         data_type: string
         tests: [not_null]
 
