@@ -17,6 +17,8 @@ block_groups_demographics AS (
         block_groups_income.block_group,
         block_groups_income.potential_lowmod_population,
         block_groups_income.low_mod_income_population,
+        block_groups_income.low_income_population,
+        block_groups_income.mod_income_population,
         block_groups_income.low_mod_income_population_percentage
     FROM block_groups
     LEFT JOIN block_groups_income

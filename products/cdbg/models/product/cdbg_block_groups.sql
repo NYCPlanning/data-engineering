@@ -16,6 +16,8 @@ renamed AS (
         potential_lowmod_population::integer,
         low_mod_income_population::integer,
         round(low_mod_income_population_percentage::numeric, 2) AS low_mod_income_population_percentage,
+        low_income_population::integer,
+        mod_income_population::integer,
         low_mod_income_population_percentage >= 51 AND residential_floor_area_percentage >= 50 AS eligibility_flag
     FROM block_groups
 )
@@ -27,3 +29,4 @@ SELECT
         ELSE 'Ineligible'
     END AS eligibility
 FROM renamed
+ORDER BY bctbg2020

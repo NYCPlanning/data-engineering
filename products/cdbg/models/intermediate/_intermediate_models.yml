@@ -13,8 +13,10 @@ models:
   - name: residential_floor_area
   - name: residential_floor_area_percentage
   - name: potential_lowmod_population
-  - name: lowmod_population
+  - name: low_mod_income_population
   - name: low_mod_income_population_percentage
+  - name: low_income_population
+  - name: mod_income_population
   - name: geom
     tests: [ not_null ]
 

@@ -15,5 +15,7 @@ SELECT
     potential_lowmod_population AS "Total Population",
     low_mod_income_population AS "Number of Low-/ Moderate-Income Persons",
     low_mod_income_population_percentage AS "% of Low-/ Moderate-Income Persons",
+    low_income_population AS "Low-Income",
+    mod_income_population AS "Moderate-Income",
     eligibility AS "Eligibility"
 FROM block_groups
