@@ -3,6 +3,7 @@ import numpy as np
 import re
 
 import pandas as pd
+import geopandas as gpd
 
 
 def hash_each_row(df: pd.DataFrame) -> pd.DataFrame:
@@ -12,13 +13,19 @@ def hash_each_row(df: pd.DataFrame) -> pd.DataFrame:
     ----------
     df: input dataframe
     """
-    df["temp_column"] = df.astype(str).values.sum(axis=1)
+    geom_column: str | None = (
+        df.geometry.name if isinstance(df, gpd.GeoDataFrame) else None
+    )
 
-    def hash_helper(x):
-        return hashlib.md5(x.encode("utf-8")).hexdigest()
+    def hash_helper(row):
+        if geom_column:
+            geom_string = row[geom_column].wkt if row[geom_column] else "None"
+            s = geom_string + row.drop(geom_column).astype(str).values.sum()
+        else:
+            s = row.astype(str).values.sum()
+        return hashlib.md5(s.encode("utf-8")).hexdigest()
 
-    df["uid"] = df["temp_column"].apply(hash_helper)
-    del df["temp_column"]
+    df["uid"] = df.apply(hash_helper, axis=1)
     cols = list(df.columns)
     cols.remove("uid")
     cols = ["uid"] + cols
