@@ -78,9 +78,9 @@ class TestVersionStrategies(TestCase):
             pin_to_source_dataset=source_dataset
         )
         source_dataset_record = self.recipe.inputs.datasets[1]
-        assert (
-            source_dataset_record.id == source_dataset
-        ), "test setup error - check order of source datasets in recipe.yml"
+        assert source_dataset_record.id == source_dataset, (
+            "test setup error - check order of source datasets in recipe.yml"
+        )
         assert plan.resolve_version(self.recipe) == source_dataset_record.version
 
     def test_pin_to_source_dataset_version_env_var(self):
@@ -131,13 +131,13 @@ class TestRecipesWithDefaults(TestCase):
             ds for ds in planned.inputs.datasets if ds.id == "has_no_version_or_type"
         ][0]
 
-        assert (
-            had_no_version_or_type.version == MOCKED_LATEST_VERSION
-        ), "The missing version strategy should be applied \
+        assert had_no_version_or_type.version == MOCKED_LATEST_VERSION, (
+            "The missing version strategy should be applied \
             to find the latest version for this dataset."
-        assert (
-            had_no_version_or_type.file_type == recipes.DatasetType.csv
-        ), "The datatype should default to a csv, as specified in the dataset_defaults"
+        )
+        assert had_no_version_or_type.file_type == recipes.DatasetType.csv, (
+            "The datatype should default to a csv, as specified in the dataset_defaults"
+        )
         assert planned.is_resolved, "Dataset is not resolved"
 
 
@@ -196,12 +196,12 @@ class TestRecipeVars(TestCase):
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE, version)
         assert planned.version_type is not None  # sanity check
-        assert (
-            planned.version_type == planned.vars["VERSION_TYPE"]
-        ), "version_type mismatch with recipe.vars"
-        assert (
-            planned.vars["VERSION_TYPE"] == os.environ["VERSION_TYPE"]
-        ), "'version_type' recipe variable mismatch with 'VERSION_TYPE' env variable"
+        assert planned.version_type == planned.vars["VERSION_TYPE"], (
+            "version_type mismatch with recipe.vars"
+        )
+        assert planned.vars["VERSION_TYPE"] == os.environ["VERSION_TYPE"], (
+            "'version_type' recipe variable mismatch with 'VERSION_TYPE' env variable"
+        )
 
 
 def build_metadata_exists(key, file):

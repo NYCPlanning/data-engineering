@@ -33,9 +33,9 @@ from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType
 from dcpy.utils import s3, git, versions, metadata, postgres
 from dcpy.utils.logging import logger
 
-assert (
-    PUBLISHING_BUCKET
-), "'PUBLISHING_BUCKET' must be defined to use edm.publishing connector"
+assert PUBLISHING_BUCKET, (
+    "'PUBLISHING_BUCKET' must be defined to use edm.publishing connector"
+)
 BUCKET = PUBLISHING_BUCKET
 
 BASE_DO_URL = f"https://cloud.digitalocean.com/spaces/{BUCKET}"
@@ -498,9 +498,9 @@ def download_published_version(
 ) -> None:
     output_dir = output_dir or Path(".")
     published_versions = get_published_versions(product=publish_key.product)
-    assert (
-        publish_key.version in published_versions
-    ), f"{publish_key} not found in S3 bucket '{BUCKET}'. Published versions are {published_versions}"
+    assert publish_key.version in published_versions, (
+        f"{publish_key} not found in S3 bucket '{BUCKET}'. Published versions are {published_versions}"
+    )
     s3.download_folder(
         BUCKET,
         f"{publish_key.path}/",

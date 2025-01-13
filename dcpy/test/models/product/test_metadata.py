@@ -50,9 +50,9 @@ def test_org_md_overrides(test_metadata_repo: Path):
         == lion_md.metadata.dataset_defaults.publishing_purpose
     ), "The missing field `publishing_purpose` should use the product-level default"
 
-    assert (
-        pseudo_lots_with_defaults.attributes.agency == agency
-    ), "The field `agency` should use the org-level default"
+    assert pseudo_lots_with_defaults.attributes.agency == agency, (
+        "The field `agency` should use the org-level default"
+    )
 
 
 def test_query_destinations_by_type(lion_md_path: Path):
@@ -109,17 +109,17 @@ def test_product_validation_with_error_product(test_metadata_repo: Path):
     repo.metadata.products.append(PRODUCT_WITH_ERRORS)
 
     validation_errors = repo.validate_metadata()
-    assert (
-        len(validation_errors.keys()) == 1
-    ), "The correct number of products should have errors"
+    assert len(validation_errors.keys()) == 1, (
+        "The correct number of products should have errors"
+    )
 
-    assert (
-        PRODUCT_WITH_ERRORS in validation_errors
-    ), "The correct product should have the errors."
+    assert PRODUCT_WITH_ERRORS in validation_errors, (
+        "The correct product should have the errors."
+    )
     all_dataset_errors = validation_errors[PRODUCT_WITH_ERRORS]
-    assert (
-        len(all_dataset_errors.keys()) == 3
-    ), "The product should report the correct num of errors"
+    assert len(all_dataset_errors.keys()) == 3, (
+        "The product should report the correct num of errors"
+    )
 
     # The following two datasets should have thrown an exception when being
     # instantiated

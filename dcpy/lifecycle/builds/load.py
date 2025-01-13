@@ -97,9 +97,9 @@ def load_source_data(
 
 
 def get_imported_df(load_result: LoadResult, ds_id: str) -> pd.DataFrame:
-    assert (
-        ds_id in load_result.datasets
-    ), f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
+    assert ds_id in load_result.datasets, (
+        f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
+    )
     match load_result.datasets[ds_id].destination:
         case pd.DataFrame() as df:
             return df
@@ -120,9 +120,9 @@ def get_imported_df(load_result: LoadResult, ds_id: str) -> pd.DataFrame:
 
 
 def get_imported_filepath(load_result: LoadResult, ds_id: str) -> Path:
-    assert (
-        ds_id in load_result.datasets
-    ), f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
+    assert ds_id in load_result.datasets, (
+        f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
+    )
     match load_result.datasets[ds_id].destination:
         case Path() as file_path:
             return file_path

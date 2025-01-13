@@ -97,7 +97,7 @@ def pivot_field_name(
 ):
     df = df.rename(
         columns=lambda column_name: re.sub(
-            f"^{ re.escape(field_name) }({regex_or(suffixes)})$", r"\1", column_name
+            f"^{re.escape(field_name)}({regex_or(suffixes)})$", r"\1", column_name
         ),
         errors="raise",
     )

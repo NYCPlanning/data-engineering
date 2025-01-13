@@ -14,12 +14,12 @@ def org_metadata(resources_path: Path):
 def _assert_is_title_subtitle_row(row, comp_def):
     assert row.merge_cells
     title_cell, subtitle_row = row.cells[0].value
-    assert title_cell.value.startswith(
-        comp_def.title
-    ), "The cell should contain the title"
-    assert (
-        subtitle_row.value == comp_def.subtitle
-    ), "The cell should contain the subtitle"
+    assert title_cell.value.startswith(comp_def.title), (
+        "The cell should contain the title"
+    )
+    assert subtitle_row.value == comp_def.subtitle, (
+        "The cell should contain the subtitle"
+    )
 
 
 def _assert_is_image_row(row):
@@ -68,33 +68,33 @@ def test_generating_asset_table(org_metadata: OrgMetadata):
         title_summary_cell, value_cell = row.cells
 
         # Check the Value
-        assert (
-            transit_zones_ds["attributes"][field_name] == value_cell.value
-        ), "The attribute value should be correctly pulled from the dataset"
+        assert transit_zones_ds["attributes"][field_name] == value_cell.value, (
+            "The attribute value should be correctly pulled from the dataset"
+        )
 
         # A little more complicated. Check the title and summary
-        assert 2 == len(
-            title_summary_cell.value
-        ), "the summary cell should have the correct number of subcells"
-        assert (
-            data_dict_entry.summary in title_summary_cell.value[0].value
-        ), "The summary should be the top line"
+        assert 2 == len(title_summary_cell.value), (
+            "the summary cell should have the correct number of subcells"
+        )
+        assert data_dict_entry.summary in title_summary_cell.value[0].value, (
+            "The summary should be the top line"
+        )
 
         extra_description_cell = title_summary_cell.value[1].value
-        assert (
-            data_dict_entry.extra_description in extra_description_cell
-        ), "The field's extra description should be included"
+        assert data_dict_entry.extra_description in extra_description_cell, (
+            "The field's extra description should be included"
+        )
 
         if field_name == "attribution_link":
             found_field_with_third_party_note = True
             extra_note = data_dict_entry.custom["third_party_extra"]
-            assert (
-                extra_note in extra_description_cell
-            ), "The extra description from the third party should be included in the description"
+            assert extra_note in extra_description_cell, (
+                "The extra description from the third party should be included in the description"
+            )
 
-    assert (
-        found_field_with_third_party_note
-    ), "Sanity check that we're actually testing the extra description"
+    assert found_field_with_third_party_note, (
+        "Sanity check that we're actually testing the extra description"
+    )
 
 
 def test_generating_revisions(org_metadata: OrgMetadata):
@@ -126,9 +126,9 @@ def test_generating_revisions(org_metadata: OrgMetadata):
     assert revisions_comp_def.description in summary_row.cells[0].value
     assert len(revisions_comp_def.columns) == len(column_name_row.cells)  # type: ignore
 
-    assert len(transit_zones_ds["revisions"]) == len(
-        revision_rows
-    ), "Sanity check on destructuring above."
+    assert len(transit_zones_ds["revisions"]) == len(revision_rows), (
+        "Sanity check on destructuring above."
+    )
 
 
 def test_column_docs(org_metadata: OrgMetadata):
@@ -158,9 +158,9 @@ def test_column_docs(org_metadata: OrgMetadata):
 
     _assert_is_title_subtitle_row(title_subtitle_row, column_comp_def)
 
-    assert len(transit_zones_ds["columns"]) == len(
-        col_rows
-    ), "There should be the correct number of column rows"
+    assert len(transit_zones_ds["columns"]) == len(col_rows), (
+        "There should be the correct number of column rows"
+    )
 
     assert column_comp_def.columns
     assert "values" in column_comp_def.columns
@@ -171,6 +171,6 @@ def test_column_docs(org_metadata: OrgMetadata):
     values_cell_sample = col_rows[-1].cells[values_col_index]
     # sanity check on that though...
     assert "Manhattan" in values_cell_sample.value
-    assert (
-        abstract_doc.MONOSPACED_FONT == values_cell_sample.style.font.name
-    ), "The values table requires a monospaced font, otherwise the columns won't line up!"
+    assert abstract_doc.MONOSPACED_FONT == values_cell_sample.style.font.name, (
+        "The values table requires a monospaced font, otherwise the columns won't line up!"
+    )

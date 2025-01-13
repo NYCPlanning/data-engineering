@@ -180,14 +180,14 @@ def test_fetch_dataset_cache(load_ingest: ingest.Config, create_temp_filesystem:
 
     with mock.patch("dcpy.utils.s3.download_file") as download_file:
         recipes.fetch_dataset(ds, create_temp_filesystem)
-        assert (
-            download_file.call_count == 0
-        ), "file did not cache properly, fetch_dataset attempted s3 call"
+        assert download_file.call_count == 0, (
+            "file did not cache properly, fetch_dataset attempted s3 call"
+        )
 
         recipes.fetch_dataset(ds, create_temp_filesystem / "dummy_folder")
-        assert (
-            download_file.call_count == 1
-        ), "fetch_dataset was refactored, testing of cache functionality no longer valid"
+        assert download_file.call_count == 1, (
+            "fetch_dataset was refactored, testing of cache functionality no longer valid"
+        )
 
 
 def test_invalid_pd_reader():

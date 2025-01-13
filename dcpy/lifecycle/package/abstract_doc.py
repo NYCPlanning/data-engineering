@@ -315,9 +315,9 @@ def construct_component(
                 dataset=dataset,
             )
 
-            assert (
-                component_def.columns
-            ), "Columns must be specified for list_table type."
+            assert component_def.columns, (
+                "Columns must be specified for list_table type."
+            )
             column_headers = []
             column_descriptions = []
             style_overrides = {}

@@ -67,9 +67,9 @@ def read_data_to_df(
             zipped_filename=local_data_path, output_dir=extracted_files_dir
         )
 
-        assert (
-            unzipped_filename in unzipped_files
-        ), f"❌ {unzipped_filename} is not present in unzipped files after extraction. Aborting..."
+        assert unzipped_filename in unzipped_files, (
+            f"❌ {unzipped_filename} is not present in unzipped files after extraction. Aborting..."
+        )
 
         local_data_path = unzipped_file_path
 
@@ -155,9 +155,9 @@ def unzip_file(zipped_filename: Path, output_dir: Path) -> set[str]:
         AssertionError: If the zip archive does not exist.
     """
 
-    assert (
-        zipped_filename.exists()
-    ), f"❌ Provided path {zipped_filename} to zipped file wasn't found. Try again"
+    assert zipped_filename.exists(), (
+        f"❌ Provided path {zipped_filename} to zipped file wasn't found. Try again"
+    )
 
     with zipfile.ZipFile(zipped_filename, "r") as zip_ref:
         zip_ref.extractall(output_dir)

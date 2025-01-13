@@ -65,7 +65,7 @@ class Median:
             W = self.ranges[self.ordered[i]][1] - self.ranges[self.ordered[i]][0]
             logging.debug(
                 "\n================================="
-                f"\nC_{i-1}: Cumulative frequency up to bin below N/2: {C}"
+                f"\nC_{i - 1}: Cumulative frequency up to bin below N/2: {C}"
                 f"\nL_{i}: Lower boundary of median group: {L}"
                 f"\nF_{i}: Frequency within median group: {F}"
                 f"\nW_{i}: Width of median group: {W}"

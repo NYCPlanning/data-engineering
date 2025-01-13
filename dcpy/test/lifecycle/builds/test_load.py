@@ -60,9 +60,9 @@ class TestImportDatasets(TestCase):
         )
         load.import_dataset(ds, pg_mock)
 
-        assert (
-            pg_mock.insert_dataframe.called
-        ), "PostgresClient.insert_dataframe should be called"
+        assert pg_mock.insert_dataframe.called, (
+            "PostgresClient.insert_dataframe should be called"
+        )
 
         # Verify the values that PostgresClient.insert_dataframe was called with
         (
@@ -85,9 +85,9 @@ class TestImportDatasets(TestCase):
         )
         load.import_dataset(ds, pg_mock)
 
-        assert (
-            pg_mock.import_pg_dump.called
-        ), "PostgresClient.import_pg_dump should be called"
+        assert pg_mock.import_pg_dump.called, (
+            "PostgresClient.import_pg_dump should be called"
+        )
 
     @patch("dcpy.connectors.edm.recipes.fetch_dataset", side_effect=_mock_fetch_parquet)
     def test_import_parquet(self, fetch):

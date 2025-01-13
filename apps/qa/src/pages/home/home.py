@@ -40,10 +40,10 @@ def display_blog():
         {CSS}
         </style>
         <div class="blog-card">
-        <img src="{post['thumbnail']}" alt="Avatar" style="width:100%;">
+        <img src="{post["thumbnail"]}" alt="Avatar" style="width:100%;">
             <div class="container">
-                <a href="{post['link']}"><h4><b>{post['title']}</b></h4></a>
-                <p>By {post['author']}</p>
+                <a href="{post["link"]}"><h4><b>{post["title"]}</b></h4></a>
+                <p>By {post["author"]}</p>
             </div>
         </div>
         """,

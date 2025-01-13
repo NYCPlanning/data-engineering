@@ -23,11 +23,11 @@ def health_diabetes(geography: str, write_to_internal_review=False):
     clean_df["pct"] = clean_df[COLUMN_MAPPINGS["percent_diabetes"]]
 
     clean_df["lower_pct_moe"] = (
-        clean_df[f'{COLUMN_MAPPINGS["percent_diabetes"]}_{COLUMN_MAPPINGS["ci_lower"]}']
+        clean_df[f"{COLUMN_MAPPINGS['percent_diabetes']}_{COLUMN_MAPPINGS['ci_lower']}"]
         - clean_df["pct"]
     )
     clean_df["upper_pct_moe"] = (
-        clean_df[f'{COLUMN_MAPPINGS["percent_diabetes"]}_{COLUMN_MAPPINGS["ci_upper"]}']
+        clean_df[f"{COLUMN_MAPPINGS['percent_diabetes']}_{COLUMN_MAPPINGS['ci_upper']}"]
         - clean_df["pct"]
     )
 
@@ -48,13 +48,13 @@ def health_self_reported(geography: str, write_to_internal_review=False):
 
     clean_df["lower_pct_moe"] = (
         clean_df[
-            f'{COLUMN_MAPPINGS["percent_self_report"]}_{COLUMN_MAPPINGS["ci_lower"]}'
+            f"{COLUMN_MAPPINGS['percent_self_report']}_{COLUMN_MAPPINGS['ci_lower']}"
         ]
         - clean_df["pct"]
     )
     clean_df["upper_pct_moe"] = (
         clean_df[
-            f'{COLUMN_MAPPINGS["percent_self_report"]}_{COLUMN_MAPPINGS["ci_upper"]}'
+            f"{COLUMN_MAPPINGS['percent_self_report']}_{COLUMN_MAPPINGS['ci_upper']}"
         ]
         - clean_df["pct"]
     )

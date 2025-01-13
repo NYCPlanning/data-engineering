@@ -118,21 +118,21 @@ def test_invalid_standardized_values():
     fake_ds.loc[2:, "Owner type"] = INVALID_OWNERSHIP_VALUES[2]
 
     errors = validate.validate_df(fake_ds, metadata.columns)
-    assert (
-        len(errors) == 1
-    ), "One error should have been found for invalid standardized values"
+    assert len(errors) == 1, (
+        "One error should have been found for invalid standardized values"
+    )
 
     # Assert that the error message should mention the invalid values with their counts
     result_msg = errors[0].message
-    assert (
-        f"'{INVALID_OWNERSHIP_VALUES[0]}': 1," in result_msg
-    ), "The error message should include the invalid value and count"
-    assert (
-        f"'{INVALID_OWNERSHIP_VALUES[1]}': 1," in result_msg
-    ), "The error message should include the invalid value and count"
-    assert (
-        f"'{INVALID_OWNERSHIP_VALUES[2]}': {ROW_COUNT - 2}" in result_msg
-    ), "The error message should include the invalid value and count"
+    assert f"'{INVALID_OWNERSHIP_VALUES[0]}': 1," in result_msg, (
+        "The error message should include the invalid value and count"
+    )
+    assert f"'{INVALID_OWNERSHIP_VALUES[1]}': 1," in result_msg, (
+        "The error message should include the invalid value and count"
+    )
+    assert f"'{INVALID_OWNERSHIP_VALUES[2]}': {ROW_COUNT - 2}" in result_msg, (
+        "The error message should include the invalid value and count"
+    )
 
 
 def test_standardized_values_with_nulls():
@@ -142,9 +142,9 @@ def test_standardized_values_with_nulls():
     fake_ds.loc[0, "Nullable Owner type"] = ""
 
     errors = validate.validate_df(fake_ds, metadata.columns)
-    assert (
-        not errors
-    ), "No errors should have been found for invalid standardized values"
+    assert not errors, (
+        "No errors should have been found for invalid standardized values"
+    )
 
 
 def test_non_nullable_bbls():
@@ -156,9 +156,9 @@ def test_non_nullable_bbls():
     errors = validate.validate_df(fake_ds, metadata.columns)
     assert len(errors) == 1, "One error should have been found"
 
-    assert (
-        errors[0].error_type == validate.ErrorType.NULLS_FOUND
-    ), "The error type should be NULLS_FOUND"
+    assert errors[0].error_type == validate.ErrorType.NULLS_FOUND, (
+        "The error type should be NULLS_FOUND"
+    )
 
 
 # TODO: revisit after determining how to specify geometry types in md
@@ -189,10 +189,10 @@ def test_additional_cols_in_source():
     errors = validate.validate_df(fake_ds, metadata.columns)
     assert len(errors) == 1, "One error should have been found"
 
-    assert (
-        errors[0].error_type == validate.ErrorType.COLUMM_MISMATCH
-    ), "The correct error type should be returned"
+    assert errors[0].error_type == validate.ErrorType.COLUMM_MISMATCH, (
+        "The correct error type should be returned"
+    )
 
-    assert (
-        FAKE_COL_NAME in errors[0].message
-    ), "The fake column name should be mentioned in the error message"
+    assert FAKE_COL_NAME in errors[0].message, (
+        "The fake column name should be mentioned in the error message"
+    )

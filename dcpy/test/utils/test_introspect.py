@@ -181,9 +181,9 @@ class TestValidateKwargs:
             and ("c" not in type_e)
             and ("d" not in type_e)
         ), "Supplying wrong types to kwargs_default should error"
-        assert not introspect.validate_kwargs(
-            kwargs_default, self.abc
-        ), "Supplying abc to kwargs_default should not error"
-        assert not introspect.validate_kwargs(
-            kwargs_default, self.abcd
-        ), "Supplying abcd to kwargs_default should not error"
+        assert not introspect.validate_kwargs(kwargs_default, self.abc), (
+            "Supplying abc to kwargs_default should not error"
+        )
+        assert not introspect.validate_kwargs(kwargs_default, self.abcd), (
+            "Supplying abcd to kwargs_default should not error"
+        )

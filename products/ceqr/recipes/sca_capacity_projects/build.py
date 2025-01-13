@@ -49,7 +49,7 @@ def _import() -> pd.DataFrame:
                 )
             old_value = old_values[0]
             print(
-                f"""Correcting '{field}' for school ('{record['school']}', ''{record['borough']}')
+                f"""Correcting '{field}' for school ('{record["school"]}', ''{record["borough"]}')
                 from {old_value}
                 to {record[field].upper()}"""
             )

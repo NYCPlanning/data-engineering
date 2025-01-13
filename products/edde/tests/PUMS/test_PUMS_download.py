@@ -32,21 +32,21 @@ def test_PUMS_download(all_data: bool, local_loader):
 def test_PUMS_includes_replicate_weights(local_loader):
     """The full query doesn't work yet so first test limited PUMAs.
     Test that PUMS download gets correct columns"""
-    assert (
-        "PWGTP" in local_loader.by_person.columns
-    ), "Person weights column not present"
+    assert "PWGTP" in local_loader.by_person.columns, (
+        "Person weights column not present"
+    )
     for i in range(1, 81):
-        assert (
-            f"PWGTP{i}" in local_loader.by_person.columns
-        ), f"Replicate weight {i} not present"
+        assert f"PWGTP{i}" in local_loader.by_person.columns, (
+            f"Replicate weight {i} not present"
+        )
 
 
 @pytest.mark.parametrize("local_loader", local_loaders)
 @pytest.mark.test_download
 def test_PUMA_column_present(local_loader):
-    assert (
-        "PUMA" in local_loader.by_person.columns.str.upper()
-    ), "PUMA column not present"
+    assert "PUMA" in local_loader.by_person.columns.str.upper(), (
+        "PUMA column not present"
+    )
 
 
 @pytest.mark.parametrize("local_loader", local_loaders)
