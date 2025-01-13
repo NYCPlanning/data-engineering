@@ -1,8 +1,9 @@
 name: Compile python requirements
 on:
-  schedule: 
-  - cron: 0 17 * * SAT
+  schedule:
+  - cron: 0 0 1 * *
   workflow_dispatch:
+
 
 jobs:
   compile_requirements:
@@ -14,38 +15,38 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Install git
-        run: apt-get update && apt-get -y install git
+    - name: Install git
+      run: apt-get update && apt-get -y install git
 
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Compile requirements
-        run: ./admin/ops/python_compile_requirements.sh
+    - name: Compile requirements
+      run: ./admin/ops/python_compile_requirements.sh
 
-      - name: Create PR
-        uses: peter-evans/create-pull-request@v5
-        with:
-          commit-message: automated compiling of python requirements
-          add-paths: admin/run_environment
-          title: Compile python requirements
-          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey, sf-dcp' || '' }}
-          branch: compile_python_reqs
-          token: ${{ secrets.GHP_TOKEN }}
+    - name: Create PR
+      uses: peter-evans/create-pull-request@v5
+      with:
+        commit-message: automated compiling of python requirements
+        add-paths: admin/run_environment
+        title: Compile python requirements
+        author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+        assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey, sf-dcp' || '' }}
+        branch: compile_python_reqs
+        token: ${{ secrets.GHP_TOKEN }}
 
   create_issue_on_failure:
     needs: compile_requirements
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github
-      - name: Create issue on failure
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION: ${{ github.workflow }}
-          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Create issue on failure
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTION: ${{ github.workflow }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
