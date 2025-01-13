@@ -43,10 +43,13 @@ def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
     if check_name not in allowed_check_names:
         raise ValueError(f"Unregistered check name: '{check_name}'.")
 
-    pandera_registered_check = getattr(pa.Check, check_name)
+    # Retrieve constructor for the specified check name from pandera.
+    # The constructor requires check-specific parameters and also accepts **kwargs
+    # for generic parameters shared across all Check objects like "description" attribute
+    check_constructor = getattr(pa.Check, check_name)
 
     if check_args:
-        check_expected_params = signature(pandera_registered_check).parameters
+        check_expected_params = signature(check_constructor).parameters
         invalid_check_keys = set(check_args.args.keys()) - set(
             check_expected_params.keys()
         )
@@ -58,13 +61,13 @@ def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
 
     try:
         check_obj = (
-            pandera_registered_check(
+            check_constructor(
                 **check_args.args,
                 raise_warning=check_args.warn_only,
                 description=check_args.description,
             )
             if check_args
-            else pandera_registered_check()
+            else check_constructor()
         )
     except Exception as e:
         raise ValueError(
