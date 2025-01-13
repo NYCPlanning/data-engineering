@@ -53,7 +53,20 @@ invalid_data_checks = get_invalid_checks()
         ),
         (
             valid_data_checks[2],
-            pa.Check.greater_than(min_value="abc"),
+            pa.Check.greater_than(min_value="abc", raise_warning=False),
+        ),
+        (
+            valid_data_checks[3],
+            pa.Check.greater_than(
+                min_value=1,
+                raise_warning=True,
+                name="greater than",
+                title="My greater than check",
+                n_failure_cases=1,
+                ignore_na=False,
+                groups="col_a",
+                groupby=["col_a", "col_b"],
+            ),
         ),
         # TODO: add custom registered check
     ],

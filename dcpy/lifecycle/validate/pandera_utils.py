@@ -65,6 +65,12 @@ def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
                 **check_args.args,
                 raise_warning=check_args.warn_only,
                 description=check_args.description,
+                name=check_args.name,
+                title=check_args.title,
+                n_failure_cases=check_args.n_failure_cases,
+                groups=check_args.groups,
+                groupby=check_args.groupby,
+                ignore_na=check_args.ignore_na,
             )
             if check_args
             else check_constructor()

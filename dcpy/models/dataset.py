@@ -1,5 +1,5 @@
 from dcpy.models.base import SortedSerializedBase
-from typing import Literal, Any
+from typing import Literal, Any, Callable
 
 from pydantic import field_validator
 
@@ -24,12 +24,24 @@ class Checks(SortedSerializedBase):
 
 class CheckAttributes(SortedSerializedBase, extra="forbid"):
     """
-    Represents constraints and optional metadata for column checks.
+    Defines the settings and parameters for a column data check,
+    aligning with the `pandera.Check` object.
+
+    This class mirrors the `pandera.Check` constructor, where the `args` property
+    holds parameters specific to individual checks (e.g., thresholds or conditions).
+    Additional fields in this class configure options such as whether to raise
+    warnings or how to handle missing data.
     """
 
     args: dict[str, Any]
     description: str | None = None
     warn_only: bool = False
+    name: str | None = None
+    title: str | None = None
+    n_failure_cases: int | None = None
+    groups: str | list[str] | None = None
+    groupby: str | list[str] | Callable | None = None
+    ignore_na: bool = True
 
 
 class Column(SortedSerializedBase, extra="forbid"):

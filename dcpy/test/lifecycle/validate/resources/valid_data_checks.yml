@@ -14,3 +14,15 @@
     args:
       min_value: abc # adding this for visibility. Pandera sees this as a valid check
     warn_only: false
+
+# case for default properties
+- greater_than:
+    args:
+      min_value: 1
+    warn_only: true
+    name: greater than
+    title: My greater than check
+    n_failure_cases: 1
+    ignore_na: false
+    groups: col_a
+    groupby: ["col_a", "col_b"]
