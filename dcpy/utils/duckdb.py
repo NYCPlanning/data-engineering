@@ -10,7 +10,7 @@ def setup_s3_secret():
                 TYPE S3,
                 KEY_ID '{os.environ["AWS_ACCESS_KEY_ID"]}',
                 SECRET '{os.environ["AWS_SECRET_ACCESS_KEY"]}',
-                ENDPOINT '{os.environ["AWS_S3_ENDPOINT"].split('://')[1]}'
+                ENDPOINT '{os.environ["AWS_S3_ENDPOINT"].split("://")[1]}'
             );
         """
     )

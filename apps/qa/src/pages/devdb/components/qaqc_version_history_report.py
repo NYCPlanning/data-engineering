@@ -43,7 +43,7 @@ class QAQCVersionHistoryReport:
         for check in checks:
             st.markdown(
                 f"""
-                 - {check}: {self.qaqc_checks[check]['description']}
+                 - {check}: {self.qaqc_checks[check]["description"]}
                 """
             )
             fig.add_trace(self.generate_trace(check=check, df=df))

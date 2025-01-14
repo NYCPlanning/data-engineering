@@ -25,9 +25,9 @@ class Validator:
 
     def __call__(self):
         assert self.tree_is_valid, "Some fields are not valid. Please review your file"
-        assert (
-            self.has_only_one_source
-        ), "Source can only have one property from either url, socrata or script"
+        assert self.has_only_one_source, (
+            "Source can only have one property from either url, socrata or script"
+        )
 
     # Check that the tree structure fits the specified schema
     @property

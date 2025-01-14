@@ -38,7 +38,7 @@ def get_source_versions() -> dict[str, library.ArchivalMetadata]:
 
 def map_geosupport_version(patched_version: str) -> str:
     major, minor, _ = patched_version.split(".")
-    return f"{major}{chr(int(minor)+96)}"  ## converts 1 to 'a', 2 to 'b', etc
+    return f"{major}{chr(int(minor) + 96)}"  ## converts 1 to 'a', 2 to 'b', etc
 
 
 def get_qaqc_runs(geosupport_version: str) -> dict[str, github.WorkflowRun]:
@@ -96,7 +96,7 @@ def get_geosupport_versions() -> dict[str, str]:
     for image in images:
         if re.match("^\d+\.\d+\.\d+$", image["name"]):
             major, minor, _ = image["name"].split(".")
-            code = f"{major}{chr(int(minor)+96)}"
+            code = f"{major}{chr(int(minor) + 96)}"
             if code not in images_by_code:
                 images_by_code[code] = image["name"]
     return images_by_code

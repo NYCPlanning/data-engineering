@@ -432,9 +432,9 @@ class TestProcessors:
 def test_processing_no_steps(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
     output = create_temp_filesystem / "output.parquet"
-    assert (
-        not output.exists()
-    ), "Error in setup of test - output file should not exist yet"
+    assert not output.exists(), (
+        "Error in setup of test - output file should not exist yet"
+    )
 
     transform.process(TEST_DATASET_NAME, [], [], input, output)
     assert output.exists()
@@ -443,9 +443,9 @@ def test_processing_no_steps(create_temp_filesystem: Path):
 def test_processing(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"
     output = create_temp_filesystem / "output.parquet"
-    assert (
-        not output.exists()
-    ), "Error in setup of test - output file should not exist yet"
+    assert not output.exists(), (
+        "Error in setup of test - output file should not exist yet"
+    )
 
     steps = [
         ProcessingStep(name="sort", args={"by": ["boro_code", "block", "lot"]}),

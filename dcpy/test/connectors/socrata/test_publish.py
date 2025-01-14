@@ -86,9 +86,9 @@ def test_flow_happy_path(mock_dataset, metadata: md.Metadata):
 
     mock_dataset_instance.create_replace_revision.assert_called_once()
 
-    assert (
-        mock_revision.upload_attachment.call_count == 2
-    ), "The correct number of attachments should have uploaded"
+    assert mock_revision.upload_attachment.call_count == 2, (
+        "The correct number of attachments should have uploaded"
+    )
 
     expected_attachment_upload_calls = [
         call(dest_file_name="readme.pdf", path=Path("attachments/readme.pdf")),
@@ -105,9 +105,9 @@ def test_flow_happy_path(mock_dataset, metadata: md.Metadata):
         for f in metadata.get_destination(destination).files
         if f.id == dataset_file_id
     ][0].dataset_overrides.attributes.display_name
-    assert (
-        patch_metadata_args.name == overridden_dataset_name
-    ), "The Metadata's name should be correct in the patch md call"
+    assert patch_metadata_args.name == overridden_dataset_name, (
+        "The Metadata's name should be correct in the patch md call"
+    )
     assert (
         patch_metadata_args.metadata["rowLabel"] == metadata.attributes.each_row_is_a
     ), "`Each Row Is A: `should be set correctly."
@@ -250,9 +250,9 @@ def test_column_reconcilation_missing_columns_error():
     assert err, "An Exception should have been thrown"
     err_data = err.args[0]
 
-    assert (
-        rds.MISSING_COLUMN_ERROR == err_data["type"]
-    ), "The Error type should be correct."
+    assert rds.MISSING_COLUMN_ERROR == err_data["type"], (
+        "The Error type should be correct."
+    )
 
     assert [in_ours_missing_theirs.custom.get("api_name")] == err_data[
         "missing_from_theirs"

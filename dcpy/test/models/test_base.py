@@ -64,12 +64,12 @@ class TestSerialization:
         )
         model._exclude_falsey_values = True
         dumped = model.model_dump(exclude_none=True)
-        assert (
-            "child_to_be_serialized" not in dumped
-        ), "Falsey values should have been excluded from serialization."
-        assert (
-            "a" in dumped
-        ), "The falsey value of 0 should not have been excluded from the model"
+        assert "child_to_be_serialized" not in dumped, (
+            "Falsey values should have been excluded from serialization."
+        )
+        assert "a" in dumped, (
+            "The falsey value of 0 should not have been excluded from the model"
+        )
 
     def test_dumping(self):
         """Tests serializing of simple and complex fields on a subclass, where the sort_order overrides
@@ -89,9 +89,9 @@ class TestSerialization:
 
         dumped = model.model_dump()
 
-        assert (
-            list(dumped.keys()) == expected_key_order
-        ), "The model should serialize with keys in the correct order."
+        assert list(dumped.keys()) == expected_key_order, (
+            "The model should serialize with keys in the correct order."
+        )
 
         assert model.child_to_be_serialized._head_sort_order == list(
             dumped["child_to_be_serialized"].keys()

@@ -45,9 +45,9 @@ def to_parquet(
     dir.mkdir(parents=True, exist_ok=True)
     output_file_path = dir / output_filename
 
-    assert (
-        local_data_path.is_file() or local_data_path.is_dir()
-    ), "Local path should be a valid file or directory"
+    assert local_data_path.is_file() or local_data_path.is_dir(), (
+        "Local path should be a valid file or directory"
+    )
     logger.info(f"✅ Raw data was found locally at {local_data_path}")
 
     gdf = data.read_data_to_df(file_format, local_data_path)

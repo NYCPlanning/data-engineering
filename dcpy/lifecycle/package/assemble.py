@@ -67,9 +67,9 @@ def unzip_into_package(
         unpacked_dir = Path(temp_unpacked_dir) / zip_path.stem
         logger.info(f"Unpacking zip at: {zip_path}, to: {unpacked_dir}")
         shutil.unpack_archive(zip_path, unpacked_dir)
-        assert (
-            unpacked_dir.exists()
-        ), f"Expected {unpacked_dir} to exist. Found {os.listdir(temp_unpacked_dir)}"
+        assert unpacked_dir.exists(), (
+            f"Expected {unpacked_dir} to exist. Found {os.listdir(temp_unpacked_dir)}"
+        )
         logger.info(f"Files in unzipped dir: {os.listdir(unpacked_dir)}")
 
         if zip_path.stem in os.listdir(unpacked_dir):

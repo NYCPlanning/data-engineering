@@ -65,15 +65,15 @@ def output_report(product_key: publishing.ProductKey):
     st.header("Total BBL Counts with Value Changes by Borough")
     st.markdown(
         f"""
-        Bronx: **{total_diff_by_borough.get('2', '0')}**
+        Bronx: **{total_diff_by_borough.get("2", "0")}**
 
-        Brooklyn: **{total_diff_by_borough.get('3', '0')}**
+        Brooklyn: **{total_diff_by_borough.get("3", "0")}**
 
-        Manhattan: **{total_diff_by_borough.get('1', '0')}**
+        Manhattan: **{total_diff_by_borough.get("1", "0")}**
 
-        Queens: **{total_diff_by_borough.get('4', '0')}**
+        Queens: **{total_diff_by_borough.get("4", "0")}**
         
-        Staten Island: **{total_diff_by_borough.get('5', '0')}**
+        Staten Island: **{total_diff_by_borough.get("5", "0")}**
         """
     )
     # TOTAL QAQC DIFF BY BOROUGH =============================

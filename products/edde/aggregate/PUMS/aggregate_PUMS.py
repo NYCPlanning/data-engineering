@@ -112,7 +112,7 @@ class PUMSAggregator(BaseAggregator):
             agg_start = time.perf_counter()
             self.calculate_add_new_variable(ind_denom)
             self.logger.info(
-                f"aggregating {ind_denom[0]} took {time.perf_counter()-agg_start}"
+                f"aggregating {ind_denom[0]} took {time.perf_counter() - agg_start}"
             )
         if order_columns:
             self.aggregated = order_aggregated_columns(

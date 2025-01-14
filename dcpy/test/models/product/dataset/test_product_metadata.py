@@ -207,9 +207,9 @@ def test_filename_override(overridden_socrata_dataset):
     Rationale: Certain files have different filenames in our packages vs destinations.
     E.g. we might have metadata.pdf in the package, and metadata_24c.pdf on Socrata.
     """
-    assert (
-        OVERRIDDEN_SHP_NAME_AT_DEST == overridden_socrata_dataset.file.filename
-    ), "The filename should have been overridden by the destination"
+    assert OVERRIDDEN_SHP_NAME_AT_DEST == overridden_socrata_dataset.file.filename, (
+        "The filename should have been overridden by the destination"
+    )
 
 
 def test_attribute_overrides_at_file_level(md, overridden_shapefile_dataset: m.Dataset):
@@ -237,9 +237,9 @@ def test_attribute_overrides_at_file_level(md, overridden_shapefile_dataset: m.D
     expected_custom_attrs = (
         md.attributes.custom | shapefile_overrides.dataset_overrides.attributes.custom
     )
-    assert (
-        expected_custom_attrs == overridden_shapefile_dataset.attributes.custom
-    ), "The custom attributes should have been merged"
+    assert expected_custom_attrs == overridden_shapefile_dataset.attributes.custom, (
+        "The custom attributes should have been merged"
+    )
 
 
 def test_attribute_overrides_at_destination_level(
@@ -305,9 +305,9 @@ def test_column_overrides_at_file_level(md, overridden_shapefile_dataset: m.Data
         c for c in overridden_shapefile_dataset.columns if c.id == "bbl"
     ][0]
 
-    assert (
-        BBL_SHAPEFILE_COL_DESC == actual_overridden_bbl_col.description
-    ), "The description field on the bbl column should have been overridden at the shapefile level."
+    assert BBL_SHAPEFILE_COL_DESC == actual_overridden_bbl_col.description, (
+        "The description field on the bbl column should have been overridden at the shapefile level."
+    )
 
     # Check the `custom` attributes
     base_bbl_col = [c for c in md.columns if c.id == "bbl"][0]
@@ -403,9 +403,9 @@ def test_validating_metadata__files__missing_basic_shapefile(md: m.Metadata):
     validation = md.validate_consistency()
     assert len(validation) == 1
 
-    assert (
-        BASIC_SHAPEFILE_ID in validation[0]
-    ), "The validation error should reference the correct file"
+    assert BASIC_SHAPEFILE_ID in validation[0], (
+        "The validation error should reference the correct file"
+    )
 
 
 def test_validating_metadata__files__missing_overridden_shapefile(md: m.Metadata):
@@ -413,9 +413,9 @@ def test_validating_metadata__files__missing_overridden_shapefile(md: m.Metadata
     md.files = [f for f in md.files if f.file.id != OVERRIDDEN_SHAPEFILE_ID]
 
     validation = md.validate_consistency()
-    assert (
-        len(validation) == 3
-    ), "There should be the correct number of validation errors"
+    assert len(validation) == 3, (
+        "There should be the correct number of validation errors"
+    )
 
 
 def test_validating_metadata__files__missing_zip_reference(md: m.Metadata):
@@ -424,9 +424,9 @@ def test_validating_metadata__files__missing_zip_reference(md: m.Metadata):
     md.assembly[0].contents.append(m.PackageFile(id=nonexistant_file_id))
 
     validation = md.validate_consistency()
-    assert (
-        len(validation) == 1
-    ), "There should be the correct number of validation errors"
+    assert len(validation) == 1, (
+        "There should be the correct number of validation errors"
+    )
 
 
 def test_validating_metadata__file_missing_columns(md: m.Metadata):

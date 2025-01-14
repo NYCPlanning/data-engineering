@@ -99,9 +99,9 @@ def test_archive_3():
             );
             """
             result = conn.execute(text(sql)).fetchall()
-            assert result[0][
-                0
-            ], f"{TEST_DATASET_NAME}.{version} is not in postgres database yet"
+            assert result[0][0], (
+                f"{TEST_DATASET_NAME}.{version} is not in postgres database yet"
+            )
 
         conn.execute(text(f"DROP SCHEMA IF EXISTS {TEST_DATASET_NAME} CASCADE;"))
 

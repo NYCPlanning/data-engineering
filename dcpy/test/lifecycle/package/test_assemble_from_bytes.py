@@ -129,9 +129,9 @@ def test_pull_destination_files(mock_urlretrieve, mock_unpackage, tmp_path):
     assert len(expected_calls) == mock_urlretrieve.call_count
     mock_urlretrieve.assert_has_calls(expected_calls, any_order=True)
 
-    assert (
-        1 == mock_unpackage.call_count
-    ), "`unpackage` should have been invoked on the zipfile."
+    assert 1 == mock_unpackage.call_count, (
+        "`unpackage` should have been invoked on the zipfile."
+    )
 
 
 @patch("urllib.request.urlretrieve")

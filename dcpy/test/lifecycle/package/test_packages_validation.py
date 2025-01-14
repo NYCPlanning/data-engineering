@@ -45,10 +45,10 @@ def test_missing_attachments(colp_metadata, COLP_PACKAGE_PATH):
     validations = validate.validate_package_files(COLP_PACKAGE_PATH, colp_metadata)
     errors = sum([v.errors for v in validations], [])
 
-    assert (
-        len(errors) == 1
-    ), f"An error should have been found for the missing attachment. Found: {errors}"
+    assert len(errors) == 1, (
+        f"An error should have been found for the missing attachment. Found: {errors}"
+    )
 
-    assert (
-        fake_attachment_id in errors[0].message
-    ), "The error message should mention the missing package file."
+    assert fake_attachment_id in errors[0].message, (
+        "The error message should mention the missing package file."
+    )
