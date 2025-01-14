@@ -2,15 +2,15 @@
 
 This repository contains workflows to generate the data behind Planning Lab's City Environmental Quality Review Application. Currently, Data Engineering generates the datasets for the following CEQR chapters:
 
-+ 6- Community Facilities
-+ 16- Transportation
-+ 17- Air Quality
+- 6- Community Facilities
+- 16- Transportation
+- 17- Air Quality
 
 ## General workflow
 
 Each chapter consists of several datasets, organized into 'recipes.' In `/recipes`, you will find all of the pipelines currently maintained by Data Engineering. They are organized as follows:
 
-```
+```bash
 recipes/
 ├── <dataset name>
 │   ├── build.sql (or build.py, or both)
@@ -40,13 +40,13 @@ This will automatically trigger a build. Once complete, github will comment on y
 
 1. at root directory (where the `ceqr` file is), run:
 
-```
+```bash
 ./ceqr run recipe {{ recipe name }}
 ```
 
 e.g.
 
-```
+```bash
 ./ceqr run recipe nysdec_title_v_facility_permits
 ```
 
@@ -54,27 +54,27 @@ e.g.
 
 ### 6. Community Facilities
 
-+ ceqr_school_buildings
-+ sca_capacity_projects
-+ sca_e_projections_by_boro
-+ sca_e_projections_by_sd
-+ doe_significant_utilization_changes
+- ceqr_school_buildings
+- sca_capacity_projects
+- sca_e_projections_by_boro
+- sca_e_projections_by_sd
+- doe_significant_utilization_changes
 
 ### 16. Transportation
 
-+ ctpp_censustract_centroids, ctpp_censustract_variables, ctpp_journey_to_work
-+ nysdot_aadt
-+ nysdot_functional_class
-+ nysdot_traffic_counts
-+ dot_traffic_cameras
+- ctpp_censustract_centroids, ctpp_censustract_variables, ctpp_journey_to_work
+- nysdot_aadt
+- nysdot_functional_class
+- nysdot_traffic_counts
+- dot_traffic_cameras
 
 ### 17. Air Quality
 
-+ atypical_roadways
-+ dep_cats_permits
-+ nysdec_air_monitoring_stations
-+ nysdec_state_facility_permits
-+ nysdec_title_v_facility_permits
-+ tunnel_ventilation_towers
-+ dcp_areas_of_concern
-+ facilities_garages
+- atypical_roadways
+- dep_cats_permits
+- nysdec_air_monitoring_stations
+- nysdec_state_facility_permits
+- nysdec_title_v_facility_permits
+- tunnel_ventilation_towers
+- dcp_areas_of_concern
+- facilities_garages
