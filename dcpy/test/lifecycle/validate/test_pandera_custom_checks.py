@@ -1,39 +1,42 @@
 import pytest
 import pandera as pa
-from shapely.geometry import Point, LineString, Polygon
-import pandas as pd
+import geopandas as gpd
 
 from dcpy.models.dataset import Column
 from dcpy.lifecycle.validate import pandera_utils
 
 
 def test_is_geom_point_valid_points():
-    df = pd.DataFrame(
+    gdf = gpd.GeoDataFrame(
         {
-            "geometry": [
-                Point(1, 1),
-                Point(2, 3),
-            ]
+            "geometry": gpd.GeoSeries.from_wkt(
+                [
+                    "POINT (1 1)",
+                    "POINT (2 3)",
+                ]
+            )
         }
     )
     pandera_utils.run_data_checks(
-        df=df,
+        df=gdf,
         columns=[Column(id="geometry", checks=["is_geom_point"])],
     )
 
 
 def test_is_geom_point_invalid_geoms():
-    df = pd.DataFrame(
+    gdf = gpd.GeoDataFrame(
         {
-            "geometry": [
-                Point(1, 1),
-                LineString([(0, 0), (1, 1)]),
-                Polygon([(0, 0), (1, 1), (1, 0)]),
-            ]
+            "geometry": gpd.GeoSeries.from_wkt(
+                [
+                    "POINT (1 1)",
+                    "LINESTRING (0 0, 1 1)",
+                    "POLYGON ((0 0, 1 1, 1 0, 0 0))",
+                ]
+            )
         }
     )
     with pytest.raises(pa.errors.SchemaError):
         pandera_utils.run_data_checks(
-            df=df,
+            df=gdf,
             columns=[Column(id="geometry", checks=["is_geom_point"])],
         )

@@ -5,7 +5,7 @@ from inspect import (
     signature,
 )  # used for checking expected attributes in a class signuture
 
-from dcpy.models.dataset import Column, CheckAttributes
+from dcpy.models.dataset import Column, CheckAttributes, Checks
 
 
 def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
@@ -15,7 +15,7 @@ def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
     Args:
         check:
             A string representing the name of the check or a dictionary with the
-            check name as the key and a dictionary of attributes as the value.
+            check name as the key and check attibutes as the value.
     Returns:
         pa.Check:
             A Pandera `Check` object constructed with the specified parameters.
@@ -85,12 +85,16 @@ def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
 
 def create_checks(checks: list[str | dict[str, CheckAttributes]]) -> list[pa.Check]:
     """Create Pandera checks."""
-    checks = [create_check(check) for check in checks]
-    return checks
+    pandera_checks = [create_check(check) for check in checks]
+    return pandera_checks
 
 
 def create_column_with_checks(column: Column) -> pa.Column:
     """Create Pandera column validator object."""
+    if isinstance(column.checks, Checks):
+        raise NotImplementedError(
+            "Pandera checks are not implemented for old Column.checks format"
+        )
     data_checks = create_checks(column.checks) if column.checks else None
     return pa.Column(
         # TODO: implement `dtype` param
