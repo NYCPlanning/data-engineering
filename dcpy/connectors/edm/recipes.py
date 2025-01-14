@@ -322,7 +322,7 @@ def log_metadata(config: library.Config):
     if configuration.DEV_FLAG:
         logger.info("DEV_FLAG env var found, skipping metadata logging")
         return
-    logger.info(f"Logging library run metadata for dataset {config.dataset.name}")
+    logger.info(f"Logging library run metadata for dataset '{config.dataset.name}' version '{config.dataset.version}'")
     assert config.execution_details, (
         f"Provided config for dataset {config.dataset.name} does not have run details specified. Cannot log."
     )
