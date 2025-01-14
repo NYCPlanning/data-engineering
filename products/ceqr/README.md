@@ -28,6 +28,10 @@ This then gets passed to the EDM production database using `create.sql`, where f
 
 ## Build instructions
 
+### Data flow diagram
+
+[data flow diagram](./docs/diagrams/dataflow_ceqr.drawio.png)
+
 ### To build using github (NYCPlanning Members Only)
 
 Running a recipe using github actions is easy! Simply open an
