@@ -35,9 +35,9 @@ def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:
         check_name = check
         check_args = None
     elif isinstance(check, dict):
-        assert (
-            len(check) == 1
-        ), "`utils.create_pa_check` expects exactly 1 key-value pair in `check` param."
+        assert len(check) == 1, (
+            "`utils.create_pa_check` expects exactly 1 key-value pair in `check` param."
+        )
         check_name, check_args = next(iter(check.items()))
 
     if check_name not in allowed_check_names:
@@ -121,9 +121,9 @@ def run_data_checks(
     """
 
     column_names = [column.id for column in columns]
-    assert len(column_names) == len(
-        set(column_names)
-    ), "Columns should have unique names"
+    assert len(column_names) == len(set(column_names)), (
+        "Columns should have unique names"
+    )
 
     dataframe_checks = {}
     for column in columns:
