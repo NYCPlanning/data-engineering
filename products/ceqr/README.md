@@ -28,31 +28,43 @@ This then gets passed to the EDM production database using `create.sql`, where f
 
 ## Build instructions
 
+At the momement, these datasets are built locally rather than using github actions. Since geosupport is used during builds, running builds via the DE devcontainer is recommended.
+
+Archiving source data should also be done locally. This is because, for these builds, source data is expected to be in the `recipe` database in the `edm-data` database cluster. Our relevant github action doesn't expose the `output-format` option for the library CLI so the option `postgres` cannot be chosen.
+
+For output file upload to S3 to work from the devcontianer, it may be necssary to run the following command to setup the `mc` client:
+
+```bash
+mc config host add spaces "$AWS_S3_ENDPOINT" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" --api S3v4
+```
+
 ### Data flow diagram
 
 [data flow diagram](./docs/diagrams/dataflow_ceqr.drawio.png)
 
-### To build using github (NYCPlanning Members Only)
+1. Archive new source data to the `recipe` database in the `edm-data` cluster.
 
-Running a recipe using github actions is easy! Simply open an
-issue with a title containing `[build]` and the name of the recipe you'd like to run.
-For example, `[build] ctpp_censustract_centroids`.
+   ```bash
+   library archive --name {{ source dataset name }}  --version {{ source dataset version }} --output_format postgres --postgres_url $RECIPE_ENGINE
 
-This will automatically trigger a build. Once complete, github will comment on your issue, provide a link with details about the run (this is where you can find runtime warnings and errors), then close out the issue.
+   # for example
+   library archive --name sca_capacity_projects_current --version 20241226 --output-format postgres --postgres-url $RECIPE_ENGINE
+   ```
 
-### To build locally
+2. Confirm a successful archival by checking for a table with the name of the source data version in the dataset's schema (e.g. `sca_capacity_projects_current.20241226`).
 
-1. at root directory (where the `ceqr` file is), run:
+3. Navigate to the CEQR product directory via `cd products/ceqr/`.
 
-```bash
-./ceqr run recipe {{ recipe name }}
-```
+4. Run a dataset's build.
 
-e.g.
+   ```bash
+   ./ceqr run recipe {{ ceqr dataset name }}
 
-```bash
-./ceqr run recipe nysdec_title_v_facility_permits
-```
+   # for example
+   ./ceqr run recipe nysdec_title_v_facility_permits
+   ```
+
+5. Confirm a succesful build by checcking for files in S3
 
 ## Datasets
 
