@@ -3,17 +3,6 @@ set -e
 source $(pwd)/bin/cli.sh
 DATE=$(date "+%Y-%m-%d")
 
-function set_env {
-  for envfile in $@
-  do
-    if [ -f $envfile ]
-      then
-        export $(cat $envfile | sed 's/#.*//g' | xargs)
-      fi
-  done
-}
-set_env .env
-
 function urlparse {
     proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
     url=$(echo $1 | sed -e s,$proto,,g)
