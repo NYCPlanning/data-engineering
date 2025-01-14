@@ -8,6 +8,7 @@ import uuid
 from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
 
 import dcpy.models.product.dataset.metadata as md
+import dcpy.models.dataset as dataset
 from dcpy.lifecycle.package import validate
 
 rd = random.Random()
@@ -82,12 +83,13 @@ def _fake_row(columns: list[md.DatasetColumn]):
         )
 
     for c in columns:
-        if c.checks and not c.checks.non_nullable and random.choice([True, False]):
-            # adding some extra chaos
-            if random.choice([True, False]):
-                del row[c.name]
-            else:
-                row[c.name] = ""
+        if isinstance(c.checks, dataset.Checks):
+            if not c.checks.non_nullable and random.choice([True, False]):
+                # adding some extra chaos
+                if random.choice([True, False]):
+                    del row[c.name]
+                else:
+                    row[c.name] = ""
     return row
 
 

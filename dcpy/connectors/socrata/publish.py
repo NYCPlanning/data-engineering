@@ -23,6 +23,7 @@ from typing import TypedDict, Literal, NotRequired, Any
 from dcpy.utils.logging import logger
 
 import dcpy.models.product.dataset.metadata as md
+import dcpy.models.dataset as dataset
 from .utils import SOCRATA_USER, SOCRATA_PASSWORD, _socrata_request
 
 SOCRATA_REVISION_APPLY_TIMEOUT_SECS = 10 * 60  # Ten Mins
@@ -176,7 +177,9 @@ class Socrata:
                 self.display_name = col.name
                 self.description = col.description
                 self.is_primary_key = (
-                    bool(col.checks.is_primary_key) if col.checks else False
+                    bool(col.checks.is_primary_key)
+                    if isinstance(col.checks, dataset.Checks)
+                    else False
                 )
 
         class Attachment(TypedDict):
@@ -298,7 +301,9 @@ class RevisionDataSource:
             new_col["initial_output_column_id"] = new_col["id"]
 
             new_col["is_primary_key"] = (
-                True if (our_col.checks and our_col.checks.is_primary_key) else False
+                bool(our_col.checks.is_primary_key)
+                if isinstance(our_col.checks, dataset.Checks)
+                else False
             )
 
             new_col["display_name"] = our_col.name
