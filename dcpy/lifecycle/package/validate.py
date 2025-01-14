@@ -218,6 +218,8 @@ def validate_df(
                     )
                 )
 
+        if isinstance(col.checks, list):  # TODO: delete after refactoring
+            raise NotImplementedError("Must be old dataset.Checks format to run checks")
         # Check Nulls
         if col.checks and col.checks.non_nullable:
             if not df_only_col_nulls.empty:

@@ -336,7 +336,9 @@ mypy==1.14.1
 mypy-boto3-s3==1.35.93
     # via boto3-stubs
 mypy-extensions==1.0.0
-    # via mypy
+    # via
+    #   mypy
+    #   typing-inspect
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.4.2
@@ -359,6 +361,7 @@ numpy==2.2.1
     #   matplotlib
     #   pandas
     #   pandas-stubs
+    #   pandera
     #   pydeck
     #   pyogrio
     #   rasterio
@@ -381,6 +384,7 @@ packaging==24.2
     #   geopandas
     #   ipykernel
     #   matplotlib
+    #   pandera
     #   plotly
     #   pyogrio
     #   pytest
@@ -393,9 +397,12 @@ pandas==2.2.3
     #   geopandas
     #   leafmap
     #   mapclassify
+    #   pandera
     #   streamlit
     #   streamlit-aggrid
 pandas-stubs==2.2.3.241126
+    # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
+pandera==0.22.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 parsedatetime==2.6
     # via agate
@@ -467,6 +474,7 @@ pydantic==2.10.5
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   dbt-semantic-interfaces
+    #   pandera
 pydantic-core==2.27.2
     # via pydantic
 pydeck==0.9.1
@@ -675,6 +683,8 @@ traittypes==0.2.1
     # via
     #   bqplot
     #   ipyleaflet
+typeguard==4.4.1
+    # via pandera
 typer==0.15.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-awscrt==0.23.6
@@ -719,7 +729,11 @@ typing-extensions==4.12.2
     #   sqlalchemy
     #   sqlalchemy-stubs
     #   streamlit
+    #   typeguard
     #   typer
+    #   typing-inspect
+typing-inspect==0.9.0
+    # via pandera
 tzdata==2024.2
     # via pandas
 urllib3==2.3.0
