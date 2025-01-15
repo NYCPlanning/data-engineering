@@ -16,9 +16,6 @@ ingestion:
       crs: EPSG:4326
       format: wkb
   processing_steps:
-  - name: rename_columns
-    args:
-      map: {"geom": "wkb_geometry"}
   - name: coerce_column_types
     args:
       column_types: {
