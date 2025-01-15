@@ -5,6 +5,7 @@ from typing import Any
 from dcpy.models.lifecycle.distribution import PublisherPushKwargs
 from dcpy.models.product import metadata as md
 from dcpy.lifecycle.distribute import dispatcher
+from dcpy.lifecycle.distribute.socrata import dist_from_local
 
 
 @pytest.fixture
@@ -19,6 +20,11 @@ def org_metadata(resources_path: Path):
     return md.OrgMetadata.from_path(
         resources_path / "test_product_metadata_repo", template_vars=template_vars
     )
+
+
+@pytest.fixture
+def COLP_PACKAGE_PATH(resources_path: Path):
+    return resources_path / "product_metadata" / "colp_single_feature_package"
 
 
 SNOWFLAKE_CONNECTOR_TYPE = "snowflake"
@@ -58,3 +64,19 @@ def test_dynamic_dispatch(org_metadata: md.OrgMetadata):
     assert (
         snowflake_connector.push_counter == 1
     ), "The mock snowflake connector should have been called."
+
+
+def test_distribute_sftp(org_metadata: md.OrgMetadata, COLP_PACKAGE_PATH):
+    dispatch_details: PublisherPushKwargs = {
+        "metadata": org_metadata.product("colp").dataset("colp"),
+        "dataset_destination_id": "garlic_sftp",
+        "publish": False,
+        "dataset_package_path": COLP_PACKAGE_PATH,
+        "metadata_only": False,
+    }
+    result = dist_from_local(**dispatch_details)
+    # TODO implement SFTP push
+    assert (
+        result
+        == "Error pushing City Owned and Leased Property (COLP), destination: garlic_sftp: Push not implemented for FTP"
+    )

@@ -1,45 +1,24 @@
 from pathlib import Path
 import typer
-from typing import TypedDict, NotRequired, Required
+from typing import Unpack
 
+from dcpy.models.lifecycle.distribution import PublisherPushKwargs
 import dcpy.models.product.dataset.metadata as m
-import dcpy.connectors.socrata.publish as soc_pub
+from dcpy.lifecycle.distribute import dispatcher
 
 
-class PublishKwargs(TypedDict):
-    metadata_path: NotRequired[Path]
-    publish: Required[bool]
-    ignore_validation_errors: Required[bool]
-    skip_validation: Required[bool]
-    metadata_only: Required[bool]
-
-
-def dist_from_local(
-    package_path: Path,
-    dataset_destination_id: str,
-    *,
-    metadata_path: Path | None = None,
-    publish: bool = False,
-    metadata_only: bool = False,
-) -> str:
+def dist_from_local(**pub_kwargs: Unpack[PublisherPushKwargs]) -> str:
     """Distribute a dataset and specific dataset_destination_id.
 
     Requires fully rendered template, ie there should be no template variables in the metadata
     """
-    md = m.Metadata.from_path(metadata_path or (package_path / "metadata.yml"))
-    dest = md.get_destination(dataset_destination_id)
     # TODO generalize to not be socrata only
-
+    dest = pub_kwargs["metadata"].get_destination(pub_kwargs["dataset_destination_id"])
+    dest_type = dest.type
     try:
-        return soc_pub.push_dataset(
-            metadata=md,
-            dataset_destination_id=dataset_destination_id,
-            dataset_package_path=package_path,
-            publish=bool(publish),
-            metadata_only=bool(metadata_only),
-        )
+        return dispatcher.push(dest_type, pub_kwargs)
     except Exception as e:
-        return f"Error pushing {md.attributes.display_name}, destination: {dest.id}: {str(e)}"
+        return f"Error pushing {pub_kwargs["metadata"].attributes.display_name}, destination: {dest.id}: {str(e)}"
 
 
 socrata_app = typer.Typer()
@@ -68,11 +47,12 @@ def _dist_from_local(
         help="Only push metadata (including attachments).",
     ),
 ):
+    md = m.Metadata.from_path(metadata_path or (package_path / "metadata.yml"))
     result = dist_from_local(
-        package_path=package_path,
+        metadata=md,
         dataset_destination_id=dataset_destination_id,
-        metadata_path=metadata_path,
         publish=publish,
+        dataset_package_path=package_path,
         metadata_only=metadata_only,
     )
     print(result)

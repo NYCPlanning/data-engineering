@@ -1,5 +1,5 @@
 from dcpy.lifecycle.distribute.connectors import (
-    DistributionFTPConnector,
+    DistributionSFTPConnector,
     SocrataPublishConnector,
 )
 
@@ -13,4 +13,4 @@ from dcpy.models.connectors import ConnectorDispatcher
 dispatcher = ConnectorDispatcher[PublisherPushKwargs, dict]()
 
 dispatcher.register(conn_type="socrata", connector=SocrataPublishConnector())
-dispatcher.register(conn_type="ftp", connector=DistributionFTPConnector())
+dispatcher.register(conn_type="sftp", connector=DistributionSFTPConnector())

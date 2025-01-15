@@ -11,11 +11,11 @@ from dcpy.models.lifecycle.distribution import PublisherPushKwargs
 # Wrap the connectors to bind them to the `PublisherPushKwargs`
 # so that we can register and delegate calls.
 # This is the recommended way for third parties to add custom Distribution Connectors.
-class DistributionFTPConnector:
+class DistributionSFTPConnector:
     conn_type: str
 
     def __init__(self):
-        self.conn_type = "ftp"
+        self.conn_type = "sftp"
         self._base_connector = FTPConnector()
 
     def push(self, arg: PublisherPushKwargs) -> Any:
