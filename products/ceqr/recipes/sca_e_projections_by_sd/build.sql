@@ -39,7 +39,7 @@ INPUT:
         grade_10 character varying,
         grade_11 character varying,
         grade_12 character varying,
-        ged character varying,
+        hrs character varying,
         total character varying
     )
 
@@ -96,7 +96,7 @@ CREATE TEMP TABLE tmp as (
                 grade_10,
                 grade_11,
                 grade_12,
-                ged,
+                hrs,
                 total
             FROM sca_e_projections.latest) row) a,
 			json_each_text(_col) as b
