@@ -1,10 +1,9 @@
 from pathlib import Path
 import typer
-from typing import TypedDict, Unpack, NotRequired, Required
+from typing import TypedDict, NotRequired, Required
 
 import dcpy.models.product.dataset.metadata as m
 from dcpy.utils.logging import logger
-import dcpy.connectors.edm.packaging as packaging
 import dcpy.connectors.socrata.publish as soc_pub
 
 
@@ -69,46 +68,6 @@ def dist_from_local(
         return f"Error pushing {md.attributes.display_name}, destination: {dest.id}: {str(e)}"
 
 
-def dist_from_local_all_socrata(
-    package_path: Path,
-    **pub_kwargs: Unpack[PublishKwargs],
-):
-    """Distributes all Socrata destinations within a given metadata"""
-    md = m.Metadata.from_path(package_path / "metadata.yml")
-    local_pub_kwargs = pub_kwargs.copy()
-    local_pub_kwargs.pop(
-        "metadata_path"
-    ) if "metadata_path" in local_pub_kwargs else None
-
-    socrata_dests = [d.id for d in md.destinations if d.type == "socrata"]
-    logger.info(f"Distributing {md.attributes.display_name}: {socrata_dests}")
-    results = [
-        dist_from_local(
-            package_path=package_path,
-            dataset_destination_id=dataset_destination_id,
-            **local_pub_kwargs,
-        )
-        for dataset_destination_id in socrata_dests
-    ]
-    return results
-
-
-def dist_from_local_product_all_socrata(
-    product_path: Path,
-    **pub_kwargs: Unpack[PublishKwargs],
-):
-    """Distribute datasets for an entire product."""
-    results = []
-    for p in product_path.iterdir():
-        if p.is_dir():
-            md_path = p / "metadata.yml"
-            if md_path.exists():
-                results.append(
-                    dist_from_local_all_socrata(package_path=Path(p), **pub_kwargs)
-                )
-    return results
-
-
 socrata_app = typer.Typer()
 
 
@@ -147,145 +106,6 @@ def _dist_from_local(
         help="Only push metadata (including attachments).",
     ),
 ):
-    result = dist_from_local(
-        package_path=package_path,
-        dataset_destination_id=dataset_destination_id,
-        metadata_path=metadata_path,
-        publish=publish,
-        ignore_validation_errors=ignore_validation_errors,
-        skip_validation=skip_validation,
-        metadata_only=metadata_only,
-    )
-    print(result)
-
-
-@socrata_app.command("local_all_datasets")
-def _dist_from_local_all_socrata(
-    package_path: Path = typer.Argument(),
-    publish: bool = typer.Option(
-        False,
-        "-p",
-        "--publish",
-        help="Publish the Socrata Revision? Or leave it open.",
-    ),
-    ignore_validation_errors: bool = typer.Option(
-        False,
-        "-i",
-        "--ignore-validation-errors",
-        help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
-    ),
-    skip_validation: bool = typer.Option(
-        False,
-        "-y",  # -y(olo)
-        "--skip-validation",
-        help="Skip Validation Altogether",
-    ),
-    metadata_only: bool = typer.Option(
-        False,
-        "-z",
-        "--metadata-only",
-        help="Only push metadata (including attachments).",
-    ),
-):
-    results = dist_from_local_all_socrata(
-        package_path=package_path,
-        publish=publish,
-        ignore_validation_errors=ignore_validation_errors,
-        skip_validation=skip_validation,
-        metadata_only=metadata_only,
-    )
-    print(results)
-
-
-@socrata_app.command("local_all_product")
-def _cli_dist_product_from_local_all_socrata(
-    product_path: Path = typer.Argument(),
-    publish: bool = typer.Option(
-        False,
-        "-p",
-        "--publish",
-        help="Publish the Socrata Revision? Or leave it open.",
-    ),
-    ignore_validation_errors: bool = typer.Option(
-        False,
-        "-i",
-        "--ignore-validation-errors",
-        help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
-    ),
-    skip_validation: bool = typer.Option(
-        False,
-        "-y",  # -y(olo)
-        "--skip-validation",
-        help="Skip Validation Altogether",
-    ),
-    metadata_only: bool = typer.Option(
-        False,
-        "-z",
-        "--metadata-only",
-        help="Only push metadata (including attachments).",
-    ),
-):
-    results = dist_from_local_product_all_socrata(
-        product_path=product_path,
-        publish=publish,
-        ignore_validation_errors=ignore_validation_errors,
-        skip_validation=skip_validation,
-        metadata_only=metadata_only,
-    )
-    print(results)
-
-
-@socrata_app.command("from_s3")
-def _dist_from_s3(
-    product_name: str,
-    version: str,
-    dataset_destination_id: str,
-    dataset: str = typer.Option(
-        None,
-        "-d",
-        "--dataset",
-        help="(optional) dataset. Defaults to product name",
-    ),
-    metadata_path: Path = typer.Option(
-        None,
-        "-m",
-        "--metadata-path",
-        help="(Optional) Metadata Path",
-    ),
-    publish: bool = typer.Option(
-        False,
-        "-p",
-        "--publish",
-        help="Publish the Socrata Revision? Or leave it open.",
-    ),
-    ignore_validation_errors: bool = typer.Option(
-        False,
-        "-i",
-        "--ignore-validation-errors",
-        help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
-    ),
-    skip_validation: bool = typer.Option(
-        False,
-        "-y",  # -y(olo)
-        "--skip-validation",
-        help="Skip Validation Altogether",
-    ),
-    metadata_only: bool = typer.Option(
-        False,
-        "-z",
-        "--metadata-only",
-        help="Only push metadata (including attachments).",
-    ),
-):
-    logger.info(
-        f"Distributing {product_name}-{version} to {dataset_destination_id}. Publishing: {publish}. Ignoring Validation Errors: {ignore_validation_errors}"
-    )
-    logger.info(f"Downloading dataset package for {product_name}-{version}")
-
-    package_path = packaging.pull(
-        packaging.DatasetPackageKey(product_name, version, dataset or product_name)
-    )
-
     result = dist_from_local(
         package_path=package_path,
         dataset_destination_id=dataset_destination_id,
