@@ -23,8 +23,6 @@ class OutlierReport:
 
         self.small_apartments()
 
-        self.floors()
-
     def display_dataframe(
         self, field: str, df: pd.DataFrame, filter: Callable | None = None
     ):
@@ -57,22 +55,6 @@ class OutlierReport:
             )
             if st.checkbox("Filter out NYCHA records", disabled=not valid, help=help):
                 return _df[~(_df["ownername"] == "NYC HOUSING AUTHORITY")]
-            else:
-                return _df
-
-        self.display_dataframe(field, df, filter)
-
-    def floors(self):
-        field = "lotarea_numfloor"
-        df = self.fetch_dataframe(field)
-
-        def filter(_df: pd.DataFrame):
-            valid = "new_flag" in df.columns
-            help = (
-                "This feature was implemented after this build" if not valid else None
-            )
-            if st.checkbox("Only display new entries", disabled=not valid, help=help):
-                return _df[_df["new_flag"]]
             else:
                 return _df
 
@@ -120,7 +102,6 @@ class OutlierReport:
         return {
             "building_area_increase": f"### Table of BBLs with Unreasonable Increase in Building Area {self.version_pair}",
             "unitsres_resarea": "### Report of BBLs with buildings containing unreasonably small apartments",
-            "lotarea_numfloor": "### Table of BBLs where bldgarea/lotarea > numfloors*2",
         }
 
     @property
@@ -132,5 +113,4 @@ class OutlierReport:
                 ⚠️ This table mistakenly shows the lot area instead of the building area for PLUTO versions up to and including 24v3.1.
             """,
             "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 and resarea is greater than 0 but the ratio of resarea:unitsres is less than 300.",
-            "lotarea_numfloor": "The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.",
         }
