@@ -5,7 +5,7 @@ from typing import Any
 from dcpy.models.lifecycle.distribution import PublisherPushKwargs
 from dcpy.models.product import metadata as md
 from dcpy.lifecycle.distribute import dispatcher
-from dcpy.lifecycle.distribute.socrata import dist_from_local
+from dcpy.lifecycle.distribute import from_local
 
 
 @pytest.fixture
@@ -61,9 +61,9 @@ def test_dynamic_dispatch(org_metadata: md.OrgMetadata):
 
     dispatcher.push(SNOWFLAKE_CONNECTOR_TYPE, dispatch_details)
 
-    assert (
-        snowflake_connector.push_counter == 1
-    ), "The mock snowflake connector should have been called."
+    assert snowflake_connector.push_counter == 1, (
+        "The mock snowflake connector should have been called."
+    )
 
 
 def test_distribute_sftp(org_metadata: md.OrgMetadata, COLP_PACKAGE_PATH):
@@ -74,7 +74,7 @@ def test_distribute_sftp(org_metadata: md.OrgMetadata, COLP_PACKAGE_PATH):
         "dataset_package_path": COLP_PACKAGE_PATH,
         "metadata_only": False,
     }
-    result = dist_from_local(**dispatch_details)
+    result = from_local(**dispatch_details)
     # TODO implement SFTP push
     assert (
         result

@@ -22,7 +22,6 @@ class ConnectorDispatcher(Generic[_O, _I]):
         self._connectors = {}
 
     def register(self, conn_type: str, connector: _ConnectorProtocol[_O, _I]):
-        print(f"registering {conn_type}")
         self._connectors[conn_type] = connector
 
     def push(self, dest_type: str, arg: _O) -> str:
