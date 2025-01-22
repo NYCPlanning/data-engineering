@@ -4,29 +4,41 @@ from dcpy.lifecycle.distribute.connectors import (
     DistributionSFTPConnector,
     SocrataPublishConnector,
 )
-
-
-from dcpy.models.lifecycle.distribution import PublisherPushKwargs
+from dcpy.models.lifecycle.distribute import (
+    DatasetDestinationPushArgs,
+    DistributeResult,
+)
 from dcpy.models.connectors import ConnectorDispatcher
 
 
 # Register all default connectors for `lifecycle.distribute`.
 # Third parties can similarly register their own connectors,
 # so long as the connector implements a ConnectorDispatcher protocol.
-dispatcher = ConnectorDispatcher[PublisherPushKwargs, dict]()
+dispatcher = ConnectorDispatcher[DatasetDestinationPushArgs, dict]()
 
 dispatcher.register(conn_type="socrata", connector=SocrataPublishConnector())
 dispatcher.register(conn_type="sftp", connector=DistributionSFTPConnector())
 
 
-def from_local(**pub_kwargs: Unpack[PublisherPushKwargs]) -> str:
+def to_dataset_destination(
+    **push_kwargs: Unpack[DatasetDestinationPushArgs],
+) -> DistributeResult:
     """Distribute a dataset and specific dataset_destination_id.
 
     Requires fully rendered template, ie there should be no template variables in the metadata
     """
-    dest = pub_kwargs["metadata"].get_destination(pub_kwargs["dataset_destination_id"])
+    ds_md = push_kwargs["metadata"]
+    dest = ds_md.get_destination(push_kwargs["dataset_destination_id"])
     dest_type = dest.type
+
     try:
-        return dispatcher.push(dest_type, pub_kwargs)
+        result = dispatcher.push(dest_type, push_kwargs)
+        return DistributeResult.from_push_kwargs(
+            result=result, success=True, push_args=push_kwargs
+        )
     except Exception as e:
-        return f"Error pushing {pub_kwargs['metadata'].attributes.display_name} to dest_type: {dest_type}, destination: {dest.id}: {str(e)}"
+        return DistributeResult.from_push_kwargs(
+            result=f"Error pushing {push_kwargs['metadata'].attributes.display_name} to dest_type: {dest_type}, destination: {dest.id}: {str(e)}",
+            success=False,
+            push_args=push_kwargs,
+        )

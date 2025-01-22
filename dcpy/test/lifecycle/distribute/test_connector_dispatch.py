@@ -2,10 +2,10 @@ from pathlib import Path
 import pytest
 from typing import Any
 
-from dcpy.models.lifecycle.distribution import PublisherPushKwargs
+from dcpy.models.lifecycle.distribute import DatasetDestinationPushArgs
 from dcpy.models.product import metadata as md
 from dcpy.lifecycle.distribute import dispatcher
-from dcpy.lifecycle.distribute import from_local
+from dcpy.lifecycle import distribute
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ class MockSnowflakeConnector:
 
     def push(
         self,
-        thing: PublisherPushKwargs,
+        thing: DatasetDestinationPushArgs,
     ) -> Any:
         print(thing)
         self.push_counter += 1
@@ -53,7 +53,7 @@ def test_dynamic_dispatch(org_metadata: md.OrgMetadata):
     dispatcher.register(
         conn_type=SNOWFLAKE_CONNECTOR_TYPE, connector=snowflake_connector
     )
-    dispatch_details: PublisherPushKwargs = {
+    dispatch_details: DatasetDestinationPushArgs = {
         "metadata": org_metadata.product("lion").dataset("pseudo_lots"),
         "dataset_destination_id": "garlic_sftp",
     }
@@ -67,14 +67,14 @@ def test_dynamic_dispatch(org_metadata: md.OrgMetadata):
 
 
 def test_distribute_sftp(org_metadata: md.OrgMetadata, COLP_PACKAGE_PATH):
-    dispatch_details: PublisherPushKwargs = {
+    dispatch_details: DatasetDestinationPushArgs = {
         "metadata": org_metadata.product("colp").dataset("colp"),
         "dataset_destination_id": "garlic_sftp",
         "publish": False,
         "dataset_package_path": COLP_PACKAGE_PATH,
         "metadata_only": False,
     }
-    result = from_local(**dispatch_details)
+    result = distribute.to_dataset_destination(**dispatch_details)
     # TODO implement SFTP push
     assert (
         result

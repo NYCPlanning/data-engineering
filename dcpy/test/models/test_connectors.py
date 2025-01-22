@@ -110,8 +110,9 @@ def test_dog_contravariance():
         # This would actually break though, after we called .bark() on the Animal.
         dog_dispatcher.push("dog", Animal(age=4))  # type: ignore
 
-        # This should actually work just fine, but due to contraviariance is prohibited.
-        #
+        # This should actually work just fine, but in the current implementation is prohibited.
+        # There may be a way to play with the type bounds to allow it. But
+        # I don't think it matters.
         dog_dispatcher.push("dog", Beagle(age=4))  # type: ignore
 
 

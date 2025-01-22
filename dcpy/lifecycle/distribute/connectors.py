@@ -2,7 +2,7 @@ from typing import Any
 
 from dcpy.connectors.ftp import FTPConnector
 from dcpy.connectors.socrata import publish as socrata_pub
-from dcpy.models.lifecycle.distribution import PublisherPushKwargs
+from dcpy.models.lifecycle.distribute import DatasetDestinationPushArgs
 
 # Sadly, can't use Unpack on kwarg generics yet.
 # https://github.com/python/typing/issues/1399
@@ -18,7 +18,7 @@ class DistributionSFTPConnector:
         self.conn_type = "sftp"
         self._base_connector = FTPConnector()
 
-    def push(self, arg: PublisherPushKwargs) -> Any:
+    def push(self, arg: DatasetDestinationPushArgs) -> Any:
         md = arg["metadata"]
         dest = md.get_destination(arg["dataset_destination_id"])
         dest_path = dest.custom["destination_path"]
@@ -34,7 +34,7 @@ class SocrataPublishConnector:
 
     def push(
         self,
-        arg: PublisherPushKwargs,
+        arg: DatasetDestinationPushArgs,
     ) -> Any:
         return socrata_pub.push_dataset(**arg)
 

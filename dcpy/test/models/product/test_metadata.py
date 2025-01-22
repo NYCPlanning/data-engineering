@@ -70,7 +70,7 @@ def test_get_tagged_destinations(lion_md_path: Path):
     product_folder = md.ProductMetadata.from_path(root_path=lion_md_path)
 
     TAG = "school_districts_tag"
-    datasets = product_folder.query_destinations(tag=TAG)
+    datasets = product_folder.query_destinations(destination_tag=TAG)
 
     assert 1 == len(datasets.keys())
     assert "school_districts" in datasets
@@ -82,9 +82,9 @@ def test_query_multiple_filters_destinations(lion_md_path: Path):
 
     TAG = "prod_tag"
     DEST_TYPE = "socrata"
-    DATASET_NAMES = {"pseudo_lots", "school_districts"}
+    DATASET_NAMES = frozenset({"pseudo_lots", "school_districts"})
     datasets = product_folder.query_destinations(
-        tag=TAG, destination_type=DEST_TYPE, datasets=DATASET_NAMES
+        destination_tag=TAG, destination_type=DEST_TYPE, datasets=DATASET_NAMES
     )
 
     assert DATASET_NAMES == datasets.keys(), "The correct datasets should be returned"

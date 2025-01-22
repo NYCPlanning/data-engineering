@@ -31,7 +31,7 @@ def _dist_from_local(
     ),
 ):
     md = m.Metadata.from_path(metadata_path or (package_path / "metadata.yml"))
-    result = distribute.from_local(
+    result = distribute.to_dataset_destination(
         metadata=md,
         dataset_destination_id=dataset_destination_id,
         publish=publish,

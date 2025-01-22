@@ -25,9 +25,13 @@ class ConnectorDispatcher(Generic[_O, _I]):
         self._connectors[conn_type] = connector
 
     def push(self, dest_type: str, arg: _O) -> str:
+        if dest_type not in self._connectors:
+            raise Exception(f"No connector registered for {dest_type}")
         connector: _ConnectorProtocol = self._connectors[dest_type]
         return connector.push(arg)
 
     def pull(self, source_type: str, arg: _I) -> str:
+        if source_type not in self._connectors:
+            raise Exception(f"No connector registered for {source_type}")
         connector: _ConnectorProtocol = self._connectors[source_type]
         return connector.pull(arg)

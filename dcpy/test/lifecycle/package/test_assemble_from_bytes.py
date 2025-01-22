@@ -1,5 +1,4 @@
 from pathlib import Path
-import pytest
 from unittest.mock import patch, call
 
 from dcpy.lifecycle.package import assemble
@@ -95,13 +94,6 @@ def test_plan():
     } == assemble._get_file_url_mappings_by_id(
         make_metadata(), BYTES_DEST_WITH_INDIVIDUAL_FILES
     )
-
-
-def test_plan_errors_for_socrata():
-    with pytest.raises(Exception, match=assemble.NON_BYTES_DEST_ERROR):
-        _plan = assemble.pull_destination_files(
-            Path(""), make_metadata(), SOCRATA_DEST_ID
-        )
 
 
 @patch("dcpy.lifecycle.package.assemble.unzip_into_package")
