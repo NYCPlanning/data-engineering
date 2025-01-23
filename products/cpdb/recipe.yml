@@ -17,12 +17,13 @@ inputs:
     - name: nypd_policeprecincts
     - name: fdny_firecompanies
 
-# Building and lot-level info
+    # Building and lot-level info
     - name: dcp_mappluto_wi
     - name: dcp_facilities
     - name: doitt_buildingfootprints
+      import_as: doitt_buildingfootprints_source
 
-# Projects
+    # Projects
     - name: nycoc_checkbook
     - name: fisa_capitalcommitments
     - name: fisa_dailybudget
