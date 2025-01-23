@@ -24,6 +24,9 @@ mkdir -p output && (
     echo "export cdbg_tracts_excel.csv ..."
     csv_export cdbg_tracts_excel
 
+    echo "export cdbg_tracts_geosupport.csv ..."
+    csv_export cdbg_tracts_geosupport
+
     echo "export cdbg_boroughs.csv ..."
     csv_export cdbg_boroughs
 
