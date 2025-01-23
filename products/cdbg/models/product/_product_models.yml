@@ -200,7 +200,7 @@ models:
     tests: [ not_null ]
 
 - name: cdbg_tracts_excel
-  description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
+  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in excel
   columns:
   - name: '"Borough Name"'
   - name: '"Borough Code"'
