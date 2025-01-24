@@ -36,6 +36,15 @@ class OutlierReport:
                 df = filter(df)
             st.write(f"There are {df.shape[0]} outliers in total.")
 
+            # Add download button
+            csv_data = df.to_csv(index=False)  # data string
+            st.download_button(
+                label="Download csv",
+                data=csv_data,
+                file_name=f"{field}.csv",
+                mime="text/csv",
+            )
+
             with st.expander("Show table"):
                 AgGrid(df)
 
@@ -70,6 +79,9 @@ class OutlierReport:
 
             if field == "building_area_increase":
                 df = df.drop(columns=["pair"])
+                df["building_area_change"] = (
+                    df["building_area_current"] - df["building_area_previous"]
+                )
 
             # round values to integer in numeric-like columns
             for col in df.columns:
