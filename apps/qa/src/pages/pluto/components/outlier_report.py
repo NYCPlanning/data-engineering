@@ -64,7 +64,7 @@ class OutlierReport:
         records = [i["values"] for i in self.v_outlier_records if i["field"] == field][
             0
         ]
-        print(f"\n\n\nrecords ({field}):", records)  # TODO: delete this debug statement
+
         if records:
             df = pd.DataFrame(records)
 
