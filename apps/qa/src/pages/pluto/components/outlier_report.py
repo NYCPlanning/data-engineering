@@ -112,5 +112,11 @@ class OutlierReport:
                 
                 ⚠️ This table mistakenly shows the lot area instead of the building area for PLUTO versions up to and including 24v3.1.
             """,
-            "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 and resarea is greater than 0 but the ratio of resarea:unitsres is less than 300.",
+            "unitsres_resarea": """
+                The table displays all BBLs where unitsres is more than 50 and resarea is greater than 0 but the ratio of resarea:unitsres is less than 300.
+
+                ⚠️ Non-NYCHA BBLs with the following criteria must be researched (and corrected if needed) by the DE team before sending to GIS: 
+                * res_unit_ratio < **160 sq.ft.**, OR
+                * unitsres > **800+** units.
+            """,
         }
