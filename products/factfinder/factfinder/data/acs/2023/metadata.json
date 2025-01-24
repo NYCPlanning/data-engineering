@@ -690,6 +690,276 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "asn1rc",
+        "variable_name_front_end": "Asian Alone",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 70,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asneast",
+        "variable_name_front_end": "East Asian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 71,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnchinot",
+        "variable_name_front_end": "Chinese, except Taiwanese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 72,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnjpn",
+        "variable_name_front_end": "Japanese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 73,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnkor",
+        "variable_name_front_end": "Korean",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 74,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnmgol",
+        "variable_name_front_end": "Mongolian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 75,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnokinw",
+        "variable_name_front_end": "Okinawan",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 76,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asntwn",
+        "variable_name_front_end": "Taiwanese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 77,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnsouth",
+        "variable_name_front_end": "South Asian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 78,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnind",
+        "variable_name_front_end": "Asian Indian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 79,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnbng",
+        "variable_name_front_end": "Bangladeshi",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 80,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnbhutn",
+        "variable_name_front_end": "Bhutanese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 81,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnnepal",
+        "variable_name_front_end": "Nepalese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 82,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnpak",
+        "variable_name_front_end": "Pakistani",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 83,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnsril",
+        "variable_name_front_end": "Sri Lankan",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 84,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnseast",
+        "variable_name_front_end": "Southeast Asian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 85,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnburm",
+        "variable_name_front_end": "Burmese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 86,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asncmb",
+        "variable_name_front_end": "Cambodian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 87,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnflp",
+        "variable_name_front_end": "Filipino",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 88,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnhmng",
+        "variable_name_front_end": "Hmong",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 89,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnindnsn",
+        "variable_name_front_end": "Indonesian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 90,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnlao",
+        "variable_name_front_end": "Laotian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 91,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnmalsn",
+        "variable_name_front_end": "Malaysian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 92,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnthai",
+        "variable_name_front_end": "Thai",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 93,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnvtn",
+        "variable_name_front_end": "Vietnamese",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 94,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asnoasn",
+        "variable_name_front_end": "Other Asian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 95,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "asn2pl",
+        "variable_name_front_end": "Two or more Asian",
+        "product_type": "ACS",
+        "domain": "demographic",
+        "category": "Asian Subgroup",
+        "order": 96,
+        "base_variable": "asn1rc",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "mdpop_3",
         "variable_name_front_end": null,
         "product_type": "ACS",
@@ -1310,6 +1580,116 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "fam1",
+        "variable_name_front_end": "Family households (families)",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 159,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "famchu18",
+        "variable_name_front_end": "With own children under 18 years",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 160,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mrdfam",
+        "variable_name_front_end": "Married-couple family",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 161,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mrdchu18",
+        "variable_name_front_end": "With own children under 18 years",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 162,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mhns",
+        "variable_name_front_end": "Male householder, no spouse present, family",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 163,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mhnschu18",
+        "variable_name_front_end": "With own children under 18 years",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 164,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fhns",
+        "variable_name_front_end": "Female householder, no spouse present, family",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 165,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fhnschu18",
+        "variable_name_front_end": "With own children under 18 years",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 166,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nfam1",
+        "variable_name_front_end": "Nonfamily households",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 167,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nfama",
+        "variable_name_front_end": "Householder living alone",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 168,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nfama65pl",
+        "variable_name_front_end": "65 years and over",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Household Type",
+        "order": 169,
+        "base_variable": "hh1",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "hh1plu18",
         "variable_name_front_end": "Households with one or more people under 18 years",
         "product_type": "ACS",
@@ -1747,6 +2127,316 @@
         "category": "Veteran Status",
         "order": 213,
         "base_variable": "cvpop18pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnipop1",
+        "variable_name_front_end": "Total civilian noninstitutionalized population",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 214,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid",
+        "variable_name_front_end": "With a disability",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 215,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid_hrg",
+        "variable_name_front_end": "With a hearing difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 216,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid_vsn",
+        "variable_name_front_end": "With a vision difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 217,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid_cog",
+        "variable_name_front_end": "With a cognitive difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 218,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid_amb",
+        "variable_name_front_end": "With an ambulatory difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 219,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid_scr",
+        "variable_name_front_end": "With a self-care difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 220,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvnid_ild",
+        "variable_name_front_end": "With an independent living difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 221,
+        "base_variable": "cvnipop1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvniu18_1",
+        "variable_name_front_end": "Under 18 years",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 222,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvniu18d",
+        "variable_name_front_end": "With a disability",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 223,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cu18dhrg",
+        "variable_name_front_end": "With a hearing difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 224,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cu18dvsn",
+        "variable_name_front_end": "With a vision difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 225,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cu18dcog",
+        "variable_name_front_end": "With a cognitive difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 226,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cu18damb",
+        "variable_name_front_end": "With an ambulatory difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 227,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cu18dscr",
+        "variable_name_front_end": "With a self-care difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 228,
+        "base_variable": "cvniu18_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cni1864_1",
+        "variable_name_front_end": "18 to 64 years",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 229,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cni18t64d",
+        "variable_name_front_end": "With a disability",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 230,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c1864dhrg",
+        "variable_name_front_end": "With a hearing difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 231,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c1864dvsn",
+        "variable_name_front_end": "With a vision difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 232,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c1864dcog",
+        "variable_name_front_end": "With a cognitive difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 233,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c1864damb",
+        "variable_name_front_end": "With an ambulatory difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 234,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c1864dscr",
+        "variable_name_front_end": "With a self-care difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 235,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c1864dild",
+        "variable_name_front_end": "With an independent living difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 236,
+        "base_variable": "cni1864_1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvni65pl",
+        "variable_name_front_end": "65 years and over",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 237,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvni65pld",
+        "variable_name_front_end": "With a disability",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 238,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c65pldhrg",
+        "variable_name_front_end": "With a hearing difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 239,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c65pldvsn",
+        "variable_name_front_end": "With a vision difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 240,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c65pldcog",
+        "variable_name_front_end": "With a cognitive difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 241,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c65pldamb",
+        "variable_name_front_end": "With an ambulatory difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 242,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c65pldscr",
+        "variable_name_front_end": "With a self-care difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 243,
+        "base_variable": "cvni65pl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "c65pldild",
+        "variable_name_front_end": "With an independent living difficulty",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Disability Status of the Civilian Noninstitutionalized Population",
+        "order": 244,
+        "base_variable": "cvni65pl",
         "unit_type": "basic"
     },
     {
@@ -3550,6 +4240,586 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "fb4",
+        "variable_name_front_end": "Foreign-born population",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Year of Entry",
+        "order": 425,
+        "base_variable": "fb4",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fb2010ltr",
+        "variable_name_front_end": "Entered 2010 or later",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Year of Entry",
+        "order": 426,
+        "base_variable": "fb4",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "pop5pl1",
+        "variable_name_front_end": "Population 5 years and over",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 427,
+        "base_variable": "pop5pl1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "engonly1",
+        "variable_name_front_end": "English only",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 428,
+        "base_variable": "pop5pl1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoeng1",
+        "variable_name_front_end": "Language other than English",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 429,
+        "base_variable": "pop5pl1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoenlep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 430,
+        "base_variable": "pop5pl1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgsp1",
+        "variable_name_front_end": "Spanish",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 431,
+        "base_variable": "lgsp1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgsplep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 432,
+        "base_variable": "lgsp1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgfr1",
+        "variable_name_front_end": "French, Haitian, or Cajun",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 433,
+        "base_variable": "lgfr1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgfrlep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 434,
+        "base_variable": "lgfr1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lggrm1",
+        "variable_name_front_end": "German or other West Germanic languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 435,
+        "base_variable": "lggrm1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lggrmlep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 436,
+        "base_variable": "lggrm1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgruspol1",
+        "variable_name_front_end": "Russian, Polish, or other Slavic languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 437,
+        "base_variable": "lgruspol1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgrsplep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 438,
+        "base_variable": "lgruspol1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoieu1",
+        "variable_name_front_end": "Other Indo-European languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 439,
+        "base_variable": "lgoieu1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoielep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 440,
+        "base_variable": "lgoieu1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgkor1",
+        "variable_name_front_end": "Korean",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 441,
+        "base_variable": "lgkor1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgkorlep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 442,
+        "base_variable": "lgkor1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgchi1",
+        "variable_name_front_end": "Chinese (incl. Mandarin, Catonese)",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 443,
+        "base_variable": "lgchi1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgchilep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 444,
+        "base_variable": "lgchi1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgviet1",
+        "variable_name_front_end": "Vietnamese",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 445,
+        "base_variable": "lgviet1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgvielep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 446,
+        "base_variable": "lgviet1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgtag1",
+        "variable_name_front_end": "Tagalog",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 447,
+        "base_variable": "lgtag1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgtaglep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 448,
+        "base_variable": "lgtag1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoasn1",
+        "variable_name_front_end": "Other Asian and Pacific Island languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 449,
+        "base_variable": "lgoasn1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoanlep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 450,
+        "base_variable": "lgoasn1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgarab1",
+        "variable_name_front_end": "Arabic",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 451,
+        "base_variable": "lgarab1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgarblep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 452,
+        "base_variable": "lgarab1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgolg1",
+        "variable_name_front_end": "Other and unspecified languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 453,
+        "base_variable": "lgolg1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgolglep1",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 454,
+        "base_variable": "lgolg1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "pop5pl2",
+        "variable_name_front_end": "Population 5 years and over",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 455,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "engonly2",
+        "variable_name_front_end": "English only",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 456,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoeng2",
+        "variable_name_front_end": "Language other than English",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 457,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgsp2",
+        "variable_name_front_end": "Spanish",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 458,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgfr2",
+        "variable_name_front_end": "French, Haitian, or Cajun",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 459,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lggrm2",
+        "variable_name_front_end": "German or other West Germanic languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 460,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgruspol2",
+        "variable_name_front_end": "Russian, Polish, or other Slavic languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 461,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoieu2",
+        "variable_name_front_end": "Other Indo-European languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 462,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgkor2",
+        "variable_name_front_end": "Korean",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 463,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgchi2",
+        "variable_name_front_end": "Chinese (incl. Mandarin, Catonese)",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 464,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgviet2",
+        "variable_name_front_end": "Vietnamese",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 465,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgtag2",
+        "variable_name_front_end": "Tagalog",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 466,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoasn2",
+        "variable_name_front_end": "Other Asian and Pacific Island languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 467,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgarab2",
+        "variable_name_front_end": "Arabic",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 468,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgolg2",
+        "variable_name_front_end": "Other and unspecified languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 469,
+        "base_variable": "pop5pl2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoenlep2",
+        "variable_name_front_end": "Speak English less than \"very well\"",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 470,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgsplep2",
+        "variable_name_front_end": "Spanish",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 471,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgfrlep2",
+        "variable_name_front_end": "French, Haitian, or Cajun",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 472,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lggrmlep2",
+        "variable_name_front_end": "German or other West Germanic languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 473,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgrsplep2",
+        "variable_name_front_end": "Russian, Polish, or other Slavic languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 474,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoielep2",
+        "variable_name_front_end": "Other Indo-European languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 475,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgkorlep2",
+        "variable_name_front_end": "Korean",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 476,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgchilep2",
+        "variable_name_front_end": "Chinese (incl. Mandarin, Catonese)",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 477,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgvielep2",
+        "variable_name_front_end": "Vietnamese",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 478,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgtaglep2",
+        "variable_name_front_end": "Tagalog",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 479,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgoanlep2",
+        "variable_name_front_end": "Other Asian and Pacific Island languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 480,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgarblep2",
+        "variable_name_front_end": "Arabic",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 481,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "lgolglep2",
+        "variable_name_front_end": "Other and unspecified languages",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Language Spoken at Home",
+        "order": 482,
+        "base_variable": "lgoenlep2",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "pop_5",
         "variable_name_front_end": "Total population",
         "product_type": "ACS",
@@ -4640,6 +5910,36 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "hh3",
+        "variable_name_front_end": "Total households",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Computers and Internet Use",
+        "order": 592,
+        "base_variable": "hh3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhcomp",
+        "variable_name_front_end": "With a computer",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Computers and Internet Use",
+        "order": 593,
+        "base_variable": "hh3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhint",
+        "variable_name_front_end": "With a broadband Internet subscription",
+        "product_type": "ACS",
+        "domain": "social",
+        "category": "Computers and Internet Use",
+        "order": 594,
+        "base_variable": "hh3",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "hh4",
         "variable_name_front_end": null,
         "product_type": "ACS",
@@ -4990,6 +6290,146 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "cvem16pl3",
+        "variable_name_front_end": "Civilian employed population 16 years and over",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 630,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "agffhm",
+        "variable_name_front_end": "Agriculture, forestry, fishing and hunting, and mining",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 631,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "constctn",
+        "variable_name_front_end": "Construction",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 632,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mnfctrng",
+        "variable_name_front_end": "Manufacturing",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 633,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "whlsale",
+        "variable_name_front_end": "Wholesale trade",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 634,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "retail",
+        "variable_name_front_end": "Retail trade",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 635,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "trwhut",
+        "variable_name_front_end": "Transportation and warehousing, and utilities",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 636,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "info",
+        "variable_name_front_end": "Information",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 637,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fire",
+        "variable_name_front_end": "Finance and insurance, and real estate and rental and leasing",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 638,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "prfsmgawm",
+        "variable_name_front_end": "Professional, scientific, and management, and administrative and waste management services",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 639,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "edhlthcsa",
+        "variable_name_front_end": "Educational services, and health care and social assistance",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 640,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "artenrafs",
+        "variable_name_front_end": "Arts, entertainment, and recreation, and accommodation, and food services",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 641,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "othnotpa",
+        "variable_name_front_end": "Other services, except public administration",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 642,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "pubadmin",
+        "variable_name_front_end": "Public administration",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Industry",
+        "order": 643,
+        "base_variable": "cvem16pl3",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "cvem16pl4",
         "variable_name_front_end": "Civilian employed population 16 years and over",
         "product_type": "ACS",
@@ -5046,6 +6486,106 @@
         "domain": "economic",
         "category": "Income and Benefits",
         "order": 649,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhiu10",
+        "variable_name_front_end": "Household income of less than $10,000",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 650,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi10t14",
+        "variable_name_front_end": "$10,000 to $14,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 651,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi15t24",
+        "variable_name_front_end": "$15,000 to $24,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 652,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi25t34",
+        "variable_name_front_end": "$25,000 to $34,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 653,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi35t49",
+        "variable_name_front_end": "$35,000 to $49,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 654,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi50t74",
+        "variable_name_front_end": "$50,000 to $74,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 655,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi75t99",
+        "variable_name_front_end": "$75,000 to $99,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 656,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hi100t149",
+        "variable_name_front_end": "$100,000 to $149,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 657,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hi150t199",
+        "variable_name_front_end": "$150,000 to $199,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 658,
+        "base_variable": "hh2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hhi200pl",
+        "variable_name_front_end": "$200,000 or more",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 659,
         "base_variable": "hh2",
         "unit_type": "basic"
     },
@@ -5130,6 +6670,106 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "famiu10",
+        "variable_name_front_end": "Family income of less than $10,000",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 668,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami10t14",
+        "variable_name_front_end": "$10,000 to $14,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 669,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami15t24",
+        "variable_name_front_end": "$15,000 to $24,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 670,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami25t34",
+        "variable_name_front_end": "$25,000 to $34,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 671,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami35t49",
+        "variable_name_front_end": "$35,000 to $49,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 672,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami50t74",
+        "variable_name_front_end": "$50,000 to $74,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 673,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami75t99",
+        "variable_name_front_end": "$75,000 to $99,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 674,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fi100t149",
+        "variable_name_front_end": "$100,000 to $149,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 675,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fi150t199",
+        "variable_name_front_end": "$150,000 to $199,999",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 676,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "fami200pl",
+        "variable_name_front_end": "$200,000 or more",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Income and Benefits",
+        "order": 677,
+        "base_variable": "fam2",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "mdfaminc",
         "variable_name_front_end": "Median family income (dollars)",
         "product_type": "ACS",
@@ -5198,6 +6838,246 @@
         "order": 684,
         "base_variable": "median",
         "unit_type": "median"
+    },
+    {
+        "pff_variable": "cvnipop2",
+        "variable_name_front_end": "Civilian noninstitutionalized population",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 685,
+        "base_variable": "cvnipop2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "hins",
+        "variable_name_front_end": "With health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 686,
+        "base_variable": "cvnipop2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "pvhins",
+        "variable_name_front_end": "With private health insurance",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 687,
+        "base_variable": "cvnipop2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "pbhins",
+        "variable_name_front_end": "With public coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 688,
+        "base_variable": "cvnipop2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nhins",
+        "variable_name_front_end": "No health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 689,
+        "base_variable": "cvnipop2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvniu18_2",
+        "variable_name_front_end": "Civilian noninstitutionalized population under 18 years",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 690,
+        "base_variable": "cvniu18_2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "u18nhins",
+        "variable_name_front_end": "No health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 691,
+        "base_variable": "cvniu18_2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cni1864_2",
+        "variable_name_front_end": "Civilian noninstitutionalized population 18 to 64 years",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 692,
+        "base_variable": null,
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvlf18t64",
+        "variable_name_front_end": "In labor force",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 693,
+        "base_variable": null,
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "cvlfem",
+        "variable_name_front_end": "Employed",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 694,
+        "base_variable": "cvlfem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "emhins",
+        "variable_name_front_end": "With health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 695,
+        "base_variable": "cvlfem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "empvhins",
+        "variable_name_front_end": "With private health insurance",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 696,
+        "base_variable": "cvlfem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "empbhins",
+        "variable_name_front_end": "With public coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 697,
+        "base_variable": "cvlfem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "emnhins",
+        "variable_name_front_end": "No health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 698,
+        "base_variable": "cvlfem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "uem",
+        "variable_name_front_end": "Unemployed",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 699,
+        "base_variable": "uem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "uemhins",
+        "variable_name_front_end": "With health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 700,
+        "base_variable": "uem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "uempvhins",
+        "variable_name_front_end": "With private health insurance",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 701,
+        "base_variable": "uem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "uempbhins",
+        "variable_name_front_end": "With public coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 702,
+        "base_variable": "uem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "uemnhins",
+        "variable_name_front_end": "No health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 703,
+        "base_variable": "uem",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nlf2",
+        "variable_name_front_end": "Not in labor force",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 704,
+        "base_variable": "nlf2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nlfhins",
+        "variable_name_front_end": "With health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 705,
+        "base_variable": "nlf2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nlfpvhins",
+        "variable_name_front_end": "With private health insurance",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 706,
+        "base_variable": "nlf2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nlfpbhins",
+        "variable_name_front_end": "With public coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 707,
+        "base_variable": "nlf2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "nlfnhins",
+        "variable_name_front_end": "No health insurance coverage",
+        "product_type": "ACS",
+        "domain": "economic",
+        "category": "Health Insurance Coverage",
+        "order": 708,
+        "base_variable": "nlf2",
+        "unit_type": "basic"
     },
     {
         "pff_variable": "fampvu",
@@ -6760,6 +8640,106 @@
         "unit_type": "basic"
     },
     {
+        "pff_variable": "hu3",
+        "variable_name_front_end": "Total housing units",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 865,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt10ltr",
+        "variable_name_front_end": "Built 2010 or later",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 866,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt00t09",
+        "variable_name_front_end": "Built 2000 to 2009",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 867,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt90t99",
+        "variable_name_front_end": "Built 1990 to 1999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 868,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt80t89",
+        "variable_name_front_end": "Built 1980 to 1989",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 869,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt70t79",
+        "variable_name_front_end": "Built 1970 to 1979",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 870,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt60t69",
+        "variable_name_front_end": "Built 1960 to 1969",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 871,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt50t59",
+        "variable_name_front_end": "Built 1950 to 1959",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 872,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "blt40t49",
+        "variable_name_front_end": "Built 1940 to 1949",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 873,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "bltbf39",
+        "variable_name_front_end": "Built 1939 or earlier",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Structure Built",
+        "order": 874,
+        "base_variable": "hu3",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "hu4",
         "variable_name_front_end": "Total housing units",
         "product_type": "ACS",
@@ -6920,6 +8900,56 @@
         "unit_type": "mean"
     },
     {
+        "pff_variable": "ochu3",
+        "variable_name_front_end": "Occupied housing units",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Householder Moved Into Unit",
+        "order": 891,
+        "base_variable": "ochu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mv10ltr",
+        "variable_name_front_end": "Moved in 2010 or later",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Householder Moved Into Unit",
+        "order": 892,
+        "base_variable": "ochu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mv00t09",
+        "variable_name_front_end": "Moved in 2000 to 2009",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Householder Moved Into Unit",
+        "order": 893,
+        "base_variable": "ochu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mv90t99",
+        "variable_name_front_end": "Moved in 1990 to 1999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Householder Moved Into Unit",
+        "order": 894,
+        "base_variable": "ochu3",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "mvbf89",
+        "variable_name_front_end": "Moved in 1989 or earlier",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Year Householder Moved Into Unit",
+        "order": 895,
+        "base_variable": "ochu3",
+        "unit_type": "basic"
+    },
+    {
         "pff_variable": "ochu4",
         "variable_name_front_end": "Occupied housing units",
         "product_type": "ACS",
@@ -7016,6 +9046,86 @@
         "domain": "housing",
         "category": "Value",
         "order": 905,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vlu50",
+        "variable_name_front_end": "Less than $50,000",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 906,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl50t99",
+        "variable_name_front_end": "$50,000 to $99,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 907,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl100t149",
+        "variable_name_front_end": "$100,000 to $149,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 908,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl150t199",
+        "variable_name_front_end": "$150,000 to $199,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 909,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl200t299",
+        "variable_name_front_end": "$200,000 to $299,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 910,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl300t499",
+        "variable_name_front_end": "$300,000 to $499,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 911,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl500t999",
+        "variable_name_front_end": "$500,000 to $999,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 912,
+        "base_variable": "oochu2",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "vl1milpl",
+        "variable_name_front_end": "$1,000,000 or more",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Value",
+        "order": 913,
         "base_variable": "oochu2",
         "unit_type": "basic"
     },
@@ -7226,6 +9336,76 @@
         "domain": "housing",
         "category": "Gross Rent",
         "order": 934,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gru500",
+        "variable_name_front_end": "Less than $500",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 935,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gr500t999",
+        "variable_name_front_end": "$500 to $999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 936,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gr1kt14k",
+        "variable_name_front_end": "$1,000 to $1499",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 937,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gr15kt19k",
+        "variable_name_front_end": "$1,500 to $1,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 938,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gr20kt24k",
+        "variable_name_front_end": "$2,000 to $2,499",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 939,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gr25kt29k",
+        "variable_name_front_end": "$2,500 to $2,999",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 940,
+        "base_variable": "ochuprnt1",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "gr3kpl",
+        "variable_name_front_end": "$3,000 or more",
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Gross Rent",
+        "order": 941,
         "base_variable": "ochuprnt1",
         "unit_type": "basic"
     },
@@ -7680,12 +9860,32 @@
         "unit_type": "basic"
     },
     {
-        "pff_variable": "ov1milpl",
+        "pff_variable": "ov1t149m",
         "variable_name_front_end": null,
         "product_type": "ACS",
         "domain": "housing",
         "category": "Housing- Special Variable",
-        "order": 986,
+        "order": 987,
+        "base_variable": "mdvl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "ov150t199m",
+        "variable_name_front_end": null,
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Housing- Special Variable",
+        "order": 988,
+        "base_variable": "mdvl",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "ov2milpl",
+        "variable_name_front_end": null,
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Housing- Special Variable",
+        "order": 989,
         "base_variable": "mdvl",
         "unit_type": "basic"
     },
@@ -7900,12 +10100,42 @@
         "unit_type": "basic"
     },
     {
-        "pff_variable": "r2000pl",
+        "pff_variable": "r2kt2499",
         "variable_name_front_end": null,
         "product_type": "ACS",
         "domain": "housing",
         "category": "Housing- Special Variable",
-        "order": 1011,
+        "order": 1012,
+        "base_variable": "mdgr",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "r2p5t2999",
+        "variable_name_front_end": null,
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Housing- Special Variable",
+        "order": 1013,
+        "base_variable": "mdgr",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "r3kt3499",
+        "variable_name_front_end": null,
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Housing- Special Variable",
+        "order": 1014,
+        "base_variable": "mdgr",
+        "unit_type": "basic"
+    },
+    {
+        "pff_variable": "r3500pl",
+        "variable_name_front_end": null,
+        "product_type": "ACS",
+        "domain": "housing",
+        "category": "Housing- Special Variable",
+        "order": 1015,
         "base_variable": "mdgr",
         "unit_type": "basic"
     },
