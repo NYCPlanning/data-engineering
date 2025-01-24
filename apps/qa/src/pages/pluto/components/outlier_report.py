@@ -32,9 +32,9 @@ class OutlierReport:
         if df.empty:
             st.write("There are no outliers for this check.")
         else:
-            st.write(f"There are {df.shape[0]} outliers in total.")
             if filter:
                 df = filter(df)
+            st.write(f"There are {df.shape[0]} outliers in total.")
 
             with st.expander("Show table"):
                 AgGrid(df)
