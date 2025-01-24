@@ -64,14 +64,22 @@ class OutlierReport:
         records = [i["values"] for i in self.v_outlier_records if i["field"] == field][
             0
         ]
-
+        print(f"\n\n\nrecords ({field}):", records)  # TODO: delete this debug statement
         if records:
             df = pd.DataFrame(records)
 
             if field == "building_area_increase":
                 df = df.drop(columns=["pair"])
 
-            df["bbl"] = pd.to_numeric(df["bbl"], downcast="integer")
+            # round values to integer in numeric-like columns
+            for col in df.columns:
+                if col != "bbl":
+                    df[col] = pd.to_numeric(
+                        df[col].round(), errors="ignore", downcast="integer"
+                    )
+                else:
+                    df["bbl"] = pd.to_numeric(df["bbl"], downcast="integer")
+
             return df
         else:
             return pd.DataFrame()
