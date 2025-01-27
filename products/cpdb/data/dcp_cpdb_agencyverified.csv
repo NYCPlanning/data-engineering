@@ -1121,16 +1121,16 @@ Canceled - remove from map,DCAS,,,,, Fixed Asset, BPL - MILL BASIN BR LED RETROF
 ,DOHMH,,,,, Fixed Asset, APICHA COMMUNITY HEALTH CENTER: OUTFITTING OF CLINICAL EXAM  ,Pass-through,850HLQNAPICH,unmapped,,,
 ,DOHMH,,,,, , CATHOLIC MANAGED LONG TERM CARE (D/B/A ARCHCARE SENIOR LIFE  ,Pass-through,850HL82ARCHC,unmapped,,,
 ,DOHMH,,,,, Fixed Asset, DOH CLINIC CODE CORRECTIONS                                  ,Pass-through,81901199601,unmapped,,,
-385 Throop Ave.,DOHMH,3017960001.0,3050268???,Brooklyn,, Fixed Asset, DOHMH - LED LIGHTING UPGRADE (Bedford)                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11221.0
-259 Bristol Street,DOHMH,3035740001.0,3326534???,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Brownsville)                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11212.0
-335 Central Avenue,DOHMH,3033240001.0,3076115?,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Bushwick)                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11221.0
+385 Throop Ave.,DOHMH,3017960001.0,3050268,Brooklyn,, Fixed Asset, DOHMH - LED LIGHTING UPGRADE (Bedford)                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11221.0
+259 Bristol Street,DOHMH,3035740001.0,3326534,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Brownsville)                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11212.0
+335 Central Avenue,DOHMH,3033240001.0,3076115,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Bushwick)                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11221.0
 1218 Prospect Place,DOHMH,3013650009.0,,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Crown Heights))                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11213.0
-151 Maujer Street,DOHMH,3027880033.0,3069604??,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Williamsburg))                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11206.0
+151 Maujer Street,DOHMH,3027880033.0,3069604,Brooklyn,,, DOHMH - LED LIGHTING UPGRADE (Williamsburg))                           ,Yes - Multi-site,816ACEDOH502,unmapped,,,11206.0
 2238 5th Ave,DOHMH,1017340034.0,,Manhattan,, Fixed Asset, DOHMH - LIGHTING UPGRADES (Central Harlem)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,10035.0
-1309 Fulton Ave,DOHMH,2029250080.0,2009620??,Bronx,,, DOHMH - LIGHTING UPGRADES (Morrisania)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,10456.0
+1309 Fulton Ave,DOHMH,2029250080.0,2009620,Bronx,,, DOHMH - LIGHTING UPGRADES (Morrisania)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,10456.0
 1601 Avenue S,DOHMH,3068210142.0,3184035,Brooklyn,,, DOHMH - LIGHTING UPGRADES (Homecrest)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,11229.0
-12-26 31st Ave,DOHMH,4005180030.0,4005758?,Queens,,, DOHMH - LIGHTING UPGRADES (Astoria)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,11106.0
-34-33 Junction Blvd,DOHMH,4017290027.0,4042887?,Queens,,, DOHMH - LIGHTING UPGRADES (Corona)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,11372.0
+12-26 31st Ave,DOHMH,4005180030.0,4005758,Queens,,, DOHMH - LIGHTING UPGRADES (Astoria)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,11106.0
+34-33 Junction Blvd,DOHMH,4017290027.0,4042887,Queens,,, DOHMH - LIGHTING UPGRADES (Corona)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,11372.0
 90-37 Parsons Blvd,DOHMH,4097560006.0,,Queens,,, DOHMH - LIGHTING UPGRADES (Jamaica)                               ,Yes - Multi-site,816ACEDOH501,unmapped,,,11432.0
 455 1ST AVE,DOHMH,1009320017.0,1020610,Manhattan,, Fixed Asset, DOHMH FACILITIES                                             ,Yes - Single Building,816HL82PHLNB,unmapped,,,10016.0
 ,DOHMH,,,,, Fixed Asset, EDEN II SCHOOL FOR AUTISTIC CHILDREN - INITIAL OUTFITTING    ,Pass-through,801HLEDEN2IO,unmapped,,,
