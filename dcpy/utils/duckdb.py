@@ -34,14 +34,12 @@ def setup_postgres(database: str | None = None):
         USER '{os.environ["BUILD_ENGINE_USER"]}',
         PASSWORD '{os.environ["BUILD_ENGINE_PASSWORD"]}'
     );""")
-    duckdb.sql(
-        f"ATTACH '' AS {database} (TYPE POSTGRES, SECRET postgres_build_engine);"
-    )
+    duckdb.sql("ATTACH '' AS pg (TYPE POSTGRES, SECRET postgres_build_engine);")
 
 
 def copy_file_to_table(
     filepath: Path, table_name: str, pg_client: PostgresClient | None = None
 ):
     if pg_client:
-        table_name = f"{pg_client.database}.{pg_client.schema}.{table_name}"
+        table_name = f"pg.{pg_client.schema}.{table_name}"
     duckdb.sql(f"CREATE TABLE {table_name} AS SELECT * FROM '{filepath}'")
