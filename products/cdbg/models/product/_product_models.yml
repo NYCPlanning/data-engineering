@@ -199,6 +199,43 @@ models:
     data_type: string
     tests: [ not_null ]
 
+  - name: geom
+    data_type: geometry(Geometry, 4326)
+    tests: [ not_null ]
+
+- name: cdbg_tracts_bytes_csv
+  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in the DCP Bytes csv
+  columns:
+  - name: '"OBJECTID"'
+    tests: [ unique, not_null ]
+  - name: '"BoroCode"'
+  - name: '"BoroCT"'
+  - name: '"BldgArea"'
+  - name: '"ResArea"'
+  - name: '"Res_pct"'
+  - name: '"TotalPop"'
+  - name: '"LowMod_Population"'
+  - name: '"LoMod_pct"'
+  - name: '"Eligibility"'
+  - name: '"CT_text"'
+
+- name: cdbg_tracts_bytes_fgdb
+  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in the DCP Bytes ESRI Geodatabase
+  columns:
+  - name: '"OBJECTID"'
+    tests: [ unique, not_null ]
+  - name: '"BoroCT2020"'
+  - name: '"NTACode"'
+  - name: '"NTAName"'
+  - name: '"BldgArea"'
+  - name: '"ResArea"'
+  - name: '"Res_pct"'
+  - name: '"TotalPop"'
+  - name: '"LowMod_Population"'
+  - name: '"LoMod_pct"'
+  - name: '"Eligibility"'
+  - name: geometry
+
 - name: cdbg_tracts_excel
   description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in excel
   columns:

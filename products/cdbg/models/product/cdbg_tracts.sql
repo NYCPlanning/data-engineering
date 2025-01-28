@@ -11,6 +11,7 @@ SELECT
     low_mod_income_population::integer,
     round(low_mod_income_population_percentage::numeric, 2) AS low_mod_income_population_percentage,
     eligibility_flag,
-    eligibility
+    eligibility,
+    geom
 FROM {{ ref("int__tracts") }}
 ORDER BY bct2020
