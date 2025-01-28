@@ -8,6 +8,12 @@ models:
     tests: [ unique, not_null ]
   - name: borough_name
   - name: tract
+  - name: bct2020
+    tests:
+    # This test may fail because three tracts in stg__census_tracts have the same bct2020
+    - dbt_expectations.expect_column_distinct_count_to_equal_other_table:
+        compare_model: ref('stg__census_tracts')
+        column_name: bct2020
   - name: block_group
   - name: total_floor_area
   - name: residential_floor_area
@@ -87,6 +93,8 @@ models:
     tests: [ unique, not_null ]
   - name: borough_name
   - name: tract
+  - name: bct2020
+    tests: [ unique, not_null ]
   - name: block_group
   - name: total_floor_area
   - name: residential_floor_area

@@ -8,6 +8,23 @@ models:
           - not_null
           - unique
 
+  - name: stg__census_tracts
+    columns:
+      - name: geoid
+        tests:
+          - not_null
+          - unique
+      - name: bct2020_source
+        tests:
+          - not_null
+          - unique:
+              config:
+                severity: warn
+      - name: bct2020
+        tests:
+          - not_null
+          - unique
+
   - name: stg__low_mod_by_block_group
     columns:
       - name: geoid
