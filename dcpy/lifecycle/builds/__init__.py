@@ -1,6 +1,7 @@
 BUILD_REPO = "data-engineering"
 BUILD_DBS = [
     "db-cbbr",
+    "db-cdbg",
     "db-checkbook",
     "db-colp",
     "db-cpdb",
