@@ -2,11 +2,11 @@ name: Ingest - 📁 ArcGIS Feature Server Updates
 
 on:
   schedule:
-    # Weekly Cron job
-    - cron: "0 0 * * 0"
+  # Weekly Cron job
+  - cron: "0 0 * * 0"
   workflow_dispatch:
     inputs:
-      dev_image: 
+      dev_image:
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
         required: true
@@ -18,73 +18,33 @@ on:
 
 jobs:
   dataloading:
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
-    env:
-      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
-      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
-      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        dataset:
-          - dcp_cscl_commonplace
-          - dcp_cscl_complex
-          - dcp_waterfront_access_map_wpaa
-          - dcp_waterfront_access_map_pow
-          - dcp_wrp_recognized_ecological_complexes
-          - dcp_wrp_special_natural_waterfront_areas
-          - nysdec_freshwater_wetlands_checkzones
-          - nysdec_freshwater_wetlands
-          - nysdec_lands
-          - nysdec_natural_heritage_communities
-          - nysdec_priority_lakes
-          - nysdec_priority_shorelines
-          - nysdec_priority_estuaries
-          - nysdec_priority_streams
-          - nysdec_tidal_wetlands
-          - nysparks_historicplaces
-          - nysparks_parks
-          - nysshpo_historic_buildings_points
-          - nysshpo_historic_buildings_polygons
-          - nysshpo_archaeological_buffer_areas
-          - usnps_parks
-          
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-
-      - name: Finish container setup ...
-        run: ./bash/docker_container_setup.sh
-
-      - name: Ingest
-        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --latest
-
-  create_issue_on_failure:
-    needs: dataloading
-    runs-on: ubuntu-22.04
-    if: ${{ failure() && (github.event_name == 'schedule') }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github
-      - name: Create issue on failure
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION: ${{ github.workflow }}
-          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
-          update_existing: true
+    uses: ./.github/workflows/ingest_multiple.yml
+    secrets: inherit
+    with:
+      datasets: |-
+        dcp_cscl_commonplace
+        dcp_cscl_complex
+        dcp_waterfront_access_map_wpaa
+        dcp_waterfront_access_map_pow
+        dcp_wrp_recognized_ecological_complexes
+        dcp_wrp_special_natural_waterfront_areas
+        nysdec_freshwater_wetlands_checkzones
+        nysdec_freshwater_wetlands
+        nysdec_lands
+        nysdec_natural_heritage_communities
+        nysdec_priority_lakes
+        nysdec_priority_shorelines
+        nysdec_priority_estuaries
+        nysdec_priority_streams
+        nysdec_tidal_wetlands
+        nysparks_historicplaces
+        nysparks_parks
+        nysshpo_historic_buildings_points
+        nysshpo_historic_buildings_polygons
+        nysshpo_archaeological_buffer_areas
+        usnps_parks
+      dev_bucket: ${{ inputs.dev_bucket }}
+      dev_image: ${{ inputs.dev_image }}
+      latest: true
+      create_issue: ${{ github.event_name == 'schedule' }}
+      label: ${{ github.workflow }}

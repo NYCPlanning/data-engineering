@@ -1,12 +1,11 @@
 name: Ingest - 📁 Bytes Quaterly Updates
-
 on:
   workflow_dispatch:
     inputs:
       version:
         description: 'The quarterly version name (e.g. 21b, has to be all lower case)'
         required: true
-      dev_image: 
+      dev_image:
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
         required: true
@@ -18,68 +17,46 @@ on:
 
 jobs:
   dataloading:
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
-    env:
-      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
-      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
-      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        dataset:
-          - dcp_atomicpolygons
-          - dcp_boroboundaries
-          - dcp_boroboundaries_wi
-          - dcp_cb2010
-          - dcp_cb2010_wi
-          - dcp_cb2020
-          - dcp_cb2020_wi
-          - dcp_cdboundaries
-          - dcp_cdboundaries_wi
-          - dcp_cdta2020
-          - dcp_congressionaldistricts
-          - dcp_congressionaldistricts_wi
-          - dcp_councildistricts
-          - dcp_councildistricts_wi
-          - dcp_ct2010
-          - dcp_ct2010_wi
-          - dcp_ct2020
-          - dcp_ct2020_wi
-          - dcp_electiondistricts
-          - dcp_electiondistricts_wi
-          - dcp_firecompanies
-          - dcp_healthareas
-          - dcp_healthcenters
-          - dcp_lion
-          - dcp_municipalcourtdistricts
-          - dcp_municipalcourtdistricts_wi
-          - dcp_nta2010
-          - dcp_nta2020
-          - dcp_pad
-          - dcp_policeprecincts
-          - dcp_school_districts
-          - dcp_stateassemblydistricts
-          - dcp_stateassemblydistricts_wi
-          - dcp_statesenatedistricts
-          - dcp_statesenatedistricts_wi
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-
-      - name: Finish container setup ...
-        run: ./bash/docker_container_setup.sh
-
-      - name: Ingest
-        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --version ${{ inputs.version }} --latest
+    uses: ./.github/workflows/ingest_multiple.yml
+    secrets: inherit
+    with:
+      datasets: |-
+        dcp_atomicpolygons
+        dcp_boroboundaries
+        dcp_boroboundaries_wi
+        dcp_cb2010
+        dcp_cb2010_wi
+        dcp_cb2020
+        dcp_cb2020_wi
+        dcp_cdboundaries
+        dcp_cdboundaries_wi
+        dcp_cdta2020
+        dcp_congressionaldistricts
+        dcp_congressionaldistricts_wi
+        dcp_councildistricts
+        dcp_councildistricts_wi
+        dcp_ct2010
+        dcp_ct2010_wi
+        dcp_ct2020
+        dcp_ct2020_wi
+        dcp_electiondistricts
+        dcp_electiondistricts_wi
+        dcp_firecompanies
+        dcp_healthareas
+        dcp_healthcenters
+        dcp_lion
+        dcp_municipalcourtdistricts
+        dcp_municipalcourtdistricts_wi
+        dcp_nta2010
+        dcp_nta2020
+        dcp_pad
+        dcp_policeprecincts
+        dcp_school_districts
+        dcp_stateassemblydistricts
+        dcp_stateassemblydistricts_wi
+        dcp_statesenatedistricts
+        dcp_statesenatedistricts_wi
+      dev_bucket: ${{ inputs.dev_bucket }}
+      dev_image: ${{ inputs.dev_image }}
+      version: ${{ inputs.version }}
+      latest: true
