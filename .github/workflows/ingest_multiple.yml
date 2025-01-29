@@ -1,0 +1,53 @@
+name: Ingest - helper workflow to run multiple
+
+on:
+  workflow_call:
+    inputs:
+      datasets:
+        type: str
+      version:
+        type: string
+        required: false
+      dev_image:
+        description: "Use dev image specific to this branch? (If exists)"
+        type: string
+        default: "false"
+      dev_bucket:
+        description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
+        type: string
+        required: false
+
+jobs:
+  dataloading:
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+    env:
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        dataset: ${{ fromJSON(inputs.datasets) }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+
+    - name: Finish container setup ...
+      run: ./bash/docker_container_setup.sh
+
+    - name: Ingest
+      env:
+        version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
+      run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version --latest
