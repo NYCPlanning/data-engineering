@@ -18,7 +18,7 @@ on:
 
 jobs:
   dataloading:
-    uses: NYCPlanning/data-engineering/.github/workflows/ingest_multiple.yml@main
+    uses: NYCPlanning/data-engineering/.github/workflows/ingest_multiple.yml@fvk-ingest-gha-cleanup
     with:
       datasets:
       - dcp_edesignation_csv
