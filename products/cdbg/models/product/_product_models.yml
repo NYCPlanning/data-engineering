@@ -215,7 +215,7 @@ models:
   - name: '"Res_pct"'
   - name: '"TotalPop"'
   - name: '"LowMod_Population"'
-  - name: '"LoMod_pct"'
+  - name: '"LowMod_pct"'
   - name: '"Eligibility"'
   - name: '"CT_text"'
 
@@ -232,7 +232,7 @@ models:
   - name: '"Res_pct"'
   - name: '"TotalPop"'
   - name: '"LowMod_Population"'
-  - name: '"LoMod_pct"'
+  - name: '"LowMod_pct"'
   - name: '"Eligibility"'
   - name: geometry
 

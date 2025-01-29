@@ -16,7 +16,7 @@ SELECT
     residential_floor_area_percentage AS "Res_pct",
     potential_lowmod_population AS "TotalPop",
     low_mod_income_population AS "LowMod_Population",
-    low_mod_income_population_percentage AS "LoMod_pct",
+    low_mod_income_population_percentage AS "LowMod_pct",
     eligibility AS "Eligibility",
     cdbg_tracts.geom AS geometry
 FROM cdbg_tracts
