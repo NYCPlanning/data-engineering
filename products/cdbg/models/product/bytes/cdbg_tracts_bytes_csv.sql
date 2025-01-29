@@ -1,5 +1,5 @@
 SELECT
-    ROW_NUMBER() OVER () AS "OBJECTID",
+    "OBJECTID",
     borough_code AS "BoroCode",
     bct2020 AS "BoroCT",
     ct2020 AS "Census Tract Long",
