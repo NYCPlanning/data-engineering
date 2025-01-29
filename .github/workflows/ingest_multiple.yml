@@ -11,6 +11,7 @@ on:
       dev_image:
         description: "Use dev image specific to this branch? (If exists)"
         type: string
+        required: false
         default: "false"
       dev_bucket:
         description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"

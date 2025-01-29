@@ -18,7 +18,7 @@ on:
 
 jobs:
   dataloading:
-    uses: .github/workflows/ingest_multiple.yml
+    uses: NYCPlanning/data-engineering/.github/workflows/ingest_multiple.yml@main
     with:
       datasets:
       - dcp_edesignation_csv
