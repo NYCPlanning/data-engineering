@@ -7,7 +7,7 @@ tracts AS (
 )
 
 SELECT
-    ROW_NUMBER() OVER () AS "OBJECTID",
+    "OBJECTID",
     cdbg_tracts.bct2020 AS "BoroCT2020",
     tracts.nta2020 AS "NTACode",
     tracts.ntaname AS "NTAName",

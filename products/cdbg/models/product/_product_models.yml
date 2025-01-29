@@ -147,6 +147,10 @@ models:
       enforced: true
 
   columns:
+  - name: '"OBJECTID"'
+    data_type: bigint
+    tests: [ unique, not_null ]
+
   - name: borough_name
     data_type: string
     tests: [ not_null ]
