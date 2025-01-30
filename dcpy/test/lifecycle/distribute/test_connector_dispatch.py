@@ -5,7 +5,6 @@ from typing import Any
 from dcpy.models.lifecycle.distribute import DatasetDestinationPushArgs
 from dcpy.models.product import metadata as md
 from dcpy.lifecycle.distribute import dispatcher
-from dcpy.lifecycle import distribute
 
 
 @pytest.fixture
@@ -63,20 +62,4 @@ def test_dynamic_dispatch(org_metadata: md.OrgMetadata):
 
     assert snowflake_connector.push_counter == 1, (
         "The mock snowflake connector should have been called."
-    )
-
-
-def test_distribute_sftp(org_metadata: md.OrgMetadata, COLP_PACKAGE_PATH):
-    dispatch_details: DatasetDestinationPushArgs = {
-        "metadata": org_metadata.product("colp").dataset("colp"),
-        "dataset_destination_id": "garlic_sftp",
-        "publish": False,
-        "dataset_package_path": COLP_PACKAGE_PATH,
-        "metadata_only": False,
-    }
-    result = distribute.to_dataset_destination(**dispatch_details)
-    # TODO implement SFTP push
-    assert (
-        result
-        == "Error pushing City Owned and Leased Property (COLP), destination: garlic_sftp: Push not implemented for FTP"
     )
