@@ -8,7 +8,6 @@ import typer
 from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle import WORKING_DIRECTORIES
 from dcpy.lifecycle.package import xlsx_writer
-from dcpy.lifecycle.package import assemble
 import dcpy.models.product.dataset.metadata as md
 import dcpy.models.product.metadata as prod_md
 from dcpy.utils.logging import logger
@@ -55,7 +54,7 @@ def unzip_into_package(
 
     Rationale: A product like Pluto will often zip assets (a csv, a readme) into a zip.
     This allows us to reverse that process, to construct packages straight from what's
-    zipped up on Bytes.
+    zipped up on a destination.
     """
     package = product_metadata.get_package(package_id)
     file_ids_to_paths = _file_id_to_zipped_paths(product_metadata, package_id)
@@ -88,10 +87,6 @@ def unzip_into_package(
                 copy_from_path,
                 copy_to_path,
             )
-
-
-BYTES_DEST_TYPE = "bytes"
-NON_BYTES_DEST_ERROR = "Cannot distribute to non-bytes destination types"
 
 
 def _get_file_url_mappings_by_id(
@@ -131,10 +126,8 @@ def pull_destination_files(
 ):
     """Pull all files for a given destination."""
     dest = product_metadata.get_destination(destination_id)
-    if dest.type != BYTES_DEST_TYPE:
-        raise Exception(f"{NON_BYTES_DEST_ERROR}. Found: {dest.type}")
 
-    logger.info(f"Pulling BYTES package for {destination_id}")
+    logger.info(f"Pulling package from {destination_id}")
     ids_to_paths_and_dests = _get_file_url_mappings_by_id(
         product_metadata=product_metadata, destination_id=destination_id
     )
@@ -166,9 +159,16 @@ def pull_destination_files(
             )
 
 
-def pull_all_destination_files(local_package_path: Path, product_metadata: md.Metadata):
-    """Pull all files for all BYTES destinations in the metadata."""
-    dests = [d for d in product_metadata.destinations if d.type == BYTES_DEST_TYPE]
+def pull_destination_package_files(
+    *,
+    source_destination_id: str,
+    local_package_path: Path,
+    product_metadata: md.Metadata,
+):
+    """Pull all files for a destination."""
+    dests = [
+        d for d in product_metadata.destinations if d.type == source_destination_id
+    ]
     for d in dests:
         pull_destination_files(
             local_package_path, product_metadata, d.id, unpackage_zips=True
@@ -185,7 +185,7 @@ ASSEMBLY_INSTRUCTIONS_KEY = "assembly"
 METADATA_OVERRIDE_KEY = "with_metadata_from"
 
 
-def assemble_dataset_from_bytes(
+def assemble_package(
     *,
     org_md: prod_md.OrgMetadata,
     product: str,
@@ -196,10 +196,12 @@ def assemble_dataset_from_bytes(
     metadata_only: bool = False,
 ) -> Path:
     out_path = out_path or ASSEMBLY_DIR / product / version / dataset
-    logger.info(f"Assembling dataset from BYTES. Writing to: {out_path}")
+    logger.info(
+        f"Assembling dataset from {source_destination_id}. Writing to: {out_path}"
+    )
 
     dataset_metadata = org_md.product(product).dataset(dataset)
-    assemble.pull_destination_files(
+    pull_destination_files(
         out_path,
         dataset_metadata,
         source_destination_id,
@@ -229,8 +231,8 @@ def assemble_dataset_from_bytes(
 app = typer.Typer()
 
 
-@app.command("assemble_from_bytes")
-def assemble_dataset_from_bytes_cli(
+@app.command("assemble_from_source")
+def assemble_dataset_cli(
     product: str,
     version: str,
     org_metadata_path: Path = typer.Option(
@@ -258,18 +260,19 @@ def assemble_dataset_from_bytes_cli(
         help="Only Assemble Metadata.",
     ),
     source_destination_id: str = typer.Option(
-        BYTES_DEST_TYPE,
         "--source-destination-id",
         "-s",
         help="The Destination which acts as a source for this assembly",
     ),
 ):
+    assert source_destination_id, (
+        f"A {source_destination_id} is required to pull files."
+    )
     dataset_name = dataset or product
     org_md = prod_md.OrgMetadata.from_path(
         org_metadata_path, template_vars={"version": version}
     )
-
-    assemble_dataset_from_bytes(
+    assemble_package(
         org_md=org_md,
         product=product,
         dataset=dataset_name,
@@ -281,9 +284,10 @@ def assemble_dataset_from_bytes_cli(
 
 
 @app.command("pull_dataset")
-def _dataset_from_bytes_cli(
+def _pull_dataset_cli(
     product: str,
     version: str,
+    source_destination_id: str,
     dataset: str = typer.Option(
         None,
         "--dataset",
@@ -303,6 +307,8 @@ def _dataset_from_bytes_cli(
     )
     out_dir = ASSEMBLY_DIR / product / version / dataset
     dataset_metadata = org_md.product(product).dataset(dataset)
-    pull_all_destination_files(
-        local_package_path=out_dir, product_metadata=dataset_metadata
+    pull_destination_package_files(
+        source_destination_id=source_destination_id,
+        local_package_path=out_dir,
+        product_metadata=dataset_metadata,
     )

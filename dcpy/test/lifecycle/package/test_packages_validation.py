@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-from dcpy.lifecycle.package import validate
+from dcpy.lifecycle import package
 import dcpy.models.product.dataset.metadata as md
 
 
@@ -21,14 +21,14 @@ def colp_metadata(COLP_PACKAGE_PATH):
 
 
 def test_colp_single_feature_package(colp_metadata, COLP_PACKAGE_PATH):
-    validation = validate.validate_package_from_path(
-        COLP_PACKAGE_PATH, metadata_args={"version": COLP_VERSION}
+    validation = package.validate_package(COLP_PACKAGE_PATH)
+
+    non_metadata_files = [f for f in colp_metadata.files if not f.file.is_metadata]
+    assert len(non_metadata_files) == len(validation.file_validations), (
+        "There should be a validation for each dataset file"
     )
-    assert len([f for f in colp_metadata.files if not f.file.is_metadata]) == len(
-        validation
-    ), "There should be a validation for each dataset file"
-    errors = sum([v.errors for v in validation], [])
-    assert 0 == len(errors), "No Errors should have been found"
+
+    assert not validation.has_errors(), "No Errors should have been found"
 
 
 def test_missing_attachments(colp_metadata, COLP_PACKAGE_PATH):
@@ -42,13 +42,14 @@ def test_missing_attachments(colp_metadata, COLP_PACKAGE_PATH):
         )
     )
 
-    validations = validate.validate_package_files(COLP_PACKAGE_PATH, colp_metadata)
-    errors = sum([v.errors for v in validations], [])
+    validation = package.validate_package(COLP_PACKAGE_PATH, colp_metadata)
+    assert validation.has_errors(), "the Package validation should have errors"
 
-    assert len(errors) == 1, (
-        f"An error should have been found for the missing attachment. Found: {errors}"
+    files_with_errors = [v for v in validation.file_validations if v.errors]
+    assert len(files_with_errors) == 1, (
+        f"An single error should have been found for the missing attachment. Validation: {validation}"
     )
 
-    assert fake_attachment_id in errors[0].message, (
+    assert fake_attachment_id in files_with_errors[0].errors[0].message, (
         "The error message should mention the missing package file."
     )

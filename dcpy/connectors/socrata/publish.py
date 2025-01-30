@@ -578,10 +578,10 @@ class SocrataDestination:
 
 
 def push_dataset(
+    *,
     metadata: md.Metadata,
     dataset_destination_id: str,
     dataset_package_path: Path,
-    *,
     publish: bool = False,
     metadata_only: bool = False,
 ):
