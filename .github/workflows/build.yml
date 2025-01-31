@@ -142,7 +142,7 @@ jobs:
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   checkbook:
     needs: health_check
-    if: inputs.dataset_name == 'checkbook' || inputs.dataset_name  == 'all'
+    if: inputs.dataset_name == 'checkbook'
     uses: ./.github/workflows/checkbook_build.yml
     secrets: inherit
     with:
