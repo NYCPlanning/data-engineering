@@ -25,10 +25,10 @@ UPDATE dcp_cpdb_agencyverified a
 SET geom = ST_CENTROID(b.wkb_geometry)
 FROM doitt_buildingfootprints AS b
 WHERE
-    a.bin::bigint::text = b.bin::bigint::text
+    a.bin::float::bigint = b.bin::bigint
     AND a.bin IS NOT NULL
     AND a.geom IS NULL
-    AND a.bin::text != '#REF!';
+    AND a.bin::text ~ '^[0-9]+(\.[0-9]+)?$';    -- a.bin contains invalid numeric values. This regex filters column for integers and decimal string values
 
 -- add geom for projects based on bbl
 UPDATE dcp_cpdb_agencyverified a
