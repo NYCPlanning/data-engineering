@@ -21,7 +21,6 @@ inputs:
     - name: dcp_mappluto_wi
     - name: dcp_facilities
     - name: doitt_buildingfootprints
-      import_as: doitt_buildingfootprints_source
 
     # Projects
     - name: nycoc_checkbook
