@@ -13,8 +13,6 @@ from facdb.utility.utils import sanitize_df, format_field_names, hash_each_row
 
 
 def bpl_libraries(df: pd.DataFrame):
-    df["longitude"] = df.position.apply(lambda x: x.split(",")[1].strip())
-    df["latitude"] = df.position.apply(lambda x: x.split(",")[0].strip())
     df["zipcode"] = df.address.apply(lambda x: x[-6:])
     df["borough"] = "Brooklyn"
     df = sanitize_df(df)

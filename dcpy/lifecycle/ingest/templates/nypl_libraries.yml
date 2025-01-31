@@ -1,0 +1,31 @@
+id: nypl_libraries
+
+acl: public-read
+
+attributes:
+  name: New York Public Libraries
+  description: NYPL operates libraries in Manhattan, Bronx, and Staten Island
+  url: https://www.nypl.org/locations
+
+ingestion:
+  source:
+    type: api
+    endpoint: https://refinery.nypl.org/api/nypl/locations/v1.0/locations
+    format: json
+  file_format:
+    type: json
+    json_read_fn: normalize
+    json_read_kwargs: { "record_path": [ "locations" ] }
+    geometry:
+      geom_column: geolocation.coordinates
+      crs: EPSG:4326
+      format:
+        point_xy_str: "[x, y]"
+  processing_steps:
+  - name: rename_columns
+    args:
+      map: { postal_code: zipcode, street_address: address, geom: wkb_geometry }
+  - name: filter_columns
+    args: { columns: [ name, zipcode, address, locality, region, wkb_geometry ] }
+
+columns: []

@@ -93,6 +93,17 @@ class ProcessingFunctions:
         filtered = df[filter]
         return filtered.reset_index(drop=True)
 
+    def filter_columns(
+        self,
+        df: pd.DataFrame,
+        columns: list[str],
+        mode: Literal["keep", "drop"] = "keep",
+    ) -> pd.DataFrame:
+        if mode == "keep":
+            return df[columns]
+        else:
+            return df.drop(columns, axis=1)
+
     def rename_columns(
         self, df: pd.DataFrame, map: dict[str, str], drop_others=False
     ) -> pd.DataFrame:

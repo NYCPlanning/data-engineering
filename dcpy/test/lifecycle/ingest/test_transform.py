@@ -174,6 +174,7 @@ class TestProcessors:
     proc = transform.ProcessingFunctions(TEST_DATASET_NAME)
     gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
     basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
+    df_a = pd.DataFrame({"a": [2, 3, 1]})
     messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words": [3, 4]})
     dupe_df = pd.DataFrame({"a": [1, 1, 1, 2], "b": [3, 1, 3, 2]})
     whitespace_df = pd.DataFrame({"a": [2, 3, 1], "b": [" b_1 ", "  b_2", "c_3 "]})
@@ -222,6 +223,14 @@ class TestProcessors:
         )
         expected = pd.DataFrame({"a": [2, 3], "b": ["b_1", "b_2"]})
         assert filtered.equals(expected)
+
+    def test_filter_columns_keep(self):
+        filtered = self.proc.filter_columns(self.basic_df, ["a"])
+        assert filtered.equals(self.df_a)
+
+    def test_filter_columns_drop(self):
+        filtered = self.proc.filter_columns(self.basic_df, ["b"], mode="drop")
+        assert filtered.equals(self.df_a)
 
     def test_rename_columns(self):
         renamed = self.proc.rename_columns(self.basic_df, {"a": "c"})

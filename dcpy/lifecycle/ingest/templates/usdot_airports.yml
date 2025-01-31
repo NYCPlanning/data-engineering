@@ -1,0 +1,40 @@
+id: usdot_airports
+acl: public-read
+
+attributes:
+  name: US DOT Airports
+  description: |
+    the published 5010 Excel sheet from includes all airports and heliports registered with FAA(Federal Avfiation Administration) which is under USDOT last update in Apr 22 2022
+    a script process is used to ingest the excel spreadsheet and get the appropriate tab as a csv to complete the process uploading to our s3 space
+  url: https://adip.faa.gov/agis/public/#/airportSearch/advanced
+
+ingestion:
+  source:
+    type: file_download
+    url: https://adip.faa.gov/publishedAirports/all-airport-data.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: Airports
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+
+columns:
+- id: site_id
+  data_type: text
+- id: facility_type
+  data_type: text
+- id: state_name
+  data_type: text
+- id: county
+  data_type: text
+- id: county_state
+  data_type: text
+- id: city
+  data_type: text
+- id: name
+  data_type: text
+- id: ownership
+  data_type: text
+- id: manager_city,_state,_zip
+  data_type: text
