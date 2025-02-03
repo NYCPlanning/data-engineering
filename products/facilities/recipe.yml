@@ -159,7 +159,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: usnps_parks
-    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -205,7 +204,7 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: fdny_firehouses
-    file_type: csv # migrated - last updated in 2022
+    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -236,7 +235,7 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dohmh_daycare
-    file_type: csv # migrated - last updated in 2023
+    file_type: csv # migrated, last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -245,7 +244,7 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: hhc_hospitals
-    file_type: csv # migrated - last updated in 2017 and dataset likely defunct
+    file_type: csv # migrated, but likely defunct
     preprocessor:
       module: facdb.pipelines
       function: dispatch

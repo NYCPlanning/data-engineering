@@ -20,7 +20,7 @@ SELECT
     'NYCDOT' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkt::geometry AS wkb_geometry,
+    geometry AS wkb_geometry,
     geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn

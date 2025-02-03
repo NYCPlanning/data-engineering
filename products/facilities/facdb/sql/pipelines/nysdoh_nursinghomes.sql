@@ -34,7 +34,7 @@ SELECT
             WHEN bed_type = 'ADHCPSLOTSAV' THEN 'seats'
         END
     ) AS captype,
-    location::geometry AS wkb_geometry,
+    geom AS wkb_geometry,
     geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn

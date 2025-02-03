@@ -19,7 +19,7 @@ SELECT
     'USNPS' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkt::geometry AS wkb_geometry,
+    wkt AS wkb_geometry,
     NULL AS geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
