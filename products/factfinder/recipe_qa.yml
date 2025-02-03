@@ -1,0 +1,113 @@
+name: PFF QA
+version: dummy
+product: db-factfinder-qa
+inputs:
+  dataset_defaults:
+    destination: postgres
+    source: edm.recipes
+  datasets:
+    - name: dcp_pop_acs2010_housing
+      version: 20240524
+      import_as: recipes_acs2010_housing_2024
+      preprocessor:
+        module: products.factfinder.pipelines.utils
+        function: melt_wide_df
+
+    # Recipes
+    - name: dcp_pop_acs2010_demographic
+      version: 20240524
+      import_as: recipes_acs2010_demographic
+      preprocessor:
+        module: products.factfinder.pipelines.utils
+        function: melt_wide_df
+    - name: dcp_pop_acs2010_economic
+      version: 20240524
+      import_as: recipes_acs2010_economic
+      preprocessor:
+        module: products.factfinder.pipelines.utils
+        function: melt_wide_df
+    - name: dcp_pop_acs2010_housing
+      version: 202502
+      import_as: recipes_acs2010_housing
+      preprocessor:
+        module: products.factfinder.pipelines.utils
+        function: melt_wide_df
+    - name: dcp_pop_acs2010_social
+      version: 20240524
+      import_as: recipes_acs2010_social
+      preprocessor:
+        module: products.factfinder.pipelines.utils
+        function: melt_wide_df
+
+    # EDM
+    # Drafts
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      import_as: acs_current_latest_draft
+      file_type: csv
+      version: latest
+      custom:
+        dataset: acs_current
+        filepath: acs.csv
+        revision: "1-initial-build"
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      file_type: csv
+      import_as: acs_previous_latest_draft
+      version: latest
+      custom:
+        dataset: acs_previous
+        filepath: acs.csv
+        revision: "1-initial-build"
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      import_as: decennial_2010_latest_draft
+      file_type: csv
+      version: latest
+      custom:
+        dataset: decennial_2010
+        filepath: decennial.csv
+        revision: "1-initial-build"
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      import_as: decennial_2020_latest_draft
+      file_type: csv
+      version: latest
+      custom:
+        dataset: decennial_2020
+        filepath: decennial.csv
+        revision: "1-initial-build"
+
+    # Published
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: acs_current_latest_published
+      file_type: csv
+      version: latest
+      custom:
+        dataset: acs_current
+        filepath: acs.csv
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: acs_previous_latest_published
+      file_type: csv
+      version: latest
+      custom:
+        dataset: acs_previous
+        filepath: acs.csv
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: decennial_2010_latest_published
+      file_type: csv
+      version: latest
+      custom:
+        dataset: decennial_2010
+        filepath: decennial.csv
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: decennial_2020_latest_published
+      file_type: csv
+      version: latest
+      custom:
+        dataset: decennial_2020
+        filepath: decennial.csv

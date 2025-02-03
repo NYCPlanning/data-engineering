@@ -6,7 +6,7 @@ import shutil
 from dcpy.utils import logging
 from dcpy.lifecycle.builds import load
 
-from . import OUTPUT_FOLDER, DATA_PATH, PRODUCT_PATH
+from . import OUTPUT_FOLDER, DATA_PATH
 from .utils import (
     process_metadata,
     apply_ccd_prefix,
@@ -109,7 +109,7 @@ def run(load_result: load.LoadResult, upload: bool = False):
 if __name__ == "__main__":
     process_metadata(
         DATASET,
-        PRODUCT_PATH / "Data Dictionary_2018-2022 ACS.xlsx",
+        Path("Your path here"),
         "ACS Data Dictionary",
         output_folder=DATA_PATH,
         skiprows=2,

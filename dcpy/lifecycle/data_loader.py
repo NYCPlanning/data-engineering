@@ -181,3 +181,17 @@ def _import_dataset(
     )
     client = postgres.PostgresClient(schema=database_schema, database=database)
     import_dataset(ds=ds, stage=lifecycle_stage, pg_client=client)
+
+
+@app.command("get_versions")
+def _cli_wrapper_get_versions(
+    connector: str = typer.Argument(
+        help="Connector Name",
+    ),
+    key: str = typer.Argument(
+        help="Resource Key",
+    ),
+    # TODO: support for kwargs / opts
+):
+    conn = connectors[connector]
+    print(conn.list_versions(key))

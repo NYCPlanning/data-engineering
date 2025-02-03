@@ -11,6 +11,7 @@ from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.builds import metadata
 from dcpy.utils import string
 from . import DATA_PATH, OUTPUT_FOLDER
+from ..paths import ROOT_PATH
 
 
 COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
@@ -192,7 +193,7 @@ def export_df(df: pd.DataFrame, dataset: str, year: str, copy_metadata=False):
 def s3_upload(dataset: str, years: list[str], latest=True):
     for year in years:
         output = OUTPUT_FOLDER / dataset / year
-        shutil.copy("build_metadata.json", output)
+        shutil.copy(str(ROOT_PATH / "build_metadata.json"), output)
         publishing.legacy_upload(
             output=output,
             publishing_folder="db-factfinder",
@@ -202,6 +203,10 @@ def s3_upload(dataset: str, years: list[str], latest=True):
             latest=latest,
             contents_only=True,
         )
+
+
+def melt_wide_df(ds_id: str, df: pd.DataFrame):
+    return df.melt(id_vars=list(df.columns[0:2]), value_vars=list(df.columns[2:]))
 
 
 def parse_args() -> Tuple[str, str, bool]:
