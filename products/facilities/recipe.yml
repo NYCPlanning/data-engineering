@@ -271,3 +271,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: nysoasas_programs
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
