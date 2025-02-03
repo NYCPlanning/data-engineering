@@ -34,7 +34,7 @@ SELECT
     'NYCDCA' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkb_geometry::geometry,
+    geometry::geometry AS wkb_geometry,
     geo_1b,
     geo_bl,
     geo_bn
