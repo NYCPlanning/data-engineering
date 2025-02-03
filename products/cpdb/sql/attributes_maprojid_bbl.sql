@@ -46,7 +46,9 @@ SELECT
     b.mpluto_bbl
 FROM cpdb_dcpattributes AS a,
     doitt_buildingfootprints AS b
-WHERE st_within(a.geom, b.wkb_geometry);
+WHERE 
+    st_within(a.geom, b.wkb_geometry) 
+    AND b.bin is NOT NULL;
 
 
 -- create the table dropping duplicates

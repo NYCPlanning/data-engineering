@@ -54,7 +54,8 @@ FROM cpdb_dcpattributes AS b,
 WHERE
     st_within(b.geom, c.wkb_geometry)
     AND b.maprojid NOT IN (SELECT maprojid FROM attributes_maprojid_bin_tmp)
-    AND maprojid = b.maprojid;
+    AND maprojid = b.maprojid
+    AND b.bin IS NOT NULL;
 
 -- create the table dropping duplicates
 CREATE TABLE attributes_maprojid_bin AS (
