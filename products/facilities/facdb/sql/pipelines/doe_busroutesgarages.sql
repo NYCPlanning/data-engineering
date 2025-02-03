@@ -33,7 +33,7 @@ SELECT
     'NYCDOE' AS overabbrev,
     b.route_counts AS capacity,
     'routes' AS captype,
-    a.wkt::geometry AS wkb_geometry,
+    a.geom AS wkb_geometry,
     a.geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn

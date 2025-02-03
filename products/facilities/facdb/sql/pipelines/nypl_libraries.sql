@@ -20,7 +20,7 @@ SELECT
     'NYPL' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    ST_POINT(lon::double precision, lat::double precision) AS wkb_geometry,
+    wkb_geometry::geometry,
     geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
