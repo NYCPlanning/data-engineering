@@ -1,7 +1,7 @@
 --Add mapped column to dcp_facilities_with_unmapped
 ALTER TABLE dcp_facilities_with_unmapped ADD COLUMN IF NOT EXISTS mapped boolean;
 UPDATE dcp_facilities_with_unmapped
-SET mapped = (latitude::numeric != 0 AND longitude::numeric != 0);
+SET mapped = (latitude != 0 AND longitude != 0);
 
 -- QC consistency in operator information
 DROP TABLE IF EXISTS qc_operator;
@@ -125,14 +125,14 @@ WITH
 new AS (
     SELECT
         captype,
-        sum(capacity::numeric)::integer AS sum_new
+        sum(capacity) AS sum_new
     FROM facdb
     GROUP BY captype
 ),
 old AS (
     SELECT
         captype,
-        sum(capacity::numeric)::integer AS sum_old
+        sum(capacity) AS sum_old
     FROM dcp_facilities_with_unmapped
     GROUP BY captype
 )

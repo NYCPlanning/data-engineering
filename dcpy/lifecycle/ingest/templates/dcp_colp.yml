@@ -1,0 +1,98 @@
+id: dcp_colp
+acl: public-read
+
+attributes:
+  name: City Owned and Leased Properties
+  description: |
+    A downloadable spreadsheet and geodatabase that list city properties with types of uses, location and other information
+    This dataset identifies City property under the jurisdiction of NYC Parks, which may be managed partially or solely by the Agency.
+    More information: https://www.nyc.gov/site/planning/data-maps/open-data.page#city_facilities
+  url: https://www1.nyc.gov/site/planning/about/publications/colp.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
+  file_format:
+    type: csv
+    unzipped_filename: colp_{{ version }}.csv
+    geometry:
+      geom_column: GEOM
+      crs: EPSG:2263
+      format: wkb
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+  - name: coerce_column_types
+    args:
+      column_types:
+        {
+          "bbl": "string",
+          "mapbbl": "string",
+          "expandcat": "string",
+          "cd": "string",
+          "category": "string",
+          "borough": "string",
+          "block": "string",
+          "lot": "string"
+        }
+
+columns:
+- id: uid
+  data_type: text
+- id: borough
+  data_type: text
+- id: block
+  data_type: text
+- id: lot
+  data_type: text
+- id: bbl
+  data_type: text
+- id: mapbbl
+  data_type: text
+- id: cd
+  data_type: text
+- id: hnum
+  data_type: text
+- id: sname
+  data_type: text
+- id: address
+  data_type: text
+- id: parcelname
+  data_type: text
+- id: agency
+  data_type: text
+- id: usecode
+  data_type: text
+- id: usetype
+  data_type: text
+- id: ownership
+  data_type: text
+- id: category
+  data_type: text
+- id: expandcat
+  data_type: text
+- id: excatdesc
+  data_type: text
+- id: leased
+  data_type: text
+- id: finalcom
+  data_type: text
+- id: agreement
+  data_type: text
+- id: xcoord
+  data_type: integer
+- id: ycoord
+  data_type: integer
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: dcpedited
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry

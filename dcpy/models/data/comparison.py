@@ -23,6 +23,8 @@ class KeyedTable(ModelWithDataFrame):
     key_columns: list[str]
     left_only: set = Field(serialization_alias="Keys found in left only")
     right_only: set = Field(serialization_alias="Keys found in right only")
+    ignored_columns: list[str] | None = None
+    columns_coerced_to_numeric: list[str] | None = None
     columns_with_diffs: set[str] = Field(
         serialization_alias="Columns with changed values for specific keys"
     )
@@ -33,6 +35,8 @@ class KeyedTable(ModelWithDataFrame):
 
 class SimpleTable(ModelWithDataFrame):
     compared_columns: set[str]
+    ignored_columns: list[str] | None = None
+    columns_coerced_to_numeric: list[str] | None = None
     left_only: pd.DataFrame | None
     right_only: pd.DataFrame | None
 
@@ -43,15 +47,11 @@ class Report(SortedSerializedBase):
     data_comparison: KeyedTable | SimpleTable | None
 
     _exclude_falsey_values: bool = False
-    _head_sort_order: list[str] = ["row_count", "column_comparison", "data_comparison"]
+    _head_sort_order: list[str] = ["row_count"]
+    _tail_sort_order: list[str] = ["column_comparison", "data_comparison"]
 
 
 class SqlReport(Report):
     tables: Simple[str]
 
-    _head_sort_order: list[str] = [
-        "tables",
-        "row_count",
-        "column_comparison",
-        "data_comparison",
-    ]
+    _head_sort_order: list[str] = ["tables", "row_count"]
