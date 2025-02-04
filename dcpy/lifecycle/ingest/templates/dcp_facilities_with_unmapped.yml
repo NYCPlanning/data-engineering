@@ -21,8 +21,8 @@ ingestion:
     geometry:
       crs: EPSG:4326
       geom_column:
-        x: LATITUDE
-        y: LONGITUDE
+        x: LONGITUDE
+        y: LATITUDE
   processing_steps:
   - name: clean_column_names
     args: { "replace": { " ": "_", "-": "_" }, "lower": True }
