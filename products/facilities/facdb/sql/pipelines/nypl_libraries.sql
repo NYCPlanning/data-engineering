@@ -20,7 +20,7 @@ SELECT
     'NYPL' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkb_geometry,
+    wkb_geometry::geometry,
     geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
