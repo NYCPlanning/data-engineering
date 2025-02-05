@@ -156,4 +156,5 @@ run_sql_command "\COPY cpdb_badgeoms FROM './data/cpdb_geomsremove.csv' DELIMITE
 run_sql_file sql/attributes_badgeoms.sql	
 
 # create final table
+echo 'Creating projects tables'
 run_sql_file sql/projects.sql -v ccp_v=$ccp_v
