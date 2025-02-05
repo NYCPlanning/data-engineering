@@ -1,0 +1,75 @@
+id: dsny_textiledrop
+
+acl: public-read
+
+attributes:
+  name: Textile Drop-Off Locations in NYC
+  description: >-
+    Locations where NYC residents can drop off clothing, fabrics, linens, footwear, and
+    other items for donation or textile recycling. For more information, see:
+    https://www1.nyc.gov/assets/dsny/site/services/donate-goods/textiles. Please note
+    that each organization’s needs and capacity may change rapidly due to the COVID-19
+    response. Please email, call, or connect on social media for the most up-to-date
+    information before attempting any drop-off/donations.
+  url: https://data.cityofnewyork.us/Environment/Textile-Drop-Off-Locations-in-NYC/qnjm-wvu5
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: qnjm-wvu5
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+- id: number
+  data_type: text
+- id: website
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: latitude
+  data_type: text
+- id: councildistrict
+  data_type: text
+- id: vendor_name
+  data_type: text
+- id: ntaname
+  data_type: text
+- id: community_district
+  data_type: text
+- id: bbl
+  data_type: text
+- id: borocd
+  data_type: text
+- id: objectid
+  data_type: text
+- id: longitude
+  data_type: text
+- id: items_accepted
+  data_type: text
+- id: nonprofit_organization
+  data_type: text
+- id: police_precincts
+  data_type: text
+- id: address
+  data_type: text
+- id: ct2010
+  data_type: text
+- id: public_phone
+  data_type: text
+- id: bin
+  data_type: text
+- id: street
+  data_type: text
+- id: unit
+  data_type: text
+- id: operations_type
+  data_type: text
+- id: public_email
+  data_type: text
+- id: borough
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry
