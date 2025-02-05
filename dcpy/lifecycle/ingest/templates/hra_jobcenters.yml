@@ -1,0 +1,65 @@
+id: hra_jobcenters
+acl: public-read
+
+attributes:
+  name: Directory Of Job Centers
+  description: >-
+    List of Job Centers that offer temporary financial assistance, SNAP, and Medicaid to
+    eligible individuals.
+  url: https://data.cityofnewyork.us/Business/Directory-Of-Job-Centers/9d9t-bmk7
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 9d9t-bmk7
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Post Code: str
+      Community Board: str
+      "Council District ": str
+      Census Tract: str
+      BBL: str
+      BIN: str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+
+columns:
+- id: borough
+  data_type: text
+- id: facility_name
+  data_type: text
+- id: street_address
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: post_code
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: community_board
+  data_type: text
+- id: council_district
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
+- id: geom
+  data_type: geometry

@@ -1,0 +1,65 @@
+id: hra_snapcenters
+acl: public-read
+
+attributes:
+  name: Directory of SNAP Centers
+  description: List of SNAP Centers in New York City by Borough
+  url: https://data.cityofnewyork.us/Social-Services/Directory-of-SNAP-Centers/tc6u-8rnp
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: tc6u-8rnp
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Postcode: str
+      Community Board: str
+      "Council District ": str
+      Census Tract: str
+      BBL: str
+      BIN: str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+
+columns:
+- id: borough
+  data_type: text
+- id: facility_name
+  data_type: text
+- id: street_address
+  data_type: text
+- id: city
+  data_type: text
+- id: postcode
+  data_type: text
+- id: state
+  data_type: text
+- id: comments
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: community_board
+  data_type: text
+- id: council_district
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
+- id: geom
+  data_type: geometry
