@@ -28,6 +28,7 @@ WHERE
     a.bin::float::bigint = b.bin::bigint
     AND a.bin IS NOT NULL
     AND a.geom IS NULL
+    AND b.wkb_geometry IS NOT NULL
     AND a.bin::text ~ '^[0-9]+(\.[0-9]+)?$';    -- a.bin contains invalid numeric values. This regex filters column for integers and decimal string values
 
 -- add geom for projects based on bbl
