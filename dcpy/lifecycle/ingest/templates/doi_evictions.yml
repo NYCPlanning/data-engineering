@@ -1,0 +1,79 @@
+id: doi_evictions
+acl: public-read
+
+attributes:
+  name: Department of Investigation - Evictions
+  description: >-
+    This dataset lists pending, scheduled and executed evictions within the five
+    boroughs,for the year 2017 - Present. The data fields may be sorted by Court Index
+    Number, Docket Number, Eviction Address, Apartment Number, Executed Date, Marshal
+    FirstName, Marshal Last Name, Residential or Commercial (property type), Borough,
+    Zip Code and Scheduled Status (Pending/Scheduled).
+
+    Eviction data is compiled from the majority of New York City Marshals. Marshals are
+    independent public officials and should be contacted directly for more information
+    at https://www1.nyc.gov/site/doi/offices/marshals-list.page. Data prior to January 1
+    2017 is not currently available.
+  url: https://data.cityofnewyork.us/City-Government/Evictions/6z8x-wfk4
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 6z8x-wfk4
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      BIN: str
+      BBL: str
+      Council District: str
+      Census Tract: str
+      Eviction Postcode: str
+      Community Board: str
+      "Docket Number ": str
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "strip": True, "lower": True }
+
+columns:
+- id: court_index_number
+  data_type: text
+- id: docket_number
+  data_type: text
+- id: eviction_address
+  data_type: text
+- id: eviction_apartment_number
+  data_type: text
+- id: executed_date
+  data_type: text
+- id: marshal_first_name
+  data_type: text
+- id: marshal_last_name
+  data_type: text
+- id: residential/commercial
+  data_type: text
+- id: borough
+  data_type: text
+- id: eviction_postcode
+  data_type: text
+- id: ejectment
+  data_type: text
+- id: eviction/legal_possession
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: community_board
+  data_type: text
+- id: council_district
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
