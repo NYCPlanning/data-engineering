@@ -1,0 +1,76 @@
+id: sbs_workforce1
+acl: public-read
+
+attributes:
+  name: Center & Service Locations
+  description: >-
+    Find a NYC Department of Small Business Services NYC Business Solutions Center,
+    Workforce1 Career Center, or Employment Works Center. Click here to view a map-
+    https://maps.nyc.gov/sbs/
+  url: https://data.cityofnewyork.us/dataset/Center-Service-Locations/6smc-7mk6
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 6smc-7mk6
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Postcode: str
+      BIN: str
+      BBL: str
+      Community Board: str
+      Council District: str
+      Census Tract: str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { replace: { " ": "_", "-": "_" }, lower: True }
+
+columns:
+- id: name
+  data_type: text
+- id: hours
+  data_type: text
+- id: number
+  data_type: text
+- id: street
+  data_type: text
+- id: street_address_2
+  data_type: text
+- id: city
+  data_type: text
+- id: borough
+  data_type: text
+- id: state
+  data_type: text
+- id: postcode
+  data_type: text
+- id: details
+  data_type: text
+- id: location_type
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
+- id: council_district
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: community_board
+  data_type: text
+- id: geom
+  data_type: geometry
