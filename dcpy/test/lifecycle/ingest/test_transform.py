@@ -175,7 +175,7 @@ class TestProcessors:
     gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
     basic_df = pd.DataFrame({"a": [2, 3, 1], "b": ["b_1", "b_2", "c_3"]})
     df_a = pd.DataFrame({"a": [2, 3, 1]})
-    messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words": [3, 4]})
+    messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words ": [3, 4]})
     dupe_df = pd.DataFrame({"a": [1, 1, 1, 2], "b": [3, 1, 3, 2]})
     whitespace_df = pd.DataFrame({"a": [2, 3, 1], "b": [" b_1 ", "  b_2", "c_3 "]})
     prev_df = pd.DataFrame({"a": [-1], "b": ["z"]})
@@ -244,14 +244,21 @@ class TestProcessors:
 
     def test_clean_column_names(self):
         cleaned = self.proc.clean_column_names(self.messy_names_df, replace={"_": "-"})
-        expected = pd.DataFrame({"Column": [1, 2], "Two-Words": [3, 4]})
+        expected = pd.DataFrame({"Column": [1, 2], "Two-Words ": [3, 4]})
         assert cleaned.equals(expected)
 
     def test_clean_column_names_lower(self):
         cleaned = self.proc.clean_column_names(
             self.messy_names_df, replace={"_": "-"}, lower=True
         )
-        expected = pd.DataFrame({"column": [1, 2], "two-words": [3, 4]})
+        expected = pd.DataFrame({"column": [1, 2], "two-words ": [3, 4]})
+        assert cleaned.equals(expected)
+
+    def test_clean_column_names_strip(self):
+        cleaned = self.proc.clean_column_names(
+            self.messy_names_df, replace={"_": "-"}, strip=True
+        )
+        expected = pd.DataFrame({"Column": [1, 2], "Two-Words": [3, 4]})
         assert cleaned.equals(expected)
 
     def test_update_column(self):
