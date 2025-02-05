@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: .library/upload/ForDelivery_DDHCA2020_ForPFF.xlsx
+      path: richey_stuff/final/dcp_pop_decennial_ddhca.xlsx
     geometry:
       SRS: null
       type: NONE
