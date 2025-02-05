@@ -147,7 +147,13 @@ def pull_destination_files(
         logger.info(f"{local_package_path} - {paths_and_dests['path']} - {file_path}")
 
         url = paths_and_dests["url"]
-        urllib.request.urlretrieve(url, file_path)
+
+        try:
+            # By default, urllib doesn't mention the url in its stack trace, which makes it difficult to debug
+            logger.info(f"Retrieving file at url: {url}")
+            urllib.request.urlretrieve(url, file_path)
+        except Exception:
+            raise Exception(f"Assembly error Retrieving file at {url}")
 
         if unpackage_zips and f.id in package_ids:
             logger.info(f"Unpackaging zip: {f.id}")
