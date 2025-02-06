@@ -75,6 +75,7 @@ jobs:
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     strategy:
       fail-fast: false
+      max-parallel: 10
       matrix:
         dataset: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
     steps:
@@ -90,6 +91,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
         BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
+        SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
 
     - name: Finish container setup ...
       run: ./bash/docker_container_setup.sh
