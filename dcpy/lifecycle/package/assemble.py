@@ -169,22 +169,22 @@ def pull_destination_package_files(
     *,
     source_destination_id: str,
     local_package_path: Path,
-    product_metadata: md.Metadata,
+    dataset_metadata: md.Metadata,
 ):
     """Pull all files for a destination."""
     dests = [
-        d for d in product_metadata.destinations if d.type == source_destination_id
+        d for d in dataset_metadata.destinations if d.type == source_destination_id
     ]
     for d in dests:
         pull_destination_files(
-            local_package_path, product_metadata, d.id, unpackage_zips=True
+            local_package_path, dataset_metadata, d.id, unpackage_zips=True
         )
 
     if not local_package_path.exists():
         raise Exception(
             f"The package page {local_package_path} was never created. Likely no files were pulled."
         )
-    product_metadata.write_to_yaml(local_package_path / "metadata.yml")
+    dataset_metadata.write_to_yaml(local_package_path / "metadata.yml")
 
 
 ASSEMBLY_INSTRUCTIONS_KEY = "assembly"
@@ -316,5 +316,5 @@ def _pull_dataset_cli(
     pull_destination_package_files(
         source_destination_id=source_destination_id,
         local_package_path=out_dir,
-        product_metadata=dataset_metadata,
+        dataset_metadata=dataset_metadata,
     )
