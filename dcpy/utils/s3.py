@@ -37,7 +37,7 @@ ACL = Literal[
     "public-read",
     "public-read-write",
 ]
-MAX_FILE_COUNT = 50
+MAX_FILE_COUNT = 150
 
 
 class Metadata(BaseModel):
