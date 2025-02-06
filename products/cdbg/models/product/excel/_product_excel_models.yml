@@ -10,10 +10,10 @@ models:
   - name: '"BoroCTBG"'
   - name: '"Total Floor Area"'
   - name: '"Total Residential Floor Area"'
-  - name: '"% of Floor Area Residential"'
+  - name: '"Percent Floor Area Residential"'
   - name: '"Total Population"'
-  - name: '"Number of Low-/ Moderate-Income Persons"'
-  - name: '"% of Low-/ Moderate-Income Persons"'
+  - name: '"Number of Low and Moderate Income Persons"'
+  - name: '"Percent Low and Moderate Income Persons"'
   - name: '"Eligibility"'
 
 - name: cdbg_boroughs_excel
@@ -23,10 +23,10 @@ models:
   - name: '"Borough Code"'
   - name: '"Total Floor Area"'
   - name: '"Total Residential Floor Area"'
-  - name: '"% of Floor Area Residential"'
+  - name: '"Percent Floor Area Residential"'
   - name: '"Total Population"'
-  - name: '"Number of Low-/ Moderate-Income Persons"'
-  - name: '"% of Low-/ Moderate-Income Persons"'
+  - name: '"Number of Low and Moderate Income Persons"'
+  - name: '"Percent Low and Moderate Income Persons"'
 
 - name: cdbg_tracts_excel
   description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in excel
@@ -35,15 +35,15 @@ models:
   - name: '"Borough Code"'
   - name: '"BoroCT"'
   - name: '"Census Tract Long"'
-  - name: '"Census Tract (with decimal)"'
+  - name: '"Census Tract with decimal"'
   - name: '"Total Floor Area"'
   - name: '"Total Residential Floor Area"'
-  - name: '"% of Floor Area Residential"'
+  - name: '"Percent Floor Area Residential"'
   - name: '"Total Population"'
-  - name: '"Number of Low-/ Moderate-Income Persons"'
-  - name: '"% of Low-/ Moderate-Income Persons"'
-  - name: '"Low-Income"'
-  - name: '"Moderate-Income"'
+  - name: '"Number of Low and Moderate Income Persons"'
+  - name: '"Percent Low and Moderate Income Persons"'
+  - name: '"Low Income"'
+  - name: '"Moderate Income"'
   - name: '"Eligibility"'
 
 - name: cdbg_zap_eligibility_excel

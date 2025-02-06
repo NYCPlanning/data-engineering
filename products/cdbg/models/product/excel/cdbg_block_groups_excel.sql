@@ -11,11 +11,11 @@ SELECT
     bctbg2020 AS "BoroCTBG",
     total_floor_area AS "Total Floor Area",
     residential_floor_area AS "Total Residential Floor Area",
-    residential_floor_area_percentage AS "% of Floor Area Residential",
+    residential_floor_area_percentage AS "Percent Floor Area Residential",
     potential_lowmod_population AS "Total Population",
-    low_mod_income_population AS "Number of Low-/ Moderate-Income Persons",
-    low_mod_income_population_percentage AS "% of Low-/ Moderate-Income Persons",
-    low_income_population AS "Low-Income",
-    mod_income_population AS "Moderate-Income",
+    low_mod_income_population AS "Number of Low and Moderate Income Persons",
+    low_mod_income_population_percentage AS "Percent Low and Moderate Income Persons",
+    low_income_population AS "Low Income",
+    mod_income_population AS "Moderate Income",
     eligibility AS "Eligibility"
 FROM block_groups
