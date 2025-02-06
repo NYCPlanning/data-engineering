@@ -45,3 +45,6 @@ models:
   - name: '"Low-Income"'
   - name: '"Moderate-Income"'
   - name: '"Eligibility"'
+
+- name: cdbg_zap_eligibility_excel
+  description: DCP ZAP projects and their Community Development Block Grant (CDBG) eligibility details for use in excel
