@@ -121,10 +121,13 @@ class ProcessingFunctions:
         *,
         replace: dict[str, str] | None = None,
         lower: bool = False,
+        strip: bool = False,
     ) -> pd.DataFrame:
         cleaned = df.copy()
         replace = replace or {}
         columns = list(cleaned.columns)
+        if strip:
+            columns = [c.strip() for c in columns]
         for pattern in replace:
             columns = [c.replace(pattern, replace[pattern]) for c in columns]
         if lower:

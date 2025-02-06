@@ -1,0 +1,31 @@
+id: sca_enrollment_capacity
+acl: public-read
+
+attributes:
+  name: Enrollment Capacity And Utilization Reports
+  description: >-
+    Enrollment, target capacity and utilization data for every building and schools in
+    those buildings.
+  url: https://data.cityofnewyork.us/Education/Enrollment-Capacity-And-Utilization-Reports/gkd7-3vk7
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: gkd7-3vk7
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+
+columns:
+- id: bldg_id
+  data_type: text
+- id: organization_name
+  data_type: text
+- id: org_target_cap
+  data_type: decimal
+- id: data_as_of
+  data_type: text

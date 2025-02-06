@@ -1,0 +1,72 @@
+id: nysomh_mentalhealth
+acl: public-read
+
+attributes:
+  name: Local Mental Health Programs
+  description: >-
+    Includes programs that are licensed by the Office of Mental Health (OMH) and
+    programs that are funded by OMH but do not need a license to operate.
+  url: https://data.ny.gov/Human-Services/Local-Mental-Health-Programs/6nvr-tbv8
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: 6nvr-tbv8
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+- id: program_city
+  data_type: text
+- id: program_category_description
+  data_type: text
+- id: sponsor_name
+  data_type: text
+- id: program_address_1
+  data_type: text
+- id: program_subcategory_description
+  data_type: text
+- id: operating_certificate_required
+  data_type: text
+- id: row_created_date_time
+  data_type: datetime
+- id: operating_certificate_duration
+  data_type: text
+- id: agency_name
+  data_type: text
+- id: agency_phone
+  data_type: text
+- id: program_type_description
+  data_type: text
+- id: program_zip
+  data_type: text
+- id: sponsor_code
+  data_type: text
+- id: program_tier
+  data_type: text
+- id: program_code
+  data_type: text
+- id: program_address_2
+  data_type: text
+- id: populations_served
+  data_type: text
+- id: facility_code
+  data_type: text
+- id: program_county
+  data_type: text
+- id: agency_code
+  data_type: text
+- id: facility_name
+  data_type: text
+- id: program_name
+  data_type: text
+- id: program_state
+  data_type: text
+- id: program_region
+  data_type: text
+- id: program_phone
+  data_type: text
+- id: geom
+  data_type: geometry

@@ -1,0 +1,116 @@
+id: nysdoh_healthfacilities
+acl: public-read
+
+attributes:
+  name: NYS Health Facility General Information
+  description: >-
+    This dataset contains the locations of Article 28, Article 36 and Article 40 health
+    care facilities and programs from the Health Facilities Information System (HFIS).
+    Article 28 facilities are hospitals, nursing homes, diagnostic treatment centers and
+    midwifery birth centers. Article 36 facilities are certified home health care
+    agencies, licensed home care services agencies, and long term home health care
+    programs. Article 40 facilities are hospices. The dataset currently only contains
+    the locations of hospitals and hospital extension clinics. The data for the
+    remaining facility types will be added in the future.
+  url: https://health.data.ny.gov/Health/Health-Facility-General-Information/vn5v-hh5r
+
+ingestion:
+  source:
+    type: socrata
+    org: nys_health
+    uid: vn5v-hh5r
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Facility ID: str
+      Facility County Code: str
+      Regional Office ID: str
+      Cooperator Zip Code: str
+      Facility Fax Number: str
+      Main Site Facility ID: str
+      Facility Phone Number: str
+    geometry:
+      geom_column:
+        x: Facility Longitude
+        y: Facility Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+
+columns:
+- id: facility_id
+  data_type: text
+- id: facility_name
+  data_type: text
+- id: short_description
+  data_type: text
+- id: description
+  data_type: text
+- id: facility_open_date
+  data_type: text
+- id: facility_address_1
+  data_type: text
+- id: facility_address_2
+  data_type: text
+- id: facility_city
+  data_type: text
+- id: facility_state
+  data_type: text
+- id: facility_zip_code
+  data_type: text
+- id: facility_phone_number
+  data_type: text
+- id: facility_fax_number
+  data_type: text
+- id: facility_website
+  data_type: text
+- id: facility_county_code
+  data_type: text
+- id: facility_county
+  data_type: text
+- id: regional_office_id
+  data_type: text
+- id: regional_office
+  data_type: text
+- id: main_site_name
+  data_type: text
+- id: main_site_facility_id
+  data_type: text
+- id: operating_certificate_number
+  data_type: text
+- id: operator_name
+  data_type: text
+- id: operator_address_1
+  data_type: text
+- id: operator_address_2
+  data_type: text
+- id: operator_city
+  data_type: text
+- id: operator_state
+  data_type: text
+- id: operator_zip_code
+  data_type: text
+- id: cooperator_name
+  data_type: text
+- id: cooperator_address
+  data_type: text
+- id: cooperator_address_2
+  data_type: text
+- id: cooperator_city
+  data_type: text
+- id: cooperator_state
+  data_type: text
+- id: cooperator_zip_code
+  data_type: text
+- id: ownership_type
+  data_type: text
+- id: facility_latitude
+  data_type: decimal
+- id: facility_longitude
+  data_type: decimal
+- id: facility_location
+  data_type: text
+- id: geom
+  data_type: geometry

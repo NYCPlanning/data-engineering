@@ -1,0 +1,58 @@
+id: dohmh_daycare
+acl: public-read
+
+attributes:
+  name: DOHMH Childcare Center Inspections
+  description: >-
+    This dataset contains a list of all inspections conducted and any associated
+    violations at active, city-regulated, center-based child care programs and summer
+    camps over the past 3 years. The violations are pre-adjudicated. Violations that are
+    subject to potential penalties (fines) are submitted to NYC Office of Administrative
+    Trials and Hearing where they are adjudicated as either sustained/upheld or
+    dismissed. The dataset also contains additional information on the programs,
+    including license information. For more information on child care in NYC visit:
+    https://www1.nyc.gov/site/doh/services/child-care.page.
+  url: https://data.cityofnewyork.us/Health/DOHMH-Childcare-Center-Inspections/dsg6-ifza
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: dsg6-ifza
+    format: csv
+  file_format:
+    type: csv
+    # todo - things like BIN/BBL/etc and others could have this determined via `data_type` in column definitions
+    dtype:
+      ZipCode: str
+      Permit Number: str
+      Building Identification Number: str
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+
+columns:
+- id: center_name
+  data_type: text
+- id: legal_name
+  data_type: text
+- id: building
+  data_type: text
+- id: street
+  data_type: text
+- id: borough
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: phone
+  data_type: text
+- id: day_care_id
+  data_type: text
+- id: program_type
+  data_type: text
+- id: facility_type
+  data_type: text
+- id: building_identification_number
+  data_type: text
+- id: inspection_date
+  data_type: text

@@ -1,0 +1,72 @@
+id: dfta_contracts
+acl: public-read
+
+attributes:
+  name: Department for the Aging (DFTA) All Contracted Providers
+  description: >-
+    Listing of all Senior Centers, Abuse Prevention Contracts, Home Care Contracts,
+    Legal Services Contracts, NORC Contracts, Transportation Contracts, Case Mangement
+    Contracts, Home Delivered Meal Contracts and Caregiver Contracts in all five
+    boroughs.
+  url: https://data.cityofnewyork.us/Social-Services/Department-for-the-Aging-NYC-Aging-All-Contracted-/cqc8-am9x
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: cqc8-am9x
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: rename_columns
+    args:
+      map:
+        {
+          "communityboard": "community_board",
+          "councildist": "council_district",
+          "censustract": "census_tract",
+          "programzipcode": "postcode"
+        }
+
+columns:
+- id: providertype
+  data_type: text
+- id: dfta_id
+  data_type: text
+- id: programname
+  data_type: text
+- id: sponsorname
+  data_type: text
+- id: programaddress
+  data_type: text
+- id: programcity
+  data_type: text
+- id: programstate
+  data_type: text
+- id: postcode
+  data_type: text
+- id: borough
+  data_type: text
+- id: programphone
+  data_type: text
+- id: dfta_funded
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: community_board
+  data_type: text
+- id: council_district
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
+- id: geom
+  data_type: geometry

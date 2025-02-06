@@ -1,0 +1,53 @@
+id: dcla_culturalinstitutions
+acl: public-read
+
+attributes:
+  name: DCLA Cultural Organizations
+  description: >-
+    Listing of all Cultural Organizations in the Department of Cultural Affairs
+    directory.
+  url: https://data.cityofnewyork.us/Recreation/DCLA-Cultural-Organizations/u35m-9t32
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: u35m-9t32
+    format: csv
+  file_format:
+    type: csv
+    # todo - things like BIN/BBL/etc and others could have this determined via `data_type` in column definitions
+    dtype:
+      BIN: str
+      BBL: str
+      Census Tract: str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "lower": True }
+
+columns:
+- id: organization_name
+  data_type: text
+- id: address
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: borough
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: geom
+  data_type: geometry
