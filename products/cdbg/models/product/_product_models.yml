@@ -72,23 +72,6 @@ models:
     data_type: string
     tests: [ not_null ]
 
-- name: cdbg_block_groups_excel
-  description: Census block groups and their Community Development Block Grant (CDBG) eligibility details
-  columns:
-  - name: '"Borough Name"'
-  - name: '"Borough Code"'
-  - name: '"BoroCT"'
-  - name: '"Census Tract Long"'
-  - name: '"Block Group"'
-  - name: '"BoroCTBG"'
-  - name: '"Total Floor Area"'
-  - name: '"Total Residential Floor Area"'
-  - name: '"% of Floor Area Residential"'
-  - name: '"Total Population"'
-  - name: '"Number of Low-/ Moderate-Income Persons"'
-  - name: '"% of Low-/ Moderate-Income Persons"'
-  - name: '"Eligibility"'
-
 - name: cdbg_boroughs
   description: Borough and city-wide Community Development Block Grant (CDBG) details
   config:
@@ -127,18 +110,6 @@ models:
   - name: low_mod_income_population_percentage
     data_type: decimal
     tests: [ not_null ]
-
-- name: cdbg_boroughs_excel
-  description: Borough and city-wide Community Development Block Grant (CDBG) details
-  columns:
-  - name: '"Borough Name"'
-  - name: '"Borough Code"'
-  - name: '"Total Floor Area"'
-  - name: '"Total Residential Floor Area"'
-  - name: '"% of Floor Area Residential"'
-  - name: '"Total Population"'
-  - name: '"Number of Low-/ Moderate-Income Persons"'
-  - name: '"% of Low-/ Moderate-Income Persons"'
 
 - name: cdbg_tracts
   description: Census tracts and their Community Development Block Grant (CDBG) eligibility details
@@ -206,67 +177,6 @@ models:
   - name: geom
     data_type: geometry(Geometry, 4326)
     tests: [ not_null ]
-
-- name: cdbg_tracts_bytes_csv
-  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in the DCP Bytes csv
-  columns:
-  - name: '"OBJECTID"'
-    tests: [ unique, not_null ]
-  - name: '"BoroCode"'
-  - name: '"BoroCT"'
-  - name: '"BldgArea"'
-  - name: '"ResArea"'
-  - name: '"Res_pct"'
-  - name: '"TotalPop"'
-  - name: '"LowMod_Population"'
-  - name: '"LowMod_pct"'
-  - name: '"Eligibility"'
-  - name: '"CT_text"'
-
-- name: cdbg_tracts_bytes_fgdb
-  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in the DCP Bytes ESRI Geodatabase
-  columns:
-  - name: '"OBJECTID"'
-    tests: [ unique, not_null ]
-  - name: '"BoroCT2020"'
-  - name: '"NTACode"'
-  - name: '"NTAName"'
-  - name: '"BldgArea"'
-  - name: '"ResArea"'
-  - name: '"Res_pct"'
-  - name: '"TotalPop"'
-  - name: '"LowMod_Population"'
-  - name: '"LowMod_pct"'
-  - name: '"Eligibility"'
-  - name: geometry
-
-- name: cdbg_tracts_excel
-  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in excel
-  columns:
-  - name: '"Borough Name"'
-  - name: '"Borough Code"'
-  - name: '"BoroCT"'
-  - name: '"Census Tract Long"'
-  - name: '"Census Tract (with decimal)"'
-  - name: '"Total Floor Area"'
-  - name: '"Total Residential Floor Area"'
-  - name: '"% of Floor Area Residential"'
-  - name: '"Total Population"'
-  - name: '"Number of Low-/ Moderate-Income Persons"'
-  - name: '"% of Low-/ Moderate-Income Persons"'
-  - name: '"Low-Income"'
-  - name: '"Moderate-Income"'
-  - name: '"Eligibility"'
-
-- name: cdbg_tracts_geosupport
-  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in geosupport
-  config:
-    contract:
-      enforced: true
-  columns:
-  - name: '"BOROCT"'
-    data_type: string
-    tests: [ unique, not_null ]
 
 - name: cdbg_zap_eligibility
   description: ZAP projects and their Community Development Block Grant (CDBG) eligibility details
