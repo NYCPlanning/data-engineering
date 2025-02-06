@@ -123,6 +123,7 @@ dependencies = [
     "beautifulsoup4",
     "boto3",
     "faker",
+    "geoalchemy2",
     "geopandas",
     "Jinja2",
     "lxml",
