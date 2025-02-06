@@ -2,8 +2,6 @@ SELECT
     "OBJECTID",
     borough_code AS "BoroCode",
     bct2020 AS "BoroCT",
-    ct2020 AS "Census Tract Long",
-    ctlabel AS "Census Tract (with decimal)",
     total_floor_area AS "BldgArea",
     residential_floor_area AS "ResArea",
     residential_floor_area_percentage AS "Res_pct",
