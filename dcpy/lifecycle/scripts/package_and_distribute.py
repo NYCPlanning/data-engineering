@@ -39,7 +39,7 @@ def package_and_distribute(
     package.pull_destination_package_files(
         local_package_path=package_path,
         source_destination_id=source_destination_id,
-        product_metadata=dataset_md,
+        dataset_metadata=dataset_md,
     )
 
     package.assemble_package(
