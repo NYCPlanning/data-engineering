@@ -61,7 +61,7 @@ def unpack_multilayer_shapefile(
 
     package = dataset_metadata.get_package(package_id)
     package_shapefile_prefixes_to_ids = {
-        f.custom["shapefile_file_prefix"]: f.id for f in package.contents
+        f.custom["layer_name"]: f.id for f in package.contents
     }
 
     with tempfile.TemporaryDirectory() as temp_unpacked_dir:
