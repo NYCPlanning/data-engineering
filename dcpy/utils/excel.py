@@ -9,11 +9,12 @@ MISSING_DESTINATION_CORR_COL_ERROR = "Destination is missing column for correcti
 DUPLICATE_KEYS_ERROR = "Found duplicate keys"
 
 
-def _unpivot_table(
+def _get_table_values_by_keys(
     wb: openpyxl.Workbook, tab_name: str, keys: list[str], *, header_row=1
 ) -> dict[tuple, dict]:
+    """Transform a table into a dictionary of (key_1, key_2, ...)->values."""
     tab = wb[tab_name]
-    headers = [c.value for c in tab[header_row]]
+    headers = [str(c.value) for c in tab[header_row]]
     assert set(keys).issubset(set(headers)), (
         f"{MISSING_KEYS_ERROR}. Diff: {set(keys) - set(headers)}"
     )
@@ -33,7 +34,7 @@ def _unpivot_table(
     return unpivoted
 
 
-def _update_cells(
+def _update_table_cells_by_keys(
     wb: openpyxl.Workbook,
     tab_name: str,
     keys: list[str],
@@ -42,6 +43,7 @@ def _update_cells(
     header_row=1,
     allow_missing_destination_columns=True,
 ):
+    """"""
     tab = wb[tab_name]
     headers = [c.value for c in tab[header_row]]
     assert set(keys).issubset(set(headers))
@@ -94,7 +96,7 @@ def apply_cross_file_modifications(
     then matched and inserted into the `base` tab, joining on the `base_keys.`
     """
     logger.info(f"Unpivoting vars in base wb, tab={modifications_tab}")
-    unpivoted_vars = _unpivot_table(
+    unpivoted_vars = _get_table_values_by_keys(
         modifications_wb,
         modifications_tab,
         modifications_keys,
@@ -104,7 +106,7 @@ def apply_cross_file_modifications(
         f"Unpivoted. Found {len(unpivoted_vars.keys())} that will be used to update ."
     )
 
-    _update_cells(
+    _update_table_cells_by_keys(
         wb=base_wb,
         tab_name=base_tab,
         keys=base_keys,

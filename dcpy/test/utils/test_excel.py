@@ -38,7 +38,7 @@ def test_applying_modifications(default_mod_kwargs: dict):
     excel.apply_cross_file_modifications(**default_mod_kwargs)
     modified_xlsx = openpyxl.load_workbook(default_mod_kwargs["out_path"])
 
-    modified_vals = excel._unpivot_table(
+    modified_vals = excel._get_table_values_by_keys(
         wb=modified_xlsx, tab_name=BASE_TAB, keys=BASE_KEYS, header_row=BASE_HEADER_ROW
     )
     for _, v in modified_vals.items():
