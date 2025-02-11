@@ -44,6 +44,68 @@ def _file_id_to_zipped_paths(
     return mapping
 
 
+SHAPEFILE_SUFFIXES = {"shx", "shp.xml", "shp", "sbx", "sbn", "prj", "dbf", "cpg", "shx"}
+
+
+def unpack_multilayer_shapefile(
+    file_path: Path,
+    package_path: Path,
+    package_id: str,
+    dataset_metadata: md.Metadata,
+):
+    """Unpackages a multilayer shapefile into single layers zips."""
+    file_ids_to_paths = _file_id_to_zipped_paths(dataset_metadata, package_id)
+    logger.info(f"Unpackaging files: {file_ids_to_paths}")
+
+    make_package_folder(package_path)
+
+    package = dataset_metadata.get_package(package_id)
+    package_shapefile_prefixes_to_ids = {
+        f.custom["layer_name"]: f.id for f in package.contents
+    }
+
+    with tempfile.TemporaryDirectory() as temp_unpacked_dir:
+        unpacked_dir = Path(temp_unpacked_dir) / file_path.stem
+        logger.info(f"Unpacking shapefile at: {file_path}, to: {unpacked_dir}")
+        shutil.unpack_archive(file_path, unpacked_dir)
+
+        # If the file was zipped in a certain way, it may contain an intermediate folder.
+        # TODO: make a `dcpy.util` for this
+        dir_contents = os.listdir(unpacked_dir)
+        if len(dir_contents) == 1 and (unpacked_dir / dir_contents[0]).is_dir():
+            unpacked_dir = unpacked_dir / dir_contents[0]
+
+        shapefile_dirs_to_zip = set()
+        for fname in os.listdir(unpacked_dir):
+            stem, suffix = fname.split(".", maxsplit=1)
+            if (
+                stem in package_shapefile_prefixes_to_ids
+                and suffix in SHAPEFILE_SUFFIXES
+            ):
+                shapefile_dirs_to_zip.add(stem)
+                new_shapefile_dir = unpacked_dir / stem
+                new_shapefile_dir.mkdir(exist_ok=True)
+
+                shutil.copy2(
+                    (unpacked_dir / fname),  # from
+                    new_shapefile_dir / fname,  # to
+                )
+        for shapefile_dir in list(shapefile_dirs_to_zip):
+            shapefile_id = package_shapefile_prefixes_to_ids[shapefile_dir]
+            unpackaged_path = str(unpacked_dir / shapefile_dir)
+
+            out_path = package_path / file_ids_to_paths[shapefile_id]["package_path"]
+            assert out_path.parent.exists()
+
+            logger.info(f"Packaging shapefile at {unpackaged_path} -> {out_path}")
+            shutil.make_archive(
+                str(out_path).rsplit(".", 1)[0],
+                root_dir=unpackaged_path,
+                format="zip",
+            )
+        logger.info("Finished unpacking shapefile.")
+
+
 def unzip_into_package(
     zip_path: Path,
     package_path: Path,
@@ -134,7 +196,7 @@ def pull_destination_files(
     make_package_folder(local_package_path)
     product_metadata.write_to_yaml(local_package_path / "metadata.yml")
 
-    package_ids = {p.id for p in product_metadata.assembly}
+    assembled_file_ids = {p.id for p in product_metadata.assembly}
     for f in dest.files:
         paths_and_dests = ids_to_paths_and_dests[f.id]
         f_is_metadata = (
@@ -147,38 +209,59 @@ def pull_destination_files(
         logger.info(f"{local_package_path} - {paths_and_dests['path']} - {file_path}")
 
         url = paths_and_dests["url"]
-        urllib.request.urlretrieve(url, file_path)
 
-        if unpackage_zips and f.id in package_ids:
+        try:
+            # By default, urllib doesn't mention the url in its stack trace, which makes it difficult to debug
+            logger.info(f"Retrieving file at url: {url}")
+            urllib.request.urlretrieve(url, file_path)
+        except Exception:
+            raise Exception(f"Assembly error Retrieving file at {url}")
+
+        if unpackage_zips and f.id in assembled_file_ids:
             logger.info(f"Unpackaging zip: {f.id}")
-            unzip_into_package(
-                zip_path=file_path,
-                package_path=local_package_path,
-                package_id=f.id,
-                product_metadata=product_metadata,
-            )
+
+            assembled_file = product_metadata.get_package(f.id)
+            if assembled_file.type == "zip":
+                unzip_into_package(
+                    zip_path=file_path,
+                    package_path=local_package_path,
+                    package_id=f.id,
+                    product_metadata=product_metadata,
+                )
+            # TODO: move these to constants
+            elif assembled_file.type == "multilayer_shapefile":
+                unpack_multilayer_shapefile(
+                    file_path=file_path,
+                    package_path=local_package_path,
+                    package_id=f.id,
+                    dataset_metadata=product_metadata,
+                )
+            else:
+                raise Exception(
+                    f"No known method to disassemble type: {assembled_file.type}"
+                )
 
 
 def pull_destination_package_files(
     *,
     source_destination_id: str,
     local_package_path: Path,
-    product_metadata: md.Metadata,
+    dataset_metadata: md.Metadata,
 ):
     """Pull all files for a destination."""
     dests = [
-        d for d in product_metadata.destinations if d.type == source_destination_id
+        d for d in dataset_metadata.destinations if d.type == source_destination_id
     ]
     for d in dests:
         pull_destination_files(
-            local_package_path, product_metadata, d.id, unpackage_zips=True
+            local_package_path, dataset_metadata, d.id, unpackage_zips=True
         )
 
     if not local_package_path.exists():
         raise Exception(
             f"The package page {local_package_path} was never created. Likely no files were pulled."
         )
-    product_metadata.write_to_yaml(local_package_path / "metadata.yml")
+    dataset_metadata.write_to_yaml(local_package_path / "metadata.yml")
 
 
 ASSEMBLY_INSTRUCTIONS_KEY = "assembly"
@@ -310,5 +393,5 @@ def _pull_dataset_cli(
     pull_destination_package_files(
         source_destination_id=source_destination_id,
         local_package_path=out_dir,
-        product_metadata=dataset_metadata,
+        dataset_metadata=dataset_metadata,
     )

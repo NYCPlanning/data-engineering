@@ -22,6 +22,16 @@ assembly:
   - id: readme
     filename: zipped_readme.pdf
   - id: data_file
+- id: points_and_lines
+  filename: points_and_lines_shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: lines_shapefile
+    custom:
+      layer_name: lines
+  - id: points_shapefile
+    custom:
+      layer_name: points
 
 custom: {}
 
@@ -38,6 +48,9 @@ destinations:
   - id: my_zip
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip.pdf
+  - id: points_and_lines
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/points_and_lines.zip
 - id: soc_dest_with_no_four_four
   type: socrata
   files: []
@@ -77,5 +90,13 @@ files:
     filename: my.zip
     is_metadata: true
     type: zip
+- file:
+    id: points_shapefile
+    filename: points.zip
+    type: shapefile
+- file:
+    id: lines_shapefile
+    filename: lines.zip
+    type: shapefile
 
 columns: []
