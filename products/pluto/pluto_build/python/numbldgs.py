@@ -23,7 +23,7 @@ def get_bbl(inputs):
 
 
 def get_bins(uid):
-    # https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh
+    # https://data.cityofnewyork.us/Housing-Development/Building-Footprints/5zhs-2jue
     url = f"https://data.cityofnewyork.us/resource/{uid}.csv"
     headers = {"X-App-Token": os.environ["API_TOKEN"]}
     params = {"$select": "bin", "$limit": 50000000000000000}
@@ -32,8 +32,7 @@ def get_bins(uid):
 
 
 if __name__ == "__main__":
-    metadata = requests.get("https://data.cityofnewyork.us/api/views/nqwf-w8eh").json()
-    uid = metadata["childViews"][1]
+    uid = "5zhs-2jue"
     df = get_bins(uid)
     with Pool(processes=cpu_count()) as pool:
         it = pool.map(get_bbl, df.to_dict("records"), 100000)

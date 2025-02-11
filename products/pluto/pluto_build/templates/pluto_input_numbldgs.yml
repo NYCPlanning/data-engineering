@@ -5,8 +5,8 @@ dataset:
     url:
       path: s3://edm-recipes/tmp/pluto_input_numbldgs.csv
     options:
-      - "AUTODETECT_TYPE=NO"
-      - "EMPTY_STRING_AS_NULL=YES"
+    - "AUTODETECT_TYPE=NO"
+    - "EMPTY_STRING_AS_NULL=YES"
     geometry:
       SRS: null
       type: NONE
@@ -16,8 +16,8 @@ dataset:
       SRS: null
       type: NONE
     options:
-      - "OVERWRITE=YES"
-      - "PRECISION=NO"
+    - "OVERWRITE=YES"
+    - "PRECISION=NO"
     fields: []
     sql: |
       SELECT bbl, count(*) as count
@@ -30,5 +30,5 @@ dataset:
       ### Number of Buildings
       Please check the following url to check the `building_p` csv url
       it needs to match up with the url in the python script
-    url: https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh
+    url: https://data.cityofnewyork.us/Housing-Development/Building-Footprints/5zhs-2jue
     dependents: []
