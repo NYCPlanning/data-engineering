@@ -103,8 +103,7 @@ def unpack_multilayer_shapefile(
                 root_dir=unpackaged_path,
                 format="zip",
             )
-        print("all done!")
-        print(os.listdir(unpacked_dir))
+        logger.info("Finished unpacking shapefile.")
 
 
 def unzip_into_package(
