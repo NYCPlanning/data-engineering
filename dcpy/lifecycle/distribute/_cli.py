@@ -31,11 +31,10 @@ def _dist_from_local(
     ),
 ):
     md = m.Metadata.from_path(metadata_path or (package_path / "metadata.yml"))
-    result = distribute.to_dataset_destination(
+    distribute.to_dataset_destination(
         metadata=md,
         dataset_destination_id=dataset_destination_id,
         publish=publish,
         dataset_package_path=package_path,
         metadata_only=metadata_only,
     )
-    print(result)
