@@ -1,8 +1,7 @@
-id: test_product
+id: colp
 
 attributes:
-  display_name: Test Product
   description: Product description {{ sample_text }}
 
 datasets:
-  - test_dataset
+- colp

@@ -1,4 +1,3 @@
-from pathlib import Path
 import pytest
 
 from dcpy.lifecycle import package
@@ -6,8 +5,8 @@ import dcpy.models.product.dataset.metadata as md
 
 
 @pytest.fixture
-def COLP_PACKAGE_PATH(resources_path: Path):
-    return resources_path / "product_metadata" / "colp_single_feature_package"
+def COLP_PACKAGE_PATH(package_and_dist_test_resources):
+    return package_and_dist_test_resources.PACKAGE_PATH_COLP_SINGLE_FEATURE
 
 
 COLP_VERSION = "24b"

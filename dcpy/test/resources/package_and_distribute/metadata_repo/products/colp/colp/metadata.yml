@@ -1,7 +1,7 @@
-id: db-colp
+id: colp
 
 attributes:
-  description: Raw Description
+  description: Dataset description {{ sample_text }}
   display_name: City Owned and Leased Property (COLP)
   each_row_is_a: City Owned Property
   tags:
@@ -16,7 +16,7 @@ assembly:
       - id: primary_csv
         filename: colp_{{ version }}.csv
       - id: colp_readme
-        filename: colp_readme.pdf
+        filename: colp_readme
       - id: colp_metadata
         filename: colp_metadata.pdf
 
@@ -45,7 +45,7 @@ destinations:
   - id: socrata_unparsed
     type: socrata
     files:
-      - id: colp_readme.pdf
+      - id: colp_readme
         custom:
           destination_use: attachment
       - id: primary_shapefile
@@ -84,9 +84,9 @@ files:
         - id: geom
           name: geometry
           data_type: geometry
-        - id: BBL
+        - id: bbl
           data_type: decimal
-        - id: MAPBBL
+        - id: mapbbl
           data_type: decimal
   - file:
       id: primary_csv
@@ -120,7 +120,6 @@ columns:
     data_source: Department of City Planning
     checks:
       is_primary_key: true
-    example: cbe20732be28f6ab445289d7a67bb241
   - id: borough
     name: BOROUGH
     data_type: text
@@ -158,13 +157,7 @@ columns:
       non_nullable: true
     example: "141"
   - id: bbl
-    name: BBL
-    data_type: number # Data imported incorrectly for these in the shapefile
-    checks:
-      non_nullable: true
-    example: "1016370141"
-    custom:
-      readme_data_type: double
+    data_type: bbl
   - id: mapbbl
     name: MAPBBL
     data_type: number # Data imported incorrectly for these in the shapefile

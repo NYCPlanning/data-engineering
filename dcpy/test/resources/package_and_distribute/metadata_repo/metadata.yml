@@ -6,5 +6,6 @@ attributes:
   contact_email: opendata@planning.nyc.gov
 
 products:
+  - colp
   - lion
   - transit_zones

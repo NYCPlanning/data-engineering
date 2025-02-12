@@ -279,6 +279,14 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             raise Exception(f"There should exist one destination with id: {id}")
         return dests[0]
 
+    def get_column(self, column_id: str):
+        cols = [c for c in self.columns if c.id == column_id]
+        if len(cols) != 1:
+            raise Exception(
+                f"There should exist one column with id: {column_id}. Found {len(cols)}"
+            )
+        return cols[0]
+
     def get_file_ids(self):
         return {f.file.id for f in self.files}
 
