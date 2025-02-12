@@ -17,6 +17,7 @@ from pydantic import BaseModel
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
 from socrata.revisions import Revision as SocrataPyRevision
+import textwrap
 import time
 from typing import TypedDict, Literal, NotRequired, Any
 
@@ -279,6 +280,18 @@ class RevisionDataSource:
             )
 
         output_schema = self.get_latest_output_schema()
+
+        failures = {
+            col["field_name"]: col["transform"]["failure_details"]
+            for col in output_schema.attributes["output_columns"]
+            if col["transform"]["failure_details"]
+        }
+        if failures:
+            raise Exception(
+                "Socrata 'transformations' failed. See revision -> 'Review & Configure Data' -> 'Column Mapping'\n"
+                f"Failures by columns:\n{textwrap.indent(json.dumps(failures, indent=4), '    ')}"
+            )
+
         for col in output_schema.attributes["output_columns"]:
             # Take the Socrata metadata for columns that have been uploaded,
             # modify them to match our metadata.
@@ -643,9 +656,9 @@ def push_dataset(
             except Exception as e:
                 # Upating column Metadata is tricky, and there's still some work to be done
                 logger.error(
-                    f"""Error Updating Column Metadata! However,
-                    the Dataset File was uploaded and the revision can still be applied manually, here: {rev.page_url}
-                    Error: {e}"""
+                    "Error Updating Column Metadata! However, the Dataset File was uploaded"
+                    f"and the revision can still be applied manually, here: {rev.page_url}\n"
+                    f"Error:\n{textwrap.indent(str(e), '    ')}"
                 )
                 return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
 
