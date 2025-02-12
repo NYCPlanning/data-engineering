@@ -6,7 +6,7 @@ import shutil
 from dcpy.configuration import RECIPES_BUCKET
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import run as run_ingest, TMP_DIR
+from dcpy.lifecycle.ingest.run import ingest as run_ingest, TMP_DIR
 
 from dcpy.test.conftest import mock_request_get
 from .shared import FAKE_VERSION, TEMPLATE_DIR

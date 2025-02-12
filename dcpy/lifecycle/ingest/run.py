@@ -1,15 +1,15 @@
 import json
 from pathlib import Path
-import typer
 
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from . import configure, extract, transform, validate
 
+
 TMP_DIR = Path("tmp")
 
 
-def run(
+def ingest(
     dataset_id: str,
     version: str | None = None,
     *,
@@ -84,34 +84,3 @@ def run(
             case _:
                 pass
     return config
-
-
-app = typer.Typer(add_completion=False)
-
-
-@app.command("run")
-def _cli_wrapper_run(
-    dataset_id: str = typer.Argument(),
-    version: str = typer.Option(
-        None,
-        "-v",
-        "--version",
-        help="Version of dataset being archived",
-    ),
-    mode: str = typer.Option(None, "-m", "--mode", help="Preprocessing mode"),
-    latest: bool = typer.Option(
-        False, "-l", "--latest", help="Push to latest folder in s3"
-    ),
-    skip_archival: bool = typer.Option(False, "--skip-archival", "-s"),
-    csv: bool = typer.Option(
-        False, "-c", "--csv", help="Output csv locally as well as parquet"
-    ),
-):
-    run(
-        dataset_id,
-        version,
-        mode=mode,
-        latest=latest,
-        skip_archival=skip_archival,
-        output_csv=csv,
-    )

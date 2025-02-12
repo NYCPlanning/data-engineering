@@ -12,7 +12,7 @@ from dcpy.models.base import SortedSerializedBase, YamlWriter
 from dcpy.models.lifecycle.ingest import DatasetAttributes
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import TMP_DIR, run as run_ingest
+from dcpy.lifecycle.ingest.run import TMP_DIR, ingest as run_ingest
 from dcpy.lifecycle.builds import metadata as build_metadata
 
 DATABASE = "sandbox"
