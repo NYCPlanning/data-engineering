@@ -656,7 +656,7 @@ def push_dataset(
                 # Upating column Metadata is tricky, and there's still some work to be done
                 logger.error(
                     "Error Updating Column Metadata! However, the Dataset File was uploaded "
-                    f"and the revision can still be applied manually, here: {rev.page_url}\n"
+                    f"and the revision can still be applied manually, here:\n    {rev.page_url}\n"
                     f"Error:\n{textwrap.indent(str(e), '    ')}"
                 )
                 return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
