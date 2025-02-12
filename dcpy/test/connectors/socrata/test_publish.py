@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, call
 
 import dcpy.models.product.dataset.metadata as md
 from dcpy.connectors.socrata import publish
+from socrata.output_schema import OutputSchema
 
 
 @pytest.fixture
@@ -222,13 +223,23 @@ def test_column_reconcilation_missing_columns_error():
     Specifically, the case where the md pushed to socrata contains an
     unaccounted for columns, and vice versa.
     """
-    col_update_ep = "/col/update"
 
-    in_theirs_and_ours = {"field_name": "abc_api"}
-    in_theirs_missing_from_ours = {"field_name": "missing_from_ours"}
+    def _column(field_name) -> dict:
+        return {"field_name": field_name, "transform": {"failure_details": None}}
+
+    in_theirs_and_ours = _column("abc_api")
+    in_theirs_missing_from_ours = _column("missing_from_ours")
     rds = publish.RevisionDataSource(
-        uploaded_columns=[in_theirs_and_ours, in_theirs_missing_from_ours],
-        column_update_endpoint=col_update_ep,
+        output_schema=OutputSchema(
+            None,
+            {
+                "resource": {
+                    "output_columns": [in_theirs_and_ours, in_theirs_missing_from_ours],
+                    "sort_bys": {},
+                },
+                "links": {},
+            },
+        ),
     )
 
     in_ours_missing_theirs = md.DatasetColumn(
@@ -291,19 +302,33 @@ def test_column_reconcilation_happy_path():
     for their_column_names_disordered in itertools.permutations(
         their_column_names_ordered
     ):
+        cols = [
+            {
+                "id": f"{n}_soc_id",
+                "field_name": n,
+                "transform": {"failure_details": None},
+                "position": i,
+            }
+            for i, n in enumerate(their_column_names_disordered)
+        ]
+        mock = MagicMock()
+        mock.transform = lambda a: a
         rds = publish.RevisionDataSource(
-            uploaded_columns=[
-                {"id": f"{n}_soc_id", "field_name": n}
-                for n in their_column_names_disordered
-            ],
-            column_update_endpoint="",
+            output_schema=OutputSchema(
+                None,
+                {"resource": {"output_columns": cols, "sort_bys": {}}, "links": {}},
+                parent=mock,
+            ),
         )
 
-        updated_soc_cols = rds.calculate_pushed_col_metadata(our_columns)
-
+        output_schema = rds.push_socrata_column_metadata(our_columns)
+        print(output_schema)
         assert their_column_names_ordered == [
             c["field_name"]
-            for c in sorted(updated_soc_cols, key=lambda c: c["position"])
+            for c in sorted(
+                output_schema["output_columns"],
+                key=lambda c: c["position"],
+            )
         ], "The socrata columns should have correct positions"
 
 

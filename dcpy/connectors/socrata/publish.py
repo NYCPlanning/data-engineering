@@ -15,6 +15,8 @@ from pathlib import Path
 from pydantic import BaseModel
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
+from socrata.output_schema import OutputSchema
+from socrata.sources import Source
 from socrata.revisions import Revision as SocrataPyRevision
 import textwrap
 import time
@@ -236,20 +238,20 @@ class RevisionDataSource:
         "The field names in the uploaded data do not match our metadata"
     )
 
-    _raw_socrata_source: dict[str, Any] | None = None
+    output_schema: OutputSchema
+    _raw_socrata_source: Source | None = None
 
     @classmethod
-    def from_socrata_source(cls, socrata_source):
-        return RevisionDataSource(_raw_socrata_source=socrata_source)
-
-    def get_latest_output_schema(self):
-        return self._raw_socrata_source.get_latest_input_schema().get_latest_output_schema()
+    def from_socrata_source(cls, socrata_source: Source):
+        return RevisionDataSource(
+            output_schema=socrata_source.get_latest_input_schema().get_latest_output_schema(),
+            _raw_socrata_source=socrata_source,
+        )
 
     @property
     def column_names(self) -> list[str]:
         return [
-            c["field_name"]
-            for c in self.get_latest_output_schema().attributes["output_columns"]
+            c["field_name"] for c in self.output_schema.attributes["output_columns"]
         ]
 
     def calculate_pushed_col_metadata(self, our_columns: list[md.DatasetColumn]):
@@ -278,11 +280,9 @@ class RevisionDataSource:
                 }
             )
 
-        output_schema = self.get_latest_output_schema()
-
         failures = {
             col["field_name"]: col["transform"]["failure_details"]
-            for col in output_schema.attributes["output_columns"]
+            for col in self.output_schema.attributes["output_columns"]
             if col["transform"]["failure_details"]
         }
         if failures:
@@ -291,7 +291,7 @@ class RevisionDataSource:
                 f"Failures by columns:\n{textwrap.indent(json.dumps(failures, indent=4), '    ')}"
             )
 
-        for col in output_schema.attributes["output_columns"]:
+        for col in self.output_schema.attributes["output_columns"]:
             # Take the Socrata metadata for columns that have been uploaded,
             # modify them to match our metadata.
 
@@ -299,28 +299,26 @@ class RevisionDataSource:
             our_col = our_cols_by_field_name[field_name]
             our_col_index = list(our_api_names).index(field_name)
 
-            output_schema.change_column_metadata(field_name, "position").to(
+            self.output_schema.change_column_metadata(field_name, "position").to(
                 our_col_index + 1
             )
 
-            output_schema.change_column_metadata(field_name, "is_primary_key").to(
+            self.output_schema.change_column_metadata(field_name, "is_primary_key").to(
                 bool(our_col.checks.is_primary_key)
                 if isinstance(our_col.checks, dataset.Checks)
                 else False
             )
 
-            output_schema.change_column_metadata(field_name, "display_name").to(
+            self.output_schema.change_column_metadata(field_name, "display_name").to(
                 our_col.name
             )
-            output_schema.change_column_metadata(field_name, "description").to(
+            self.output_schema.change_column_metadata(field_name, "description").to(
                 our_col.description
             )
 
-        return output_schema
-
     def push_socrata_column_metadata(self, our_cols: list[md.DatasetColumn]):
-        new_schema = self.calculate_pushed_col_metadata(our_cols)
-        return new_schema.run()
+        self.calculate_pushed_col_metadata(our_cols)
+        return self.output_schema.run()
 
 
 @dataclass(frozen=True)
