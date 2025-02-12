@@ -1,4 +1,3 @@
-from pathlib import Path
 import pytest
 from typing import Any
 
@@ -8,22 +7,8 @@ from dcpy.lifecycle.distribute import dispatcher
 
 
 @pytest.fixture
-def org_metadata(resources_path: Path):
-    # TODO: refactor away, into conftest maybe
-    template_vars = {
-        "version": "24c",
-        "lion_prod_level_pub_freq": "monthly",
-        "pseudo_lots_pub_freq": "monthly",
-        "agency": "fake_agency",
-    }
-    return md.OrgMetadata.from_path(
-        resources_path / "test_product_metadata_repo", template_vars=template_vars
-    )
-
-
-@pytest.fixture
-def COLP_PACKAGE_PATH(resources_path: Path):
-    return resources_path / "product_metadata" / "colp_single_feature_package"
+def org_metadata(package_and_dist_test_resources):
+    return package_and_dist_test_resources.org_md()
 
 
 SNOWFLAKE_CONNECTOR_TYPE = "snowflake"

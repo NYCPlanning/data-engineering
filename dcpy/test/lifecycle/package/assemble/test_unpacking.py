@@ -7,8 +7,8 @@ from dcpy.lifecycle.package import assemble
 
 
 @pytest.fixture
-def package_path(resources_path: Path):
-    return resources_path / "product_metadata" / "assembled_package_and_metadata"
+def package_path(package_and_dist_test_resources):
+    return package_and_dist_test_resources.PACKAGE_PATH_ASSEMBLED
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def metadata(package_path: Path):
 
 def test_unpack_package(metadata, tmp_path, package_path):
     assemble.unzip_into_package(
-        zip_path=package_path / "readme_and_data_file.zip",
+        zip_path=package_path / "zip_files" / "readme_and_data_file.zip",
         package_path=Path(tmp_path),
         package_id="my_zip",
         product_metadata=metadata,
@@ -40,7 +40,7 @@ def test_unpack_multi_layer_shapefile(
 ):
     SHAPEFILE_PACKAGE_ID = "points_and_lines"
     assemble.unpack_multilayer_shapefile(
-        file_path=package_path / "points_and_lines_shp.zip",
+        file_path=package_path / "zip_files" / "points_and_lines_shp.zip",
         package_path=Path(tmp_path),
         package_id=SHAPEFILE_PACKAGE_ID,
         dataset_metadata=metadata,

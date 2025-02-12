@@ -10,8 +10,8 @@ from socrata.output_schema import OutputSchema
 
 
 @pytest.fixture
-def package_path(resources_path: Path):
-    return resources_path / "product_metadata" / "assembled_package_and_metadata"
+def package_path(package_and_dist_test_resources):
+    return package_and_dist_test_resources.PACKAGE_PATH_ASSEMBLED
 
 
 @pytest.fixture

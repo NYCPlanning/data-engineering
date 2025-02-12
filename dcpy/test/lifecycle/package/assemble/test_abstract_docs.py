@@ -1,4 +1,3 @@
-from pathlib import Path
 import pytest
 
 from dcpy.lifecycle.package import abstract_doc
@@ -7,8 +6,8 @@ from dcpy.models.design import elements as de
 
 
 @pytest.fixture
-def org_metadata(resources_path: Path):
-    return OrgMetadata.from_path(resources_path / "test_product_metadata_repo")
+def org_metadata(package_and_dist_test_resources):
+    return package_and_dist_test_resources.org_md()
 
 
 def _assert_is_title_subtitle_row(row, comp_def):

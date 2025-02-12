@@ -2,11 +2,9 @@ from pathlib import Path
 import pytest
 import shutil
 
-from dcpy.test.conftest import RESOURCES
+from dcpy.test.resources import package_and_distribute
 
-TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH = (
-    RESOURCES / "product_metadata" / "assembled_package_and_metadata"
-)
+TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH = package_and_distribute.PACKAGE_PATH_ASSEMBLED
 
 PACKAGE_RESOURCES_PATH = Path(__file__).parent.resolve() / "resources"
 TEST_PACKAGE_PATH = PACKAGE_RESOURCES_PATH / "test_package"

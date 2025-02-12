@@ -26,7 +26,7 @@ from dcpy.utils import s3, versions
 from dcpy.models.lifecycle.builds import BuildMetadata
 from dcpy.connectors.edm import publishing, packaging
 from dcpy.lifecycle.builds import plan
-
+from dcpy.test.resources import package_and_distribute
 
 RESOURCES = Path(__file__).parent / "resources"
 
@@ -34,6 +34,11 @@ RESOURCES = Path(__file__).parent / "resources"
 @pytest.fixture(scope="function")
 def resources_path():
     return RESOURCES
+
+
+@pytest.fixture(scope="function")
+def package_and_dist_test_resources():
+    return package_and_distribute
 
 
 @pytest.fixture(scope="function")

@@ -1,4 +1,3 @@
-from pathlib import Path
 import pytest
 from dcpy.test.lifecycle.package.conftest import (
     PACKAGE_RESOURCES_PATH,
@@ -6,12 +5,11 @@ from dcpy.test.lifecycle.package.conftest import (
 )
 
 from dcpy.lifecycle.package import yaml_writer, pdf_writer, xlsx_writer
-from dcpy.models.product.metadata import OrgMetadata
 
 
 @pytest.fixture
-def org_metadata(resources_path: Path):
-    return OrgMetadata.from_path(resources_path / "test_product_metadata_repo")
+def org_metadata(package_and_dist_test_resources):
+    return package_and_dist_test_resources.org_md()
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
