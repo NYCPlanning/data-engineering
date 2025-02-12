@@ -1,0 +1,28 @@
+id: dot_pedplazas
+acl: public-read
+
+attributes:
+  name: NYC DOT Pedestrian Plazas
+  description: All DOT pedestrian plaza locations across New York City.
+  url: https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: k5k6-6jex
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+- id: fromstreet
+  data_type: text
+- id: partner
+  data_type: text
+- id: boroname
+  data_type: text
+- id: plazaname
+  data_type: text
+- id: geom
+  data_type: geometry

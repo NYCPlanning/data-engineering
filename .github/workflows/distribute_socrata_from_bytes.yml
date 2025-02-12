@@ -1,5 +1,5 @@
-name: 📬 Distribute Socrata From Bytes
-run-name: "📬 Distribute Socrata From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
+name: 📬 Distribute From Bytes
+run-name: "📬 Distribute From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
 
 on:
   workflow_dispatch:
@@ -8,29 +8,38 @@ on:
         description: "Name of the product"
         type: string
         required: true
-      DATASET_VERSION:
+      PRODUCT_VERSION:
         description: "Version to push"
         type: string
         required: true
-      DESTINATION_ID:
-        description: "Destination ID (e.g. `colp_socrata`)"
+      DATASET:
+        description: "Dataset to push"
         type: string
         required: true
-      DATASET:
-        description: "Dataset to push (defaults to PRODUCT_NAME when omitted)"
-        type: string
-        required: false
       PUBLISH:
         description: "Publish the revision? (if not, will leave the revision open)"
         type: boolean
         default: false
-        required: true
-      IGNORE_VALIDATION_ERRORS:
-        description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console)"
+        required: false
+      METADATA_ONLY:
+        description: "Distribute just the metadata?"
         type: boolean
         default: false
+        required: false
+      DESTINATION_ID_FILTER:
+        description: "Destination ID (e.g. `colp_socrata`)"
+        type: string
+        required: false
+      DESTINATION_TYPE_FILTER:
+        description: "Destination type (e.g. 'ftp')"
+        type: string
+        required: false
       SKIP_VALIDATION:
         description: "Skip validation altogether?"
+        type: boolean
+        default: false
+      IGNORE_VALIDATION_ERRORS:
+        description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console)"
         type: boolean
         default: false
 jobs:
@@ -43,8 +52,16 @@ jobs:
       image: nycplanning/build-base:latest
     env:
       PUBLISHING_BUCKET: edm-publishing
+      RECIPES_BUCKET: edm-recipes
+      PRODUCT_METADATA_REPO_PATH: product-metadata
+      _TYPER_STANDARD_TRACEBACK: 1
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: NYCPlanning/product-metadata
+          path: product-metadata
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
@@ -58,3 +75,20 @@ jobs:
           SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
           SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
 
+
+      - name: Finish container setup
+        run: ./bash/docker_container_setup.sh
+
+      - name: Distribute to Destinations
+        run: |
+          python3 -m dcpy.cli lifecycle scripts package_and_distribute \
+            ${{ inputs.PRODUCT_NAME }} \
+            ${{ inputs.PRODUCT_VERSION }} \
+            ${{ inputs.DATASET }} \
+            bytes \
+            $(if [ ${{ inputs.DESTINATION_ID_FILTER }} != "" ]; then echo "-a ${{ inputs.DESTINATION_ID_FILTER }}"; fi) \
+            $(if [ ${{ inputs.DESTINATION_TYPE_FILTER }} != "" ]; then echo "-e ${{ inputs.DESTINATION_TYPE_FILTER }}"; fi) \
+            $(if [ ${{ inputs.SKIP_VALIDATION }} = "true" ]; then echo "-y"; fi) \
+            $(if [ ${{ inputs.IGNORE_VALIDATION_ERRORS }} = "true" ]; then echo "-i"; fi) \
+            $(if [ ${{ inputs.PUBLISH }} = "true" ]; then echo "-p"; fi) \
+            $(if [ ${{ inputs.METADATA_ONLY }} = "true" ]; then echo "-m"; fi)

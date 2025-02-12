@@ -87,10 +87,10 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
     def query_destinations(
         self,
         *,
-        datasets: set[str] | None = None,
+        datasets: frozenset[str] | None = None,
         destination_id: str | None = None,
         destination_type: str | None = None,
-        tag: str | None = None,
+        destination_tag: str | None = None,
     ) -> dict[str, dict[str, DatasetMetadata]]:
         """Retrieve a map[map] of dataset->destination->DatasetMetadata filtered by
            - destination type. (e.g. Socrata)
@@ -101,13 +101,14 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         """
         filtered_datasets = self.get_datasets_by_id()
         found_dests: dict[str, dict[str, DatasetMetadata]] = defaultdict(dict)
+
         for ds in filtered_datasets.values():
             for dest in ds.destinations:
                 if (
                     (not destination_type or dest.type == destination_type)
                     and (not destination_id or dest.id == destination_id)
                     and (not datasets or ds.id in datasets)
-                    and (not tag or tag in dest.tags)
+                    and (not destination_tag or destination_tag in dest.tags)
                 ):
                     found_dests[ds.id][dest.id] = ds
         return found_dests

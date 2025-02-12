@@ -8,4 +8,5 @@ FROM doitt_buildingfootprints AS b,
     dcp_id_bin_map AS c
 WHERE
     c.bin::bigint = b.bin::bigint
-    AND a.maprojid = c.maprojid;
+    AND a.maprojid = c.maprojid
+    AND b.wkb_geometry IS NOT NULL;

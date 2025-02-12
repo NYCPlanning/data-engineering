@@ -1,12 +1,11 @@
-import ast
 from dataclasses import dataclass, field
 from enum import Enum
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-import pprint
 import re
 from shapely import wkb, wkt
+from tabulate import tabulate  # type: ignore
 import typer
 
 import dcpy.models.product.dataset.metadata as dataset_md
@@ -47,24 +46,36 @@ class PackageValidation:
     file_validations: list[DatasetFileValidation]
     errors: list[ValidationError]
 
-    def pretty_print_errors(self):
+    def has_errors(self):
+        return bool(self.errors or any([e.errors for e in self.file_validations]))
+
+    def make_errors_table(self):
+        return tabulate(
+            self.get_errors_list(),
+            headers=["location", "type", "message"],
+            tablefmt="presto",
+        )
+
+    def get_errors_list(self) -> list[tuple]:
+        errors = []
         for file_validation in self.file_validations:
             for fe in file_validation.errors:
-                pprint.pp(
-                    [
+                errors.append(
+                    (
                         file_validation.dataset_file_id,
                         fe.error_type.value,
                         fe.message,
-                    ]
+                    )
                 )
         for error in self.errors:
-            pprint.pp(
-                [
+            errors.append(
+                (
                     "package",
                     error.error_type.value,
                     error.message,
-                ]
+                )
             )
+        return errors
 
 
 def _is_valid_wkb(g):
@@ -252,8 +263,11 @@ def validate_shapefile(
 
 
 def validate_package_files(
-    package_path: Path, metadata: dataset_md.Metadata
+    package_path: Path, metadata_override: dataset_md.Metadata | None
 ) -> list[DatasetFileValidation]:
+    metadata = metadata_override or dataset_md.Metadata.from_path(
+        package_path / "metadata.yml"
+    )
     dataset_files_path = (
         package_path / "dataset_files"
     )  # TODO: wrong place for this calculation. Move it.
@@ -323,17 +337,17 @@ def validate_package_files(
     return file_validations
 
 
-def validate_package_from_path(
+def validate(
     package_path: Path,
-    metadata_override_path: Path | None = None,
-    metadata_args: dict | None = None,
-) -> list[DatasetFileValidation]:
+    overridden_dataset_metadata: dataset_md.Metadata | None = None,
+) -> PackageValidation:
     logger.info(f"Validating package at {package_path}")
-    metadata = dataset_md.Metadata.from_path(
-        metadata_override_path or (package_path / "metadata.yml"),
-        template_vars=metadata_args,
+    return PackageValidation(
+        file_validations=validate_package_files(
+            package_path=package_path, metadata_override=overridden_dataset_metadata
+        ),
+        errors=[],
     )
-    return validate_package_files(package_path=package_path, metadata=metadata)
 
 
 app = typer.Typer()
@@ -342,18 +356,19 @@ app = typer.Typer()
 @app.command()
 def _validate(
     package_path: Path,
-    metadata_path: Path = typer.Option(
+    metadata_path_override: Path = typer.Option(
         None, "-m", "--metadata-path", help="(Optional) Metadata Path"
     ),
-    metadata_args: str = typer.Option(default={}, callback=ast.literal_eval),
 ):
-    validations = validate_package_from_path(
+    validation = validate(
         package_path,
-        metadata_path,
-        metadata_args=metadata_args,  # type: ignore
+        overridden_dataset_metadata=dataset_md.Metadata.from_path(
+            metadata_path_override
+        )
+        if metadata_path_override
+        else None,
     )
-    for f in validations:
-        for e in f.errors:
-            print(
-                f"{f.dataset_file_id[0:20].ljust(20)} | {e.error_type.value[0:20].ljust(20)} | {e.message}"
-            )
+    if validation.has_errors():
+        logger.error(f"Package validation failed for {package_path}")
+        raise Exception(validation.make_errors_table())
+    logger.info(f"Package at {package_path} completed without errors")

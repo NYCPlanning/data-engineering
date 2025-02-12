@@ -1,0 +1,74 @@
+id: dca_operatingbusinesses
+acl: public-read
+
+attributes:
+  name: DCA Legally Operating Businesses
+  description: >-
+    This data set features businesses/individuals holding a DCA license so that they may
+    legally operate in New York City. Note: Sightseeing guides and temporary street fair
+    vendors are not included in this data set.
+  url: https://data.cityofnewyork.us/Business/Legally-Operating-Businesses/w7w3-xahh
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: w7w3-xahh
+    format: csv
+  file_format:
+    type: csv
+    # todo - things like BIN/BBL/etc and others could have this determined via `data_type` in column definitions
+    dtype:
+      ZIP Code: str
+      Community Board: str
+      Council District: str
+      BIN: str
+      BBL: str
+      Census Block (2010): str
+      Census Tract (2010): str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "lower": True }
+
+columns:
+- id: license_number
+  data_type: text
+- id: business_name
+  data_type: text
+- id: business_unique_id
+  data_type: text
+- id: business_category
+  data_type: text
+- id: building_number
+  data_type: text
+- id: street1
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: zip_code
+  data_type: text
+- id: borough
+  data_type: text
+- id: community_board
+  data_type: text
+- id: council_district
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: geom
+  data_type: geometry

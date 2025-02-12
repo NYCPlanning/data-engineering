@@ -21,3 +21,5 @@ destinations:
   - id: socrata
     type: socrata
     tags: [prod_tag, pseudo_lots_tag]
+  - id: garlic_sftp
+    type: sftp

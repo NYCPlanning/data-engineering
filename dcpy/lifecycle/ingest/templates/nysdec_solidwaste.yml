@@ -1,0 +1,61 @@
+id: nysdec_solidwaste
+acl: public-read
+
+attributes:
+  name: Solid Waste Management Facilities
+  url: https://data.ny.gov/Energy-Environment/Solid-Waste-Management-Facilities/2fni-raj8
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: 2fni-raj8
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Zip Code: str
+      Phone Number: str
+      Region: str
+    geometry:
+      geom_column:
+        x: East Coordinate
+        y: North Coordinate
+      crs: EPSG:26918
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "lower": True }
+
+columns:
+- id: facility_name
+  data_type: text
+- id: location_address
+  data_type: text
+- id: location_address2
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: zip_code
+  data_type: text
+- id: county
+  data_type: text
+- id: region
+  data_type: text
+- id: owner_name
+  data_type: text
+- id: owner_type
+  data_type: text
+- id: activity_desc
+  data_type: text
+- id: activity_number
+  data_type: text
+- id: active
+  data_type: text
+- id: east_coordinate
+  data_type: integer
+- id: north_coordinate
+  data_type: integer
+- id: geom
+  data_type: geometry

@@ -21,8 +21,17 @@ mkdir -p output && (
     echo "export cdbg_tracts.csv ..."
     csv_export cdbg_tracts
 
+    echo "export cdbg_tracts_bytes.csv ..."
+    csv_export cdbg_tracts_bytes_csv
+
+    echo "export CDBG_census_tracts.gdb ..."
+    fgdb_export "cdbg_tracts_bytes_fgdb" "POLYGON" "CDBG_census_tracts" ${default_srs}
+
     echo "export cdbg_tracts_excel.csv ..."
     csv_export cdbg_tracts_excel
+
+    echo "export cdbg_tracts_geosupport.csv ..."
+    csv_export cdbg_tracts_geosupport
 
     echo "export cdbg_boroughs.csv ..."
     csv_export cdbg_boroughs

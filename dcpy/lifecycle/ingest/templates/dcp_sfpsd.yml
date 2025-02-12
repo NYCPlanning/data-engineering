@@ -1,0 +1,133 @@
+id: dcp_sfpsd
+acl: public-read
+
+attributes:
+  name: Static Facilities
+  description: These records will never change, no updates needed
+ingestion:
+  source:
+    type: file_download
+    url: https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/facilities_csv_{{ version[:-2] }}.zip
+  file_format:
+    type: csv
+    unzipped_filename: facilities_{{ version }}.csv
+    geometry:
+      geom_column: the_geom
+      crs: EPSG:4326
+      format: wkb
+  processing_steps:
+  - name: coerce_column_types
+    args:
+      column_types: {
+        "uid": "string",
+        "borocode": "string",
+        "censtract": "string",
+        "commboard": "string",
+        "council": "string",
+        "idold": "string",
+        "zipcode": "string",
+      }
+  - name: filter_rows
+    args:
+      type: contains
+      column_name: pgtable
+      val: "\
+        amtrak_facilities_sfpsd|bbpc_facilities_sfpsd|hrpt_facilities_sfpsd|mta_facilities_sfpsd|\
+        nysdot_facilities_sfpsd|panynj_facilities_sfpsd|tgi_facilities_sfpsd|rioc_facilities_sfpsd\
+      "
+
+columns:
+- id: wkb_geometry
+  data_type: geometry
+- id: uid_merged
+  data_type: text
+- id: uid
+  data_type: text
+- id: idold
+  data_type: text
+- id: idagency
+  data_type: text
+- id: facname
+  data_type: text
+- id: addressnum
+  data_type: text
+- id: streetname
+  data_type: text
+- id: address
+  data_type: text
+- id: city
+  data_type: text
+- id: boro
+  data_type: text
+- id: borocode
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: xcoord
+  data_type: decimal
+- id: ycoord
+  data_type: decimal
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: commboard
+  data_type: text
+- id: council
+  data_type: text
+- id: censtract
+  data_type: text
+- id: nta
+  data_type: text
+- id: the_geom_webmercator
+  data_type: text
+- id: facgroup
+  data_type: text
+- id: facsubgrp
+  data_type: text
+- id: factype
+  data_type: text
+- id: capacity
+  data_type: text
+- id: util
+  data_type: text
+- id: captype
+  data_type: text
+- id: utilrate
+  data_type: text
+- id: area
+  data_type: text
+- id: areatype
+  data_type: text
+- id: proptype
+  data_type: text
+- id: optype
+  data_type: text
+- id: opname
+  data_type: text
+- id: opabbrev
+  data_type: text
+- id: overlevel
+  data_type: text
+- id: overagency
+  data_type: text
+- id: overabbrev
+  data_type: text
+- id: agencyjuris
+  data_type: text
+- id: datasource
+  data_type: text
+- id: dataname
+  data_type: text
+- id: dataurl
+  data_type: text
+- id: datadate
+  data_type: text
+- id: pgtable
+  data_type: text
+- id: facdomain
+  data_type: text

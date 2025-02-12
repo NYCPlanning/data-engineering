@@ -1,0 +1,119 @@
+name: Ingest - helper workflow to run multiple
+
+on:
+  workflow_call:
+    inputs:
+      datasets:
+        type: string
+        required: true
+      version:
+        type: string
+        required: false
+      latest:
+        type: string
+        default: "false"
+      dev_image:
+        type: string
+        required: false
+        default: "false"
+      dev_bucket:
+        description: prefix for dev bucket to use in place of recipes
+        type: string
+        required: false
+      label:
+        description: label to use if creating issue for scheduled action failure
+        type: string
+      create_issue:
+        description: create issue on failure?
+        type: string
+  workflow_dispatch:
+    inputs:
+      datasets:
+        description: whitespace-separated list of datasets to archive
+        type: string
+        required: true
+      version:
+        type: string
+        required: false
+      latest:
+        type: string
+        default: "false"
+      dev_image:
+        type: string
+        required: false
+        default: "false"
+      dev_bucket:
+        description: prefix for dev bucket to use in place of recipes
+        type: string
+        required: false
+
+jobs:
+  set_matrix:
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/base:latest # to have jq
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
+    steps:
+    - id: set_matrix
+      name: Set matrix
+      run: |
+        export input="${{ inputs.datasets }}"
+        echo $input
+        export matrix=[\"$(echo $input | xargs | sed -e "s/ /\",\"/g")\"]
+        echo $matrix
+        echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+  dataloading:
+    runs-on: ubuntu-22.04
+    needs: set_matrix
+    container:
+      image: nycplanning/build-base:${{ inputs.dev_image == 'true' && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+    env:
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        dataset: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+
+    - name: Finish container setup ...
+      run: ./bash/docker_container_setup.sh
+
+    - name: Ingest
+      env:
+        version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
+        latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
+      run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version $latest
+
+  create_issue_on_failure:
+    needs: dataloading
+    runs-on: ubuntu-22.04
+    if: ${{ failure() && (inputs.create_issue == 'true') }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Create issue on failure
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTION: ${{ inputs.label || github.workflow }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+        update_existing: true

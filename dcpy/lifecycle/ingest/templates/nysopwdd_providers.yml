@@ -1,0 +1,84 @@
+id: nysopwdd_providers
+acl: public-read
+
+attributes:
+  name: Directory of Developmental Disabilities Service Provider Agencies
+  description: |-
+    The dataset contains the address and phone number information for Voluntary Sector providers of the following OPWDD supports and services:
+    + INTERMEDIATE CARE FACILITIES (ICF);
+    + INDIVIDUAL RESIDENTIAL ALTERNATIVE (IRA);
+    + FAMILY CARE;
+    + SELF-DIRECTION SERVICES;
+    + INDIVIDUAL SUPPORT SERVICES (ISS);
+    + DAY HABILITATION;
+    + PREVOCATIONAL;
+    + SUPPORTED EMPLOYMENT ENROLLMENTS;
+    + COMMUNITY HABILITATION;
+    + FAMILY SUPPORT SERVICES;
+    + DEVELOPMENTAL CENTERS AND SPECIAL POPULATION SERVICES.
+  url: https://data.ny.gov/Human-Services/Directory-of-Developmental-Disabilities-Service-Pr/ieqx-cqyk
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: ieqx-cqyk
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Zip Code: str
+    geometry:
+      geom_column: Georeference
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+
+columns:
+- id: developmental_disability_services_office
+  data_type: text
+- id: service_provider_agency
+  data_type: text
+- id: street_address
+  data_type: text
+- id: street_address_line_2
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: zip_code
+  data_type: text
+- id: phone
+  data_type: text
+- id: county
+  data_type: text
+- id: website_url
+  data_type: text
+- id: intermediate_care_facilities_(icfs)
+  data_type: text
+- id: individual_residential_alternative_(ira)
+  data_type: text
+- id: family_care
+  data_type: text
+- id: self_direction_services
+  data_type: text
+- id: individual_support_services_(isss)
+  data_type: text
+- id: day_habilitation
+  data_type: text
+- id: prevocational
+  data_type: text
+- id: supported_employment_enrollments
+  data_type: text
+- id: community_habilitation
+  data_type: text
+- id: family_support_services
+  data_type: text
+- id: developmental_centers_and_special_population_services
+  data_type: text
+- id: location_1
+  data_type: text
+- id: geom
+  data_type: geometry
