@@ -655,7 +655,7 @@ def push_dataset(
             except Exception as e:
                 # Upating column Metadata is tricky, and there's still some work to be done
                 logger.error(
-                    "Error Updating Column Metadata! However, the Dataset File was uploaded"
+                    "Error Updating Column Metadata! However, the Dataset File was uploaded "
                     f"and the revision can still be applied manually, here: {rev.page_url}\n"
                     f"Error:\n{textwrap.indent(str(e), '    ')}"
                 )
