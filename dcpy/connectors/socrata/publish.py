@@ -9,7 +9,6 @@ quite informative.
 """
 
 from __future__ import annotations
-import copy
 from dataclasses import dataclass
 import json
 from pathlib import Path
