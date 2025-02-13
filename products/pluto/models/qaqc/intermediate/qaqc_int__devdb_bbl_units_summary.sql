@@ -14,7 +14,10 @@ WITH completed_construction_records AS (
         job_type,
         job_status,
         date_complete,
-        row_number() OVER (PARTITION BY bbl, bin ORDER BY date_complete DESC) AS order_num
+        row_number() OVER (
+            PARTITION BY bbl, bin
+            ORDER BY date_complete DESC
+        ) AS order_num
     FROM {{ ref("stg__dcp_developments") }}
     WHERE job_status IN ('5. Completed Construction', '4. Partially Completed Construction')
 ),
