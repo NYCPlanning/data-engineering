@@ -6,7 +6,6 @@ import pandas as pd
 from pathlib import Path
 from pyarrow import parquet
 import shutil
-from tempfile import TemporaryDirectory
 from typing import Callable
 import yaml
 
