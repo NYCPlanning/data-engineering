@@ -2,6 +2,7 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 from pydantic import BaseModel, Field, TypeAdapter
+from typing import ClassVar
 import yaml
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
@@ -39,6 +40,8 @@ class ProductMetadataFile(
 
 
 class ProductMetadata(SortedSerializedBase, extra="forbid"):
+    DATASET_NOT_LISTED_ERROR: ClassVar[str] = "Dataset not listed in metadata"
+
     root_path: Path
     metadata: ProductMetadataFile
     template_vars: dict = {}
@@ -67,10 +70,18 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         return [p.parent.name for p in self.root_path.glob("*/*.yml")]
 
     def dataset(self, dataset_id: str) -> DatasetMetadata:
+        if dataset_id not in self.metadata.datasets:
+            raise Exception(f"{self.DATASET_NOT_LISTED_ERROR}: {dataset_id}")
+
         ds_md = DatasetMetadata.from_path(
             self.root_path / dataset_id / "metadata.yml",
             template_vars=self.template_vars,
         )
+        if ds_md.id != dataset_id:
+            raise Exception(
+                ("There is a mismatch between the dataset id listed at the"
+                f" dataset level ({ds_md.id}) vs the product-level ({dataset_id})")
+            )
 
         ds_md.attributes = ds_md.attributes.apply_defaults(
             self.metadata.dataset_defaults
@@ -141,6 +152,8 @@ class OrgMetadataFile(TemplatedYamlReader, SortedSerializedBase, extra="forbid")
 
 
 class OrgMetadata(SortedSerializedBase, extra="forbid"):
+    PRODUCT_NOT_LISTED_ERROR: ClassVar[str] = "Product not listed in metadata"
+
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
@@ -188,6 +201,9 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
         )
 
     def product(self, name: str) -> ProductMetadata:
+        if not name in self.metadata.products:
+            raise Exception(f"{self.PRODUCT_NOT_LISTED_ERROR}: {name}")
+
         return ProductMetadata.from_path(
             root_path=self.root_path / "products" / name,
             template_vars=self.template_vars,
