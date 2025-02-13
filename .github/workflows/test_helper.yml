@@ -86,6 +86,7 @@ jobs:
         - green_fast_track
         - zoningtaxlots
         - cdbg
+        - pluto
     steps:
     - uses: actions/checkout@v4
     - name: setup
@@ -93,8 +94,13 @@ jobs:
         git config --global --add safe.directory /__w/data-engineering/data-engineering
         dbt deps
         dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
-    - name: sqlfluff
+    - name: sqlfluff models
       run: sqlfluff lint models --templater=dbt
+    - name: sqlfluff tests
+      run: |
+        if [ -d tests ]; then
+          sqlfluff lint tests --templater=dbt
+        fi
     - name: dbt-checkpoint
       working-directory: "."
       run: |
