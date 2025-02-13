@@ -34,6 +34,16 @@ def default_mod_kwargs(tmp_path):
     }
 
 
+@pytest.fixture
+def default_csv_into_excel_kwargs(tmp_path):
+    return {
+        "csv_path": RESOURCES_DIR / "data_for_excel.csv",
+        "input_excel_path": RESOURCES_DIR / "template_for_csvs.xlsx",
+        "output_excel_path": RESOURCES_DIR / "template_for_csvs_modified.xlsx",
+        "row_offset": 6,
+    }
+
+
 def test_applying_modifications(default_mod_kwargs: dict):
     excel.apply_cross_file_modifications(**default_mod_kwargs)
     modified_xlsx = openpyxl.load_workbook(default_mod_kwargs["out_path"])
@@ -75,3 +85,56 @@ def test_applying_modifications__missing_destination_columns(default_mod_kwargs:
 
     assert str(e.value).startswith(excel.MISSING_DESTINATION_CORR_COL_ERROR)
     assert UNUSED_CORRECTIONS_VARIABLE in str(e.value)
+
+
+def test_csv_into_excel(default_csv_into_excel_kwargs: dict):
+    sheet_name = "First sheet"
+    row_offest = default_csv_into_excel_kwargs["row_offset"]
+    excel.csv_into_excel(
+        csv_path=default_csv_into_excel_kwargs["csv_path"],
+        input_excel_path=default_csv_into_excel_kwargs["input_excel_path"],
+        output_excel_path=default_csv_into_excel_kwargs["output_excel_path"],
+        sheet_name=sheet_name,
+        row_ofset=row_offest,
+    )
+
+    modified_excel = openpyxl.load_workbook(
+        default_csv_into_excel_kwargs["output_excel_path"]
+    )
+
+    assert modified_excel[sheet_name][row_offest + 1][0].value == "a"
+    assert modified_excel[sheet_name][row_offest + 2][0].value == "data_1"
+
+
+def test_csv_into_excel__missing_sheet_name(default_csv_into_excel_kwargs: dict):
+    row_offest = default_csv_into_excel_kwargs["row_offset"]
+    excel.csv_into_excel(
+        csv_path=default_csv_into_excel_kwargs["csv_path"],
+        input_excel_path=default_csv_into_excel_kwargs["input_excel_path"],
+        output_excel_path=default_csv_into_excel_kwargs["output_excel_path"],
+        row_ofset=row_offest,
+    )
+
+    modified_excel = openpyxl.load_workbook(
+        default_csv_into_excel_kwargs["output_excel_path"]
+    )
+
+    assert modified_excel.active[row_offest + 1][0].value == "a"
+    assert modified_excel.active[row_offest + 2][0].value == "data_1"
+
+
+def test_csv_into_excel__missing_row_offset(default_csv_into_excel_kwargs: dict):
+    sheet_name = "Second sheet"
+    excel.csv_into_excel(
+        csv_path=default_csv_into_excel_kwargs["csv_path"],
+        input_excel_path=default_csv_into_excel_kwargs["input_excel_path"],
+        output_excel_path=default_csv_into_excel_kwargs["output_excel_path"],
+        sheet_name=sheet_name,
+    )
+
+    modified_excel = openpyxl.load_workbook(
+        default_csv_into_excel_kwargs["output_excel_path"]
+    )
+
+    assert modified_excel[sheet_name][1][0].value == "a"
+    assert modified_excel[sheet_name][4][3].value == "stuff"

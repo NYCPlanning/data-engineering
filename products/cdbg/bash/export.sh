@@ -2,9 +2,8 @@
 source ../../bash/utils.sh
 set_error_traps
 
-rm -rf output
-
 echo "Export product tables"
+rm -rf output
 mkdir -p output && (
     cd output
 
@@ -45,5 +44,8 @@ mkdir -p output && (
     echo "export cdbg_zap_eligibility_excel.csv ..."
     csv_export cdbg_zap_eligibility_excel
 )
+
+echo "Populate excel output ..."
+python3 -m python.populate_excel_output
 
 zip -r output/output.zip output

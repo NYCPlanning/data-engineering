@@ -1,0 +1,10 @@
+models:
+- name: cdbg_tracts_geosupport
+  description: Census tracts and their Community Development Block Grant (CDBG) eligibility details for use in geosupport
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: '"BOROCT"'
+    data_type: string
+    tests: [ unique, not_null ]
