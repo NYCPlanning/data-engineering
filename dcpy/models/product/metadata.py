@@ -79,8 +79,10 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         )
         if ds_md.id != dataset_id:
             raise Exception(
-                ("There is a mismatch between the dataset id listed at the"
-                f" dataset level ({ds_md.id}) vs the product-level ({dataset_id})")
+                (
+                    "There is a mismatch between the dataset id listed at the"
+                    f" dataset level ({ds_md.id}) vs the product-level ({dataset_id})"
+                )
             )
 
         ds_md.attributes = ds_md.attributes.apply_defaults(
@@ -201,7 +203,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
         )
 
     def product(self, name: str) -> ProductMetadata:
-        if not name in self.metadata.products:
+        if name not in self.metadata.products:
             raise Exception(f"{self.PRODUCT_NOT_LISTED_ERROR}: {name}")
 
         return ProductMetadata.from_path(
