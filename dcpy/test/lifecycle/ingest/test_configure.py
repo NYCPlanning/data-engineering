@@ -155,3 +155,15 @@ class TestGetConfig:
                 mode="fake_mode",
                 template_dir=TEMPLATE_DIR,
             )
+
+    def test_file_path_override(self):
+        file_path = Path("dir/fake_file_path")
+        config = configure.get_config(
+            "dcp_addresspoints",
+            version="24c",
+            template_dir=TEMPLATE_DIR,
+            local_file_path=file_path,
+        )
+        assert config.ingestion.source == LocalFileSource(
+            type="local_file", path=file_path
+        )

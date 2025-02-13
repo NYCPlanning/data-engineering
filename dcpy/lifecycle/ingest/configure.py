@@ -146,6 +146,7 @@ def get_config(
     *,
     mode: str | None = None,
     template_dir: Path = TEMPLATE_DIR,
+    local_file_path: Path | None = None,
 ) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
@@ -154,6 +155,11 @@ def get_config(
     filename = get_filename(template.ingestion.source, template.id)
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
+
+    if local_file_path:
+        template.ingestion.source = LocalFileSource(
+            type="local_file", path=local_file_path
+        )
 
     processing_steps = determine_processing_steps(
         template.ingestion.processing_steps,

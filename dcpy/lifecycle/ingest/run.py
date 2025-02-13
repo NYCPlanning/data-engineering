@@ -23,9 +23,14 @@ def ingest(
     skip_archival: bool = False,
     output_csv: bool = False,
     template_dir: Path = configure.TEMPLATE_DIR,
+    local_file_path: Path | None = None,
 ) -> Config:
     config = configure.get_config(
-        dataset_id, version=version, mode=mode, template_dir=template_dir
+        dataset_id,
+        version=version,
+        mode=mode,
+        template_dir=template_dir,
+        local_file_path=local_file_path,
     )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
