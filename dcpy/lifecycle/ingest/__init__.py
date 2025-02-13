@@ -112,7 +112,7 @@ def _cli_wrapper_run(
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
-    local_file_path: str = typer.Option(
+    local_file_path: Path = typer.Option(
         None,
         "--local-file-path",
         "-p",
