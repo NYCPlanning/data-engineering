@@ -1,5 +1,6 @@
 import typer
 import openpyxl  # type: ignore
+import csv
 from pathlib import Path
 
 from dcpy.utils.logging import logger
@@ -115,6 +116,36 @@ def apply_cross_file_modifications(
         header_row=base_header_row,
     )
     base_wb.save(out_path)
+
+
+def csv_into_excel(
+    csv_path: Path,
+    input_excel_path: Path,
+    output_excel_path: Path,
+    sheet_name: str | None = None,
+    row_ofset: int | None = None,
+):
+    """
+    Use a CSV file to populate cells in an Excel file.
+    """
+    row_ofset = row_ofset or 0
+    workbook = openpyxl.load_workbook(filename=input_excel_path)
+    if sheet_name:
+        sheet = workbook[sheet_name]
+    else:
+        sheet = workbook.active
+
+    with open(csv_path, "r") as csvfile:
+        csv_reader = csv.reader(csvfile)
+        for row_index, row in enumerate(csv_reader, start=1):
+            for col_index, cell_value in enumerate(row, start=1):
+                sheet.cell(
+                    row=row_ofset + row_index,
+                    column=col_index,
+                    value=cell_value,
+                )
+
+    workbook.save(output_excel_path)
 
 
 app = typer.Typer()
