@@ -57,12 +57,19 @@ def exists(ds: Dataset) -> bool:
     return s3.folder_exists(BUCKET, s3_folder_path(ds))
 
 
-def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> None:
+def archive_dataset(
+    config: ingest.Config, file_path: Path, raw: bool = False, latest: bool = False
+) -> None:
     """
     Given a config and a path to a file and an s3_path, archive it in edm-recipe
     It is assumed that s3_path has taken care of figuring out which top-level folder,
     how the dataset is being versioned, etc.
     """
+    s3_path = (
+        s3_raw_folder_path(config.raw_dataset_key)
+        if raw
+        else s3_folder_path(config.dataset_key)
+    )
     if s3.folder_exists(BUCKET, s3_path):
         raise Exception(
             f"Archived dataset at {s3_path} already exists, cannot overwrite"
@@ -81,14 +88,9 @@ def _archive_dataset(config: ingest.Config, file_path: Path, s3_path: str) -> No
             acl=config.archival.acl,
             contents_only=True,
         )
-
-
-def archive_raw_dataset(config: ingest.Config, file_path: Path):
-    """
-    Given a config and a path to a 'raw' input dataset, archive it in edm-recipes
-    Unique identifier of a raw dataset is its name and the timestamp of archival
-    """
-    _archive_dataset(config, file_path, s3_raw_folder_path(config.raw_dataset_key))
+    if latest:
+        assert not raw, "Cannot set raw dataset to 'latest'"
+        set_latest(config.dataset_key, config.archival.acl)
 
 
 def set_latest(key: DatasetKey, acl):
@@ -98,17 +100,6 @@ def set_latest(key: DatasetKey, acl):
         f"{DATASET_FOLDER}/{key.id}/latest/",
         acl=acl,
     )
-
-
-def archive_dataset(config: ingest.Config, file_path: Path, *, latest: bool = False):
-    """
-    Given a config and a path to a processed parquet file, archive it in edm-recipes
-    Unique identifier of a raw dataset is its name and its version
-    """
-    s3_path = s3_folder_path(config.dataset_key)
-    _archive_dataset(config, file_path, s3_path)
-    if latest:
-        set_latest(config.dataset_key, config.archival.acl)
 
 
 def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:

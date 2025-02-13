@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 import shutil
-
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle import BASE_PATH
@@ -45,6 +44,9 @@ def ingest(
     with open(staging_dir / "config.json", "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
 
+    with open(staging_dir / CONFIG_FILENAME, "w") as f:
+        json.dump(config.model_dump(mode="json"), f, indent=4)
+
     # download dataset
     extract.download_file_from_source(
         config.ingestion.source,
@@ -56,7 +58,7 @@ def ingest(
 
     if not skip_archival:
         # archive to edm-recipes/raw_datasets
-        recipes.archive_raw_dataset(config, file_path)
+        recipes.archive_dataset(config, file_path, raw=True)
 
     init_parquet = "init.parquet"
     transform.to_parquet(
