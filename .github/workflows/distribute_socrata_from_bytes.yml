@@ -42,6 +42,10 @@ on:
         description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console)"
         type: boolean
         default: false
+      MD_REPO_BRANCH:
+        description: "(Override) Product-Metadata branch/commit/ref"
+        type: string
+        default: "main"
 jobs:
   publish:
     runs-on: ubuntu-22.04
@@ -62,6 +66,8 @@ jobs:
         with:
           repository: NYCPlanning/product-metadata
           path: product-metadata
+          ref: ${{ inputs.MD_REPO_BRANCH }}
+
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
