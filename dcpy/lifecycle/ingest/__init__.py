@@ -6,7 +6,8 @@ from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from . import configure, extract, transform, validate
 
-TMP_DIR = Path("tmp")
+INGEST_DIR = Path(".lifecycle") / "ingest"
+STAGING_DIR = INGEST_DIR / "staging"
 
 
 def run(
@@ -27,7 +28,7 @@ def run(
 
     if not staging_dir:
         staging_dir = (
-            TMP_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
+            STAGING_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
         )
         staging_dir.mkdir(parents=True)
     else:
