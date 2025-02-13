@@ -20,9 +20,14 @@ def run(
     skip_archival: bool = False,
     output_csv: bool = False,
     template_dir: Path = configure.TEMPLATE_DIR,
+    local_file_path: Path | None = None,
 ) -> Config:
     config = configure.get_config(
-        dataset_id, version=version, mode=mode, template_dir=template_dir
+        dataset_id,
+        version=version,
+        mode=mode,
+        template_dir=template_dir,
+        local_file_path=local_file_path,
     )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
@@ -107,6 +112,12 @@ def _cli_wrapper_run(
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
+    local_file_path: Path = typer.Option(
+        None,
+        "--local-file-path",
+        "-p",
+        help="Use local file path as source, overriding source in template",
+    ),
 ):
     run(
         dataset_id,
@@ -115,4 +126,5 @@ def _cli_wrapper_run(
         latest=latest,
         skip_archival=skip_archival,
         output_csv=csv,
+        local_file_path=local_file_path,
     )
