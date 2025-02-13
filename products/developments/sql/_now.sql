@@ -75,6 +75,7 @@ SELECT
     CASE
         WHEN jobtype = 'ALT-CO - New Building with Existing Elements to Remain' THEN 'Alteration'
         WHEN jobtype = 'Alteration CO' THEN 'Alteration'
+        WHEN jobtype = 'Full Demolition' THEN 'Demolition'
         ELSE jobtype
     END AS job_type,
     CASE
