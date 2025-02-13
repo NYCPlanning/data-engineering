@@ -3,10 +3,11 @@ from pathlib import Path
 
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
+from dcpy.lifecycle import BASE_PATH
 from . import configure, extract, transform, validate
 
-
-TMP_DIR = Path("tmp")
+INGEST_DIR = BASE_PATH / "ingest"
+STAGING_DIR = INGEST_DIR / "staging"
 
 
 def ingest(
@@ -25,13 +26,11 @@ def ingest(
     )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
-    if not staging_dir:
-        staging_dir = (
-            TMP_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
-        )
-        staging_dir.mkdir(parents=True)
-    else:
-        staging_dir.mkdir(parents=True, exist_ok=True)
+    staging_dir = (
+        staging_dir
+        or STAGING_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
+    )
+    staging_dir.mkdir(parents=True, exist_ok=True)
 
     # download dataset
     extract.download_file_from_source(

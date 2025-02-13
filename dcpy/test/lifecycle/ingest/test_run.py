@@ -6,7 +6,7 @@ import shutil
 from dcpy.configuration import RECIPES_BUCKET
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import ingest as run_ingest, TMP_DIR
+from dcpy.lifecycle.ingest.run import ingest as run_ingest, STAGING_DIR
 
 from dcpy.test.conftest import mock_request_get
 from .shared import FAKE_VERSION, TEMPLATE_DIR
@@ -18,11 +18,11 @@ RAW_FOLDER = f"raw_datasets/{DATASET}"
 
 @pytest.fixture
 @mock.patch("requests.get", side_effect=mock_request_get)
-def run_basic(mock_request_get, create_buckets, create_temp_filesystem):
+def run_basic(mock_request_get, create_buckets, tmp_path):
     return run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=create_temp_filesystem,
+        staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
 
@@ -45,19 +45,19 @@ def test_run_output_exists(run_basic):
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_run_default_folder(mock_request_get, create_buckets, create_temp_filesystem):
+def test_run_default_folder(mock_request_get, create_buckets):
     run_ingest(dataset_id=DATASET, version=FAKE_VERSION, template_dir=TEMPLATE_DIR)
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
-    assert (TMP_DIR / DATASET).exists()
-    shutil.rmtree(TMP_DIR)
+    assert (STAGING_DIR / DATASET).exists()
+    shutil.rmtree(STAGING_DIR)
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_skip_archival(mock_request_get, create_buckets, create_temp_filesystem):
+def test_skip_archival(mock_request_get, create_buckets, tmp_path):
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=create_temp_filesystem,
+        staging_dir=tmp_path,
         skip_archival=True,
         template_dir=TEMPLATE_DIR,
     )
@@ -65,11 +65,11 @@ def test_skip_archival(mock_request_get, create_buckets, create_temp_filesystem)
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_run_update_freshness(mock_request_get, create_buckets, create_temp_filesystem):
+def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=create_temp_filesystem,
+        staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
@@ -77,7 +77,7 @@ def test_run_update_freshness(mock_request_get, create_buckets, create_temp_file
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=create_temp_filesystem,
+        staging_dir=tmp_path,
         latest=True,
         template_dir=TEMPLATE_DIR,
     )
@@ -92,13 +92,13 @@ def test_run_update_freshness(mock_request_get, create_buckets, create_temp_file
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run_update_freshness_fails_if_data_diff(
-    mock_request_get, create_buckets, create_temp_filesystem
+    mock_request_get, create_buckets, tmp_path
 ):
     """Mainly an integration test to make sure code runs without error"""
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=create_temp_filesystem,
+        staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
 
@@ -112,6 +112,6 @@ def test_run_update_freshness_fails_if_data_diff(
             run_ingest(
                 dataset_id=DATASET,
                 version=FAKE_VERSION,
-                staging_dir=create_temp_filesystem,
+                staging_dir=tmp_path,
                 template_dir=TEMPLATE_DIR,
             )
