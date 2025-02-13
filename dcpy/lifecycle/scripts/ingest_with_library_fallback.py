@@ -21,7 +21,7 @@ def run(
     ),
 ):
     if (configure.TEMPLATE_DIR / f"{dataset_id}.yml").exists():
-        run_ingest.run(
+        run_ingest(
             dataset_id,
             version,
             mode=mode,
