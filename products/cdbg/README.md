@@ -17,3 +17,16 @@ A census tract is considered primarily residential if at least 50% of the total 
 [CDBG Overview on DCP website](https://www.nyc.gov/site/planning/data-maps/community-development-block-grant.page)
 
 [CDBG on Bytes](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-cdbg.page)
+
+## Build
+
+### Steps to format excel ouputs
+
+To achieve desired formatting, CDBG excel ouputs must be modified in excel.
+
+1. Open excel file
+2. Select all cells with data except for Census tract Long
+3. Use error pop-up to convert numerical text to numbers
+4. Format values in specific columns:
+   - For columns in need of commas, use the Number format with 1000 separator
+   - For columns in need of percentage signs, use a custom format type of `0\%` and ensure two decimal places are displayed
