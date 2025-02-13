@@ -28,6 +28,32 @@ template_vars = {
 PRODUCT_WITH_ERRORS = "mock_product_with_errors"
 
 
+def test_missing_product(test_metadata_repo: Path):
+    NONEXISTENT_PRODUCT = "asdfasdfsadf"
+    org_md = md.OrgMetadata.from_path(test_metadata_repo, template_vars=template_vars)
+
+    with pytest.raises(Exception) as e:
+        org_md.product(NONEXISTENT_PRODUCT)
+
+    assert str(e.value).startswith(md.OrgMetadata.PRODUCT_NOT_LISTED_ERROR)
+    assert NONEXISTENT_PRODUCT in str(e.value), (
+        "The error message should mention the missing product"
+    )
+
+
+def test_missing_dataset(test_metadata_repo: Path):
+    NONEXISTENT_DATASET = "asdfasdfsadf"
+    org_md = md.OrgMetadata.from_path(test_metadata_repo, template_vars=template_vars)
+
+    with pytest.raises(Exception) as e:
+        org_md.product("lion").dataset(NONEXISTENT_DATASET)
+
+    assert str(e.value).startswith(md.ProductMetadata.DATASET_NOT_LISTED_ERROR)
+    assert NONEXISTENT_DATASET in str(e.value), (
+        "The error message should mention the missing product"
+    )
+
+
 def test_org_md_overrides(test_metadata_repo: Path):
     org_md = md.OrgMetadata.from_path(test_metadata_repo, template_vars=template_vars)
     lion_md = org_md.product("lion")

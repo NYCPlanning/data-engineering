@@ -33,6 +33,8 @@ def package_and_distribute(
     product_md = org_md.product(product)
     dataset_md = product_md.dataset(dataset)
     destinations = product_md.query_destinations(**destination_filters)[dataset]
+    assert destinations, "No Destinations found! Check your destination filters"
+
     logger.info(f"Target destinations are {list(destinations.keys())}")
     package_path = package.ASSEMBLY_DIR / product / version / dataset
 

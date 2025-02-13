@@ -1,4 +1,4 @@
-id: mock_product_with_errors
+id: dataset_with_reference_errors
 
 attributes:
   description: Has column reference errors
