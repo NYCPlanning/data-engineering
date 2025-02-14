@@ -15,7 +15,7 @@ WITH dcpcamavals AS (
             bsmntgradient,
             ROW_NUMBER()
                 OVER (
-                    PARTITION BY LEFT(bbl, 10)
+                    PARTITION BY primebbl
                     ORDER BY bsmnt_type DESC, bsmntgradient DESC
                 )
             AS row_number
