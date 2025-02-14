@@ -25,26 +25,26 @@ attrs==25.1.0
     #   jsonschema
     #   rasterio
     #   referencing
-babel==2.16.0
+babel==2.17.0
     # via agate
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.3
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.36.11
+boto3==1.36.20
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   moto
-boto3-stubs==1.36.11
+boto3-stubs==1.36.20
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-botocore==1.36.11
+botocore==1.36.20
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.36.11
+botocore-stubs==1.36.20
     # via boto3-stubs
 bqplot==0.12.44
     # via leafmap
@@ -103,7 +103,7 @@ contextily==1.6.2
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 contourpy==1.3.1
     # via matplotlib
-coverage==7.6.10
+coverage==7.6.12
     # via pytest-cov
 cryptography==43.0.3
     # via
@@ -116,11 +116,11 @@ cycler==0.12.1
     # via matplotlib
 daff==1.3.46
     # via dbt-core
-dbt-adapters==1.13.2
+dbt-adapters==1.14.0
     # via
     #   dbt-core
     #   dbt-postgres
-dbt-common==1.14.0
+dbt-common==1.15.0
     # via
     #   dbt-adapters
     #   dbt-core
@@ -148,13 +148,13 @@ diff-cover==9.2.2
     # via sqlfluff
 distlib==0.3.9
     # via virtualenv
-duckdb==1.1.3
+duckdb==1.2.0
     # via leafmap
 et-xmlfile==2.0.0
     # via openpyxl
 executing==2.2.0
     # via stack-data
-faker==35.2.0
+faker==36.1.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 filelock==3.17.0
     # via
@@ -165,7 +165,7 @@ folium==0.19.4
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.55.8
+fonttools==4.56.0
     # via matplotlib
 gdal==3.8.3
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -191,7 +191,7 @@ graphviz==0.20.3
     #   diagrams
 greenlet==3.1.1
     # via sqlalchemy
-identify==2.6.6
+identify==2.6.7
     # via pre-commit
 idna==3.10
     # via requests
@@ -288,7 +288,7 @@ leafmap==0.42.9
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 leather==0.4.0
     # via agate
-lxml==5.3.0
+lxml==5.3.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 mapclassify==2.8.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -318,24 +318,24 @@ mercantile==1.2.1
     # via contextily
 more-itertools==10.6.0
     # via dbt-semantic-interfaces
-moto==5.0.27
+moto==5.0.28
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 msal==1.23.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 msgpack==1.1.0
     # via mashumaro
-mypy==1.14.1
+mypy==1.15.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   openpyxl-stubs
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.36.9
+mypy-boto3-s3==1.36.15
     # via boto3-stubs
 mypy-extensions==1.0.0
     # via
     #   mypy
     #   typing-inspect
-narwhals==1.24.1
+narwhals==1.26.0
     # via
     #   altair
     #   plotly
@@ -349,7 +349,7 @@ nodeenv==1.9.1
     # via pre-commit
 numerize==0.12
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-numpy==2.2.2
+numpy==2.2.3
     # via
     #   bqplot
     #   contourpy
@@ -444,7 +444,7 @@ protobuf==5.29.3
     #   dbt-common
     #   dbt-core
     #   streamlit
-psutil==6.1.1
+psutil==7.0.0
     # via
     #   ipykernel
     #   leafmap
@@ -452,7 +452,7 @@ psycopg2-binary==2.9.10
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   dbt-postgres
-psygnal==0.11.1
+psygnal==0.12.0
     # via anywidget
 ptyprocess==0.7.0
     # via pexpect
@@ -501,7 +501,7 @@ pysocks==1.7.1
     # via requests
 pystac==1.12.1
     # via pystac-client
-pystac-client==0.8.5
+pystac-client==0.8.6
     # via leafmap
 pytest==8.3.4
     # via
@@ -519,7 +519,6 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   dbt-common
     #   dbt-semantic-interfaces
-    #   faker
     #   jupyter-client
     #   matplotlib
     #   moto
@@ -588,7 +587,7 @@ rpds-py==0.22.3
     # via
     #   jsonschema
     #   referencing
-ruff==0.9.4
+ruff==0.9.6
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 s3transfer==0.11.2
     # via boto3
@@ -616,23 +615,23 @@ socrata-py==1.1.13
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 soupsieve==2.6
     # via beautifulsoup4
-sqlalchemy==2.0.37
+sqlalchemy==2.0.38
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   geoalchemy2
 sqlalchemy-stubs==0.4
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-sqlfluff==3.3.0
+sqlfluff==3.3.1
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   sqlfluff-templater-dbt
-sqlfluff-templater-dbt==3.3.0
+sqlfluff-templater-dbt==3.3.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 sqlparse==0.5.3
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.41.1
+streamlit==1.42.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
     #   streamlit-aggrid
@@ -682,9 +681,9 @@ typeguard==4.4.1
     # via pandera
 typer==0.15.1
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-types-awscrt==0.23.9
+types-awscrt==0.23.10
     # via botocore-stubs
-types-beautifulsoup4==4.12.0.20241020
+types-beautifulsoup4==4.12.0.20250204
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-html5lib==1.1.11.20241018
     # via types-beautifulsoup4
@@ -692,7 +691,7 @@ types-psycopg2==2.9.21.20250121
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-python-dateutil==2.9.0.20241206
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-types-pytz==2024.2.0.20241221
+types-pytz==2025.1.0.20250204
     # via pandas-stubs
 types-pyyaml==6.0.12.20241230
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -703,7 +702,7 @@ types-requests==2.32.0.20241016
     #   types-tqdm
 types-s3transfer==0.11.2
     # via boto3-stubs
-types-setuptools==75.8.0.20250110
+types-setuptools==75.8.0.20250210
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 types-tqdm==4.67.0.20241221
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -711,11 +710,11 @@ typing-extensions==4.12.2
     # via
     #   altair
     #   anywidget
+    #   beautifulsoup4
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
     #   dbt-semantic-interfaces
-    #   faker
     #   mashumaro
     #   mypy
     #   openpyxl-stubs
@@ -732,7 +731,9 @@ typing-extensions==4.12.2
 typing-inspect==0.9.0
     # via pandera
 tzdata==2025.1
-    # via pandas
+    # via
+    #   faker
+    #   pandas
 urllib3==2.3.0
     # via
     #   -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
@@ -744,7 +745,7 @@ us==3.2.0
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
 usaddress==0.5.11
     # via -r /__w/data-engineering/data-engineering/admin/ops/../run_environment/requirements.in
-virtualenv==20.29.1
+virtualenv==20.29.2
     # via pre-commit
 watchdog==6.0.0
     # via streamlit
