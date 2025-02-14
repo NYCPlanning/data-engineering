@@ -1,9 +1,9 @@
 name: 🧪 Tests - Helper
 
-on:     
+on:
   workflow_call:
     inputs:
-      path_filter: 
+      path_filter:
         type: string
         required: false
       image_tag:
@@ -18,11 +18,11 @@ jobs:
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Lint python files
-        run: ruff check .
-      - name: Check format of python files
-        run: ruff format . --check
+    - uses: actions/checkout@v4
+    - name: Lint python files
+      run: ruff check .
+    - name: Check format of python files
+      run: ruff format . --check
 
   sqlfluff:
     name: Check formatting of sql files
@@ -30,26 +30,26 @@ jobs:
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup build environment (envars only)
-        run: |
-          ./bash/build_env_setup.sh
+    - name: Setup build environment (envars only)
+      run: |
+        ./bash/build_env_setup.sh
 
-      - name: Check sql files in products
-        run: |
-          # TODO: Gradually expand this to cover more products
-          sqlfluff lint products/template/sql
-          sqlfluff lint products/cbbr/sql
-          sqlfluff lint products/cpdb/sql/
-          sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
-          sqlfluff lint products/developments/sql/*.sql
-          sqlfluff lint products/developments/sql/qaqc
-          sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
-          sqlfluff lint products/facilities/facdb/sql/
-          sqlfluff lint products/knownprojects/sql --templater=jinja
-          sqlfluff lint products/pluto/pluto_build/sql/
-          
+    - name: Check sql files in products
+      run: |
+        # TODO: Gradually expand this to cover more products
+        sqlfluff lint products/template/sql
+        sqlfluff lint products/cbbr/sql
+        sqlfluff lint products/cpdb/sql/
+        sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
+        sqlfluff lint products/developments/sql/*.sql
+        sqlfluff lint products/developments/sql/qaqc
+        sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
+        sqlfluff lint products/facilities/facdb/sql/
+        sqlfluff lint products/knownprojects/sql --templater=jinja
+        sqlfluff lint products/pluto/pluto_build/sql/
+
   dbt:
     name: dbt tests
     runs-on: ubuntu-22.04
@@ -75,49 +75,52 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --shm-size=2gb
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5 --shm-size=2gb
         ports:
-          - 5432:5432
+        - 5432:5432
     strategy:
       fail-fast: false
       matrix:
         project:
-          - green_fast_track
-          - zoningtaxlots
-          - cdbg
+        - green_fast_track
+        - zoningtaxlots
+        - cdbg
+        - pluto
     steps:
-      - uses: actions/checkout@v4
-      - name: setup
-        run: |
-          git config --global --add safe.directory /__w/data-engineering/data-engineering
-          dbt deps
-          dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
-      - name: sqlfluff
-        run: sqlfluff lint models --templater=dbt
-      - name: dbt-checkpoint
-        working-directory: "."
-        run: |
-          echo -e "version: 1\ndbt-project-dir: products/${{ matrix.project }}\n" >> .dbt-checkpoint.yaml
-          pre-commit run --all-files
+    - uses: actions/checkout@v4
+    - name: setup
+      run: |
+        git config --global --add safe.directory /__w/data-engineering/data-engineering
+        dbt deps
+        dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
+    - name: sqlfluff models
+      run: sqlfluff lint models --templater=dbt
+    - name: sqlfluff tests
+      run: |
+        if [ -d tests ]; then
+          sqlfluff lint tests --templater=dbt
+        fi
+    - name: dbt-checkpoint
+      working-directory: "."
+      run: |
+        echo -e "version: 1\ndbt-project-dir: products/${{ matrix.project }}\n" >> .dbt-checkpoint.yaml
+        pre-commit run --all-files
 
   mypy:
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Check python files
-        run: |
-          mypy dcpy
-          mypy apps/qa/src
-          mypy products/facilities
-          mypy products/template
-          mypy admin/ops
+    - name: Check python files
+      run: |
+        mypy dcpy
+        mypy apps/qa/src
+        mypy products/facilities
+        mypy products/template
+        mypy admin/ops
 
   template-db:
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
@@ -133,30 +136,30 @@ jobs:
       matrix: ${{ steps.set-pytest-matrix.outputs.matrix }}
       matrix_raw: ${{ steps.set-pytest-matrix.outputs.matrix_raw }}
     steps:
-      - uses: actions/checkout@v4
-              
-      - name: Confirm changes and set matrix for pytest
-        id: set-pytest-matrix
-        run: |
-          echo "path filters with changed files: ${{ inputs.path_filter }}"
-          if [[ -z "${{ inputs.path_filter }}" ]]; then
-            echo "Path filters weren't checked, running all tests"
-            matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -rc)
-          elif [[ "[]" = "${{ inputs.path_filter }}" ]]; then
-            echo "No relevant files changed, not running any tests"
-            matrix="[]"
-          else
-            filter=$(echo '${{ inputs.path_filter }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
-            matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -cr "map(. | select(.name|IN(${filter})))")
-          fi
-          echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
-          echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
+    - uses: actions/checkout@v4
+
+    - name: Confirm changes and set matrix for pytest
+      id: set-pytest-matrix
+      run: |
+        echo "path filters with changed files: ${{ inputs.path_filter }}"
+        if [[ -z "${{ inputs.path_filter }}" ]]; then
+          echo "Path filters weren't checked, running all tests"
+          matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -rc)
+        elif [[ "[]" = "${{ inputs.path_filter }}" ]]; then
+          echo "No relevant files changed, not running any tests"
+          matrix="[]"
+        else
+          filter=$(echo '${{ inputs.path_filter }}' | sed 's/[][]//g' | sed -r 's/([\w-]+)(,|$)/"\1"\2/g')
+          matrix=$(cat .github/workflows/data/pytest.yml | yq -ro json | jq -cr "map(. | select(.name|IN(${filter})))")
+        fi
+        echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
+        echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
 
   pytest:
     name: Pytest - ${{ matrix.name }}
     needs: set_pytest_matrix
     runs-on: ubuntu-22.04
-    if: needs.set_pytest_matrix.outputs.matrix_raw != '[]' 
+    if: needs.set_pytest_matrix.outputs.matrix_raw != '[]'
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_pytest_matrix.outputs.matrix) }}
@@ -170,7 +173,7 @@ jobs:
       RECIPES_BUCKET: edm-recipes
       BUILD_ENGINE_DB: ${{ matrix.db }}
       TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
-    steps:    
+    steps:
     - uses: actions/checkout@v4
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
@@ -217,16 +220,17 @@ jobs:
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: NYCPlanning/product-metadata
-          path: product-metadata
-      - uses: actions/checkout@v4
-        with:
-          repository: NYCPlanning/data-engineering
-          path: data-engineering
-      - name: Validate All Metadata Files
-        run: cd data-engineering; python -m dcpy.cli lifecycle scripts product_metadata validate_repo ../product-metadata
-        env:
-          RECIPES_BUCKET: edm-recipes
-          PUBLISHING_BUCKET: edm-publishing
+    - uses: actions/checkout@v4
+      with:
+        repository: NYCPlanning/product-metadata
+        path: product-metadata
+    - uses: actions/checkout@v4
+      with:
+        repository: NYCPlanning/data-engineering
+        path: data-engineering
+    - name: Validate All Metadata Files
+      run: cd data-engineering; python -m dcpy.cli lifecycle scripts product_metadata
+        validate_repo ../product-metadata
+      env:
+        RECIPES_BUCKET: edm-recipes
+        PUBLISHING_BUCKET: edm-publishing
