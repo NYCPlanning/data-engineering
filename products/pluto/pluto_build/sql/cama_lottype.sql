@@ -11,7 +11,7 @@ WITH dcpcamavals AS (
             lottype,
             ROW_NUMBER()
                 OVER (
-                    PARTITION BY LEFT(bbl, 10)
+                    PARTITION BY primebbl
                     ORDER BY lottype
                 )
             AS row_number
