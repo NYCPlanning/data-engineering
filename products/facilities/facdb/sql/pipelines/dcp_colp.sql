@@ -476,11 +476,11 @@ duplicate_offices AS (
     WHERE
         bbl IN
         (
-            SELECT bbl
-            FROM _dcp_colp_tmp
-            WHERE factype = 'Office' OR factype = 'Agency Office'
-            GROUP BY bbl, opabbrev
-            HAVING count(DISTINCT factype) > 1
+            SELECT filtered.bbl
+            FROM _dcp_colp_tmp AS filtered
+            WHERE filtered.factype = 'Office' OR filtered.factype = 'Agency Office'
+            GROUP BY filtered.bbl, filtered.opabbrev
+            HAVING count(DISTINCT filtered.factype) > 1
         )
         AND factype = 'Office'
 )

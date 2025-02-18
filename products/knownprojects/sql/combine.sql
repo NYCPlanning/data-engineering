@@ -96,15 +96,15 @@ _edc_projects AS (
     geom_consolidated AS (
         SELECT
             a.uid,
-            coalesce(a.geom, b.geom) AS geom
+            coalesce(a.geom, bb.geom) AS geom
         FROM (
             SELECT
                 a.uid,
                 coalesce(a.geom, b.geom) AS geom
             FROM geom_edc_dcp_inputs AS a LEFT JOIN geom_bbl AS b
                 ON a.uid = b.uid
-        ) AS a LEFT JOIN geom_borough_block AS b
-            ON a.uid = b.uid
+        ) AS a LEFT JOIN geom_borough_block AS bb
+            ON a.uid = bb.uid
     )
 
     SELECT

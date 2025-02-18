@@ -13,7 +13,7 @@ WHERE a.bbl IN (
             AND st_intersects(a.geom, st_makevalid(b.geom))
         GROUP BY a.bbl
     ) AS a
-    INNER JOIN pluto AS b
-        ON a.bbl = b.bbl
-    WHERE st_within(b.geom, a.geom)
+    INNER JOIN pluto
+        ON a.bbl = pluto.bbl
+    WHERE st_within(pluto.geom, a.geom)
 );

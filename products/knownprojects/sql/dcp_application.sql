@@ -293,8 +293,8 @@ WITH
 -- Assigning Geometry Using BBL
 geom_pluto AS (
     SELECT
-        a.record_id,
-        ST_UNION(b.wkb_geometry) AS geom
+        applications.record_id,
+        ST_UNION(pluto.wkb_geometry) AS geom
     FROM (
         SELECT
             a.record_id,
@@ -303,9 +303,9 @@ geom_pluto AS (
         LEFT JOIN dcp_projectbbls AS b
             ON a.record_id = TRIM(SPLIT_PART(b.project_id, '-', 1))
         WHERE b.project_status != '2'
-    ) AS a LEFT JOIN dcp_mappluto_wi AS b
-        ON a.bbl::numeric = b.bbl::numeric
-    GROUP BY a.record_id
+    ) AS applications LEFT JOIN dcp_mappluto_wi AS pluto
+        ON applications.bbl::numeric = pluto.bbl::numeric
+    GROUP BY applications.record_id
 ),
 
 -- Assigning Geometry Using Previous version of KPDB
@@ -327,14 +327,14 @@ geom_ulurp AS (
     SELECT
         a.record_id,
         CASE
-            WHEN ST_UNION(b.wkb_geometry) IS NULL
+            WHEN ST_UNION(zma.wkb_geometry) IS NULL
                 THEN a.geom
         END AS geom
     FROM (
         SELECT
             a.record_id,
             a.geom,
-            b.dcp_ulurpnumber
+            actions.dcp_ulurpnumber
         FROM (
             SELECT
                 a.record_id,
@@ -343,10 +343,10 @@ geom_ulurp AS (
             FROM geom_kpdb AS a
             LEFT JOIN dcp_projects AS b
                 ON a.record_id = b.project_name
-        ) AS a LEFT JOIN dcp_projectactions AS b
-            ON a.crm_project_id = b._dcp_project_value
-    ) AS a LEFT JOIN dcp_zoningmapamendments AS b
-        ON a.dcp_ulurpnumber = b.ulurpno
+        ) AS a LEFT JOIN dcp_projectactions AS actions
+            ON a.crm_project_id = actions._dcp_project_value
+    ) AS a LEFT JOIN dcp_zoningmapamendments AS zma
+        ON a.dcp_ulurpnumber = zma.ulurpno
     GROUP BY a.record_id, a.geom
 )
 

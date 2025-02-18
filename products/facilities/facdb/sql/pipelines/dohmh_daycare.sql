@@ -94,10 +94,10 @@ FROM _dohmh_daycare_tmp
 WHERE
     factype <> 'Day Care'
     OR uid IN (
-        SELECT MIN(uid) AS min_uid
-        FROM _dohmh_daycare_tmp
-        WHERE factype = 'Day Care'
-        GROUP BY opname, addressnum, streetname
+        SELECT MIN(filtered.uid) AS min_uid
+        FROM _dohmh_daycare_tmp AS filtered
+        WHERE filtered.factype = 'Day Care'
+        GROUP BY (filtered.opname, filtered.addressnum, filtered.streetname)
     );
 
 CALL APPEND_TO_FACDB_BASE('_dohmh_daycare');
