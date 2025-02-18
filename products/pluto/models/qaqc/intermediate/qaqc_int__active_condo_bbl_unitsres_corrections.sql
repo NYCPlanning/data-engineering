@@ -7,7 +7,8 @@ WITH historical_condo_unit_corrections AS (
         bbl,
         old_value::numeric
     FROM {{ source("recipe_sources", "pluto_input_research") }}
-    WHERE field = 'unitsres'
+    WHERE
+        field = 'unitsres'
         AND substring(bbl, 7, 2) = '75'
 ),
 
