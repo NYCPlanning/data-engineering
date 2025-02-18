@@ -1,81 +1,38 @@
 import os
 from unittest.mock import patch
-from sqlalchemy import text
-import pytest
+from osgeo import gdal
 
-from dcpy.library.ingest import Ingestor
+from dcpy.library.ingest import Ingestor, format_field_names
 from dcpy.test.conftest import mock_request_get
 
 from . import (
-    pg,
-    recipe_engine,
     get_config_file,
-    TEST_DATASET_NAME,
-    TEST_DATASET_VERSION,
-    TEST_DATASET_CONFIG_FILE,
-    TEST_DATASET_OUTPUT_PATH,
+    test_root_path,
     template_path,
 )
 
 
-@pytest.fixture
-def test_dataset():
-    
-
-def test_format_field_names():
-    assert False
-
-
-def test_ingest_postgres():
-    ingestor = Ingestor()
-    ingestor.postgres(TEST_DATASET_CONFIG_FILE, postgres_url=recipe_engine)
-    with pg.connect() as conn:
-        for version in [TEST_DATASET_VERSION, "latest"]:
-            sql = f"""
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables
-                WHERE  table_schema = '{TEST_DATASET_NAME}'
-                AND    table_name   = '{version}'
-            );
-            """
-            result = conn.execute(text(sql)).fetchall()
-            assert result[0][0], (
-                f"{TEST_DATASET_NAME}.{version} is not in postgres database yet"
-            )
-        conn.execute(text(f"DROP SCHEMA IF EXISTS {TEST_DATASET_NAME} CASCADE;"))
-
-
-def test_ingest_csv():
-    ingestor = Ingestor()
-    ingestor.csv(TEST_DATASET_CONFIG_FILE, compress=True)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.csv")
-
-
-def test_ingest_pgdump():
-    ingestor = Ingestor()
-    ingestor.pgdump(TEST_DATASET_CONFIG_FILE, compress=True)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.sql")
-
-
-def test_ingest_geojson():
-    ingestor = Ingestor()
-    ingestor.geojson(TEST_DATASET_CONFIG_FILE, compress=True)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.geojson")
-
-
-def test_ingest_shapefile():
-    ingestor = Ingestor()
-    ingestor.shapefile(TEST_DATASET_CONFIG_FILE)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.shp.zip")
-
-
-def test_ingest_version_overwrite():
-    version_overwrite = "test_version"
-    ingestor = Ingestor()
-    ingestor.csv(TEST_DATASET_CONFIG_FILE, version=version_overwrite)
-    assert os.path.isfile(
-        f".library/datasets/{TEST_DATASET_NAME}/{version_overwrite}/{TEST_DATASET_NAME}.csv"
+class TestFormatFieldNames:
+    ds = gdal.OpenEx(
+        test_root_path / "data" / "field_names.csv",
+        gdal.OF_VECTOR,
+        open_options=["GEOM_POSSIBLE_NAMES=the_geom"],
     )
+    basic = """SELECT 
+\tColumn 1 AS column_1,
+\tcol2 AS col2,
+\tthe_geom AS the_geom FROM field_names"""
+    wkt = """SELECT 
+\tColumn 1 AS column_1,
+\tcol2 AS col2,
+\tGeometry AS "WKT" FROM field_names"""
+
+    def test_basic(self):
+        assert format_field_names(self.ds, [], None, False, "csv") == self.basic
+
+    def test_geom(self):
+        print(format_field_names(self.ds, [], None, True, "csv"))
+        assert format_field_names(self.ds, [], None, True, "csv") == self.basic
 
 
 @patch("requests.get", side_effect=mock_request_get)
