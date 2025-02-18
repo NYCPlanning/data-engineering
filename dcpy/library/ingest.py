@@ -46,6 +46,9 @@ def format_field_names(
     else:
         for i in range(layer_defn.GetFieldCount()):
             fieldDefn = layer_defn.GetFieldDefn(i)
+            print(fieldDefn.__dir__())
+            print(fieldDefn.GetName())
+            print(fieldDefn.GetType())
             fieldName = fieldDefn.GetName()
             field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
     select = ",\n\t".join([f"{old} AS {field_mapping[old]}" for old in field_mapping])
