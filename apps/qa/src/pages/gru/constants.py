@@ -24,7 +24,7 @@ qa_checks = pd.DataFrame(
             "Historical Footprint BINs vs PAD",
             "historical-footprints-vs-pad",
             ["all_results_historicalfootprintbin_padbin"],
-            ["doitt_buildingfootprints_historical"],
+            ["doitt_buildingfootprints_historical", "doitt_buildingfootprints"],
         ),
         ("TBINs vs. C/Os", "housing", ["tbins_certf_occp"], ["dcp_developments"]),
         (
