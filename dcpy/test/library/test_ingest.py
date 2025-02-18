@@ -1,5 +1,6 @@
 import os
 from sqlalchemy import text
+import pytest
 
 from dcpy.library.ingest import Ingestor
 
@@ -12,6 +13,14 @@ from . import (
     TEST_DATASET_CONFIG_FILE,
     TEST_DATASET_OUTPUT_PATH,
 )
+
+
+@pytest.fixture
+def test_dataset():
+    
+
+def test_format_field_names():
+    assert False
 
 
 def test_ingest_postgres():
