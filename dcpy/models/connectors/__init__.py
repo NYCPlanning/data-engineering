@@ -14,9 +14,21 @@ class _ConnectorProtocol(Protocol, Generic[_O, _I]):
     def pull(self, arg: _I, /) -> Any:
         """pull"""
 
+    def list_versions(self, key: str, sort_desc: bool) -> list[str]:
+        return []
+
+    def latest_version(self, key: str) -> str:
+        return ""
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return False
+
 
 class ConnectorDispatcher(Generic[_O, _I]):
     _connectors: dict[str, _ConnectorProtocol[_O, _I]]
+
+    def __getitem__(self, item):
+        return self._connectors[item]
 
     def __init__(self):
         self._connectors = {}

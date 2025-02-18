@@ -13,6 +13,7 @@ from dcpy.models.lifecycle.builds import (
     InputDatasetDefaults,
 )
 from dcpy.connectors.edm import recipes, publishing
+from dcpy.lifecycle.builds import dispatcher
 
 DEFAULT_RECIPE = "recipe.yml"
 LIBRARY_DEFAULT_PATH = recipes.LIBRARY_DEFAULT_PATH
@@ -148,7 +149,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 ds.version = "latest"
 
         if ds.version == "latest":
-            ds.version = recipes.get_latest_version(ds.id)
+            ds.version = dispatcher[ds.source].latest_version(ds.id)
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:

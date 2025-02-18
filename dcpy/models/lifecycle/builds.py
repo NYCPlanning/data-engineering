@@ -34,6 +34,7 @@ class InputDataset(BaseModel, extra="forbid"):
     import_as: str | None = None
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination | None = None
+    source: str | None = None
 
     @property
     def is_resolved(self):
@@ -53,6 +54,7 @@ class InputDatasetDefaults(BaseModel):
     file_type: recipes.DatasetType | None = None
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination = InputDatasetDestination.postgres
+    source: str | None = "edm.recipes" # For now, until there's a nicer way to do this
 
 
 class RecipeInputs(BaseModel):

@@ -47,6 +47,10 @@ def import_dataset(
     if pg_client and (not ds.destination):
         ds.destination = InputDatasetDestination.postgres
     assert ds.destination, f"Dataset destination not resolved for dataset {ds.id}"
+
+    # TODO: Separate out the steps of downloading and importing to PG.
+    # use the `build.dispatcher` to do the fetching
+    # Then feed the results of the fetch and the ds.destination type into pg, pandas, etc.
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
