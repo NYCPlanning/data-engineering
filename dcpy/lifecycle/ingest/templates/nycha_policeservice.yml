@@ -1,0 +1,27 @@
+id: nycha_policeservice
+acl: public-read
+
+attributes:
+  name: NYCHA PSA (Police Service Areas)
+  url: https://data.cityofnewyork.us/Housing-Development/DOITT_NYCHA_PSA_01_13SEPT2010/bvi6-r9nk/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: bvi6-r9nk
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+- id: psa
+  data_type: text
+- id: borough
+  data_type: text
+- id: address
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: geom
+  data_type: geometry

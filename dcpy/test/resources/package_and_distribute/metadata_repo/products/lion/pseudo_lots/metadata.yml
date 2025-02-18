@@ -1,0 +1,25 @@
+id: pseudo_lots
+
+attributes:
+  description:
+    The Pseudo Lots dataset contains polygons of locations that have an
+    address and/or a structure with a building identification number (BIN), but for
+    which there is no tax lot. Pseudo lots may exist for locations with open space,
+    subway or train stations, skyways, tunnels, or other miscellaneous features. Note
+    that this is not a comprehensive dataset of locations with these types of features.
+  display_name: Pseudo Lots
+  each_row_is_a: Pseudo Lot
+  publishing_frequency: "{{ pseudo_lots_pub_freq }}"
+  tags:
+    - pseudo lots
+    - bin
+    - building identification number
+    - addresses
+    - cscl
+
+destinations:
+  - id: socrata
+    type: socrata
+    tags: [prod_tag, pseudo_lots_tag]
+  - id: garlic_sftp
+    type: sftp

@@ -1,0 +1,40 @@
+id: dsny_specialwastedrop
+acl: public-read
+
+attributes:
+  name: DSNY Special Waste Drop-off Sites
+  description: >-
+    Location of DSNY Special Waste Drop-Off Sites. Please note that starting on March
+    20, 2020, DSNY suspended some services to limit person-to-person contact and to
+    enable our workforce to refocus on core operations. Suspended services include
+    Special Waste Drop-off sites which will be closed until further notice. Residents
+    should not illegally dump waste at these locations. Visit
+    https://www1.nyc.gov/assets/dsny/site/services/harmful-products for updates.
+  url: https://data.cityofnewyork.us/Environment/DSNY-Special-Waste-Drop-off-Sites/242c-ru4i
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 242c-ru4i
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+- id: city
+  data_type: text
+- id: name
+  data_type: text
+- id: fid
+  data_type: text
+- id: zip
+  data_type: text
+- id: state
+  data_type: text
+- id: address
+  data_type: text
+- id: boro
+  data_type: text
+- id: geom
+  data_type: geometry

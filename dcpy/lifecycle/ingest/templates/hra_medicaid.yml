@@ -1,0 +1,61 @@
+id: hra_medicaid
+acl: public-read
+
+attributes:
+  name: Medicaid Offices
+  description: >-
+    This table represents the details of the Medicaid Offices distributed by Borough
+    along with their address and phone number detail.
+  url: https://data.cityofnewyork.us/City-Government/Medicaid-Offices/ibs4-k445
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: ibs4-k445
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      Postcode: str
+      Community Board: str
+      "Council District ": str
+      Census Tract: str
+      BBL: str
+      BIN: str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+
+columns:
+- id: borough
+  data_type: text
+- id: name_of__medicaid_office
+  data_type: text
+- id: office_address
+  data_type: text
+- id: postcode
+  data_type: text
+- id: latitude
+  data_type: decimal
+- id: longitude
+  data_type: decimal
+- id: community_board
+  data_type: text
+- id: council_district
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: nta
+  data_type: text
+- id: geom
+  data_type: geometry

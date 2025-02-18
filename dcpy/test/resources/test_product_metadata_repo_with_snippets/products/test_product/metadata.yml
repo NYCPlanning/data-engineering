@@ -1,8 +1,0 @@
-id: test_product
-
-attributes:
-  display_name: Test Product
-  description: Product description {{ sample_text }}
-
-datasets:
-  - test_dataset

@@ -1,0 +1,129 @@
+id: dcp_facilities_with_unmapped
+acl: public-read
+
+attributes:
+  name: Facilities Database (FacDB) with unmapped records
+  description: |
+    The Department of City Planning aggregates information about 30,000+ facilities and program sites that are owned, operated, funded, licensed, or certified by a City, State, or Federal agency in the City of New York into a central database called the City Planning Facilities Database (FacDB). These facilities generally help to shape quality of life in the city’s neighborhoods, and this dataset is the basis for a series of planning activities. This public data resource allows all New Yorkers to understand the breadth of government resources in their neighborhoods.
+    This dataset is now complemented with the Facilities Explorer, a new interactive web map that makes the data more accessible and allows users to quickly filter the data for their needs.
+    Note to Users: FacDB is only as good as the source data it aggregates, and the Department of City Planning cannot verify the accuracy of all records. Please read more about specific data and analysis limitations before using this data. Limitations include missing records, duplicate records, and the inclusion of administrative sites instead of service locations.
+    This is different from dcp_facilities in that it includes records that are never assigned a geography
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page
+
+ingestion:
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/facilities_{{ version }}_csv.zip
+  file_format:
+    type: csv
+    unzipped_filename: facilities_{{ version }}.csv
+    #encoding: iso-8859-1
+    geometry:
+      crs: EPSG:4326
+      geom_column:
+        x: LONGITUDE
+        y: LATITUDE
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "lower": True }
+  - name: coerce_column_types
+    args:
+      column_types:
+        {
+          "bbl": "string",
+          "bin": "string",
+          "ct2010": "string",
+          "ct2020": "string",
+          "cd": "string",
+          "policeprct": "string",
+          "schooldist": "string",
+          "council": "string",
+          "zipcode": "string",
+          "capacity": "string",
+          "borocode": "string",
+          "latitude": "string", # should be float
+          "longitude": "string", # should be float
+          "xcoord": "string", # should be float
+          "ycoord": "string" # should be float
+        }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+
+columns:
+- id: facname
+  data_type: text
+- id: addressnum
+  data_type: text
+- id: streetname
+  data_type: text
+- id: address
+  data_type: text
+- id: city
+  data_type: text
+- id: zipcode
+  data_type: text
+- id: factype
+  data_type: text
+- id: facsubgrp
+  data_type: text
+- id: facgroup
+  data_type: text
+- id: facdomain
+  data_type: text
+- id: servarea
+  data_type: text
+- id: opname
+  data_type: text
+- id: opabbrev
+  data_type: text
+- id: optype
+  data_type: text
+- id: overagency
+  data_type: text
+- id: overabbrev
+  data_type: text
+- id: overlevel
+  data_type: text
+- id: capacity
+  data_type: text
+- id: captype
+  data_type: text
+- id: boro
+  data_type: text
+- id: bin
+  data_type: text
+- id: bbl
+  data_type: text
+- id: latitude
+  data_type: text
+- id: longitude
+  data_type: text
+- id: xcoord
+  data_type: text
+- id: ycoord
+  data_type: text
+- id: cd
+  data_type: text
+- id: nta2010
+  data_type: text
+- id: nta2020
+  data_type: text
+- id: council
+  data_type: text
+- id: ct2010
+  data_type: text
+- id: ct2020
+  data_type: text
+- id: borocode
+  data_type: text
+- id: schooldist
+  data_type: text
+- id: policeprct
+  data_type: text
+- id: datasource
+  data_type: text
+- id: uid
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry

@@ -1,0 +1,49 @@
+id: nysdoh_nursinghomes
+acl: public-read
+
+attributes:
+  name: "Nursing Home Weekly Bed Census: Last Submission"
+  description: >-
+    The Department of Health requires nursing homes to complete electronic filing of
+    each facility's licensed nursing home beds and availability by bed category on a
+    weekly basis. All nursing homes are requested to submit their Weekly Bed Census
+    between Wednesday and Friday of each week, based on the census at 12:00 AM on
+    Wednesday night.
+
+    The Nursing Home Weekly Bed Census data is the most recent data available.
+  url: https://health.data.ny.gov/Health/Nursing-Home-Weekly-Bed-Census-Last-Submission/izta-vnpq
+
+ingestion:
+  source:
+    type: socrata
+    org: nys_health
+    uid: izta-vnpq
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: rename_columns
+    args:
+      map: { "bed_type_service_category": "bed_type", "zip_code": "zip" }
+
+columns:
+- id: zip
+  data_type: text
+- id: facility_id
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: total_capacity
+  data_type: text
+- id: county
+  data_type: text
+- id: bed_type
+  data_type: text
+- id: facility_name
+  data_type: text
+- id: street_address
+  data_type: text
+- id: geom
+  data_type: geometry

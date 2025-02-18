@@ -90,6 +90,7 @@ def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
             geometry=gpd.points_from_xy(df[x_column], df[y_column]),
             crs=geometry.crs,
         )
+        gdf.geometry = gdf.geometry.apply(lambda geom: None if geom.is_empty else geom)
 
     return gdf
 

@@ -1,0 +1,67 @@
+id: nysed_nonpublicenrollment
+
+acl: public-read
+
+attributes:
+  name: NYSED Nonpublic Enrollment by Grade
+  description: Nonpublic Enrollment by Grade, this dataset is updated once a year. Version names are in the convention of YYYY-YY e.g. 2019-20
+  url: http://www.p12.nysed.gov/irs/statistics/nonpublic/
+
+ingestion:
+  source:
+    type: file_download
+    url: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: NonPubEnroll_byGrade_{{ version[2:] }}
+  processing_steps: 
+  - name: clean_column_names
+    args: {"lower": True}
+
+columns:
+- id: institution_id
+  data_type: integer
+- id: school_name
+  data_type: text
+- id: beds_code
+  data_type: integer
+- id: affliation
+  data_type: text
+- id: school_year
+  data_type: text
+- id: county
+  data_type: text
+- id: prek
+  data_type: integer
+- id: halfk
+  data_type: integer
+- id: fullk
+  data_type: integer
+- id: gr1
+  data_type: integer
+- id: gr2
+  data_type: integer
+- id: gr3
+  data_type: integer
+- id: gr4
+  data_type: integer
+- id: gr5
+  data_type: integer
+- id: gr6
+  data_type: integer
+- id: uge
+  data_type: integer
+- id: gr7
+  data_type: integer
+- id: gr8
+  data_type: integer
+- id: gr9
+  data_type: integer
+- id: gr10
+  data_type: integer
+- id: gr11
+  data_type: integer
+- id: gr12
+  data_type: integer
+- id: ugs
+  data_type: integer

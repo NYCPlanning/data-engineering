@@ -1,80 +1,111 @@
 from pathlib import Path
+from tabulate import tabulate  # type: ignore
 import typer
-from typing import Unpack
 
-from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
-
+from dcpy import configuration
 from dcpy.models.product import metadata as product_metadata
-from dcpy.lifecycle.distribute import socrata as soc_dist
-from dcpy.lifecycle.package import assemble
+from dcpy.models.lifecycle.distribute import DatasetDestinationFilters
+from dcpy.models.lifecycle.validate import ValidationArgs
+from dcpy.lifecycle import package
+from dcpy.lifecycle import distribute
 from dcpy.utils.logging import logger
 
 
-def package_and_dist_from_bytes(
-    org_metadata_path: Path,
+# Future thought: this type of glue function shouldn't be necessary if
+# we can string together lifecycle stages a little more declaratively
+def package_and_distribute(
+    org_md: product_metadata.OrgMetadata,
     product: str,
+    dataset: str,
     version: str,
-    destination_tag: str,
-    destination_id: str | None,
-    datasets: set[str],
-    destination_type: str,
-    **publish_kwargs: Unpack[soc_dist.PublishKwargs],
+    *,
+    source_destination_id: str,
+    publish: bool = False,
+    metadata_only: bool = False,
+    validation_conf: ValidationArgs = {},
+    destination_filters: DatasetDestinationFilters = {},
 ):
-    logger.info(
-        f"Packaging and Distributing with filters: tag={destination_tag}, datasets: {datasets}, destination_type: {destination_type} "
-    )
-    """Package tagged datsets from bytes, and distribute to Socrata."""
-    org_md = product_metadata.OrgMetadata.from_path(
-        path=org_metadata_path,
-        template_vars={"version": version},
-    )
+    """Package tagged datasets from the source, and distribute to specified destinations."""
+
+    logger.info(f"Packaging and Distributing with filters: {destination_filters}")
+
+    destination_filters["datasets"] = frozenset({dataset})
     product_md = org_md.product(product)
-    dests = product_md.query_destinations(
-        tag=destination_tag,
-        datasets=set(datasets),
-        destination_type=destination_type,
-        destination_id=destination_id,
+    dataset_md = product_md.dataset(dataset)
+    destinations = product_md.query_destinations(**destination_filters)[dataset]
+    assert destinations, "No Destinations found! Check your destination filters"
+
+    logger.info(f"Target destinations are {list(destinations.keys())}")
+    package_path = package.ASSEMBLY_DIR / product / version / dataset
+
+    package.pull_destination_package_files(
+        local_package_path=package_path,
+        source_destination_id=source_destination_id,
+        dataset_metadata=dataset_md,
     )
 
-    logger.info(f"Packaging {product_md.metadata.id}. Datasets: {list(dests.keys())}")
-    package_paths = {}
-    for ds_id, dests_to_mds in dests.items():
-        out_path = assemble.assemble_dataset_from_bytes(
-            org_md=org_md,
-            product=product,
-            dataset=ds_id,
-            version=version,
-            source_destination_id="bytes",
-            metadata_only=publish_kwargs["metadata_only"],
+    package.assemble_package(
+        org_md=org_md,
+        product=product,
+        dataset=dataset,
+        version=version,
+        source_destination_id=source_destination_id,
+        metadata_only=metadata_only,
+    )
+
+    # validate
+    if not (validation_conf.get("skip_validation") or metadata_only):
+        package_validations = package.validate_package(package_path=package_path)
+        if package_validations.get_errors_list():
+            if validation_conf.get("ignore_validation_errors"):
+                logger.warning("Package Errors Found! But continuing distribute")
+                logger.warning(package_validations.make_errors_table())
+            else:
+                logger.error("Errors Found! Aborting distribute")
+                logger.error(package_validations.make_errors_table())
+                raise Exception(package_validations.make_errors_table())
+        else:
+            logger.info("\nFinished Packaging. Beginning Distribution.")
+
+    # distribute
+    # TODO: pull this logic into package.distribute
+    distribute_results: list[distribute.DistributeResult] = []
+    for dest_id, dest_ds_md in destinations.items():
+        logger.info(f"Distributing {dataset}-{dest_id} from {package_path}")
+        result = distribute.to_dataset_destination(
+            metadata=dest_ds_md,
+            dataset_destination_id=dest_id,
+            publish=publish,
+            dataset_package_path=package_path,
+            metadata_only=metadata_only,
         )
-        package_paths[ds_id] = out_path
+        distribute_results.append(result)
 
-    logger.info("\nFinished Packaging. Beginning Distribution.")
-    results = []
-    for ds_id, dests_to_mds in dests.items():
-        package_path = package_paths[ds_id]
+    stringified_results = tabulate(
+        [
+            [r.dataset_id, r.destination_id, r.destination_type, r.success, r.result]
+            for r in distribute_results
+        ],
+        headers=["dataset", "destination_id", "destination type", "success?", "result"],
+        tablefmt="presto",
+        maxcolwidths=[20, 10, 10, 10, 50],
+    )
 
-        for dest, _ in dests_to_mds.items():
-            logger.info(f"Distributing {ds_id}: {dest} from {package_path}")
-            result = soc_dist.dist_from_local(package_path, dest, **publish_kwargs)
-            results.append(result)
-    return results
+    if any([not r.success for r in distribute_results]):
+        logger.error("Distribution Finished, but issues occurred!")
+        logger.error(stringified_results)
+        raise Exception("Distribution errors occurred. See the logs for details.")
+
+    logger.info("Distribution Finished")
+    logger.info(stringified_results)
 
 
-app = typer.Typer()
-
-
-@app.command("from_bytes_to_socrata")
-def from_bytes_to_tagged_socrata_cli(
+def package_and_distribute_cli(
     product: str,
     version: str,
+    dataset: str,
+    source_destination_id: str,
     # Filters
-    datasets: list[str] = typer.Option(
-        None,
-        "-d",
-        "--datasets",
-        help="list of dataset names to include.",
-    ),
     destination_tag: str = typer.Option(
         None,
         "-t",
@@ -94,12 +125,6 @@ def from_bytes_to_tagged_socrata_cli(
         help="Destination type for filter for. e.g. 'Socrata'",
     ),
     # Overrides
-    org_metadata_path: Path = typer.Option(
-        PRODUCT_METADATA_REPO_PATH,
-        "-o",
-        "--metadata-path",
-        help="Path to metadata repo. Optionally, set in your env.",
-    ),
     publish: bool = typer.Option(
         False,
         "-p",
@@ -125,18 +150,26 @@ def from_bytes_to_tagged_socrata_cli(
         help="Only push metadata (including attachments).",
     ),
 ):
-    results = package_and_dist_from_bytes(
-        org_metadata_path,
-        product,
-        version,
-        datasets=set(datasets or []),
-        destination_id=destination_id,
-        destination_type=destination_type,
-        destination_tag=destination_tag,
-        publish=publish,
-        ignore_validation_errors=ignore_validation_errors,
-        skip_validation=skip_validation,
-        metadata_only=metadata_only,
+    assert configuration.PRODUCT_METADATA_REPO_PATH
+    org_md = product_metadata.OrgMetadata.from_path(
+        path=Path(configuration.PRODUCT_METADATA_REPO_PATH),
+        template_vars={"version": version},
     )
-    for r in results:
-        print(r)
+    package_and_distribute(
+        org_md,
+        product,
+        dataset,
+        version,
+        source_destination_id=source_destination_id,
+        publish=publish,
+        metadata_only=metadata_only,
+        destination_filters={
+            "destination_id": destination_id,
+            "destination_type": destination_type,
+            "destination_tag": destination_tag,
+        },
+        validation_conf={
+            "ignore_validation_errors": ignore_validation_errors,
+            "skip_validation": skip_validation,
+        },
+    )

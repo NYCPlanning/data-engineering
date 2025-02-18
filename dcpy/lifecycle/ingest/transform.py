@@ -93,6 +93,17 @@ class ProcessingFunctions:
         filtered = df[filter]
         return filtered.reset_index(drop=True)
 
+    def filter_columns(
+        self,
+        df: pd.DataFrame,
+        columns: list[str],
+        mode: Literal["keep", "drop"] = "keep",
+    ) -> pd.DataFrame:
+        if mode == "keep":
+            return df[columns]
+        else:
+            return df.drop(columns, axis=1)
+
     def rename_columns(
         self, df: pd.DataFrame, map: dict[str, str], drop_others=False
     ) -> pd.DataFrame:
@@ -110,10 +121,13 @@ class ProcessingFunctions:
         *,
         replace: dict[str, str] | None = None,
         lower: bool = False,
+        strip: bool = False,
     ) -> pd.DataFrame:
         cleaned = df.copy()
         replace = replace or {}
         columns = list(cleaned.columns)
+        if strip:
+            columns = [c.strip() for c in columns]
         for pattern in replace:
             columns = [c.replace(pattern, replace[pattern]) for c in columns]
         if lower:

@@ -107,6 +107,7 @@ def compare_sql_keyed_rows(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
+    cast_to_numeric: list[str] | None = None,
 ):
     left_columns = client.get_table_columns(left)
     right_columns = client.get_table_columns(right)
@@ -134,6 +135,9 @@ def compare_sql_keyed_rows(
     def query(column: str) -> str:
         lc = f'"left"."{column}"'
         rc = f'"right"."{column}"'
+        if cast_to_numeric and column in cast_to_numeric:
+            lc = lc + "::numeric"
+            rc = rc + "::numeric"
         return f"""
             SELECT 
                 {left_keys}, {lc} AS "left", {rc} AS "right" 
@@ -194,6 +198,8 @@ def compare_sql_keyed_rows(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
+        ignored_columns=ignore_columns,
+        columns_coerced_to_numeric=cast_to_numeric,
         columns_with_diffs=set(comps.keys()),
         differences_by_column=comps,
     )
@@ -205,12 +211,19 @@ def compare_sql_rows(
     client: postgres.PostgresClient,
     *,
     ignore_columns: list[str] | None = None,
+    cast_to_numeric: list[str] | None = None,
 ):
     left_columns = client.get_table_columns(left)
     right_columns = client.get_table_columns(right)
 
     columns = set(left_columns) & set(right_columns) - set(ignore_columns or [])
-    query_columns = ",".join(f'"{c}"' for c in columns)
+    if cast_to_numeric:
+        _columns = [
+            f'"{c}"::numeric' if c in cast_to_numeric else f'"{c}"' for c in columns
+        ]
+        query_columns = ",".join(_columns)
+    else:
+        query_columns = ",".join(f'"{c}"' for c in columns)
 
     def query(one, two):
         return client.execute_select_query(f"""
@@ -221,6 +234,8 @@ def compare_sql_rows(
 
     return comparison.SimpleTable(
         compared_columns=columns,
+        ignored_columns=ignore_columns,
+        columns_coerced_to_numeric=cast_to_numeric,
         left_only=query(left, right),
         right_only=query(right, left),
     )
@@ -244,6 +259,7 @@ def get_sql_report(
     key_columns: list[str] | None = None,
     ignore_columns: list[str] | None = None,
     columns_only_comparison: bool = False,
+    cast_to_numeric: list[str] | None = None,
 ) -> comparison.SqlReport:
     left_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {left}")
     right_rows = client.execute_select_query(f"SELECT count(*) AS count FROM {right}")
@@ -256,6 +272,7 @@ def get_sql_report(
             key_columns,
             client,
             ignore_columns=ignore_columns,
+            cast_to_numeric=cast_to_numeric,
         )
     else:
         data_comp = compare_sql_rows(
@@ -263,6 +280,7 @@ def get_sql_report(
             right,
             client,
             ignore_columns=ignore_columns,
+            cast_to_numeric=cast_to_numeric,
         )
     return comparison.SqlReport(
         tables=comparison.Simple[str](left=left, right=right),
