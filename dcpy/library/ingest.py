@@ -34,21 +34,20 @@ def format_field_names(
     has_geom: bool,
     output_format: str,
 ):
-    fields = fields or []
     layer = dataset.GetLayer(0)
     layer_defn = layer.GetLayerDefn()
     layer_name = layer.GetName()
 
     field_mapping: dict[str, str] = {}
-    if len(fields) == 0:
+    if fields:
+        for i in range(len(fields)):
+            fieldDefn = layer_defn.GetFieldDefn(i)
+            field_mapping[fieldDefn.GetName()] = fields[i]
+    else:
         for i in range(layer_defn.GetFieldCount()):
             fieldDefn = layer_defn.GetFieldDefn(i)
             fieldName = fieldDefn.GetName()
             field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
-    else:
-        for i in range(len(fields)):
-            fieldDefn = layer_defn.GetFieldDefn(i)
-            field_mapping[fieldDefn.GetName()] = fields[i]
     select = ",\n\t".join([f"{old} AS {field_mapping[old]}" for old in field_mapping])
     if has_geom:
         geom_columns = {"csv": "WKT", "pg_dump": "wkb_geometry", "parquet": "geom"}
