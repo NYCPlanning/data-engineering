@@ -1,6 +1,7 @@
 import os
 from unittest.mock import patch
 from sqlalchemy import text
+import pytest
 
 from dcpy.library.ingest import Ingestor
 from dcpy.test.conftest import mock_request_get
@@ -15,6 +16,14 @@ from . import (
     TEST_DATASET_OUTPUT_PATH,
     template_path,
 )
+
+
+@pytest.fixture
+def test_dataset():
+    
+
+def test_format_field_names():
+    assert False
 
 
 def test_ingest_postgres():
