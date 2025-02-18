@@ -27,6 +27,57 @@ from .config import Config
 from .sources import generic_source, postgres_source
 
 
+def format_field_names(
+    dataset: gdal.Dataset,
+    fields: list[str] | None,
+    sql: str | None,
+    has_geom: bool,
+    output_format: str,
+    csv_geom_fields: list[str] | None = None,
+):
+    layer = dataset.GetLayer(0)
+    layer_defn = layer.GetLayerDefn()
+    layer_name = layer.GetName()
+
+    field_mapping: dict[str, str] = {}
+    if fields:
+        for i in range(len(fields)):
+            fieldDefn = layer_defn.GetFieldDefn(i)
+            field_mapping[fieldDefn.GetName()] = fields[i]
+    else:
+        for i in range(layer_defn.GetFieldCount()):
+            fieldDefn = layer_defn.GetFieldDefn(i)
+            fieldName = fieldDefn.GetName()
+            field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
+    if csv_geom_fields:
+        field_names = [k for k in field_mapping]
+        for field in field_names:
+            if field in csv_geom_fields:
+                field_mapping.pop(field)
+
+    select = ",\n\t".join(
+        [f'"{old}" AS "{field_mapping[old]}"' for old in field_mapping]
+    )
+    if has_geom:
+        geom_columns = {"CSV": "WKT", "PGDump": "wkb_geometry", "Parquet": "geom"}
+        geom_column = geom_columns.get(output_format, "geom")
+        geom_clause = f',\n\t"Geometry" AS "{geom_column}"'
+    else:
+        geom_clause = ""
+    query = f"""SELECT\n\t{select}{geom_clause}\nFROM {layer_name}"""
+    print(query)
+    if not sql:
+        return query
+    else:
+        cte_name = "__cte__"
+        sql = sql.replace("@filename", cte_name)
+        if sql.startswith("WITH "):
+            sql = sql.strip("WITH ")
+            return f"WITH {cte_name} AS ({query}),\n{sql}"
+        else:
+            return f"WITH {cte_name} AS ({query})\n{sql}"
+
+
 def translator(func):
     @wraps(func)
     def wrapper(self: Ingestor, *args, **kwargs) -> tuple[list[str], library.Config]:
@@ -85,9 +136,7 @@ def translator(func):
         # Default dstDS is destination_path if no dstDS is specificed
         dstDS = destination_path if not dstDS else dstDS
         srcDS = generic_source(
-            path=dataset.source.gdalpath,
-            options=dataset.source.options,
-            fields=dataset.destination.fields,
+            path=dataset.source.gdalpath, options=dataset.source.options
         )
 
         if srcDS.GetLayerCount() > 1:
@@ -100,9 +149,24 @@ def translator(func):
         else:
             src_layer = srcDS.GetLayer(0).GetName()
 
-        sql = dataset.destination.sql
-        if sql:
-            sql = sql.replace("@filename", src_layer)
+        csv_geom_names = (
+            [
+                o.split("=")[1]
+                for o in dataset.source.options
+                if o.startswith("GEOM_POSSIBLE_NAMES=")
+            ]
+            if dataset.source.options
+            else None
+        )
+
+        sql = format_field_names(
+            srcDS,
+            dataset.destination.fields,
+            dataset.destination.sql,
+            dataset.source.geometry is not None,
+            output_format,
+            csv_geom_fields=csv_geom_names,
+        )
 
         # Create postgres database schema and table version if needed
         if output_format == "PostgreSQL":
