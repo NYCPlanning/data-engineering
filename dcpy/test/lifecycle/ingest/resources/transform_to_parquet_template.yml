@@ -36,6 +36,13 @@
     type: xlsx
     sheet_name: Sheet1
 
+# excel non-spatial case
+- file_name: test.xls
+  file_format:
+    type: html
+    kwargs:
+      header: 0
+
 # excel spatial case (2 geom columns, i.e. longitude and latitude columns)
 - file_name: test.xlsx
   file_format:

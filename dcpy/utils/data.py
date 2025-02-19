@@ -92,19 +92,15 @@ def read_data_to_df(
         case file.Csv():
             df = pd.read_csv(
                 local_data_path,
-                index_col=False,
-                encoding=data_format.encoding,
-                delimiter=data_format.delimiter,
-                names=data_format.column_names,
-                dtype=_get_dtype(data_format.dtype),
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
-        case file.Xlsx():
+        case file.Excel():
             df = pd.read_excel(
                 local_data_path,
                 sheet_name=data_format.sheet_name,
+                engine=data_format.engine,
                 dtype=_get_dtype(data_format.dtype),
             )
             gdf = (
@@ -128,6 +124,11 @@ def read_data_to_df(
                 )
             df = serialize_nested_objects(df)
 
+            gdf = (
+                df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
+            )
+        case file.Html():
+            df = pd.read_html(local_data_path, **data_format.kwargs)[data_format.table]
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
