@@ -5,8 +5,8 @@ WITH latest_sca_data AS (
     WHERE
         data_as_of::date
         = (
-            SELECT MAX(data_as_of::date)
-            FROM sca_enrollment_capacity
+            SELECT MAX(s.data_as_of::date)
+            FROM sca_enrollment_capacity AS s
         )
 )
 SELECT

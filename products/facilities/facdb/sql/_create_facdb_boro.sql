@@ -12,17 +12,17 @@ SELECT
 INTO facdb_boro
 FROM (
     SELECT
-        a.uid,
-        b.boroname AS boro,
-        b.borocode,
-        a.city,
-        a.zipcode
+        facdb_zipcode.uid,
+        lookup_boro.boroname AS boro,
+        lookup_boro.borocode,
+        facdb_zipcode.city,
+        facdb_zipcode.zipcode
     FROM (
         SELECT
             uid,
-            UPPER(COALESCE(b.county, a.boro)) AS boro,
+            UPPER(COALESCE(zipcodes.county, facdb_boro.boro)) AS boro,
             input_zipcode AS zipcode,
-            UPPER(b.po_name) AS city
+            UPPER(zipcodes.po_name) AS city
         FROM (
             SELECT
                 uid,
@@ -34,20 +34,20 @@ FROM (
                 SELECT uid FROM facdb_spatial
                 WHERE borocode IS NOT NULL
             )
-        ) AS a LEFT JOIN doitt_zipcodeboundaries AS b
-            ON a.input_zipcode = b.zipcode
-    ) AS a
-    LEFT JOIN lookup_boro AS b
-        ON a.boro = b.boro
+        ) AS facdb_boro LEFT JOIN doitt_zipcodeboundaries AS zipcodes
+            ON facdb_boro.input_zipcode = zipcodes.zipcode
+    ) AS facdb_zipcode
+    LEFT JOIN lookup_boro
+        ON facdb_zipcode.boro = lookup_boro.boro
     UNION
     SELECT
         uid,
-        b.boroname,
-        a.borocode,
+        lookup_boro.boroname,
+        facdb_spatial.borocode,
         city,
         zipcode
-    FROM facdb_spatial AS a
-    LEFT JOIN lookup_boro AS b
-        ON a.borocode = b.borocode
-    WHERE a.borocode IS NOT NULL
-) AS a
+    FROM facdb_spatial
+    LEFT JOIN lookup_boro
+        ON facdb_spatial.borocode = lookup_boro.borocode
+    WHERE facdb_spatial.borocode IS NOT NULL
+)
