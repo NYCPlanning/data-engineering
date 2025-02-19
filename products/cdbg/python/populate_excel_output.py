@@ -47,7 +47,7 @@ def populate_excel_output():
         logger.info(
             f"Populating sheet '{csv_for_excel['sheet_name']}' with csv '{csv_for_excel['csv_path']}' ..."
         )
-        excel.csv_into_excel(
+        excel.insert_csv_into_sheet(
             csv_path=csv_for_excel["csv_path"],
             input_excel_path=OUTPUT_EXCEL_PATH,
             output_excel_path=OUTPUT_EXCEL_PATH,

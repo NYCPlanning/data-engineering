@@ -118,17 +118,16 @@ def apply_cross_file_modifications(
     base_wb.save(out_path)
 
 
-def csv_into_excel(
+def insert_csv_into_sheet(
     csv_path: Path,
     input_excel_path: Path,
     output_excel_path: Path,
     sheet_name: str | None = None,
-    row_ofset: int | None = None,
+    row_offset: int = 0,
 ):
     """
     Use a CSV file to populate cells in an Excel file.
     """
-    row_ofset = row_ofset or 0
     workbook = openpyxl.load_workbook(filename=input_excel_path)
     if sheet_name:
         sheet = workbook[sheet_name]
@@ -140,7 +139,7 @@ def csv_into_excel(
         for row_index, row in enumerate(csv_reader, start=1):
             for col_index, cell_value in enumerate(row, start=1):
                 sheet.cell(
-                    row=row_ofset + row_index,
+                    row=row_offset + row_index,
                     column=col_index,
                     value=cell_value,
                 )
