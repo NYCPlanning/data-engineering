@@ -11,3 +11,26 @@ dataset_defaults:
 datasets:
   - pseudo_lots
   - school_districts
+
+files:
+- id: lion_multilayer_shapefile_bytes
+  filename: lion.shp.zip
+  url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion_{{ version }}shp.zip
+  contains:
+  - lion.pseudo_lots.pseudo_lots_shapefile
+  - lion.school_districts.school_districts_shapefile
+
+lifecycle:
+  assemble:
+    my_assemble_from_bytes_script:
+      steps:
+      - type: pull_file
+        source: lion_multilayer_shapefile_bytes
+      - type: disassemble # generates shapefiles for each dataset
+        source: lion_multilayer_shapefile_bytes
+      - type: generate_artifacts
+        artifacts:
+        - special_purpose_districts.metadata_pdf
+        - special_purpose_districts.oti_data_dictionary
+        - commercial_overlay_district.metadata_pdf
+        - commercial_overlay_district.oti_data_dictionary

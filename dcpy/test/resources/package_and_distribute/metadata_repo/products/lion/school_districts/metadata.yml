@@ -24,3 +24,9 @@ destinations:
     tags: [school_districts_tag]
   - id: other
     type: bytes
+
+files:
+  - file:
+      id: school_districts_shapefile
+      filename: school_districts.shp.zip
+      type: shapefile

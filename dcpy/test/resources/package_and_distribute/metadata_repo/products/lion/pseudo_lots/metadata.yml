@@ -23,3 +23,9 @@ destinations:
     tags: [prod_tag, pseudo_lots_tag]
   - id: garlic_sftp
     type: sftp
+
+files:
+  - file:
+      id: pseudo_lots_shapefile
+      filename: pseudo_lots.shp.zip
+      type: shapefile
