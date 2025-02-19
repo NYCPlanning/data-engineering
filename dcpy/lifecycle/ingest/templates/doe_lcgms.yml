@@ -1,0 +1,75 @@
+id: doe_lcgms
+acl: public-read
+
+attributes:
+  name: LCGMS - New York City district and charter school informatio
+  description: >-
+    School-based information can change throughout the year. Each report reflects
+    information that is accurate as of the day it is run. Updates for the next school
+    year are integrated into the report by July 15 of each year. For additional
+    information, contact OOD@schools.nyc.gov.
+
+    Must be manually downloaded from link in `url` field, though attempts to automate
+    are welcome.
+
+    An apparently flaky script to grab it automatically can be found here:
+    https://github.com/NYCPlanning/db-data-library/blob/main/library/script/doe_lcgms.py
+  url: https://www.nycenet.edu/PublicApps/LCGMS.aspx
+
+ingestion:
+  source:
+    type: local_file
+    path: ./LCGMS_SchoolData.xls
+  file_format:
+    type: html
+    kwargs:
+      header: 0
+      thousands: null
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "\t": "_" }, "lower": True }
+  - name: coerce_column_types
+    args:
+      column_types:
+        {
+          "borough_block_lot": "string",
+          "council_district": "string",
+          "census_tract": "string",
+          "zip": "string",
+          "community_district": "string"
+        }
+      errors: coerce
+
+columns:
+- id: location_code
+  data_type: text
+- id: location_name
+  data_type: text
+- id: managed_by_name
+  data_type: text
+- id: location_type_description
+  data_type: text
+- id: location_category_description
+  data_type: text
+- id: building_code
+  data_type: text
+- id: primary_address
+  data_type: text
+- id: city
+  data_type: text
+- id: state_code
+  data_type: text
+- id: zip
+  data_type: text
+- id: borough_block_lot
+  data_type: text
+- id: census_tract
+  data_type: text
+- id: community_district
+  data_type: text
+- id: council_district
+  data_type: text
+- id: nta
+  data_type: text
+- id: nta_name
+  data_type: text
