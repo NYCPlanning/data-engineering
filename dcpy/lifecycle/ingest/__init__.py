@@ -1,12 +1,16 @@
 import json
 from pathlib import Path
+import shutil
 import typer
 
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from . import configure, extract, transform, validate
 
-TMP_DIR = Path("tmp")
+INGEST_DIR = Path(".lifecycle") / "ingest"
+STAGING_DIR = INGEST_DIR / "staging"
+OUTPUT_DIR = INGEST_DIR / "datasets"
+CONFIG_FILENAME = "config.json"
 
 
 def run(
@@ -19,19 +23,25 @@ def run(
     skip_archival: bool = False,
     output_csv: bool = False,
     template_dir: Path = configure.TEMPLATE_DIR,
+    local_file_path: Path | None = None,
 ) -> Config:
     config = configure.get_config(
-        dataset_id, version=version, mode=mode, template_dir=template_dir
+        dataset_id,
+        version=version,
+        mode=mode,
+        template_dir=template_dir,
+        local_file_path=local_file_path,
     )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     if not staging_dir:
         staging_dir = (
-            TMP_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
+            STAGING_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
         )
-        staging_dir.mkdir(parents=True)
-    else:
-        staging_dir.mkdir(parents=True, exist_ok=True)
+    staging_dir.mkdir(parents=True)
+
+    with open(staging_dir / CONFIG_FILENAME, "w") as f:
+        json.dump(config.model_dump(mode="json"), f, indent=4)
 
     # download dataset
     extract.download_file_from_source(
@@ -44,7 +54,7 @@ def run(
 
     if not skip_archival:
         # archive to edm-recipes/raw_datasets
-        recipes.archive_raw_dataset(config, file_path)
+        recipes.archive_dataset(config, staging_dir, raw=True)
 
     init_parquet = "init.parquet"
     transform.to_parquet(
@@ -63,8 +73,10 @@ def run(
         output_csv=output_csv,
     )
 
-    with open(staging_dir / "config.json", "w") as f:
-        json.dump(config.model_dump(mode="json"), f, indent=4)
+    output_dir = OUTPUT_DIR / dataset_id / config.version
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(staging_dir / CONFIG_FILENAME, output_dir)
+    shutil.copy(staging_dir / config.filename, output_dir)
 
     action = validate.validate_against_existing_versions(
         config.dataset, staging_dir / config.filename
@@ -72,9 +84,9 @@ def run(
     if not skip_archival:
         match action:
             case validate.ArchiveAction.push:
-                recipes.archive_dataset(
-                    config, staging_dir / config.filename, latest=latest
-                )
+                recipes.archive_dataset(config, output_dir)
+                if latest:
+                    recipes.set_latest(config.dataset_key, config.archival.acl)
             case validate.ArchiveAction.update_freshness:
                 recipes.update_freshness(
                     config.dataset_key, config.archival.archival_timestamp
@@ -106,6 +118,12 @@ def _cli_wrapper_run(
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
+    local_file_path: Path = typer.Option(
+        None,
+        "--local-file-path",
+        "-p",
+        help="Use local file path as source, overriding source in template",
+    ),
 ):
     run(
         dataset_id,
@@ -114,4 +132,5 @@ def _cli_wrapper_run(
         latest=latest,
         skip_archival=skip_archival,
         output_csv=csv,
+        local_file_path=local_file_path,
     )
