@@ -7,12 +7,14 @@ import yaml
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
 from dcpy.models.product.artifacts import Artifacts, Artifact
+from dcpy.models.product.assemble import Script as AssembleScript
 from dcpy.models.product.data_dictionary import DataDictionary
 from dcpy.models.product.dataset.metadata import (
     Metadata as DatasetMetadata,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
     COLUMN_TYPES,
+    File
 )
 from dcpy.utils.collections import deep_merge_dict as merge
 
@@ -27,6 +29,9 @@ class ProductAttributes(SortedSerializedBase, extra="forbid"):
     display_name: str | None = None
     description: str | None = None
 
+class LifecycleScripts(SortedSerializedBase, extra="forbid"):
+    # TODO: ingest, build, distribute
+    assemble: dict[str, AssembleScript]
 
 class ProductMetadataFile(
     SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"
@@ -37,6 +42,8 @@ class ProductMetadataFile(
         default_factory=DatasetOrgProductAttributesOverride
     )
     datasets: list[str] = []
+    files: dict
+    lifecycle: LifecycleScripts
 
 
 class ProductMetadata(SortedSerializedBase, extra="forbid"):

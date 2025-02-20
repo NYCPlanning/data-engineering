@@ -12,11 +12,18 @@ datasets:
   - pseudo_lots
   - school_districts
 
+destinations:
+  - id: bytes
+    type: bytes
+    files:
+      - id: lion_multilayer_shapefile_bytes
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion_{{ version }}shp.zip
+
 files:
 - id: lion_multilayer_shapefile_bytes
   filename: lion.shp.zip
-  url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion_{{ version }}shp.zip
-  contains:
+  contents:
   - lion.pseudo_lots.pseudo_lots_shapefile
   - lion.school_districts.school_districts_shapefile
 
