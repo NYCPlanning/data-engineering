@@ -6,10 +6,12 @@ from typing import Any, Literal, TypeAlias
 
 from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes, publishing
-from dcpy.models.connectors import web, socrata
+from dcpy.models.connectors import web, socrata, esri
 from dcpy.models import file
 from dcpy.models.base import SortedSerializedBase
 from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
+
+from dcpy.connectors.esri import arcgis_feature_service
 
 
 class LocalFileSource(BaseModel, extra="forbid"):
@@ -35,6 +37,28 @@ class DEPublished(BaseModel, extra="forbid"):
     filename: str
 
 
+class ESRIFeatureServer(BaseModel, extra="forbid"):
+    type: Literal["esri"]
+    server: esri.Server
+    dataset: str
+    layer_name: str | None = None
+    layer_id: int | None = None
+    crs: str = "EPSG:4326"  # The default value here is geojson specification
+
+    @property
+    def feature_server(self) -> esri.FeatureServer:
+        return esri.FeatureServer(server=self.server, name=self.dataset)
+
+    @property
+    def feature_server_layer(self) -> esri.FeatureServerLayer:
+        feature_server_layer = arcgis_feature_service.resolve_layer(
+            feature_server=self.feature_server,
+            layer_name=self.layer_name,
+            layer_id=self.layer_id,
+        )
+        return feature_server_layer
+
+
 Source: TypeAlias = (
     LocalFileSource
     | web.FileDownloadSource
@@ -44,6 +68,7 @@ Source: TypeAlias = (
     | DEPublished
     | S3Source
     | ScriptSource
+    | ESRIFeatureServer
 )
 
 
