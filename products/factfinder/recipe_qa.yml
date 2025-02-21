@@ -1,0 +1,30 @@
+## Sample QA recipe, to illustrate enabling multiple source types.
+
+name: PFF QA
+version: dummy
+product: db-factfinder-qa
+inputs:
+  dataset_defaults:
+    destination: postgres
+    source: edm.publishing # <- New field. default to pull from edm.publishing. (default for all recipes will be hardcoded as edm.recipes. So no need to specify it in a recipe)
+  datasets:
+
+    # Business as usual. Pull from recipes
+    - id: dcp_pop_acs2010_demographic
+      version: latest
+      source: edm.recipes # <- pull this one from recipes
+
+
+    # Datasets below will default to pulling from edm.publishing
+
+    # grab my build. In reality, we'd generalize this by using version env vars.
+    - id: factfinder.acs_current # <- proposal: use the form of [product].[dataset] for edm.publishing. would need to make a string resolver
+      version: "builds.ar_build" # <- in the form of [publish / build folder].[version]. ditto above about string resolver
+    - id: factfinder.decennial_2010
+      version: "builds.ar_build"
+
+    # grab previous published
+    - id: factfinder.acs_current
+      version: latest # <- would need to enable querying latest
+    - id: factfinder.decennial_2010
+      version: latest

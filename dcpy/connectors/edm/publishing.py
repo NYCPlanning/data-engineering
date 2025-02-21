@@ -1,4 +1,5 @@
 from datetime import datetime
+from dataclasses import dataclass
 import geopandas as gpd
 from io import BytesIO
 import json
@@ -29,7 +30,7 @@ from dcpy.models.connectors.edm.publishing import (
     DraftKey,
     BuildKey,
 )
-from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType
+from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType, InputDataset
 from dcpy.utils import s3, git, versions, metadata, postgres
 from dcpy.utils.logging import logger
 
@@ -895,6 +896,29 @@ def _cli_wrapper_download_file(
             )
     download_file(key, filepath, output_dir)
 
+
+@dataclass
+class RecipeConnectorAdapter:
+    conn_type = "edm.recipes"
+    def push(self, args: dict):
+        raise Exception("not implemented")
+
+    # In lifecycle.builds, we would always expect to receive an
+    # InputDataset (from the recipe) so we adapt the existing
+    # edm.publishing connector to work with that type.
+    def pull(self, input_ds: InputDataset):
+        key = parse_version(input_ds.id, input_ds.version) # <- convert to key
+        out_path = publishing.download_file(key)
+        # dump into a database, file, etc.
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return []
+
+    def latest_version(self, key: str) -> str:
+        return ""
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return False
 
 if __name__ == "__main__":
     app()

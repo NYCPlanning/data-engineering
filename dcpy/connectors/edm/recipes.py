@@ -1,4 +1,5 @@
 from datetime import datetime
+from dataclasses import dataclass
 from io import BytesIO
 import json
 import os
@@ -19,6 +20,7 @@ from dcpy.models.connectors.edm.recipes import (
 )
 from dcpy.models import library
 from dcpy.models.lifecycle import ingest
+from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -445,3 +447,25 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
             name = ANY(:datasets)
     """
     return pg_client.execute_select_query(query, datasets=datasets)
+
+
+@dataclass
+class Connector:
+    conn_type = "edm.recipes"
+
+    def push(self, key: str) -> dict:
+        """"""
+        return {}
+
+    def pull(self, pull_conf: InputDataset) -> dict:
+        """"""
+        return {}
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return []
+
+    def latest_version(self, key: str) -> str:
+        return ""
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return False
