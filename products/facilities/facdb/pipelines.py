@@ -27,8 +27,6 @@ def bpl_libraries(df: pd.DataFrame):
 
 
 def nypl_libraries(df: pd.DataFrame):
-    df["latitude"] = df.lat
-    df["longitude"] = df.lon
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="address")
     df = Function1B(

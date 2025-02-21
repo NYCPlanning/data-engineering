@@ -1,16 +1,5 @@
 DROP TABLE IF EXISTS facdb_boro;
-SELECT
-    uid,
-    boro,
-    borocode,
-    (CASE
-        WHEN boro = 'MANHATTAN' THEN 'NEW YORK'
-        WHEN boro IN ('BROOKLYN', 'BRONX', 'STATEN ISLAND') THEN boro
-        ELSE city
-    END) AS city,
-    NULLIF(NULLIF(REGEXP_REPLACE(LEFT(zipcode, 5), '[^0-9]+', '', 'g'), '0'), '') AS zipcode
-INTO facdb_boro
-FROM (
+WITH coalesced_boro AS (
     SELECT
         facdb_zipcode.uid,
         lookup_boro.boroname AS boro,
@@ -51,3 +40,15 @@ FROM (
         ON facdb_spatial.borocode = lookup_boro.borocode
     WHERE facdb_spatial.borocode IS NOT NULL
 )
+SELECT
+    uid,
+    boro,
+    borocode,
+    (CASE
+        WHEN boro = 'MANHATTAN' THEN 'NEW YORK'
+        WHEN boro IN ('BROOKLYN', 'BRONX', 'STATEN ISLAND') THEN boro
+        ELSE city
+    END) AS city,
+    NULLIF(NULLIF(REGEXP_REPLACE(LEFT(zipcode, 5), '[^0-9]+', '', 'g'), '0'), '') AS zipcode
+INTO facdb_boro
+FROM coalesced_boro
