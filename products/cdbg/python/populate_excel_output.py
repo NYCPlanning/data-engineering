@@ -21,17 +21,17 @@ csvs_for_excel = [
     CsvForExcel(
         csv_path=OUTPUT_PATH / "cdbg_tracts_excel.csv",
         sheet_name="Tract",
-        row_offset=5,
+        row_offset=4,
     ),
     CsvForExcel(
         csv_path=OUTPUT_PATH / "cdbg_boroughs_excel.csv",
         sheet_name="Borough",
-        row_offset=6,
+        row_offset=5,
     ),
     CsvForExcel(
         csv_path=OUTPUT_PATH / "cdbg_block_groups_excel.csv",
         sheet_name="Block Group",
-        row_offset=5,
+        row_offset=4,
     ),
 ]
 
