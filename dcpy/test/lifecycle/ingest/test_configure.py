@@ -75,6 +75,12 @@ class TestGetVersion:
         ### based on mocked response in dcpy/test/conftest.py
         assert configure.get_version(source) == "20240412"
 
+    @mock.patch("requests.get", side_effect=mock_request_get)
+    def test_esri(self, get):
+        source = Sources.esri
+        ### based on mocked response in dcpy/test/conftest.py
+        configure.get_version(source) == "20240806"
+
     def test_gis_dataset(self, create_buckets):
         datestring = "20240412"
         s3.client().put_object(
