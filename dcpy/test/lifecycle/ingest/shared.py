@@ -4,7 +4,7 @@ from pathlib import Path
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.models.connectors.edm.recipes import Dataset
 from dcpy.models import file, library
-from dcpy.models.connectors import socrata, web
+from dcpy.models.connectors import socrata, web, esri
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     ScriptSource,
@@ -50,7 +50,7 @@ class Sources:
     )
     esri = ESRIFeatureServer(
         type="esri",
-        server="nys_parks",
+        server=esri.Server.nys_parks,
         dataset="National_Register_Building_Listings",
         layer_id=13,
     )
