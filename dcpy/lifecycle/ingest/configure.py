@@ -13,6 +13,7 @@ from dcpy.models.lifecycle.ingest import (
     S3Source,
     ScriptSource,
     DEPublished,
+    ESRIFeatureServer,
     Source,
     ProcessingStep,
     Template,
@@ -23,6 +24,7 @@ from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
 from dcpy.connectors.socrata import extract as extract_socrata
+from dcpy.connectors.esri import arcgis_feature_service
 from dcpy.connectors.edm import publishing
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
@@ -75,6 +77,10 @@ def get_version(source: Source, timestamp: datetime | None = None) -> str:
                     "Unable to determine latest version. If archiving known version, please provide it."
                 )
             return version
+        case ESRIFeatureServer():
+            return arcgis_feature_service.get_data_last_updated(
+                source.feature_server_layer
+            ).strftime("%Y%m%d")
         case _:
             if timestamp is None:
                 raise TypeError(
@@ -102,6 +108,8 @@ def get_filename(source: Source, ds_id: str) -> str:
             return f"{ds_id}.{source.extension}"
         case S3Source():
             return Path(source.key).name
+        case ESRIFeatureServer():
+            return f"{ds_id}.json"
         case _:
             raise NotImplementedError(
                 f"Source type {source} not supported for get_filename"
