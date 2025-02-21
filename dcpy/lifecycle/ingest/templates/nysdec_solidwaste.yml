@@ -6,6 +6,7 @@ attributes:
   url: https://data.ny.gov/Energy-Environment/Solid-Waste-Management-Facilities/2fni-raj8
 
 ingestion:
+  target_crs: EPSG:4326
   source:
     type: socrata
     org: nys
