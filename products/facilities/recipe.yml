@@ -8,7 +8,6 @@ inputs:
   datasets:
   - name: dcp_facilities_with_unmapped
     version_env_var: VERSION_PREV
-    file_type: pg_dump
   - name: dcp_mappluto_wi
     file_type: pg_dump
   - name: dcp_boroboundaries_wi
