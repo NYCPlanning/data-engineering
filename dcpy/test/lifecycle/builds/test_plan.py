@@ -2,12 +2,14 @@ import os
 import pandas as pd
 import pytest
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, Mock
 
 from dcpy.models.lifecycle.builds import InputDataset
+from dcpy.connectors.registry import VersionedConnectorRegistry
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
+from dcpy.lifecycle import connector_registry
 
 from dcpy.test.lifecycle.builds.conftest import REQUIRED_VERSION_ENV_VAR, RESOURCES_DIR
 
@@ -15,6 +17,7 @@ RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
 RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"
 RECIPE_NO_VERSION_PATH = RESOURCES_DIR / "recipe_no_version.yml"
 RECIPE_W_VERSION_TYPE = RESOURCES_DIR / "recipe_w_version_type.yml"
+RECIPE_W_MULTIPLE_SOURCES = RESOURCES_DIR / "recipe_edm_custom.yml"
 BUILD_METADATA_PATH = RESOURCES_DIR / "build_metadata.json"
 SOURCE_VERSIONS_PATH = RESOURCES_DIR / "source_data_versions.csv"
 
@@ -126,6 +129,9 @@ class TestRecipesWithDefaults(TestCase):
         add_required_version_var_to_env()
         get_latest_version.return_value = MOCKED_LATEST_VERSION
         planned = plan.plan_recipe(RECIPE_PATH)
+
+        missing_source = [ds for ds in planned.inputs.datasets if not ds.source]
+        assert not missing_source
 
         had_no_version_or_type = [
             ds for ds in planned.inputs.datasets if ds.id == "has_no_version_or_type"
@@ -332,3 +338,39 @@ class TestRepeat(TestCase):
             match="Neither 'build_metadata.json' nor 'source_data_versions.csv' can be found.",
         ):
             plan.repeat_build(publishing.PublishKey(product=PRODUCT, version="version"))
+
+
+@pytest.fixture(scope="function")
+def reset_connectors():
+    connector_registry._set_default_connectors()
+
+
+class TestConnectors:
+    def test_unknown_connector(self, reset_connectors):
+        connector_registry.connectors._connectors = {}
+        with pytest.raises(
+            Exception,
+            match=VersionedConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
+        ):
+            plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
+
+    def test_plan_version_resolution(self, reset_connectors):
+        MOCK_LATEST_VERSION = "123"
+        CONNECTOR_NAME = "edm.custom"
+
+        edm_custom_mock = MagicMock(
+            query_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
+        )
+        edm_custom_mock.conn_type = "edm.custom"
+
+        connector_registry.connectors.register(edm_custom_mock)
+        recipe = plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
+
+        edm_custom_mock.query_latest_version.assert_called_once()
+        resolved_custom_dataset = [
+            ds for ds in recipe.inputs.datasets if ds.source == CONNECTOR_NAME
+        ][0]
+
+        assert resolved_custom_dataset.version == MOCK_LATEST_VERSION, (
+            "The recipe should have the mock version applied"
+        )

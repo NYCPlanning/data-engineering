@@ -168,7 +168,7 @@ def test_fetch_dataset(load_ingest: ingest.Config, create_temp_filesystem: Path)
     ds.file_type = DatasetType.parquet
     folder_path = create_temp_filesystem / recipes.DATASET_FOLDER / ds.id / ds.version
     folder_path.mkdir(parents=True)  # mainly for coverage
-    path = recipes.fetch_dataset(ds, create_temp_filesystem)
+    path = recipes.fetch_dataset(ds, target_dir=create_temp_filesystem)
     print(path)
     assert path.exists()
 
@@ -176,15 +176,15 @@ def test_fetch_dataset(load_ingest: ingest.Config, create_temp_filesystem: Path)
 def test_fetch_dataset_cache(load_ingest: ingest.Config, create_temp_filesystem: Path):
     ds = load_ingest.dataset
     ds.file_type = DatasetType.parquet
-    recipes.fetch_dataset(ds, create_temp_filesystem)
+    recipes.fetch_dataset(ds, target_dir=create_temp_filesystem)
 
     with mock.patch("dcpy.utils.s3.download_file") as download_file:
-        recipes.fetch_dataset(ds, create_temp_filesystem)
+        recipes.fetch_dataset(ds, target_dir=create_temp_filesystem)
         assert download_file.call_count == 0, (
             "file did not cache properly, fetch_dataset attempted s3 call"
         )
 
-        recipes.fetch_dataset(ds, create_temp_filesystem / "dummy_folder")
+        recipes.fetch_dataset(ds, target_dir=create_temp_filesystem / "dummy_folder")
         assert download_file.call_count == 1, (
             "fetch_dataset was refactored, testing of cache functionality no longer valid"
         )

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis:15-3.3
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis-data:/var/lib/postgresql/data
+    networks:
+      - "integration-services"
+
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    command: test:test:::upload
+    volumes:
+      - sftp-data:/home/test/upload
+    networks:
+      - "integration-services"
+
+volumes:
+  postgis-data:
+  sftp-data:
+
+networks:
+  integration-services:
+    driver: bridge

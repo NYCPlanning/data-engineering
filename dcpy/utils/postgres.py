@@ -9,6 +9,8 @@ from sqlalchemy import create_engine, text, dialects
 import typer
 from typing import Literal
 
+from dcpy.utils.logging import logger
+
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
     DEFAULT_POSTGRES_SCHEMA,
@@ -147,6 +149,7 @@ class PostgresClient:
             raise ValueError(
                 f"Cannot delete the protected postgres schema '{schema_name}'"
             )
+        logger.info(f"Dropping schema: {schema_name}")
         self.execute_query(
             "DROP SCHEMA IF EXISTS :schema_name CASCADE", schema_name=AsIs(schema_name)
         )

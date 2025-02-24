@@ -5,9 +5,10 @@ import os
 import pandas as pd
 from pathlib import Path
 from pyarrow import parquet
+from pydantic import BaseModel
 import shutil
 from tempfile import TemporaryDirectory
-from typing import Callable
+from typing import Callable, Any
 import yaml
 
 from dcpy import configuration
@@ -18,6 +19,7 @@ from dcpy.models.connectors.edm.recipes import (
     RawDatasetKey,
 )
 from dcpy.models import library
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -123,9 +125,9 @@ def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
     """Retrieve a recipe config from s3."""
-    obj = s3.get_file_as_stream(
-        BUCKET, f"{DATASET_FOLDER}/{name}/{version}/config.json"
-    )
+    ds_conf_path = f"{DATASET_FOLDER}/{name}/{version}/config.json"
+    logger.info(f"Retrieving config at {BUCKET}.{ds_conf_path}")
+    obj = s3.get_file_as_stream(BUCKET, ds_conf_path)
     config = yaml.safe_load(obj)
     if "dataset" in config:
         return library.Config(**config)
@@ -198,20 +200,31 @@ def get_preferred_file_type(
     return next(t for t in preferences if t in file_types)
 
 
-def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
+def fetch_dataset(
+    ds: Dataset,
+    *,
+    target_dir: Path,
+    _target_dataset_path_override: Path | None = None,  # Hack
+) -> Path:
     """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
-    target_dir = local_library_dir / DATASET_FOLDER / ds.id / ds.version
+    target_dir = (
+        _target_dataset_path_override
+        # AR Note: we should refactor this, but punting for now. There are a few references
+        # to `target_dir`, but at the moment I need a way to skip calculating the path
+        or target_dir / DATASET_FOLDER / ds.id / ds.version
+    )
     target_file_path = target_dir / ds.file_name
     if (target_file_path).exists():
-        print(f"✅ {ds.file_name} exists in cache")
+        logger.info(f"✅ {ds.file_name} exists in cache")
     else:
         if not target_dir.exists():
             target_dir.mkdir(parents=True)
-        print(f"🛠 {ds.file_name} doesn't exists in cache, downloading")
+        key = s3_file_path(ds)
+        logger.info(f"🛠 {ds.file_name} doesn't exists in cache, downloading {key}")
 
         s3.download_file(
             bucket=BUCKET,
-            key=s3_file_path(ds),
+            key=key,
             path=target_file_path,
         )
     return target_file_path
@@ -241,7 +254,7 @@ def read_df(
     ds.file_type = ds.file_type or get_preferred_file_type(ds, preferred_file_types)
     reader = _pd_reader(ds.file_type)
     if local_cache_dir:
-        path = fetch_dataset(ds, local_library_dir=local_cache_dir)
+        path = fetch_dataset(ds, target_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
         with s3.get_file_as_stream(BUCKET, s3_file_path(ds)) as stream:
@@ -249,23 +262,17 @@ def read_df(
         return data
 
 
-def import_dataset(
+def load_into_postgres(
     ds: Dataset,
     pg_client: postgres.PostgresClient,
+    local_dataset_path: Path,
     *,
     local_library_dir=LIBRARY_DEFAULT_PATH,
     import_as: str | None = None,
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
-) -> str:
-    """Import a recipe to local data library folder and build engine."""
-    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
+):
+    logger.info(f"preproc: {preprocessor}")
     ds_table_name = import_as or ds.id
-    logger.info(
-        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
-    )
-
-    local_dataset_path = fetch_dataset(ds, local_library_dir)
-
     if ds.file_type == DatasetType.pg_dump:
         pg_client.import_pg_dump(
             local_dataset_path,
@@ -299,6 +306,32 @@ def import_dataset(
     )
 
     return f"{pg_client.schema}.{ds_table_name}"
+
+
+# TODO: Kill this after evaluating references in Ingest and the QAQC app
+def import_dataset(
+    ds: Dataset,
+    pg_client: postgres.PostgresClient,
+    *,
+    local_library_dir=LIBRARY_DEFAULT_PATH,
+    import_as: str | None = None,
+    preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
+) -> str:
+    """Import a recipe to local data library folder and build engine."""
+    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
+    logger.info(
+        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}"
+    )
+
+    local_dataset_path = fetch_dataset(ds, target_dir=local_library_dir)
+    return load_into_postgres(
+        ds=ds,
+        pg_client=pg_client,
+        local_dataset_path=local_dataset_path,
+        local_library_dir=local_library_dir,
+        import_as=import_as,
+        preprocessor=preprocessor,
+    )
 
 
 def purge_recipe_cache():
@@ -436,3 +469,40 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
             name = ANY(:datasets)
     """
     return pg_client.execute_select_query(query, datasets=datasets)
+
+
+class Connector(BaseModel, VersionedConnector):
+    conn_type: str = "edm.recipes"
+
+    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
+        assert pull_conf and "file_type" in pull_conf
+        return {
+            "path": fetch_dataset(
+                Dataset(id=key, version=version, file_type=pull_conf["file_type"]),
+                target_dir=Path(),
+                _target_dataset_path_override=destination_path,
+            )
+        }
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return sorted(get_all_versions(name=key), reverse=sort_desc)
+
+    def query_latest_version(self, key: str) -> str:
+        return get_latest_version(name=key)
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return exists(Dataset(id=key, version=version))
+
+    def data_local_sub_path(
+        self, key: str, version: str, pull_conf: Any | None = None
+    ) -> Path:
+        return Path("edm") / "recipes" / DATASET_FOLDER / key / version

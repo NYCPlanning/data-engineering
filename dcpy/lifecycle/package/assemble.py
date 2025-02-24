@@ -6,14 +6,14 @@ import tempfile
 import typer
 
 from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
-from dcpy.lifecycle import WORKING_DIRECTORIES
+from dcpy.lifecycle import config
 from dcpy.lifecycle.package import xlsx_writer
 import dcpy.models.product.dataset.metadata as md
 import dcpy.models.product.metadata as prod_md
 from dcpy.utils.logging import logger
 
 
-ASSEMBLY_DIR = WORKING_DIRECTORIES.packaging / "assembly"
+ASSEMBLY_DIR = config.local_data_path_for_stage("package.assemble")
 
 
 def make_package_folder(path: Path):
