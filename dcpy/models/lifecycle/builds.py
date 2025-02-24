@@ -29,6 +29,7 @@ class InputDatasetDestination(StrEnum):
 class InputDataset(BaseModel, extra="forbid"):
     id: str = Field(validation_alias=AliasChoices("id", "name"))
     version: str | None = None
+    source: str | None = None
     file_type: recipes.DatasetType | None = None
     version_env_var: str | None = None
     import_as: str | None = None
@@ -51,6 +52,7 @@ class InputDataset(BaseModel, extra="forbid"):
 
 class InputDatasetDefaults(BaseModel):
     file_type: recipes.DatasetType | None = None
+    source: str = "edm.recipes"
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination = InputDatasetDestination.postgres
 
