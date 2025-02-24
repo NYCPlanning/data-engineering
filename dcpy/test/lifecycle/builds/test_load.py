@@ -6,7 +6,6 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from dcpy.models.lifecycle.builds import (
-    DataPreprocessor,
     InputDataset,
     InputDatasetDestination,
     ImportedDataset,
@@ -24,7 +23,9 @@ REQUIRED_VERSION_ENV_VAR = "VERSION_PREV"
 CSV = RESOURCES_DIR / "test.csv"
 PARQUET = RESOURCES_DIR / "test.parquet"
 
-_test_df = pd.DataFrame([["1", "2"], ["3", "4"]], columns=["a", "b"])
+_test_df = pd.DataFrame(
+    [["1", "2", "test"], ["3", "4", "test"]], columns=["a", "b", "name"]
+)
 
 
 def _mock_preprocessor(name, df):
@@ -47,68 +48,6 @@ def _mock_fetch_parquet(ds, _=None):
 @pytest.mark.usefixtures("file_setup_teardown")
 @pytest.mark.usefixtures("create_buckets")
 class TestImportDatasets(TestCase):
-    @patch("dcpy.preproc", side_effect=_mock_preprocessor, create=True)
-    @patch("dcpy.connectors.edm.recipes.fetch_dataset", side_effect=_mock_fetch_csv)
-    def test_import_csv(self, fetch, preproc):
-        pg_mock = MagicMock()
-        ds = InputDataset(
-            id="test",
-            version="1",
-            import_as="new_table_name",
-            file_type=recipes.DatasetType.csv,
-            preprocessor=DataPreprocessor(module="dcpy", function="preproc"),
-        )
-        load.import_dataset(ds, pg_mock)
-
-        assert pg_mock.insert_dataframe.called, (
-            "PostgresClient.insert_dataframe should be called"
-        )
-
-        # Verify the values that PostgresClient.insert_dataframe was called with
-        (
-            df_inserted_actual,
-            table_insert_name_actual,
-        ) = pg_mock.insert_dataframe.call_args_list[0][0]
-        assert df_inserted_actual.equals(_mock_preprocessor(ds.id, _test_df))
-        assert table_insert_name_actual == ds.import_as
-
-    @patch("dcpy.preproc", side_effect=_mock_preprocessor, create=True)
-    @patch("dcpy.connectors.edm.recipes.fetch_dataset")
-    def test_import_pgdump(self, fetch, preproc):
-        pg_mock = MagicMock()
-        ds = InputDataset(
-            id="test",
-            version="1",
-            import_as="new_table_name",
-            file_type=recipes.DatasetType.pg_dump,
-            preprocessor=DataPreprocessor(module="dcpy", function="preproc"),
-        )
-        load.import_dataset(ds, pg_mock)
-
-        assert pg_mock.import_pg_dump.called, (
-            "PostgresClient.import_pg_dump should be called"
-        )
-
-    @patch("dcpy.connectors.edm.recipes.fetch_dataset", side_effect=_mock_fetch_parquet)
-    def test_import_parquet(self, fetch):
-        pg_mock = MagicMock()
-        ds = InputDataset(
-            id="test",
-            version="1",
-            import_as="new_table_name",
-            file_type=recipes.DatasetType.parquet,
-            preprocessor=None,
-        )
-
-        load.import_dataset(ds, pg_mock)
-
-        (
-            df_inserted_actual,
-            table_insert_name_actual,
-        ) = pg_mock.insert_dataframe.call_args_list[0][0]
-        assert df_inserted_actual.equals(_mock_preprocessor(ds.id, _test_df))
-        assert table_insert_name_actual == ds.import_as
-
     @patch("dcpy.connectors.edm.recipes.read_df", return_value=_test_df)
     def test_import_parquet_df(self, read_df):
         ds = InputDataset(
@@ -118,12 +57,12 @@ class TestImportDatasets(TestCase):
             file_type=recipes.DatasetType.parquet,
             destination=InputDatasetDestination.df,
         )
-        res = load.import_dataset(ds, None)
+        res = load.import_dataset(ds, Path("./"), None)
         assert isinstance(res.destination, pd.DataFrame)
         assert _test_df.equals(res.destination)
 
     def test_import_parquet_file(self):
-        recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
+        # recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
 
         ds = InputDataset(
             id="test",
@@ -132,66 +71,24 @@ class TestImportDatasets(TestCase):
             file_type=recipes.DatasetType.parquet,
             destination=InputDatasetDestination.file,
         )
-        res = load.import_dataset(ds, None)
+        res = load.import_dataset(ds, Path("./"), None)
         assert isinstance(res.destination, Path)
         assert res.destination.exists()
 
     def test_no_version_fails(self):
         ds = InputDataset(id="test")
-        with pytest.raises(
-            Exception, match="Cannot import a dataset without a resolved version"
-        ):
-            load.import_dataset(ds, None)
+        with pytest.raises(Exception, match=load.ERROR_UNRESOLVED_DATASET_VERSION):
+            load.import_dataset(ds, Path("./"), None)
 
     def test_unresolved_version_fails(self):
         ds = InputDataset(id="test", version="latest")
-        with pytest.raises(
-            Exception, match="Cannot import a dataset without a resolved version"
-        ):
-            load.import_dataset(ds, None)
+        with pytest.raises(Exception, match=load.ERROR_UNRESOLVED_DATASET_VERSION):
+            load.import_dataset(ds, Path("./"), None)
 
     def test_unresolved_filetype(self):
         ds = InputDataset(id="test", version="1")
-        with pytest.raises(
-            Exception, match="Cannot import a dataset without a resolved file type"
-        ):
-            load.import_dataset(ds, None)
-
-
-@patch("dcpy.connectors.edm.recipes.fetch_dataset", return_value=RESOURCES_DIR)
-@patch("dcpy.connectors.edm.recipes.read_df", return_value=_test_df)
-@patch("dcpy.lifecycle.builds.metadata.write_build_metadata")
-@patch("dcpy.lifecycle.builds.plan.write_source_data_versions")
-@patch("dcpy.utils.postgres.PostgresClient")
-@patch("dcpy.connectors.edm.recipes.purge_recipe_cache")
-def test_load_source_data(
-    purge, pg_client, source_versions, write_metadata, read_df, fetch
-):
-    res = load.load_source_data(RECIPE_PATH)
-    assert source_versions.called
-    assert write_metadata.called
-    assert len(res.datasets) == 3
-    pg_client.return_value.import_pg_dump.assert_called()
-    assert isinstance(res.datasets["df"].destination, pd.DataFrame)
-    assert res.datasets["df"].destination.equals(_test_df)
-    assert isinstance(res.datasets["file"].destination, Path)
-    assert res.datasets["file"].destination.exists()
-
-
-@patch("dcpy.connectors.edm.recipes.fetch_dataset", return_value=RESOURCES_DIR)
-@patch("dcpy.connectors.edm.recipes.read_df", return_value=_test_df)
-@patch("dcpy.lifecycle.builds.metadata.write_build_metadata")
-@patch("dcpy.lifecycle.builds.plan.write_source_data_versions")
-@patch("dcpy.connectors.edm.recipes.purge_recipe_cache")
-def test_load_source_data_no_pg(purge, source_versions, write_metadata, read_df, fetch):
-    res = load.load_source_data(RECIPE_PATH_NO_PG, keep_files=True)
-    assert source_versions.called
-    assert write_metadata.called
-    assert len(res.datasets) == 2
-    assert isinstance(res.datasets["df"].destination, pd.DataFrame)
-    assert res.datasets["df"].destination.equals(_test_df)
-    assert isinstance(res.datasets["file"].destination, Path)
-    assert res.datasets["file"].destination.exists()
+        with pytest.raises(Exception, match=load.ERROR_UNRESOLVED_FILE_TYPE):
+            load.import_dataset(ds, Path("./"), None)
 
 
 class TestGetDataset:

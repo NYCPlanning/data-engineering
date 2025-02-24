@@ -1,0 +1,38 @@
+name: Test Recipe
+version: dummy
+product: test-product
+inputs:
+  dataset_defaults:
+    file_type: parquet
+    destination: postgres
+  datasets:
+  - name: nypl_libraries
+    version: 20240813
+    file_type: pg_dump
+  - name: test_bpl_libraries
+    source: edm.recipes
+    version: latest
+    preprocessor:
+      module: dcpy.test_integration.connectors.preprocessor
+      function: truncate_to_single_row
+    custom:
+      file_type: parquet
+  - name: db-factfinder
+    source: edm.publishing.drafts
+    version: latest
+    file_type: csv
+    import_as: draft_pff_decennial_2010_csv
+    destination: file
+    custom:
+      dataset: decennial_2010
+      filepath: decennial.csv
+      revision: "1-initial-build"
+  # TODO: this will cause clashing IDs in the load-result
+  # - name: db-factfinder
+  #   source: edm.publishing.published
+  #   version: latest
+  #   file_type: csv
+  #   import_as: pub_pff_decennial_2010_csv
+  #   custom:
+  #     dataset: decennial_2010
+  #     filepath: decennial.csv

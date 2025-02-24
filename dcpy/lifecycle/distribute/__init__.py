@@ -8,7 +8,7 @@ from dcpy.models.lifecycle.distribute import (
     DatasetDestinationPushArgs,
     DistributeResult,
 )
-from dcpy.models.connectors import ConnectorDispatcher
+from dcpy.connectors.registry import ConnectorDispatcher
 
 
 # Register all default connectors for `lifecycle.distribute`.

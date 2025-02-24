@@ -1,7 +1,7 @@
 from typing import Any
 from dataclasses import dataclass
 
-from dcpy.models.connectors import ConnectorDispatcher
+from dcpy.connectors.registry import ConnectorDispatcher
 
 
 # Define Some Animals

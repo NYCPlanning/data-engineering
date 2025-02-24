@@ -4,11 +4,13 @@ import shutil
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from dcpy.configuration import TEMPLATE_DIR
-from dcpy.lifecycle import BASE_PATH
+from dcpy.lifecycle import config
 
 from . import configure, extract, transform, validate
 
-INGEST_DIR = BASE_PATH / "ingest"
+LIFECYCLE_STAGE = "ingest"
+INGEST_DIR = config.local_data_path_for_stage(LIFECYCLE_STAGE)
+
 INGEST_STAGING_DIR = INGEST_DIR / "staging"
 INGEST_OUTPUT_DIR = INGEST_DIR / "datasets"
 CONFIG_FILENAME = "config.json"
