@@ -660,9 +660,9 @@ def test_log_event_success(mock_db_client, mock_event_log):
     publishing.log_event_in_db(mock_event_log)
 
     query = f"""
-        INSERT INTO {publishing.LOGGING_SCHEMA}.{publishing.LOGGING_TABLE_NAME} 
+        INSERT INTO {publishing.LOGGING_SCHEMA}.{publishing.LOGGING_TABLE_NAME}
         (product, version, event, path, old_path, timestamp, runner_type, runner, custom_fields)
-        VALUES 
+        VALUES
         (:product, :version, :event, :path, :old_path, :timestamp, :runner_type, :runner, :custom_fields)
         """
     mock_db_client_instance.execute_query.assert_called_once_with(
