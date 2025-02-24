@@ -1,4 +1,5 @@
 from datetime import datetime
+from dataclasses import dataclass
 from io import BytesIO
 import json
 import os
@@ -8,6 +9,7 @@ from pyarrow import parquet
 import shutil
 from tempfile import TemporaryDirectory
 from typing import Callable
+from shapely import reverse
 import yaml
 
 from dcpy import configuration
@@ -18,6 +20,7 @@ from dcpy.models.connectors.edm.recipes import (
     RawDatasetKey,
 )
 from dcpy.models import library
+from dcpy.models.connectors import VersionedConnector
 from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -436,3 +439,23 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
             name = ANY(:datasets)
     """
     return pg_client.execute_select_query(query, datasets=datasets)
+
+
+@dataclass
+class Connector(VersionedConnector):
+    conn_type = "edm.recipes"
+
+    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(self, key: str, version: str, pull_conf: dict | None = {}) -> dict:
+        return {"path": fetch_dataset(Dataset(id=key, version=version))}
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return sorted(get_all_versions(name=key), reverse=sort_desc)
+
+    def query_latest_version(self, key: str) -> str:
+        return get_latest_version(name=key)
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return exists(Dataset(id=key, version=version))
