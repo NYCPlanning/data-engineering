@@ -28,7 +28,7 @@ SELECT
     'NYSOMH' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    ST_ASBINARY(ST_ASTEXT(georeference)) AS wkb_geometry,
+    geom AS wkb_geometry,
     geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn

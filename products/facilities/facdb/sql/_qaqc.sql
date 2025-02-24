@@ -125,7 +125,7 @@ WITH
 new AS (
     SELECT
         captype,
-        sum(capacity) AS sum_new
+        sum(capacity::numeric)::integer AS sum_new
     FROM facdb
     GROUP BY captype
 ),

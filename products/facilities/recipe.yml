@@ -8,23 +8,32 @@ inputs:
   datasets:
   - name: dcp_facilities_with_unmapped
     version_env_var: VERSION_PREV
-    file_type: pg_dump
   - name: dcp_mappluto_wi
+    file_type: pg_dump
   - name: dcp_boroboundaries_wi
+    file_type: pg_dump
   - name: dcp_ct2010
+    file_type: pg_dump
   - name: dcp_ct2020
+    file_type: pg_dump
   - name: dcp_councildistricts
     file_type: pg_dump
-    version: 22c
   - name: dcp_cdboundaries
+    file_type: pg_dump
   - name: dcp_nta2010
+    file_type: pg_dump
   - name: dcp_nta2020
+    file_type: pg_dump
   - name: dcp_policeprecincts
+    file_type: pg_dump
   - name: doitt_zipcodeboundaries
     file_type: pg_dump
   - name: doitt_buildingfootprints
   - name: dcp_school_districts
-    # CSVs
+    file_type: pg_dump
+  # facility sources
+  # many datasets are pinned to csv although they have been migrated to ingest
+  # because they have not been updated on socrata since before migration
   - name: nypl_libraries
     preprocessor:
       module: facdb.pipelines
@@ -42,12 +51,12 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dcla_culturalinstitutions
-    file_type: csv
+    file_type: csv # migrated - Last updated in 2021
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: dcp_sfpsd
-    file_type: csv
+    file_type: csv # migrated, but likely will never be updated
     version: "20210409"
     preprocessor:
       module: facdb.pipelines
@@ -65,7 +74,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dsny_donatenycdirectory
-    file_type: csv
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -82,32 +90,31 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: hra_snapcenters
-    file_type: csv
+    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: hra_jobcenters
-    file_type: csv
+    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: hra_medicaid
-    file_type: csv
+    file_type: csv # migrated - last updated in 2022
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: nycha_communitycenters
-    file_type: csv
+    file_type: csv # migrated - last updated in 2019
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: nycha_policeservice
-    file_type: csv
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: nycourts_courts
-    file_type: csv
+    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -136,17 +143,17 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: qpl_libraries
-    file_type: csv
+    file_type: csv # migrated - last updated in 2018
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: sbs_workforce1
-    file_type: csv
+    file_type: csv # migrated - last updated in 2017
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: uscourts_courts
-    file_type: csv
+    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -159,12 +166,10 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: usnps_parks
-    file_type: csv
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: nysdec_solidwaste
-    file_type: csv
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -197,6 +202,7 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dycd_service_sites
+    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -205,12 +211,12 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: fdny_firehouses
-    file_type: csv
+    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: dep_wwtc
-    file_type: csv
+    file_type: csv # not migrated to ingest
     version: "20210413"
     preprocessor:
       module: facdb.pipelines
@@ -236,7 +242,7 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dohmh_daycare
-    file_type: csv
+    file_type: csv # migrated, last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -245,12 +251,12 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: hhc_hospitals
-    file_type: csv
+    file_type: csv # migrated, but likely defunct
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: moeo_socialservicesitelocations
-    file_type: csv
+    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -271,3 +277,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: nysoasas_programs
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch

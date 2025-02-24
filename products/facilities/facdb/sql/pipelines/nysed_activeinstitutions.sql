@@ -4,25 +4,43 @@ DROP TABLE IF EXISTS _nysed_activeinstitutions;
 WITH merged AS (
     SELECT
         nysed_activeinstitutions.*,
-        nysed_nonpublicenrollment.*,
+        -- TODO: remove cast once new version of nysed_npe archived with ingest
+        -- nysed_nonpublicenrollment.*,
+        prek::numeric,
+        halfk::numeric,
+        fullk::numeric,
+        g01::numeric,
+        g02::numeric,
+        g03::numeric,
+        g04::numeric,
+        g05::numeric,
+        g06::numeric,
+        uge::numeric,
+        g07::numeric,
+        g08::numeric,
+        g09::numeric,
+        g10::numeric,
+        g11::numeric,
+        g12::numeric,
+        ugs::numeric,
         (
-            prek
-            + halfk
-            + fullk
-            + g01
-            + g02
-            + g03
-            + g04
-            + g05
-            + g06
-            + uge
-            + g07
-            + g08
-            + g09
-            + g10
-            + g11
-            + g12
-            + ugs
+            prek::numeric
+            + halfk::numeric
+            + fullk::numeric
+            + g01::numeric
+            + g02::numeric
+            + g03::numeric
+            + g04::numeric
+            + g05::numeric
+            + g06::numeric
+            + uge::numeric
+            + g07::numeric
+            + g08::numeric
+            + g09::numeric
+            + g10::numeric
+            + g11::numeric
+            + g12::numeric
+            + ugs::numeric
         ) AS enrollment
     FROM nysed_activeinstitutions
     LEFT JOIN nysed_nonpublicenrollment

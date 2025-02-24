@@ -29,7 +29,7 @@ WITH _dcp_colp_tmp AS (
         NULL AS zipcode,
         NULL AS boro,
         borough AS borocode,
-        nullif(geo_1b -> 'result' ->> 'geo_bin', '') AS bin,
+        nullif(geo_1b::jsonb -> 'result' ->> 'geo_bin', '') AS bin, -- TODO: remove cast once colp archived w/ ingest
         left(bbl, 10) AS bbl,
         (
             CASE
