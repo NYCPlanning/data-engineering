@@ -52,7 +52,7 @@ def populate_excel_output():
             input_excel_path=OUTPUT_EXCEL_PATH,
             output_excel_path=OUTPUT_EXCEL_PATH,
             sheet_name=csv_for_excel["sheet_name"],
-            row_ofset=csv_for_excel["row_offset"],
+            row_offset=csv_for_excel["row_offset"],
         )
 
 
