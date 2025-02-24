@@ -1,5 +1,5 @@
 name: 📬 Distribute From Bytes
-run-name: "📬 Distribute From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.DATASET_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID }}"
+run-name: "📬 Distribute From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.PRODUCT_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID_FILTER }}-${{ inputs.DESTINATION_TYPE_FILTER }}"
 
 on:
   workflow_dispatch:
