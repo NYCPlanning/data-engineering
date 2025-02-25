@@ -35,6 +35,7 @@ class InputDataset(BaseModel, extra="forbid"):
     import_as: str | None = None
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination | None = None
+    custom: dict = Field(default_factory=dict)
 
     @property
     def is_resolved(self):

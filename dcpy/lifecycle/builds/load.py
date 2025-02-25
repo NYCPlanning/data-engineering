@@ -10,10 +10,12 @@ from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
 from dcpy.models.lifecycle.builds import (
     ImportedDataset,
-    LoadResult,
     InputDatasetDestination,
     InputDataset,
+    LoadResult,
+    Recipe
 )
+from dcpy.lifecycle.builds import connectors
 from dcpy.lifecycle.builds import metadata, plan
 
 
@@ -47,6 +49,8 @@ def import_dataset(
     if pg_client and (not ds.destination):
         ds.destination = InputDatasetDestination.postgres
     assert ds.destination, f"Dataset destination not resolved for dataset {ds.id}"
+
+    connector = connectors[ds.source]
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"

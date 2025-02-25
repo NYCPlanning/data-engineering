@@ -8,7 +8,7 @@ from pathlib import Path
 import pytz
 import re
 import typer
-from typing import Callable, TypeVar
+from typing import Callable, TypeVar, Literal
 from urllib.parse import urlencode, urljoin
 import yaml
 from zipfile import ZipFile
@@ -720,9 +720,8 @@ def log_event_in_db(event_details: EventLog) -> None:
     )
 
 
-@dataclass
 class PublishedConnector(VersionedConnector):
-    conn_type = "edm.publishing.published"
+    conn_type: str = "edm.publishing.published"
 
     def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
@@ -748,26 +747,25 @@ class PublishedConnector(VersionedConnector):
         return version in self.list_versions(key)
 
 
-@dataclass
 class DraftsConnector(VersionedConnector):
-    conn_type = "edm.publishing.drafts"
+    conn_type: str = "edm.publishing.drafts"
 
     def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
 
     def pull(self, key: str, version: str, pull_conf: dict | None = {}) -> dict:
-        split = key.split(".")
-        product = split[0]
-        dataset = split[1] if len(split) > 1 else None
-
-        assert pull_conf and "filepath" in pull_conf and "build" in pull_conf
-        draft_key = DraftKey(product, version=version, revision=pull_conf["build"])
+        assert pull_conf and "filepath" in pull_conf and "revision" in pull_conf
+        dataset = pull_conf.get("dataset")
+        draft_key = DraftKey(key, version=version, revision=pull_conf["revision"])
 
         path_prefix = "" if not dataset else f"{dataset}/"
-        pulled_path = download_file(draft_key, f"{path_prefix}{pull_conf['filepath']}")
+        file_path = f"{path_prefix}{pull_conf['filepath']}"
+        logger.info(f"Pulling Draft for {draft_key}, path={file_path}")
+        pulled_path = download_file(draft_key, file_path)
         return {"path": pulled_path}
 
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        logger.info(f"Listing versions for {key}")
         return sorted(get_draft_versions(key), reverse=sort_desc)
 
     def query_latest_version(self, key: str) -> str:

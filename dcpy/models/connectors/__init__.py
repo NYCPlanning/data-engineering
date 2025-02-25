@@ -1,5 +1,9 @@
 from abc import ABC
-from typing import Protocol, Any, TypeVar, Generic
+from dataclasses import dataclass
+from pydantic import BaseModel, Field
+from typing import Protocol, Any, TypeVar, Generic, Literal
+
+from dcpy.utils.logging import logger
 
 _O = TypeVar("_O", contravariant=True)
 _I = TypeVar("_I", contravariant=True)
@@ -37,7 +41,7 @@ class ConnectorDispatcher(Generic[_O, _I]):
         return connector.pull(arg)
 
 
-class VersionedPushPullProtocol(ABC):
+class VersionedPushPullProtocol(BaseModel):
     def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
         """push"""
 
@@ -45,7 +49,7 @@ class VersionedPushPullProtocol(ABC):
         """pull"""
 
 
-class VersionSearchProtocol(ABC):
+class VersionSearchProtocol(BaseModel):
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
         return []
 
@@ -56,8 +60,9 @@ class VersionSearchProtocol(ABC):
         return False
 
 
+
 class VersionedConnector(VersionedPushPullProtocol, VersionSearchProtocol):
-    pass
+    conn_type: str
 
 
 class VersionedConnectorRegistry:
@@ -68,10 +73,14 @@ class VersionedConnectorRegistry:
     def __init__(self):
         self._connectors = {}
 
-    def register(self, conn_type: str, connector: VersionedConnector):
-        self._connectors[conn_type] = connector
+    def register(self, connector: VersionedConnector, *, conn_type: str = ""):
+        logger.info(f"registering {connector.conn_type}")
+        self._connectors[connector.conn_type] = connector
+
+    def list_registered(self) -> list[str]:
+        return list(self._connectors.keys())
 
     def __getitem__(self, item):
         if item not in self._connectors:
-            raise Exception(f"{self.MISSING_CONN_ERROR_PREFIX} {item}")
+            raise Exception(f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}")
         return self._connectors[item]
