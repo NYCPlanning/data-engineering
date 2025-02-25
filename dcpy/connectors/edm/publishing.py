@@ -1,5 +1,4 @@
 from datetime import datetime
-from dataclasses import dataclass
 import geopandas as gpd
 from io import BytesIO
 import json
@@ -8,7 +7,7 @@ from pathlib import Path
 import pytz
 import re
 import typer
-from typing import Callable, TypeVar, Literal
+from typing import Callable, TypeVar
 from urllib.parse import urlencode, urljoin
 import yaml
 from zipfile import ZipFile

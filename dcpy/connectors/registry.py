@@ -1,8 +1,6 @@
-from abc import ABC
-from dataclasses import dataclass
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Protocol, Any, TypeVar, Generic, Literal
+from pydantic import BaseModel
+from typing import Protocol, Any, TypeVar, Generic
 
 from dcpy.utils.logging import logger
 
@@ -46,7 +44,13 @@ class VersionedPushPullProtocol(BaseModel):
     def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
         """push"""
 
-    def pull(self, key: str, version: str, destination_path: Path, pull_conf: Any | None = None) -> Any:
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: Any | None = None,
+    ) -> Any:
         """pull"""
 
 
@@ -59,7 +63,6 @@ class VersionSearchProtocol(BaseModel):
 
     def version_exists(self, key: str, version: str) -> bool:
         return False
-
 
 
 class VersionedConnector(VersionedPushPullProtocol, VersionSearchProtocol):
@@ -83,5 +86,7 @@ class VersionedConnectorRegistry:
 
     def __getitem__(self, item):
         if item not in self._connectors:
-            raise Exception(f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}")
+            raise Exception(
+                f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}"
+            )
         return self._connectors[item]

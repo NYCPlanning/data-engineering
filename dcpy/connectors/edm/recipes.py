@@ -1,5 +1,4 @@
 from datetime import datetime
-from dataclasses import dataclass
 from io import BytesIO
 import json
 import os
@@ -9,7 +8,6 @@ from pyarrow import parquet
 import shutil
 from tempfile import TemporaryDirectory
 from typing import Callable
-from shapely import reverse
 import yaml
 
 from dcpy import configuration
