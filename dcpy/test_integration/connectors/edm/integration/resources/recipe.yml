@@ -6,6 +6,11 @@ inputs:
     file_type: parquet
     destination: file
   datasets:
+  - name: bpl_libraries
+    source: edm.recipes
+    version: latest
+    custom:
+      file_type: parquet # TODO - handle this during deserialization
   - name: db-factfinder
     source: edm.publishing.drafts
     version: latest

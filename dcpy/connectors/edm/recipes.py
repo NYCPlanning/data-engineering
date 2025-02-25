@@ -201,9 +201,14 @@ def get_preferred_file_type(
     return next(t for t in preferences if t in file_types)
 
 
-def fetch_dataset(ds: Dataset, local_library_dir=LIBRARY_DEFAULT_PATH) -> Path:
+def fetch_dataset(
+    ds: Dataset,
+    local_library_dir=LIBRARY_DEFAULT_PATH,
+    *,
+    target_dir: Path | None = None,
+) -> Path:
     """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
-    target_dir = local_library_dir / DATASET_FOLDER / ds.id / ds.version
+    target_dir = target_dir or local_library_dir / DATASET_FOLDER / ds.id / ds.version
     target_file_path = target_dir / ds.file_name
     if (target_file_path).exists():
         print(f"✅ {ds.file_name} exists in cache")
@@ -454,9 +459,11 @@ class Connector(VersionedConnector):
         destination_path: Path,
         pull_conf: dict | None = {},
     ) -> dict:
+        assert "file_type" in pull_conf
         return {
             "path": fetch_dataset(
-                Dataset(id=key, version=version), local_library_dir=destination_path
+                Dataset(id=key, version=version, file_type=pull_conf["file_type"]),
+                target_dir=destination_path,
             )
         }
 

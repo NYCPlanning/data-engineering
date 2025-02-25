@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import shutil
 
@@ -8,13 +9,19 @@ RECIPE_PATH = RESOURCES / "recipe.yml"
 
 assert RESOURCES.exists()
 
+
 def test_resolving_and_loading_recipes(tmp_path):
     temp_dir = Path(tmp_path)
     temp_recipe_path = temp_dir / "recipe.yml"
 
     shutil.copyfile(RECIPE_PATH, temp_recipe_path)
     lock_path = plan.plan(temp_recipe_path)
+    recipe = plan.recipe_from_yaml(lock_path)
     # versions = [d.version for d in planned.inputs.datasets]
     # assert "latest" not in versions, "All recipe versions should have been resolved"
 
-    load.load_source_data(lock_path)
+    load_result = load.load_source_data(lock_path)
+    paths = [f.destination for f in load_result.datasets.values()]
+    assert len(paths) == len(recipe.inputs.datasets)
+    for path in paths:
+        assert path.exists()
