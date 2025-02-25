@@ -56,8 +56,10 @@ class TestDraftsConnector(TestCase):
 
     @patch("dcpy.connectors.edm.publishing.download_file")
     def test_pull(self, download_file):
-        PULL_CONF = {"filepath": "folder/data.csv",
-                     "build": "2-phrase.with:special-chars"}
+        PULL_CONF = {
+            "filepath": "folder/data.csv",
+            "build": "2-phrase.with:special-chars",
+        }
         PRODUCT_DATASET = f"{self.PRODUCT}.{self.DATASET}"
 
         expected_path = f"{self.DATASET}/{PULL_CONF['filepath']}"
@@ -66,9 +68,7 @@ class TestDraftsConnector(TestCase):
         )
 
         self.conn.pull(
-            PRODUCT_DATASET,
-            version=expected_draft_key.version,
-            pull_conf=PULL_CONF
+            PRODUCT_DATASET, version=expected_draft_key.version, pull_conf=PULL_CONF
         )
 
         download_file.assert_called_once_with(expected_draft_key, expected_path)
