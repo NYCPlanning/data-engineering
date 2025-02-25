@@ -41,7 +41,7 @@ def pull_dataset(ds: InputDataset) -> Path:
     pull_res = connector.pull(
         key=ds.id,
         version=ds.version,
-        destination_path=INPUT_DATA_PATH / ds.source / ds.id / ds.version,
+        destination_path=INPUT_DATA_PATH / (ds.source or "") / ds.id / ds.version,
         pull_conf=ds.custom,
     )
     return pull_res["path"]
@@ -215,6 +215,12 @@ def _import_dataset(
         "--version",
         help="Dataset version to import",
     ),
+    source: str = typer.Option(
+        "edm.recipes",
+        "-f",
+        "--source",
+        help="Registered source to import from",
+    ),
     dataset_type: recipes.DatasetType = typer.Option(
         recipes.DatasetType.pg_dump,
         "-t",
@@ -237,16 +243,17 @@ def _import_dataset(
     ),
 ):
     database_schema = database_schema or os.environ["BUILD_SCHEMA"]
+    ds = InputDataset(
+        id=dataset_name,
+        version=version,
+        source=source,
+        file_type=dataset_type,
+        import_as=import_as,
+        custom={"file_type": dataset_type}
+    )
+    pulled_path = pull_dataset(ds)
     import_dataset(
-        InputDataset(
-            id=dataset_name,
-            version=version,
-            file_type=dataset_type,
-            import_as=import_as,
-        ),
+        ds,
+        pulled_path,
         postgres.PostgresClient(schema=database_schema, database=database),
     )
-
-
-if __name__ == "__main__":
-    app()

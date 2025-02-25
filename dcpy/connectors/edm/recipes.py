@@ -222,11 +222,12 @@ def fetch_dataset(
     else:
         if not target_dir.exists():
             target_dir.mkdir(parents=True)
-        print(f"🛠 {ds.file_name} doesn't exists in cache, downloading")
+        key = s3_file_path(ds)
+        print(f"🛠 {ds.file_name} doesn't exists in cache, downloading {key}")
 
         s3.download_file(
             bucket=BUCKET,
-            key=s3_file_path(ds),
+            key=key,
             path=target_file_path,
         )
     return target_file_path
