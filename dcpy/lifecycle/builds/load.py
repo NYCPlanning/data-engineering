@@ -20,6 +20,7 @@ from dcpy.lifecycle.builds import connectors
 from dcpy.lifecycle.builds import metadata, plan
 
 BUILD_PATH = BASE_PATH / "builds"
+INPUT_DATA_PATH = BUILD_PATH / "input_datasets"
 
 
 def setup_build_pg_schema(pg_client: postgres.PostgresClient):
@@ -29,16 +30,30 @@ def setup_build_pg_schema(pg_client: postgres.PostgresClient):
         pg_client.create_schema()
 
 
-def import_dataset(
-    ds: InputDataset,
-    pg_client: postgres.PostgresClient | None,
-) -> ImportedDataset:
+def pull_dataset(ds: InputDataset) -> Path:
     """Import a recipe to local data library folder and build engine."""
 
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
     if ds.file_type is None:
         raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
+
+    connector = connectors[ds.source]
+    pull_res = connector.pull(
+        key=ds.id,
+        version=ds.version,
+        destination_path=INPUT_DATA_PATH / ds.source / ds.id / ds.version,
+        pull_conf=ds.custom,
+    )
+    return pull_res["path"]
+
+
+def import_dataset(
+    ds: InputDataset,
+    file_path: Path,
+    pg_client: postgres.PostgresClient | None,
+) -> ImportedDataset:
+    """Import a recipe to local data library folder and build engine."""
     if ds.preprocessor is not None:
         preproc_mod = importlib.import_module(ds.preprocessor.module)
         preproc_func = getattr(preproc_mod, ds.preprocessor.function)
@@ -53,10 +68,6 @@ def import_dataset(
         ds.destination = InputDatasetDestination.postgres
     assert ds.destination, f"Dataset destination not resolved for dataset {ds.id}"
 
-    connector = connectors[ds.source]
-    pull_res = connector.pull(
-        key=ds.id, version=ds.version, destination_path=BUILD_PATH, pull_conf=ds.custom
-    )
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
@@ -71,7 +82,6 @@ def import_dataset(
             df = recipes.read_df(ds.dataset)
             return ImportedDataset.from_input(ds, df)
         case InputDatasetDestination.file:
-            file_path = pull_res["path"]
             return ImportedDataset.from_input(ds, file_path)
         case _ as d:
             raise Exception(f"Unsupported dataset import destination: {d}")
@@ -100,8 +110,14 @@ def load_source_data(
     else:
         pg_client = None
 
-    results = {ds.id: import_dataset(ds, pg_client) for ds in recipe.inputs.datasets}
-    return LoadResult(name=recipe.name, build_name=build_name, datasets=results)
+    imported_datasets = {}
+    for ds in recipe.inputs.datasets:
+        file_path = pull_dataset(ds)
+        imported_ds = import_dataset(ds, file_path, pg_client)
+        imported_datasets[ds.id] = imported_ds
+    return LoadResult(
+        name=recipe.name, build_name=build_name, datasets=imported_datasets
+    )
 
 
 def get_imported_df(load_result: LoadResult, ds_id: str) -> pd.DataFrame:
