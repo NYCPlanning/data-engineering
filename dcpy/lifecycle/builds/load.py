@@ -13,10 +13,13 @@ from dcpy.models.lifecycle.builds import (
     InputDatasetDestination,
     InputDataset,
     LoadResult,
-    Recipe
+    Recipe,
 )
+from dcpy.lifecycle import BASE_PATH
 from dcpy.lifecycle.builds import connectors
 from dcpy.lifecycle.builds import metadata, plan
+
+BUILD_PATH = BASE_PATH / "builds"
 
 
 def setup_build_pg_schema(pg_client: postgres.PostgresClient):
@@ -51,6 +54,9 @@ def import_dataset(
     assert ds.destination, f"Dataset destination not resolved for dataset {ds.id}"
 
     connector = connectors[ds.source]
+    pull_res = connector.pull(
+        key=ds.id, version=ds.version, destination_path=BUILD_PATH, pull_conf=ds.custom
+    )
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
@@ -65,7 +71,7 @@ def import_dataset(
             df = recipes.read_df(ds.dataset)
             return ImportedDataset.from_input(ds, df)
         case InputDatasetDestination.file:
-            file_path = recipes.fetch_dataset(ds.dataset)
+            file_path = pull_res["path"]
             return ImportedDataset.from_input(ds, file_path)
         case _ as d:
             raise Exception(f"Unsupported dataset import destination: {d}")
@@ -95,8 +101,6 @@ def load_source_data(
         pg_client = None
 
     results = {ds.id: import_dataset(ds, pg_client) for ds in recipe.inputs.datasets}
-    if not keep_files:
-        recipes.purge_recipe_cache()
     return LoadResult(name=recipe.name, build_name=build_name, datasets=results)
 
 

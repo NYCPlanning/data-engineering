@@ -20,7 +20,7 @@ from dcpy.models.connectors.edm.recipes import (
     RawDatasetKey,
 )
 from dcpy.models import library
-from dcpy.models.connectors import VersionedConnector
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -447,8 +447,18 @@ class Connector(VersionedConnector):
     def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
 
-    def pull(self, key: str, version: str, pull_conf: dict | None = {}) -> dict:
-        return {"path": fetch_dataset(Dataset(id=key, version=version))}
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
+        return {
+            "path": fetch_dataset(
+                Dataset(id=key, version=version), local_library_dir=destination_path
+            )
+        }
 
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
         return sorted(get_all_versions(name=key), reverse=sort_desc)

@@ -24,7 +24,7 @@ from dcpy.configuration import (
     PRODUCTS_TO_LOG,
     IGNORED_LOGGING_BUILDS,
 )
-from dcpy.models.connectors import VersionedConnector
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
@@ -726,7 +726,13 @@ class PublishedConnector(VersionedConnector):
     def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
 
-    def pull(self, key: str, version: str, pull_conf: dict | None = {}) -> dict:
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
         split = key.split(".")
         product = split[0]
         dataset = split[1] if len(split) > 1 else None
@@ -734,7 +740,11 @@ class PublishedConnector(VersionedConnector):
         pub_key = PublishKey(product, version)
 
         path_prefix = "" if not dataset else f"{dataset}/"
-        pulled_path = download_file(pub_key, f"{path_prefix}{pull_conf['filepath']}")
+        pulled_path = download_file(
+            pub_key,
+            f"{path_prefix}{pull_conf['filepath']}",
+            output_dir=destination_path,
+        )
         return {"path": pulled_path}
 
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
@@ -753,7 +763,13 @@ class DraftsConnector(VersionedConnector):
     def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
 
-    def pull(self, key: str, version: str, pull_conf: dict | None = {}) -> dict:
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
         assert pull_conf and "filepath" in pull_conf and "revision" in pull_conf
         dataset = pull_conf.get("dataset")
         draft_key = DraftKey(key, version=version, revision=pull_conf["revision"])
@@ -761,7 +777,7 @@ class DraftsConnector(VersionedConnector):
         path_prefix = "" if not dataset else f"{dataset}/"
         file_path = f"{path_prefix}{pull_conf['filepath']}"
         logger.info(f"Pulling Draft for {draft_key}, path={file_path}")
-        pulled_path = download_file(draft_key, file_path)
+        pulled_path = download_file(draft_key, file_path, output_dir=destination_path)
         return {"path": pulled_path}
 
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
