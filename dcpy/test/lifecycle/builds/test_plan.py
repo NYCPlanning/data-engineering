@@ -361,7 +361,7 @@ class TestConnectors(TestCase):
             query_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
         )
 
-        connectors.register(CONNECTOR_NAME, edm_custom_mock)
+        connectors.register(edm_custom_mock)
         recipe = plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
         edm_custom_mock.query_latest_version.assert_called_once()

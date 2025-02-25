@@ -450,9 +450,8 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
     return pg_client.execute_select_query(query, datasets=datasets)
 
 
-@dataclass
 class Connector(VersionedConnector):
-    conn_type = "edm.recipes"
+    conn_type: str = "edm.recipes"
 
     def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
