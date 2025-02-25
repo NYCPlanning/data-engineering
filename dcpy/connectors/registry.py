@@ -1,5 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
+from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Protocol, Any, TypeVar, Generic, Literal
 
@@ -45,7 +46,7 @@ class VersionedPushPullProtocol(BaseModel):
     def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
         """push"""
 
-    def pull(self, key: str, version: str, pull_conf: Any | None = None) -> Any:
+    def pull(self, key: str, version: str, destination_path: Path, pull_conf: Any | None = None) -> Any:
         """pull"""
 
 

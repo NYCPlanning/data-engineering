@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
 
 from dcpy.models.lifecycle.builds import InputDataset
-from dcpy.models.connectors import VersionedConnectorRegistry
+from dcpy.connectors.registry import VersionedConnectorRegistry
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan, connectors

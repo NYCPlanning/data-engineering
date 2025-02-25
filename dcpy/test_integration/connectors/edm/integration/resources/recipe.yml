@@ -4,17 +4,17 @@ product: db-factfinder
 inputs:
   dataset_defaults:
     file_type: parquet
-    destination: df
+    destination: file
   datasets:
-    - name: db-factfinder
-      source: edm.publishing.drafts
-      version: latest
-      custom:
-        dataset: acs_current
-        filepath: build_metadata.json
-        revision: "1-initial-build"
-    - name: db-pluto
-      source: edm.publishing.published
-      version: latest
-      custom:
-        filepath: pluto_corrections.zip
+  - name: db-factfinder
+    source: edm.publishing.drafts
+    version: latest
+    custom:
+      dataset: acs_current
+      filepath: build_metadata.json
+      revision: "1-initial-build"
+  - name: db-pluto
+    source: edm.publishing.published
+    version: latest
+    custom:
+      filepath: pluto_changes.zip
