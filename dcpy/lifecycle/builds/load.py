@@ -169,12 +169,7 @@ app = typer.Typer(add_completion=False)
 
 @app.command("recipe")
 def _cli_wrapper_recipe(
-    recipe_path: Path = typer.Option(
-        Path(plan.DEFAULT_RECIPE),
-        "--recipe-path",
-        "-r",
-        help="Path of recipe file to use",
-    ),
+    recipe_path: Path,
     version: str = typer.Option(
         None,
         "--version",
