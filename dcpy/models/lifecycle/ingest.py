@@ -1,4 +1,5 @@
 from __future__ import annotations
+from functools import cached_property
 from datetime import datetime
 from pathlib import Path
 from pydantic import BaseModel, Field, AliasChoices
@@ -49,7 +50,7 @@ class ESRIFeatureServer(BaseModel, extra="forbid"):
     def feature_server(self) -> esri.FeatureServer:
         return esri.FeatureServer(server=self.server, name=self.dataset)
 
-    @property
+    @cached_property
     def feature_server_layer(self) -> esri.FeatureServerLayer:
         feature_server_layer = arcgis_feature_service.resolve_layer(
             feature_server=self.feature_server,
