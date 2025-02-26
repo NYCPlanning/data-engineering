@@ -4,7 +4,7 @@ from pathlib import Path
 from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.models.connectors.edm.recipes import Dataset
 from dcpy.models import file, library
-from dcpy.models.connectors import socrata, web
+from dcpy.models.connectors import socrata, web, esri
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     ScriptSource,
@@ -14,6 +14,7 @@ from dcpy.models.lifecycle.ingest import (
     ArchivalMetadata,
     Ingestion,
     Config,
+    ESRIFeatureServer,
 )
 from dcpy.utils.metadata import get_run_details
 from dcpy.test.conftest import RECIPES_BUCKET
@@ -46,6 +47,12 @@ class Sources:
     s3 = S3Source(type="s3", bucket=RECIPES_BUCKET, key="inbox/test/test.txt")
     de_publish = DEPublished(
         type="de-published", product=TEST_DATASET_NAME, filename="file.csv"
+    )
+    esri = ESRIFeatureServer(
+        type="esri",
+        server=esri.Server.nys_parks,
+        dataset="National_Register_Building_Listings",
+        layer_id=13,
     )
 
 
@@ -83,4 +90,5 @@ SOURCE_FILENAMES = [
     (Sources.api, f"{TEST_DATASET_NAME}.json"),
     (Sources.socrata, f"{TEST_DATASET_NAME}.csv"),
     (Sources.s3, "test.txt"),
+    (Sources.esri, f"{TEST_DATASET_NAME}.json"),
 ]

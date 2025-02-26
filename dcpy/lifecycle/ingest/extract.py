@@ -6,6 +6,7 @@ from dcpy.models.lifecycle.ingest import (
     S3Source,
     ScriptSource,
     DEPublished,
+    ESRIFeatureServer,
     Source,
 )
 from dcpy.models.connectors import socrata, web as web_models
@@ -13,6 +14,7 @@ from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.socrata import extract as extract_socrata
+from dcpy.connectors.esri import arcgis_feature_service
 from dcpy.connectors import web
 
 
@@ -48,6 +50,12 @@ def download_file_from_source(
             web.download_file(source.endpoint, path)
         case socrata.Source():
             extract_socrata.download(source, path)
+        case ESRIFeatureServer():
+            arcgis_feature_service.download_layer(
+                source.feature_server_layer,
+                source.crs,
+                path,
+            )
         case _:
             raise NotImplementedError(
                 f"Source type {source.type} not supported for download_file_from_source"
