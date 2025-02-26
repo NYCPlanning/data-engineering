@@ -135,6 +135,7 @@ dependencies = [
     "PyYAML",
     "rich",
     "sqlalchemy",
+    "tabulate",
     "typer",
     "urllib3",
     "usaddress",
