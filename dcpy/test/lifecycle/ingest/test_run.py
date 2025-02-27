@@ -6,7 +6,7 @@ import shutil
 from dcpy.configuration import RECIPES_BUCKET
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import ingest as run_ingest, STAGING_DIR
+from dcpy.lifecycle.ingest.run import ingest as run_ingest, INGEST_STAGING_DIR
 
 from dcpy.test.conftest import mock_request_get
 from .shared import FAKE_VERSION, TEMPLATE_DIR
@@ -48,8 +48,8 @@ def test_run_output_exists(run_basic):
 def test_run_default_folder(mock_request_get, create_buckets):
     run_ingest(dataset_id=DATASET, version=FAKE_VERSION, template_dir=TEMPLATE_DIR)
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
-    assert (STAGING_DIR / DATASET).exists()
-    shutil.rmtree(STAGING_DIR)
+    assert (INGEST_STAGING_DIR / DATASET).exists()
+    shutil.rmtree(INGEST_STAGING_DIR)
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)

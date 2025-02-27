@@ -12,7 +12,7 @@ from dcpy.models.base import SortedSerializedBase, YamlWriter
 from dcpy.models.lifecycle.ingest import DatasetAttributes
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import STAGING_DIR, ingest as run_ingest
+from dcpy.lifecycle.ingest.run import INGEST_STAGING_DIR, ingest as run_ingest
 from dcpy.lifecycle.builds import metadata as build_metadata
 
 DATABASE = "sandbox"
@@ -108,9 +108,9 @@ def library_archive(
 def ingest(
     dataset: str,
     version: str | None = None,
-    ingest_parent_dir: Path = STAGING_DIR,
+    ingest_staging_dir: Path = INGEST_STAGING_DIR,
 ) -> None:
-    ingest_dir = ingest_parent_dir / dataset / "staging"
+    ingest_dir = ingest_staging_dir / "migrate_from_library"
     if ingest_dir.is_dir():
         shutil.rmtree(ingest_dir)
     run_ingest(dataset, version=version, staging_dir=ingest_dir, skip_archival=True)

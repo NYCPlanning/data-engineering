@@ -7,8 +7,8 @@ from dcpy.lifecycle import BASE_PATH
 from . import configure, extract, transform, validate
 
 INGEST_DIR = BASE_PATH / "ingest"
-STAGING_DIR = INGEST_DIR / "staging"
-OUTPUT_DIR = INGEST_DIR / "datasets"
+INGEST_STAGING_DIR = INGEST_DIR / "staging"
+INGEST_OUTPUT_DIR = INGEST_DIR / "datasets"
 CONFIG_FILENAME = "config.json"
 
 
@@ -35,14 +35,13 @@ def ingest(
 
     if not staging_dir:
         staging_dir = (
-            STAGING_DIR / dataset_id / config.archival.archival_timestamp.isoformat()
+            INGEST_STAGING_DIR
+            / dataset_id
+            / config.archival.archival_timestamp.isoformat()
         )
         staging_dir.mkdir(parents=True)
     else:
         staging_dir.mkdir(parents=True, exist_ok=True)
-
-    with open(staging_dir / "config.json", "w") as f:
-        json.dump(config.model_dump(mode="json"), f, indent=4)
 
     with open(staging_dir / CONFIG_FILENAME, "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
@@ -77,7 +76,7 @@ def ingest(
         output_csv=output_csv,
     )
 
-    output_dir = OUTPUT_DIR / dataset_id / config.version
+    output_dir = INGEST_OUTPUT_DIR / dataset_id / config.version
     output_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(staging_dir / CONFIG_FILENAME, output_dir)
     shutil.copy(staging_dir / config.filename, output_dir)
