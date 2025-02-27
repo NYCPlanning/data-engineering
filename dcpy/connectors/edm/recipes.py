@@ -259,20 +259,14 @@ def read_df(
 def import_dataset(
     ds: Dataset,
     pg_client: postgres.PostgresClient,
+    local_dataset_path: Path,
     *,
     local_library_dir=LIBRARY_DEFAULT_PATH,
     import_as: str | None = None,
     preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
-) -> str:
-    """Import a recipe to local data library folder and build engine."""
-    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
+):
+    logger.info(f"preproc: {preprocessor}")
     ds_table_name = import_as or ds.id
-    logger.info(
-        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
-    )
-
-    local_dataset_path = fetch_dataset(ds, local_library_dir)
-
     if ds.file_type == DatasetType.pg_dump:
         pg_client.import_pg_dump(
             local_dataset_path,
@@ -306,6 +300,32 @@ def import_dataset(
     )
 
     return f"{pg_client.schema}.{ds_table_name}"
+
+
+def pull_and_import_dataset(
+    ds: Dataset,
+    pg_client: postgres.PostgresClient,
+    local_dataset_path: Path,
+    *,
+    local_library_dir=LIBRARY_DEFAULT_PATH,
+    import_as: str | None = None,
+    preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
+) -> str:
+    """Import a recipe to local data library folder and build engine."""
+    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
+    logger.info(
+        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}.{ds_table_name}"
+    )
+
+    local_dataset_path = fetch_dataset(ds, local_library_dir)
+    return import_dataset(
+      ds=ds,
+      pg_client=pg_client,
+      local_dataset_path=local_dataset_path,
+      local_library_dir=local_library_dir,
+      import_as=import_as,
+      preprocessor=preprocessor,
+    )
 
 
 def purge_recipe_cache():
