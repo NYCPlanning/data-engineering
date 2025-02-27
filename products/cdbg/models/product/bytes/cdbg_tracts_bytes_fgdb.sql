@@ -8,7 +8,7 @@ tracts AS (
 
 SELECT
     "OBJECTID",
-    cdbg_tracts.bct2020 AS "BoroCT2020",
+    cdbg_tracts.bct2020 AS "BoroCT",
     tracts.nta2020 AS "NTACode",
     tracts.ntaname AS "NTAName",
     total_floor_area AS "BldgArea",
