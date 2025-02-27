@@ -37,6 +37,7 @@ def pull_dataset(ds: InputDataset) -> Path:
     if ds.file_type is None:
         raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
 
+    ds.custom["file_type"] = ds.file_type
     connector = connectors[ds.source]
     pull_res = connector.pull(
         key=ds.id,
@@ -70,12 +71,15 @@ def import_dataset(
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
+            logger.info(f"Inserting {ds.dataset} into postgres")
             table = recipes.import_dataset(
                 ds.dataset,
                 pg_client,
+                local_dataset_path=file_path,
                 preprocessor=preproc_func,
                 import_as=ds.import_as,
             )
+            logger.info(f"Finished inserting {ds.dataset} into postgres")
             return ImportedDataset.from_input(ds, table)
         case InputDatasetDestination.df:
             df = recipes.read_df(ds.dataset)

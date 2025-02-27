@@ -584,6 +584,7 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
 def download_file(
     product_key: ProductKey, filepath: str, output_dir: Path | None = None
 ) -> Path:
+    logger.info(f"Downloading {product_key}, {filepath}")
     output_dir = output_dir or Path(".")
     output_filepath = output_dir / Path(filepath).name
     s3.download_file(BUCKET, f"{product_key.path}/{filepath}", output_filepath)
@@ -732,16 +733,14 @@ class PublishedConnector(VersionedConnector):
         destination_path: Path,
         pull_conf: dict | None = {},
     ) -> dict:
-        split = key.split(".")
-        product = split[0]
-        dataset = split[1] if len(split) > 1 else None
         assert pull_conf and "filepath" in pull_conf
-        pub_key = PublishKey(product, version)
+        pub_key = PublishKey(key, version)
 
-        path_prefix = "" if not dataset else f"{dataset}/"
+        s3_path = pull_conf.get("dataset", "") + "/" if "dataset" in pull_conf else ""
+
         pulled_path = download_file(
             pub_key,
-            f"{path_prefix}{pull_conf['filepath']}",
+            s3_path+pull_conf['filepath'],
             output_dir=destination_path,
         )
         return {"path": pulled_path}
