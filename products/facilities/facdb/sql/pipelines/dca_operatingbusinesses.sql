@@ -23,10 +23,13 @@ SELECT
     (
         CASE
             WHEN business_category = 'Scrap Metal Processor' THEN 'Solid Waste Processing'
-            WHEN business_category = 'Parking Lot' THEN 'Parking Lots and Garages'
-            WHEN business_category = 'Garage' THEN 'Parking Lots and Garages'
-            WHEN business_category = 'Garage and Parking Lot' THEN 'Parking Lots and Garages'
-            WHEN business_category = 'Tow Truck Company' THEN 'Parking Lots and Garages'
+            WHEN business_category IN (
+                'Parking Lot',
+                'Garage',
+                'Garage and Parking Lot',
+                'Garage & Parking Lot',
+                'Tow Truck Company'
+            ) THEN 'Parking Lots and Garages'
         END
     ) AS facsubgrp,
     initcap(business_name) AS opname,

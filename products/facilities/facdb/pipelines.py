@@ -44,6 +44,7 @@ def dca_operatingbusinesses(df: pd.DataFrame):
         "Parking Lot",
         "Garage",
         "Garage and Parking Lot",
+        "Garage & Parking Lot",
         "Tow Truck Company",
     ]
     today = datetime.datetime.today()
