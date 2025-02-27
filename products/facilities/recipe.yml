@@ -11,26 +11,17 @@ inputs:
   - name: dcp_mappluto_wi
     file_type: pg_dump
   - name: dcp_boroboundaries_wi
-    file_type: pg_dump
   - name: dcp_ct2010
-    file_type: pg_dump
   - name: dcp_ct2020
-    file_type: pg_dump
   - name: dcp_councildistricts
-    file_type: pg_dump
   - name: dcp_cdboundaries
-    file_type: pg_dump
   - name: dcp_nta2010
-    file_type: pg_dump
   - name: dcp_nta2020
-    file_type: pg_dump
   - name: dcp_policeprecincts
-    file_type: pg_dump
   - name: doitt_zipcodeboundaries
     file_type: pg_dump
   - name: doitt_buildingfootprints
   - name: dcp_school_districts
-    file_type: pg_dump
   # facility sources
   # many datasets are pinned to csv although they have been migrated to ingest
   # because they have not been updated on socrata since before migration
