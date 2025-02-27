@@ -1,0 +1,25 @@
+name: PFF - ACS
+version: dummy
+product: db-factfinder
+inputs:
+  dataset_defaults:
+    file_type: parquet
+    destination: file
+  datasets:
+  - name: bpl_libraries
+    source: edm.recipes
+    version: latest
+    custom:
+      file_type: parquet # TODO - handle this during deserialization
+  - name: db-factfinder
+    source: edm.publishing.drafts
+    version: latest
+    custom:
+      dataset: acs_current
+      filepath: build_metadata.json
+      revision: "1-initial-build"
+  - name: db-pluto
+    source: edm.publishing.published
+    version: latest
+    custom:
+      filepath: pluto_changes.zip

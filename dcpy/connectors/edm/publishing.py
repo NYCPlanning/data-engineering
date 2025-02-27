@@ -23,6 +23,7 @@ from dcpy.configuration import (
     PRODUCTS_TO_LOG,
     IGNORED_LOGGING_BUILDS,
 )
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
@@ -583,6 +584,7 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
 def download_file(
     product_key: ProductKey, filepath: str, output_dir: Path | None = None
 ) -> Path:
+    logger.info(f"Downloading {product_key}, {filepath}")
     output_dir = output_dir or Path(".")
     output_filepath = output_dir / Path(filepath).name
     s3.download_file(BUCKET, f"{product_key.path}/{filepath}", output_filepath)
@@ -716,6 +718,75 @@ def log_event_in_db(event_details: EventLog) -> None:
         runner=event_details.runner,
         custom_fields=json.dumps(event_details.custom_fields),
     )
+
+
+class PublishedConnector(VersionedConnector):
+    conn_type: str = "edm.publishing.published"
+
+    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
+        assert pull_conf and "filepath" in pull_conf
+        pub_key = PublishKey(key, version)
+
+        s3_path = pull_conf.get("dataset", "") + "/" if "dataset" in pull_conf else ""
+
+        pulled_path = download_file(
+            pub_key,
+            s3_path+pull_conf['filepath'],
+            output_dir=destination_path,
+        )
+        return {"path": pulled_path}
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return sorted(get_published_versions(key), reverse=sort_desc)
+
+    def query_latest_version(self, key: str) -> str:
+        return self.list_versions(key)[0]
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return version in self.list_versions(key)
+
+
+class DraftsConnector(VersionedConnector):
+    conn_type: str = "edm.publishing.drafts"
+
+    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
+        assert pull_conf and "filepath" in pull_conf and "revision" in pull_conf
+        dataset = pull_conf.get("dataset")
+        draft_key = DraftKey(key, version=version, revision=pull_conf["revision"])
+
+        path_prefix = "" if not dataset else f"{dataset}/"
+        file_path = f"{path_prefix}{pull_conf['filepath']}"
+        logger.info(f"Pulling Draft for {draft_key}, path={file_path}")
+        pulled_path = download_file(draft_key, file_path, output_dir=destination_path)
+        return {"path": pulled_path}
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        logger.info(f"Listing versions for {key}")
+        return sorted(get_draft_versions(key), reverse=sort_desc)
+
+    def query_latest_version(self, key: str) -> str:
+        return self.list_versions(key)[0]
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return version in self.list_versions(key)
 
 
 app = typer.Typer(add_completion=False)
