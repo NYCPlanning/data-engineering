@@ -2,8 +2,6 @@
 source ../../bash/utils.sh
 set_error_traps
 
-CENSUS_TRACTS_YEAR=2020
-
 echo "Export product tables"
 rm -rf output
 mkdir -p output && (

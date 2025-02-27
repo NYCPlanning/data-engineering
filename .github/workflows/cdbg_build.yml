@@ -61,6 +61,10 @@ jobs:
       - name: Plan build
         run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
 
+      - name: Set recipe env vars
+        working-directory: ./
+        run: source ./bash/export_recipe_env.sh products/cdbg/${{ inputs.recipe_file }}.lock.yml
+
       - name: Dataloading
         run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
