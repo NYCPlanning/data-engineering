@@ -22,7 +22,7 @@ def run_basic(mock_request_get, create_buckets, tmp_path):
     return run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=tmp_path,
+        dataset_staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
 
@@ -57,7 +57,7 @@ def test_skip_archival(mock_request_get, create_buckets, tmp_path):
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=tmp_path,
+        dataset_staging_dir=tmp_path,
         skip_archival=True,
         template_dir=TEMPLATE_DIR,
     )
@@ -69,7 +69,7 @@ def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=tmp_path,
+        dataset_staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
@@ -77,7 +77,7 @@ def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=tmp_path,
+        dataset_staging_dir=tmp_path,
         latest=True,
         template_dir=TEMPLATE_DIR,
     )
@@ -98,7 +98,7 @@ def test_run_update_freshness_fails_if_data_diff(
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        staging_dir=tmp_path,
+        dataset_staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
 
@@ -112,6 +112,6 @@ def test_run_update_freshness_fails_if_data_diff(
             run_ingest(
                 dataset_id=DATASET,
                 version=FAKE_VERSION,
-                staging_dir=tmp_path,
+                dataset_staging_dir=tmp_path,
                 template_dir=TEMPLATE_DIR,
             )

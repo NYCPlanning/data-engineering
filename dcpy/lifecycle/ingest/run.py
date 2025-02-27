@@ -16,7 +16,8 @@ def ingest(
     dataset_id: str,
     version: str | None = None,
     *,
-    staging_dir: Path | None = None,
+    dataset_staging_dir: Path | None = None,
+    ingest_output_dir: Path = INGEST_OUTPUT_DIR,
     mode: str | None = None,
     latest: bool = False,
     skip_archival: bool = False,
@@ -33,17 +34,17 @@ def ingest(
     )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
-    if not staging_dir:
-        staging_dir = (
+    if not dataset_staging_dir:
+        dataset_staging_dir = (
             INGEST_STAGING_DIR
             / dataset_id
             / config.archival.archival_timestamp.isoformat()
         )
-        staging_dir.mkdir(parents=True)
+        dataset_staging_dir.mkdir(parents=True)
     else:
-        staging_dir.mkdir(parents=True, exist_ok=True)
+        dataset_staging_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(staging_dir / CONFIG_FILENAME, "w") as f:
+    with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
 
     # download dataset
@@ -51,9 +52,9 @@ def ingest(
         config.ingestion.source,
         config.archival.raw_filename,
         config.version,
-        staging_dir,
+        dataset_staging_dir,
     )
-    file_path = staging_dir / config.archival.raw_filename
+    file_path = dataset_staging_dir / config.archival.raw_filename
 
     if not skip_archival:
         # archive to edm-recipes/raw_datasets
@@ -63,7 +64,7 @@ def ingest(
     transform.to_parquet(
         config.ingestion.file_format,
         file_path,
-        dir=staging_dir,
+        dir=dataset_staging_dir,
         output_filename=init_parquet,
     )
 
@@ -71,24 +72,24 @@ def ingest(
         config.id,
         config.ingestion.processing_steps,
         config.columns,
-        staging_dir / init_parquet,
-        staging_dir / config.filename,
+        dataset_staging_dir / init_parquet,
+        dataset_staging_dir / config.filename,
         output_csv=output_csv,
     )
 
-    output_dir = INGEST_OUTPUT_DIR / dataset_id / config.version
-    output_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy(staging_dir / CONFIG_FILENAME, output_dir)
-    shutil.copy(staging_dir / config.filename, output_dir)
+    dataset_output_dir = ingest_output_dir / dataset_id / config.version
+    dataset_output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
+    shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
     action = validate.validate_against_existing_versions(
-        config.dataset, staging_dir / config.filename
+        config.dataset, dataset_staging_dir / config.filename
     )
     if not skip_archival:
         match action:
             case validate.ArchiveAction.push:
                 recipes.archive_dataset(
-                    config, staging_dir / config.filename, latest=latest
+                    config, dataset_staging_dir / config.filename, latest=latest
                 )
             case validate.ArchiveAction.update_freshness:
                 recipes.update_freshness(
