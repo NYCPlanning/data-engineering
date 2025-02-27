@@ -2,6 +2,8 @@
 source ../../bash/utils.sh
 set_error_traps
 
+CENSUS_TRACTS_YEAR=2020
+
 echo "Export product tables"
 rm -rf output
 mkdir -p output && (
@@ -21,10 +23,10 @@ mkdir -p output && (
     csv_export cdbg_tracts
 
     echo "export cdbg_tracts_bytes.csv ..."
-    csv_export cdbg_tracts_bytes_csv
+    csv_export cdbg_tracts_bytes_csv cdbg_eligibile_${CENSUS_TRACTS_YEAR}_census_tracts
 
     echo "export CDBG_census_tracts.gdb ..."
-    fgdb_export "cdbg_tracts_bytes_fgdb" "POLYGON" "CDBG_census_tracts" ${default_srs}
+    fgdb_export "cdbg_tracts_bytes_fgdb" "POLYGON" "cdbg_eligibile_${CENSUS_TRACTS_YEAR}_census_tracts" ${default_srs}
 
     echo "export cdbg_tracts_excel.csv ..."
     csv_export cdbg_tracts_excel
