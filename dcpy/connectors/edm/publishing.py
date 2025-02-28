@@ -7,7 +7,7 @@ from pathlib import Path
 import pytz
 import re
 import typer
-from typing import Callable, TypeVar
+from typing import Callable, TypeVar, Any
 from urllib.parse import urlencode, urljoin
 import yaml
 from zipfile import ZipFile
@@ -701,9 +701,9 @@ def log_event_in_db(event_details: EventLog) -> None:
     )
     pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
     query = f"""
-        INSERT INTO {LOGGING_SCHEMA}.{LOGGING_TABLE_NAME} 
+        INSERT INTO {LOGGING_SCHEMA}.{LOGGING_TABLE_NAME}
         (product, version, event, path, old_path, timestamp, runner_type, runner, custom_fields)
-        VALUES 
+        VALUES
         (:product, :version, :event, :path, :old_path, :timestamp, :runner_type, :runner, :custom_fields)
         """
     pg_client.execute_query(
@@ -740,7 +740,7 @@ class PublishedConnector(VersionedConnector):
 
         pulled_path = download_file(
             pub_key,
-            s3_path+pull_conf['filepath'],
+            s3_path + pull_conf["filepath"],
             output_dir=destination_path,
         )
         return {"path": pulled_path}
@@ -753,6 +753,11 @@ class PublishedConnector(VersionedConnector):
 
     def version_exists(self, key: str, version: str) -> bool:
         return version in self.list_versions(key)
+
+    def data_local_sub_path(
+        self, key: str, version: str, pull_conf: Any | None = None
+    ) -> Path:
+        return Path("edm") / "publishing" / "datasets" / key / version
 
 
 class DraftsConnector(VersionedConnector):
@@ -780,13 +785,30 @@ class DraftsConnector(VersionedConnector):
 
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
         logger.info(f"Listing versions for {key}")
-        return sorted(get_draft_versions(key), reverse=sort_desc)
+        versions = sorted(get_draft_versions(key), reverse=sort_desc)
+        assert versions, (
+            f"Product {key} should have versions, but none were found. This likely indicates a configuration problem."
+        )
+        return versions
 
     def query_latest_version(self, key: str) -> str:
         return self.list_versions(key)[0]
 
     def version_exists(self, key: str, version: str) -> bool:
         return version in self.list_versions(key)
+
+    def data_local_sub_path(
+        self, key: str, version: str, pull_conf: Any | None = None
+    ) -> Path:
+        assert pull_conf and "revision" in pull_conf
+        return (
+            Path("edm")
+            / "publishing"
+            / "datasets"
+            / key
+            / version
+            / pull_conf["revision"]
+        )
 
 
 app = typer.Typer(add_completion=False)

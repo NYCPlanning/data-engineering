@@ -1,5 +1,5 @@
+from abc import ABC
 from pathlib import Path
-from pydantic import BaseModel
 from typing import Protocol, Any, TypeVar, Generic
 
 from dcpy.utils.logging import logger
@@ -40,10 +40,12 @@ class ConnectorDispatcher(Generic[_O, _I]):
         return connector.pull(arg)
 
 
-class VersionedPushPullProtocol(BaseModel):
+class VersionedPush(ABC):
     def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
         """push"""
 
+
+class VersionedPull(ABC):
     def pull(
         self,
         key: str,
@@ -53,8 +55,17 @@ class VersionedPushPullProtocol(BaseModel):
     ) -> Any:
         """pull"""
 
+    def data_local_sub_path(
+        self,
+        key: str,
+        version: str,
+        pull_conf: Any | None = None,
+    ) -> Path:
+        """Calculate where the file should be stored, e.g. /{key}/{version}/"""
+        return Path(key) / version
 
-class VersionSearchProtocol(BaseModel):
+
+class VersionSearch(ABC):
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
         return []
 
@@ -65,7 +76,13 @@ class VersionSearchProtocol(BaseModel):
         return False
 
 
-class VersionedConnector(VersionedPushPullProtocol, VersionSearchProtocol):
+class VersionedConnector(VersionedPull, VersionedPush, VersionSearch):
+    """TODO: What is a connector?
+
+    A Connector corresponds to a... Librarian pulling books off the shelf?
+    The bookshelf itself? The librarian and the bookshelf?!
+    """
+
     conn_type: str
 
 
@@ -80,6 +97,9 @@ class VersionedConnectorRegistry:
     def register(self, connector: VersionedConnector, *, conn_type: str = ""):
         logger.info(f"registering {connector.conn_type}")
         self._connectors[connector.conn_type] = connector
+
+    def clear(self):
+        self._connectors = {}
 
     def list_registered(self) -> list[str]:
         return list(self._connectors.keys())
