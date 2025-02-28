@@ -89,7 +89,7 @@ class TestArchiveDataset:
     def test_archive_raw_dataset(self, create_buckets, create_temp_filesystem: Path):
         tmp_file = create_temp_filesystem / self.raw_file_name
         tmp_file.touch()
-        recipes.archive_raw_dataset(self.config, tmp_file)
+        recipes.archive_dataset(self.config, tmp_file, raw=True)
         assert s3.folder_exists(
             RECIPES_BUCKET, recipes.s3_raw_folder_path(self.config.raw_dataset_key)
         )

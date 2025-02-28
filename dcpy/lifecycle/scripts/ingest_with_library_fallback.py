@@ -1,6 +1,6 @@
 import typer
 
-from dcpy.lifecycle.ingest import configure, run as run_ingest
+from dcpy.lifecycle.ingest import configure, ingest
 
 
 def run(
@@ -21,7 +21,7 @@ def run(
     ),
 ):
     if (configure.TEMPLATE_DIR / f"{dataset_id}.yml").exists():
-        run_ingest.run(
+        ingest(
             dataset_id,
             version,
             mode=mode,
