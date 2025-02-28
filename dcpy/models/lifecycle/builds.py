@@ -86,6 +86,7 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str
     file_type: recipes.DatasetType
     destination: str | pd.DataFrame | Path
+    destination_type: InputDatasetDestination | None = None
 
     @staticmethod
     def from_input(
@@ -94,7 +95,11 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         assert ds.version, f"Version of {ds.id} not resolved"
         assert ds.file_type, f"File type of {ds.id} not resolved"
         return ImportedDataset(
-            id=ds.id, version=ds.version, file_type=ds.file_type, destination=result
+            id=ds.id,
+            version=ds.version,
+            file_type=ds.file_type,
+            destination=result,
+            destination_type=ds.destination,
         )
 
 

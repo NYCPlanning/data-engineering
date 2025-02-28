@@ -12,7 +12,7 @@ from dcpy.models.lifecycle.builds import (
     RecipeInputsVersionStrategy,
     InputDatasetDefaults,
 )
-from dcpy.lifecycle.builds import connectors
+from dcpy.lifecycle.connector_registry import connectors
 from dcpy.connectors.edm import recipes, publishing
 
 DEFAULT_RECIPE = "recipe.yml"
@@ -154,7 +154,9 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
-        if ds.source == "edm.recipes":  # gross
+        if (
+            ds.source == "edm.recipes"
+        ):  # Hack for now, to accomodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
                 ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
             )

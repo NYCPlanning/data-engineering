@@ -151,7 +151,7 @@ def load_recipe(
     client.drop_table(target_table)
 
     left_ds = recipes.Dataset(id=dataset, version=version, file_type=file_type)
-    recipes.pull_and_import_dataset(
+    recipes.import_dataset(
         left_ds,
         client,
         import_as=target_table,

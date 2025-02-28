@@ -1,6 +1,3 @@
-from __future__ import annotations
-import importlib
-import os
 import pandas as pd
 from pathlib import Path
 import typer
@@ -14,12 +11,10 @@ from dcpy.models.lifecycle.builds import (
     InputDataset,
     LoadResult,
 )
-from dcpy.lifecycle import BASE_PATH
-from dcpy.lifecycle.builds import connectors
 from dcpy.lifecycle.builds import metadata, plan
+from dcpy.lifecycle import data_loader
 
-BUILD_PATH = BASE_PATH / "builds"
-INPUT_DATA_PATH = BUILD_PATH / "input_datasets"
+LIFECYCLE_STAGE = "builds.load"
 
 
 def setup_build_pg_schema(pg_client: postgres.PostgresClient):
@@ -29,23 +24,9 @@ def setup_build_pg_schema(pg_client: postgres.PostgresClient):
         pg_client.create_schema()
 
 
-def pull_dataset(ds: InputDataset) -> Path:
-    """Import a recipe to local data library folder and build engine."""
-
-    if ds.version == "latest" or ds.version is None:
-        raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
-    if ds.file_type is None:
-        raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
-
-    ds.custom["file_type"] = ds.file_type
-    connector = connectors[ds.source]
-    pull_res = connector.pull(
-        key=ds.id,
-        version=ds.version,
-        destination_path=INPUT_DATA_PATH / (ds.source or "") / ds.id / ds.version,
-        pull_conf=ds.custom,
-    )
-    return pull_res["path"]
+ERROR_UNRESOLVED_DATASET_VERSION = "Cannot import a dataset without a resolved version"
+ERROR_UNRESOLVED_FILE_TYPE = "Cannot import a dataset without a resolved file type"
+ERROR_UNRESOLVED_DESTINATION = "Dataset destination not resolved for dataset"
 
 
 def import_dataset(
@@ -54,34 +35,24 @@ def import_dataset(
     pg_client: postgres.PostgresClient | None,
 ) -> ImportedDataset:
     """Import a recipe to local data library folder and build engine."""
-    if ds.preprocessor is not None:
-        preproc_mod = importlib.import_module(ds.preprocessor.module)
-        preproc_func = getattr(preproc_mod, ds.preprocessor.function)
-        if ds.file_type == recipes.DatasetType.pg_dump:
-            logger.warning(
-                f"Preprocessor {ds.preprocessor.module} cannot be applied to pg_dump dataset {ds.id}."
-            )
-    else:
-        preproc_func = None
+    assert ds.version and not ds.version == "latest", ERROR_UNRESOLVED_DATASET_VERSION
+    assert ds.file_type, ERROR_UNRESOLVED_FILE_TYPE
 
     if pg_client and (not ds.destination):
         ds.destination = InputDatasetDestination.postgres
-    assert ds.destination, f"Dataset destination not resolved for dataset {ds.id}"
+    assert ds.destination, f"ERROR_UNRESOLVED_DESTINATION {ds.id}"
 
     match ds.destination:
         case InputDatasetDestination.postgres:
             assert pg_client, "pg_client must be defined for postgres import"
             logger.info(f"Inserting {ds.dataset} into postgres")
-            table = recipes.import_dataset(
-                ds.dataset,
-                pg_client,
-                local_dataset_path=file_path,
-                preprocessor=preproc_func,
-                import_as=ds.import_as,
+            table = data_loader.load_dataset_into_pg(
+                ds, pg_client, local_dataset_path=file_path
             )
             logger.info(f"Finished inserting {ds.dataset} into postgres")
             return ImportedDataset.from_input(ds, table)
         case InputDatasetDestination.df:
+            # TODO: remove reference to recipes
             df = recipes.read_df(ds.dataset)
             return ImportedDataset.from_input(ds, df)
         case InputDatasetDestination.file:
@@ -90,9 +61,8 @@ def import_dataset(
             raise Exception(f"Unsupported dataset import destination: {d}")
 
 
-def load_source_data(
-    recipe_lock_path: Path,
-    keep_files: bool = False,
+def load_source_data_from_resolved_recipe(
+    recipe_lock_path: Path, clear_pg_schema: bool = True
 ) -> LoadResult:
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
@@ -105,7 +75,8 @@ def load_source_data(
         dataset.destination for dataset in recipe.inputs.datasets
     ]:
         pg_client = postgres.PostgresClient(schema=build_name)
-        setup_build_pg_schema(pg_client)
+        if clear_pg_schema:
+            setup_build_pg_schema(pg_client)
 
         pg_client.create_table_from_csv(
             recipe_lock_path.parent / "source_data_versions.csv"
@@ -115,9 +86,10 @@ def load_source_data(
 
     imported_datasets = {}
     for ds in recipe.inputs.datasets:
-        file_path = pull_dataset(ds)
+        file_path = data_loader.pull_dataset(ds, stage=LIFECYCLE_STAGE)
         imported_ds = import_dataset(ds, file_path, pg_client)
         imported_datasets[ds.id] = imported_ds
+
     return LoadResult(
         name=recipe.name, build_name=build_name, datasets=imported_datasets
     )
@@ -182,7 +154,7 @@ def _cli_wrapper_recipe(
     ),
 ):
     recipe_lock_path = plan.plan(recipe_path, version)
-    load_source_data(recipe_lock_path)
+    load_source_data_from_resolved_recipe(recipe_lock_path)
 
 
 @app.command("load")
@@ -197,62 +169,8 @@ def _cli_wrapper_load(
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
-    load_source_data(recipe_lock_path)
+    load_source_data_from_resolved_recipe(recipe_lock_path)
 
 
-@app.command("dataset")
-def _import_dataset(
-    dataset_name: str = typer.Option(
-        None,
-        "-n",
-        "--dataset_name",
-        help="Name of the dataset",
-    ),
-    version: str = typer.Option(
-        None,
-        "-v",
-        "--version",
-        help="Dataset version to import",
-    ),
-    source: str = typer.Option(
-        "edm.recipes",
-        "-f",
-        "--source",
-        help="Registered source to import from",
-    ),
-    dataset_type: recipes.DatasetType = typer.Option(
-        recipes.DatasetType.pg_dump,
-        "-t",
-        "--type",
-        help="Dataset type",
-    ),
-    database_schema: str = typer.Option(
-        None,
-        "-s",
-        "--schema",
-        help="Database Schema",
-    ),
-    database: str = typer.Option(
-        None,
-        "-d",
-        "--database",
-    ),
-    import_as: str = typer.Option(
-        None, "--import-as", help="Renames the imported table"
-    ),
-):
-    database_schema = database_schema or os.environ["BUILD_SCHEMA"]
-    ds = InputDataset(
-        id=dataset_name,
-        version=version,
-        source=source,
-        file_type=dataset_type,
-        import_as=import_as,
-        custom={"file_type": dataset_type}
-    )
-    pulled_path = pull_dataset(ds)
-    import_dataset(
-        ds,
-        pulled_path,
-        postgres.PostgresClient(schema=database_schema, database=database),
-    )
+if __name__ == "__main__":
+    app()
