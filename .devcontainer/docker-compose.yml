@@ -14,4 +14,22 @@ services:
     ports:
       - "8501:8501"
     tty: true
-
+  postgis:
+    container_name: postgis-db
+    image: postgis/postgis:13-3.3-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+  sftp-server:
+    # To test connection for a dev container terminal:
+    # sftp -i .devcontainer/sftp/ssh_host_rsa_key -o StrictHostKeyChecking=no dedev@sftp-server
+    image: atmoz/sftp:alpine
+    volumes:
+      - ../.devcontainer/sftp/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
+      - ../.devcontainer/sftp/ssh_host_rsa_key.pub:/home/dedev/.ssh/keys/ssh_host_rsa_key.pub:ro
+      - ../.devcontainer/sftp/remote_files:/home/dedev/remote_files
+    ports:
+      - "2222:22"
+    environment:
+      SFTP_USERS: "dedev::1001"
