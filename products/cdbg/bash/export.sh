@@ -24,7 +24,12 @@ mkdir -p output && (
     csv_export cdbg_tracts_bytes_csv cdbg_eligibile_${CENSUS_TRACTS_YEAR}_census_tracts
 
     echo "export CDBG_census_tracts.gdb ..."
-    fgdb_export "cdbg_tracts_bytes_fgdb" "POLYGON" "cdbg_eligibile_${CENSUS_TRACTS_YEAR}_census_tracts" ${default_srs}
+    tablename=cdbg_tracts_bytes_fgdb
+    geomtype=POLYGON
+    layername="cdbg_eligibile_${CENSUS_TRACTS_YEAR}_census_tracts"
+    filename="cdbg_eligibile_${CENSUS_TRACTS_YEAR}_census_tracts"
+    fgdb_export_partial ${filename} ${geomtype} ${layername} ${tablename} ${default_srs}
+    fgdb_export_cleanup ${filename}
 
     echo "export cdbg_tracts_excel.csv ..."
     csv_export cdbg_tracts_excel
