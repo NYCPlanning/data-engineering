@@ -287,7 +287,8 @@ function fgdb_export {
     local geomtype=${2}
     local filename=${3:-$table}
     local target_projection=${4:-$default_srs}
-    fgdb_export_partial ${filename} ${geomtype} ${table} ${table} ${target_projection}
+    local nln=${5:-$table}
+    fgdb_export_partial ${filename} ${geomtype} ${nln} ${table} ${target_projection}
     fgdb_export_cleanup ${filename}
 }
 
