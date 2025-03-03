@@ -7,6 +7,7 @@ css-inline
 dbt-core
 dbt-postgres
 diagrams>=0.23.3
+duckdb
 faker
 folium
 GDAL==3.8.3
