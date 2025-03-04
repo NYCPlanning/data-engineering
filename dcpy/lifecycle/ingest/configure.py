@@ -27,7 +27,9 @@ from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors.esri import arcgis_feature_service
 from dcpy.connectors.edm import publishing
 
-TEMPLATE_DIR = Path(__file__).parent / "templates"
+TEMPLATE_DIR = (
+    Path(os.getenv("TEMPLATE_DIR")).resolve() if os.getenv("TEMPLATE_DIR") else None
+)
 
 
 def get_jinja_vars(s: str) -> set[str]:

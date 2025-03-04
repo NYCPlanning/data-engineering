@@ -22,9 +22,14 @@ def ingest(
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
-    template_dir: Path = configure.TEMPLATE_DIR,
+    template_dir: Path | None = configure.TEMPLATE_DIR,
     local_file_path: Path | None = None,
 ) -> Config:
+    if template_dir is None:
+        raise ValueError(
+            "Template directory must be provided via CLI --template-dir argument or the TEMPLATE_DIR env variable."
+        )
+
     config = configure.get_config(
         dataset_id,
         version=version,

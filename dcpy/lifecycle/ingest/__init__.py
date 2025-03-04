@@ -34,7 +34,7 @@ def _cli_wrapper_run(
         TEMPLATE_DIR,
         "--template-dir",
         "-t",
-        help="Local path to folder with templates",
+        help="Local path to folder with templates. If not provided, `TEMPLATE_DIR` env var is used instead.",
     ),
 ):
     ingest(
