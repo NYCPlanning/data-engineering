@@ -1,6 +1,8 @@
 import typer
+from pathlib import Path
 
-from dcpy.lifecycle.ingest import configure, ingest
+from dcpy.lifecycle.ingest import ingest
+from dcpy.configuration import TEMPLATE_DIR
 
 
 def run(
@@ -20,7 +22,11 @@ def run(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
 ):
-    if (configure.TEMPLATE_DIR / f"{dataset_id}.yml").exists():
+    if TEMPLATE_DIR is None:
+        raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
+    template_dir = Path(TEMPLATE_DIR)
+
+    if (template_dir / f"{dataset_id}.yml").exists():
         ingest(
             dataset_id,
             version,

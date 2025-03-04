@@ -26,3 +26,5 @@ PRODUCTS_TO_LOG = [
 IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
 PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
+
+TEMPLATE_DIR = env.get("TEMPLATE_DIR")
