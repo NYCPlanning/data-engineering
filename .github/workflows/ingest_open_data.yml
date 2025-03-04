@@ -39,7 +39,6 @@ jobs:
         lpc_historic_district_areas
         lpc_landmarks
         lpc_scenic_landmarks
-        nypd_policeprecincts
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
       latest: true
