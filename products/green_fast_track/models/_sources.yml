@@ -471,7 +471,6 @@ sources:
         columns:
           - name: pwl_id
             tests:
-              - unique
               - not_null
           - name: name
             tests:
@@ -479,6 +478,9 @@ sources:
           - name: wkb_geometry
             tests:
               - not_null
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [ pwl_id, name ]
 
       - name: nysdec_priority_estuaries
         columns:
