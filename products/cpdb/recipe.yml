@@ -14,8 +14,8 @@ inputs:
     - name: dcp_school_districts
     - name: dcp_trafficanalysiszones
     - name: dcp_councildistricts
-    - name: nypd_policeprecincts
-    - name: fdny_firecompanies
+    - name: dcp_policeprecincts
+    - name: dcp_firecompanies
 
     # Building and lot-level info
     - name: dcp_mappluto_wi
