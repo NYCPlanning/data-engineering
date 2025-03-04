@@ -179,6 +179,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: needs.determine_image_logic.outputs.child_action == 'Build'
+      - name: Set up Python 3.13
+        if: needs.determine_image_logic.outputs.child_action == 'Build'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
       - name: Load Secrets
         if: needs.determine_image_logic.outputs.child_action == 'Build'
         uses: 1password/load-secrets-action@v1
