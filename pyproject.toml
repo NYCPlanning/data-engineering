@@ -132,6 +132,7 @@ dependencies = [
     "psycopg2-binary",
     "pyarrow",
     "pydantic",
+    "pysftp",
     "python-dateutil",
     "python-dotenv",
     "pytz",
