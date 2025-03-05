@@ -5,12 +5,10 @@ import pysftp  # type: ignore
 from dcpy.utils.logging import logger
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 
-SFTP_PRIVATE_KEY = os.environ["SFTP_PRIVATE_KEY"]
-
 
 def _temp_private_key_path() -> str:
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(SFTP_PRIVATE_KEY.encode("utf-8"))
+        tmp_file.write(os.environ["SFTP_PRIVATE_KEY"].encode("utf-8"))
         tmp_file_path = tmp_file.name
     return tmp_file_path
 
