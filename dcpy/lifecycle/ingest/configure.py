@@ -27,8 +27,6 @@ from dcpy.connectors.socrata import extract as extract_socrata
 from dcpy.connectors.esri import arcgis_feature_service
 from dcpy.connectors.edm import publishing
 
-TEMPLATE_DIR = Path(__file__).parent / "templates"
-
 
 def get_jinja_vars(s: str) -> set[str]:
     """Get all variables expected in a jinja template string"""
@@ -38,7 +36,7 @@ def get_jinja_vars(s: str) -> set[str]:
 
 
 def read_template(
-    dataset_id: str, version: str | None = None, template_dir: Path = TEMPLATE_DIR
+    dataset_id: str, template_dir: Path, version: str | None = None
 ) -> Template:
     """
     Given _id id, read yml template in template_dir of given dataset
@@ -145,7 +143,7 @@ def get_config(
     version: str | None = None,
     *,
     mode: str | None = None,
-    template_dir: Path = TEMPLATE_DIR,
+    template_dir: Path,
     local_file_path: Path | None = None,
 ) -> Config:
     """Generate config object for dataset and optional version"""
