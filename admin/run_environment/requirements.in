@@ -36,6 +36,7 @@ types-psycopg2
 pyarrow
 pyarrow-stubs
 pydantic
+pysftp
 pytest
 pytest-cov
 python-dotenv>=0.20.0
