@@ -65,5 +65,6 @@ types-requests
 types-setuptools
 urllib3>=1.26.18
 us
+uv
 usaddress>=0.5.10
 xlrd>=2.0.1
