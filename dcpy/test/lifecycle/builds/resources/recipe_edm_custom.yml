@@ -1,0 +1,10 @@
+name: my_recipe
+version: v123
+product: mock_product
+inputs:
+  dataset_defaults:
+    destination: df
+  datasets:
+    - id: edm_custom_latest
+      source: edm.custom
+      version: latest
