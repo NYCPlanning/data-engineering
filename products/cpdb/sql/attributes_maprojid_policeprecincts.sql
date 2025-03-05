@@ -9,7 +9,7 @@ CREATE TABLE attributes_maprojid_policeprecincts AS (
             'policeprecinct'::text AS admin_boundary_type,
             b.precinct::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
-            nypd_policeprecincts AS b
+            dcp_policeprecincts AS b
         WHERE
             ST_INTERSECTS(a.geom, b.wkb_geometry)
             AND ST_GEOMETRYTYPE(b.wkb_geometry) = 'ST_MultiPolygon'
