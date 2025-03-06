@@ -1,0 +1,26 @@
+id: nypd_policeprecincts
+acl: public-read
+
+attributes:
+  name: NYPD Police Precincts
+  description: "GIS data: Boundaries of Police Precincts"
+  url: https://data.cityofnewyork.us/Public-Safety/Police-Precincts/78dh-3ptz
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 78dh-3ptz
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: precinct
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
