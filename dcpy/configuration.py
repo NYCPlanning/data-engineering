@@ -28,4 +28,6 @@ IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
 PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
 
-TEMPLATE_DIR = Path(env.get("TEMPLATE_DIR")) if env.get("TEMPLATE_DIR") else None
+TEMPLATE_DIR: Path | None = (
+    Path(env.get("TEMPLATE_DIR", "")) if env.get("TEMPLATE_DIR") else None
+)
