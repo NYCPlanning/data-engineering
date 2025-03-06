@@ -2,7 +2,7 @@ from pathlib import Path
 import typer
 
 from .run import ingest
-from .configure import TEMPLATE_DIR
+from dcpy.configuration import TEMPLATE_DIR
 
 app = typer.Typer(add_completion=False)
 
@@ -34,7 +34,7 @@ def _cli_wrapper_run(
         TEMPLATE_DIR,
         "--template-dir",
         "-t",
-        help="Local path to folder with templates",
+        help="Local path to folder with templates. Overrides `TEMPLATE_DIR` env variable.",
     ),
 ):
     ingest(
