@@ -4,7 +4,6 @@ on:
   - cron: 0 0 1 * *
   workflow_dispatch:
 
-
 jobs:
   compile_requirements:
     name: Compile requirements and commit changes
@@ -15,8 +14,10 @@ jobs:
       run:
         shell: bash
     steps:
-    - name: Install git
-      run: apt-get update && apt-get -y install git
+    - name: Install git and uv
+      run: |
+        apt-get update && apt-get -y install git
+        curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - uses: actions/checkout@v4
 
