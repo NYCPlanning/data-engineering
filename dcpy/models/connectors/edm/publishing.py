@@ -59,5 +59,5 @@ class GisDataset(BaseModel, extra="forbid"):
 
     # Some datasets here will phased out if we eventually get data
     # directly from GR or other sources
-    type: Literal["edm_publishing_gis_dataset"]
+    type: Literal["edm.publishing.gis"]
     name: str

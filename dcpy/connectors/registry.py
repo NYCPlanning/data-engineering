@@ -1,4 +1,5 @@
 from abc import ABC
+import importlib
 from pathlib import Path
 from typing import Protocol, Any, TypeVar, Generic
 
@@ -109,4 +110,5 @@ class VersionedConnectorRegistry:
             raise Exception(
                 f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}"
             )
-        return self._connectors[item]
+        
+        return importlib.import_module(self._connectors[item])

@@ -2,9 +2,15 @@ from enum import StrEnum
 import pandas as pd
 from pathlib import Path
 
-from dcpy.models.lifecycle.ingest import Config
+from dcpy.models.lifecycle.ingest import Config, Source
 from dcpy.connectors.edm import recipes
 from dcpy.utils.logging import logger
+from dcpy.lifecycle.connector_registry import connectors
+
+
+def validate_connector(source: Source):
+    connector = connectors[source.type]
+    connector
 
 
 class ArchiveAction(StrEnum):

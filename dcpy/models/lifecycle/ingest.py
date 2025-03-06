@@ -39,7 +39,7 @@ class DEPublished(BaseModel, extra="forbid"):
 
 
 class ESRIFeatureServer(BaseModel, extra="forbid"):
-    type: Literal["esri"]
+    type: Literal["arcgis_feature_server"]
     server: esri.Server
     dataset: str
     layer_name: str | None = None

@@ -14,8 +14,9 @@ import yaml
 import json
 
 from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer
-import dcpy.models.product.dataset.metadata as models
+from dcpy.models.product.dataset import metadata
 from dcpy.utils.logging import logger
+from dcpy.connectors import VersionedConnector
 
 
 def get_feature_server_metadata(feature_server: FeatureServer) -> dict:
@@ -191,7 +192,7 @@ def download_layer(layer: FeatureServerLayer, crs: str, path: Path) -> None:
         json.dump(geojson, f)
 
 
-def make_dcp_metadata(layer_url: str) -> models.Metadata:
+def make_dcp_metadata(layer_url: str) -> metadata.Metadata:
     if layer_url.endswith("FeatureServer/0"):
         layer_url = layer_url + "?f=pjson"
 
@@ -204,7 +205,7 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
 
     raw_cols = resp.get("fields")
     our_cols = [
-        models.DatasetColumn(
+        metadata.DatasetColumn(
             id=c.get("name"),
             name=c.get("alias"),
             description="",
@@ -214,17 +215,17 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
         if c["name"] != "OBJECTID"
     ]
 
-    return models.Metadata(
+    return metadata.Metadata(
         id=resp.get("name"),
-        attributes=models.DatasetAttributes(
+        attributes=metadata.DatasetAttributes(
             display_name="FILL ME IN",
             description=resp.get("description"),
             tags=[],
             each_row_is_a="",
         ),
         files=[
-            models.FileAndOverrides(
-                file=models.File(
+            metadata.FileAndOverrides(
+                file=metadata.File(
                     id="primary_shapefile",
                     filename="shapefile.zip",
                     type="shapefile",
@@ -232,7 +233,7 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
             )
         ],
         destinations=[
-            models.DestinationWithFiles(
+            metadata.DestinationWithFiles(
                 id="socrata_prod",
                 type="socrata",
             )
@@ -266,3 +267,35 @@ def _export_metadata(
     logger.info(f"exporting metadata to {output_path}")
     with open(output_path, "w") as outfile:
         yaml.dump(md_json, outfile, sort_keys=False)
+
+
+class Connector(VersionedConnector):
+    conn_type = "arcgis_feature_server"
+
+    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        **pull_conf,
+    ) -> dict:
+        assert "server" in pull_conf
+        layer = resolve_layer(
+            FeatureServer(server=pull_conf["server"], name=key),
+            pull_conf.get("layer_name"),
+            pull_conf.get("layer-id"),
+        )
+        download_layer(layer, 4326, path=destination_path)
+        return {"path": destination_path}
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return [self.query_latest_version(key)]
+
+    def query_latest_version(self, key: str) -> str:
+        return get_data_last_updated()
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return False
