@@ -7,19 +7,27 @@ from dcpy.test.conftest import RECIPES_BUCKET
 from dcpy.models.lifecycle.ingest import Template
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest import configure, transform, validate
+from dcpy.lifecycle.ingest import transform, validate
 
 from .shared import (
     TEST_DATASET,
     TEST_OUTPUT,
     BASIC_CONFIG,
     BASIC_LIBRARY_CONFIG,
+    PROD_TEMPLATE_DIR,
 )
 
 
-@pytest.mark.parametrize("dataset", [t.name for t in configure.TEMPLATE_DIR.glob("*")])
+def test_template_dir_exists():
+    """Sanity check. It must exist for test below."""
+    assert PROD_TEMPLATE_DIR.exists(), (
+        f"Template directory (production) '{PROD_TEMPLATE_DIR}' doesn't exist."
+    )
+
+
+@pytest.mark.parametrize("dataset", [t.name for t in PROD_TEMPLATE_DIR.glob("*")])
 def test_validate_all_templates(dataset):
-    with open(configure.TEMPLATE_DIR / dataset, "r") as f:
+    with open(PROD_TEMPLATE_DIR / dataset, "r") as f:
         s = yaml.safe_load(f)
     template = Template(**s)
     transform.validate_processing_steps(
