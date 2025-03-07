@@ -10,27 +10,34 @@ set -e
 ops_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 path=$ops_dir/../run_environment
 
-# Update and install packages used to compile requirements
-echo -e "🛠 upgrading python package management tools"
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade pip-tools wheel
-
-# Set GDAL verion
+# Set GDAL python version to installed binary gdal version, if specified
 # sed behaves differently in linux and macos
-case "$OSTYPE" in
-  "darwin"*|"bsd"*)
-    echo "Using BSD sed style"
-    sed -i "" -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" $path/requirements.in
-    ;; 
-  *)
-    echo "Using GNU sed style"
-    sed -i -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" $path/requirements.in
-    ;;
-esac
+if [[ $* == *--set-gdal* ]]; then
+  case "$OSTYPE" in
+    "darwin"*|"bsd"*)
+      echo "Using BSD sed style"
+      sed -i "" -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" $path/requirements.in
+      ;; 
+    *)
+      echo "Using GNU sed style"
+      sed -i -e "s/GDAL==.*$/GDAL==$(gdal-config --version)/g" $path/requirements.in
+      ;;
+  esac
+fi
 
-# Compile requirements
+# if specified, don't attempt to upgrade versions in requirements.txt
+if [[ $* == *--no-upgrade* ]]; then
+  upgrade=""
+else
+  upgrade="--upgrade"
+fi
+
+cd $path
+
 echo -e "🛠 compiling from requirements.in"
-CUSTOM_COMPILE_COMMAND=$0 python3 -m piptools compile --upgrade --output-file=$path/requirements.txt $path/requirements.in
+uv pip compile requirements.in $upgrade --output-file requirements.txt --no-strip-extras --custom-compile-command $0
 echo -e "✅ done compiling requirements.txt"
 
-sed -e 's/\[[^][]*\]//g' $path/requirements.txt > $path/constraints.txt
+sed -e 's/\[[^][]*\]//g' requirements.txt > constraints.txt
+
+cd $ops_dir/../
