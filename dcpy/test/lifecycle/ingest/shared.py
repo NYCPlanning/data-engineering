@@ -26,7 +26,9 @@ TEST_DATASET_NAME = "test_dataset"
 TEST_OUTPUT = RESOURCES / TEST_DATA_DIR / f"{TEST_DATASET_NAME}.parquet"
 FAKE_VERSION = "20240101"
 TEST_DATASET = Dataset(id=TEST_DATASET_NAME, version=FAKE_VERSION)
-PROD_TEMPLATE_DIR = Path(__file__).parent.parent.parent.parent.parent / "templates"
+PROD_TEMPLATE_DIR = (
+    Path(__file__).parent.parent.parent.parent.parent / "ingest_templates"
+)
 
 
 class Sources:

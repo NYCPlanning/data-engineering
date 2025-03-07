@@ -38,7 +38,7 @@ jobs:
       run:
         shell: bash
     env:
-      TEMPLATE_DIR: ./templates
+      TEMPLATE_DIR: ./ingest_templates
       BUILD_NAME: ${{ github.head_ref || github.ref_name }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
