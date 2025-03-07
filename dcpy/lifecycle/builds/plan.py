@@ -12,10 +12,10 @@ from dcpy.models.lifecycle.builds import (
     RecipeInputsVersionStrategy,
     InputDatasetDefaults,
 )
+from dcpy.lifecycle.connector_registry import connectors
 from dcpy.connectors.edm import recipes, publishing
 
 DEFAULT_RECIPE = "recipe.yml"
-LIBRARY_DEFAULT_PATH = recipes.LIBRARY_DEFAULT_PATH
 RECIPE_FILE_TYPE_PREFERENCE = [
     recipes.DatasetType.pg_dump,
     recipes.DatasetType.parquet,
@@ -148,13 +148,18 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 ds.version = "latest"
 
         if ds.version == "latest":
-            ds.version = recipes.get_latest_version(ds.id)
+            connector = connectors[ds.source]
+            logger.info(f"Querying versions for {connector.conn_type}")
+            ds.version = connector.query_latest_version(ds.id)
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
-        ds.file_type = ds.file_type or recipes.get_preferred_file_type(
-            ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
-        )
+        if (
+            ds.source == "edm.recipes"
+        ):  # Hack for now, to accomodate existing file types
+            ds.file_type = ds.file_type or recipes.get_preferred_file_type(
+                ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
+            )
 
     return recipe
 
@@ -174,6 +179,7 @@ def _apply_recipe_defaults(recipe: Recipe):
         ds.preprocessor = ds.preprocessor or recipe.inputs.dataset_defaults.preprocessor
         ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
         ds.destination = ds.destination or recipe.inputs.dataset_defaults.destination
+        ds.source = ds.source or recipe.inputs.dataset_defaults.source
 
 
 def recipe_from_yaml(path: Path) -> Recipe:
