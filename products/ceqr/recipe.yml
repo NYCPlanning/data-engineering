@@ -1,0 +1,8 @@
+name: CEQR
+product: db-ceqr
+version_strategy: first_of_month
+
+inputs:
+  missing_versions_strategy: find_latest
+  datasets:
+  - name: dcp_mappluto_clipped
