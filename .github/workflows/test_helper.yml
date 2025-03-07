@@ -86,6 +86,7 @@ jobs:
         - green_fast_track
         - zoningtaxlots
         - cdbg
+        - ceqr
         - pluto
     steps:
     - uses: actions/checkout@v4
@@ -120,6 +121,7 @@ jobs:
         mypy apps/qa/src
         mypy products/facilities
         mypy products/template
+        mypy products/ceqr/build_scripts
         mypy admin/ops
 
   template-db:
