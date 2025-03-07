@@ -1,8 +1,8 @@
 # Integration tests
 
-Tests in this directory require external resources like databases and servers. Currently, they can only be run locally via docker containers.
+Tests in this directory require network resources like databases and servers.
 
-We'd like to run these test in CI/CD, but haven't resolved all issues related to spinning up services during the relevant github action.
+We'd like to run these tests in CI/CD, but haven't resolved all issues related to spinning up services during the relevant github action.
 
 ## Running tests
 
