@@ -70,6 +70,7 @@ jobs:
     container:
       image: nycplanning/build-base:${{ inputs.dev_image == 'true' && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
+      TEMPLATE_DIR: ./ingest_templates
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}

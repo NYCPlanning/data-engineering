@@ -2,6 +2,7 @@ from pathlib import Path
 import typer
 
 from .run import ingest
+from dcpy.configuration import TEMPLATE_DIR
 
 app = typer.Typer(add_completion=False)
 
@@ -29,6 +30,12 @@ def _cli_wrapper_run(
         "-p",
         help="Use local file path as source, overriding source in template",
     ),
+    template_dir: Path = typer.Option(
+        TEMPLATE_DIR,
+        "--template-dir",
+        "-t",
+        help="Local path to folder with templates. Overrides `TEMPLATE_DIR` env variable.",
+    ),
 ):
     ingest(
         dataset_id,
@@ -38,4 +45,5 @@ def _cli_wrapper_run(
         skip_archival=skip_archival,
         output_csv=csv,
         local_file_path=local_file_path,
+        template_dir=template_dir,
     )

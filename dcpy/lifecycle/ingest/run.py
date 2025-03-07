@@ -3,7 +3,9 @@ from pathlib import Path
 import shutil
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
+from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import BASE_PATH
+
 from . import configure, extract, transform, validate
 
 INGEST_DIR = BASE_PATH / "ingest"
@@ -22,9 +24,11 @@ def ingest(
     latest: bool = False,
     skip_archival: bool = False,
     output_csv: bool = False,
-    template_dir: Path = configure.TEMPLATE_DIR,
+    template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
 ) -> Config:
+    if template_dir is None:
+        raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
     config = configure.get_config(
         dataset_id,
         version=version,

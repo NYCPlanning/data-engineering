@@ -115,3 +115,12 @@ def test_run_update_freshness_fails_if_data_diff(
                 dataset_staging_dir=tmp_path,
                 template_dir=TEMPLATE_DIR,
             )
+
+
+def test_run_missing_template_dir():
+    with pytest.raises(KeyError, match="Missing required env variable: 'TEMPLATE_DIR'"):
+        run_ingest(
+            dataset_id=DATASET,
+            version=FAKE_VERSION,
+            template_dir=None,
+        )
