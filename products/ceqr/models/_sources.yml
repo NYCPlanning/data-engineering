@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: recipe_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: source_data_versions
+        description: |
+          Versions of all source data listed in the recipe.yml file and loaded via the dcpy.lifecycle.builds.load CLI
+        columns:
+          - name: schema_name
+          - name: v
+          - name: file_type
