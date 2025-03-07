@@ -1,0 +1,10 @@
+dataset_id,dataset_name,availability_type,file_type,geometry_type
+dcp_mappluto_wi,MapPLUTO,download,shapefile,MULTIPOLYGON
+dcp_population_projects,Population Projections,download,excel,
+dcp_projects,ZAP Projects,download,csv,
+dcp_zoningdistricts,Zoning Districts,download,shapefile,MULTIPOLYGON
+dcp_commercialoverlay,Commercial Overlay Districts,download,shapefile,MULTIPOLYGON
+dcp_specialpurpose,Special Purpose Districts,download,shapefile,MULTIPOLYGON
+dcp_limitedheight,Limited Height Districts,download,shapefile,MULTIPOLYGON
+dcp_specialpurposesubdistricts,Special Purpose Subdistricts,download,shapefile,MULTIPOLYGON
+dcp_zoningmapamendments,Zoning Map Amendments,download,shapefile,MULTIPOLYGON
