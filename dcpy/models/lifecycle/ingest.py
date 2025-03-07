@@ -126,7 +126,7 @@ class Template(BaseModel, extra="forbid"):
         match self.ingestion.file_format:
             case file.Shapefile() | file.Geodatabase() | file.GeoJson():
                 return True
-            case file.Csv() | file.Xlsx() | file.Json() as format:
+            case file.Csv() | file.Excel() | file.Json() | file.Html() as format:
                 return format.geometry is not None
 
 

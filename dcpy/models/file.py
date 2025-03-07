@@ -36,10 +36,11 @@ class Csv(SortedSerializedBase, extra="forbid"):
     geometry: Geometry | None = None
 
 
-class Xlsx(SortedSerializedBase, extra="forbid"):
-    type: Literal["xlsx"]
+class Excel(SortedSerializedBase, extra="forbid"):
+    type: Literal["excel", "xlsx"]  # union for backwards compatability
     unzipped_filename: str | None = None
-    sheet_name: str
+    sheet_name: str | int
+    engine: Literal["xlrd", "openpyxl", "odf", "pyxlsb", "calamine"] | None = None
     dtype: str | dict | None = None
     geometry: Geometry | None = None
 
@@ -74,4 +75,12 @@ class GeoJson(SortedSerializedBase, extra="forbid"):
     # Note, crs is not an attribute for geojson format. Geojson has a specification of "EPSG:4326"
 
 
-Format: TypeAlias = Csv | Xlsx | Shapefile | Geodatabase | Json | GeoJson
+class Html(SortedSerializedBase, extra="forbid"):
+    type: Literal["html"]
+    kwargs: dict
+    table: int = 0
+    unzipped_filename: str | None = None
+    geometry: Geometry | None = None
+
+
+Format: TypeAlias = Csv | Excel | Shapefile | Geodatabase | Json | GeoJson | Html
