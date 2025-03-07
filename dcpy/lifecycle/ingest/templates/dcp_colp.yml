@@ -13,7 +13,8 @@ ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{
+      version }}_csv.zip
   file_format:
     type: csv
     unzipped_filename: colp_{{ version }}.csv
@@ -21,6 +22,8 @@ ingestion:
       geom_column: GEOM
       crs: EPSG:2263
       format: wkb
+    dtype:
+      USECODE: str
   processing_steps:
   - name: clean_column_names
     args: { "lower": True }
