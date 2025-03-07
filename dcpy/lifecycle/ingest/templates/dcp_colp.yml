@@ -21,12 +21,11 @@ ingestion:
       geom_column: GEOM
       crs: EPSG:2263
       format: wkb
+    dtype:
+      USECODE: str
   processing_steps:
   - name: clean_column_names
     args: { "lower": True }
-  - name: rename_columns
-    args:
-      map: { "geom": "wkb_geometry" }
   - name: coerce_column_types
     args:
       column_types:
@@ -94,5 +93,5 @@ columns:
   data_type: decimal
 - id: dcpedited
   data_type: text
-- id: wkb_geometry
+- id: geom
   data_type: geometry
