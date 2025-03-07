@@ -1,0 +1,4 @@
+dataset_id,dataset_name,availability_type,file_type,geometry_type
+dcp_mappluto_wi,MapPLUTO,download,shapefile,MULTIPOLYGON
+dcp_population_projects,Population Projections,download,excel,
+dcp_projects,ZAP Data,download,csv,

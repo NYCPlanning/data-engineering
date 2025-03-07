@@ -1,0 +1,13 @@
+name: "ceqr"
+
+profile: "dcp-de-postgres"
+
+model-paths: [ "models" ]
+test-paths: [ "tests" ]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
+
+vars:
+  build_version: "{{ env_var('VERSION') }}"
