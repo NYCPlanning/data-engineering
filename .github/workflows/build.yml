@@ -9,33 +9,33 @@ on:
         type: choice
         required: true
         options:
-          - template
-          - cbbr
-          - cdbg
-          - checkbook
-          - colp
-          - cpdb
-          - developments
-          - facilities
-          - factfinder
-          - green_fast_track
-          - knownprojects
-          - pluto
-          - ztl
-          - all
+        - template
+        - cbbr
+        - cdbg
+        - checkbook
+        - colp
+        - cpdb
+        - developments
+        - facilities
+        - factfinder
+        - green_fast_track
+        - knownprojects
+        - pluto
+        - ztl
+        - all
       recipe_file:
         description: "Recipe filename to use"
         type: string
         options:
-          - recipe
-          - recipe-minor
+        - recipe
+        - recipe-minor
         required: true
         default: recipe
       version:
         description: "Version of dataset being built (overrides version defined in recipe)"
         type: string
         required: false
-      dev_image: 
+      dev_image:
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
         required: true
@@ -46,9 +46,9 @@ on:
         required: true
         default: INFO
         options:
-          - WARNING
-          - INFO
-          - DEBUG
+        - WARNING
+        - INFO
+        - DEBUG
       build_name:
         description: "Build name (defaults to branch name)"
         type: string
@@ -58,7 +58,8 @@ on:
         type: string
         required: false
       dev_bucket:
-        description: "dev bucket to use in place of recipes/publishing. If name of bucket is 'de-dev-a' simply put 'a'"
+        description: "dev bucket to use in place of recipes/publishing. If name of bucket is
+          'de-dev-a' simply put 'a'"
         type: string
         required: false
   workflow_call:
@@ -83,11 +84,14 @@ on:
         type: string
         required: false
 
-
 env:
-  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
   build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
-  version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
+  version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
+  tag: >-
+    ${{
+      (inputs.dev_image == 'true' || inputs.dev_image == true)
+      && format('dev-{0}', github.head_ref || github.ref_name) || 'latest'
+    }}
 
 jobs:
   health_check:
@@ -98,11 +102,11 @@ jobs:
       tag: ${{ env.tag }}
       build_name: ${{ env.build_name }}
     steps:
-      - name: Check inputs
-        run: |
-          echo "running with image tag ${{ (inputs.dev_image == 'true'|| inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}"
-          echo "Workflow inputs are:"
-          echo "${{ toJSON(github.event.inputs) }}"
+    - name: Check inputs
+      run: |
+        echo "running with image tag ${{ (inputs.dev_image == 'true'|| inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}"
+        echo "Workflow inputs are:"
+        echo "${{ toJSON(github.event.inputs) }}"
   template:
     needs: health_check
     if: inputs.dataset_name == 'template'
