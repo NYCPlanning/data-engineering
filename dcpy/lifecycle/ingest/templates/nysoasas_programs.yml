@@ -1,0 +1,55 @@
+id: nysoasas_programs
+acl: public-read
+
+attributes:
+  name: Chemical Dependence Treatment Programs
+  url: https://webapps.oasas.ny.gov/providerDirectory/index.cfm?search_type=2
+
+ingestion:
+  source:
+    type: file_download
+    url: https://webapps.oasas.ny.gov/providerDirectory/download/Treatment_Programs_OASAS_Directory_Search_{{ version }}.csv
+  file_format:
+    type: csv
+    dtype:
+      PROGRAM_ZIP_CODE: str
+      PROGRAM_ZIP_CODE_PLUS_4: str
+      PROVIDER_ZIP_CODE: str
+      PROVIDER_ZIP_CODE_PLUS_4: str
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+
+columns:
+- id: provider_name
+  data_type: text
+- id: provider_number
+  data_type: integer
+- id: provider_street
+  data_type: text
+- id: provider_city
+  data_type: text
+- id: provider_county
+  data_type: text
+- id: provider_state
+  data_type: text
+- id: provider_zip_code
+  data_type: text
+- id: program_name
+  data_type: text
+- id: program_number
+  data_type: integer
+- id: program_county
+  data_type: text
+- id: program_street_address
+  data_type: text
+- id: program_city
+  data_type: text
+- id: program_state
+  data_type: text
+- id: program_zip_code
+  data_type: text
+- id: program_type
+  data_type: text
+- id: service_type
+  data_type: text
