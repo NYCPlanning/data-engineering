@@ -38,64 +38,67 @@ jobs:
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
-      TEST_SEVERITY: ${{ contains(fromJson('["nightly_qa", "compile_python_reqs"]'), inputs.build_name) && 'warn' || 'error' }}
+      TEST_SEVERITY: ${{ contains(fromJson('["nightly_qa", "compile_python_reqs"]'),
+        inputs.build_name) && 'warn' || 'error' }}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
-          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
-          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
-          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
-          EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+        BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+        BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
+        EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
 
-      - name: Finish container setup
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
+    - name: Finish container setup
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
 
-      - name: Set build environment variables
-        working-directory: ./
-        run: ./bash/build_env_setup.sh
+    - name: Set build environment variables
+      working-directory: ./
+      run: ./bash/build_env_setup.sh
 
-      - name: Plan build
-        working-directory: products/pluto
-        run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
+    - name: Plan build
+      working-directory: products/pluto
+      run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
 
-      - name: Set recipe env vars
-        working-directory: ./
-        run: source ./bash/export_recipe_env.sh products/pluto/${{ inputs.recipe_file }}.lock.yml
+    - name: Set recipe env vars
+      working-directory: ./
+      run: source ./bash/export_recipe_env.sh products/pluto/${{ inputs.recipe_file
+        }}.lock.yml
 
-      - name: Dataloading
-        working-directory: products/pluto
-        run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
+    - name: Dataloading
+      working-directory: products/pluto
+      run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file
+        }}.lock.yml
 
-      - name: Load Local Data
-        run: ./01_load_local_csvs.sh
+    - name: Load Local Data
+      run: ./01_load_local_csvs.sh
 
-      - name: building ...
-        run: ./02_build.sh
+    - name: building ...
+      run: ./02_build.sh
 
-      - name: apply corrections
-        run: ./03_corrections.sh
+    - name: apply corrections
+      run: ./03_corrections.sh
 
-      - name: Archive
-        run: ./04_archive.sh
+    - name: Archive
+      run: ./04_archive.sh
 
-      - name: QAQC
-        run: ./05_qaqc.sh
+    - name: QAQC
+      run: ./05_qaqc.sh
 
-      - name: Export and Upload
-        run: ./06_export.sh
+    - name: Export and Upload
+      run: ./06_export.sh
 
-      - name: Custom QAQC
-        working-directory: products/pluto
-        run: ./pluto_build/07_custom_qaqc.sh
+    - name: Custom QAQC
+      working-directory: products/pluto
+      run: ./pluto_build/07_custom_qaqc.sh
