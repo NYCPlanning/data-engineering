@@ -14,7 +14,7 @@ from (
           FROM dcp_colp a, 
                (SELECT ST_Union(wkb_geometry) geom
                FROM dcp_boroboundaries_wi) combined 
-          WHERE NOT ST_WITHIN(ST_GeomFromEWKT(a.wkb_geometry), combined.geom)) tmp
+          WHERE NOT ST_WITHIN(a.geom, combined.geom)) tmp
     )t
 );
 
