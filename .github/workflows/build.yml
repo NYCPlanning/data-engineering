@@ -35,6 +35,10 @@ on:
         description: "Version of dataset being built (overrides version defined in recipe)"
         type: string
         required: false
+      allow_qa_failure:
+        description: "Fail action on post-build qa failure?"
+        type: boolean
+        default: true
       dev_image:
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
@@ -85,11 +89,21 @@ on:
         required: false
 
 env:
-  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}',
-    github.head_ref || github.ref_name) || 'latest' }}
   build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
-  version: ${{ github.event.inputs.version && format('--version {0}',
-    github.event.inputs.version) || '' }}
+  version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
+  test_severity: >-
+    ${{ 
+      (
+        inputs.allow_qa_failure 
+        && !contains(fromJson('["nightly_qa", "compile_python_reqs"]'), inputs.build_name)
+      )
+      && 'error' || 'warn'
+    }}
+  tag: >-
+    ${{ 
+      (inputs.dev_image == 'true' || inputs.dev_image == true) 
+      && format('dev-{0}', github.head_ref || github.ref_name) || 'latest'
+    }}
 
 jobs:
   health_check:
@@ -99,6 +113,7 @@ jobs:
       plan_command: recipe --recipe-path ./${{ inputs.recipe_file }}.yml ${{ env.version }}
       tag: ${{ env.tag }}
       build_name: ${{ env.build_name }}
+      test_severity: ${{ env.test_severity }}
     steps:
     - name: Check inputs
       run: |
@@ -238,6 +253,7 @@ jobs:
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
+      test_severity: ${{ needs.health_check.outputs.test_severity }}
   ztl:
     needs: health_check
     if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'
