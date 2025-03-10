@@ -127,7 +127,7 @@ def list_objects(bucket: str, prefix: str) -> list[dict]:
         for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
             objects = objects + cast(list[dict], result.get("Contents", []))
     except Exception as exc:
-        print(f"get_objects(bucket={bucket}, prefix={prefix}) failed")
+        logger.info(f"get_objects(bucket={bucket}, prefix={prefix}) failed. {str(exc)}")
         raise exc
     return objects
 

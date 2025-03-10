@@ -22,7 +22,7 @@ def _run(
         "decennial",
     ], "'acs' and 'decennial' only valid options for dataset."
     lockfile = plan.plan(Path(f"{dataset}.yml"))
-    load_result = load.load_source_data(lockfile, keep_files=True)
+    load_result = load.load_source_data_from_resolved_recipe(lockfile)
     match dataset:
         case "acs":
             acs_manual_update.run(load_result, upload)

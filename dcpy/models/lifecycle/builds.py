@@ -29,11 +29,13 @@ class InputDatasetDestination(StrEnum):
 class InputDataset(BaseModel, extra="forbid"):
     id: str = Field(validation_alias=AliasChoices("id", "name"))
     version: str | None = None
+    source: str | None = None
     file_type: recipes.DatasetType | None = None
     version_env_var: str | None = None
     import_as: str | None = None
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination | None = None
+    custom: dict = Field(default_factory=dict)
 
     @property
     def is_resolved(self):
@@ -51,6 +53,7 @@ class InputDataset(BaseModel, extra="forbid"):
 
 class InputDatasetDefaults(BaseModel):
     file_type: recipes.DatasetType | None = None
+    source: str = "edm.recipes"
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination = InputDatasetDestination.postgres
 
@@ -83,6 +86,7 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str
     file_type: recipes.DatasetType
     destination: str | pd.DataFrame | Path
+    destination_type: InputDatasetDestination | None = None
 
     @staticmethod
     def from_input(
@@ -91,7 +95,11 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         assert ds.version, f"Version of {ds.id} not resolved"
         assert ds.file_type, f"File type of {ds.id} not resolved"
         return ImportedDataset(
-            id=ds.id, version=ds.version, file_type=ds.file_type, destination=result
+            id=ds.id,
+            version=ds.version,
+            file_type=ds.file_type,
+            destination=result,
+            destination_type=ds.destination,
         )
 
 
