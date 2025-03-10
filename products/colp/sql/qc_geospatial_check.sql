@@ -12,7 +12,7 @@ from (
                               'projects_not_within_NYC' as field
 	from (SELECT a.uid, a.HNUM, a.sname, a.address, a.PARCELNAME, a.AGENCY, a.latitude, a.longitude, a.data_library_version as v
           FROM dcp_colp a, 
-               (SELECT ST_Union(geom) geom
+               (SELECT ST_Union(wkb_geometry) geom
                FROM dcp_boroboundaries_wi) combined 
           WHERE NOT ST_WITHIN(ST_GeomFromEWKT(a.geom), combined.geom)) tmp
     )t
