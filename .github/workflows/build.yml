@@ -35,6 +35,11 @@ on:
         description: "Version of dataset being built (overrides version defined in recipe)"
         type: string
         required: false
+      test_severity:
+        description: "Test severity (should post-build tests cause action to fail?)"
+        type: choice
+        required: true
+        options: [ error, warn ]
       dev_image:
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
@@ -73,6 +78,10 @@ on:
       recipe_file:
         type: string
         required: true
+      test_severity:
+        type: string
+        required: false
+        default: 'error'
       dev_image:
         type: string
         default: false
@@ -240,6 +249,7 @@ jobs:
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
+      test_severity: ${{ inputs.test_severity }}
   ztl:
     needs: health_check
     if: inputs.dataset_name == 'ztl' || inputs.dataset_name  == 'all'

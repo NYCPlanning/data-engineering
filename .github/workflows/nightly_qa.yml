@@ -30,6 +30,7 @@ jobs:
       recipe_file: recipe
       dev_image: ${{ inputs.dev_image || 'false' }}
       build_name: ${{ inputs.build_name || 'nightly_qa' }}
+      test_severity: warn
 
   create_issue_on_failure:
     needs: [test, build]
