@@ -34,19 +34,6 @@ jobs:
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
-    services:
-      postgis:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_DB: dbcolp
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
     - uses: actions/checkout@v4
 
