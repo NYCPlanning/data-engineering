@@ -16,9 +16,9 @@ geo_client = Geosupport()
 
 def geosupport_1B_address(input_record: dict) -> dict:
     """1B function - geocode address based on the address number and street name"""
-    borough = input_record.get("borough_code")
-    house_number = input_record.get("addressnum")
-    street_name = input_record.get("street_name")
+    borough = input_record["borough_code"]
+    house_number = input_record["addressnum"]
+    street_name = input_record["street_name"]
     if not house_number:
         # no house_number indicates unlikely to be an address
         # NOTE This error message won't show in data since, if no function work, geo_message will be GEOCODING FAILED
@@ -36,7 +36,7 @@ def geosupport_1B_address(input_record: dict) -> dict:
 
 def geosupport_1B_place(input_record: dict) -> dict:
     """1B function - geocode address based on the place name"""
-    borough = input_record.get("borough_code")
+    borough = input_record["borough_code"]
     street_name = input_record["site_or_facility_name"] or ""
     street_name = re.sub(r"[^\x00-\x7F]+", "", street_name)
 
@@ -51,9 +51,9 @@ def geosupport_1B_place(input_record: dict) -> dict:
 
 def geosupport_2(input_record: dict) -> dict:
     """2 function - geocode intersection based on the two street names"""
-    borough = input_record.get("borough_code")
-    street_1 = input_record.get("intersection_street_1")
-    street_2 = input_record.get("intersection_street_2")
+    borough = input_record["borough_code"]
+    street_1 = input_record["intersection_street_1"]
+    street_2 = input_record["intersection_street_2"]
 
     # use geosupport function
     geo_function_result = geo_client["2"](
@@ -67,10 +67,10 @@ def geosupport_2(input_record: dict) -> dict:
 
 def geosupport_3(input_record: dict) -> dict:
     """3 function - geocode street segment (1 block) based on the three street names"""
-    borough = input_record.get("borough_code")
-    street_name = input_record.get("street_name")
-    cross_street_1 = input_record.get("cross_street_1")
-    cross_street_2 = input_record.get("cross_street_2")
+    borough = input_record["borough_code"]
+    street_name = input_record["street_name"]
+    cross_street_1 = input_record["cross_street_1"]
+    cross_street_2 = input_record["cross_street_2"]
     if not cross_street_1 or not cross_street_2:
         raise GeosupportError("UNLIKELY TO BE A STREET SEGMENT")
 
