@@ -24,12 +24,15 @@ SELECT
     need,
     request,
     explanation,
-    location,
-    facility_or_park_name AS site_name,
+    location_specific,
+    site_or_facility_name,
     address,
     street_name,
-    between_cross_street_1 AS street_cross_1,
-    and_cross_street_2 AS street_cross_2,
+    on_street,
+    cross_street_1,
+    cross_street_2,
+    intersection_street_1,
+    intersection_street_2,
     agency_acronym,
     agency,
     agency_category_response,
@@ -103,8 +106,16 @@ SELECT
     facility_or_park_name AS site_name,
     address,
     street_name,
+<<<<<<< HEAD
     between_cross_street_1 AS street_cross_1,
     and_cross_street_2 AS street_cross_2,
+=======
+    on_street,
+    cross_street_1,
+    cross_street_2,
+    intersection_street_1,
+    intersection_street_2,
+>>>>>>> 9c85f454 (fixup schema)
     CASE
         WHEN
             supporters_1 IS NULL
