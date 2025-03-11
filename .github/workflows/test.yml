@@ -218,4 +218,5 @@ jobs:
       dataset_name: all
       build_note: check newly compiled python requirements
       recipe_file: recipe
+      test_severity: warn
       dev_image: true

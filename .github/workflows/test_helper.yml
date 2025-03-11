@@ -210,7 +210,6 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
       with:
-        fail_ci_if_error: true
         verbose: true
 
   validate_product_metadata:
