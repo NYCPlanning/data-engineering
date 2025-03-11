@@ -10,6 +10,8 @@ on:
         required: true
         options:
           - db-cbbr
+          - db-cdbg
+          - db-ceqr
           - db-checkbook
           - db-colp
           - db-cpdb
