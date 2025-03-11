@@ -1,0 +1,26 @@
+id: dcp_cbbr_requests
+acl: public-read
+
+attributes:
+  name: Community Board Budget Requests
+  description: >-
+    This data consists of budget requests submitted by NYC's community boards, exported
+    from the DCP-maintained web app requests are submitted. Each record consists of  an
+    indiviudal budget request and the responsible agencies response to each
+    formal  budget request. 
+
+    This data is currently sent to DE by CAPS, although pulling it could be automated.
+
+    It is supplemented by omb_cbbr_agency_responses, linked by UNIQUE_ID to DCPUNIQID.
+    We archive both because OMB combines multiple fields relating to location, making
+    geocoding more difficult
+
+ingestion:
+  source:
+    type: local_file
+    path: ./dcp_cbbr_requests.csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " -": "", "-": "_", " ": "_" }, "lower": True }
