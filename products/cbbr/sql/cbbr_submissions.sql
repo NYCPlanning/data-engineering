@@ -3,30 +3,35 @@ DROP TABLE IF EXISTS _cbbr_submissions;
 
 CREATE TABLE _cbbr_submissions AS
 SELECT
-    dcpuniqid AS unique_id,
-    trkno AS tracking_code,
-    borough,
-    RIGHT(cb_label, 2) AS cd,
-    cb_label,
-    type AS type_br,
-    priority,
-    need, -- missing
-    request,
-    REPLACE(reason, E'\n', ' ') AS explanation,
-    location,
-    loc_type AS type,
-    lowsgrp1 AS supporters_1,
-    lowsgrp2 AS supporters_2,
-    capis1 AS project_id_1, -- all null
-    capis2 AS project_id_2,
-    capis3 AS project_id_3,
-    budline1 AS budget_line_1, -- all null
-    budline2 AS budget_line_2,
-    budline3 AS budget_line_3,
-    agency_acronym,
-    agency,
-    agyrspcat AS agency_category_response, -- all null
-    agency_response,
-    REPLACE(explanation, E'\n', ' ') AS additional_comment,
-    NULL AS parent_tracking_code
-FROM omb_cbbr_agency_responses
+    omb.dcpuniqid AS unique_id,
+    omb.trkno AS tracking_code,
+    omb.borough,
+    RIGHT(omb.cb_label, 2) AS cd,
+    omb.cb_label,
+    omb.type AS type_br,
+    omb.priority,
+    NULL AS need, -- missing
+    omb.request,
+    REPLACE(omb.reason, E'\n', ' ') AS explanation,
+    dcp.location_specific,
+    dcp.address,
+    dcp.site_or_facility_name,
+    dcp.cross_street_1,
+    dcp.cross_street_2,
+    dcp.intersection_street_1,
+    dcp.intersection_street_2,
+    omb.lowsgrp1 AS supporters_1,
+    omb.lowsgrp2 AS supporters_2,
+    omb.capis1 AS project_id_1, -- all null
+    omb.capis2 AS project_id_2,
+    omb.capis3 AS project_id_3,
+    omb.budline1 AS budget_line_1, -- all null
+    omb.budline2 AS budget_line_2,
+    omb.budline3 AS budget_line_3,
+    omb.agency_acronym,
+    omb.agency,
+    omb.agyrspcat AS agency_category_response, -- all null
+    omb.agency_response,
+    REPLACE(omb.explanation, E'\n', ' ') AS additional_comment
+FROM omb_cbbr_agency_responses AS omb
+INNER JOIN dcp_cbbr_requests AS dcp ON omb.dcpuniqid = dcp.unique_id
