@@ -6,7 +6,7 @@ SELECT *
 INTO cbbr_submissions_needgeoms
 FROM _cbbr_submissions
 WHERE geom IS NULL
-ORDER BY location ASC;
+ORDER BY borough_code, street_name, address;
 
 -- cbbr_submissions_needgeoms_c: lowest priority
 DROP TABLE IF EXISTS cbbr_submissions_needgeoms_c;
@@ -42,9 +42,7 @@ SELECT
 INTO cbbr_submissions_needgeoms_c
 FROM _cbbr_submissions
 WHERE geom IS NULL
-ORDER BY
-    cb_label ASC,
-    location ASC;
+ORDER BY cb_label, street_name, address;
 
 -- cbbr_submissions_needgeoms_b
 DROP TABLE IF EXISTS cbbr_submissions_needgeoms_b;
@@ -100,13 +98,13 @@ SELECT
     commdist,
     cb_label,
     type_br,
-    type,
+    -- type,
     priority,
     need,
     request,
     explanation,
-    location,
-    facility_or_park_name AS site_name,
+    location_specific,
+    site_or_facility_name AS site_name,
     address,
     street_name,
     on_street,
@@ -131,7 +129,6 @@ SELECT
         ELSE
             supporters_2
     END AS supporters_2,
-    parent_tracking_code,
     agency_acronym,
     agency,
     agency_category_response,
