@@ -152,9 +152,17 @@ def _cli_wrapper_recipe(
         "-v",
         help="Version of dataset being built",
     ),
+    clear_pg_schema: bool = typer.Option(
+        False,
+        "--clear-schema",
+        "-x",
+        help="Clear the build schema?",
+    ),
 ):
     recipe_lock_path = plan.plan(recipe_path, version)
-    load_source_data_from_resolved_recipe(recipe_lock_path)
+    load_source_data_from_resolved_recipe(
+        recipe_lock_path, clear_pg_schema=clear_pg_schema
+    )
 
 
 @app.command("load")

@@ -989,5 +989,20 @@ def _cli_wrapper_download_file(
     download_file(key, filepath, output_dir)
 
 
+@app.command("get_published_versions")
+def _cli_wrapper_get_published_versions(
+    product: str = typer.Argument(
+        help="Name of data product (publishing folder in s3)",
+    ),
+    exclude_latest: bool = typer.Option(
+        True,
+        "-e",
+        "--exclude-latest",
+        help="Exclude latest versions?",
+    ),
+):
+    versions = get_published_versions(product, exclude_latest)
+    logger.info(str(versions))
+
 if __name__ == "__main__":
     app()

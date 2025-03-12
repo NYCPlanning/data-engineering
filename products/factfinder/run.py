@@ -1,8 +1,8 @@
-from pathlib import Path
 import typer
 
 from dcpy.lifecycle.builds import load, plan
-from pipelines import acs_manual_update, decennial_manual_update
+from .pipelines import acs_manual_update, decennial_manual_update
+from .paths import ROOT_PATH
 
 app = typer.Typer(add_completion=False)
 
@@ -21,7 +21,7 @@ def _run(
         "acs",
         "decennial",
     ], "'acs' and 'decennial' only valid options for dataset."
-    lockfile = plan.plan(Path(f"{dataset}.yml"))
+    lockfile = plan.plan(ROOT_PATH / f"{dataset}.yml")
     load_result = load.load_source_data_from_resolved_recipe(lockfile)
     match dataset:
         case "acs":
