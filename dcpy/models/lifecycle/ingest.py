@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import ABC
 from functools import cached_property
 from datetime import datetime
 from pathlib import Path
@@ -7,12 +8,21 @@ from typing import Any, Literal, TypeAlias
 
 from dcpy.utils.metadata import RunDetails
 from dcpy.models.connectors.edm import recipes, publishing
-from dcpy.models.connectors import web, socrata, esri
+from dcpy.models.connectors import socrata, esri
 from dcpy.models import file
 from dcpy.models.base import SortedSerializedBase
 from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
 
 from dcpy.connectors.esri import arcgis_feature_service
+
+
+class ConnectorSource(ABC):
+    type: str
+
+    @property
+    def key(self) -> str:
+        """unique identifier of a dataset for this source type"""
+        return ""
 
 
 class LocalFileSource(BaseModel, extra="forbid"):
@@ -26,20 +36,60 @@ class S3Source(BaseModel, extra="forbid"):
     key: str
 
 
-class ScriptSource(BaseModel, extra="forbid"):
-    type: Literal["script"]
-    connector: str
-    function: str
+class FileDownloadSource(BaseModel, extra="forbid"):
+    type: Literal["file_download"]
+    url: str
 
 
-class DEPublished(BaseModel, extra="forbid"):
-    type: Literal["de-published"]
+class GenericApiSource(BaseModel, extra="forbid"):
+    type: Literal["api"]
+    endpoint: str
+    format: Literal["json", "csv"]
+
+
+class DEPublished(BaseModel, ConnectorSource, extra="forbid"):
+    type: Literal["edm.publishing.published"]
     product: str
     filename: str
 
+    @property
+    def key(self) -> str:
+        return self.product
 
-class ESRIFeatureServer(BaseModel, extra="forbid"):
-    type: Literal["esri"]
+
+class GisDataset(BaseModel, ConnectorSource, extra="forbid"):
+    """Dataset published by GIS in edm-publishing/datasets"""
+
+    # Some datasets here will phased out if we eventually get data
+    # directly from GR or other sources
+    type: Literal["edm.publishing.gis"]
+    name: str
+
+    @property
+    def key(self) -> str:
+        return self.name
+
+
+class SocrataSource(BaseModel, ConnectorSource, extra="forbid"):
+    type: Literal["socrata"]
+    org: socrata.Org
+    uid: str
+    format: socrata.ValidSourceFormats
+
+    @property
+    def extension(self) -> str:
+        if self.format == "shapefile":
+            return "zip"
+        else:
+            return self.format
+
+    @property
+    def key(self) -> str:
+        return self.uid
+
+
+class ESRIFeatureServer(BaseModel, ConnectorSource, extra="forbid"):
+    type: Literal["arcgis_feature_server"]
     server: esri.Server
     dataset: str
     layer_name: str | None = None
@@ -59,16 +109,19 @@ class ESRIFeatureServer(BaseModel, extra="forbid"):
         )
         return feature_server_layer
 
+    @property
+    def key(self) -> str:
+        return self.dataset
+
 
 Source: TypeAlias = (
     LocalFileSource
-    | web.FileDownloadSource
-    | web.GenericApiSource
-    | socrata.Source
-    | publishing.GisDataset
-    | DEPublished
+    | FileDownloadSource
+    | GenericApiSource
     | S3Source
-    | ScriptSource
+    | SocrataSource
+    | GisDataset
+    | DEPublished
     | ESRIFeatureServer
 )
 

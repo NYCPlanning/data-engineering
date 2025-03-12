@@ -5,13 +5,18 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 import yaml
+from dcpy.lifecycle.connector_registry import nonversioned_connectors
 
 from dcpy.models.lifecycle.ingest import (
     ArchivalMetadata,
     Ingestion,
     LocalFileSource,
+    ConnectorSource,
     S3Source,
-    ScriptSource,
+    GisDataset,
+    FileDownloadSource,
+    GenericApiSource,
+    SocrataSource,
     DEPublished,
     ESRIFeatureServer,
     Source,
@@ -19,13 +24,8 @@ from dcpy.models.lifecycle.ingest import (
     Template,
     Config,
 )
-from dcpy.models.connectors import socrata, web as web_models
-from dcpy.models.connectors.edm.publishing import GisDataset
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
-from dcpy.connectors.socrata import extract as extract_socrata
-from dcpy.connectors.esri import arcgis_feature_service
-from dcpy.connectors.edm import publishing
 
 
 def get_jinja_vars(s: str) -> set[str]:
@@ -57,34 +57,14 @@ def read_template(
     return Template(**template_yml)
 
 
-def get_version(source: Source, timestamp: datetime | None = None) -> str:
-    """
-    Given parsed dataset template, determine version.
-    If version's source has no custom logic, returns formatted date
-    from provided datetime
-    """
+def get_version(source: Source, timestamp: datetime) -> str:
     match source:
-        case socrata.Source():
-            return extract_socrata.get_version(source)
-        case GisDataset():
-            return publishing.get_latest_gis_dataset_version(source.name)
-        case DEPublished():
-            version = publishing.get_latest_version(source.product)
-            if not version:
-                raise FileNotFoundError(
-                    "Unable to determine latest version. If archiving known version, please provide it."
-                )
-            return version
-        case ESRIFeatureServer():
-            return arcgis_feature_service.get_data_last_updated(
-                source.feature_server_layer
-            ).strftime("%Y%m%d")
+        case ConnectorSource():
+            connector = nonversioned_connectors[source.type]
+            version = connector.get_version(source.key, source.model_dump())
         case _:
-            if timestamp is None:
-                raise TypeError(
-                    f"Version cannot be dynamically determined for source of type {source.type}"
-                )
-            return timestamp.strftime("%Y%m%d")
+            version = None
+    return version or timestamp.strftime("%Y%m%d")
 
 
 def get_filename(source: Source, ds_id: str) -> str:
@@ -96,13 +76,11 @@ def get_filename(source: Source, ds_id: str) -> str:
             return source.filename
         case GisDataset():
             return f"{source.name}.zip"
-        case ScriptSource():
-            return f"{ds_id}.parquet"
-        case web_models.FileDownloadSource():
+        case FileDownloadSource():
             return os.path.basename(urlparse(source.url).path)
-        case web_models.GenericApiSource():
+        case GenericApiSource():
             return f"{ds_id}.{source.format}"
-        case socrata.Source():
+        case SocrataSource():
             return f"{ds_id}.{source.extension}"
         case S3Source():
             return Path(source.key).name

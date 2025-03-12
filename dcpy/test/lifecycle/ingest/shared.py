@@ -33,7 +33,7 @@ PROD_TEMPLATE_DIR = (
 
 class Sources:
     local_file = LocalFileSource(type="local_file", path=Path("subfolder/dummy.txt"))
-    gis = GisDataset(type="edm_publishing_gis_dataset", name=TEST_DATASET_NAME)
+    gis = GisDataset(type="edm.publishing.gis", name=TEST_DATASET_NAME)
     script = ScriptSource(type="script", connector="web", function="get_df")
     file_download = web.FileDownloadSource(
         type="file_download",
@@ -52,7 +52,7 @@ class Sources:
         type="de-published", product=TEST_DATASET_NAME, filename="file.csv"
     )
     esri = ESRIFeatureServer(
-        type="esri",
+        type="arcgis_feature_server",
         server=esri.Server.nys_parks,
         dataset="National_Register_Building_Listings",
         layer_id=13,
