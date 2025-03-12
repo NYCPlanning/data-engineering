@@ -1,4 +1,5 @@
 from abc import ABC
+from datetime import date
 from pathlib import Path
 from typing import Protocol, Any, TypeVar, Generic
 
@@ -51,6 +52,11 @@ class _VersionedPush(ABC):
         """Push to a destination that implements versioning."""
 
 
+class _NonVersionedPush(ABC):
+    def push(self, key: str, push_conf: Any | None = None) -> Any:
+        """Push to a destination that does not support explicit versioning"""
+
+
 class _VersionedPull(ABC):
     def pull(
         self,
@@ -75,6 +81,33 @@ class _VersionedPull(ABC):
         return Path(key) / version
 
 
+class _NonVersionedPull(ABC):
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        pull_conf: Any | None = None,
+    ) -> Any:
+        """Push from a source that does not support versioning."""
+
+    def get_pull_local_sub_path(
+        self,
+        key: str,
+        pull_conf: Any | None = None,
+    ) -> Path:
+        """Calculate where the file should be stored locally, e.g. /{key}/{version}/
+        Different resources might organize their local resources differently, for example
+        if the source for `data.csv` implements drafts per version, the local subpath might be
+        /{key}/{version}/{draft}/data.csv
+        """
+        return Path(key)
+
+
+class _GetCurrentVersion(ABC):
+    def get_current_version(self, key: str, conf: dict | None = None) -> str | None:
+        return None
+
+
 class _VersionSearch(ABC):
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
         return []
@@ -88,6 +121,12 @@ class _VersionSearch(ABC):
 
 class VersionedConnector(_VersionedPull, _VersionedPush, _VersionSearch):
     """A connector that implements the most standard connector behavior (pull, push, version)"""
+
+    conn_type: str
+
+
+class NonVersionedConnector(_NonVersionedPull, _NonVersionedPush, _GetCurrentVersion):
+    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
     conn_type: str
 
