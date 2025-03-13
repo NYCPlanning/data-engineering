@@ -118,7 +118,6 @@ def determine_processing_steps(
     steps: list[ProcessingStep],
     *,
     target_crs: str | None,
-    has_geom: bool,
     mode: str | None,
 ) -> list[ProcessingStep]:
     # TODO default steps like this should probably be configuration
@@ -162,7 +161,6 @@ def get_config(
     processing_steps = determine_processing_steps(
         template.ingestion.processing_steps,
         target_crs=template.ingestion.target_crs,
-        has_geom=template.has_geom,
         mode=mode,
     )
 
