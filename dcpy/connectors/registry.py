@@ -167,5 +167,8 @@ class ConnectorRegistry(Generic[_C]):
         connectors = {
             t: conn for (t, conn) in self._connectors.items() if isinstance(conn, cls)
         }
-        print(connectors)
-        return ConnectorRegistry(connectors=connectors)  # type: ignore
+        return ConnectorRegistry(connectors=connectors)
+
+    @property
+    def nonversioned(self) -> ConnectorRegistry[NonVersionedConnector]:
+        return self.get_subregistry(NonVersionedConnector)

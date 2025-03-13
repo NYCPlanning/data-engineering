@@ -1,11 +1,11 @@
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.socrata import connector as soc_connector
 from dcpy.connectors.esri import arcgis_feature_service
+from dcpy.connectors import web
 from dcpy.connectors.registry import (
     ConnectorRegistry,
-    Connector,
-    VersionedConnector,
     NonVersionedConnector,
+    Connector,
 )
 from dcpy.utils.logging import logger
 
@@ -20,11 +20,9 @@ def _set_default_connectors():
     connectors.register(connector=publishing.GisDatasetsConnector())
     connectors.register(connector=soc_connector.Connector())
     connectors.register(connector=arcgis_feature_service.Connector())
+    connectors.register(connector=web.Connector())
+    connectors.register(connector=web.Connector(), conn_type="api")
     logger.info(f"Registered Connectors: {connectors.list_registered()}")
 
 
 _set_default_connectors()
-
-
-versioned_connectors = connectors.get_subregistry(VersionedConnector)
-nonversioned_connectors = connectors.get_subregistry(NonVersionedConnector)

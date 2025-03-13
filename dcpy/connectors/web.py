@@ -2,6 +2,7 @@ from pathlib import Path
 import requests
 
 from dcpy.utils.logging import logger
+from dcpy.connectors import NonVersionedConnector
 
 
 def download_file(url: str, path: Path) -> None:
@@ -14,3 +15,22 @@ def download_file(url: str, path: Path) -> None:
     response.raise_for_status()
     with open(path, "wb") as f:
         f.write(response.content)
+
+
+class Connector(NonVersionedConnector):
+    conn_type = "file_download"
+
+    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        pull_conf: dict | None = None,
+    ) -> dict:
+        download_file(key, destination_path)
+        return {"path": destination_path}
+
+    def get_current_version(self, key: str) -> str | None:
+        return None

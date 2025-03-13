@@ -16,7 +16,7 @@ from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
 from dcpy.connectors.esri import arcgis_feature_service
 
 
-class ConnectorSource(ABC):
+class _Source(ABC):
     type: str
 
     @property
@@ -25,9 +25,13 @@ class ConnectorSource(ABC):
         return ""
 
 
-class LocalFileSource(BaseModel, extra="forbid"):
+class LocalFileSource(_Source, BaseModel, extra="forbid"):
     type: Literal["local_file"]
     path: Path
+
+    @property
+    def key(self) -> str:
+        return str(self.path)
 
 
 class S3Source(BaseModel, extra="forbid"):
@@ -36,18 +40,26 @@ class S3Source(BaseModel, extra="forbid"):
     key: str
 
 
-class FileDownloadSource(BaseModel, extra="forbid"):
+class FileDownloadSource(_Source, BaseModel, extra="forbid"):
     type: Literal["file_download"]
     url: str
 
+    @property
+    def key(self) -> str:
+        return self.url
 
-class GenericApiSource(BaseModel, extra="forbid"):
+
+class GenericApiSource(_Source, BaseModel, extra="forbid"):
     type: Literal["api"]
     endpoint: str
     format: Literal["json", "csv"]
 
+    @property
+    def key(self) -> str:
+        return self.endpoint
 
-class DEPublished(BaseModel, ConnectorSource, extra="forbid"):
+
+class DEPublished(_Source, BaseModel, extra="forbid"):
     type: Literal["edm.publishing.published"]
     product: str
     filename: str
@@ -57,7 +69,7 @@ class DEPublished(BaseModel, ConnectorSource, extra="forbid"):
         return self.product
 
 
-class GisDataset(BaseModel, ConnectorSource, extra="forbid"):
+class GisDataset(_Source, BaseModel, extra="forbid"):
     """Dataset published by GIS in edm-publishing/datasets"""
 
     # Some datasets here will phased out if we eventually get data
@@ -70,7 +82,7 @@ class GisDataset(BaseModel, ConnectorSource, extra="forbid"):
         return self.name
 
 
-class SocrataSource(BaseModel, ConnectorSource, extra="forbid"):
+class SocrataSource(_Source, BaseModel, extra="forbid"):
     type: Literal["socrata"]
     org: socrata.Org
     uid: str
@@ -88,7 +100,7 @@ class SocrataSource(BaseModel, ConnectorSource, extra="forbid"):
         return self.uid
 
 
-class ESRIFeatureServer(BaseModel, ConnectorSource, extra="forbid"):
+class ESRIFeatureServer(_Source, BaseModel, extra="forbid"):
     type: Literal["arcgis_feature_server"]
     server: esri.Server
     dataset: str

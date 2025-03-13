@@ -5,13 +5,13 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 import yaml
-from dcpy.lifecycle.connector_registry import nonversioned_connectors
+from dcpy.lifecycle.connector_registry import connectors
 
 from dcpy.models.lifecycle.ingest import (
     ArchivalMetadata,
     Ingestion,
     LocalFileSource,
-    ConnectorSource,
+    _Source,
     S3Source,
     GisDataset,
     FileDownloadSource,
@@ -59,8 +59,8 @@ def read_template(
 
 def get_version(source: Source, timestamp: datetime) -> str:
     match source:
-        case ConnectorSource():
-            connector = nonversioned_connectors[source.type]
+        case _Source():
+            connector = connectors.nonversioned[source.type]
             version = connector.get_version(source.key, source.model_dump())
         case _:
             version = None
