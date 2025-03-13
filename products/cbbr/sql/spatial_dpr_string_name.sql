@@ -4,7 +4,7 @@
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.signname,
         b.geom
     FROM
@@ -18,7 +18,7 @@ WITH master AS (
         AND upper(b.signname) != 'TRIANGLE'
         AND upper(b.signname) != 'SITTING AREA'
         AND upper(b.signname) != 'BRIDGE PARK'
-        AND upper(a.facility_or_park_name)
+        AND upper(a.site_or_facility_name)
         LIKE upper('%' || b.signname || '%')
         AND a.borough = (
             CASE
@@ -48,7 +48,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.signname,
         b.geom
     FROM
@@ -61,7 +61,7 @@ WITH master AS (
         AND upper(b.signname) != 'GARDEN'
         AND upper(b.signname) != 'TRIANGLE'
         AND upper(b.signname) != 'SITTING AREA'
-        AND upper(a.facility_or_park_name)
+        AND upper(a.site_or_facility_name)
         LIKE upper('%' || b.signname || '%')
         AND a.borough = (
             CASE
@@ -91,7 +91,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.signname,
         b.geom
     FROM
@@ -105,7 +105,7 @@ WITH master AS (
         AND upper(b.signname) != 'TRIANGLE'
         AND upper(b.signname) != 'SITTING AREA'
         AND upper(b.signname) != 'BRIDGE PARK'
-        AND levenshtein(upper('%' || a.facility_or_park_name || '%'), upper('%' || b.signname || '%')) <= 3
+        AND levenshtein(upper('%' || a.site_or_facility_name || '%'), upper('%' || b.signname || '%')) <= 3
         AND a.borough = (
             CASE
                 WHEN b.borough = 'M'

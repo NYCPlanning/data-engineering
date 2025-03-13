@@ -150,7 +150,6 @@ def get_config(
     run_details = metadata.get_run_details()
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
-    filename = get_filename(template.ingestion.source, template.id)
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
@@ -158,6 +157,7 @@ def get_config(
         template.ingestion.source = LocalFileSource(
             type="local_file", path=local_file_path
         )
+    filename = get_filename(template.ingestion.source, template.id)
 
     processing_steps = determine_processing_steps(
         template.ingestion.processing_steps,
