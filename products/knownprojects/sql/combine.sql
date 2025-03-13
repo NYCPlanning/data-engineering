@@ -375,7 +375,7 @@ _hpd_rfp AS (
         ON a.bbl::numeric = b.bbl::numeric
     GROUP BY
         request_for_proposals_name, designated,
-        closed, est_units, closed_date, likely_to_be_built_by_2025
+        closed, est_units, closed_date, likely_to_be_built_by_2029
 ),
 
 /* Housing data, as mapped in _sql/dcp_housing.sql
