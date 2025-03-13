@@ -344,7 +344,7 @@ _hpd_rfp AS (
         request_for_proposals_name AS record_name,
         NULL AS type,
         (CASE
-            WHEN est_units ~* '-' THEN NULL
+            WHEN lower(est_units) IN ('-', 'tbd') THEN NULL
             ELSE replace(est_units, ',', '')
         END)::integer AS units_gross,
         'Month Closed' AS date_type,
