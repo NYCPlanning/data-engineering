@@ -2,7 +2,7 @@ name: Known Projects Database
 product: db-kpdb
 version_strategy: first_of_month
 vars:
-  ZAP_VERSION: "20230905"
+  ZAP_VERSION: "20250303"
 inputs:
   missing_versions_strategy: find_latest
   datasets:
