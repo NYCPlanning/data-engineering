@@ -22,7 +22,8 @@ CREATE OR REPLACE PROCEDURE correction(
     _record_id text,
     _field text,
     _old_val text,
-    _new_val text
+    _new_val text,
+    _date text
 ) AS $BODY$
 DECLARE
     field_type text;
@@ -52,7 +53,7 @@ BEGIN
             INSERT INTO corrections_applied VALUES (%1$L, %2$L, %3$L, %4$L, %5L);
             $n$, _record_id, _field, current_val, _old_val, _new_val);
     ELSE 
-        RAISE NOTICE 'Cannot Apply Correction for field %', _field;
+        RAISE NOTICE 'Cannot apply correction at record ID % for field %: current_val %, old_val %, new_val %, date %', _record_id, _field, current_val, _old_val, _new_val, _date;
         EXECUTE format($n$
             DELETE FROM corrections_not_applied WHERE record_id = %1$L AND field = %2$L;
             INSERT INTO corrections_not_applied VALUES (%1$L, %2$L, %3$L, %4$L, %5L);
@@ -74,6 +75,7 @@ DECLARE
     _field text;
     _old_value text;
     _new_value text;
+    _date text;
     _valid_fields text[];
 BEGIN
     RAISE NOTICE 'Attempting to apply corrections for field % to %.%', _field, _schema, _table;
@@ -81,14 +83,14 @@ BEGIN
     SELECT array_agg(column_name) FROM information_schema.columns
     WHERE table_schema = _schema AND table_name = _table INTO _valid_fields;
 
-    FOR _record_id, _field, _old_value, _new_value IN 
+    FOR _record_id, _field, _old_value, _new_value, _date IN 
         EXECUTE FORMAT($n$
-            SELECT record_id, field, old_value, new_value 
+            SELECT record_id, field, old_value, new_value, date 
             FROM %1$s
             WHERE field = any(%2$L)
         $n$, _corrections, _valid_fields)
     LOOP
-        CALL correction(_table, _record_id, _field, _old_value, _new_value);
+        CALL correction(_table, _record_id, _field, _old_value, _new_value, _date);
     END LOOP;
 END
 $BODY$ LANGUAGE plpgsql;
