@@ -14,7 +14,7 @@ sys.path.append(str(_proj_root))
 BUILD_DATETIME = datetime.today().strftime("%Y%m%d_%H:%M")
 
 S3_BUCKET = "edm-private"
-S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20240105"
+S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250418"
 S3_OUTPUT_DIR = "db-kpdb"
 
 DATA_PATH = _product_path / "data"
@@ -23,16 +23,16 @@ CORRECTIONS_DATA_PATH = DATA_PATH / "corrections"
 OUTPUT_PATH = _product_path / "output"
 
 DCP_HOUSING_DATA_FILENAMES = {
-    "dcp_knownprojects": "kpdb_20211006_shapefiles.zip",
+    "dcp_knownprojects": "KPDB_20240710.zip",
     "esd_projects": "2021.2.10 State Developments for Housing Pipeline.xlsx",
     "edc_projects": "2022.11.18 EDC inputs for DCP housing projections.xlsx",
-    "edc_dcp_inputs": "edc_shapefile_20221118.zip",
+    "edc_dcp_inputs": "edc_shapefile_20250225.zip",
     "dcp_n_study": "nstudy_rezoning_commitments_shapefile_20221017.zip",
-    "dcp_n_study_future": "future_nstudy_shapefile_20230928.zip",
-    "dcp_n_study_projected": "PastNeighborhoodStudies_20231212.zip",
-    "hpd_rfp": "HPD_RFPs.xlsx",
-    "hpd_pc": "HPD_Pipeline.xlsx",
-    "dcp_planneradded": "dcp_planneradded_2023_03_21.csv",
+    "dcp_n_study_future": "future_neighborhoodstudies_20250304.zip",
+    "dcp_n_study_projected": "past_neighborhoodstudies_20250304.zip",
+    "hpd_rfp": "HPD_RFPs_20250110.xlsx",
+    "hpd_pc": "HPD_Pipeline_20250225.xlsx",
+    "dcp_planneradded": "dcp_planneradded_2025_04_07.csv",
 }
 DCP_HOUSING_CORRECTIONS_FILENAMES = {
     "corrections_dob": "corrections_dob.csv",
