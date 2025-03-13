@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: s3://edm-recipes/inbox/dot_projects_bridges/{{ version }}.zip
+      path: s3://edm-recipes/inbox/dot_projects_bridges/BridgeProjects_{{ version }}Plan_Planned.zip
       # subpath: MUNICIPAL_PARKING.shp
     options:
       - "AUTODETECT_TYPE=NO"
