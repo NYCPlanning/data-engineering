@@ -52,7 +52,7 @@ BEGIN
             INSERT INTO corrections_applied VALUES (%1$L, %2$L, %3$L, %4$L, %5L);
             $n$, _record_id, _field, current_val, _old_val, _new_val);
     ELSE 
-        RAISE NOTICE 'Cannot Apply Correction for field %', _field;
+        RAISE NOTICE 'Cannot Apply Correction for field %, current_val %, old_val %, new_val %', _field, current_val, _old_val, _new_val;
         EXECUTE format($n$
             DELETE FROM corrections_not_applied WHERE record_id = %1$L AND field = %2$L;
             INSERT INTO corrections_not_applied VALUES (%1$L, %2$L, %3$L, %4$L, %5L);
