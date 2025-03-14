@@ -59,7 +59,7 @@ class TestValidateAgainstExistingVersions:
 
     def test_existing(self, create_buckets):
         ds = BASIC_CONFIG.dataset
-        recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT)
+        recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT, acl="private")
         assert recipes.exists(ds)
         assert (
             validate.validate_against_existing_versions(ds, TEST_OUTPUT)
@@ -68,7 +68,7 @@ class TestValidateAgainstExistingVersions:
 
     def test_existing_data_diffs(self, create_buckets):
         ds = BASIC_CONFIG.dataset
-        recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT)
+        recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT, acl="private")
         assert recipes.exists(ds)
         with pytest.raises(FileExistsError):
             validate.validate_against_existing_versions(
