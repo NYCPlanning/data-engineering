@@ -8,7 +8,7 @@ from pyarrow import parquet
 from pydantic import BaseModel
 import shutil
 from tempfile import TemporaryDirectory
-from typing import Callable, Any
+from typing import Callable, Any, Tuple
 import yaml
 
 from dcpy import configuration
@@ -49,23 +49,29 @@ def s3_file_path(ds: Dataset) -> str:
 
 
 def s3_raw_folder_path(ds: RawDatasetKey) -> str:
-    return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp.isoformat()}"
+    return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp}"
 
 
 def s3_raw_file_path(ds: RawDatasetKey) -> str:
     return f"{s3_raw_folder_path(ds)}/{ds.filename}"
 
 
-def exists(ds: Dataset) -> bool:
-    return s3.folder_exists(BUCKET, s3_folder_path(ds))
+def exists(ds: Dataset | RawDatasetKey) -> bool:
+    match ds:
+        case Dataset():
+            return s3.folder_exists(BUCKET, s3_folder_path(ds))
+        case RawDatasetKey():
+            return s3.folder_exists(BUCKET, s3_raw_folder_path(ds))
 
 
 def archive_dataset(
-    config: ingest.Config,
+    dataset_id: str,
+    version: str,
     file_path: Path,
+    config: ingest.Config,
     *,
+    root_folder: str = DATASET_FOLDER,
     acl: ValidAclValues,
-    raw: bool = False,
     latest: bool = False,
 ) -> None:
     """
@@ -73,11 +79,7 @@ def archive_dataset(
     It is assumed that s3_path has taken care of figuring out which top-level folder,
     how the dataset is being versioned, etc.
     """
-    s3_path = (
-        s3_raw_folder_path(config.raw_dataset_key)
-        if raw
-        else s3_folder_path(config.dataset_key)
-    )
+    s3_path = f"{root_folder}/{dataset_id}/{version}/"
     if s3.folder_exists(BUCKET, s3_path):
         raise Exception(
             f"Archived dataset at {s3_path} already exists, cannot overwrite"
@@ -85,10 +87,13 @@ def archive_dataset(
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
-        with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(
-                json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
-            )
+        if config:
+            with open(tmp_dir_path / "config.json", "w") as f:
+                f.write(
+                    json.dumps(
+                        config.model_dump(exclude_none=True, mode="json"), indent=4
+                    )
+                )
         s3.upload_folder(
             BUCKET,
             tmp_dir_path,
@@ -97,7 +102,6 @@ def archive_dataset(
             contents_only=True,
         )
     if latest:
-        assert not raw, "Cannot set raw dataset to 'latest'"
         set_latest(config.dataset_key, acl)
 
 
@@ -165,6 +169,11 @@ def get_latest_version(name: str) -> str:
     return get_config(name).dataset.version
 
 
+def get_all_raw_versions(name: str) -> list[str]:
+    """Get all archival timestamps of a specific recipe dataset"""
+    return [folder for folder in s3.get_subfolders(BUCKET, f"{RAW_FOLDER}/{name}/")]
+
+
 def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
     return [
@@ -205,6 +214,36 @@ def get_preferred_file_type(
             f"Dataset {dataset.id} could not find filetype of any of {preferences}. Found filetypes for {dataset.id}: {file_types}"
         )
     return next(t for t in preferences if t in file_types)
+
+
+def fetch_raw_dataset(
+    ds: RawDatasetKey,
+    *,
+    target_dir: Path,
+    _target_dataset_path_override: Path | None = None,  # Hack
+) -> Path:
+    """Retrieve dataset file from edm-recipes. Returns fetched file's path."""
+    target_dir = (
+        _target_dataset_path_override
+        # AR Note: we should refactor this, but punting for now. There are a few references
+        # to `target_dir`, but at the moment I need a way to skip calculating the path
+        or target_dir / DATASET_FOLDER / ds.id / ds.timestamp
+    )
+    target_file_path = target_dir / ds.filename
+    if (target_file_path).exists():
+        logger.info(f"✅ {ds.filename} exists in cache")
+    else:
+        if not target_dir.exists():
+            target_dir.mkdir(parents=True)
+        key = s3_raw_file_path(ds)
+        logger.info(f"🛠 {ds.filename} doesn't exists in cache, downloading {key}")
+
+        s3.download_file(
+            bucket=BUCKET,
+            key=key,
+            path=target_file_path,
+        )
+    return target_file_path
 
 
 def fetch_dataset(
@@ -478,11 +517,31 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
     return pg_client.execute_select_query(query, datasets=datasets)
 
 
+def _conf_to_push_args(conf: dict | None) -> Tuple[Path, ingest.Config]:
+    assert (
+        conf
+        and isinstance(conf.get("config"), ingest.Config)
+        and isinstance(conf.get("file_path"), Path)
+    )
+    return conf["file_path"], conf["config"]
+
+
 class Connector(BaseModel, VersionedConnector):
     conn_type: str = "edm.recipes"
 
-    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
+    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
+        path, config = _conf_to_push_args(push_conf)
+        assert push_conf
+        archive_dataset(
+            key,
+            version,
+            path,
+            root_folder=DATASET_FOLDER,
+            config=config,
+            acl=config.archival.acl,
+            latest=push_conf.get("latest", False),
+        )
+        return {}
 
     def pull(
         self,
@@ -505,6 +564,54 @@ class Connector(BaseModel, VersionedConnector):
 
     def query_latest_version(self, key: str, conf: dict | None = None) -> str:
         return get_latest_version(name=key)
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return exists(Dataset(id=key, version=version))
+
+    def data_local_sub_path(
+        self, key: str, version: str, pull_conf: Any | None = None
+    ) -> Path:
+        return Path("edm") / "recipes" / DATASET_FOLDER / key / version
+
+
+class RawConnector(VersionedConnector):
+    conn_type: str = "edm.recipes.raw"
+
+    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
+        path, config = _conf_to_push_args(push_conf)
+        archive_dataset(
+            key,
+            version,
+            path,
+            root_folder=RAW_FOLDER,
+            config=config,
+            acl=config.archival.acl,
+        )
+        return {}
+
+    def pull(
+        self,
+        key: str,
+        version: str,
+        destination_path: Path,
+        pull_conf: dict | None = {},
+    ) -> dict:
+        assert pull_conf and "filename" in pull_conf
+        return {
+            "path": fetch_raw_dataset(
+                RawDatasetKey(
+                    id=key, timestamp=version, filename=pull_conf["filename"]
+                ),
+                target_dir=Path(),
+                _target_dataset_path_override=destination_path,
+            )
+        }
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return sorted(get_all_raw_versions(name=key), reverse=sort_desc)
+
+    def query_latest_version(self, key: str, conf: dict | None = None) -> str:
+        return max(self.list_versions(key))
 
     def version_exists(self, key: str, version: str) -> bool:
         return exists(Dataset(id=key, version=version))

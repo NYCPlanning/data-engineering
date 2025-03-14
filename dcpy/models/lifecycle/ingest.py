@@ -240,7 +240,7 @@ class Config(SortedSerializedBase, extra="forbid"):
     def raw_dataset_key(self) -> recipes.RawDatasetKey:
         return recipes.RawDatasetKey(
             id=self.id,
-            timestamp=self.archival.archival_timestamp,
+            timestamp=self.archival.archival_timestamp.isoformat(),
             filename=self.archival.raw_filename,
         )
 
