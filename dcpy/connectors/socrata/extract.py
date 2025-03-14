@@ -1,8 +1,24 @@
 from datetime import datetime
 from pathlib import Path
+from pydantic import BaseModel
+from typing import Literal
 
-from dcpy.models.connectors.socrata import Source
+from dcpy.models.connectors import socrata
 from .utils import _socrata_request
+
+
+class Source(BaseModel, extra="forbid"):
+    type: Literal["socrata"]
+    org: socrata.Org
+    uid: str
+    format: socrata.ValidSourceFormats
+
+    @property
+    def extension(self) -> str:
+        if self.format == "shapefile":
+            return "zip"
+        else:
+            return self.format
 
 
 def get_base_url(source: Source):

@@ -1,5 +1,4 @@
 from __future__ import annotations
-from datetime import datetime
 from enum import StrEnum
 from pydantic import BaseModel
 from typing import Literal
@@ -10,7 +9,7 @@ ValidAclValues = Literal["public-read", "private"]
 #### extract objects
 class RawDatasetKey(BaseModel, extra="forbid"):
     id: str
-    timestamp: datetime
+    timestamp: str  ## iso
     filename: str
 
 

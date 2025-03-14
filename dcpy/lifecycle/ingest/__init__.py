@@ -1,10 +1,15 @@
 from pathlib import Path
+import shutil
 import typer
 
 from .run import ingest
+from .connector_registry import LocalFileConnector
 from dcpy.configuration import TEMPLATE_DIR
+from dcpy.lifecycle.connector_registry import connectors
 
 app = typer.Typer(add_completion=False)
+
+connectors.register(LocalFileConnector())
 
 
 @app.command("ingest")
