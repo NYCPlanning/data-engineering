@@ -123,7 +123,7 @@ def ingest(
         version=version,
         dataset_staging_dir=dataset_staging_dir,
         ingest_output_dir=ingest_output_dir,
-        skip_archival=True,
+        push_to_s3=False,
     )
 
     ## copy so that it's in the "library" file system for easy import

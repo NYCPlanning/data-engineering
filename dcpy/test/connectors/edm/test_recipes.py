@@ -3,6 +3,7 @@ import json
 import pandas as pd
 from pathlib import Path
 import pytest
+from typing import Literal
 from unittest import mock
 import yaml
 
@@ -68,6 +69,7 @@ def test_dataset_type_from_extension():
 class TestArchiveDataset:
     dataset = "bpl_libraries"  # doesn't actually get queried, just to fill out config
     raw_file_name = "tmp.txt"
+    acl: Literal["private"] = "private"
     config = ingest.Config(
         id=dataset,
         version="dummy",
@@ -89,7 +91,7 @@ class TestArchiveDataset:
     def test_archive_raw_dataset(self, create_buckets, create_temp_filesystem: Path):
         tmp_file = create_temp_filesystem / self.raw_file_name
         tmp_file.touch()
-        recipes.archive_dataset(self.config, tmp_file, raw=True)
+        recipes.archive_dataset(self.config, tmp_file, acl=self.acl, raw=True)
         assert s3.folder_exists(
             RECIPES_BUCKET, recipes.s3_raw_folder_path(self.config.raw_dataset_key)
         )
@@ -97,7 +99,7 @@ class TestArchiveDataset:
     def test_archive_dataset(self, create_buckets, create_temp_filesystem: Path):
         tmp_parquet = create_temp_filesystem / self.config.filename
         tmp_parquet.touch()
-        recipes.archive_dataset(self.config, tmp_parquet)
+        recipes.archive_dataset(self.config, tmp_parquet, acl=self.acl)
         assert s3.object_exists(
             RECIPES_BUCKET, recipes.s3_file_path(self.config.dataset)
         )
@@ -105,7 +107,7 @@ class TestArchiveDataset:
     def test_archive_dataset_latest(self, create_buckets, create_temp_filesystem: Path):
         tmp_parquet = create_temp_filesystem / self.config.filename
         tmp_parquet.touch()
-        recipes.archive_dataset(self.config, tmp_parquet, latest=True)
+        recipes.archive_dataset(self.config, tmp_parquet, acl=self.acl, latest=True)
         assert s3.object_exists(
             RECIPES_BUCKET,
             f"{recipes.DATASET_FOLDER}/{self.dataset}/latest/{self.config.filename}",
@@ -118,7 +120,7 @@ class TestArchiveDataset:
             Exception,
             match=f"Archived dataset at {folder_path} already exists, cannot overwrite",
         ):
-            recipes.archive_dataset(self.config, Path("."))
+            recipes.archive_dataset(self.config, Path("."), acl=self.acl)
 
 
 def test_get_preferred_file_type(load_library):

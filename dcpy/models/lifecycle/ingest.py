@@ -93,7 +93,7 @@ class ArchivalMetadata(SortedSerializedBase):
     archival_timestamp: datetime
     check_timestamps: list[datetime] = []
     raw_filename: str
-    acl: recipes.ValidAclValues
+    acl: recipes.ValidAclValues | None = None
 
 
 class Ingestion(SortedSerializedBase):
@@ -114,7 +114,7 @@ class Template(BaseModel, extra="forbid"):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
     id: str
-    acl: recipes.ValidAclValues
+    acl: recipes.ValidAclValues | None = None
 
     attributes: DatasetAttributes
     ingestion: Ingestion

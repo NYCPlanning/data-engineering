@@ -17,6 +17,7 @@ from dcpy.models.connectors.edm.recipes import (
     DatasetType,
     DatasetKey,
     RawDatasetKey,
+    ValidAclValues,
 )
 from dcpy.models import library
 from dcpy.connectors.registry import VersionedConnector
@@ -60,7 +61,12 @@ def exists(ds: Dataset) -> bool:
 
 
 def archive_dataset(
-    config: ingest.Config, file_path: Path, raw: bool = False, latest: bool = False
+    config: ingest.Config,
+    file_path: Path,
+    *,
+    acl: ValidAclValues,
+    raw: bool = False,
+    latest: bool = False,
 ) -> None:
     """
     Given a config and a path to a file and an s3_path, archive it in edm-recipe
@@ -87,12 +93,12 @@ def archive_dataset(
             BUCKET,
             tmp_dir_path,
             Path(s3_path),
-            acl=config.archival.acl,
+            acl=acl,
             contents_only=True,
         )
     if latest:
         assert not raw, "Cannot set raw dataset to 'latest'"
-        set_latest(config.dataset_key, config.archival.acl)
+        set_latest(config.dataset_key, acl)
 
 
 def set_latest(key: DatasetKey, acl):
@@ -113,6 +119,7 @@ def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
         )
     config.archival.check_timestamps.append(timestamp)
     config_str = json.dumps(config.model_dump(mode="json"))
+    assert config.archival.acl, "Impossible - s3-archived dataset missing acl"
     s3.upload_file_obj(
         BytesIO(config_str.encode()),
         BUCKET,

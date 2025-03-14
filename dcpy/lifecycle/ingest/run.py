@@ -24,7 +24,7 @@ def ingest(
     ingest_output_dir: Path = INGEST_OUTPUT_DIR,
     mode: str | None = None,
     latest: bool = False,
-    skip_archival: bool = False,
+    push_to_s3: bool = False,
     output_csv: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
@@ -62,9 +62,10 @@ def ingest(
     )
     file_path = dataset_staging_dir / config.archival.raw_filename
 
-    if not skip_archival:
+    if push_to_s3:
         # archive to edm-recipes/raw_datasets
-        recipes.archive_dataset(config, file_path, raw=True)
+        assert config.archival.acl, "'acl' must be defined to push to s3"
+        recipes.archive_dataset(config, file_path, acl=config.archival.acl, raw=True)
 
     init_parquet = "init.parquet"
     transform.to_parquet(
@@ -88,14 +89,18 @@ def ingest(
     shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
-    action = validate.validate_against_existing_versions(
-        config.dataset, dataset_staging_dir / config.filename
-    )
-    if not skip_archival:
+    if push_to_s3:
+        assert config.archival.acl
+        action = validate.validate_against_existing_versions(
+            config.dataset, dataset_staging_dir / config.filename
+        )
         match action:
             case validate.ArchiveAction.push:
                 recipes.archive_dataset(
-                    config, dataset_staging_dir / config.filename, latest=latest
+                    config,
+                    dataset_staging_dir / config.filename,
+                    acl=config.archival.acl,
+                    latest=latest,
                 )
             case validate.ArchiveAction.update_freshness:
                 recipes.update_freshness(
