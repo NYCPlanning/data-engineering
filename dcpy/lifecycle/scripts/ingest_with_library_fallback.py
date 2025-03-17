@@ -16,7 +16,7 @@ def run(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Push to latest folder in s3"
     ),
-    push_to_s3: bool = typer.Option(False, "--s3", "-s"),
+    push_to_s3: bool = typer.Option(False, "--push-to-s3", "-s"),
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
