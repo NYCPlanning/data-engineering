@@ -2,9 +2,10 @@ import duckdb
 import os
 
 
-def setup_s3_secret():
-    duckdb.sql("INSTALL httpfs; LOAD httpfs;")
-    duckdb.sql(
+def setup_s3_secret(conn: duckdb.DuckDBPyConnection | None = None) -> None:
+    cmd = conn.sql if conn else duckdb.sql
+    cmd("INSTALL httpfs; LOAD httpfs;")
+    cmd(
         f"""
             CREATE SECRET IF NOT EXISTS s3_secret (
                 TYPE S3,
