@@ -1,9 +1,8 @@
 """
 This script, locally and in edm-recipes/datasets/catalog.duckdb, creates a snapshot
-catalog of all parquet datasets in edm-recipes/datasets by creating views.
-
-There is one schema created per dataset and one table per version, such that
-they can be queried as `{dataset}.{version}`
+catalog of all parquet datasets in edm-recipes/datasets. It does this by creating
+one view per file: There is one schema created per dataset and one table per version,
+such that they can be queried as `{dataset}.{version}`
 """
 
 from pathlib import Path
