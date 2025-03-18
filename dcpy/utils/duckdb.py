@@ -3,6 +3,7 @@ import os
 
 
 def setup_s3_secret(conn: duckdb.DuckDBPyConnection | None = None) -> None:
+    print("this line isn't tested!")
     cmd = conn.sql if conn else duckdb.sql
     cmd("INSTALL httpfs; LOAD httpfs;")
     cmd(
