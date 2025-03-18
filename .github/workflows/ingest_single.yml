@@ -67,4 +67,4 @@ jobs:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
           mode: ${{ github.event.inputs.mode && format('--mode {0}', github.event.inputs.mode) || '' }}
-        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ inputs.dataset }} $latest $version $mode
+        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ inputs.dataset }} $latest $version $mode --push-to-s3

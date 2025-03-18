@@ -22,6 +22,7 @@ def run_basic(mock_request_get, create_buckets, tmp_path):
     return run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
+        push_to_s3=True,
         dataset_staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
@@ -46,7 +47,12 @@ def test_run_output_exists(run_basic):
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run_default_folder(mock_request_get, create_buckets):
-    run_ingest(dataset_id=DATASET, version=FAKE_VERSION, template_dir=TEMPLATE_DIR)
+    run_ingest(
+        dataset_id=DATASET,
+        version=FAKE_VERSION,
+        push_to_s3=True,
+        template_dir=TEMPLATE_DIR,
+    )
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
     assert (INGEST_STAGING_DIR / DATASET).exists()
     shutil.rmtree(INGEST_STAGING_DIR)
@@ -58,7 +64,7 @@ def test_skip_archival(mock_request_get, create_buckets, tmp_path):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
-        skip_archival=True,
+        push_to_s3=False,
         template_dir=TEMPLATE_DIR,
     )
     assert not s3.object_exists(RECIPES_BUCKET, S3_PATH)
@@ -70,6 +76,7 @@ def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
+        push_to_s3=True,
         template_dir=TEMPLATE_DIR,
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
@@ -78,6 +85,7 @@ def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
+        push_to_s3=True,
         latest=True,
         template_dir=TEMPLATE_DIR,
     )
@@ -99,6 +107,7 @@ def test_run_update_freshness_fails_if_data_diff(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
+        push_to_s3=True,
         template_dir=TEMPLATE_DIR,
     )
 
@@ -113,6 +122,7 @@ def test_run_update_freshness_fails_if_data_diff(
                 dataset_id=DATASET,
                 version=FAKE_VERSION,
                 dataset_staging_dir=tmp_path,
+                push_to_s3=True,
                 template_dir=TEMPLATE_DIR,
             )
 

@@ -20,7 +20,7 @@ def _cli_wrapper_run(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Push to latest folder in s3"
     ),
-    skip_archival: bool = typer.Option(False, "--skip-archival", "-s"),
+    push_to_s3: bool = typer.Option(False, "--push-to-s3", "-s"),
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
@@ -42,7 +42,7 @@ def _cli_wrapper_run(
         version,
         mode=mode,
         latest=latest,
-        skip_archival=skip_archival,
+        push_to_s3=push_to_s3,
         output_csv=csv,
         local_file_path=local_file_path,
         template_dir=template_dir,

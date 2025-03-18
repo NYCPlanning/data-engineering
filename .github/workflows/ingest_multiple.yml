@@ -102,7 +102,7 @@ jobs:
       env:
         version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
         latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
-      run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version $latest
+      run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version $latest --push-to-s3
 
   create_issue_on_failure:
     needs: dataloading

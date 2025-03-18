@@ -16,7 +16,7 @@ def run(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Push to latest folder in s3"
     ),
-    skip_archival: bool = typer.Option(False, "--skip-archival", "-s"),
+    push_to_s3: bool = typer.Option(False, "--push-to-s3", "-s"),
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
@@ -30,7 +30,7 @@ def run(
             version,
             mode=mode,
             latest=latest,
-            skip_archival=skip_archival,
+            push_to_s3=push_to_s3,
             output_csv=csv,
         )
     else:
@@ -40,7 +40,7 @@ def run(
             name=dataset_id,
             version=version,
             latest=latest,
-            push=not skip_archival,
+            push=push_to_s3,
             # defaults - needed since typer defaults are odd when called in python rather than cli
             output_formats=["pgdump", "parquet", "csv"],
             path=None,  # type: ignore
