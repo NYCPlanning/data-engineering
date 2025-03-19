@@ -22,3 +22,7 @@ The SFTP tests depend on the dev container configured at the root of this reposi
     ```bash
     python3 -m pytest ./dcpy/test_integration/test_sftp.py -v -s
     ```
+
+    ```bash
+    python3 -m pytest ./dcpy/test_integration/test_sftp.py::test_list_directory -v -s
+    ```

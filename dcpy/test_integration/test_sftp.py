@@ -1,4 +1,8 @@
 import pytest
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from datetime import datetime
+import pytz
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 from dcpy.connectors import sftp
 
@@ -12,16 +16,6 @@ def default_sftp_kwargs(tmp_path):
         "user": SFTPUser(username="dedev"),
         "server_file_path": "remote_files/a_file.txt",
         "local_file_path": tmp_path / "a_file.txt",
-    }
-
-
-@pytest.fixture
-def default_sftp_put_kwargs(tmp_path):
-    return {
-        "server": SFTPServer(hostname="sftp-server", port=22),
-        "user": SFTPUser(username="dedev"),
-        "local_file_path": RESOURCES_DIR / "sftp" / "a_local_file.txt",
-        "server_file_path": "remote_files/a_new_file.txt",
     }
 
 
@@ -57,6 +51,24 @@ def test_get_file(default_sftp_kwargs: dict):
     assert default_sftp_kwargs["local_file_path"].exists()
 
 
-def test_put_file(default_sftp_put_kwargs: dict):
-    response = sftp.put_file(**default_sftp_put_kwargs)
-    assert response.st_size == 52
+def test_put_file(default_sftp_kwargs: dict):
+    sftp_put_kwargs = default_sftp_kwargs
+    filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+
+    with TemporaryDirectory() as temp_dir:
+        tmp_dir_path = Path(temp_dir)
+        local_file_path = tmp_dir_path / f"{filename}.txt"
+        sftp_put_kwargs["local_file_path"] = local_file_path
+        sftp_put_kwargs["server_file_path"] = f"remote_files/{filename}"
+
+        with open(local_file_path, "w") as f:
+            f.write("Some local test text. File size should be 51 bytes.")
+
+        _ = sftp.put_file(**sftp_put_kwargs)
+
+    remote_filenames = sftp.list_directory(
+        server=default_sftp_kwargs["server"],
+        user=default_sftp_kwargs["user"],
+        path="/remote_files/",
+    )
+    assert filename in remote_filenames
