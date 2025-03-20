@@ -20,8 +20,9 @@ def download_file(url: str, path: Path) -> None:
 class Connector(NonVersionedConnector):
     conn_type = "file_download"
 
-    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
+    def push(self, key: str, push_conf: dict | None = {}) -> dict:
+        # TODO should probably not be a fully-fledged "connector"
+        raise NotImplementedError(f"{self.conn_type} does not support push")
 
     def pull(
         self,
