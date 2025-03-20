@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
 
 from dcpy.models.lifecycle.builds import InputDataset
-from dcpy.connectors.registry import VersionedConnectorRegistry
+from dcpy.connectors.registry import ConnectorRegistry
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
@@ -350,7 +350,7 @@ class TestConnectors:
         connector_registry.connectors._connectors = {}
         with pytest.raises(
             Exception,
-            match=VersionedConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
+            match=ConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
         ):
             plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
