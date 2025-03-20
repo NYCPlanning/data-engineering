@@ -7,8 +7,8 @@ from pydantic import BaseModel, Field, AliasChoices
 from typing import Any, Literal, TypeAlias
 
 from dcpy.utils.metadata import RunDetails
-from dcpy.models.connectors.edm import recipes, publishing
-from dcpy.models.connectors import web, socrata, esri
+from dcpy.models.connectors.edm import recipes
+from dcpy.models.connectors import socrata, esri
 from dcpy.models import file
 from dcpy.models.base import SortedSerializedBase
 from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
@@ -27,20 +27,48 @@ class S3Source(BaseModel, extra="forbid"):
     key: str
 
 
-class ScriptSource(BaseModel, extra="forbid"):
-    type: Literal["script"]
-    connector: str
-    function: str
+class FileDownloadSource(BaseModel, extra="forbid"):
+    type: Literal["file_download"]
+    url: str
+
+
+class GenericApiSource(BaseModel, extra="forbid"):
+    type: Literal["api"]
+    endpoint: str
+    format: Literal["json", "csv"]
 
 
 class DEPublished(BaseModel, extra="forbid"):
-    type: Literal["de-published"]
+    type: Literal["edm.publishing.published"]
     product: str
     filename: str
 
 
+class GisDataset(BaseModel, extra="forbid"):
+    """Dataset published by GIS in edm-publishing/datasets"""
+
+    # Some datasets here will phased out if we eventually get data
+    # directly from GR or other sources
+    type: Literal["edm.publishing.gis"]
+    name: str
+
+
+class SocrataSource(BaseModel, extra="forbid"):
+    type: Literal["socrata"]
+    org: socrata.Org
+    uid: str
+    format: socrata.ValidSourceFormats
+
+    @property
+    def extension(self) -> str:
+        if self.format == "shapefile":
+            return "zip"
+        else:
+            return self.format
+
+
 class ESRIFeatureServer(BaseModel, extra="forbid"):
-    type: Literal["esri"]
+    type: Literal["arcgis_feature_server"]
     server: esri.Server
     dataset: str
     layer_name: str | None = None
@@ -63,13 +91,12 @@ class ESRIFeatureServer(BaseModel, extra="forbid"):
 
 Source: TypeAlias = (
     LocalFileSource
-    | web.FileDownloadSource
-    | web.GenericApiSource
-    | socrata.Source
-    | publishing.GisDataset
-    | DEPublished
+    | FileDownloadSource
+    | GenericApiSource
     | S3Source
-    | ScriptSource
+    | SocrataSource
+    | GisDataset
+    | DEPublished
     | ESRIFeatureServer
 )
 
