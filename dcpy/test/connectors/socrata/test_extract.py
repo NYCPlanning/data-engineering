@@ -8,7 +8,7 @@ from dcpy.test.conftest import mock_request_get
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_get_version_from_socrata(mock_request_get):
-    test_set = socrata.Source(
+    test_set = extract.Source(
         type="socrata",
         org=socrata.Org.nyc,
         uid="w7w3-xahh",

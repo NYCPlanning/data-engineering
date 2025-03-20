@@ -79,11 +79,10 @@ class TestArchiveDataset:
             acl="private",
             raw_filename=raw_file_name,
         ),
+        # ingestion won't be used - just mocked here
         ingestion=ingest.Ingestion(
-            source=ingest.ScriptSource(
-                type="script", connector="dummy", function="dummy"
-            ),  # easiest to mock
-            file_format=file.Csv(type="csv"),  # easiest to mock
+            source=ingest.FileDownloadSource(type="file_download", url="dummy"),
+            file_format=file.Csv(type="csv"),
         ),
         run_details=metadata.get_run_details(),
     )

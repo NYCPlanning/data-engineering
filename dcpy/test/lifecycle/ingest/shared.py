@@ -1,14 +1,16 @@
 from datetime import datetime
 from pathlib import Path
 
-from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.models.connectors import socrata, esri
 from dcpy.models.connectors.edm.recipes import Dataset
 from dcpy.models import file, library
-from dcpy.models.connectors import socrata, web, esri
 from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
-    ScriptSource,
     S3Source,
+    GisDataset,
+    SocrataSource,
+    GenericApiSource,
+    FileDownloadSource,
     DEPublished,
     DatasetAttributes,
     ArchivalMetadata,
@@ -33,26 +35,25 @@ PROD_TEMPLATE_DIR = (
 
 class Sources:
     local_file = LocalFileSource(type="local_file", path=Path("subfolder/dummy.txt"))
-    gis = GisDataset(type="edm_publishing_gis_dataset", name=TEST_DATASET_NAME)
-    script = ScriptSource(type="script", connector="web", function="get_df")
-    file_download = web.FileDownloadSource(
+    gis = GisDataset(type="edm.publishing.gis", name=TEST_DATASET_NAME)
+    file_download = FileDownloadSource(
         type="file_download",
         url="https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_24a.zip",
     )
-    api = web.GenericApiSource(
+    api = GenericApiSource(
         type="api",
         endpoint="https://www.bklynlibrary.org/locations/json",
         format="json",
     )
-    socrata = socrata.Source(
+    socrata = SocrataSource(
         type="socrata", org=socrata.Org.nyc, uid="w7w3-xahh", format="csv"
     )
     s3 = S3Source(type="s3", bucket=RECIPES_BUCKET, key="inbox/test/test.txt")
     de_publish = DEPublished(
-        type="de-published", product=TEST_DATASET_NAME, filename="file.csv"
+        type="edm.publishing.published", product=TEST_DATASET_NAME, filename="file.csv"
     )
     esri = ESRIFeatureServer(
-        type="esri",
+        type="arcgis_feature_server",
         server=esri.Server.nys_parks,
         dataset="National_Register_Building_Listings",
         layer_id=13,

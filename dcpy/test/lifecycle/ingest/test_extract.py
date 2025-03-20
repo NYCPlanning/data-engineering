@@ -3,14 +3,13 @@ from pathlib import Path
 import pytest
 from unittest import mock
 
-from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source
-from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source, GisDataset
 from dcpy.utils import s3
 from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
 
 from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
-from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES, Sources
+from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
 
@@ -49,16 +48,6 @@ def test_download_file_invalid_source():
     with pytest.raises(NotImplementedError):
         extract.download_file_from_source(
             mock.MagicMock(), "test.txt", "version", Path(".")
-        )
-
-
-def test_script_source(create_temp_filesystem):
-    with pytest.raises(NotImplementedError):
-        extract.download_file_from_source(
-            Sources.script,
-            f"{TEST_DATASET_NAME}.parquet",
-            FAKE_VERSION,
-            create_temp_filesystem,
         )
 
 

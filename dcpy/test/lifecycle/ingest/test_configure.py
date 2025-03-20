@@ -6,8 +6,12 @@ from pydantic import BaseModel
 
 from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.models import file
-from dcpy.models.connectors import socrata, web
-from dcpy.models.lifecycle.ingest import LocalFileSource
+from dcpy.models.lifecycle.ingest import (
+    FileDownloadSource,
+    GenericApiSource,
+    LocalFileSource,
+    SocrataSource,
+)
 from dcpy.utils import s3
 from dcpy.lifecycle.ingest import configure
 
@@ -36,7 +40,7 @@ class TestReadTemplate:
 
     def test_simple(self):
         template = configure.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
-        assert isinstance(template.ingestion.source, web.GenericApiSource)
+        assert isinstance(template.ingestion.source, GenericApiSource)
         assert isinstance(
             template.ingestion.file_format,
             file.Json,
@@ -46,7 +50,7 @@ class TestReadTemplate:
         template = configure.read_template(
             "dcp_atomicpolygons", version="test", template_dir=TEMPLATE_DIR
         )
-        assert isinstance(template.ingestion.source, web.FileDownloadSource)
+        assert isinstance(template.ingestion.source, FileDownloadSource)
         assert isinstance(
             template.ingestion.file_format,
             file.Shapefile,
@@ -69,9 +73,7 @@ class SparseBuildMetadata(BaseModel):
 class TestGetVersion:
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_socrata(self, get):
-        source = socrata.Source(
-            type="socrata", org="nyc", uid="w7w3-xahh", format="csv"
-        )
+        source = SocrataSource(type="socrata", org="nyc", uid="w7w3-xahh", format="csv")
         ### based on mocked response in dcpy/test/conftest.py
         assert configure.get_version(source) == "20240412"
 
