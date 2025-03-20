@@ -1,7 +1,8 @@
 from datetime import datetime
 from pathlib import Path
 
-from dcpy.models.connectors.socrata import Source
+# todo -> this should not depend on ingest models
+from dcpy.models.lifecycle.ingest import SocrataSource as Source
 from .utils import _socrata_request
 
 
