@@ -59,6 +59,3 @@ class Connector(BaseModel, StorageConnector):
 
         s3.download_file(bucket=bucket, key=key, path=destination_path)
         return {"path": destination_path}
-
-    def get_current_version(self, key: str, **conf) -> str | None:
-        return None
