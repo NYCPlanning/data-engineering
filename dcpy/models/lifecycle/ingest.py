@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import ABC
 from functools import cached_property
 from datetime import datetime
 from pathlib import Path
@@ -15,9 +16,22 @@ from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
 from dcpy.connectors.esri import arcgis_feature_service
 
 
+class ConnectorSource(ABC):
+    type: str
+
+    @property
+    def key(self) -> str:
+        """unique identifier of a dataset for this source type"""
+        return ""
+
+
 class LocalFileSource(BaseModel, extra="forbid"):
     type: Literal["local_file"]
     path: Path
+
+    @property
+    def key(self) -> str:
+        return str(self.path)
 
 
 class S3Source(BaseModel, extra="forbid"):
@@ -30,20 +44,32 @@ class FileDownloadSource(BaseModel, extra="forbid"):
     type: Literal["file_download"]
     url: str
 
+    @property
+    def key(self) -> str:
+        return self.url
+
 
 class GenericApiSource(BaseModel, extra="forbid"):
     type: Literal["api"]
     endpoint: str
     format: Literal["json", "csv"]
 
+    @property
+    def key(self) -> str:
+        return self.endpoint
 
-class DEPublished(BaseModel, extra="forbid"):
+
+class DEPublished(BaseModel, ConnectorSource, extra="forbid"):
     type: Literal["edm.publishing.published"]
     product: str
     filename: str
 
+    @property
+    def key(self) -> str:
+        return self.product
 
-class GisDataset(BaseModel, extra="forbid"):
+
+class GisDataset(BaseModel, ConnectorSource, extra="forbid"):
     """Dataset published by GIS in edm-publishing/datasets"""
 
     # Some datasets here will phased out if we eventually get data
@@ -51,8 +77,12 @@ class GisDataset(BaseModel, extra="forbid"):
     type: Literal["edm.publishing.gis"]
     name: str
 
+    @property
+    def key(self) -> str:
+        return self.name
 
-class SocrataSource(BaseModel, extra="forbid"):
+
+class SocrataSource(BaseModel, ConnectorSource, extra="forbid"):
     type: Literal["socrata"]
     org: socrata.Org
     uid: str
@@ -65,8 +95,12 @@ class SocrataSource(BaseModel, extra="forbid"):
         else:
             return self.format
 
+    @property
+    def key(self) -> str:
+        return self.uid
 
-class ESRIFeatureServer(BaseModel, extra="forbid"):
+
+class ESRIFeatureServer(BaseModel, ConnectorSource, extra="forbid"):
     type: Literal["arcgis_feature_server"]
     server: esri.Server
     dataset: str
@@ -86,6 +120,10 @@ class ESRIFeatureServer(BaseModel, extra="forbid"):
             layer_id=self.layer_id,
         )
         return feature_server_layer
+
+    @property
+    def key(self) -> str:
+        return self.dataset
 
 
 Source: TypeAlias = (

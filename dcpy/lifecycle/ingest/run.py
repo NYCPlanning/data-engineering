@@ -60,7 +60,6 @@ def ingest(
     extract.download_file_from_source(
         config.ingestion.source,
         config.archival.raw_filename,
-        config.version,
         dataset_staging_dir,
     )
     file_path = dataset_staging_dir / config.archival.raw_filename
