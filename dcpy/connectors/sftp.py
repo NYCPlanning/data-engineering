@@ -1,19 +1,10 @@
-import os
 import pysftp
 import paramiko
 
 from dcpy.utils.logging import logger
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 
-
-def _private_key_from_env() -> str:
-    key_path = ".ssh/private_key"
-    with open(key_path, "wb") as f:
-        f.write(os.environ["SFTP_PRIVATE_KEY"].encode("utf-8"))
-    logger.info(
-        f"Wrote sftp private key from environemnt variable SFTP_PRIVATE_KEY to {key_path} ..."
-    )
-    return key_path
+PRIVATE_KEY_DIRECTORY = "~/.ssh"
 
 
 def _connection(server: SFTPServer, user: SFTPUser):
@@ -22,9 +13,7 @@ def _connection(server: SFTPServer, user: SFTPUser):
     connection_options.hostkeys = None
     logger.info(f"Connecting to SFTP server {server.hostname}")
 
-    private_key_path = (
-        user.private_key_path if user.private_key_path else _private_key_from_env()
-    )
+    private_key_path = f"{PRIVATE_KEY_DIRECTORY}/{user.private_key_name}"
 
     return pysftp.Connection(
         host=server.hostname,

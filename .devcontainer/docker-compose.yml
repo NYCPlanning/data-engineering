@@ -11,6 +11,7 @@ services:
     working_dir: /home/vscode/workspace
     volumes:
       - ..:/home/vscode/workspace:cached
+      - ../.devcontainer/sftp/ssh_host_rsa_key_dcpy:/home/vscode/.ssh/ssh_host_rsa_key_dcpy
     ports:
       - "8501:8501"
     tty: true
