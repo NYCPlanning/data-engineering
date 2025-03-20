@@ -6,7 +6,7 @@ attributes:
 
 ingestion:
   source:
-    type: esri
+    type: arcgis_feature_server
     server: nys_parks
     dataset: National_Register_Building_Listings
     layer_id: 13

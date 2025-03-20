@@ -612,7 +612,6 @@ def publish_add_created_date(
     if version is None:
         with s3.get_file(bucket, f"{source}version.txt") as f:
             version = str(f.read())
-    print(version)
     old_metadata = s3.get_metadata(bucket, f"{source}{file_for_creation_date}")
     target = f"{product}/publish/{version}/"
     s3.copy_folder(
@@ -646,9 +645,6 @@ def _assert_gis_dataset_exists(name: str, version: str):
     bucket = _bucket()
     version = version.upper()
     if not s3.object_exists(bucket, _gis_dataset_path(name, version)):
-        print(_gis_dataset_path(name, version))
-        print(s3.list_objects(bucket, _gis_dataset_path(name, version)))
-        print(s3.object_exists(bucket, _gis_dataset_path(name, version)))
         raise FileNotFoundError(f"GIS dataset {name} has no version {version}")
 
 
@@ -678,7 +674,6 @@ def get_latest_gis_dataset_version(dataset_name: str) -> str:
     assuming versions are sortable
     """
     versions = get_gis_dataset_versions(dataset_name)
-    print(versions)
     if not versions:
         raise FileNotFoundError(f"No versions found for GIS dataset {dataset_name}")
     version = versions[0]

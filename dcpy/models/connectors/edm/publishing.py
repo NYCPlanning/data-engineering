@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 
-
 class ProductKey(ABC):
     product: str
 
