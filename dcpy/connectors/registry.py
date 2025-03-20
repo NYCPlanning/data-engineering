@@ -131,6 +131,16 @@ class NonVersionedConnector(
     """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
 
+class StorageConnector(Connector, _NonVersionedPull, _NonVersionedPush):
+    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
+
+    def exists(self, key: str) -> bool:
+        return False
+
+    def list_with_prefix(self, prefix: str) -> list[str]:
+        return []
+
+
 _C = TypeVar("_C", bound=Connector)
 _C2 = TypeVar("_C2", bound=Connector)
 
@@ -164,6 +174,9 @@ class ConnectorRegistry(Generic[_C]):
                 f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}"
             )
         return self._connectors[item]
+
+    def __contains__(self, item):
+        return item in self._connectors
 
     def get_subregistry(self, cls: Type[_C2]) -> ConnectorRegistry[_C2]:
         connectors = {
