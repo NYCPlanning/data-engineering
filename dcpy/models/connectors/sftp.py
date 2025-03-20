@@ -8,4 +8,4 @@ class SFTPServer(BaseModel, extra="forbid"):
 
 class SFTPUser(BaseModel, extra="forbid"):
     username: str
-    private_key_path: str | None = None
+    private_key_name: str | None = None
