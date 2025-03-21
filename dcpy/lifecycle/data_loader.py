@@ -33,7 +33,7 @@ def pull_dataset(ds: InputDataset, stage: str) -> Path:
         key=ds.id,
         version=ds.version,
         destination_path=stage_path / conn_sub_path,
-        pull_conf=ds.custom,
+        **ds.custom,
     )
     logger.info(f"Pulled {ds.id} to {pull_res['path']}.")
     return pull_res["path"]

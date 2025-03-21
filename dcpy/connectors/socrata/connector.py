@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from dcpy.connectors.registry import NonVersionedConnector
+from dcpy.models.connectors import socrata
 from dcpy.connectors.socrata import extract
+from dcpy.connectors.registry import NonVersionedConnector
 
 
 class Connector(NonVersionedConnector):
@@ -11,15 +12,9 @@ class Connector(NonVersionedConnector):
         raise NotImplementedError("Sorry :)")
 
     def pull(
-        self,
-        key: str,
-        destination_path: Path,
-        pull_conf: dict | None = None,
+        self, key: str, destination_path: Path, org: socrata.Org, format: str, **kwargs
     ) -> dict:
-        pull_conf = pull_conf or {}
-        source = extract.Source(
-            type="socrata", org=pull_conf["org"], uid=key, format=pull_conf["format"]
-        )
+        source = extract.Source(type="socrata", org=org, uid=key, format=format)
         extract.download(source, destination_path)
         return {"path": destination_path}
 

@@ -80,7 +80,7 @@ class Connector(VersionedConnector):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        **kwargs,
     ) -> dict:
         raise NotImplementedError
 

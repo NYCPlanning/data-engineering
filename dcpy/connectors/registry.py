@@ -65,7 +65,7 @@ class _VersionedPull(ABC):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: Any | None = None,
+        **kwargs,
     ) -> Any:
         """Push from a source that implements versioning."""
 
@@ -88,7 +88,7 @@ class _NonVersionedPull(ABC):
         self,
         key: str,
         destination_path: Path,
-        pull_conf: Any | None = None,
+        **kwargs,
     ) -> Any:
         """Push from a source that does not support versioning."""
 

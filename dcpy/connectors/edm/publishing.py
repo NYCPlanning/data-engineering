@@ -750,16 +750,17 @@ class PublishedConnector(VersionedConnector):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        filepath: str,
+        dataset: str | None = None,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "filepath" in pull_conf
         pub_key = PublishKey(key, version)
 
-        s3_path = pull_conf.get("dataset", "") + "/" if "dataset" in pull_conf else ""
+        s3_path = dataset + "/" if dataset else ""
 
         pulled_path = download_file(
             pub_key,
-            s3_path + pull_conf["filepath"],
+            s3_path + filepath,
             output_dir=destination_path,
         )
         return {"path": pulled_path}
@@ -790,14 +791,15 @@ class DraftsConnector(VersionedConnector):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        dataset: str,
+        filepath: str,
+        revision: str,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "filepath" in pull_conf and "revision" in pull_conf
-        dataset = pull_conf.get("dataset")
-        draft_key = DraftKey(key, version=version, revision=pull_conf["revision"])
+        draft_key = DraftKey(key, version=version, revision=revision)
 
         path_prefix = "" if not dataset else f"{dataset}/"
-        file_path = f"{path_prefix}{pull_conf['filepath']}"
+        file_path = f"{path_prefix}{filepath}"
         logger.info(f"Pulling Draft for {draft_key}, path={file_path}")
         pulled_path = download_file(draft_key, file_path, output_dir=destination_path)
         return {"path": pulled_path}
@@ -843,7 +845,7 @@ class GisDatasetsConnector(VersionedConnector):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        **kwargs,
     ) -> dict:
         pulled_path = download_gis_dataset(
             dataset_name=key, version=version, target_folder=destination_path

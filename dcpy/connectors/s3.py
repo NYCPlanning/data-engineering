@@ -51,7 +51,7 @@ class Connector(BaseModel, StorageConnector):
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = None,
+        **kwargs,
     ) -> dict:
         if self.prefix:
             key = self.prefix + key
