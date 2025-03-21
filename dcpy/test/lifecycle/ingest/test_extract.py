@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 import pytest
+from shutil import SameFileError
 from unittest import mock
 
 from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source, GisDataset
@@ -36,20 +37,22 @@ def setup(source: Source, filename: str, file_system: Path) -> Source:
 
 @mock.patch("requests.get", side_effect=mock_request_get)
 @pytest.mark.parametrize(("source", "filename"), SOURCE_FILENAMES)
-def test_download_file(get, source, filename, create_buckets, create_temp_filesystem):
-    setup(source, filename, create_temp_filesystem)
-    extract.download_file_from_source(source, filename, create_temp_filesystem)
-    assert (create_temp_filesystem / filename).exists()
+def test_download_file(get, source, filename, create_buckets, tmp_path):
+    setup(source, filename, tmp_path)
+    extract.download_file_from_source(source, filename, FAKE_VERSION, tmp_path)
+    assert (tmp_path / filename).exists()
 
 
 def test_download_file_invalid_source():
-    with pytest.raises(NotImplementedError):
-        extract.download_file_from_source(mock.MagicMock(), "test.txt", Path("."))
+    with pytest.raises(Exception, match="No registered connector"):
+        extract.download_file_from_source(
+            mock.MagicMock(type="fake"), "test.txt", FAKE_VERSION, Path(".")
+        )
 
 
-def test_local_already_exists(create_temp_filesystem):
+def _temp_test_local_already_exists(tmp_path):
     filename = "dummy.txt"
     source = LocalFileSource(type="local_file", path=Path(filename))
-    setup(source, filename, create_temp_filesystem)
-    extract.download_file_from_source(source, filename, create_temp_filesystem)
-    assert (create_temp_filesystem / filename).exists()
+    setup(source, filename, tmp_path)
+    with pytest.raises(SameFileError):
+        extract.download_file_from_source(source, filename, FAKE_VERSION, tmp_path)

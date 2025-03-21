@@ -1,33 +1,36 @@
 from pathlib import Path
 
-from dcpy.connectors.registry import NonVersionedConnector
+from dcpy.models.connectors import socrata
+from dcpy.connectors.registry import Connector
 from dcpy.connectors.socrata import extract
 
 
-class Connector(NonVersionedConnector):
-    conn_type = "socrata"
+class SocrataConnector(Connector):
+    conn_type: str = "socrata"
 
-    def push(self, key: str, push_conf: dict | None = {}) -> dict:
+    def push(self, key: str, **kwargs) -> dict:
         raise NotImplementedError("Sorry :)")
 
-    def pull(
+    def pull(  # type: ignore[override]
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = None,
+        *,
+        org: socrata.Org,
+        format: socrata.ValidSourceFormats,
+        **kwargs,
     ) -> dict:
-        pull_conf = pull_conf or {}
-        source = extract.Source(
-            type="socrata", org=pull_conf["org"], uid=key, format=pull_conf["format"]
-        )
+        source = extract.Source(type="socrata", org=org, uid=key, format=format)
         extract.download(source, destination_path)
         return {"path": destination_path}
 
-    def get_current_version(self, key: str, conf=None) -> str:
-        source = extract.Source(
-            type="socrata", org=conf["org"], uid=key, format=conf["format"]
-        )
+    def get_latest_version(  # type: ignore[override]
+        self,
+        key: str,
+        *,
+        org: socrata.Org,
+        format: socrata.ValidSourceFormats,
+        **kwargs,
+    ) -> str:
+        source = extract.Source(type="socrata", org=org, uid=key, format=format)
         return extract.get_version(source)
-
-    def version_exists(self, key: str, version: str) -> bool:
-        return False

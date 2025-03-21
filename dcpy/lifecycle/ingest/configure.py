@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 import yaml
-from dcpy.lifecycle.connector_registry import connectors
 
 from dcpy.models.lifecycle.ingest import (
     ArchivalMetadata,
@@ -25,6 +24,7 @@ from dcpy.models.lifecycle.ingest import (
 )
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
+from dcpy.lifecycle.ingest.connectors import source_connectors
 
 
 def get_jinja_vars(s: str) -> set[str]:
@@ -56,14 +56,14 @@ def read_template(
 
 
 def get_version(source: Source, timestamp: datetime) -> str:
-    ## TODO handle versioned -> get_latest
-    connector = connectors.nonversioned[source.type]
-    version = connector.get_current_version(source.key, source.model_dump())
+    connector = source_connectors[source.type]
+    version = connector.get_latest_version(source.key, **source.model_dump())
     return version or timestamp.strftime("%Y%m%d")
 
 
 def get_filename(source: Source, ds_id: str) -> str:
     """From parsed config template, determine filename"""
+    # TODO -> make part of model? awkward when uses ds_id
     match source:
         case LocalFileSource():
             return source.path.name
@@ -123,7 +123,6 @@ def get_config(
 
     logger.info(f"Reading template from {template_dir / dataset_id}.yml")
     template = read_template(dataset_id, version=version, template_dir=template_dir)
-
     filename = get_filename(template.ingestion.source, template.id)
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
@@ -153,7 +152,6 @@ def get_config(
         acl=template.acl,
     )
 
-    # create config object
     return Config(
         id=template.id,
         version=version,

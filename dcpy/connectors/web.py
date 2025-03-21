@@ -2,7 +2,7 @@ from pathlib import Path
 import requests
 
 from dcpy.utils.logging import logger
-from dcpy.connectors.registry import NonVersionedConnector
+from dcpy.connectors.registry import Connector
 
 
 def download_file(url: str, path: Path) -> None:
@@ -17,21 +17,13 @@ def download_file(url: str, path: Path) -> None:
         f.write(response.content)
 
 
-class Connector(NonVersionedConnector):
-    conn_type = "file_download"
+class WebConnector(Connector):
+    conn_type: str = "file_download"
 
-    def push(self, key: str, push_conf: dict | None = {}) -> dict:
+    def push(self, key: str, **kwargs) -> dict:
         # TODO should probably not be a fully-fledged "connector"
         raise NotImplementedError(f"{self.conn_type} does not support push")
 
-    def pull(
-        self,
-        key: str,
-        destination_path: Path,
-        pull_conf: dict | None = None,
-    ) -> dict:
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
         download_file(key, destination_path)
         return {"path": destination_path}
-
-    def get_current_version(self, key: str, conf=None) -> str | None:
-        return None

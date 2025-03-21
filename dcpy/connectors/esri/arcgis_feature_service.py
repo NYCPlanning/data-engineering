@@ -13,10 +13,10 @@ from rich.progress import (
 import yaml
 import json
 
-from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer
+from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer, Server
 from dcpy.models.product.dataset import metadata
 from dcpy.utils.logging import logger
-from dcpy.connectors.registry import NonVersionedConnector
+from dcpy.connectors.registry import Connector
 
 
 def get_feature_server_metadata(feature_server: FeatureServer) -> dict:
@@ -269,31 +269,38 @@ def _export_metadata(
         yaml.dump(md_json, outfile, sort_keys=False)
 
 
-class Connector(NonVersionedConnector):
+class ArcGISFeatureServiceConnector(Connector):
     conn_type: str = "arcgis_feature_server"
 
-    def _resolve_layer(self, key: str, conf: dict | None) -> FeatureServerLayer:
-        conf = conf or {}
-        assert "server" in conf
-        return resolve_layer(
-            FeatureServer(server=conf["server"], name=key),
-            conf.get("layer_name"),
-            conf.get("layer_id"),
-        )
-
-    def push(self, key: str, push_conf: dict | None = {}) -> dict:
+    def push(self, key: str, **kwargs) -> dict:
         raise NotImplementedError("Sorry :)")
 
-    def pull(
+    def pull(  # type: ignore[override]
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        *,
+        server: Server,
+        layer_name: str | None = None,
+        layer_id: int | None = None,
+        **kwargs,
     ) -> dict:
-        layer = self._resolve_layer(key, pull_conf)
+        layer = resolve_layer(
+            FeatureServer(server=server, name=key), layer_name, layer_id
+        )
         download_layer(layer, "EPSG:4326", path=destination_path)
         return {"path": destination_path}
 
-    def get_current_version(self, key: str, conf: dict | None = {}) -> str:
-        layer = self._resolve_layer(key, conf)
+    def get_latest_version(  # type: ignore[override]
+        self,
+        key: str,
+        *,
+        server: Server,
+        layer_name: str | None = None,
+        layer_id: int | None = None,
+        **kwargs,
+    ) -> str:
+        layer = resolve_layer(
+            FeatureServer(server=server, name=key), layer_name, layer_id
+        )
         return get_data_last_updated(layer).strftime("%Y%m%d")

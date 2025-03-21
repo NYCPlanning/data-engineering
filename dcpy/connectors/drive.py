@@ -1,33 +1,37 @@
 import shutil
 from pathlib import Path
-from pydantic import BaseModel
 
 from dcpy.utils.logging import logger
 from dcpy.connectors.registry import StorageConnector
 
 
-class Connector(BaseModel, StorageConnector):
+class Connector(StorageConnector):
     conn_type: str = "drive"
     path: Path | None = None
 
-    def _path(self, key: str, conf: dict | None = None) -> Path:
+    def _path(self, key: str, drive_path: Path | None = None) -> Path:
         if self.path:
             return self.path / key
-        elif conf and "drive_path" in conf:
-            return conf["drive_path"] / key
+        elif drive_path:
+            return drive_path / key
         else:
             return Path(key)
 
-    def push(self, key: str, push_conf: dict | None = {}) -> dict:
-        assert push_conf and "filepath" in push_conf, (
-            "filepath must be provided in push_conf"
-        )
-        path = self._path(key, push_conf)
+    def push(  # type: ignore[override]
+        self,
+        key: str,
+        *,
+        filepath: Path,
+        drive_path: Path | None = None,
+        overwrite: bool = False,
+        **kwargs,
+    ) -> dict:
+        path = self._path(key, drive_path)
 
-        if path.exists() and not push_conf.get("overwrite"):
+        if path.exists() and not overwrite:
             raise Exception(f"'{path}' already exists.")
-        logger.info(f"Copying {push_conf['filepath']} to {path / key}")
-        shutil.copy(push_conf["filepath"], path / key)
+        logger.info(f"Copying {filepath} to {path / key}")
+        shutil.copy(filepath, path / key)
 
         return {"path": path}
 
@@ -35,7 +39,11 @@ class Connector(BaseModel, StorageConnector):
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = None,
+        *,
+        drive_path: Path | None = None,
+        **kwargs,
     ) -> dict:
-        shutil.copy(self._path(key, pull_conf), destination_path)
+        source_path = self._path(key, drive_path)
+        if source_path != destination_path:
+            shutil.copy(source_path, destination_path)
         return {"path": destination_path}
