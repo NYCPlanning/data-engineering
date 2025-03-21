@@ -42,7 +42,6 @@ def read_template(
     and insert version as jinja var if provided.
     """
     file = template_dir / f"{dataset_id}.yml"
-    logger.info(f"Reading template from {file}")
     with open(file, "r") as f:
         template_string = f.read()
     vars = get_jinja_vars(template_string)
@@ -57,14 +56,17 @@ def read_template(
 
 
 def get_version(source: Source, timestamp: datetime) -> str:
-    ## TODO handle versioned -> get_latest
-    connector = connectors.nonversioned[source.type]
-    version = connector.get_current_version(source.key, source.model_dump())
+    if source.type in connectors.nonversioned:
+        connector = connectors.nonversioned[source.type]
+        version = connector.get_current_version(source.key, source.model_dump())
+    else:
+        version = None
     return version or timestamp.strftime("%Y%m%d")
 
 
 def get_filename(source: Source, ds_id: str) -> str:
     """From parsed config template, determine filename"""
+    # TODO -> make part of model? awkward when uses ds_id
     match source:
         case LocalFileSource():
             return source.path.name
@@ -121,6 +123,7 @@ def get_config(
 ) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
+    logger.info(f"Reading template from {template_dir / dataset_id}.yml")
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
     filename = get_filename(template.ingestion.source, template.id)
@@ -152,7 +155,6 @@ def get_config(
         acl=template.acl,
     )
 
-    # create config object
     return Config(
         id=template.id,
         version=version,
