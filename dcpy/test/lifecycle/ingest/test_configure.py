@@ -75,13 +75,13 @@ class TestGetVersion:
     def test_socrata(self, get):
         source = SocrataSource(type="socrata", org="nyc", uid="w7w3-xahh", format="csv")
         ### based on mocked response in dcpy/test/conftest.py
-        assert configure.get_version(source) == "20240412"
+        assert configure.get_version(source, None) == "20240412"
 
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_esri(self, get):
         source = Sources.esri
         ### based on mocked response in dcpy/test/conftest.py
-        configure.get_version(source) == "20240806"
+        configure.get_version(source, None) == "20240806"
 
     def test_gis_dataset(self, create_buckets):
         datestring = "20240412"
@@ -89,7 +89,7 @@ class TestGetVersion:
             Bucket=PUBLISHING_BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
         )
-        assert configure.get_version(Sources.gis) == datestring
+        assert configure.get_version(Sources.gis, None) == datestring
 
     @mock.patch("dcpy.connectors.edm.publishing.BuildMetadata", SparseBuildMetadata)
     def test_de_publishing(self, create_buckets):
@@ -99,7 +99,7 @@ class TestGetVersion:
             Key=f"{TEST_DATASET_NAME}/publish/latest/build_metadata.json",
             Body=f"{{'version': '{datestring}'}}".encode(),
         )
-        assert configure.get_version(Sources.de_publish) == datestring
+        assert configure.get_version(Sources.de_publish, None) == datestring
 
     def test_rely_on_timestamp(self):
         timestamp = datetime.today()
