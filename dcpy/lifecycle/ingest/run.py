@@ -60,15 +60,24 @@ def ingest(
     # download dataset
     extract.download_file_from_source(
         config.ingestion.source,
+        config.version,
         config.archival.raw_filename,
         dataset_staging_dir,
     )
     file_path = dataset_staging_dir / config.archival.raw_filename
 
-    # if push_to_s3:
-    #    # archive to edm-recipes/raw_datasets
-    #    assert config.archival.acl, "'acl' must be defined to push to s3"
-    #    recipes.archive_dataset(config, file_path, acl=config.archival.acl, raw=True)
+    if push_to_s3:
+        # archive to edm-recipes/raw_datasets
+        connector = connectors.versioned["edm.recipes.raw_datasets"]
+        connector.push(
+            dataset_id,
+            config.archival.archival_timestamp.isoformat(),
+            {
+                "filepath": dataset_staging_dir / config.filename,
+                "config": config,
+                "latest": latest,  # we could have latest here? Why not
+            },
+        )
 
     init_parquet = "init.parquet"
     transform.to_parquet(
@@ -100,7 +109,7 @@ def ingest(
         )
         match action:
             case validate.ArchiveAction.push:
-                connector = connectors.versioned["edm.recipes"]
+                connector = connectors.versioned["edm.recipes.datasets"]
                 connector.push(
                     dataset_id,
                     config.version,
