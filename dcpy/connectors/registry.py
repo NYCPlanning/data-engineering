@@ -106,7 +106,7 @@ class _NonVersionedPull(ABC):
 
 
 class _GetCurrentVersion(ABC):
-    def get_version(self, key: str, conf: dict | None = None) -> str | None:
+    def get_current_version(self, key: str, conf: dict | None = None) -> str | None:
         return None
 
 

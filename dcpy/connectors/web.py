@@ -33,5 +33,5 @@ class Connector(NonVersionedConnector):
         download_file(key, destination_path)
         return {"path": destination_path}
 
-    def get_current_version(self, key: str) -> str | None:
+    def get_current_version(self, key: str, conf=None) -> str | None:
         return None

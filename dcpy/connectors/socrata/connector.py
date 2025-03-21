@@ -18,7 +18,7 @@ class Connector(NonVersionedConnector):
         extract.download(source, destination_path)
         return {"path": destination_path}
 
-    def get_current_version(self, key: str, **conf) -> str:
+    def get_current_version(self, key: str, conf=None) -> str:
         source = extract.Source(
             type="socrata", org=conf["org"], uid=key, format=conf["format"]
         )
