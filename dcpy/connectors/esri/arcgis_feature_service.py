@@ -13,7 +13,7 @@ from rich.progress import (
 import yaml
 import json
 
-from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer
+from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer, Server
 from dcpy.models.product.dataset import metadata
 from dcpy.utils.logging import logger
 from dcpy.connectors.registry import NonVersionedConnector
@@ -288,9 +288,16 @@ class Connector(NonVersionedConnector):
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        server: Server,
+        layer_name: str | None = None,
+        layer_id: int | None = None,
+        **kwargs,
     ) -> dict:
-        layer = self._resolve_layer(key, pull_conf)
+        layer = resolve_layer(
+            FeatureServer(server=server, name=key),
+            layer_name,
+            layer_id,
+        )
         download_layer(layer, "EPSG:4326", path=destination_path)
         return {"path": destination_path}
 

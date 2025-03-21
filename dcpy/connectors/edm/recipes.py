@@ -489,12 +489,12 @@ class Connector(BaseModel, VersionedConnector):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        file_type: DatasetType,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "file_type" in pull_conf
         return {
             "path": fetch_dataset(
-                Dataset(id=key, version=version, file_type=pull_conf["file_type"]),
+                Dataset(id=key, version=version, file_type=file_type),
                 target_dir=Path(),
                 _target_dataset_path_override=destination_path,
             )

@@ -9,11 +9,11 @@ class Connector(BaseModel, StorageConnector):
     conn_type: str = "drive"
     path: Path | None = None
 
-    def _path(self, key: str, conf: dict | None = None) -> Path:
+    def _path(self, key: str, drive_path: Path | None = None) -> Path:
         if self.path:
             return self.path / key
-        elif conf and "drive_path" in conf:
-            return conf["drive_path"] / key
+        elif drive_path:
+            return drive_path / key
         else:
             return Path(key)
 
@@ -33,7 +33,7 @@ class Connector(BaseModel, StorageConnector):
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = None,
+        **kwargs,
     ) -> dict:
-        shutil.copy(self._path(key, pull_conf), destination_path)
+        shutil.copy(self._path(key, **kwargs), destination_path)
         return {"path": destination_path}

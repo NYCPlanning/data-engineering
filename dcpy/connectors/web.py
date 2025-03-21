@@ -28,7 +28,7 @@ class Connector(NonVersionedConnector):
         self,
         key: str,
         destination_path: Path,
-        pull_conf: dict | None = None,
+        **kwargs,
     ) -> dict:
         download_file(key, destination_path)
         return {"path": destination_path}
