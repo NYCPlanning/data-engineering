@@ -489,12 +489,12 @@ class Connector(BaseModel, VersionedConnector):
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        file_type: DatasetType,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "file_type" in pull_conf
         return {
             "path": fetch_dataset(
-                Dataset(id=key, version=version, file_type=pull_conf["file_type"]),
+                Dataset(id=key, version=version, file_type=file_type),
                 target_dir=Path(),
                 _target_dataset_path_override=destination_path,
             )
@@ -503,7 +503,7 @@ class Connector(BaseModel, VersionedConnector):
     def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
         return sorted(get_all_versions(name=key), reverse=sort_desc)
 
-    def query_latest_version(self, key: str) -> str:
+    def query_latest_version(self, key: str, conf: dict | None = None) -> str:
         return get_latest_version(name=key)
 
     def version_exists(self, key: str, version: str) -> bool:

@@ -3,14 +3,13 @@ from pathlib import Path
 import pytest
 from unittest import mock
 
-from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source
-from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source, GisDataset
 from dcpy.utils import s3
 from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
 
 from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
-from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES, Sources
+from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
 
@@ -40,7 +39,7 @@ def setup(source: Source, filename: str, file_system: Path) -> Source:
 def test_download_file(get, source, filename, create_buckets, create_temp_filesystem):
     setup(source, filename, create_temp_filesystem)
     extract.download_file_from_source(
-        source, filename, FAKE_VERSION, create_temp_filesystem
+        source, FAKE_VERSION, filename, create_temp_filesystem
     )
     assert (create_temp_filesystem / filename).exists()
 
@@ -48,17 +47,7 @@ def test_download_file(get, source, filename, create_buckets, create_temp_filesy
 def test_download_file_invalid_source():
     with pytest.raises(NotImplementedError):
         extract.download_file_from_source(
-            mock.MagicMock(), "test.txt", "version", Path(".")
-        )
-
-
-def test_script_source(create_temp_filesystem):
-    with pytest.raises(NotImplementedError):
-        extract.download_file_from_source(
-            Sources.script,
-            f"{TEST_DATASET_NAME}.parquet",
-            FAKE_VERSION,
-            create_temp_filesystem,
+            mock.MagicMock(), FAKE_VERSION, "test.txt", Path(".")
         )
 
 
@@ -67,6 +56,6 @@ def test_local_already_exists(create_temp_filesystem):
     source = LocalFileSource(type="local_file", path=Path(filename))
     setup(source, filename, create_temp_filesystem)
     extract.download_file_from_source(
-        source, filename, FAKE_VERSION, create_temp_filesystem
+        source, FAKE_VERSION, filename, create_temp_filesystem
     )
     assert (create_temp_filesystem / filename).exists()

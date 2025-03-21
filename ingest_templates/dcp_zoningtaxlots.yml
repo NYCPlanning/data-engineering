@@ -13,26 +13,27 @@ attributes:
 
 ingestion:
   source:
-    type: de-published
+    type: edm.publishing.published
     product: db-zoningtaxlots
     filename: zoningtaxlot_db.csv
   file_format:
     type: csv
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: coerce_column_types
     args:
       # TODO - boro, block, and lot as individual fields should be int, not text/string
       # This change should also take place in stg__dof_dtm of ztl, though then this is a broader discussion
       # dof_dtm comes in as bbl: text, the others all int
-      column_types: {
-        "bbl": "string",
-        "borough_code": "string",
-        "tax_block": "string",
-        "tax_lot": "string",
-        "special_district_3": "string"
-      }
+      column_types:
+        {
+          "bbl": "string",
+          "borough_code": "string",
+          "tax_block": "string",
+          "tax_lot": "string",
+          "special_district_3": "string"
+        }
 
 columns:
 - id: borough_code

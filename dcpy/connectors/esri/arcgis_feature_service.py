@@ -13,9 +13,10 @@ from rich.progress import (
 import yaml
 import json
 
-from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer
-import dcpy.models.product.dataset.metadata as models
+from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer, Server
+from dcpy.models.product.dataset import metadata
 from dcpy.utils.logging import logger
+from dcpy.connectors.registry import NonVersionedConnector
 
 
 def get_feature_server_metadata(feature_server: FeatureServer) -> dict:
@@ -109,7 +110,7 @@ def resolve_layer(
 
 def get_layer_metadata(layer: FeatureServerLayer) -> dict:
     """Given FeatureServerLayer, return its metadata as a dictionary"""
-    resp = requests.get(f"{layer.url}", params={"f": "pjson"})
+    resp = requests.get(layer.url, params={"f": "pjson"})
     resp.raise_for_status()
     error = resp.json().get("error")  # 200 responses might contain error details
     if error:
@@ -191,7 +192,7 @@ def download_layer(layer: FeatureServerLayer, crs: str, path: Path) -> None:
         json.dump(geojson, f)
 
 
-def make_dcp_metadata(layer_url: str) -> models.Metadata:
+def make_dcp_metadata(layer_url: str) -> metadata.Metadata:
     if layer_url.endswith("FeatureServer/0"):
         layer_url = layer_url + "?f=pjson"
 
@@ -204,7 +205,7 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
 
     raw_cols = resp.get("fields")
     our_cols = [
-        models.DatasetColumn(
+        metadata.DatasetColumn(
             id=c.get("name"),
             name=c.get("alias"),
             description="",
@@ -214,17 +215,17 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
         if c["name"] != "OBJECTID"
     ]
 
-    return models.Metadata(
+    return metadata.Metadata(
         id=resp.get("name"),
-        attributes=models.DatasetAttributes(
+        attributes=metadata.DatasetAttributes(
             display_name="FILL ME IN",
             description=resp.get("description"),
             tags=[],
             each_row_is_a="",
         ),
         files=[
-            models.FileAndOverrides(
-                file=models.File(
+            metadata.FileAndOverrides(
+                file=metadata.File(
                     id="primary_shapefile",
                     filename="shapefile.zip",
                     type="shapefile",
@@ -232,7 +233,7 @@ def make_dcp_metadata(layer_url: str) -> models.Metadata:
             )
         ],
         destinations=[
-            models.DestinationWithFiles(
+            metadata.DestinationWithFiles(
                 id="socrata_prod",
                 type="socrata",
             )
@@ -266,3 +267,40 @@ def _export_metadata(
     logger.info(f"exporting metadata to {output_path}")
     with open(output_path, "w") as outfile:
         yaml.dump(md_json, outfile, sort_keys=False)
+
+
+class Connector(NonVersionedConnector):
+    conn_type = "arcgis_feature_server"
+
+    def _resolve_layer(self, key: str, conf: dict | None) -> FeatureServerLayer:
+        conf = conf or {}
+        assert "server" in conf
+        return resolve_layer(
+            FeatureServer(server=conf["server"], name=key),
+            conf.get("layer_name"),
+            conf.get("layer_id"),
+        )
+
+    def push(self, key: str, push_conf: dict | None = {}) -> dict:
+        raise NotImplementedError("Sorry :)")
+
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        server: Server,
+        layer_name: str | None = None,
+        layer_id: int | None = None,
+        **kwargs,
+    ) -> dict:
+        layer = resolve_layer(
+            FeatureServer(server=server, name=key),
+            layer_name,
+            layer_id,
+        )
+        download_layer(layer, "EPSG:4326", path=destination_path)
+        return {"path": destination_path}
+
+    def get_current_version(self, key: str, conf: dict | None = {}) -> str:
+        layer = self._resolve_layer(key, conf)
+        return get_data_last_updated(layer).strftime("%Y%m%d")

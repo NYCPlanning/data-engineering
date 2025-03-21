@@ -5,6 +5,7 @@ from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
+from dcpy.lifecycle.connector_registry import connectors
 
 from . import configure, extract, transform, validate
 
@@ -56,16 +57,24 @@ def ingest(
     # download dataset
     extract.download_file_from_source(
         config.ingestion.source,
-        config.archival.raw_filename,
         config.version,
+        config.archival.raw_filename,
         dataset_staging_dir,
     )
     file_path = dataset_staging_dir / config.archival.raw_filename
 
     if push_to_s3:
         # archive to edm-recipes/raw_datasets
-        assert config.archival.acl, "'acl' must be defined to push to s3"
-        recipes.archive_dataset(config, file_path, acl=config.archival.acl, raw=True)
+        connector = connectors.versioned["edm.recipes.raw_datasets"]
+        connector.push(
+            dataset_id,
+            config.archival.archival_timestamp.isoformat(),
+            {
+                "filepath": file_path,
+                "config": config,
+                "latest": latest,  # we could have latest here? Why not
+            },
+        )
 
     init_parquet = "init.parquet"
     transform.to_parquet(
@@ -96,18 +105,20 @@ def ingest(
         )
         match action:
             case validate.ArchiveAction.push:
-                recipes.archive_dataset(
-                    config,
-                    dataset_staging_dir / config.filename,
-                    acl=config.archival.acl,
-                    latest=latest,
+                connector = connectors.versioned["edm.recipes.datasets"]
+                connector.push(
+                    dataset_id,
+                    config.version,
+                    {
+                        "filepath": dataset_staging_dir / config.filename,
+                        "config": config,
+                        "latest": latest,
+                    },
                 )
             case validate.ArchiveAction.update_freshness:
                 recipes.update_freshness(
                     config.dataset_key, config.archival.archival_timestamp
                 )
-                if latest:
-                    recipes.set_latest(config.dataset_key, config.archival.acl)
             case _:
                 pass
     return config
