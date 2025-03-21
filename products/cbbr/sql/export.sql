@@ -6,7 +6,7 @@ SELECT *
 INTO cbbr_submissions_needgeoms
 FROM _cbbr_submissions
 WHERE geom IS NULL
-ORDER BY location ASC;
+ORDER BY borough_code, street_name, address;
 
 -- cbbr_submissions_needgeoms_c: lowest priority
 DROP TABLE IF EXISTS cbbr_submissions_needgeoms_c;
@@ -20,16 +20,18 @@ SELECT
     commdist,
     cb_label,
     type_br,
-    type,
+    -- type, missing
     need,
     request,
     explanation,
-    location,
-    facility_or_park_name AS site_name,
+    location_specific,
+    site_or_facility_name AS site_name,
     address,
     street_name,
-    between_cross_street_1 AS street_cross_1,
-    and_cross_street_2 AS street_cross_2,
+    cross_street_1 AS street_cross_1,
+    cross_street_2 AS street_cross_2,
+    intersection_street_1 AS street_intersection_1,
+    intersection_street_2 AS street_intersection_2,
     agency_acronym,
     agency,
     agency_category_response,
@@ -39,9 +41,7 @@ SELECT
 INTO cbbr_submissions_needgeoms_c
 FROM _cbbr_submissions
 WHERE geom IS NULL
-ORDER BY
-    cb_label ASC,
-    location ASC;
+ORDER BY cb_label, street_name, address;
 
 -- cbbr_submissions_needgeoms_b
 DROP TABLE IF EXISTS cbbr_submissions_needgeoms_b;
@@ -50,9 +50,7 @@ SELECT *
 INTO cbbr_submissions_needgeoms_b
 FROM cbbr_submissions_needgeoms_c
 WHERE type_br = 'C'
-ORDER BY
-    cb_label ASC,
-    location ASC;
+ORDER BY cb_label, street_name, address;
 
 -- remove B from C table
 DELETE FROM cbbr_submissions_needgeoms_c
@@ -69,10 +67,8 @@ DROP TABLE IF EXISTS cbbr_submissions_needgeoms_a;
 SELECT *
 INTO cbbr_submissions_needgeoms_a
 FROM cbbr_submissions_needgeoms_b
-WHERE type = 'site'
-ORDER BY
-    cb_label ASC,
-    location ASC;
+WHERE location_specific = 'Yes'
+ORDER BY cb_label, street_name, address;
 
 -- remove A from B table
 DELETE FROM cbbr_submissions_needgeoms_b
@@ -94,17 +90,19 @@ SELECT
     commdist,
     cb_label,
     type_br,
-    type,
+    -- type,
     priority,
     need,
     request,
     explanation,
-    location,
-    facility_or_park_name AS site_name,
+    location_specific,
+    site_or_facility_name AS site_name,
     address,
     street_name,
-    between_cross_street_1 AS street_cross_1,
-    and_cross_street_2 AS street_cross_2,
+    cross_street_1 AS street_cross_1,
+    cross_street_2 AS street_cross_2,
+    intersection_street_1 AS street_intersection_1,
+    intersection_street_2 AS street_intersection_2,
     CASE
         WHEN
             supporters_1 IS NULL
@@ -122,7 +120,6 @@ SELECT
         ELSE
             supporters_2
     END AS supporters_2,
-    parent_tracking_code,
     agency_acronym,
     agency,
     agency_category_response,
