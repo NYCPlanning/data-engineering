@@ -70,7 +70,7 @@ def ingest(
             dataset_id,
             config.archival.archival_timestamp.isoformat(),
             {
-                "filepath": dataset_staging_dir / config.filename,
+                "filepath": file_path,
                 "config": config,
                 "latest": latest,  # we could have latest here? Why not
             },
