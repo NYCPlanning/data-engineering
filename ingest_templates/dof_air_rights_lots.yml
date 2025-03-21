@@ -8,26 +8,27 @@ attributes:
 
 ingestion:
   source:
-    type: edm_publishing_gis_dataset
+    type: edm.publishing.gis
     name: dof_dtm_air_rights_lots
   file_format:
     type: csv
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: coerce_column_types
     args:
-      column_types: {
-        "created_date": "date", 
-        "last_edited_date": "date",
-        "air_lot_bbl": "string",
-        "air_lot_number": "string",
-        "oid_": "string",
-        "parent_bbl": "string",
-        "parent_boro": "string",
-        "parent_block": "string",
-        "parent_lot": "string",
-      }
+      column_types:
+        {
+          "created_date": "date",
+          "last_edited_date": "date",
+          "air_lot_bbl": "string",
+          "air_lot_number": "string",
+          "oid_": "string",
+          "parent_bbl": "string",
+          "parent_boro": "string",
+          "parent_block": "string",
+          "parent_lot": "string"
+        }
 
 columns:
 - id: oid_

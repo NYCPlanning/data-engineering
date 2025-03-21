@@ -12,17 +12,17 @@ attributes:
 ingestion:
   target_crs: EPSG:4326
   source:
-    type: edm_publishing_gis_dataset
+    type: edm.publishing.gis
     name: dcp_special_purpose_districts
   file_format:
     type: shapefile
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
 columns:
