@@ -56,14 +56,17 @@ def read_template(
 
 
 def get_version(source: Source, timestamp: datetime) -> str:
-    ## TODO handle versioned -> get_latest
-    connector = connectors.nonversioned[source.type]
-    version = connector.get_current_version(source.key, source.model_dump())
+    if source.type in connectors.nonversioned:
+        connector = connectors.nonversioned[source.type]
+        version = connector.get_current_version(source.key, source.model_dump())
+    else:
+        version = None
     return version or timestamp.strftime("%Y%m%d")
 
 
 def get_filename(source: Source, ds_id: str) -> str:
     """From parsed config template, determine filename"""
+    # TODO -> make part of model? awkward when uses ds_id
     match source:
         case LocalFileSource():
             return source.path.name
@@ -123,7 +126,6 @@ def get_config(
 
     logger.info(f"Reading template from {template_dir / dataset_id}.yml")
     template = read_template(dataset_id, version=version, template_dir=template_dir)
-
     filename = get_filename(template.ingestion.source, template.id)
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
@@ -153,7 +155,6 @@ def get_config(
         acl=template.acl,
     )
 
-    # create config object
     return Config(
         id=template.id,
         version=version,

@@ -38,18 +38,24 @@ def setup(source: Source, filename: str, file_system: Path) -> Source:
 @pytest.mark.parametrize(("source", "filename"), SOURCE_FILENAMES)
 def test_download_file(get, source, filename, create_buckets, create_temp_filesystem):
     setup(source, filename, create_temp_filesystem)
-    extract.download_file_from_source(source, filename, create_temp_filesystem)
+    extract.download_file_from_source(
+        source, FAKE_VERSION, filename, create_temp_filesystem
+    )
     assert (create_temp_filesystem / filename).exists()
 
 
 def test_download_file_invalid_source():
     with pytest.raises(NotImplementedError):
-        extract.download_file_from_source(mock.MagicMock(), "test.txt", Path("."))
+        extract.download_file_from_source(
+            mock.MagicMock(), FAKE_VERSION, "test.txt", Path(".")
+        )
 
 
 def test_local_already_exists(create_temp_filesystem):
     filename = "dummy.txt"
     source = LocalFileSource(type="local_file", path=Path(filename))
     setup(source, filename, create_temp_filesystem)
-    extract.download_file_from_source(source, filename, create_temp_filesystem)
+    extract.download_file_from_source(
+        source, FAKE_VERSION, filename, create_temp_filesystem
+    )
     assert (create_temp_filesystem / filename).exists()
