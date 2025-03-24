@@ -1,0 +1,7 @@
+{
+  "quick_note": "A copy of this will be put on s3 for the integration tests. Leaving this here until we figure out source control for integration test data.",
+  "records": [
+      {"a": 1, "b": 2},
+      {"a": 3, "b": 4}
+  ]
+}

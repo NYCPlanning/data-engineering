@@ -205,6 +205,10 @@ def s3_upload(dataset: str, years: list[str], latest=True):
         )
 
 
+def json_records_list_to_csv(ds_id: str, records: list[dict]):
+    return pd.DataFrame(records)
+
+
 def melt_wide_df(ds_id: str, df: pd.DataFrame):
     return df.melt(id_vars=list(df.columns[0:2]), value_vars=list(df.columns[2:]))
 

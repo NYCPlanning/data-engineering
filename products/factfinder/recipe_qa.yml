@@ -39,6 +39,63 @@ inputs:
         module: products.factfinder.pipelines.utils
         function: melt_wide_df
 
+    #### Decennial Metadata
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: dec_metadata_current_latest_published
+      file_type: json
+      version: latest
+      custom:
+        dataset: decennial_2020
+        filepath: metadata.json
+        revision: "1-initial-build"
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      import_as: dec_metadata_current_latest_draft
+      file_type: json
+      version: latest
+      custom:
+        dataset: decennial_2020
+        filepath: metadata.json
+        revision: "1-initial-build"
+
+
+    # ACS Metadata
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      import_as: acs_metadata_current_latest_draft
+      file_type: json
+      version: latest
+      custom:
+        dataset: acs_current
+        filepath: metadata.json
+        revision: "1-initial-build"
+    - name: db-factfinder
+      source: edm.publishing.drafts
+      import_as: acs_metadata_previous_latest_draft
+      file_type: json
+      version: latest
+      custom:
+        dataset: acs_previous
+        filepath: metadata.json
+        revision: "1-initial-build"
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: acs_metadata_current_latest_published
+      file_type: json
+      version: latest
+      custom:
+        dataset: acs_current
+        filepath: metadata.json
+    - name: db-factfinder
+      source: edm.publishing.published
+      import_as: acs_metadata_previous_latest_published
+      file_type: json
+      version: latest
+      custom:
+        dataset: acs_previous
+        filepath: metadata.json
+
     # EDM
     # Drafts
     - name: db-factfinder
