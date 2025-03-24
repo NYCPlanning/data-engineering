@@ -1,0 +1,38 @@
+version: 2
+
+seeds:
+  - name: data_hub_datasets
+    description: |
+      List of datasets in CEQR Data Hub
+    columns:
+      - name: dataset_id
+        tests:
+          - not_null
+          - unique
+
+      - name: dataset_name
+        tests:
+          - not_null
+          - unique
+
+      - name: availability_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["download", "webpage"]
+
+      - name: file_type
+        tests:
+          - not_null:
+              where: "availability_type = 'download'"
+          - accepted_values:
+              values: ["shapefile", "csv", "excel"]
+              where: "availability_type = 'download'"
+
+      - name: geometry_type
+        tests:
+          - not_null:
+              where: "file_type = 'shapefile'"
+          - accepted_values:
+              values: ["MULTIPOLYGON", "MULTIPOINT"]
+              where: "availability_type = 'download'"

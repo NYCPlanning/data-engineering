@@ -12,6 +12,7 @@ on:
         - template
         - cbbr
         - cdbg
+        - ceqr
         - checkbook
         - colp
         - cpdb
@@ -146,6 +147,17 @@ jobs:
     needs: health_check
     if: inputs.dataset_name == 'cdbg' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/cdbg_build.yml
+    secrets: inherit
+    with:
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
+  ceqr:
+    needs: health_check
+    if: inputs.dataset_name == 'ceqr' || inputs.dataset_name  == 'all'
+    uses: ./.github/workflows/ceqr_build.yml
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}

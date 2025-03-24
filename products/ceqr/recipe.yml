@@ -1,0 +1,19 @@
+name: CEQR
+product: db-ceqr
+version_strategy: first_of_month
+
+inputs:
+  missing_versions_strategy: find_latest
+
+  dataset_defaults:
+    file_type: parquet
+
+  datasets:
+    - name: dcp_mappluto_wi
+    - name: dcp_projects
+    - name: dcp_zoningdistricts
+    - name: dcp_commercialoverlay
+    - name: dcp_specialpurpose
+    - name: dcp_limitedheight
+    - name: dcp_specialpurposesubdistricts
+    - name: dcp_zoningmapamendments
