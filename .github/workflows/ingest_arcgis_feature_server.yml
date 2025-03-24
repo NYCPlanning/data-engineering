@@ -28,8 +28,6 @@ jobs:
         dcp_waterfront_access_map_pow
         dcp_wrp_recognized_ecological_complexes
         dcp_wrp_special_natural_waterfront_areas
-        nysdec_freshwater_wetlands_checkzones
-        nysdec_freshwater_wetlands
         nysdec_lands
         nysdec_natural_heritage_communities
         nysdec_priority_lakes
