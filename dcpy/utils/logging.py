@@ -16,7 +16,9 @@ class LoggingHandler(logging.StreamHandler):
 logging.root.setLevel(logging.INFO)
 
 handler = LoggingHandler()
-formatter = logging.Formatter(logging.BASIC_FORMAT)
+formatter = logging.Formatter(
+    fmt="%(asctime)s %(levelname)s:%(name)s:%(message)s", datefmt="%H:%M:%S"
+)
 handler.setFormatter(formatter)
 
 logger = logging.getLogger("dcpy")
