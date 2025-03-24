@@ -26,10 +26,14 @@ from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
-assert configuration.RECIPES_BUCKET, (
-    "'RECIPES_BUCKET' must be defined to use edm.recipes connector"
-)
-BUCKET = configuration.RECIPES_BUCKET
+
+def _bucket() -> str:
+    assert configuration.RECIPES_BUCKET, (
+        "'RECIPES__bucket()' must be defined to use edm.recipes connector"
+    )
+    return configuration.RECIPES_BUCKET
+
+
 LIBRARY_DEFAULT_PATH = (
     Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
 )
@@ -57,7 +61,7 @@ def s3_raw_file_path(ds: RawDatasetKey) -> str:
 
 
 def exists(ds: Dataset) -> bool:
-    return s3.folder_exists(BUCKET, s3_folder_path(ds))
+    return s3.folder_exists(_bucket(), s3_folder_path(ds))
 
 
 def archive_dataset(
@@ -73,12 +77,13 @@ def archive_dataset(
     It is assumed that s3_path has taken care of figuring out which top-level folder,
     how the dataset is being versioned, etc.
     """
+    bucket = _bucket()
     s3_path = (
         s3_raw_folder_path(config.raw_dataset_key)
         if raw
         else s3_folder_path(config.dataset_key)
     )
-    if s3.folder_exists(BUCKET, s3_path):
+    if s3.folder_exists(bucket, s3_path):
         raise Exception(
             f"Archived dataset at {s3_path} already exists, cannot overwrite"
         )
@@ -90,7 +95,7 @@ def archive_dataset(
                 json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
             )
         s3.upload_folder(
-            BUCKET,
+            bucket,
             tmp_dir_path,
             Path(s3_path),
             acl=acl,
@@ -103,7 +108,7 @@ def archive_dataset(
 
 def set_latest(key: DatasetKey, acl):
     s3.copy_folder(
-        BUCKET,
+        _bucket(),
         f"{s3_folder_path(key)}/",
         f"{DATASET_FOLDER}/{key.id}/latest/",
         acl=acl,
@@ -111,6 +116,7 @@ def set_latest(key: DatasetKey, acl):
 
 
 def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
+    bucket = _bucket()
     path = f"{DATASET_FOLDER}/{ds.id}/{ds.version}/config.json"
     config = get_config(ds.id, ds.version)
     if isinstance(config, library.Config):
@@ -122,19 +128,20 @@ def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
     assert config.archival.acl, "Impossible - s3-archived dataset missing acl"
     s3.upload_file_obj(
         BytesIO(config_str.encode()),
-        BUCKET,
+        bucket,
         path,
         config.archival.acl,
-        metadata=s3.get_custom_metadata(BUCKET, path),
+        metadata=s3.get_custom_metadata(bucket, path),
     )
     return config.archival.archival_timestamp
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
     """Retrieve a recipe config from s3."""
+    bucket = _bucket()
     ds_conf_path = f"{DATASET_FOLDER}/{name}/{version}/config.json"
-    logger.info(f"Retrieving config at {BUCKET}.{ds_conf_path}")
-    obj = s3.get_file_as_stream(BUCKET, ds_conf_path)
+    logger.info(f"Retrieving config at {bucket}.{ds_conf_path}")
+    obj = s3.get_file_as_stream(bucket, ds_conf_path)
     config = yaml.safe_load(obj)
     if "dataset" in config:
         return library.Config(**config)
@@ -153,7 +160,7 @@ def try_get_config(dataset: Dataset) -> library.Config | ingest.Config | None:
 def get_parquet_metadata(id: str, version="latest") -> parquet.FileMetaData:
     s3_fs = s3.pyarrow_fs()
     ds = parquet.ParquetDataset(
-        f"{BUCKET}/{DATASET_FOLDER}/{id}/{version}/{id}.parquet", filesystem=s3_fs
+        f"{_bucket()}/{DATASET_FOLDER}/{id}/{version}/{id}.parquet", filesystem=s3_fs
     )
 
     assert len(ds.fragments) == 1, "recipes does not support multi-fragment datasets"
@@ -169,7 +176,7 @@ def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
     return [
         folder
-        for folder in s3.get_subfolders(BUCKET, f"{DATASET_FOLDER}/{name}/")
+        for folder in s3.get_subfolders(_bucket(), f"{DATASET_FOLDER}/{name}/")
         if folder != "latest"
     ]
 
@@ -189,7 +196,7 @@ def _dataset_type_from_extension(s: str) -> DatasetType | None:
 
 
 def get_file_types(dataset: Dataset | DatasetKey) -> set[DatasetType]:
-    files = s3.get_filenames(bucket=BUCKET, prefix=s3_folder_path(dataset))
+    files = s3.get_filenames(bucket=_bucket(), prefix=s3_folder_path(dataset))
     valid_types = {
         _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
     }
@@ -230,7 +237,7 @@ def fetch_dataset(
         logger.info(f"🛠 {ds.file_name} doesn't exists in cache, downloading {key}")
 
         s3.download_file(
-            bucket=BUCKET,
+            bucket=_bucket(),
             key=key,
             path=target_file_path,
         )
@@ -264,7 +271,7 @@ def read_df(
         path = fetch_dataset(ds, target_dir=local_cache_dir)
         return reader(path, **kwargs)
     else:
-        with s3.get_file_as_stream(BUCKET, s3_file_path(ds)) as stream:
+        with s3.get_file_as_stream(_bucket(), s3_file_path(ds)) as stream:
             data = reader(stream, **kwargs)
         return data
 
@@ -390,7 +397,7 @@ def get_archival_metadata(
         runner = execution_details.runner_string
     else:
         s3metadata = s3.get_metadata(
-            BUCKET,
+            _bucket(),
             f"{DATASET_FOLDER}/{name}/{version}/config.json",
         )
         date_created = s3metadata.custom.get("date-created")
@@ -452,7 +459,7 @@ def scrape_metadata(dataset: str) -> None:
 
 
 def scrape_all_metadata(rerun_existing=True) -> None:
-    datasets = s3.get_subfolders(BUCKET, "datasets")
+    datasets = s3.get_subfolders(_bucket(), "datasets")
     pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
     scraped = pg_client.execute_select_query(
         f"select distinct name from {LOGGING_TABLE_NAME}"
