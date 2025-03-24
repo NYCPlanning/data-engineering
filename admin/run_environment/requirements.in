@@ -63,6 +63,8 @@ types-beautifulsoup4
 types-python-dateutil
 types-requests
 types-setuptools
+types-paramiko
+types-pysftp
 urllib3>=1.26.18
 us
 uv
