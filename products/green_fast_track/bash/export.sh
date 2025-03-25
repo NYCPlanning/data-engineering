@@ -18,6 +18,9 @@ mkdir -p output && (
     echo "Copy metadata files"
     cp ../source_data_versions.csv .
     cp ../build_metadata.json .
+
+    echo "Generate int_flags__all csv"
+    csv_export int_flags__all all_flags
     
     echo "Generate FileGeodatabase ${fgdb_filename}"
     echo "FGDB export green_fast_track_bbls ..."
