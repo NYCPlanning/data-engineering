@@ -1,182 +1,182 @@
 version: 2
 
 models:
-  - name: green_fast_track_bbls
-    description: BBLs and their CEQR Type II variable checks
-    config:
-      contract:
-        enforced: true
-    
-    # contract
-    columns:
-      - name: bbl
-        data_type: string
-        tests:
-          - not_null
-          - unique
-      # flag and flag value columns
-      - name: zoning_category
-        data_type: string
-        tests: [not_null]
-      - name: zoning_district
-        data_type: string
-
-      - name: special_coastal_risk_flag
-        data_type: string
-        tests: [not_null]
-      - name: special_coastal_risk
-        data_type: string
-
-      - name: cats_permit_flag
-        data_type: string
-        tests: [not_null]
-      - name: cats_permit
-        data_type: string
-
-      - name: industrial_lots_flag
-        data_type: string
-        tests: [not_null]
-      - name: industrial_lots
-        data_type: string
-
-      - name: state_facility_flag
-        data_type: string
-        tests: [not_null]
-      - name: state_facility
-        data_type: string
-
-      - name: title_v_permit_flag
-        data_type: string
-        tests: [not_null]
-      - name: title_v_permit
-        data_type: string
-
-      - name: vent_tower_flag
-        data_type: string
-        tests: [not_null]
-      - name: vent_tower
-        data_type: string
-        data_type: string
-
-      - name: e_des_air_quality_flag
-        data_type: string
-        tests: [not_null]
-      - name: e_des_air_quality
-        data_type: string
-
-      - name: e_des_noise_flag
-        data_type: string
-        tests: [not_null]
-      - name: e_des_noise
-        data_type: string
-
-      - name: arterial_highway_flag
-        data_type: string
-        tests: [not_null]
-      - name: arterial_highway
-        data_type: string
-
-      - name: exposed_railway_flag
-        data_type: string
-        tests: [not_null]
-      - name: exposed_railway
-        data_type: string
-
-      - name: airport_noise_flag
-        data_type: string
-        tests: [not_null]
-      - name: airport_noise
-        data_type: string
-
-      - name: e_des_hazmat_flag
-        data_type: string
-        tests: [not_null]
-      - name: e_des_hazmat
-        data_type: string
-
-      - name: natural_resources_flag
-        data_type: string
-        tests: [not_null]
-      - name: natural_resources
-        data_type: string
-
-      - name: wetland_checkzone_flag
-        data_type: string
-        tests: [not_null]
-      - name: wetland_checkzone
-        data_type: string
-
-      - name: archaeological_area_flag
-        data_type: string
-        tests: [not_null]
-      - name: archaeological_area
-        data_type: string
-
-      - name: historic_districts_flag
-        data_type: string
-        tests: [not_null]
-      - name: historic_districts
-        data_type: string
-
-      - name: historic_resources_flag
-        data_type: string
-        tests: [not_null]
-      - name: historic_resources
-        data_type: string
-
-      - name: historic_resources_adj_flag
-        data_type: string
-        tests: [not_null]
-      - name: historic_resources_adj
-        data_type: string
-
-      - name: shadow_open_spaces_flag
-        data_type: string
-        tests: [not_null]
-      - name: shadow_open_spaces
-        data_type: string
-
-      - name: shadow_nat_resources_flag
-        data_type: string
-        tests: [not_null]
-      - name: shadow_nat_resources
-        data_type: string
-
-      - name: shadow_hist_resources_flag
-        data_type: string
-        tests: [not_null]
-        data_type: string
-      - name: shadow_hist_resources
-        data_type: string
-
-      # lot geometry
-      - name: geom
-        data_type: geometry(Geometry, 2263)
-
+- name: green_fast_track_bbls
+  description: BBLs and their CEQR Type II variable checks
+  config:
+    contract:
+      enforced: true
+  
+  # contract
+  columns:
+  - name: bbl
+    data_type: string
     tests:
-      # domain knowledge
-      - dbt_expectations.expect_table_row_count_to_be_between:
-          name: logic_buffer_source_data_a
-          # expect more flags from buffered than non-buffered
-          min_value: 1
-          row_condition: "historic_resources is null and historic_resources_adj is not null"
-          config:
-            # TODO fix this
-            severity: warn
+    - not_null
+    - unique
+  # flag and flag value columns
+  - name: zoning_category
+    data_type: string
+    tests: [ not_null ]
+  - name: zoning_district
+    data_type: string
 
-      - dbt_expectations.expect_table_row_count_to_be_between:
-          name: logic_buffer_source_data_b
-          # expect more flags from larger buffer
-          min_value: 1
-          row_condition: "historic_resources_adj is null and shadow_hist_resources is not null"
+  - name: special_coastal_risk_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: special_coastal_risk
+    data_type: string
 
-  - name: test_actual__pilot_projects
-    description: Green Fast Track outputs for pilot project examples
-    tests:
-      # test the expectations of pilot projects
-      - dbt_utils.equality:
-          name: equality_green_fast_track_pilot_projects
-          compare_model: ref('test_expected__pilot_projects')
-          config:
-            # TEMP
-            severity: warn
+  - name: cats_permit_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: cats_permit
+    data_type: string
+
+  - name: industrial_lots_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: industrial_lots
+    data_type: string
+
+  - name: state_facility_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: state_facility
+    data_type: string
+
+  - name: title_v_permit_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: title_v_permit
+    data_type: string
+
+  - name: vent_tower_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: vent_tower
+    data_type: string
+    data_type: string
+
+  - name: e_des_air_quality_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: e_des_air_quality
+    data_type: string
+
+  - name: e_des_noise_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: e_des_noise
+    data_type: string
+
+  - name: arterial_highway_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: arterial_highway
+    data_type: string
+
+  - name: exposed_railway_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: exposed_railway
+    data_type: string
+
+  - name: airport_noise_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: airport_noise
+    data_type: string
+
+  - name: e_des_hazmat_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: e_des_hazmat
+    data_type: string
+
+  - name: natural_resources_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: natural_resources
+    data_type: string
+
+  - name: wetland_checkzone_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: wetland_checkzone
+    data_type: string
+
+  - name: archaeological_area_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: archaeological_area
+    data_type: string
+
+  - name: historic_districts_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: historic_districts
+    data_type: string
+
+  - name: historic_resources_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: historic_resources
+    data_type: string
+
+  - name: historic_resources_adj_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: historic_resources_adj
+    data_type: string
+
+  - name: shadow_open_spaces_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: shadow_open_spaces
+    data_type: string
+
+  - name: shadow_nat_resources_flag
+    data_type: string
+    tests: [ not_null ]
+  - name: shadow_nat_resources
+    data_type: string
+
+  - name: shadow_hist_resources_flag
+    data_type: string
+    tests: [ not_null ]
+    data_type: string
+  - name: shadow_hist_resources
+    data_type: string
+
+  # lot geometry
+  - name: geom
+    data_type: geometry(Geometry, 2263)
+
+  tests:
+    # domain knowledge
+  - dbt_expectations.expect_table_row_count_to_be_between:
+      name: logic_buffer_source_data_a
+      # expect more flags from buffered than non-buffered
+      min_value: 1
+      row_condition: "historic_resources is null and historic_resources_adj is not null"
+      config:
+        # TODO fix this
+        severity: warn
+
+  - dbt_expectations.expect_table_row_count_to_be_between:
+      name: logic_buffer_source_data_b
+      # expect more flags from larger buffer
+      min_value: 1
+      row_condition: "historic_resources_adj is null and shadow_hist_resources is not null"
+
+- name: test_actual__pilot_projects
+  description: Green Fast Track outputs for pilot project examples
+  tests:
+    # test the expectations of pilot projects
+  - dbt_utils.equality:
+      name: equality_green_fast_track_pilot_projects
+      compare_model: ref('test_expected__pilot_projects')
+      config:
+        # TEMP
+        severity: warn

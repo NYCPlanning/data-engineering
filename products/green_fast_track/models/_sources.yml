@@ -1,534 +1,535 @@
 version: 2
 
 sources:
-  - name: recipe_sources
-    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
-    tables:
-      - name: panynj_jfk_65db
-        columns:
-          - name: wkb_geometry
-            tests:
-              - unique
-              - not_null
-      - name: panynj_lga_65db
-        columns:
-          - name: wkb_geometry
-            tests:
-              - unique
-              - not_null
+- name: recipe_sources
+  schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+  tables:
+  - name: panynj_jfk_65db
+    columns:
+    - name: wkb_geometry
+      tests:
+      - unique
+      - not_null
+  - name: panynj_lga_65db
+    columns:
+    - name: wkb_geometry
+      tests:
+      - unique
+      - not_null
 
-      - name: dcm_arterial_highways
-        columns:
-          - name: name
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - unique
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: dcm_arterial_highways_compound_key
-              combination_of_columns:
-                - name
-                - wkb_geometry
+  - name: dcm_arterial_highways
+    columns:
+    - name: name
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - unique
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: dcm_arterial_highways_compound_key
+        combination_of_columns:
+        - name
+        - wkb_geometry
 
-      - name: dcp_air_quality_vent_towers
-        columns:
-          - name: bbl
-          - name: name
-            tests:
-              - unique
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - unique
-              - not_null
+  - name: dcp_air_quality_vent_towers
+    columns:
+    - name: bbl
+    - name: name
+      tests:
+      - unique
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - unique
+      - not_null
 
-      - name: dcp_edesignation_csv
-        columns:
-          - name: bbl
-            tests:
-              - not_null
-          - name: enumber
-            tests:
-              - not_null
-          - name: hazmat_code
-            tests:
-              - not_null
-              - accepted_values:
-                  values: ['true', 'false']
-          - name: air_code
-            tests:
-              - not_null
-              - accepted_values:
-                  values: ['true', 'false']
-          - name: noise_code
-            tests:
-              - not_null
-              - accepted_values:
-                  values: ['true', 'false']
-          - name: ceqr_num
+  - name: dcp_edesignation_csv
+    columns:
+    - name: bbl
+      tests:
+      - not_null
+    - name: enumber
+      tests:
+      - not_null
+    - name: hazmat_code
+      tests:
+      - not_null
+      - accepted_values:
+          values: [ 'true', 'false' ]
+    - name: air_code
+      tests:
+      - not_null
+      - accepted_values:
+          values: [ 'true', 'false' ]
+    - name: noise_code
+      tests:
+      - not_null
+      - accepted_values:
+          values: [ 'true', 'false' ]
+    - name: ceqr_num
 
-      - name: dcp_lion
-        columns:
-          - name: street
-            tests:
-              - not_null
-          - name: row_type
-            tests:
-              - not_null
-          - name: shape
-            tests:
-              - not_null
+  - name: dcp_lion
+    columns:
+    - name: street
+      tests:
+      - not_null
+    - name: row_type
+      tests:
+      - not_null
+    - name: shape
+      tests:
+      - not_null
 
-      - name: dcp_cscl_commonplace
-        columns:
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: dcp_cscl_commonplace
+    columns:
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: dcp_cscl_complex
-        columns:
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: dcp_cscl_complex
+    columns:
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: dcp_mappluto_wi
-        columns:
-          - name: bbl
-            tests:
-              - unique
-              - not_null
-          - name: zonedist1
-          - name: zonedist2
-          - name: zonedist3
-          - name: zonedist4
-          - name: spdist1
-          - name: spdist2
-          - name: spdist3
-          - name: wkb_geometry
-            tests:
-              - not_null
-              - is_epsg_2263:
-                  config:
-                    severity: warn
+  - name: dcp_mappluto_wi
+    columns:
+    - name: bbl
+      tests:
+      - unique
+      - not_null
+    - name: zonedist1
+    - name: zonedist2
+    - name: zonedist3
+    - name: zonedist4
+    - name: spdist1
+    - name: spdist2
+    - name: spdist3
+    - name: wkb_geometry
+      tests:
+      - not_null
+      - is_epsg_2263:
+          config:
+            severity: warn
 
-      - name: lpc_historic_district_areas
-        columns:
-          - name: area_name
-            tests:
-              - unique
-              - not_null
-          - name: lp_number
-            tests:
-              - unique
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: lpc_historic_district_areas
+    columns:
+    - name: area_name
+      tests:
+      - unique
+      - not_null
+    - name: lp_number
+      tests:
+      - unique
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: lpc_landmarks
-        columns:
-          - name: bbl
-          - name: last_actio
-          - name: lm_name
-          - name: lm_type
-          - name: most_curre
-          - name: status
-          - name: wkb_geometry
+  - name: lpc_landmarks
+    columns:
+    - name: bbl
+    - name: last_actio
+    - name: lm_name
+    - name: lm_type
+    - name: most_curre
+    - name: status
+    - name: wkb_geometry
 
-      - name: lpc_scenic_landmarks
-        columns:
-          - name: wkb_geometry
-          - name: scen_lm_na
+  - name: lpc_scenic_landmarks
+    columns:
+    - name: wkb_geometry
+    - name: scen_lm_na
 
-      - name: nysdec_title_v_facility_permits
-        columns:
-          - name: permit_id
-            tests:
-              - unique
-              - not_null
-          - name: facility_name
-            tests:
-              - dbt_utils.at_least_one
-          - name: geom
-            tests:
-              - not_null
+  - name: nysdec_title_v_facility_permits
+    columns:
+    - name: permit_id
+      tests:
+      - unique
+      - not_null
+    - name: facility_name
+      tests:
+      - dbt_utils.at_least_one
+    - name: geom
+      tests:
+      - not_null
 
-      - name: nysdec_state_facility_permits
-        columns:
-          - name: permit_id
-            tests:
-              - unique
-              - not_null
-          - name: facility_name
-            tests:
-              - dbt_utils.at_least_one
-          - name: geom
-            tests:
-              - not_null
+  - name: nysdec_state_facility_permits
+    columns:
+    - name: permit_id
+      tests:
+      - unique
+      - not_null
+    - name: facility_name
+      tests:
+      - dbt_utils.at_least_one
+    - name: geom
+      tests:
+      - not_null
 
-      - name: nysshpo_historic_buildings_polygons
-        columns:
-          - name: usnnum
-            tests:
-              - not_null
-          - name: usnname
-          - name: eligibilitydesc
-            tests:
-              - accepted_values:
-                  values:
-                    [
-                      "Eligible",
-                      "Listed",
-                      "Not Eligible",
-                      "Not Eligible - Demolished",
-                      "Undetermined",
-                    ]
-          - name: wkb_geometry
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: nysshpo_historic_buildings_polygons_compound_key
-              combination_of_columns:
-                - usnnum
-                - usnname
+  - name: nysshpo_historic_buildings_polygons
+    columns:
+    - name: usnnum
+      tests:
+      - not_null
+    - name: usnname
+    - name: eligibilitydesc
+      tests:
+      - accepted_values:
+          values:
+            [
+              "Eligible",
+              "Listed",
+              "Not Eligible",
+              "Not Eligible - Demolished",
+              "Undetermined"
+            ]
+    - name: wkb_geometry
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: nysshpo_historic_buildings_polygons_compound_key
+        combination_of_columns:
+        - usnnum
+        - usnname
 
-      - name: nysshpo_historic_buildings_points
-        columns:
-          - name: usnnum
-            tests:
-              - not_null
-          - name: usnname
-          - name: eligibilitydesc
-            tests:
-              - accepted_values:
-                  values:
-                    [
-                      "Eligible",
-                      "Listed",
-                      "Not Eligible",
-                      "Not Eligible - Demolished",
-                      "Undetermined",
-                    ]
-          - name: wkb_geometry
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: nysshpo_historic_buildings_points_compound_key
-              combination_of_columns:
-                - usnnum
-                - usnname
+  - name: nysshpo_historic_buildings_points
+    columns:
+    - name: usnnum
+      tests:
+      - not_null
+    - name: usnname
+    - name: eligibilitydesc
+      tests:
+      - accepted_values:
+          values:
+            [
+              "Eligible",
+              "Listed",
+              "Not Eligible",
+              "Not Eligible - Demolished",
+              "Undetermined"
+            ]
+    - name: wkb_geometry
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: nysshpo_historic_buildings_points_compound_key
+        combination_of_columns:
+        - usnnum
+        - usnname
 
-      - name: nysshpo_archaeological_buffer_areas
-        columns:
-          - name: wkb_geometry
-            tests:
-              - not_null
-              - is_epsg_2263
+  - name: nysshpo_archaeological_buffer_areas
+    columns:
+    - name: wkb_geometry
+      tests:
+      - not_null
+      - is_epsg_2263
 
-      - name: nysparks_historicplaces
-        columns:
-          - name: wkb_geometry
-            tests:
-              - not_null
-          - name: historicname
-            tests:
-              - not_null
-          - name: countyname
-          - name: nrnum
-            tests:
-              - not_null
+  - name: nysparks_historicplaces
+    columns:
+    - name: wkb_geometry
+      tests:
+      - not_null
+    - name: historicname
+      tests:
+      - not_null
+    - name: countyname
+    - name: nrnum
+      tests:
+      - not_null
 
-      - name: dep_cats_permits
-        columns:
-          - name: applicationid
-            tests:
-              - unique
-              - not_null
-          - name: status
-            tests:
-              - not_null
-          - name: geom
-            tests:
-              - not_null
+  - name: dep_cats_permits
+    columns:
+    - name: applicationid
+      tests:
+      - unique
+      - not_null
+    - name: status
+      tests:
+      - not_null
+    - name: geom
+      tests:
+      - not_null
 
-      - name: dcp_boroboundaries_wi
+  - name: dcp_boroboundaries_wi
 
-      - name: dpr_schoolyard_to_playgrounds
-        columns:
-          - name: gispropnum
-            tests:
-              - not_null
-          - name: location
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: dpr_schoolyard_to_playgrounds_compound_key
-              combination_of_columns:
-                - gispropnum
-                - location
-              config:
-                severity: warn
+  - name: dpr_schoolyard_to_playgrounds
+    columns:
+    - name: gispropnum
+      tests:
+      - not_null
+    - name: location
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: dpr_schoolyard_to_playgrounds_compound_key
+        combination_of_columns:
+        - gispropnum
+        - location
+        config:
+          severity: warn
 
-      - name: dpr_parksproperties
-        columns:
-          - name: gispropnum
-            tests:
-              - not_null
-          - name: name311
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-          - name: typecategory
-            description: this column is tested to ensure each typecategory in dpr_property exists as typecategory in nyc_parks_properties_categories
-            tests:
-              - relationships:
-                  to: ref('nyc_parks_properties_categories')
-                  field: typecategory
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: dpr_parksproperties_compound_key
-              combination_of_columns:
-                - gispropnum
-                - name311
-                - wkb_geometry
-              config:
-                severity: warn
+  - name: dpr_parksproperties
+    columns:
+    - name: gispropnum
+      tests:
+      - not_null
+    - name: name311
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    - name: typecategory
+      description: this column is tested to ensure each typecategory in dpr_property exists as
+        typecategory in nyc_parks_properties_categories
+      tests:
+      - relationships:
+          to: ref('nyc_parks_properties_categories')
+          field: typecategory
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: dpr_parksproperties_compound_key
+        combination_of_columns:
+        - gispropnum
+        - name311
+        - wkb_geometry
+        config:
+          severity: warn
 
-      - name: dcp_pops
-        columns:
-          - name: pops_number
-            tests:
-              - not_null
-              - unique
-          - name: bbl
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: dcp_pops
+    columns:
+    - name: pops_number
+      tests:
+      - not_null
+      - unique
+    - name: bbl
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: dcp_waterfront_access_map_wpaa
-        columns:
-          - name: wpaa_id
-            tests:
-              - not_null
-              - unique
-          - name: name
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-          - name: status
-            tests:
-              - not_null
+  - name: dcp_waterfront_access_map_wpaa
+    columns:
+    - name: wpaa_id
+      tests:
+      - not_null
+      - unique
+    - name: name
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    - name: status
+      tests:
+      - not_null
 
-      - name: dcp_waterfront_access_map_pow
-        columns:
-          - name: name
-            tests:
-              - not_null
-          - name: agency
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: dcp_waterfront_access_map_pow_compound_key
-              combination_of_columns:
-                - name
-                - agency
-                - wkb_geometry
-              config:
-                severity: warn
+  - name: dcp_waterfront_access_map_pow
+    columns:
+    - name: name
+      tests:
+      - not_null
+    - name: agency
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: dcp_waterfront_access_map_pow_compound_key
+        combination_of_columns:
+        - name
+        - agency
+        - wkb_geometry
+        config:
+          severity: warn
 
-      - name: nysparks_parks
-        columns:
-          - name: uid
-          - name: name
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: nysparks_parks_compound_key
-              combination_of_columns:
-                - uid
-                - name
-                - wkb_geometry
-              config:
-                severity: warn
+  - name: nysparks_parks
+    columns:
+    - name: uid
+    - name: name
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: nysparks_parks_compound_key
+        combination_of_columns:
+        - uid
+        - name
+        - wkb_geometry
+        config:
+          severity: warn
 
-      - name: usnps_parks
-        columns:
-          - name: gnis_id
-          - name: parkname
-            tests:
-              - not_null
-          - name: wkt
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: usnps_parks_compound_key
-              combination_of_columns:
-                - gnis_id
-                - parkname
-                - wkt
-              config:
-                severity: warn
+  - name: usnps_parks
+    columns:
+    - name: gnis_id
+    - name: parkname
+      tests:
+      - not_null
+    - name: wkt
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: usnps_parks_compound_key
+        combination_of_columns:
+        - gnis_id
+        - parkname
+        - wkt
+        config:
+          severity: warn
 
-      - name: dcp_beaches
-        columns:
-          - name: agency
-            tests:
-              - not_null
-          - name: name
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: dcp_beaches
+    columns:
+    - name: agency
+      tests:
+      - not_null
+    - name: name
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: dcp_wrp_recognized_ecological_complexes
-        columns:
-          - name: site_name
-            tests:
-              - unique
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: dcp_wrp_recognized_ecological_complexes
+    columns:
+    - name: site_name
+      tests:
+      - unique
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: dcp_wrp_special_natural_waterfront_areas
-        columns:
-          - name: name
-            tests:
-              - unique
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: dcp_wrp_special_natural_waterfront_areas
+    columns:
+    - name: name
+      tests:
+      - unique
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: dpr_forever_wild
-        columns:
-          - name: gispropnum
-            tests:
-              - not_null
-          - name: propertyna
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              name: dpr_forever_wild_uid
-              combination_of_columns:
-                - gispropnum
-                - propertyna
+  - name: dpr_forever_wild
+    columns:
+    - name: gispropnum
+      tests:
+      - not_null
+    - name: propertyna
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        name: dpr_forever_wild_uid
+        combination_of_columns:
+        - gispropnum
+        - propertyna
 
-      - name: nysdec_freshwater_wetlands_checkzones
-        columns:
-          - name: objectid
-            tests:
-              - unique
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: nysdec_freshwater_wetlands_checkzones
+    columns:
+    - name: objectid
+      tests:
+      - unique
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: nysdec_freshwater_wetlands
-        columns:
-          - name: wetid
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: nysdec_freshwater_wetlands
+    columns:
+    - name: wetid
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: nysdec_natural_heritage_communities
-        columns:
-          - name: common_name
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: nysdec_natural_heritage_communities
+    columns:
+    - name: common_name
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: nysdec_priority_lakes
-        columns:
-          - name: seg_id
-            tests:
-              - not_null
-          - name: waterbody
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              combination_of_columns: [ seg_id, waterbody ]
+  - name: nysdec_priority_lakes
+    columns:
+    - name: seg_id
+      tests:
+      - not_null
+    - name: waterbody
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
+    tests:
+    - dbt_utils.unique_combination_of_columns:
+        combination_of_columns: [ seg_id, waterbody ]
 
-      - name: nysdec_priority_estuaries
-        columns:
-          - name: seg_id
-            tests:
-              - unique
-              - not_null
-          - name: waterbody
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: nysdec_priority_estuaries
+    columns:
+    - name: seg_id
+      tests:
+      - unique
+      - not_null
+    - name: waterbody
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: nysdec_priority_streams
-        columns:
-          - name: seg_id
-            tests:
-              - not_null
-          - name: waterbody
-            tests:
-              - not_null
-          - name: wkb_geometry
-            tests:
-              - not_null
+  - name: nysdec_priority_streams
+    columns:
+    - name: seg_id
+      tests:
+      - not_null
+    - name: waterbody
+      tests:
+      - not_null
+    - name: wkb_geometry
+      tests:
+      - not_null
 
-      - name: nysdec_tidal_wetlands
-        columns:
-          - name: id
-            tests:
-              - not_null
-          - name: wkb_geometry
+  - name: nysdec_tidal_wetlands
+    columns:
+    - name: id
+      tests:
+      - not_null
+    - name: wkb_geometry
 
-      - name: usfws_nyc_wetlands
-        columns:
-          - name: wetland_type
-            tests:
-              - not_null
-          - name: geometry
-            tests:
-              - not_null
+  - name: usfws_nyc_wetlands
+    columns:
+    - name: wetland_type
+      tests:
+      - not_null
+    - name: geometry
+      tests:
+      - not_null
 
-      - name: dob_natural_resource_check_flags
-        columns:
-          - name: bbl
-            tests:
-              - not_null
-              - unique
-          - name: coastal_hazard_area_flag
-          - name: fresh_water_wetlands_flag
-          - name: tidal_coastal_wetlands_flag
+  - name: dob_natural_resource_check_flags
+    columns:
+    - name: bbl
+      tests:
+      - not_null
+      - unique
+    - name: coastal_hazard_area_flag
+    - name: fresh_water_wetlands_flag
+    - name: tidal_coastal_wetlands_flag

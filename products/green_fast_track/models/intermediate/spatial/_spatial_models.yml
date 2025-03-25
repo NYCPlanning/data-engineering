@@ -1,40 +1,40 @@
 version: 2
 
 models:
-  - name: int_spatial__all
-    description: Union of all spatial GFT datasets
-    columns:
-      - name: source_relation
-        tests:
-          - not_null
-      - name: variable_type
-        tests:
-          - not_null
-      - name: variable_id
-        tests:
-          - not_null
-      - name: raw_geom
-        tests:
-          - not_null
-      - name: lot_geom
-      - name: buffer_geom
-      - name: variable_geom
-        tests:
-          - not_null
-          - is_epsg_2263
+- name: int_spatial__all
+  description: Union of all spatial GFT datasets
+  columns:
+  - name: source_relation
+    tests:
+    - not_null
+  - name: variable_type
+    tests:
+    - not_null
+  - name: variable_id
+    tests:
+    - not_null
+  - name: raw_geom
+    tests:
+    - not_null
+  - name: lot_geom
+  - name: buffer_geom
+  - name: variable_geom
+    tests:
+    - not_null
+    - is_epsg_2263
 
-  - name: int_spatial__pops
-  - name: int_spatial__cats_permits
-  - name: int_spatial__industrial_lots
-  - name: int_spatial__state_facility
-  - name: int_spatial__title_v_permit
-  - name: int_spatial__vent_tower
-  - name: int_spatial__arterial_highway
-  - name: int_spatial__exposed_railway
-  - name: int_spatial__natural_resources
-  - name: int_spatial__historic_districts
-  - name: int_spatial__historic_resources
-  - name: int_spatial__historic_resources_adj
-  - name: int_spatial__shadow_open_spaces
-  - name: int_spatial__shadow_nat_resources
-  - name: int_spatial__shadow_hist_resources
+- name: int_spatial__pops
+- name: int_spatial__cats_permits
+- name: int_spatial__industrial_lots
+- name: int_spatial__state_facility
+- name: int_spatial__title_v_permit
+- name: int_spatial__vent_tower
+- name: int_spatial__arterial_highway
+- name: int_spatial__exposed_railway
+- name: int_spatial__natural_resources
+- name: int_spatial__historic_districts
+- name: int_spatial__historic_resources
+- name: int_spatial__historic_resources_adj
+- name: int_spatial__shadow_open_spaces
+- name: int_spatial__shadow_nat_resources
+- name: int_spatial__shadow_hist_resources

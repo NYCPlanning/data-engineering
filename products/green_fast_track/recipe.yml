@@ -4,53 +4,53 @@ version_strategy:
   pin_to_source_dataset: dcp_mappluto_wi
 inputs:
   datasets:
-    # Boundaries
-    - name: dcp_boroboundaries_wi
-    # Zoning
-    - name: dcp_mappluto_wi
-    # Air
-    - name: dep_cats_permits
-    - name: nysdec_state_facility_permits
-    - name: nysdec_title_v_facility_permits
-    - name: dcp_air_quality_vent_towers
-    - name: dcm_arterial_highways
-    # Noise
-    # - name: dcp_digital_city_map Doesn't exist yet
-    - name: panynj_jfk_65db
-    - name: panynj_lga_65db
-    - name: dcp_lion
-    - name: dcp_cscl_commonplace
-    - name: dcp_cscl_complex
-    # Natural Resources
-    - name: dcp_beaches
-    - name: dcp_wrp_recognized_ecological_complexes
-    - name: dcp_wrp_special_natural_waterfront_areas
-    - name: dpr_forever_wild
-    - name: nysdec_freshwater_wetlands_checkzones
-    - name: nysdec_freshwater_wetlands
-    - name: nysdec_tidal_wetlands
-    - name: nysdec_priority_lakes
-    - name: nysdec_priority_estuaries
-    - name: nysdec_priority_streams
-    - name: nysdec_natural_heritage_communities
-    - name: usfws_nyc_wetlands
-    - name: dob_natural_resource_check_flags
-    # Historic
-    - name: lpc_scenic_landmarks # e.g. Central Park / Ocean Parkway / etc.
-    - name: lpc_historic_district_areas # polygons for a neighborhood
-    - name: lpc_landmarks # landmark buildings -> ncre-qhxs. In spreadsheet as `Historic Building (NYC)` - 38.8k rows
-    - name: nysparks_historicplaces
-    - name: nysshpo_historic_buildings_points
-    - name: nysshpo_historic_buildings_polygons
-    - name: nysshpo_archaeological_buffer_areas
-    # Shadows
-    - name: dpr_parksproperties
-    - name: dpr_schoolyard_to_playgrounds
-    - name: dcp_pops
-    - name: dcp_waterfront_access_map_wpaa
-    - name: dcp_waterfront_access_map_pow
-    - name: nysparks_parks
-    - name: usnps_parks
-    # Other
-    - name: dcp_edesignation_csv
+  # Boundaries
+  - name: dcp_boroboundaries_wi
+  # Zoning
+  - name: dcp_mappluto_wi
+  # Air
+  - name: dep_cats_permits
+  - name: nysdec_state_facility_permits
+  - name: nysdec_title_v_facility_permits
+  - name: dcp_air_quality_vent_towers
+  - name: dcm_arterial_highways
+  # Noise
+  # - name: dcp_digital_city_map Doesn't exist yet
+  - name: panynj_jfk_65db
+  - name: panynj_lga_65db
+  - name: dcp_lion
+  - name: dcp_cscl_commonplace
+  - name: dcp_cscl_complex
+  # Natural Resources
+  - name: dcp_beaches
+  - name: dcp_wrp_recognized_ecological_complexes
+  - name: dcp_wrp_special_natural_waterfront_areas
+  - name: dpr_forever_wild
+  - name: nysdec_freshwater_wetlands_checkzones
+  - name: nysdec_freshwater_wetlands
+  - name: nysdec_tidal_wetlands
+  - name: nysdec_priority_lakes
+  - name: nysdec_priority_estuaries
+  - name: nysdec_priority_streams
+  - name: nysdec_natural_heritage_communities
+  - name: usfws_nyc_wetlands
+  - name: dob_natural_resource_check_flags
+  # Historic
+  - name: lpc_scenic_landmarks # e.g. Central Park / Ocean Parkway / etc.
+  - name: lpc_historic_district_areas # polygons for a neighborhood
+  - name: lpc_landmarks # landmark buildings -> ncre-qhxs. In spreadsheet as `Historic Building (NYC)` - 38.8k rows
+  - name: nysparks_historicplaces
+  - name: nysshpo_historic_buildings_points
+  - name: nysshpo_historic_buildings_polygons
+  - name: nysshpo_archaeological_buffer_areas
+  # Shadows
+  - name: dpr_parksproperties
+  - name: dpr_schoolyard_to_playgrounds
+  - name: dcp_pops
+  - name: dcp_waterfront_access_map_wpaa
+  - name: dcp_waterfront_access_map_pow
+  - name: nysparks_parks
+  - name: usnps_parks
+  # Other
+  - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
