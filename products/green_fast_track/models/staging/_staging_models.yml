@@ -1,38 +1,38 @@
 version: 2
 
 models:
-  - name: stg__nysdec_state_facility_permits
-  - name: stg__dcm_arterial_highways
-  - name: stg__dep_cats_permits
-  - name: stg__lpc_historic_district_areas
-  - name: stg__lpc_landmarks
-  - name: stg__lpc_scenic_landmarks
-  - name: stg__nysparks_historicplaces
-  - name: stg__nysshpo_historic_buildings
-  - name: stg__nysshpo_historic_building_districts
-  - name: stg__nysshpo_archaeological_buffer_areas
-  - name: stg__panynj_airports
-  - name: stg__exposed_railways
-  - name: stg__exposed_railyards
-  - name: stg__pluto
-  - name: stg__nysdec_title_v_facility_permits
-  - name: stg__nyc_boundary
-  - name: stg__nyc_parks_properties
-  - name: stg__pops
-  - name: stg__waterfront_access_wpaa
-  - name: stg__waterfront_access_pow
-  - name: stg__nys_parks_properties
-  - name: stg__us_parks_properties
-  - name: stg__nysdec_freshwater_wetlands_checkzones
-  - name: stg__nysdec_freshwater_wetlands
-  - name: stg__nysdec_tidal_wetlands
-  - name: stg__nysdec_priority_lakes
-  - name: stg__nysdec_priority_estuaries
-  - name: stg__nysdec_priority_streams
-  - name: stg__nysdec_natural_heritage_communities
-  - name: stg__dcp_beaches
-  - name: stg__dcp_wrp_recognized_ecological_complexes
-  - name: stg__dcp_wrp_special_natural_waterfront_areas
-  - name: stg__dpr_forever_wild
-  - name: stg__usfws_nyc_wetlands
-  - name: stg__dpr_schoolyard_to_playgrounds
+- name: stg__nysdec_state_facility_permits
+- name: stg__dcm_arterial_highways
+- name: stg__dep_cats_permits
+- name: stg__lpc_historic_district_areas
+- name: stg__lpc_landmarks
+- name: stg__lpc_scenic_landmarks
+- name: stg__nysparks_historicplaces
+- name: stg__nysshpo_historic_buildings
+- name: stg__nysshpo_historic_building_districts
+- name: stg__nysshpo_archaeological_buffer_areas
+- name: stg__panynj_airports
+- name: stg__exposed_railways
+- name: stg__exposed_railyards
+- name: stg__pluto
+- name: stg__nysdec_title_v_facility_permits
+- name: stg__nyc_boundary
+- name: stg__nyc_parks_properties
+- name: stg__pops
+- name: stg__waterfront_access_wpaa
+- name: stg__waterfront_access_pow
+- name: stg__nys_parks_properties
+- name: stg__us_parks_properties
+- name: stg__nysdec_freshwater_wetlands_checkzones
+- name: stg__nysdec_freshwater_wetlands
+- name: stg__nysdec_tidal_wetlands
+- name: stg__nysdec_priority_lakes
+- name: stg__nysdec_priority_estuaries
+- name: stg__nysdec_priority_streams
+- name: stg__nysdec_natural_heritage_communities
+- name: stg__dcp_beaches
+- name: stg__dcp_wrp_recognized_ecological_complexes
+- name: stg__dcp_wrp_special_natural_waterfront_areas
+- name: stg__dpr_forever_wild
+- name: stg__usfws_nyc_wetlands
+- name: stg__dpr_schoolyard_to_playgrounds

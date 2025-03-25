@@ -2,8 +2,8 @@ name: "green_fast_track"
 
 profile: "dcp-de-postgres"
 
-model-paths: ["models"]
-macro-paths: ["macros"]
+model-paths: [ "models" ]
+macro-paths: [ "macros" ]
 
 seeds:
   +quote_columns: true

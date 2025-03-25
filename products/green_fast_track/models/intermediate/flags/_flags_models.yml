@@ -1,159 +1,155 @@
 version: 2
 
 models:
-  - name: int_flags__all
-    description: A table with all flags
-    columns:
-      - name: bbl
-        data_type: string
-        tests:
-          - not_null
-      - name: flag_id_field_name
-        data_type: string
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_distinct_values_to_equal_set:
-              name: int_flags__all__flag_id_field_name__set
-              value_set: '{{ dbt_utils.get_column_values(
-                              table=ref("variables"),
-                              column="flag_id_field_name") }}'
-      - name: variable_type
-        data_type: string
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_distinct_values_to_equal_set:
-              name: int_flags__all__variable_type__set
-              value_set: '{{ dbt_utils.get_column_values(
-                              table=ref("variables"),
-                              column="variable_type") }}'
-      - name: variable_id
-        data_type: string
-        tests:
-          - not_null
-      - name: distance
-        data_type: float
+- name: int_flags__all
+  description: A table with all flags
+  columns:
+  - name: bbl
+    data_type: string
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: int_flags__all__compound_key
-          combination_of_columns:
-            - bbl
-            - flag_id_field_name
-            - variable_id
-
-  - name: int__zoning_districts
-    columns:
-      - name: bbl
-        data_type: string
-        tests:
-          - not_null
-      - name: zoning_district_type
-        data_type: string
-        tests:
-          - not_null
-          - relationships:
-              to: ref('zoning_district_mappings')
-              field: zoning_district_type
+    - not_null
+  - name: flag_id_field_name
+    data_type: string
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: int__zoning_districts_compound_key
-          combination_of_columns:
-            - bbl
-            - zoning_district_type
-
-  - name: int_flags__zoning
-    columns:
-      - name: bbl
-        data_type: string
-        tests:
-          - not_null
-      - name: variable_type
-        data_type: string
-        tests:
-          - not_null
-      - name: variable_id
-        data_type: string
-        tests:
-          - not_null
+    - not_null
+    - dbt_expectations.expect_column_distinct_values_to_equal_set:
+        name: int_flags__all__flag_id_field_name__set
+        value_set: '{{ dbt_utils.get_column_values( table=ref("variables"), column="flag_id_field_name") }}'
+  - name: variable_type
+    data_type: string
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: int_flags__zoning_compound_key
-          combination_of_columns:
-            - bbl
-            - variable_type
-            - variable_id
-
-  - name: int_flags__edesignation
-    description: Flags related to edesignation
-    columns:
-    - name: bbl
-      tests:
-        - not_null
-    - name: variable_type
-      tests:
-        - not_null
-    - name: variable_id
-      tests:
-        - not_null
-
-  - name: int_flags__dob_natural_resources
-    description: Flags from a file provided by DOB
-    columns:
-    - name: bbl
-      tests:
-        - not_null
-    - name: variable_type
-      tests:
-        - not_null
-    - name: variable_id
-      tests:
-        - not_null
-
-  - name: int_flags__spatial
-    description: |
-      A table featuring spatially joined BBLs with buffered variable types, 
-      including distances to their raw geometry
-    columns:
-      - name: bbl
-        data_type: string
-        tests:
-          - not_null
-      - name: variable_type
-        data_type: string
-        tests:
-          - not_null
-      - name: variable_id
-        data_type: string
-        tests:
-          - not_null
-      - name: distance
-        data_type: float
-        tests:
-          - not_null
+    - not_null
+    - dbt_expectations.expect_column_distinct_values_to_equal_set:
+        name: int_flags__all__variable_type__set
+        value_set: '{{ dbt_utils.get_column_values( table=ref("variables"), column="variable_type") }}'
+  - name: variable_id
+    data_type: string
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: int_flags__spatial_compound_key
-          combination_of_columns:
-            - bbl
-            - flag_id_field_name
-            - variable_id
+    - not_null
+  - name: distance
+    data_type: float
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int_flags__all__compound_key
+      combination_of_columns:
+      - bbl
+      - flag_id_field_name
+      - variable_id
 
-  - name: test_actual__flags_zoning
-    description: Particular lots, their zoning fields, and the actual GFT zoning flag results
-    columns:
-      - name: lot_label
-        tests:
-          - not_null
-      - name: bbl
-        tests:
-          - not_null
-          - unique
-      - name: zonedist1
-      - name: zonedist2
-      - name: zonedist3
-      - name: zonedist4
-      - name: Zoning Districts
+- name: int__zoning_districts
+  columns:
+  - name: bbl
+    data_type: string
     tests:
-      # test zoning flag logic
-      - dbt_utils.equality:
-          name: equality_flags_zoning
-          compare_model: ref('test_expected__flags_zoning')
+    - not_null
+  - name: zoning_district_type
+    data_type: string
+    tests:
+    - not_null
+    - relationships:
+        to: ref('zoning_district_mappings')
+        field: zoning_district_type
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int__zoning_districts_compound_key
+      combination_of_columns:
+      - bbl
+      - zoning_district_type
+
+- name: int_flags__zoning
+  columns:
+  - name: bbl
+    data_type: string
+    tests:
+    - not_null
+  - name: variable_type
+    data_type: string
+    tests:
+    - not_null
+  - name: variable_id
+    data_type: string
+    tests:
+    - not_null
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int_flags__zoning_compound_key
+      combination_of_columns:
+      - bbl
+      - variable_type
+      - variable_id
+
+- name: int_flags__edesignation
+  description: Flags related to edesignation
+  columns:
+  - name: bbl
+    tests:
+    - not_null
+  - name: variable_type
+    tests:
+    - not_null
+  - name: variable_id
+    tests:
+    - not_null
+
+- name: int_flags__dob_natural_resources
+  description: Flags from a file provided by DOB
+  columns:
+  - name: bbl
+    tests:
+    - not_null
+  - name: variable_type
+    tests:
+    - not_null
+  - name: variable_id
+    tests:
+    - not_null
+
+- name: int_flags__spatial
+  description: >-
+    A table featuring spatially joined BBLs with buffered variable types,  including
+    distances to their raw geometry
+  columns:
+  - name: bbl
+    data_type: string
+    tests:
+    - not_null
+  - name: variable_type
+    data_type: string
+    tests:
+    - not_null
+  - name: variable_id
+    data_type: string
+    tests:
+    - not_null
+  - name: distance
+    data_type: float
+    tests:
+    - not_null
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int_flags__spatial_compound_key
+      combination_of_columns:
+      - bbl
+      - flag_id_field_name
+      - variable_id
+
+- name: test_actual__flags_zoning
+  description: Particular lots, their zoning fields, and the actual GFT zoning flag results
+  columns:
+  - name: lot_label
+    tests:
+    - not_null
+  - name: bbl
+    tests:
+    - not_null
+    - unique
+  - name: zonedist1
+  - name: zonedist2
+  - name: zonedist3
+  - name: zonedist4
+  - name: Zoning Districts
+  tests:
+  # test zoning flag logic
+  - dbt_utils.equality:
+      name: equality_flags_zoning
+      compare_model: ref('test_expected__flags_zoning')

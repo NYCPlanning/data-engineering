@@ -1,61 +1,61 @@
 version: 2
 
 models:
-  # Air Quality
-  - name: source__cats_permit_points
-  - name: source__cats_permit_lots
-  - name: source__cats_permit_buffer
+# Air Quality
+- name: source__cats_permit_points
+- name: source__cats_permit_lots
+- name: source__cats_permit_buffer
 
-  - name: source__industrial_lots
-  - name: source__industrial_lots_buffer
+- name: source__industrial_lots
+- name: source__industrial_lots_buffer
 
-  - name: source__state_facility_points
-  - name: source__state_facility_lots
-  - name: source__state_facility_buffer
+- name: source__state_facility_points
+- name: source__state_facility_lots
+- name: source__state_facility_buffer
 
-  - name: source__title_v_permit_points
-  - name: source__title_v_permit_lots
-  - name: source__title_v_permit_buffer
+- name: source__title_v_permit_points
+- name: source__title_v_permit_lots
+- name: source__title_v_permit_buffer
 
-  - name: source__vent_tower_polys
-  - name: source__vent_tower_buffer
+- name: source__vent_tower_polys
+- name: source__vent_tower_buffer
 
-  # Noise
-  - name: source__arterial_highway_lines
-  - name: source__arterial_highway_buffer
+# Noise
+- name: source__arterial_highway_lines
+- name: source__arterial_highway_buffer
 
-  - name: source__exposed_railway_lines
-  - name: source__exposed_railway_polys
-  - name: source__exposed_railway_buffer
+- name: source__exposed_railway_lines
+- name: source__exposed_railway_polys
+- name: source__exposed_railway_buffer
 
-  - name: source__airport_noise
+- name: source__airport_noise
 
-  # Natural Resources
-  - name: source__natural_resources_points
-  - name: source__natural_resources_lines
-  - name: source__natural_resources_polys
-  - name: source__wetland_checkzone
+# Natural Resources
+- name: source__natural_resources_points
+- name: source__natural_resources_lines
+- name: source__natural_resources_polys
+- name: source__wetland_checkzone
 
-  # Historic Resources
-  - name: source__archaeological_area_polys
-  - name: source__historic_districts_polys
+# Historic Resources
+- name: source__archaeological_area_polys
+- name: source__historic_districts_polys
 
-  - name: source__historic_resources_points
-  - name: source__historic_resources_lots
+- name: source__historic_resources_points
+- name: source__historic_resources_lots
 
-  - name: source__historic_resources_adj_points
-  - name: source__historic_resources_adj_lots
-  - name: source__historic_resources_adj_buffer
+- name: source__historic_resources_adj_points
+- name: source__historic_resources_adj_lots
+- name: source__historic_resources_adj_buffer
 
-  # Shadows
-  - name: source__shadow_open_spaces_points
-  - name: source__shadow_open_spaces_polys
-  - name: source__shadow_open_spaces_buffer
+# Shadows
+- name: source__shadow_open_spaces_points
+- name: source__shadow_open_spaces_polys
+- name: source__shadow_open_spaces_buffer
 
-  - name: source__shadow_nat_resources_lines
-  - name: source__shadow_nat_resources_polys
-  - name: source__shadow_nat_resources_buffer
+- name: source__shadow_nat_resources_lines
+- name: source__shadow_nat_resources_polys
+- name: source__shadow_nat_resources_buffer
 
-  - name: source__shadow_hist_resources_points
-  - name: source__shadow_hist_resources_lots
-  - name: source__shadow_hist_resources_buffer
+- name: source__shadow_hist_resources_points
+- name: source__shadow_hist_resources_lots
+- name: source__shadow_hist_resources_buffer

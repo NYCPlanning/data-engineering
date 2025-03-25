@@ -1,145 +1,143 @@
 version: 2
 
 seeds:
-  - name: question_flags
-    description: GFT survery questions and their flags
-    columns:
-      - name: ceqr_category
-        tests:
-          - not_null
-      - name: survey_question_id
-        tests:
-          - not_null
-          - unique
-      - name: flag_field_name
-        tests:
-          - not_null
-          - unique
-      - name: flag_id_field_name
-        tests:
-          - not_null
-          - unique
-
-  - name: variables
-    description: GFT variables used in question flags
-    columns:
-      - name: flag_id_field_name
-        tests:
-          - not_null
-          - relationships:
-              to: ref('question_flags')
-              field: flag_id_field_name
-      - name: variable_label
-        tests:
-          - not_null
-      - name: variable_type
-        tests:
-          - not_null
-      - name: dataset
-        tests:
-          - not_null
-      - name: join_to_lots
-      - name: buffer_ft
-      - name: type_ii_criteria_description
+- name: question_flags
+  description: GFT survery questions and their flags
+  columns:
+  - name: ceqr_category
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: variables_compound_key
-          combination_of_columns:
-            - flag_id_field_name
-            - variable_type
+    - not_null
+  - name: survey_question_id
+    tests:
+    - not_null
+    - unique
+  - name: flag_field_name
+    tests:
+    - not_null
+    - unique
+  - name: flag_id_field_name
+    tests:
+    - not_null
+    - unique
 
-  - name: zoning_district_categories
-    description: All GFT zoning district categories
-    columns:
-      - name: category_type
-          - not_null
-          - unique
-      - name: label
-        tests: [not_null]
+- name: variables
+  description: GFT variables used in question flags
+  columns:
+  - name: flag_id_field_name
+    tests:
+    - not_null
+    - relationships:
+        to: ref('question_flags')
+        field: flag_id_field_name
+  - name: variable_label
+    tests:
+    - not_null
+  - name: variable_type
+    tests:
+    - not_null
+  - name: dataset
+    tests:
+    - not_null
+  - name: join_to_lots
+  - name: buffer_ft
+  - name: type_ii_criteria_description
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: variables_compound_key
+      combination_of_columns:
+      - flag_id_field_name
+      - variable_type
 
-  - name: zoning_district_mappings
-    description: All PLUTO zoning district types and their GFT zoning district categories
-    columns:
-      - name: zoning_district_type
-        tests:
-          - unique
-      - name: category_type
-        tests:
-            - not_null
-            - relationships:
-                to: ref('zoning_district_categories')
-                field: category_type
+- name: zoning_district_categories
+  description: All GFT zoning district categories
+  columns:
+  - name: category_type - not_null - unique
+  - name: label
+    tests: [ not_null ]
 
-  - name: nyc_parks_properties_categories
-    description: All possible values in typecategory column of recipe dpr_parksproperties
-    columns:
-      - name: typecategory
-        tests:
-          - not_null
-          - unique
-      - name: allowed
-        tests:
-          - not_null
-          - accepted_values:
-              values: ["TRUE", "FALSE"]
+- name: zoning_district_mappings
+  description: All PLUTO zoning district types and their GFT zoning district categories
+  columns:
+  - name: zoning_district_type
+    tests:
+    - unique
+  - name: category_type
+    tests:
+    - not_null
+    - relationships:
+        to: ref('zoning_district_categories')
+        field: category_type
 
-  - name: test_expected__pilot_projects
-    description: Mock pilot projects and their expected outputs
-    config:
-      column_types:
-        # empty columns default to integer type
-        special_coastal_risk: text
-        vent_tower: text
-        e_des_air_quality: text
-        e_des_noise: text
-        e_des_hazmat: text
-        # columns where ids are numeric need to be manually set to text
-        bbl: text
-        industrial_lots: text
-        wetland_checkzone: text
-        # geometry column type
-        geom: geometry(Geometry, 2263)
-    columns:
-      - name: project_label
-        tests:
-          - not_null
-      - name: bbl
-        tests:
-          - not_null
-          - unique
-      - name: geom
-        tests:
-          - not_null
-          - is_epsg_2263
+- name: nyc_parks_properties_categories
+  description: All possible values in typecategory column of recipe dpr_parksproperties
+  columns:
+  - name: typecategory
+    tests:
+    - not_null
+    - unique
+  - name: allowed
+    tests:
+    - not_null
+    - accepted_values:
+        values: [ "TRUE", "FALSE" ]
 
-  - name: test_expected__flags_zoning
-    description: Particular lots, their zoning fields, and the expected GFT zoning flag results
-    columns:
-      - name: lot_label
-        tests:
-          - not_null
-      - name: bbl
-        tests:
-          - not_null
-          - unique
-      - name: zonedist1
-      - name: zonedist2
-      - name: zonedist3
-      - name: zonedist4
-      - name: Zoning Districts
-    config:
-      column_types:
-        bbl: text
+- name: test_expected__pilot_projects
+  description: Mock pilot projects and their expected outputs
+  config:
+    column_types:
+      # empty columns default to integer type
+      special_coastal_risk: text
+      vent_tower: text
+      e_des_air_quality: text
+      e_des_noise: text
+      e_des_hazmat: text
+      # columns where ids are numeric need to be manually set to text
+      bbl: text
+      industrial_lots: text
+      wetland_checkzone: text
+      # geometry column type
+      geom: geometry(Geometry, 2263)
+  columns:
+  - name: project_label
+    tests:
+    - not_null
+  - name: bbl
+    tests:
+    - not_null
+    - unique
+  - name: geom
+    tests:
+    - not_null
+    - is_epsg_2263
 
-  - name: railyards_hudsonyards_erase
-    description: area to remove from exposed railyards data source (from dcp_cscl_commonplace)
-    columns:
-      - name: geom
-      - name: complexid
-      - name: globalid
-      - name: parentid
-      - name: shape_area
-      - name: shape_length
-    config:
-      column_types:
-        geom: geometry(Geometry, 2263)
+- name: test_expected__flags_zoning
+  description: Particular lots, their zoning fields, and the expected GFT zoning flag results
+  columns:
+  - name: lot_label
+    tests:
+    - not_null
+  - name: bbl
+    tests:
+    - not_null
+    - unique
+  - name: zonedist1
+  - name: zonedist2
+  - name: zonedist3
+  - name: zonedist4
+  - name: Zoning Districts
+  config:
+    column_types:
+      bbl: text
+
+- name: railyards_hudsonyards_erase
+  description: area to remove from exposed railyards data source (from dcp_cscl_commonplace)
+  columns:
+  - name: geom
+  - name: complexid
+  - name: globalid
+  - name: parentid
+  - name: shape_area
+  - name: shape_length
+  config:
+    column_types:
+      geom: geometry(Geometry, 2263)
