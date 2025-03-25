@@ -4,7 +4,7 @@ WITH clipped_to_nyc AS (
 
 SELECT
     'priority_waterbodies_estuaries' AS variable_type,
-    pwl_id || '-' || name AS variable_id,
+    seg_id || '-' || waterbody AS variable_id,
     geom AS raw_geom,
     NULL AS buffer
 FROM clipped_to_nyc
