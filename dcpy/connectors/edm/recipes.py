@@ -29,7 +29,7 @@ from dcpy.utils.logging import logger
 
 def _bucket() -> str:
     assert configuration.RECIPES_BUCKET, (
-        "'RECIPES__bucket()' must be defined to use edm.recipes connector"
+        "'RECIPES_BUCKET' must be defined to use edm.recipes connector"
     )
     return configuration.RECIPES_BUCKET
 
