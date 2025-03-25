@@ -1,4 +1,5 @@
 import importlib
+import json
 import os
 import pandas as pd
 from pathlib import Path
@@ -61,32 +62,51 @@ def load_dataset_into_pg(
     include_version_col: bool = True,
     include_ogc_fid_col: bool = True,
 ):
+    has_preprocessor = ds.preprocessor is not None
     preprocessor = _get_preprocessor(ds)
-
     ds_table_name = ds.import_as or ds.id
+
     if ds.file_type == DatasetType.pg_dump:
+        if has_preprocessor:
+            logger.warning(
+                "A preprocessor is defined for a pg_dump type. However, preprocessors cannot be applied to pg_dump datasets."
+            )
         pg_client.import_pg_dump(
             local_dataset_path,
             pg_dump_table_name=ds.id,
             target_table_name=ds_table_name,
         )
+    else:
+        if ds.file_type == DatasetType.csv:
+            raw_df = pd.read_csv(local_dataset_path, dtype=str)
+            df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
+        elif ds.file_type == DatasetType.parquet:
+            raw_df = geoparquet.read_df(local_dataset_path)
+            df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
+        elif ds.file_type == DatasetType.json:
+            with open(local_dataset_path, "r") as json_file:
+                records = json.load(json_file)
 
-    elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
-        df = (
-            pd.read_csv(local_dataset_path, dtype=str)
-            if ds.file_type == DatasetType.csv
-            else geoparquet.read_df(local_dataset_path)
-        )
-        df = preprocessor(ds.id, df)
+            if not has_preprocessor:
+                logger.warning(
+                    "Coverting JSON to a dataframe without a preprocessor. This could have unintended results."
+                )
+                df = pd.DataFrame(records)
+            else:
+                df = preprocessor(ds.id, records)
+        else:
+            raise Exception(f"Invalid file_type for {ds.id}: {ds.file_type}")
 
         # make column names more sql-friendly
         columns = {
             column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
             for column in df.columns
         }
+        df.rename(columns=columns, inplace=True)
+        pg_client.insert_dataframe(df, ds_table_name)
+
         if include_ogc_fid_col:
-            df.rename(columns=columns, inplace=True)
-            pg_client.insert_dataframe(df, ds_table_name)
+            # This maybe should be applicable to pg_dumps, but they tend to have this column already
             pg_client.add_pk(ds_table_name, "ogc_fid")
 
     if include_version_col:
@@ -181,3 +201,17 @@ def _import_dataset(
     )
     client = postgres.PostgresClient(schema=database_schema, database=database)
     import_dataset(ds=ds, stage=lifecycle_stage, pg_client=client)
+
+
+@app.command("get_versions")
+def _cli_wrapper_get_versions(
+    connector: str = typer.Argument(
+        help="Connector Name",
+    ),
+    key: str = typer.Argument(
+        help="Resource Key",
+    ),
+    # TODO: support for kwargs / opts
+):
+    conn = connectors[connector]
+    print(conn.list_versions(key))

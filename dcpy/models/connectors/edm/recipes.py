@@ -24,6 +24,7 @@ class DatasetType(StrEnum):
     csv = "csv"
     parquet = "parquet"
     xlsx = "xlsx"  # needed for a few "legacy" products. Aim to phase out
+    json = "json"
 
 
 def _type_to_extension(dst: DatasetType) -> str:

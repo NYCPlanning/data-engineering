@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: build_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: decennial_2010_latest_draft
+      - name: decennial_2010_latest_published
+      - name: acs_metadata_current_latest_draft
+      - name: acs_metadata_current_latest_published

@@ -7,5 +7,7 @@ inputs:
     destination: file
   datasets:
     - name: dcp_pop_decennial_dhc
+      version: 202502
     - name: dcp_pop_decennial_ddhca
+      version: 202502
   missing_versions_strategy: find_latest

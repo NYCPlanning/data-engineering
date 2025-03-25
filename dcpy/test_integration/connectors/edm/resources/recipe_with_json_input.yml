@@ -1,0 +1,19 @@
+name: Test Recipe
+version: dummy
+product: test-product
+inputs:
+  dataset_defaults:
+    destination: postgres
+  datasets:
+  - name: db-factfinder
+    source: edm.publishing.published
+    version: 2023v1
+    file_type: json
+    import_as: decennial_json
+    destination: postgres
+    preprocessor:
+      module: dcpy.test_integration.connectors.preprocessor
+      function: json_key_upcase_preprocessor
+    custom:
+      dataset: decennial_2010
+      filepath: sample_recipe_input.json

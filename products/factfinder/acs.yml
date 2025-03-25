@@ -1,5 +1,5 @@
 name: PFF - ACS
-version: dummy
+version: 2023
 product: db-factfinder
 inputs:
   dataset_defaults:
@@ -7,9 +7,13 @@ inputs:
     destination: df
   datasets:
     - name: dcp_pop_acs2010_demographic
+      version: 20240524
     - name: dcp_pop_acs2010_economic
+      version: 20240524
     - name: dcp_pop_acs2010_housing
+      version: 202502
     - name: dcp_pop_acs2010_social
+      version: 20240524
     - name: dcp_pop_acs
       destination: file
       file_type: xlsx

@@ -19,11 +19,16 @@ dataset:
     description: |
       ## Census Detailed Demographic and Housing Characteristics-A file from Population
       This file is produced internally by the Population division. It contains data from multiple versions of the 
-      Census Detailed Demographic and Housing Characteristics A (DDHCA) file with updated estimates for the current year. 
-      
+      Census Detailed Demographic and Housing Characteristics A (DDHCA) file with updated estimates for the current year.
+
       It is received via email or file transfer from the DCP Population division
 
       It is currently meant to be archived in "as_is" format
+
+      Notes:
+        - Totally distinct from the related `_dhca` file.
+        - "Detailed" refers to "Detailed Race and Ethnicity", e.g. The count of Polish residents of a Census Tract
+        - Does not contain CBs, making it (perhaps counterintuitively) much smaller than the non-detailed file
       
     url: null
     dependents: []

@@ -19,11 +19,14 @@ ingestion:
     dtype:
       GeoID: str
   processing_steps:
+  - name: clean_column_names
+    args:
+      lower: true
   - name: append_prev
     mode: append
   - name: upsert_column_of_previous_version
     args:
       key: [geotype, geoid]
-      insert_behavior: error
+      insert_behavior: allow
       missing_key_behavior: error
     mode: update_column

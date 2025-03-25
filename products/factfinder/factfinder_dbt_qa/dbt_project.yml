@@ -1,0 +1,11 @@
+name: "factfinder"
+
+profile: "dcp-de-postgres"
+
+model-paths: [ "models" ]
+test-paths: [ "tests" ]
+
+tests:
+  +store_failures: true
+  +severity: "{{ env_var('TEST_SEVERITY', 'error') }}"
+  schema: "_tests"
