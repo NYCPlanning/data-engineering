@@ -11,6 +11,7 @@ import duckdb
 from dcpy.utils import s3, duckdb as dcpy_duckdb
 from dcpy.connectors.edm import recipes
 
+bucket = recipes._bucket()
 local_file = Path("./catalog.duckdb")
 
 local_file.unlink(missing_ok=True)
@@ -18,7 +19,7 @@ conn = duckdb.connect(local_file)
 dcpy_duckdb.setup_s3_secret(conn)
 conn.sql("install spatial; load spatial;")
 
-for i, dataset in enumerate(s3.get_subfolders(recipes.BUCKET, "datasets/")):
+for i, dataset in enumerate(s3.get_subfolders(bucket, "datasets/")):
     print(dataset)
     if recipes.DatasetType.parquet in recipes.get_file_types(
         recipes.DatasetKey(id=dataset, version="latest")
@@ -39,4 +40,4 @@ for i, dataset in enumerate(s3.get_subfolders(recipes.BUCKET, "datasets/")):
 conn.commit()
 conn.close()
 
-s3.upload_file(recipes.BUCKET, local_file, "datasets/catalog.duckdb", "private")
+s3.upload_file(bucket, local_file, "datasets/catalog.duckdb", "private")
