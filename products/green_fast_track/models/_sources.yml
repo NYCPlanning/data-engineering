@@ -469,10 +469,10 @@ sources:
 
       - name: nysdec_priority_lakes
         columns:
-          - name: pwl_id
+          - name: seg_id
             tests:
               - not_null
-          - name: name
+          - name: waterbody
             tests:
               - not_null
           - name: wkb_geometry
@@ -480,15 +480,15 @@ sources:
               - not_null
         tests:
           - dbt_utils.unique_combination_of_columns:
-              combination_of_columns: [ pwl_id, name ]
+              combination_of_columns: [ seg_id, waterbody ]
 
       - name: nysdec_priority_estuaries
         columns:
-          - name: pwl_id
+          - name: seg_id
             tests:
               - unique
               - not_null
-          - name: name
+          - name: waterbody
             tests:
               - not_null
           - name: wkb_geometry
@@ -497,10 +497,10 @@ sources:
 
       - name: nysdec_priority_streams
         columns:
-          - name: pwl_id
+          - name: seg_id
             tests:
               - not_null
-          - name: name
+          - name: waterbody
             tests:
               - not_null
           - name: wkb_geometry
