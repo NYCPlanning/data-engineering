@@ -48,7 +48,7 @@ def to_parquet(
     assert local_data_path.is_file() or local_data_path.is_dir(), (
         "Local path should be a valid file or directory"
     )
-    logger.info(f"✅ Raw data was found locally at {local_data_path}")
+    logger.info(f"Converting {local_data_path} to {output_file_path}")
 
     gdf = data.read_data_to_df(file_format, local_data_path)
 
@@ -58,9 +58,6 @@ def to_parquet(
         gdf[OUTPUT_GEOM_COLUMN] = gdf.make_valid()
 
     gdf.to_parquet(output_file_path, index=False)
-    logger.info(
-        f"✅ Converted raw data to parquet file and saved as {output_file_path}"
-    )
 
 
 class ProcessingFunctions:
@@ -362,6 +359,7 @@ def process(
     output_csv: bool = False,
 ):
     """Validates and runs processing steps defined in config object"""
+    logger.info(f"Processing {input_path} to {output_path}")
     df = geoparquet.read_df(input_path)
     compiled_steps = validate_processing_steps(dataset_id, processing_steps)
 

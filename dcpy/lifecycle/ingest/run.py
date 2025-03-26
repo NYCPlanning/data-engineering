@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 import shutil
+
+from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.connectors.edm import recipes
 from dcpy.configuration import TEMPLATE_DIR
@@ -86,6 +88,9 @@ def ingest(
 
     dataset_output_dir = ingest_output_dir / dataset_id / config.version
     dataset_output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(
+        f"Copying {config.filename} and config file from {dataset_staging_dir} to {dataset_output_dir}"
+    )
     shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 

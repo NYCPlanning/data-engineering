@@ -43,7 +43,6 @@ def read_template(
     and insert version as jinja var if provided.
     """
     file = template_dir / f"{dataset_id}.yml"
-    logger.info(f"Reading template from {file}")
     with open(file, "r") as f:
         template_string = f.read()
     vars = get_jinja_vars(template_string)
@@ -148,6 +147,8 @@ def get_config(
 ) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
+
+    logger.info(f"Reading template from {template_dir / dataset_id}.yml")
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
     filename = get_filename(template.ingestion.source, template.id)
