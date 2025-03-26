@@ -26,7 +26,7 @@ def download_file_from_source(
     From parsed config template and version, download raw data from source to provided path
     """
     path = dir / filename
-    logger.info(f"Extracting source data to {path}")
+    logger.info(f"Extracting {path.name} from source to staging folder")
     match source:
         ## Non reqeust-based methods
         case LocalFileSource():

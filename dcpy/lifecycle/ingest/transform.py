@@ -48,7 +48,7 @@ def to_parquet(
     assert local_data_path.is_file() or local_data_path.is_dir(), (
         "Local path should be a valid file or directory"
     )
-    logger.info(f"Converting {local_data_path} to {output_file_path}")
+    logger.info(f"Converting {local_data_path.name} to {output_filename}")
 
     gdf = data.read_data_to_df(file_format, local_data_path)
 
@@ -359,7 +359,7 @@ def process(
     output_csv: bool = False,
 ):
     """Validates and runs processing steps defined in config object"""
-    logger.info(f"Processing {input_path} to {output_path}")
+    logger.info(f"Processing {input_path.name} to {output_path.name}")
     df = geoparquet.read_df(input_path)
     compiled_steps = validate_processing_steps(dataset_id, processing_steps)
 

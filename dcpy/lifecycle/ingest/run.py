@@ -51,6 +51,7 @@ def ingest(
         dataset_staging_dir.mkdir(parents=True)
     else:
         dataset_staging_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Using {dataset_staging_dir} to stage data")
 
     with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
@@ -88,9 +89,7 @@ def ingest(
 
     dataset_output_dir = ingest_output_dir / dataset_id / config.version
     dataset_output_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(
-        f"Copying {config.filename} and config file from {dataset_staging_dir} to {dataset_output_dir}"
-    )
+    logger.info(f"Copying {config.filename} to {dataset_output_dir}")
     shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
