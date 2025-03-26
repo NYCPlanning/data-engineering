@@ -11,6 +11,7 @@ from . import (
     TEST_DATASET_VERSION,
     TEST_DATASET_CONFIG_FILE,
     TEST_DATASET_OUTPUT_PATH,
+    template_path,
 )
 
 
@@ -69,3 +70,9 @@ def test_ingest_version_overwrite():
 def test_ingest_with_sql():
     ingestor = Ingestor()
     ingestor.csv(get_config_file("bpl_libraries_sql"))
+
+
+def test_script():
+    ingestor = Ingestor()
+    ingestor.csv(f"{template_path}/bpl_libraries.yml", version="test")
+    assert os.path.isfile(".library/datasets/bpl_libraries/test/bpl_libraries.csv")
