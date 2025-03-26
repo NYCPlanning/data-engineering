@@ -1,7 +1,9 @@
 import os
+from unittest.mock import patch
 from sqlalchemy import text
 
 from dcpy.library.ingest import Ingestor
+from dcpy.test.conftest import mock_request_get
 
 from . import (
     pg,
@@ -67,12 +69,14 @@ def test_ingest_version_overwrite():
     )
 
 
-def test_ingest_with_sql():
+@patch("requests.get", side_effect=mock_request_get)
+def test_ingest_with_sql(request_get):
     ingestor = Ingestor()
     ingestor.csv(get_config_file("bpl_libraries_sql"))
 
 
-def test_script():
+@patch("requests.get", side_effect=mock_request_get)
+def test_script(request_get):
     ingestor = Ingestor()
     ingestor.csv(f"{template_path}/bpl_libraries.yml", version="test")
     assert os.path.isfile(".library/datasets/bpl_libraries/test/bpl_libraries.csv")

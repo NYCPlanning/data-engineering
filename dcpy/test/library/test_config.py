@@ -56,7 +56,8 @@ def test_config_compute():
     assert dataset.destination.geometry
 
 
-def test_config_script():
+@patch("requests.get", side_effect=mock_request_get)
+def test_config_script(request_get):
     config = Config(f"{template_path}/bpl_libraries.yml").compute
     assert config.source.gdalpath
 
@@ -69,7 +70,8 @@ def test_arcgis_feature_server(request_get, get_layer):
     assert config.source.gdalpath.endswith(f"{config.name}.geojson")
 
 
-def test_backwards_compatility_with_jinja_version():
+@patch("requests.get", side_effect=mock_request_get)
+def test_backwards_compatility_with_jinja_version(request_get):
     config = Config(get_config_file("bpl_libraries_sql_deprecated"))
     computed = config.compute
     assert computed.version == config.version_today
