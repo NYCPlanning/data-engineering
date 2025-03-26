@@ -11,6 +11,7 @@ from dcpy.models.lifecycle.ingest import (
 )
 from dcpy.models.connectors import socrata, web as web_models
 from dcpy.models.connectors.edm.publishing import GisDataset
+from dcpy.utils.logging import logger
 from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.socrata import extract as extract_socrata
@@ -25,6 +26,7 @@ def download_file_from_source(
     From parsed config template and version, download raw data from source to provided path
     """
     path = dir / filename
+    logger.info(f"Extracting {path.name} from source to staging folder")
     match source:
         ## Non reqeust-based methods
         case LocalFileSource():
