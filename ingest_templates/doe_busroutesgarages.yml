@@ -35,9 +35,6 @@ ingestion:
     format: csv
   file_format:
     type: csv
-    # todo - things like BIN/BBL/etc and others could have this determined via `data_type` in column definitions
-    dtype:
-      Garage_Zip: str
     geometry:
       geom_column:
         x: XCoordinates

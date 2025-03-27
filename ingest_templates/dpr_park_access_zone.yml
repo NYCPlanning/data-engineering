@@ -33,7 +33,6 @@ ingestion:
     type: socrata
     org: nyc
     uid: 99ii-hwh9
-    format: geojson
   file_format:
     type: geojson
   processing_steps:
