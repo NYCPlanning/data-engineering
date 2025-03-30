@@ -35,34 +35,34 @@ mkdir -p output
     echo "Compress review folder"
     zip -r review.zip review/
 
-    echo "Export SCA aggregation tables"
-    mkdir -p sca_aggregation
-    (
-        cd sca_aggregation
-        csv_export longform_csd_output &
-        csv_export longform_es_zone_output &
-        csv_export longform_subdist_output_cp_assumptions
-        wait
-    )
-    echo "Compress SCA aggregation folder"
-    zip -r sca_aggregation.zip sca_aggregation/
+    # echo "Export SCA aggregation tables"
+    # mkdir -p sca_aggregation
+    # (
+    #     cd sca_aggregation
+    #     csv_export longform_csd_output &
+    #     csv_export longform_es_zone_output &
+    #     csv_export longform_subdist_output_cp_assumptions
+    #     wait
+    # )
+    # echo "Compress SCA aggregation folder"
+    # zip -r sca_aggregation.zip sca_aggregation/
 
-    echo "Export aggregation tables"
-    mkdir -p aggregation
-    (
-        cd aggregation
-        csv_export longform_ct_output
-        csv_export future_units_by_ct
-        csv_export longform_nta_output
-        csv_export future_units_by_nta
-        csv_export longform_cdta_output
-        csv_export future_units_by_cdta
-        csv_export longform_cd_output
-        csv_export future_units_by_cd
-        wait
-    )
-    echo "Compress aggregation folder"
-    zip -r aggregation.zip aggregation/
+    # echo "Export aggregation tables"
+    # mkdir -p aggregation
+    # (
+    #     cd aggregation
+    #     csv_export longform_ct_output
+    #     csv_export future_units_by_ct
+    #     csv_export longform_nta_output
+    #     csv_export future_units_by_nta
+    #     csv_export longform_cdta_output
+    #     csv_export future_units_by_cdta
+    #     csv_export longform_cd_output
+    #     csv_export future_units_by_cd
+    #     wait
+    # )
+    # echo "Compress aggregation folder"
+    # zip -r aggregation.zip aggregation/
 
     echo "Export summary tables"
     mkdir -p summary
