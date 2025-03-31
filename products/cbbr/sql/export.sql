@@ -50,7 +50,7 @@ DROP TABLE IF EXISTS cbbr_submissions_needgeoms_b;
 SELECT *
 INTO cbbr_submissions_needgeoms_b
 FROM cbbr_submissions_needgeoms_c
-WHERE type_br = 'C'
+WHERE type_br = 'C' AND location_specific = 'Yes'
 ORDER BY cb_label, street_name, address;
 
 -- remove B from C table
