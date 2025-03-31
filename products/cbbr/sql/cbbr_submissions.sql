@@ -10,12 +10,13 @@ SELECT
     omb.cb_label,
     omb.type AS type_br,
     omb.priority,
-    NULL AS need, -- missing
+    dcp.need,
     omb.request,
     REPLACE(omb.reason, E'\n', ' ') AS explanation,
     dcp.location_specific,
     dcp.address,
     dcp.site_or_facility_name,
+    dcp.on_street,
     dcp.cross_street_1,
     dcp.cross_street_2,
     dcp.intersection_street_1,
@@ -34,4 +35,4 @@ SELECT
     omb.agency_response,
     REPLACE(omb.explanation, E'\n', ' ') AS additional_comment
 FROM omb_cbbr_agency_responses AS omb
-INNER JOIN dcp_cbbr_requests AS dcp ON omb.dcpuniqid = dcp.unique_id
+INNER JOIN dcp_cbbr_requests AS dcp ON omb.dcpuniqid = dcp.current_year_id
