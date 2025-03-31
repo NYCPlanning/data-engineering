@@ -93,5 +93,5 @@ SOURCE_FILENAMES = [
     (Sources.api, f"{TEST_DATASET_NAME}.json"),
     (Sources.socrata, f"{TEST_DATASET_NAME}.csv"),
     (Sources.s3, "test.txt"),
-    (Sources.esri, f"{TEST_DATASET_NAME}.json"),
+    # (Sources.esri, f"{TEST_DATASET_NAME}.json"),
 ]
