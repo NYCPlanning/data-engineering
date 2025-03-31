@@ -6,6 +6,7 @@ from geosupport import Geosupport, GeosupportError
 from .helpers import (
     GEOCODE_COLUMNS,
     get_hnum,
+    get_landmarkname,
     get_sname,
     geo_parser,
 )
@@ -34,10 +35,10 @@ def geosupport_1B_address(input_record: dict) -> dict:
     return geo_function_result
 
 
-def geosupport_1B_place(input_record: dict) -> dict:
+def geosupport_1B_site_or_facility(input_record: dict) -> dict:
     """1B function - geocode address based on the place name"""
     borough = input_record["borough_code"]
-    street_name = input_record["site_or_facility_name"] or ""
+    street_name = input_record.get("site_or_facility_name") or ""
     street_name = re.sub(r"[^\x00-\x7F]+", "", street_name)
 
     geo_function_result = geo_client["1B"](
@@ -47,6 +48,15 @@ def geosupport_1B_place(input_record: dict) -> dict:
     )
 
     return geo_function_result
+
+
+def geosupport_1B_landmark(input_record: dict) -> dict:
+    """1B function - geocode address based on the place name"""
+    return geo_client["1B"](
+        borough=input_record["borough_code"],
+        street_name=input_record.get("landmark", ""),
+        house_number="",
+    )
 
 
 def geosupport_2(input_record: dict) -> dict:
@@ -99,7 +109,8 @@ def geosupport_3(input_record: dict) -> dict:
 
 GEOSUPPORT_FUNCTION_HIERARCHY = [
     geosupport_1B_address,
-    geosupport_1B_place,
+    geosupport_1B_site_or_facility,
+    geosupport_1B_landmark,
     geosupport_2,
     # geosupport_2_cross_streets,
     geosupport_3,
@@ -161,6 +172,7 @@ if __name__ == "__main__":
     cbbr_data = cbbr_data.where(pd.notnull(cbbr_data), None)
     cbbr_data["addressnum"] = cbbr_data["address"].apply(get_hnum)
     cbbr_data["street_name"] = cbbr_data["address"].apply(get_sname)
+    cbbr_data["landmark"] = cbbr_data["address"].apply(get_landmarkname)
 
     client.insert_dataframe(cbbr_data, "_cbbr_submissions_address_parsed")
     print("start geocoding ...")

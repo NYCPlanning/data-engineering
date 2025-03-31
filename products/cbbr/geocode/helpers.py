@@ -40,11 +40,26 @@ def get_hnum(address: str) -> str:
     return result
 
 
-def get_sname(address: str) -> str:
+def get_sname(address: str) -> str | None:
     if not address:
         return None
     result = (
         [k for (k, v) in usaddress.parse(address) if re.search("Street", v)]
+        if address is not None
+        else ""
+    )
+    result = " ".join(result)
+    if result == "":
+        return address.strip(",")
+    else:
+        return result.strip(",")
+
+
+def get_landmarkname(address: str) -> str | None:
+    if not address:
+        return None
+    result = (
+        [k for (k, v) in usaddress.parse(address) if v == "LandmarkName"]
         if address is not None
         else ""
     )
