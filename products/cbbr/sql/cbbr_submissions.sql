@@ -8,6 +8,7 @@ SELECT
     omb.borough,
     RIGHT(omb.cb_label, 2) AS cd,
     omb.cb_label,
+    dcp.type,
     omb.type AS type_br,
     omb.priority,
     dcp.need,
