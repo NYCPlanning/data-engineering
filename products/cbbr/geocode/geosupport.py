@@ -68,16 +68,17 @@ def geosupport_2(input_record: dict) -> dict:
 def geosupport_3(input_record: dict) -> dict:
     """3 function - geocode street segment (1 block) based on the three street names"""
     borough = input_record["borough_code"]
-    street_name = input_record["street_name"]
+    on_street = input_record["on_street"]
     cross_street_1 = input_record["cross_street_1"]
     cross_street_2 = input_record["cross_street_2"]
-    if not cross_street_1 or not cross_street_2:
+
+    if not (on_street and cross_street_1 and cross_street_2):
         raise GeosupportError("UNLIKELY TO BE A STREET SEGMENT")
 
     # use geosupport function
     geo_function_result = geo_client["3"](
         borough=borough,
-        street_name_1=street_name,
+        street_name_1=on_street,
         street_name_2=cross_street_1,
         street_name_3=cross_street_2,
     )
