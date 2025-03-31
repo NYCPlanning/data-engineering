@@ -75,6 +75,33 @@ def geosupport_2(input_record: dict) -> dict:
     return geo_function_result
 
 
+def geosupport_2_cross_street(input_record: dict) -> dict:
+    """
+    2 function - geocode intersection based on the two street names
+    If cross street specified but cross streets are identical, attempt to geocode as intersection
+    """
+    borough = input_record["borough_code"]
+    street_name = input_record.get("on_street")
+    cross_street_1 = input_record.get("cross_street_1")
+    cross_street_2 = input_record.get("cross_street_2")
+    if not (
+        street_name
+        and cross_street_1
+        and cross_street_2
+        and (cross_street_1 == cross_street_2)
+    ):
+        raise GeosupportError("UNLIKELY TO BE AN INTERSECTION")
+
+    # use geosupport function
+    geo_function_result = geo_client["2"](
+        borough=borough,
+        street_name_1=street_name,
+        street_name_2=cross_street_1,
+    )
+
+    return geo_function_result
+
+
 def geosupport_3(input_record: dict) -> dict:
     """3 function - geocode street segment (1 block) based on the three street names"""
     borough = input_record["borough_code"]
@@ -112,8 +139,8 @@ GEOSUPPORT_FUNCTION_HIERARCHY = [
     geosupport_1B_site_or_facility,
     geosupport_1B_landmark,
     geosupport_2,
-    # geosupport_2_cross_streets,
     geosupport_3,
+    geosupport_2_cross_street,
 ]
 
 
