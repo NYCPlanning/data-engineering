@@ -67,7 +67,14 @@ DROP TABLE IF EXISTS cbbr_submissions_needgeoms_a;
 SELECT *
 INTO cbbr_submissions_needgeoms_a
 FROM cbbr_submissions_needgeoms_b
-WHERE location_specific = 'Yes'
+WHERE
+    location_specific = 'Yes'
+    AND (
+        address IS NOT NULL
+        OR site_or_facility_name IS NOT NULL
+        OR (on_street IS NOT NULL AND cross_street_1 IS NOT NULL AND cross_street_2 IS NOT NULL)
+        OR (intersection_street_1 IS NOT NULL AND intersection_street_2 IS NOT NULL)
+    )
 ORDER BY cb_label, street_name, address;
 
 -- remove A from B table
