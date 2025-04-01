@@ -20,7 +20,7 @@ function install_geosupport {
         else
             echo "YES UPAD IS AVAILABLE linux_upad_tpad_${RELEASE}${PATCH}"
             mkdir linux_upad_tpad_${RELEASE}${PATCH} &&
-                curl -o linux_upad_tpad_${RELEASE}${PATCH}/linux_upad_tpad_${RELEASE}${PATCH}.zip https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/linux_upad_tpad_${RELEASE}${PATCH}.zip &&
+                curl -o linux_upad_tpad_${RELEASE}${PATCH}/linux_upad_tpad_${RELEASE}${PATCH}.zip https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/geosupport/linux_upad_tpad_${RELEASE}${PATCH}.zip &&
                 unzip -o linux_upad_tpad_${RELEASE}${PATCH}/*.zip -d version-${RELEASE}_${MAJOR}.${MINOR}/fls/ &&
                 rm -r linux_upad_tpad_${RELEASE}${PATCH}
         fi
