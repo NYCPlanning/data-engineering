@@ -52,13 +52,23 @@ def dcp_n_study(filename: str) -> pd.DataFrame:
 
 @ETL
 def dcp_n_study_future(filename: str) -> pd.DataFrame:
-    df = gpd.read_file(f"zip://{RAW_DATA_PATH}/{filename}")
+    # df = gpd.read_file(f"zip://{RAW_DATA_PATH}/{filename}")
+
+    filename_prefix = f"{filename}".split(".")[0]
+    with zipfile.ZipFile(f"{RAW_DATA_PATH}/{filename}", "r") as zip_ref:
+        zip_ref.extractall(f"{RAW_DATA_PATH}")
+    df = gpd.read_file(f"{RAW_DATA_PATH}/{filename_prefix}/{filename_prefix}.shp")
     return df
 
 
 @ETL
 def dcp_n_study_projected(filename: str) -> gpd.GeoDataFrame:
-    df = gpd.read_file(f"zip://{RAW_DATA_PATH}/{filename}")
+    # df = gpd.read_file(f"zip://{RAW_DATA_PATH}/{filename}")
+
+    filename_prefix = f"{filename}".split(".")[0]
+    with zipfile.ZipFile(f"{RAW_DATA_PATH}/{filename}", "r") as zip_ref:
+        zip_ref.extractall(f"{RAW_DATA_PATH}")
+    df = gpd.read_file(f"{RAW_DATA_PATH}/{filename_prefix}/{filename_prefix}.shp")
     return df
 
 
