@@ -14,7 +14,7 @@ sys.path.append(str(_proj_root))
 BUILD_DATETIME = datetime.today().strftime("%Y%m%d_%H:%M")
 
 S3_BUCKET = "edm-private"
-S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250328"
+S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250411"
 S3_OUTPUT_DIR = "db-kpdb"
 
 DATA_PATH = _product_path / "data"
@@ -28,11 +28,11 @@ DCP_HOUSING_DATA_FILENAMES = {
     "edc_projects": "2022.11.18 EDC inputs for DCP housing projections.xlsx",
     "edc_dcp_inputs": "edc_shapefile_20250225.zip",
     "dcp_n_study": "nstudy_rezoning_commitments_shapefile_20221017.zip",
-    "dcp_n_study_future": "future_nstudy_shapefile_20230928.zip",
-    "dcp_n_study_projected": "PastNeighborhoodStudies_20231212.zip",
+    "dcp_n_study_future": "future_neighborhoodstudies_20250304.zip",
+    "dcp_n_study_projected": "past_neighborhoodstudies_20250304.zip",
     "hpd_rfp": "HPD_RFPs_20250110.xlsx",
     "hpd_pc": "HPD_Pipeline_20250225.xlsx",
-    "dcp_planneradded": "dcp_planneradded_2025_03_24.csv",
+    "dcp_planneradded": "dcp_planneradded_2025_04_07.csv",
 }
 DCP_HOUSING_CORRECTIONS_FILENAMES = {
     "corrections_dob": "corrections_dob.csv",
