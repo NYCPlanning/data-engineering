@@ -3,7 +3,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_mappluto_{{ version | replace(".","_") }}_unclipped_shp.zip
+      path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/mappluto/nyc_mappluto_{{ version | replace(".","_") }}_unclipped_shp.zip
       subpath: MapPLUTO_UNCLIPPED.shp
     options:
       - "AUTODETECT_TYPE=NO"
