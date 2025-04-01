@@ -186,7 +186,7 @@ _dcp_n_study_future AS (
         NULL::integer AS classb,
         NULL::integer AS senior_housing,
         array_append(ARRAY[]::text [], uid) AS record_id_input,
-        project_id || ' ' || 'Future Rezoning Development' AS record_name
+        record_nam || ' ' || 'Future Rezoning Development' AS record_name
     FROM dcp_n_study_future
 ),
 
