@@ -1,5 +1,5 @@
 name: Ingest Single Dataset
-run-name: "Ingest Single Dataset: ${{ inputs.dataset }}"
+run-name: "Ingest Single Dataset: ${{ inputs.dataset }} ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
