@@ -173,11 +173,17 @@ def _cli_wrapper_load(
         "-r",
         help="Path of recipe lock file to use",
     ),
+    save_result: bool = typer.Option(
+        False,
+        "--save-result",
+    ),
 ):
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
-    load_source_data_from_resolved_recipe(recipe_lock_path)
+    res = load_source_data_from_resolved_recipe(recipe_lock_path)
+    if save_result:
+        res.write_to_yaml(Path("load_result.yml"))
 
 
 if __name__ == "__main__":

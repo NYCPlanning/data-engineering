@@ -121,7 +121,7 @@ class YamlWriter(BaseModel):
         with open(path, "w", encoding="utf8") as f:
             f.write(
                 yaml.dump(
-                    self.model_dump(exclude_none=self._exclude_none),
+                    self.model_dump(mode="json", exclude_none=self._exclude_none),
                     sort_keys=False,
                     default_flow_style=False,
                     Dumper=YamlWriter._YamlTopLevelSpacesDumper,

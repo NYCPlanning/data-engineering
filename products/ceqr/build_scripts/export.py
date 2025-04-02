@@ -1,12 +1,13 @@
 # export all data hub datasets which are avaiable to download
 # - export DB tables as files (csvs, shapefiles, fgdbs)
 # - copy non-DB data
+from pathlib import Path
 import shutil
 import subprocess
-import pandas as pd
 
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
+from dcpy.models.lifecycle.builds import LoadResult
 
 from .constants import BASH_UTILS_PATH, DATA_DIR, OUTPUT_DIR
 
@@ -43,22 +44,6 @@ def _export_dataset_from_db(
     shutil.move(file_name, file_path)
 
 
-def _export_dataset(row: pd.Series) -> None:
-    if row["file_type"] == "excel":
-        file_name = f"{row['dataset_id']}.xlsx"
-        logger.info(
-            f"For dataset {row['dataset_name']}, copying excel file {file_name}"
-        )
-        shutil.copy(DATA_DIR / file_name, OUTPUT_DIR / file_name)
-    else:
-        _export_dataset_from_db(
-            dataset_name=row["dataset_name"],
-            dataset_id=row["dataset_id"],
-            file_type=row["file_type"],
-            geometry_type=row["geometry_type"],
-        )
-
-
 def export():
     if OUTPUT_DIR.exists():
         shutil.rmtree(OUTPUT_DIR)
@@ -76,10 +61,29 @@ def export():
     logger.info(f"Exporting dataset_versions to {dataset_versions_export_path}")
     dataset_versions.to_csv(dataset_versions_export_path, index=False)
 
+    load_result = LoadResult.from_path(Path("./load_result.yml"))
+
     # for each dataset, export the table as the specified file format
     for _, row in dataset_versions.iterrows():
-        if row["availability_type"] == "download":
-            _export_dataset(row)
+        if row["availability_type"] != "download":
+            continue
+        match row["build_source"]:
+            case "postgres":
+                _export_dataset_from_db(
+                    dataset_name=row["dataset_name"],
+                    dataset_id=row["dataset_id"],
+                    file_type=row["file_type"],
+                    geometry_type=row["geometry_type"],
+                )
+            case "repo":
+                file_name = f"{row['dataset_id']}.xlsx"
+                logger.info(
+                    f"For dataset {row['dataset_name']}, copying excel file {file_name}"
+                )
+                shutil.copy(DATA_DIR / file_name, OUTPUT_DIR / file_name)
+            case "recipe":
+                path = load_result.datasets[row["dataset_id"]]
+                shutil.copy(path, OUTPUT_DIR / file_name)
 
 
 if __name__ == "__main__":

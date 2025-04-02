@@ -26,7 +26,7 @@ models:
           - not_null:
               where: "availability_type = 'download'"
           - accepted_values:
-              values: ["shapefile", "csv", "excel"]
+              values: ["shapefile", "csv", "excel", "parquet"]
               where: "availability_type = 'download'"
 
       - name: geometry_type

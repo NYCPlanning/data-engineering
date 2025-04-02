@@ -7,6 +7,7 @@ from pydantic import AliasChoices, BaseModel, Field
 from typing import List
 
 from dcpy.utils import versions
+from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
 from dcpy.models.connectors.edm import recipes
 
 
@@ -103,7 +104,7 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         )
 
 
-class LoadResult(BaseModel, extra="forbid"):
+class LoadResult(SortedSerializedBase, YamlWriter, TemplatedYamlReader, extra="forbid"):
     name: str
     build_name: str
     datasets: dict[str, ImportedDataset]
