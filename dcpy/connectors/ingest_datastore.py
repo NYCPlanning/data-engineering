@@ -32,7 +32,6 @@ class Connector(VersionedConnector):
         sub = registry.get_subregistry(StorageConnector)
         if storage_type not in sub:
             raise Exception(f"No storage connector of type '{storage_type}' registered")
-        print(storage_type)
         self._storage = sub[storage_type]
 
     def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:

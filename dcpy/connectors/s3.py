@@ -11,7 +11,6 @@ class Connector(BaseModel, StorageConnector):
     prefix: str | None = None
 
     def _bucket(self, conf: dict | None = None) -> str:
-        print(conf)
         if self.bucket:
             return self.bucket
         elif conf and "bucket" in conf:

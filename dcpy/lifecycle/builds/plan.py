@@ -279,7 +279,6 @@ def repeat_build(
 
         template_recipe = recipe_from_yaml(recipe_file)
         source_data_versions = publishing.get_source_data_versions(product_key)
-        print(source_data_versions)
         recipe = repeat_recipe_from_source_data_versions(
             version, source_data_versions, template_recipe
         )
