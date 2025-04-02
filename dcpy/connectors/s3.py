@@ -2,6 +2,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from dcpy.utils import s3
+from dcpy.utils.logging import logger
 from dcpy.connectors.registry import StorageConnector
 
 
@@ -26,6 +27,7 @@ class Connector(BaseModel, StorageConnector):
         bucket = self._bucket()
 
         if "filepath" in push_conf:
+            logger.info(f"Pushing {push_conf['filepath']} to {bucket}/{key}")
             s3.upload_file(
                 bucket=bucket,
                 path=push_conf["filepath"],
