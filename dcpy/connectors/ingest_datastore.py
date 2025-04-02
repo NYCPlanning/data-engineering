@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 from typing import Any, Tuple
 import yaml
 
-
+from dcpy.utils.logging import logger
 from dcpy.connectors.registry import (
     StorageConnector,
     VersionedConnector,
@@ -54,8 +54,9 @@ class Connector(VersionedConnector):
                         config.model_dump(exclude_none=True, mode="json"), indent=4
                     )
                 )
+            logger.info(f"Pushing {path} to {dest_folder_path}/{path.name}")
             self._storage.push(
-                f"{dest_folder_path}/{key}.parquet",
+                f"{dest_folder_path}/{path.name}",
                 {"filepath": path, "acl": config.archival.acl},
             )
             self._storage.push(
@@ -66,7 +67,7 @@ class Connector(VersionedConnector):
             if push_conf.get("latest"):
                 latest_folder_path = f"{key}/{version}"
                 self._storage.push(
-                    f"{latest_folder_path}/{key}.parquet",
+                    f"{latest_folder_path}/{path.name}",
                     {"filepath": path, "acl": config.archival.acl},
                 )
                 self._storage.push(
