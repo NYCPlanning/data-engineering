@@ -8,3 +8,7 @@ dcp_specialpurpose,Special Purpose Districts,download,shapefile,MULTIPOLYGON
 dcp_limitedheight,Limited Height Districts,download,shapefile,MULTIPOLYGON
 dcp_specialpurposesubdistricts,Special Purpose Subdistricts,download,shapefile,MULTIPOLYGON
 dcp_zoningmapamendments,Zoning Map Amendments,download,shapefile,MULTIPOLYGON
+dcp_wrp_recognized_ecological_complexes,Recognized Ecological Complexes,download,shapefile,MULTIPOINT
+dcp_wrp_special_natural_waterfront_areas,Special Natural Waterfront Area,download,shapefile,MULTIPOLYGON
+dcp_boroboundaries,Borough Boundaries,download,shapefile,MULTIPOLYGON
+dcp_ct2020_wi,Census Tract Boundaries,download,shapefile,MULTIPOLYGON
