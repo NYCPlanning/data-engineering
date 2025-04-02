@@ -9,7 +9,7 @@ inputs:
     file_type: parquet
 
   datasets:
-    - name: dcp_mappluto_wi
+    - name: dcp_mappluto_clipped
     - name: dcp_projects
     - name: dcp_zoningdistricts
     - name: dcp_commercialoverlay
