@@ -56,9 +56,14 @@ def read_template(
 
 
 def get_version(source: Source, timestamp: datetime) -> str:
-    if source.type in connectors.nonversioned:
-        connector = connectors.nonversioned[source.type]
+    nonversioned = connectors.nonversioned
+    versioned = connectors.versioned
+    if source.type in nonversioned:
+        connector = nonversioned[source.type]
         version = connector.get_current_version(source.key, source.model_dump())
+    elif source.type in versioned:
+        connector = versioned[source.type]
+        version = connector.query_latest_version(source.key, source.model_dump())
     else:
         version = None
     return version or timestamp.strftime("%Y%m%d")
