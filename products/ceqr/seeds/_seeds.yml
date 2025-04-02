@@ -34,5 +34,5 @@ seeds:
           - not_null:
               where: "file_type = 'shapefile'"
           - accepted_values:
-              values: ["MULTIPOLYGON", "MULTIPOINT"]
+              values: ["MULTIPOLYGON", "MULTIPOINT", "MULTILINESTRING"]
               where: "availability_type = 'download'"
