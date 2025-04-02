@@ -1,0 +1,24 @@
+id: dcp_limwa
+acl: public-read
+
+attributes:
+  name: LiMWA
+  description: |
+    This layer shows the Limit of Moderate Wave Action, or LiMWA.
+    
+    The LiMWA identifies areas that will be affected by waves with a 1.5 foot wave height
+    or greater within the coastal A zone.
+    
+    While FEMA does not require special floodplain management standards based on LiMWA delineations,
+    it is likely that properties and structures within the LiMWA will receive substantial damage
+    from wave action during a 1%-annual-chance flood event.
+  url: https://dcp.maps.arcgis.com/home/item.html?id=e089b65f8a914c80ab72082a1522c7f2
+
+ingestion:
+  source:
+    type: esri
+    server: dcp
+    dataset: LiMWA
+    layer_name: LiMWA
+  file_format:
+    type: geojson
