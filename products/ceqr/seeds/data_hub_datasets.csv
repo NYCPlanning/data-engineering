@@ -12,4 +12,5 @@ dcp_wrp_recognized_ecological_complexes,Recognized Ecological Complexes,download
 dcp_wrp_special_natural_waterfront_areas,Special Natural Waterfront Area,download,shapefile,MULTIPOLYGON
 dcp_lion,Streets,download,shapefile,MULTILINESTRING
 dcp_boroboundaries,Borough Boundaries,download,shapefile,MULTIPOLYGON
+dpr_parksproperties,DPR Parks Properties,download,shapefile,MULTIPOLYGON
 dcp_ct2020_wi,Census Tract Boundaries,download,shapefile,MULTIPOLYGON
