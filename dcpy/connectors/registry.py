@@ -191,3 +191,7 @@ class ConnectorRegistry(Generic[_C]):
     @property
     def versioned(self) -> ConnectorRegistry[VersionedConnector]:
         return self.get_subregistry(VersionedConnector)
+
+    @property
+    def storage(self) -> ConnectorRegistry[StorageConnector]:
+        return self.get_subregistry(StorageConnector)

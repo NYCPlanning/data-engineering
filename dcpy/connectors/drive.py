@@ -35,5 +35,7 @@ class Connector(BaseModel, StorageConnector):
         destination_path: Path,
         pull_conf: dict | None = None,
     ) -> dict:
-        shutil.copy(self._path(key, pull_conf), destination_path)
+        source_path = self._path(key, pull_conf)
+        if source_path != destination_path:
+            shutil.copy(source_path, destination_path)
         return {"path": destination_path}

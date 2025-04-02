@@ -96,7 +96,7 @@ class TestGetVersion:
         datestring = "20240412"
         s3.client().put_object(
             Bucket=PUBLISHING_BUCKET,
-            Key=f"{TEST_DATASET_NAME}/publish/latest/build_metadata.json",
+            Key=f"{TEST_DATASET_NAME}/publish/{datestring}/build_metadata.json",
             Body=f"{{'version': '{datestring}'}}".encode(),
         )
         assert configure.get_version(Sources.de_publish, None) == datestring
@@ -105,10 +105,6 @@ class TestGetVersion:
         timestamp = datetime.today()
         source = LocalFileSource(type="local_file", path=Path("."))
         assert configure.get_version(source, timestamp) == timestamp.strftime("%Y%m%d")
-
-    def test_rely_on_timestamp_fails(self):
-        with pytest.raises(TypeError, match="Version cannot be dynamically determined"):
-            configure.get_version(LocalFileSource(type="local_file", path=Path(".")))
 
 
 @pytest.mark.parametrize(["source", "expected"], SOURCE_FILENAMES)

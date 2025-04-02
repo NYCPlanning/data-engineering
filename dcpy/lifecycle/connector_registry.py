@@ -23,6 +23,7 @@ def _set_default_connectors():
     connectors.register(connector=web.Connector())
     connectors.register(connector=web.Connector(), conn_type="api")
     connectors.register(connector=drive.Connector(), conn_type="local_file")
+    connectors.register(connector=s3.Connector(), conn_type="s3")
     connectors.register(
         connector=s3.Connector(bucket=RECIPES_BUCKET, prefix="datasets/"),
         conn_type="s3_edm.recipes.datasets",
