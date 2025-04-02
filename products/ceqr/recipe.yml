@@ -21,4 +21,5 @@ inputs:
     - name: dcp_wrp_special_natural_waterfront_areas
     - name: dcp_lion
     - name: dcp_boroboundaries
+    - name: dpr_parksproperties
     - name: dcp_ct2020_wi
