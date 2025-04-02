@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 from pydantic import BaseModel
 
+from dcpy.utils.logging import logger
 from dcpy.connectors.registry import StorageConnector
 
 
@@ -25,6 +26,7 @@ class Connector(BaseModel, StorageConnector):
 
         if path.exists() and not push_conf.get("overwrite"):
             raise Exception(f"'{path}' already exists.")
+        logger.info(f"Copying {push_conf['filepath']} to {path / key}")
         shutil.copy(push_conf["filepath"], path / key)
 
         return {"path": path}
