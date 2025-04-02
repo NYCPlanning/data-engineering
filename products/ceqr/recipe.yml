@@ -17,3 +17,7 @@ inputs:
     - name: dcp_limitedheight
     - name: dcp_specialpurposesubdistricts
     - name: dcp_zoningmapamendments
+    - name: dcp_wrp_recognized_ecological_complexes
+    - name: dcp_wrp_special_natural_waterfront_areas
+    - name: dcp_boroboundaries
+    - name: dcp_ct2020_wi
