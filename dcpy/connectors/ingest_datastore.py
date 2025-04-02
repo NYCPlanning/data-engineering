@@ -53,7 +53,6 @@ class Connector(VersionedConnector):
                         config.model_dump(exclude_none=True, mode="json"), indent=4
                     )
                 )
-            logger.info(f"Pushing {path} to {dest_folder_path}/{path.name}")
             self._storage.push(
                 f"{dest_folder_path}/{path.name}",
                 {"filepath": path, "acl": config.archival.acl},
@@ -64,7 +63,7 @@ class Connector(VersionedConnector):
             )
 
             if push_conf.get("latest"):
-                latest_folder_path = f"{key}/{version}"
+                latest_folder_path = f"{key}/latest"
                 self._storage.push(
                     f"{latest_folder_path}/{path.name}",
                     {"filepath": path, "acl": config.archival.acl},
