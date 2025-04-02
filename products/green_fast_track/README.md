@@ -4,7 +4,7 @@ Green Fast Track (GFT) determines, for all lots in New York City, if a new const
 
 ## Important files
 
-[recipe](https://github.com/NYCPlanning/data-engineering/blob/main/products/freen_fast_track/recipe.yml)
+[recipe](https://github.com/NYCPlanning/data-engineering/blob/main/products/green_fast_track/recipe.yml)
 
 ## Links
 
