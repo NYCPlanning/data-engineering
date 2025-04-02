@@ -156,7 +156,6 @@ class DatasetAttributes(SortedSerializedBase):
 
 class ArchivalMetadata(SortedSerializedBase):
     archival_timestamp: datetime
-    check_timestamps: list[datetime] = []
     raw_filename: str
     acl: recipes.ValidAclValues | None = None
 
@@ -242,12 +241,4 @@ class Config(SortedSerializedBase, extra="forbid"):
             id=self.id,
             timestamp=self.archival.archival_timestamp,
             filename=self.archival.raw_filename,
-        )
-
-    @property
-    def freshness(self) -> datetime:
-        return (
-            self.archival.archival_timestamp
-            if not self.archival.check_timestamps
-            else max(self.archival.check_timestamps)
         )

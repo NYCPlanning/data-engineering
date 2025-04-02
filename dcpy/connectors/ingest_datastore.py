@@ -4,7 +4,6 @@ from tempfile import TemporaryDirectory
 from typing import Any, Tuple
 import yaml
 
-from dcpy.utils.logging import logger
 from dcpy.connectors.registry import (
     StorageConnector,
     VersionedConnector,

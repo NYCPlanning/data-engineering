@@ -4,7 +4,6 @@ import shutil
 
 from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.ingest import Config
-from dcpy.connectors.edm import recipes
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
 from dcpy.lifecycle.connector_registry import connectors
@@ -104,25 +103,18 @@ def ingest(
 
     if push_to_s3:
         assert config.archival.acl
-        action = validate.validate_against_existing_versions(
+        push = validate.validate_against_existing_versions(
             config.dataset, dataset_staging_dir / config.filename
         )
-        match action:
-            case validate.ArchiveAction.push:
-                connector = connectors.versioned["edm.recipes.datasets"]
-                connector.push(
-                    dataset_id,
-                    config.version,
-                    {
-                        "filepath": dataset_staging_dir / config.filename,
-                        "config": config,
-                        "latest": latest,
-                    },
-                )
-            case validate.ArchiveAction.update_freshness:
-                recipes.update_freshness(
-                    config.dataset_key, config.archival.archival_timestamp
-                )
-            case _:
-                pass
+        if push:
+            connector = connectors.versioned["edm.recipes.datasets"]
+            connector.push(
+                dataset_id,
+                config.version,
+                {
+                    "filepath": dataset_staging_dir / config.filename,
+                    "config": config,
+                    "latest": latest,
+                },
+            )
     return config
