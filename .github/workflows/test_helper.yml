@@ -228,7 +228,7 @@ jobs:
         repository: NYCPlanning/data-engineering
         path: data-engineering
     - name: Validate All Metadata Files
-      run: cd data-engineering; python -m dcpy.cli lifecycle scripts product_metadata
+      run: cd data-engineering; python -m dcpy lifecycle scripts product_metadata
         validate_repo ../product-metadata
       env:
         RECIPES_BUCKET: edm-recipes

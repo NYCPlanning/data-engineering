@@ -56,4 +56,4 @@ jobs:
         env:
           version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
         run: |
-          python3 -m dcpy.cli lifecycle scripts validate_ingest run_single ${{ inputs.tool }} ${{ inputs.dataset }} $version
+          python3 -m dcpy lifecycle scripts validate_ingest run_single ${{ inputs.tool }} ${{ inputs.dataset }} $version

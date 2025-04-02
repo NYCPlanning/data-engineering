@@ -63,4 +63,4 @@ jobs:
           ignore_columns: ${{ github.event.inputs.ignore_columns && format('--ignore {0}', github.event.inputs.ignore_columns) || '' }}
           columns_only_comparison: ${{ github.event.inputs.columns_only_comparison == 'true' && '--columns-only' || '' }}
         run: |
-          python3 -m dcpy.cli lifecycle scripts validate_ingest run_and_compare ${{ inputs.dataset }} $version $key_columns $ignore_columns $columns_only_comparison
+          python3 -m dcpy lifecycle scripts validate_ingest run_and_compare ${{ inputs.dataset }} $version $key_columns $ignore_columns $columns_only_comparison
