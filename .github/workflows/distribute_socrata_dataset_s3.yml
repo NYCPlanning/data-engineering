@@ -66,7 +66,7 @@ jobs:
 
       - name: Push to Socrata
         run: |
-          python3 -m dcpy.cli lifecycle distribute socrata from_s3  \
+          python3 -m dcpy lifecycle distribute socrata from_s3  \
             ${{ inputs.PRODUCT_NAME }} \
             ${{ inputs.DATASET_VERSION }} \
             ${{ inputs.DESTINATION_ID }} \

@@ -87,7 +87,7 @@ jobs:
 
       - name: Distribute to Destinations
         run: |
-          python3 -m dcpy.cli lifecycle scripts package_and_distribute \
+          python3 -m dcpy lifecycle scripts package_and_distribute \
             ${{ inputs.PRODUCT_NAME }} \
             ${{ inputs.PRODUCT_VERSION }} \
             ${{ inputs.DATASET }} \

@@ -33,7 +33,7 @@ edm-publishing / product_dataset / facilities / package / 24v2 / facilities / [p
 ```
 To actually push:
 ```
-python -m dcpy.cli lifecycle distribute socrata from_s3 [args]
+python -m dcpy lifecycle distribute socrata from_s3 [args]
 ```
 The --help flag will list required args.
 
@@ -42,7 +42,7 @@ Note that unless you explicitly specify `--publish`, only a draft will be create
 ##### Quick Tip
 If package validation fails, you can validate locally by running the validation commands locally:
 ```
-python -m dcpy.cli lifecycle package validate [your package path here]
+python -m dcpy lifecycle package validate [your package path here]
 ```
 
 #### Pushing from S3 via Github Action:
@@ -57,7 +57,7 @@ Note: this is a low-risk operation when you don't tick the box to publish the da
 
 For Example
 ``` sh
-python -m dcpy.cli lifecycle scripts package_and_dist from_bytes_to_socrata \
+python -m dcpy lifecycle scripts package_and_dist from_bytes_to_socrata \
   lion \
   24d \
   -y \
@@ -104,18 +104,18 @@ So you need to generate a `metadata.yml` file. There are a few options that will
 
 #### Socrata Connector
 ``` sh
-python -m dcpy.cli connectors socrata metadata export {four-four here}
+python -m dcpy connectors socrata metadata export {four-four here}
 ```
 
 The limitations here are when you're working from an old datasource. It will correctly pull certain dataset-level fields (e.g. Description), but unfortonutely no column metadata. (yet)
 
 #### ESRI FeatureServer Connector
 ``` sh
-python -m dcpy.cli connectors esri metadata export {feature-server here}
+python -m dcpy connectors esri metadata export {feature-server here}
 
 -- e.g.
 
-python -m dcpy.cli connectors esri metadata export https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0
+python -m dcpy connectors esri metadata export https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0
 ```
 
 #### ESRI PDF parser
@@ -126,7 +126,7 @@ The last resort for grabbing column metadata. This is by far the most fragile of
 3. Run:
 
 ``` sh
-python -m dcpy.cli lifecycle package esri parse_pdf_text {path to your text file}
+python -m dcpy lifecycle package esri parse_pdf_text {path to your text file}
 ```
 
 

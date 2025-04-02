@@ -68,7 +68,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Ingest
-        run: python3 -m dcpy.cli lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --latest --push-to-s3
+        run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --latest --push-to-s3
 
   build_ztl:
     needs: [dataloading]
