@@ -1,5 +1,4 @@
 from datetime import datetime
-from io import BytesIO
 import json
 import os
 import pandas as pd
@@ -113,27 +112,6 @@ def set_latest(key: DatasetKey, acl):
         f"{DATASET_FOLDER}/{key.id}/latest/",
         acl=acl,
     )
-
-
-def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
-    bucket = _bucket()
-    path = f"{DATASET_FOLDER}/{ds.id}/{ds.version}/config.json"
-    config = get_config(ds.id, ds.version)
-    if isinstance(config, library.Config):
-        raise TypeError(
-            f"Cannot update freshness of dataset {ds} as it was archived by library, not ingest"
-        )
-    config.archival.check_timestamps.append(timestamp)
-    config_str = json.dumps(config.model_dump(mode="json"))
-    assert config.archival.acl, "Impossible - s3-archived dataset missing acl"
-    s3.upload_file_obj(
-        BytesIO(config_str.encode()),
-        bucket,
-        path,
-        config.archival.acl,
-        metadata=s3.get_custom_metadata(bucket, path),
-    )
-    return config.archival.archival_timestamp
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
