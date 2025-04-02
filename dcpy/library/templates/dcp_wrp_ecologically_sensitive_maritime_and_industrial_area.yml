@@ -1,0 +1,33 @@
+dataset:
+  name: dcp_wrp_ecologically_sensitive_maritime_and_industrial_area
+  acl: public-read
+  source:
+    arcgis_feature_server:
+      server: dcp
+      name: WRP
+      layer_name: Ecological Sensitive Maritime & Industrial Area
+    options:
+      - "AUTODETECT_TYPE=NO"
+      - "EMPTY_STRING_AS_NULL=YES"
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+
+  destination:
+    geometry:
+      SRS: EPSG:2263
+      type: MULTIPOLYGON
+    options:
+      - "PRECISION=NO"
+      - "OVERWRITE=YES"
+      - "GEOMETRY=AS_WKT"
+
+  info:
+    description: |
+      ## Waterfront Revitalization Program Ecologically Sensitive Maritime and Industrial Area
+      The Coastal Zone Boundary defines the geographic scope of New York City's Waterfront Revitalization Program (WRP). 
+      Pursuant to federal statute, the boundary encompasses all land and water of direct and significant impact on coastal waters. 
+      Federal lands and facilities are excluded from the coastal zone and consistency review in accordance with federal legislation.
+
+      The Arthur Kill Ecologically Sensitive Maritime and Industrial Area (ESMIA) is a special area designation of the NYC Waterfront Revitalization Program.
+    url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
