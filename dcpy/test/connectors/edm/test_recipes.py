@@ -247,37 +247,6 @@ def test_read_df_cache(load_ingest: ingest.Config, create_temp_filesystem: Path)
     assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
 
 
-def test_update_freshness(load_ingest: ingest.Config):
-    def get_config():
-        config = recipes.get_config(load_ingest.id, load_ingest.version)
-        assert isinstance(config, ingest.Config)
-        return config
-
-    config = get_config()
-    assert config.archival.check_timestamps == []
-    assert config.freshness == config.archival.archival_timestamp
-
-    timestamp = datetime.now()
-    recipes.update_freshness(load_ingest.dataset_key, timestamp)
-    config2 = get_config()
-    assert config2.archival.check_timestamps == [timestamp]
-    assert config2.freshness == timestamp
-
-    timestamp2 = datetime.now()
-    recipes.update_freshness(load_ingest.dataset_key, timestamp2)
-    config3 = get_config()
-    assert config3.archival.check_timestamps == [timestamp, timestamp2]
-    assert config3.freshness == timestamp2
-
-
-def test_update_freshness_library_fails(load_library: library.Config):
-    with pytest.raises(
-        TypeError,
-        match=f"Cannot update freshness of dataset {load_library.dataset_key} as it was archived by library, not ingest",
-    ):
-        recipes.update_freshness(load_library.dataset_key, datetime.now())
-
-
 def test_log_metadata(dev_flag):
     with mock.patch("dcpy.utils.postgres.PostgresClient") as pg_client:
         recipes.log_metadata(None)

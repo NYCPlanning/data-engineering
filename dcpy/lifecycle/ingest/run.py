@@ -4,9 +4,9 @@ import shutil
 
 from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.ingest import Config
-from dcpy.connectors.edm import recipes
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
+from dcpy.connectors.edm import recipes
 
 from . import configure, extract, transform, validate
 
@@ -96,25 +96,17 @@ def ingest(
     shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
-    if push_to_s3:
+    is_new = validate.validate_against_existing_versions(
+        config.dataset, dataset_staging_dir / config.filename
+    )
+    if push_to_s3 and is_new:
         assert config.archival.acl
-        action = validate.validate_against_existing_versions(
-            config.dataset, dataset_staging_dir / config.filename
+        recipes.archive_dataset(
+            config,
+            dataset_staging_dir / config.filename,
+            acl=config.archival.acl,
+            latest=latest,
         )
-        match action:
-            case validate.ArchiveAction.push:
-                recipes.archive_dataset(
-                    config,
-                    dataset_staging_dir / config.filename,
-                    acl=config.archival.acl,
-                    latest=latest,
-                )
-            case validate.ArchiveAction.update_freshness:
-                recipes.update_freshness(
-                    config.dataset_key, config.archival.archival_timestamp
-                )
-                if latest:
-                    recipes.set_latest(config.dataset_key, config.archival.acl)
-            case _:
-                pass
+    else:
+        logger.info("Skipping archival")
     return config

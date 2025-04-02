@@ -37,10 +37,7 @@ def test_validate_all_templates(dataset):
 
 class TestValidateAgainstExistingVersions:
     def test_new(self, create_buckets):
-        assert (
-            validate.validate_against_existing_versions(TEST_DATASET, TEST_OUTPUT)
-            == validate.ArchiveAction.push
-        )
+        assert validate.validate_against_existing_versions(TEST_DATASET, TEST_OUTPUT)
 
     def test_existing_library(self, create_buckets):
         ds = BASIC_LIBRARY_CONFIG.sparse_dataset
@@ -52,19 +49,13 @@ class TestValidateAgainstExistingVersions:
             BASIC_LIBRARY_CONFIG.dataset.acl,
         )
         assert recipes.exists(ds)
-        assert (
-            validate.validate_against_existing_versions(ds, TEST_OUTPUT)
-            == validate.ArchiveAction.do_nothing
-        )
+        assert not validate.validate_against_existing_versions(ds, TEST_OUTPUT)
 
     def test_existing(self, create_buckets):
         ds = BASIC_CONFIG.dataset
         recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT, acl="private")
         assert recipes.exists(ds)
-        assert (
-            validate.validate_against_existing_versions(ds, TEST_OUTPUT)
-            == validate.ArchiveAction.update_freshness
-        )
+        assert not validate.validate_against_existing_versions(ds, TEST_OUTPUT)
 
     def test_existing_data_diffs(self, create_buckets):
         ds = BASIC_CONFIG.dataset
