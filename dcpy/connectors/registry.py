@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC
 from pathlib import Path
-from typing import Protocol, Any, TypeVar, Generic, Type
+from typing import Protocol, Any, TypeVar, Generic, Type, overload
 
 from dcpy.utils.logging import logger
 
@@ -49,17 +49,28 @@ class Connector(ABC):
     conn_type: str
 
 
-class _VersionedPush(ABC):
+class VersionedPush(Connector):
     def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
         """Push to a destination that implements versioning."""
 
 
-class _NonVersionedPush(ABC):
+class NonVersionedPush(Connector):
     def push(self, key: str, push_conf: Any | None = None) -> Any:
         """Push to a destination that does not support explicit versioning"""
 
 
-class _VersionedPull(ABC):
+class _VersionSearch(ABC):
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        return []
+
+    def query_latest_version(self, key: str, conf: dict | None = None) -> str:
+        return ""
+
+    def version_exists(self, key: str, version: str) -> bool:
+        return False
+
+
+class VersionedPull(_VersionSearch):
     def pull(
         self,
         key: str,
@@ -83,7 +94,7 @@ class _VersionedPull(ABC):
         return Path(key) / version
 
 
-class _NonVersionedPull(ABC):
+class NonVersionedPull(Connector):
     def pull(
         self,
         key: str,
@@ -104,34 +115,19 @@ class _NonVersionedPull(ABC):
         """
         return Path(key)
 
-
-class _GetCurrentVersion(ABC):
     def get_current_version(self, key: str, conf: dict | None = None) -> str | None:
         return None
 
 
-class _VersionSearch(ABC):
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
-        return []
-
-    def query_latest_version(self, key: str, conf: dict | None = None) -> str:
-        return ""
-
-    def version_exists(self, key: str, version: str) -> bool:
-        return False
-
-
-class VersionedConnector(Connector, _VersionedPull, _VersionedPush, _VersionSearch):
+class VersionedConnector(VersionedPull, VersionedPush):
     """A connector that implements the most standard connector behavior (pull, push, version)"""
 
 
-class NonVersionedConnector(
-    Connector, _NonVersionedPull, _NonVersionedPush, _GetCurrentVersion
-):
+class NonVersionedConnector(NonVersionedPull, NonVersionedPush):
     """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
 
-class StorageConnector(Connector, _NonVersionedPull, _NonVersionedPush):
+class StorageConnector(NonVersionedPull, NonVersionedPush):
     """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
     def exists(self, key: str) -> bool:
@@ -168,12 +164,28 @@ class ConnectorRegistry(Generic[_C]):
     def list_registered(self) -> list[str]:
         return list(self._connectors.keys())
 
-    def __getitem__(self, item):
-        if item not in self._connectors:
+    @overload
+    def __getitem__(self, item: tuple[str, Type[_C2]]) -> _C2: ...
+
+    @overload
+    def __getitem__(self, item: str) -> _C: ...
+
+    def __getitem__(self, item: str | tuple[str, Type[_C2]]) -> _C2 | _C:
+        if isinstance(item, str):
+            conn_type = item
+            type_validator = None
+        else:
+            conn_type, type_validator = item
+
+        if conn_type not in self._connectors:
             raise Exception(
                 f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}"
             )
-        return self._connectors[item]
+
+        c = self._connectors[conn_type]
+        if type_validator:
+            assert isinstance(c, type_validator)
+        return c
 
     def __contains__(self, item):
         return item in self._connectors
@@ -183,15 +195,3 @@ class ConnectorRegistry(Generic[_C]):
             t: conn for (t, conn) in self._connectors.items() if isinstance(conn, cls)
         }
         return ConnectorRegistry(connectors=connectors)
-
-    @property
-    def nonversioned(self) -> ConnectorRegistry[NonVersionedConnector]:
-        return self.get_subregistry(NonVersionedConnector)
-
-    @property
-    def versioned(self) -> ConnectorRegistry[VersionedConnector]:
-        return self.get_subregistry(VersionedConnector)
-
-    @property
-    def storage(self) -> ConnectorRegistry[StorageConnector]:
-        return self.get_subregistry(StorageConnector)
