@@ -8,9 +8,16 @@ dcp_specialpurpose,Special Purpose Districts,download,shapefile,MULTIPOLYGON
 dcp_limitedheight,Limited Height Districts,download,shapefile,MULTIPOLYGON
 dcp_specialpurposesubdistricts,Special Purpose Subdistricts,download,shapefile,MULTIPOLYGON
 dcp_zoningmapamendments,Zoning Map Amendments,download,shapefile,MULTIPOLYGON
+dcp_pfirms,Preliminary Flood Insurance Rate Maps 2015,download,shapefile,MULTIPOLYGON
+dcp_limwa,Limit of Moderate Wave Action,download,shapefile,MULTILINESTRING
+dcp_wrp_coastal_zone_boundary,Coastal Zone Boundary,download,shapefile,MULTIPOLYGON
+dcp_wrp_ecologically_sensitive_maritime_and_industrial_area,Ecologically Sensistive Maritime and Industrial Area,download,shapefile,MULTIPOLYGON
+dcp_wrp_priority_marine_activity_zones,Priority Marine Activity Zones,download,shapefile,MULTILINESTRING
 dcp_wrp_recognized_ecological_complexes,Recognized Ecological Complexes,download,shapefile,MULTIPOINT
+dcp_wrp_significant_maritime_and_industrial_area,Significant Maritime and Industrial Area,download,shapefile,MULTIPOLYGON
 dcp_wrp_special_natural_waterfront_areas,Special Natural Waterfront Area,download,shapefile,MULTIPOLYGON
 dcp_lion,Streets,download,shapefile,MULTILINESTRING
 dcp_boroboundaries,Borough Boundaries,download,shapefile,MULTIPOLYGON
 dpr_parksproperties,DPR Parks Properties,download,shapefile,MULTIPOLYGON
+doitt_roadbed,Roadbeds,download,shapefile,MULTIPOLYGON
 dcp_ct2020_wi,Census Tract Boundaries,download,shapefile,MULTIPOLYGON
