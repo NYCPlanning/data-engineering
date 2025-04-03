@@ -80,10 +80,10 @@ def export():
                 logger.info(
                     f"For dataset {row['dataset_name']}, copying excel file {file_name}"
                 )
-                shutil.copy(DATA_DIR / file_name, OUTPUT_DIR / file_name)
+                shutil.copy(DATA_DIR / file_name, OUTPUT_DIR)
             case "recipe":
                 path = load_result.datasets[row["dataset_id"]]
-                shutil.copy(path, OUTPUT_DIR / file_name)
+                shutil.copy(path, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
