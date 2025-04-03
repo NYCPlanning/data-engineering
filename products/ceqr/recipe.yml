@@ -20,7 +20,7 @@ inputs:
     - name: dcp_pfirms
     - name: dcp_limwa
     - name: dcp_wrp_coastal_zone_boundary
-    - name: dcp_wrp_ecologically_sensitive_maritime_and_industrial_area
+    - name: dcp_wrp_sensitive_maritime_and_industrial_area
     - name: dcp_wrp_priority_marine_activity_zones
     - name: dcp_wrp_recognized_ecological_complexes
     - name: dcp_wrp_significant_maritime_and_industrial_area
