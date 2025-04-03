@@ -82,8 +82,9 @@ def export():
                 )
                 shutil.copy(DATA_DIR / file_name, OUTPUT_DIR)
             case "recipe":
-                path = load_result.datasets[row["dataset_id"]]
-                shutil.copy(path, OUTPUT_DIR)
+                ds = load_result.datasets[row["dataset_id"]]
+                assert isinstance(ds.destination, Path)
+                shutil.copy(ds.destination, OUTPUT_DIR)
 
 
 if __name__ == "__main__":
