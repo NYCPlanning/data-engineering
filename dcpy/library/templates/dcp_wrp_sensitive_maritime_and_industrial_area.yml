@@ -1,5 +1,5 @@
 dataset:
-  name: dcp_wrp_ecologically_sensitive_maritime_and_industrial_area
+  name: dcp_wrp_sensitive_maritime_and_industrial_area
   acl: public-read
   source:
     arcgis_feature_server:
