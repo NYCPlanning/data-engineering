@@ -15,6 +15,10 @@ def _set_default_conf():
                 "stages": {
                     "plan": {"local_data_path": "plan"},
                     "load": {"local_data_path": "load"},
+                    "publish": {
+                        "draft": {"connector": "edm.publishing.drafts"},
+                        "published": {"connector": "edm.publishing.published"},
+                    },
                 },
             },
             "package": {

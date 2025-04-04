@@ -47,7 +47,9 @@ class ConnectorDispatcher(Generic[_O, _I]):
 
 
 class _VersionedPush(ABC):
-    def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
+    def push(
+        self, path: Path, key: str, version: str, push_conf: Any | None = None
+    ) -> Any:
         """Push to a destination that implements versioning."""
 
 

@@ -731,7 +731,9 @@ def log_event_in_db(event_details: EventLog) -> None:
 class PublishedConnector(VersionedConnector):
     conn_type: str = "edm.publishing.published"
 
-    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
+    def push(
+        self, path: Path, key: str, version: str, push_conf: dict | None = {}
+    ) -> dict:
         raise NotImplementedError("Sorry :)")
 
     def pull(
@@ -771,8 +773,16 @@ class PublishedConnector(VersionedConnector):
 class DraftsConnector(VersionedConnector):
     conn_type: str = "edm.publishing.drafts"
 
-    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
+    def push(
+        self, path: Path, key: str, version: str, push_conf: dict | None = {}
+    ) -> dict:
+        assert push_conf
+        draft_revision_name = push_conf["draft_revision_name"]
+
+        # TODO add acl and build outputs folder to build_metadata
+        acl_literal = s3.string_as_acl(acl)
+        upload_build(output_path, key, acl=acl_literal, build=draft_revision_name)
+        return {}
 
     def pull(
         self,

@@ -488,7 +488,7 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
 class Connector(BaseModel, VersionedConnector):
     conn_type: str = "edm.recipes"
 
-    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
+    def push(self, path: Path, key: str, version, push_conf: dict | None = {}) -> dict:
         raise NotImplementedError("Sorry :)")
 
     def pull(

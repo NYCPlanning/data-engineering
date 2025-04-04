@@ -1,20 +1,37 @@
 name: PFF - ACS
 version: 2023
 product: db-factfinder
-inputs:
-  dataset_defaults:
-    file_type: parquet
-    destination: df
-  datasets:
-    - name: dcp_pop_acs2010_demographic
-      version: 20240524
-    - name: dcp_pop_acs2010_economic
-      version: 20240524
-    - name: dcp_pop_acs2010_housing
-      version: 202502
-    - name: dcp_pop_acs2010_social
-      version: 20240524
-    - name: dcp_pop_acs
-      destination: file
-      file_type: xlsx
-  missing_versions_strategy: find_latest
+stages:
+  plan:
+    inputs:
+      dataset_defaults:
+        file_type: parquet
+        destination: df
+      datasets:
+        - name: dcp_pop_acs2010_demographic
+          version: 20240524
+        - name: dcp_pop_acs2010_economic
+          version: 20240524
+        - name: dcp_pop_acs2010_housing
+          version: 202502
+        - name: dcp_pop_acs2010_social
+          version: 20240524
+        - name: dcp_pop_acs
+          destination: file
+          file_type: xlsx
+      missing_versions_strategy: find_latest
+  build:
+    build_note: my_build_name # would be set by build.plan, if not specified
+    local_output_directory: ./output/acs
+    output_files:
+      - metadata_latest_window.json
+      - metadata_previous_window.json
+      - acs_latest_window.csv
+      - acs_previous_window.csv
+  publish_draft:
+    connector: edm.publish.draft
+    connector_args:
+      acl: public
+  publish_publish:
+    destination: edm.publish.published
+    acl: public

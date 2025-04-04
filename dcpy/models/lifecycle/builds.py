@@ -5,6 +5,8 @@ import pandas as pd
 from pathlib import Path
 from pydantic import AliasChoices, BaseModel, Field
 from typing import List
+import typing
+import yaml
 
 from dcpy.utils import versions
 from dcpy.models.connectors.edm import recipes
@@ -141,3 +143,9 @@ class BuildMetadata(BaseModel, extra="forbid"):
             if recipe.version is not None:
                 data["version"] = recipe.version
         super().__init__(**data)
+
+    @classmethod
+    def from_file(cls, path: Path) -> typing.Self:
+        """Load from either a JSON or YAML"""
+        with open(path, "r", encoding="utf-8") as raw:
+            return cls(**yaml.safe_load(raw))
