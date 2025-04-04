@@ -71,16 +71,17 @@ def test_skip_archival(mock_request_get, create_buckets, tmp_path):
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
+def test_run_repeat_version(mock_request_get, create_buckets, tmp_path):
+    """Essentially just a sanity check - attempting to archive should not push the second time"""
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
         push_to_s3=True,
         template_dir=TEMPLATE_DIR,
+        latest=True,
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
-    assert config.archival.check_timestamps == []
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
@@ -90,16 +91,13 @@ def test_run_update_freshness(mock_request_get, create_buckets, tmp_path):
         template_dir=TEMPLATE_DIR,
     )
     config2 = recipes.get_config(DATASET, FAKE_VERSION)
-
-    assert len(config2.archival.check_timestamps) == 1
-    assert config2.freshness > config.freshness
-
-    latest = recipes.get_config(DATASET)
-    assert latest == config2
+    assert (
+        config == config2
+    )  # would be different if second run with new timestamp had pushed
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
-def test_run_update_freshness_fails_if_data_diff(
+def test_run_repeat_version_fails_if_data_diff(
     mock_request_get, create_buckets, tmp_path
 ):
     """Mainly an integration test to make sure code runs without error"""
