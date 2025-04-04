@@ -359,14 +359,14 @@ class TestConnectors:
         CONNECTOR_NAME = "edm.custom"
 
         edm_custom_mock = MagicMock(
-            query_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
+            get_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
         )
         edm_custom_mock.conn_type = "edm.custom"
 
         connector_registry.connectors.register(edm_custom_mock)
         recipe = plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
-        edm_custom_mock.query_latest_version.assert_called_once()
+        edm_custom_mock.get_latest_version.assert_called_once()
         resolved_custom_dataset = [
             ds for ds in recipe.inputs.datasets if ds.source == CONNECTOR_NAME
         ][0]

@@ -96,7 +96,7 @@ class Connector(VersionedConnector):
     def get_config(self, key: str, version: str):
         return ingest.Config(**self._get_config_obj(key, version))
 
-    def query_latest_version(self, key: str, conf: dict | None = None) -> str:
+    def get_latest_version(self, key: str, conf: dict | None = None) -> str:
         return self._get_config_obj(key, "latest")["version"]
 
     def version_exists(self, key: str, version: str) -> bool:

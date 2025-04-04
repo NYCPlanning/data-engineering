@@ -63,7 +63,7 @@ def get_version(source: Source, timestamp: datetime) -> str:
         version = connector.get_current_version(source.key, source.model_dump())
     elif source.type in versioned:
         connector = versioned[source.type]
-        version = connector.query_latest_version(source.key, source.model_dump())
+        version = connector.get_latest_version(source.key, source.model_dump())
     else:
         version = None
     return version or timestamp.strftime("%Y%m%d")

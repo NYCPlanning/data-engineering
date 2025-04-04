@@ -5,11 +5,11 @@ from dcpy.connectors.esri import arcgis_feature_service
 from dcpy.connectors import drive, web, s3, ingest_datastore
 from dcpy.connectors.registry import (
     ConnectorRegistry,
-    Connector,
+    GenericConnector,
 )
 from dcpy.utils.logging import logger
 
-connectors = ConnectorRegistry[Connector]()
+connectors = ConnectorRegistry[GenericConnector]()
 
 
 def _set_default_connectors():

@@ -150,7 +150,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         if ds.version == "latest":
             connector = connectors[ds.source]
             logger.info(f"Querying versions for {connector.conn_type}")
-            ds.version = connector.query_latest_version(ds.id)
+            ds.version = connector.get_latest_version(ds.id)
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:

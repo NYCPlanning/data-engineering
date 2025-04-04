@@ -16,15 +16,9 @@ def download_file_from_source(
     pull_conf = source.model_dump()
     pull_conf["filename"] = filename
 
-    nonversioned = connectors.nonversioned
-    versioned = connectors.versioned
-    storage = connectors.storage
-    if source.type in nonversioned:
-        connector = nonversioned[source.type]
-        connector.pull(key=source.key, destination_path=path, pull_conf=pull_conf)
-    elif source.type in storage:
-        connector = storage[source.type]
-        connector.pull(key=source.key, destination_path=path, pull_conf=pull_conf)
+    connector.pull(
+        key=source.key, version=version, destination_path=path, **pull_conf
+    )
     elif source.type in versioned:
         connector = versioned[source.type]
         connector.pull(

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Protocol, Any, TypeVar, Generic, Type, overload
 
@@ -45,89 +45,65 @@ class ConnectorDispatcher(Generic[_O, _I]):
 
 
 ### Connector Base Classes
-class Connector(ABC):
+class GenericConnector(ABC):
     conn_type: str
 
 
-class VersionedPush(Connector):
-    def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
+class Push(GenericConnector):
+    def push(self, key: str, **kwargs) -> Any:
         """Push to a destination that implements versioning."""
 
 
-class NonVersionedPush(Connector):
-    def push(self, key: str, push_conf: Any | None = None) -> Any:
-        """Push to a destination that does not support explicit versioning"""
-
-
-class _VersionSearch(ABC):
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+class VersionSearch(ABC):
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return []
 
-    def query_latest_version(self, key: str, conf: dict | None = None) -> str:
+    def get_latest_version(self, key: str, **kwargs) -> str:
         return ""
 
-    def version_exists(self, key: str, version: str) -> bool:
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return False
 
 
-class VersionedPull(_VersionSearch):
-    def pull(
-        self,
-        key: str,
-        version: str,
-        destination_path: Path,
-        pull_conf: Any | None = None,
-    ) -> Any:
-        """Push from a source that implements versioning."""
+class Pull(ABC):
+    @abstractmethod
+    def pull(self, key: str, *, destination_path: Path, **kwargs) -> dict:
+        """Pull a dataset to the given path"""
 
-    def get_pull_local_sub_path(
-        self,
-        key: str,
-        version: str,
-        pull_conf: Any | None = None,
-    ) -> Path:
+    def get_pull_local_sub_path(self, key: str, **kwargs) -> Path:
         """Calculate where the file should be stored locally, e.g. /{key}/{version}/
         Different resources might organize their local resources differently, for example
         if the source for `data.csv` implements drafts per version, the local subpath might be
         /{key}/{version}/{draft}/data.csv
         """
-        return Path(key) / version
+        if "version" in kwargs:
+            return Path(key) / kwargs["version"]
+        else:
+            return Path(key)
 
 
-class NonVersionedPull(Connector):
-    def pull(
-        self,
-        key: str,
-        destination_path: Path,
-        pull_conf: Any | None = None,
-    ) -> Any:
-        """Push from a source that does not support versioning."""
+class Connector(Push, Pull):
+    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
-    def get_pull_local_sub_path(
-        self,
-        key: str,
-        pull_conf: Any | None = None,
-    ) -> Path:
-        """Calculate where the file should be stored locally, e.g. /{key}/{version}/
-        Different resources might organize their local resources differently, for example
-        if the source for `data.csv` implements drafts per version, the local subpath might be
-        /{key}/{version}/{draft}/data.csv
-        """
-        return Path(key)
-
-    def get_current_version(self, key: str, conf: dict | None = None) -> str | None:
+    def get_latest_version(self, key: str, **kwargs) -> str | None:
         return None
 
 
-class VersionedConnector(VersionedPull, VersionedPush):
+class VersionedConnector(Connector, VersionSearch):
     """A connector that implements the most standard connector behavior (pull, push, version)"""
 
+    def pull(self, key: str, *, version: str, destination_path: Path, **kwargs) -> dict:  # type: ignore[override]
+        """Pull a dataset to the given path"""
+        raise NotImplementedError()
 
-class NonVersionedConnector(NonVersionedPull, NonVersionedPush):
-    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
+    def push(self, key: str, *, version: str, **kwargs) -> Any:  # type: ignore[override]
+        """Push to a destination that implements versioning."""
+
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        return ""
 
 
-class StorageConnector(NonVersionedPull, NonVersionedPush):
+class StorageConnector(Connector):
     """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
     def exists(self, key: str) -> bool:
@@ -137,8 +113,8 @@ class StorageConnector(NonVersionedPull, NonVersionedPush):
         return []
 
 
-_C = TypeVar("_C", bound=Connector)
-_C2 = TypeVar("_C2", bound=Connector)
+_C = TypeVar("_C", bound=GenericConnector)
+_C2 = TypeVar("_C2", bound=GenericConnector)
 
 
 class ConnectorRegistry(Generic[_C]):
