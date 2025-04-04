@@ -39,7 +39,11 @@ def validate_against_existing_versions(
                 )
                 return ArchiveAction.update_freshness
             else:
-                return ArchiveAction.do_nothing
+                if ds.id == "dof_shoreline":
+                    return ArchiveAction.do_nothing
+                raise FileExistsError(
+                    f"Archived dataset '{ds.key}' already exists and has different data."
+                )
 
         # if previous was archived with library, we both expect some potential slight changes
         # and are not able to update "freshness"
