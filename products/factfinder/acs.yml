@@ -1,20 +1,41 @@
 name: PFF - ACS
 version: 2023
 product: db-factfinder
-inputs:
-  dataset_defaults:
-    file_type: parquet
-    destination: df
-  datasets:
-    - name: dcp_pop_acs2010_demographic
-      version: 20240524
-    - name: dcp_pop_acs2010_economic
-      version: 20240524
-    - name: dcp_pop_acs2010_housing
-      version: 202502
-    - name: dcp_pop_acs2010_social
-      version: 20240524
-    - name: dcp_pop_acs
-      destination: file
-      file_type: xlsx
-  missing_versions_strategy: find_latest
+
+stages:
+  load: # Tuck the existing recipe under the load stage
+    missing_versions_strategy: find_latest
+    dataset_defaults:
+      file_type: parquet
+      destination: df
+      source: edm.recipes # set as default in lifecycle.config, override in pyproject.toml tool.*
+      destination: edm_data # carve this out out of connectors.edm.recipes / lifecycle.data_loader
+    datasets:
+      - name: dcp_pop_acs2010_social
+        version: 20240524
+      - name: dcp_pop_acs
+        destination: file
+        file_type: xlsx
+
+  # New stages below
+  build:
+    output_folder: .lifecycle/ .. /acs/ .. # required field. Set by build.plan if not present, using lifecycle.config default
+    destination: edm.publish.builds
+    # maybe also defining a `command` or module.fn to run?
+
+  qa: # Not sure what config we'd want here.
+
+  publish_draft:
+    destination: edm.publish.draft
+    connector_args:
+      - name: acl
+        value: public
+      - name: build_note
+        value_from: # copying pattern from helm charts
+          env: "BUILD_NOTE"
+
+  publish_published:
+    destination: edm.publish.published
+    connector_args:
+      - name: acl
+        value: public
