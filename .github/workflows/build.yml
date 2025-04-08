@@ -21,6 +21,7 @@ on:
         - factfinder
         - green_fast_track
         - knownprojects
+        - lion
         - pluto
         - ztl
         - all
@@ -248,6 +249,17 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       recipe_file: ${{ inputs.recipe_file }}
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
+  lion:
+    needs: health_check
+    if: inputs.dataset_name == 'lion' || inputs.dataset_name  == 'all'
+    uses: ./.github/workflows/lion_build.yml
+    secrets: inherit
+    with:
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      recipe_file: ${{ inputs.recipe_file }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   pluto:
