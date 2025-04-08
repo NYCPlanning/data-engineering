@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS modifications;
-CREATE TABLE modifications(
+CREATE TABLE modifications (
     uid text,
     field text,
     old_value text,
@@ -13,7 +13,7 @@ CREATE TABLE modifications(
 \COPY modifications FROM 'data/modifications.csv' DELIMITER ',' CSV HEADER;
 
 DROP TABLE IF EXISTS reviewed_modified_names;
-CREATE TABLE reviewed_modified_names(
+CREATE TABLE reviewed_modified_names (
     dcas_bbl text,
     dcas_hnum text,
     display_hnum character varying(20),
@@ -28,4 +28,3 @@ CREATE TABLE reviewed_modified_names(
 );
 
 \COPY reviewed_modified_names FROM 'data/ipis_modified_names.csv' DELIMITER ',' CSV HEADER;
-

@@ -32,6 +32,8 @@ processes = -1
 
 large_file_skip_byte_limit = 40000
 
+ignore_paths = ["products/colp/sql/clean_parcelname.sql"] # hits max recursion depth -> needs refactor
+
 [tool.sqlfluff.templater.placeholder]
 param_style = "colon_optional_quotes"
 TABLE = "dummy_table_name"

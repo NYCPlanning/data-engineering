@@ -1,21 +1,21 @@
 DROP TABLE IF EXISTS modifications_applied;
 CREATE TABLE modifications_applied (
-	uid 	text,
-	field 	  		text,
-	old_value 		text,
-	new_value 		text
+    uid text,
+    field text,
+    old_value text,
+    new_value text
 );
 
 DROP TABLE IF EXISTS modifications_not_applied;
 CREATE TABLE modifications_not_applied (
-	uid 	text,
-	field 	  		text,
-	old_value 		text,
-	new_value 		text
+    uid text,
+    field text,
+    old_value text,
+    new_value text
 );
 
 DROP PROCEDURE IF EXISTS correction;
-CREATE OR REPLACE PROCEDURE correction (
+CREATE OR REPLACE PROCEDURE correction(
     _table text,
     _uid text,
     _field text,
@@ -71,7 +71,7 @@ $BODY$ LANGUAGE plpgsql;
 
 
 DROP PROCEDURE IF EXISTS apply_correction;
-CREATE OR REPLACE PROCEDURE apply_correction (
+CREATE OR REPLACE PROCEDURE apply_correction(
     _table text,
     _schema text,
     _modifications text
