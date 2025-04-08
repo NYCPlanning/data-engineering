@@ -43,6 +43,7 @@ jobs:
         sqlfluff lint products/cbbr/sql
         sqlfluff lint products/cpdb/sql/
         sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
+        sqlfluff lint products/colp/sql
         sqlfluff lint products/developments/sql/*.sql
         sqlfluff lint products/developments/sql/qaqc
         sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja

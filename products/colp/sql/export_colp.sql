@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS colp;
-SELECT 
-    uid::varchar(32) as uid,
+SELECT
+    uid::varchar(32) AS uid,
     "BOROUGH",
     "BLOCK",
     "LOT",
@@ -9,11 +9,11 @@ SELECT
     "CD",
     "HNUM",
     "SNAME",
-    (CASE 
+    (CASE
         WHEN "HNUM" IS NOT NULL AND "SNAME" <> ''
             THEN CONCAT("HNUM", ' ', "SNAME")
         ELSE "SNAME"
-    END) as "ADDRESS",
+    END) AS "ADDRESS",
     "PARCELNAME",
     "AGENCY",
     "USECODE",
