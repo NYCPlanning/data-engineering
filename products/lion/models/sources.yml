@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+- name: recipe_sources
+  schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+  tables:
+  - name: dcp_cscl_atomicpolygons
+  - name: dcp_cscl_centerline

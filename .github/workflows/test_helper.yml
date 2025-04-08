@@ -83,11 +83,12 @@ jobs:
       fail-fast: false
       matrix:
         project:
-        - green_fast_track
-        - zoningtaxlots
         - cdbg
         - ceqr
+        - green_fast_track
+        - lion
         - pluto
+        - zoningtaxlots
     steps:
     - uses: actions/checkout@v4
     - name: setup
