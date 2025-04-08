@@ -1,0 +1,8 @@
+name: LION
+product: lion
+version_strategy: first_of_month # TODO 
+inputs:
+  datasets:
+  - name: dcp_cscl_centerline
+  - name: dcp_cscl_atomicpolygons
+  missing_versions_strategy: find_latest # TODO - they should all match
