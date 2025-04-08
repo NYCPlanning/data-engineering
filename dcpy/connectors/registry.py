@@ -131,6 +131,18 @@ class NonVersionedConnector(_NonVersionedPull, _NonVersionedPush, _GetCurrentVer
     conn_type: str
 
 
+class StorageConnector(_NonVersionedPull, _NonVersionedPush):
+    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
+
+    conn_type: str
+
+    def exists(self, key: str) -> bool:
+        return False
+
+    def list_with_prefix(self, prefix: str) -> list[str]:
+        return []
+
+
 class VersionedConnectorRegistry:
     """A Registry for VersionedConnectors.
 
