@@ -73,16 +73,21 @@ SELECT
 FROM ipis_colp_georesults a
 JOIN dcas_ipis b
 ON a.uid = md5(CAST((b.*)AS text))
-WHERE b.parcel_name <> a."PARCELNAME")
-SELECT DISTINCT
-    a.*,
-    b.reviewed
+WHERE b.parcel_name <> a."PARCELNAME"),
+distinct_rows AS (
+    SELECT DISTINCT
+        a.*,
+        b.reviewed
+    FROM _ipis_modified_names a
+    LEFT JOIN reviewed_modified_names b
+    ON a.dcas_bbl = b.dcas_bbl 
+    AND a.parcel_name = b.parcel_name
+    AND a.display_name = b.display_name
+)
+SELECT *
 INTO ipis_modified_names
-FROM _ipis_modified_names a
-LEFT JOIN reviewed_modified_names b
-ON a.dcas_bbl = b.dcas_bbl 
-AND a.parcel_name = b.parcel_name
-AND a.display_name = b.display_name
+FROM distinct_rows
+ORDER BY reviewed, dcas_bbl, parcel_name
 ;
 
 -- Create QAQC table of addresses that return errors from 1B
