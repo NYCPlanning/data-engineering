@@ -1,0 +1,25 @@
+id: doitt_roadbed
+acl: public-read
+
+attributes:
+  name: "NYC Planimetric Database: Roadbed"
+  description: |
+    Planimetric basemap layer containing Roadbed. Roadbed is the foundation structure on which railroad tracks are laid.
+
+    Please see the following link for additional documentation- https://github.com/CityOfNewYork/nyc-planimetrics/blob/master/Capture_Rules.md.
+  url: https://data.cityofnewyork.us/Transportation/NYC-Planimetric-Database-Roadbed/i36f-5ih7/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: i36f-5ih7
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+- id: source_id
+  data_type: integer
+- id: geom
+  data_type: geometry

@@ -9,7 +9,7 @@ inputs:
     file_type: parquet
 
   datasets:
-    - name: dcp_mappluto_wi
+    - name: dcp_mappluto_clipped
     - name: dcp_projects
     - name: dcp_zoningdistricts
     - name: dcp_commercialoverlay
@@ -17,9 +17,28 @@ inputs:
     - name: dcp_limitedheight
     - name: dcp_specialpurposesubdistricts
     - name: dcp_zoningmapamendments
+    - name: dcp_pfirms
+    - name: dcp_limwa
+    - name: dcp_wrp_coastal_zone_boundary
+    - name: dcp_wrp_sensitive_maritime_and_industrial_area
+    - name: dcp_wrp_priority_marine_activity_zones
     - name: dcp_wrp_recognized_ecological_complexes
+    - name: dcp_wrp_significant_maritime_and_industrial_area
     - name: dcp_wrp_special_natural_waterfront_areas
     - name: dcp_lion
     - name: dcp_boroboundaries
     - name: dpr_parksproperties
+    - name: doitt_roadbed
     - name: dcp_ct2020_wi
+    - name: dcp_school_districts
+    - name: doe_school_subdistricts
+      file_type: pg_dump
+    - name: dcp_facilities
+    - name: dcp_pops
+    - name: dot_pedplazas
+    # - name: dcp_public_waterfront_access_areas
+    # - name: dcp_publicly_owned_waterfront
+    - name: nysparks_parks
+    - name: usnps_parks
+    - name: dpr_capitalprojects
+    # - name: dpr_walk_to_a_park

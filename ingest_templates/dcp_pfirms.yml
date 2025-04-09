@@ -1,0 +1,23 @@
+id: dcp_pfirms
+acl: public-read
+
+attributes:
+  name: Preliminary Flood Insurance Rate Maps 2015
+  description: |
+    FEMA's Preliminary Flood Insurance Rate Maps (PFIRMs), released in 2015 as part of a citywide flood map update, are the best available flood hazard data for building code and planning purposes. They show areas vulnerable to flooding from 1% annual chance storm, also sometimes called the Special Flood Hazard Area or 100-year floodplain. They also show today's 0.2% annual chance floodplain, also known as the 500-year floodplain.
+
+    V Zone: Areas along coasts subject to inundation by the 1-percent-annual-chance flood event with additional hazards associated with storm-induced waves. Because detailed hydraulic analyses have not been performed, no Base Flood Elevations (BFEs) or flood depths are shown. Mandatory flood insurance purchase requirements and floodplain management standards apply.
+
+    A Zone: Areas subject to inundation by the 1-percent-annual-chance flood event determined by detailed methods. Base Flood Elevations (BFEs) are shown. Mandatory flood insurance purchase requirements and floodplain management standards apply.
+
+    Shaded X Zone: Areas between the limits of the base flood and the 0.2-percent-annual-chance (or 500-year) flood.
+  url: https://dcp.maps.arcgis.com/home/item.html?id=1e56cf3d576849d1a6936f9cdcd3511d
+
+ingestion:
+  source:
+    type: esri
+    server: dcp
+    dataset: S_FLD_HAZ_AR
+    layer_name: S_FLD_HAZ_AR
+  file_format:
+    type: geojson
