@@ -30,6 +30,7 @@ def ingest(
     output_csv: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
+    overwrite: bool = False,
 ) -> Config:
     if template_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
@@ -98,9 +99,12 @@ def ingest(
 
     if push_to_s3:
         assert config.archival.acl
-        action = validate.validate_against_existing_versions(
-            config.dataset, dataset_staging_dir / config.filename
-        )
+        if overwrite:
+            action = validate.ArchiveAction.push
+        else:
+            action = validate.validate_against_existing_versions(
+                config.dataset, dataset_staging_dir / config.filename
+            )
         match action:
             case validate.ArchiveAction.push:
                 recipes.archive_dataset(
@@ -108,6 +112,7 @@ def ingest(
                     dataset_staging_dir / config.filename,
                     acl=config.archival.acl,
                     latest=latest,
+                    overwrite=overwrite,
                 )
             case validate.ArchiveAction.update_freshness:
                 recipes.update_freshness(

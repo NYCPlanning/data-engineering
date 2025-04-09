@@ -68,11 +68,14 @@ jobs:
     runs-on: ubuntu-22.04
     needs: set_matrix
     container:
-      image: nycplanning/build-base:${{ inputs.dev_image == 'true' && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image: nycplanning/build-base:${{ inputs.dev_image == 'true' && format('dev-{0}',
+        github.head_ref || github.ref_name) || 'latest' }}
     env:
       TEMPLATE_DIR: ./ingest_templates
-      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
-      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) ||
+        'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) ||
+        'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     strategy:
       fail-fast: false
@@ -102,7 +105,8 @@ jobs:
       env:
         version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
         latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
-      run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version $latest --push-to-s3
+      run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }}
+        $version $latest --push-to-s3
 
   create_issue_on_failure:
     needs: dataloading
@@ -117,7 +121,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ACTION: ${{ inputs.label || github.workflow }}
-        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+          github.run_id }}
       with:
         filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
         update_existing: true

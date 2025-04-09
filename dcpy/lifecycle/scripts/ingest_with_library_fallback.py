@@ -20,6 +20,7 @@ def run(
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
+    overwrite: bool = typer.Option(False, "--overwrite"),
 ):
     if TEMPLATE_DIR is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
@@ -32,6 +33,7 @@ def run(
             latest=latest,
             push_to_s3=push_to_s3,
             output_csv=csv,
+            overwrite=overwrite,
         )
     else:
         from dcpy.library import cli as library_cli

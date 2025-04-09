@@ -36,6 +36,7 @@ def _cli_wrapper_run(
         "-t",
         help="Local path to folder with templates. Overrides `TEMPLATE_DIR` env variable.",
     ),
+    overwrite: bool = typer.Option(False, "--overwrite"),
 ):
     ingest(
         dataset_id,
@@ -46,4 +47,5 @@ def _cli_wrapper_run(
         output_csv=csv,
         local_file_path=local_file_path,
         template_dir=template_dir,
+        overwrite=overwrite,
     )

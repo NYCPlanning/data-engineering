@@ -71,6 +71,7 @@ def archive_dataset(
     acl: ValidAclValues,
     raw: bool = False,
     latest: bool = False,
+    overwrite: bool = False,
 ) -> None:
     """
     Given a config and a path to a file and an s3_path, archive it in edm-recipe
@@ -84,9 +85,12 @@ def archive_dataset(
         else s3_folder_path(config.dataset_key)
     )
     if s3.folder_exists(bucket, s3_path):
-        raise Exception(
-            f"Archived dataset at {s3_path} already exists, cannot overwrite"
-        )
+        if overwrite:
+            s3.delete(bucket, s3._folderize(s3_path))
+        else:
+            raise Exception(
+                f"Archived dataset at {s3_path} already exists, cannot overwrite"
+            )
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
         shutil.copy(file_path, tmp_dir_path)
