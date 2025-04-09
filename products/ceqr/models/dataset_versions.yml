@@ -5,14 +5,15 @@ models:
     description: |
       List of datasets in CEQR Data Hub and their versions
     columns:
-      - name: dataset_id
+      - name: dataset_name
         tests:
           - not_null
           - unique
 
-      - name: dataset_name
+      - name: dataset_id
         tests:
-          - not_null
+          - not_null:
+              where: "availability_type = 'download'"
           - unique
 
       - name: availability_type
@@ -41,3 +42,5 @@ models:
         tests:
           - not_null:
               where: "availability_type = 'download'"
+
+      - name: source_url

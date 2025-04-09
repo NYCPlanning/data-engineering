@@ -1,0 +1,64 @@
+dataset_name,dataset_id,availability_type,file_type,geometry_type,source_url
+MapPLUTO Shoreline Clipped,dcp_mappluto_clipped,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page
+Population Projections,dcp_population_projects,download,excel,,
+ZAP Projects,dcp_projects,download,csv,,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-zap.page
+Zoning Districts,dcp_zoningdistricts,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
+Commercial Overlay Districts,dcp_commercialoverlay,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
+Special Purpose Districts,dcp_specialpurpose,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
+Limited Height Districts,dcp_limitedheight,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
+Special Purpose Subdistricts,dcp_specialpurposesubdistricts,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
+Zoning Map Amendments,dcp_zoningmapamendments,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
+Preliminary Flood Insurance Rate Maps 2015,dcp_pfirms,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=1e56cf3d576849d1a6936f9cdcd3511d
+Base Flood Elevation 2015,dcp_base_flood_elevation_2015,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=5268a74fd4b04a7894c9b85ef7a8a6a3
+Limit of Moderate Wave Action,dcp_limwa,download,shapefile,MULTILINESTRING,https://dcp.maps.arcgis.com/home/item.html?id=e089b65f8a914c80ab72082a1522c7f2
+Future Floodplain 2050s,dcp_future_floodplain_2050,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=cc996fdd1a134d18a6ae7e3a1ecfe84b
+Coastal Zone Boundary,dcp_wrp_coastal_zone_boundary,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Ecologically Sensistive Maritime and Industrial Area,dcp_wrp_sensitive_maritime_and_industrial_area,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Priority Marine Activity Zones,dcp_wrp_priority_marine_activity_zones,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Recognized Ecological Complexes,dcp_wrp_recognized_ecological_complexes,download,shapefile,MULTIPOINT,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Significant Maritime and Industrial Area,dcp_wrp_significant_maritime_and_industrial_area,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Special Natural Waterfront Area,dcp_wrp_special_natural_waterfront_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+OneNYC,,webpage,,,https://climate.cityofnewyork.us/reports/onenyc-2050/
+Neighborhood Plans,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/neighborhood-planning.page
+CB Statement of Needs,,webpage,,,https://communityprofiles.planning.nyc.gov/
+Borough and Citywide Initiatives,,webpage,,,https://www.nyc.gov/site/planning/plans/city-wide.page
+EDC Plans,,webpage,,,https://edc.nyc/explore-our-work
+197-a Plans,,webpage,,,https://www.nyc.gov/site/planning/community/community-based-planning.page
+Housing New York,,webpage,,,https://www.nyc.gov/site/housing/index.page
+Where We Live NYC 2025,,webpage,,,https://wherewelive.cityofnewyork.us/
+Streets,dcp_lion,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-lion.page
+Borough Boundaries,dcp_boroboundaries,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
+DPR Parks Properties,dpr_parksproperties,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Recreation/Parks-Properties/enfh-gkve/about_data
+Subways,,webpage,,,https://www.mta.info/developers
+Roadbeds,doitt_roadbed,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Transportation/NYC-Planimetric-Database-Roadbed/i36f-5ih7/about_data
+NYC Waterfront Revitalization Program Overview,,webpage,,,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
+Jamaica Bay Watershed Protection Plan,,webpage,,,https://www.nyc.gov/assets/oec/Jamaica_Bay_Watershed_Protection_Plan.pdf
+WRP Consistency Assessment Form,,webpage,,,https://www.nyc.gov/assets/planning/download/pdf/applicants/wrp/wrpform2016.pdf
+Flood Elevation Worksheet,,webpage,,,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
+Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
+ACS Socioeconomic Data,,webpage,,,https://popfactfinder.planning.nyc.gov/
+Rent by AMI,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
+HUD CHAS,hud_chas,download,csv,,https://www.huduser.gov/portal/datasets/cp.html
+NYC Housing and Vacancy Survey,hpd_vacancy,download,csv,,https://www.census.gov/programs-surveys/nychvs.html
+LEHD,,webpage,,,https://lehd.ces.census.gov/data/#lodes
+Census Zip Code Business Patterns,,webpage,,,https://www.census.gov/data/developers/data-sets/cbp-zbp/zbp-api.html
+Area Median Income,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
+School District Boundaries,dcp_school_districts,download,shapefile,MULTIPOLYGON,https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/ArcGIS/rest/services/NYC_School_Districts/FeatureServer/0
+School Subdistrict Boundaries,doe_school_subdistricts,download,shapefile,MULTIPOLYGON,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Sub-District-Maps-335
+LCGMS,,webpage,,,https://www.nycenet.edu/PublicApps/LCGMS.aspx
+Demographic Enrollment Projection,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
+Projected Housing,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
+School Capacity Projects in Process,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
+School Seats Lost,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
+School Seats Gained or To Be Created,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
+All School Proposals,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Housing-Projections-70
+Projected Public School Ratio,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Housing-Projections-70
+Facilities Database,dcp_facilities,download,shapefile,MULTIPOINT,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page
+POPS,dcp_pops,download,shapefile,MULTIPOINT,https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn/about_data
+Plazas,dot_pedplazas,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex/about_data
+Public Waterfront Access Areas,dcp_public_waterfront_access_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
+Publicly Owned Waterfront,dcp_publicly_owned_waterfront,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
+NYS Parks,nysparks_parks,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
+Federal Parks,usnps_parks,download,shapefile,MULTIPOLYGON,N/A
+Parks Capital Projects Tracker,dpr_capitalprojects,download,shapefile,MULTIPOINT,https://www.nycgovparks.org/planning-and-building/capital-project-tracker/upcoming
+Walk to a Park Service Area,dpr_walk_to_a_park,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/dataset/Walk-to-a-Park-Service-Area-for-CEQR-Open-Space-As/k66c-pzws/about_data

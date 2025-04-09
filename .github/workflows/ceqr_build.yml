@@ -76,6 +76,7 @@ jobs:
           dbt deps
           dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
           dbt build
+          python3 -m build_scripts.build_markdown
 
       - name: Export
         run: |
