@@ -1,0 +1,56 @@
+name: PFF - ACS
+version: 2023
+product: db-factfinder
+
+build_stages:
+- name: load_data
+  type: load
+  missing_versions_strategy: find_latest
+  dataset_defaults:
+    file_type: parquet
+    destination: df
+    source: edm.recipes # set as default in lifecycle.config, override in pyproject.toml tool.*
+    destination: edm_data # carve this out out of connectors.edm.recipes / lifecycle.data_loader
+  datasets:
+    - name: dcp_pop_acs2010_social
+      version: 20240524
+    - name: dcp_pop_acs
+      destination: file
+      file_type: xlsx
+
+- name: build
+  type: build_command
+  output_folder: .lifecycle/ .. /acs/ .. # required field. Set by build.plan if not present, using lifecycle.config default
+  destination: edm.publish.builds
+  command: "my_db_script.sh"
+
+- name: qa
+  type: build
+  recipe_file: recipe_qa.yml # Would kick off another set of `build_stages` in .
+
+- name: publish_draft
+  type: connector_push
+  await_user_input: True # wait for someone to click the publish_draft button
+  destination: edm.publish.draft
+  connector_args:
+    - name: acl
+      value: public
+    - name: build_note
+      value_from: # copying pattern from helm charts
+        env: "BUILD_NOTE"
+
+- name: publish_published
+  type: connector_push
+  await_user_input: True # wait for someone to click the publish button
+  destination: edm.publish.published
+  connector_args:
+    - name: acl
+      value: public
+
+- type: package
+  destination: edm.publish.packaged
+
+- name: distribute_socrata
+  type: connector_push
+  await_user_input: True # wait for someone to click the publish button
+  destination: socrata.open_data
