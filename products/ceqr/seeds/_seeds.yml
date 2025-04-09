@@ -1,18 +1,32 @@
 version: 2
 
 seeds:
-  - name: data_hub_datasets
+  - name: chapters
     description: |
-      List of datasets in CEQR Data Hub
+      The analytical chapters in CEQR Data Hub
     columns:
-      - name: dataset_id
+      - name: chapter_id
+        tests:
+          - not_null
+          - unique
+      - name: chapter_name
         tests:
           - not_null
           - unique
 
+  - name: datasets
+    description: |
+      The datasets in CEQR Data Hub
+    columns:
       - name: dataset_name
         tests:
           - not_null
+          - unique
+
+      - name: dataset_id
+        tests:
+          - not_null:
+              where: "availability_type = 'download'"
           - unique
 
       - name: availability_type
@@ -36,3 +50,29 @@ seeds:
           - accepted_values:
               values: ["MULTIPOLYGON", "MULTIPOINT", "MULTILINESTRING"]
               where: "availability_type = 'download'"
+
+      - name: source_url
+
+  - name: chapter_datasets
+    description: |
+      The datasets in each chapter in CEQR Data Hub
+    columns:
+      - name: chapter_id
+        tests:
+          - not_null
+
+      - name: use_category
+        tests:
+          - not_null
+
+      - name: dataset_name
+        tests:
+          - not_null
+
+      - name: use_details
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_nta_output_compound_key
+          combination_of_columns:
+            - chapter_id
+            - dataset_name

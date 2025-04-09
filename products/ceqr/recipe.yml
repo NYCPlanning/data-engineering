@@ -30,3 +30,15 @@ inputs:
     - name: dpr_parksproperties
     - name: doitt_roadbed
     - name: dcp_ct2020_wi
+    - name: dcp_school_districts
+    - name: doe_school_subdistricts
+      file_type: pg_dump
+    - name: dcp_facilities
+    - name: dcp_pops
+    - name: dot_pedplazas
+    # - name: dcp_public_waterfront_access_areas
+    # - name: dcp_publicly_owned_waterfront
+    - name: nysparks_parks
+    - name: usnps_parks
+    - name: dpr_capitalprojects
+    # - name: dpr_walk_to_a_park
