@@ -1,5 +1,9 @@
 WITH centerline AS (
-    SELECT * FROM {{ source("recipe_sources", "dcp_cscl_centerline") }}
+    SELECT * FROM {{ ref("stg__centerline") }}
+),
+
+atomic_polygons AS (
+    SELECT * FROM {{ ref("int__centerline_atomicpolygons") }}
 )
 
 SELECT
@@ -21,24 +25,24 @@ SELECT
     NULL AS "To-Node ID",
     NULL AS "To-X Coordinate",
     NULL AS "To-Y Coordinate",
-    NULL AS "Left 2000 Census Tract",
-    NULL AS "Left Dynamic Block",
+    ap.left_2000_census_tract AS "Left 2000 Census Tract",
+    ap.left_atomicid AS "Left Dynamic Block", -- TODO: "last 3 bytes"
     centerline.l_low_hn AS "Left Low House Number",
     centerline.l_high_hn AS "Left High House Number",
     centerline.lsubsect AS "Left Dept of Sanitation Subsection", -- TODO: only 2 leftmost bytes
     centerline.l_zip AS "Left Zip Code",
-    NULL AS "Left Assembly District",
-    NULL AS "Left Election District",
-    NULL AS "Left School District",
-    NULL AS "Right 2000 Census Tract",
-    NULL AS "Right Dynamic Block",
+    ap.left_assembly_district AS "Left Assembly District",
+    ap.left_election_district AS "Left Election District",
+    ap.left_school_district AS "Left School District",
+    ap.right_2000_census_tract AS "Right 2000 Census Tract",
+    ap.right_atomicid AS "Right Dynamic Block", -- TODO: "last 3 bytes"
     centerline.r_low_hn AS "Right Low House Number",
     centerline.r_high_hn AS "Right High House Number",
     centerline.rsubsect AS "Right Dept of Sanitation Subsection", -- TODO: only 2 leftmost bytes
     centerline.r_zip AS "Right Zip Code",
-    NULL AS "Right Assembly District",
-    NULL AS "Right Election District",
-    NULL AS "Right School District",
+    ap.right_assembly_district AS "Right Assembly District",
+    ap.right_election_district AS "Right Election District",
+    ap.right_school_district AS "Right School District",
     NULL AS "Split Election District Flag",
     NULL AS "Filler (formerly Split Community School District Flag)", -- single space on export
     centerline.sandist_ind AS "Sanitation District Boundary Indicator",
@@ -77,8 +81,9 @@ SELECT
     centerline.bike_lane AS "Bike Lane Indicator",
     centerline.fcc AS "FCC",
     NULL AS "Right of Way Type", -- blank
-    NULL AS "Left 2010 Census Tract",
-    NULL AS "Right 2010 Census Tract",
+    ap.left_2010_census_tract AS "Left 2010 Census Tract",
+    ap.right_2010_census_tract AS "Right 2010 Census Tract",
+    -- TODO: 2020 census tracts?
     NULL AS "LGC5",
     NULL AS "LGC6",
     NULL AS "LGC7",
@@ -86,3 +91,4 @@ SELECT
     NULL AS "LGC9",
     centerline.legacy_segmentid AS "Legacy SEGMENTID"
 FROM centerline
+LEFT JOIN atomic_polygons AS ap ON centerline.segmentid = ap.segmentid
