@@ -5,7 +5,7 @@ import shutil
 from dcpy.utils.logging import logger
 from dcpy.lifecycle.builds import load
 from . import OUTPUT_FOLDER
-from .utils import process_metadata, apply_ccd_prefix, export_df, s3_upload
+from .utils import process_metadata, apply_ccd_prefix, export_df
 
 DATASET = "decennial"
 SHEET_CONFIG = {
@@ -70,12 +70,10 @@ def process_file(dataset: str, excel: Path):
         export_df(df, DATASET, year)
 
 
-def run(load_result: load.LoadResult, upload: bool = False):
-    shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+def build(version, load_result: load.LoadResult):
+    output_folder = OUTPUT_FOLDER / version / "decennial"
+    shutil.rmtree(output_folder, ignore_errors=True)
 
     for dataset in load_result.datasets:
         file_path = load.get_imported_filepath(load_result, dataset)
         process_file(dataset, file_path)
-
-    if upload:
-        s3_upload(DATASET, YEARS)

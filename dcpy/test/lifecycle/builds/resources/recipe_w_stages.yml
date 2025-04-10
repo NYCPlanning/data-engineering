@@ -1,0 +1,27 @@
+name: Tester
+version: 23v1
+vars:
+  VERSION_PREV: 23v0
+
+product: db-test
+version_type: major
+
+inputs:
+  datasets: []
+
+
+stage_config:
+  builds.build:
+    destination: edm.publish.builds_mock
+    connector_args:
+      - name: acl
+        value: public
+      - name: build_note
+        value_from:
+          env: "BUILD_NOTE"
+
+  build.publish_published:
+    destination: edm.publish.published_mock
+    connector_args:
+      - name: acl
+        value: public

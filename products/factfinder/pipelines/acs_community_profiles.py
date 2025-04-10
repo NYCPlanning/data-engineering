@@ -8,7 +8,7 @@ from pathos.pools import ProcessPool
 from factfinder.calculate import Calculate
 
 from . import API_KEY, DATA_PATH
-from .utils import parse_args, s3_upload
+from .utils import parse_args
 
 with open(DATA_PATH / "acs_community_profiles" / "metadata.json", "r") as f:
     acs_variables = json.load(f)
@@ -44,6 +44,3 @@ if __name__ == "__main__":
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_file, index=False)
-
-    if upload:
-        s3_upload(output_file)
