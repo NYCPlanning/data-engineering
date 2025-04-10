@@ -70,8 +70,9 @@ def process_file(dataset: str, excel: Path):
         export_df(df, DATASET, year)
 
 
-def run(load_result: load.LoadResult, upload: bool = False):
-    shutil.rmtree(OUTPUT_FOLDER, ignore_errors=True)
+def run(version, load_result: load.LoadResult, upload: bool = False):
+    output_folder = OUTPUT_FOLDER / version / "decennial"
+    shutil.rmtree(output_folder, ignore_errors=True)
 
     for dataset in load_result.datasets:
         file_path = load.get_imported_filepath(load_result, dataset)
