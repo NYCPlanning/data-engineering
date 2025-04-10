@@ -273,9 +273,9 @@ class ArcGISFeatureServiceConnector(Connector):
     conn_type: str = "arcgis_feature_server"
 
     def push(self, key: str, **kwargs) -> dict:
-        raise NotImplementedError("Sorry :)")
+        raise NotImplementedError()
 
-    def pull(  # type: ignore[override]
+    def _pull(
         self,
         key: str,
         destination_path: Path,
@@ -291,7 +291,10 @@ class ArcGISFeatureServiceConnector(Connector):
         download_layer(layer, "EPSG:4326", path=destination_path)
         return {"path": destination_path}
 
-    def get_latest_version(  # type: ignore[override]
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path, **kwargs)
+
+    def get_date_last_updated(
         self,
         key: str,
         *,
@@ -304,3 +307,6 @@ class ArcGISFeatureServiceConnector(Connector):
             FeatureServer(server=server, name=key), layer_name, layer_id
         )
         return get_data_last_updated(layer).strftime("%Y%m%d")
+
+    def get_latest_version(self, key, **kwargs) -> str:
+        return self.get_date_last_updated(key, **kwargs)

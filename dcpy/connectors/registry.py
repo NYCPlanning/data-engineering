@@ -74,7 +74,7 @@ class Pull(GenericConnector, ABC):
         return None
 
     @abstractmethod
-    def pull(self, key: str, *, destination_path: Path, **kwargs) -> dict:
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
         """Pull a dataset to the given path"""
 
     def get_pull_local_sub_path(self, key: str, **kwargs) -> Path:
@@ -99,27 +99,22 @@ class VersionedConnector(Connector, VersionSearch, ABC):
     """A connector that implements the most standard connector behavior (pull, push, version)"""
 
     @abstractmethod
-    def pull(self, key: str, *, version: str, destination_path: Path, **kwargs) -> dict:  # type: ignore[override]
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
         """Pull a dataset to the given path"""
-
-    @abstractmethod
-    def push(self, key: str, *, version: str, **kwargs) -> Any:  # type: ignore[override]
-        """Push to a destination that implements versioning."""
 
     @abstractmethod
     def get_latest_version(self, key: str, **kwargs) -> str:
         pass
 
-    def get_pull_local_sub_path(self, key: str, version: str, **kwargs) -> Path:  # type: ignore[override]
-        """Calculate where the file should be stored locally, e.g. /{key}/{version}/
-        Different resources might organize their local resources differently, for example
-        if the source for `data.csv` implements drafts per version, the local subpath might be
-        /{key}/{version}/{draft}/data.csv
-        """
-        return Path(key) / version
+    @abstractmethod
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        """Push to a destination that implements versioning."""
 
 
-class StorageConnector(Connector):
+# TODO - this doesn't really belong. If we moved from key/version to more of a path, this could be done away with
+class StorageConnector(Connector, ABC):
     """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
     def exists(self, key: str) -> bool:

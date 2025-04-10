@@ -465,16 +465,19 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
 class Connector(VersionedConnector):
     conn_type: str = "edm.recipes"
 
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError("edm.recipes deprecated for archiving")
+
     def push(self, key: str, **kwargs) -> dict:
         raise NotImplementedError("edm.recipes deprecated for archiving")
 
-    def pull(  # type: ignore[override]
+    def pull_versioned(
         self,
         key: str,
-        *,
         version: str,
         destination_path: Path,
-        file_type: DatasetType,
+        *,
+        file_type: DatasetType = DatasetType.parquet,
         **kwargs,
     ) -> dict:
         return {
@@ -485,7 +488,10 @@ class Connector(VersionedConnector):
             )
         }
 
-    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:  # type: ignore[override]
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
+
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return sorted(get_all_versions(name=key), reverse=sort_desc)
 
     def get_latest_version(self, key: str, **kwargs) -> str:
@@ -494,5 +500,5 @@ class Connector(VersionedConnector):
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return exists(Dataset(id=key, version=version))
 
-    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:  # type: ignore[override]
+    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:
         return Path("edm") / "recipes" / DATASET_FOLDER / key / version

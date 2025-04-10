@@ -737,15 +737,12 @@ def log_event_in_db(event_details: EventLog) -> None:
 class PublishedConnector(VersionedConnector):
     conn_type: str = "edm.publishing.published"
 
-    def push(self, key: str, *, version: str, **kwargs) -> dict:  # type: ignore[override]
-        raise NotImplementedError("Sorry :)")
-
-    def pull(  # type: ignore[override]
+    def _pull(
         self,
         key: str,
-        *,
         version: str,
         destination_path: Path,
+        *,
         dataset: str | None = None,
         filepath: str,
         **kwargs,
@@ -760,6 +757,20 @@ class PublishedConnector(VersionedConnector):
             output_dir=destination_path,
         )
         return {"path": pulled_path}
+
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        return self._pull(key, version, destination_path, **kwargs)
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path=destination_path, **kwargs)
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def push(self, key: str, **kwargs) -> dict:
+        raise NotImplementedError()
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return sorted(get_published_versions(key), reverse=sort_desc)
@@ -777,15 +788,12 @@ class PublishedConnector(VersionedConnector):
 class DraftsConnector(VersionedConnector):
     conn_type: str = "edm.publishing.drafts"
 
-    def push(self, key: str, *, version: str, **kwargs) -> dict:  # type: ignore[override]
-        raise NotImplementedError("Sorry :)")
-
-    def pull(  # type: ignore[override]
+    def _pull(
         self,
         key: str,
-        *,
         version: str,
         destination_path: Path,
+        *,
         dataset: str | None = None,
         filepath: str,
         revision: str,
@@ -799,7 +807,23 @@ class DraftsConnector(VersionedConnector):
         pulled_path = download_file(draft_key, file_path, output_dir=destination_path)
         return {"path": pulled_path}
 
-    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:  # type: ignore[override]
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        return self._pull(
+            key, version=version, destination_path=destination_path, **kwargs
+        )
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path=destination_path, **kwargs)
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def push(self, key: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         logger.info(f"Listing versions for {key}")
         versions = sorted(get_draft_versions(key), reverse=sort_desc)
         assert versions, (
@@ -813,7 +837,7 @@ class DraftsConnector(VersionedConnector):
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
 
-    def data_local_sub_path(  # type: ignore[override]
+    def data_local_sub_path(
         self, key: str, *, version: str, revision: str, **kwargs
     ) -> Path:
         return Path("edm") / "publishing" / "datasets" / key / version / revision
@@ -822,24 +846,25 @@ class DraftsConnector(VersionedConnector):
 class GisDatasetsConnector(VersionedConnector):
     conn_type: str = "edm.publishing.gis"
 
-    def push(self, key: str, *, version: str, **kwargs) -> dict:  # type: ignore[override]
-        raise PermissionError(
-            "Currently, only GIS team pushes to edm-publishing/datasets"
-        )
-
-    def pull(  # type: ignore[override]
-        self,
-        key: str,
-        *,
-        version: str,
-        destination_path: Path,
-        **kwargs,
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
         pulled_path = download_gis_dataset(
             dataset_name=key, version=version, target_folder=destination_path.parent
         )
         assert pulled_path == destination_path  # TODO obvious hack
         return {"path": pulled_path}
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise PermissionError(
+            "Currently, only GIS team pushes to edm-publishing/datasets"
+        )
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
+
+    def push(self, key: str, **kwargs) -> dict:
+        return self.push_versioned(key, **kwargs)
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         logger.info(f"Listing versions for {key}")

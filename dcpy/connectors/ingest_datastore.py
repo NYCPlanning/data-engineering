@@ -28,13 +28,13 @@ class Connector(VersionedConnector):
         sub = registry.get_subregistry(StorageConnector)  # type: ignore[type-abstract]
         self._storage = sub[storage_type]
 
-    def push(  # type: ignore[override]
+    def _push(
         self,
         key: str,
         *,
+        version: str,
         filepath: Path,
         config: ingest.Config,
-        version: str,
         overwrite: bool = False,
         latest: bool = False,
         **kwargs,
@@ -80,14 +80,18 @@ class Connector(VersionedConnector):
                 )
         return {}
 
-    def pull(  # type: ignore[override]
-        self,
-        key: str,
-        *,
-        version: str,
-        destination_path: Path,
-        **kwargs,
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        return self._push(key, version=version, **kwargs)
+
+    def push(self, key: str, **kwargs) -> dict:
+        return self._push(key, **kwargs)
+
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
+        raise NotImplementedError
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
         raise NotImplementedError
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:

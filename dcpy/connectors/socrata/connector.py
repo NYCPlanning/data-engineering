@@ -9,9 +9,9 @@ class SocrataConnector(Connector):
     conn_type: str = "socrata"
 
     def push(self, key: str, **kwargs) -> dict:
-        raise NotImplementedError("Sorry :)")
+        raise NotImplementedError()
 
-    def pull(  # type: ignore[override]
+    def _pull(
         self,
         key: str,
         destination_path: Path,
@@ -24,7 +24,10 @@ class SocrataConnector(Connector):
         extract.download(source, destination_path)
         return {"path": destination_path}
 
-    def get_latest_version(  # type: ignore[override]
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path, **kwargs)
+
+    def get_date_last_updated(
         self,
         key: str,
         *,
@@ -34,3 +37,6 @@ class SocrataConnector(Connector):
     ) -> str:
         source = extract.Source(type="socrata", org=org, uid=key, format=format)
         return extract.get_version(source)
+
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        return self.get_date_last_updated(key, **kwargs)

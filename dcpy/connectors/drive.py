@@ -17,7 +17,20 @@ class Connector(StorageConnector):
         else:
             return Path(key)
 
-    def push(  # type: ignore[override]
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        *,
+        drive_path: Path | None = None,
+        **kwargs,
+    ) -> dict:
+        source_path = self._path(key, drive_path)
+        if source_path != destination_path:
+            shutil.copy(source_path, destination_path)
+        return {"path": destination_path}
+
+    def _push(
         self,
         key: str,
         *,
@@ -35,15 +48,5 @@ class Connector(StorageConnector):
 
         return {"path": path}
 
-    def pull(
-        self,
-        key: str,
-        destination_path: Path,
-        *,
-        drive_path: Path | None = None,
-        **kwargs,
-    ) -> dict:
-        source_path = self._path(key, drive_path)
-        if source_path != destination_path:
-            shutil.copy(source_path, destination_path)
-        return {"path": destination_path}
+    def push(self, key: str, **kwargs) -> dict:
+        return self._push(key, **kwargs)

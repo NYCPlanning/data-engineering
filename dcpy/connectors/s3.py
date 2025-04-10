@@ -18,7 +18,7 @@ class S3Connector(StorageConnector):
         else:
             raise Exception("No bucket defined")
 
-    def push(  # type: ignore[override]
+    def _push(
         self,
         key: str,
         *,
@@ -55,3 +55,6 @@ class S3Connector(StorageConnector):
         bucket = self._bucket(bucket)
         s3.download_file(bucket=bucket, key=key, path=destination_path)
         return {"path": destination_path}
+
+    def push(self, key, **kwargs) -> dict:
+        return self._push(key, **kwargs)
