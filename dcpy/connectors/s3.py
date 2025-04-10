@@ -11,7 +11,11 @@ class S3Connector(StorageConnector):
     prefix: str | None = None
 
     def _bucket(self, bucket: str | None = None) -> str:
-        if self.bucket:
+        if self.bucket and bucket:
+            raise Exception(
+                f"Connector '{self.conn_type}' is configured for bucket '{self.bucket}', cannot provide bucket '{bucket}' as kwarg"
+            )
+        elif self.bucket:
             return self.bucket
         elif bucket:
             return bucket

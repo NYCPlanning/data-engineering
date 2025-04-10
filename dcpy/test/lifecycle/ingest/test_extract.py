@@ -10,6 +10,7 @@ from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
 
 from dcpy.test.conftest import mock_request_get, PUBLISHING_BUCKET
+from dcpy.test.connectors.test_esri import mock_query_layer
 from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
@@ -36,8 +37,11 @@ def setup(source: Source, filename: str, file_system: Path) -> Source:
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)
+@mock.patch(
+    "requests.post", side_effect=mock_query_layer
+)  # todo - should remove this dependency
 @pytest.mark.parametrize(("source", "filename"), SOURCE_FILENAMES)
-def test_download_file(get, source, filename, create_buckets, tmp_path):
+def test_download_file(get, post, source, filename, create_buckets, tmp_path):
     setup(source, filename, tmp_path)
     extract.download_file_from_source(source, filename, FAKE_VERSION, tmp_path)
     assert (tmp_path / filename).exists()
