@@ -3,8 +3,9 @@ from datetime import datetime
 from enum import StrEnum
 import pandas as pd
 from pathlib import Path
-from pydantic import AliasChoices, BaseModel, Field
-from typing import List
+from pydantic import AliasChoices, BaseModel, Field, model_validator
+from typing import Any, List, Optional, ClassVar
+from typing_extensions import Self
 
 from dcpy.utils import versions
 from dcpy.models.connectors.edm import recipes
@@ -64,6 +65,31 @@ class RecipeInputs(BaseModel):
     dataset_defaults: InputDatasetDefaults | None = None
 
 
+class StageConfValue(BaseModel, extra="forbid"):
+    UNRESOLVABLE_ERROR: ClassVar[str] = (
+        "Stage Conf Value requires either `value` or `value_from`"
+    )
+
+    name: str
+    value: str | None = None
+    value_from: Optional[dict[str, str]] = None
+
+    @model_validator(mode="after")
+    def check_resolvable(self) -> Self:
+        if not self.value and not self.value_from:
+            raise ValueError(self.UNRESOLVABLE_ERROR)
+        return self
+
+
+class StageConf(BaseModel, extra="forbid", arbitrary_types_allowed=True):
+    destination: Optional[str] = None
+    destination_key: Optional[str] = None
+    connector_args: Optional[list[StageConfValue]] = []
+
+    def get_connector_args_dict(self) -> dict[str, Any]:
+        return {a.name: a.value for a in self.connector_args or []}
+
+
 class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
     product: str
@@ -73,12 +99,25 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str | None = None
     vars: dict[str, str] | None = None
     inputs: RecipeInputs
+    stage_config: dict[str, StageConf] = {}
 
     def is_resolved(self):
-        return self.version is not None and (
-            len(self.inputs.datasets) == 0
-            or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
+        return (
+            self.version is not None
+            and (
+                len(self.inputs.datasets) == 0
+                or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
+            )
+            and not self.get_unresolved_conf_values()
         )
+
+    def get_unresolved_conf_values(self):
+        unresolved = []
+        for stage_name, conf in self.stage_config.items():
+            for conn_args in conf.connector_args or []:
+                if conn_args.value_from and not conn_args.value:
+                    unresolved.append(conn_args)
+        return unresolved
 
 
 class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):

@@ -10,6 +10,7 @@ app = typer.Typer(add_completion=False)
 @app.command()
 def _run(
     dataset: str = typer.Argument(),
+    vesion: str = typer.Argument(),
     upload: bool = typer.Option(
         False,
         "-u",
@@ -25,10 +26,10 @@ def _run(
     load_result = load.load_source_data_from_resolved_recipe(lockfile)
     match dataset:
         case "acs":
-            acs_manual_update.run(load_result, upload)
+            acs_manual_update.build(vesion, load_result)
 
         case "decennial":
-            decennial_manual_update.run(load_result, upload)
+            decennial_manual_update.build(vesion, load_result)
 
 
 if __name__ == "__main__":
