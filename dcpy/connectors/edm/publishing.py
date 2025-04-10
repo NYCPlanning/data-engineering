@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from datetime import datetime
 import geopandas as gpd
 from io import BytesIO
@@ -23,14 +24,14 @@ from dcpy.configuration import (
     PRODUCTS_TO_LOG,
     IGNORED_LOGGING_BUILDS,
 )
-from dcpy.connectors.registry import VersionedConnector
+from dcpy.connectors.registry import GenericConnector, VersionedConnector
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
     DraftKey,
     BuildKey,
 )
-from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType
+from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType, Recipe
 from dcpy.utils import s3, git, versions, metadata, postgres
 from dcpy.utils.logging import logger
 
@@ -856,6 +857,43 @@ class GisDatasetsConnector(VersionedConnector):
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
+
+
+class BuildsConnector(GenericConnector):
+    conn_type: str = "edm.publishing.builds"
+
+    def push(self, key: str, **kwargs) -> dict:
+        recipe: Recipe = kwargs["recipe"]
+        stage_config = kwargs["stage_config"]
+
+        result = upload_build(
+            output_path=kwargs["build_path"],
+            product=recipe.product,
+            acl=s3.string_as_acl(stage_config["acl"]),
+            build=stage_config["build_note"],
+        )
+        return asdict(result)
+
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        **kwargs,
+    ) -> dict:
+        raise Exception("TODO")
+
+    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+        raise Exception("Remove me")
+
+    def query_latest_version(self, key: str) -> str:
+        raise Exception("Remove me")
+
+    def version_exists(self, key: str, version: str) -> bool:
+        raise Exception("Remove me")
+
+    def data_local_sub_path(self, key: str, version: str, pull_conf) -> Path:
+        assert pull_conf and "revision" in pull_conf
+        return Path("edm") / "builds" / "datasets" / key / pull_conf["revision"]
 
 
 app = typer.Typer(add_completion=False)
