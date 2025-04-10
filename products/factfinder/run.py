@@ -26,10 +26,10 @@ def _run(
     load_result = load.load_source_data_from_resolved_recipe(lockfile)
     match dataset:
         case "acs":
-            acs_manual_update.run(vesion, load_result, upload)
+            acs_manual_update.build(vesion, load_result)
 
         case "decennial":
-            decennial_manual_update.run(vesion, load_result, upload)
+            decennial_manual_update.build(vesion, load_result)
 
 
 if __name__ == "__main__":

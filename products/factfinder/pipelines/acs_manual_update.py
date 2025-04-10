@@ -12,7 +12,6 @@ from .utils import (
     apply_ccd_prefix,
     pivot_factfinder_table,
     export_df,
-    s3_upload,
 )
 
 DATASET = "acs"
@@ -93,7 +92,7 @@ def process_latest_data(file: Path, year: str):
         process_domain_data(df, domain, year)
 
 
-def run(version, load_result: load.LoadResult, upload: bool = False):
+def build(version, load_result: load.LoadResult):
     output_folder = OUTPUT_FOLDER / version / "acs"
     if output_folder.is_dir():
         shutil.rmtree(output_folder)
@@ -102,9 +101,6 @@ def run(version, load_result: load.LoadResult, upload: bool = False):
     latest = load_result.datasets["dcp_pop_acs"]
     assert isinstance(latest.destination, Path)
     process_latest_data(latest.destination, latest.version)
-
-    if upload:
-        s3_upload(DATASET, ["2010", latest.version])
 
 
 if __name__ == "__main__":
