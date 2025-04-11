@@ -850,9 +850,8 @@ class GisDatasetsConnector(VersionedConnector):
         self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
         pulled_path = download_gis_dataset(
-            dataset_name=key, version=version, target_folder=destination_path.parent
+            dataset_name=key, version=version, target_folder=destination_path
         )
-        assert pulled_path == destination_path  # TODO obvious hack
         return {"path": pulled_path}
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:

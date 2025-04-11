@@ -288,8 +288,9 @@ class ArcGISFeatureServiceConnector(Connector):
         layer = resolve_layer(
             FeatureServer(server=server, name=key), layer_name, layer_id
         )
-        download_layer(layer, "EPSG:4326", path=destination_path)
-        return {"path": destination_path}
+        output = destination_path / f"{layer.layer_name}.geojson"
+        download_layer(layer, "EPSG:4326", path=output)
+        return {"path": output}
 
     def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
         return self._pull(key, destination_path, **kwargs)
