@@ -73,6 +73,6 @@ mkdir -p output
     )
 
     echo "Exporting primary product table"
-    csv_export kpdb
+    csv_export_drop_columns kpdb "'geometry'"
     shp_export kpdb MULTIPOLYGON
 )
