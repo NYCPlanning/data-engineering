@@ -43,8 +43,8 @@ class Connector(StorageConnector):
 
         if path.exists() and not overwrite:
             raise Exception(f"'{path}' already exists.")
-        logger.info(f"Copying {filepath} to {path / key}")
-        shutil.copy(filepath, path / key)
+        logger.info(f"Copying {filepath} to {path}")
+        shutil.copy(filepath, path)
 
         return {"path": path}
 
