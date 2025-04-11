@@ -30,7 +30,7 @@ def run(
             version,
             mode=mode,
             latest=latest,
-            push_to_s3=push_to_s3,
+            push=push_to_s3,
             output_csv=csv,
         )
     else:
