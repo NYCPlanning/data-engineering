@@ -98,6 +98,13 @@ class Connector(Push, Pull, ABC):
 class VersionedConnector(Connector, VersionSearch, ABC):
     """A connector that implements the most standard connector behavior (pull, push, version)"""
 
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        """Pull a dataset to the given path"""
+        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
+
+    def push(self, key: str, **kwargs) -> dict:
+        return self.push_versioned(key, **kwargs)
+
     @abstractmethod
     def pull_versioned(
         self, key: str, version: str, destination_path: Path, **kwargs
@@ -105,12 +112,12 @@ class VersionedConnector(Connector, VersionSearch, ABC):
         """Pull a dataset to the given path"""
 
     @abstractmethod
-    def get_latest_version(self, key: str, **kwargs) -> str:
-        pass
-
-    @abstractmethod
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         """Push to a destination that implements versioning."""
+
+    @abstractmethod
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        pass
 
 
 # TODO - this doesn't really belong. If we moved from key/version to more of a path, this could be done away with

@@ -763,13 +763,7 @@ class PublishedConnector(VersionedConnector):
     ) -> dict:
         return self._pull(key, version, destination_path, **kwargs)
 
-    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
-        return self._pull(key, destination_path=destination_path, **kwargs)
-
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
-        raise NotImplementedError()
-
-    def push(self, key: str, **kwargs) -> dict:
         raise NotImplementedError()
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
@@ -814,13 +808,7 @@ class DraftsConnector(VersionedConnector):
             key, version=version, destination_path=destination_path, **kwargs
         )
 
-    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
-        return self._pull(key, destination_path=destination_path, **kwargs)
-
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
-        raise NotImplementedError()
-
-    def push(self, key: str, **kwargs) -> dict:
         raise NotImplementedError()
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
@@ -858,12 +846,6 @@ class GisDatasetsConnector(VersionedConnector):
         raise PermissionError(
             "Currently, only GIS team pushes to edm-publishing/datasets"
         )
-
-    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
-        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
-
-    def push(self, key: str, **kwargs) -> dict:
-        return self.push_versioned(key, **kwargs)
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         logger.info(f"Listing versions for {key}")

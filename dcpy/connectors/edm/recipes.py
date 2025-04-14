@@ -468,9 +468,6 @@ class Connector(VersionedConnector):
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         raise NotImplementedError("edm.recipes deprecated for archiving")
 
-    def push(self, key: str, **kwargs) -> dict:
-        raise NotImplementedError("edm.recipes deprecated for archiving")
-
     def pull_versioned(
         self,
         key: str,
@@ -487,9 +484,6 @@ class Connector(VersionedConnector):
                 _target_dataset_path_override=destination_path,
             )
         }
-
-    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
-        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return sorted(get_all_versions(name=key), reverse=sort_desc)
