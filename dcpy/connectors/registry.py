@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Protocol, Any, TypeVar, Generic
+from typing import Protocol, Any, TypeVar, Generic, Type, overload
 
 from dcpy.utils.logging import logger
 
@@ -113,22 +113,26 @@ class VersionedConnector(Connector, VersionSearch, ABC):
         """Push to a destination that implements versioning."""
 
 
+_C = TypeVar("_C", bound=GenericConnector)
+_C2 = TypeVar("_C2", bound=GenericConnector)
 
-class VersionedConnectorRegistry:
+
+class ConnectorRegistry(Generic[_C]):
     """A Registry for VersionedConnectors.
 
     Connectors can be dynamically registered and invoked."""
 
     MISSING_CONN_ERROR_PREFIX = "No registered connector named:"
 
-    _connectors: dict[str, VersionedConnector]
+    _connectors: dict[str, _C]
 
-    def __init__(self):
-        self._connectors = {}
+    def __init__(self, connectors: dict[str, _C] = {}):
+        self._connectors = connectors
 
-    def register(self, connector: VersionedConnector, *, conn_type: str = ""):
-        logger.info(f"registering {connector.conn_type}")
-        self._connectors[connector.conn_type] = connector
+    def register(self, connector: _C, *, conn_type: str = ""):
+        conn_type = conn_type or connector.conn_type
+        logger.info(f"registering {conn_type}")
+        self._connectors[conn_type] = connector
 
     def clear(self):
         self._connectors = {}
@@ -136,9 +140,46 @@ class VersionedConnectorRegistry:
     def list_registered(self) -> list[str]:
         return list(self._connectors.keys())
 
-    def __getitem__(self, item):
-        if item not in self._connectors:
+    @overload
+    def __getitem__(self, item: tuple[str, Type[_C2]]) -> _C2: ...
+
+    @overload
+    def __getitem__(self, item: str) -> _C: ...
+
+    def __getitem__(self, item: str | tuple[str, Type[_C2]]) -> _C2 | _C:
+        if isinstance(item, str):
+            conn_type = item
+            type_validator = None
+        else:
+            conn_type, type_validator = item
+
+        if conn_type not in self._connectors:
             raise Exception(
                 f"{self.MISSING_CONN_ERROR_PREFIX} {item}. Registered connectors: {self._connectors.keys()}"
             )
-        return self._connectors[item]
+
+        c = self._connectors[conn_type]
+        if type_validator:
+            assert isinstance(c, type_validator)
+        return c
+
+    def __contains__(self, item):
+        return item in self._connectors
+
+    def get_subregistry(self, cls: Type[_C2]) -> ConnectorRegistry[_C2]:
+        connectors = {
+            t: conn for (t, conn) in self._connectors.items() if isinstance(conn, cls)
+        }
+        return ConnectorRegistry(connectors=connectors)
+
+    @property
+    def versioned(self) -> ConnectorRegistry[VersionedConnector]:
+        return self.get_subregistry(VersionedConnector)  # type: ignore[type-abstract]
+
+    @property
+    def pull(self) -> ConnectorRegistry[Pull]:
+        return self.get_subregistry(Pull)  # type: ignore[type-abstract]
+
+    @property
+    def push(self) -> ConnectorRegistry[Push]:
+        return self.get_subregistry(Push)  # type: ignore[type-abstract]
