@@ -45,6 +45,7 @@ class Sources:
         endpoint="https://www.bklynlibrary.org/locations/json",
         format="json",
     )
+    api._ds_id = TEST_DATASET_NAME  # for proper filename generation
     socrata = SocrataSource(
         type="socrata", org=socrata.Org.nyc, uid="w7w3-xahh", format="csv"
     )
@@ -57,6 +58,7 @@ class Sources:
         server=esri.Server.nys_parks,
         dataset="National_Register_Building_Listings",
         layer_id=13,
+        layer_name="National Register Building Listings",
     )
 
 
@@ -92,7 +94,7 @@ SOURCE_FILENAMES = [
     (Sources.gis, f"{TEST_DATASET_NAME}.zip"),
     (Sources.file_download, "pad_24a.zip"),
     (Sources.api, f"{TEST_DATASET_NAME}.json"),
-    (Sources.socrata, f"{TEST_DATASET_NAME}.csv"),
+    (Sources.socrata, f"{Sources.socrata.uid}.csv"),
     (Sources.s3, "test.txt"),
-    # (Sources.esri, f"{TEST_DATASET_NAME}.json"),
+    (Sources.esri, f"{Sources.esri.layer_name}.geojson"),
 ]

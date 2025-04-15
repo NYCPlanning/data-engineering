@@ -22,7 +22,7 @@ def run_basic(mock_request_get, create_buckets, tmp_path):
     return run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        push_to_s3=True,
+        push=True,
         dataset_staging_dir=tmp_path,
         template_dir=TEMPLATE_DIR,
     )
@@ -50,7 +50,7 @@ def test_run_default_folder(mock_request_get, create_buckets):
     run_ingest(
         dataset_id=DATASET,
         version=FAKE_VERSION,
-        push_to_s3=True,
+        push=True,
         template_dir=TEMPLATE_DIR,
     )
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
@@ -64,7 +64,7 @@ def test_skip_archival(mock_request_get, create_buckets, tmp_path):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
-        push_to_s3=False,
+        push=False,
         template_dir=TEMPLATE_DIR,
     )
     assert not s3.object_exists(RECIPES_BUCKET, S3_PATH)
@@ -77,7 +77,7 @@ def test_run_repeat_version(mock_request_get, create_buckets, tmp_path):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
-        push_to_s3=True,
+        push=True,
         template_dir=TEMPLATE_DIR,
         latest=True,
     )
@@ -86,7 +86,7 @@ def test_run_repeat_version(mock_request_get, create_buckets, tmp_path):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
-        push_to_s3=True,
+        push=True,
         latest=True,
         template_dir=TEMPLATE_DIR,
     )
@@ -105,7 +105,7 @@ def test_run_repeat_version_fails_if_data_diff(
         dataset_id=DATASET,
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
-        push_to_s3=True,
+        push=True,
         template_dir=TEMPLATE_DIR,
     )
 
@@ -120,7 +120,7 @@ def test_run_repeat_version_fails_if_data_diff(
                 dataset_id=DATASET,
                 version=FAKE_VERSION,
                 dataset_staging_dir=tmp_path,
-                push_to_s3=True,
+                push=True,
                 template_dir=TEMPLATE_DIR,
             )
 

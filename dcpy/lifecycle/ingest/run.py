@@ -6,7 +6,7 @@ from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
-from dcpy.connectors.edm import recipes
+from dcpy.lifecycle.ingest.connectors import raw_datastore, processed_datastore
 
 from . import configure, extract, transform, validate
 
@@ -26,7 +26,7 @@ def ingest(
     ingest_output_dir: Path = INGEST_OUTPUT_DIR,
     mode: str | None = None,
     latest: bool = False,
-    push_to_s3: bool = False,
+    push: bool = False,
     output_csv: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
@@ -57,23 +57,26 @@ def ingest(
         json.dump(config.model_dump(mode="json"), f, indent=4)
 
     # download dataset
-    extract.download_file_from_source(
+    filepath = extract.download_file_from_source(
         config.ingestion.source,
-        config.archival.raw_filename,
         config.version,
         dataset_staging_dir,
     )
-    file_path = dataset_staging_dir / config.archival.raw_filename
+    config.archival.raw_filename = filepath.name
 
-    if push_to_s3:
-        # archive to edm-recipes/raw_datasets
-        assert config.archival.acl, "'acl' must be defined to push to s3"
-        recipes.archive_dataset(config, file_path, acl=config.archival.acl, raw=True)
+    if push:
+        raw_datastore.push(
+            dataset_id,
+            version=config.archival.archival_timestamp.isoformat(),
+            filepath=filepath,
+            config=config,
+            latest=latest,
+        )
 
     init_parquet = "init.parquet"
     transform.to_parquet(
         config.ingestion.file_format,
-        file_path,
+        filepath,
         dir=dataset_staging_dir,
         output_filename=init_parquet,
     )
@@ -99,12 +102,14 @@ def ingest(
     is_new = validate.validate_against_existing_versions(
         config.dataset, dataset_staging_dir / config.filename
     )
-    if push_to_s3 and is_new:
+    if push and is_new:
         assert config.archival.acl
-        recipes.archive_dataset(
-            config,
-            dataset_staging_dir / config.filename,
-            acl=config.archival.acl,
+        processed_datastore.push(
+            dataset_id,
+            version=config.version,
+            filepath=dataset_staging_dir / config.filename,
+            config=config,
+            overwrite=False,  ## TODO - allow this via flag?
             latest=latest,
         )
     else:

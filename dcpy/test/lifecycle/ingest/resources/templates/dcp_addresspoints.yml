@@ -2,11 +2,11 @@ id: dcp_addresspoints
 acl: public-read
 
 attributes:
-  name:  DCP Address Points
+  name: DCP Address Points
 
 ingestion:
   source:
-    type: edm_publishing_gis_dataset
+    type: edm.publishing.gis
     name: dcp_address_points
   file_format:
     unzipped_filename: dcp_address_points.shp
