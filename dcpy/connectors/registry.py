@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Protocol, Any, TypeVar, Generic, Type, overload
+from typing import Protocol, Any, TypeVar, Generic, overload
 
 from dcpy.utils.logging import logger
 
@@ -161,12 +161,12 @@ class ConnectorRegistry(Generic[_C]):
         return list(self._connectors.keys())
 
     @overload
-    def __getitem__(self, item: tuple[str, Type[_C2]]) -> _C2: ...
+    def __getitem__(self, item: tuple[str, type[_C2]]) -> _C2: ...
 
     @overload
     def __getitem__(self, item: str) -> _C: ...
 
-    def __getitem__(self, item: str | tuple[str, Type[_C2]]) -> _C2 | _C:
+    def __getitem__(self, item: str | tuple[str, type[_C2]]) -> _C2 | _C:
         if isinstance(item, str):
             conn_type = item
             type_validator = None
@@ -186,7 +186,7 @@ class ConnectorRegistry(Generic[_C]):
     def __contains__(self, item):
         return item in self._connectors
 
-    def get_subregistry(self, cls: Type[_C2]) -> ConnectorRegistry[_C2]:
+    def get_subregistry(self, cls: type[_C2]) -> ConnectorRegistry[_C2]:
         connectors = {
             t: conn for (t, conn) in self._connectors.items() if isinstance(conn, cls)
         }
