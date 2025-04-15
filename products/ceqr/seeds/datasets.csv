@@ -39,7 +39,6 @@ Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://ww
 ACS Socioeconomic Data,,webpage,,,https://popfactfinder.planning.nyc.gov/
 Rent by AMI,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
 HUD CHAS,hud_chas,download,csv,,https://www.huduser.gov/portal/datasets/cp.html
-NYC Housing and Vacancy Survey,hpd_vacancy,download,csv,,https://www.census.gov/programs-surveys/nychvs.html
 LEHD,,webpage,,,https://lehd.ces.census.gov/data/#lodes
 Census Zip Code Business Patterns,,webpage,,,https://www.census.gov/data/developers/data-sets/cbp-zbp/zbp-api.html
 Area Median Income,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
