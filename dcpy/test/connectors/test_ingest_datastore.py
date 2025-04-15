@@ -9,7 +9,6 @@ from dcpy.connectors.ingest_datastore import (
     Connector as IngestStorageConnector,
     config_filename,
 )
-from dcpy.connectors.registry import ConnectorRegistry
 
 CONFIG = MagicMock()
 CONFIG.archival.acl = ""
@@ -37,9 +36,7 @@ def ingest_path(tmp_path):
 @pytest.fixture
 def connector(ingest_path):
     drive = DriveConnector(path=ingest_path)
-    registry = ConnectorRegistry()
-    registry.register(drive, conn_type="ingest_storage")
-    return IngestStorageConnector("ingest_storage", registry)
+    return IngestStorageConnector(storage=drive)
 
 
 def test_push(connector: IngestStorageConnector, local_path, ingest_path):

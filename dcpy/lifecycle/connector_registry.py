@@ -24,27 +24,24 @@ def _set_default_connectors():
     connectors.register(connector=web.WebConnector(), conn_type="api")
     connectors.register(connector=filesystem.Connector(), conn_type="local_file")
     connectors.register(connector=s3.S3Connector(), conn_type="s3")
-    connectors.register(
-        connector=s3.S3Connector(bucket=RECIPES_BUCKET, prefix="datasets/"),
-        conn_type="s3_edm.recipes.datasets",
-    )
-    connectors.register(
-        connector=s3.S3Connector(bucket=RECIPES_BUCKET, prefix="raw_datasets/"),
-        conn_type="s3_edm.recipes.raw_datasets",
-    )
-    connectors.register(
-        ingest_datastore.Connector(
-            storage_type="s3_edm.recipes.datasets", registry=connectors
-        ),
-        conn_type="edm.recipes.datasets",
-    )
-    connectors.register(
-        ingest_datastore.Connector(
-            storage_type="s3_edm.recipes.raw_datasets", registry=connectors
-        ),
-        conn_type="edm.recipes.raw_datasets",
-    )
     logger.info(f"Registered Connectors: {connectors.list_registered()}")
 
 
+def _register_ingest_datastores():
+    """TODO - this should ideally happen from config"""
+    recipes_datasets_s3 = s3.S3Connector(bucket=RECIPES_BUCKET, prefix="datasets/")
+    recipes_raw_datasets_s3 = s3.S3Connector(
+        bucket=RECIPES_BUCKET, prefix="raw_datasets/"
+    )
+    connectors.register(
+        ingest_datastore.Connector(storage=recipes_datasets_s3),
+        conn_type="edm.recipes.datasets",
+    )
+    connectors.register(
+        ingest_datastore.Connector(storage=recipes_raw_datasets_s3),
+        conn_type="edm.recipes.raw_datasets",
+    )
+
+
 _set_default_connectors()
+_register_ingest_datastores()
