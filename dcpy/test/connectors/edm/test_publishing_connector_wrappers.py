@@ -33,7 +33,7 @@ class TestPublishedConnector:
     def test_query_latest(self, get_published_versions):
         VERSIONS = ["1", "2", "3"]
         get_published_versions.side_effect = Mock(return_value=VERSIONS)
-        latest = self.conn.query_latest_version(self.PRODUCT)
+        latest = self.conn.get_latest_version(self.PRODUCT)
         assert VERSIONS[-1] == latest
 
     @patch("dcpy.connectors.edm.publishing.get_published_versions")
@@ -88,7 +88,7 @@ class TestDraftsConnector:
     def test_query_latest(self, get_draft_versions):
         VERSIONS = ["1", "2", "3"]
         get_draft_versions.side_effect = Mock(return_value=VERSIONS)
-        latest = self.conn.query_latest_version(self.PRODUCT)
+        latest = self.conn.get_latest_version(self.PRODUCT)
         assert VERSIONS[-1] == latest
 
     @patch("dcpy.connectors.edm.publishing.get_draft_versions")

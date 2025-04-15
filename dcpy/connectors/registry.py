@@ -1,5 +1,7 @@
-from abc import ABC
+from __future__ import annotations
+from abc import ABC, abstractmethod
 from pathlib import Path
+from pydantic import BaseModel
 from typing import Protocol, Any, TypeVar, Generic
 
 from dcpy.utils.logging import logger
@@ -44,52 +46,72 @@ class ConnectorDispatcher(Generic[_O, _I]):
 
 
 ### Connector Base Classes
+class GenericConnector(ABC, BaseModel, extra="forbid"):
+    conn_type: str
 
 
-class _VersionedPush(ABC):
-    def push(self, key: str, version: str, push_conf: Any | None = None) -> Any:
+class Push(GenericConnector, ABC):
+    def push(self, key: str, **kwargs) -> Any:
         """Push to a destination that implements versioning."""
 
 
-class _VersionedPull(ABC):
-    def pull(
-        self,
-        key: str,
-        version: str,
-        destination_path: Path,
-        pull_conf: Any | None = None,
-    ) -> Any:
-        """Push from a source that implements versioning."""
+class VersionSearch(ABC):
+    @abstractmethod
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
+        pass
 
-    def get_pull_local_sub_path(
-        self,
-        key: str,
-        version: str,
-        pull_conf: Any | None = None,
-    ) -> Path:
+    @abstractmethod
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        pass
+
+    @abstractmethod
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
+        pass
+
+
+class Pull(GenericConnector, ABC):
+    def get_latest_version(self, key: str, **kwargs) -> str | None:
+        return None
+
+    @abstractmethod
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        """Pull a dataset to the given path"""
+
+    def get_pull_local_sub_path(self, key: str, **kwargs) -> Path:
         """Calculate where the file should be stored locally, e.g. /{key}/{version}/
         Different resources might organize their local resources differently, for example
         if the source for `data.csv` implements drafts per version, the local subpath might be
         /{key}/{version}/{draft}/data.csv
         """
-        return Path(key) / version
+        if "version" in kwargs:
+            return (
+                Path(key) / kwargs["version"]
+            )  # This is maybe a bit more logic than we want here, but seems broadly applicable enough
+        else:
+            return Path(key)
 
 
-class _VersionSearch(ABC):
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
-        return []
-
-    def query_latest_version(self, key: str) -> str:
-        return ""
-
-    def version_exists(self, key: str, version: str) -> bool:
-        return False
+class Connector(Push, Pull, ABC):
+    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
 
 
-class VersionedConnector(_VersionedPull, _VersionedPush, _VersionSearch):
+class VersionedConnector(Connector, VersionSearch, ABC):
     """A connector that implements the most standard connector behavior (pull, push, version)"""
 
-    conn_type: str
+    @abstractmethod
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        """Pull a dataset to the given path"""
+
+    @abstractmethod
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        pass
+
+    @abstractmethod
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        """Push to a destination that implements versioning."""
+
 
 
 class VersionedConnectorRegistry:

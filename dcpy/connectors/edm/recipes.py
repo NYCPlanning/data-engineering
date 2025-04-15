@@ -4,10 +4,9 @@ import os
 import pandas as pd
 from pathlib import Path
 from pyarrow import parquet
-from pydantic import BaseModel
 import shutil
 from tempfile import TemporaryDirectory
-from typing import Callable, Any
+from typing import Callable
 import yaml
 
 from dcpy import configuration
@@ -463,38 +462,43 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
     return pg_client.execute_select_query(query, datasets=datasets)
 
 
-class Connector(BaseModel, VersionedConnector):
+class Connector(VersionedConnector):
     conn_type: str = "edm.recipes"
 
-    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError("edm.recipes deprecated for archiving")
 
-    def pull(
+    def push(self, key: str, **kwargs) -> dict:
+        raise NotImplementedError("edm.recipes deprecated for archiving")
+
+    def pull_versioned(
         self,
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        *,
+        file_type: DatasetType = DatasetType.parquet,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "file_type" in pull_conf
         return {
             "path": fetch_dataset(
-                Dataset(id=key, version=version, file_type=pull_conf["file_type"]),
+                Dataset(id=key, version=version, file_type=file_type),
                 target_dir=Path(),
                 _target_dataset_path_override=destination_path,
             )
         }
 
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
+
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return sorted(get_all_versions(name=key), reverse=sort_desc)
 
-    def query_latest_version(self, key: str) -> str:
+    def get_latest_version(self, key: str, **kwargs) -> str:
         return get_latest_version(name=key)
 
-    def version_exists(self, key: str, version: str) -> bool:
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return exists(Dataset(id=key, version=version))
 
-    def data_local_sub_path(
-        self, key: str, version: str, pull_conf: Any | None = None
-    ) -> Path:
+    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:
         return Path("edm") / "recipes" / DATASET_FOLDER / key / version

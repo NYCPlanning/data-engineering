@@ -7,7 +7,7 @@ from pathlib import Path
 import pytz
 import re
 import typer
-from typing import Callable, TypeVar, Any
+from typing import Callable, TypeVar
 from urllib.parse import urlencode, urljoin
 import yaml
 from zipfile import ZipFile
@@ -612,7 +612,6 @@ def publish_add_created_date(
     if version is None:
         with s3.get_file(bucket, f"{source}version.txt") as f:
             version = str(f.read())
-    print(version)
     old_metadata = s3.get_metadata(bucket, f"{source}{file_for_creation_date}")
     target = f"{product}/publish/{version}/"
     s3.copy_folder(
@@ -731,67 +730,93 @@ def log_event_in_db(event_details: EventLog) -> None:
 class PublishedConnector(VersionedConnector):
     conn_type: str = "edm.publishing.published"
 
-    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
-
-    def pull(
+    def _pull(
         self,
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        *,
+        dataset: str | None = None,
+        filepath: str,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "filepath" in pull_conf
         pub_key = PublishKey(key, version)
 
-        s3_path = pull_conf.get("dataset", "") + "/" if "dataset" in pull_conf else ""
+        s3_path = dataset + "/" if dataset else ""
 
         pulled_path = download_file(
             pub_key,
-            s3_path + pull_conf["filepath"],
+            s3_path + filepath,
             output_dir=destination_path,
         )
         return {"path": pulled_path}
 
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        return self._pull(key, version, destination_path, **kwargs)
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path=destination_path, **kwargs)
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def push(self, key: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return sorted(get_published_versions(key), reverse=sort_desc)
 
-    def query_latest_version(self, key: str) -> str:
+    def get_latest_version(self, key: str, **kwargs) -> str:
         return self.list_versions(key)[0]
 
-    def version_exists(self, key: str, version: str) -> bool:
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
 
-    def data_local_sub_path(
-        self, key: str, version: str, pull_conf: Any | None = None
-    ) -> Path:
+    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:  # type: ignore[override]
         return Path("edm") / "publishing" / "datasets" / key / version
 
 
 class DraftsConnector(VersionedConnector):
     conn_type: str = "edm.publishing.drafts"
 
-    def push(self, key: str, version: str, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
-
-    def pull(
+    def _pull(
         self,
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        *,
+        dataset: str | None = None,
+        filepath: str,
+        revision: str,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "filepath" in pull_conf and "revision" in pull_conf
-        dataset = pull_conf.get("dataset")
-        draft_key = DraftKey(key, version=version, revision=pull_conf["revision"])
+        draft_key = DraftKey(key, version=version, revision=revision)
 
-        path_prefix = "" if not dataset else f"{dataset}/"
-        file_path = f"{path_prefix}{pull_conf['filepath']}"
+        path_prefix = dataset + "/" if dataset else ""
+        file_path = f"{path_prefix}{filepath}"
         logger.info(f"Pulling Draft for {draft_key}, path={file_path}")
         pulled_path = download_file(draft_key, file_path, output_dir=destination_path)
         return {"path": pulled_path}
 
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        return self._pull(
+            key, version=version, destination_path=destination_path, **kwargs
+        )
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path=destination_path, **kwargs)
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def push(self, key: str, **kwargs) -> dict:
+        raise NotImplementedError()
+
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         logger.info(f"Listing versions for {key}")
         versions = sorted(get_draft_versions(key), reverse=sort_desc)
         assert versions, (
@@ -799,24 +824,16 @@ class DraftsConnector(VersionedConnector):
         )
         return versions
 
-    def query_latest_version(self, key: str) -> str:
+    def get_latest_version(self, key: str, **kwargs) -> str:
         return self.list_versions(key)[0]
 
-    def version_exists(self, key: str, version: str) -> bool:
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
 
     def data_local_sub_path(
-        self, key: str, version: str, pull_conf: Any | None = None
+        self, key: str, *, version: str, revision: str, **kwargs
     ) -> Path:
-        assert pull_conf and "revision" in pull_conf
-        return (
-            Path("edm")
-            / "publishing"
-            / "datasets"
-            / key
-            / version
-            / pull_conf["revision"]
-        )
+        return Path("edm") / "publishing" / "datasets" / key / version / revision
 
 
 app = typer.Typer(add_completion=False)
