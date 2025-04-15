@@ -113,6 +113,19 @@ class VersionedConnector(Connector, VersionSearch, ABC):
         """Push to a destination that implements versioning."""
 
 
+# TODO - this doesn't really belong. If we moved from key/version to more of a path, this could be done away with
+class StorageConnector(Connector, ABC):
+    """A connector that does not version datasets but only stores the "current" or "latest" versions"""
+
+    @abstractmethod
+    def exists(self, key: str) -> bool:
+        return False
+
+    @abstractmethod
+    def get_subfolders(self, prefix: str) -> list[str]:
+        return []
+
+
 _C = TypeVar("_C", bound=GenericConnector)
 _C2 = TypeVar("_C2", bound=GenericConnector)
 
