@@ -43,7 +43,6 @@ socioeconomic_conditions,Indirect Residential Displacement,ACS Socioeconomic Dat
 socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,
 socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,
 socioeconomic_conditions,Business Displacement,LEHD,
-socioeconomic_conditions,Business Displacement,Census Zip Code Business Patterns,
 socioeconomic_conditions,Indirect Residential Displacement,Area Median Income,
 community_facilities,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 community_facilities,Libraries,Census Tract Boundaries,
