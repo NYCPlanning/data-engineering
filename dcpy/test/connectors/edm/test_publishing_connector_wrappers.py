@@ -14,7 +14,7 @@ class TestPublishedConnector:
         PULL_CONF = {"filepath": "folder/data.csv", "dataset": "census"}
 
         self.conn.pull(
-            self.PRODUCT, version="123", pull_conf=PULL_CONF, destination_path=tmp_path
+            self.PRODUCT, version="123", destination_path=tmp_path, **PULL_CONF
         )
 
         expected_path = f"{self.DATASET}/{PULL_CONF['filepath']}"
@@ -73,8 +73,8 @@ class TestDraftsConnector:
         self.conn.pull(
             self.PRODUCT,
             version=expected_draft_key.version,
-            pull_conf=PULL_CONF,
             destination_path=tmp_path,
+            **PULL_CONF,
         )
 
         (

@@ -645,16 +645,12 @@ def _assert_gis_dataset_exists(name: str, version: str):
     bucket = _bucket()
     version = version.upper()
     if not s3.object_exists(bucket, _gis_dataset_path(name, version)):
-        print(_gis_dataset_path(name, version))
-        print(s3.list_objects(bucket, _gis_dataset_path(name, version)))
-        print(s3.object_exists(bucket, _gis_dataset_path(name, version)))
         raise FileNotFoundError(f"GIS dataset {name} has no version {version}")
 
 
-def get_latest_gis_dataset_version(dataset_name: str) -> str:
+def get_gis_dataset_versions(dataset_name: str, sort_desc: bool = True) -> list[str]:
     """
-    Get latest version of GIS-published dataset in edm-publishing/datasets
-    assuming versions are sortable
+    Get all versions of GIS-published dataset in edm-publishing/datasets
     """
     gis_version_formats = [r"^\d{2}[A-Z]$", r"^\d{8}$"]
     subfolders = []
@@ -669,7 +665,18 @@ def get_latest_gis_dataset_version(dataset_name: str) -> str:
             raise ValueError(
                 f"Multiple version formats found for gis dataset {dataset_name}. Cannot determine latest version"
             )
-    version = max(subfolders)
+    return sorted(subfolders, reverse=sort_desc)
+
+
+def get_latest_gis_dataset_version(dataset_name: str) -> str:
+    """
+    Get latest version of GIS-published dataset in edm-publishing/datasets
+    assuming versions are sortable
+    """
+    versions = get_gis_dataset_versions(dataset_name)
+    if not versions:
+        raise FileNotFoundError(f"No versions found for GIS dataset {dataset_name}")
+    version = versions[0]
     _assert_gis_dataset_exists(dataset_name, version)
     return version
 
@@ -834,6 +841,39 @@ class DraftsConnector(VersionedConnector):
         self, key: str, *, version: str, revision: str, **kwargs
     ) -> Path:
         return Path("edm") / "publishing" / "datasets" / key / version / revision
+
+
+class GisDatasetsConnector(VersionedConnector):
+    conn_type: str = "edm.publishing.gis"
+
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        pulled_path = download_gis_dataset(
+            dataset_name=key, version=version, target_folder=destination_path
+        )
+        return {"path": pulled_path}
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise PermissionError(
+            "Currently, only GIS team pushes to edm-publishing/datasets"
+        )
+
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self.pull_versioned(key, destination_path=destination_path, **kwargs)
+
+    def push(self, key: str, **kwargs) -> dict:
+        return self.push_versioned(key, **kwargs)
+
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
+        logger.info(f"Listing versions for {key}")
+        return get_gis_dataset_versions(key, sort_desc=sort_desc)
+
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        return get_latest_gis_dataset_version(key)
+
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
+        return version in self.list_versions(key)
 
 
 app = typer.Typer(add_completion=False)

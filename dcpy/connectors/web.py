@@ -2,6 +2,7 @@ from pathlib import Path
 import requests
 
 from dcpy.utils.logging import logger
+from dcpy.connectors.registry import Pull
 
 
 def download_file(url: str, path: Path) -> None:
@@ -14,3 +15,19 @@ def download_file(url: str, path: Path) -> None:
     response.raise_for_status()
     with open(path, "wb") as f:
         f.write(response.content)
+
+
+class WebConnector(Pull):
+    conn_type: str = "file_download"
+
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        *,
+        filename: str | None = None,
+        **kwargs,
+    ) -> dict:
+        filename = filename or Path(key).name
+        download_file(key, destination_path / filename)
+        return {"path": destination_path / filename}
