@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-from dcpy.connectors.drive import Connector
+from dcpy.connectors.filesystem import Connector
 
 
 @pytest.fixture()
@@ -49,7 +49,7 @@ class TestConnector:
         file = tmp_path / filename
         assert not file.exists()
         self.connector.pull(
-            key=tmp_file.name, destination_path=file, drive_path=tmp_path
+            key=tmp_file.name, destination_path=file, path_prefix=tmp_path
         )
         assert file.exists()
 
@@ -77,10 +77,9 @@ class TestConnector:
     # but this is the more important functionality to test
     def test_push_drive_kwarg(self, tmp_file: Path, tmp_path: Path):
         key = "test2.csv"
-        print(tmp_path)
         output_file = tmp_path / key
         assert not output_file.exists()
-        self.connector.push(key=key, filepath=tmp_file, drive_path=tmp_path)
+        self.connector.push(key=key, filepath=tmp_file, path_prefix=tmp_path)
         assert output_file.exists()
 
     def test_push_drive_with_path(self, tmp_file: Path, tmp_path: Path):

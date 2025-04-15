@@ -4,7 +4,7 @@
 import pytest
 from unittest.mock import MagicMock
 
-from dcpy.connectors.drive import Connector as DriveConnector
+from dcpy.connectors.filesystem import Connector as DriveConnector
 from dcpy.connectors.ingest_datastore import (
     Connector as IngestStorageConnector,
     config_filename,
