@@ -186,11 +186,13 @@ class ConnectorRegistry(Generic[_C]):
     def __contains__(self, item):
         return item in self._connectors
 
-    def get_subregistry(self, cls: type[_C2]) -> ConnectorRegistry[_C2]:
+    def get_subregistry(self, cls: type[_C2] | _C2) -> ConnectorRegistry[_C2]:
         connectors = {
-            t: conn for (t, conn) in self._connectors.items() if isinstance(conn, cls)
+            t: conn
+            for (t, conn) in self._connectors.items()
+            if isinstance(conn, cls)  # type: ignore
         }
-        return ConnectorRegistry(connectors=connectors)
+        return ConnectorRegistry(connectors=connectors)  # type: ignore
 
     @property
     def versioned(self) -> ConnectorRegistry[VersionedConnector]:
