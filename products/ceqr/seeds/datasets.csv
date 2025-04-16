@@ -1,6 +1,6 @@
 dataset_name,dataset_id,availability_type,file_type,geometry_type,source_url
 MapPLUTO Shoreline Clipped,dcp_mappluto_clipped,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page
-Population Projections,dcp_population_projects,download,excel,,
+DCP Housing and Population Projections,dcp_population_projects,download,excel,,
 ZAP Projects,dcp_projects,download,csv,,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-zap.page
 Zoning Districts,dcp_zoningdistricts,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
 Commercial Overlay Districts,dcp_commercialoverlay,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
@@ -39,9 +39,7 @@ Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://ww
 ACS Socioeconomic Data,,webpage,,,https://popfactfinder.planning.nyc.gov/
 Rent by AMI,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
 HUD CHAS,hud_chas,download,csv,,https://www.huduser.gov/portal/datasets/cp.html
-NYC Housing and Vacancy Survey,hpd_vacancy,download,csv,,https://www.census.gov/programs-surveys/nychvs.html
 LEHD,,webpage,,,https://lehd.ces.census.gov/data/#lodes
-Census Zip Code Business Patterns,,webpage,,,https://www.census.gov/data/developers/data-sets/cbp-zbp/zbp-api.html
 Area Median Income,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
 School District Boundaries,dcp_school_districts,download,shapefile,MULTIPOLYGON,https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/ArcGIS/rest/services/NYC_School_Districts/FeatureServer/0
 School Subdistrict Boundaries,doe_school_subdistricts,download,shapefile,MULTIPOLYGON,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Sub-District-Maps-335

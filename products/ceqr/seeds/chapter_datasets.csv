@@ -1,6 +1,6 @@
 chapter_id,use_category,dataset_name,use_details
 analysis_framework,Existing Condition,MapPLUTO Shoreline Clipped,Establishing built characterstics of parcels within the project area
-analysis_framework,Existing and No Action Condition,Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
+analysis_framework,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 analysis_framework,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
 land_use,Land Use,MapPLUTO Shoreline Clipped,Establishing land uses and mapping them within study areas
 land_use,Zoning,Zoning Districts,Establishing zoning within study areas
@@ -36,17 +36,15 @@ land_use,Guidance,NYC Waterfront Revitalization Program Overview,How to conduct 
 land_use,Forms,Jamaica Bay Watershed Protection Plan,Form required for projects within the Jamaica Bay Watershed
 land_use,Forms,WRP Consistency Assessment Form,Form required for WRP assessments
 land_use,Forms,Flood Elevation Worksheet,Worksheet required for WRP assessments
-socioeconomic_conditions,Existing and No Action Condition,Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
+socioeconomic_conditions,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 socioeconomic_conditions,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
 socioeconomic_conditions,Study Area,Census Tract Boundaries,
 socioeconomic_conditions,Indirect Residential Displacement,ACS Socioeconomic Data,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
 socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,
 socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,
-socioeconomic_conditions,Indirect Residential Displacement,NYC Housing and Vacancy Survey,
 socioeconomic_conditions,Business Displacement,LEHD,
-socioeconomic_conditions,Business Displacement,Census Zip Code Business Patterns,
 socioeconomic_conditions,Indirect Residential Displacement,Area Median Income,
-community_facilities,Existing and No Action Condition,Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
+community_facilities,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 community_facilities,Libraries,Census Tract Boundaries,
 community_facilities,Public Schools,School District Boundaries,
 community_facilities,Public Schools,School Subdistrict Boundaries,
@@ -59,7 +57,7 @@ community_facilities,Public Schools,School Seats Gained or To Be Created,
 community_facilities,Public Schools,All School Proposals,
 community_facilities,Public Schools,Projected Public School Ratio,
 community_facilities,Libraries,Facilities Database,
-open_space,Existing and No Action Condition,Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
+open_space,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 open_space,No Action Condition,ZAP Projects,
 open_space,Open Spaces,DPR Parks Properties,
 open_space,Base Maps,Census Tract Boundaries,
