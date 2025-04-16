@@ -15,5 +15,5 @@ def _cli_wrapper_get_versions(
     ),
     # TODO: support for kwargs / opts. (e.g. exclude_latest for publishing)
 ):
-    conn = connectors[connector]
+    conn = connectors.versioned[connector]
     print(conn.list_versions(key))

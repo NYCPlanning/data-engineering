@@ -16,7 +16,7 @@ attributes:
 
 ingestion:
   source:
-    type: esri
+    type: arcgis_feature_server
     server: dcp
     dataset: LiMWA
     layer_name: LiMWA

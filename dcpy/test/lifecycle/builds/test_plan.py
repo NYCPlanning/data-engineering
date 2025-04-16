@@ -4,8 +4,8 @@ import pytest
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
 
-from dcpy.models.lifecycle.builds import InputDataset
-from dcpy.connectors.registry import VersionedConnectorRegistry
+from dcpy.connectors.registry import ConnectorRegistry
+from dcpy.models.lifecycle.builds import InputDataset, StageConfValue
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
@@ -18,6 +18,8 @@ RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"
 RECIPE_NO_VERSION_PATH = RESOURCES_DIR / "recipe_no_version.yml"
 RECIPE_W_VERSION_TYPE = RESOURCES_DIR / "recipe_w_version_type.yml"
 RECIPE_W_MULTIPLE_SOURCES = RESOURCES_DIR / "recipe_edm_custom.yml"
+RECIPE_W_STAGES = RESOURCES_DIR / "recipe_w_stages.yml"
+RECIPE_W_UNRESOLVABLE_STAGES = RESOURCES_DIR / "recipe_w_unresolvable_var.yml"
 BUILD_METADATA_PATH = RESOURCES_DIR / "build_metadata.json"
 SOURCE_VERSIONS_PATH = RESOURCES_DIR / "source_data_versions.csv"
 
@@ -350,7 +352,7 @@ class TestConnectors:
         connector_registry.connectors._connectors = {}
         with pytest.raises(
             Exception,
-            match=VersionedConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
+            match=ConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
         ):
             plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
@@ -359,18 +361,43 @@ class TestConnectors:
         CONNECTOR_NAME = "edm.custom"
 
         edm_custom_mock = MagicMock(
-            query_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
+            get_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
         )
         edm_custom_mock.conn_type = "edm.custom"
 
         connector_registry.connectors.register(edm_custom_mock)
         recipe = plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
-        edm_custom_mock.query_latest_version.assert_called_once()
+        edm_custom_mock.get_latest_version.assert_called_once()
         resolved_custom_dataset = [
             ds for ds in recipe.inputs.datasets if ds.source == CONNECTOR_NAME
         ][0]
 
         assert resolved_custom_dataset.version == MOCK_LATEST_VERSION, (
             "The recipe should have the mock version applied"
+        )
+
+
+class TestPlanStageConfs(TestCase):
+    def test_planning_conf(self):
+        MY_BUILD_NOTE = "note about my build"
+        os.environ["BUILD_NOTE"] = MY_BUILD_NOTE
+        unplanned = plan.recipe_from_yaml(RECIPE_W_STAGES)
+        assert not unplanned.is_resolved(), (
+            "The recipe has unresolved vars, so it should not be considered resolved"
+        )
+
+        planned = plan.plan_recipe(RECIPE_W_STAGES)
+
+        connector_args = planned.stage_config["builds.build"].connector_args or []
+
+        build_note = [c.value for c in connector_args if c.name == "build_note"][0]
+        assert MY_BUILD_NOTE == build_note
+
+    def test_unresolvable_var(self):
+        with self.assertRaises(Exception) as e:
+            plan.recipe_from_yaml(RECIPE_W_UNRESOLVABLE_STAGES)
+
+        assert StageConfValue.UNRESOLVABLE_ERROR in str(e.exception), (
+            "The error should mention that the stage var is unresolvable."
         )

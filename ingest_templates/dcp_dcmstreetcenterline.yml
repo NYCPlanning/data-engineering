@@ -3,26 +3,27 @@ acl: public-read
 
 attributes:
   name: DCM-Street Center Line
-  description: Citywide street center-line features representing official street names and widths shown on the Official City Map of New York City.
+  description: Citywide street center-line features representing official street names and
+    widths shown on the Official City Map of New York City.
   url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-digital-city-map.page
 
 ingestion:
   target_crs: EPSG:4326
   source:
-    type: edm_publishing_gis_dataset
+    type: edm.publishing.gis
     name: dcp_dcm_street_centerline
   file_format:
     type: shapefile
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: coerce_column_types
     args:
-      column_types: {"edit_date": "date"}
+      column_types: { "edit_date": "date" }
       errors: coerce
   - name: pd_series_func
     args:

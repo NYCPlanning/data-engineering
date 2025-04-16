@@ -20,14 +20,14 @@ def _cli_wrapper_run(
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Push to latest folder in s3"
     ),
-    push_to_s3: bool = typer.Option(False, "--push-to-s3", "-s"),
+    push: bool = typer.Option(False, "--push", "-p"),
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
     local_file_path: Path = typer.Option(
         None,
         "--local-file-path",
-        "-p",
+        "-f",
         help="Use local file path as source, overriding source in template",
     ),
     template_dir: Path = typer.Option(
@@ -42,7 +42,7 @@ def _cli_wrapper_run(
         version,
         mode=mode,
         latest=latest,
-        push_to_s3=push_to_s3,
+        push=push,
         output_csv=csv,
         local_file_path=local_file_path,
         template_dir=template_dir,

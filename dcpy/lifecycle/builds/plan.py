@@ -88,20 +88,21 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         recipe.vars["VERSION_TYPE"] = recipe.version_type.value
 
     # Determine previous version
-    try:
-        previous_recipe = publishing.get_previous_version(
-            product=recipe.product, version=recipe.version
-        )
-        logger.info(
-            f"Previous version of {recipe.product}: {previous_recipe.label} ({previous_recipe})"
-        )
-        recipe.vars["VERSION_PREV"] = previous_recipe.label
-    except (
-        LookupError,
-        ValueError,
-        TypeError,
-    ) as e:  # versions not found, or don't parse correctly
-        logger.error(f"Error: {e}")
+    if "VERSION_PREV" not in recipe.vars:
+        try:
+            previous_recipe = publishing.get_previous_version(
+                product=recipe.product, version=recipe.version
+            )
+            logger.info(
+                f"Previous version of {recipe.product}: {previous_recipe.label} ({previous_recipe})"
+            )
+            recipe.vars["VERSION_PREV"] = previous_recipe.label
+        except (
+            LookupError,
+            ValueError,
+            TypeError,
+        ) as e:  # versions not found, or don't parse correctly
+            logger.error(f"Error: {e}")
 
     # Add vars to environ so both can be accessed in environ
     logger.info(f"Export envars: {recipe.vars}")
@@ -148,9 +149,10 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 ds.version = "latest"
 
         if ds.version == "latest":
+            assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
             connector = connectors[ds.source]
             logger.info(f"Querying versions for {connector.conn_type}")
-            ds.version = connector.query_latest_version(ds.id)
+            ds.version = connector.get_latest_version(ds.id)
 
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
@@ -160,6 +162,14 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
                 ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
             )
+
+    # set stage env vars
+    for conf in recipe.get_unresolved_conf_values():
+        if "env" in conf.value_from:
+            env_var = conf.value_from["env"]
+            if env_var not in os.environ:
+                raise Exception(f"build.plan requires missing env var: {env_var}")
+            conf.value = os.environ[env_var]
 
     return recipe
 
@@ -279,7 +289,6 @@ def repeat_build(
 
         template_recipe = recipe_from_yaml(recipe_file)
         source_data_versions = publishing.get_source_data_versions(product_key)
-        print(source_data_versions)
         recipe = repeat_recipe_from_source_data_versions(
             version, source_data_versions, template_recipe
         )

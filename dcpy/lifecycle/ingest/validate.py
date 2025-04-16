@@ -1,4 +1,3 @@
-from enum import StrEnum
 import pandas as pd
 from pathlib import Path
 
@@ -7,15 +6,7 @@ from dcpy.connectors.edm import recipes
 from dcpy.utils.logging import logger
 
 
-class ArchiveAction(StrEnum):
-    push = "push"
-    update_freshness = "update_freshness"
-    do_nothing = "do_nothing"
-
-
-def validate_against_existing_versions(
-    ds: recipes.Dataset, filepath: Path
-) -> ArchiveAction:
+def validate_against_existing_versions(ds: recipes.Dataset, filepath: Path) -> bool:
     """
     This function is called after a dataset has been preprocessed, just before archival
     It's called in the case that the version of the dataset in the config (either provided or calculated)
@@ -28,7 +19,7 @@ def validate_against_existing_versions(
     existing_config = recipes.try_get_config(ds)
     if not existing_config:
         logger.info(f"Dataset '{ds.key}' does not exist in recipes bucket")
-        return ArchiveAction.push
+        return True
     else:
         if isinstance(existing_config, Config):
             new = pd.read_parquet(filepath)
@@ -37,7 +28,7 @@ def validate_against_existing_versions(
                 logger.info(
                     f"Dataset '{ds.key}' already exists and matches newly processed data"
                 )
-                return ArchiveAction.update_freshness
+                return False
             else:
                 raise FileExistsError(
                     f"Archived dataset '{ds.key}' already exists and has different data."
@@ -49,4 +40,4 @@ def validate_against_existing_versions(
             logger.warning(
                 f"previous version of '{ds.key}' archived is from library. cannot update freshness"
             )
-            return ArchiveAction.do_nothing
+            return False

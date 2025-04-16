@@ -15,6 +15,7 @@ def _set_default_conf():
                 "stages": {
                     "plan": {"local_data_path": "plan"},
                     "load": {"local_data_path": "load"},
+                    "build": {"local_data_path": "build"},
                 },
             },
             "package": {
@@ -33,7 +34,19 @@ def _set_default_conf():
 CONF = _set_default_conf()
 
 
-def stage_conf(stages: str):
+def list_stages():
+    stage_names = set()
+
+    # this assumes no sub-sub-stages...
+    for stage_name, stage in CONF["stages"].items():
+        if "stages" in stage:
+            stage_names.update([f"{stage_name}.{s}" for s in stage["stages"].keys()])
+        else:
+            stage_names.add(stage_name)
+    return stage_names
+
+
+def stage_config(stages: str):
     """Retrieve the configuration for a stage.
 
     stage should be a dot delmited list of stages.substages.etc, e.g. `package.qa`
