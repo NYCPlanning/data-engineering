@@ -14,7 +14,7 @@ class TestPublishedConnector:
         PULL_CONF = {"filepath": "folder/data.csv", "dataset": "census"}
 
         self.conn.pull(
-            self.PRODUCT, version="123", pull_conf=PULL_CONF, destination_path=tmp_path
+            self.PRODUCT, version="123", destination_path=tmp_path, **PULL_CONF
         )
 
         expected_path = f"{self.DATASET}/{PULL_CONF['filepath']}"
@@ -33,7 +33,7 @@ class TestPublishedConnector:
     def test_query_latest(self, get_published_versions):
         VERSIONS = ["1", "2", "3"]
         get_published_versions.side_effect = Mock(return_value=VERSIONS)
-        latest = self.conn.query_latest_version(self.PRODUCT)
+        latest = self.conn.get_latest_version(self.PRODUCT)
         assert VERSIONS[-1] == latest
 
     @patch("dcpy.connectors.edm.publishing.get_published_versions")
@@ -73,8 +73,8 @@ class TestDraftsConnector:
         self.conn.pull(
             self.PRODUCT,
             version=expected_draft_key.version,
-            pull_conf=PULL_CONF,
             destination_path=tmp_path,
+            **PULL_CONF,
         )
 
         (
@@ -88,7 +88,7 @@ class TestDraftsConnector:
     def test_query_latest(self, get_draft_versions):
         VERSIONS = ["1", "2", "3"]
         get_draft_versions.side_effect = Mock(return_value=VERSIONS)
-        latest = self.conn.query_latest_version(self.PRODUCT)
+        latest = self.conn.get_latest_version(self.PRODUCT)
         assert VERSIONS[-1] == latest
 
     @patch("dcpy.connectors.edm.publishing.get_draft_versions")

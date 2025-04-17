@@ -11,6 +11,7 @@ from dcpy.models.connectors.esri import (
 from dcpy.connectors.esri import arcgis_feature_service as arcfs
 from dcpy.test.conftest import mock_request_get, MockResponse
 
+DATASET_NAME = "National_Register_Building_Listings"
 LAYER_NAME = "National Register Building Listings"
 LAYER_ID = 13
 LAYER_LABEL = "National Register Building Listings (13)"
@@ -70,7 +71,7 @@ class TestResolveLayer(TestCase):
             arcfs.resolve_layer(MULTIPLE_LAYER_FS)
 
     def test_implicit_single(self, request_get):
-        dataset = "National_Register_Building_Listings"
+        dataset = DATASET_NAME
         fs = FeatureServer(server=Server.nys_parks, name=dataset)
         layer = FeatureServerLayer(
             server=Server.nys_parks,
@@ -145,9 +146,9 @@ class TestGetLayer:
 
 @patch("requests.get", side_effect=mock_request_get)
 @patch("requests.post", side_effect=mock_query_layer)
-def test_download_layer(get, post, create_temp_filesystem):
+def test_download_layer(get, post, tmp_path):
     filename = "does_not_exist.geojson"
-    dataset = "National_Register_Building_Listings"
+    dataset = DATASET_NAME
     layer = FeatureServerLayer(
         server=Server.nys_parks,
         name=dataset,
@@ -157,7 +158,38 @@ def test_download_layer(get, post, create_temp_filesystem):
     arcfs.download_layer(
         layer=layer,
         crs="EPSG:3857",
-        path=create_temp_filesystem / filename,
+        path=tmp_path / filename,
     )
-    print(create_temp_filesystem / filename)
-    assert (create_temp_filesystem / filename).exists()
+    print(tmp_path / filename)
+    assert (tmp_path / filename).exists()
+
+
+# the above tests handle specific cases
+# the below are more just to make sure the connector class interacts with them properly
+class TestConnector:
+    connector = arcfs.ArcGISFeatureServiceConnector()
+    conf = {
+        "server": Server.nys_parks,
+        "layer_name": LAYER_NAME,
+        "layer_id": LAYER_ID,
+    }
+
+    @patch("requests.get", side_effect=mock_request_get)
+    @patch("requests.post", side_effect=mock_query_layer)
+    def test_pull(self, get, post, tmp_path):
+        res = self.connector.pull(
+            key=DATASET_NAME, destination_path=tmp_path, **self.conf
+        )
+        assert res["path"].exists()
+
+    @patch("requests.get", side_effect=mock_request_get)
+    @patch("requests.post", side_effect=mock_query_layer)
+    def test_get_latest_version(self, get, post):
+        assert (
+            self.connector.get_latest_version(key=DATASET_NAME, **self.conf)
+            == "20240806"
+        )
+
+    def test_push(self):
+        with pytest.raises(NotImplementedError):
+            self.connector.push(key=DATASET_NAME, **self.conf)

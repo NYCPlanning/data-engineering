@@ -1,14 +1,15 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 from functools import cached_property
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel, Field, AliasChoices
+from pydantic import BaseModel, Field, AliasChoices, model_validator
 from typing import Any, Literal, TypeAlias
 
 from dcpy.utils.metadata import RunDetails
-from dcpy.models.connectors.edm import recipes, publishing
-from dcpy.models.connectors import web, socrata, esri
+from dcpy.models.connectors.edm import recipes
+from dcpy.models.connectors import socrata, esri
 from dcpy.models import file
 from dcpy.models.base import SortedSerializedBase
 from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
@@ -16,31 +17,93 @@ from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
 from dcpy.connectors.esri import arcgis_feature_service
 
 
-class LocalFileSource(BaseModel, extra="forbid"):
+class ConnectorSource(BaseModel, ABC):
+    _ds_id: str | None = None
+
+    @abstractmethod
+    def get_key(self) -> str:
+        """unique identifier of a dataset for this source type"""
+
+
+class LocalFileSource(ConnectorSource, extra="forbid"):
     type: Literal["local_file"]
     path: Path
 
+    def get_key(self) -> str:
+        return str(self.path)
 
-class S3Source(BaseModel, extra="forbid"):
+
+class S3Source(ConnectorSource, extra="forbid"):
     type: Literal["s3"]
     bucket: str
     key: str
 
-
-class ScriptSource(BaseModel, extra="forbid"):
-    type: Literal["script"]
-    connector: str
-    function: str
+    def get_key(self) -> str:
+        return self.key
 
 
-class DEPublished(BaseModel, extra="forbid"):
-    type: Literal["de-published"]
+class FileDownloadSource(ConnectorSource, extra="forbid"):
+    type: Literal["file_download"]
+    url: str
+
+    def get_key(self) -> str:
+        return self.url
+
+
+class GenericApiSource(ConnectorSource, extra="forbid"):
+    type: Literal["api"]
+    endpoint: str
+    format: Literal["json", "csv"]
+
+    def get_key(self) -> str:
+        return self.endpoint
+
+    def model_dump(self, **kwargs) -> dict[str, Any]:
+        dump = super().model_dump(**kwargs)
+        dump["filename"] = f"{self._ds_id or 'raw'}.{self.format}"
+        return dump
+
+
+class DEPublished(ConnectorSource, extra="forbid"):
+    type: Literal["edm.publishing.published"]
     product: str
     filename: str
 
+    def get_key(self) -> str:
+        return self.product
 
-class ESRIFeatureServer(BaseModel, extra="forbid"):
-    type: Literal["esri"]
+
+class GisDataset(ConnectorSource, extra="forbid"):
+    """Dataset published by GIS in edm-publishing/datasets"""
+
+    # Some datasets here will phased out if we eventually get data
+    # directly from GR or other sources
+    type: Literal["edm.publishing.gis"]
+    name: str
+
+    def get_key(self) -> str:
+        return self.name
+
+
+class SocrataSource(ConnectorSource, extra="forbid"):
+    type: Literal["socrata"]
+    org: socrata.Org
+    uid: str
+    format: socrata.ValidSourceFormats
+
+    @property
+    def extension(self) -> str:
+        if self.format == "shapefile":
+            return "zip"
+        else:
+            return self.format
+
+    def get_key(self) -> str:
+        return self.uid
+
+
+class ESRIFeatureServer(ConnectorSource, extra="forbid"):
+    type: Literal["arcgis_feature_server"]
     server: esri.Server
     dataset: str
     layer_name: str | None = None
@@ -60,16 +123,18 @@ class ESRIFeatureServer(BaseModel, extra="forbid"):
         )
         return feature_server_layer
 
+    def get_key(self) -> str:
+        return self.dataset
+
 
 Source: TypeAlias = (
     LocalFileSource
-    | web.FileDownloadSource
-    | web.GenericApiSource
-    | socrata.Source
-    | publishing.GisDataset
-    | DEPublished
+    | FileDownloadSource
+    | GenericApiSource
     | S3Source
-    | ScriptSource
+    | SocrataSource
+    | GisDataset
+    | DEPublished
     | ESRIFeatureServer
 )
 
@@ -92,7 +157,6 @@ class DatasetAttributes(SortedSerializedBase):
 
 class ArchivalMetadata(SortedSerializedBase):
     archival_timestamp: datetime
-    check_timestamps: list[datetime] = []
     raw_filename: str
     acl: recipes.ValidAclValues | None = None
 
@@ -146,6 +210,10 @@ class Template(BaseModel, extra="forbid"):
             case file.Csv() | file.Excel() | file.Json() | file.Html() as format:
                 return format.geometry is not None
 
+    @model_validator(mode="after")
+    def validate_objects(self):
+        self.ingestion.source._ds_id = self.id
+
 
 class Config(SortedSerializedBase, extra="forbid"):
     """
@@ -194,12 +262,4 @@ class Config(SortedSerializedBase, extra="forbid"):
             id=self.id,
             timestamp=self.archival.archival_timestamp,
             filename=self.archival.raw_filename,
-        )
-
-    @property
-    def freshness(self) -> datetime:
-        return (
-            self.archival.archival_timestamp
-            if not self.archival.check_timestamps
-            else max(self.archival.check_timestamps)
         )

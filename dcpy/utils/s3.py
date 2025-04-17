@@ -178,9 +178,13 @@ def download_file(
     bucket: str,
     key: str,
     path: Path,
-) -> None:
+) -> Path:
     """Downloads a file from S3"""
-    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_dir():
+        filepath = path / Path(key).name
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        filepath = path
     with _progress() as progress:
         size = get_metadata(bucket, key).content_length
         task = progress.add_task(
@@ -189,9 +193,10 @@ def download_file(
         client().download_file(
             Bucket=bucket,
             Key=key,
-            Filename=str(path),
+            Filename=str(filepath),
             Callback=lambda bytes: progress.update(task, advance=bytes),
         )
+    return filepath
 
 
 def upload_file(

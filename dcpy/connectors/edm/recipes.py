@@ -1,14 +1,12 @@
 from datetime import datetime
-from io import BytesIO
 import json
 import os
 import pandas as pd
 from pathlib import Path
 from pyarrow import parquet
-from pydantic import BaseModel
 import shutil
 from tempfile import TemporaryDirectory
-from typing import Callable, Any
+from typing import Callable
 import yaml
 
 from dcpy import configuration
@@ -113,27 +111,6 @@ def set_latest(key: DatasetKey, acl):
         f"{DATASET_FOLDER}/{key.id}/latest/",
         acl=acl,
     )
-
-
-def update_freshness(ds: DatasetKey, timestamp: datetime) -> datetime:
-    bucket = _bucket()
-    path = f"{DATASET_FOLDER}/{ds.id}/{ds.version}/config.json"
-    config = get_config(ds.id, ds.version)
-    if isinstance(config, library.Config):
-        raise TypeError(
-            f"Cannot update freshness of dataset {ds} as it was archived by library, not ingest"
-        )
-    config.archival.check_timestamps.append(timestamp)
-    config_str = json.dumps(config.model_dump(mode="json"))
-    assert config.archival.acl, "Impossible - s3-archived dataset missing acl"
-    s3.upload_file_obj(
-        BytesIO(config_str.encode()),
-        bucket,
-        path,
-        config.archival.acl,
-        metadata=s3.get_custom_metadata(bucket, path),
-    )
-    return config.archival.archival_timestamp
 
 
 def get_config(name: str, version="latest") -> library.Config | ingest.Config:
@@ -485,38 +462,37 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
     return pg_client.execute_select_query(query, datasets=datasets)
 
 
-class Connector(BaseModel, VersionedConnector):
+class Connector(VersionedConnector):
     conn_type: str = "edm.recipes"
 
-    def push(self, key: str, version, push_conf: dict | None = {}) -> dict:
-        raise NotImplementedError("Sorry :)")
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        raise NotImplementedError("edm.recipes deprecated for archiving")
 
-    def pull(
+    def pull_versioned(
         self,
         key: str,
         version: str,
         destination_path: Path,
-        pull_conf: dict | None = {},
+        *,
+        file_type: DatasetType = DatasetType.parquet,
+        **kwargs,
     ) -> dict:
-        assert pull_conf and "file_type" in pull_conf
         return {
             "path": fetch_dataset(
-                Dataset(id=key, version=version, file_type=pull_conf["file_type"]),
+                Dataset(id=key, version=version, file_type=file_type),
                 target_dir=Path(),
                 _target_dataset_path_override=destination_path,
             )
         }
 
-    def list_versions(self, key: str, sort_desc: bool = True) -> list[str]:
+    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return sorted(get_all_versions(name=key), reverse=sort_desc)
 
-    def query_latest_version(self, key: str) -> str:
+    def get_latest_version(self, key: str, **kwargs) -> str:
         return get_latest_version(name=key)
 
-    def version_exists(self, key: str, version: str) -> bool:
+    def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return exists(Dataset(id=key, version=version))
 
-    def data_local_sub_path(
-        self, key: str, version: str, pull_conf: Any | None = None
-    ) -> Path:
+    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:
         return Path("edm") / "recipes" / DATASET_FOLDER / key / version

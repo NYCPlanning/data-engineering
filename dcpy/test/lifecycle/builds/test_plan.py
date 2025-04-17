@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
 
 from dcpy.models.lifecycle.builds import InputDataset
-from dcpy.connectors.registry import VersionedConnectorRegistry
+from dcpy.connectors.registry import ConnectorRegistry
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
@@ -350,7 +350,7 @@ class TestConnectors:
         connector_registry.connectors._connectors = {}
         with pytest.raises(
             Exception,
-            match=VersionedConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
+            match=ConnectorRegistry.MISSING_CONN_ERROR_PREFIX,
         ):
             plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
@@ -359,14 +359,14 @@ class TestConnectors:
         CONNECTOR_NAME = "edm.custom"
 
         edm_custom_mock = MagicMock(
-            query_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
+            get_latest_version=Mock(return_value=MOCK_LATEST_VERSION)
         )
         edm_custom_mock.conn_type = "edm.custom"
 
         connector_registry.connectors.register(edm_custom_mock)
         recipe = plan.plan_recipe(RECIPE_W_MULTIPLE_SOURCES)
 
-        edm_custom_mock.query_latest_version.assert_called_once()
+        edm_custom_mock.get_latest_version.assert_called_once()
         resolved_custom_dataset = [
             ds for ds in recipe.inputs.datasets if ds.source == CONNECTOR_NAME
         ][0]

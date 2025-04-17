@@ -6,8 +6,12 @@ from pydantic import BaseModel
 
 from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.models import file
-from dcpy.models.connectors import socrata, web
-from dcpy.models.lifecycle.ingest import LocalFileSource
+from dcpy.models.lifecycle.ingest import (
+    FileDownloadSource,
+    GenericApiSource,
+    LocalFileSource,
+    SocrataSource,
+)
 from dcpy.utils import s3
 from dcpy.lifecycle.ingest import configure
 
@@ -16,7 +20,6 @@ from .shared import (
     RESOURCES,
     TEST_DATASET_NAME,
     Sources,
-    SOURCE_FILENAMES,
     TEMPLATE_DIR,
 )
 
@@ -36,7 +39,7 @@ class TestReadTemplate:
 
     def test_simple(self):
         template = configure.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
-        assert isinstance(template.ingestion.source, web.GenericApiSource)
+        assert isinstance(template.ingestion.source, GenericApiSource)
         assert isinstance(
             template.ingestion.file_format,
             file.Json,
@@ -46,7 +49,7 @@ class TestReadTemplate:
         template = configure.read_template(
             "dcp_atomicpolygons", version="test", template_dir=TEMPLATE_DIR
         )
-        assert isinstance(template.ingestion.source, web.FileDownloadSource)
+        assert isinstance(template.ingestion.source, FileDownloadSource)
         assert isinstance(
             template.ingestion.file_format,
             file.Shapefile,
@@ -69,17 +72,15 @@ class SparseBuildMetadata(BaseModel):
 class TestGetVersion:
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_socrata(self, get):
-        source = socrata.Source(
-            type="socrata", org="nyc", uid="w7w3-xahh", format="csv"
-        )
+        source = SocrataSource(type="socrata", org="nyc", uid="w7w3-xahh", format="csv")
         ### based on mocked response in dcpy/test/conftest.py
-        assert configure.get_version(source) == "20240412"
+        assert configure.get_version(source, None) == "20240412"
 
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_esri(self, get):
         source = Sources.esri
         ### based on mocked response in dcpy/test/conftest.py
-        configure.get_version(source) == "20240806"
+        configure.get_version(source, None) == "20240806"
 
     def test_gis_dataset(self, create_buckets):
         datestring = "20240412"
@@ -87,36 +88,22 @@ class TestGetVersion:
             Bucket=PUBLISHING_BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
         )
-        assert configure.get_version(Sources.gis) == datestring
+        assert configure.get_version(Sources.gis, None) == datestring
 
     @mock.patch("dcpy.connectors.edm.publishing.BuildMetadata", SparseBuildMetadata)
     def test_de_publishing(self, create_buckets):
         datestring = "20240412"
         s3.client().put_object(
             Bucket=PUBLISHING_BUCKET,
-            Key=f"{TEST_DATASET_NAME}/publish/latest/build_metadata.json",
+            Key=f"{TEST_DATASET_NAME}/publish/{datestring}/build_metadata.json",
             Body=f"{{'version': '{datestring}'}}".encode(),
         )
-        assert configure.get_version(Sources.de_publish) == datestring
+        assert configure.get_version(Sources.de_publish, None) == datestring
 
     def test_rely_on_timestamp(self):
         timestamp = datetime.today()
         source = LocalFileSource(type="local_file", path=Path("."))
         assert configure.get_version(source, timestamp) == timestamp.strftime("%Y%m%d")
-
-    def test_rely_on_timestamp_fails(self):
-        with pytest.raises(TypeError, match="Version cannot be dynamically determined"):
-            configure.get_version(LocalFileSource(type="local_file", path=Path(".")))
-
-
-@pytest.mark.parametrize(["source", "expected"], SOURCE_FILENAMES)
-def test_get_filename(source, expected):
-    configure.get_filename(source, TEST_DATASET_NAME) == expected
-
-
-def test_get_filename_invalid_source():
-    with pytest.raises(NotImplementedError, match="Source type"):
-        configure.get_filename(None, TEST_DATASET_NAME)
 
 
 class TestGetConfig:

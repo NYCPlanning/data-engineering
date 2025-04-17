@@ -15,7 +15,7 @@ attributes:
 
 ingestion:
   source:
-    type: esri
+    type: arcgis_feature_server
     server: dcp
     dataset: S_FLD_HAZ_AR
     layer_name: S_FLD_HAZ_AR

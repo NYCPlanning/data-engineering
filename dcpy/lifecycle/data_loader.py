@@ -21,9 +21,11 @@ def pull_dataset(ds: InputDataset, stage: str) -> Path:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
     if ds.file_type is None:
         raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
+    if ds.source is None:
+        raise Exception(f"Cannot import a dataset with no source: {ds}")
 
     ds.custom["file_type"] = ds.file_type
-    connector = connectors[ds.source]
+    connector = connectors.pull[ds.source]
 
     stage_path = config.local_data_path_for_stage(stage)
     conn_sub_path = connector.get_pull_local_sub_path(
@@ -33,7 +35,7 @@ def pull_dataset(ds: InputDataset, stage: str) -> Path:
         key=ds.id,
         version=ds.version,
         destination_path=stage_path / conn_sub_path,
-        pull_conf=ds.custom,
+        **ds.custom,
     )
     logger.info(f"Pulled {ds.id} to {pull_res['path']}.")
     return pull_res["path"]
@@ -213,5 +215,5 @@ def _cli_wrapper_get_versions(
     ),
     # TODO: support for kwargs / opts
 ):
-    conn = connectors[connector]
+    conn = connectors.versioned[connector]
     print(conn.list_versions(key))

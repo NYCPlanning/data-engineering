@@ -1,9 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from pydantic import BaseModel
-from typing import Literal
-
 
 class ProductKey(ABC):
     product: str
@@ -52,12 +49,3 @@ class BuildKey(ProductKey):
     @property
     def path(self) -> str:
         return f"{self.product}/build/{self.build}"
-
-
-class GisDataset(BaseModel, extra="forbid"):
-    """Dataset published by GIS in edm-publishing/datasets"""
-
-    # Some datasets here will phased out if we eventually get data
-    # directly from GR or other sources
-    type: Literal["edm_publishing_gis_dataset"]
-    name: str
