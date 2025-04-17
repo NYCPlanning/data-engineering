@@ -37,8 +37,8 @@ inputs:
     - name: dcp_facilities
     - name: dcp_pops
     - name: dot_pedplazas
-    # - name: dcp_public_waterfront_access_areas
-    # - name: dcp_publicly_owned_waterfront
+    - name: dcp_waterfront_public_access_areas
+    - name: dcp_publicly_owned_waterfront
     - name: nysparks_parks
     - name: usnps_parks
     - name: dpr_capitalprojects

@@ -54,7 +54,7 @@ Projected Public School Ratio,,webpage,,,https://www.nycsca.org/Community/Capita
 Facilities Database,dcp_facilities,download,shapefile,MULTIPOINT,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page
 POPS,dcp_pops,download,shapefile,MULTIPOINT,https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn/about_data
 Plazas,dot_pedplazas,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex/about_data
-Public Waterfront Access Areas,dcp_public_waterfront_access_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
+Waterfront Public Access Areas,dcp_waterfront_public_access_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
 Publicly Owned Waterfront,dcp_publicly_owned_waterfront,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
 NYS Parks,nysparks_parks,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
 Federal Parks,usnps_parks,download,shapefile,MULTIPOLYGON,N/A
