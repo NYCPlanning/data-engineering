@@ -9,7 +9,7 @@ Limited Height Districts,dcp_limitedheight,download,shapefile,MULTIPOLYGON,https
 Special Purpose Subdistricts,dcp_specialpurposesubdistricts,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
 Zoning Map Amendments,dcp_zoningmapamendments,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
 Preliminary Flood Insurance Rate Maps 2015,dcp_pfirms,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=1e56cf3d576849d1a6936f9cdcd3511d
-Base Flood Elevation 2015,dcp_base_flood_elevation_2015,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=5268a74fd4b04a7894c9b85ef7a8a6a3
+Base Flood Elevation 2015,,webpage,,,https://dcp.maps.arcgis.com/apps/webappviewer/index.html?id=1c37d271fba14163bbb520517153d6d5
 Limit of Moderate Wave Action,dcp_limwa,download,shapefile,MULTILINESTRING,https://dcp.maps.arcgis.com/home/item.html?id=e089b65f8a914c80ab72082a1522c7f2
 Future Floodplain 2050s,dcp_floodplain_2050_100,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=cc996fdd1a134d18a6ae7e3a1ecfe84b
 Coastal Zone Boundary,dcp_wrp_coastal_zone_boundary,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
