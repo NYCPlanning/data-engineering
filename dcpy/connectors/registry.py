@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Protocol, Any, TypeVar, Generic, overload
+from typing import Protocol, Any, TypeVar, Generic, overload, Callable
 
 from dcpy.utils.logging import logger
 
@@ -186,20 +186,24 @@ class ConnectorRegistry(Generic[_C]):
     def __contains__(self, item):
         return item in self._connectors
 
-    def get_subregistry(self, cls: type[_C2]) -> ConnectorRegistry[_C2]:
+    def get_subregistry(
+        self, cls: type[_C2] | Callable[[], _C2]
+    ) -> ConnectorRegistry[_C2]:
+        # just declare that our cls is a type, and get on with our lives
+        _cls: type[_C2] = cls  # type: ignore
         connectors = {
-            t: conn for (t, conn) in self._connectors.items() if isinstance(conn, cls)
+            t: conn for (t, conn) in self._connectors.items() if isinstance(conn, _cls)
         }
         return ConnectorRegistry(connectors=connectors)
 
     @property
     def versioned(self) -> ConnectorRegistry[VersionedConnector]:
-        return self.get_subregistry(VersionedConnector)  # type: ignore[type-abstract]
+        return self.get_subregistry(VersionedConnector)
 
     @property
     def pull(self) -> ConnectorRegistry[Pull]:
-        return self.get_subregistry(Pull)  # type: ignore[type-abstract]
+        return self.get_subregistry(Pull)
 
     @property
     def push(self) -> ConnectorRegistry[Push]:
-        return self.get_subregistry(Push)  # type: ignore[type-abstract]
+        return self.get_subregistry(Push)
