@@ -1,0 +1,18 @@
+id: dcp_floodplain_2050_100
+acl: public-read
+
+attributes:
+  name: Future Floodplain 2050s 100-year
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: dcp_gis_team/futurefloodplains_fdny.gdb.zip
+  file_format:
+    type: geodatabase
+    layer: FutureFloodplains_2050_100yr_NPCC2014
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
