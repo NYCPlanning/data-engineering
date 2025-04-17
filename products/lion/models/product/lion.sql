@@ -4,7 +4,7 @@ WITH centerline AS (
 
 atomic_polygons AS (
     SELECT * FROM {{ ref("int__centerline_atomicpolygons") }}
-),
+)
 
 SELECT
     centerline.boroughcode,
