@@ -14,7 +14,7 @@ singlename AS (
 master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.facname,
         b.geom
     FROM
@@ -22,9 +22,9 @@ master AS (
         _dcp_facilities AS b
     WHERE
         a.geom IS NULL
-        AND a.facility_or_park_name IS NOT NULL
+        AND a.site_or_facility_name IS NOT NULL
         AND b.facname LIKE ('%' || ' ' || '%' || ' ' || '%')
-        AND '%' || UPPER(a.facility_or_park_name) || '%' LIKE '%' || UPPER(b.facname) || '%'
+        AND '%' || UPPER(a.site_or_facility_name) || '%' LIKE '%' || UPPER(b.facname) || '%'
         AND b.facname IN (
             SELECT facname
             FROM
@@ -45,7 +45,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.facname,
         b.geom
     FROM
@@ -58,25 +58,25 @@ WITH master AS (
                 UPPER(facgroup) = 'LIBRARIES'
         ) AS b
     WHERE (
-        UPPER(a.facility_or_park_name)
+        UPPER(a.site_or_facility_name)
         LIKE '%LIBRARY%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%BRANCH%'
     )
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%&%'
     AND (
         (
             '%'
-            || UPPER(REPLACE(a.facility_or_park_name, ' Branch', ' Library'))
+            || UPPER(REPLACE(a.site_or_facility_name, ' Branch', ' Library'))
             || '%' LIKE '%'
             || UPPER(b.facname)
             || '%'
         )
-        OR ('%' || UPPER(REPLACE(a.facility_or_park_name, ' Branch', '')) || '%' LIKE '%' || UPPER(b.facname) || '%')
-        OR ('%' || UPPER(a.facility_or_park_name) || '%' LIKE '%' || UPPER(b.facname) || '%')
+        OR ('%' || UPPER(REPLACE(a.site_or_facility_name, ' Branch', '')) || '%' LIKE '%' || UPPER(b.facname) || '%')
+        OR ('%' || UPPER(a.site_or_facility_name) || '%' LIKE '%' || UPPER(b.facname) || '%')
     )
     AND UPPER(a.borough) = UPPER(b.boro)
     AND a.geom IS NULL
@@ -94,7 +94,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.facname,
         b.geom
     FROM
@@ -107,15 +107,15 @@ WITH master AS (
                 UPPER(facsubgrp) = 'POLICE SERVICES'
         ) AS b
     WHERE (
-        UPPER(a.facility_or_park_name)
+        UPPER(a.site_or_facility_name)
         LIKE '%PRECINCT%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%PCT%'
     )
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND REGEXP_REPLACE(a.facility_or_park_name, '\D', '', 'g') = REGEXP_REPLACE(b.facname, '\D', '', 'g')
-    AND REGEXP_REPLACE(a.facility_or_park_name, '\D', '', 'g') IS NOT NULL
+    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') = REGEXP_REPLACE(b.facname, '\D', '', 'g')
+    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') IS NOT NULL
     AND UPPER(a.borough) = UPPER(b.boro)
     AND a.geom IS NULL
 )
@@ -132,7 +132,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.facname,
         b.geom
     FROM
@@ -145,25 +145,25 @@ WITH master AS (
                 UPPER(facsubgrp) = 'PUBLIC K-12 SCHOOLS'
         ) AS b
     WHERE (
-        UPPER(a.facility_or_park_name)
+        UPPER(a.site_or_facility_name)
         LIKE '%SCHOOL%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%P.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%I.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%M.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%H.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE 'PS%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE 'P.S%'
     )
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND REGEXP_REPLACE(a.facility_or_park_name, '\D', '', 'g') = REGEXP_REPLACE(b.facname, '\D', '', 'g')
-    AND REGEXP_REPLACE(a.facility_or_park_name, '\D', '', 'g') != ''
+    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') = REGEXP_REPLACE(b.facname, '\D', '', 'g')
+    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') != ''
     AND UPPER(a.borough) = UPPER(b.boro)
     AND a.geom IS NULL
 )
@@ -181,7 +181,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.facname,
         b.geom
     FROM
@@ -194,26 +194,26 @@ WITH master AS (
                 UPPER(facsubgrp) = 'PUBLIC K-12 SCHOOLS'
         ) AS b
     WHERE (
-        UPPER(a.facility_or_park_name)
+        UPPER(a.site_or_facility_name)
         LIKE '%SCHOOL%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%P.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%I.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%M.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%H.S.%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE 'PS%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE 'P.S%'
     )
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND REGEXP_REPLACE(a.facility_or_park_name, '\D', '', 'g')
+    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g')
     = REGEXP_REPLACE(REPLACE(REPLACE(b.facname, ' 0', ' '), ' 0', ' '), '\D', '', 'g')
-    AND REGEXP_REPLACE(a.facility_or_park_name, '\D', '', 'g') != ''
+    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') != ''
     AND UPPER(a.borough) = UPPER(b.boro)
     AND a.geom IS NULL
 )
@@ -230,7 +230,7 @@ WHERE
 WITH master AS (
     SELECT
         a.unique_id,
-        a.facility_or_park_name,
+        a.site_or_facility_name,
         b.facname,
         a.agency_acronym,
         a.borough,
@@ -245,39 +245,39 @@ WITH master AS (
                 UPPER(facgroup) = 'PARKS AND PLAZAS'
         ) AS b
     WHERE (
-        UPPER(a.facility_or_park_name)
+        UPPER(a.site_or_facility_name)
         LIKE '%PARK%'
-        OR UPPER(a.facility_or_park_name)
+        OR UPPER(a.site_or_facility_name)
         LIKE '%PLAYGROUND%'
         OR agency_acronym = 'DPR'
     )
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%AND%'
     AND (
         (
             '%'
-            || REPLACE(UPPER(a.facility_or_park_name), ' PARK', '')
+            || REPLACE(UPPER(a.site_or_facility_name), ' PARK', '')
             || '%' LIKE '%'
             || REPLACE(UPPER(b.facname), ' PARK', '')
             || '%'
         )
         OR (
             '%'
-            || REPLACE(UPPER(a.facility_or_park_name), ' PARK', '')
+            || REPLACE(UPPER(a.site_or_facility_name), ' PARK', '')
             || '%' LIKE '%'
             || REPLACE(UPPER(b.facname), ' PLAYGROUND', '')
             || '%'
         )
         OR (
             '%'
-            || REPLACE(UPPER(a.facility_or_park_name), ' PLAYGROUND', '')
+            || REPLACE(UPPER(a.site_or_facility_name), ' PLAYGROUND', '')
             || '%' LIKE '%'
             || REPLACE(UPPER(b.facname), ' PLAYGROUND', '')
             || '%'
         )
         OR (
             '%'
-            || REPLACE(UPPER(a.facility_or_park_name), ' PLAYGROUND', '')
+            || REPLACE(UPPER(a.site_or_facility_name), ' PLAYGROUND', '')
             || '%' LIKE '%'
             || REPLACE(UPPER(b.facname), ' PARK', '')
             || '%'
@@ -291,9 +291,9 @@ WITH master AS (
     AND UPPER(b.facname) != 'BRIDGE PARK'
     AND UPPER(b.facname)
     NOT LIKE '%GARDEN%'
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%GARDEN%'
-    AND UPPER(a.facility_or_park_name)
+    AND UPPER(a.site_or_facility_name)
     NOT LIKE '%WOOD%'
     AND UPPER(a.borough) = UPPER(b.boro)
     AND a.geom IS NULL
