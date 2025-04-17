@@ -35,7 +35,7 @@ def test_validate_all_templates(dataset):
     )
 
 
-class TestValidateAgainstExistingVersions:
+class TestValidateAgainstExistingVersion:
     def test_existing_library(self, create_buckets):
         ds = BASIC_LIBRARY_CONFIG.sparse_dataset
         config_str = json.dumps(BASIC_LIBRARY_CONFIG.model_dump(mode="json"))
