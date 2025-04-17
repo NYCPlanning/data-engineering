@@ -42,4 +42,4 @@ inputs:
     - name: nysparks_parks
     - name: usnps_parks
     - name: dpr_capitalprojects
-    # - name: dpr_walk_to_a_park
+    - name: dpr_walk_to_a_park
