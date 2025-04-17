@@ -113,13 +113,18 @@ def set_latest(key: DatasetKey, acl):
     )
 
 
-def get_config(name: str, version="latest") -> library.Config | ingest.Config:
+def get_config_obj(name: str, version="latest") -> dict:
     """Retrieve a recipe config from s3."""
     bucket = _bucket()
     ds_conf_path = f"{DATASET_FOLDER}/{name}/{version}/config.json"
     logger.info(f"Retrieving config at {bucket}.{ds_conf_path}")
     obj = s3.get_file_as_stream(bucket, ds_conf_path)
-    config = yaml.safe_load(obj)
+    return yaml.safe_load(obj)
+
+
+def get_config(name: str, version="latest") -> library.Config | ingest.Config:
+    """Retrieve a recipe config from s3."""
+    config = get_config_obj(name, version)
     if "dataset" in config:
         return library.Config(**config)
     else:
@@ -145,8 +150,15 @@ def get_parquet_metadata(id: str, version="latest") -> parquet.FileMetaData:
 
 
 def get_latest_version(name: str) -> str:
-    """Retrieve a recipe config from s3."""
-    return get_config(name).dataset.version
+    """
+    Get latest version of a dataset
+    Just uses dicts to avoid issues regarding changing pydantic models
+    """
+    config = get_config_obj(name)
+    if "dataset" in config:
+        return config["dataset"]["version"]
+    else:
+        return config["version"]
 
 
 def get_all_versions(name: str) -> list[str]:
