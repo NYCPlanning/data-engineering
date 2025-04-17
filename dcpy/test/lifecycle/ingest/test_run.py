@@ -114,7 +114,7 @@ def test_run_repeat_version_fails_if_data_diff(
         patch_read_df.return_value = gpd.GeoDataFrame({"a": [None]}).set_geometry("a")
         with pytest.raises(
             FileExistsError,
-            match=f"Archived dataset 'id='{DATASET}' version='{FAKE_VERSION}'' already exists and has different data.",
+            match=f"Archived dataset id='{DATASET}' version='{FAKE_VERSION}' already exists and has different data.",
         ):
             run_ingest(
                 dataset_id=DATASET,

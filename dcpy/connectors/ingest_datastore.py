@@ -74,7 +74,10 @@ class Connector(VersionedConnector):
     def pull_versioned(
         self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
-        raise NotImplementedError
+        return self.storage.pull(
+            f"{key}/{version}/{key}.parquet",  # TODO a little hacky
+            destination_path / key / version,
+        )
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         """This is maybe a problem in my plan"""
@@ -88,8 +91,16 @@ class Connector(VersionedConnector):
             with open(Path(tmp_dir) / config_filename, "r", encoding="utf-8") as raw:
                 return yaml.safe_load(raw.read())
 
-    def get_config(self, key: str, version: str):
+    def get_config(self, key: str, version: str) -> ingest.Config:
         return ingest.Config(**self._get_config_obj(key, version))
+
+    def try_get_config(self, key: str, version: str) -> ingest.Config | None:
+        """for backwards compatibility"""
+        obj = self._get_config_obj(key, version)
+        if "dataset" not in obj:  # very specific to library
+            return ingest.Config(**obj)
+        else:
+            return None
 
     def get_latest_version(self, key: str, **kwargs) -> str:
         return self._get_config_obj(key, "latest")["version"]

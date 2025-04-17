@@ -7,10 +7,10 @@ from dcpy.test.conftest import RECIPES_BUCKET
 from dcpy.models.lifecycle.ingest import Template
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
+from dcpy.lifecycle.ingest.connectors import processed_datastore
 from dcpy.lifecycle.ingest import transform, validate
 
 from .shared import (
-    TEST_DATASET,
     TEST_OUTPUT,
     BASIC_CONFIG,
     BASIC_LIBRARY_CONFIG,
@@ -36,9 +36,6 @@ def test_validate_all_templates(dataset):
 
 
 class TestValidateAgainstExistingVersions:
-    def test_new(self, create_buckets):
-        assert validate.validate_against_existing_versions(TEST_DATASET, TEST_OUTPUT)
-
     def test_existing_library(self, create_buckets):
         ds = BASIC_LIBRARY_CONFIG.sparse_dataset
         config_str = json.dumps(BASIC_LIBRARY_CONFIG.model_dump(mode="json"))
@@ -48,20 +45,20 @@ class TestValidateAgainstExistingVersions:
             f"{recipes.s3_folder_path(ds)}/config.json",
             BASIC_LIBRARY_CONFIG.dataset.acl,
         )
-        assert recipes.exists(ds)
-        assert not validate.validate_against_existing_versions(ds, TEST_OUTPUT)
+        assert processed_datastore.version_exists(ds.id, ds.version)
+        validate.validate_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
 
     def test_existing(self, create_buckets):
         ds = BASIC_CONFIG.dataset
         recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT, acl="private")
-        assert recipes.exists(ds)
-        assert not validate.validate_against_existing_versions(ds, TEST_OUTPUT)
+        assert processed_datastore.version_exists(ds.id, ds.version)
+        validate.validate_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
 
     def test_existing_data_diffs(self, create_buckets):
         ds = BASIC_CONFIG.dataset
         recipes.archive_dataset(BASIC_CONFIG, TEST_OUTPUT, acl="private")
-        assert recipes.exists(ds)
+        assert processed_datastore.version_exists(ds.id, ds.version)
         with pytest.raises(FileExistsError):
-            validate.validate_against_existing_versions(
-                ds, TEST_OUTPUT.parent / "test.parquet"
+            validate.validate_against_existing_version(
+                ds.id, ds.version, TEST_OUTPUT.parent / "test.parquet"
             )

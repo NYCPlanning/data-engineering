@@ -1,43 +1,39 @@
 import pandas as pd
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from dcpy.models.lifecycle.ingest import Config
-from dcpy.connectors.edm import recipes
 from dcpy.utils.logging import logger
+from dcpy.lifecycle.ingest.connectors import processed_datastore
 
 
-def validate_against_existing_versions(ds: recipes.Dataset, filepath: Path) -> bool:
+def validate_against_existing_version(ds: str, version: str, filepath: Path) -> None:
     """
-    This function is called after a dataset has been preprocessed, just before archival
+    This function is called after a dataset has been processed, just before archival
     It's called in the case that the version of the dataset in the config (either provided or calculated)
-      already exists
+    already exists
 
     The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
-    If they are identical, the last archived dataset has its config updated to reflect that it was checked but not re-archived
-    If they differ, the version is "patched" and a new patched version is archived
+    If they differ, an error is raised
     """
-    existing_config = recipes.try_get_config(ds)
-    if not existing_config:
-        logger.info(f"Dataset '{ds.key}' does not exist in recipes bucket")
-        return True
-    else:
-        if isinstance(existing_config, Config):
+    existing_config = processed_datastore.try_get_config(ds, version)
+    if existing_config:
+        with TemporaryDirectory() as tmp:
+            existing_file = processed_datastore.pull_versioned(ds, version, Path(tmp))[
+                "path"
+            ]
             new = pd.read_parquet(filepath)
-            comparison = recipes.read_df(ds)
-            if new.equals(comparison):
+            existing = pd.read_parquet(existing_file)
+            if new.equals(existing):
                 logger.info(
-                    f"Dataset '{ds.key}' already exists and matches newly processed data"
+                    f"Dataset id='{ds}' version='{version}' already exists and matches newly processed data"
                 )
-                return False
             else:
                 raise FileExistsError(
-                    f"Archived dataset '{ds.key}' already exists and has different data."
+                    f"Archived dataset id='{ds}' version='{version}' already exists and has different data."
                 )
 
-        # if previous was archived with library, we both expect some potential slight changes
-        # and are not able to update "freshness"
-        else:
-            logger.warning(
-                f"previous version of '{ds.key}' archived is from library. cannot update freshness"
-            )
-            return False
+    # if previous was archived with library, we both expect some potential slight changes and will not compare
+    else:
+        logger.warning(
+            f"Config of existing dataset id='{ds}' version='{version}' cannot be parsed."
+        )

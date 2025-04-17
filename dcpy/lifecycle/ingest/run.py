@@ -99,10 +99,13 @@ def ingest(
     shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
-    is_new = validate.validate_against_existing_versions(
-        config.dataset, dataset_staging_dir / config.filename
-    )
-    if push and is_new:
+    version_exists = processed_datastore.version_exists(dataset_id, config.version)
+    if version_exists:
+        validate.validate_against_existing_version(
+            dataset_id, config.version, dataset_staging_dir / config.filename
+        )
+
+    if push and not version_exists:
         assert config.archival.acl
         processed_datastore.push(
             dataset_id,
