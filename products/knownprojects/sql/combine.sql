@@ -186,7 +186,7 @@ _dcp_n_study_future AS (
         NULL::integer AS classb,
         NULL::integer AS senior_housing,
         array_append(ARRAY[]::text [], uid) AS record_id_input,
-        project_id || ' ' || 'Future Rezoning Development' AS record_name
+        record_nam || ' ' || 'Future Rezoning Development' AS record_name
     FROM dcp_n_study_future
 ),
 
@@ -344,7 +344,7 @@ _hpd_rfp AS (
         request_for_proposals_name AS record_name,
         NULL AS type,
         (CASE
-            WHEN est_units ~* '-' THEN NULL
+            WHEN lower(est_units) IN ('-', 'tbd') THEN NULL
             ELSE replace(est_units, ',', '')
         END)::integer AS units_gross,
         'Month Closed' AS date_type,
@@ -375,7 +375,7 @@ _hpd_rfp AS (
         ON a.bbl::numeric = b.bbl::numeric
     GROUP BY
         request_for_proposals_name, designated,
-        closed, est_units, closed_date, likely_to_be_built_by_2025
+        closed, est_units, closed_date, likely_to_be_built_by_2029
 ),
 
 /* Housing data, as mapped in _sql/dcp_housing.sql
