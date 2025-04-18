@@ -4,6 +4,10 @@ WITH centerline AS (
 
 atomic_polygons AS (
     SELECT * FROM {{ ref("int__centerline_atomicpolygons") }}
+),
+
+nodes AS (
+    SELECT * FROM {{ ref("int__centerline_segments_with_nodes") }}
 )
 
 SELECT
@@ -17,14 +21,14 @@ SELECT
     NULL AS lgc3,
     NULL AS lgc4,
     NULL AS board_of_elections_lgc_pointer,
-    NULL AS from_sectionalmap,
-    NULL AS from_nodeid,
-    NULL AS from_x,
-    NULL AS from_y,
-    NULL AS to_sectionalmap,
-    NULL AS to_nodeid,
-    NULL AS to_x,
-    NULL AS to_y,
+    nodes.from_sectionalmap,
+    nodes.from_nodeid,
+    nodes.from_x,
+    nodes.from_y,
+    nodes.to_sectionalmap,
+    nodes.to_nodeid,
+    nodes.to_x,
+    nodes.to_y,
     ap.left_2000_census_tract,
     ap.left_atomicid, -- TODO: "last 3 bytes"
     centerline.l_low_hn,
@@ -87,3 +91,4 @@ SELECT
     centerline.legacy_segmentid
 FROM centerline
 LEFT JOIN atomic_polygons AS ap ON centerline.segmentid = ap.segmentid
+LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid

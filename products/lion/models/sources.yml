@@ -6,3 +6,5 @@ sources:
   tables:
   - name: dcp_cscl_atomicpolygons
   - name: dcp_cscl_centerline
+  - name: dcp_cscl_nodes
+  - name: dcp_cscl_sectionalmap
