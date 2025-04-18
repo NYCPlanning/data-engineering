@@ -80,3 +80,11 @@ jobs:
 
         echo "Build product tables"
         dbt build --select product
+
+    - name: Export
+      run: |
+        ./bash/export.sh
+
+    - name: Upload
+      run: |
+        python3 -m dcpy.connectors.edm.publishing upload --product db-lion --acl public-read
