@@ -43,3 +43,22 @@ inputs:
     - name: usnps_parks
     - name: dpr_capitalprojects
     - name: dpr_walk_to_a_park
+    - name: lpc_landmarks
+    - name: lpc_historic_district_areas
+    - name: lpc_scenic_landmarks
+    - name: nysshpo_historic_buildings_points
+    - name: nysshpo_historic_buildings_polygons
+    - name: nysparks_historicplaces
+    - name: nysdec_freshwater_wetlands_checkzones
+    - name: nysdec_freshwater_wetlands
+    - name: nysdec_tidal_wetlands
+    - name: nysdec_priority_lakes
+    - name: nysdec_priority_estuaries
+    - name: nysdec_priority_streams
+    - name: nysdec_natural_heritage_communities
+    - name: dcp_beaches
+      file_type: pg_dump  # parquet fails at df.to_postgis with "InvalidParameterValue: Column has Z dimension but geometry does not"
+    - name: usfws_nyc_wetlands
+    - name: dpr_forever_wild
+    - name: dpr_schoolyard_to_playgrounds
+    - name: nysshpo_archaeological_buffer_areas

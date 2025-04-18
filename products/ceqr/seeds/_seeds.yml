@@ -3,7 +3,7 @@ version: 2
 seeds:
   - name: chapters
     description: |
-      The analytical chapters in CEQR Data Hub
+      Represents the analytical chapters in the CEQR Data Hub
     columns:
       - name: chapter_id
         tests:
@@ -16,12 +16,15 @@ seeds:
 
   - name: datasets
     description: |
-      The datasets in CEQR Data Hub
+      Catalogs the datasets available in the CEQR Data Hub, including their metadata such as availability type, file type, and geometry type. These datasets are used for various analyses in the CEQR process.
     columns:
       - name: dataset_name
         tests:
           - not_null
           - unique
+          - relationships:
+              to: ref('chapter_datasets')
+              field: dataset_name
 
       - name: dataset_id
         tests:
@@ -55,7 +58,7 @@ seeds:
 
   - name: chapter_datasets
     description: |
-      The datasets in each chapter in CEQR Data Hub
+      Maps datasets to their respective analytical chapters and how datasets are used within each chapter
     columns:
       - name: chapter_id
         tests:
@@ -68,6 +71,9 @@ seeds:
       - name: dataset_name
         tests:
           - not_null
+          - relationships:
+              to: ref('datasets')
+              field: dataset_name
 
       - name: use_details
     tests:
