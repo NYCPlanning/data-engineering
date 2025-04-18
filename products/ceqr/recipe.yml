@@ -19,6 +19,7 @@ inputs:
     - name: dcp_zoningmapamendments
     - name: dcp_pfirms
     - name: dcp_limwa
+    - name: dcp_floodplain_2050_100
     - name: dcp_wrp_coastal_zone_boundary
     - name: dcp_wrp_sensitive_maritime_and_industrial_area
     - name: dcp_wrp_priority_marine_activity_zones
@@ -36,9 +37,9 @@ inputs:
     - name: dcp_facilities
     - name: dcp_pops
     - name: dot_pedplazas
-    # - name: dcp_public_waterfront_access_areas
-    # - name: dcp_publicly_owned_waterfront
+    - name: dcp_waterfront_public_access_areas
+    - name: dcp_publicly_owned_waterfront
     - name: nysparks_parks
     - name: usnps_parks
     - name: dpr_capitalprojects
-    # - name: dpr_walk_to_a_park
+    - name: dpr_walk_to_a_park

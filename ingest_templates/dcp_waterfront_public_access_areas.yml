@@ -1,0 +1,17 @@
+id: dcp_waterfront_public_access_areas
+acl: public-read
+
+attributes:
+  name: Waterfront Public Access Areas
+  description: |
+    Waterfront Public Access Areas (WPAAs) are privately owned waterfront zoning lots where publicly accessible open space is provided to and along the shoreline for public enjoyment.
+  url: https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: dcp
+    dataset: nywpaa
+    layer_name: Waterfront Public Access Areas (WPAA)
+  file_format:
+    type: geojson

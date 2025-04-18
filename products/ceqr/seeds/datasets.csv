@@ -9,9 +9,9 @@ Limited Height Districts,dcp_limitedheight,download,shapefile,MULTIPOLYGON,https
 Special Purpose Subdistricts,dcp_specialpurposesubdistricts,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
 Zoning Map Amendments,dcp_zoningmapamendments,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page
 Preliminary Flood Insurance Rate Maps 2015,dcp_pfirms,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=1e56cf3d576849d1a6936f9cdcd3511d
-Base Flood Elevation 2015,dcp_base_flood_elevation_2015,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=5268a74fd4b04a7894c9b85ef7a8a6a3
+Base Flood Elevation 2015,,webpage,,,https://dcp.maps.arcgis.com/apps/webappviewer/index.html?id=1c37d271fba14163bbb520517153d6d5
 Limit of Moderate Wave Action,dcp_limwa,download,shapefile,MULTILINESTRING,https://dcp.maps.arcgis.com/home/item.html?id=e089b65f8a914c80ab72082a1522c7f2
-Future Floodplain 2050s,dcp_future_floodplain_2050,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=cc996fdd1a134d18a6ae7e3a1ecfe84b
+Future Floodplain 2050s,dcp_floodplain_2050_100,download,shapefile,MULTIPOLYGON,https://dcp.maps.arcgis.com/home/item.html?id=cc996fdd1a134d18a6ae7e3a1ecfe84b
 Coastal Zone Boundary,dcp_wrp_coastal_zone_boundary,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
 Ecologically Sensistive Maritime and Industrial Area,dcp_wrp_sensitive_maritime_and_industrial_area,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
 Priority Marine Activity Zones,dcp_wrp_priority_marine_activity_zones,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
@@ -54,7 +54,7 @@ Projected Public School Ratio,,webpage,,,https://www.nycsca.org/Community/Capita
 Facilities Database,dcp_facilities,download,shapefile,MULTIPOINT,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page
 POPS,dcp_pops,download,shapefile,MULTIPOINT,https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn/about_data
 Plazas,dot_pedplazas,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex/about_data
-Public Waterfront Access Areas,dcp_public_waterfront_access_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
+Waterfront Public Access Areas,dcp_waterfront_public_access_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
 Publicly Owned Waterfront,dcp_publicly_owned_waterfront,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
 NYS Parks,nysparks_parks,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
 Federal Parks,usnps_parks,download,shapefile,MULTIPOLYGON,N/A

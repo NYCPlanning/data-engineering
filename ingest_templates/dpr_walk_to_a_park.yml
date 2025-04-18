@@ -1,0 +1,19 @@
+id: dpr_walk_to_a_park
+acl: public-read
+
+attributes:
+  name: Walk to a Park Service Area for CEQR Open Space Assessment
+  description: |
+    This dataset builds on the Walk to A Park Service Area (https://data.cityofnewyork.us/Recreation/Walk-to-a-Park-Service-area/5vb5-y6cv) to provide a dataset that can be viewed as an on-line map or downloaded to support the preparation of an Open Space assessment pursuant to City Environment Quality Review Technical Manual.
+    
+    The data has been modified to ensure that if 50% or more of a tax lot is within a Walk to a Park Service area, then the entire lot is shown as served.
+  url: https://data.cityofnewyork.us/dataset/d/k66c-pzws
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: k66c-pzws
+    format: geojson
+  file_format:
+    type: geojson
