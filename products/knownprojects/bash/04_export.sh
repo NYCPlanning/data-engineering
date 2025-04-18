@@ -73,6 +73,11 @@ mkdir -p output
     )
 
     echo "Exporting primary product table"
-    csv_export_drop_columns kpdb "'geometry'"
-    shp_export kpdb MULTIPOLYGON
+    tablename=kpdb
+    geomtype=MULTIPOLYGON
+    csv_export_drop_columns ${tablename} "'geometry'"
+    shp_export ${tablename} ${geomtype}
+    layername=${tablename}
+    filename=$layername
+    fgdb_export ${tablename} ${geomtype} ${filename} ${default_srs} ${layername}
 )
