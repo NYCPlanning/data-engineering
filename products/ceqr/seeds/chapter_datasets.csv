@@ -18,7 +18,7 @@ land_use,WRP,Ecologically Sensistive Maritime and Industrial Area,"Coastal Zone 
 land_use,WRP,Priority Marine Activity Zones,"Coastal Zone Boundary Map, Special Area Designations"
 land_use,WRP,Recognized Ecological Complexes,"Coastal Zone Boundary Map, Special Area Designations"
 land_use,WRP,Significant Maritime and Industrial Area,"Coastal Zone Boundary Map, Special Area Designations"
-land_use,WRP,Special Natural Waterfront Area,"Coastal Zone Boundary Map, Special Area Designations"
+land_use,WRP,Special Natural Waterfront Areas,"Coastal Zone Boundary Map, Special Area Designations"
 land_use,Policy,OneNYC,Public policy evaluation
 land_use,Policy,Neighborhood Plans,Public policy evaluation
 land_use,Policy,CB Statement of Needs,Public policy evaluation
@@ -70,3 +70,47 @@ open_space,Open Spaces,NYS Parks,
 open_space,Open Spaces,Federal Parks,
 open_space,No Action Condition,Parks Capital Projects Tracker,
 open_space,Screening Assessment,Walk to a Park Service Area,
+shadows,Base Map,2014 3D Model,creating 3D basemap for detailed shadows assessments
+shadows,Base Map,Building Heights,creating 3D basemap for detailed shadows assessments
+shadows,Base Map,Building Footprints,creating 3D basemap for detailed shadows assessments
+shadows,Historic Resources,Historic Building (NYC),Potentially sunlight sensitive historic resources identification
+shadows,Historic Resources,Historic District (NYC),Potentially sunlight sensitive historic resources identification
+shadows,Historic Resources,Scenic Landmarks,Potentially sunlight sensitive historic resources identification
+shadows,Historic Resources,State Building USN Points,Potentially sunlight sensitive historic resources identification
+shadows,Historic Resources,State Building District USN Polygons,Potentially sunlight sensitive historic resources identification
+shadows,Historic Resources,Historic Districts (National),Potentially sunlight sensitive historic resources identification
+shadows,Wetlands,State Regulated Freshwater Wetlands - Checkzone,Potentially sunlight sensitive natural resources identification
+shadows,Wetlands,State Regulated Freshwater Wetlands,Potentially sunlight sensitive natural resources identification
+shadows,Wetlands,State Regulated Tidal Wetlands,Potentially sunlight sensitive natural resources identification
+shadows,Waterbodies,Priority Waterbodies - Lakes,Potentially sunlight sensitive natural resources identification
+shadows,Waterbodies,Priority Waterbodies - Estuaries,Potentially sunlight sensitive natural resources identification
+shadows,Waterbodies,Priority Waterbodies - Streams,Potentially sunlight sensitive natural resources identification
+shadows,Natural Communities,Natural Heritage Communities,Potentially sunlight sensitive natural resources identification
+shadows,Waterfront,Beaches,Potentially sunlight sensitive natural resources identification
+shadows,Wetlands,National Wetlands Data,Potentially sunlight sensitive natural resources identification
+shadows,Natural Communities,Recognized Ecological Complexes,Potentially sunlight sensitive natural resources identification
+shadows,Waterfront,Special Natural Waterfront Areas,Potentially sunlight sensitive natural resources identification
+shadows,Natural Communities,NYC Parks Forever Wild,Potentially sunlight sensitive natural resources identification
+shadows,Open Spaces,DPR Parks Properties,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,School Yard Playgrounds,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,POPS,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,Plazas,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,Waterfront Public Access Areas,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,Publicly Owned Waterfront,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,NYS Parks,Potentially sunlight sensitive open spaces for identification
+shadows,Open Spaces,Federal Parks,Potentially sunlight sensitive open spaces for identification
+historic_resources,Architectural,Historic Building (NYC),Identifying study area historic resources
+historic_resources,Architectural,Historic District (NYC),Identifying study area historic resources
+historic_resources,Scenic,Scenic Landmarks,Identifying study area historic resources
+historic_resources,Architectural,State Building USN Points,Identifying study area historic resources
+historic_resources,Architectural,State Building District USN Polygons,Identifying study area historic resources
+historic_resources,Architectural,Historic Districts (National),Identifying study area historic resources
+historic_resources,Archaeology,State Archeological Buffer Areas,Identifying study area historic resources
+historic_resources,Archaeology,Archaeology Reports,Identifying study area historic resources
+historic_resources,Archaeology,Archaeological Sites,Identifying study area historic resources
+historic_resources,Architectural,Potential Proposed Landmarks,Identifying potential study area historic resources
+historic_resources,Historic Photos,LPC Designation Photo Collection,Showing older condition of architectural resources
+historic_resources,Historic Photos,1940s Tax Photo Archives,Showing older condition of architectural resources
+historic_resources,Architectural,Historic Designation Reports,Describing historic resources
+historic_resources,Guidance,LPC Permits,LPC permit process and documentation
+historic_resources,Guidance,Historic Clearance Submission Guidelines,Guidelines for submitting request for historic clearance to LPC for all projects
