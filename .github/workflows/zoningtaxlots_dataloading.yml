@@ -117,3 +117,4 @@ jobs:
       build: ${{ github.head_ref || github.ref_name }}
       product_acl: public-read
       dev_bucket: ${{ inputs.dev_bucket }}
+      create_qa_github_issue: true
