@@ -18,3 +18,13 @@ inputs:
       destination: file
       file_type: xlsx
   missing_versions_strategy: find_latest
+
+
+stage_config:
+  builds.build:
+    destination: edm.publishing.builds
+    destination_key: factfinder.acs
+    connector_args:
+      - name: build_note
+        value_from:
+          env: "BUILD_NOTE"

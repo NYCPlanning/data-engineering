@@ -24,6 +24,9 @@ def _set_default_connectors():
     connectors.register(connector=web.WebConnector(), conn_type="api")
     connectors.register(connector=filesystem.Connector(), conn_type="local_file")
     connectors.register(connector=s3.S3Connector(), conn_type="s3")
+    connectors.register(
+        connector=publishing.BuildsConnector(), conn_type="edm.publishing.builds"
+    )
     logger.info(f"Registered Connectors: {connectors.list_registered()}")
 
 
