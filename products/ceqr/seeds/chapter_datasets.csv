@@ -42,7 +42,7 @@ socioeconomic_conditions,Study Area,Census Tract Boundaries,
 socioeconomic_conditions,Indirect Residential Displacement,ACS Socioeconomic Data,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
 socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,
 socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,
-socioeconomic_conditions,Business Displacement,LEHD,
+socioeconomic_conditions,Business Displacement,LEHD,Business locations and characteristics
 socioeconomic_conditions,Indirect Residential Displacement,Area Median Income,
 community_facilities,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 community_facilities,Libraries,Census Tract Boundaries,
