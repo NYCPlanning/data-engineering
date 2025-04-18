@@ -9,7 +9,7 @@ attributes:
 
 ingestion:
   source:
-    type: esri
+    type: arcgis_feature_server
     server: dcp
     dataset: nywpaa
     layer_name: Waterfront Public Access Areas (WPAA)

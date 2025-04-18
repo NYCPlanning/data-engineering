@@ -9,7 +9,7 @@ attributes:
 
 ingestion:
   source:
-    type: esri
+    type: arcgis_feature_server
     server: dcp
     dataset: nypubliclyownedwaterfront
     layer_name: Publicly Owned Waterfront Areas
