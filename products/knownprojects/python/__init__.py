@@ -11,7 +11,6 @@ _proj_root = _product_path.parent.parent
 # Make `dcpy` available
 sys.path.append(str(_proj_root))
 
-BUILD_DATETIME = datetime.today().strftime("%Y%m%d_%H:%M")
 
 S3_BUCKET = "edm-private"
 S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250418"
@@ -45,3 +44,4 @@ DCP_HOUSING_CORRECTIONS_FILENAMES = {
 load_dotenv()
 BUILD_ENGINE = os.environ["BUILD_ENGINE"]
 BUILD_ENGINE_SCHEMA = os.environ["BUILD_ENGINE_SCHEMA"]
+VERSION = os.environ["VERSION"]
