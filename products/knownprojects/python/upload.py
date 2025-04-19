@@ -1,9 +1,9 @@
 from pathlib import Path
 from dcpy.utils.s3 import upload_folder
 
-from . import S3_BUCKET, S3_OUTPUT_DIR, BUILD_ENGINE_SCHEMA, OUTPUT_PATH, BUILD_DATETIME
+from . import S3_BUCKET, S3_OUTPUT_DIR, BUILD_ENGINE_SCHEMA, OUTPUT_PATH, VERSION
 
-UPLOAD_PATH = Path(S3_OUTPUT_DIR) / Path(BUILD_ENGINE_SCHEMA) / Path(BUILD_DATETIME)
+UPLOAD_PATH = Path(S3_OUTPUT_DIR) / Path(BUILD_ENGINE_SCHEMA) / Path(VERSION)
 
 if __name__ == "__main__":
     print(f"Uploading folder : {OUTPUT_PATH}\n\tto {UPLOAD_PATH} ...")
