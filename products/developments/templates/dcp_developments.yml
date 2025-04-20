@@ -32,7 +32,7 @@ dataset:
     dependents:
       - dof_shoreline
       - council_members
-      - dcp_mappluto
+      - dcp_mappluto_wi
       - doitt_buildingfootprints
       - doitt_buildingfootprints_historical
       - doitt_zipcodeboundaries

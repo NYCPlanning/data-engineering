@@ -29,6 +29,6 @@ SELECT
     b.landmark AS pluto_landmk
 INTO pluto_devdb
 FROM init_devdb AS a
-LEFT JOIN dcp_mappluto AS b
+LEFT JOIN dcp_mappluto_wi AS b
     ON a.geo_bbl = b.bbl::bigint::text;
 CREATE INDEX pluto_devdb_job_number_idx ON pluto_devdb (job_number);

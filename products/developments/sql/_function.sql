@@ -59,7 +59,7 @@ CREATE OR REPLACE FUNCTION get_bbl(
 )
 RETURNS varchar AS $$
       SELECT b.bbl::bigint::text
-      FROM dcp_mappluto b
+      FROM dcp_mappluto_wi b
       WHERE ST_Within(_geom, b.wkb_geometry)
       LIMIT 1
   $$ LANGUAGE sql;
