@@ -26,8 +26,7 @@ dataset:
   info:
     description: |
       # MapPLUTO - Water Included
-      `dcp_mappluto_wi` is **Water Included**
-    url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page
+    url: https://www.nyc.gov/content/planning/pages/resources/datasets/mappluto-pluto-change
     dependents:
       - pluto_corrections
       - pluto_input_numbldgs

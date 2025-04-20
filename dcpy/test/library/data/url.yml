@@ -1,5 +1,5 @@
 dataset:
-  name: dcp_mappluto
+  name: dcp_mappluto_wi
   acl: public-read
   # Source definition
   source:
@@ -34,7 +34,7 @@ dataset:
   info:
     # some simple description here
     description: |
-      dcp_mappluto is the shoreline clipped, grabbed from bytes
+      dcp_mappluto_wi is the water included version, grabbed from bytes
       more information here, if ">" is used then it means that
       newlines are not preserved. if "|" is used then it means
       that newline will be preserved

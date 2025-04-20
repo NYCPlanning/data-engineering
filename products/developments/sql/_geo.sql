@@ -14,7 +14,7 @@ INPUTS:
         ...
     )
 
-    dcp_mappluto (
+    dcp_mappluto_wi (
         * bbl,
         geom
     )
@@ -185,7 +185,7 @@ geom_dob_bbl_mappluto AS (
                 THEN 'BBL DOB MapPLUTO'
         END AS geomsource
     FROM geom_geosupport AS a
-    LEFT JOIN dcp_mappluto AS b
+    LEFT JOIN dcp_mappluto_wi AS b
         ON a.bbl = b.bbl::numeric::bigint::text
 ),
 buildingfootprints_historical AS (

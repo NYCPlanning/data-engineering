@@ -32,7 +32,7 @@ inputs:
       version_env_var: GEOSUPPORT_VERSION
     - name: doitt_zipcodeboundaries
     - name: dof_shoreline
-    - name: dcp_mappluto
+    - name: dcp_mappluto_wi
     - name: council_members
     - name: doe_eszones
     - name: doe_mszones
