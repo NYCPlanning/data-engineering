@@ -92,6 +92,11 @@ def read_data_to_df(
         case file.Csv():
             df = pd.read_csv(
                 local_data_path,
+                index_col=False,
+                encoding=data_format.encoding,
+                delimiter=data_format.delimiter,
+                names=data_format.column_names,
+                dtype=_get_dtype(data_format.dtype),
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)

@@ -6,14 +6,13 @@ attributes:
   description: |
     A downloadable spreadsheet and geodatabase that list city properties with types of uses, location and other information
     This dataset identifies City property under the jurisdiction of NYC Parks, which may be managed partially or solely by the Agency.
-    More information: https://www.nyc.gov/site/planning/data-maps/open-data.page#city_facilities
-  url: https://www1.nyc.gov/site/planning/about/publications/colp.page
+  url: https://www.nyc.gov/content/planning/pages/resources/datasets/city-owned-leased-properties
 
 ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{ version }}_csv.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/city-owned-leased-properties/colp_{{ version }}_csv.zip
   file_format:
     type: csv
     unzipped_filename: colp_{{ version }}.csv
