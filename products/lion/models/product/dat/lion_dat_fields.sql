@@ -1,7 +1,7 @@
 SELECT
     boroughcode AS "Borough",
     format_lion_text(face_code, 4, '0') AS "Face Code",
-    segment_seqnum AS "Sequence Number",
+    format_lion_text(segment_seqnum, 5, '0') AS "Sequence Number",
     format_lion_text(segmentid::TEXT, 7, '0') AS "Segment ID",
     format_lion_text(five_digit_street_code, 5, '0') AS "5-Digit Street Code (5SC)",
     format_lion_text(lgc1, 2, '0') AS "LGC1",
@@ -11,17 +11,17 @@ SELECT
     coalesce(board_of_elections_lgc_pointer, ' ') AS "Board of Elections LGC Pointer",
     format_lion_text(from_sectionalmap, 2, '0') AS "From-Sectional Map",
     format_lion_text(from_nodeid::TEXT, 7, '0')  AS "From-Node ID",
-    round(from_x)::INT::TEXT AS "From-X Coordinate",
-    round(from_y)::INT::TEXT AS "From-Y Coordinate",
+    format_lion_text(round(from_x)::INT::TEXT, 7, '0') AS "From-X Coordinate",
+    format_lion_text(round(from_y)::INT::TEXT, 7, '0') AS "From-Y Coordinate",
     format_lion_text(to_sectionalmap, 2, '0') AS "To-Sectional Map",
     format_lion_text(to_nodeid::TEXT, 7, '0') AS "To-Node ID",
-    round(to_x)::INT::TEXT AS "To-X Coordinate",
-    round(to_y)::INT::TEXT AS "To-Y Coordinate",
+    format_lion_text(round(to_x)::INT::TEXT, 7, '0') AS "To-X Coordinate",
+    format_lion_text(round(to_y)::INT::TEXT, 7, '0') AS "To-Y Coordinate",
     left_2000_census_tract AS "Left 2000 Census Tract", -- TODO section 1.4
     right(left_atomicid, 3) AS "Left Dynamic Block",
     l_low_hn AS "Left Low House Number", -- TODO section 1.4
     l_high_hn AS "Left High House Number", -- TODO section 1.4
-    coalesce(left(lsubsect, 2), '  ') AS "Left Dept of Sanitation Subsection",
+    format_lion_text(left(lsubsect, 2), 2, '0', TRUE) AS "Left Dept of Sanitation Subsection",
     format_lion_text(l_zip, 5, '0', TRUE) AS "Left Zip Code",
     format_lion_text(left_assembly_district, 2, '0', TRUE) AS "Left Assembly District",
     format_lion_text(left_election_district, 3, '0', TRUE) AS "Left Election District",
@@ -30,7 +30,7 @@ SELECT
     right(right_atomicid, 3) AS "Right Dynamic Block",
     r_low_hn AS "Right Low House Number", -- TODO section 1.4
     r_high_hn AS "Right High House Number", -- TODO section 1.4
-    coalesce(left(rsubsect, 2), '  ') AS "Right Dept of Sanitation Subsection",
+    format_lion_text(left(rsubsect, 2), 2, '0', TRUE) AS "Right Dept of Sanitation Subsection",
     format_lion_text(r_zip, 5, '0', TRUE) AS "Right Zip Code",
     format_lion_text(right_assembly_district, 2, '0', TRUE) AS "Right Assembly District",
     format_lion_text(right_election_district, 3, '0', TRUE) AS "Right Election District",
@@ -61,7 +61,7 @@ SELECT
     segment_type AS "Segment Type Code",
     coincident_seg_count::INT::TEXT AS "Coincident Segment Counter",
     coalesce(incex_flag, ' ') AS "Include/Exclude Flag",
-    coalesce(rw_type::TEXT, '  ') AS "Roadway Type",
+    format_lion_text(rw_type::TEXT, 2, '0', TRUE) AS "Roadway Type", -- TODO doesn't say if zf or sf
     format_lion_text(physicalid::INT::TEXT, 7, '0', TRUE) AS "PHYSICALID", -- TODO - ingest read as int
     format_lion_text(genericid::INT::TEXT, 7, '0', TRUE) AS "GENERICID", -- TODO - ingest read as int
     format_lion_text(nypdid::INT::TEXT, 7, '0', TRUE) AS "NYPDID", -- TODO - ingest read as int
