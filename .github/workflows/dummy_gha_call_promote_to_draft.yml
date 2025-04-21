@@ -37,6 +37,6 @@ jobs:
     secrets: inherit
     with:
       product: db-template
-       build: ${{ github.head_ref || github.ref_name }}
-       product_acl: public-read
-       create_qa_github_issue: true
+      build: ${{ github.head_ref || github.ref_name }}
+      product_acl: public-read
+      create_qa_github_issue: true
