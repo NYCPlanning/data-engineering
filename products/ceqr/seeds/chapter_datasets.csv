@@ -38,38 +38,38 @@ land_use,Forms,WRP Consistency Assessment Form,Form required for WRP assessments
 land_use,Forms,Flood Elevation Worksheet,Worksheet required for WRP assessments
 socioeconomic_conditions,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 socioeconomic_conditions,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
-socioeconomic_conditions,Study Area,Census Tract Boundaries,
+socioeconomic_conditions,Study Area,Census Tract Boundaries,Establish the study area and create study area map
 socioeconomic_conditions,Indirect Residential Displacement,ACS Socioeconomic Data,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
-socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,
-socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,
-socioeconomic_conditions,Business Displacement,LEHD,
-socioeconomic_conditions,Indirect Residential Displacement,Area Median Income,
+socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,Determine affordable unit rents
+socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,Identify households "vulnerable to displacement" (<= 80% AMI)
+socioeconomic_conditions,Business Displacement,LEHD,Business locations and characteristics
+socioeconomic_conditions,Indirect Residential Displacement,Area Median Income,Establishing current area median income levels
 community_facilities,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
-community_facilities,Libraries,Census Tract Boundaries,
-community_facilities,Public Schools,School District Boundaries,
-community_facilities,Public Schools,School Subdistrict Boundaries,
-community_facilities,Public and Charter Schools,LCGMS,
-community_facilities,Public Schools,Demographic Enrollment Projection,
-community_facilities,Public Schools,Projected Housing,
-community_facilities,Public Schools,School Capacity Projects in Process,
-community_facilities,Public Schools,School Seats Lost,
-community_facilities,Public Schools,School Seats Gained or To Be Created,
-community_facilities,Public Schools,All School Proposals,
-community_facilities,Public Schools,Projected Public School Ratio,
-community_facilities,Libraries,Facilities Database,
+community_facilities,Libraries,Census Tract Boundaries,Establish the study area and create study area map
+community_facilities,Public Schools,School District Boundaries,To establish study areas and for location maps
+community_facilities,Public Schools,School Subdistrict Boundaries,To establish study areas and for location maps
+community_facilities,Public and Charter Schools,LCGMS,A reference for school locations
+community_facilities,Public Schools,Demographic Enrollment Projection,No-Action public school enrollment
+community_facilities,Public Schools,Projected Housing,No-Action public school enrollment
+community_facilities,Public Schools,School Capacity Projects in Process,No-Action public school capacity
+community_facilities,Public Schools,School Seats Lost,No-Action public school capacity
+community_facilities,Public Schools,School Seats Gained or To Be Created,No-Action public school capacity
+community_facilities,Public Schools,All School Proposals,No-Action public school capacity
+community_facilities,Public Schools,Projected Public School Ratio,With-Action new students from proposed project
+community_facilities,Libraries,Facilities Database,Establishing local library locations
 open_space,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
-open_space,No Action Condition,ZAP Projects,
-open_space,Open Spaces,DPR Parks Properties,
-open_space,Base Maps,Census Tract Boundaries,
+open_space,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
+open_space,Open Spaces,DPR Parks Properties,Open Space Inventory
+open_space,Base Maps,Census Tract Boundaries,Establish the study area and create study area map
 open_space,Existing Condition,ACS Socioeconomic Data,Dicennial Census; Establishing existing population and household size conditions within study area census tracts
-open_space,Open Spaces,POPS,
-open_space,Open Spaces,Plazas,
-open_space,Open Spaces,Waterfront Public Access Areas,
-open_space,Open Spaces,Publicly Owned Waterfront,
-open_space,Open Spaces,NYS Parks,
-open_space,Open Spaces,Federal Parks,
-open_space,No Action Condition,Parks Capital Projects Tracker,
-open_space,Screening Assessment,Walk to a Park Service Area,
+open_space,Open Spaces,POPS,Open Space Inventory
+open_space,Open Spaces,Plazas,Open Space Inventory
+open_space,Open Spaces,Waterfront Public Access Areas,Open Space Inventory
+open_space,Open Spaces,Publicly Owned Waterfront,Open Space Inventory
+open_space,Open Spaces,NYS Parks,Open Space Inventory
+open_space,Open Spaces,Federal Parks,Open Space Inventory
+open_space,No Action Condition,Parks Capital Projects Tracker,Establishing new park spaces in the No-Action Condion
+open_space,Screening Assessment,Walk to a Park Service Area,Open Space screening for detailed analysis
 shadows,Base Map,2014 3D Model,creating 3D basemap for detailed shadows assessments
 shadows,Base Map,Building Heights,creating 3D basemap for detailed shadows assessments
 shadows,Base Map,Building Footprints,creating 3D basemap for detailed shadows assessments
