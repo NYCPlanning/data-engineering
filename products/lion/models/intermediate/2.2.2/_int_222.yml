@@ -1,6 +1,6 @@
 models:
 - name: int__centerline_segments_with_nodes
-  description: centerline segments joined to left and right atomic polygons
+  description: centerline segments joined to to and from nodes
   columns:
   - name: segmentid
     tests:
