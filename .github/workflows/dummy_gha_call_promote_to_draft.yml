@@ -2,41 +2,19 @@ name: Test GHA to call `promote to draft` GHA
 
 on:
   workflow_dispatch:
+    inputs:
+      build:
+        type: string
+        required: true
 
 jobs:
-  dataloading:
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-base:latest
-    env:
-      TEMPLATE_DIR: ./ingest_templates
-      RECIPES_BUCKET: edm-recipes
-      PUBLISHING_BUCKET: edm-publishing
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-
-      - name: Finish container setup
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
   promote_template_to_draft:
     name: Promote template db and create a github issue
     uses: ./.github/workflows/promote_to_draft.yml
     secrets: inherit
     with:
       product: db-template
-      build: ${{ github.head_ref || github.ref_name }}
+      build: ${{ inputs.build }}
       product_acl: public-read
+      dev_bucket: ""
       create_qa_github_issue: true
