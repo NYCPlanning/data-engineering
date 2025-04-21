@@ -3,19 +3,21 @@ from pydantic import BaseModel
 
 
 class Server(StrEnum):
+    dcp = "dcp"
+    nps = "nps"
+    nyc_maphub = "nyc_maphub"
     nys_clearinghouse = "nys_clearinghouse"
     nys_parks = "nys_parks"
-    nps = "nps"
-    dcp = "dcp"
-    nyc_maphub = "nyc_maphub"
+    us_fws = "us_fws"
 
 
 servers = {
+    "dcp": {"id": "GfwWNkhOj9bNBqoJ", "subdomain": "services5"},
+    "nps": {"id": "fBc8EJBxQRMcHlei", "subdomain": "services1"},
+    "nyc_maphub": {"id": "yG5s3afENB5iO9fj", "subdomain": "services6"},
     "nys_clearinghouse": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
     "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
-    "nps": {"id": "fBc8EJBxQRMcHlei", "subdomain": "services1"},
-    "dcp": {"id": "GfwWNkhOj9bNBqoJ", "subdomain": "services5"},
-    "nyc_maphub": {"id": "yG5s3afENB5iO9fj", "subdomain": "services6"},
+    "us_fws": {"id": "QVENGdaPbd4LUkLV"},
 }
 
 

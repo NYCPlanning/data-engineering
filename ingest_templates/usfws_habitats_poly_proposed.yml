@@ -1,0 +1,20 @@
+id: usfws_habitats_poly_proposed
+acl: public-read
+
+attributes:
+  name: USFWS Critical Habitat (Proposed Polygons)
+  description: |
+    A specific geographic area(s) that contains features essential for the conservation
+    of a threatened or endangered species and that may require special management and protection.
+
+    NOTE: Only one layer has features in New York City and it is the Proposed Polygon Features.
+  url: https://fws.maps.arcgis.com/home/item.html?id=9d8de5e265ad4fe09893cf75b8dbfb77
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: us_fws
+    dataset: USFWS_Critical_Habitat
+    layer_name: Critical Habitat - Polygon Features - Proposed
+  file_format:
+    type: geojson
