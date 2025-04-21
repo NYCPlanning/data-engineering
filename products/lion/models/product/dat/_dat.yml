@@ -1,12 +1,19 @@
 version: 2
 
 models:
-  - name: manhattan_lion_dat
-    columns:
-      - name: dat_column
-        tests:
-          # Must warn until all columns are populated
-          - dbt_expectations.expect_column_value_lengths_to_equal:
-              value: 8
-              config:
-                severity: warn
+- name: lion_dat_fields
+  description: lion with individual fields formatted for export
+
+- name: lion_dat
+  columns:
+  - name: dat_column
+    tests:
+    # Must warn until all columns are populated
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 271
+        config:
+          severity: warn
+
+- name: manhattan_lion_dat
+  columns:
+  - name: dat_column
