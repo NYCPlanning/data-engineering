@@ -85,7 +85,7 @@ ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 "setup_dev_bucket.py" = ["E402"]
 
 [[tool.mypy.overrides]]
-module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,socrata.*,faker.*,ruamel.*" # no stubs available
+module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,socrata.*,faker.*,ruamel.*,pyogrio.*" # no stubs available
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
@@ -134,6 +134,7 @@ dependencies = [
     "psycopg2-binary",
     "pyarrow",
     "pydantic",
+    "pyogrio",
     "pysftp",
     "python-dateutil",
     "python-dotenv",
