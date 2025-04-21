@@ -60,7 +60,7 @@ SELECT
     NULL AS curve_flag,
     NULL AS center_of_curvature_x,
     NULL AS center_of_curvature_y,
-    round(centerline.shape_length) AS segment_length_ft,
+    round(centerline.shape_length)::INT AS segment_length_ft,
     NULL AS from_level_code,
     NULL AS to_level_code,
     centerline.trafdir_ver_flag,

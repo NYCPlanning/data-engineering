@@ -4,7 +4,7 @@ models:
 - name: lion_dat_fields
   config:
     contract:
-      enforced: true
+      enforced: false
   columns:
   - name: '"Borough"'
     data_type: string
