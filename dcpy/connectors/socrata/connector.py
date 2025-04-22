@@ -21,7 +21,7 @@ class SocrataConnector(Connector):
         **kwargs,
     ) -> dict:
         source = extract.Source(type="socrata", org=org, uid=key, format=format)
-        extension = "shp" if format == "shapefile" else format
+        extension = "shp.zip" if format == "shapefile" else format
         filepath = destination_path / f"{key}.{extension}"
         extract.download(source, filepath)
         return {"path": filepath}
