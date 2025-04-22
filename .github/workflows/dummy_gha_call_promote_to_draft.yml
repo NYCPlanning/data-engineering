@@ -17,4 +17,4 @@ jobs:
       build: ${{ inputs.build }}
       product_acl: public-read
       dev_bucket: ""
-      create_qa_github_issue: true
+      create_qa_github_issue: false
