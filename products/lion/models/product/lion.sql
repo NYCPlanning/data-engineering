@@ -29,7 +29,7 @@ SELECT
     nodes.to_nodeid,
     nodes.to_x,
     nodes.to_y,
-    ap.left_2000_census_tract,
+    ap.left_2000_census_tract, -- todo - in final formatting, suffix might need to be converted from 00s to blank if missing see 1.4
     ap.left_atomicid, -- TODO: "last 3 bytes"
     centerline.l_low_hn,
     centerline.l_high_hn,
@@ -72,12 +72,14 @@ SELECT
     centerline.genericid,
     centerline.nypdid,
     centerline.fdnyid,
-    centerline.l_blockfaceid,
-    centerline.r_blockfaceid,
     centerline.status,
     centerline.streetwidth,
     centerline.streetwidth_irr,
-    centerline.bike_lane,
+    CASE
+        WHEN centerline.bike_lane = '10' THEN 'A'
+        WHEN centerline.bike_lane = '11' THEN 'B'
+        ELSE centerline.bike_lane
+    END AS bike_lane,
     centerline.fcc,
     NULL AS right_of_way_type, -- blank for centerline
     ap.left_2010_census_tract,
@@ -88,7 +90,34 @@ SELECT
     NULL AS lgc7,
     NULL AS lgc8,
     NULL AS lgc9,
-    centerline.legacy_segmentid
+    centerline.legacy_segmentid,
+    ap.left_2000_census_block_basic,
+    ap.left_2000_census_block_suffix,
+    ap.right_2000_census_block_basic,
+    ap.right_2000_census_block_suffix,
+    ap.left_2010_census_block_basic,
+    ap.left_2010_census_block_suffix,
+    ap.right_2010_census_block_basic,
+    ap.right_2010_census_block_suffix,
+    centerline.snow_priority,
+    centerline.bike_lane AS bike_lane_2,
+    centerline.streetwidth_max,
+    centerline.l_blockfaceid,
+    centerline.r_blockfaceid,
+    centerline.number_travel_lanes,
+    centerline.number_park_lanes,
+    centerline.number_total_lanes,
+    centerline.bike_trafdir AS bike_traffic_direction,
+    centerline.posted_speed,
+    NULL AS left_nypd_service_area,
+    NULL AS right_nypd_service_area,
+    centerline.truck_route_type,
+    ap.left_2020_census_tract,
+    ap.right_2020_census_tract,
+    ap.left_2020_census_block_basic,
+    ap.left_2020_census_block_suffix,
+    ap.right_2020_census_block_basic,
+    ap.right_2020_census_block_suffix
 FROM centerline
 LEFT JOIN atomic_polygons AS ap ON centerline.segmentid = ap.segmentid
 LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
