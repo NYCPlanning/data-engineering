@@ -1,0 +1,26 @@
+id: dep_stormwater_limited_current
+acl: public-read
+
+attributes:
+  name: NYC Stormwater Flood Maps - Limited Flood (1.77 inches/hr) with Current Sea Levels
+  description: >-
+    To help New Yorkers understand and prepare for this risk, the City has created four
+    rainfall-based flooding maps.
+    
+    The maps show limited stormwater flooding under current sea level rise conditions,
+    moderate stormwater flooding scenarios under current and future sea level rise conditions,
+    as well as an extreme stormwater flooding scenario under future conditions.
+  url: https://data.cityofnewyork.us/d/9i7c-xyvv/
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dep/NYC_Stormwater_Flood_Map_Limited_Flood_1_77_inches_per_hr_with_Current_Sea_Levels.gdb.zip
+  file_format:
+    type: geodatabase
+    layer: NYC_Stormwater_Flood_Map_Limited_Flood_1_77_inches_per_hr_with_Current_Sea_Levels
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }

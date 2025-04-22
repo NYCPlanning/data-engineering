@@ -1,0 +1,26 @@
+id: dep_stormwater_moderate_2050
+acl: public-read
+
+attributes:
+  name: NYC Stormwater Flood Maps - Moderate Flood (2.13 inches/hr) with 2050 Sea Level Rise
+  description: >-
+    To help New Yorkers understand and prepare for this risk, the City has created four
+    rainfall-based flooding maps.
+    
+    The maps show limited stormwater flooding under current sea level rise conditions,
+    moderate stormwater flooding scenarios under current and future sea level rise conditions,
+    as well as an extreme stormwater flooding scenario under future conditions.
+  url: https://data.cityofnewyork.us/d/9i7c-xyvv/
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dep/NYC_Stormwater_Flood_Map_Moderate_Flood_2_13_per_hr_with_2050_Sea_Level_Rise.gdb.zip
+  file_format:
+    type: geodatabase
+    layer: NYC_Stormwater_Flood_Map_Moderate_Flood_2_13_per_hr_with_2050_Sea_Level_Rise
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
