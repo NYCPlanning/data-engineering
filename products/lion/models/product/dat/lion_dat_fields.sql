@@ -66,8 +66,8 @@ SELECT
     format_lion_text(genericid::INT::TEXT, 7, '0', TRUE) AS "GENERICID", -- TODO - ingest read as int
     format_lion_text(nypdid::INT::TEXT, 7, '0', TRUE) AS "NYPDID", -- TODO - ingest read as int
     format_lion_text(fdnyid::INT::TEXT, 7, '0', TRUE) AS "FDNYID", -- TODO - ingest read as int
-    format_lion_text(l_blockfaceid::INT::TEXT, 7, '0', TRUE) AS "Left BLOCKFACEID", -- TODO - ingest read as int
-    format_lion_text(r_blockfaceid::INT::TEXT, 7, '0', TRUE) AS "Right BLOCKFACEID", -- TODO - ingest read as int
+    '       ' AS "Filler (formerly Left BLOCKFACEID)",
+    '       ' AS "Filler (formerly Right BLOCKFACEID)",
     coalesce(status, ' ') AS "STATUS",
     format_lion_text(round(streetwidth)::TEXT, 3, '0', TRUE) AS "Street Width", -- TODO - confirm. docs don't say to justify but we need to
     coalesce(streetwidth_irr, ' ') AS "Irregular Street Width Flag",
@@ -83,4 +83,33 @@ SELECT
     format_lion_text(lgc8, 2, '0', TRUE) AS "LGC8",
     format_lion_text(lgc9, 2, '0', TRUE) AS "LGC9",
     format_lion_text(legacy_segmentid::INT::TEXT, 7, '0') AS "Legacy SEGMENTID" -- TODO - ingest read as int
+    format_lion_text(left_2000_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2000 BASIC",
+    format_lion_text(left_2000_census_block_suffix, 1, ' ', TRUE) AS "LEFT CENSUS BLOCK 2000 SUFFIX",
+    format_lion_text(right_2000_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2000 BASIC",
+    format_lion_text(right_2000_census_block_suffix, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2000 SUFFIX",
+    format_lion_text(left_2010_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2010 BASIC",
+    format_lion_text(left_2010_census_block_suffix, 1, ' ', TRUE) AS "LEFT CENSUS BLOCK 2010 SUFFIX",
+    format_lion_text(right_2010_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2010 BASIC",
+    format_lion_text(right_2010_census_block_suffix, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2010 SUFFIX",
+    coalesce(snow_priority, ' ') AS "SNOW PRIORITY",
+    format_lion_text(bikelane_2, 2, ' ', TRUE) AS "BIKELANE_2",
+    format_lion_text(streetwidth_max, 3, ' ', TRUE) AS "STREET WIDTH MAX",
+    "   " AS "Filler L89"
+    format_lion_text(l_blockfaceid::INT::TEXT, 7, '0', TRUE) AS "Left BLOCKFACEID", -- TODO - ingest read as int
+    format_lion_text(r_blockfaceid::INT::TEXT, 7, '0', TRUE) AS "Right BLOCKFACEID", -- TODO - ingest read as int
+    format_lion_text(number_travel_lanes, 2, '0', TRUE) AS "NUMBER TRAVEL LANES",
+    format_lion_text(number_park_lanes, 2, ' ') AS "NUMBER PARK LANES",
+    format_lion_text(number_total_lanes, 2, ' ') AS "NUMBER TOTAL LANES",
+    format_lion_text(bike_traffic_direction, 2, ' ') AS "BIKE TRAFFIC DIR",
+    format_lion_text(posted_speed, 2, ' ') AS "POSTED SPEED",
+    format_lion_text(left_nypd_service_area, 1, ' ') AS "Left NYPD Service Area",
+    format_lion_text(right_nypd_service_area, 1, ' ') AS "Right NYPD Service Area",
+    format_lion_text(truck_route_type, 1, ' ') AS "Truck Route Type",
+    left_census_tract_2020 AS "LEFT 2020 CENSUS TRACT", -- TODO 1.4
+    right_census_tract_2020 AS "RIGHT 2020 CENSUS TRACT", -- TODO 1.4
+    format_lion_text(left_2020_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2020 BASIC",
+    coalesce(left_2020_census_block_suffix, ' ') AS "LEFT CENSUS BLOCK 2020 SUFFIX",
+    format_lion_text(right_2020_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2020 BASIC",
+    coalesce(right_2020_census_block_suffix, ' ') AS "RIGHT CENSUS BLOCK 2020 SUFFIX",
+    format_lion_text('', 45, ' ') AS "Filler L199"
 FROM {{ ref("lion") }}

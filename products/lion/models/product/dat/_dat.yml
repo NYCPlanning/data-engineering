@@ -330,12 +330,12 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
-  - name: '"Left BLOCKFACEID"'
+  - name: '"Filler (formerly Left BLOCKFACEID)"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
-  - name: '"Right BLOCKFACEID"'
+  - name: '"Filler (formerly Right BLOCKFACEID)"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -410,6 +410,151 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
+  - name: '"LEFT CENSUS BLOCK 2000 BASIC"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"LEFT CENSUS BLOCK 2000 SUFFIX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"RIGHT CENSUS BLOCK 2000 BASIC"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"RIGHT CENSUS BLOCK 2000 SUFFIX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"LEFT CENSUS BLOCK 2010 BASIC"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"LEFT CENSUS BLOCK 2010 SUFFIX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"RIGHT CENSUS BLOCK 2010 BASIC"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"RIGHT CENSUS BLOCK 2010 SUFFIX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"SNOW PRIORITY"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"BIKELANE_2"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
+  - name: '"STREET WIDTH MAX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 3
+  - name: '"Filler L89"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 3
+  - name: '"Left BLOCKFACEID"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 10
+  - name: '"Right BLOCKFACEID"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 10
+  - name: '"NUMBER TRAVEL LANES"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
+  - name: '"NUMBER PARK LANES"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
+  - name: '"NUMBER TOTAL LANES"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
+  - name: '"BIKE TRAFFIC DIR"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
+  - name: '"POSTED SPEED"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
+  - name: '"Left NYPD Service Area"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"Right NYPD Service Area"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"Truck Route Type"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"LEFT 2020 CENSUS TRACT"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 6
+  - name: '"RIGHT 2020 CENSUS TRACT"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 6
+  - name: '"LEFT CENSUS BLOCK 2020 BASIC"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"LEFT CENSUS BLOCK 2020 SUFFIX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"RIGHT CENSUS BLOCK 2020 BASIC"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"RIGHT CENSUS BLOCK 2020 SUFFIX"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 1
+  - name: '"Filler L199"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 45
 
 - name: lion_dat
   columns:
@@ -417,7 +562,7 @@ models:
     tests:
     # Must warn until all columns are populated
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 271
+        value: 400
         config:
           severity: warn
 
