@@ -4,7 +4,7 @@ import pytest
 from unittest import mock
 from pydantic import BaseModel
 
-from dcpy.configuration import PUBLISHING_BUCKET
+from dcpy.configuration import RECIPES_BUCKET, PUBLISHING_BUCKET
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import (
     FileDownloadSource,
@@ -81,6 +81,15 @@ class TestGetVersion:
         source = Sources.esri
         ### based on mocked response in dcpy/test/conftest.py
         configure.get_version(source, None) == "20240806"
+
+    def test_s3(self, create_buckets):
+        timestamp = datetime.today()
+        version = timestamp.strftime("%Y%m%d")
+        s3.client().put_object(
+            Bucket=RECIPES_BUCKET,
+            Key=f"datasets/{TEST_DATASET_NAME}/{version}/{TEST_DATASET_NAME}.zip",
+        )
+        assert configure.get_version(Sources.s3, timestamp) == version
 
     def test_gis_dataset(self, create_buckets):
         datestring = "20240412"
