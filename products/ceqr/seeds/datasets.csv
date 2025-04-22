@@ -89,3 +89,5 @@ LPC Designation Photo Collection,,webpage,,,https://nyclandmarks.lunaimaging.com
 Historic Designation Reports,,webpage,,,https://www.nyc.gov/site/lpc/designations/designation-reports.page
 LPC Permits,,webpage,,,https://www.nyc.gov/site/lpc/applications/permit-types.page
 Historic Clearance Submission Guidelines,,webpage,,,https://www.nyc.gov/assets/lpc/downloads/pdf/forms/enviroreview.pdf
+NYCDOB Natural Resource Check Flags,dob_natural_resource_check_flags,download,csv,,
+USFWS Critical Habitat (Proposed Polygons),usfws_habitats_poly_proposed,download,shapefile,MULTIPOLYGON,https://fws.maps.arcgis.com/home/item.html?id=9d8de5e265ad4fe09893cf75b8dbfb77

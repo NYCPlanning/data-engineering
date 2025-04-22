@@ -62,3 +62,5 @@ inputs:
     - name: dpr_forever_wild
     - name: dpr_schoolyard_to_playgrounds
     - name: nysshpo_archaeological_buffer_areas
+    - name: dob_natural_resource_check_flags
+    - name: usfws_habitats_poly_proposed
