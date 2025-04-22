@@ -48,7 +48,9 @@ def read_template(
 
 def get_version(source: Source, timestamp: datetime):
     connector = source_connectors[source.type]
-    version = connector.get_latest_version(source.get_key(), **source.model_dump())
+    source_model_dict = source.model_dump()
+    source_model_dict.pop("key", None)  # Safely remove "key" if it exists
+    version = connector.get_latest_version(source.get_key(), **source_model_dict)
     return version or timestamp.strftime("%Y%m%d")
 
 
