@@ -65,7 +65,7 @@ SELECT
     NULL AS to_level_code,
     centerline.trafdir_ver_flag,
     centerline.segment_type,
-    centerline.coincident_seg_count,
+    centerline.coincident_seg_count, -- TODO do not count subterranean subway/rail segments
     centerline.incex_flag,
     centerline.rw_type,
     centerline.physicalid,
