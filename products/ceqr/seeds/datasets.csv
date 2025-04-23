@@ -100,3 +100,4 @@ Open Sewer Atlas,,webpage,,,https://opendata.cityofnewyork.us/projects/open-sewe
 Water and sewer calculations,,webpage,,,http://www.nyc.gov/html/oec/downloads/pdf/2021_ceqr_tm/2021_ceqr_tm_ch13_water_sewer_infrastructure_flow_calculations_matrix.xls
 Housing Database,dcp_housing,download,shapefile,MULTIPOINT,https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level
 "Blue Book- Enrollment, Capacity and Utilization Report",sca_bluebook,download,csv,,
+Early Childcare Capacity and Enrollment,dcp_capacity_and_enrollment,download,excel,,
