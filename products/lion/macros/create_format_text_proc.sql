@@ -1,3 +1,15 @@
+/*
+This function is for formatting text as specified in CSCL Phase II ETL Docs section 1.4
+inputs
+    value: the text value to be formatted
+    n: the number of characters of the output text
+    fill: character to fill with (for our uses, zero or space)
+    blank_if_none: if true, if `value` is none then returns n-length spaces regardless of `fill`
+    left_: if true, left-justifies instead of right
+outputs
+    formatted text of length `n`, `value` lpad or rpadded with `fill` arg
+*/
+
 {% macro create_format_text_proc() %}
 
 CREATE OR REPLACE FUNCTION format_lion_text(
