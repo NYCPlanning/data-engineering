@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
 
 from dcpy.connectors.registry import ConnectorRegistry
-from dcpy.models.lifecycle.builds import InputDataset, StageConfValue
+from dcpy.models.lifecycle.builds import InputDataset, StageConfigValue
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
@@ -398,6 +398,6 @@ class TestPlanStageConfs(TestCase):
         with self.assertRaises(Exception) as e:
             plan.recipe_from_yaml(RECIPE_W_UNRESOLVABLE_STAGES)
 
-        assert StageConfValue.UNRESOLVABLE_ERROR in str(e.exception), (
+        assert StageConfigValue.UNRESOLVABLE_ERROR in str(e.exception), (
             "The error should mention that the stage var is unresolvable."
         )

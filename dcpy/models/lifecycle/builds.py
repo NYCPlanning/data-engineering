@@ -4,7 +4,7 @@ from enum import StrEnum
 import pandas as pd
 from pathlib import Path
 from pydantic import AliasChoices, BaseModel, Field, model_validator
-from typing import Any, List, Optional, ClassVar
+from typing import Any, List, ClassVar
 from typing_extensions import Self
 
 from dcpy.utils import versions
@@ -65,14 +65,14 @@ class RecipeInputs(BaseModel):
     dataset_defaults: InputDatasetDefaults | None = None
 
 
-class StageConfValue(BaseModel, extra="forbid"):
+class StageConfigValue(BaseModel, extra="forbid"):
     UNRESOLVABLE_ERROR: ClassVar[str] = (
         "Stage Conf Value requires either `value` or `value_from`"
     )
 
     name: str
     value: str | None = None
-    value_from: Optional[dict[str, str]] = None
+    value_from: dict[str, str] = {}
 
     @model_validator(mode="after")
     def check_resolvable(self) -> Self:
@@ -81,10 +81,10 @@ class StageConfValue(BaseModel, extra="forbid"):
         return self
 
 
-class StageConf(BaseModel, extra="forbid", arbitrary_types_allowed=True):
-    destination: Optional[str] = None
-    destination_key: Optional[str] = None
-    connector_args: Optional[list[StageConfValue]] = []
+class StageConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
+    destination: str | None = None
+    destination_key: str | None = None
+    connector_args: list[StageConfigValue] = []
 
     def get_connector_args_dict(self) -> dict[str, Any]:
         return {a.name: a.value for a in self.connector_args or []}
@@ -99,7 +99,7 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str | None = None
     vars: dict[str, str] | None = None
     inputs: RecipeInputs
-    stage_config: dict[str, StageConf] = {}
+    stage_config: dict[str, StageConfig] = {}
 
     def is_resolved(self):
         return (
