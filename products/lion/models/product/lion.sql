@@ -77,11 +77,11 @@ SELECT
     centerline.status,
     centerline.streetwidth,
     centerline.streetwidth_irr,
-    CASE 
+    CASE
         WHEN centerline.bike_lane = 10 THEN "A"
         WHEN centerline.bike_lane = 11 THEN "B"
         ELSE centerline.bike_lane::TEXT
-    END as bike_lane,
+    END AS bike_lane,
     centerline.fcc,
     NULL AS right_of_way_type, -- blank for centerline
     ap.left_2010_census_tract,
