@@ -69,3 +69,4 @@ inputs:
     - name: dep_stormwater_moderate_2050
     - name: dep_stormwater_limited_current
     - name: dep_stormwater_extreme_2080
+    - name: sca_bluebook
