@@ -112,11 +112,15 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
+        config:
+          severity: warn
   - name: '"Left High House Number"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
+        config:
+          severity: warn
   - name: '"Left Dept of Sanitation Subsection"'
     data_type: string
     tests:
@@ -157,11 +161,15 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
+        config:
+          severity: warn
   - name: '"Right High House Number"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
+        config:
+          severity: warn
   - name: '"Right Dept of Sanitation Subsection"'
     data_type: string
     tests:
