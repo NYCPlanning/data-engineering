@@ -91,3 +91,10 @@ LPC Permits,,webpage,,,https://www.nyc.gov/site/lpc/applications/permit-types.pa
 Historic Clearance Submission Guidelines,,webpage,,,https://www.nyc.gov/assets/lpc/downloads/pdf/forms/enviroreview.pdf
 NYCDOB Natural Resource Check Flags,dob_natural_resource_check_flags,download,csv,,
 USFWS Critical Habitat (Proposed Polygons),usfws_habitats_poly_proposed,download,shapefile,MULTIPOLYGON,https://fws.maps.arcgis.com/home/item.html?id=9d8de5e265ad4fe09893cf75b8dbfb77
+DEP Impervious Area,,webpage,,,https://data.cityofnewyork.us/d/uex9-rfq8/
+Stormwater Flood Map - Extreme 2080s Sea Levels,dep_stormwater_extreme_2080,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
+Stormwater Flood Map - Moderate 2050 Sea Levels,dep_stormwater_moderate_2050,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
+Stormwater Flood Map - Moderate Current Sea Levels,dep_stormwater_moderate_current,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
+Stormwater Flood Map - Limited Current Sea Levels,dep_stormwater_limited_current,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
+Open Sewer Atlas,,webpage,,,https://opendata.cityofnewyork.us/projects/open-sewer-atlas-nyc/
+Water and sewer calculations,,webpage,,,http://www.nyc.gov/html/oec/downloads/pdf/2021_ceqr_tm/2021_ceqr_tm_ch13_water_sewer_infrastructure_flow_calculations_matrix.xls
