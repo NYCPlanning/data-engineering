@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from datetime import datetime
 import geopandas as gpd
 from io import BytesIO
@@ -23,7 +24,7 @@ from dcpy.configuration import (
     PRODUCTS_TO_LOG,
     IGNORED_LOGGING_BUILDS,
 )
-from dcpy.connectors.registry import VersionedConnector
+from dcpy.connectors.registry import GenericConnector, VersionedConnector
 from dcpy.models.connectors.edm.publishing import (
     ProductKey,
     PublishKey,
@@ -856,6 +857,36 @@ class GisDatasetsConnector(VersionedConnector):
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
+
+
+class BuildsConnector(GenericConnector):
+    conn_type: str = "edm.publishing.builds"
+
+    def push(self, key: str, **kwargs) -> dict:
+        connector_args = kwargs["connector_args"]
+
+        logger.info(
+            f"Pushing build for product: {key}, with note: {connector_args['build_note']}"
+        )
+        result = upload_build(
+            output_path=kwargs["build_path"],
+            product=key,
+            acl=s3.string_as_acl(connector_args["acl"]),
+            build=connector_args["build_note"],
+        )
+        return asdict(result)
+
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        **kwargs,
+    ) -> dict:
+        raise Exception("TODO")
+
+    def data_local_sub_path(self, key: str, pull_conf) -> Path:
+        assert pull_conf and "revision" in pull_conf
+        return Path("edm") / "builds" / "datasets" / key / pull_conf["revision"]
 
 
 app = typer.Typer(add_completion=False)

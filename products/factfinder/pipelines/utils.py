@@ -1,5 +1,4 @@
 import argparse
-from datetime import date
 import json
 import pandas as pd
 from pathlib import Path
@@ -7,11 +6,8 @@ import re
 import shutil
 from typing import Tuple
 
-from dcpy.connectors.edm import publishing
-from dcpy.lifecycle.builds import metadata
 from dcpy.utils import string
 from . import DATA_PATH, OUTPUT_FOLDER
-from ..paths import ROOT_PATH
 
 
 COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
@@ -187,21 +183,6 @@ def export_df(df: pd.DataFrame, dataset: str, year: str, copy_metadata=False):
     if copy_metadata:
         shutil.copy(
             DATA_PATH / dataset / year / "metadata.json", OUTPUT_FOLDER / dataset / year
-        )
-
-
-def s3_upload(dataset: str, years: list[str], latest=True):
-    for year in years:
-        output = OUTPUT_FOLDER / dataset / year
-        shutil.copy(str(ROOT_PATH / "build_metadata.json"), output)
-        publishing.legacy_upload(
-            output=output,
-            publishing_folder="db-factfinder",
-            version=str(date.today()),
-            acl="public-read",
-            s3_subpath=str(Path(metadata.build_name()) / dataset / year),
-            latest=latest,
-            contents_only=True,
         )
 
 
