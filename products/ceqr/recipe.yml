@@ -11,6 +11,7 @@ inputs:
   datasets:
     - name: dcp_mappluto_clipped
     - name: dcp_projects
+    - name: dcp_housing
     - name: dcp_zoningdistricts
     - name: dcp_commercialoverlay
     - name: dcp_specialpurpose

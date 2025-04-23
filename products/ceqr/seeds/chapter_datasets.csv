@@ -37,6 +37,7 @@ land_use,Forms,Jamaica Bay Watershed Protection Plan,Form required for projects 
 land_use,Forms,WRP Consistency Assessment Form,Form required for WRP assessments
 land_use,Forms,Flood Elevation Worksheet,Worksheet required for WRP assessments
 socioeconomic_conditions,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
+socioeconomic_conditions,Existing and No Action Condition,Housing Database,Input to DCP Housing and Population Projections workbook
 socioeconomic_conditions,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
 socioeconomic_conditions,Study Area,Census Tract Boundaries,Establish the study area and create study area map
 socioeconomic_conditions,Indirect Residential Displacement,ACS Socioeconomic Data,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
