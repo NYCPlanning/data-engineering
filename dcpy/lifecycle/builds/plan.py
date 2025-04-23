@@ -164,7 +164,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
             )
 
     # Resolve any unresolved conf values (e.g. from the environment)
-    for conf in recipe.get_unresolved_conf_values():
+    for conf in recipe.get_unresolved_stage_config_values():
         if "env" in conf.value_from:
             env_var = conf.value_from["env"]
             if env_var not in os.environ:

@@ -108,12 +108,12 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
                 len(self.inputs.datasets) == 0
                 or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
             )
-            and not self.get_unresolved_conf_values()
+            and not self.get_unresolved_stage_config_values()
         )
 
-    def get_unresolved_conf_values(self):
+    def get_unresolved_stage_config_values(self):
         unresolved = []
-        for stage_name, conf in self.stage_config.items():
+        for _, conf in self.stage_config.items():
             for conn_args in conf.connector_args or []:
                 if conn_args.value_from and not conn_args.value:
                     unresolved.append(conn_args)
