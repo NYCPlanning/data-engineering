@@ -42,6 +42,11 @@ on:
         description: "dev bucket to use in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'"
         type: string
         required: false
+      create_qa_github_issue:
+        description: "Create Github Issue for product QA?"
+        type: boolean
+        default: false
+        required: true
   workflow_call:
     inputs:
       product:
@@ -59,6 +64,9 @@ on:
         required: true
       dev_bucket:
         type: string
+        default: false
+      create_qa_github_issue:
+        type: boolean
         default: false
 
 jobs:
@@ -79,6 +87,7 @@ jobs:
             dcpy 
             bash
             admin/run_environment
+            .github
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
@@ -102,3 +111,21 @@ jobs:
             --build ${{ inputs.build }} \
             ${{ (inputs.draft_summary != '' && format('--draft-summary {0}', inputs.draft_summary)) || ''}} \
             --acl ${{ inputs.product_acl }}
+  
+      - name: Set version and draft number 
+        run: |
+          echo "version=$(cat build_metadata.json | jq -r .version)" >> $GITHUB_ENV
+          echo "draft_number=$(cat build_metadata.json | jq -r .draft_revision_name)" >> $GITHUB_ENV
+
+      - name: Create Github Issue for QA
+        if: ${{ inputs.create_qa_github_issue }}      
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROMOTE_TO_DRAFT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PRODUCT: ${{ inputs.product }}
+          VERSION: ${{ env.version }}
+          DRAFT: ${{ env.draft_number }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/product_qa.md
+          update_existing: false

@@ -313,6 +313,7 @@ def promote_to_draft(
     keep_build: bool = True,
     max_files: int = s3.MAX_FILE_COUNT,
     draft_revision_summary: str = "",
+    download_metadata: bool = False,
 ) -> DraftKey:
     bucket = _bucket()
     version = get_version(build_key)
@@ -351,6 +352,13 @@ def promote_to_draft(
     )
     if not keep_build:
         s3.delete(bucket, source)
+
+    if download_metadata:
+        download_file(
+            product_key=draft_key,
+            filepath="build_metadata.json",
+        )
+        logger.info(f"Downloaded build_metadata.json from {draft_key.path}")
 
     run_details = metadata.get_run_details()
     event_metadata = EventLog(
@@ -1010,6 +1018,12 @@ def _cli_wrapper_promote_to_draft(
         help="Draft description (becomes a part of draft name in s3)",
     ),
     acl: str = typer.Option(None, "-a", "--acl", help="Access level of file in s3"),
+    download_metadata: bool = typer.Option(
+        False,
+        "-m",
+        "--download-metadata",
+        help="Download metadata from 'draft' folder after promoting to drafts?",
+    ),
 ):
     acl_literal = s3.string_as_acl(acl)
     build_key = BuildKey(product, build)
@@ -1018,6 +1032,7 @@ def _cli_wrapper_promote_to_draft(
         build_key=build_key,
         draft_revision_summary=draft_summary,
         acl=acl_literal,
+        download_metadata=download_metadata,
     )
 
 
