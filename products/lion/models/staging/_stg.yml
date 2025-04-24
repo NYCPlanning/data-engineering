@@ -12,3 +12,11 @@ models:
     tests:
     - accepted_values:
         values: [ "Y", "N" ]
+- name: stg__sedat
+  columns:
+  - name: segmentid
+  - name: lionkey
+  - name: side
+    tests:
+    - accepted_values:
+        values: [ "1", "2" ]

@@ -28,6 +28,10 @@ curve AS (
 
 streets AS (
     SELECT * FROM {{ ref("int__centerline_streetcode_and_facecode") }}
+),
+
+sedat AS (
+    SELECT * FROM {{ ref("int__split_election_district") }}
 )
 
 SELECT
@@ -69,7 +73,7 @@ SELECT
     ap.right_assembly_district,
     ap.right_election_district,
     ap.right_school_district,
-    NULL AS split_election_district_flag,
+    sedat.split_election_district_flag,
     centerline.sandist_ind,
     CASE
         WHEN trafdir = 'FT' THEN 'W'
@@ -170,3 +174,4 @@ LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
 LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode = saf.boroughcode
 LEFT JOIN curve ON centerline.segmentid = curve.segmentid
 LEFT JOIN streets ON centerline.segmentid = streets.segmentid
+LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
