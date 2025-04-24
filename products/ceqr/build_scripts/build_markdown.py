@@ -63,7 +63,12 @@ def build_datasets_table_markdown(chapter_datasets: pd.DataFrame) -> pd.DataFram
     chapters = pg_client.read_table_df("chapters")
     datasets = pg_client.read_table_df("dataset_versions")
 
-    dataset_chapters = chapter_datasets.pivot(
+    # dataset can appear more than once under a chapter but with different use_category
+    chapter_datasets_unique = chapter_datasets[
+        ["dataset_name", "chapter_name"]
+    ].drop_duplicates()
+
+    dataset_chapters = chapter_datasets_unique.pivot(
         index="dataset_name", columns="chapter_name", values="dataset_name"
     )
     for chapter_name in chapters["chapter_name"]:
