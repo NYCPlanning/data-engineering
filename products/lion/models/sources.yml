@@ -8,3 +8,4 @@ sources:
   - name: dcp_cscl_centerline
   - name: dcp_cscl_nodes
   - name: dcp_cscl_sectionalmap
+  - name: dcp_cscl_altsegmentdata

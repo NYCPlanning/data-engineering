@@ -7,4 +7,7 @@ inputs:
   - name: dcp_cscl_nodes
   - name: dcp_cscl_sectionalmap
   - name: dcp_cscl_atomicpolygons
+  - name: dcp_cscl_altsegmentdata
+  - name: dcp_cscl_addresspoints
+  - name: dcp_cscl_commonplace_gdb
   missing_versions_strategy: find_latest # TODO - they should all match
