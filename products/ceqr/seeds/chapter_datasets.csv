@@ -40,7 +40,7 @@ socioeconomic_conditions,Existing and No Action Condition,DCP Housing and Popula
 socioeconomic_conditions,Existing and No Action Condition,Housing Database,Input to DCP Housing and Population Projections workbook
 socioeconomic_conditions,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
 socioeconomic_conditions,Study Area,Census Tract Boundaries,Establish the study area and create study area map
-socioeconomic_conditions,Indirect Residential Displacement,ACS Socioeconomic Data,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
+socioeconomic_conditions,Indirect Residential Displacement,Population Fact Finder,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
 socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,Determine affordable unit rents
 socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,Identify households "vulnerable to displacement" (<= 80% AMI)
 socioeconomic_conditions,Business Displacement,LEHD,Business locations and characteristics
@@ -64,7 +64,7 @@ open_space,Existing and No Action Condition,DCP Housing and Population Projectio
 open_space,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
 open_space,Open Spaces,DPR Parks Properties,Open Space Inventory
 open_space,Base Maps,Census Tract Boundaries,Establish the study area and create study area map
-open_space,Existing Condition,ACS Socioeconomic Data,Dicennial Census; Establishing existing population and household size conditions within study area census tracts
+open_space,Existing Condition,Population Fact Finder,Dicennial Census; Establishing existing population and household size conditions within study area census tracts
 open_space,Open Spaces,POPS,Open Space Inventory
 open_space,Open Spaces,Plazas,Open Space Inventory
 open_space,Open Spaces,Waterfront Public Access Areas,Open Space Inventory
@@ -73,6 +73,7 @@ open_space,Open Spaces,NYS Parks,Open Space Inventory
 open_space,Open Spaces,Federal Parks,Open Space Inventory
 open_space,No Action Condition,Parks Capital Projects Tracker,Establishing new park spaces in the No-Action Condion
 open_space,Screening Assessment,Walk to a Park Service Area,Open Space screening for detailed analysis
+open_space,Detailed Assessment,Population Fact Finder,Dicennial Census to establish existing population age characteristics for a detailed indirect effects analysis
 shadows,Base Map,2014 3D Model,creating 3D basemap for detailed shadows assessments
 shadows,Base Map,Building Heights,creating 3D basemap for detailed shadows assessments
 shadows,Base Map,Building Footprints,creating 3D basemap for detailed shadows assessments
