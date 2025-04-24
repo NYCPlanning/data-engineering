@@ -102,3 +102,4 @@ Housing Database,dcp_housing,download,shapefile,MULTIPOINT,https://www.nyc.gov/c
 "Blue Book- Enrollment, Capacity and Utilization Report",sca_bluebook,download,csv,,
 Early Childcare Capacity and Enrollment,dcp_capacity_and_enrollment,download,excel,,
 ZOLA,,webpage,,,https://zola.planning.nyc.gov/
+FastTracker Application,,webpage,,,https://www.nyc.gov/content/planning/pages/our-work/plans/citywide/green-fast-track-for-housing

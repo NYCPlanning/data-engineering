@@ -2,6 +2,7 @@ chapter_id,use_category,dataset_name,use_details
 analysis_framework,Existing Condition,MapPLUTO Shoreline Clipped,Establishing built characterstics of parcels within the project area
 analysis_framework,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 analysis_framework,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
+analysis_framework,Green Fast Track,FastTracker Application,To create a Green Fast Track Report for use in eligibility determination
 land_use,Land Use,ZOLA,A DCP Application to view existing land use and zoning conditions
 land_use,Land Use,MapPLUTO Shoreline Clipped,Establishing land uses and mapping them within study areas
 land_use,Zoning,Zoning Districts,Establishing zoning within study areas
