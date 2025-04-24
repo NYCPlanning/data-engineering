@@ -12,10 +12,7 @@
 ) }}
 
 WITH centerline AS (
-    SELECT
-        segmentid,
-        st_linemerge(geom) AS geom
-    FROM {{ ref("stg__centerline") }}
+    SELECT * FROM {{ ref("stg__centerline") }}
     -- TODO remove this -> likely from odd source data.
     WHERE segmentid NOT IN (
         354785, -- Large circular segment extending into other states
