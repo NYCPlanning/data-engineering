@@ -1,0 +1,14 @@
+id: dcp_green_fast_track_lots
+acl: public-read
+
+attributes:
+  name: Green Fast Track Lots
+  url: https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/v_GFT_Green_Fast_Track_Lots/FeatureServer
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: dcp
+    dataset: v_GFT_Green_Fast_Track_Lots
+  file_format:
+    type: geojson

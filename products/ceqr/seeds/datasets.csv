@@ -103,3 +103,4 @@ Housing Database,dcp_housing,download,shapefile,MULTIPOINT,https://www.nyc.gov/c
 Early Childcare Capacity and Enrollment,dcp_capacity_and_enrollment,download,excel,,
 ZOLA,,webpage,,,https://zola.planning.nyc.gov/
 FastTracker Application,,webpage,,,https://www.nyc.gov/content/planning/pages/our-work/plans/citywide/green-fast-track-for-housing
+Green Fast Track Lots,dcp_green_fast_track_lots,download,shapefile,MULTIPOLYGON,https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/v_GFT_Green_Fast_Track_Lots/FeatureServer

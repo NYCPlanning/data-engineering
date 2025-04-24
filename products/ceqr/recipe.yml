@@ -10,6 +10,7 @@ inputs:
 
   datasets:
     - name: dcp_mappluto_clipped
+    - name: dcp_green_fast_track_lots
     - name: dcp_projects
     - name: dcp_housing
     - name: dcp_zoningdistricts
