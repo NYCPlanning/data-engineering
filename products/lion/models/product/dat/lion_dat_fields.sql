@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'table',
+    indexes=[
+      {'columns': ['"Segment ID"']},
+      {'columns': ['"Borough"', '"Sequence Number"', '"Segment ID"']}
+    ]
+) }}
+
 SELECT
     boroughcode AS "Borough",
     format_lion_text(face_code, 4, '0') AS "Face Code",
