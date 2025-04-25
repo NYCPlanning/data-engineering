@@ -55,13 +55,13 @@ SELECT
     format_lion_text(center_of_curvature_x, 7, '0', TRUE) AS "Center of Curvature X-Coordinate",
     format_lion_text(center_of_curvature_y, 7, '0', TRUE) AS "Center of Curvature Y-Coordinate",
     format_lion_text(segment_length_ft::TEXT, 5, '0') AS "Segment Length in Feet",
-    from_level_code AS "From Level Code",
-    to_level_code AS "To Level Code",
+    coalesce(from_level_code, ' ') AS "From Level Code",
+    coalesce(to_level_code, ' ') AS "To Level Code",
     coalesce(trafdir_ver_flag, ' ') AS "Traffic Direction Verification Flag",
     segment_type AS "Segment Type Code",
     coincident_seg_count::INT::TEXT AS "Coincident Segment Counter",
     coalesce(incex_flag, ' ') AS "Include/Exclude Flag",
-    format_lion_text(rw_type::TEXT, 2, '0', TRUE) AS "Roadway Type", -- TODO doesn't say if zf or sf
+    format_lion_text(rw_type::TEXT, 2, ' ', TRUE) AS "Roadway Type",
     format_lion_text(physicalid::INT::TEXT, 7, '0', TRUE) AS "PHYSICALID", -- TODO - ingest read as int
     format_lion_text(genericid::INT::TEXT, 7, '0', TRUE) AS "GENERICID", -- TODO - ingest read as int
     format_lion_text(nypdid::INT::TEXT, 7, '0', TRUE) AS "NYPDID", -- TODO - ingest read as int
@@ -69,7 +69,7 @@ SELECT
     '       ' AS "Filler (formerly Left BLOCKFACEID)",
     '       ' AS "Filler (formerly Right BLOCKFACEID)",
     coalesce(status, ' ') AS "STATUS",
-    format_lion_text(round(streetwidth)::TEXT, 3, '0', TRUE) AS "STREETWIDTH_MIN", -- TODO - confirm. docs don't say to justify but we need to
+    format_lion_text(round(streetwidth)::TEXT, 3, ' ', TRUE) AS "STREETWIDTH_MIN",
     coalesce(streetwidth_irr, ' ') AS "STREETWIDTH_IRR",
     coalesce(bike_lane, ' ') AS "BIKELANE_1",
     coalesce(fcc, '  ') AS "FCC",
@@ -96,7 +96,7 @@ SELECT
     '   ' AS "Filler L89",
     format_lion_text(l_blockfaceid::INT::TEXT, 10, '0', TRUE) AS "Left BLOCKFACEID", -- TODO - ingest read as int
     format_lion_text(r_blockfaceid::INT::TEXT, 10, '0', TRUE) AS "Right BLOCKFACEID", -- TODO - ingest read as int
-    format_lion_text(number_travel_lanes::INT::TEXT, 2, '0', TRUE) AS "NUMBER TRAVEL LANES", -- TODO - ingest read as int
+    format_lion_text(number_travel_lanes::INT::TEXT, 2, ' ', TRUE) AS "NUMBER TRAVEL LANES", -- TODO - ingest read as int
     format_lion_text(number_park_lanes::INT::TEXT, 2, ' ') AS "NUMBER PARK LANES", -- TODO - ingest read as int
     format_lion_text(number_total_lanes::INT::TEXT, 2, ' ') AS "NUMBER TOTAL LANES", -- TODO - ingest read as int
     format_lion_text(bike_traffic_direction, 2, ' ') AS "BIKE TRAFFIC DIR",
