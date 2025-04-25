@@ -69,9 +69,9 @@ SELECT
     '       ' AS "Filler (formerly Left BLOCKFACEID)",
     '       ' AS "Filler (formerly Right BLOCKFACEID)",
     coalesce(status, ' ') AS "STATUS",
-    format_lion_text(round(streetwidth)::TEXT, 3, '0', TRUE) AS "Street Width", -- TODO - confirm. docs don't say to justify but we need to
-    coalesce(streetwidth_irr, ' ') AS "Irregular Street Width Flag",
-    coalesce(bike_lane, ' ') AS "Bike Lane Indicator",
+    format_lion_text(round(streetwidth)::TEXT, 3, '0', TRUE) AS "STREETWIDTH_MIN", -- TODO - confirm. docs don't say to justify but we need to
+    coalesce(streetwidth_irr, ' ') AS "STREETWIDTH_IRR",
+    coalesce(bike_lane, ' ') AS "BIKELANE_1",
     coalesce(fcc, '  ') AS "FCC",
     coalesce(right_of_way_type, ' ') AS "Right of Way Type",
     left_2010_census_tract AS "Left 2010 Census Tract", -- TODO section 1.4

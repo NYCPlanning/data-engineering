@@ -338,17 +338,17 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 1
-  - name: '"Street Width"'
+  - name: '"STREETWIDTH_MIN"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 3
-  - name: '"Irregular Street Width Flag"'
+  - name: '"STREETWIDTH_IRR"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 1
-  - name: '"Bike Lane Indicator"'
+  - name: '"BIKELANE_1"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
