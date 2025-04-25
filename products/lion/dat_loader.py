@@ -1,3 +1,10 @@
+"""
+This script is for parsing a lion.dat file into its individual fields
+and loading the result into a postgres table
+
+This is done ad-hoc and not on an operational basis
+"""
+
 import pandas as pd
 from pathlib import Path
 import typer
