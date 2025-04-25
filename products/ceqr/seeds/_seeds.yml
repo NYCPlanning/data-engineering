@@ -82,3 +82,4 @@ seeds:
           combination_of_columns:
             - chapter_id
             - dataset_name
+            - use_category

@@ -36,7 +36,7 @@ Jamaica Bay Watershed Protection Plan,,webpage,,,https://www.nyc.gov/assets/oec/
 WRP Consistency Assessment Form,,webpage,,,https://www.nyc.gov/assets/planning/download/pdf/applicants/wrp/wrpform2016.pdf
 Flood Elevation Worksheet,,webpage,,,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
 Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
-ACS Socioeconomic Data,,webpage,,,https://popfactfinder.planning.nyc.gov/
+Population Fact Finder,,webpage,,,https://popfactfinder.planning.nyc.gov/
 Rent by AMI,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
 HUD CHAS,hud_chas_nyc,download,excel,,https://www.huduser.gov/portal/datasets/cp.html
 LEHD,,webpage,,,https://lehd.ces.census.gov/data/#lodes
@@ -98,3 +98,9 @@ Stormwater Flood Map - Moderate Current Sea Levels,dep_stormwater_moderate_curre
 Stormwater Flood Map - Limited Current Sea Levels,dep_stormwater_limited_current,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
 Open Sewer Atlas,,webpage,,,https://opendata.cityofnewyork.us/projects/open-sewer-atlas-nyc/
 Water and sewer calculations,,webpage,,,http://www.nyc.gov/html/oec/downloads/pdf/2021_ceqr_tm/2021_ceqr_tm_ch13_water_sewer_infrastructure_flow_calculations_matrix.xls
+Housing Database,dcp_housing,download,shapefile,MULTIPOINT,https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level
+"Blue Book- Enrollment, Capacity and Utilization Report",sca_bluebook,download,csv,,
+Early Childcare Capacity and Enrollment,dcp_capacity_and_enrollment,download,excel,,
+ZOLA,,webpage,,,https://zola.planning.nyc.gov/
+FastTracker Application,,webpage,,,https://www.nyc.gov/content/planning/pages/our-work/plans/citywide/green-fast-track-for-housing
+Green Fast Track Lots,dcp_green_fast_track_lots,download,shapefile,MULTIPOLYGON,https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/v_GFT_Green_Fast_Track_Lots/FeatureServer

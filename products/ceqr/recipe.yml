@@ -10,7 +10,9 @@ inputs:
 
   datasets:
     - name: dcp_mappluto_clipped
+    - name: dcp_green_fast_track_lots
     - name: dcp_projects
+    - name: dcp_housing
     - name: dcp_zoningdistricts
     - name: dcp_commercialoverlay
     - name: dcp_specialpurpose
@@ -68,3 +70,4 @@ inputs:
     - name: dep_stormwater_moderate_2050
     - name: dep_stormwater_limited_current
     - name: dep_stormwater_extreme_2080
+    - name: sca_bluebook
