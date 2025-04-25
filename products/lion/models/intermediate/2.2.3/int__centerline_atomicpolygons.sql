@@ -43,4 +43,4 @@ LEFT JOIN
     ON ST_WITHIN(co.left_offset_point, left_poly.geom)
 LEFT JOIN
     {{ source("recipe_sources", "dcp_cscl_atomicpolygons") }} AS right_poly
-    ON ST_WITHIN(co.left_offset_point, right_poly.geom)
+    ON ST_WITHIN(co.right_offset_point, right_poly.geom)
