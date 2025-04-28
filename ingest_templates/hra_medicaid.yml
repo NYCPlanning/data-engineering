@@ -30,14 +30,14 @@ ingestion:
       crs: EPSG:4326
   processing_steps:
   - name: clean_column_names
-    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+    args: { "replace": { " ": "_", "-": "_", "(": "", ")": "" }, "strip": True, "lower": True }
 
 columns:
 - id: borough
   data_type: text
-- id: name_of__medicaid_office
+- id: facility_name
   data_type: text
-- id: office_address
+- id: street_address
   data_type: text
 - id: postcode
   data_type: text
@@ -49,13 +49,13 @@ columns:
   data_type: text
 - id: council_district
   data_type: text
-- id: census_tract
+- id: census_tract_2020
   data_type: text
 - id: bin
   data_type: text
 - id: bbl
   data_type: text
-- id: nta
+- id: neighborhood_tabulation_area_nta_2020
   data_type: text
 - id: geom
   data_type: geometry
