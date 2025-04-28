@@ -1,3 +1,11 @@
+{{ config(
+    materialized = 'table',
+    indexes=[
+      {'columns': ['segmentid']},
+      {'columns': ['boroughcode', 'segment_seqnum', 'segmentid']}
+    ]
+) }}
+
 WITH centerline AS (
     SELECT * FROM {{ ref("stg__centerline") }}
 ),

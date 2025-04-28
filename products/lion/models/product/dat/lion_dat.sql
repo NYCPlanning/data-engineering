@@ -3,5 +3,5 @@
 WITH lion AS (
     SELECT * FROM {{ ref('lion_dat_fields') }}
 )
-SELECT rtrim(ltrim(replace(lion::text, ',', ''), '('), ')') AS dat_column
+SELECT rtrim(ltrim(replace(replace(lion::text, ',', ''), '"', ''), '('), ')') AS dat_column
 FROM lion

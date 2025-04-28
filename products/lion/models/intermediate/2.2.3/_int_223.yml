@@ -24,8 +24,8 @@ models:
 
 - name: int__centerline_offsets
   columns:
-  - name: segmentid,
-  - name: left_line,
-  - name: right_line,
-  - name: left_offset_point,
+  - name: segmentid
+  - name: left_line
+  - name: right_line
+  - name: left_offset_point
   - name: right_offset_point
