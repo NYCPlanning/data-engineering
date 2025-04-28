@@ -20,7 +20,7 @@ SELECT
     'NYCHRA' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkt::geometry AS wkb_geometry,
+    geom AS wkb_geometry,
     geo_1b,
     geo_bl,
     geo_bn
