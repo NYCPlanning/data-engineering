@@ -81,12 +81,10 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: hra_snapcenters
-    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: hra_jobcenters
-    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
