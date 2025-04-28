@@ -91,12 +91,10 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: hra_medicaid
-    file_type: csv # migrated - last updated in 2022
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: nycha_communitycenters
-    file_type: csv # migrated - last updated in 2019
     preprocessor:
       module: facdb.pipelines
       function: dispatch
