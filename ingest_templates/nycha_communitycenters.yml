@@ -34,8 +34,6 @@ ingestion:
     args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
 
 columns:
-- id: type
-  data_type: text
 - id: funding_agency
   data_type: text
 - id: borough
