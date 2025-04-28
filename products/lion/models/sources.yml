@@ -11,3 +11,6 @@ sources:
   - name: dcp_cscl_altsegmentdata
   - name: dcp_cscl_addresspoints
   - name: dcp_cscl_commonplace_gdb
+  - name: dcp_cscl_streetname
+  - name: dcp_cscl_featurename
+  - name: dcp_cscl_segment_lgc
