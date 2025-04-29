@@ -13,7 +13,7 @@ sys.path.append(str(_proj_root))
 
 
 S3_BUCKET = "edm-private"
-S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250418"
+S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250429"
 S3_OUTPUT_DIR = "db-kpdb"
 
 DATA_PATH = _product_path / "data"
