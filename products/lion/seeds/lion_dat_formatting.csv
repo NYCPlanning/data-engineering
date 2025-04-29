@@ -17,7 +17,8 @@ L15,To-Sectional Map,2,55,56,RJZF
 L16,To-Node ID,7,57,63,RJZF
 L17,To-X Coordinate,7,64,70,RJZF
 L18,To-Y Coordinate,7,71,77,RJZF
-L19,Left 2000 Census Tract,6,78,83,See Sec. 1.4
+L19,Left 2000 Census Tract Basic,4,78,81,See Sec. 1.4
+L19,Left 2000 Census Tract Suffix,2,82,83,See Sec. 1.4
 L20,Left Dynamic Block,3,84,86,RJZF or blank if none
 L21,Left Low House Number,7,87,93,See Sec. 1.4
 L22,Left High House Number,7,94,100,See Sec. 1.4
@@ -26,7 +27,8 @@ L24,Left Zip Code,5,103,107,Blank if none
 L25,Left Assembly District,2,108,109,RJZF - blank if none
 L26,Left Election District,3,110,112,RJZF - blank if none
 L27,Left School District,2,113,114,RJZF - blank if none
-L28,Right 2000 Census Tract,6,115,120,See Sec. 1.4
+L28,Right 2000 Census Tract Basic,4,115,118,See Sec. 1.4
+L28,Right 2000 Census Tract Suffix,2,119,120,See Sec. 1.4
 L29,Right Dynamic Block,3,121,123,RJZF - blank if none
 L30,Right Low House Number,7,124,130,See Sec. 1.4
 L31,Right High House Number,7,131,137,See Sec. 1.4
@@ -70,8 +72,10 @@ L68,STREETWIDTH_IRR,1,238,238,Blank if none
 L69_1,BIKELANE_1,1,239,239,Blank if none
 L70,FCC,2,240,241,Blank if none
 L71,Right of Way Type,1,242,242,Blank if none
-L72,Left 2010 Census Tract,6,243,248,See Sec. 1.4
-L73,Right 2010 Census Tract,6,249,254,See Sec. 1.4
+L72,Left 2010 Census Tract Basic,4,243,246,See Sec. 1.4
+L72,Left 2010 Census Tract Suffix,2,247,248,See Sec. 1.4
+L73,Right 2010 Census Tract Basic,4,249,252,See Sec. 1.4
+L73,Right 2010 Census Tract Suffix,2,253,254,See Sec. 1.4
 L74,LGC5,2,255,256,01 to 99 or Blanks
 L75,LGC6,2,257,258,01 to 99 or Blanks
 L76,LGC7,2,259,260,01 to 99 or Blanks
@@ -100,8 +104,10 @@ L96,POSTED SPEED,2,329,330,RJSF
 L97,Left NYPD Service Area,1,331,331,RJSF 
 L98,Right NYPD Service Area,1,332,332,RJSF
 L99,Truck Route Type,1,333,333,RJSF
-L100,LEFT 2020 CENSUS TRACT,6,334,339,See Sec. 1.4 
-L101,RIGHT 2020 CENSUS TRACT,6,340,345,See Sec. 1.4
+L100,LEFT 2020 CENSUS TRACT Basic,4,334,337,See Sec. 1.4 
+L100,LEFT 2020 CENSUS TRACT Suffix,2,338,339,See Sec. 1.4 
+L101,RIGHT 2020 CENSUS TRACT Basic,4,340,343,See Sec. 1.4
+L101,RIGHT 2020 CENSUS TRACT Suffix,2,344,345,See Sec. 1.4
 L102,LEFT CENSUS BLOCK 2020 BASIC,4,346,349,RJSF
 L103,LEFT CENSUS BLOCK 2020 SUFFIX,1,350,350,Blank if none
 L104,RIGHT CENSUS BLOCK 2020 BASIC,4,351,354,RJSF

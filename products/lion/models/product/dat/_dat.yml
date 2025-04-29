@@ -98,11 +98,16 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 7
-  - name: '"Left 2000 Census Tract"'
+  - name: '"Left 2000 Census Tract Basic"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        value: 4
+  - name: '"Left 2000 Census Tract Suffix"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
   - name: '"Left Dynamic Block"'
     data_type: string
     tests:
@@ -143,11 +148,16 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 2
-  - name: '"Right 2000 Census Tract"'
+  - name: '"Right 2000 Census Tract Basic"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        value: 4
+  - name: '"Right 2000 Census Tract Suffix"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
   - name: '"Right Dynamic Block"'
     data_type: string
     tests:
@@ -363,16 +373,26 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 1
-  - name: '"Left 2010 Census Tract"'
+  - name: '"Left 2010 Census Tract Basic"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
-  - name: '"Right 2010 Census Tract"'
+        value: 4
+  - name: '"Left 2010 Census Tract Suffix"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        value: 2
+  - name: '"Right 2010 Census Tract Basic"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"Right 2010 Census Tract Suffix"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
   - name: '"LGC5"'
     data_type: string
     tests:
@@ -513,16 +533,26 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 1
-  - name: '"LEFT 2020 CENSUS TRACT"'
+  - name: '"LEFT 2020 CENSUS TRACT Basic"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
-  - name: '"RIGHT 2020 CENSUS TRACT"'
+        value: 4
+  - name: '"LEFT 2020 CENSUS TRACT Suffix"'
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        value: 2
+  - name: '"RIGHT 2020 CENSUS TRACT Basic"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 4
+  - name: '"RIGHT 2020 CENSUS TRACT Suffix"'
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        value: 2
   - name: '"LEFT CENSUS BLOCK 2020 BASIC"'
     data_type: string
     tests:

@@ -25,7 +25,8 @@ SELECT
     format_lion_text(to_nodeid::TEXT, 7, '0') AS "To-Node ID",
     format_lion_text(round(to_x)::INT::TEXT, 7, '0') AS "To-X Coordinate",
     format_lion_text(round(to_y)::INT::TEXT, 7, '0') AS "To-Y Coordinate",
-    format_lion_text(left_2000_census_tract, 6, ' ', TRUE) AS "Left 2000 Census Tract", -- TODO section 1.4
+    format_lion_text(left_2000_census_tract_basic::TEXT, 4, ' ', TRUE) AS "Left 2000 Census Tract Basic",
+    format_lion_text(left_2000_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Left 2000 Census Tract Suffix",
     coalesce(right(left_atomicid, 3), '   ') AS "Left Dynamic Block",
     format_lion_text(l_low_hn, 7, ' ', TRUE) AS "Left Low House Number", -- TODO section 1.4
     format_lion_text(l_high_hn, 7, ' ', TRUE) AS "Left High House Number", -- TODO section 1.4
@@ -34,7 +35,8 @@ SELECT
     format_lion_text(left_assembly_district, 2, '0', TRUE) AS "Left Assembly District",
     format_lion_text(left_election_district, 3, '0', TRUE) AS "Left Election District",
     format_lion_text(left_school_district, 2, '0', TRUE) AS "Left School District",
-    format_lion_text(right_2000_census_tract, 6, ' ', TRUE) AS "Right 2000 Census Tract", -- TODO section 1.4
+    format_lion_text(right_2000_census_tract_basic::TEXT, 4, ' ', TRUE) AS "Right 2000 Census Tract Basic",
+    format_lion_text(right_2000_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Right 2000 Census Tract Suffix",
     coalesce(right(right_atomicid, 3), '   ') AS "Right Dynamic Block",
     format_lion_text(r_low_hn, 7, ' ', TRUE) AS "Right Low House Number", -- TODO section 1.4
     format_lion_text(r_high_hn, 7, ' ', TRUE) AS "Right High House Number", -- TODO section 1.4
@@ -82,8 +84,10 @@ SELECT
     coalesce(bike_lane, ' ') AS "BIKELANE_1",
     coalesce(fcc, '  ') AS "FCC",
     coalesce(right_of_way_type, ' ') AS "Right of Way Type",
-    format_lion_text(left_2010_census_tract, 6, ' ', TRUE) AS "Left 2010 Census Tract", -- TODO section 1.4
-    format_lion_text(right_2010_census_tract, 6, ' ', TRUE) AS "Right 2010 Census Tract", -- TODO section 1.4
+    format_lion_text(left_2010_census_tract_basic::TEXT, 4, ' ', TRUE) AS "Left 2010 Census Tract Basic",
+    format_lion_text(left_2010_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Left 2010 Census Tract Suffix",
+    format_lion_text(right_2010_census_tract_basic::TEXT, 4, ' ', TRUE) AS "Right 2010 Census Tract Basic",
+    format_lion_text(right_2010_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Right 2010 Census Tract Suffix",
     format_lion_text(lgc5, 2, '0', TRUE) AS "LGC5",
     format_lion_text(lgc6, 2, '0', TRUE) AS "LGC6",
     format_lion_text(lgc7, 2, '0', TRUE) AS "LGC7",
@@ -112,8 +116,10 @@ SELECT
     format_lion_text(left_nypd_service_area, 1, ' ') AS "Left NYPD Service Area",
     format_lion_text(right_nypd_service_area, 1, ' ') AS "Right NYPD Service Area",
     format_lion_text(truck_route_type, 1, ' ') AS "Truck Route Type",
-    format_lion_text(left_2020_census_tract, 6, ' ', TRUE) AS "LEFT 2020 CENSUS TRACT", -- TODO 1.4
-    format_lion_text(right_2020_census_tract, 6, ' ', TRUE) AS "RIGHT 2020 CENSUS TRACT", -- TODO 1.4
+    format_lion_text(left_2020_census_tract_basic::TEXT, 4, ' ', TRUE) AS "LEFT 2020 CENSUS TRACT Basic",
+    format_lion_text(left_2020_census_tract_suffix::TEXT, 2, '0', TRUE) AS "LEFT 2020 CENSUS TRACT Suffix",
+    format_lion_text(right_2020_census_tract_basic::TEXT, 4, ' ', TRUE) AS "RIGHT 2020 CENSUS TRACT Basic",
+    format_lion_text(right_2020_census_tract_suffix::TEXT, 2, '0', TRUE) AS "RIGHT 2020 CENSUS TRACT Suffix",
     format_lion_text(left_2020_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2020 BASIC",
     coalesce(left_2020_census_block_suffix, ' ') AS "LEFT CENSUS BLOCK 2020 SUFFIX",
     format_lion_text(right_2020_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2020 BASIC",
