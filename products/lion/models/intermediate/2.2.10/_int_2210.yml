@@ -1,0 +1,6 @@
+models:
+- name: int__centerline_specialaddress
+  columns:
+  - name: segmentid
+  - name: boroughcode
+  - name: special_address_flag

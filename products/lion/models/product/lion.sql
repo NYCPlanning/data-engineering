@@ -16,6 +16,10 @@ atomic_polygons AS (
 
 nodes AS (
     SELECT * FROM {{ ref("int__centerline_segments_with_nodes") }}
+),
+
+saf AS (
+    SELECT * FROM {{ ref("int__centerline_specialaddress") }}
 )
 
 SELECT
@@ -64,7 +68,7 @@ SELECT
     centerline.continuous_parity_flag,
     NULL AS borough_boundary_indicator,
     NULL AS twisted_parity_flag,
-    NULL AS special_address_flag,
+    saf.special_address_flag,
     NULL AS curve_flag,
     NULL AS center_of_curvature_x,
     NULL AS center_of_curvature_y,
@@ -129,3 +133,4 @@ SELECT
 FROM centerline
 LEFT JOIN atomic_polygons AS ap ON centerline.segmentid = ap.segmentid
 LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
+LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode = saf.boroughcode
