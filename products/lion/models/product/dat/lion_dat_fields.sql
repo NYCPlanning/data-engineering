@@ -28,8 +28,8 @@ SELECT
     format_lion_text(left_2000_census_tract_basic::TEXT, 4, ' ', TRUE) AS "Left 2000 Census Tract Basic",
     format_lion_text(left_2000_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Left 2000 Census Tract Suffix",
     coalesce(right(left_atomicid, 3), '   ') AS "Left Dynamic Block",
-    format_lion_text(l_low_hn, 7, ' ', TRUE) AS "Left Low House Number", -- TODO section 1.4
-    format_lion_text(l_high_hn, 7, ' ', TRUE) AS "Left High House Number", -- TODO section 1.4
+    format_lion_text(l_low_hn, 7, ' ', TRUE) AS "Left Low House Number",
+    format_lion_text(l_high_hn, 7, ' ', TRUE) AS "Left High House Number",
     format_lion_text(left(lsubsect, 2), 2, '0', TRUE) AS "Left Dept of Sanitation Subsection",
     format_lion_text(l_zip, 5, '0', TRUE) AS "Left Zip Code",
     format_lion_text(left_assembly_district, 2, '0', TRUE) AS "Left Assembly District",
@@ -38,8 +38,8 @@ SELECT
     format_lion_text(right_2000_census_tract_basic::TEXT, 4, ' ', TRUE) AS "Right 2000 Census Tract Basic",
     format_lion_text(right_2000_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Right 2000 Census Tract Suffix",
     coalesce(right(right_atomicid, 3), '   ') AS "Right Dynamic Block",
-    format_lion_text(r_low_hn, 7, ' ', TRUE) AS "Right Low House Number", -- TODO section 1.4
-    format_lion_text(r_high_hn, 7, ' ', TRUE) AS "Right High House Number", -- TODO section 1.4
+    format_lion_text(r_low_hn, 7, ' ', TRUE) AS "Right Low House Number",
+    format_lion_text(r_high_hn, 7, ' ', TRUE) AS "Right High House Number",
     format_lion_text(left(rsubsect, 2), 2, '0', TRUE) AS "Right Dept of Sanitation Subsection",
     format_lion_text(r_zip, 5, '0', TRUE) AS "Right Zip Code",
     format_lion_text(right_assembly_district, 2, '0', TRUE) AS "Right Assembly District",
