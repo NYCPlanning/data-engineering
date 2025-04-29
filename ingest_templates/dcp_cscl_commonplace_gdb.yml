@@ -3,6 +3,9 @@ acl: private
 
 attributes:
   name: CSCL Common Place
+  description: >-
+    TODO We archive commonplace from AGOL as well, this dataset is currently just to be
+    used in LION ETL POC. At some point this duplication should be resolved
 
 ingestion:
   source:

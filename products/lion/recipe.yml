@@ -9,5 +9,5 @@ inputs:
   - name: dcp_cscl_atomicpolygons
   - name: dcp_cscl_altsegmentdata
   - name: dcp_cscl_addresspoints
-  - name: dcp_cscl_commonplace_gdb
+  - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
   missing_versions_strategy: find_latest # TODO - they should all match
