@@ -80,7 +80,9 @@ SELECT
     centerline.nonped,
     centerline.continuous_parity_flag,
     NULL AS borough_boundary_indicator,
-    NULL AS twisted_parity_flag,
+    CASE
+        WHEN twisted_parity_flag = 'Y' THEN 'T'
+    END AS twisted_parity_flag,
     saf.special_address_flag,
     NULL AS curve_flag,
     NULL AS center_of_curvature_x,

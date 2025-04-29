@@ -243,8 +243,8 @@ models:
   - name: '"Twisted Parity Flag"'
     data_type: string
     tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 1
+    - accepted_values:
+        values: [ " ", "T" ]
   - name: '"Special Address Flag"'
     data_type: string
     tests:
