@@ -88,8 +88,14 @@ SELECT
     NULL AS center_of_curvature_x,
     NULL AS center_of_curvature_y,
     round(centerline.shape_length)::INT AS segment_length_ft,
-    NULL AS from_level_code,
-    NULL AS to_level_code,
+    CASE
+        WHEN from_level_code BETWEEN 1 AND 26 THEN chr(64 + from_level_code)
+        WHEN from_level_code = 99 THEN '*'
+    END AS from_level_code,
+    CASE
+        WHEN to_level_code BETWEEN 1 AND 26 THEN chr(64 + to_level_code)
+        WHEN to_level_code = 99 THEN '*'
+    END AS to_level_code,
     centerline.trafdir_ver_flag,
     centerline.segment_type,
     centerline.coincident_seg_count, -- TODO do not count subterranean subway/rail segments

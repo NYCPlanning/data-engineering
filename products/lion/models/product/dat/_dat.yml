@@ -273,13 +273,13 @@ models:
   - name: '"From Level Code"'
     data_type: string
     tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 1
+    - accepted_values:
+        values: [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, "*"]
   - name: '"To Level Code"'
     data_type: string
     tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 1
+    - accepted_values:
+        values: [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, "*"]
   - name: '"Traffic Direction Verification Flag"'
     data_type: string
     tests:
