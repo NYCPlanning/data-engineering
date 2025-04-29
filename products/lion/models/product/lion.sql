@@ -68,7 +68,15 @@ SELECT
         WHEN trafdir = 'TW' THEN 'T'
     END AS traffic_direction,
     NULL AS segment_locational_status,
-    NULL AS feature_type_code,
+    CASE
+        WHEN status = '3' THEN '5'
+        WHEN status = '2' AND rwjurisdiction = '3' THEN '6'
+        WHEN status = '9' THEN '9'
+        WHEN rw_type = 10 THEN 'A'
+        WHEN trafdir = 'NV' AND (l_low_hn <> '0' OR l_high_hn <> '0' OR r_low_hn <> '0' OR r_high_hn <> '0') THEN 'W'
+        WHEN rw_type = 14 THEN 'F'
+        WHEN status = '2' AND rwjurisdiction = '5' THEN 'C'
+    END AS feature_type_code,
     centerline.nonped,
     centerline.continuous_parity_flag,
     NULL AS borough_boundary_indicator,
