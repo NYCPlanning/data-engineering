@@ -42,19 +42,19 @@ SELECT
     nodes.to_x,
     nodes.to_y,
     ap.left_2000_census_tract, -- todo - in final formatting, suffix might need to be converted from 00s to blank if missing see 1.4
-    ap.left_atomicid, -- TODO: "last 3 bytes"
+    ap.left_atomicid,
     centerline.l_low_hn,
     centerline.l_high_hn,
-    centerline.lsubsect, -- TODO: only 2 leftmost bytes
+    centerline.lsubsect,
     centerline.l_zip,
     ap.left_assembly_district,
     ap.left_election_district,
     ap.left_school_district,
     ap.right_2000_census_tract,
-    ap.right_atomicid, -- TODO: "last 3 bytes"
+    ap.right_atomicid,
     centerline.r_low_hn,
     centerline.r_high_hn,
-    centerline.rsubsect, -- TODO: only 2 leftmost bytes
+    centerline.rsubsect,
     centerline.r_zip,
     ap.right_assembly_district,
     ap.right_election_district,
@@ -96,7 +96,6 @@ SELECT
     NULL AS right_of_way_type, -- blank for centerline
     ap.left_2010_census_tract,
     ap.right_2010_census_tract,
-    -- TODO: 2020 census tracts?
     NULL AS lgc5,
     NULL AS lgc6,
     NULL AS lgc7,
