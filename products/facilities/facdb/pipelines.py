@@ -44,6 +44,7 @@ def dca_operatingbusinesses(df: pd.DataFrame):
         "Parking Lot",
         "Garage",
         "Garage and Parking Lot",
+        "Garage & Parking Lot",
         "Tow Truck Company",
     ]
     today = datetime.datetime.today()
@@ -483,7 +484,7 @@ def hra_medicaid(df: pd.DataFrame):
     df = sanitize_df(df)
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
     df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
-    df = parse_address(df, raw_address_field="office_address")
+    df = parse_address(df, raw_address_field="street_address")
     df = Function1B(
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",

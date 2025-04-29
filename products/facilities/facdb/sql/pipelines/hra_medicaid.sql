@@ -3,10 +3,10 @@ DROP TABLE IF EXISTS _hra_medicaid;
 SELECT
     uid,
     source,
-    name_of__medicaid_office AS facname,
+    facility_name AS facname,
     parsed_hnum AS addressnum,
     parsed_sname AS streetname,
-    office_address AS address,
+    street_address AS address,
     NULL AS city,
     postcode AS zipcode,
     borough AS boro,
@@ -20,7 +20,7 @@ SELECT
     'NYCHRA' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkt::geometry AS wkb_geometry,
+    geom AS wkb_geometry,
     geo_1b,
     geo_bl,
     geo_bn
