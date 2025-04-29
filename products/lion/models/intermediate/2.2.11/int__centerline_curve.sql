@@ -15,7 +15,7 @@ center_calculated AS (
         curve AS curve_flag,
         CASE
             WHEN curve IN ('L', 'R') THEN
-                lw_arc_center(
+                find_circle(
                     st_startpoint(geom),
                     st_endpoint(geom),
                     st_pointn(geom, st_numpoints(geom)/2)

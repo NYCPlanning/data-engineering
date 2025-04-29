@@ -19,6 +19,7 @@ models:
 
 on-run-start:
 - '{{ create_format_text_proc() }}'
+- '{{ create_find_circle_proc() }}'
 
 flags:
   fail-fast: true
