@@ -61,7 +61,12 @@ SELECT
     ap.right_school_district,
     NULL AS split_election_district_flag,
     centerline.sandist_ind,
-    NULL AS traffic_direction,
+    CASE
+        WHEN trafdir = 'FT' THEN 'W'
+        WHEN trafdir = 'TF' THEN 'A'
+        WHEN trafdir = 'NV' THEN 'P'
+        WHEN trafdir = 'TW' THEN 'T'
+    END AS traffic_direction,
     NULL AS segment_locational_status,
     NULL AS feature_type_code,
     centerline.nonped,

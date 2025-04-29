@@ -1,0 +1,9 @@
+version: 2
+
+models:
+- name: stg__centerline
+  columns:
+  - name: trafdir
+    tests:
+    - accepted_values:
+        values: [ "TF", "FT", "NV", "TW" ]
