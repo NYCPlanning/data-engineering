@@ -6,6 +6,10 @@ from utils.PUMA_helpers import (
     get_all_boroughs,
     puma_to_borough,
 )
+from ingest import ingestion_helpers
+
+
+TRAFFIC_FATALITIES_DATASET = "dcp_dot_trafficinjuries"
 
 
 def traffic_fatalities_injuries(geography, save_for_internal_review=False):
@@ -68,8 +72,8 @@ def get_year_range_df(year_range):
     """
     big_df = pd.DataFrame(data={"puma": get_all_NYC_PUMAs()})
     for year in year_range:
-        raw_df = pd.read_csv(
-            f".library/dcp_dot_trafficinjuries/{year}/dcp_dot_trafficinjuries.csv"
+        raw_df = ingestion_helpers.load_data(
+            name=TRAFFIC_FATALITIES_DATASET, version=str(year)
         )
         injuries_col_name = f"injuries_total_{year}"
         ped_col_name = f"injuries_ped_{year}"

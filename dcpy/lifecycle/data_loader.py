@@ -38,7 +38,7 @@ def pull_dataset(ds: InputDataset, stage: str) -> Path:
         **ds.custom,
     )
     logger.info(f"Pulled {ds.id} to {pull_res['path']}.")
-    return pull_res["path"]
+    return pull_res["path"].absolute()
 
 
 def _get_preprocessor(ds: InputDataset):
