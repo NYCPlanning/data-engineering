@@ -19,7 +19,7 @@ inputs:
   - name: lpc_historic_district_areas # 4.03
     version: 20250423
   - name: dhs_shelterd_indiv_by_comm_dist # 3.1
-    version: '2025'
+    version: '2025.1'
 
   # A decade of traffic injury data # 5.15
   - name: dcp_dot_trafficinjuries
