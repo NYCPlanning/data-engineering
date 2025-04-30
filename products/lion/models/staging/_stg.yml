@@ -1,0 +1,14 @@
+version: 2
+
+models:
+- name: stg__centerline
+  # only columns with tests currently listed
+  columns:
+  - name: trafdir
+    tests:
+    - accepted_values:
+        values: [ "TF", "FT", "NV", "TW" ]
+  - name: twisted_parity_flag
+    tests:
+    - accepted_values:
+        values: [ "Y", "N" ]

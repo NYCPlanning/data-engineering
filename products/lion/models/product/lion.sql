@@ -63,20 +63,41 @@ SELECT
     ap.right_school_district,
     NULL AS split_election_district_flag,
     centerline.sandist_ind,
-    NULL AS traffic_direction,
+    CASE
+        WHEN trafdir = 'FT' THEN 'W'
+        WHEN trafdir = 'TF' THEN 'A'
+        WHEN trafdir = 'NV' THEN 'P'
+        WHEN trafdir = 'TW' THEN 'T'
+    END AS traffic_direction,
     NULL AS segment_locational_status,
-    NULL AS feature_type_code,
+    CASE
+        WHEN status = '3' THEN '5'
+        WHEN status = '2' AND rwjurisdiction = '3' THEN '6'
+        WHEN status = '9' THEN '9'
+        WHEN rw_type = 10 THEN 'A'
+        WHEN trafdir = 'NV' AND (l_low_hn <> '0' OR l_high_hn <> '0' OR r_low_hn <> '0' OR r_high_hn <> '0') THEN 'W'
+        WHEN rw_type = 14 THEN 'F'
+        WHEN status = '2' AND rwjurisdiction = '5' THEN 'C'
+    END AS feature_type_code,
     centerline.nonped,
     centerline.continuous_parity_flag,
     NULL AS borough_boundary_indicator,
-    NULL AS twisted_parity_flag,
+    CASE
+        WHEN twisted_parity_flag = 'Y' THEN 'T'
+    END AS twisted_parity_flag,
     saf.special_address_flag,
     NULL AS curve_flag,
     NULL AS center_of_curvature_x,
     NULL AS center_of_curvature_y,
     round(centerline.shape_length)::INT AS segment_length_ft,
-    NULL AS from_level_code,
-    NULL AS to_level_code,
+    CASE
+        WHEN from_level_code BETWEEN 1 AND 26 THEN chr(64 + from_level_code)
+        WHEN from_level_code = 99 THEN '*'
+    END AS from_level_code,
+    CASE
+        WHEN to_level_code BETWEEN 1 AND 26 THEN chr(64 + to_level_code)
+        WHEN to_level_code = 99 THEN '*'
+    END AS to_level_code,
     centerline.trafdir_ver_flag,
     centerline.segment_type,
     centerline.coincident_seg_count, -- TODO do not count subterranean subway/rail segments
