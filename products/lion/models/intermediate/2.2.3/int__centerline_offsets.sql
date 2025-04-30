@@ -13,11 +13,6 @@
 
 WITH centerline AS (
     SELECT * FROM {{ ref("stg__centerline") }}
-    -- TODO remove this -> likely from odd source data.
-    WHERE segmentid NOT IN (
-        354785, -- Large circular segment extending into other states
-        9008702 -- Strange small simple line that is discontinuous
-    )
 ),
 
 parallel_lines AS (
