@@ -18,8 +18,8 @@ WITH centerline AS (
 parallel_lines AS (
     SELECT
         segmentid,
-        st_offsetcurve(geom, 2, 'quad_segs=4') AS left_line,
-        st_offsetcurve(geom, -2, 'quad_segs=4') AS right_line
+        st_offsetcurve(geom, 0.5, 'quad_segs=4') AS left_line,
+        st_offsetcurve(geom, -0.5, 'quad_segs=4') AS right_line
     FROM centerline
 ),
 
