@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import StrEnum
 import pandas as pd
 from pathlib import Path
-from pydantic import AliasChoices, BaseModel, Field, model_validator
+from pydantic import AliasChoices, BaseModel, Field, model_serializer, model_validator
 from typing import Any, List, ClassVar
 from typing_extensions import Self
 
@@ -141,11 +141,32 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
             destination_type=ds.destination,
         )
 
+    @model_serializer
+    def _model_dump(self):
+        return {
+            "id": self.id,
+            "version": self.version,
+            "file_type": self.file_type,
+            "destination_type": self.destination_type,
+            "destination": self.destination
+            if type(self.destination) is not pd.DataFrame
+            else "dataframe",
+        }
+
 
 class LoadResult(BaseModel, extra="forbid"):
     name: str
     build_name: str
-    datasets: dict[str, ImportedDataset]
+    datasets: dict[str, dict[str, ImportedDataset]]
+
+    def get_dataset_versions(self, ds_name: str) -> list[str]:
+        return list(self.datasets[ds_name].keys())
+
+    def get_latest_version_str(self, ds_name: str) -> str:
+        return self.get_dataset_versions(ds_name)[-1]
+
+    def get_latest_version(self, ds_name: str) -> ImportedDataset:
+        return self.datasets[ds_name][self.get_latest_version_str(ds_name)]
 
 
 class EventType(StrEnum):
@@ -173,6 +194,7 @@ class BuildMetadata(BaseModel, extra="forbid"):
     version: str
     draft_revision_name: str | None = None
     recipe: Recipe
+    load_result: LoadResult | None = None
 
     def __init__(self, **data):
         if "version" not in data:

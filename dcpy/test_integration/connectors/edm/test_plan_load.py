@@ -26,9 +26,14 @@ def test_resolving_and_loading_recipes(tmp_path, pg_client: postgres.PostgresCli
         for ds in recipe.inputs.datasets
         if ds.destination == InputDatasetDestination.postgres
     }
+    # Assuming a single version of each
+    loaded_datasets = [
+        load_result.get_latest_version(ds_name)
+        for ds_name in load_result.datasets.keys()
+    ]
     load_result_pg_table_names = {
         str(ds.destination).split(".")[-1]
-        for ds in load_result.datasets.values()
+        for ds in loaded_datasets
         if ds.destination_type == InputDatasetDestination.postgres
     }
 
