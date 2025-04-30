@@ -1,6 +1,8 @@
+from collections import defaultdict
 import pandas as pd
 from pathlib import Path
 import typer
+import yaml
 
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
@@ -10,6 +12,7 @@ from dcpy.models.lifecycle.builds import (
     InputDatasetDestination,
     InputDataset,
     LoadResult,
+    BuildMetadata,
 )
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle import data_loader
@@ -67,7 +70,6 @@ def load_source_data_from_resolved_recipe(
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
     plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
-    metadata.write_build_metadata(recipe, recipe_lock_path.parent)
 
     build_name = metadata.build_name()
     logger.info(f"Loading source data for {recipe.name} build named {build_name}")
@@ -84,35 +86,51 @@ def load_source_data_from_resolved_recipe(
     else:
         pg_client = None
 
-    imported_datasets = {}
+    imported_datasets: dict[str, dict[str, ImportedDataset]] = defaultdict(dict)
     for ds in recipe.inputs.datasets:
         file_path = data_loader.pull_dataset(ds, stage=LIFECYCLE_STAGE)
-        imported_ds = import_dataset(ds, file_path, pg_client)
-        imported_datasets[ds.id] = imported_ds
+        imported_datasets[ds.id][str(ds.version)] = import_dataset(
+            ds, file_path, pg_client
+        )
 
-    return LoadResult(
+    load_result = LoadResult(
         name=recipe.name, build_name=build_name, datasets=imported_datasets
     )
+    metadata.write_build_metadata(
+        recipe, recipe_lock_path.parent, load_result=load_result
+    )
+
+    return load_result
 
 
-def get_imported_df(load_result: LoadResult, ds_id: str) -> pd.DataFrame:
+def get_imported_df(
+    load_result: LoadResult, ds_id: str, version: str = ""
+) -> pd.DataFrame:
     assert ds_id in load_result.datasets, (
         f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
     )
-    match load_result.datasets[ds_id].destination:
-        case pd.DataFrame() as df:
-            return df
-        case str() as table_name:
+    if not version:
+        versions = load_result.datasets[ds_id].keys()
+        assert len(versions) == 1, (
+            f"No version specifed when retrieving load result for {ds_id}, but multiple versions were loaded: {versions}"
+        )
+        version = list(versions)[0]
+    dataset = load_result.datasets[ds_id][version]
+    match dataset.destination_type:
+        case "df":
+            return dataset.destination  # TODO: come back to this
+        case "postgres":
             pg_client = postgres.PostgresClient(schema=load_result.build_name)
-            return pg_client.read_table_df(table_name)
-        case Path() as file_path:
-            if file_path.suffix == ".csv":
-                return pd.read_csv(file_path, dtype=str)
-            elif file_path.suffix == ".parquet":
-                return pd.read_parquet(file_path)
+            return pg_client.read_table_df(dataset.destination)
+        case "file":
+            path = Path(dataset.destination)
+            if path.suffix == ".csv":
+                return pd.read_csv(path)
+            elif path.suffix == ".parquet":
+                return pd.read_parquet(path)
             else:
                 raise Exception(
-                    f"File {file_path} cannot be simply read by pandas, use 'load.get_imported_file' instead."
+                    f"File {path} cannot be simply read by pandas, use 'load.get_imported_file' instead."
                 )
         case _ as d:
             raise Exception(f"Unknown type of imported dataset {ds_id}: {type(d)}")
@@ -140,6 +158,11 @@ def get_imported_file(load_result: LoadResult, ds_id: str):  # -> TextIOWrapper:
     return open(get_imported_filepath(load_result, ds_id))
 
 
+def get_build_metadata(project_path: Path) -> BuildMetadata:
+    with open(project_path / "build_metadata.json") as f:
+        return BuildMetadata(**yaml.safe_load(f))
+
+
 app = typer.Typer(add_completion=False)
 
 
@@ -160,7 +183,7 @@ def _cli_wrapper_recipe(
     ),
 ):
     recipe_lock_path = plan.plan(recipe_path, version)
-    load_source_data_from_resolved_recipe(
+    load_result = load_source_data_from_resolved_recipe(
         recipe_lock_path, clear_pg_schema=clear_pg_schema
     )
 
@@ -177,7 +200,8 @@ def _cli_wrapper_load(
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
-    load_source_data_from_resolved_recipe(recipe_lock_path)
+    load_result = load_source_data_from_resolved_recipe(recipe_lock_path)
+    # load_result.write_to_yaml(recipe_lock_path.parent / "")
 
 
 if __name__ == "__main__":
