@@ -19,7 +19,8 @@ all_lgc_pivoted AS (
         MAX(CASE WHEN lgc_rank = 7 THEN lgc END) AS lgc7,
         MAX(CASE WHEN lgc_rank = 8 THEN lgc END) AS lgc8,
         MAX(CASE WHEN lgc_rank = 9 THEN lgc END) AS lgc9,
-        MAX(board_of_elections_lgc_pointer) AS board_of_elections_lgc_pointer
+        MAX(board_of_elections_lgc_pointer) AS board_of_elections_lgc_pointer,
+        MAX(CASE WHEN lgc_rank = 1 THEN b5sc END) AS b5sc
     FROM {{ ref("int__all_local_group_code_ranked") }}
     GROUP BY segmentid
 )
@@ -35,7 +36,8 @@ SELECT
     all_lgc_pivoted.lgc7,
     all_lgc_pivoted.lgc8,
     all_lgc_pivoted.lgc9,
-    all_lgc_pivoted.board_of_elections_lgc_pointer
+    all_lgc_pivoted.board_of_elections_lgc_pointer,
+    right(all_lgc_pivoted.b5sc, 5) as five_digit_street_code
 FROM
     centerline 
     LEFT JOIN all_lgc_pivoted ON centerline.segmentid = all_lgc_pivoted.segmentid

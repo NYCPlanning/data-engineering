@@ -12,6 +12,9 @@ models:
       - accepted_values:
           values: [1]
   - name: boe_preferred_lgc_flag
+  - name: b5sc
+  - name: b5sc_segmentid_rank
+  - name: b7sc
   tests:
     - dbt_utils.unique_combination_of_columns:
         combination_of_columns:
@@ -32,6 +35,8 @@ models:
           max_value: 9  # a segment shouldn't have more than 9 lgcs
           inclusive: true
   - name: boe_preferred_lgc_flag
+  - name: b5sc
+  - name: b7sc
 
 - name: int__all_local_group_code_ranked
   description: Segments with all, preferred and non-preferred, local group codes, ranked by local group code.
@@ -69,3 +74,8 @@ models:
   - name: lgc8
   - name: lgc9
   - name: board_of_elections_lgc_pointer
+    tests:
+    - not_null
+  - name: five_digit_street_code
+    tests:
+    - not_null
