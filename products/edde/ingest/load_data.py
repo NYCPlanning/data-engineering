@@ -4,12 +4,12 @@ from typing import List
 import pandas as pd
 
 from os.path import exists
+from pathlib import Path
 from ingest.PUMS.PUMS_data import PUMSData
 from ingest.HVS.HVS_ingestion import create_HVS
 from ingest.make_cache_fn import make_HVS_cache_fn
 
 from utils.make_logger import create_logger
-from utils.setup_directory import setup_directory
 from utils.wd_management import correct_wd
 
 logger = create_logger("load_data_logger", "logs/load_data.log")
@@ -27,7 +27,7 @@ def load_PUMS(
     requery: bool = False,
 ):
     assert correct_wd(), "Code is not being run from root directory"
-    setup_directory("data/")
+    Path("data/").mkdir(exist_ok=True)
 
     cache_path = PUMSData.get_cache_fn(
         variable_types=variable_types,
@@ -72,7 +72,7 @@ def load_HVS(
     :return: pandas dataframe of PUMS data
     """
     assert correct_wd(), "Code is not being run from root directory"
-    setup_directory("data/")
+    Path("data/").mkdir(exist_ok=True)
 
     if output_type not in allowed_HVS_cache_types:
         raise Exception(
