@@ -41,7 +41,7 @@ principal_features AS (
 )
 
 SELECT
-    centerline.segmentid, 
+    centerline.segmentid,
     all_lgc_pivoted.lgc1,
     all_lgc_pivoted.lgc2,
     all_lgc_pivoted.lgc3,
@@ -52,10 +52,10 @@ SELECT
     all_lgc_pivoted.lgc8,
     all_lgc_pivoted.lgc9,
     all_lgc_pivoted.board_of_elections_lgc_pointer,
-    right(all_lgc_pivoted.b5sc, 5) as five_digit_street_code,
+    RIGHT(all_lgc_pivoted.b5sc, 5) AS five_digit_street_code,
     COALESCE(principal_streetnames.facecode, principal_features.facecode) AS face_code
 FROM
-    centerline 
-    LEFT JOIN all_lgc_pivoted ON centerline.segmentid = all_lgc_pivoted.segmentid
-    LEFT JOIN principal_streetnames ON all_lgc_pivoted.preferred_b7sc = principal_streetnames.b7sc
-    LEFT JOIN principal_features ON all_lgc_pivoted.preferred_b7sc = principal_features.b7sc
+    centerline
+LEFT JOIN all_lgc_pivoted ON centerline.segmentid = all_lgc_pivoted.segmentid
+LEFT JOIN principal_streetnames ON all_lgc_pivoted.preferred_b7sc = principal_streetnames.b7sc
+LEFT JOIN principal_features ON all_lgc_pivoted.preferred_b7sc = principal_features.b7sc

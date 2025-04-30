@@ -5,7 +5,7 @@ SELECT
     boe_preferred_lgc_flag,
     b5sc,
     b7sc
-FROM 
+FROM
     {{ source("recipe_sources", "dcp_cscl_segment_lgc") }}
-WHERE 
+WHERE
     preferred_lgc_flag = 'Y'
