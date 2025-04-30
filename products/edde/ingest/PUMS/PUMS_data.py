@@ -6,12 +6,23 @@ from utils.PUMA_helpers import clean_PUMAs, puma_to_borough
 from ingest.PUMS.PUMS_request import make_GET_request
 from ingest.PUMS.PUMS_query_manager import get_urls
 from ingest.PUMS.variable_generator import variables_for_processing
-from ingest.make_cache_fn import make_PUMS_cache_fn
 from ingest.PUMS.PUMS_cleaner import PUMSCleaner
 
-"""To do: make this central module from which all other code is called. Write 
+"""To do: make this central module from which all other code is called. Write
 class method for aggregate step to access.  Class method will return cached data or
 initalize a PUMSData object and use it to save a .pkl"""
+
+
+def make_PUMS_cache_fn(
+    year: int, variable_types=None, limited_PUMA=False, include_rw=False
+):
+    fn = f"PUMS_{'_'.join(variable_types)}"
+    fn = f"{fn}_{year}"
+    if limited_PUMA:
+        fn += "_limitedPUMA"
+    if not include_rw:
+        fn += "_noRepWeights"
+    return f"data/{fn}.pkl"
 
 
 class PUMSData:

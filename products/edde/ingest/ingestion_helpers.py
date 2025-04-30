@@ -1,17 +1,11 @@
 """Miscellaneous ingestion related tasks"""
 
 from dcpy.lifecycle.builds import load
-from pandas import DataFrame
 import pandas as pd
 
 
 # import config
 import config
-
-
-def add_leading_zero_PUMA(df: DataFrame) -> DataFrame:
-    df["puma"] = "0" + df["puma"].astype(str)
-    return df
 
 
 def load_data(name: str, version: str = "", cols: list = []) -> pd.DataFrame:
