@@ -18,7 +18,7 @@ models:
       +materialized: table
 
 on-run-start:
-- '{{ create_format_text_proc() }}'
+- '{{ create_pg_functions() }}'
 
 flags:
   fail-fast: true
