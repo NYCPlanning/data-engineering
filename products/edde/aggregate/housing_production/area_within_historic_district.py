@@ -1,8 +1,8 @@
 from typing import List
 import geopandas as gp
-from shapely import wkt
+from shapely import wkb
 from utils.PUMA_helpers import puma_to_borough, PUMAS_2010
-from ingest.ingestion_helpers import read_from_S3
+from ingest.ingestion_helpers import load_data
 
 from internal_review.set_internal_review_file import set_internal_review_files
 
@@ -70,10 +70,10 @@ def fraction_PUMA_historic(PUMA, hd):
 
 
 def load_historic_districts_gdf() -> gp.GeoDataFrame:
-    df = read_from_S3("lpc_historic_district_areas", "housing_production")
+    df = load_data("lpc_historic_district_areas")
 
     hd = gp.GeoDataFrame(df)
-    hd["the_geom"] = hd["the_geom"].apply(wkt.loads)
+    hd["the_geom"] = hd["wkb_geometry"].apply(wkb.loads)
     hd.set_geometry(col="the_geom", inplace=True, crs="EPSG:4326")
     hd = hd.explode(column="the_geom", index_parts=True)
     hd.set_geometry("the_geom", inplace=True)
