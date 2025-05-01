@@ -51,7 +51,7 @@ class Sources:
     )
     s3 = S3Source(type="s3", bucket=RECIPES_BUCKET, key="inbox/test/test.txt")
     de_publish = DEPublished(
-        type="edm.publishing.published", product=TEST_DATASET_NAME, filename="file.csv"
+        type="edm.publishing.published", product=TEST_DATASET_NAME, filepath="file.csv"
     )
     esri = ESRIFeatureServer(
         type="arcgis_feature_server",

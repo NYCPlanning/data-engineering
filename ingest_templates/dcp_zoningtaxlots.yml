@@ -15,7 +15,7 @@ ingestion:
   source:
     type: edm.publishing.published
     product: db-zoningtaxlots
-    filename: zoningtaxlot_db.csv
+    filepath: zoningtaxlot_db.csv
   file_format:
     type: csv
   processing_steps:
