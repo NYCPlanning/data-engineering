@@ -4,46 +4,17 @@ from shapely import wkb
 from utils.PUMA_helpers import puma_to_borough, PUMAS_2010
 from ingest.ingestion_helpers import load_data
 
-from internal_review.set_internal_review_file import set_internal_review_files
 
 supported_geographies = ["puma", "borough", "citywide"]
 
 
-def area_historic_internal_review():
-    citywide = fraction_historic("citywide")
-    by_borough = fraction_historic("borough")
-    by_puma = fraction_historic("puma")
-    set_internal_review_files(
-        [
-            (citywide, "area_historic_citywide.csv", "citywide"),
-            (by_borough, "area_historic_by_borough.csv", "borough"),
-            (by_puma, "area_historic_by_puma.csv", "puma"),
-        ],
-        "housing_production",
-    )
-
-
-def rename_col(cols) -> List:
+def _rename_col(cols) -> List:
     new_cols = [col if "pct" in col else col + "_count" for col in cols]
 
     return new_cols
 
 
-def fraction_historic(geography_level):
-    """Main accessor of indicator"""
-    gdf = generate_geographies(geography_level)
-    gdf["total_sqmiles"] = gdf.geometry.area / (5280**2)
-    hd = load_historic_districts_gdf()
-    gdf[["area_historic_pct", "area_historic_sqmiles"]] = gdf.apply(
-        fraction_PUMA_historic, axis=1, args=(hd,), result_type="expand"
-    )
-    gdf.columns = rename_col(gdf.columns)
-    return gdf[
-        ["area_historic_sqmiles_count", "area_historic_pct", "total_sqmiles_count"]
-    ].round(2)
-
-
-def generate_geographies(geography_level):
+def _generate_geographies(geography_level):
     NYC_PUMAs = PUMAS_2010.to_crs("EPSG:2263")
     if geography_level == "puma":
         return NYC_PUMAs.set_index("puma")
@@ -59,7 +30,7 @@ def generate_geographies(geography_level):
     raise Exception(f"Supported geographies are {supported_geographies}")
 
 
-def fraction_PUMA_historic(PUMA, hd):
+def _fraction_PUMA_historic(PUMA, hd):
     gdf = gp.GeoDataFrame(geometry=[PUMA.geometry], crs="EPSG:2263")
     overlay = gp.overlay(hd, gdf, "intersection")
     if overlay.empty:
@@ -69,7 +40,7 @@ def fraction_PUMA_historic(PUMA, hd):
     return fraction, overlay.area.sum() / (5280**2)
 
 
-def load_historic_districts_gdf() -> gp.GeoDataFrame:
+def _load_historic_districts_gdf() -> gp.GeoDataFrame:
     df = load_data("lpc_historic_district_areas")
 
     hd = gp.GeoDataFrame(df)
@@ -80,3 +51,16 @@ def load_historic_districts_gdf() -> gp.GeoDataFrame:
     hd = hd.to_crs("EPSG:2263")
     hd = hd.reset_index()
     return hd
+
+
+def fraction_historic(geography_level):
+    gdf = _generate_geographies(geography_level)
+    gdf["total_sqmiles"] = gdf.geometry.area / (5280**2)
+    hd = _load_historic_districts_gdf()
+    gdf[["area_historic_pct", "area_historic_sqmiles"]] = gdf.apply(
+        _fraction_PUMA_historic, axis=1, args=(hd,), result_type="expand"
+    )
+    gdf.columns = _rename_col(gdf.columns)
+    return gdf[
+        ["area_historic_sqmiles_count", "area_historic_pct", "total_sqmiles_count"]
+    ].round(2)
