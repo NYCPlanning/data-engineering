@@ -67,7 +67,7 @@ class GenericApiSource(ConnectorSource, extra="forbid"):
 class DEPublished(ConnectorSource, extra="forbid"):
     type: Literal["edm.publishing.published"]
     product: str
-    filename: str
+    filepath: str
 
     def get_key(self) -> str:
         return self.product
