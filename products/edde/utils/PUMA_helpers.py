@@ -2,11 +2,8 @@ import geopandas as gp
 from shapely.geometry import Point
 import pandas as pd
 from numpy import nan
-from utils.geocode import from_eviction_address
 
 acs_years = ["0812", "1519", "1721"]
-
-geocode_functions = {"from_eviction_address": from_eviction_address}
 
 borough_code_mapper = {
     "037": "BX",
@@ -27,7 +24,6 @@ borough_name_mapper = {
 census_races = ["anh", "bnh", "hsp", "onh", "wnh"]
 
 dcp_pop_races = ["anh", "bnh", "hsp", "wnh"]
-NYC_PUMAS_url = "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Public_Use_Microdata_Areas_PUMAs_2010/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson"
 
 
 def year_range(acs_year: str) -> str:
@@ -60,35 +56,33 @@ def clean_PUMAs(puma) -> pd.DataFrame:
     return puma
 
 
-def NYC_PUMA_geographies() -> gp.GeoDataFrame:
+def _get_nyc_puma_geographies_2010() -> gp.GeoDataFrame:
     gdf = gp.GeoDataFrame.from_file("./resources/puma_boundaries.json")
     gdf.rename(columns={"PUMA": "puma"}, inplace=True)
     gdf["puma"] = gdf["puma"].apply(clean_PUMAs)
     return gdf
 
 
-PUMAs = NYC_PUMA_geographies()
+PUMAS_2010 = _get_nyc_puma_geographies_2010()
 
 
-def assign_PUMA_col(df: pd.DataFrame, lat_col, long_col, geocode_process=None):
+def assign_2010_puma_col(df: pd.DataFrame, lat_col, long_col):
     df.rename(columns={lat_col: "latitude", long_col: "longitude"}, inplace=True)
-    df["puma"] = df.apply(assign_PUMA, axis=1, args=(geocode_process,))
+    df["puma"] = df.apply(_assign_2010_puma, axis=1)
     print(f"got {df.shape[0]} addresses to assign PUMAs to ")
     print(f"assigned PUMAs to {df['puma'].notnull().sum()}")
     return df
 
 
-def assign_PUMA(record: gp.GeoDataFrame, geocode_process):
+def _assign_2010_puma(record: gp.GeoDataFrame):
     if pd.notnull(record.latitude) and pd.notnull(record.longitude):
-        return PUMA_from_coord(record)
-    if geocode_process:
-        return geocode_functions[geocode_process](record)
+        return _2010_puma_from_coord(record)
 
 
-def PUMA_from_coord(record):
+def _2010_puma_from_coord(record):
     """Don't think I need to make a geodata frame here, shapely object would do"""
     record_loc = Point(record.longitude, record.latitude)
-    matched_PUMA = PUMAs[PUMAs.geometry.contains(record_loc)]
+    matched_PUMA = PUMAS_2010[PUMAS_2010.geometry.contains(record_loc)]
     if matched_PUMA.empty:
         return None
     return matched_PUMA.puma.values[0]

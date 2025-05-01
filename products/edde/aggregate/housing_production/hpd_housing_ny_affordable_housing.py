@@ -1,13 +1,13 @@
 import pandas as pd
-from utils.PUMA_helpers import assign_PUMA_col
+from utils.PUMA_helpers import assign_2010_puma_col
 from internal_review.set_internal_review_file import set_internal_review_files
 from ingest.ingestion_helpers import read_from_S3
 
 
 """"We need to download the data, separate the data by construction type (New Construction vs. Preservation)
-as these will be two separate indicators, unit income level, and the various citywide reporting geography 
+as these will be two separate indicators, unit income level, and the various citywide reporting geography
 (citywide, borough, PUMA) statistics. There are roughly 20% of records that are confidential in this
-dataset and these are dropped in the PUMA level aggregates per HPD. 
+dataset and these are dropped in the PUMA level aggregates per HPD.
  """
 
 unit_income_levels = [
@@ -170,8 +170,8 @@ def PUMA_hny_units_con_type(df):
 
     filter_df.dropna(subset=["latitude_(internal)", "longitude_(internal)"])
 
-    puma_df = assign_PUMA_col(
-        filter_df, "latitude_(internal)", "longitude_(internal)", geocode_process=None
+    puma_df = assign_2010_puma_col(
+        filter_df, "latitude_(internal)", "longitude_(internal)"
     )
 
     results = (
