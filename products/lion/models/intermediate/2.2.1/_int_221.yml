@@ -1,0 +1,88 @@
+models:
+- name: int__preferred_local_group_code
+  description: Segments with preferred (primary) local group. Each segment can have only one local group
+  columns:
+  - name: segmentid
+    tests:
+    - not_null
+    - unique
+  - name: lgc
+  - name: lgc_rank
+    tests:
+      - accepted_values:
+          values: [1]
+  - name: boe_preferred_lgc_flag
+  - name: b5sc
+  - name: b5sc_segmentid_rank
+  - name: b7sc
+  tests:
+    - dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+          - segmentid
+          - lgc
+
+- name: int__nonpreferred_local_group_code
+  description: Segments with non-preferred local group. A segment can have multiple local non-preferred groups
+  columns:
+  - name: segmentid
+    tests:
+    - not_null
+  - name: lgc
+  - name: lgc_rank
+    tests:
+      - dbt_utils.accepted_range:
+          min_value: 2
+          max_value: 9  # a segment shouldn't have more than 9 lgcs
+          inclusive: true
+  - name: boe_preferred_lgc_flag
+  - name: b5sc
+  - name: b7sc
+
+- name: int__all_local_group_code_ranked
+  description: Segments with all, preferred and non-preferred, local group codes, ranked by local group code.
+  columns:
+  - name: segmentid
+    tests:
+    - not_null
+  - name: lgc
+    tests:
+    - not_null
+  - name: lgc_rank
+    tests:
+      - dbt_utils.accepted_range:
+          min_value: 1
+          max_value: 9  # a segment shouldn't have more than 9 lgcs
+          inclusive: true
+  - name: board_of_elections_lgc_pointer
+
+- name: int__centerline_streetcode_and_facecode
+  description: Centerline segments joined to street codes and face codes
+  columns:
+  - name: segmentid
+    tests:
+    - not_null
+    - unique
+  - name: lgc1
+    tests:
+    - not_null
+  - name: lgc2
+  - name: lgc3
+  - name: lgc4
+  - name: lgc5
+  - name: lgc6
+  - name: lgc7
+  - name: lgc8
+  - name: lgc9
+  - name: board_of_elections_lgc_pointer
+    tests:
+    - not_null
+  - name: five_digit_street_code
+    tests:
+    - not_null
+  - name: face_code
+    tests:
+    - not_null
+  # the test below should be here but dbt errors while building staging tables
+  # tests:
+  # - dbt_expectations.expect_table_row_count_to_equal_other_table:
+  #    compare_model: ref("stg__centerline")

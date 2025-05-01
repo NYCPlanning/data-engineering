@@ -24,19 +24,23 @@ saf AS (
 
 curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
+),
+
+streets AS (
+    SELECT * FROM {{ ref("int__centerline_streetcode_and_facecode") }}
 )
 
 SELECT
     centerline.boroughcode,
-    NULL AS face_code,
+    streets.face_code,
     centerline.segment_seqnum,
     centerline.segmentid,
-    NULL AS five_digit_street_code,
-    NULL AS lgc1,
-    NULL AS lgc2,
-    NULL AS lgc3,
-    NULL AS lgc4,
-    NULL AS board_of_elections_lgc_pointer,
+    streets.five_digit_street_code,
+    streets.lgc1,
+    streets.lgc2,
+    streets.lgc3,
+    streets.lgc4,
+    streets.board_of_elections_lgc_pointer::CHAR(1),
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     nodes.from_x,
@@ -125,11 +129,11 @@ SELECT
     ap.left_2010_census_tract_suffix,
     ap.right_2010_census_tract_basic,
     ap.right_2010_census_tract_suffix,
-    NULL AS lgc5,
-    NULL AS lgc6,
-    NULL AS lgc7,
-    NULL AS lgc8,
-    NULL AS lgc9,
+    streets.lgc5,
+    streets.lgc6,
+    streets.lgc7,
+    streets.lgc8,
+    streets.lgc9,
     centerline.legacy_segmentid,
     ap.left_2000_census_block_basic,
     ap.left_2000_census_block_suffix,
@@ -165,3 +169,4 @@ LEFT JOIN atomic_polygons AS ap ON centerline.segmentid = ap.segmentid
 LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
 LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode = saf.boroughcode
 LEFT JOIN curve ON centerline.segmentid = curve.segmentid
+LEFT JOIN streets ON centerline.segmentid = streets.segmentid

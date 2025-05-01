@@ -6,6 +6,9 @@ inputs:
   - name: dcp_cscl_centerline
   - name: dcp_cscl_nodes
   - name: dcp_cscl_sectionalmap
+  - name: dcp_cscl_streetname
+  - name: dcp_cscl_featurename
+  - name: dcp_cscl_segment_lgc
   - name: dcp_cscl_atomicpolygons
   - name: dcp_cscl_altsegmentdata
   - name: dcp_cscl_addresspoints
