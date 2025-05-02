@@ -1,0 +1,9 @@
+models:
+- name: int__centerline_segment_locational_status
+  description: |
+    Centerline segments with Locational Status & Borough Boundary Indicator columns.
+  columns:
+  - name: segmentid
+    tests: [ unique, not_null ]
+  - name: borough_boundary_indicator
+  - name: segment_locational_status
