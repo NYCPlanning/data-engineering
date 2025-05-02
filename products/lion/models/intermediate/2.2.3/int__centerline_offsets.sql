@@ -23,6 +23,7 @@ WITH centerline AS (
 parallel_lines AS (
     SELECT
         segmentid,
+        boroughcode,
         st_offsetcurve(geom, 2, 'quad_segs=4') AS left_line,
         st_offsetcurve(geom, -2, 'quad_segs=4') AS right_line
     FROM centerline
@@ -31,6 +32,7 @@ parallel_lines AS (
 offset_points AS (
     SELECT
         segmentid,
+        boroughcode,
         left_line,
         right_line,
         st_lineinterpolatepoint(left_line, 0.5) AS left_offset_point,
