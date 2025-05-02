@@ -14,3 +14,5 @@ sources:
   - name: dcp_cscl_streetname
   - name: dcp_cscl_featurename
   - name: dcp_cscl_segment_lgc
+  - name: dcp_cscl_sedat
+  - name: dcp_cscl_specialsedat

@@ -1,0 +1,18 @@
+id: dcp_cscl_specialsedat
+acl: private
+
+attributes:
+  name: CSCL Special SEDAT (Split Election District Address Table)
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: cscl_etl/ETL Working GDB.gdb.zip
+  file_format:
+    type: geodatabase
+    layer: SPECIALSEDAT
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
