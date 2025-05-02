@@ -10,25 +10,7 @@ from ingest import ingestion_helpers
 DATASET_NAME = "dhs_shelterd_indiv_by_comm_dist"
 
 
-def DHS_shelter(geography, write_to_internal_review=False):
-    final = initialize_dataframe_geo_index(geography)
-
-    years = ["2020", "2022"]
-    for year in years:
-        single_year = DHS_shelter_single_year(geography, year)
-        final = final.merge(single_year, left_index=True, right_index=True)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, f"DHS_shelter_{years[-1]}.csv", geography)],
-            "housing_security",
-        )
-    return final
-
-
-def DHS_shelter_single_year(geography: str, year: str, write_to_internal_review=False):
-    """Main accessor"""
-
+def _dhs_shelter_single_year(geography: str, year: str, write_to_internal_review=False):
     raw_source_data = ingestion_helpers.load_data(name=DATASET_NAME)
 
     # Previously the edde DHS ingest script would filter down in the api calls.
@@ -59,3 +41,19 @@ def DHS_shelter_single_year(geography: str, year: str, write_to_internal_review=
             "housing_security",
         )
     return single_year
+
+
+def dhs_shelter(geography, write_to_internal_review=False):
+    final = initialize_dataframe_geo_index(geography)
+
+    years = ["2020", "2022"]
+    for year in years:
+        single_year = _dhs_shelter_single_year(geography, year)
+        final = final.merge(single_year, left_index=True, right_index=True)
+
+    if write_to_internal_review:
+        set_internal_review_files(
+            [(final, f"DHS_shelter_{years[-1]}.csv", geography)],
+            "housing_security",
+        )
+    return final

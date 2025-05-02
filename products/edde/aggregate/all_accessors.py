@@ -17,7 +17,7 @@ from aggregate.housing_security.evictions_by_city_marshals import (
     count_residential_evictions,
 )
 
-from aggregate.housing_security.DHS_shelter import DHS_shelter
+from aggregate.housing_security.DHS_shelter import dhs_shelter
 from aggregate.housing_security.eviction_cases_housing_court import eviction_cases
 from aggregate.housing_security.homevalue_median import homevalue_median
 from aggregate.housing_security.households_rent_burden import households_rent_burden
@@ -98,7 +98,7 @@ QOL_accessors = [
 ]
 
 housing_security_accessors = [
-    DHS_shelter,
+    dhs_shelter,
     count_residential_evictions,
     eviction_cases,
     units_affordable,
