@@ -24,7 +24,8 @@ WITH atomicpolygons AS (
 left_city_boundary_aps AS (
     SELECT 
         *,
-        NULL AS borough_boundary_indicator,
+        'L' AS borough_boundary_indicator,
+        NULL::boolean AS is_ap_boro_boundary_error,
         NULL AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid IS NULL AND right_atomicid IS NOT NULL
@@ -33,7 +34,8 @@ left_city_boundary_aps AS (
 right_city_boundary_aps AS (
     SELECT
         *,
-        NULL AS borough_boundary_indicator,
+        'R' AS borough_boundary_indicator,
+        NULL::boolean AS is_ap_boro_boundary_error,
         NULL AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid IS NOT NULL AND right_atomicid IS NULL
@@ -42,6 +44,7 @@ same_ap AS (
     SELECT
         *,
         NULL AS borough_boundary_indicator,
+        centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
         NULL AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid = right_atomicid
@@ -49,7 +52,11 @@ same_ap AS (
 different_aps_different_boros AS (
     SELECT
         *,
-        NULL AS borough_boundary_indicator,
+        CASE 
+            WHEN centerline_borocode <> left_borocode AND centerline_borocode = right_borocode THEN 'L'
+            WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN 'R'
+        END AS borough_boundary_indicator,
+        centerline_borocode <> left_borocode AND centerline_borocode <> right_borocode AS is_ap_boro_boundary_error,
         NULL AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode <> right_borocode   -- borocode alone should be sufficient but who knows...
@@ -58,6 +65,7 @@ different_aps_same_boro AS (
     SELECT
         *,
         NULL AS borough_boundary_indicator,
+        centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
         NULL AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode = right_borocode
