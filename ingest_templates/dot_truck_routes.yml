@@ -1,0 +1,21 @@
+id: dot_truck_routes
+acl: public-read
+
+attributes:
+  name: New York City Truck Routes
+  description: |
+    The New York City Truck Route Network is a set of roads that commercial vehicles must 
+    use in New York City. 
+    
+    NYC Truck Routes are also available in LION data.
+    https://data.cityofnewyork.us/City-Government/LION/2v4z-66xt
+  url: https://data.cityofnewyork.us/Transportation/New-York-City-Truck-Routes/jjja-shxy/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: jjja-shxy
+    format: geojson
+  file_format:
+    type: geojson
