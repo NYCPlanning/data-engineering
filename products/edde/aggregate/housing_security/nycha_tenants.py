@@ -6,7 +6,7 @@ from utils.PUMA_helpers import clean_PUMAs, puma_to_borough, acs_years
 from utils.dcp_population_excel_helpers import race_suffix_mapper_global
 
 SOURCE_DATA_FILE = (
-    "resources/housing_security/nycha_tenants/nycha_tenants_processed_2024.xlsx"
+    "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx"
 )
 
 race_labels = ["", "_wnh", "_bnh", "_hsp", "_anh", "_onh"]
@@ -72,7 +72,7 @@ def load_clean_nycha_data():
         "dtype": float,
     }
     nycha_data = pd.read_excel(**read_excel_arg)
-    nycha_data.rename(columns={"PUMA (2010)": "puma"}, inplace=True)
+    nycha_data.rename(columns={"PUMA (2020)": "puma"}, inplace=True)
     nycha_data.puma = nycha_data.puma.apply(func=clean_PUMAs)
     nycha_data["borough"] = nycha_data.apply(axis=1, func=puma_to_borough)
     nycha_data["citywide"] = "citywide"
@@ -81,7 +81,7 @@ def load_clean_nycha_data():
     final_cols = ["borough", "citywide"]
     for pl, rl in zip(pop_labels, race_labels):
         nycha_data[f"nycha_tenants{rl}_count"] = (
-            nycha_data.loc[:, "Public Housing " + pl] + nycha_data.loc[:, "RAD " + pl]
+            nycha_data.loc[:, "Public Housing " + pl] + nycha_data.loc[:, "PACT " + pl]
         )
         final_cols.append(f"nycha_tenants{rl}_count")
 
