@@ -6,11 +6,11 @@ from numpy import nan
 acs_years = ["0812", "1519", "1721"]
 
 borough_code_mapper = {
-    "037": "BX",
-    "038": "MN",
-    "039": "SI",
-    "040": "BK",
-    "041": "QN",
+    "042": "BX",
+    "041": "MN",
+    "045": "SI",
+    "043": "BK",
+    "044": "QN",
 }
 
 borough_name_mapper = {
@@ -41,7 +41,7 @@ def puma_to_borough(record):
     return borough
 
 
-def clean_PUMAs(puma) -> pd.DataFrame:
+def clean_PUMAs(puma: str | int):
     """Re-uses code from remove_state_code_from_PUMA col in access to subway, call this instead
     Possible refactor: apply to dataframe and ensure that re-named column is label \"puma\"
     """

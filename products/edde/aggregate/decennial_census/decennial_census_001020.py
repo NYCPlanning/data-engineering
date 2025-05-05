@@ -3,7 +3,7 @@ from utils.PUMA_helpers import clean_PUMAs
 from internal_review.set_internal_review_file import set_internal_review_files
 
 # Map ACS year (or in general, input year for many functions) to decennial census year
-year_map = {"2000": "00", "0812": "10", "1519": "20", "1721": "20"}
+year_map = {"2000": "00", "0812": "10", "1519": "20", "1721": "20", "1923": "20"}
 
 
 def load_decennial_census_001020() -> pd.DataFrame:
@@ -11,7 +11,7 @@ def load_decennial_census_001020() -> pd.DataFrame:
     following conventions, drop the duplicate column"""
 
     df = pd.read_excel(
-        "./resources/decennial_census_data/EDDT_Census00-10-20_MUTU.xlsx",
+        "./resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
         skiprows=2,
         dtype={"GeogType": str, "GeoID": str},
     )
@@ -74,10 +74,11 @@ def load_decennial_census_001020() -> pd.DataFrame:
         }
     )
 
-    df.drop("geo_type", axis=1, inplace=True)
-
+    puma_rows_mask = df["geo_type"] == "PUMA2020"
+    df.loc[puma_rows_mask, "geo_id"] = df.loc[puma_rows_mask, "geo_id"].apply(
+        clean_PUMAs
+    )
     df.set_index("geo_id", inplace=True)
-
     return df
 
 
@@ -111,8 +112,11 @@ def create_borough_level_df_by_year(df, year):
 
 def create_puma_level_df_by_year(df, year):
     """create the dataframes by geography type and year, strip year from columns"""
-    df_puma = df.loc["3701":"4114"].reset_index().rename(columns={"geo_id": "puma"})
-    df_puma["puma"] = df_puma["puma"].apply(func=clean_PUMAs)
+    df_puma = (
+        df.loc[df["geo_type"] == "PUMA2020"]
+        .reset_index()
+        .rename(columns={"geo_id": "puma"})
+    )
     df_puma.set_index("puma", inplace=True)
 
     final = df_puma.filter(regex=f"puma|{year}")
