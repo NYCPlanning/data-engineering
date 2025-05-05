@@ -37,7 +37,10 @@ class Connector(StorageConnector):
         source_path = self._path(key, path_prefix)
         if source_path != destination_path:
             shutil.copy(source_path, destination_path)
-        return {"path": destination_path}
+        if destination_path.is_file():
+            return {"path": destination_path}
+        else:
+            return {"path": destination_path / source_path.name}
 
     def _push(
         self,
