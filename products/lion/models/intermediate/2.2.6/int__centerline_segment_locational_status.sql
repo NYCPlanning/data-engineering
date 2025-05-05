@@ -16,8 +16,16 @@ WITH atomicpolygons AS (
         right_2020_census_tract
     FROM {{ ref("int__centerline_atomicpolygons") }}
 ),
--- TODO:
--- Create CTE with atomicpolygons and indicator for segment endpoints intersecting other segments
+segments_with_neighbors AS (
+    SELECT * FROM {{ ref("int__centerline_segment_neighbors") }}
+),
+segments_with_orphan_node AS (
+    SELECT
+        segmentid,
+        MAX(node_missing_neighbor) AS segment_missing_neighbor
+    FROM segments_with_neighbors
+    GROUP BY segmentid
+),
 
 -- All CTEs below divide the atomicpolygons into different categories. 
 -- When unioned together, they should have 1-1 match with atomicpolygons
@@ -42,12 +50,17 @@ right_city_boundary_aps AS (
 ),
 same_ap AS (
     SELECT
-        *,
+        ap.*,
         NULL AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
-        NULL AS segment_locational_status
-    FROM atomicpolygons
-    WHERE left_atomicid = right_atomicid
+        CASE
+            WHEN o.segment_missing_neighbor = 1 THEN 'I'
+            WHEN o.segment_missing_neighbor = 0 THEN 'H'
+        END AS segment_locational_status
+    FROM atomicpolygons AS ap
+    LEFT JOIN segments_with_orphan_node AS o
+        ON ap.segmentid = o.segmentid
+    WHERE ap.left_atomicid = ap.right_atomicid
 ),
 different_aps_different_boros AS (
     SELECT
@@ -60,7 +73,6 @@ different_aps_different_boros AS (
         CASE 
             WHEN centerline_borocode <> left_borocode AND centerline_borocode = right_borocode THEN left_borocode::CHAR(1)
             WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN right_borocode::CHAR(1)
-        END AS borough_boundary_indicator,
         END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode <> right_borocode   -- borocode alone should be sufficient but who knows...

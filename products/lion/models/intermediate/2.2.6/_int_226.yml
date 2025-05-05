@@ -18,3 +18,12 @@ models:
       - accepted_values:
           values: ['9', 'H', 'I', '1', '2', '3', '4', '5', 'X']
 
+- name: int__centerline_segment_neighbors
+  description: |
+    Centerline segments with offset nodes mapped to the neighboring segments.
+    Only contains segments having both offset nodes.
+  columns:
+  - name: segmentid
+  - name: node
+  - name: to_segment
+  - name: node_missing_neighbor
