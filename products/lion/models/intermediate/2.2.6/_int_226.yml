@@ -14,3 +14,7 @@ models:
       - accepted_values:
           values: [ False ]
   - name: segment_locational_status
+    tests:
+      - accepted_values:
+          values: ['9', 'H', 'I', '1', '2', '3', '4', '5', 'X']
+

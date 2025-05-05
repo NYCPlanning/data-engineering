@@ -26,7 +26,7 @@ left_city_boundary_aps AS (
         *,
         'L' AS borough_boundary_indicator,
         NULL::boolean AS is_ap_boro_boundary_error,
-        NULL AS segment_locational_status
+        '9' AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid IS NULL AND right_atomicid IS NOT NULL
 
@@ -36,7 +36,7 @@ right_city_boundary_aps AS (
         *,
         'R' AS borough_boundary_indicator,
         NULL::boolean AS is_ap_boro_boundary_error,
-        NULL AS segment_locational_status
+        '9' AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid IS NOT NULL AND right_atomicid IS NULL
 ),
@@ -57,7 +57,11 @@ different_aps_different_boros AS (
             WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN 'R'
         END AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AND centerline_borocode <> right_borocode AS is_ap_boro_boundary_error,
-        NULL AS segment_locational_status
+        CASE 
+            WHEN centerline_borocode <> left_borocode AND centerline_borocode = right_borocode THEN left_borocode::CHAR(1)
+            WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN right_borocode::CHAR(1)
+        END AS borough_boundary_indicator,
+        END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode <> right_borocode   -- borocode alone should be sufficient but who knows...
 ),
@@ -66,7 +70,9 @@ different_aps_same_boro AS (
         *,
         NULL AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
-        NULL AS segment_locational_status
+        CASE
+            WHEN left_2020_census_tract <> right_2020_census_tract THEN 'X'
+        END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode = right_borocode
 ),
