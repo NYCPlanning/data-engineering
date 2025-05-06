@@ -21,6 +21,9 @@ inputs:
   - name: dhs_shelterd_indiv_by_comm_dist # 3.1
     version: '2025.1'
 
+  - name: dcp_pumas2020
+    version: '20241218'
+
   # A decade of traffic injury data # 5.15
   - name: dcp_dot_trafficinjuries
     version: 2010
