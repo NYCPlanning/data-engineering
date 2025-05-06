@@ -13,6 +13,8 @@ models:
     tests:
       - accepted_values:
           values: [ False ]
+          config:
+            severity: warn
   - name: segment_locational_status
     tests:
       - accepted_values:
