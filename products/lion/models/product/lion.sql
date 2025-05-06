@@ -128,7 +128,7 @@ SELECT
     centerline.nypdid,
     centerline.fdnyid,
     centerline.status,
-    centerline.streetwidth,
+    centerline.streetwidth_min,
     centerline.streetwidth_irr,
     CASE
         WHEN centerline.bike_lane = '10' THEN 'A'

@@ -79,7 +79,7 @@ SELECT
     '       ' AS "Filler (formerly Left BLOCKFACEID)",
     '       ' AS "Filler (formerly Right BLOCKFACEID)",
     coalesce(status, ' ') AS "STATUS",
-    format_lion_text(round(streetwidth)::TEXT, 3, ' ', TRUE) AS "STREETWIDTH_MIN",
+    format_lion_text(round(streetwidth_min)::TEXT, 3, ' ', TRUE) AS "STREETWIDTH_MIN",
     coalesce(streetwidth_irr, ' ') AS "STREETWIDTH_IRR",
     coalesce(bike_lane, ' ') AS "BIKELANE_1",
     coalesce(fcc, '  ') AS "FCC",
