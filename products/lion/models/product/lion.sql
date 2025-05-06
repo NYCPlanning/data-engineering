@@ -32,6 +32,10 @@ streets AS (
 
 sedat AS (
     SELECT * FROM {{ ref("int__split_election_district") }}
+),
+
+nypd_service_areas AS (
+    SELECT * FROM {{ ref("int__centerline_nypdbeat") }}
 )
 
 SELECT
@@ -157,8 +161,8 @@ SELECT
     centerline.number_total_lanes,
     centerline.bike_trafdir AS bike_traffic_direction,
     centerline.posted_speed,
-    NULL AS left_nypd_service_area,
-    NULL AS right_nypd_service_area,
+    nypd_service_areas.left_nypd_service_area,
+    nypd_service_areas.right_nypd_service_area,
     centerline.truck_route_type,
     ap.left_2020_census_tract_basic,
     ap.left_2020_census_tract_suffix,
@@ -175,3 +179,4 @@ LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode
 LEFT JOIN curve ON centerline.segmentid = curve.segmentid
 LEFT JOIN streets ON centerline.segmentid = streets.segmentid
 LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
+LEFT JOIN nypd_service_areas ON centerline.segmentid = nypd_service_areas.segmentid

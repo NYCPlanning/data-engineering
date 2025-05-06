@@ -16,3 +16,4 @@ sources:
   - name: dcp_cscl_segment_lgc
   - name: dcp_cscl_sedat
   - name: dcp_cscl_specialsedat
+  - name: dcp_cscl_nypdbeat
