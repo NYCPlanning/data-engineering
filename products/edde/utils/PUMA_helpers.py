@@ -2,8 +2,11 @@ import geopandas as gp
 from shapely.geometry import Point
 import pandas as pd
 from numpy import nan
+from ingest.ingestion_helpers import load_data
 
-acs_years = ["0812", "1519", "1721"]
+# Why is this a PUMA helper?
+# TODO: move
+acs_years = ["0812", "1923"]
 
 borough_code_mapper = {
     "042": "BX",
@@ -90,17 +93,8 @@ def _2010_puma_from_coord(record):
 
 def get_all_NYC_PUMAs():
     """Adopted from code in PUMS_query_manager"""
-    geo_ids = [
-        range(4001, 4019),  # Brooklyn
-        range(3701, 3711),  # Bronx
-        range(4101, 4115),  # Queens
-        range(3901, 3904),  # Staten Island
-        range(3801, 3811),  # Manhattan
-    ]
-    rv = []
-    for borough in geo_ids:
-        rv.extend(["0" + str(PUMA) for PUMA in borough])
-    return rv
+    puma_boundaries = load_data("dcp_pumas2020")
+    return [f"0{p}" for p in puma_boundaries["puma"]]
 
 
 def get_all_boroughs():

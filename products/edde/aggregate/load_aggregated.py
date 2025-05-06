@@ -86,9 +86,8 @@ def load_clean_housing_security_pop_data(
 
     def read_excel_arg(year):
         return {
-            "io": f"./resources/ACS_PUMS/EDDT_ACS{year_range(year)}.xlsx",
-            "sheet_name": f"ACS{sheet_name(year)}",
-            "usecols": "A:LO",
+            "io": f"./resources/ACS_PUMS/EDDE_ACS{year_range(year)}.xlsx",
+            # "usecols": "A:LO",
             "dtype": {"Geog": str},
         }
 
