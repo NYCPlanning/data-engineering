@@ -79,7 +79,7 @@ SELECT
     '       ' AS "Filler (formerly Left BLOCKFACEID)",
     '       ' AS "Filler (formerly Right BLOCKFACEID)",
     coalesce(status, ' ') AS "STATUS",
-    format_lion_text(round(streetwidth_min)::TEXT, 3, ' ', TRUE) AS "STREETWIDTH_MIN",
+    format_lion_text(nullif(round(streetwidth_min)::TEXT, '0'), 3, ' ') AS "STREETWIDTH_MIN",
     coalesce(streetwidth_irr, ' ') AS "STREETWIDTH_IRR",
     coalesce(bike_lane, ' ') AS "BIKELANE_1",
     coalesce(fcc, '  ') AS "FCC",
@@ -104,13 +104,13 @@ SELECT
     format_lion_text(right_2010_census_block_suffix::TEXT, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2010 SUFFIX",
     coalesce(snow_priority, ' ') AS "SNOW PRIORITY",
     format_lion_text(bike_lane_2, 2, ' ', TRUE) AS "BIKELANE_2",
-    format_lion_text(streetwidth_max::INT::TEXT, 3, ' ', TRUE) AS "STREET WIDTH MAX", -- TODO - ingest read as int
+    format_lion_text(nullif(streetwidth_max::INT::TEXT, '0'), 3, ' ') AS "STREET WIDTH MAX", -- TODO - ingest read as int
     '   ' AS "Filler L89",
-    format_lion_text(l_blockfaceid::INT::TEXT, 10, '0', TRUE) AS "Left BLOCKFACEID", -- TODO - ingest read as int
-    format_lion_text(r_blockfaceid::INT::TEXT, 10, '0', TRUE) AS "Right BLOCKFACEID", -- TODO - ingest read as int
-    format_lion_text(number_travel_lanes::INT::TEXT, 2, ' ', TRUE) AS "NUMBER TRAVEL LANES", -- TODO - ingest read as int
-    format_lion_text(number_park_lanes::INT::TEXT, 2, ' ') AS "NUMBER PARK LANES", -- TODO - ingest read as int
-    format_lion_text(number_total_lanes::INT::TEXT, 2, ' ') AS "NUMBER TOTAL LANES", -- TODO - ingest read as int
+    format_lion_text(nullif(l_blockfaceid::INT::TEXT, '0'), 10, '0', TRUE) AS "Left BLOCKFACEID", -- TODO - ingest read as int
+    format_lion_text(nullif(r_blockfaceid::INT::TEXT, '0'), 10, '0', TRUE) AS "Right BLOCKFACEID", -- TODO - ingest read as int
+    format_lion_text(nullif(number_travel_lanes::INT::TEXT, '0'), 2, ' ') AS "NUMBER TRAVEL LANES", -- TODO - ingest read as int
+    format_lion_text(nullif(number_park_lanes::INT::TEXT, '0'), 2, ' ') AS "NUMBER PARK LANES", -- TODO - ingest read as int
+    format_lion_text(nullif(number_total_lanes::INT::TEXT, '0'), 2, ' ') AS "NUMBER TOTAL LANES", -- TODO - ingest read as int
     format_lion_text(bike_traffic_direction, 2, ' ') AS "BIKE TRAFFIC DIR",
     format_lion_text(posted_speed::INT::TEXT, 2, ' ') AS "POSTED SPEED", -- TODO - ingest read as int
     format_lion_text(left_nypd_service_area, 1, ' ') AS "Left NYPD Service Area",
