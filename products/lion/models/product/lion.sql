@@ -82,7 +82,7 @@ SELECT
     ap.right_election_district,
     ap.right_school_district,
     sedat.split_election_district_flag,
-    centerline.sandist_ind,
+    (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
     CASE
         WHEN trafdir = 'FT' THEN 'W'
         WHEN trafdir = 'TF' THEN 'A'
