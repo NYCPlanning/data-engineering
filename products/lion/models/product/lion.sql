@@ -36,6 +36,10 @@ sedat AS (
 
 nypd_service_areas AS (
     SELECT * FROM {{ ref("int__centerline_nypdbeat") }}
+),
+
+segment_locational_status AS (
+    SELECT * FROM {{ ref("int__centerline_segment_locational_status") }}
 )
 
 SELECT
@@ -85,7 +89,7 @@ SELECT
         WHEN trafdir = 'NV' THEN 'P'
         WHEN trafdir = 'TW' THEN 'T'
     END AS traffic_direction,
-    NULL AS segment_locational_status,
+    segment_locational_status.segment_locational_status,
     CASE
         WHEN status = '3' THEN '5'
         WHEN status = '2' AND rwjurisdiction = '3' THEN '6'
@@ -97,7 +101,7 @@ SELECT
     END AS feature_type_code,
     centerline.nonped,
     centerline.continuous_parity_flag,
-    NULL AS borough_boundary_indicator,
+    segment_locational_status.borough_boundary_indicator,
     CASE
         WHEN twisted_parity_flag = 'Y' THEN 'T'
     END AS twisted_parity_flag,
@@ -180,3 +184,4 @@ LEFT JOIN curve ON centerline.segmentid = curve.segmentid
 LEFT JOIN streets ON centerline.segmentid = streets.segmentid
 LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
 LEFT JOIN nypd_service_areas ON centerline.segmentid = nypd_service_areas.segmentid
+LEFT JOIN segment_locational_status ON centerline.segmentid = segment_locational_status.segmentid
