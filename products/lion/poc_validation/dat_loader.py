@@ -38,7 +38,8 @@ def parse_dat(dat_file: Path, max_records: int | None = None) -> pd.DataFrame:
 def load_dat(dat_file: Path, table_name: str | None, schema: str | None = None) -> None:
     dat_df = parse_dat(dat_file)
     table_name = table_name or dat_file.stem
-    postgres.PostgresClient(schema=schema).insert_dataframe(dat_df, table_name)
+    client = postgres.PostgresClient(database="db-lion", schema=schema)
+    client.insert_dataframe(dat_df, table_name)
 
 
 app = typer.Typer()
@@ -59,9 +60,18 @@ def head(
 def _load_dat(
     filepath: Path = typer.Argument(),
     table_name: str | None = typer.Option(None, "--table", "-t"),
-    schema: str | None = typer.Option(None, "--schema", "-s"),
+    schema: str = typer.Option("production_outputs", "--schema", "-s"),
 ):
     load_dat(filepath, table_name, schema)
+
+
+@app.command("load_all")
+def load_all(folderpath: Path = typer.Argument()):
+    boros = ["Brooklyn", "Manhattan", "Queens", "Staten Island"]
+    for boro in boros:
+        file = boro.replace(" ", "") + "LION.dat"
+        table = boro.lower().replace(" ", "_") + "_lion"
+        load_dat(folderpath / file, table, "production_outputs")
 
 
 if __name__ == "__main__":
