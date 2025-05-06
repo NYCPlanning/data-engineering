@@ -8,7 +8,6 @@ from utils.PUMA_helpers import clean_PUMAs, dcp_pop_races
 from internal_review.set_internal_review_file import set_internal_review_files
 from aggregate.aggregation_helpers import order_aggregated_columns
 
-## Mapper specific to this script
 _housing_tenure_name_mapper = {
     "occhu": "units_occupied_2000",
     "oocc": "units_occupied_owner_2000",
@@ -68,18 +67,21 @@ def pums_2000_hsq_housing_tenure(geography: str, write_to_internal_review=False)
 
     final = _rename_cols(df)
 
+    boroughs = ["BX", "BK", "MN", "QN", "SI"]
+
     if geography == "citywide":
         final = (
             final.loc[["citywide"]].reset_index().rename(columns={"GeoID": "citywide"})
         )
     elif geography == "borough":
-        final = (
-            final.loc[["BX", "BK", "MN", "QN", "SI"]]
-            .reset_index()
-            .rename(columns={"GeoID": "borough"})
-        )
+        final = final.loc[boroughs].reset_index().rename(columns={"GeoID": "borough"})
     else:
-        final = final.loc["3701":"4114"].reset_index().rename(columns={"GeoID": "puma"})
+        non_puma_indices = boroughs + ["citywide"]
+        final = (
+            final.loc[~final.index.isin(non_puma_indices)]
+            .reset_index()
+            .rename(columns={"GeoID": "puma"})
+        )
         final["puma"] = final["puma"].apply(func=clean_PUMAs)
 
     final.set_index(geography, inplace=True)
