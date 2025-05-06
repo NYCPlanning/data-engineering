@@ -222,8 +222,9 @@ models:
   - name: '"Segment Locational Status"'
     data_type: string
     tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 1
+    - accepted_values:
+        # this enforces length as well
+        values: [ " ", "9", "H", "I", "1", "2", "3", "4", "5", "X" ]
   - name: '"Feature Type Code"'
     data_type: string
     tests:
@@ -248,8 +249,8 @@ models:
   - name: '"Borough Boundary Indicator"'
     data_type: string
     tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 1
+    - accepted_values:
+        values: [ " ", "R", "L" ]
   - name: '"Twisted Parity Flag"'
     data_type: string
     tests:
