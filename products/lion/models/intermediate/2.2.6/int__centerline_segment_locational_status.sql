@@ -104,13 +104,13 @@ segments_without_aps AS (
 )
 
 SELECT * FROM left_city_boundary_aps
-UNION
+UNION ALL
 SELECT * FROM right_city_boundary_aps
-UNION
+UNION ALL
 SELECT * FROM same_ap
-UNION
+UNION ALL
 SELECT * FROM different_aps_different_boros
-UNION
+UNION ALL
 SELECT * FROM different_aps_same_boro
-UNION
+UNION ALL
 SELECT * FROM segments_without_aps

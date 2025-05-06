@@ -17,7 +17,7 @@ segment_end_nodes_unpivoted AS (
         segmentid,
         from_nodeid AS node
     FROM segment_end_nodes_pivoted
-    UNION
+    UNION ALL
     SELECT
         segmentid,
         to_nodeid AS node
