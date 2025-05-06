@@ -19,6 +19,9 @@ models:
     tests:
       - accepted_values:
           values: ['9', 'H', 'I', '1', '2', '3', '4', '5', 'X']
+  tests:
+  - dbt_expectations.expect_table_row_count_to_equal_other_table:
+     compare_model: ref("int__centerline_atomicpolygons")
 
 - name: int__centerline_segment_neighbors
   description: |
