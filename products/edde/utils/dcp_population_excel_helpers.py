@@ -62,7 +62,7 @@ def reorder_year_race(col):
 ### Create base load function that reads dcp population xlsx for 2000 census pums
 def load_2000_census_pums_all_data() -> pd.DataFrame:
     df = pd.read_excel(
-        "./resources/ACS_PUMS/EDDT_Census2000PUMS.xlsx",
+        "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
         skiprows=1,
         dtype={"GeoID": str},
     )
