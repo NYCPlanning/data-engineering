@@ -66,17 +66,13 @@ different_aps_different_boros AS (
     SELECT
         *,
         CASE
-            WHEN centerline_borocode <> left_borocode AND centerline_borocode = right_borocode THEN 'L'
-            WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN 'R'
+            WHEN centerline_borocode = right_borocode THEN 'L'
+            WHEN centerline_borocode = left_borocode THEN 'R'
         END AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AND centerline_borocode <> right_borocode AS is_ap_boro_boundary_error,
         CASE
-            WHEN
-                centerline_borocode <> left_borocode AND centerline_borocode = right_borocode
-                THEN left_borocode::char(1)
-            WHEN
-                centerline_borocode = left_borocode AND centerline_borocode <> right_borocode
-                THEN right_borocode::char(1)
+            WHEN centerline_borocode = right_borocode THEN left_borocode::char(1)
+            WHEN centerline_borocode = left_borocode THEN right_borocode::char(1)
         END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode <> right_borocode   -- borocode alone should be sufficient but who knows...
