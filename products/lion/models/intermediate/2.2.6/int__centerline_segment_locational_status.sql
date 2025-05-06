@@ -30,7 +30,7 @@ segments_with_orphan_node AS (
 -- All CTEs below divide the atomicpolygons into different categories. 
 -- When unioned together, they should have 1-1 match with atomicpolygons
 left_city_boundary_aps AS (
-    SELECT 
+    SELECT
         *,
         'L' AS borough_boundary_indicator,
         NULL::boolean AS is_ap_boro_boundary_error,
@@ -65,14 +65,18 @@ same_ap AS (
 different_aps_different_boros AS (
     SELECT
         *,
-        CASE 
+        CASE
             WHEN centerline_borocode <> left_borocode AND centerline_borocode = right_borocode THEN 'L'
             WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN 'R'
         END AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AND centerline_borocode <> right_borocode AS is_ap_boro_boundary_error,
-        CASE 
-            WHEN centerline_borocode <> left_borocode AND centerline_borocode = right_borocode THEN left_borocode::CHAR(1)
-            WHEN centerline_borocode = left_borocode AND centerline_borocode <> right_borocode THEN right_borocode::CHAR(1)
+        CASE
+            WHEN
+                centerline_borocode <> left_borocode AND centerline_borocode = right_borocode
+                THEN left_borocode::char(1)
+            WHEN
+                centerline_borocode = left_borocode AND centerline_borocode <> right_borocode
+                THEN right_borocode::char(1)
         END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode <> right_borocode   -- borocode alone should be sufficient but who knows...
@@ -93,7 +97,7 @@ segments_without_aps AS (
     SELECT
         *,
         NULL AS borough_boundary_indicator,
-        true AS is_ap_boro_boundary_error,
+        TRUE AS is_ap_boro_boundary_error,
         NULL AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid IS NULL AND right_atomicid IS NULL

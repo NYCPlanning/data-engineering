@@ -10,7 +10,7 @@ WITH centerline_offsets AS (
 
 SELECT
     co.segmentid,
-    co.boroughcode as centerline_segment_borocode,
+    co.boroughcode AS centerline_segment_borocode,
     left_poly.atomicid AS left_atomicid,
     left_poly.borough AS left_borocode,
     left_poly.censustract_2000 AS left_2000_census_tract,

@@ -13,14 +13,14 @@ WITH segment_end_nodes_pivoted AS (
     WHERE from_nodeid IS NOT NULL AND to_nodeid IS NOT NULL
 ),
 segment_end_nodes_unpivoted AS (
-    SELECT 
+    SELECT
         segmentid,
         from_nodeid AS node
     FROM segment_end_nodes_pivoted
     UNION
     SELECT
         segmentid,
-        to_nodeid as node
+        to_nodeid AS node
     FROM segment_end_nodes_pivoted
 )
 SELECT
@@ -32,4 +32,4 @@ SELECT
     END AS node_missing_neighbor
 FROM segment_end_nodes_unpivoted AS segment_to_node
 LEFT JOIN segment_end_nodes_unpivoted AS node_to_segment
-ON segment_to_node.node = node_to_segment.node AND segment_to_node.segmentid <> node_to_segment.segmentid
+    ON segment_to_node.node = node_to_segment.node AND segment_to_node.segmentid <> node_to_segment.segmentid
