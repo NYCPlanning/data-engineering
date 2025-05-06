@@ -10,10 +10,10 @@ WITH atomicpolygons AS (
         centerline_segment_borocode AS centerline_borocode,
         left_atomicid,
         left_borocode,
-        left_2020_census_tract,
+        left_2010_census_tract, -- TODO all these 2010 fields should be 2020, but this aligns with current ETL tool
         right_atomicid,
         right_borocode,
-        right_2020_census_tract
+        right_2010_census_tract
     FROM {{ ref("int__centerline_atomicpolygons") }}
 ),
 segments_with_neighbors AS (
@@ -83,7 +83,7 @@ different_aps_same_boro AS (
         NULL AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
         CASE
-            WHEN left_2020_census_tract <> right_2020_census_tract THEN 'X'
+            WHEN left_2010_census_tract <> right_2010_census_tract THEN 'X'
         END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode = right_borocode
