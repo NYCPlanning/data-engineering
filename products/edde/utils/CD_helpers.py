@@ -66,14 +66,6 @@ def community_district_to_PUMA(df, CD_col, CD_abbr_type="alpha_borough"):
     return df
 
 
-def nta_to_puma(df, nta_col):
-    """Create a function that maps ntas to pumas"""
-    puma_cross = get_CD_NTA_puma_crosswalk()
-    puma_cross = dict(zip(puma_cross.nta, puma_cross.puma))
-    df["puma"] = df[nta_col].map(puma_cross)
-    return df
-
-
 def construct_three_digit_CD_code(borough_code: str, cd_num: str) -> str:
     if len(cd_num) == 1:
         cd_num = f"0{cd_num}"
@@ -81,12 +73,4 @@ def construct_three_digit_CD_code(borough_code: str, cd_num: str) -> str:
 
 
 def get_borough_num_mapper():
-    puma_cross = get_CD_NTA_puma_crosswalk()
-    puma_cross["borough_abbr"] = puma_cross["nta"].str[:2]
-    boroughs = (
-        puma_cross[["borough_code", "borough_abbr"]]
-        .drop_duplicates()
-        .set_index("borough_code")
-    )
-    borough_num_mapper = boroughs.to_dict()["borough_abbr"]
-    return borough_num_mapper
+    return {"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"}
