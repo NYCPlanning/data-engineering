@@ -1,0 +1,21 @@
+id: dcp_population_nta_puma_crosswalk_2020
+acl: public-read
+
+attributes:
+  name: DCP NTA to PUMA Crosswalk
+  description: |
+    A mapping of NTA to the approximate PUMA from the Census.
+    This was produced internally by Population, and cleaned.
+    Note: This is for EDDE. This data used to be in LION outputs
+    for 2010 census geographies, but appears to have been removed
+    for 2020 equivalents
+ingestion:
+  source:
+    type: local_file
+    path: /de/data-engineering/richey_stuff/dcp_population_nta_puma_crosswalk_2020.csv
+  file_format:
+    type: csv
+    dtype:
+      nta_code: str
+      puma_code: str
+  processing_steps: []
