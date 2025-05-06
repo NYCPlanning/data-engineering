@@ -23,6 +23,8 @@ inputs:
 
   - name: dcp_pumas2020
     version: '20241218'
+  - name: dcp_population_nta_puma_crosswalk_2020
+    version: '2025'
 
   # A decade of traffic injury data # 5.15
   - name: dcp_dot_trafficinjuries

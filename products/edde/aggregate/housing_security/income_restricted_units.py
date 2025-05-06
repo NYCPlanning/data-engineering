@@ -6,9 +6,9 @@ from utils.PUMA_helpers import (
     puma_to_borough,
     borough_name_mapper,
 )
-from utils.CD_helpers import nta_to_puma
+
 from aggregate.load_aggregated import initialize_dataframe_geo_index
-from ingest.ingestion_helpers import read_from_S3
+from ingest.ingestion_helpers import load_data
 
 
 def income_restricted_units(
@@ -33,9 +33,10 @@ def income_restricted_units(
 
 def load_clean_income_restricted():
     source_data = pd.read_excel(
-        "resources/housing_security/Income_Restricted_since2014.xlsx"
+        "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
+        sheet_name="PUMA",
     )
-    source_data.rename(columns={"PUMA (2010)": "puma"}, inplace=True)
+    source_data.rename(columns={"PUMA (2020)": "puma"}, inplace=True)
     source_data["puma"] = source_data["puma"].apply(clean_PUMAs)
     source_data = filter_for_recognized_pumas(source_data)
     source_data["borough"] = source_data.apply(axis=1, func=puma_to_borough)
@@ -66,9 +67,8 @@ def income_restricted_units_hpd(
 
 
 def load_clean_hpd_data():
-    source_data = read_from_S3(
+    source_data = load_data(
         "hpd_hny_units_by_building",
-        "housing_security",
         cols=get_columns(),
     )
     # casting to numeric for calculation
@@ -84,7 +84,17 @@ def load_clean_hpd_data():
     )
     source_data["borough"] = source_data["borough"].map(borough_name_mapper)
     source_data["citywide"] = "citywide"
-    source_data = nta_to_puma(source_data, "nta")
+    ntas_to_pumas: dict = (
+        load_data("dcp_population_nta_puma_crosswalk_2020")
+        .set_index("nta_code")
+        .to_dict()["puma_code"]
+    )
+    source_data["puma"] = source_data["nta"].map(ntas_to_pumas)
+
+    # TODO: we can potentially infer the remaining 1600 using the CB
+    # source_data["community_board_num"] = source_data["community_board"].apply(
+    #     lambda x: x.split("-")[1]
+    # )
 
     return source_data
 
