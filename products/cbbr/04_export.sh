@@ -13,7 +13,7 @@ run_sql_file sql/export.sql
 
 cd $OUTPUT_DIRECTORY
 echo "Exporting input table to csv file ..."
-csv_export cbbr_submissions cbbr_submissions_input
+csv_export omb_cbbr_agency_responses cbbr_submissions_input
 
 echo "Exporting output tables to csv files ..."
 csv_export _cbbr_submissions cbbr_submissions_build

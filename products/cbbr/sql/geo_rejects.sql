@@ -5,8 +5,8 @@ CREATE TABLE geo_rejects AS (
         unique_id,
         address,
         street_name,
-        between_cross_street_1,
-        and_cross_street_2,
+        cross_street_1,
+        cross_street_2,
         borough,
         geo_message
     FROM

@@ -1,0 +1,17 @@
+id: dcp_cbbr_manualmappings
+acl: private
+
+attributes:
+  name: CBBR - DCP Manual Mapping
+  description: As part of CBBR, DCP manually maps as many unmapped requests as possible.
+
+ingestion:
+  source:
+    type: local_file
+    path: ./dcp_cbbr_requests.csv
+  file_format:
+    type: csv
+    geometry:
+      geom_column: geom
+      format: wkb
+      crs: EPSG:4326

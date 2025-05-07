@@ -1,0 +1,24 @@
+id: omb_cbbr_agency_responses
+acl: public-read
+
+attributes:
+  name: Community Board Budget Requests - Agency Responses
+  description: >-
+    This data consists of budget requests submitted by NYC's community boards, after
+    receiving it back from OMB with responses from relevant agencies
+
+    This data is currently sent to DE by CAPS, unclear how much we could automate it.
+
+    It is essentially based on dcp_cbbr_reqeusts, linked by DCPUNIQID to UNIQUE_ID. We
+    archive both because OMB combines multiple fields relating to location, making
+    geocoding more difficult
+
+ingestion:
+  source:
+    type: local_file
+    path: ./omb_cbbr_agency_responses.csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }

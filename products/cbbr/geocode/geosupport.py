@@ -1,12 +1,12 @@
 import pandas as pd
 import copy
+import re
 from multiprocessing import Pool, cpu_count
 from geosupport import Geosupport, GeosupportError
 from .helpers import (
     GEOCODE_COLUMNS,
-    LOCATION_PREFIX_TO_COLUMN,
-    parse_location,
     get_hnum,
+    get_landmarkname,
     get_sname,
     geo_parser,
 )
@@ -17,9 +17,9 @@ geo_client = Geosupport()
 
 def geosupport_1B_address(input_record: dict) -> dict:
     """1B function - geocode address based on the address number and street name"""
-    borough = input_record.get("borough_code")
-    house_number = input_record.get("addressnum")
-    street_name = input_record.get("street_name")
+    borough = input_record["borough_code"]
+    house_number = input_record["addressnum"]
+    street_name = input_record["street_name"]
     if not house_number:
         # no house_number indicates unlikely to be an address
         # NOTE This error message won't show in data since, if no function work, geo_message will be GEOCODING FAILED
@@ -35,13 +35,13 @@ def geosupport_1B_address(input_record: dict) -> dict:
     return geo_function_result
 
 
-def geosupport_1B_place(input_record: dict) -> dict:
+def geosupport_1B_site_or_facility(input_record: dict) -> dict:
     """1B function - geocode address based on the place name"""
-    borough = input_record.get("borough_code")
-    street_name = input_record.get("facility_or_park_name")
+    borough = input_record["borough_code"]
+    street_name = input_record.get("site_or_facility_name") or ""
+    street_name = re.sub(r"[^\x00-\x7F]+", "", street_name)
 
-    # use geosupport function
-    geo_function_result = geo_client["1A"](
+    geo_function_result = geo_client["1B"](
         borough=borough,
         street_name=street_name,
         house_number="",
@@ -50,16 +50,46 @@ def geosupport_1B_place(input_record: dict) -> dict:
     return geo_function_result
 
 
-def geosupport_2_street_name(input_record: dict) -> dict:
-    """2 function - geocode intersection based on the two street names (primary and 1st cross street)"""
-    borough = input_record.get("borough_code")
-    street_name = input_record.get("street_name")
-    cross_street_1 = input_record.get("between_cross_street_1")
-    cross_street_2 = input_record.get("and_cross_street_2")
-    if cross_street_2 and cross_street_1 != cross_street_2:
-        # non-null value for cross_street_2 that isn't the same as cross_street_1
-        # indicates a likely street segment
-        # NOTE This error message won't show in data since, if no function work, geo_message will be GEOCODING FAILED
+def geosupport_1B_landmark(input_record: dict) -> dict:
+    """1B function - geocode address based on the place name"""
+    return geo_client["1B"](
+        borough=input_record["borough_code"],
+        street_name=input_record.get("landmark", ""),
+        house_number="",
+    )
+
+
+def geosupport_2(input_record: dict) -> dict:
+    """2 function - geocode intersection based on the two street names"""
+    borough = input_record["borough_code"]
+    street_1 = input_record["intersection_street_1"]
+    street_2 = input_record["intersection_street_2"]
+
+    # use geosupport function
+    geo_function_result = geo_client["2"](
+        borough=borough,
+        street_name_1=street_1,
+        street_name_2=street_2,
+    )
+
+    return geo_function_result
+
+
+def geosupport_2_cross_street(input_record: dict) -> dict:
+    """
+    2 function - geocode intersection based on the two street names
+    If cross street specified but cross streets are identical, attempt to geocode as intersection
+    """
+    borough = input_record["borough_code"]
+    street_name = input_record.get("on_street")
+    cross_street_1 = input_record.get("cross_street_1")
+    cross_street_2 = input_record.get("cross_street_2")
+    if not (
+        street_name
+        and cross_street_1
+        and cross_street_2
+        and (cross_street_1 == cross_street_2)
+    ):
         raise GeosupportError("UNLIKELY TO BE AN INTERSECTION")
 
     # use geosupport function
@@ -74,17 +104,18 @@ def geosupport_2_street_name(input_record: dict) -> dict:
 
 def geosupport_3(input_record: dict) -> dict:
     """3 function - geocode street segment (1 block) based on the three street names"""
-    borough = input_record.get("borough_code")
-    street_name = input_record.get("street_name")
-    cross_street_1 = input_record.get("between_cross_street_1")
-    cross_street_2 = input_record.get("and_cross_street_2")
-    if not cross_street_1 or not cross_street_2:
+    borough = input_record["borough_code"]
+    on_street = input_record["on_street"]
+    cross_street_1 = input_record["cross_street_1"]
+    cross_street_2 = input_record["cross_street_2"]
+
+    if not (on_street and cross_street_1 and cross_street_2):
         raise GeosupportError("UNLIKELY TO BE A STREET SEGMENT")
 
     # use geosupport function
     geo_function_result = geo_client["3"](
         borough=borough,
-        street_name_1=street_name,
+        street_name_1=on_street,
         street_name_2=cross_street_1,
         street_name_3=cross_street_2,
     )
@@ -105,27 +136,19 @@ def geosupport_3(input_record: dict) -> dict:
 
 GEOSUPPORT_FUNCTION_HIERARCHY = [
     geosupport_1B_address,
-    geosupport_1B_place,
-    geosupport_2_street_name,
-    # geosupport_2_cross_streets,
+    geosupport_1B_site_or_facility,
+    geosupport_1B_landmark,
+    geosupport_2,
     geosupport_3,
+    geosupport_2_cross_street,
 ]
 
 
 def geocode_record(inputs: dict) -> dict:
     outputs = copy.deepcopy(inputs)
 
-    input_location = inputs.get("location")
-    if not input_location:
-        outputs.update(dict(geo_function="NO LOCATION DATA"))
-        return outputs
-
-    if not any([pair[0] in input_location for pair in LOCATION_PREFIX_TO_COLUMN]):
-        outputs.update(dict(geo_function="INVALID LOCATION DATA"))
-        return outputs
-
-    if "district wide" in input_location.lower():
-        outputs.update(dict(geo_function="LOCATION IS DISTRICT WIDE"))
+    if inputs["location_specific"] != "Yes":
+        outputs.update(dict(geo_function="NOT LOCATION DATA"))
         return outputs
 
     for geo_function in GEOSUPPORT_FUNCTION_HIERARCHY:
@@ -173,9 +196,10 @@ if __name__ == "__main__":
     cbbr_data = client.read_table_df("_cbbr_submissions")
 
     print("parsing location data for geocoding ...")
-    cbbr_data = parse_location(cbbr_data)
+    cbbr_data = cbbr_data.where(pd.notnull(cbbr_data), None)
     cbbr_data["addressnum"] = cbbr_data["address"].apply(get_hnum)
     cbbr_data["street_name"] = cbbr_data["address"].apply(get_sname)
+    cbbr_data["landmark"] = cbbr_data["address"].apply(get_landmarkname)
 
     client.insert_dataframe(cbbr_data, "_cbbr_submissions_address_parsed")
     print("start geocoding ...")

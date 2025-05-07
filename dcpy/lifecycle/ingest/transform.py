@@ -79,9 +79,10 @@ def to_parquet(
 
     gdf = data.read_data_to_df(file_format, local_data_path)
 
-    # rename geom column to "geom" regardless of input data type
     if isinstance(gdf, gpd.GeoDataFrame):
-        gdf.rename_geometry(OUTPUT_GEOM_COLUMN, inplace=True)
+        # rename geom column to "geom" regardless of input data type
+        if gdf.geometry.name != OUTPUT_GEOM_COLUMN:
+            gdf.rename_geometry(OUTPUT_GEOM_COLUMN, inplace=True)
         gdf[OUTPUT_GEOM_COLUMN] = gdf.make_valid()
 
     gdf.to_parquet(output_file_path, index=False)

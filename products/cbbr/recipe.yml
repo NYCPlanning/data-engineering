@@ -1,12 +1,14 @@
 name: Community Board Budget Requests
 product: db-cbbr
-version: FY2025
+version: FY2026
 inputs:
   missing_versions_strategy: find_latest
   datasets:
-  - name: cbbr_submissions
-  - name: dcp_cbbr_manualmappings_points
-  - name: dcp_cbbr_manualmappings_poly
+  # primary data
+  - name: dcp_cbbr_requests
+  - name: omb_cbbr_agency_responses
+  # spatial data
+  - name: dcp_cbbr_manualmappings
   - name: dpr_parksproperties
   - name: dcp_facilities
   - name: doitt_buildingfootprints
