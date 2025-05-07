@@ -10,7 +10,7 @@ from utils.dcp_population_excel_helpers import (
 )
 from utils.PUMA_helpers import acs_years
 from internal_review.set_internal_review_file import set_internal_review_files
-from aggregate.load_aggregated import load_clean_housing_security_pop_data
+from aggregate.load_aggregated import load_acs_curr_and_prev
 from aggregate.aggregation_helpers import get_geography_pop_data
 
 
@@ -26,13 +26,8 @@ def rent_median(
 
     name_mapper_hh = {"HUPRt": "units_payingrent"}
 
-    clean_data_md = load_clean_housing_security_pop_data(
-        name_mapper_md, start_year, end_year
-    )
-
-    clean_data_hh = load_clean_housing_security_pop_data(
-        name_mapper_hh, start_year, end_year
-    )
+    clean_data_md = load_acs_curr_and_prev(name_mapper_md, start_year, end_year)
+    clean_data_hh = load_acs_curr_and_prev(name_mapper_hh, start_year, end_year)
 
     final_md = get_geography_pop_data(clean_data=clean_data_md, geography=geography)
     rename_col_housing_security(

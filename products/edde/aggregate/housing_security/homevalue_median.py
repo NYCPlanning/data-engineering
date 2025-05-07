@@ -6,7 +6,7 @@ from aggregate.clean_aggregated import (
 from utils.dcp_population_excel_helpers import race_suffix_mapper
 from utils.PUMA_helpers import acs_years
 from internal_review.set_internal_review_file import set_internal_review_files
-from aggregate.load_aggregated import load_clean_housing_security_pop_data
+from aggregate.load_aggregated import load_acs_curr_and_prev
 from aggregate.aggregation_helpers import get_geography_pop_data
 
 
@@ -18,7 +18,7 @@ def homevalue_median(
 ) -> pd.DataFrame:
     name_mapper = {"MdVl": "homevalue_median"}
 
-    clean_data = load_clean_housing_security_pop_data(name_mapper, start_year, end_year)
+    clean_data = load_acs_curr_and_prev(name_mapper, start_year, end_year)
 
     final = get_geography_pop_data(clean_data=clean_data, geography=geography)
 

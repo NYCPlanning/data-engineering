@@ -4,10 +4,26 @@ external review, I'm not sure"""
 # from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics
 # from aggregate.PUMS.count_PUMS_households import PUMSCountHouseholds
 # from aggregate.PUMS.median_PUMS_economics import PUMSMedianEconomics
-from utils.PUMA_helpers import get_all_NYC_PUMAs, get_all_boroughs
+
+from collections import defaultdict
+from dcpy.utils.logging import logger
 import pandas as pd
+import re
+
 from aggregate.clean_aggregated import rename_columns_demo
-from utils.PUMA_helpers import sheet_name, year_range, acs_years
+from utils.PUMA_helpers import (
+    clean_PUMAs,
+    get_all_NYC_PUMAs,
+    get_all_boroughs,
+    borough_name_mapper,
+)
+from utils.PUMA_helpers import sheet_name, year_range, acs_years, dcp_pop_races
+from utils.dcp_population_excel_helpers import (
+    measure_suffixes,
+    race_suffix_mapper_global,
+    count_suffix_mapper_global,
+    median_suffix_mapper_global,
+)
 
 
 # from aggregate.PUMS.count_PUMS_demographics import PUMSCountDemographics
@@ -75,32 +91,162 @@ def initialize_dataframe_geo_index(geography, columns=[]):
 """this is specifically to use for housing security and quality March 4th POP data"""
 
 
-def load_clean_housing_security_pop_data(
-    name_mapper: dict, start_year=acs_years[0], end_year=acs_years[-1]
-) -> pd.DataFrame:
-    """Function to merge the two files for the QOL outputs and do some standard renaming. Because
-    these are QOL indicators they remain in the same csv output with columns indicating year
+ACS_SHORT_TO_LONG_NAMES = {
+    "AfELI": "units_affordable_eli",
+    "AfVLI": "units_affordable_vli",
+    "AfLI": "units_affordable_li",
+    "AfMI": "units_affordable_mi",
+    "AfMidi": "units_affordable_midi",
+    "AfHI": "units_affordable_hi",
+    "GRPI30": "households_rb",
+    "GRPI50": "households_erb",
+    "HUPRt": "units_payingrent",
+    "MdGR": "rent_median",
+    "MdVl": "homevalue_median",
+    "OHURt": "households_grapi",
+    "OOcc1": "units_occupied_owner",
+    "OcHU1": "units_occupied",
+    "OcR1p": "units_overcrowded",
+    "OcRU1": "units_notovercrowded",
+    "ROcc": "units_occupied_renter",
+}
+
+
+def parse_acs_variable(raw_variable: str):
+    """example: `OOcc1_B12C.1` -> {base_variable}_{maybe race_code}{year}{measure}.{maybe trailing_num}"""
+    pattern = r"^(.*?)_(?:([A-Za-z]))?(\d{2})([A-Za-z])(?:\.(\d+))?$"
+    matched = re.match(pattern, raw_variable)
+    assert matched
+
+    base_variable, race_code, year, measure, trailing_num = matched.groups()
+
+    return {
+        "raw_variable": raw_variable,
+        "base_variable": base_variable,
+        "race_code": (race_code or "").lower(),
+        "year": year,
+        "measure": (measure or "").lower(),
+        "trailing_num": trailing_num,  # AR Note: I'm not quite sure what this is, yet.
+    }
+
+
+def make_acs_parsed_variables_table(acs_df: pd.DataFrame):
+    """Make a metadata table about variables in the ACS.
+    This will contain longform names as well as sort orders for measures and race_codes."""
+
+    def _make_sorter(d: dict | list):
+        return defaultdict(int, zip(d, range(1, len(d) + 1)))
+
+    def _calc_dcp_indicator_name(r):
+        # TODO: Add in for later pipelines: race, year
+        suffix = (
+            median_suffix_mapper_global[r.measure]
+            if r.is_median
+            else count_suffix_mapper_global[r.measure]
+        )
+        return f"{r.base_variable_longform}_{suffix}"
+
+    cols = pd.DataFrame([parse_acs_variable(c) for c in acs_df.columns])
+
+    cols["base_variable_longform"] = cols.base_variable.map(ACS_SHORT_TO_LONG_NAMES)
+    cols = cols[~cols["base_variable_longform"].isnull()]
+
+    cols["race_longform"] = cols.race_code.map(
+        defaultdict(str, **race_suffix_mapper_global)
+    )
+    cols["measure_longform"] = cols.measure.map(defaultdict(str, **measure_suffixes))
+    cols["measure_sort"] = cols.measure.map(_make_sorter(measure_suffixes))
+    cols["race_sort"] = cols.race_longform.map(_make_sorter(dcp_pop_races))
+    cols["is_median"] = False  # TODO
+    cols["dcp_indicator_name_single_year"] = cols.apply(
+        _calc_dcp_indicator_name, axis=1
+    )
+
+    cols = (
+        cols.set_index(["year", "base_variable_longform"])
+        .sort_values(["race_sort", "measure_sort"])
+        .sort_index()
+    )
+    return cols
+
+
+def select_acs_by_base_variable(
+    acs: pd.DataFrame, year: str, dcp_base_variable: str, acs_vars_table: pd.DataFrame
+):
+    """Returns ACS variables for a given DCP base variable.
+    Also translates the variables into the DCP variable
+
+    e.g. The following variables exist in the ACS data for `units_affordable_eli`:
+    [AfELI_23E, AfELI_23M, AfELI_23C, AfELI_23P, AfELI_23Z]
+
+    Selcting with dcp_base_variable="units_affordable_eli" ->
+    ['units_affordable_eli_count', 'units_affordable_eli_count_moe', 'units_affordable_eli_count_cv', 'units_affordable_eli_pct']
+
+    Note: the variables are also returned in the expected order, sorted correctly for measures, race_codes, etc.
     """
+    year_to = year[2:]
+    col_data = acs_vars_table.loc[(year_to, dcp_base_variable)]
+    acs_to_dcp_indicators = dict(
+        zip(
+            list(col_data["raw_variable"]),
+            list(col_data["dcp_indicator_name_single_year"]),
+        )
+    )
+    return acs.filter(list(acs_to_dcp_indicators.keys())).rename(
+        columns=acs_to_dcp_indicators
+    )
 
-    ind_name_regex = "|".join([k for k in name_mapper.keys()])
 
-    def read_excel_arg(year):
-        return {
-            "io": f"./resources/ACS_PUMS/EDDE_ACS{year_range(year)}.xlsx",
-            # "usecols": "A:LO",
-            "dtype": {"Geog": str},
-        }
-
-    df_oldest = pd.read_excel(**read_excel_arg(start_year))
-    df_latest = pd.read_excel(**read_excel_arg(end_year))
-
-    df = pd.merge(df_oldest, df_latest, on="Geog", how="left")
-
-    df = df.filter(regex=ind_name_regex + "|Geog")
-
-    df.loc[df["Geog"] == "NYC", "Geog"] = "citywide"
-
+def select_acs_cols(acs_df, year, dcp_indicator_cols: list[str], acs_vars_table):
+    first_col, *rest_cols = dcp_indicator_cols
+    df = select_acs_by_base_variable(acs_df, year, first_col, acs_vars_table)
+    for ind in rest_cols:
+        df = df.join(
+            select_acs_by_base_variable(acs_df, year, ind, acs_vars_table), how="left"
+        )
     return df
+
+
+def _calc_geog_type(geog: str):
+    all_pumas = get_all_NYC_PUMAs(prefix_zeros=False)
+    if geog == "citywide":
+        return "citywide"
+    elif geog in borough_name_mapper:
+        return "borough"
+    elif geog in all_pumas:
+        return "puma"
+    else:
+        logger.error(f"Could not map geog: {geog} from the ACS")
+        return ""
+
+
+def load_acs(year_window: str) -> pd.DataFrame:
+    """Load a year window of the ACS (e.g. 1923, meaning the ACS from 2019-2023)"""
+    df = pd.read_excel(
+        io=f"./resources/ACS_PUMS/EDDE_ACS{year_range(year_window)}.xlsx",
+        dtype={"Geog": str},
+    ).rename(columns={"Geog": "geog"})
+
+    df.loc[df["geog"] == "NYC", "geog"] = "citywide"
+    df["geog_type"] = df["geog"].map(_calc_geog_type)
+    df = df.set_index("geog_type")
+
+    df.loc["borough", "geog"] = df.loc["borough"].geog.replace(borough_name_mapper)
+    df.loc["puma", "geog"] = df.loc["puma"].geog.apply(clean_PUMAs)
+
+    return df.reset_index().set_index(["geog_type", "geog"])
+
+
+def load_acs_curr_and_prev(
+    start_year=acs_years[0], end_year=acs_years[-1]
+) -> pd.DataFrame:
+    """Load a merge together multiple year-windows of the ACS, e.g. 0812 and 1923."""
+    return load_acs(start_year).merge(
+        load_acs(end_year),
+        left_index=True,
+        right_index=True,
+        how="left",
+    )
 
 
 def load_clean_pop_demographics(year: str) -> pd.DataFrame:

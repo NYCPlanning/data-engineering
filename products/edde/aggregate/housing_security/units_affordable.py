@@ -1,7 +1,12 @@
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
 from aggregate.clean_aggregated import order_affordable
-from utils.PUMA_helpers import clean_PUMAs, borough_name_mapper, year_range, acs_years
+from aggregate import load_aggregated
+from utils.PUMA_helpers import (
+    clean_PUMAs,
+    borough_name_mapper,
+    acs_years,
+)
 from utils.dcp_population_excel_helpers import (
     count_suffix_mapper_global,
     map_stat_suffix,
@@ -19,6 +24,44 @@ income_mapper = {
     "Midi": "midi",
     "HI": "hi",
 }
+
+
+ACS_BASE_VARIABLES = [
+    "units_affordable_eli",
+    "units_affordable_vli",
+    "units_affordable_li",
+    "units_affordable_mi",
+    "units_affordable_midi",
+    "units_affordable_hi",
+]
+
+INTERNAL_REVIEW_FILENAME = "units_affordable.csv"
+CATEGORY = "housing_security"
+
+
+def units_affordable_new(
+    geography: str, year: str = acs_years[-1], write_to_internal_review=False
+) -> pd.DataFrame:
+    acs_df = load_aggregated.load_acs(year)
+    acs_vars_table = load_aggregated.make_acs_parsed_variables_table(acs_df)
+
+    acs_subset_df = load_aggregated.select_acs_cols(
+        acs_df, year, ACS_BASE_VARIABLES, acs_vars_table
+    )
+
+    final = (
+        acs_subset_df.loc[geography]
+        .reset_index()
+        .rename(columns={"geog": geography})
+        .set_index(geography)
+    )
+
+    if write_to_internal_review:
+        set_internal_review_files(
+            [(final, INTERNAL_REVIEW_FILENAME, geography)],
+            CATEGORY,
+        )
+    return final
 
 
 def units_affordable(
@@ -55,7 +98,7 @@ def units_affordable(
 
 def load_source_clean_data(year) -> pd.DataFrame:
     read_excel_arg = {
-        "io": f"resources/housing_security/EDDT_UnitsAffordablebyAMI_{year_range(year)}.xlsx",
+        "io": "resources/housing_security/EDDT_UnitsAffordablebyAMI_2017-2021.xlsx",
         "sheet_name": "AffordableAMI",
         "usecols": "A:AJ",
         "header": 0,

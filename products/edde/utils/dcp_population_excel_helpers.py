@@ -19,6 +19,14 @@ median_suffix_mapper_global = {
     "z": "median_pct_moe",  # To be removed on further processing
 }
 
+measure_suffixes = {
+    "e": "",
+    "m": "moe",
+    "c": "cv",
+    "p": "pct",
+    "z": "pct_moe",
+}
+
 race_suffix_mapper_global = {"a": "anh", "b": "bnh", "h": "hsp", "w": "wnh"}
 
 race_suffix_mapper = {
