@@ -1,0 +1,28 @@
+id: nysdot_annual_average_daily_trafic
+acl: public-read
+
+attributes:
+  name: NYS DOT Traffic Data Viewer
+  description: >-
+    The Traffic Data Viewer (TDV) is an interactive map that allows users to access traffic 
+    data information. Using the TDV, the Annual Average Daily Traffic (AADT) and additional 
+    traffic statistics for a Traffic Station can be obtained. The data is downloadable for offline 
+    usage. The TDV data set is maintained by the Traffic Monitoring Section. A subset of 
+    data is available on the popup when clicking a Traffic Station point location. Additional 
+    data is available through the Site Dashboard and Site Data Links on the popup. 
+    
+    The Route Network layer provides a visual representation of Traffic Station segments. 
+    The Traffic Station location points provide details for individual counts at the specific 
+    location of data collection.
+    
+  url: https://www.dot.ny.gov/tdv
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://www.dot.ny.gov/divisions/engineering/technical-services/hds-respository/Tab/NYSDOT_GDB_AADT_{{ version }}.zip
+  file_format:
+    type: geodatabase
+    unzipped_filename: AADT_{{ version }}.gdb
+    crs: EPSG:26918

@@ -104,3 +104,23 @@ Early Childcare Capacity and Enrollment,dcp_capacity_and_enrollment,download,exc
 ZOLA,,webpage,,,https://zola.planning.nyc.gov/
 FastTracker Application,,webpage,,,https://www.nyc.gov/content/planning/pages/our-work/plans/citywide/green-fast-track-for-housing
 Green Fast Track Lots,dcp_green_fast_track_lots,download,shapefile,MULTIPOLYGON,https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/v_GFT_Green_Fast_Track_Lots/FeatureServer
+Railroads,,webpage,,,https://www.mta.info/developers
+Buses,,webpage,,,https://www.mta.info/developers
+Bike Routes,dot_bike_routes,download,shapefile,MULTILINESTRING,https://data.cityofnewyork.us/dataset/New-York-City-Bike-Routes/mzxg-pwib/about_data
+Open Streets,dot_open_streets,download,shapefile,MULTILINESTRING,https://data.cityofnewyork.us/Health/Open-Streets-Locations/uiay-nctu/about_data
+Daily Trip Rate and Peak Period,dcp_transportation_trip_generation,download,csv,,
+Modal Split % by Borough & Land Use,dcp_modal_split_percentage_by_boro_and_land_use,download,excel,,
+Directional Split Percentage,dcp_directional_split_percentage,download,excel,,
+Vehicle Occupancy,dcp_transportation_vehicle_occupancy,download,csv,,
+Truck Generation,dcp_transportation_truck_generation,download,csv,,
+Census Data- Population and Journey to Work,,webpage,,,https://data.census.gov/table/ACSDT1Y2023.B08301?q=B08301
+AASHTO CTPP Data Portal,,webpage,,,https://ctppdata.transportation.org/#/index
+Vision Zero Corridors and Intersections,,webpage,,,https://vzv.nyc/
+NYS Traffic Data Viewer,nysdot_annual_average_daily_trafic,download,shapefile,MULTILINESTRING,https://www.dot.ny.gov/tdv
+Automated Traffic Recorder Sample Counts,dot_traffic_sample_volume_counts,download,csv,,https://data.cityofnewyork.us/Transportation/Traffic-Volume-Counts/btm5-ppia/about_data
+Truck Route Map,dot_truck_routes,download,shapefile,MULTILINESTRING,https://data.cityofnewyork.us/Transportation/New-York-City-Truck-Routes/jjja-shxy/about_data
+Parking Regulations Map,,webpage,,,https://nycdotsigns.net/
+Hourly Subway Ridership 2020-2024,,webpage,,,https://data.ny.gov/Transportation/MTA-Subway-Hourly-Ridership-2020-2024/wujg-7c2s/about_data
+Hourly Bus Ridership 2020-2024,,webpage,,,https://data.ny.gov/Transportation/MTA-Bus-Hourly-Ridership-2020-2024/kv7t-n8in/about_data
+DOT Current Projects,,webpage,,,https://www.nyc.gov/html/dot/html/about/current-projects.shtml
+Various DOT Data Feeds,,webpage,,,https://www.nyc.gov/html/dot/html/about/datafeeds.shtml

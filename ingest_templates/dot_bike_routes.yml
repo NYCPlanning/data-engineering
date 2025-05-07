@@ -1,0 +1,24 @@
+id: dot_bike_routes
+acl: public-read
+
+attributes:
+  name: New York City Bike Routes
+  description: >-
+    The New York City Department of Transportation (NYC DOT) builds and manages bicycle 
+    facilities across the five boroughs, alongside other City agencies, New York State, and 
+    external partners. This dataset contain records of the current and historic network of 
+    designated bicycle routes and facilities, including bicycle facility type and relevant street 
+    information represented as line segments. Additional information about NYC DOT's commitment 
+    to safe all-ages and abilities bicycling, along with data about the growth of bicycling in NYC 
+    and PDF maps of the current network can be found at: 
+    https://www.nyc.gov/html/dot/html/bicyclists/bicyclists.shtml
+  url: https://data.cityofnewyork.us/dataset/New-York-City-Bike-Routes/mzxg-pwib/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: mzxg-pwib
+    format: geojson
+  file_format:
+    type: geojson

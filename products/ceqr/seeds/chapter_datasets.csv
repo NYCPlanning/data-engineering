@@ -143,3 +143,27 @@ water_and_sewer,Stormwater,Stormwater Flood Map - Limited Current Sea Levels,Con
 water_and_sewer,Sewer,Facilities Database,identifying the wastewater resource recovery facilities that the project is near
 water_and_sewer,Sewer,Open Sewer Atlas,Various data related to DEP infrastructure and policy
 water_and_sewer,Worksheet,Water and sewer calculations,For sewer and stormwater calculations
+transportation,Base Map,Streets,Location Maps 
+transportation,Base Map,Subways,Study area transportation
+transportation,Base Map,Railroads,Study area transportation
+transportation,Base Map,Buses,Study area transportation
+transportation,Base Map,Bike Routes,Study area transportation
+transportation,Base Map,Open Streets,Study area transportation
+transportation,Transportation Trip Generation,Daily Trip Rate and Peak Period,"Local Retail, Hotel, and Medical Office daily trip rate and peak period distributions"
+transportation,Transportation Trip Generation,Modal Split % by Borough & Land Use,"Modal splits for hotel, supermarket, local retail and medical office based on NYC DOT trip generation surveys"
+transportation,Transportation Trip Generation,Directional Split Percentage,Weekday & Saturday directional split percentages for multiple land uses
+transportation,Transportation Trip Generation,Vehicle Occupancy,"Local Retail, Hotel, and Medical Office Vehicle occupancy"
+transportation,Transportation Trip Generation,Truck Generation,"Local Retail, Hotel, and Medical Office Truck Generation"
+transportation,Existing Condition,Census Data- Population and Journey to Work,Local Travel Mode information
+transportation,Existing Condition,AASHTO CTPP Data Portal,Local Travel Mode/O-D information
+transportation,Safety,Vision Zero Corridors and Intersections,Identify Locations for Safety Interventions
+transportation,Traffic,NYS Traffic Data Viewer,State ATR data plus projections
+transportation,Traffic,Automated Traffic Recorder Sample Counts,Existing Traffic Counts
+transportation,Traffic,Truck Route Map,Traffic Assessment
+transportation,Parking,Parking Regulations Map,Parking Assessment
+transportation,Transit,Hourly Subway Ridership 2020-2024,Transit Assessment
+transportation,Transit,Hourly Bus Ridership 2020-2024,Transit Assessment
+transportation,Traffic,DOT Current Projects,No-Action condition changes to transportation network
+transportation,Basemap,Roadbeds,Location Maps 
+transportation,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
+transportation,Resources,Various DOT Data Feeds,	

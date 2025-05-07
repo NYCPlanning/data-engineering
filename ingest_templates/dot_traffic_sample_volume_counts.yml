@@ -1,0 +1,23 @@
+id: dot_traffic_sample_volume_counts
+acl: public-read
+
+attributes:
+  name: Traffic Volume Counts
+  description: >-
+    New York City Department of Transportation (NYC DOT) uses Automated Traffic 
+    Recorders (ATR) to collect traffic sample volume counts at bridge crossings and 
+    roadways. These counts do not cover the entire year, and the number of days counted 
+    per location may vary from year to year. 
+    
+    Also see Automated Traffic Volume Counts: 
+    https://data.cityofnewyork.us/Transportation/Automated-Traffic-Volume-Counts/7ym2-wayt
+  url: https://data.cityofnewyork.us/Transportation/Traffic-Volume-Counts/btm5-ppia/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: btm5-ppia
+    format: csv
+  file_format:
+    type: csv

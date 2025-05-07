@@ -1,0 +1,21 @@
+id: dot_open_streets
+acl: public-read
+
+attributes:
+  name: New York City Open Streets Locations
+  description: >-
+    New York City's Open Streets program transforms streets into public spaces open to all. 
+    These public spaces allows a variety of activities including education and cultural 
+    programming as well as building communities. For more information please visit: 
+    https://www.nyc.gov/html/dot/html/pedestrians/openstreets.shtml
+    Please note: there may be a delay in updates to the Open Data files.
+  url: https://data.cityofnewyork.us/Health/Open-Streets-Locations/uiay-nctu/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: uiay-nctu
+    format: geojson
+  file_format:
+    type: geojson
