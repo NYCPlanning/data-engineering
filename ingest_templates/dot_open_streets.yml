@@ -3,7 +3,7 @@ acl: public-read
 
 attributes:
   name: New York City Open Streets Locations
-  description: |
+  description: >-
     New York City's Open Streets program transforms streets into public spaces open to all. 
     These public spaces allows a variety of activities including education and cultural 
     programming as well as building communities. For more information please visit: 

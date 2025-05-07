@@ -3,7 +3,7 @@ acl: public-read
 
 attributes:
   name: NYS DOT Traffic Data Viewer
-  description: |
+  description: >-
     The Traffic Data Viewer (TDV) is an interactive map that allows users to access traffic 
     data information. Using the TDV, the Annual Average Daily Traffic (AADT) and additional 
     traffic statistics for a Traffic Station can be obtained. The data is downloadable for offline 

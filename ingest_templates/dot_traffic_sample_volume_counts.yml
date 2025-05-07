@@ -3,7 +3,7 @@ acl: public-read
 
 attributes:
   name: Traffic Volume Counts
-  description: |
+  description: >-
     New York City Department of Transportation (NYC DOT) uses Automated Traffic 
     Recorders (ATR) to collect traffic sample volume counts at bridge crossings and 
     roadways. These counts do not cover the entire year, and the number of days counted 

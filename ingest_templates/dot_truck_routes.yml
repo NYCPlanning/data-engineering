@@ -3,7 +3,7 @@ acl: public-read
 
 attributes:
   name: New York City Truck Routes
-  description: |
+  description: >-
     The New York City Truck Route Network is a set of roads that commercial vehicles must 
     use in New York City. 
     

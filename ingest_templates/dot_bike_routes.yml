@@ -3,7 +3,7 @@ acl: public-read
 
 attributes:
   name: New York City Bike Routes
-  description: |
+  description: >-
     The New York City Department of Transportation (NYC DOT) builds and manages bicycle 
     facilities across the five boroughs, alongside other City agencies, New York State, and 
     external partners. This dataset contain records of the current and historic network of 
