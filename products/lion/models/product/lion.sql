@@ -40,6 +40,10 @@ nypd_service_areas AS (
 
 segment_locational_status AS (
     SELECT * FROM {{ ref("int__centerline_segment_locational_status") }}
+),
+
+diff_coincident_segment AS (
+    SELECT * FROM {{ ref("int__centerline_coincident_subway_or_rail") }}
 )
 
 SELECT
@@ -120,7 +124,7 @@ SELECT
     END AS to_level_code,
     centerline.trafdir_ver_flag,
     centerline.segment_type,
-    centerline.coincident_seg_count, -- TODO do not count subterranean subway/rail segments
+    centerline.coincident_seg_count - coalesce(diff_coincident_segment.subway_or_rail_count, 0) AS coincident_seg_count,
     centerline.incex_flag,
     centerline.rw_type,
     centerline.physicalid,
@@ -185,3 +189,4 @@ LEFT JOIN streets ON centerline.segmentid = streets.segmentid
 LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
 LEFT JOIN nypd_service_areas ON centerline.segmentid = nypd_service_areas.segmentid
 LEFT JOIN segment_locational_status ON centerline.segmentid = segment_locational_status.segmentid
+LEFT JOIN diff_coincident_segment ON centerline.segmentid = diff_coincident_segment.segmentid

@@ -69,7 +69,7 @@ SELECT
     coalesce(to_level_code, ' ') AS "To Level Code",
     coalesce(trafdir_ver_flag, ' ') AS "Traffic Direction Verification Flag",
     segment_type AS "Segment Type Code",
-    coincident_seg_count::INT::TEXT AS "Coincident Segment Counter",
+    coalesce(coincident_seg_count::TEXT, ' ') AS "Coincident Segment Counter",
     coalesce(incex_flag, ' ') AS "Include/Exclude Flag",
     format_lion_text(rw_type::TEXT, 2, ' ') AS "Roadway Type",
     format_lion_text(physicalid::INT::TEXT, 7, '0', TRUE) AS "PHYSICALID", -- TODO - ingest read as int
