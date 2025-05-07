@@ -66,12 +66,16 @@ def _load_dat(
 
 
 @app.command("load_all")
-def load_all(folderpath: Path = typer.Argument()):
-    boros = ["Brooklyn", "Manhattan", "Queens", "Staten Island"]
+def load_all(
+    folderpath: Path = typer.Argument(),
+    schema: str = typer.Option("production_outputs", "--schema", "-s"),
+    suffix: str = typer.Option("", "--suffix"),
+):
+    boros = ["Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"]
     for boro in boros:
         file = boro.replace(" ", "") + "LION.dat"
-        table = boro.lower().replace(" ", "_") + "_lion"
-        load_dat(folderpath / file, table, "production_outputs")
+        table = boro.lower().replace(" ", "_") + "_lion" + suffix
+        load_dat(folderpath / file, table, "production_outputs", schema=schema)
 
 
 if __name__ == "__main__":
