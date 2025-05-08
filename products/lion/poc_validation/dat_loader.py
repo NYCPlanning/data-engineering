@@ -71,6 +71,18 @@ def load_all(
     schema: str = typer.Option("production_outputs", "--schema", "-s"),
     suffix: str = typer.Option("", "--suffix"),
 ):
+    """
+    Primary purpose is to load production outputs for comparison to outputs of this pipeline
+
+    But also potentially useful, the `validate_outputs.sh` script also outputs rows of the
+    outputs of this pipeline that did not match production outputs. These dat files of rows
+    with errors could also be loaded back into a db with this function (and schema and suffix)
+    can be specified to not overwrite the current "production outputs" that exist in the db.
+
+    This could be preferable to doing comparisons in sql before exporting just because the bash
+    utilities to compare entire rows are quick and simpler than row-wise comparisons of the
+    lion_dat_fields table, though that is possible as well
+    """
     boros = ["Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"]
     for boro in boros:
         file = boro.replace(" ", "") + "LION.dat"
