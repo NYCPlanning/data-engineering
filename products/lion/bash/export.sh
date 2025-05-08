@@ -10,7 +10,7 @@ function dat_export {
     run_sql_command \
         "\COPY (\
             SELECT * FROM ${table}\
-        ) TO STDOUT;">${output_file}.dat
+        ) TO STDOUT;" | sed $'s/$/\r/' > $output_file.dat
 }
 
 echo "Export LION outputs"
@@ -21,6 +21,10 @@ mkdir -p output
 
     echo "Export LION dat files"
     dat_export manhattan_lion_dat ManhattanLION &
+    dat_export bronx_lion_dat BronxLION &
+    dat_export brooklyn_lion_dat BrooklynLION &
+    dat_export queens_lion_dat QueensLION &
+    dat_export staten_island_lion_dat StatenIslandLION &
     wait
     
     echo "Export source data versions and build metadata"

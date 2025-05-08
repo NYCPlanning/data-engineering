@@ -73,9 +73,10 @@ jobs:
         dbt build --full-refresh
 
     - name: Export
-      run: |
-        ./bash/export.sh
+      run: ./bash/export.sh
+
+    - name: Validate outputs
+      run: ./bash/validate.sh
 
     - name: Upload
-      run: |
-        python3 -m dcpy.connectors.edm.publishing upload --product db-lion --acl public-read
+      run: python3 -m dcpy.connectors.edm.publishing upload --product db-lion --acl public-read

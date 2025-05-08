@@ -17,3 +17,9 @@ sources:
   - name: dcp_cscl_sedat
   - name: dcp_cscl_specialsedat
   - name: dcp_cscl_nypdbeat
+
+# TODO - remove when pipeline is fully operationalized
+- name: production_outputs
+  schema: production_outputs
+  tables:
+  - name: citywide_lion
