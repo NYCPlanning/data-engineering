@@ -93,15 +93,15 @@ SELECT
     format_lion_text(lgc7, 2, '0', TRUE) AS "LGC7",
     format_lion_text(lgc8, 2, '0', TRUE) AS "LGC8",
     format_lion_text(lgc9, 2, '0', TRUE) AS "LGC9",
-    format_lion_text(legacy_segmentid::INT::TEXT, 7, '0') AS "Legacy SEGMENTID", -- TODO - ingest read as int
-    format_lion_text(left_2000_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2000 BASIC",
+    format_lion_text(legacy_segmentid::INT::TEXT, 7, '0', TRUE) AS "Legacy SEGMENTID", -- TODO - ingest read as int
+    format_lion_text(left_2000_census_block_basic::TEXT, 4, ' ') AS "LEFT CENSUS BLOCK 2000 BASIC",
     format_lion_text(left_2000_census_block_suffix, 1, ' ', TRUE) AS "LEFT CENSUS BLOCK 2000 SUFFIX",
-    format_lion_text(right_2000_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2000 BASIC",
-    format_lion_text(right_2000_census_block_suffix, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2000 SUFFIX",
-    format_lion_text(left_2010_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2010 BASIC",
-    format_lion_text(left_2010_census_block_suffix, 1, ' ', TRUE) AS "LEFT CENSUS BLOCK 2010 SUFFIX",
-    format_lion_text(right_2010_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2010 BASIC",
-    format_lion_text(right_2010_census_block_suffix, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2010 SUFFIX",
+    format_lion_text(right_2000_census_block_basic::TEXT, 4, ' ') AS "RIGHT CENSUS BLOCK 2000 BASIC",
+    format_lion_text(right_2000_census_block_suffix::TEXT, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2000 SUFFIX",
+    format_lion_text(left_2010_census_block_basic::TEXT, 4, ' ') AS "LEFT CENSUS BLOCK 2010 BASIC",
+    format_lion_text(left_2010_census_block_suffix::TEXT, 1, ' ', TRUE) AS "LEFT CENSUS BLOCK 2010 SUFFIX",
+    format_lion_text(right_2010_census_block_basic::TEXT, 4, ' ') AS "RIGHT CENSUS BLOCK 2010 BASIC",
+    format_lion_text(right_2010_census_block_suffix::TEXT, 1, ' ', TRUE) AS "RIGHT CENSUS BLOCK 2010 SUFFIX",
     coalesce(snow_priority, ' ') AS "SNOW PRIORITY",
     format_lion_text(bike_lane_2, 2, ' ', TRUE) AS "BIKELANE_2",
     format_lion_text(streetwidth_max::INT::TEXT, 3, ' ', TRUE) AS "STREET WIDTH MAX", -- TODO - ingest read as int
@@ -120,9 +120,9 @@ SELECT
     format_lion_text(left_2020_census_tract_suffix::TEXT, 2, '0', TRUE) AS "LEFT 2020 CENSUS TRACT Suffix",
     format_lion_text(right_2020_census_tract_basic::TEXT, 4, ' ', TRUE) AS "RIGHT 2020 CENSUS TRACT Basic",
     format_lion_text(right_2020_census_tract_suffix::TEXT, 2, '0', TRUE) AS "RIGHT 2020 CENSUS TRACT Suffix",
-    format_lion_text(left_2020_census_block_basic, 4, ' ') AS "LEFT CENSUS BLOCK 2020 BASIC",
-    coalesce(left_2020_census_block_suffix, ' ') AS "LEFT CENSUS BLOCK 2020 SUFFIX",
-    format_lion_text(right_2020_census_block_basic, 4, ' ') AS "RIGHT CENSUS BLOCK 2020 BASIC",
-    coalesce(right_2020_census_block_suffix, ' ') AS "RIGHT CENSUS BLOCK 2020 SUFFIX",
+    format_lion_text(left_2020_census_block_basic::TEXT, 4, ' ') AS "LEFT CENSUS BLOCK 2020 BASIC",
+    coalesce(left_2020_census_block_suffix::TEXT, ' ') AS "LEFT CENSUS BLOCK 2020 SUFFIX",
+    format_lion_text(right_2020_census_block_basic::TEXT, 4, ' ') AS "RIGHT CENSUS BLOCK 2020 BASIC",
+    coalesce(right_2020_census_block_suffix::TEXT, ' ') AS "RIGHT CENSUS BLOCK 2020 SUFFIX",
     format_lion_text('', 45, ' ') AS "Filler L199"
 FROM {{ ref("lion") }}
