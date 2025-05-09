@@ -25,46 +25,24 @@ income_mapper = {
     "HI": "hi",
 }
 
+units_affordable_aggregator = load_aggregated.ACSAggregator(
+    name="units_affordable",
+    dcp_base_variables=[
+        "units_affordable_eli",
+        "units_affordable_vli",
+        "units_affordable_li",
+        "units_affordable_mi",
+        "units_affordable_midi",
+        "units_affordable_hi",
+    ],
+    internal_review_filename="units_affordable.csv",
+    internal_review_category="housing_security",
+)
 
-ACS_BASE_VARIABLES = [
-    "units_affordable_eli",
-    "units_affordable_vli",
-    "units_affordable_li",
-    "units_affordable_mi",
-    "units_affordable_midi",
-    "units_affordable_hi",
-]
-
-INTERNAL_REVIEW_FILENAME = "units_affordable.csv"
-CATEGORY = "housing_security"
-
-
-def units_affordable_new(
-    geography: str, year: str = acs_years[-1], write_to_internal_review=False
-) -> pd.DataFrame:
-    acs_df = load_aggregated.load_acs(year)
-    acs_vars_table = load_aggregated.make_acs_parsed_variables_table(acs_df)
-
-    acs_subset_df = load_aggregated.select_acs_cols(
-        acs_df, year, ACS_BASE_VARIABLES, acs_vars_table
-    )
-
-    final = (
-        acs_subset_df.loc[geography]
-        .reset_index()
-        .rename(columns={"geog": geography})
-        .set_index(geography)
-    )
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, INTERNAL_REVIEW_FILENAME, geography)],
-            CATEGORY,
-        )
-    return final
+units_affordable = units_affordable_aggregator.run
 
 
-def units_affordable(
+def units_affordable_old(
     geography: str, year: str = acs_years[-1], write_to_internal_review=False
 ) -> pd.DataFrame:
     assert geography in ["citywide", "borough", "puma"]

@@ -6,11 +6,13 @@ external review, I'm not sure"""
 # from aggregate.PUMS.median_PUMS_economics import PUMSMedianEconomics
 
 from collections import defaultdict
+from dataclasses import dataclass
 from dcpy.utils.logging import logger
 import pandas as pd
 import re
 
 from aggregate.clean_aggregated import rename_columns_demo
+from internal_review.set_internal_review_file import set_internal_review_files
 from utils.PUMA_helpers import (
     clean_PUMAs,
     get_all_NYC_PUMAs,
@@ -188,7 +190,7 @@ def select_acs_by_base_variable(
     col_data = acs_vars_table.loc[(year_to, dcp_base_variable)]
     acs_to_dcp_indicators = dict(
         zip(
-            list(col_data["raw_variable"]),
+            list(col_data.raw_variable),
             list(col_data["dcp_indicator_name_single_year"]),
         )
     )
@@ -247,6 +249,40 @@ def load_acs_curr_and_prev(
         right_index=True,
         how="left",
     )
+
+
+@dataclass
+class ACSAggregator:
+    name: str
+    dcp_base_variables: list[str]
+    internal_review_filename: str
+    internal_review_category: str
+
+    def run(
+        self, geography: str, year: str = acs_years[-1], write_to_internal_review=False
+    ) -> pd.DataFrame:
+        assert geography in {"citywide", "borough", "puma"}
+        logger.info(f"Running {self.name} for {geography}, {year}")
+        acs_df = load_acs(year)
+        acs_vars_table = make_acs_parsed_variables_table(acs_df)
+
+        acs_subset_df = select_acs_cols(
+            acs_df, year, self.dcp_base_variables, acs_vars_table
+        )
+
+        final = (
+            acs_subset_df.loc[geography]
+            .reset_index()
+            .rename(columns={"geog": geography})
+            .set_index(geography)
+        )
+
+        if write_to_internal_review:
+            set_internal_review_files(
+                [(final, self.internal_review_filename, geography)],
+                self.internal_review_category,
+            )
+        return final
 
 
 def load_clean_pop_demographics(year: str) -> pd.DataFrame:
