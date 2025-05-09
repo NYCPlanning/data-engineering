@@ -179,3 +179,4 @@ air_quality,Permits,Title V Permits,Existing industrial source locations for ass
 air_quality,Existing Sources,Vent Tower Data,Identifying stationary source
 air_quality,Existing Sources,Arterial Highways,Identifying source
 air_quality,Land Use,MapPLUTO Shoreline Clipped,Helpful for understanding potential unpermitted sources
+hazmat,E-Designations,E-Designations,Existing e-designation locations to understand existing conditions on site
