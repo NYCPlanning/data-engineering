@@ -167,3 +167,8 @@ transportation,Traffic,DOT Current Projects,No-Action condition changes to trans
 transportation,Basemap,Roadbeds,Location Maps 
 transportation,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 transportation,Resources,Various DOT Data Feeds,	
+noise,E-Designations,E-Designations,Existing e-designation locations to understand existing conditions on site
+noise,Existing Sources,Exposed Railways,Helpful in determining noise measurement requirements
+noise,Existing Sources,Exposed Railyards,Helpful in determining noise measurement requirements
+noise,Existing Sources,Airport Noise Zone - JFK,Helpful in determining noise measurement requirements
+noise,Existing Sources,Airport Noise Zone - LGA,Helpful in determining noise measurement requirements
