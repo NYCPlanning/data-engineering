@@ -30,7 +30,7 @@ land_use,Policy,EDC Plans,Public policy evaluation
 land_use,Policy,197-a Plans,Public policy evaluation
 land_use,Policy,Housing New York,Public policy evaluation
 land_use,Policy,Where We Live NYC 2025,Public policy evaluation
-land_use,Base Map,Streets,Location Maps
+land_use,Base Map,DCP LION,Location Maps (Streets)
 land_use,Base Map,Borough Boundaries,Location Maps
 land_use,Base Map,DPR Parks Properties,Location Maps
 land_use,Base Map,Subways,Location Maps
@@ -143,7 +143,7 @@ water_and_sewer,Stormwater,Stormwater Flood Map - Limited Current Sea Levels,Con
 water_and_sewer,Sewer,Facilities Database,identifying the wastewater resource recovery facilities that the project is near
 water_and_sewer,Sewer,Open Sewer Atlas,Various data related to DEP infrastructure and policy
 water_and_sewer,Worksheet,Water and sewer calculations,For sewer and stormwater calculations
-transportation,Base Map,Streets,Location Maps 
+transportation,Base Map,DCP LION,Location Maps (Streets)
 transportation,Base Map,Subways,Study area transportation
 transportation,Base Map,Railroads,Study area transportation
 transportation,Base Map,Buses,Study area transportation
@@ -168,7 +168,7 @@ transportation,Basemap,Roadbeds,Location Maps
 transportation,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 transportation,Resources,Various DOT Data Feeds,	
 noise,E-Designations,E-Designations,Existing e-designation locations to understand existing conditions on site
-noise,Existing Sources,Exposed Railways,Helpful in determining noise measurement requirements
+noise,Existing Sources,DCP LION,Helpful in determining noise measurement requirements (Exposed Railways)
 noise,Existing Sources,Exposed Railyards,Helpful in determining noise measurement requirements
 noise,Existing Sources,Airport Noise Zone - JFK,Helpful in determining noise measurement requirements
 noise,Existing Sources,Airport Noise Zone - LGA,Helpful in determining noise measurement requirements

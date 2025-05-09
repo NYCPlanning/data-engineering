@@ -26,7 +26,7 @@ EDC Plans,,webpage,,,https://edc.nyc/explore-our-work
 197-a Plans,,webpage,,,https://www.nyc.gov/site/planning/community/community-based-planning.page
 Housing New York,,webpage,,,https://www.nyc.gov/site/housing/index.page
 Where We Live NYC 2025,,webpage,,,https://wherewelive.cityofnewyork.us/
-Streets,dcp_lion,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-lion.page
+DCP LION,dcp_lion,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-lion.page
 Borough Boundaries,dcp_boroboundaries,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
 DPR Parks Properties,dpr_parksproperties,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Recreation/Parks-Properties/enfh-gkve/about_data
 Subways,,webpage,,,https://www.mta.info/developers
@@ -125,7 +125,6 @@ Hourly Bus Ridership 2020-2024,,webpage,,,https://data.ny.gov/Transportation/MTA
 DOT Current Projects,,webpage,,,https://www.nyc.gov/html/dot/html/about/current-projects.shtml
 Various DOT Data Feeds,,webpage,,,https://www.nyc.gov/html/dot/html/about/datafeeds.shtml
 E-Designations,dcp_edesignation_csv,download,csv,,https://www.nyc.gov/content/planning/pages/resources/datasets/e-designations
-Exposed Railways,dcp_lion,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-lion.page
 Exposed Railyards,dcp_cscl_complex,download,shapefile,MULTIPOLYGON,https://nycmaps.nyc.gov/datasets/nyc::complex/about
 Airport Noise Zone - JFK,panynj_jfk_65db,download,shapefile,MULTIPOLYGON,
 Airport Noise Zone - LGA,panynj_lga_65db,download,shapefile,MULTIPOLYGON,
