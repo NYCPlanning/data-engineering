@@ -172,3 +172,10 @@ noise,Existing Sources,Exposed Railways,Helpful in determining noise measurement
 noise,Existing Sources,Exposed Railyards,Helpful in determining noise measurement requirements
 noise,Existing Sources,Airport Noise Zone - JFK,Helpful in determining noise measurement requirements
 noise,Existing Sources,Airport Noise Zone - LGA,Helpful in determining noise measurement requirements
+air_quality,E-Designations,E-Designations,Existing e-designation locations to understand existing conditions on site
+air_quality,Permits,CATS Permits,Existing industrial source locations for assessment
+air_quality,Permits,DEC State Facilities,Existing industrial source locations for assessment
+air_quality,Permits,Title V Permits,Existing industrial source locations for assessment
+air_quality,Existing Sources,Vent Tower Data,Identifying stationary source
+air_quality,Existing Sources,Arterial Highways,Identifying source
+air_quality,Land Use,MapPLUTO Shoreline Clipped,Helpful for understanding potential unpermitted sources
