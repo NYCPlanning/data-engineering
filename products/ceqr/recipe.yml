@@ -9,6 +9,8 @@ inputs:
     file_type: parquet
 
   datasets:
+    - name: dcp_edesignation_csv
+    - name: dcp_cscl_complex
     - name: dcp_mappluto_clipped
     - name: dcp_green_fast_track_lots
     - name: dcp_projects
@@ -76,3 +78,10 @@ inputs:
     - name: dot_traffic_sample_volume_counts
     - name: dot_truck_routes
     - name: nysdot_annual_average_daily_trafic
+    - name: panynj_jfk_65db # Airport noise zone - JFK
+    - name: panynj_lga_65db # Airport noise zone - LGA
+    - name: dep_cats_permits
+    - name: nysdec_state_facility_permits
+    - name: nysdec_title_v_facility_permits
+    - name: dcp_air_quality_vent_towers
+    - name: dcm_arterial_highways
