@@ -1,4 +1,4 @@
-name: Monthly Run DEP CATS permits
+name: CEQR - DEP CATS permits
 on:
   workflow_dispatch:
   schedule:
