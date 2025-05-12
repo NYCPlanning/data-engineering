@@ -69,7 +69,6 @@ Scenic Landmarks,lpc_scenic_landmarks,download,shapefile,MULTIPOLYGON,https://da
 State Building USN Points,nysshpo_historic_buildings_points,download,shapefile,MULTIPOINT,https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Building_USN_Points/FeatureServer
 State Building District USN Polygons,nysshpo_historic_buildings_polygons,download,shapefile,MULTIPOLYGON,https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Building_District_USN_Polygons/FeatureServer
 Historic Districts (National),nysparks_historicplaces,download,shapefile,MULTIPOLYGON,https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/National_Register_Building_Listings/FeatureServer
-State Regulated Freshwater Wetlands - Checkzone,nysdec_freshwater_wetlands_checkzones,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/maps/a57e144caedb4b1aaf510809013e4ac7/about
 State Regulated Freshwater Wetlands,nysdec_freshwater_wetlands,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysdec::informational-freshwater-wetland-mapping/explore
 State Regulated Tidal Wetlands,nysdec_tidal_wetlands,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/661acb5eaffb4be39b0d6d2203e636c3_1/explore?location=40.889803%2C-73.055095%2C9.87
 Priority Waterbodies - Lakes,nysdec_priority_lakes,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysdec::waterbody-inventory-priority-waterbodies-list-wi-pwl-layer/explore?layer=2&location=40.762886%2C-73.851513%2C12.57

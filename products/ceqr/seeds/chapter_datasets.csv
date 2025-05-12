@@ -86,7 +86,6 @@ shadows,Historic Resources,Scenic Landmarks,Potentially sunlight sensitive histo
 shadows,Historic Resources,State Building USN Points,Potentially sunlight sensitive historic resources identification
 shadows,Historic Resources,State Building District USN Polygons,Potentially sunlight sensitive historic resources identification
 shadows,Historic Resources,Historic Districts (National),Potentially sunlight sensitive historic resources identification
-shadows,Wetlands,State Regulated Freshwater Wetlands - Checkzone,Potentially sunlight sensitive natural resources identification
 shadows,Wetlands,State Regulated Freshwater Wetlands,Potentially sunlight sensitive natural resources identification
 shadows,Wetlands,State Regulated Tidal Wetlands,Potentially sunlight sensitive natural resources identification
 shadows,Waterbodies,Priority Waterbodies - Lakes,Potentially sunlight sensitive natural resources identification
@@ -121,7 +120,6 @@ historic_resources,Historic Photos,1940s Tax Photo Archives,Showing older condit
 historic_resources,Architectural,Historic Designation Reports,Describing historic resources
 historic_resources,Guidance,LPC Permits,LPC permit process and documentation
 historic_resources,Guidance,Historic Clearance Submission Guidelines,Guidelines for submitting request for historic clearance to LPC for all projects
-natural_resources,Wetlands,State Regulated Freshwater Wetlands - Checkzone,Identifying study area natural resources
 natural_resources,Wetlands,State Regulated Freshwater Wetlands,Identifying study area natural resources
 natural_resources,Wetlands,State Regulated Tidal Wetlands,Identifying study area natural resources
 natural_resources,Waterbodies,Priority Waterbodies - Lakes,Identifying study area natural resources

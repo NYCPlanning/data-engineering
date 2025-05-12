@@ -53,7 +53,6 @@ inputs:
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
     - name: nysparks_historicplaces
-    - name: nysdec_freshwater_wetlands_checkzones
     - name: nysdec_freshwater_wetlands
     - name: nysdec_tidal_wetlands
     - name: nysdec_priority_lakes
