@@ -1,8 +1,8 @@
-name: Monthly Run DEP CATS permits
+name: CEQR - DEP CATS permits
 on:
   workflow_dispatch:
   schedule:
-    - cron: 0 0 1 * *
+  - cron: 0 0 1 * *
 
 jobs:
   build:
@@ -10,57 +10,57 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/ceqr
+        working-directory: products/ceqr/ceqr_app
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: defaultdb
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
 
-      - name: Setup build environment
-        working-directory: ./
-        run: |
-          ./bash/docker_container_setup.sh
+    - name: Setup build environment
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
 
-      - name: Run recipe
-        run: |
-          export EDM_DATA=$BUILD_ENGINE_SERVER/$BUILD_ENGINE_DB
-          python3 -m pip install mdpdf
-          ./ceqr run recipe dep_cats_permits
+    - name: Run recipe
+      run: |
+        export EDM_DATA=$BUILD_ENGINE_SERVER/$BUILD_ENGINE_DB
+        python3 -m pip install mdpdf
+        ./ceqr run recipe dep_cats_permits
 
-      - name: Create issue on success
-        if: success()
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/dep-monthly.md
+    - name: Create issue on success
+      if: success()
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/dep-monthly.md
 
   create_issue_on_failure:
     needs: build
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github
-      - name: Create issue on failure
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION: ${{ github.workflow }}
-          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Create issue on failure
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTION: ${{ github.workflow }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+          github.run_id }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
