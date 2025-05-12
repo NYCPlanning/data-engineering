@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 from dcpy.utils.logging import logger
+from functools import cache
 import pandas as pd
 import re
 
@@ -54,6 +55,8 @@ ACS_SHORT_TO_LONG_NAMES = {
     "OcRU1": "units_notovercrowded",
     "ROcc": "units_occupied_renter",
 }
+# These are named slightly differently in the final output, so we need to keep track of them
+ACS_MEDIAN_VALUES_LONGFORM = {"homevalue_median"}
 
 
 def parse_acs_variable(raw_variable: str):
@@ -107,7 +110,7 @@ def make_acs_parsed_variables_table(acs_df: pd.DataFrame):
     cols["measure_sort"] = cols.measure.map(_make_sorter(measure_suffixes))
     cols["race_sort"] = cols.race_longform.map(_make_sorter(dcp_pop_races))
     cols["has_race_code"] = cols.race_longform.apply(bool)
-    cols["is_median"] = False  # TODO
+    cols["is_median"] = cols["base_variable_longform"].isin(ACS_MEDIAN_VALUES_LONGFORM)
     cols["dcp_indicator_name_no_year"] = cols.apply(_calc_dcp_indicator_name, axis=1)
     cols["dcp_indicator_name_with_years"] = cols.apply(
         lambda r: _calc_dcp_indicator_name(r, include_year=True), axis=1
@@ -157,6 +160,10 @@ def _acs_ordered_col_mapping(
     )
     if not include_race:
         df = df.loc[~df["has_race_code"]]
+
+    # Filter out medians for pct and pct_moe
+    df = df.loc[~(df.is_median & df.measure_longform.isin({"pct", "pct_moe"}))]
+
     return (
         df[["raw_variable", indicator_name_field]]
         .set_index("raw_variable")[indicator_name_field]
@@ -227,6 +234,7 @@ def load_acs(year_window: str) -> pd.DataFrame:
     return df.reset_index().set_index(["geog_type", "geog"])
 
 
+@cache
 def load_acs_curr_and_prev(
     start_year=acs_years[0], end_year=acs_years[-1]
 ) -> pd.DataFrame:
