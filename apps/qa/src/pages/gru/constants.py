@@ -1,59 +1,46 @@
 import pandas as pd
 
+bucket = "edm-publishing"
 qa_checks = pd.DataFrame(
     [
         (
             "Address Points vs PAD",
             "address-points-vs-pad",
-            ["rejects_pad_addrpts", "geocode_bin_diffs_pad_addrpts"],
             ["dcp_addresspoints"],
         ),
         (
             "Address Points (Spatial) vs GRID",
             "addresses-spatial",
-            ["geocode_diffs_address_spatial"],
             ["dcp_atomicpolygons", "dcp_addresspoints"],
         ),
         (
             "Footprint BINs vs PAD",
             "footprints-vs-pad",
-            ["rejects_footprintbin_padbin"],
             ["doitt_buildingfootprints"],
         ),
         (
             "Historical Footprint BINs vs PAD",
             "historical-footprints-vs-pad",
-            ["all_results_historicalfootprintbin_padbin"],
             ["doitt_buildingfootprints_historical", "doitt_buildingfootprints"],
         ),
-        ("TBINs vs. C/Os", "housing", ["tbins_certf_occp"], ["dcp_developments"]),
+        ("TBINs vs. C/Os", "housing", ["dcp_developments"]),
         (
             "PAD BINs vs Footprint BINs",
             "pad-vs-footprint",
-            ["rejects_padbin_footprintbin"],
             ["doitt_buildingfootprints", "dcp_pad"],
         ),
         (
             "DCM Names vs SND Names",
             "dcm-streetname",
-            ["rejects_sn_dcm_snd"],
             ["dcp_dcmstreetcenterline"],
         ),
         (
             "Generic SAF Addresses vs PAD Roadbed SAF Addresses vs PAD",
             "saf-vs-pad",
-            [
-                "saf_gen_1A_pad",
-                "saf_gen_1R_pad",
-                "saf_gen_1_pad",
-                "saf_rb_1A_pad",
-                "saf_rb_1R_pad",
-                "saf_rb_1_pad",
-            ],
             ["dcp_saf"],
         ),
     ],
-    columns=["display_name", "action_name", "files", "sources"],
+    columns=["display_name", "action_name", "sources"],
 )
 
 readme_markdown_text = """### Source Data Info
