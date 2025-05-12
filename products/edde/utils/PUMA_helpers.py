@@ -7,6 +7,7 @@ from ingest.ingestion_helpers import load_data
 # Why is this a PUMA helper?
 # TODO: move
 acs_years = ["0812", "1923"]
+acs_years_end_to_full = {"12": "0812", "23": "1923"}
 
 borough_code_mapper = {
     "042": "BX",
@@ -91,10 +92,10 @@ def _2010_puma_from_coord(record):
     return matched_PUMA.puma.values[0]
 
 
-def get_all_NYC_PUMAs():
-    """Adopted from code in PUMS_query_manager"""
+def get_all_NYC_PUMAs(prefix_zeros=True):
+    # prefix_zeros is an unfortuante hack for now
     puma_boundaries = load_data("dcp_pumas2020")
-    return [f"0{p}" for p in puma_boundaries["puma"]]
+    return [f"{'0' if prefix_zeros else ''}{p}" for p in puma_boundaries["puma"]]
 
 
 def get_all_boroughs():
