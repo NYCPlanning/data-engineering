@@ -1,4 +1,6 @@
 chapter_id,use_category,dataset_name,use_details
+analysis_framework,RWCDS,RWCDS Analysis Framework Table,Form required for submission of Reasonable Worst Case Development Scenarios by DCP
+analysis_framework,RWCDS,RWCDS Analysis Spreadsheet,Form required for submission of Reasonable Worst Case Development Scenarios by DCP
 analysis_framework,Existing Condition,MapPLUTO Shoreline Clipped,Establishing built characterstics of parcels within the project area
 analysis_framework,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 analysis_framework,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
@@ -46,7 +48,7 @@ socioeconomic_conditions,Study Area,Census Tract Boundaries,Establish the study 
 socioeconomic_conditions,Indirect Residential Displacement,Population Fact Finder,"American Community Survey (ACS); Income characteristics of existing residents - for median household income, mean household income, household income distribution, poverty, housing tenure, median gross rent, and GRAPI, it is best to use Population Fact Finder because of the work that it does to establish statistical significance."
 socioeconomic_conditions,Indirect Residential Displacement,Rent by AMI,Determine affordable unit rents
 socioeconomic_conditions,Indirect Residential Displacement,HUD CHAS,Identify households "vulnerable to displacement" (<= 80% AMI)
-socioeconomic_conditions,Business Displacement,LEHD,Business locations and characteristics
+socioeconomic_conditions,Business Displacement,LEHD,For use in identifying employee numbers and business type for jobs data as a primary source. Note that Mergent Intellect and ESRI Business Explorer are not acceptable substitutes in most cases
 socioeconomic_conditions,Indirect Residential Displacement,Area Median Income,Establishing current area median income levels
 community_facilities,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 community_facilities,Libraries,Census Tract Boundaries,Establish the study area and create study area map
@@ -69,7 +71,7 @@ open_space,Open Spaces,DPR Parks Properties,Open Space Inventory
 open_space,Base Maps,Census Tract Boundaries,Establish the study area and create study area map
 open_space,Existing Condition,Population Fact Finder,Dicennial Census; Establishing existing population and household size conditions within study area census tracts
 open_space,Open Spaces,POPS,Open Space Inventory
-open_space,Open Spaces,Plazas,Open Space Inventory
+open_space,Open Spaces,Plazas,Open Space Inventory. Include only plazas with seating
 open_space,Open Spaces,Waterfront Public Access Areas,Open Space Inventory
 open_space,Open Spaces,Publicly Owned Waterfront,Open Space Inventory
 open_space,Open Spaces,NYS Parks,Open Space Inventory
@@ -86,7 +88,6 @@ shadows,Historic Resources,Scenic Landmarks,Potentially sunlight sensitive histo
 shadows,Historic Resources,State Building USN Points,Potentially sunlight sensitive historic resources identification
 shadows,Historic Resources,State Building District USN Polygons,Potentially sunlight sensitive historic resources identification
 shadows,Historic Resources,Historic Districts (National),Potentially sunlight sensitive historic resources identification
-shadows,Wetlands,State Regulated Freshwater Wetlands - Checkzone,Potentially sunlight sensitive natural resources identification
 shadows,Wetlands,State Regulated Freshwater Wetlands,Potentially sunlight sensitive natural resources identification
 shadows,Wetlands,State Regulated Tidal Wetlands,Potentially sunlight sensitive natural resources identification
 shadows,Waterbodies,Priority Waterbodies - Lakes,Potentially sunlight sensitive natural resources identification
@@ -121,7 +122,6 @@ historic_resources,Historic Photos,1940s Tax Photo Archives,Showing older condit
 historic_resources,Architectural,Historic Designation Reports,Describing historic resources
 historic_resources,Guidance,LPC Permits,LPC permit process and documentation
 historic_resources,Guidance,Historic Clearance Submission Guidelines,Guidelines for submitting request for historic clearance to LPC for all projects
-natural_resources,Wetlands,State Regulated Freshwater Wetlands - Checkzone,Identifying study area natural resources
 natural_resources,Wetlands,State Regulated Freshwater Wetlands,Identifying study area natural resources
 natural_resources,Wetlands,State Regulated Tidal Wetlands,Identifying study area natural resources
 natural_resources,Waterbodies,Priority Waterbodies - Lakes,Identifying study area natural resources

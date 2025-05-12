@@ -15,9 +15,9 @@ Future Floodplain 2050s,dcp_floodplain_2050_100,download,shapefile,MULTIPOLYGON,
 Coastal Zone Boundary,dcp_wrp_coastal_zone_boundary,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
 Ecologically Sensistive Maritime and Industrial Area,dcp_wrp_sensitive_maritime_and_industrial_area,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
 Priority Marine Activity Zones,dcp_wrp_priority_marine_activity_zones,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
-Recognized Ecological Complexes,dcp_wrp_recognized_ecological_complexes,download,shapefile,MULTIPOINT,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Recognized Ecological Complexes,dcp_wrp_recognized_ecological_complexes,download,shapefile,MULTIPOINT,
 Significant Maritime and Industrial Area,dcp_wrp_significant_maritime_and_industrial_area,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
-Special Natural Waterfront Areas,dcp_wrp_special_natural_waterfront_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+Special Natural Waterfront Areas,dcp_wrp_special_natural_waterfront_areas,download,shapefile,MULTIPOLYGON,
 OneNYC,,webpage,,,https://climate.cityofnewyork.us/reports/onenyc-2050/
 Neighborhood Plans,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/neighborhood-planning.page
 CB Statement of Needs,,webpage,,,https://communityprofiles.planning.nyc.gov/
@@ -35,7 +35,7 @@ NYC Waterfront Revitalization Program Overview,,webpage,,,https://www.nyc.gov/si
 Jamaica Bay Watershed Protection Plan,,webpage,,,https://www.nyc.gov/assets/oec/Jamaica_Bay_Watershed_Protection_Plan.pdf
 WRP Consistency Assessment Form,,webpage,,,https://www.nyc.gov/assets/planning/download/pdf/applicants/wrp/wrpform2016.pdf
 Flood Elevation Worksheet,,webpage,,,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
-Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/planning-level/waterfront/wrp/wrp.page
+Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/census-download-metadata.page
 Population Fact Finder,,webpage,,,https://popfactfinder.planning.nyc.gov/
 Rent by AMI,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
 HUD CHAS,hud_chas_nyc,download,excel,,https://www.huduser.gov/portal/datasets/cp.html
@@ -55,9 +55,9 @@ Facilities Database,dcp_facilities,download,shapefile,MULTIPOINT,https://www.nyc
 POPS,dcp_pops,download,shapefile,MULTIPOINT,https://data.cityofnewyork.us/City-Government/Privately-Owned-Public-Spaces-POPS-/rvih-nhyn/about_data
 Plazas,dot_pedplazas,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/Transportation/NYC-DOT-Pedestrian-Plazas/k5k6-6jex/about_data
 Waterfront Public Access Areas,dcp_waterfront_public_access_areas,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
-Publicly Owned Waterfront,dcp_publicly_owned_waterfront,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
+Publicly Owned Waterfront,dcp_publicly_owned_waterfront,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
 NYS Parks,nysparks_parks,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
-Federal Parks,usnps_parks,download,shapefile,MULTIPOLYGON,N/A
+Federal Parks,usnps_parks,download,shapefile,MULTIPOLYGON,https://nps.maps.arcgis.com/apps/webappviewer/index.html?id=43bc9db4736140e88e661c67460936e6
 Parks Capital Projects Tracker,dpr_capitalprojects,download,shapefile,MULTIPOINT,https://www.nycgovparks.org/planning-and-building/capital-project-tracker/upcoming
 Walk to a Park Service Area,dpr_walk_to_a_park,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/dataset/Walk-to-a-Park-Service-Area-for-CEQR-Open-Space-As/k66c-pzws/about_data
 2014 3D Model,,webpage,,,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-nyc-3d-model-download.page
@@ -69,12 +69,11 @@ Scenic Landmarks,lpc_scenic_landmarks,download,shapefile,MULTIPOLYGON,https://da
 State Building USN Points,nysshpo_historic_buildings_points,download,shapefile,MULTIPOINT,https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Building_USN_Points/FeatureServer
 State Building District USN Polygons,nysshpo_historic_buildings_polygons,download,shapefile,MULTIPOLYGON,https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Building_District_USN_Polygons/FeatureServer
 Historic Districts (National),nysparks_historicplaces,download,shapefile,MULTIPOLYGON,https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/National_Register_Building_Listings/FeatureServer
-State Regulated Freshwater Wetlands - Checkzone,nysdec_freshwater_wetlands_checkzones,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/maps/a57e144caedb4b1aaf510809013e4ac7/about
-State Regulated Freshwater Wetlands,nysdec_freshwater_wetlands,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/maps/a57e144caedb4b1aaf510809013e4ac7/about
+State Regulated Freshwater Wetlands,nysdec_freshwater_wetlands,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysdec::informational-freshwater-wetland-mapping/explore
 State Regulated Tidal Wetlands,nysdec_tidal_wetlands,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/661acb5eaffb4be39b0d6d2203e636c3_1/explore?location=40.889803%2C-73.055095%2C9.87
-Priority Waterbodies - Lakes,nysdec_priority_lakes,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/maps/fe6e369f89444618920a5b49f603e34a/about
-Priority Waterbodies - Estuaries,nysdec_priority_estuaries,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/maps/fe6e369f89444618920a5b49f603e34a/about
-Priority Waterbodies - Streams,nysdec_priority_streams,download,shapefile,MULTILINESTRING,https://data.gis.ny.gov/maps/fe6e369f89444618920a5b49f603e34a/about
+Priority Waterbodies - Lakes,nysdec_priority_lakes,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysdec::waterbody-inventory-priority-waterbodies-list-wi-pwl-layer/explore?layer=2&location=40.762886%2C-73.851513%2C12.57
+Priority Waterbodies - Estuaries,nysdec_priority_estuaries,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysdec::waterbody-inventory-priority-waterbodies-list-wi-pwl-layer/explore?layer=3&location=40.608108%2C-73.885085%2C11.81
+Priority Waterbodies - Streams,nysdec_priority_streams,download,shapefile,MULTILINESTRING,https://data.gis.ny.gov/datasets/nysdec::waterbody-inventory-priority-waterbodies-list-wi-pwl-layer/explore?layer=4&location=40.810822%2C-73.900390%2C12.57
 Natural Heritage Communities,nysdec_natural_heritage_communities,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/0da09cdf37d549b1be9add9b522ee505_0/explore?location=40.601737%2C-73.998364%2C11.83
 Beaches,dcp_beaches,download,shapefile,MULTIPOLYGON,
 National Wetlands Data,usfws_nyc_wetlands,download,shapefile,MULTIPOLYGON,https://fwsprimary.wim.usgs.gov/wetlands/apps/wetlands-mapper/
@@ -133,3 +132,5 @@ DEC State Facilities,nysdec_state_facility_permits,download,csv,,https://gisserv
 Title V Permits,nysdec_title_v_facility_permits,download,csv,,https://gisservices.dec.ny.gov/gis/dil/
 Vent Tower Data,dcp_air_quality_vent_towers,download,shapefile,MULTIPOLYGON,
 Arterial Highways,dcm_arterial_highways,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-digital-city-map.page
+RWCDS Analysis Framework Table,,webpage,,,https://www.nyc.gov/assets/planning/downloads/excel/applicants/preparing-application/part2-rwcds-analysis-framework-table.xlsx
+RWCDS Analysis Spreadsheet,,webpage,,,https://www.nyc.gov/assets/planning/downloads/excel/applicants/preparing-application/part3-rwcds-analysis-framework-spreadsheet.xlsx
