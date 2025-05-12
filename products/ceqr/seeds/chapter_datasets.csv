@@ -1,4 +1,6 @@
 chapter_id,use_category,dataset_name,use_details
+analysis_framework,RWCDS,RWCDS Analysis Framework Table,Form required for submission of Reasonable Worst Case Development Scenarios by DCP
+analysis_framework,RWCDS,RWCDS Analysis Spreadsheet,Form required for submission of Reasonable Worst Case Development Scenarios by DCP
 analysis_framework,Existing Condition,MapPLUTO Shoreline Clipped,Establishing built characterstics of parcels within the project area
 analysis_framework,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 analysis_framework,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas

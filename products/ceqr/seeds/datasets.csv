@@ -132,3 +132,5 @@ DEC State Facilities,nysdec_state_facility_permits,download,csv,,https://gisserv
 Title V Permits,nysdec_title_v_facility_permits,download,csv,,https://gisservices.dec.ny.gov/gis/dil/
 Vent Tower Data,dcp_air_quality_vent_towers,download,shapefile,MULTIPOLYGON,
 Arterial Highways,dcm_arterial_highways,download,shapefile,MULTILINESTRING,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-digital-city-map.page
+RWCDS Analysis Framework Table,,webpage,,,https://www.nyc.gov/assets/planning/downloads/excel/applicants/preparing-application/part2-rwcds-analysis-framework-table.xlsx
+RWCDS Analysis Spreadsheet,,webpage,,,https://www.nyc.gov/assets/planning/downloads/excel/applicants/preparing-application/part3-rwcds-analysis-framework-spreadsheet.xlsx
