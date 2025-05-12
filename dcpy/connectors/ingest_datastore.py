@@ -94,13 +94,15 @@ class Connector(VersionedConnector):
     def get_config(self, key: str, version: str) -> ingest.Config:
         return ingest.Config(**self._get_config_obj(key, version))
 
-    def try_get_config(self, key: str, version: str) -> ingest.Config | None:
-        """for backwards compatibility"""
-        obj = self._get_config_obj(key, version)
-        if "dataset" not in obj:  # very specific to library
-            return ingest.Config(**obj)
-        else:
-            return None
+    def _is_library(self, key: str, version: str) -> bool:
+        """
+        DCP-specific check for backwards compatibility - checks if dataset was
+        archived by our old tool, `library`
+
+        Not intended for general use in dcpy
+        """
+        config_dict = self._get_config_obj(key, version)
+        return "dataset" in config_dict
 
     def get_latest_version(self, key: str, **kwargs) -> str:
         return self._get_config_obj(key, "latest")["version"]
