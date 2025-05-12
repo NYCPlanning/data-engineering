@@ -162,6 +162,14 @@ def get_metadata(bucket: str, key: str) -> Metadata:
     )
 
 
+def get_presigned_get_url(bucket: str, key: str, expires_in: int = 3600) -> str:
+    return client().generate_presigned_url(
+        "get_object",
+        Params={"Bucket": bucket, "Key": key},
+        ExpiresIn=expires_in,
+    )
+
+
 def get_file(
     bucket: str,
     key: str,

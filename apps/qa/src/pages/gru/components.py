@@ -64,14 +64,14 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
             name.write(check["display_name"])
 
             s3_folder = f"db-gru-qaqc/{geosupport_version}/{action_name}/latest"
-            http_path = (
-                f"https://edm-publishing.nyc3.digitaloceanspaces.com/{s3_folder}"
-            )
 
             if not running:
                 with sources:
                     try:
-                        versions = pd.read_csv(f"{http_path}/versions.csv")
+                        path = s3.get_presigned_get_url(
+                            bucket, f"{s3_folder}/versions.csv", 5
+                        )
+                        versions = pd.read_csv(path)
                         st.download_button(
                             label="\n".join(check["sources"]),
                             data=versions.to_csv(index=False).encode("utf-8"),
@@ -88,7 +88,7 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
                 filenames = sorted(s3.get_filenames(bucket, s3_folder))
                 files = "  \n".join(
                     [
-                        f"[{filename}]({http_path}/{filename})"
+                        f"[{filename}]({s3.get_presigned_get_url(bucket, f'{s3_folder}/{filename}')})"
                         for filename in filenames
                         if filename != "versions.csv"
                     ]
