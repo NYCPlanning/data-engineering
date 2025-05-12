@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: products/ceqr
+        working-directory: products/ceqr/ceqr_app
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
