@@ -15,8 +15,7 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
     The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
     If they differ, an error is raised
     """
-    existing_config = processed_datastore.try_get_config(ds, version)
-    if existing_config:
+    if processed_datastore.version_exists(ds, version):
         with TemporaryDirectory() as tmp:
             existing_file = processed_datastore.pull_versioned(ds, version, Path(tmp))[
                 "path"
