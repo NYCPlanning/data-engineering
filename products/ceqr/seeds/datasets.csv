@@ -107,11 +107,11 @@ Railroads,,webpage,,,https://www.mta.info/developers
 Buses,,webpage,,,https://www.mta.info/developers
 Bike Routes,dot_bike_routes,download,shapefile,MULTILINESTRING,https://data.cityofnewyork.us/dataset/New-York-City-Bike-Routes/mzxg-pwib/about_data
 Open Streets,dot_open_streets,download,shapefile,MULTILINESTRING,https://data.cityofnewyork.us/Health/Open-Streets-Locations/uiay-nctu/about_data
-Daily Trip Rate and Peak Period,dcp_transportation_trip_generation,download,csv,,
+Daily Trip Rate and Peak Period,dcp_transportation_trip_generation,download,excel,,
 Modal Split % by Borough & Land Use,dcp_modal_split_percentage_by_boro_and_land_use,download,excel,,
 Directional Split Percentage,dcp_directional_split_percentage,download,excel,,
-Vehicle Occupancy,dcp_transportation_vehicle_occupancy,download,csv,,
-Truck Generation,dcp_transportation_truck_generation,download,csv,,
+Vehicle Occupancy,dcp_transportation_vehicle_occupancy,download,excel,,
+Truck Generation,dcp_transportation_truck_generation,download,excel,,
 Census Data- Population and Journey to Work,,webpage,,,https://data.census.gov/table/ACSDT1Y2023.B08301?q=B08301
 AASHTO CTPP Data Portal,,webpage,,,https://ctppdata.transportation.org/#/index
 Vision Zero Corridors and Intersections,,webpage,,,https://vzv.nyc/
