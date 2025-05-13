@@ -7,14 +7,19 @@ inputs:
 
   dataset_defaults:
     file_type: parquet
+    # several datasets are pinned to pg_dump
+    # this is because they are still archived with library
+    # and parquet files from library are missing CRS definition
 
   datasets:
     - name: dcp_edesignation_csv
     - name: dcp_cscl_complex
     - name: dcp_mappluto_clipped
+      file_type: pg_dump
     - name: dcp_green_fast_track_lots
     - name: dcp_projects
     - name: dcp_housing
+      file_type: pg_dump
     - name: dcp_zoningdistricts
     - name: dcp_commercialoverlay
     - name: dcp_specialpurpose
@@ -39,20 +44,28 @@ inputs:
     - name: doe_school_subdistricts
       file_type: pg_dump
     - name: dcp_facilities
+      file_type: pg_dump
     - name: dcp_pops
+      file_type: pg_dump
     - name: dot_pedplazas
     - name: dcp_waterfront_public_access_areas
     - name: dcp_publicly_owned_waterfront
     - name: nysparks_parks
+      file_type: pg_dump
     - name: usnps_parks
+      file_type: pg_dump
     - name: dpr_capitalprojects
+      file_type: pg_dump
     - name: dpr_walk_to_a_park
     - name: lpc_landmarks
+      file_type: pg_dump
     - name: lpc_historic_district_areas
     - name: lpc_scenic_landmarks
+      file_type: pg_dump
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
     - name: nysparks_historicplaces
+      file_type: pg_dump
     - name: nysdec_freshwater_wetlands
     - name: nysdec_tidal_wetlands
     - name: nysdec_priority_lakes
