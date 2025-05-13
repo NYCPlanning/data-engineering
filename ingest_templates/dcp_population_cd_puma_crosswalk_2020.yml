@@ -1,0 +1,19 @@
+id: dcp_population_cd_puma_crosswalk_2020
+acl: public-read
+
+attributes:
+  name: DCP Community District to PUMA Crosswalk
+  description: |
+    A mapping of Community Districts to the approximate PUMA from the Census.
+    This was produced internally by Population and cleaned manually.
+ingestion:
+  source:
+    type: local_file
+    path: /de/data-engineering/richey_stuff/puma_cd_crosswalk_2020.csv
+  file_format:
+    type: csv
+    dtype:
+      puma_code: str
+      borough_code: str
+      community_district_num: str
+  processing_steps: []

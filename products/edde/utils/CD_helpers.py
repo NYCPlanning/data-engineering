@@ -1,9 +1,12 @@
 """Functions for processing files with CD"""
 
+from dcpy.utils.logging import logger
+from functools import cache
 import pandas as pd
 import re
 
 from utils.PUMA_helpers import borough_name_mapper, clean_PUMAs
+from ingest import ingestion_helpers
 
 
 def add_CD_code(df):
@@ -40,6 +43,25 @@ def get_CD_NTA_puma_crosswalk():
     puma_cross["puma"] = puma_cross["puma"].apply(clean_PUMAs)
 
     return puma_cross
+
+
+@cache
+def _get_cd_puma_crosswalk() -> dict[str, str]:
+    """Get a map of community district keys to approximate PUMAS
+    e.g. BX3 -> 4263
+    """
+    logger.info("loading cd->puma crosswalk")
+    cw = ingestion_helpers.load_data("dcp_population_cd_puma_crosswalk_2020")
+    cw["dist_key"] = cw["borough_code"] + cw["community_district_num"]
+    return cw.set_index("dist_key")["puma_code"].to_dict()
+
+
+def community_district_to_pum_new(borough_abbrev, comm_dist_num: str | int):
+    assert len(borough_abbrev) == 2, "Abbreviated borough expected, e.g. BX"
+    assert len(str(comm_dist_num)) <= 2, (
+        "Community District number should be two chars or less"
+    )
+    return _get_cd_puma_crosswalk()[f"{borough_abbrev}{comm_dist_num}"]
 
 
 def community_district_to_PUMA(df, CD_col, CD_abbr_type="alpha_borough"):

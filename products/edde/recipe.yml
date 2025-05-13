@@ -23,6 +23,8 @@ inputs:
 
   - name: dcp_pumas2020
     version: '20241218'
+  - name: dcp_population_cd_puma_crosswalk_2020
+    version: '2025'
   - name: dcp_population_nta_puma_crosswalk_2020
     version: '2025'
 
