@@ -86,9 +86,17 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
                         st.error("Not found")
 
                 filenames = sorted(s3.get_filenames(bucket, s3_folder))
+
+                def get_url(f: str) -> str:
+                    """
+                    page refreshes every 10 min as set in gru.py
+                    urls valid just past that
+                    """
+                    return s3.get_presigned_get_url(bucket, f"{s3_folder}/{f}", 610)
+
                 files = "  \n".join(
                     [
-                        f"[{filename}]({s3.get_presigned_get_url(bucket, f'{s3_folder}/{filename}')})"
+                        f"[{filename}]({get_url(filename)})"
                         for filename in filenames
                         if filename != "versions.csv"
                     ]
