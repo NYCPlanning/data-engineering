@@ -5,8 +5,9 @@ import streamlit as st
 import time
 
 from dcpy.connectors.github import WorkflowRun
+from dcpy.utils import s3
 from src.shared.components.github import dispatch_workflow_button
-from .constants import qa_checks
+from .constants import qa_checks, bucket
 from .helpers import get_source_versions, get_geosupport_versions
 
 
@@ -42,8 +43,8 @@ def source_table() -> None:
     for source in source_versions:
         col1, col2, col3 = st.columns(column_widths)
         col1.write(source)
-        col2.write(source_versions[source].version)
-        col3.write(source_versions[source].timestamp.strftime("%Y-%m-%d"))
+        col2.write(source_versions[source]["version"])
+        col3.write(source_versions[source]["timestamp"].strftime("%Y-%m-%d"))
 
 
 def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> None:
@@ -62,12 +63,15 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
 
             name.write(check["display_name"])
 
-            folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
+            s3_folder = f"db-gru-qaqc/{geosupport_version}/{action_name}/latest"
 
             if not running:
                 with sources:
                     try:
-                        versions = pd.read_csv(f"{folder}/versions.csv")
+                        path = s3.get_presigned_get_url(
+                            bucket, f"{s3_folder}/versions.csv", 5
+                        )
+                        versions = pd.read_csv(path)
                         st.download_button(
                             label="\n".join(check["sources"]),
                             data=versions.to_csv(index=False).encode("utf-8"),
@@ -77,13 +81,24 @@ def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> N
                         )
                     # TODO - this should probably use publishing api, FileNotFoundError
                     # However, GRU is a special "product" that doesn't follow our norms yet
-                    except HTTPError:
+                    except HTTPError as e:
+                        print(e)
                         st.error("Not found")
+
+                filenames = sorted(s3.get_filenames(bucket, s3_folder))
+
+                def get_url(f: str) -> str:
+                    """
+                    page refreshes every 10 min as set in gru.py
+                    urls valid just past that
+                    """
+                    return s3.get_presigned_get_url(bucket, f"{s3_folder}/{f}", 610)
 
                 files = "  \n".join(
                     [
-                        f"[{filename}]({folder}/{filename}.csv)"
-                        for filename in check["files"]
+                        f"[{filename}]({get_url(filename)})"
+                        for filename in filenames
+                        if filename != "versions.csv"
                     ]
                 )
                 outputs.write(files)

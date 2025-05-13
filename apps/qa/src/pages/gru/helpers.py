@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import streamlit as st
 import requests
@@ -6,30 +7,34 @@ import re
 from dcpy.utils import s3
 from dcpy.connectors import github
 from dcpy.connectors.edm import recipes
-from dcpy.models import library
 from .constants import qa_checks
 
 
-def get_source_version(dataset: str) -> library.ArchivalMetadata:
+def get_source_version(dataset: str) -> dict:
     if dataset == "dcp_saf":
         bucket = "edm-publishing"
         prefix = "gru/dcp_saf/"
         folders = s3.get_subfolders(bucket, prefix)
         if "latest" in folders:
             folders.remove("latest")
-        latest_version = max(folders)
+        version = max(folders)
         timestamp = s3.get_metadata(
-            bucket, f"{prefix}{latest_version}/dcp_saf.zip"
+            bucket, f"{prefix}{version}/dcp_saf.zip"
         ).last_modified
-        return library.ArchivalMetadata(
-            name="dcp_saf", version=latest_version, timestamp=timestamp
-        )
     else:
-        return recipes.get_archival_metadata(dataset)
+        config_obj = recipes.get_config_obj(dataset)
+        if "dataset" in config_obj:
+            version = config_obj["dataset"]["version"]
+            timestamp_str = config_obj["execution_details"]["timestamp"]
+        else:
+            version = config_obj["version"]
+            timestamp_str = config_obj["run_details"]["timestamp"]
+        timestamp = datetime.fromisoformat(timestamp_str)
+    return {"name": dataset, "version": version, "timestamp": timestamp}
 
 
 @st.cache_data(ttl=120)
-def get_source_versions() -> dict[str, library.ArchivalMetadata]:
+def get_source_versions() -> dict[str, dict]:
     versions = {}
     for dataset in [source for sources in qa_checks["sources"] for source in sources]:
         versions[dataset] = get_source_version(dataset)

@@ -44,6 +44,12 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     st.markdown(readme_markdown_text)
 
     # this state gets set when an action is triggered, set to false once it's complete
-    while any([workflow.is_running for workflow in workflows.values()]):
+    running = any([workflow.is_running for workflow in workflows.values()])
+    while running:
         time.sleep(5)
+        st.rerun()
+
+    # refresh after 10 min
+    while not running:
+        time.sleep(600)
         st.rerun()
