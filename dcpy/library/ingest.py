@@ -147,6 +147,7 @@ def translator(func):
             dataset.destination.fields,
             dataset.destination.sql,
             dataset.source.geometry is not None,
+            output_format,
         )
 
         # Create postgres database schema and table version if needed
