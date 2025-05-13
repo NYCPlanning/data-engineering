@@ -59,6 +59,8 @@ ACS_SHORT_TO_LONG_NAMES = {
     "HHlds": "access_households",
     "Comp": "access_computer",
     "BbInt": "access_broadband",
+    "Wk16p": "access_workers16pl",
+    "CWCar": "access_carcommute",
 }
 # These are named slightly differently in the final output, so we need to keep track of them
 ACS_MEDIAN_VALUES_LONGFORM = {"homevalue_median", "rent_median"}
