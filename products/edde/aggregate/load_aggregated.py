@@ -55,6 +55,10 @@ ACS_SHORT_TO_LONG_NAMES = {
     "OcR1p": "units_overcrowded",
     "OcRU1": "units_notovercrowded",
     "ROcc": "units_occupied_renter",
+    ## Quality of Life
+    "HHlds": "access_households",
+    "Comp": "access_computer",
+    "BbInt": "access_broadband",
 }
 # These are named slightly differently in the final output, so we need to keep track of them
 ACS_MEDIAN_VALUES_LONGFORM = {"homevalue_median", "rent_median"}
