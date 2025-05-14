@@ -134,29 +134,44 @@ DROP TABLE IF EXISTS qc_captype;
 WITH
 new AS (
     SELECT
+        facsubgrp,
         captype,
         sum(capacity::numeric)::integer AS sum_new
     FROM facdb
-    GROUP BY captype
+    GROUP BY facsubgrp, captype
 ),
 old AS (
     SELECT
+        facsubgrp,
         captype,
         sum(capacity) AS sum_old
     FROM dcp_facilities_with_unmapped
-    GROUP BY captype
+    GROUP BY facsubgrp, captype
 )
 SELECT
+    a.facsubgrp,
     a.captype,
-    a.sum_new,
     b.sum_old,
+    a.sum_new,
     a.sum_new - b.sum_old AS diff,
     abs(a.sum_new - b.sum_old) AS diff_abs,
     abs(a.sum_new - b.sum_old) / b.sum_old AS diff_abs_pct
 INTO qc_captype
 FROM new AS a
 INNER JOIN old AS b
-    ON a.captype = b.captype;
+    ON a.captype = b.captype AND a.facsubgrp = b.facsubgrp;
+
+INSERT INTO qc_captype
+SELECT
+    'ALL' AS facsubgrp,
+    captype,
+    sum(sum_old) AS sum_old,
+    sum(sum_new) AS sum_new,
+    sum(diff) AS diff,
+    abs(sum(diff)) AS diff_abs,
+    abs(sum(diff)) / sum(sum_old) AS diff_abs_pct
+FROM qc_captype
+GROUP BY captype;
 
 DROP TABLE IF EXISTS qc_mapped;
 WITH
