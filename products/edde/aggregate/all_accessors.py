@@ -48,7 +48,6 @@ from aggregate.quality_of_life.access_to_openspace import access_to_openspace
 from aggregate.quality_of_life.access_subway_and_access_ADA import (
     access_subway_and_access_ADA,
 )
-from aggregate.quality_of_life.covid_death import covid_death
 from aggregate.quality_of_life.diabetes_self_report import (
     health_self_reported,
     health_diabetes,
@@ -85,7 +84,7 @@ QOL_accessors = [
     access_transit_car,
     access_subway_and_access_ADA,
     get_education_outcome,
-    covid_death,
+    # covid_death,
     heat_vulnerability,
     health_self_reported,
     infant_mortality,
