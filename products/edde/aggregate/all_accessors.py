@@ -64,7 +64,8 @@ from aggregate.quality_of_life.safety_ped_aslt_hospitalizations import (
     assault_hospitalizations,
     # pedestrian_hospitalizations,
 )
-from aggregate.quality_of_life.traffic_fatalities import traffic_fatalities_injuries
+
+# from aggregate.quality_of_life.traffic_fatalities import traffic_fatalities_injuries
 from aggregate.quality_of_life.access_to_broadband import access_to_broadband
 from aggregate.quality_of_life.access_transit_car import access_transit_car
 
@@ -92,7 +93,7 @@ QOL_accessors = [
     # overdose_mortality,
     # premature_mortality,
     health_diabetes,
-    traffic_fatalities_injuries,
+    # traffic_fatalities_injuries,
     assault_hospitalizations,
     # pedestrian_hospitalizations,
 ]
