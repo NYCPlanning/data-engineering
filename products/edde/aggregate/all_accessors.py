@@ -53,11 +53,12 @@ from aggregate.quality_of_life.diabetes_self_report import (
     health_diabetes,
 )
 from aggregate.quality_of_life.education_outcome import get_education_outcome
-from aggregate.quality_of_life.health_mortality import (
-    infant_mortality,
-    overdose_mortality,
-    premature_mortality,
-)
+
+# from aggregate.quality_of_life.health_mortality import (
+#     infant_mortality,
+#     overdose_mortality,
+#     premature_mortality,
+# )
 from aggregate.quality_of_life.heat_vulnerability import heat_vulnerability
 from aggregate.quality_of_life.safety_ped_aslt_hospitalizations import (
     assault_hospitalizations,
@@ -87,9 +88,9 @@ QOL_accessors = [
     # covid_death,
     heat_vulnerability,
     health_self_reported,
-    infant_mortality,
-    overdose_mortality,
-    premature_mortality,
+    # infant_mortality,
+    # overdose_mortality,
+    # premature_mortality,
     health_diabetes,
     traffic_fatalities_injuries,
     assault_hospitalizations,
