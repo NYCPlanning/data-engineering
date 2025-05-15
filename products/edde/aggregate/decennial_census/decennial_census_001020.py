@@ -1,3 +1,4 @@
+from functools import cache
 import pandas as pd
 from utils.PUMA_helpers import clean_PUMAs
 from internal_review.set_internal_review_file import set_internal_review_files
@@ -6,6 +7,7 @@ from internal_review.set_internal_review_file import set_internal_review_files
 year_map = {"2000": "00", "0812": "10", "1519": "20", "1721": "20", "1923": "20"}
 
 
+@cache
 def load_decennial_census_001020() -> pd.DataFrame:
     """Load in the xlsx file, fill the missing values with the values from geogtype, rename the columns
     following conventions, drop the duplicate column"""
