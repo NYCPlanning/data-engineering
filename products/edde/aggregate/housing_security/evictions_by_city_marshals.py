@@ -3,7 +3,7 @@ import pandas as pd
 
 from ingest import ingestion_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import borough_name_mapper, _2010_puma_from_coord
+from utils.PUMA_helpers import borough_name_mapper, puma_from_coord
 from utils.geocode import get_geosupport_puma
 
 report_years = {"2019", "2020", "2021", "2022", "2023", "2024"}
@@ -66,9 +66,11 @@ def _from_geocoded_eviction_address(record) -> str:
     return get_geosupport_puma(rv)
 
 
-def _get_puma(df_record) -> str:
+def _get_puma(df_record) -> str | None:
     if pd.notnull(df_record.latitude) and pd.notnull(df_record.longitude):
-        return _2010_puma_from_coord(df_record)  # type: ignore
+        return puma_from_coord(
+            longitude=df_record.longitude, latitude=df_record.latitude
+        )
     else:
         return _from_geocoded_eviction_address(df_record)
 
