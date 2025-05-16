@@ -8,16 +8,16 @@ If you include a geometry column in "left_columns" parameter, then you will have
 from "left" table and the resulting geom column named "geom"
 */
 
-{% macro clip_to_geom(left, right=ref("stg__nyc_boundary"), left_by="geom", right_by="geom", left_columns=[]) %}
+{% macro clip_to_geom(left, right=ref("stg__nyc_boundary"), left_by="geom", right_by="geom", left_columns=[]) -%}
 
     SELECT
-        {% if left_columns == [] %}
+        {% if left_columns == [] -%}
             {{ dbt_utils.star(from=left, except=[left_by]) }},
         {% else %}
             {% for column in left_columns %}
                 {{ left }}.{{ column }},
             {% endfor %}
-        {% endif %}
+        {% endif -%}
         
         -- ST_Intersection is much more costly than ST_CoveredBy
         -- So avoid using intersection when possible
@@ -32,4 +32,4 @@ from "left" table and the resulting geom column named "geom"
     -- use ST_Relate rather than ST_Intersect to avoid overlapping edges
     INNER JOIN {{ right }} ON ST_RELATE({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}, 'T********')
 
-{% endmacro %}
+{%- endmacro %}
