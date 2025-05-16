@@ -1,18 +1,33 @@
-"""Miscellaneous ingestion related tasks"""
-
 from dcpy.lifecycle.builds import load
+from dcpy.utils.geospatial import parquet
 import pandas as pd
+import geopandas as gp
+from pathlib import Path
 
-
-# import config
 import config
 
 
-def load_data(name: str, version: str = "", cols: list = []) -> pd.DataFrame:
+def _get_loaded_dataset_path(name: str, version: str = ""):
+    build_metadata = load.get_build_metadata(config.PRODUCT_PATH)
+    assert build_metadata.load_result, "You must load data before reading data."
+    loaded = build_metadata.load_result.datasets[name]
+    return Path(loaded[version or list(loaded.keys())[-1]].destination)
+
+
+def load_data(
+    name: str, version: str = "", cols: list = [], is_geospatial: bool = False
+) -> pd.DataFrame | gp.GeoDataFrame:
+    # TODO: is_geospatial flag is hacky. This should be inferred elsewhere
+
     build_metadata = load.get_build_metadata(config.PRODUCT_PATH)
     assert build_metadata.load_result, "You must load data before reading data."
 
-    df = load.get_imported_df(build_metadata.load_result, ds_id=name, version=version)
+    if is_geospatial:
+        df = parquet.read_df(_get_loaded_dataset_path(name, version))
+    else:
+        df = load.get_imported_df(
+            build_metadata.load_result, ds_id=name, version=version
+        )
     return df.filter(items=cols or df.columns.to_list())
 
 
