@@ -5,6 +5,7 @@ Reference for applying weights: https://www2.census.gov/programs-surveys/acs/tec
 To-do: refactor into two files, PUMS aggregator and PUMS demographic aggregator
 """
 
+from dcpy.utils.logging import logger
 import os
 import pandas as pd
 import time
@@ -15,7 +16,6 @@ from aggregate.aggregation_helpers import (
     get_category,
     order_aggregated_columns,
 )
-from utils.make_logger import create_logger
 from statistical.calculate_fractions import (
     calculate_fractions,
 )
@@ -31,9 +31,7 @@ class BaseAggregator:
 
     def __init__(self) -> None:
         self.init_time = time.perf_counter()
-        self.logger = create_logger(
-            f"{self.__class__.__name__}_logger", f"logs/{self.__class__.__name__}.log"
-        )
+        self.logger = logger
 
     def cache_flat_csv(self):
         """For debugging and collaborating. This is where .csv's for"""
