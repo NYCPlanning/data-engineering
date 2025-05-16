@@ -98,7 +98,7 @@ def _get_2020_pumas():
     return load_data("dcp_pumas2020", is_geospatial=True)
 
 
-def puma_from_coord(longitude, latitude):
+def puma_from_coord(longitude, latitude) -> str | None:
     assert latitude and longitude
     pumas = _get_2020_pumas()
     matched = pumas[pumas.geom.contains(Point(longitude, latitude))]
