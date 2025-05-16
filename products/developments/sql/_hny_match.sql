@@ -513,7 +513,6 @@ hny_lookup AS (
     SELECT * FROM many_to_one
 )
 
-
 -- 7) MERGE WITH devdb  
 SELECT
     a.job_number,

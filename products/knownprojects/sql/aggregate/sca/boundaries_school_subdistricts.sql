@@ -134,7 +134,6 @@ FROM (
                             / st_area(a.geometry))::decimal
                             >= .1
 
-
                     /*Treating other polygons as points, using their centroid*/
                     WHEN st_area(a.geometry) > 0
                         THEN
@@ -229,7 +228,6 @@ FROM (
 ) AS _1;
 
 
-
 /*Identify projects which did not geocode to any Subdistrict*/
 
 SELECT *
@@ -300,7 +298,6 @@ FROM (
 
     SELECT * FROM ungeocoded_projects_subdist
 ) AS _2;
-
 
 
 DROP TABLE IF EXISTS aggregated_subdist_longform_cp_assumptions;
