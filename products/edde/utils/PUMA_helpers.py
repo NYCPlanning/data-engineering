@@ -1,3 +1,4 @@
+from functools import cache
 import geopandas as gp
 from shapely.geometry import Point
 import pandas as pd
@@ -90,6 +91,18 @@ def _2010_puma_from_coord(record):
     if matched_PUMA.empty:
         return None
     return matched_PUMA.puma.values[0]
+
+
+@cache
+def _get_2020_pumas():
+    return load_data("dcp_pumas2020", is_geospatial=True)
+
+
+def puma_from_coord(longitude, latitude):
+    assert latitude and longitude
+    pumas = _get_2020_pumas()
+    matched = pumas[pumas.geom.contains(Point(longitude, latitude))]
+    return None if matched.empty else matched.puma.values[0]
 
 
 def get_all_NYC_PUMAs(prefix_zeros=True):
