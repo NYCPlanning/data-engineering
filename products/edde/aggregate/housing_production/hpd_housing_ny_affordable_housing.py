@@ -1,5 +1,5 @@
 import pandas as pd
-from utils.PUMA_helpers import assign_2010_puma_col, borough_name_mapper
+from utils.PUMA_helpers import borough_name_mapper, puma_from_coord
 from ingest.ingestion_helpers import load_data
 
 cols = [
@@ -57,7 +57,12 @@ def _load_housing_ny():
 
 def _pivot_add_total(df, geography):
     df = _pivot_and_flatten_index(df, geography)
-    df = _add_total(df)
+    for t in ["preservation", "newconstruction"]:
+        cols = [
+            f"units_{band}_{t}_count"
+            for band in ["eli", "vli", "li", "mi", "midi", "oi"]
+        ]
+        df[f"units_allami_{t}_count"] = df[cols].sum(axis=1)
     return df
 
 
@@ -88,16 +93,6 @@ def _pivot_and_flatten_index(df, geography):
     return df.reset_index()
 
 
-def _add_total(df):
-    for t in ["preservation", "newconstruction"]:
-        cols = [
-            f"units_{band}_{t}_count"
-            for band in ["eli", "vli", "li", "mi", "midi", "oi"]
-        ]
-        df[f"units_allami_{t}_count"] = df[cols].sum(axis=1)
-    return df
-
-
 def _citywide_hny_units_con_type(df):
     """Get total unit counts by construction type (new construction vs preservation)"""
 
@@ -120,22 +115,22 @@ def _borough_hny_units_con_type(df):
     return _pivot_add_total(results, "borough").set_index("borough")
 
 
-# TODO: confidential records?
 def _puma_hny_units_con_type(df):
     """This function drops any confidential records (as per HPD) as they shouldn't be recorded at the
     PUMA level geography but kept in at larger geo units. Currently the assign_PUMA_col function can't
     take any lat/long that are null so drop those records, and assign PUMA using geography_helpers.py,
     and aggregate at the PUMA level"""
-    filter_df = df[~df["project_name"].isin(["CONFIDENTIAL"])]
+    filtered_df = df[df.project_name != "CONFIDENTIAL"].dropna(
+        subset=["latitude_(internal)", "longitude_(internal)"]
+    )
 
-    filter_df.dropna(subset=["latitude_(internal)", "longitude_(internal)"])
-
-    puma_df = assign_2010_puma_col(
-        filter_df, "latitude_(internal)", "longitude_(internal)"
+    filtered_df["puma"] = filtered_df.apply(
+        lambda r: puma_from_coord(r["longitude_(internal)"], r["latitude_(internal)"]),
+        axis=1,
     )
 
     results = (
-        puma_df.groupby(["reporting_construction_type", "puma"])[unit_income_levels]
+        filtered_df.groupby(["reporting_construction_type", "puma"])[unit_income_levels]
         .sum()
         .reset_index()
     )
