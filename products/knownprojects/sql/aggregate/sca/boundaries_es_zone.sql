@@ -168,9 +168,6 @@ FROM
                 count(*) > 1
         ),
 
-
-
-
         /*Calculate the proportion of each project in each ES Zone that it overlaps with*/
         aggregated_boundaries_es_zone_2 AS (
             SELECT

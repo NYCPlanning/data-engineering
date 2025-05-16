@@ -90,7 +90,9 @@ def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
             geometry=gpd.points_from_xy(df[x_column], df[y_column]),
             crs=geometry.crs,
         )
-        gdf.geometry = gdf.geometry.apply(lambda geom: None if geom.is_empty else geom)
+        # maybe bug in shapely 2.1 - Point(NaN NaN) no longer returns true with .is_empty
+        # regardless, only way a point can be invalid is if one of coordinates is invalid
+        gdf.geometry = gdf.geometry.apply(lambda geom: geom if geom.is_valid else None)
 
     return gdf
 
