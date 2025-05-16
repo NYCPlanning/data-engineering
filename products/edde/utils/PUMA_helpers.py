@@ -1,7 +1,5 @@
 from functools import cache
-import geopandas as gp
 from shapely.geometry import Point
-import pandas as pd
 from numpy import nan
 from ingest.ingestion_helpers import load_data
 
@@ -59,38 +57,6 @@ def clean_PUMAs(puma: str | int):
     elif puma[0] != "0":
         puma = "0" + puma
     return puma
-
-
-def _get_nyc_puma_geographies_2010() -> gp.GeoDataFrame:
-    gdf = gp.GeoDataFrame.from_file("./resources/puma_boundaries.json")
-    gdf.rename(columns={"PUMA": "puma"}, inplace=True)
-    gdf["puma"] = gdf["puma"].apply(clean_PUMAs)
-    return gdf
-
-
-PUMAS_2010 = _get_nyc_puma_geographies_2010()
-
-
-def assign_2010_puma_col(df: pd.DataFrame, lat_col, long_col):
-    df.rename(columns={lat_col: "latitude", long_col: "longitude"}, inplace=True)
-    df["puma"] = df.apply(_assign_2010_puma, axis=1)
-    print(f"got {df.shape[0]} addresses to assign PUMAs to ")
-    print(f"assigned PUMAs to {df['puma'].notnull().sum()}")
-    return df
-
-
-def _assign_2010_puma(record: gp.GeoDataFrame):
-    if pd.notnull(record.latitude) and pd.notnull(record.longitude):
-        return _2010_puma_from_coord(record)
-
-
-def _2010_puma_from_coord(record):
-    """Don't think I need to make a geodata frame here, shapely object would do"""
-    record_loc = Point(record.longitude, record.latitude)
-    matched_PUMA = PUMAS_2010[PUMAS_2010.geometry.contains(record_loc)]
-    if matched_PUMA.empty:
-        return None
-    return matched_PUMA.puma.values[0]
 
 
 @cache
