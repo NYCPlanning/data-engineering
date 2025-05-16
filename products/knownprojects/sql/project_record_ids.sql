@@ -26,7 +26,6 @@ SELECT * INTO project_record_ids
 FROM _project_record_ids;
 
 
-
 /* Add stand-alone projects. This includes unmatched residential DOB projects,
 as well as projects from sources that were excluded
 from the non-DOB match process. */
@@ -43,7 +42,6 @@ WHERE
         SELECT UNNEST(project_record_ids)
         FROM project_record_ids
     );
-
 
 
 /* Use correction_dob_match to identify which DOB record_ids need
