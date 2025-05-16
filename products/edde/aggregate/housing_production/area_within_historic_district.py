@@ -1,37 +1,45 @@
-from typing import List
 import geopandas as gp
-from shapely import wkb
-from utils.PUMA_helpers import puma_to_borough, PUMAS_2010
 from ingest.ingestion_helpers import load_data
+from utils.PUMA_helpers import puma_to_borough
 
 
 supported_geographies = ["puma", "borough", "citywide"]
 
 
-def _rename_col(cols) -> List:
-    new_cols = [col if "pct" in col else col + "_count" for col in cols]
-
-    return new_cols
+def _load_historic_districts_gdf() -> gp.GeoDataFrame:
+    # geom col = wkb_geometry
+    return (
+        load_data("lpc_historic_district_areas", is_geospatial=True)
+        .to_crs(  # type: ignore
+            "EPSG:2263"
+        )
+        .explode(column="wkb_geometry")  # , index_parts=True)
+    )
 
 
 def _generate_geographies(geography_level):
-    NYC_PUMAs = PUMAS_2010.to_crs("EPSG:2263")
+    # geometry column = "geom"
+    pumas: gp.GeoDataFrame = load_data("dcp_pumas2020", is_geospatial=True).to_crs(
+        "EPSG:2263"
+    )  # type: ignore
+    pumas["puma"] = "0" + pumas["puma"]
+
     if geography_level == "puma":
-        return NYC_PUMAs.set_index("puma")
+        return pumas.set_index("puma")
     if geography_level == "borough":
-        NYC_PUMAs["borough"] = NYC_PUMAs.apply(axis=1, func=puma_to_borough)
-        by_borough = NYC_PUMAs.dissolve(by="borough")
+        pumas["borough"] = pumas.apply(puma_to_borough, axis=1)
+        by_borough = pumas.dissolve(by="borough")
         return by_borough
     if geography_level == "citywide":
-        citywide = NYC_PUMAs.dissolve()
-        citywide.index = ["citywide"]
-        return citywide
+        citywide = pumas.dissolve()
+        citywide["citywide"] = "citywide"
+        return citywide.set_index("citywide")
 
     raise Exception(f"Supported geographies are {supported_geographies}")
 
 
-def _fraction_PUMA_historic(PUMA, hd):
-    gdf = gp.GeoDataFrame(geometry=[PUMA.geometry], crs="EPSG:2263")
+def _fraction_PUMA_historic(puma, hd):
+    gdf = gp.GeoDataFrame(geometry=[puma.geom], crs="EPSG:2263")
     overlay = gp.overlay(hd, gdf, "intersection")
     if overlay.empty:
         return 0, 0
@@ -40,27 +48,19 @@ def _fraction_PUMA_historic(PUMA, hd):
     return fraction, overlay.area.sum() / (5280**2)
 
 
-def _load_historic_districts_gdf() -> gp.GeoDataFrame:
-    df = load_data("lpc_historic_district_areas")
-
-    hd = gp.GeoDataFrame(df)
-    hd["the_geom"] = hd["wkb_geometry"].apply(wkb.loads)
-    hd.set_geometry(col="the_geom", inplace=True, crs="EPSG:4326")
-    hd = hd.explode(column="the_geom", index_parts=True)
-    hd.set_geometry("the_geom", inplace=True)
-    hd = hd.to_crs("EPSG:2263")
-    hd = hd.reset_index()
-    return hd
-
-
 def fraction_historic(geography_level):
-    gdf = _generate_geographies(geography_level)
-    gdf["total_sqmiles"] = gdf.geometry.area / (5280**2)
     hd = _load_historic_districts_gdf()
-    gdf[["area_historic_pct", "area_historic_sqmiles"]] = gdf.apply(
+
+    puma_geos = _generate_geographies(geography_level)
+    puma_geos["total_sqmiles"] = puma_geos.geom.area / (5280**2)
+
+    puma_geos[["area_historic_pct", "area_historic_sqmiles"]] = puma_geos.apply(
         _fraction_PUMA_historic, axis=1, args=(hd,), result_type="expand"
     )
-    gdf.columns = _rename_col(gdf.columns)
-    return gdf[
+    puma_geos.columns = [
+        col if "pct" in col else col + "_count" for col in puma_geos.columns
+    ]
+
+    return puma_geos[
         ["area_historic_sqmiles_count", "area_historic_pct", "total_sqmiles_count"]
     ].round(2)
