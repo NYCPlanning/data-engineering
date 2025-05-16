@@ -2,13 +2,10 @@
 However there are different set variables used in the GET url versus in the final dataset.
 This module can handle each"""
 
+from dcpy.utils.logging import logger
 from dotenv import load_dotenv
-from utils.make_logger import create_logger
 from typing import List
 
-logger = create_logger(
-    "variable_generation_logger", "logs/PUMS-variable-generation.log"
-)
 load_dotenv()
 
 variable_mapper = {
