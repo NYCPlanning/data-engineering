@@ -1,5 +1,7 @@
+from dcpy.utils.logging import logger
 from functools import cache
 import pandas as pd
+
 from utils.PUMA_helpers import clean_PUMAs
 from internal_review.set_internal_review_file import set_internal_review_files
 
@@ -61,7 +63,7 @@ def load_decennial_census_001020() -> pd.DataFrame:
         },
         inplace=True,
     )
-    df.geo_id.fillna(df.geo_type, inplace=True)
+    df.geo_id = df.geo_id.fillna(df.geo_type)
 
     df = df.replace(
         {
@@ -130,6 +132,7 @@ def create_puma_level_df_by_year(df, year):
 def decennial_census_001020(
     geography: str, year: str = "2000", write_to_internal_review=False
 ) -> pd.DataFrame:
+    logger.info(f"Running decennial_census_001020 for {geography}, {year}")
     assert geography in ["citywide", "borough", "puma"]
     assert year in year_map
 
