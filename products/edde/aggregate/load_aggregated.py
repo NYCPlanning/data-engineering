@@ -253,27 +253,45 @@ def load_acs_curr_and_prev(
     )
 
 
-### Create base load function that reads dcp population xlsx for 2000 census pums
-def load_2000_census_pums_all_data() -> pd.DataFrame:
+# def load_2000_census() -> pd.DataFrame:
+#     df = (
+#         pd.read_excel(
+#             "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
+#             skiprows=1,
+#             dtype={"GeoID": str},
+#         )
+#         .rename(columns={"GeoId": "geog"})
+#         .replace(
+#             {
+#                 "geog": {
+#                     "Bronx": "BX",
+#                     "Brooklyn": "BK",
+#                     "Manhattan": "MN",
+#                     "Queens": "QN",
+#                     "Staten Island": "SI",
+#                     "NYC": "citywide",
+#                 }
+#             }
+#         )
+#     )
+#     df.set_index("GeoID", inplace=True)
+#     return df
+
+
+def load_2000_census() -> pd.DataFrame:
     df = pd.read_excel(
         "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
         skiprows=1,
         dtype={"GeoID": str},
-    )
-    df = df.replace(
-        {
-            "GeoID": {
-                "Bronx": "BX",
-                "Brooklyn": "BK",
-                "Manhattan": "MN",
-                "Queens": "QN",
-                "Staten Island": "SI",
-                "NYC": "citywide",
-            }
-        }
-    )
-    df.set_index("GeoID", inplace=True)
-    return df
+    ).rename(columns={"GeoID": "geog"})
+    df.loc[df["geog"] == "NYC", "geog"] = "citywide"
+    df["geog_type"] = df["geog"].map(_calc_geog_type)
+    df = df.set_index("geog_type")
+
+    df.loc["borough", "geog"] = df.loc["borough"].geog.replace(borough_name_mapper)
+    df.loc["puma", "geog"] = df.loc["puma"].geog.apply(clean_PUMAs)
+
+    return df.reset_index().set_index(["geog_type", "geog"])
 
 
 @dataclass

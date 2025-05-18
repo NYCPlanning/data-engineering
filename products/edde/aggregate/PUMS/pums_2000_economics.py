@@ -4,9 +4,9 @@ that they can be collated using the established collate process"""
 
 import pandas as pd
 
-from aggregate.load_aggregated import load_2000_census_pums_all_data
+from aggregate.load_aggregated import load_2000_census
 from aggregate.aggregation_helpers import order_aggregated_columns
-from utils.PUMA_helpers import clean_PUMAs, dcp_pop_races
+from utils.PUMA_helpers import dcp_pop_races
 from utils.dcp_population_excel_helpers import (
     race_suffix_mapper,
     map_stat_suffix,
@@ -53,25 +53,14 @@ def pums_2000_economics(geography: str, year="2000", write_to_internal_review=Fa
     assert geography in ["puma", "borough", "citywide"]
     assert year == "2000"
 
-    df = load_2000_census_pums_all_data()
-
-    df = filter_to_economic(df)
-
-    final = rename_cols(df)
-
-    if geography == "citywide":
-        final = df.loc[["citywide"]].reset_index().rename(columns={"GeoID": "citywide"})
-    elif geography == "borough":
-        final = (
-            df.loc[["BX", "BK", "MN", "QN", "SI"]]
-            .reset_index()
-            .rename(columns={"GeoID": "borough"})
-        )
-    else:
-        final = df.loc["3701":"4114"].reset_index().rename(columns={"GeoID": "puma"})
-        final["puma"] = final["puma"].apply(func=clean_PUMAs)
-
-    final.set_index(geography, inplace=True)
+    final = (
+        load_2000_census()
+        .loc[geography]
+        .rename_axis(geography)
+        .pipe(filter_to_economic)
+        .pipe(rename_cols)
+        .pipe(order_pums_2000_economic)
+    )
 
     if write_to_internal_review:
         set_internal_review_files(
@@ -80,8 +69,6 @@ def pums_2000_economics(geography: str, year="2000", write_to_internal_review=Fa
             ],
             "household_economic_security",
         )
-
-    final = order_pums_2000_economic(final)
 
     return final
 
