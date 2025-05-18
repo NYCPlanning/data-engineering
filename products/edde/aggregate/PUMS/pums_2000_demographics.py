@@ -1,12 +1,12 @@
 import pandas as pd
 
-from aggregate.load_aggregated import load_2000_census_pums_all_data
+from aggregate.load_aggregated import load_2000_census
 from aggregate.aggregation_helpers import (
     demographic_indicators_denom,
     order_aggregated_columns,
     get_category,
 )
-from utils.PUMA_helpers import clean_PUMAs, dcp_pop_races
+from utils.PUMA_helpers import dcp_pop_races
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     race_suffix_mapper,
@@ -63,35 +63,15 @@ def pums_2000_demographics(geography: str, year="2000", write_to_internal_review
     """Main accessor. I know passing year here is silly, need to write it his way to
     export. Needs refactor"""
     assert year == "2000"
-    source_data = load_2000_census_pums_all_data()
-
-    source_data = filter_to_demo_indicators(source_data)
-
-    source_data = remove_duplicate_cols(source_data)
-
-    source_data = rename_cols(source_data)
-
-    if geography == "citywide":
-        final = (
-            source_data.loc[["citywide"]]
-            .reset_index()
-            .rename(columns={"GeoID": "citywide"})
-        )
-    elif geography == "borough":
-        final = (
-            source_data.loc[["BX", "BK", "MN", "QN", "SI"]]
-            .reset_index()
-            .rename(columns={"GeoID": "borough"})
-        )
-    else:
-        final = (
-            source_data.loc["3701":"4114"]
-            .reset_index()
-            .rename(columns={"GeoID": "puma"})
-        )
-        final["puma"] = final["puma"].apply(func=clean_PUMAs)
-
-    final.set_index(geography, inplace=True)
+    final = (
+        load_2000_census()
+        .loc[geography]
+        .rename_axis(geography)
+        .pipe(filter_to_demo_indicators)
+        .pipe(remove_duplicate_cols)
+        .pipe(rename_cols)
+        .pipe(order_pums_2000_demographics)
+    )
 
     if write_to_internal_review:
         set_internal_review_files(
@@ -103,7 +83,6 @@ def pums_2000_demographics(geography: str, year="2000", write_to_internal_review
             "demographics",
         )
 
-    final = order_pums_2000_demographics(final)
     return final
 
 
