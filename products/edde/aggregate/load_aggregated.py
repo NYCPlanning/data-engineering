@@ -6,7 +6,6 @@ from functools import cache
 import pandas as pd
 import re
 
-from aggregate.clean_aggregated import rename_columns_demo
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.PUMA_helpers import (
     clean_PUMAs,
@@ -14,7 +13,7 @@ from utils.PUMA_helpers import (
     get_all_boroughs,
     borough_name_mapper,
 )
-from utils.PUMA_helpers import sheet_name, year_range, acs_years, dcp_pop_races
+from utils.PUMA_helpers import year_range, acs_years, dcp_pop_races
 from utils.dcp_population_excel_helpers import (
     measure_suffixes,
     race_suffix_mapper_global,
@@ -307,27 +306,3 @@ class ACSAggregator:
                 self.internal_review_category,
             )
         return final
-
-
-def load_clean_pop_demographics(year: str) -> pd.DataFrame:
-    """Function to merge the two files for the QOL outputs and do some standard renaming. Because
-    these are QOL indicators they remain in the same csv output with columns indicating year
-    """
-
-    def read_excel_arg(year):
-        return {
-            "io": f"./resources/ACS_PUMS/EDDT_Dem_ACS{year_range(year)}.xlsx",
-            "sheet_name": f"Dem{sheet_name(year)}",
-            "usecols": "A:HR",
-            "dtype": {"Geog": str},
-        }
-
-    df = pd.read_excel(**read_excel_arg(year))
-
-    df.loc[df["Geog"] == "NYC", "Geog"] = "citywide"
-
-    clean_data = rename_columns_demo(df, year[2:])
-
-    clean_data.rename(columns={"geog": "Geog"}, inplace=True)
-
-    return clean_data
