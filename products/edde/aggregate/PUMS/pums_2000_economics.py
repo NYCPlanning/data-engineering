@@ -25,14 +25,14 @@ edu_name_mapper = {
 }
 
 
-def filter_to_economic(df):
+def _filter_to_economic(df):
     """filter to educational attainment indicators"""
     df = df.filter(regex="GeoID|P25pl|LTHS|HSGrd|SClgA|BchD")
 
     return df
 
 
-def rename_cols(df):
+def _rename_cols(df):
     cols = map(str.lower, df.columns)
     # Replace dcp pop race codes with dcp DE established codes
     for code, race in race_suffix_mapper.items():
@@ -47,33 +47,7 @@ def rename_cols(df):
     return df
 
 
-def pums_2000_economics(geography: str, year="2000", write_to_internal_review=False):
-    """Main accessor. I know passing year here is silly, need to write it his way to
-    export. Needs refactor"""
-    assert geography in ["puma", "borough", "citywide"]
-    assert year == "2000"
-
-    final = (
-        load_2000_census()
-        .loc[geography]
-        .rename_axis(geography)
-        .pipe(filter_to_economic)
-        .pipe(rename_cols)
-        .pipe(order_pums_2000_economic)
-    )
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [
-                (final, "economic_2000.csv", geography),
-            ],
-            "household_economic_security",
-        )
-
-    return final
-
-
-def order_pums_2000_economic(final: pd.DataFrame):
+def _order_pums_2000_economic(final: pd.DataFrame):
     """Quick function written up against deadline, can definitely be refactored"""
     indicators_denom: list[tuple] = [
         (
@@ -93,4 +67,28 @@ def order_pums_2000_economic(final: pd.DataFrame):
         exclude_denom=True,
         demographics_category=False,
     )
+    return final
+
+
+def pums_2000_economics(geography: str, year="2000", write_to_internal_review=False):
+    assert geography in ["puma", "borough", "citywide"]
+    assert year == "2000"
+
+    final = (
+        load_2000_census()
+        .loc[geography]
+        .rename_axis(geography)
+        .pipe(_filter_to_economic)
+        .pipe(_rename_cols)
+        .pipe(_order_pums_2000_economic)
+    )
+
+    if write_to_internal_review:
+        set_internal_review_files(
+            [
+                (final, "economic_2000.csv", geography),
+            ],
+            "household_economic_security",
+        )
+
     return final
