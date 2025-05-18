@@ -1,17 +1,14 @@
-"""This script takes the xlsx files Erica from DCP Population sent us imports them,
-cleans the column names to match our column schema naming conventions, filters out
-unnecessary columns (the Housing Security and Quality Indicators
-[Total Occupied Units, Owner Occupied, Renter Occupied and the corresponding racial
-breakdowns]).
-"""
-
 import pandas as pd
-from aggregate.aggregation_helpers import demographic_indicators_denom
+
+from aggregate.load_aggregated import load_2000_census_pums_all_data
+from aggregate.aggregation_helpers import (
+    demographic_indicators_denom,
+    order_aggregated_columns,
+    get_category,
+)
 from utils.PUMA_helpers import clean_PUMAs, dcp_pop_races
 from internal_review.set_internal_review_file import set_internal_review_files
-from aggregate.aggregation_helpers import order_aggregated_columns, get_category
 from utils.dcp_population_excel_helpers import (
-    load_2000_census_pums_all_data,
     race_suffix_mapper,
     map_stat_suffix,
     remove_duplicate_cols,
