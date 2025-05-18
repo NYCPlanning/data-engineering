@@ -253,6 +253,29 @@ def load_acs_curr_and_prev(
     )
 
 
+### Create base load function that reads dcp population xlsx for 2000 census pums
+def load_2000_census_pums_all_data() -> pd.DataFrame:
+    df = pd.read_excel(
+        "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
+        skiprows=1,
+        dtype={"GeoID": str},
+    )
+    df = df.replace(
+        {
+            "GeoID": {
+                "Bronx": "BX",
+                "Brooklyn": "BK",
+                "Manhattan": "MN",
+                "Queens": "QN",
+                "Staten Island": "SI",
+                "NYC": "citywide",
+            }
+        }
+    )
+    df.set_index("GeoID", inplace=True)
+    return df
+
+
 @dataclass
 class ACSAggregator:
     name: str
