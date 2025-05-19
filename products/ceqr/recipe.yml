@@ -58,10 +58,8 @@ inputs:
       file_type: pg_dump
     - name: dpr_walk_to_a_park
     - name: lpc_landmarks
-      file_type: pg_dump
     - name: lpc_historic_district_areas
     - name: lpc_scenic_landmarks
-      file_type: pg_dump
     - name: nysshpo_historic_buildings_points
     - name: nysshpo_historic_buildings_polygons
     - name: nysparks_historicplaces
