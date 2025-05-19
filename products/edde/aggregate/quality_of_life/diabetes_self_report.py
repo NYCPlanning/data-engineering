@@ -1,7 +1,7 @@
 from ingest.ingestion_helpers import read_from_excel
 from utils.CD_helpers import (
     borough_name_mapper,
-    community_district_to_pum_new,
+    community_district_to_puma,
 )
 from internal_review.set_internal_review_file import set_internal_review_files
 
@@ -75,7 +75,7 @@ def load_clean_source_data(geography: str):
 
         df["cd_code"] = df["ID"].astype(str).str[-2:].astype(int)
         df["puma"] = df.apply(
-            lambda r: community_district_to_pum_new(r.borough, r.cd_code), axis=1
+            lambda r: community_district_to_puma(r.borough, r.cd_code), axis=1
         )
         df.drop_duplicates(subset=["puma"], keep="first", inplace=True)
     elif geography == "borough":

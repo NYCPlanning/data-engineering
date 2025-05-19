@@ -3,7 +3,7 @@ but no CD. Something to watch out for when testing"""
 
 from aggregate.load_aggregated import initialize_dataframe_geo_index
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.CD_helpers import community_district_to_pum_new
+from utils.CD_helpers import community_district_to_puma
 from utils.PUMA_helpers import borough_name_mapper
 from ingest import ingestion_helpers
 
@@ -26,7 +26,7 @@ def _dhs_shelter_single_year(geography: str, year: str, write_to_internal_review
     source_data["borough"] = source_data["borough"].map(borough_name_mapper)
 
     source_data["puma"] = source_data.apply(
-        lambda r: community_district_to_pum_new(
+        lambda r: community_district_to_puma(
             r.borough, r.community_district, ignore_errors=True
         ),  # type: ignore
         axis=1,
