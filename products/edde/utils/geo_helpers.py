@@ -116,8 +116,14 @@ def _get_cd_puma_crosswalk() -> dict[str, str]:
 def community_district_to_puma(
     borough_abbrev, comm_dist_num: str | int, ignore_errors=False
 ):
+    try:
+        comm_dist_num = int(comm_dist_num)
+    except Exception:
+        return ""
     if not ignore_errors:
-        assert len(borough_abbrev) == 2, "Abbreviated borough expected, e.g. BX"
+        assert len(borough_abbrev) == 2, (
+            f"Abbreviated borough expected, e.g. BX. got {borough_abbrev}"
+        )
         assert len(str(comm_dist_num)) <= 2, (
             f"Community District number should be two chars or less. got {comm_dist_num}"
         )
