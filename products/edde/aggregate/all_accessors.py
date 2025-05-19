@@ -2,7 +2,6 @@
 from aggregate.housing_production.area_within_historic_district import (
     fraction_historic,
 )
-from aggregate.housing_production.change_in_units import change_in_units
 from aggregate.housing_production.hpd_housing_ny_affordable_housing import (
     affordable_housing,
 )
@@ -77,7 +76,8 @@ from aggregate.PUMS.pums_2000_economics import pums_2000_economics
 from aggregate.PUMS.pums_demographics import acs_pums_demographics
 from aggregate.PUMS.pums_economics import acs_pums_economics
 
-housing_production_accessors = [fraction_historic, change_in_units, affordable_housing]
+# housing_production_accessors = [fraction_historic, change_in_units, affordable_housing]
+housing_production_accessors = [fraction_historic, affordable_housing]
 
 
 QOL_accessors = [

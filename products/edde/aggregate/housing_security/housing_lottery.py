@@ -1,6 +1,46 @@
 import pandas as pd
-from utils.geo_helpers import census_races, borough_name_mapper
+from utils.geo_helpers import (
+    census_races,
+    borough_name_mapper,
+    borough_num_mapper,
+    community_district_to_puma,
+)
 from aggregate.load_aggregated import initialize_dataframe_geo_index
+
+
+def _calc_borough(r):
+    if r.geo_type == "borough":
+        return borough_name_mapper[r.raw_geog]
+    elif r.geo_type == "cd":
+        boro_num = str(r.raw_geog)[0:1]
+        return borough_num_mapper[boro_num]
+    else:
+        return ""
+
+
+def _geo_for_type(r):
+    if r.geo_type == "citywide":
+        return "citywide"
+    elif r.geo_type == "borough":
+        return r.borough
+    else:
+        return r.puma
+
+
+def _load_lottery_xlsx(sheet_name):
+    df = pd.read_excel(
+        "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        dtype={"geog": str},
+        sheet_name=sheet_name,
+    ).rename(columns={"geog": "raw_geog"})
+    df["citywide"] = "citywide"
+    df["borough"] = df.apply(_calc_borough, axis=1)
+    df.loc[df["geo_type"] == "cd", "geo_type"] = "puma"
+    df.loc[df["geo_type"] == "puma", "puma"] = df[df["geo_type"] == "puma"].apply(
+        lambda r: community_district_to_puma(r.borough, str(r.raw_geog)[1:]), axis=1
+    )
+    df["geo"] = df.apply(_geo_for_type, axis=1)
+    return df.set_index(["geo_type", "geo"])
 
 
 def housing_lottery_applications(geography) -> pd.DataFrame:
@@ -19,66 +59,11 @@ def housing_lottery_leases(geography) -> pd.DataFrame:
 
 def lottery_data(geography: str, indicator: str):
     assert indicator in ["housing_lottery_applications", "housing_lottery_leases"]
-    data = load_lottery_data(geography, indicator)
+    data = _load_lottery_xlsx(indicator).loc[geography].rename_axis(geography)
     data = rename_columns(data, indicator)
     data = calculate_pct(data, indicator)
     data = reorder_columns(data, indicator)
     return data
-
-
-def load_lottery_data(geography: str, indicator: str):
-    read_csv_kwargs = {
-        "filepath_or_buffer": "resources/housing_security/housing_lottery_raw.csv",
-        "index_col": 0,
-        "usecols": list(range(7)),
-    }
-    if geography == "citywide":
-        read_csv_kwargs["header"] = 3
-        read_csv_kwargs["nrows"] = 2
-        citywide = (
-            pd.read_csv(**read_csv_kwargs).replace(",", "", regex=True).astype(int)
-        )
-        citywide.rename(
-            index={
-                "applications (2014-2020)": "housing_lottery_applications",
-                "signed leases (2014 - 2021)": "housing_lottery_leases",
-            },
-            inplace=True,
-        )
-        rv = citywide.loc[[indicator]]
-        rv.rename({indicator: "citywide"}, inplace=True)
-    if geography == "borough":
-        read_csv_kwargs["nrows"] = 12
-        read_csv_kwargs["header"] = 8
-        borough_data = pd.read_csv(
-            **read_csv_kwargs,
-        )
-        if indicator == "housing_lottery_applications":
-            rv = borough_data.iloc[1:6, :]
-        if indicator == "housing_lottery_leases":
-            rv = borough_data.iloc[7:, :]
-        rv = rv.replace(",", "", regex=True).astype(int, errors="ignore")
-        rv.rename(index=borough_name_mapper, inplace=True)
-
-    if geography == "puma":
-        read_csv_kwargs["index_col"] = None
-        read_csv_kwargs["nrows"] = 59
-        if indicator == "housing_lottery_applications":
-            read_csv_kwargs["header"] = 24
-        elif indicator == "housing_lottery_leases":
-            read_csv_kwargs["header"] = 89
-        puma_data = (
-            pd.read_csv(**read_csv_kwargs)
-            .replace(",", "", regex=True)
-            .astype(int, errors="ignore")
-        )
-        puma_data["Community District"] = puma_data["Community District"].astype(str)
-        assert False, "fix below"
-        # puma_data = community_district_to_PUMA(
-        #     puma_data, "Community District", CD_abbr_type="numeric_borough"
-        # )
-        rv = puma_data.groupby("puma").sum(min_count=1)
-    return rv
 
 
 def rename_columns(df: pd.DataFrame, indicator: str) -> pd.DataFrame:
