@@ -40,7 +40,7 @@ def get_release_from_section(soup: BeautifulSoup, section: str) -> str:
 
 if __name__ == "__main__":
     content = json.loads(requests.get(GEOSUPPORT_RELEASE_URL).content)
-    soup = BeautifulSoup(content["description"], features="lxml")
+    soup = BeautifulSoup(content["description"], features="html.parser")
     primary_release = get_release_from_section(soup, "Geosupport Desktop")
     upad_release = get_release_from_section(soup, "TPAD / UPAD")
 
