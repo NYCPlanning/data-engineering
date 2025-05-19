@@ -1,5 +1,5 @@
 import pandas as pd
-from utils.CD_helpers import community_district_to_PUMA, borough_name_mapper
+from utils.CD_helpers import borough_name_mapper
 from utils.PUMA_helpers import census_races
 from aggregate.load_aggregated import initialize_dataframe_geo_index
 
@@ -74,9 +74,10 @@ def load_lottery_data(geography: str, indicator: str):
             .astype(int, errors="ignore")
         )
         puma_data["Community District"] = puma_data["Community District"].astype(str)
-        puma_data = community_district_to_PUMA(
-            puma_data, "Community District", CD_abbr_type="numeric_borough"
-        )
+        assert False, "fix below"
+        # puma_data = community_district_to_PUMA(
+        #     puma_data, "Community District", CD_abbr_type="numeric_borough"
+        # )
         rv = puma_data.groupby("puma").sum(min_count=1)
     return rv
 
