@@ -10,7 +10,7 @@ from aggregate.aggregation_helpers import (
 from aggregate.load_aggregated import load_acs
 from aggregate.PUMS.pums_2000_demographics import pums_2000_demographics
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import dcp_pop_races, acs_years
+from utils.geo_helpers import dcp_pop_races, acs_years
 
 
 def acs_pums_demographics(

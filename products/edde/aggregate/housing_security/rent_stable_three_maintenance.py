@@ -1,5 +1,5 @@
 import pandas as pd
-from utils.PUMA_helpers import clean_PUMAs
+from utils.geo_helpers import clean_PUMAs
 from internal_review.set_internal_review_file import set_internal_review_files
 
 _HVS_PATH = "resources/housing_security/nychvs_2023.xlsx"

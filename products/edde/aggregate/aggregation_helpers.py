@@ -1,6 +1,6 @@
 import pandas as pd
 
-from utils.PUMA_helpers import (
+from utils.geo_helpers import (
     census_races,
     clean_PUMAs,
     borough_name_mapper,

@@ -6,7 +6,7 @@ import pandas as pd
 
 from aggregate.load_aggregated import load_2000_census
 from aggregate.aggregation_helpers import order_aggregated_columns
-from utils.PUMA_helpers import dcp_pop_races
+from utils.geo_helpers import dcp_pop_races
 from utils.dcp_population_excel_helpers import (
     race_suffix_mapper,
     map_stat_suffix,

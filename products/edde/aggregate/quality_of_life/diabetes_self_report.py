@@ -1,5 +1,5 @@
 from ingest.ingestion_helpers import read_from_excel
-from utils.CD_helpers import (
+from utils.geo_helpers import (
     borough_name_mapper,
     community_district_to_puma,
 )

@@ -7,13 +7,13 @@ import pandas as pd
 import re
 
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import (
+from utils.geo_helpers import (
     clean_PUMAs,
     get_all_NYC_PUMAs,
     get_all_boroughs,
     borough_name_mapper,
 )
-from utils.PUMA_helpers import year_range, acs_years, dcp_pop_races
+from utils.geo_helpers import year_range, acs_years, dcp_pop_races
 from utils.dcp_population_excel_helpers import (
     measure_suffixes,
     race_suffix_mapper_global,

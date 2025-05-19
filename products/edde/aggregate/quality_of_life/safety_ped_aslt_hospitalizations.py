@@ -1,7 +1,7 @@
 import pandas as pd
 
 from aggregate.decennial_census import decennial_census_001020 as census_helpers
-from utils import CD_helpers as cd_helpers
+from utils import geo_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
 
 
@@ -61,11 +61,11 @@ def calculate_per100k_rate(source_data):
 def _calc_geo_id(pd_row):
     match pd_row.geo_type:
         case "puma":
-            borough_alpha = cd_helpers.get_borough_num_mapper()[pd_row.Geography[0]]
+            borough_alpha = geo_helpers.borough_num_mapper[pd_row.Geography[0]]
             comm_dist_num = int(pd_row.Geography[1:3])
-            return cd_helpers.community_district_to_puma(borough_alpha, comm_dist_num)
+            return geo_helpers.community_district_to_puma(borough_alpha, comm_dist_num)
         case "borough":
-            return cd_helpers.get_borough_num_mapper()[pd_row.Geography]
+            return geo_helpers.borough_num_mapper[pd_row.Geography]
         case "citywide":
             return "citywide"
         case _:

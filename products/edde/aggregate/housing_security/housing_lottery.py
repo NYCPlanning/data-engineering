@@ -1,6 +1,5 @@
 import pandas as pd
-from utils.CD_helpers import borough_name_mapper
-from utils.PUMA_helpers import census_races
+from utils.geo_helpers import census_races, borough_name_mapper
 from aggregate.load_aggregated import initialize_dataframe_geo_index
 
 
