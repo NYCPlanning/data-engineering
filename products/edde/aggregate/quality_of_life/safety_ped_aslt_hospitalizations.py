@@ -63,9 +63,7 @@ def _calc_geo_id(pd_row):
         case "puma":
             borough_alpha = cd_helpers.get_borough_num_mapper()[pd_row.Geography[0]]
             comm_dist_num = int(pd_row.Geography[1:3])
-            return "0" + cd_helpers.community_district_to_pum_new(
-                borough_alpha, comm_dist_num
-            )
+            return cd_helpers.community_district_to_puma(borough_alpha, comm_dist_num)
         case "borough":
             return cd_helpers.get_borough_num_mapper()[pd_row.Geography]
         case "citywide":
