@@ -6,7 +6,7 @@ from utils.dcp_population_excel_helpers import (
     race_suffix_mapper,
     map_stat_suffix,
 )
-from utils.PUMA_helpers import clean_PUMAs, dcp_pop_races
+from utils.geo_helpers import clean_PUMAs, dcp_pop_races
 from internal_review.set_internal_review_file import set_internal_review_files
 
 _housing_tenure_name_mapper = {

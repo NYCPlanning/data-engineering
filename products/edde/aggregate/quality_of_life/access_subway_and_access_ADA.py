@@ -5,7 +5,7 @@
 
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import puma_to_borough
+from utils.geo_helpers import puma_to_borough
 from ingest.ingestion_helpers import read_from_excel
 
 # TODO: change back to 2025

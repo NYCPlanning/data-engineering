@@ -1,7 +1,7 @@
 from typing import List
 import pandas as pd
 
-from utils.PUMA_helpers import clean_PUMAs, puma_to_borough
+from utils.geo_helpers import clean_PUMAs, puma_to_borough
 
 from ingest.PUMS.PUMS_request import make_GET_request
 from ingest.PUMS.PUMS_query_manager import get_urls

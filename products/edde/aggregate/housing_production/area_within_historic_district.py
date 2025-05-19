@@ -1,6 +1,6 @@
 import geopandas as gp
 from ingest.ingestion_helpers import load_data
-from utils.PUMA_helpers import puma_to_borough
+from utils.geo_helpers import puma_to_borough
 
 
 supported_geographies = ["puma", "borough", "citywide"]

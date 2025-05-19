@@ -3,7 +3,7 @@ import pandas as pd
 
 from ingest import ingestion_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import borough_name_mapper, puma_from_coord
+from utils.geo_helpers import borough_name_mapper, puma_from_coord
 from utils.geocode import get_geosupport_puma
 
 report_years = {"2019", "2020", "2021", "2022", "2023", "2024"}

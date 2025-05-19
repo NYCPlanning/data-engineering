@@ -1,12 +1,18 @@
+from dcpy.utils.logging import logger
 from functools import cache
 from shapely.geometry import Point
 from numpy import nan
+
 from ingest.ingestion_helpers import load_data
+from ingest import ingestion_helpers
+
 
 # Why is this a PUMA helper?
 # TODO: move
 acs_years = ["0812", "1923"]
 acs_years_end_to_full = {"12": "0812", "23": "1923"}
+
+borough_num_mapper = {"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"}
 
 borough_code_mapper = {
     "042": "BX",
@@ -86,3 +92,26 @@ def filter_for_recognized_pumas(df):
     indicators that have rows by puma but include some non-PUMA rows. Sometimes
     we set nrows in read csv/excel but this approach is more flexible"""
     return df[df["puma"].isin(get_all_NYC_PUMAs())]
+
+
+@cache
+def _get_cd_puma_crosswalk() -> dict[str, str]:
+    """Get a map of community district keys to approximate PUMAS
+    e.g. BX3 -> 04263
+    """
+    logger.info("loading cd->puma crosswalk")
+    cw = ingestion_helpers.load_data("dcp_population_cd_puma_crosswalk_2020")
+    cw["puma_code"] = cw["puma_code"].apply(lambda c: f"0{c}")
+    cw["dist_key"] = cw["borough_code"] + cw["community_district_num"]
+    return cw.set_index("dist_key")["puma_code"].to_dict()
+
+
+def community_district_to_puma(
+    borough_abbrev, comm_dist_num: str | int, ignore_errors=False
+):
+    if not ignore_errors:
+        assert len(borough_abbrev) == 2, "Abbreviated borough expected, e.g. BX"
+        assert len(str(comm_dist_num)) <= 2, (
+            f"Community District number should be two chars or less. got {comm_dist_num}"
+        )
+    return _get_cd_puma_crosswalk().get(f"{borough_abbrev}{comm_dist_num}")
