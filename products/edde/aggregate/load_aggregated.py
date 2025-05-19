@@ -253,31 +253,6 @@ def load_acs_curr_and_prev(
     )
 
 
-# def load_2000_census() -> pd.DataFrame:
-#     df = (
-#         pd.read_excel(
-#             "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
-#             skiprows=1,
-#             dtype={"GeoID": str},
-#         )
-#         .rename(columns={"GeoId": "geog"})
-#         .replace(
-#             {
-#                 "geog": {
-#                     "Bronx": "BX",
-#                     "Brooklyn": "BK",
-#                     "Manhattan": "MN",
-#                     "Queens": "QN",
-#                     "Staten Island": "SI",
-#                     "NYC": "citywide",
-#                 }
-#             }
-#         )
-#     )
-#     df.set_index("GeoID", inplace=True)
-#     return df
-
-
 def load_2000_census() -> pd.DataFrame:
     df = pd.read_excel(
         "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
