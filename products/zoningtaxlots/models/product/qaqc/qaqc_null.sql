@@ -11,17 +11,49 @@ prev_version AS (
 ),
 
 newnull AS (
-    {{ union_newnulls(left='new_version', right='prev_version', 
-    cols=['zoning_district_1','zoning_district_2','zoning_district_3','zoning_district_4',
-        'commercial_overlay_1','commercial_overlay_2','special_district_1','special_district_2',
-        'special_district_3','limited_height_district','zoning_map_number','zoning_map_code']) }}
+    {{ 
+        union_newnulls(
+            left='new_version',
+            right='prev_version',
+            cols=[
+                'zoning_district_1',
+                'zoning_district_2',
+                'zoning_district_3',
+                'zoning_district_4',
+                'commercial_overlay_1',
+                'commercial_overlay_2',
+                'special_district_1',
+                'special_district_2',
+                'special_district_3',
+                'limited_height_district',
+                'zoning_map_number',
+                'zoning_map_code'
+            ]
+        ) 
+    }}
 ),
 
 newvalue AS (
-    {{ union_newvalues(left='new_version', right='prev_version', 
-    cols=['zoning_district_1','zoning_district_2','zoning_district_3','zoning_district_4',
-        'commercial_overlay_1','commercial_overlay_2','special_district_1','special_district_2',
-        'special_district_3','limited_height_district','zoning_map_number','zoning_map_code']) }}
+    {{
+        union_newvalues(
+            left='new_version',
+            right='prev_version',
+            cols=[
+                'zoning_district_1',
+                'zoning_district_2',
+                'zoning_district_3',
+                'zoning_district_4',
+                'commercial_overlay_1',
+                'commercial_overlay_2',
+                'special_district_1',
+                'special_district_2',
+                'special_district_3',
+                'limited_height_district',
+                'zoning_map_number',
+                'zoning_map_code'
+            ]
+        )
+    }}
 ),
 
 qaqc_new_nulls AS (

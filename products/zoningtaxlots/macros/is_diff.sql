@@ -5,5 +5,5 @@
         ({{left_table}}.{{column}} IS NULL AND {{right_table}}.{{column}} IS NOT NULL)
         OR
         ({{left_table}}.{{column}} IS NOT NULL AND {{right_table}}.{{column}} IS NULL)
-        )
+    )
 {% endmacro %}
