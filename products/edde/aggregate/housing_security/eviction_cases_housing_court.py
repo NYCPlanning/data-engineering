@@ -1,7 +1,7 @@
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
 
-from utils.CD_helpers import community_district_to_PUMA, get_borough_num_mapper
+from utils.CD_helpers import get_borough_num_mapper
 
 
 def load_filings():
@@ -17,9 +17,10 @@ def load_filings():
     filings["borough"] = (
         filings["Community District"].str[0].map(get_borough_num_mapper())
     )
-    filings = community_district_to_PUMA(
-        df=filings, CD_col="Community District", CD_abbr_type="numeric_borough"
-    )
+    assert False, "Fix below before running"
+    # filings = community_district_to_PUMA(
+    #     df=filings, CD_col="Community District", CD_abbr_type="numeric_borough"
+    # )
 
     return filings
 
