@@ -1,6 +1,6 @@
 import geopandas as gp
 from ingest.ingestion_helpers import load_data
-from utils.geo_helpers import puma_to_borough
+from utils.geo_helpers import get_2020_pumas
 
 
 supported_geographies = ["puma", "borough", "citywide"]
@@ -19,15 +19,11 @@ def _load_historic_districts_gdf() -> gp.GeoDataFrame:
 
 def _generate_geographies(geography_level):
     # geometry column = "geom"
-    pumas: gp.GeoDataFrame = load_data("dcp_pumas2020", is_geospatial=True).to_crs(
-        "EPSG:2263"
-    )  # type: ignore
-    pumas["puma"] = "0" + pumas["puma"]
+    pumas = get_2020_pumas()
 
     if geography_level == "puma":
         return pumas.set_index("puma")
     if geography_level == "borough":
-        pumas["borough"] = pumas.apply(puma_to_borough, axis=1)
         by_borough = pumas.dissolve(by="borough")
         return by_borough
     if geography_level == "citywide":

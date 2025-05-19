@@ -1,6 +1,8 @@
+import geopandas as gpd
 import pandas as pd
-from utils.geo_helpers import borough_name_mapper, puma_from_coord
+
 from ingest.ingestion_helpers import load_data
+from utils.geo_helpers import borough_name_mapper, puma_from_point
 
 cols = [
     "project_id",
@@ -10,8 +12,8 @@ cols = [
     "number",
     "street",
     "borough",
-    "latitude_(internal)",
-    "longitude_(internal)",
+    "latitude",
+    "longitude",
     "building_completion_date",
     "reporting_construction_type",
     "extremely_low_income_units",
@@ -39,20 +41,26 @@ numeric_cols = [
     "moderate_income_units",
     "middle_income_units",
     "other_income_units",
-    "latitude_(internal)",
-    "longitude_(internal)",
+    # "latitude_(internal)",
+    # "longitude_(internal)",
 ]
 
 
 def _load_housing_ny():
     df = load_data(
         "hpd_hny_units_by_building",
-        cols=cols,
+        # cols=cols,
     ).replace({"borough": borough_name_mapper})
 
+    gdf = gpd.GeoDataFrame(
+        df,
+        geometry=gpd.points_from_xy(df.longitude, df.latitude),
+        crs="EPSG:4326",
+    ).to_crs("EPSG:2263")
+
     for c in numeric_cols:
-        df[c] = pd.to_numeric(df[c])
-    return df
+        gdf[c] = pd.to_numeric(gdf[c])
+    return gdf
 
 
 def _pivot_add_total(df, geography):
@@ -124,17 +132,14 @@ def _puma_hny_units_con_type(df):
         subset=["latitude_(internal)", "longitude_(internal)"]
     )
 
-    filtered_df["puma"] = filtered_df.apply(
-        lambda r: puma_from_coord(r["longitude_(internal)"], r["latitude_(internal)"]),
-        axis=1,
-    )
-
+    filtered_df["puma"] = filtered_df.geometry.apply(puma_from_point)
     results = (
         filtered_df.groupby(["reporting_construction_type", "puma"])[unit_income_levels]
         .sum()
         .reset_index()
     )
 
+    # return results
     results = _pivot_add_total(results, "puma")
 
     return results.set_index("puma")
