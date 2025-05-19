@@ -66,21 +66,28 @@ def clean_PUMAs(puma: str | int):
 
 
 @cache
-def _get_2020_pumas():
-    return load_data("dcp_pumas2020", is_geospatial=True)
+def get_2020_pumas():
+    pumas = load_data("dcp_pumas2020", is_geospatial=True).to_crs("EPSG:2263")  # type: ignore
+    pumas["puma"] = pumas["puma"].apply(lambda p: f"0{p}")
+    pumas["borough"] = pumas.apply(puma_to_borough, axis=1)
+    return pumas
+
+
+def puma_from_point(point) -> str | None:
+    pumas = get_2020_pumas()
+    matched = pumas[pumas.geom.contains(point)]
+    return None if matched.empty else matched.puma.values[0]
 
 
 def puma_from_coord(longitude, latitude) -> str | None:
     assert latitude and longitude
-    pumas = _get_2020_pumas()
+    pumas = get_2020_pumas()
     matched = pumas[pumas.geom.contains(Point(longitude, latitude))]
     return None if matched.empty else matched.puma.values[0]
 
 
-def get_all_NYC_PUMAs(prefix_zeros=True):
-    # prefix_zeros is an unfortuante hack for now
-    puma_boundaries = load_data("dcp_pumas2020")
-    return [f"{'0' if prefix_zeros else ''}{p}" for p in puma_boundaries["puma"]]
+def get_all_NYC_PUMAs() -> list[str]:
+    return list(get_2020_pumas()["puma"])
 
 
 def get_all_boroughs():

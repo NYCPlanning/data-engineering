@@ -211,16 +211,12 @@ def select_acs_cols(
 
 
 def _calc_geog_type(geog: str):
-    all_pumas = get_all_NYC_PUMAs(prefix_zeros=False)  # + get_all_NYC_PUMAs() # TODO
     if geog == "citywide":
         return "citywide"
     elif geog in borough_name_mapper:
         return "borough"
-    elif geog in all_pumas:
-        return "puma"
     else:
-        logger.error(f"Could not map geog: {geog} from the ACS")
-        return ""
+        return "puma"
 
 
 def load_acs(year_window: str) -> pd.DataFrame:

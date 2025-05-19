@@ -1,9 +1,10 @@
 import usaddress
 import pandas as pd
+import geopandas as gpd
 
 from ingest import ingestion_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.geo_helpers import borough_name_mapper, puma_from_coord
+from utils.geo_helpers import borough_name_mapper, puma_from_point
 from utils.geocode import get_geosupport_puma
 
 report_years = {"2019", "2020", "2021", "2022", "2023", "2024"}
@@ -11,6 +12,12 @@ report_years = {"2019", "2020", "2021", "2022", "2023", "2024"}
 
 def _load_residential_evictions() -> pd.DataFrame:
     evictions = ingestion_helpers.load_data("doi_evictions")
+    evictions = gpd.GeoDataFrame(
+        evictions,
+        geometry=gpd.points_from_xy(evictions.longitude, evictions.latitude),
+        crs="EPSG:4326",
+    ).to_crs("EPSG:2263")
+
     residential_evictions = evictions[
         evictions["residential/commercial"] == "Residential"
     ].copy()
@@ -68,9 +75,7 @@ def _from_geocoded_eviction_address(record) -> str:
 
 def _get_puma(df_record) -> str | None:
     if pd.notnull(df_record.latitude) and pd.notnull(df_record.longitude):
-        return puma_from_coord(
-            longitude=df_record.longitude, latitude=df_record.latitude
-        )
+        return puma_from_point(df_record.geometry)
     else:
         return _from_geocoded_eviction_address(df_record)
 
@@ -90,6 +95,7 @@ def _aggregate_by_geography(evictions, geography_level):
 
 def count_residential_evictions(geography_level, write_to_internal_review=False):
     residential_evictions = _load_residential_evictions()
+
     aggregated_by_geography = _aggregate_by_geography(
         residential_evictions, geography_level
     )
