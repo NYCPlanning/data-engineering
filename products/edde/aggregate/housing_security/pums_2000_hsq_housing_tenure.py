@@ -1,6 +1,6 @@
 import pandas as pd
 
-from aggregate.load_aggregated import load_2000_census_pums_all_data
+from aggregate.load_aggregated import load_2000_census
 from aggregate.aggregation_helpers import order_aggregated_columns
 from utils.dcp_population_excel_helpers import (
     race_suffix_mapper,
@@ -60,7 +60,7 @@ def _order_pums_2000_hsq(final: pd.DataFrame):
 def pums_2000_hsq_housing_tenure(geography: str, write_to_internal_review=False):
     assert geography in ["puma", "borough", "citywide"]
 
-    source_data = load_2000_census_pums_all_data()
+    source_data = load_2000_census()
 
     """Filter to columns that are only housing tenure related that should be included in the housing
     Security + quality 2000 output"""
