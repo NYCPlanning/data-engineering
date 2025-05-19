@@ -37,7 +37,6 @@ CREATE TABLE pluto_rpad_geo AS (
 );
 
 
-
 ALTER TABLE pluto_rpad_geo RENAME numberofexistingstructures TO numberofexistingstructuresonlot;
 
 ALTER TABLE pluto_rpad_geo ADD ap_datef text;
