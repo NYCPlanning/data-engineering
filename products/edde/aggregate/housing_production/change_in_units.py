@@ -3,9 +3,9 @@ from typing import List
 import pandas as pd
 import geopandas as gpd
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.geo_helpers import clean_PUMAs, PUMAs
+from utils.geo_helpers import get_2020_pumas, borough_num_mapper
 
-from ingest.ingestion_helpers import read_from_S3
+from ingest.ingestion_helpers import load_data
 
 
 job_type_mapper = {
@@ -17,66 +17,30 @@ job_type_mapper = {
 }
 
 
-def load_housing_data():
-    df = read_from_S3("dcp_housing", "housing_production", cols=get_columns())
-
-    for c in [
-        "complete_year",
-        "classa_net",
-        "latitude",
-        "longitude",
-    ]:
-        df[c] = pd.to_numeric(df[c])
-
-    census10 = pd.read_excel(
-        "https://www1.nyc.gov/assets/planning/download/office/planning-level/nyc-population/census2010/tothousing_vacant_2010ct.xlsx",
-        header=4,
-        usecols=[
-            "2010 Census FIPS County Code",
-            "2010 DCP Borough Code",
-            "2010 Census Tract",
-            "Total Housing Units",
-        ],
-        dtype=str,
+def _load_2010_denom():
+    df = (
+        pd.read_csv(
+            "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
+            dtype={"HUnits": int},
+        ).rename(columns={"HUnits": "total_units_2010", "GeoType": "geo_type"})
+        # .set_index("Geog")
     )
-
-    puma_cross = pd.read_excel(
-        "https://www1.nyc.gov/assets/planning/download/office/data-maps/nyc-population/census2010/nyc2010census_tabulation_equiv.xlsx",
-        header=3,
-        dtype=str,
-        usecols=["2010 Census Bureau FIPS County Code", "2010 Census Tract", "PUMA"],
+    df["geo_type"] = df["geo_type"].replace(
+        {"NYC2020": "citywide", "Boro2020": "borough", "NTA2020": "puma"}
     )
+    df.loc[df["geo_type"] == "borough", "borough"] = df.loc[
+        df["geo_type"] == "borough"
+    ].Geog
+    df.loc[df["geo_type"] == "citywide", "citywide"] = "citywide"
 
-    census10["nycct"] = (
-        census10["2010 Census FIPS County Code"] + census10["2010 Census Tract"]
+    ntas_to_pumas = (
+        load_data("dcp_population_nta_puma_crosswalk_2020")
+        .set_index("nta_code")
+        .rename(columns={"puma_code": "puma"})
     )
+    ntas_to_pumas["puma"] = "0" + ntas_to_pumas["puma"]
 
-    puma_cross["nycct"] = (
-        puma_cross["2010 Census Bureau FIPS County Code"]
-        + puma_cross["2010 Census Tract"]
-    )
-    puma_cross["PUMA"] = puma_cross["PUMA"].apply(clean_PUMAs)
-    puma_cross["PUMA"] = puma_cross["PUMA"].apply(clean_PUMAs)
-
-    census10_ = census10.merge(puma_cross[["nycct", "PUMA"]], how="left", on="nycct")
-
-    census10_["Total Housing Units"] = census10_["Total Housing Units"].apply(
-        lambda x: pd.to_numeric(x, errors="coerce")
-    )
-
-    census10_.rename(
-        columns={
-            "Total Housing Units": "total_units_2010",
-            "2010 DCP Borough Code": "borough",
-            "PUMA": "puma",
-        },
-        inplace=True,
-    )
-    census10_.borough = census10_.borough.map(
-        {"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"}
-    )
-    census10_["citywide"] = "citywide"
-    return df, census10_
+    return df.set_index("Geog").join(ntas_to_pumas, how="left").reset_index(drop=True)
 
 
 def get_columns() -> list:
@@ -120,7 +84,20 @@ def pivot_and_flatten_index(df, geography):
     return df_pivot
 
 
-def clean_jobs(df):
+def _load_housing_data():
+    """Load dcp_housing, clean columns, and spatially join in the PUMA"""
+    df = load_data("dcp_housing", cols=get_columns())
+    df = gpd.GeoDataFrame(
+        df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326"
+    ).to_crs("EPSG:2263")
+    for c in [
+        "complete_year",
+        "classa_net",
+        "latitude",
+        "longitude",
+    ]:
+        df[c] = pd.to_numeric(df[c])
+
     # DROP INACTIVATE JOBS ACCRODING TO SAM
     df = df.loc[df.job_inactive.isnull()]
     df = df.loc[df["complete_year"] >= 2010]
@@ -129,28 +106,19 @@ def clean_jobs(df):
     df.drop(
         df.loc[df.job_status != "5. Completed Construction"].index, axis=0, inplace=True
     )
+    df["citywide"] = "citywide"
 
     # drop rows where alterations is zero and create two types for alterations
     df.loc[(df.job_type == "Alteration") & (df.classa_net < 0), "job_type"] = (
         "Alteration_Decrease"
     )
-
     df.loc[(df.job_type == "Alteration") & (df.classa_net > 0), "job_type"] = (
         "Alteration_Increase"
     )
-
     df.drop(df.loc[df.job_type == "Alteration"].index, axis=0, inplace=True)
 
-    df["citywide"] = "citywide"
-    df.rename(columns={"boro": "borough"}, inplace=True)
-    puma = PUMAs
-    puma = puma[["puma", "geometry"]]
-    gdf = gpd.GeoDataFrame(
-        df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326"
-    )
-    df = gdf.sjoin(puma, how="left", predicate="within")
-    df.borough = df.borough.astype(str)
-    df.borough = df.borough.map({"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"})
+    df = df.sjoin(get_2020_pumas(), how="left", predicate="within")
+    df.borough = df.boro.astype(str).map(borough_num_mapper)
 
     return df
 
@@ -162,24 +130,24 @@ def rename_col(cols) -> List:
 
 
 def change_in_units(geography: str, write_to_internal_review=False):
-    """Main accessor for this function"""
     assert geography in ["citywide", "borough", "puma"]
-    df, census10 = load_housing_data()
-    df = clean_jobs(df)
+    df = _load_housing_data()
 
     # aggregation begins here
-    results = (
-        df.groupby(["job_type", geography]).agg({"classa_net": "sum"}).reset_index()
-    )
     all_job_type = (
         df.groupby(geography)
         .agg({"classa_net": "sum", "job_type": "max"})
         .reset_index()
     )
     all_job_type.job_type = "All"
+
+    results = (
+        df.groupby(["job_type", geography]).agg({"classa_net": "sum"}).reset_index()
+    )
     results = pd.concat([results, all_job_type], axis=0)
 
     # join with 2010 units from census
+    census10 = _load_2010_denom()
     census_units = census10.groupby(geography)["total_units_2010"].sum().reset_index()
     results = results.merge(census_units, on=geography, how="left")
 
