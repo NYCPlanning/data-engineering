@@ -13,10 +13,6 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-IGNORE_UPAD_RELEASE = (
-    True  # TODO this is temporary while an image with 22c4 UPAD needs to be built
-)
-
 CALLER_ENVIRONMENT_VARIABLE_NAME = "VERSIONSTRING"
 GEOSUPPORT_RELEASE_URL = "https://apps.nyc.gov/content-api/v1/content/planning/resources/geocoding/geosupport-desktop-edition"
 # to convert a release letter to a number for the docker image tag
@@ -56,16 +52,8 @@ if __name__ == "__main__":
         release = upad_release
     else:
         logging.info("WARNING! Mismatch between posted Primary and UPAD releases")
-        # posted UPAD is not meant for current release
-        # TODO this is temporary while an image with 22c4 UPAD needs to be built
-        # note 2025-05 - not sure if this is needed
-        if IGNORE_UPAD_RELEASE:
-            logging.info("Ignoring UPAD release")
-            release = primary_release
-        else:
-            # build for the posted UPAD
-            logging.info("Prioritizing UPAD release")
-            release = upad_release
+        logging.info("Ignoring UPAD release")
+        release = primary_release
 
     logging.info(f"{release=}")
     patch = 0 if len(release) == 3 else release[3]
