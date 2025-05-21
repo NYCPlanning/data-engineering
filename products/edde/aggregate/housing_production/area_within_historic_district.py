@@ -7,18 +7,16 @@ supported_geographies = ["puma", "borough", "citywide"]
 
 
 def _load_historic_districts_gdf() -> gp.GeoDataFrame:
-    # geom col = wkb_geometry
     return (
         load_data("lpc_historic_district_areas", is_geospatial=True)
         .to_crs(  # type: ignore
             "EPSG:2263"
         )
-        .explode(column="wkb_geometry")  # , index_parts=True)
+        .explode(column="wkb_geometry")
     )
 
 
 def _generate_geographies(geography_level):
-    # geometry column = "geom"
     pumas = get_2020_pumas()
 
     if geography_level == "puma":

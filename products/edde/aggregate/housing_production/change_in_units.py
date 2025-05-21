@@ -18,13 +18,10 @@ job_type_mapper = {
 
 
 def _load_2010_denom():
-    df = (
-        pd.read_csv(
-            "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
-            dtype={"HUnits": int},
-        ).rename(columns={"HUnits": "total_units_2010", "GeoType": "geo_type"})
-        # .set_index("Geog")
-    )
+    df = pd.read_csv(
+        "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
+        dtype={"HUnits": int},
+    ).rename(columns={"HUnits": "total_units_2010", "GeoType": "geo_type"})
     df["geo_type"] = df["geo_type"].replace(
         {"NYC2020": "citywide", "Boro2020": "borough", "NTA2020": "puma"}
     )
