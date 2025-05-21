@@ -41,15 +41,12 @@ numeric_cols = [
     "moderate_income_units",
     "middle_income_units",
     "other_income_units",
-    # "latitude_(internal)",
-    # "longitude_(internal)",
 ]
 
 
 def _load_housing_ny():
     df = load_data(
         "hpd_hny_units_by_building",
-        # cols=cols,
     ).replace({"borough": borough_name_mapper})
 
     gdf = gpd.GeoDataFrame(
@@ -131,17 +128,13 @@ def _puma_hny_units_con_type(df):
     filtered_df = df[df.project_name != "CONFIDENTIAL"].dropna(
         subset=["latitude_(internal)", "longitude_(internal)"]
     )
-
     filtered_df["puma"] = filtered_df.geometry.apply(puma_from_point)
     results = (
         filtered_df.groupby(["reporting_construction_type", "puma"])[unit_income_levels]
         .sum()
         .reset_index()
     )
-
-    # return results
     results = _pivot_add_total(results, "puma")
-
     return results.set_index("puma")
 
 

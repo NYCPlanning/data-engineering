@@ -86,7 +86,6 @@ def _aggregate_by_geography(evictions, geography_level):
         evictions["puma"] = evictions.apply(_get_puma, axis=1)
     elif geography_level == "citywide":
         evictions["citywide"] = "citywide"
-        # final = evictions.groupby("citywide").size()
     final = evictions.groupby(geography_level).size()
     final.name = "evictions_count"
 

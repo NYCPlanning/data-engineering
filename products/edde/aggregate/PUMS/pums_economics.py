@@ -58,7 +58,6 @@ def load_clean_source_data(year: str):
 
     col_order = order_economics(source, year)
     source = source.filter(items=["geog_type", "geog"] + col_order)
-    # source = source.reindex(columns=col_order)
 
     num_valid_columns = len([c for c in source.columns if "median_pct" not in c])
     assert len(col_order) == num_valid_columns, (

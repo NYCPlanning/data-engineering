@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
-from utils.geo_helpers import acs_years
-from internal_review.set_internal_review_file import set_internal_review_files
-
 
 from aggregate.load_aggregated import ACSAggregator
+from internal_review.set_internal_review_file import set_internal_review_files
+from utils.geo_helpers import acs_years
 
 rent_median_agg = ACSAggregator(
     name="rent_median",
@@ -23,8 +22,7 @@ units_payingrent_agg = ACSAggregator(
 )
 
 
-# TODO: This is producing some weird weird discrepancies from the original
-# The post-processing breaks the pattern... we could just add a
+# The post-processing breaks the ACSAggregator pattern... we could just add a
 # post-processor to ACSAggregator, but I'm in no hurry
 def rent_median(
     geography: str,

@@ -96,8 +96,6 @@ def pums_2000_demographics(geography: str, year="2000", write_to_internal_review
         set_internal_review_files(
             [
                 (final, "demographics_00_PUMS.csv", geography),
-                # (df_borough, "demographics_00_PUMS.csv", "borough"),
-                # (df_puma, "demographics_00_PUMS.csv", "puma"),
             ],
             "demographics",
         )
