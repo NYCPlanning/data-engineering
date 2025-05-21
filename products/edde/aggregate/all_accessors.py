@@ -62,7 +62,7 @@ from aggregate.quality_of_life.education_outcome import get_education_outcome
 #     overdose_mortality,
 #     premature_mortality,
 # )
-from aggregate.quality_of_life.heat_vulnerability import heat_vulnerability
+# from aggregate.quality_of_life.heat_vulnerability import heat_vulnerability
 from aggregate.quality_of_life.safety_ped_aslt_hospitalizations import (
     assault_hospitalizations,
     # pedestrian_hospitalizations,
@@ -90,7 +90,7 @@ QOL_accessors = [
     access_subway_and_access_ADA,
     get_education_outcome,
     # covid_death,
-    heat_vulnerability,
+    # heat_vulnerability,
     health_self_reported,
     # infant_mortality,
     # overdose_mortality,
