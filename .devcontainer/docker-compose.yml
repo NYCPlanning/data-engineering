@@ -11,7 +11,6 @@ services:
     working_dir: /home/vscode/workspace
     volumes:
       - ..:/home/vscode/workspace:cached
-      - ../.devcontainer/sftp/ssh_host_rsa_key_dcpy:/home/vscode/.ssh/ssh_host_rsa_key_dcpy
     ports:
       - "8501:8501"
     tty: true
@@ -23,12 +22,18 @@ services:
     ports:
       - 5432:5432
   sftp-server:
-    # To test connection for a dev container terminal:
-    # sftp -i .devcontainer/sftp/ssh_host_rsa_key -o StrictHostKeyChecking=no dedev@sftp-server
+    # To test SFTP connection from a dev container terminal:
+    # Ensure .devcontainer/sftp/id_rsa_key_integration_test has 600 permissions.
+    # Then run:
+    # sftp -i .devcontainer/sftp/id_rsa_key_integration_test \
+    #      -o StrictHostKeyChecking=yes \
+    #      -o UserKnownHostsFile=.devcontainer/sftp/known_hosts_integration_test \
+    #      dedev@sftp-server
     image: atmoz/sftp:alpine
     volumes:
-      - ../.devcontainer/sftp/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
-      - ../.devcontainer/sftp/ssh_host_rsa_key.pub:/home/dedev/.ssh/keys/ssh_host_rsa_key.pub:ro
+      - ../.devcontainer/sftp/ssh_host_ed25519_integration_test.pub:/etc/ssh/ssh_host_ed25519_key.pub:ro
+      - ../.devcontainer/sftp/ssh_host_ed25519_integration_test:/etc/ssh/ssh_host_ed25519_key   # don't add :ro in the end because the sftp container sets appropriate key permissions
+      - ../.devcontainer/sftp/id_rsa_key_integration_test.pub:/home/dedev/.ssh/keys/id_rsa_key_integration_test.pub:ro
       - ../.devcontainer/sftp/remote_files:/home/dedev/remote_files
     ports:
       - "2222:22"
