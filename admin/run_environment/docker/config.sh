@@ -10,7 +10,7 @@ function install_geosupport {
         cd /geocode
         FILE_NAME=linux_geo${RELEASE}_${MAJOR}.${MINOR}.zip
         echo $FILE_NAME
-        curl -O https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/$FILE_NAME
+        curl -O https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/geosupport/$FILE_NAME
         unzip *.zip
         rm *.zip
 
