@@ -4,11 +4,30 @@ import typer
 
 from dcpy import configuration
 from dcpy.models.product import metadata as product_metadata
-from dcpy.models.lifecycle.distribute import DatasetDestinationFilters
+from dcpy.models.lifecycle.distribute import DatasetDestinationFilters, DistributeResult
 from dcpy.models.lifecycle.validate import ValidationArgs
+import dcpy.models.product.metadata as prod_md
 from dcpy.lifecycle import package
 from dcpy.lifecycle import distribute
 from dcpy.utils.logging import logger
+
+
+def _make_results_table(distribute_results: list[DistributeResult]) -> str:
+    return tabulate(
+        [
+            [
+                r.dataset_id,
+                r.destination_id,
+                r.destination_type,
+                "✅" if r.success else "❌",
+                r.result,
+            ]
+            for r in distribute_results
+        ],
+        headers=["dataset", "destination_id", "destination type", "success?", "result"],
+        tablefmt="presto",
+        maxcolwidths=[20, 10, 10, 8, 70],
+    )
 
 
 # Future thought: this type of glue function shouldn't be necessary if
@@ -24,10 +43,11 @@ def package_and_distribute(
     metadata_only: bool = False,
     validation_conf: ValidationArgs = {},
     destination_filters: DatasetDestinationFilters = {},
-):
+) -> list[DistributeResult]:
     """Package tagged datasets from the source, and distribute to specified destinations."""
-
-    logger.info(f"Packaging and Distributing with filters: {destination_filters}")
+    logger.info(
+        f"Packaging and Distributing with filters: {destination_filters}. Validation conf: {validation_conf}"
+    )
 
     destination_filters["datasets"] = frozenset({dataset})
     product_md = org_md.product(product)
@@ -80,26 +100,59 @@ def package_and_distribute(
             metadata_only=metadata_only,
         )
         distribute_results.append(result)
-
-    stringified_results = tabulate(
-        [
-            [r.dataset_id, r.destination_id, r.destination_type, r.success, r.result]
-            for r in distribute_results
-        ],
-        headers=["dataset", "destination_id", "destination type", "success?", "result"],
-        tablefmt="presto",
-        maxcolwidths=[20, 10, 10, 10, 50],
-    )
+        logger.info(str(result)) if result.success else logger.error(str(result))
 
     if any([not r.success for r in distribute_results]):
-        logger.error("Distribution Finished, but issues occurred!")
-        logger.error(stringified_results)
-        raise Exception("Distribution errors occurred. See the logs for details.")
+        logger.error(
+            f"Distribution for {product}.{version}.{dataset}. Finished, but issues occurred!"
+        )
+        logger.error(str(distribute_results))
+    else:
+        logger.info("Finished distributing batch. No Errors.")
 
-    logger.info("Distribution Finished")
-    logger.info(stringified_results)
+    return distribute_results
 
 
+def _get_product_metadata(version: str, *, md_path_override: Path | None = None):
+    md_path = md_path_override or configuration.PRODUCT_METADATA_REPO_PATH
+    assert md_path
+    return prod_md.OrgMetadata.from_path(
+        Path(md_path),
+        template_vars={"version": version},
+    )
+
+
+app = typer.Typer()
+
+
+def calculate_tagged_destinations(version: str, product_id: str, tag: str):
+    """calculate tagged destination by product for given version.
+
+    This should be sufficient information to deploy all datasets within a product,
+    if they're tagged.
+    """
+    org_md = _get_product_metadata(version)
+    product = org_md.product(product_id).query_destinations(destination_tag=tag)
+
+    targets = []
+    for ds_id, ds_id_to_md in product.items():
+        for dest_id, md in ds_id_to_md.items():
+            packaged_files_source = md.get_destination(dest_id).custom.get(
+                "packaged_files_source"
+            )
+            targets.append(
+                {
+                    "product": product_id,
+                    "version": version,
+                    "dataset": ds_id,
+                    "source_destination_id": packaged_files_source,
+                    "destination_id": dest_id,
+                }
+            )
+    return targets
+
+
+@app.command("dataset")
 def package_and_distribute_cli(
     product: str,
     version: str,
@@ -155,7 +208,7 @@ def package_and_distribute_cli(
         path=Path(configuration.PRODUCT_METADATA_REPO_PATH),
         template_vars={"version": version},
     )
-    package_and_distribute(
+    distribute_results = package_and_distribute(
         org_md,
         product,
         dataset,
@@ -173,3 +226,85 @@ def package_and_distribute_cli(
             "skip_validation": skip_validation,
         },
     )
+    typer.echo(_make_results_table(distribute_results))
+
+
+@app.command("product")
+def package_and_distribute_product(
+    product: str,
+    version: str,
+    destination_tag: str = typer.Option(
+        None,
+        "-t",
+        "--dest-tag",
+        help="Destination tag to filter for.",
+    ),
+    # Overrides
+    publish: bool = typer.Option(
+        False,
+        "-p",
+        "--publish",
+        help="Publish the Socrata Revision? Or leave it open.",
+    ),
+    # TODO: validation seems a little broken... at some point, let's fix this
+    # ignore_validation_errors: bool = typer.Option(
+    #     False,
+    #     "-i",
+    #     "--ignore-validation-errors",
+    #     help="Ignore Validation Errors? Will still perform validation, but ignore errors, allowing a push",
+    # ),
+    # skip_validation: bool = typer.Option(
+    #     True,
+    #     "-y",  # -y(olo)
+    #     "--skip-validation",
+    #     help="Skip Validation Altogether",
+    # ),
+    metadata_only: bool = typer.Option(
+        False,
+        "-m",
+        "--metadata-only",
+        help="Only push metadata (including attachments).",
+    ),
+):
+    targets = calculate_tagged_destinations(
+        version=version, product_id=product, tag=destination_tag
+    )
+    assert targets, f"No targets found for {version} {product} {destination_tag}"
+
+    prettified_targets = [
+        f"{t['product']}.{t['version']}.{t['dataset']}.{t['destination_id']}"
+        for t in targets
+    ]
+
+    typer.echo("Distributing the following datasets")
+    typer.echo("\n".join(prettified_targets))
+
+    distribute_results = []
+    for t in targets:
+        t["publish"] = publish
+        t["metadata_only"] = metadata_only
+
+        destination_id = t["destination_id"]
+        t["destination_filters"] = {"destination_id": destination_id}
+        del t["destination_id"]
+
+        t["validation_conf"] = {
+            "skip_validation": True,
+        }
+
+        try:
+            distribute_results += package_and_distribute(
+                org_md=_get_product_metadata(version), **t
+            )
+        except Exception as e:
+            distribute_results.append(
+                DistributeResult(
+                    dataset_id=t["dataset"],
+                    destination_id=destination_id,
+                    destination_type="",
+                    result=str(e),
+                    success=False,
+                )
+            )
+
+    typer.echo(_make_results_table(distribute_results))

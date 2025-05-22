@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections import defaultdict
+import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel, Field, TypeAdapter
 from typing import ClassVar
@@ -96,6 +97,29 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
     def get_datasets_by_id(self) -> dict[str, DatasetMetadata]:
         dataset_mds = [self.dataset(ds_id) for ds_id in self.metadata.datasets]
         return {m.id: m for m in dataset_mds}
+
+    def destinations(self) -> pd.DataFrame:
+        """Helper to display all destinations under a product"""
+        filtered_datasets = self.get_datasets_by_id()
+        found_dests = []
+
+        for ds in filtered_datasets.values():
+            for dest in ds.destinations:
+                found_dests.append(
+                    {
+                        "product": self.metadata.id,
+                        "dataset": ds.id,
+                        "destination": dest.id,
+                        "destination_type": dest.type,
+                        "remote_id": (dest.custom or {}).get("four_four"),
+                        "tags": dest.tags or [],
+                    }
+                )
+        df = pd.DataFrame(found_dests)
+        df["destination_path"] = df.apply(
+            lambda r: f"{r['product']}.{r.dataset}.{r.destination}", axis=1
+        )
+        return df.set_index(["product", "dataset", "destination"]).sort_index()
 
     def query_destinations(
         self,
