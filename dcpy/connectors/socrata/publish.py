@@ -657,7 +657,9 @@ def push_dataset(
                     f"and the revision can still be applied manually, here:\n    {rev.page_url}\n"
                     f"Error:\n{textwrap.indent(str(e), '    ')}"
                 )
-                return f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}: {str(e)}"
+                raise Exception(
+                    f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}. Revision: {rev.revision_num}.\n {str(e)}"
+                )
 
     if not publish:
         result = f"""Finished syncing product {metadata.attributes.display_name} to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually here {rev.page_url}"""

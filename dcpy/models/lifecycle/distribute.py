@@ -29,6 +29,9 @@ class DistributeResult:
     result: str | None = None
     success: bool | None = None
 
+    def __repr__(self):
+        return f"{self.dataset_id}.{self.destination_id}.{self.destination_type} {'SUCCESS' if self.success else 'FAIL'}"
+
     @staticmethod
     def from_push_kwargs(
         result: str, success: bool, push_args: DatasetDestinationPushArgs
