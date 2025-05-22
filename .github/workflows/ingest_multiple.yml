@@ -50,8 +50,6 @@ on:
 jobs:
   set_matrix:
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/base:latest # to have jq
     outputs:
       matrix: ${{ steps.set_matrix.outputs.matrix }}
     steps:

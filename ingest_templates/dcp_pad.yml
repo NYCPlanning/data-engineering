@@ -4,16 +4,16 @@ acl: public-read
 attributes:
   name: Property Address Directory
   description: >
-    The PAD (Property Address Directory) file contains additional geographic information at 
-    the tax lot level not found in the PLUTO files. This data includes alias addresses and 
-    Building Identification Numbers (BINs). It consists of two ASCII, comma delimited files: 
-    tax lot file and an address file.
+    The PAD (Property Address Directory) file contains additional geographic information
+    at  the tax lot level not found in the PLUTO files. This data includes alias
+    addresses and  Building Identification Numbers (BINs). It consists of two ASCII,
+    comma delimited files:  tax lot file and an address file.
   url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/padgui.pdf
 
 ingestion:
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad/pad_{{ version }}.zip
   file_format:
     type: csv
     unzipped_filename: bobaadr.txt

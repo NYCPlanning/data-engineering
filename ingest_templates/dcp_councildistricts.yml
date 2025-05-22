@@ -5,26 +5,27 @@ attributes:
   name: NYC City Council Districts (Clipped to Shoreline)
   description: >
     The City Council Districts of New York City clipped to the shoreline at mean high
-    tide. The City Council Districts are the result of the recent redistricting process, which takes
-    place every ten years to reflect population changes reported in the 2000 Census. These
-    geographies were redrawn by the New York City Council Redistricting Commission.
+    tide. The City Council Districts are the result of the recent redistricting process,
+    which takes place every ten years to reflect population changes reported in the 2000
+    Census. These geographies were redrawn by the New York City Council Redistricting
+    Commission.
   url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/nycc_metadata.pdf
 
 ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycc_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/city-council/nycc_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nycc_{{ version }}/nycc.shp
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
 columns:
