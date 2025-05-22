@@ -3,29 +3,30 @@ acl: public-read
 
 attributes:
   name: NYC Community Districts
-  description: |
-    New York City Community Districts (Water Included). Community Districts are mandated by the city charter to review and monitor
-    quality of life issues for New York City neighborhoods.
+  description: >
+    New York City Community Districts (Water Included). Community Districts are mandated
+    by the city charter to review and monitor quality of life issues for New York City
+    neighborhoods.
   url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
 
 ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycdwi_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/community-districts/nycdwi_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nycdwi_{{ version }}/nycdwi.shp
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
-columns: 
+columns:
 - id: borocd
   data_type: integer
 - id: shape_leng

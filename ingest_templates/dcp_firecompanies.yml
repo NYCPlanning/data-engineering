@@ -3,24 +3,25 @@ acl: public-read
 
 attributes:
   name: NYC Fire Companies
-  description: The service area boundaries for New York City's fire companies (Clipped to shoreline).
+  description: The service area boundaries for New York City's fire companies (Clipped to
+    shoreline).
   url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
 
 ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyfc_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/fire-companies/nyfc_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nyfc_{{ version }}/nyfc.shp
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
 columns:

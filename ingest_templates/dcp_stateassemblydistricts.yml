@@ -3,9 +3,10 @@ acl: public-read
 
 attributes:
   name: NYC State Assembly Districts (Clipped to shoreline)
-  description: |
-    New York State Assembly District boundaries for New York City clipped to the shoreline. 
-    These district boundaries represent the redistricting as of the US Census 2010.
+  description: >
+    New York State Assembly District boundaries for New York City clipped to the
+    shoreline.  These district boundaries represent the redistricting as of the US
+    Census 2010.
   url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/nyad_metadata.pdf?ver=21d
 
 ingestion:
@@ -19,10 +20,10 @@ ingestion:
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
 columns:

@@ -3,18 +3,28 @@ acl: public-read
 
 attributes:
   name: Facilities Database (FacDB) with unmapped records
-  description: |
-    The Department of City Planning aggregates information about 30,000+ facilities and program sites that are owned, operated, funded, licensed, or certified by a City, State, or Federal agency in the City of New York into a central database called the City Planning Facilities Database (FacDB). These facilities generally help to shape quality of life in the city’s neighborhoods, and this dataset is the basis for a series of planning activities. This public data resource allows all New Yorkers to understand the breadth of government resources in their neighborhoods.
-    This dataset is now complemented with the Facilities Explorer, a new interactive web map that makes the data more accessible and allows users to quickly filter the data for their needs.
-    Note to Users: FacDB is only as good as the source data it aggregates, and the Department of City Planning cannot verify the accuracy of all records. Please read more about specific data and analysis limitations before using this data. Limitations include missing records, duplicate records, and the inclusion of administrative sites instead of service locations.
-    This is different from dcp_facilities in that it includes records that are never assigned a geography
+  description: >
+    The Department of City Planning aggregates information about 30,000+ facilities and
+    program sites that are owned, operated, funded, licensed, or certified by a City,
+    State, or Federal agency in the City of New York into a central database called the
+    City Planning Facilities Database (FacDB). These facilities generally help to shape
+    quality of life in the city’s neighborhoods, and this dataset is the basis for a
+    series of planning activities. This public data resource allows all New Yorkers to
+    understand the breadth of government resources in their neighborhoods. This dataset
+    is now complemented with the Facilities Explorer, a new interactive web map that
+    makes the data more accessible and allows users to quickly filter the data for their
+    needs. Note to Users: FacDB is only as good as the source data it aggregates, and
+    the Department of City Planning cannot verify the accuracy of all records. Please
+    read more about specific data and analysis limitations before using this data.
+    Limitations include missing records, duplicate records, and the inclusion of
+    administrative sites instead of service locations. This is different from
+    dcp_facilities in that it includes records that are never assigned a geography
   url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page
 
 ingestion:
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/facilities_{{
-      version }}_csv.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/facilities-database/facilities_{{ version }}_csv.zip
   file_format:
     type: csv
     unzipped_filename: facilities_{{ version }}.csv

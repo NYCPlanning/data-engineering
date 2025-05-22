@@ -3,9 +3,10 @@ acl: public-read
 
 attributes:
   name: City Owned and Leased Properties
-  description: |
-    A downloadable spreadsheet and geodatabase that list city properties with types of uses, location and other information
-    This dataset identifies City property under the jurisdiction of NYC Parks, which may be managed partially or solely by the Agency.
+  description: >
+    A downloadable spreadsheet and geodatabase that list city properties with types of
+    uses, location and other information This dataset identifies City property under the
+    jurisdiction of NYC Parks, which may be managed partially or solely by the Agency.
   url: https://www.nyc.gov/content/planning/pages/resources/datasets/city-owned-leased-properties
 
 ingestion:

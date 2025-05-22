@@ -3,27 +3,27 @@ acl: public-read
 
 attributes:
   name: NYC Election Districts (Water areas included)
-  description: |
-    New York City Board of Elections election districts, water areas included).
-    These district boundaries represent the redistricting as of the US Census 2010. 
-    Source will be updated once the boundaries get redistricted as response to the 2020 Census.
+  description: >
+    New York City Board of Elections election districts, water areas included). These
+    district boundaries represent the redistricting as of the US Census 2010.  Source
+    will be updated once the boundaries get redistricted as response to the 2020 Census.
   url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
 
 ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyedwi_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/election-districts/nyedwi_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nyedwi_{{ version }}/nyedwi.shp
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
 columns:

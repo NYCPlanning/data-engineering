@@ -4,15 +4,15 @@ acl: public-read
 attributes:
   name: LION
   description: >
-    A single line street base map representing the city's streets
-    and other linear geographic features, along with feature names and address
-    ranges for each addressable street segment
+    A single line street base map representing the city's streets and other linear
+    geographic features, along with feature names and address ranges for each
+    addressable street segment
   url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-lion.page
 
 ingestion:
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyclion_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{{ version }}.zip
   file_format:
     type: geodatabase
     unzipped_filename: lion/lion.gdb
@@ -20,18 +20,19 @@ ingestion:
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "shape"}
+      map: { "geom": "shape" }
   - name: coerce_column_types
     args:
-      column_types: {
-        "genericid": "integer",
-        "physicalid": "integer",
-        "rboro": "integer",
-        "lboro": "integer"
-      }
+      column_types:
+        {
+          "genericid": "integer",
+          "physicalid": "integer",
+          "rboro": "integer",
+          "lboro": "integer"
+        }
   - name: multi
 
 columns:

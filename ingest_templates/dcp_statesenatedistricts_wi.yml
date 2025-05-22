@@ -3,26 +3,27 @@ acl: public-read
 
 attributes:
   name: NYC State Senate Districts (Water Included)
-  description: |
-    New York State Senate district boundaries for the City of New York (Water included). 
-    These district boundaries represent the redistricting as of the US Census 2010.
+  description: >
+    New York State Senate district boundaries for the City of New York (Water
+    included).  These district boundaries represent the redistricting as of the US
+    Census 2010.
   url: https://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page
 
 ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nysswi_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/state-senate/nysswi_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nysswi_{{ version }}/nysswi.shp
     crs: EPSG:2263
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {" ": "_"}, "lower": True}
+    args: { "replace": { " ": "_" }, "lower": True }
   - name: rename_columns
     args:
-      map: {"geom": "wkb_geometry"}
+      map: { "geom": "wkb_geometry" }
   - name: multi
 
 columns:
