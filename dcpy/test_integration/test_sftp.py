@@ -13,7 +13,8 @@ def default_sftp_kwargs(tmp_path):
         "server": SFTPServer(hostname="sftp-server", port=22),
         "user": SFTPUser(
             username="dedev",
-            private_key_name="ssh_host_rsa_key_dcpy",
+            private_key_path="./.devcontainer/sftp/id_rsa_key_integration_test",
+            known_hosts_path="./.devcontainer/sftp/known_hosts_integration_test",
         ),
         "server_file_path": "remote_files/a_file.txt",
         "local_file_path": tmp_path / "a_file.txt",
@@ -21,6 +22,7 @@ def default_sftp_kwargs(tmp_path):
 
 
 def test_list_directory(default_sftp_kwargs: dict):
+    print(f"{default_sftp_kwargs['user']}")
     entries = sftp.list_directory(
         server=default_sftp_kwargs["server"], user=default_sftp_kwargs["user"]
     )

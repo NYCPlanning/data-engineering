@@ -1,33 +1,40 @@
-import pysftp
+from contextlib import contextmanager
 import paramiko
 
 from dcpy.utils.logging import logger
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 
-PRIVATE_KEY_DIRECTORY = "~/.ssh"
 
-
+@contextmanager
 def _connection(server: SFTPServer, user: SFTPUser):
-    # disable host key checking
-    connection_options = pysftp.CnOpts()
-    connection_options.hostkeys = None
     logger.info(f"Connecting to SFTP server {server.hostname}")
 
-    private_key_path = f"{PRIVATE_KEY_DIRECTORY}/{user.private_key_name}"
-
-    return pysftp.Connection(
-        host=server.hostname,
+    client = paramiko.SSHClient()
+    client.load_host_keys(user.known_hosts_path)
+    client.set_missing_host_key_policy(
+        paramiko.RejectPolicy()
+    )  # if server presents unknown host key, client won't connect to the server
+    client.connect(
+        hostname=server.hostname,
         port=server.port,
         username=user.username,
-        private_key=private_key_path,
-        cnopts=connection_options,
+        key_filename=user.private_key_path,
+        look_for_keys=False,
+        allow_agent=False,
     )
+
+    try:
+        sftp = client.open_sftp()
+        yield sftp
+    finally:
+        sftp.close()
+        client.close()
 
 
 def list_directory(server: SFTPServer, user: SFTPUser, path: str = ".") -> list[str]:
     with _connection(server, user) as connection:
         logger.info(f"Listing files/directories for remote path '{path}' ...")
-        entries = connection.listdir(remotepath=path)
+        entries = connection.listdir(path=path)
     return entries
 
 
