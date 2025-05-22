@@ -3,14 +3,15 @@ in an xlsx spreadsheet (Educational attainment data points) cleans them and outp
 that they can be collated using the established collate process"""
 
 import pandas as pd
-from utils.PUMA_helpers import clean_PUMAs, dcp_pop_races
+
+from aggregate.load_aggregated import load_2000_census
+from aggregate.aggregation_helpers import order_aggregated_columns
+from utils.geo_helpers import dcp_pop_races
 from utils.dcp_population_excel_helpers import (
     race_suffix_mapper,
     map_stat_suffix,
-    load_2000_census_pums_all_data,
 )
 from internal_review.set_internal_review_file import set_internal_review_files
-from aggregate.aggregation_helpers import order_aggregated_columns
 
 # from aggregate.aggregation_helpers import order_aggregated_columns, get_category
 
@@ -24,14 +25,14 @@ edu_name_mapper = {
 }
 
 
-def filter_to_economic(df):
+def _filter_to_economic(df):
     """filter to educational attainment indicators"""
     df = df.filter(regex="GeoID|P25pl|LTHS|HSGrd|SClgA|BchD")
 
     return df
 
 
-def rename_cols(df):
+def _rename_cols(df):
     cols = map(str.lower, df.columns)
     # Replace dcp pop race codes with dcp DE established codes
     for code, race in race_suffix_mapper.items():
@@ -46,46 +47,7 @@ def rename_cols(df):
     return df
 
 
-def pums_2000_economics(geography: str, year="2000", write_to_internal_review=False):
-    """Main accessor. I know passing year here is silly, need to write it his way to
-    export. Needs refactor"""
-    assert geography in ["puma", "borough", "citywide"]
-    assert year == "2000"
-
-    df = load_2000_census_pums_all_data()
-
-    df = filter_to_economic(df)
-
-    final = rename_cols(df)
-
-    if geography == "citywide":
-        final = df.loc[["citywide"]].reset_index().rename(columns={"GeoID": "citywide"})
-    elif geography == "borough":
-        final = (
-            df.loc[["BX", "BK", "MN", "QN", "SI"]]
-            .reset_index()
-            .rename(columns={"GeoID": "borough"})
-        )
-    else:
-        final = df.loc["3701":"4114"].reset_index().rename(columns={"GeoID": "puma"})
-        final["puma"] = final["puma"].apply(func=clean_PUMAs)
-
-    final.set_index(geography, inplace=True)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [
-                (final, "economic_2000.csv", geography),
-            ],
-            "household_economic_security",
-        )
-
-    final = order_pums_2000_economic(final)
-
-    return final
-
-
-def order_pums_2000_economic(final: pd.DataFrame):
+def _order_pums_2000_economic(final: pd.DataFrame):
     """Quick function written up against deadline, can definitely be refactored"""
     indicators_denom: list[tuple] = [
         (
@@ -105,4 +67,28 @@ def order_pums_2000_economic(final: pd.DataFrame):
         exclude_denom=True,
         demographics_category=False,
     )
+    return final
+
+
+def pums_2000_economics(geography: str, year="2000", write_to_internal_review=False):
+    assert geography in ["puma", "borough", "citywide"]
+    assert year == "2000"
+
+    final = (
+        load_2000_census()
+        .loc[geography]
+        .rename_axis(geography)
+        .pipe(_filter_to_economic)
+        .pipe(_rename_cols)
+        .pipe(_order_pums_2000_economic)
+    )
+
+    if write_to_internal_review:
+        set_internal_review_files(
+            [
+                (final, "economic_2000.csv", geography),
+            ],
+            "household_economic_security",
+        )
+
     return final

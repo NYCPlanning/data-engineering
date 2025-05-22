@@ -1,11 +1,11 @@
 """Logic to clean PUMS columns."""
 
+from dcpy.utils.logging import logger
 import pandas as pd
 import numpy as np
 from os.path import exists
 import requests
 import re
-from utils.make_logger import create_logger
 
 
 class PUMSCleaner:
@@ -14,7 +14,7 @@ class PUMSCleaner:
     def __init__(self) -> None:
         self.one_to_one_recodes = self.get_one_to_one_recode_df()
         self.range_recodes = self.get_range_recodes()
-        self.logger = create_logger("PUMS_cleaner_log", "logs/PUMSCleaner.log")
+        self.logger = logger
 
     def clean_simple_categorical(self, vi_data, column_name):
         """For columns that are downloaded as integers and map one to one to categories in data dictionary"""

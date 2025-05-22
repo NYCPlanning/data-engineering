@@ -1,66 +1,39 @@
-from typing import List
 import geopandas as gp
-from shapely import wkt
-from utils.PUMA_helpers import puma_to_borough, PUMAs
-from ingest.ingestion_helpers import read_from_S3
+from ingest.ingestion_helpers import load_data
+from utils.geo_helpers import get_2020_pumas
 
-from internal_review.set_internal_review_file import set_internal_review_files
 
 supported_geographies = ["puma", "borough", "citywide"]
 
 
-def area_historic_internal_review():
-    citywide = fraction_historic("citywide")
-    by_borough = fraction_historic("borough")
-    by_puma = fraction_historic("puma")
-    set_internal_review_files(
-        [
-            (citywide, "area_historic_citywide.csv", "citywide"),
-            (by_borough, "area_historic_by_borough.csv", "borough"),
-            (by_puma, "area_historic_by_puma.csv", "puma"),
-        ],
-        "housing_production",
+def _load_historic_districts_gdf() -> gp.GeoDataFrame:
+    return (
+        load_data("lpc_historic_district_areas", is_geospatial=True)
+        .to_crs(  # type: ignore
+            "EPSG:2263"
+        )
+        .explode(column="wkb_geometry")
     )
 
 
-def rename_col(cols) -> List:
-    new_cols = [col if "pct" in col else col + "_count" for col in cols]
+def _generate_geographies(geography_level):
+    pumas = get_2020_pumas()
 
-    return new_cols
-
-
-def fraction_historic(geography_level):
-    """Main accessor of indicator"""
-    gdf = generate_geographies(geography_level)
-    gdf["total_sqmiles"] = gdf.geometry.area / (5280**2)
-    hd = load_historic_districts_gdf()
-    gdf[["area_historic_pct", "area_historic_sqmiles"]] = gdf.apply(
-        fraction_PUMA_historic, axis=1, args=(hd,), result_type="expand"
-    )
-    gdf.columns = rename_col(gdf.columns)
-    return gdf[
-        ["area_historic_sqmiles_count", "area_historic_pct", "total_sqmiles_count"]
-    ].round(2)
-
-
-def generate_geographies(geography_level):
-    NYC_PUMAs = PUMAs.to_crs("EPSG:2263")
     if geography_level == "puma":
-        return NYC_PUMAs.set_index("puma")
+        return pumas.set_index("puma")
     if geography_level == "borough":
-        NYC_PUMAs["borough"] = NYC_PUMAs.apply(axis=1, func=puma_to_borough)
-        by_borough = NYC_PUMAs.dissolve(by="borough")
+        by_borough = pumas.dissolve(by="borough")
         return by_borough
     if geography_level == "citywide":
-        citywide = NYC_PUMAs.dissolve()
-        citywide.index = ["citywide"]
-        return citywide
+        citywide = pumas.dissolve()
+        citywide["citywide"] = "citywide"
+        return citywide.set_index("citywide")
 
     raise Exception(f"Supported geographies are {supported_geographies}")
 
 
-def fraction_PUMA_historic(PUMA, hd):
-    gdf = gp.GeoDataFrame(geometry=[PUMA.geometry], crs="EPSG:2263")
+def _fraction_PUMA_historic(puma, hd):
+    gdf = gp.GeoDataFrame(geometry=[puma.geom], crs="EPSG:2263")
     overlay = gp.overlay(hd, gdf, "intersection")
     if overlay.empty:
         return 0, 0
@@ -69,14 +42,19 @@ def fraction_PUMA_historic(PUMA, hd):
     return fraction, overlay.area.sum() / (5280**2)
 
 
-def load_historic_districts_gdf() -> gp.GeoDataFrame:
-    df = read_from_S3("lpc_historic_district_areas", "housing_production")
+def fraction_historic(geography_level):
+    hd = _load_historic_districts_gdf()
 
-    hd = gp.GeoDataFrame(df)
-    hd["the_geom"] = hd["the_geom"].apply(wkt.loads)
-    hd.set_geometry(col="the_geom", inplace=True, crs="EPSG:4326")
-    hd = hd.explode(column="the_geom", index_parts=True)
-    hd.set_geometry("the_geom", inplace=True)
-    hd = hd.to_crs("EPSG:2263")
-    hd = hd.reset_index()
-    return hd
+    puma_geos = _generate_geographies(geography_level)
+    puma_geos["total_sqmiles"] = puma_geos.geom.area / (5280**2)
+
+    puma_geos[["area_historic_pct", "area_historic_sqmiles"]] = puma_geos.apply(
+        _fraction_PUMA_historic, axis=1, args=(hd,), result_type="expand"
+    )
+    puma_geos.columns = [
+        col if "pct" in col else col + "_count" for col in puma_geos.columns
+    ]
+
+    return puma_geos[
+        ["area_historic_sqmiles_count", "area_historic_pct", "total_sqmiles_count"]
+    ].round(2)

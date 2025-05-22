@@ -1,9 +1,0 @@
-datasets:
-  - name: lpc_historic_district_areas
-    version: 20240424
-  - name: doi_evictions
-    version: 20240424
-  - name: hpd_hny_units_by_building
-    version: 20240319
-  - name: dcp_housing
-    version: '23Q4'
