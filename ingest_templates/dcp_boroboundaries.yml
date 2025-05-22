@@ -10,7 +10,7 @@ ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/boro-boundaries/nybb_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/borough-boundaries/nybb_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nybb_{{ version }}/nybb.shp
