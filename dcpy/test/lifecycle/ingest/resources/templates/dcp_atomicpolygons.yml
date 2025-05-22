@@ -7,7 +7,7 @@ attributes:
 ingestion:
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyap_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/atomic-polygons/nyap_{{ version }}.zip
   file_format:
     unzipped_filename: nyap_{{ version }}/nyap.shp
     type: shapefile
