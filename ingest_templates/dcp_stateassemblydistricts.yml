@@ -13,7 +13,7 @@ ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyad_{{ version }}.zip
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/state-assembly/nyad_{{ version }}.zip
   file_format:
     type: shapefile
     unzipped_filename: nyad_{{ version }}/nyad.shp
