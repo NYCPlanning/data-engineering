@@ -1,6 +1,6 @@
 from typing import Any
 
-from dcpy.connectors.ftp import FTPConnector
+from dcpy.connectors.sftp import FTPConnector
 from dcpy.connectors.socrata import publish as socrata_pub
 from dcpy.models.lifecycle.distribute import DatasetDestinationPushArgs
 
