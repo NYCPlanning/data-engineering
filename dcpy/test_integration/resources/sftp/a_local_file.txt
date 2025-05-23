@@ -1,0 +1,1 @@
+Some local test text. File size should be 52 bytes.
