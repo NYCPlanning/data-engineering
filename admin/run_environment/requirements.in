@@ -29,6 +29,8 @@ openpyxl-stubs
 pandas
 pandas-stubs
 pandera
+paramiko
+types-paramiko
 plotly
 pre-commit
 psycopg2-binary
@@ -36,7 +38,6 @@ types-psycopg2
 pyarrow
 pyarrow-stubs
 pydantic
-pysftp
 pytest
 pytest-cov
 python-dotenv>=0.20.0
