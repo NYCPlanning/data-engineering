@@ -57,6 +57,7 @@ inputs:
     - name: dpr_capitalprojects
       file_type: pg_dump
     - name: dpr_walk_to_a_park
+    - name: dpr_active_passive_recreation
     - name: lpc_landmarks
     - name: lpc_historic_district_areas
     - name: lpc_scenic_landmarks
