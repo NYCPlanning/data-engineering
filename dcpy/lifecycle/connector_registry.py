@@ -27,7 +27,7 @@ def _set_default_connectors():
     connectors.register(
         connector=publishing.BuildsConnector(), conn_type="edm.publishing.builds"
     )
-    logger.info(f"Registered Connectors: {connectors.list_registered()}")
+    logger.debug(f"Registered Connectors: {connectors.list_registered()}")
 
 
 def _register_ingest_datastores():
