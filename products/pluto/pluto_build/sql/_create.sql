@@ -59,12 +59,12 @@ CREATE TABLE dcp_zoning_maxfar (
     zonedist character varying,
     contextual character varying,
     zoningdistricttype character varying,
+    resdisteq character varying,
     residfar character varying,
+    affresfar character varying,
     facilfar character varying,
     commfar character varying,
     mnffar character varying,
-    column1 character varying,
-    verified character varying,
-    extra character varying
+    verified character varying
 );
 \COPY dcp_zoning_maxfar FROM 'data/dcp_zoning_maxfar.csv' DELIMITER ',' CSV HEADER;
