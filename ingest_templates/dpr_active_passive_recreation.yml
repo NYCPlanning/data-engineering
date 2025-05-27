@@ -1,0 +1,40 @@
+id: dpr_active_passive_recreation
+acl: public-read
+
+attributes:
+  name: NYC Parks Active and Passive Recreation
+  description: >-
+    This dataset includes a list of public open spaces, primarily under the jurisdiction of 
+    and/or managed by NYC Parks, as well as the percentage of active and passive recreation 
+    in each space. It also includes Schoolyard to Playground (SYPG) sites under the jurisdiction 
+    of the NYC Department of Education (DOE), and sites managed in partnership with NYC Parks, 
+    such as Central Park, Brooklyn Bridge Park, and Battery Park City, among others.
+
+    Active open space refers to areas used for sports, exercise, or active play, including but 
+    not limited to, playgrounds, sports fields, and fitness equipment. Passive open space refers 
+    to areas for relaxation, such as sitting, strolling, or picnicking. These areas may include 
+    plazas, beaches, walking paths, as well as features that contribute to the overall use of 
+    public open spaces, such as bathroom and maintenance structures, parking lots, and cultural 
+    institutions. While these latter features are not defined as 'passive' in the 2021 CEQR Open 
+    Space chapter, they will be included in the forthcoming updated version of the chapter.
+
+    This dataset is intended for use in completing an Open Space analysis as part of the City 
+    Environmental Quality Review (CEQR) process only. 
+    
+    Please fully read the Data Dictionary linked below before using this dataset to complete 
+    a CEQR Open Space analysis. Additional research may be necessary to identify other open space 
+    resources within a given study area, including those managed by federal, state, and city 
+    agencies, as well as private entities. For more information on the Open Space analysis and 
+    lists of passive and active features as defined by CEQR, visit: 
+    https://www.nyc.gov/assets/oec/technical-manual/07_Open_Space_2021.pdf
+
+  url: https://data.cityofnewyork.us/Recreation/NYC-Parks-Active-and-Passive-Recreation/kcqe-vnci/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: kcqe-vnci
+    format: csv
+  file_format:
+    type: csv

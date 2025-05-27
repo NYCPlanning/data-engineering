@@ -58,6 +58,7 @@ Waterfront Public Access Areas,dcp_waterfront_public_access_areas,download,shape
 Publicly Owned Waterfront,dcp_publicly_owned_waterfront,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
 NYS Parks,nysparks_parks,download,shapefile,MULTIPOLYGON,https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
 Federal Parks,usnps_parks,download,shapefile,MULTIPOLYGON,https://nps.maps.arcgis.com/apps/webappviewer/index.html?id=43bc9db4736140e88e661c67460936e6
+NYC Parks Active and Passive Recreation,dpr_active_passive_recreation,download,csv,,https://data.cityofnewyork.us/Recreation/NYC-Parks-Active-and-Passive-Recreation/kcqe-vnci/about_data
 Parks Capital Projects Tracker,dpr_capitalprojects,download,shapefile,MULTIPOINT,https://www.nycgovparks.org/planning-and-building/capital-project-tracker/upcoming
 Walk to a Park Service Area,dpr_walk_to_a_park,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/dataset/Walk-to-a-Park-Service-Area-for-CEQR-Open-Space-As/k66c-pzws/about_data
 2014 3D Model,,webpage,,,https://www.nyc.gov/site/planning/data-maps/open-data/dwn-nyc-3d-model-download.page
