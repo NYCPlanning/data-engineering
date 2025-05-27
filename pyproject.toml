@@ -135,7 +135,7 @@ dependencies = [
     "pyarrow",
     "pydantic",
     "pyogrio",
-    "pysftp",
+    "paramiko",
     "python-dateutil",
     "python-dotenv",
     "pytz",

@@ -1,0 +1,4 @@
+# This file is used to verify sftp server in integration tests
+#
+# format of this file: <server name/server ip> <host public key encryption type> <host public key>
+sftp-server ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMLfqxm62M31UOXALvVN0VR/1h5rQgjQ2H97L46GO2fx
