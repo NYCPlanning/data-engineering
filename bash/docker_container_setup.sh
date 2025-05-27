@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-mc config host add spaces "$AWS_S3_ENDPOINT" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" --api S3v4
+mc alias set spaces "$AWS_S3_ENDPOINT" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" --api S3v4
 
 PARENT_DIR=$(dirname "$(readlink -f "$0")")
 
