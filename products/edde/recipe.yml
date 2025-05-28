@@ -71,4 +71,4 @@ stage_config:
       - name: acl
         value: public-read
       - name: build_note
-        value: ar-eddt-2025
+        value: ar-eddt-2025_1
