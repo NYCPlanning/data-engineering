@@ -2,7 +2,6 @@ import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import clean_PUMAs, puma_to_borough
 
-from ingest.ingestion_helpers import read_from_excel
 
 SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx"
 INDICATOR_COL_NAME = "access_employment_count"
@@ -19,10 +18,10 @@ def access_to_jobs(geography, write_to_internal_review=False):
 
 
 def load_clean_source_data() -> pd.DataFrame:
-    source_data = read_from_excel(
-        file_path=SOURCE_DATA_FILE,
-        category="quality_of_life",
+    source_data = pd.read_excel(
+        SOURCE_DATA_FILE,
         sheet_name="Access_to_Jobs",
+        dtype={"PUMA": str},
     ).rename(
         columns={
             "PUMA": "puma",
