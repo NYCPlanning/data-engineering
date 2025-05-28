@@ -1,7 +1,7 @@
 import pandas as pd
 
-from ingest import ingestion_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
+from utils import geo_helpers
 
 SOURCE_DATA_PATH_2020 = (
     "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx"
@@ -21,10 +21,6 @@ def load_edu_data() -> pd.DataFrame:
         .to_dict()
     )
 
-    ntas_to_pumas = ingestion_helpers.load_data(
-        "dcp_population_nta_puma_crosswalk_2020"
-    ).set_index("nta_code")
-
     data = (
         pd.read_excel(
             io=SOURCE_DATA_PATH_2020,
@@ -32,7 +28,7 @@ def load_edu_data() -> pd.DataFrame:
         )
         .rename(columns=long_to_short_col_mapper)
         .set_index("ntacode")
-        .join(ntas_to_pumas, how="left")
+        .join(geo_helpers.get_nta_to_puma_mapper(), how="left")
         .fillna(value=0)
         .reset_index()
         .rename(

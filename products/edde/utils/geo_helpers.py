@@ -1,5 +1,6 @@
 from dcpy.utils.logging import logger
 from functools import cache
+import pandas as pd
 from shapely.geometry import Point
 from numpy import nan
 
@@ -128,3 +129,14 @@ def community_district_to_puma(
             f"Community District number should be two chars or less. got {comm_dist_num}"
         )
     return _get_cd_puma_crosswalk().get(f"{borough_abbrev}{comm_dist_num}")
+
+
+@cache
+def get_nta_to_puma_mapper() -> pd.DataFrame:
+    ntas_to_pumas = (
+        load_data("dcp_population_nta_puma_crosswalk_2020")
+        .set_index("nta_code")
+        .rename(columns={"puma_code": "puma"})
+    )
+    ntas_to_pumas["puma"] = "0" + ntas_to_pumas["puma"]
+    return ntas_to_pumas

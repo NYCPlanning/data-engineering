@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 import geopandas as gpd
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.geo_helpers import get_2020_pumas, borough_num_mapper
+from utils.geo_helpers import get_2020_pumas, borough_num_mapper, get_nta_to_puma_mapper
 
 from ingest.ingestion_helpers import load_data
 
@@ -30,14 +30,11 @@ def _load_2010_denom():
     ].Geog
     df.loc[df["geo_type"] == "citywide", "citywide"] = "citywide"
 
-    ntas_to_pumas = (
-        load_data("dcp_population_nta_puma_crosswalk_2020")
-        .set_index("nta_code")
-        .rename(columns={"puma_code": "puma"})
+    return (
+        df.set_index("Geog")
+        .join(get_nta_to_puma_mapper(), how="left")
+        .reset_index(drop=True)
     )
-    ntas_to_pumas["puma"] = "0" + ntas_to_pumas["puma"]
-
-    return df.set_index("Geog").join(ntas_to_pumas, how="left").reset_index(drop=True)
 
 
 def get_columns() -> list:

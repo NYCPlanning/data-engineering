@@ -5,6 +5,7 @@ from utils.geo_helpers import (
     filter_for_recognized_pumas,
     puma_to_borough,
     borough_name_mapper,
+    get_nta_to_puma_mapper,
 )
 
 from aggregate.load_aggregated import initialize_dataframe_geo_index
@@ -82,12 +83,12 @@ def _load_clean_hpd_data():
     )
     source_data["borough"] = source_data["borough"].map(borough_name_mapper)
     source_data["citywide"] = "citywide"
-    ntas_to_pumas: dict = (
-        load_data("dcp_population_nta_puma_crosswalk_2020")
-        .set_index("nta_code")
-        .to_dict()["puma_code"]
+
+    source_data = (
+        source_data.set_index("nta")
+        .join(get_nta_to_puma_mapper(), how="left")
+        .reset_index()
     )
-    source_data["puma"] = source_data["nta"].map(ntas_to_pumas)
 
     # TODO: we can potentially infer the remaining 1600 using the CB
     # source_data["community_board_num"] = source_data["community_board"].apply(
