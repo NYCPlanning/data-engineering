@@ -57,4 +57,4 @@ SELECT
     END AS magencyname
 FROM projects AS a
 INNER JOIN descriptions AS b ON a.maprojid = b.maprojid AND b.rk = 1
-INNER JOIN dcp_agencylookup AS c ON a.magency = LPAD(c.cape_agencycode, 3, '0');
+INNER JOIN dcp_agencylookup AS c ON a.magency = c.cape_agencycode;

@@ -19,9 +19,10 @@ CREATE TABLE dcp_agencylookup (
     facdb_agencyname_revised text,
     facdb_agencyname text,
     facdb_agencyabbrev text,
-    cape_agencycode text,
+    cape_agencycode char(3),
     cape_agencyacronym text,
-    cape_agency text
+    cape_agency text,
+    agency_class text
 );
 \COPY dcp_agencylookup FROM 'data/agencylookup.csv' DELIMITER ',' CSV HEADER;
 
