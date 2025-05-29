@@ -28,10 +28,5 @@ def load_data(
 def read_from_excel(
     file_path, category: str, sheet_name: str = "", columns: list = [], **kwargs
 ) -> pd.DataFrame:
-    read_excel_args = {
-        "io": file_path,
-        "sheet_name": sheet_name,
-        "usecols": columns,
-    } | kwargs
-    df = pd.read_excel(**read_excel_args)
-    return df
+    kwargs = {} if not columns else {"usecols": columns}
+    return pd.read_excel(file_path, sheet_name=sheet_name, **kwargs)  # type: ignore
