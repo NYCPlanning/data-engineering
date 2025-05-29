@@ -135,23 +135,20 @@ def get_imported_df(
 
 def get_imported_filepath(
     load_result: LoadResult, ds_id: str, version: str = ""
-) -> Path:
+) -> Path | str:
     assert ds_id in load_result.datasets, (
         f"No dataset of name {ds_id} imported in build {load_result.build_name} of {load_result.name}"
     )
     version = version or list(load_result.datasets[ds_id].keys())[-1]
-    match load_result.datasets[ds_id][version].destination:
-        case Path() as file_path:
-            return file_path
-        case pd.DataFrame():
-            format = "DataFrame"
-        case str() as table_name:
-            format = f"Postgres table {table_name}"
-        case _:
-            format = "unknown"
-    raise Exception(
-        f"Cannot get imported file of dataset '{ds_id}' because it is of format '{format}'"
-    )
+    ds = load_result.datasets[ds_id][version]
+    if ds.destination_type == "file":
+        return Path(str(ds.destination))
+    elif ds.destination_type == "pg":
+        return f"Postgres table {str(ds.destination)}"
+    else:
+        raise Exception(
+            f"Cannot get imported file of dataset '{ds_id}' because it is of format '{format}'"
+        )
 
 
 def get_imported_file(load_result: LoadResult, ds_id: str):  # -> TextIOWrapper:
@@ -168,7 +165,12 @@ app = typer.Typer(add_completion=False)
 
 @app.command("recipe")
 def _cli_wrapper_recipe(
-    recipe_path: Path,
+    recipe_path: Path = typer.Option(
+        None,
+        "--recipe-path",
+        "-r",
+        help="Recipe Path",
+    ),
     version: str = typer.Option(
         None,
         "--version",
@@ -182,7 +184,7 @@ def _cli_wrapper_recipe(
         help="Clear the build schema?",
     ),
 ):
-    recipe_lock_path = plan.plan(recipe_path, version)
+    recipe_lock_path = plan.plan(recipe_path or Path("./recipe.yml"), version)
     load_source_data_from_resolved_recipe(
         recipe_lock_path, clear_pg_schema=clear_pg_schema
     )
