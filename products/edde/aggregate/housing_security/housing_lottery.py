@@ -60,6 +60,12 @@ def housing_lottery_leases(geography) -> pd.DataFrame:
 def lottery_data(geography: str, indicator: str):
     assert indicator in ["housing_lottery_applications", "housing_lottery_leases"]
     data = _load_lottery_xlsx(indicator).loc[geography].rename_axis(geography)
+
+    # In the case when PUMAs are inferred from Community Districts, there will be
+    # potentially duplicated PUMAS, e.g. both  Community Districts 1 & 2 will map
+    # to 04121, so we need to dedupe
+    data = data.groupby(level=0).sum()
+
     data = rename_columns(data, indicator)
     data = calculate_pct(data, indicator)
     data = reorder_columns(data, indicator)
