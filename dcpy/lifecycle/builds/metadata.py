@@ -6,7 +6,7 @@ import json
 
 from dcpy.utils import git
 from dcpy.utils.logging import logger
-from dcpy.models.lifecycle.builds import Recipe, BuildMetadata
+from dcpy.models.lifecycle.builds import LoadResult, Recipe, BuildMetadata
 
 
 def build_name(name: str | None = None) -> str:
@@ -24,7 +24,9 @@ def build_tests_name(build_name: str) -> str:
     return build_name + "__tests"
 
 
-def write_build_metadata(recipe: Recipe, output_folder: Path):
+def write_build_metadata(
+    recipe: Recipe, output_folder: Path, load_result: LoadResult | None = None
+):
     if not output_folder.exists():
         output_folder.mkdir(parents=True, exist_ok=True)
     output_file = output_folder / "build_metadata.json"
@@ -38,7 +40,11 @@ def write_build_metadata(recipe: Recipe, output_folder: Path):
     else:
         run_url = None
     build_metadata = BuildMetadata(
-        timestamp=timestamp, commit=commit, run_url=run_url, recipe=recipe
+        timestamp=timestamp,
+        commit=commit,
+        run_url=run_url,
+        recipe=recipe,
+        load_result=load_result,
     )
     with open(output_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing build metadata to {str(output_file.absolute())}")

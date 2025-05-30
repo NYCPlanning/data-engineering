@@ -7,7 +7,7 @@ column orders, etc.
 """
 
 from external_review.collate_save_census import collate_save_census
-from utils.PUMA_helpers import acs_years
+from utils.geo_helpers import acs_years
 
 save_kwargs = {
     "eddt_category": "demographics",

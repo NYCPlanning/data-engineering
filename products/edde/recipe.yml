@@ -1,0 +1,74 @@
+name: EDDE
+version: 2025
+vars:
+  VERSION_PREV: 2023
+product: db-eddt
+inputs:
+  dataset_defaults:
+    file_type: parquet
+    destination: file
+  datasets:
+# From the spreadsheet
+  # Ingested
+  - name: doi_evictions # 3.09
+    version: 20250423
+  - name: hpd_hny_units_by_building # 3.11, 4.02
+    version: 20250303
+  - name: dcp_housing # 4.01
+    version: '24Q4'
+  - name: lpc_historic_district_areas # 4.03
+    version: 20250423
+  - name: dhs_shelterd_indiv_by_comm_dist # 3.1
+    version: '2025.1'
+
+  - name: dcp_pumas2020
+    version: '20241218'
+  - name: dcp_population_cd_puma_crosswalk_2020
+    version: '2025'
+  - name: dcp_population_nta_puma_crosswalk_2020
+    version: '2025'
+
+  # A decade of traffic injury data # 5.15
+  - name: dcp_dot_trafficinjuries
+    version: 2010
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2011
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2012
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2013
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2014
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2015
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2016
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2017
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2018
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2019
+    file_type: csv
+  - name: dcp_dot_trafficinjuries
+    version: 2020
+    file_type: csv
+
+stage_config:
+  builds.build:
+    destination: edm.publishing.builds
+    destination_key: db-eddt
+    connector_args:
+      - name: acl
+        value: public-read
+      - name: build_note
+        value: ar-eddt-2025_1

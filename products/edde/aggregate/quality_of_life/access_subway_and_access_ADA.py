@@ -5,10 +5,9 @@
 
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import puma_to_borough
-from ingest.ingestion_helpers import read_from_excel
+from utils.geo_helpers import puma_to_borough
 
-SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2024_Updates_transportation.xlsx"
+SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx"
 CATEGORY = "quality_of_life"
 SOURCE_SHEET_NAMES = {
     "subway_SBS": "Subway_SBS_Qr_Mile_Access",
@@ -18,7 +17,7 @@ COLUMN_MAPPINGS = {
     "puma": "PUMA",
     "pop_with_access_subway_SBS": "Pop within 1/4 Mile of Subway Stations and SBS Stops",
     "pop_with_accessible_ADA_subway": "Pop within 1/4 Mile of ADA Subway Stations",
-    "total_pop": "Total_Pop21",
+    "total_pop": "Total_Pop",
 }
 
 
@@ -85,25 +84,20 @@ def calculate_access_fraction(data, gb_col, count_col, fraction_col):
 
 
 def load_access_subway_SBS() -> pd.DataFrame:
-    access = read_from_excel(
-        file_path=SOURCE_DATA_FILE,
-        category=CATEGORY,
+    access = pd.read_excel(
+        SOURCE_DATA_FILE,
         sheet_name=SOURCE_SHEET_NAMES["subway_SBS"],
-    )
-    access = remove_state_code_from_PUMA(access)
-    return access
-
-
-def remove_state_code_from_PUMA(access: pd.DataFrame) -> pd.DataFrame:
-    access["puma"] = access[COLUMN_MAPPINGS["puma"]].astype(str).str[-5:]
+        dtype={"PUMA": str},
+    ).rename(columns={"PUMA": "puma"})
+    access["puma"] = "0" + access.puma
     return access
 
 
 def load_access_ADA_subway() -> pd.DataFrame:
-    access = read_from_excel(
-        file_path=SOURCE_DATA_FILE,
-        category=CATEGORY,
+    access = pd.read_excel(
+        SOURCE_DATA_FILE,
         sheet_name=SOURCE_SHEET_NAMES["ada_subway"],
-    )
-    access = remove_state_code_from_PUMA(access)
+        dtype={"PUMA": str},
+    ).rename(columns={"PUMA": "puma"})
+    access["puma"] = "0" + access.puma
     return access
