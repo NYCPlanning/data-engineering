@@ -2,11 +2,11 @@ name: PLUTO Inputs - 📁 Number of Buildings Processing
 
 on:
   schedule:
-    - cron: 0 13 * * MON
+  - cron: 0 13 * * MON
   workflow_dispatch:
     inputs:
       dev_bucket:
-        description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
+        description: dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'
         type: string
         required: false
 
@@ -17,54 +17,54 @@ jobs:
       run:
         shell: bash
         working-directory: products/pluto/pluto_build
-    container: 
+    container:
       image: nycplanning/build-geosupport:latest
     env:
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
       API_TOKEN: ${{ secrets.API_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
-      - name: Run Container Setup
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
+    - name: Run Container Setup
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
 
-      - name: get numbldgs
-        run: ./pluto geocode numbldgs
+    - name: get numbldgs
+      run: ./pluto geocode numbldgs
 
-      - name: Library Archive
-        run: |
-          library archive --name pluto_input_numbldgs \
-            --path templates/pluto_input_numbldgs.yml \
-            --latest --s3
+    - name: Library Archive
+      run: |
+        library archive --name pluto_input_numbldgs \
+          --path templates/pluto_input_numbldgs.yml \
+          --latest --s3
 
-      - name: clean numbldgs
-        run: ./pluto clean numbldgs
+    - name: clean numbldgs
+      run: ./pluto clean numbldgs
 
   create_issue_on_failure:
     needs: process_numbldgs
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github
-      - name: Create issue on failure
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION: ${{ github.workflow }}
-          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Create issue on failure
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTION: ${{ github.workflow }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
