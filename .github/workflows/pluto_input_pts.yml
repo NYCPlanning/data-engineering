@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: 0 13 * * MON
   workflow_dispatch:
+    inputs:
+      dev_bucket:
+        description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
+        type: string
+        required: false
 
 jobs:
   process_pts:
@@ -15,7 +20,7 @@ jobs:
       image: nycplanning/build-geosupport:latest
     env:
       RECIPE_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
-      RECIPES_BUCKET: edm-recipes
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
     services:
       postgis:
         image: postgis/postgis:15-3.3-alpine
