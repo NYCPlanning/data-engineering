@@ -9,10 +9,10 @@ function import_pts {
    mkdir -p /tmp/pts &&
    (
       cd /tmp/pts
-      gunzip PTS_Propmast.gz
+      gunzip PROPMAST_ORE_T2026_FIN.gz
 
       # remove last column of pts --> empty column
-      cut -d$'\t' -f1-139 PTS_Propmast > pluto_pts.csv
+      cut -d$'\t' -f1-139 PROPMAST_ORE_T2026_FIN > pluto_pts.csv
 
       # remove spaces between delimiters
       sed -i 's/ *\t/\t/g' pluto_pts.csv
