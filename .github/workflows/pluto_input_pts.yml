@@ -1,11 +1,11 @@
 name: PLUTO Inputs - 📁 Property Tax System (PTS) processing
 on:
   schedule:
-    - cron: 0 13 * * MON
+  - cron: 0 13 * * MON
   workflow_dispatch:
     inputs:
       dev_bucket:
-        description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
+        description: dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'
         type: string
         required: false
 
@@ -16,7 +16,7 @@ jobs:
       run:
         shell: bash
         working-directory: products/pluto/pluto_build
-    container: 
+    container:
       image: nycplanning/build-geosupport:latest
     env:
       RECIPE_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
@@ -27,95 +27,92 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --shm-size=2gb
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5 --shm-size=2gb
         ports:
-          - 5432:5432
+        - 5432:5432
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          SSH_PRIVATE_KEY_GINGER: "op://Data Engineering/DOF_SFTP/private key"
-          GINGER_HOST: "op://Data Engineering/DOF_SFTP/url"
-          GINGER_USER: "op://Data Engineering/DOF_SFTP/username"
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        SSH_PRIVATE_KEY_GINGER: "op://Data Engineering/DOF_SFTP/private key"
+        GINGER_HOST: "op://Data Engineering/DOF_SFTP/url"
+        GINGER_USER: "op://Data Engineering/DOF_SFTP/username"
 
-      - name: Run Container Setup
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
+    - name: Run Container Setup
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
 
-      - name: Setup ssh
-        run: ./pluto ssh setup
+    - name: Setup ssh
+      run: ./pluto ssh setup
 
-      - name: Download file
-        id: download
-        run: |
-          (./pluto ssh download pts) && true
-          output=$?
-          if [ $output -ne 0 ] && [ $output -ne 2 ]; then 
-            exit $output
-          else
-            echo "file_exists=$output" >> $GITHUB_OUTPUT
-          fi
+    - name: Download file
+      id: download
+      run: |
+        (./pluto ssh download pts) && true
+        output=$?
+        if [ $output -ne 0 ] && [ $output -ne 2 ]; then 
+          exit $output
+        else
+          echo "file_exists=$output" >> $GITHUB_OUTPUT
+        fi
 
-      - name: Cancel
-        if: steps.download.outputs.file_exists == 2
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          curl -L \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/NYCPlanning/data-engineering/actions/runs/$GITHUB_RUN_ID/cancel
-          sleep 5s
+    - name: Cancel
+      if: steps.download.outputs.file_exists == 2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/NYCPlanning/data-engineering/actions/runs/$GITHUB_RUN_ID/cancel
+        sleep 5s
 
-      - name: process pts
-        run: ./pluto import pts
+    - name: process pts
+      run: ./pluto import pts
 
-      - name: Library Archive pts
-        run: |
-          library archive --name pluto_pts \
-            --path templates/pluto_pts.yml \
-            --latest --s3
+    - name: Library Archive pts
+      run: |
+        library archive --name pluto_pts \
+          --path templates/pluto_pts.yml \
+          --latest --s3
 
-      - name: geocode pts
-        run: ./pluto geocode pts
+    - name: geocode pts
+      run: ./pluto geocode pts
 
-      - name: Library Archive geocode
-        run: |
-          library archive --name pluto_input_geocodes \
-            --path templates/pluto_input_geocodes.yml \
-            --latest --s3
+    - name: Library Archive geocode
+      run: |
+        library archive --name pluto_input_geocodes \
+          --path templates/pluto_input_geocodes.yml \
+          --latest --s3
 
-      - name: clean up pts
-        run: ./pluto clean pts
+    - name: clean up pts
+      run: ./pluto clean pts
 
   create_issue_on_failure:
     needs: process_pts
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github
-      - name: Create issue on failure
-        uses: JasonEtco/create-an-issue@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTION: ${{ github.workflow }}
-          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Create issue on failure
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTION: ${{ github.workflow }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
