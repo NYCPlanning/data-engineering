@@ -1,29 +1,28 @@
--- Take the community district value from research table
 INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
-    a.cd AS found_value
+    a.:FIELD AS found_value
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
-    AND b.field = 'cd'
-    AND b.old_value != a.cd;
+    AND b.field = :'FIELD'
+    AND a.:FIELD IS DISTINCT FROM b.old_value;
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
 FROM pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
-    AND b.field = 'cd'
-    AND b.old_value = a.cd;
+    AND b.field = :'FIELD'
+    AND a.:FIELD IS NOT DISTINCT FROM b.old_value;
 
 -- Apply correction to PLUTO
 UPDATE pluto a
 SET
-    cd = b.new_value,
+    :FIELD = b.new_value,
     dcpedited = 't'
 FROM pluto_input_research AS b
 WHERE
     a.bbl = b.bbl
-    AND b.field = 'cd'
-    AND a.cd = b.old_value;
+    AND b.field = :'FIELD'
+    AND a.:FIELD IS NOT DISTINCT FROM b.old_value;
