@@ -47,8 +47,6 @@ function run_sql_command {
 }
 
 function sql_table_summary {
-  # TODO use utils function for ALL sql commands using BUILD_ENGINE
-  # psql -d $BUILD_ENGINE -At -c "SELECT count(*) FROM $1;" | 
   psql -d ${BUILD_ENGINE} -At -c "SELECT count(*) FROM $1;" | 
   while read -a count; do
   echo -e "
