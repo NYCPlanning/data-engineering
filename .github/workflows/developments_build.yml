@@ -63,7 +63,7 @@ jobs:
 
       - name: Set recipe env vars
         working-directory: ./
-        run: source ./bash/export_recipe_env.sh products/developments/${{ inputs.recipe_file }}.lock.yml 
+        run: source ./bash/export_recipe_env.sh products/developments/${{ inputs.recipe_file }}.lock.yml
 
       - name: Dataloading
         run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
@@ -71,15 +71,17 @@ jobs:
       - name: Clear cache
         run: rm -rf .library
 
-      - name: 2. build dev_db ...
-        run: |
-          ./devdb.sh build
-          ./devdb.sh aggregate
+      - name: Build
+        run: ./bash/02_build_devdb.sh
 
-      - name: 3. qaqc dev_db ...
-        run: ./devdb.sh qaqc
+      - name: Aggregate
+        run: ./bash/03_aggregate_unit_change_summary.sh
 
-      - name: 4. Export ...
-        run: |
-          ./devdb.sh export
-          ./devdb.sh upload
+      - name: QAQC
+        run: ./bash/04_qaqc.sh
+
+      - name: Export
+        run: ./bash/05_export.sh
+
+      - name: Upload
+        run: python -m dcpy.connectors.edm.publishing upload -p db-developments -a public-read
