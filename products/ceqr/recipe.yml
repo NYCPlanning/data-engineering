@@ -55,7 +55,6 @@ inputs:
     - name: usnps_parks
       file_type: pg_dump
     - name: dpr_capitalprojects
-      file_type: pg_dump
     - name: dpr_walk_to_a_park
     - name: dpr_active_passive_recreation
     - name: lpc_landmarks
