@@ -4,7 +4,6 @@ from internal_review.set_internal_review_file import set_internal_review_files
 
 _HVS_PATH = "resources/housing_security/nychvs_2023.xlsx"
 
-# TODO: check moe change from 95% to 90%
 _DATASETS = {
     "renter_occupied": {
         "tab": "Renter-occupied housing units",
