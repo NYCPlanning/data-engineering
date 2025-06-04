@@ -73,7 +73,7 @@ jobs:
         run: |
           python3 -m external_review.collate_save_census ${{ inputs.acs_start_year}}
 
-      - name: Build Census Start
+      - name: Build Census End
         run: |
           python3 -m external_review.collate_save_census ${{ inputs.acs_end_year}}
 
