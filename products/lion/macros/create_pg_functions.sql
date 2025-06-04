@@ -100,6 +100,62 @@ BEGIN
     RETURN ST_SetSRID(ST_MakePoint(v_CX, v_CY, v_radius),ST_Srid(p_pt1));
 END;
 $BODY$
-    LANGUAGE plpgsql
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION offset_points(line geometry, offset numeric DEFAULT 1.0)
+    RETURNS RECORD AS
+$BODY$
+DECLARE
+    midpoint geometry;
+    segments geometry[];
+    ref_p1 geometry;
+    ref_p2 geometry;
+    dx numeric;
+    dy numeric;
+    unit_corr numeric;
+BEGIN
+    IF (ST_GeometryType(line) <> 'ST_LineString') THEN
+        RAISE EXCEPTION 'Input geom must be line';
+        RETURN NULL;
+    END IF;
+
+    midpoint := ST_LineInterpolatePoint(line, 0.5);
+    
+	SELECT array_agg(dump.geom)
+	INTO segments
+	FROM ST_DumpSegments(line) AS dump
+    WHERE ST_Intersects(dump.geom, midpoint);
+
+    IF array_length(segments, 1) = 0 THEN
+        RAISE EXCEPTION 'Internal error - midpoint not matched to line segments';
+        RETURN NULL;
+
+    ELSIF array_length(segments, 1) = 1 THEN
+        ref_p1 := ST_PointN(segments[1], 1);
+        ref_p2 := ST_PointN(segments[1], 2);
+
+    -- TODO - midpoint is at vertex, perp should bisect angle
+    --      - for now, just take first segment
+    ELSIF array_length(segments, 1) = 2 THEN
+        ref_p1 := ST_PointN(segments[1], 1);
+        ref_p2 := ST_PointN(segments[1], 2);
+    ELSE
+        RAISE EXCEPTION 'Geom error - more than two line segments matched to midpoint';
+        RETURN NULL;
+    END IF;
+
+    dx = ST_Y(ref_p2) - ST_Y(ref_p1);
+    dy = ST_X(ref_p1) - ST_X(ref_p2);
+
+    unit_corr = sqrt(power(dx, 2) + power(dy, 2)) * offset;
+    
+    RETURN ( 
+        ST_MakePoint(ST_X(midpoint) - dx/unit_corr, ST_Y(midpoint) - dy/unit_corr),
+        ST_MakePoint(ST_X(midpoint) + dx/unit_corr, ST_Y(midpoint) + dy/unit_corr)
+    );
+END;
+$BODY$
+LANGUAGE plpgsql;
 
 {% endmacro %}
