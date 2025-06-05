@@ -27,4 +27,4 @@ SELECT
     left_offset_point,
     right_offset_point
 FROM centerline
-CROSS JOIN LATERAL offset_points(geom, 2) AS offsets (left_offset_point geometry, right_offset_point geometry);
+CROSS JOIN LATERAL offset_points(geom, 2) AS offsets (left_offset_point geometry, right_offset_point geometry)
