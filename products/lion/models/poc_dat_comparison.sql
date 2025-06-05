@@ -16,5 +16,6 @@ FROM lion_dat_fields AS dev
 INNER JOIN production_lion AS prod
     ON
         dev."Borough" = prod."Borough"
+        AND dev."Face Code" = prod."Face Code"
         AND dev."Sequence Number" = prod."Sequence Number"
         AND dev."Segment ID" = prod."Segment ID"
