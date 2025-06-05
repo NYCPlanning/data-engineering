@@ -18,7 +18,7 @@ WITH centerline AS (
         354785, -- Large circular segment extending into other states
         9008702 -- Strange small simple line that is discontinuous
     )
-),
+)
 
 SELECT
     segmentid,
