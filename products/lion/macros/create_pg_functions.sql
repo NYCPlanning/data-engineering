@@ -116,7 +116,7 @@ DECLARE
     unit_corr numeric;
 BEGIN
     IF (ST_GeometryType(line) <> 'ST_LineString') THEN
-        RAISE EXCEPTION 'Input geom must be line';
+        -- RAISE EXCEPTION 'Input geom must be line';
         RETURN NULL;
     END IF;
 
@@ -128,7 +128,7 @@ BEGIN
     WHERE ST_Intersects(dump.geom, midpoint);
 
     IF array_length(segments, 1) = 0 THEN
-        RAISE EXCEPTION 'Internal error - midpoint not matched to line segments';
+        -- RAISE EXCEPTION 'Internal error - midpoint not matched to line segments';
         RETURN NULL;
 
     ELSIF array_length(segments, 1) = 1 THEN
@@ -141,7 +141,7 @@ BEGIN
         ref_p1 := ST_PointN(segments[1], 1);
         ref_p2 := ST_PointN(segments[1], 2);
     ELSE
-        RAISE EXCEPTION 'Geom error - more than two line segments matched to midpoint';
+        -- RAISE EXCEPTION 'Geom error - more than two line segments matched to midpoint';
         RETURN NULL;
     END IF;
 
