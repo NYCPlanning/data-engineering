@@ -107,6 +107,7 @@ CREATE OR REPLACE FUNCTION offset_points(line geometry, offset_length numeric DE
     RETURNS RECORD AS
 $BODY$
 DECLARE
+    srid integer;
     midpoint geometry;
     segments geometry[];
     ref_p1 geometry;
@@ -120,6 +121,7 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    srid := ST_SRID(line)
     midpoint := ST_LineInterpolatePoint(line, 0.5);
     
 	SELECT array_agg(dump.geom)
@@ -151,8 +153,8 @@ BEGIN
     unit_corr = offset_length / sqrt(power(dx, 2) + power(dy, 2));
     
     RETURN ( 
-        ST_MakePoint(ST_X(midpoint) - dx * unit_corr, ST_Y(midpoint) - dy * unit_corr),
-        ST_MakePoint(ST_X(midpoint) + dx * unit_corr, ST_Y(midpoint) + dy * unit_corr)
+        ST_SetSRID(ST_MakePoint(ST_X(midpoint) - dx * unit_corr, ST_Y(midpoint) - dy * unit_corr), srid),
+        ST_SetSRID(ST_MakePoint(ST_X(midpoint) + dx * unit_corr, ST_Y(midpoint) + dy * unit_corr), srid)
     );
 END;
 $BODY$
