@@ -121,7 +121,7 @@ BEGIN
         RETURN NULL;
     END IF;
 
-    srid := ST_SRID(line)
+    srid := ST_SRID(line);
     midpoint := ST_LineInterpolatePoint(line, 0.5);
     
 	SELECT array_agg(dump.geom)
