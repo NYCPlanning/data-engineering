@@ -103,7 +103,7 @@ $BODY$
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION offset_points(line geometry, offset numeric DEFAULT 1.0)
+CREATE OR REPLACE FUNCTION offset_points(line geometry, offset_length numeric DEFAULT 1.0)
     RETURNS RECORD AS
 $BODY$
 DECLARE
@@ -148,11 +148,11 @@ BEGIN
     dx = ST_Y(ref_p2) - ST_Y(ref_p1);
     dy = ST_X(ref_p1) - ST_X(ref_p2);
 
-    unit_corr = sqrt(power(dx, 2) + power(dy, 2)) * offset;
+    unit_corr = offset_length / sqrt(power(dx, 2) + power(dy, 2));
     
     RETURN ( 
-        ST_MakePoint(ST_X(midpoint) - dx/unit_corr, ST_Y(midpoint) - dy/unit_corr),
-        ST_MakePoint(ST_X(midpoint) + dx/unit_corr, ST_Y(midpoint) + dy/unit_corr)
+        ST_MakePoint(ST_X(midpoint) - dx * unit_corr, ST_Y(midpoint) - dy * unit_corr),
+        ST_MakePoint(ST_X(midpoint) + dx * unit_corr, ST_Y(midpoint) + dy * unit_corr)
     );
 END;
 $BODY$
