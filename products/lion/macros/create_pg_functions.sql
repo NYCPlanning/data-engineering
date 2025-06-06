@@ -100,6 +100,72 @@ BEGIN
     RETURN ST_SetSRID(ST_MakePoint(v_CX, v_CY, v_radius),ST_Srid(p_pt1));
 END;
 $BODY$
-    LANGUAGE plpgsql
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION offset_points(line geometry, offset_length numeric DEFAULT 1.0)
+    RETURNS RECORD AS
+$BODY$
+DECLARE
+    srid integer;
+    midpoint geometry;
+    segments geometry[];
+    mid_segment geometry;
+    ref_p1 geometry;
+    ref_p2 geometry;
+    dx numeric;
+    dy numeric;
+    unit_corr numeric;
+BEGIN
+    IF (ST_GeometryType(line) <> 'ST_LineString') THEN
+        -- RAISE EXCEPTION 'Input geom must be line';
+        RETURN NULL;
+    END IF;
+
+    srid := ST_SRID(line);
+    midpoint := ST_LineInterpolatePoint(line, 0.5);
+    
+	SELECT array_agg(dump.geom)
+	INTO segments
+	FROM ST_DumpSegments(line) AS dump
+    WHERE ST_Intersects(dump.geom, midpoint);
+
+    IF array_length(segments, 1) = 0 OR segments IS NULL THEN
+        -- precision issue - find nearest segment
+        WITH dists AS (
+            SELECT dump.geom, dump.geom <-> midpoint AS dist
+            FROM ST_DumpSegments(line) AS dump
+        )
+        SELECT geom
+        INTO mid_segment
+        FROM dists
+        ORDER BY dist
+        LIMIT 1;
+    ELSIF array_length(segments, 1) = 1 THEN
+        mid_segment := segments[1];
+    ELSIF array_length(segments, 1) = 2 THEN
+        -- TODO - midpoint is at vertex, perp should bisect angle
+        --      - for now, just take first segment
+        mid_segment := segments[1];
+    ELSE
+        RAISE EXCEPTION 'Geom error - more than two line segments matched to midpoint';
+        RETURN NULL;
+    END IF;
+
+    ref_p1 := ST_PointN(mid_segment, 1);
+    ref_p2 := ST_PointN(mid_segment, 2);
+
+    dx = ST_Y(ref_p2) - ST_Y(ref_p1);
+    dy = ST_X(ref_p1) - ST_X(ref_p2);
+
+    unit_corr = offset_length / sqrt(power(dx, 2) + power(dy, 2));
+    
+    RETURN ( 
+        ST_SetSRID(ST_MakePoint(ST_X(midpoint) - dx * unit_corr, ST_Y(midpoint) - dy * unit_corr), srid),
+        ST_SetSRID(ST_MakePoint(ST_X(midpoint) + dx * unit_corr, ST_Y(midpoint) + dy * unit_corr), srid)
+    );
+END;
+$BODY$
+LANGUAGE plpgsql;
 
 {% endmacro %}

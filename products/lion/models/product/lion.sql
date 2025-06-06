@@ -11,7 +11,7 @@ WITH centerline AS (
 ),
 
 atomic_polygons AS (
-    SELECT * FROM {{ ref("int__centerline_atomicpolygons") }}
+    SELECT * FROM {{ ref("int__centerline_atomicpolygons_original") }}
 ),
 
 nodes AS (
