@@ -3,7 +3,7 @@ from collections import defaultdict
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel, Field, TypeAdapter
-from typing import ClassVar
+from typing import ClassVar, Unpack
 import yaml
 
 from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
@@ -14,6 +14,11 @@ from dcpy.models.product.dataset.metadata import (
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
     COLUMN_TYPES,
+)
+from dcpy.models.lifecycle.distribute import (
+    DatasetDestinationFilters,
+    DatasetDestination,
+    ProductDatasetDestinationFilters,
 )
 from dcpy.utils.collections import deep_merge_dict as merge
 
@@ -98,57 +103,69 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         dataset_mds = [self.dataset(ds_id) for ds_id in self.metadata.datasets]
         return {m.id: m for m in dataset_mds}
 
-    def destinations(self) -> pd.DataFrame:
-        """Helper to display all destinations under a product"""
-        filtered_datasets = self.get_datasets_by_id()
+    def all_destinations(self) -> list[dict]:
+        """Get all destinations for a product"""
         found_dests = []
-
-        for ds in filtered_datasets.values():
+        for ds in self.get_datasets_by_id().values():
             for dest in ds.destinations:
                 found_dests.append(
                     {
                         "product": self.metadata.id,
-                        "dataset": ds.id,
-                        "destination": dest.id,
+                        "dataset_id": ds.id,
+                        "destination_id": dest.id,
                         "destination_type": dest.type,
-                        "remote_id": (dest.custom or {}).get("four_four"),
-                        "tags": dest.tags or [],
+                        # "remote_id": (dest.custom or {}).get("four_four"),
+                        "tags": set(dest.tags or []),
+                        "destination_path": f"{self.metadata.id}.{ds.id}.{dest.id}",
                     }
                 )
-        df = pd.DataFrame(found_dests)
-        df["destination_path"] = df.apply(
-            lambda r: f"{r['product']}.{r.dataset}.{r.destination}", axis=1
+        return found_dests
+
+    def all_destinations_df(self, grouped: bool = False) -> pd.DataFrame:
+        """Helper to display all destinations for a product"""
+        df = pd.DataFrame(self.all_destinations())
+        return (
+            df.set_index(["product", "dataset_id", "destination_id"]).sort_index()
+            if grouped
+            else df
         )
-        return df.set_index(["product", "dataset", "destination"]).sort_index()
 
     def query_destinations(
-        self,
-        *,
-        datasets: frozenset[str] | None = None,
-        destination_id: str | None = None,
-        destination_type: str | None = None,
-        destination_tag: str | None = None,
-    ) -> dict[str, dict[str, DatasetMetadata]]:
-        """Retrieve a map[map] of dataset->destination->DatasetMetadata filtered by
-           - destination type. (e.g. Socrata)
-           - dataset name
-           - tags
+        self, **filters: Unpack[DatasetDestinationFilters]
+    ) -> list[DatasetDestination]:
+        """Retrieve a list of DatasetDestinations for given filters"""
+        _filters: dict[str, set[str]] = defaultdict(set[str], filters)  # type: ignore
+        dests = self.all_destinations_df(grouped=False)
 
-        e.g. for LION: {"2020_census_blocks": {"socrata_water_included": [Fully rendered metadata for this destination]}}
-        """
-        filtered_datasets = self.get_datasets_by_id()
-        found_dests: dict[str, dict[str, DatasetMetadata]] = defaultdict(dict)
-
-        for ds in filtered_datasets.values():
-            for dest in ds.destinations:
-                if (
-                    (not destination_type or dest.type == destination_type)
-                    and (not destination_id or dest.id == destination_id)
-                    and (not datasets or ds.id in datasets)
-                    and (not destination_tag or destination_tag in dest.tags)
-                ):
-                    found_dests[ds.id][dest.id] = ds
-        return found_dests
+        # This could be generalized into something a little more declarative
+        # if we want more flexibility around filtering
+        return dests.loc[
+            dests.dataset_id.apply(
+                lambda x: x in _filters["dataset_ids"]
+                if _filters["dataset_ids"]
+                else True
+            )
+            & dests.destination_id.apply(
+                lambda x: x in _filters["destination_ids"]
+                if _filters["destination_ids"]
+                else True
+            )
+            & dests.destination_type.apply(
+                lambda x: x in _filters["destination_types"]
+                if _filters["destination_types"]
+                else True
+            )
+            & dests.destination_path.apply(
+                lambda x: x in _filters["destination_paths"]
+                if _filters["destination_paths"]
+                else True
+            )
+            & dests.tags.apply(
+                lambda x: x.intersection(_filters["destination_tags"])
+                if _filters["destination_tags"]
+                else True
+            )
+        ].to_dict("records")  # type: ignore
 
     def validate_dataset_metadata(self) -> dict[str, list[str]]:
         product_errors = {}
@@ -261,16 +278,9 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
         return self.root_path / "packaging" / "resources" / file
 
     def query_dataset_destinations(
-        self, tag: str
+        self, **filters: Unpack[ProductDatasetDestinationFilters]
     ) -> list[ProductDatasetDestinationKey]:
-        keys = []
-        for p_name in self.metadata.products:
-            for ds_id, ds_md in self.product(p_name).get_datasets_by_id().items():
-                keys += [
-                    ProductDatasetDestinationKey(
-                        product=p_name, dataset=ds_id, destination=dest.id
-                    )
-                    for dest in ds_md.destinations
-                    if tag in dest.tags
-                ]
-        return keys
+        all_dests = []
+        for p_name in filters.get("product_ids", self.metadata.products):
+            all_dests += self.product(p_name).query_destinations(**filters)
+        return all_dests
