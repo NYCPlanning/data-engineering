@@ -110,6 +110,7 @@ DECLARE
     srid integer;
     midpoint geometry;
     segments geometry[];
+    mid_segment geometry;
     ref_p1 geometry;
     ref_p2 geometry;
     dx numeric;
@@ -129,23 +130,30 @@ BEGIN
 	FROM ST_DumpSegments(line) AS dump
     WHERE ST_Intersects(dump.geom, midpoint);
 
-    IF array_length(segments, 1) = 0 THEN
-        -- RAISE EXCEPTION 'Internal error - midpoint not matched to line segments';
-        RETURN NULL;
-
+    IF array_length(segments, 1) = 0 OR segments IS NULL THEN
+        -- precision issue - find nearest segment
+        WITH dists AS (
+            SELECT dump.geom, dump.geom <-> midpoint AS dist
+            FROM ST_DumpSegments(line) AS dump
+        )
+        SELECT geom
+        INTO mid_segment
+        FROM dists
+        ORDER BY dist
+        LIMIT 1;
     ELSIF array_length(segments, 1) = 1 THEN
-        ref_p1 := ST_PointN(segments[1], 1);
-        ref_p2 := ST_PointN(segments[1], 2);
-
-    -- TODO - midpoint is at vertex, perp should bisect angle
-    --      - for now, just take first segment
+        mid_segment := segments[1];
     ELSIF array_length(segments, 1) = 2 THEN
-        ref_p1 := ST_PointN(segments[1], 1);
-        ref_p2 := ST_PointN(segments[1], 2);
+        -- TODO - midpoint is at vertex, perp should bisect angle
+        --      - for now, just take first segment
+        mid_segment := segments[1];
     ELSE
-        -- RAISE EXCEPTION 'Geom error - more than two line segments matched to midpoint';
+        RAISE EXCEPTION 'Geom error - more than two line segments matched to midpoint';
         RETURN NULL;
     END IF;
+
+    ref_p1 := ST_PointN(mid_segment, 1);
+    ref_p2 := ST_PointN(mid_segment, 2);
 
     dx = ST_Y(ref_p2) - ST_Y(ref_p1);
     dy = ST_X(ref_p1) - ST_X(ref_p2);
