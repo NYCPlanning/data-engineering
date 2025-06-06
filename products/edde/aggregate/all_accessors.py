@@ -2,9 +2,11 @@
 from aggregate.housing_production.area_within_historic_district import (
     fraction_historic,
 )
-from aggregate.housing_production.change_in_units import change_in_units
 from aggregate.housing_production.hpd_housing_ny_affordable_housing import (
     affordable_housing,
+)
+from aggregate.housing_production.change_in_units import (
+    change_in_units,
 )
 
 # Housing Security imports
@@ -17,8 +19,9 @@ from aggregate.housing_security.evictions_by_city_marshals import (
     count_residential_evictions,
 )
 
-from aggregate.housing_security.DHS_shelter import DHS_shelter
-from aggregate.housing_security.eviction_cases_housing_court import eviction_cases
+from aggregate.housing_security.DHS_shelter import dhs_shelter
+# from aggregate.housing_security.eviction_cases_housing_court import eviction_cases
+
 from aggregate.housing_security.homevalue_median import homevalue_median
 from aggregate.housing_security.households_rent_burden import households_rent_burden
 from aggregate.housing_security.rent_median import rent_median
@@ -48,23 +51,24 @@ from aggregate.quality_of_life.access_to_openspace import access_to_openspace
 from aggregate.quality_of_life.access_subway_and_access_ADA import (
     access_subway_and_access_ADA,
 )
-from aggregate.quality_of_life.covid_death import covid_death
 from aggregate.quality_of_life.diabetes_self_report import (
     health_self_reported,
     health_diabetes,
 )
 from aggregate.quality_of_life.education_outcome import get_education_outcome
-from aggregate.quality_of_life.health_mortality import (
-    infant_mortality,
-    overdose_mortality,
-    premature_mortality,
-)
-from aggregate.quality_of_life.heat_vulnerability import heat_vulnerability
+
+# from aggregate.quality_of_life.health_mortality import (
+#     infant_mortality,
+#     overdose_mortality,
+#     premature_mortality,
+# )
+# from aggregate.quality_of_life.heat_vulnerability import heat_vulnerability
 from aggregate.quality_of_life.safety_ped_aslt_hospitalizations import (
     assault_hospitalizations,
-    pedestrian_hospitalizations,
+    # pedestrian_hospitalizations,
 )
-from aggregate.quality_of_life.traffic_fatalities import traffic_fatalities_injuries
+
+# from aggregate.quality_of_life.traffic_fatalities import traffic_fatalities_injuries
 from aggregate.quality_of_life.access_to_broadband import access_to_broadband
 from aggregate.quality_of_life.access_transit_car import access_transit_car
 
@@ -85,22 +89,22 @@ QOL_accessors = [
     access_transit_car,
     access_subway_and_access_ADA,
     get_education_outcome,
-    covid_death,
-    heat_vulnerability,
+    # covid_death,
+    # heat_vulnerability,
     health_self_reported,
-    infant_mortality,
-    overdose_mortality,
-    premature_mortality,
+    # infant_mortality,
+    # overdose_mortality,
+    # premature_mortality,
     health_diabetes,
-    traffic_fatalities_injuries,
+    # traffic_fatalities_injuries,
     assault_hospitalizations,
-    pedestrian_hospitalizations,
+    # pedestrian_hospitalizations,
 ]
 
 housing_security_accessors = [
-    DHS_shelter,
+    dhs_shelter,
     count_residential_evictions,
-    eviction_cases,
+    # eviction_cases,
     units_affordable,
     income_restricted_units,
     income_restricted_units_hpd,

@@ -65,6 +65,9 @@ jobs:
         working-directory: ./
         run: source ./bash/export_recipe_env.sh products/developments/${{ inputs.recipe_file }}.lock.yml 
 
+      - name: Setup Minio
+        run: mc alias set spaces "$AWS_S3_ENDPOINT" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" --api S3v4
+
       - name: Dataloading
         run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 

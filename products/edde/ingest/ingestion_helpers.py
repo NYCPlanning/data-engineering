@@ -1,56 +1,32 @@
-"""Miscellaneous ingestion related tasks"""
-
-from pathlib import Path
-
-from pandas import DataFrame
+from dcpy.lifecycle.builds import load
+from dcpy.utils.geospatial import parquet
 import pandas as pd
-import yaml
-from .data_library.metadata import add_version, dump_metadata
-from . import BASE_URL
+import geopandas as gp
+
+import config
 
 
-def add_leading_zero_PUMA(df: DataFrame) -> DataFrame:
-    df["puma"] = "0" + df["puma"].astype(str)
-    return df
+def load_data(
+    name: str, version: str = "", cols: list = [], is_geospatial: bool = False
+) -> pd.DataFrame | gp.GeoDataFrame:
+    # TODO: is_geospatial flag is hacky. This should be inferred elsewhere
 
+    build_metadata = load.get_build_metadata(config.PRODUCT_PATH)
+    assert build_metadata.load_result, "You must load data before reading data."
 
-def read_datasets_yml() -> dict:
-    with open(
-        Path(__file__).parent.parent / ("ingest/data_library/datasets.yml"), "r"
-    ) as f:
-        return yaml.safe_load(f.read())["datasets"]
-
-
-def get_dataset_version(name: str) -> str:
-    datasets = read_datasets_yml()
-    dataset = next(filter(lambda x: x["name"] == name, datasets), None)
-    assert dataset, f"{name} is not included as a dataset in datasets.yml"
-    return str(dataset.get("version", "latest"))
-
-
-def read_from_S3(name: str, category: str, cols: list = None) -> pd.DataFrame:
-    read_version = get_dataset_version(name)
-    df = pd.read_csv(
-        f"{BASE_URL}/{name}/{read_version}/{name}.csv",
-        dtype=str,
-        index_col=False,
-        usecols=cols,
-    )
-    add_version(dataset=name, version=read_version)
-    dump_metadata(category)
-    return df
+    if is_geospatial:
+        df = parquet.read_df(
+            load.get_imported_filepath(build_metadata.load_result, name, version)
+        )
+    else:
+        df = load.get_imported_df(
+            build_metadata.load_result, ds_id=name, version=version
+        )
+    return df.filter(items=cols or df.columns.to_list())
 
 
 def read_from_excel(
-    file_path, category: str, sheet_name: str = None, columns: str = None, **kwargs
+    file_path, category: str, sheet_name: str = "", columns: list = [], **kwargs
 ) -> pd.DataFrame:
-    read_excel_args = {
-        "io": file_path,
-        "sheet_name": sheet_name,
-        "usecols": columns,
-    } | kwargs
-    df = pd.read_excel(**read_excel_args)
-
-    add_version(dataset=f"{file_path}/{sheet_name}", version="FILE_IN_REPO")
-    dump_metadata(category)
-    return df
+    kwargs = {} if not columns else {"usecols": columns}
+    return pd.read_excel(file_path, sheet_name=sheet_name, **kwargs)  # type: ignore

@@ -5,17 +5,16 @@ Reference for applying weights: https://www2.census.gov/programs-surveys/acs/tec
 To-do: refactor into two files, PUMS aggregator and PUMS demographic aggregator
 """
 
+from dcpy.utils.logging import logger
 import os
 import pandas as pd
 import time
 from ingest.load_data import load_PUMS
 from statistical.calculate_counts import calculate_counts
-from aggregate.race_assign import PUMS_race_assign
 from aggregate.aggregation_helpers import (
     get_category,
     order_aggregated_columns,
 )
-from utils.make_logger import create_logger
 from statistical.calculate_fractions import (
     calculate_fractions,
 )
@@ -31,9 +30,7 @@ class BaseAggregator:
 
     def __init__(self) -> None:
         self.init_time = time.perf_counter()
-        self.logger = create_logger(
-            f"{self.__class__.__name__}_logger", f"logs/{self.__class__.__name__}.log"
-        )
+        self.logger = logger
 
     def cache_flat_csv(self):
         """For debugging and collaborating. This is where .csv's for"""
@@ -221,7 +218,17 @@ class PUMSAggregator(BaseAggregator):
         self.categories[indicator] = categories
 
     def race_assign(self, person):
-        return PUMS_race_assign(person)
+        if person["HISP"] != "Not Spanish/Hispanic/Latino":
+            return "hsp"
+        else:
+            if person["RAC1P"] == "White alone":
+                return "wnh"
+            elif person["RAC1P"] == "Black or African American alone":
+                return "bnh"
+            elif person["RAC1P"] == "Asian alone":
+                return "anh"
+            else:
+                return "onh"
 
 
 class PUMSCount(PUMSAggregator):

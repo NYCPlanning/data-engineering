@@ -1,0 +1,19 @@
+id: dhs_shelterd_indiv_by_comm_dist
+acl: public-read
+
+attributes:
+  name: Department of Homeless Services - Sheltered Individuals by Community District
+  description: >-
+    Presents the number of cases and individuals for each shelter case type by borough and community district
+  url: https://data.cityofnewyork.us/Social-Services/Associated-Address-by-Borough-and-Community-Distri/ur7y-ziyb
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: ur7y-ziyb
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "strip": True, "lower": True }

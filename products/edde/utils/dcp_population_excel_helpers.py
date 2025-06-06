@@ -1,4 +1,3 @@
-import pandas as pd
 import re
 
 # Creat helpful global mappers for dcp
@@ -17,6 +16,14 @@ median_suffix_mapper_global = {
     "c": "median_cv",
     "p": "median_pct",  # To be removed on further processing
     "z": "median_pct_moe",  # To be removed on further processing
+}
+
+measure_suffixes = {
+    "e": "",
+    "m": "moe",
+    "c": "cv",
+    "p": "pct",
+    "z": "pct_moe",
 }
 
 race_suffix_mapper_global = {"a": "anh", "b": "bnh", "h": "hsp", "w": "wnh"}
@@ -57,29 +64,6 @@ def reorder_year_race(col):
         return col.replace(match.group(0), f"_{match.group(2)}_{match.group(1)}")
     else:
         return col
-
-
-### Create base load function that reads dcp population xlsx for 2000 census pums
-def load_2000_census_pums_all_data() -> pd.DataFrame:
-    df = pd.read_excel(
-        "./resources/ACS_PUMS/EDDT_Census2000PUMS.xlsx",
-        skiprows=1,
-        dtype={"GeoID": str},
-    )
-    df = df.replace(
-        {
-            "GeoID": {
-                "Bronx": "BX",
-                "Brooklyn": "BK",
-                "Manhattan": "MN",
-                "Queens": "QN",
-                "Staten Island": "SI",
-                "NYC": "citywide",
-            }
-        }
-    )
-    df.set_index("GeoID", inplace=True)
-    return df
 
 
 def remove_duplicate_cols(df):

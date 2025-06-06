@@ -1,0 +1,18 @@
+id: dcp_pumas2020
+acl: public-read
+
+attributes:
+  name: 2020 Public Use Microdata Areas (PUMAs)
+  url: https://data.cityofnewyork.us/City-Government/2020-Public-Use-Microdata-Areas-PUMAs-/pikk-p9nv/
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: pikk-p9nv
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "lower": True }

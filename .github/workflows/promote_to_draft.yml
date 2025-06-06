@@ -16,6 +16,7 @@ on:
           - db-colp
           - db-cpdb
           - db-developments
+          - db-eddt
           - db-facilities
           - db-green-fast-track
           - db-pluto

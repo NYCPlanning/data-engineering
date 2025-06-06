@@ -1,9 +1,9 @@
 import pandas as pd
 from aggregate.aggregation_helpers import order_aggregated_columns
+from aggregate.load_aggregated import load_acs
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.PUMA_helpers import borough_name_mapper, clean_PUMAs, get_all_boroughs
 from aggregate.PUMS.pums_2000_economics import pums_2000_economics
-from utils.PUMA_helpers import acs_years, sheet_name, year_range
+from utils.geo_helpers import acs_years
 from utils.dcp_population_excel_helpers import (
     race_suffix_mapper_global,
     count_suffix_mapper_global,
@@ -45,24 +45,24 @@ suffix_mappers = {
 
 
 def load_clean_source_data(year: str):
-    source = pd.read_excel(
-        f"resources/ACS_PUMS/EDDT_HHEconSec_ACS{year_range(year)}.xlsx",
-        sheet_name=f"EconSec_{sheet_name(year)}",
+    source = (
+        pd.DataFrame(load_acs(year))
+        .pipe(remove_duplicate_cols)
+        .pipe(remove_duplicate_civilian_employed)
     )
-    source["Geog"].replace(borough_name_mapper, inplace=True)
-    source["Geog"].replace({"NYC": "citywide"}, inplace=True)
-    source = source.set_index("Geog")
-
-    source = remove_duplicate_cols(source)
-    source = remove_duplicate_civilian_employed(source)
 
     source.columns = [convert_col_label(c) for c in source.columns]
+    assert not source.columns.duplicated().any(), (
+        f"There should be no duplicate columns. Found {source.columns[source.columns.duplicated()]}"
+    )
+
+    col_order = order_economics(source, year)
+    source = source.filter(items=["geog_type", "geog"] + col_order)
 
     num_valid_columns = len([c for c in source.columns if "median_pct" not in c])
-    col_order = order_economics(source, year)
-
-    assert len(col_order) == num_valid_columns
-    source = source.reindex(columns=col_order)
+    assert len(col_order) == num_valid_columns, (
+        f"Expected {num_valid_columns}, but found {len(col_order)} in source"
+    )
     return source
 
 
@@ -138,18 +138,8 @@ def acs_pums_economics(
             geography, write_to_internal_review=write_to_internal_review
         )
 
-    source = load_clean_source_data(year)
+    final = load_clean_source_data(year).loc[geography].rename_axis(geography)
 
-    if geography == "puma":
-        final = source.loc[3701:4114]  # Don't love this but it's a common pattern
-        final.index = final.index.map(clean_PUMAs)
-
-    if geography == "borough":
-        final = source.loc[get_all_boroughs()]
-    if geography == "citywide":
-        final = source.loc[["citywide"]]
-
-    final.index.name = geography
     if write_to_internal_review:
         set_internal_review_files(
             [

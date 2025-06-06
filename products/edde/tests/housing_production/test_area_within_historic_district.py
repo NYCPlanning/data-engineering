@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from aggregate.housing_production.area_within_historic_district import (
-    load_historic_districts_gdf,
+    _load_historic_districts_gdf,
     fraction_historic,
 )
 
@@ -9,7 +9,7 @@ by_puma = fraction_historic("puma")
 by_borough = fraction_historic("borough")
 by_citywide = fraction_historic("citywide")
 ind_by_geom = [by_puma, by_borough, by_citywide]
-hd = load_historic_districts_gdf()
+hd = _load_historic_districts_gdf()
 
 
 def test_that_zero_fraction_historic_means_zero_total_historic():

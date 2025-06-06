@@ -1,60 +1,66 @@
-Year,GeoTypeName,Borough,Geography,Geography ID,Indicator Name,Number,2010 population,"Age-Adjusted Rate (per 100,000 residents)","Rate per 100,000 residents"
-2016,Neighborhood (Community District),Manhattan,Financial District (CD1),101,Non-fatal Assault Hospitalizations,14,"60,978",19.1,22.9591
-2016,Neighborhood (Community District),Manhattan,Greenwich Village and Soho (CD2),102,Non-fatal Assault Hospitalizations,,"90,016",,0
-2016,Neighborhood (Community District),Manhattan,Lower East Side and Chinatown (CD3),103,Non-fatal Assault Hospitalizations,59,"163,277",30.3,36.13491184
-2016,Neighborhood (Community District),Manhattan,Clinton and Chelsea (CD4),104,Non-fatal Assault Hospitalizations,34,"103,245",24.7,32.93137682
-2016,Neighborhood (Community District),Manhattan,Midtown (CD5),105,Non-fatal Assault Hospitalizations,13,"51,673",21.8,25.15820641
-2016,Neighborhood (Community District),Manhattan,Stuyvesant Town and Turtle Bay (CD6),106,Non-fatal Assault Hospitalizations,43,"142,745",25.8,30.12364706
-2016,Neighborhood (Community District),Manhattan,Upper West Side (CD7),107,Non-fatal Assault Hospitalizations,27,"209,084",13.2,12.91347018
-2016,Neighborhood (Community District),Manhattan,Upper East Side (CD8),108,Non-fatal Assault Hospitalizations,22,"219,920",12,10.00363769
-2016,Neighborhood (Community District),Manhattan,Morningside Heights and Hamilton Heights (CD9),109,Non-fatal Assault Hospitalizations,54,"110,193",45.7,49.00492772
-2016,Neighborhood (Community District),Manhattan,Central Harlem (CD10),110,Non-fatal Assault Hospitalizations,97,"115,723",81,83.82084806
-2016,Neighborhood (Community District),Manhattan,East Harlem (CD11),111,Non-fatal Assault Hospitalizations,107,"120,511",82.4,88.78857532
-2016,Neighborhood (Community District),Manhattan,Washington Heights and Inwood (CD12),112,Non-fatal Assault Hospitalizations,67,"190,020",31.8,35.25944637
-2016,Neighborhood (Community District),Bronx,Mott Haven and Melrose (CD1),201,Non-fatal Assault Hospitalizations,163,"91,497",163.9,178.1479174
-2016,Neighborhood (Community District),Bronx,Hunts Point and Longwood (CD2),202,Non-fatal Assault Hospitalizations,82,"52,246",143.9,156.9498143
-2016,Neighborhood (Community District),Bronx,Morrisania and Crotona (CD3),203,Non-fatal Assault Hospitalizations,112,"79,762",119.7,140.4177428
-2016,Neighborhood (Community District),Bronx,Highbridge and Concourse (CD4),204,Non-fatal Assault Hospitalizations,133,"146,441",83.9,90.82155954
-2016,Neighborhood (Community District),Bronx,Fordham and University Heights (CD5),205,Non-fatal Assault Hospitalizations,98,"128,200",69,76.44305772
-2016,Neighborhood (Community District),Bronx,Belmont and East Tremont (CD6),206,Non-fatal Assault Hospitalizations,94,"83,268",107.3,112.8885046
-2016,Neighborhood (Community District),Bronx,Kingsbridge Heights and Bedford (CD7),207,Non-fatal Assault Hospitalizations,103,"139,286",66.1,73.94856626
-2016,Neighborhood (Community District),Bronx,Riverdale and Fieldston (CD8),208,Non-fatal Assault Hospitalizations,21,"101,731",19.9,20.64267529
-2016,Neighborhood (Community District),Bronx,Parkchester and Soundview (CD9),209,Non-fatal Assault Hospitalizations,102,"172,298",54.5,59.19975856
-2016,Neighborhood (Community District),Bronx,Throgs Neck and Co-op City (CD10),210,Non-fatal Assault Hospitalizations,37,"120,392",32.9,30.73293907
-2016,Neighborhood (Community District),Bronx,Morris Park and Bronxdale (CD11),211,Non-fatal Assault Hospitalizations,65,"113,232",55.1,57.40426734
-2016,Neighborhood (Community District),Bronx,Williamsbridge and Baychester (CD12),212,Non-fatal Assault Hospitalizations,107,"152,344",69,70.23578218
-2016,Neighborhood (Community District),Brooklyn,Greenpoint and Williamsburg (CD1),301,Non-fatal Assault Hospitalizations,46,"173,083",21.6,26.57684464
-2016,Neighborhood (Community District),Brooklyn,Fort Greene and Brooklyn Heights (CD2),302,Non-fatal Assault Hospitalizations,39,"99,617",32.3,39.14994429
-2016,Neighborhood (Community District),Brooklyn,Bedford Stuyvesant (CD3),303,Non-fatal Assault Hospitalizations,103,"152,985",65.2,67.32686211
-2016,Neighborhood (Community District),Brooklyn,Bushwick (CD4),304,Non-fatal Assault Hospitalizations,46,"112,634",38.8,40.84024362
-2016,Neighborhood (Community District),Brooklyn,East New York and Starrett City (CD5),305,Non-fatal Assault Hospitalizations,151,"182,896",82.6,82.56058088
-2016,Neighborhood (Community District),Brooklyn,Park Slope and Carroll Gardens (CD6),306,Non-fatal Assault Hospitalizations,24,"104,709",24,22.92066585
-2016,Neighborhood (Community District),Brooklyn,Sunset Park (CD7),307,Non-fatal Assault Hospitalizations,26,"126,230",19.1,20.59732235
-2016,Neighborhood (Community District),Brooklyn,Crown Heights and Prospect Heights (CD8),308,Non-fatal Assault Hospitalizations,70,"96,317",69.2,72.67668221
-2016,Neighborhood (Community District),Brooklyn,South Crown Heights and Lefferts Gardens (CD9),309,Non-fatal Assault Hospitalizations,62,"98,429",62.3,62.98956608
-2016,Neighborhood (Community District),Brooklyn,Bay Ridge and Dyker Heights (CD10),310,Non-fatal Assault Hospitalizations,21,"124,491",16.8,16.8686893
-2016,Neighborhood (Community District),Brooklyn,Bensonhurst (CD11),311,Non-fatal Assault Hospitalizations,35,"181,981",17.1,19.23277705
-2016,Neighborhood (Community District),Brooklyn,Borough Park (CD12),312,Non-fatal Assault Hospitalizations,42,"191,382",22.7,21.94563752
-2016,Neighborhood (Community District),Brooklyn,Coney Island (CD13),313,Non-fatal Assault Hospitalizations,54,"104,278",51.5,51.78465256
-2016,Neighborhood (Community District),Brooklyn,Flatbush and Midwood (CD14),314,Non-fatal Assault Hospitalizations,53,"160,664",32.2,32.98809939
-2016,Neighborhood (Community District),Brooklyn,Sheepshead Bay (CD15),315,Non-fatal Assault Hospitalizations,24,"159,650",14.4,15.03288443
-2016,Neighborhood (Community District),Brooklyn,Brownsville (CD16),316,Non-fatal Assault Hospitalizations,91,"86,468",108.1,105.2412453
-2016,Neighborhood (Community District),Brooklyn,East Flatbush (CD17),317,Non-fatal Assault Hospitalizations,115,"155,252",76,74.07311983
-2016,Neighborhood (Community District),Brooklyn,Flatlands and Canarsie (CD18),318,Non-fatal Assault Hospitalizations,73,"193,543",38.8,37.71771648
-2016,Neighborhood (Community District),Queens,Long Island City and Astoria (CD1),401,Non-fatal Assault Hospitalizations,125,"191,105",58.1,65.40906831
-2016,Neighborhood (Community District),Queens,Woodside and Sunnyside (CD2),402,Non-fatal Assault Hospitalizations,16,"113,200",12.1,14.13427562
-2016,Neighborhood (Community District),Queens,Jackson Heights (CD3),403,Non-fatal Assault Hospitalizations,43,"171,576",23.2,25.0617802
-2016,Neighborhood (Community District),Queens,Elmhurst and Corona (CD4),404,Non-fatal Assault Hospitalizations,54,"172,598",27.1,31.28657342
-2016,Neighborhood (Community District),Queens,Ridgewood and Maspeth (CD5),405,Non-fatal Assault Hospitalizations,31,"169,190",18.8,18.3225959
-2016,Neighborhood (Community District),Queens,Rego Park and Forest Hills (CD6),406,Non-fatal Assault Hospitalizations,,"113,257",,0
-2016,Neighborhood (Community District),Queens,Flushing and Whitestone (CD7),407,Non-fatal Assault Hospitalizations,38,"247,354",15.1,15.36259773
-2016,Neighborhood (Community District),Queens,Hillcrest and Fresh Meadows (CD8),408,Non-fatal Assault Hospitalizations,30,"151,107",18.7,19.85348131
-2016,Neighborhood (Community District),Queens,Kew Gardens and Woodhaven (CD9),409,Non-fatal Assault Hospitalizations,49,"143,317",33.4,34.18994257
-2016,Neighborhood (Community District),Queens,South Ozone Park and Howard Beach (CD10),410,Non-fatal Assault Hospitalizations,46,"122,396",38.2,37.58292755
-2016,Neighborhood (Community District),Queens,Bayside and Little Neck (CD11),411,Non-fatal Assault Hospitalizations,,"116,431",,0
-2016,Neighborhood (Community District),Queens,Jamaica and Hollis (CD12),412,Non-fatal Assault Hospitalizations,135,"225,919",58.7,59.75593022
-2016,Neighborhood (Community District),Queens,Queens Village (CD13),413,Non-fatal Assault Hospitalizations,39,"188,593",20.3,20.67945258
-2016,Neighborhood (Community District),Queens,Rockaway and Broad Channel (CD14),414,Non-fatal Assault Hospitalizations,61,"114,978",56.1,53.05362765
-2016,Neighborhood (Community District),Staten Island,St. George and Stapleton (CD1),501,Non-fatal Assault Hospitalizations,127,"175,756",70.8,72.25926853
-2016,Neighborhood (Community District),Staten Island,South Beach and Willowbrook (CD2),502,Non-fatal Assault Hospitalizations,46,"132,003",36.6,34.84769286
-2016,Neighborhood (Community District),Staten Island,Tottenville and Great Kills (CD3),503,Non-fatal Assault Hospitalizations,24,"160,209",15.3,14.98043181
+TimePeriod,GeoType,Geography,Geography Name,"Age-Adjusted Rate (per 100,000 residents)",Number
+2021,CD,101,Financial District (CD1),,
+2021,CD,102,Greenwich Village and Soho (CD2),,
+2021,CD,103,Lower East Side and Chinatown (CD3),30.7,53
+2021,CD,104,Clinton and Chelsea (CD4),26.6,41
+2021,CD,105,Midtown (CD5),32,17
+2021,CD,106,Stuyvesant Town and Turtle Bay (CD6),20,28
+2021,CD,107,Upper West Side (CD7),16.2,30
+2021,CD,108,Upper East Side (CD8),11.9,25
+2021,CD,109,Morningside Heights and Hamilton Heights (CD9),45,52
+2021,CD,110,Central Harlem (CD10),96.8,113
+2021,CD,111,East Harlem (CD11),108.9,134
+2021,CD,112,Washington Heights and Inwood (CD12),28.5,56
+2021,CD,201,Mott Haven and Melrose (CD1),168.1,160
+2021,CD,202,Hunts Point and Longwood (CD2),125.5,69
+2021,CD,203,Morrisania and Crotona (CD3),129.2,113
+2021,CD,204,Highbridge and Concourse (CD4),80.2,122
+2021,CD,205,Fordham and University Heights (CD5),73.7,98
+2021,CD,206,Belmont and East Tremont (CD6),113.8,94
+2021,CD,207,Kingsbridge Heights and Bedford (CD7),70.4,103
+2021,CD,208,Riverdale and Fieldston (CD8),34,33
+2021,CD,209,Parkchester and Soundview (CD9),63.2,114
+2021,CD,210,Throgs Neck and Co-op City (CD10),27.3,30
+2021,CD,211,Morris Park and Bronxdale (CD11),65.4,74
+2021,CD,212,Williamsbridge and Baychester (CD12),80.4,118
+2021,CD,301,Greenpoint and Williamsburg (CD1),21,41
+2021,CD,302,Fort Greene and Brooklyn Heights (CD2),28,39
+2021,CD,303,Bedford Stuyvesant (CD3),75.7,116
+2021,CD,304,Bushwick (CD4),47.6,55
+2021,CD,305,East New York and Starrett City (CD5),83.5,144
+2021,CD,306,Park Slope and Carroll Gardens (CD6),23.9,28
+2021,CD,307,Sunset Park (CD7),21.9,31
+2021,CD,308,Crown Heights and Prospect Heights (CD8),75.8,74
+2021,CD,309,South Crown Heights and Lefferts Gardens (CD9),78.2,76
+2021,CD,310,Bay Ridge and Dyker Heights (CD10),16.2,23
+2021,CD,311,Bensonhurst (CD11),12.9,27
+2021,CD,312,Borough Park (CD12),17.5,32
+2021,CD,313,Coney Island (CD13),45.7,44
+2021,CD,314,Flatbush and Midwood (CD14),26.4,42
+2021,CD,315,Sheepshead Bay (CD15),21.2,34
+2021,CD,316,Brownsville (CD16),106.6,85
+2021,CD,317,East Flatbush (CD17),73.4,107
+2021,CD,318,Flatlands and Canarsie (CD18),43.2,74
+2021,CD,401,Long Island City and Astoria (CD1),59.5,129
+2021,CD,402,Woodside and Sunnyside (CD2),13.7,23
+2021,CD,403,Jackson Heights (CD3),40.1,71
+2021,CD,404,Elmhurst and Corona (CD4),30.7,58
+2021,CD,405,Ridgewood and Maspeth (CD5),17.8,28
+2021,CD,406,Rego Park and Forest Hills (CD6),9.2,12
+2021,CD,407,Flushing and Whitestone (CD7),20.5,55
+2021,CD,408,Hillcrest and Fresh Meadows (CD8),14.9,23
+2021,CD,409,Kew Gardens and Woodhaven (CD9),37.1,53
+2021,CD,410,South Ozone Park and Howard Beach (CD10),35.6,42
+2021,CD,411,Bayside and Little Neck (CD11),,
+2021,CD,412,Jamaica and Hollis (CD12),64,141
+2021,CD,413,Queens Village (CD13),36.2,62
+2021,CD,414,Rockaway and Broad Channel (CD14),55.3,57
+2021,CD,501,St. George and Stapleton (CD1),60.3,112
+2021,CD,502,South Beach and Willowbrook (CD2),19.1,26
+2021,CD,503,Tottenville and Great Kills (CD3),13.3,19
+2021,Borough,1,Bronx,40.5,674
+2021,Borough,2,Brooklyn,90.4,1271
+2021,Borough,3,Manhattan,44.5,1170
+2021,Borough,4,Queens,36.3,826
+2021,Borough,5,Staten Island,34,159
+2021,Citywide,0,New York City,48.3,4100

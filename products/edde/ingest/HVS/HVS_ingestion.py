@@ -6,12 +6,26 @@ https://github.com/NYCPlanning/db-equitable-development-tool/issues/1
 
 import requests
 import pandas as pd
-from ingest.make_cache_fn import make_HVS_cache_fn
 from ingest.HVS.HVS_geography_clean import HVS_borough_clean
-from ingest.clean_replicate_weights import HVS_rep_weights_clean
 
 metadata_url_2017 = "https://www2.census.gov/programs-surveys/nychvs/datasets/2017/microdata/stata_import_program_17.txt"
 data_url_2017 = "https://www2.census.gov/programs-surveys/nychvs/datasets/2017/microdata/uf_17_occ_web_b.txt"
+
+rw_cols_clean = [f"rw_{i}" for i in range(1, 81)]
+
+
+def make_HVS_cache_fn(year: int = 2017, human_readable=True, output_type=".pkl"):
+    rv = f"data/HVS_data_{year}"
+    if human_readable:
+        rv = f"{rv}_human_readable"
+
+    return f"{rv}{output_type}"
+
+
+def HVS_rep_weights_clean(df: pd.DataFrame) -> pd.DataFrame:
+    mapper = {f"fw{i}": rw_cols_clean[i - 1] for i in range(1, 81)}
+    df.rename(columns=mapper, inplace=True)
+    return df
 
 
 def create_HVS(year, human_readable=True, output_type=".pkl") -> pd.DataFrame:

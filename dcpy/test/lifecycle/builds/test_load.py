@@ -26,6 +26,7 @@ PARQUET = RESOURCES_DIR / "test.parquet"
 _test_df = pd.DataFrame(
     [["1", "2", "test"], ["3", "4", "test"]], columns=["a", "b", "name"]
 )
+_test_df_numeric = _test_df.astype({"a": int, "b": int})
 
 
 def _mock_preprocessor(name, df):
@@ -96,36 +97,51 @@ class TestGetDataset:
         name="test",
         build_name="test",
         datasets={
-            "df": ImportedDataset(
-                id="df",
-                version="df",
-                file_type=recipes.DatasetType.csv,
-                destination=_test_df,
-            ),
-            "pg_dump": ImportedDataset(
-                id="pg_dump",
-                version="pg_dump",
-                file_type=recipes.DatasetType.pg_dump,
-                destination="pg_dump",
-            ),
-            "csv": ImportedDataset(
-                id="csv",
-                version="csv",
-                file_type=recipes.DatasetType.csv,
-                destination=CSV,
-            ),
-            "parquet": ImportedDataset(
-                id="parquet",
-                version="parquet",
-                file_type=recipes.DatasetType.parquet,
-                destination=PARQUET,
-            ),
-            "folder": ImportedDataset(
-                id="folder",
-                version="folder",
-                file_type=recipes.DatasetType.parquet,
-                destination=RESOURCES_DIR,
-            ),
+            "df": {
+                "df_version": ImportedDataset(
+                    id="df",
+                    version="df",
+                    file_type=recipes.DatasetType.csv,
+                    destination=_test_df,
+                    destination_type=InputDatasetDestination.df,
+                )
+            },
+            "pg_dump": {
+                "pg_version": ImportedDataset(
+                    id="pg_dump",
+                    version="pg_dump",
+                    file_type=recipes.DatasetType.pg_dump,
+                    destination="pg_dump",
+                    destination_type=InputDatasetDestination.postgres,
+                )
+            },
+            "csv": {
+                "csv_version": ImportedDataset(
+                    id="csv",
+                    version="csv",
+                    file_type=recipes.DatasetType.csv,
+                    destination=CSV,
+                    destination_type=InputDatasetDestination.file,
+                )
+            },
+            "parquet": {
+                "parquet_version": ImportedDataset(
+                    id="parquet",
+                    version="parquet",
+                    file_type=recipes.DatasetType.parquet,
+                    destination=PARQUET,
+                    destination_type=InputDatasetDestination.file,
+                )
+            },
+            "folder": {
+                "folder_version": ImportedDataset(
+                    id="folder",
+                    version="folder",
+                    file_type=recipes.DatasetType.parquet,
+                    destination=RESOURCES_DIR,
+                    destination_type=InputDatasetDestination.file,
+                )
+            },
         },
     )
 
@@ -136,11 +152,13 @@ class TestGetDataset:
     @patch("dcpy.utils.postgres.PostgresClient")
     def test_df_from_pg(self, pg_client):
         _df = load.get_imported_df(self.load_result, "pg_dump")
+        print("here")
+        print(pg_client.return_value.read_table_df)
         pg_client.return_value.read_table_df.assert_called_with("pg_dump")
 
     def test_df_from_csv(self):
         df = load.get_imported_df(self.load_result, "csv")
-        assert df.equals(_test_df)
+        assert df.equals(_test_df_numeric)
 
     def test_df_from_parquet(self):
         df = load.get_imported_df(self.load_result, "parquet")
@@ -153,7 +171,8 @@ class TestGetDataset:
     def test_df_impossible_case(self):
         with pytest.raises(Exception, match="Unknown type of imported dataset"):
             res = MagicMock()
-            res.datasets = {"df": MagicMock()}
+            res.get_latest_version_str = lambda _: "version"
+            res.datasets = {"df": {"version": MagicMock()}}
             load.get_imported_df(res, "df")
 
     def test_filepath(self):
@@ -165,9 +184,10 @@ class TestGetDataset:
             load.get_imported_filepath(self.load_result, ds)
 
     def test_filepath_impossible_case(self):
-        with pytest.raises(Exception, match="Cannot get imported file"):
+        with pytest.raises(Exception, match="Cannot get imported file of dataset"):
             res = MagicMock()
-            res.datasets = {"df": MagicMock()}
+            res.get_latest_version_str = lambda _: "version"
+            res.datasets = {"df": {"version": MagicMock()}}
             load.get_imported_filepath(res, "df")
 
     def test_file(self):
