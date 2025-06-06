@@ -36,7 +36,7 @@ register 'ssh' 'cmd' 'ssh cmd' ssh_cmd
 function download_file {
     case $1 in
         pts )
-            local file=PROPMAST_ORE_T2026_FIN.gz
+            local file=PTS_Propmast.gz
         ;;
         cama)
             local file=CAMA.zip
