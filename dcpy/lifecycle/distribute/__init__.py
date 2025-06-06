@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Unpack
 
 from dcpy.lifecycle.distribute.connectors import (
@@ -8,6 +9,8 @@ from dcpy.models.lifecycle.distribute import (
     DatasetDestinationPushArgs,
     DistributeResult,
 )
+import dcpy.models.product.metadata as prod_md
+from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.connectors.registry import ConnectorDispatcher
 
 
@@ -42,3 +45,12 @@ def to_dataset_destination(
             success=False,
             push_args=push_kwargs,
         )
+
+
+def _get_product_metadata(version: str, *, md_path_override: Path | None = None):
+    md_path = md_path_override or PRODUCT_METADATA_REPO_PATH
+    assert md_path
+    return prod_md.OrgMetadata.from_path(
+        Path(md_path),
+        template_vars={"version": version},
+    )
