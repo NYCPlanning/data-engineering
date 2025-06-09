@@ -129,8 +129,8 @@ class OutlierReport:
         return {
             "building_area_increase": """
                 The table displays all BBLs where building area is more than doubled since previous version.
-                
-                ⚠️ This table mistakenly shows the lot area instead of the building area for PLUTO versions up to and including 24v3.1.
+
+                ⚠️ Currently, there is no QA guidance for this field. These records can be safely ignored by the DE & GIS teams and and are not subject to manual correction.
             """,
             "unitsres_resarea": """
                 The table displays all BBLs where unitsres is more than 50 and resarea is greater than 0 but the ratio of resarea:unitsres is less than 300.
