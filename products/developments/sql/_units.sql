@@ -37,6 +37,7 @@ SELECT DISTINCT
     a.job_number,
     a.job_type,
     a.job_desc,
+    a.datasource,
     b.occ_proposed,
     b.occ_initial,
     a.classa_init,
