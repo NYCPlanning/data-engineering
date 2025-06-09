@@ -13,3 +13,6 @@ fi
 python3 -m pip install $option . -c ./admin/run_environment/constraints.txt --no-deps
 
 git config --global --add safe.directory $workspace
+
+# configure minio for use with S3 buckets in Digital Ocean
+mc alias set spaces "$AWS_S3_ENDPOINT" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" --api S3v4
