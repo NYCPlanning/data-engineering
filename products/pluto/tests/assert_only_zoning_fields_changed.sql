@@ -4,7 +4,7 @@
         severity = 'warn',
         meta = {
             'description': '''
-				This test checks that final PLUTO table has same row count as previous version PLUTO. 
+				This test checks for changes in fields other than zoning between the current and previous PLUTO versions. 
                 This test is expected to pass for PLUTO Minor versions only.
 			''',
             'next_steps': '''
