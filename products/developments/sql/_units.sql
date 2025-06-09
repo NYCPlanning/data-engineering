@@ -98,8 +98,6 @@ SELECT
 INTO _units_devdb_resid_flag
 FROM _units_devdb_raw;
 
-DROP TABLE _units_devdb_raw CASCADE;
-
 /*
 CORRECTIONS
 	resid_flag
@@ -130,8 +128,6 @@ SELECT
 INTO _units_devdb
 FROM _units_devdb_resid_flag
 WHERE job_number NOT IN (SELECT job_number FROM export_a2_devdb);
-
-DROP TABLE _units_devdb_resid_flag CASCADE;
 
 /*
 NULL out units fields where corrected resid_flag is NULL.
