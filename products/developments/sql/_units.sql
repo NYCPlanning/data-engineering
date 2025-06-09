@@ -95,7 +95,8 @@ SELECT
             OR (classa_init IS NOT NULL AND classa_init != '0')
             OR (classa_prop IS NOT NULL AND classa_prop != '0')
             THEN 'Residential'
-    END AS resid_flag
+    END AS resid_flag,
+    job_type = 'Alteration (A2)' AS presumed_a2_alteration
 INTO _units_devdb_resid_flag
 FROM _units_devdb_raw;
 
@@ -111,7 +112,7 @@ Separate A2 job types from other types of records with units
 DROP TABLE IF EXISTS export_a2_devdb;
 SELECT * INTO export_a2_devdb
 FROM _units_devdb_resid_flag
-WHERE job_type = 'Alteration (A2)';
+WHERE presumed_a2_alteration;
 
 DROP TABLE IF EXISTS _units_devdb;
 SELECT
@@ -128,7 +129,7 @@ SELECT
     resid_flag
 INTO _units_devdb
 FROM _units_devdb_resid_flag
-WHERE job_number NOT IN (SELECT job_number FROM export_a2_devdb);
+WHERE NOT presumed_a2_alteration;
 
 /*
 NULL out units fields where corrected resid_flag is NULL.
