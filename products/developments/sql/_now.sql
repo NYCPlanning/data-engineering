@@ -76,7 +76,7 @@ WITH source_data AS (SELECT * FROM dob_now_applications),
 jobs_of_interest AS (
     SELECT * FROM source_data
     WHERE
-        (jobtype IN ('New Building', 'Full Demolition') OR jobtype ~* 'CO')
+        lower(jobtype) != 'no work'
         AND right(job_filing_number, 2) = 'I1'
 ),
 
@@ -85,6 +85,7 @@ mapping_and_cleaning AS (
         left(job_filing_number, strpos(job_filing_number, '-') - 1)::text AS job_number,
         CASE
             WHEN jobtype = 'ALT-CO - New Building with Existing Elements to Remain' THEN 'Alteration'
+            WHEN jobtype = 'Alteration' THEN 'Alteration (A2)'
             WHEN jobtype = 'Alteration CO' THEN 'Alteration'
             WHEN jobtype = 'Full Demolition' THEN 'Demolition'
             ELSE jobtype
