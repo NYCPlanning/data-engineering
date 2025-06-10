@@ -172,6 +172,7 @@ mapping_and_cleaning AS (
         initial_cost::money::text AS costestimate,
         little_e AS edesignation,
 
+        worktypes,
         CASE
             WHEN worktypes = 'CC' THEN 'Yes'
         END AS curbcut,
@@ -318,6 +319,7 @@ final AS (
         bin,
         bbl,
         boro,
+        worktypes,
         zsf_init,
         zsf_prop,
         zug_init,
