@@ -2,19 +2,20 @@ version: "3"
 
 services:
   postgis:
-    container_name: postgis-db
-    image: postgis/postgis:13-3.3-alpine
+    image: postgis/postgis:16-3.5-alpine
     environment:
       POSTGRES_PASSWORD: postgres
+    networks:
+      - docker-de
     ports:
-      - 5432:5432
+      - 5434:5432
   sftp-server:
     # To test SFTP connection
-    # Ensure .devcontainer/sftp/id_rsa_key_integration_test has 600 permissions.
+    # Ensure dcpy/test_integration/docker/sftp/id_rsa_key_integration_test has 600 permissions.
     # Then run:
-    # sftp -i .devcontainer/sftp/id_rsa_key_integration_test \
+    # sftp -i dcpy/test_integration/docker/sftp/id_rsa_key_integration_test \
     #      -o StrictHostKeyChecking=yes \
-    #      -o UserKnownHostsFile=.devcontainer/sftp/known_hosts_integration_test \
+    #      -o UserKnownHostsFile=dcpy/test_integration/docker/sftp/known_hosts_integration_test \
     #      dedev@sftp-server
     image: atmoz/sftp:alpine
     volumes:
@@ -22,7 +23,14 @@ services:
       - ./sftp/ssh_host_ed25519_integration_test:/etc/ssh/ssh_host_ed25519_key   # don't add :ro in the end because the sftp container sets appropriate key permissions
       - ./sftp/id_rsa_key_integration_test.pub:/home/dedev/.ssh/keys/id_rsa_key_integration_test.pub:ro
       - ./sftp/remote_files:/home/dedev/remote_files
+    networks:
+      - docker-de
     ports:
       - "2222:22"
     environment:
       SFTP_USERS: "dedev::1001"
+
+networks:
+  docker-de:
+    external: true
+    name: de

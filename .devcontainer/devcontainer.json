@@ -6,7 +6,8 @@
 	"image": "nycplanning/dev:latest",
 	"runArgs": [
 		"--env-file",".env",
-		"-p", "8501:8501"
+		"-p", "8501:8501",
+		"--network", "de"
 	],
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
@@ -29,11 +30,7 @@
 			]
 		}
 	},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [
-		5432
-	],
 	// Adding id_rsa so that we can push to github from the dev container
-	"initializeCommand": "ssh-add",
+	"initializeCommand": "ssh-add && (docker network create de || true)",
 	"postCreateCommand": "./bash/docker_container_setup.sh"
 }
