@@ -6,15 +6,19 @@ import pytz
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 from dcpy.connectors import sftp
 
+from dcpy.test_integration.connectors.edm.conftest import DOCKER
+
 
 @pytest.fixture
 def default_sftp_kwargs(tmp_path):
     return {
-        "server": SFTPServer(hostname="sftp-server", port=22),
+        "server": SFTPServer(
+            hostname="sftp-server" if DOCKER else "localhost", port=22 if DOCKER else 2222
+        ),
         "user": SFTPUser(
             username="dedev",
-            private_key_path="./.devcontainer/sftp/id_rsa_key_integration_test",
-            known_hosts_path="./.devcontainer/sftp/known_hosts_integration_test",
+            private_key_path="./dcpy/test_integration/docker/sftp/id_rsa_key_integration_test",
+            known_hosts_path="./dcpy/test_integration/docker/sftp/known_hosts_integration_test",
         ),
         "server_file_path": "remote_files/a_file.txt",
         "local_file_path": tmp_path / "a_file.txt",
