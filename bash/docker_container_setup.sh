@@ -4,7 +4,7 @@ set -e
 PARENT_DIR=$(dirname "$(readlink -f "$0")")
 
 if [[ -z "$CI" ]]; then
-    export workspace=/workspace
+    export workspace=/workspaces/data-engineering
     option="-e"
 else
     export workspace=/__w/data-engineering/data-engineering

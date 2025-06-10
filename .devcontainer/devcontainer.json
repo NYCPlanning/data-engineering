@@ -3,9 +3,11 @@
 // Update the VARIANT arg in docker-compose.yml to pick a Python version: 3, 3.8, 3.7, 3.6 
 {
 	"name": "Data Engineering",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "de",
-	"workspaceFolder": "/home/vscode/workspace",
+	"image": "nycplanning/dev:latest",
+	"runArgs": [
+		"--env-file",".env",
+		"-p", "8501:8501"
+	],
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
 		"vscode": {
@@ -33,7 +35,5 @@
 	],
 	// Adding id_rsa so that we can push to github from the dev container
 	"initializeCommand": "ssh-add",
-	"postCreateCommand": "./bash/docker_container_setup.sh",
-	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "vscode"
+	"postCreateCommand": "./bash/docker_container_setup.sh"
 }
