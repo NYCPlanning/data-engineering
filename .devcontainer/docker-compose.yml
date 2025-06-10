@@ -14,28 +14,3 @@ services:
     ports:
       - "8501:8501"
     tty: true
-  postgis:
-    container_name: postgis-db
-    image: postgis/postgis:13-3.3-alpine
-    environment:
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432
-  sftp-server:
-    # To test SFTP connection from a dev container terminal:
-    # Ensure .devcontainer/sftp/id_rsa_key_integration_test has 600 permissions.
-    # Then run:
-    # sftp -i .devcontainer/sftp/id_rsa_key_integration_test \
-    #      -o StrictHostKeyChecking=yes \
-    #      -o UserKnownHostsFile=.devcontainer/sftp/known_hosts_integration_test \
-    #      dedev@sftp-server
-    image: atmoz/sftp:alpine
-    volumes:
-      - ../.devcontainer/sftp/ssh_host_ed25519_integration_test.pub:/etc/ssh/ssh_host_ed25519_key.pub:ro
-      - ../.devcontainer/sftp/ssh_host_ed25519_integration_test:/etc/ssh/ssh_host_ed25519_key   # don't add :ro in the end because the sftp container sets appropriate key permissions
-      - ../.devcontainer/sftp/id_rsa_key_integration_test.pub:/home/dedev/.ssh/keys/id_rsa_key_integration_test.pub:ro
-      - ../.devcontainer/sftp/remote_files:/home/dedev/remote_files
-    ports:
-      - "2222:22"
-    environment:
-      SFTP_USERS: "dedev::1001"
