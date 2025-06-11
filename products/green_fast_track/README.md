@@ -23,9 +23,11 @@ Make sure you have a BUILD_NAME env var. If not, set it
 export BUILD_NAME=my-build-name
 ```
 
-From the root of the repo, run
+Start in the root of the repo. Make sure your .env file is reflected in your bash shell, then run our env setup
 
 ```bash
+source ./bash/utils.sh
+set_env .env
 ./bash/build_env_setup.sh
 ```
 
