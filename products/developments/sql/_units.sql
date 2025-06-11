@@ -37,6 +37,7 @@ SELECT DISTINCT
     a.job_number,
     a.job_type,
     a.job_desc,
+    a.work_types,
     a.datasource,
     b.occ_proposed,
     b.occ_initial,
@@ -118,6 +119,7 @@ DROP TABLE IF EXISTS _units_devdb;
 SELECT
     job_number,
     job_type,
+    work_types,
     occ_proposed,
     occ_initial,
     classa_init,
@@ -140,6 +142,7 @@ WITH null_nonres AS (
     SELECT
         job_number,
         job_type,
+        work_types,
         occ_proposed,
         occ_initial,
         CASE
