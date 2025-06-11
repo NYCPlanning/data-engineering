@@ -37,6 +37,10 @@ function install_gdal {
         sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
         sudo cmake --build .
         sudo cmake --build . --target install
+
+        cd ~
+        rm -rf gdal-3.8-revert-null-date-behavior
+        rm "3.8-revert-null-date-behavior.zip"
     )
     echo "gdal installed successfully"
 }
