@@ -71,8 +71,6 @@ Shapefile  |  [dcp_housing.shp.zip](https://nyc3.digitaloceanspaces.com/edm-reci
 
 ### Update source data
 
-- [ ] Update version.env to:
-
 ```bash
 CAPTURE_DATE= #Reference date for the DOB records (i.e. 22Q4 is a snapshot of all DOB records filed before 01-01-2023)
 CAPTURE_DATE_PREV= #Reference date for the DOB records (i.e. 22Q4 is a snapshot of all DOB records filed after 2022-07-01)
