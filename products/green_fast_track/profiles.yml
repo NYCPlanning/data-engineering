@@ -7,5 +7,5 @@ dcp-de-postgres:
       user: "{{ env_var('BUILD_ENGINE_USER') }}"
       password: "{{ env_var('BUILD_ENGINE_PASSWORD') }}"
       port: "{{ env_var('BUILD_ENGINE_PORT') | as_number }}"
-      dbname: "{{ env_var('BUILD_ENGINE_DB') }}"
+      dbname: db-green-fast-track
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
