@@ -53,6 +53,8 @@ OUTPUTS:
 		bin text,
 		bbl text,
 		boro text,
+		work_type_codes text,
+		work_types text,
 		x_withdrawal text,
 		existingzoningsqft text,
 		proposedzoningsqft text,
@@ -73,6 +75,8 @@ DROP TABLE IF EXISTS _init_now_devdb;
 
 WITH source_data AS (SELECT * FROM dob_now_applications),
 
+work_types_lookup AS (SELECT * FROM lookup_now_types),
+
 jobs_of_interest AS (
     SELECT * FROM source_data
     WHERE
@@ -85,7 +89,7 @@ mapping_and_cleaning AS (
         left(job_filing_number, strpos(job_filing_number, '-') - 1)::text AS job_number,
         CASE
             WHEN jobtype = 'ALT-CO - New Building with Existing Elements to Remain' THEN 'Alteration'
-            WHEN jobtype = 'Alteration' THEN 'Alteration (A2)'
+            WHEN jobtype = 'Alteration' THEN 'Alteration Non-CO'
             WHEN jobtype = 'Alteration CO' THEN 'Alteration'
             WHEN jobtype = 'Full Demolition' THEN 'Demolition'
             ELSE jobtype
@@ -172,7 +176,7 @@ mapping_and_cleaning AS (
         initial_cost::money::text AS costestimate,
         little_e AS edesignation,
 
-        worktypes,
+        worktypes AS work_type_codes,
         CASE
             WHEN worktypes = 'CC' THEN 'Yes'
         END AS curbcut,
@@ -250,6 +254,39 @@ mapping_and_cleaning AS (
     FROM jobs_of_interest
 ),
 
+/*
+Work type values are coded and often delimited by forward slashes
+e.g. "ST", "GC", "GC/MS", "SF/SH/FN"
+*/
+exploded_codes AS (
+    SELECT DISTINCT
+        work_type_codes,
+        unnest(string_to_array(mapping_and_cleaning.work_type_codes, '/')) AS partial_code
+    FROM mapping_and_cleaning
+),
+
+description_lists AS (
+    SELECT
+        work_type_codes,
+        string_agg(
+            work_types_lookup.description, '/'
+            ORDER BY work_types_lookup.description ASC
+        ) AS work_type_descriptions
+    FROM exploded_codes
+    LEFT JOIN work_types_lookup
+        ON exploded_codes.partial_code = work_types_lookup.code
+    GROUP BY
+        work_type_codes
+),
+
+decode_work_types AS (
+    SELECT
+        mapping_and_cleaning.*,
+        description_lists.work_type_descriptions AS work_types
+    FROM mapping_and_cleaning
+    LEFT JOIN description_lists ON mapping_and_cleaning.work_type_codes = description_lists.work_type_codes
+),
+
 missing_columns AS (
     SELECT
         *,
@@ -268,7 +305,7 @@ missing_columns AS (
         NULL AS loftboardcert,
         NULL AS tracthomes,
         NULL AS desc_other
-    FROM mapping_and_cleaning
+    FROM decode_work_types
 ),
 
 final AS (
@@ -319,7 +356,8 @@ final AS (
         bin,
         bbl,
         boro,
-        worktypes,
+        work_type_codes,
+        work_types,
         zsf_init,
         zsf_prop,
         zug_init,

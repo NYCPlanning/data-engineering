@@ -53,6 +53,8 @@ OUTPUTS:
 		bin text,
 		bbl text,
 		boro text,
+		work_type_codes text,
+		work_types text,
 		x_withdrawal text,
 		existingzoningsqft text,
 		proposedzoningsqft text,
@@ -213,7 +215,8 @@ SELECT
         WHEN borough ~* 'Staten Island' THEN '5'
     END AS boro,
     -- Add dummy columns for union to now applications for _init_devdb
-    NULL::text AS worktypes,
+    NULL::text AS work_type_codes,
+    NULL::text AS work_types,
     existingzoningsqft AS zsf_init,
     proposedzoningsqft AS zsf_prop,
     NULL::text AS zug_init,
