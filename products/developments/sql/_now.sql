@@ -89,7 +89,7 @@ mapping_and_cleaning AS (
         left(job_filing_number, strpos(job_filing_number, '-') - 1)::text AS job_number,
         CASE
             WHEN jobtype = 'ALT-CO - New Building with Existing Elements to Remain' THEN 'Alteration'
-            WHEN jobtype = 'Alteration' THEN 'Alteration Non-CO'
+            WHEN jobtype = 'Alteration' THEN 'Alteration (Non-CO)'
             WHEN jobtype = 'Alteration CO' THEN 'Alteration'
             WHEN jobtype = 'Full Demolition' THEN 'Demolition'
             ELSE jobtype

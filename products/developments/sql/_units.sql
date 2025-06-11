@@ -97,7 +97,15 @@ SELECT
             OR (classa_prop IS NOT NULL AND classa_prop != '0')
             THEN 'Residential'
     END AS resid_flag,
-    job_type = 'Alteration (A2)' AS presumed_a2_alteration
+    job_type IN ('Alteration (A2)', 'Alteration (Non-CO)') AS presumed_a2_alteration,
+    CASE
+        WHEN datasource = 'bis' THEN TRUE
+        WHEN datasource = 'now' THEN (
+            job_desc IS NOT NULL
+            AND lower(job_desc) LIKE '%combin%'
+            AND lower(job_desc) NOT LIKE '%sprinkler%'
+        )
+    END AS meets_bis_a2_inclusion_rules
 INTO _units_devdb_resid_flag
 FROM _units_devdb_raw;
 
