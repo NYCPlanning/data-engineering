@@ -286,6 +286,19 @@ def parse(v: str) -> Version:
                 format=DateVersionFormat.month,
                 patch=int(m[3]),
             )
+        case r"^(\d{2})(adopt|exec|prelim)$" as m:
+            release_num = CapitalBudgetRelease[m[2]].value
+            return CapitalBudget(
+                year=int(m[1]),
+                release_num=release_num,
+            )
+        case r"^(\d{2})(adopt|exec|prelim)\.(\d+)$" as m:
+            release_num = CapitalBudgetRelease[m[2]].value
+            return CapitalBudget(
+                year=int(m[1]),
+                release_num=release_num,
+                patch=int(m[3]),
+            )
         case _:
             raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
@@ -427,6 +440,17 @@ def bump(
         case Date(), _:
             raise Exception(
                 f"Version subtype {bump_type} not applicable for Date versions"
+            )
+        case CapitalBudget(), None:
+            return CapitalBudget(
+                year=previous_version.year,
+                release_num=previous_version.release_num + bump_by,
+            )
+        case CapitalBudget(), VersionSubType.patch:
+            return CapitalBudget(
+                year=previous_version.year,
+                release_num=previous_version.release_num,
+                patch=previous_version.patch + bump_by,
             )
         case _:
             raise ValueError(f"Unsupported version format {previous_version}")
