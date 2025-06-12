@@ -1,14 +1,18 @@
+from itertools import groupby
 from pathlib import Path
 from tabulate import tabulate  # type: ignore
 import typer
 
 from dcpy import configuration
 from dcpy.models.product import metadata as product_metadata
-from dcpy.models.lifecycle.distribute import DatasetDestinationFilters, DistributeResult
+from dcpy.models.lifecycle.distribute import (
+    DistributeResult,
+    DatasetDestination,
+    DatasetDestinationPushArgs,
+)
 from dcpy.models.lifecycle.validate import ValidationArgs
 import dcpy.models.product.metadata as prod_md
-from dcpy.lifecycle import package
-from dcpy.lifecycle import distribute
+from dcpy.lifecycle import distribute, package
 from dcpy.utils.logging import logger
 
 
@@ -30,74 +34,38 @@ def _make_results_table(distribute_results: list[DistributeResult]) -> str:
     )
 
 
-# Future thought: this type of glue function shouldn't be necessary if
-# we can string together lifecycle stages a little more declaratively
-def package_and_distribute(
+def _get_product_metadata(version: str, *, md_path_override: Path | None = None):
+    md_path = md_path_override or configuration.PRODUCT_METADATA_REPO_PATH
+    assert md_path
+    return prod_md.OrgMetadata.from_path(
+        Path(md_path),
+        template_vars={"version": version},
+    )
+
+
+def package_and_distribute_destinations(
     org_md: product_metadata.OrgMetadata,
-    product: str,
-    dataset: str,
-    version: str,
+    destinations: list[DatasetDestination],  # TODO: add version to DatasetDestination
     *,
-    source_destination_id: str,
-    publish: bool = False,
-    metadata_only: bool = False,
+    distribution_config: DatasetDestinationPushArgs,
     validation_conf: ValidationArgs = {},
-    destination_filters: DatasetDestinationFilters = {},
 ) -> list[DistributeResult]:
-    """Package tagged datasets from the source, and distribute to specified destinations."""
-    logger.info(
-        f"Packaging and Distributing with filters: {destination_filters}. Validation conf: {validation_conf}"
-    )
+    """Package and distribute specified destinations."""
 
-    destination_filters["datasets"] = frozenset({dataset})
-    product_md = org_md.product(product)
-    dataset_md = product_md.dataset(dataset)
-    destinations = product_md.query_destinations(**destination_filters)[dataset]
-    assert destinations, "No Destinations found! Check your destination filters"
-
-    logger.info(f"Target destinations are {list(destinations.keys())}")
-    package_path = package.ASSEMBLY_DIR / product / version / dataset
-
-    package.pull_destination_package_files(
-        local_package_path=package_path,
-        source_destination_id=source_destination_id,
-        dataset_metadata=dataset_md,
-    )
-
-    package.assemble_package(
-        org_md=org_md,
-        product=product,
-        dataset=dataset,
-        version=version,
-        source_destination_id=source_destination_id,
-        metadata_only=metadata_only,
-    )
-
-    # validate
-    if not (validation_conf.get("skip_validation") or metadata_only):
-        package_validations = package.validate_package(package_path=package_path)
-        if package_validations.get_errors_list():
-            if validation_conf.get("ignore_validation_errors"):
-                logger.warning("Package Errors Found! But continuing distribute")
-                logger.warning(package_validations.make_errors_table())
-            else:
-                logger.error("Errors Found! Aborting distribute")
-                logger.error(package_validations.make_errors_table())
-                raise Exception(package_validations.make_errors_table())
-        else:
-            logger.info("\nFinished Packaging. Beginning Distribution.")
+    "package"
+    destination_packages: dict[str, PackagePullResult] = {}
+    for dest in destinations:
+        destination_packages[dest["destination_path"]] = package.pull(dest, org_md), validation_config=validation_conf)
 
     # distribute
-    # TODO: pull this logic into package.distribute
     distribute_results: list[distribute.DistributeResult] = []
-    for dest_id, dest_ds_md in destinations.items():
+    for dest in destinations:
         logger.info(f"Distributing {dataset}-{dest_id} from {package_path}")
+        package = destination_packages[dest["destination_path"]]
         result = distribute.to_dataset_destination(
-            metadata=dest_ds_md,
-            dataset_destination_id=dest_id,
-            publish=publish,
-            dataset_package_path=package_path,
-            metadata_only=metadata_only,
+            package_path=package.path
+            distribution_config=distribution_config
+            org_md=org_md
         )
         distribute_results.append(result)
         logger.info(str(result)) if result.success else logger.error(str(result))
@@ -113,43 +81,25 @@ def package_and_distribute(
     return distribute_results
 
 
-def _get_product_metadata(version: str, *, md_path_override: Path | None = None):
-    md_path = md_path_override or configuration.PRODUCT_METADATA_REPO_PATH
-    assert md_path
-    return prod_md.OrgMetadata.from_path(
-        Path(md_path),
-        template_vars={"version": version},
-    )
+def package_and_distribute(product_md, **destination_filters):
+    """Looking forward, I think we'd probably want to execute individual"""
+    dests = product_md.query_dataset_destinations(**destination_filters)
+    grouped_by_dataset_and_type = [
+        [k, list(v)]
+        for k, v in groupby(
+            dests, lambda d: f"{d['dataset_id']}-{d['destination_type']}"
+        )
+    ]
+    results = []
+    for batch, dataset_destinations in grouped_by_dataset_and_type:
+        logger.info(
+            f"distributing {len(dataset_destinations)} destinations for batch: {batch}"
+        )
+        results.append(package_and_distribute_destinations())
+    return results
 
 
 app = typer.Typer()
-
-
-def calculate_tagged_destinations(version: str, product_id: str, tag: str):
-    """calculate tagged destination by product for given version.
-
-    This should be sufficient information to deploy all datasets within a product,
-    if they're tagged.
-    """
-    org_md = _get_product_metadata(version)
-    product = org_md.product(product_id).query_destinations(destination_tag=tag)
-
-    targets = []
-    for ds_id, ds_id_to_md in product.items():
-        for dest_id, md in ds_id_to_md.items():
-            packaged_files_source = md.get_destination(dest_id).custom.get(
-                "packaged_files_source"
-            )
-            targets.append(
-                {
-                    "product": product_id,
-                    "version": version,
-                    "dataset": ds_id,
-                    "source_destination_id": packaged_files_source,
-                    "destination_id": dest_id,
-                }
-            )
-    return targets
 
 
 @app.command("dataset")
