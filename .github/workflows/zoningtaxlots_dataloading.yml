@@ -16,6 +16,10 @@ on:
         type: boolean
         required: true
         default: true
+      overwrite:
+        description: "Overwrite previously archived source data? Only choose this if correcting bad data"
+        type: boolean
+        default: false
       dev_image: 
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
@@ -68,7 +72,11 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Ingest
-        run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --latest --push-to-s3
+        run: |
+          python3 -m dcpy lifecycle ingest ${{ matrix.dataset }} \
+            --latest \
+            --push-to-s3 \
+            ${{ inputs.overwrite && '--overwrite' || '' }}
 
   build_ztl:
     needs: [dataloading]
