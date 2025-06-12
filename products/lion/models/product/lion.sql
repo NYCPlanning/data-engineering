@@ -65,26 +65,26 @@ SELECT
     nodes.to_nodeid,
     nodes.to_x,
     nodes.to_y,
-    ap.left_2000_census_tract_basic,
-    ap.left_2000_census_tract_suffix,
-    ap.left_atomicid,
+    ap_left.left_2000_census_tract_basic,
+    ap_left.left_2000_census_tract_suffix,
+    ap_left.left_atomicid,
     centerline.l_low_hn,
     centerline.l_high_hn,
     centerline.lsubsect,
     centerline.l_zip,
-    ap.left_assembly_district,
-    ap.left_election_district,
-    ap.left_school_district,
-    ap.right_2000_census_tract_basic,
-    ap.right_2000_census_tract_suffix,
-    ap.right_atomicid,
+    ap_left.left_assembly_district,
+    ap_left.left_election_district,
+    ap_left.left_school_district,
+    ap_right.right_2000_census_tract_basic,
+    ap_right.right_2000_census_tract_suffix,
+    ap_right.right_atomicid,
     centerline.r_low_hn,
     centerline.r_high_hn,
     centerline.rsubsect,
     centerline.r_zip,
-    ap.right_assembly_district,
-    ap.right_election_district,
-    ap.right_school_district,
+    ap_right.right_assembly_district,
+    ap_right.right_election_district,
+    ap_right.right_school_district,
     sedat.split_election_district_flag,
     (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
     CASE
@@ -141,24 +141,24 @@ SELECT
     END AS bike_lane,
     centerline.fcc,
     NULL AS right_of_way_type, -- blank for centerline
-    ap.left_2010_census_tract_basic,
-    ap.left_2010_census_tract_suffix,
-    ap.right_2010_census_tract_basic,
-    ap.right_2010_census_tract_suffix,
+    ap_left.left_2010_census_tract_basic,
+    ap_left.left_2010_census_tract_suffix,
+    ap_right.right_2010_census_tract_basic,
+    ap_right.right_2010_census_tract_suffix,
     streets.lgc5,
     streets.lgc6,
     streets.lgc7,
     streets.lgc8,
     streets.lgc9,
     centerline.legacy_segmentid,
-    ap.left_2000_census_block_basic,
-    ap.left_2000_census_block_suffix,
-    ap.right_2000_census_block_basic,
-    ap.right_2000_census_block_suffix,
-    ap.left_2010_census_block_basic,
-    ap.left_2010_census_block_suffix,
-    ap.right_2010_census_block_basic,
-    ap.right_2010_census_block_suffix,
+    ap_left.left_2000_census_block_basic,
+    ap_left.left_2000_census_block_suffix,
+    ap_right.right_2000_census_block_basic,
+    ap_right.right_2000_census_block_suffix,
+    ap_left.left_2010_census_block_basic,
+    ap_left.left_2010_census_block_suffix,
+    ap_right.right_2010_census_block_basic,
+    ap_right.right_2010_census_block_suffix,
     centerline.snow_priority,
     centerline.bike_lane AS bike_lane_2,
     centerline.streetwidth_max,
@@ -172,16 +172,15 @@ SELECT
     nypd_service_areas.left_nypd_service_area,
     nypd_service_areas.right_nypd_service_area,
     centerline.truck_route_type,
-    ap.left_2020_census_tract_basic,
-    ap.left_2020_census_tract_suffix,
-    ap.right_2020_census_tract_basic,
-    ap.right_2020_census_tract_suffix,
-    ap.left_2020_census_block_basic,
-    ap.left_2020_census_block_suffix,
-    ap.right_2020_census_block_basic,
-    ap.right_2020_census_block_suffix
+    ap_left.left_2020_census_tract_basic,
+    ap_left.left_2020_census_tract_suffix,
+    ap_right.right_2020_census_tract_basic,
+    ap_right.right_2020_census_tract_suffix,
+    ap_left.left_2020_census_block_basic,
+    ap_left.left_2020_census_block_suffix,
+    ap_right.right_2020_census_block_basic,
+    ap_right.right_2020_census_block_suffix
 FROM centerline
-LEFT JOIN atomic_polygons AS ap ON centerline.segmentid = ap.segmentid
 LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
 LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode = saf.boroughcode
 LEFT JOIN curve ON centerline.segmentid = curve.segmentid
@@ -189,4 +188,14 @@ LEFT JOIN streets ON centerline.segmentid = streets.segmentid
 LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
 LEFT JOIN nypd_service_areas ON centerline.segmentid = nypd_service_areas.segmentid
 LEFT JOIN segment_locational_status ON centerline.segmentid = segment_locational_status.segmentid
+LEFT JOIN
+    atomic_polygons AS ap_left
+    ON
+        centerline.segmentid = ap_left.segmentid
+        AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L'
+LEFT JOIN
+    atomic_polygons AS ap_right
+    ON
+        centerline.segmentid = ap_right.segmentid
+        AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R'
 LEFT JOIN diff_coincident_segment ON centerline.segmentid = diff_coincident_segment.segmentid
