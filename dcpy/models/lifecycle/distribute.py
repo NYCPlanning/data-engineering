@@ -11,6 +11,7 @@ class DatasetDestination(TypedDict):
     destination_id: str
     destination_type: str
     tags: NotRequired[set[str]]
+    custom: NotRequired[dict]
     destination_path: str
 
 
