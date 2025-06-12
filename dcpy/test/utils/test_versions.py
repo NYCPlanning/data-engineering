@@ -24,6 +24,11 @@ class TestVersions(TestCase):
                     format=versions.DateVersionFormat.quarter,
                 ),
             ],
+            ["26prelim", versions.CapitalBudget(year=26, release_num=1)],
+            ["24exec", versions.CapitalBudget(year=24, release_num=2)],
+            ["22adopt", versions.CapitalBudget(year=22, release_num=3)],
+            ["25adopt.3", versions.CapitalBudget(year=25, release_num=3, patch=3)],
+            ["25prelim", versions.CapitalBudget(year=25, release_num=1, patch=0)],
         ]:
             self.assertEqual(parsed, versions.parse(version))
 
@@ -34,6 +39,10 @@ class TestVersions(TestCase):
             versions.parse("2v12")
         with self.assertRaises(Exception):
             versions.parse("20231212")
+        with self.assertRaises(Exception):
+            versions.parse("25PRELIM")
+        with self.assertRaises(Exception):
+            versions.parse("25executive")
 
     def test_sort_valid_versions(self):
         for version_list, sorted_list in [
@@ -75,6 +84,24 @@ class TestVersions(TestCase):
                     "25v3",
                 ],
             ],
+            [
+                [
+                    "24exec",
+                    "2023-03-10",
+                    "25prelim",
+                    "2023-05-24",
+                    "2022-02-05",
+                    "24prelim",
+                ],
+                [
+                    "2022-02-05",
+                    "2023-03-10",
+                    "2023-05-24",
+                    "24prelim",
+                    "24exec",
+                    "25prelim",
+                ],
+            ],
         ]:
             parsed_and_sorted = sorted([versions.parse(v) for v in version_list])
             labels = [v.label for v in parsed_and_sorted]
@@ -95,6 +122,11 @@ class TestVersions(TestCase):
                 ),
                 "2024-01-01",
             ].sort()
+        with self.assertRaises(ValueError):
+            [
+                versions.CapitalBudget(year=25, release_num=1),
+                versions.Date(date(2025, 1, 1), format=versions.DateVersionFormat.date),
+            ].sort()
 
     def test_is_newer_valid_versions(self):
         for version_1, version_2, bool_expected in [
@@ -104,6 +136,8 @@ class TestVersions(TestCase):
             ["23Q1.1", "23Q1", True],
             ["2023-01-01", "2023-08-01", False],
             ["23Q2", "2023-01-01", True],
+            ["25exec", "25prelim", True],
+            ["24exec", "25exec", False],
         ]:
             self.assertEqual(bool_expected, versions.is_newer(version_1, version_2))
 
@@ -112,6 +146,8 @@ class TestVersions(TestCase):
             versions.is_newer("23v2", "23Q2")
         with self.assertRaises(ValueError):
             versions.is_newer("", "2023-08-01")
+        with self.assertRaises(ValueError):
+            versions.is_newer("25adopt", "2025-08-01")
 
     def test_bumping_versions(self):
         for bumped_part, bump_by, v, v_expected in [
@@ -133,6 +169,10 @@ class TestVersions(TestCase):
             ["major", None, "23v2.0.1", "23v3"],
             ["minor", None, "23v2.2.1", "23v2.3"],
             [None, 2, "23Q4.1", "24Q2"],
+            [None, 1, "24exec", "24adopt"],
+            [None, 2, "24prelim", "24adopt"],
+            ["patch", 1, "24prelim", "24prelim.1"],
+            ["patch", 2, "24prelim.2", "24prelim.4"],
         ]:
             self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)
 
@@ -145,6 +185,7 @@ class TestVersions(TestCase):
             ],
             ["24v4", ["24v3", "24v3.0.1", "24v3.1", "24Q1", "24v4"], ["24v4"]],
             ["24v3", ["23v2"], []],
+            ["24prelim", ["24adopt", "24prelim.1", "25prelim"], ["24prelim.1"]],
         ]:
             self.assertEqual(
                 expected_output, versions.group_versions_by_base(version, versions_list)
