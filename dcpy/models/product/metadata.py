@@ -103,7 +103,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         dataset_mds = [self.dataset(ds_id) for ds_id in self.metadata.datasets]
         return {m.id: m for m in dataset_mds}
 
-    def all_destinations(self) -> list[dict]:
+    def all_destinations(self) -> list[DatasetDestination]:
         """Get all destinations for a product"""
         found_dests = []
         for ds in self.get_datasets_by_id().values():
@@ -116,13 +116,16 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
                         "destination_type": dest.type,
                         # "remote_id": (dest.custom or {}).get("four_four"),
                         "tags": set(dest.tags or []),
+                        "custom": dest.custom,
                         "destination_path": f"{self.metadata.id}.{ds.id}.{dest.id}",
                     }
                 )
         return found_dests
 
     def all_destinations_df(self, grouped: bool = False) -> pd.DataFrame:
-        """Helper to display all destinations for a product"""
+        """Helper to display all destinations for a product.
+        Using the `grouped` flag wil group the output to make things visually a little easier.
+        """
         df = pd.DataFrame(self.all_destinations())
         return (
             df.set_index(["product", "dataset_id", "destination_id"]).sort_index()
