@@ -2,7 +2,7 @@
 
 source ../../bash/utils.sh
 
-set_env .env version.env
+set_env .env
 set_error_traps
 
 
