@@ -23,7 +23,7 @@ SELECT
     segmentid,
     boroughcode,
     geom,
-    left_offset_point,
-    right_offset_point
-FROM centerline
-CROSS JOIN LATERAL offset_points(geom, 2) AS (left_offset_point geometry, right_offset_point geometry)
+    offsets.left_offset_point,
+    offsets.right_offset_point
+FROM centerline,
+    LATERAL offset_points(centerline.geom, 2) AS offsets (left_offset_point geometry, right_offset_point geometry)
