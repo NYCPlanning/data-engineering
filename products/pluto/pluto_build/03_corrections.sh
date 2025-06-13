@@ -16,5 +16,4 @@ run_sql_file sql/corr_template.sql -v FIELD=unitstotal
 run_sql_file sql/corr_inwoodrezoning.sql
 run_sql_file sql/corr_template.sql -v FIELD=bct2020
 run_sql_file sql/corr_template.sql -v FIELD=address
-run_sql_file sql/corr_template.sql -v FIELD=histdist ## TODO remove - temp fix for 25v2
 run_sql_file sql/remove_unitlots.sql
