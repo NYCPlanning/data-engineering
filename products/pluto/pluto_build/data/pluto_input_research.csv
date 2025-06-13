@@ -27467,4 +27467,3 @@ bbl,field,old_value,new_value,Type,reason,version
 3008777502,unitsres,238,17,2,PTS error - units,25v2
 3008777502,unitstotal,407,30,2,PTS error - units,25v2
 3015800010,address,57 MARCOUS GARVEY BLVD,57 MARCUS GARVEY BLVD,2,PTS error - streetname,25v2
-1002330017,histdist,,SoHo-Cast Iron Historic District Extension,2,Missing bbl from lpc historic districts,25v2
