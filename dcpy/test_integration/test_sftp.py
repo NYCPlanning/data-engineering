@@ -1,10 +1,8 @@
 import pytest
-from datetime import datetime
-import pytz
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 from dcpy.connectors import sftp
 
-from dcpy.test_integration.conftest import DOCKER_FLAG
+from dcpy.test_integration.conftest import DOCKER_FLAG, SFTP_PATH
 
 
 SERVER = (
@@ -19,12 +17,13 @@ USER = SFTPUser(
     known_hosts_path="./dcpy/test_integration/docker/sftp/known_hosts_integration_test",
 )
 
-REMOTE_FILE_PATH = "remote_files/a_file.txt"
+REMOTE_FILE_PATH = "remote_files/remote.txt"
+LOCAL_FILE = "local.txt"
 
 
 @pytest.fixture
 def local_file_path(tmp_path):
-    return tmp_path / "a_file.txt"
+    return tmp_path / LOCAL_FILE
 
 
 def test_list_directory():
@@ -48,9 +47,13 @@ def test_get_file(local_file_path):
     assert local_file_path.exists()
 
 
-def test_put_file(local_file_path):
-    filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+@pytest.fixture()
+def cleanup_sftp():
+    yield
+    (SFTP_PATH / LOCAL_FILE).unlink()
 
+
+def test_put_file(local_file_path, cleanup_sftp):
     with open(local_file_path, "w") as f:
         f.write("Some local test text. File size should be 51 bytes.")
 
@@ -58,10 +61,11 @@ def test_put_file(local_file_path):
         server=SERVER,
         user=USER,
         local_file_path=local_file_path,
-        server_file_path=f"remote_files/{filename}",
+        server_file_path=f"remote_files/{LOCAL_FILE}",
     )
 
     remote_filenames = sftp.list_directory(
         server=SERVER, user=USER, path="/remote_files/"
     )
-    assert filename in remote_filenames
+
+    assert LOCAL_FILE in remote_filenames
