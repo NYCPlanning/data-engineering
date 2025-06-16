@@ -89,8 +89,8 @@ jobs:
 
       - name: Load to Database
         run: |
-          ./devdb.sh import hpd_hny_units_by_building ${{ github.event.inputs.version }}
-          ./devdb.sh import hpd_historical_units_by_building
+          ./devdb_datasync.sh import hpd_hny_units_by_building ${{ github.event.inputs.version }}
+          ./devdb_datasync.sh import hpd_historical_units_by_building
 
       - name: Geocode
         # Also combines the imported DOB datasets
@@ -100,16 +100,16 @@ jobs:
 
       - name: Export to csv
         run: |
-          ./devdb.sh output hny_geocode_results csv
-          ./devdb.sh output hpd_historical_geocode_results csv
+          ./devdb_datasync.sh output hny_geocode_results csv
+          ./devdb_datasync.sh output hpd_historical_geocode_results csv
 
       - name: Check file existence
         run: ls *.csv
 
       - name: Archive to Data Library
         run: |
-          ./devdb.sh library_archive hny_geocode_results hpd_hny_units_by_building
-          ./devdb.sh library_archive hpd_historical_geocode_results hpd_historical_units_by_building
+          ./devdb_datasync.sh library_archive hny_geocode_results hpd_hny_units_by_building
+          ./devdb_datasync.sh library_archive hpd_historical_geocode_results hpd_historical_units_by_building
 
   create_issue_on_failure:
     needs: geocode
