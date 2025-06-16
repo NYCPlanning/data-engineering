@@ -11,16 +11,15 @@ on:
         description: "Build PLUTO (Minor) after dataloading is complete"
         type: boolean
         default: false
+      overwrite:
+        description: "This data is correcting previously loaded data from the same version (allows previously archived data to be overwritten)"
+        type: boolean
+        default: false
       promote:
         description: "Promote ZTL (and PLUTO if built) to `draft` folder after build"
         type: boolean
         required: true
         default: true
-      overwrite:
-        description: "Overwrite previously archived source data? Only choose this if correcting
-          bad data"
-        type: boolean
-        default: false
       dev_image:
         description: "Use dev image specific to this branch? (If exists)"
         type: boolean
