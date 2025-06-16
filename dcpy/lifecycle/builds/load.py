@@ -43,7 +43,7 @@ def import_dataset(
 
     if pg_client and (not ds.destination):
         ds.destination = InputDatasetDestination.postgres
-    assert ds.destination, f"ERROR_UNRESOLVED_DESTINATION {ds.id}"
+    assert ds.destination, f"{ERROR_UNRESOLVED_DESTINATION} {ds.id}"
 
     match ds.destination:
         case InputDatasetDestination.postgres:
