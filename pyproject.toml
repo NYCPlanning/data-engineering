@@ -96,7 +96,7 @@ markers = ["end_to_end"]
 [tool.coverage.run]
 # Measure branch coverage (https://coverage.readthedocs.io/en/latest/branch.html)
 branch = true
-omit = ["dcpy/test/*"]
+omit = ["dcpy/test/*", "dcpy/test_integration/*"]
 
 [tool.coverage.report]
 include_namespace_packages = true
