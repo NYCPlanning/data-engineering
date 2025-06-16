@@ -1,9 +1,10 @@
 import os
 import pytest
 
+from dcpy.test_integration.conftest import DOCKER_FLAG
+
 # Connector buckets
 TEST_EDM_BUCKET = "test-recipes"
-DOCKER = os.path.exists("/.dockerenv")
 
 os.environ["RECIPES_BUCKET"] = TEST_EDM_BUCKET
 os.environ["PUBLISHING_BUCKET"] = TEST_EDM_BUCKET
@@ -12,7 +13,7 @@ os.environ["PUBLISHING_BUCKET"] = TEST_EDM_BUCKET
 BUILD_ENGINE_SCHEMA = "connectors_edm_tests"
 os.environ["BUILD_ENGINE_SCHEMA"] = BUILD_ENGINE_SCHEMA
 os.environ["BUILD_ENGINE_DB"] = "postgres"
-host = "postgis:5432" if DOCKER else "localhost:5434"
+host = "postgis:5432" if DOCKER_FLAG else "localhost:5434"
 os.environ["BUILD_ENGINE_SERVER"] = f"postgresql://{host}"
 
 os.environ["PGUSER"] = "postgres"

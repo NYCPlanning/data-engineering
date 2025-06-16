@@ -1,70 +1,67 @@
 import pytest
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from datetime import datetime
 import pytz
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 from dcpy.connectors import sftp
 
-from dcpy.test_integration.connectors.edm.conftest import DOCKER
+from dcpy.test_integration.conftest import DOCKER_FLAG
+
+
+SERVER = (
+    SFTPServer(hostname="sftp-server", port=22)
+    if DOCKER_FLAG
+    else SFTPServer(hostname="localhost", port=2222)
+)
+
+USER = SFTPUser(
+    username="dedev",
+    private_key_path="./dcpy/test_integration/docker/sftp/id_rsa_key_integration_test",
+    known_hosts_path="./dcpy/test_integration/docker/sftp/known_hosts_integration_test",
+)
+
+REMOTE_FILE_PATH = "remote_files/a_file.txt"
 
 
 @pytest.fixture
-def default_sftp_kwargs(tmp_path):
-    return {
-        "server": SFTPServer(
-            hostname="sftp-server" if DOCKER else "localhost", port=22 if DOCKER else 2222
-        ),
-        "user": SFTPUser(
-            username="dedev",
-            private_key_path="./dcpy/test_integration/docker/sftp/id_rsa_key_integration_test",
-            known_hosts_path="./dcpy/test_integration/docker/sftp/known_hosts_integration_test",
-        ),
-        "server_file_path": "remote_files/a_file.txt",
-        "local_file_path": tmp_path / "a_file.txt",
-    }
+def local_file_path(tmp_path):
+    return tmp_path / "a_file.txt"
 
 
-def test_list_directory(default_sftp_kwargs: dict):
-    print(f"{default_sftp_kwargs['user']}")
-    entries = sftp.list_directory(
-        server=default_sftp_kwargs["server"], user=default_sftp_kwargs["user"]
-    )
+def test_list_directory():
+    entries = sftp.list_directory(server=SERVER, user=USER)
     assert entries == [".ssh", "remote_files"]
 
 
-def test_list_directory_specific_path(default_sftp_kwargs: dict):
-    entries = sftp.list_directory(
-        server=default_sftp_kwargs["server"],
-        user=default_sftp_kwargs["user"],
-        path="/.ssh/",
-    )
+def test_list_directory_specific_path():
+    entries = sftp.list_directory(server=SERVER, user=USER, path="/.ssh/")
     assert entries == ["authorized_keys", "keys"]
 
 
-def test_get_file(default_sftp_kwargs: dict):
-    sftp.get_file(**default_sftp_kwargs)
-    assert default_sftp_kwargs["local_file_path"].exists()
+def test_get_file(local_file_path):
+    assert not local_file_path.exists(), "output file existed before test ran"
+    sftp.get_file(
+        server=SERVER,
+        user=USER,
+        server_file_path=REMOTE_FILE_PATH,
+        local_file_path=local_file_path,
+    )
+    assert local_file_path.exists()
 
 
-def test_put_file(default_sftp_kwargs: dict):
-    sftp_put_kwargs = default_sftp_kwargs
+def test_put_file(local_file_path):
     filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
 
-    with TemporaryDirectory() as temp_dir:
-        tmp_dir_path = Path(temp_dir)
-        local_file_path = tmp_dir_path / f"{filename}.txt"
-        sftp_put_kwargs["local_file_path"] = local_file_path
-        sftp_put_kwargs["server_file_path"] = f"remote_files/{filename}"
+    with open(local_file_path, "w") as f:
+        f.write("Some local test text. File size should be 51 bytes.")
 
-        with open(local_file_path, "w") as f:
-            f.write("Some local test text. File size should be 51 bytes.")
-
-        _ = sftp.put_file(**sftp_put_kwargs)
+    _ = sftp.put_file(
+        server=SERVER,
+        user=USER,
+        local_file_path=local_file_path,
+        server_file_path=f"remote_files/{filename}",
+    )
 
     remote_filenames = sftp.list_directory(
-        server=default_sftp_kwargs["server"],
-        user=default_sftp_kwargs["user"],
-        path="/remote_files/",
+        server=SERVER, user=USER, path="/remote_files/"
     )
     assert filename in remote_filenames
