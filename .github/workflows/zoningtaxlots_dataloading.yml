@@ -4,25 +4,31 @@ on:
   workflow_dispatch:
     inputs:
       build_ztl:
-        description: "Build Zoning Tax Lots after dataloading is complete"
+        description: Build Zoning Tax Lots after dataloading is complete
         type: boolean
         default: true
       build_pluto_minor:
-        description: "Build PLUTO (Minor) after dataloading is complete"
+        description: Build PLUTO (Minor) after dataloading is complete
+        type: boolean
+        default: false
+      overwrite:
+        description: >-
+          This data is correcting previously loaded data from the same version (allows
+          previously archived data to be overwritten)
         type: boolean
         default: false
       promote:
-        description: "Promote ZTL (and PLUTO if built) to `draft` folder after build"
+        description: Promote ZTL (and PLUTO if built) to `draft` folder after build
         type: boolean
         required: true
         default: true
-      dev_image: 
-        description: "Use dev image specific to this branch? (If exists)"
+      dev_image:
+        description: Use dev image specific to this branch? (If exists)
         type: boolean
         required: true
         default: false
       dev_bucket:
-        description: "Dev bucket in DO to use, if not a production run."
+        description: Dev bucket in DO to use, if not a production run.
         type: string
         required: false
 
@@ -38,40 +44,44 @@ jobs:
     strategy:
       matrix:
         dataset:
-          - dcp_mih
-          - dcp_edesignation
-          - dcp_commercialoverlay
-          - dcp_limitedheight
-          - dcp_zoningdistricts
-          - dcp_specialpurpose
-          - dcp_specialpurposesubdistricts
-          - dcp_zoningmapamendments
-          - dof_dtm
-          - dof_shoreline
-          - dof_condo
+        - dcp_mih
+        - dcp_edesignation
+        - dcp_commercialoverlay
+        - dcp_limitedheight
+        - dcp_zoningdistricts
+        - dcp_specialpurpose
+        - dcp_specialpurposesubdistricts
+        - dcp_zoningmapamendments
+        - dof_dtm
+        - dof_shoreline
+        - dof_condo
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
-      - name: Finish container setup
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
+    - name: Finish container setup
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
 
-      - name: Ingest
-        run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} --latest --push-to-s3
+    - name: Ingest
+      run: |
+        python3 -m dcpy lifecycle ingest ${{ matrix.dataset }} \
+          --latest \
+          --push \
+          ${{ inputs.overwrite && '--overwrite' || '' }}
 
   build_ztl:
-    needs: [dataloading]
+    needs: [ dataloading ]
     name: Build ZTL
     if: inputs.build_ztl
     uses: ./.github/workflows/build.yml
@@ -83,7 +93,7 @@ jobs:
       recipe_file: recipe
 
   pluto_minor:
-    needs: [dataloading]
+    needs: [ dataloading ]
     name: Build Pluto Minor
     if: inputs.build_pluto_minor
     uses: ./.github/workflows/build.yml
@@ -95,7 +105,7 @@ jobs:
       recipe_file: recipe-minor
 
   promote_ztl_to_draft:
-    needs: [dataloading, build_ztl]
+    needs: [ dataloading, build_ztl ]
     name: Promote ZTL build to Draft folder
     if: inputs.promote
     uses: ./.github/workflows/promote_to_draft.yml
@@ -107,7 +117,7 @@ jobs:
       dev_bucket: ${{ inputs.dev_bucket }}
 
   promote_pluto_to_draft:
-    needs: [dataloading, pluto_minor]
+    needs: [ dataloading, pluto_minor ]
     name: Promote PLUTO build to Draft folder
     if: inputs.promote
     uses: ./.github/workflows/promote_to_draft.yml

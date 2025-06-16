@@ -30,6 +30,7 @@ def ingest(
     output_csv: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
+    overwrite_okay: bool = False,
 ) -> Config:
     if template_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
@@ -100,19 +101,21 @@ def ingest(
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
     version_exists = processed_datastore.version_exists(dataset_id, config.version)
-    if version_exists:
+    if version_exists and not overwrite_okay:
         validate.validate_against_existing_version(
-            dataset_id, config.version, dataset_staging_dir / config.filename
+            dataset_id,
+            config.version,
+            dataset_staging_dir / config.filename,
         )
 
-    if push and not version_exists:
+    if push and (overwrite_okay or not version_exists):
         assert config.archival.acl
         processed_datastore.push(
             dataset_id,
             version=config.version,
             filepath=dataset_staging_dir / config.filename,
             config=config,
-            overwrite=False,  ## TODO - allow this via flag?
+            overwrite=overwrite_okay,
             latest=latest,
         )
     else:
