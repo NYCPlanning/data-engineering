@@ -14,3 +14,9 @@ body:
 
         - [ ] Data Product A
         - [ ] Data Product B
+
+  - type: input
+    attributes:
+      label: Sprint
+      description: The sprint that these datasets will be distributed
+      placeholder: "A"
