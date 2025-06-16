@@ -52,12 +52,12 @@ def package_and_distribute_destinations(
 ) -> list[DistributeResult]:
     """Package and distribute specified destinations."""
 
-    "package"
+    # Package
     destination_packages: dict[str, PackagePullResult] = {}
     for dest in destinations:
         destination_packages[dest["destination_path"]] = package.pull(dest, org_md), validation_config=validation_conf)
 
-    # distribute
+    # Distribute
     distribute_results: list[distribute.DistributeResult] = []
     for dest in destinations:
         logger.info(f"Distributing {dataset}-{dest_id} from {package_path}")

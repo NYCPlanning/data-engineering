@@ -21,7 +21,10 @@ def _set_default_conf():
             "package": {
                 "local_data_path": "package",
                 "stages": {
-                    "assemble": {"local_data_path": "assemble"},
+                    "assemble": {
+                        "local_data_path": "assemble",
+                        "default_connectors": {"pull": "bytes", "push": "TODO"},
+                    },
                     "qa": {"local_data_path": "qa"},
                 },
             },
