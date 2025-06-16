@@ -10,13 +10,6 @@ services:
     ports:
       - 5434:5432
   sftp-server:
-    # To test SFTP connection
-    # Ensure dcpy/test_integration/docker/sftp/id_rsa_key_integration_test has 600 permissions.
-    # Then run:
-    # sftp -i dcpy/test_integration/docker/sftp/id_rsa_key_integration_test \
-    #      -o StrictHostKeyChecking=yes \
-    #      -o UserKnownHostsFile=dcpy/test_integration/docker/sftp/known_hosts_integration_test \
-    #      dedev@sftp-server
     image: atmoz/sftp:alpine
     volumes:
       - ./sftp/ssh_host_ed25519_integration_test.pub:/etc/ssh/ssh_host_ed25519_key.pub:ro
