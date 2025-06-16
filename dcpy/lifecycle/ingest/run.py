@@ -101,12 +101,11 @@ def ingest(
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
     version_exists = processed_datastore.version_exists(dataset_id, config.version)
-    if version_exists:
+    if version_exists and not overwrite_okay:
         validate.validate_against_existing_version(
             dataset_id,
             config.version,
             dataset_staging_dir / config.filename,
-            overwrite_okay=overwrite_okay,
         )
 
     if push and (overwrite_okay or not version_exists):

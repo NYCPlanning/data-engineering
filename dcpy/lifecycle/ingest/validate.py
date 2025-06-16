@@ -6,9 +6,7 @@ from dcpy.utils.logging import logger
 from dcpy.lifecycle.ingest.connectors import processed_datastore
 
 
-def validate_against_existing_version(
-    ds: str, version: str, filepath: Path, overwrite_okay: bool = False
-) -> None:
+def validate_against_existing_version(ds: str, version: str, filepath: Path) -> None:
     """
     This function is called after a dataset has been processed, just before archival
     It's called in the case that the version of the dataset in the config (either provided or calculated)
@@ -29,11 +27,9 @@ def validate_against_existing_version(
                     f"Dataset id='{ds}' version='{version}' already exists and matches newly processed data"
                 )
             else:
-                message = f"Archived dataset id='{ds}' version='{version}' already exists and has different data."
-                if overwrite_okay:
-                    logger.warning(message)
-                else:
-                    raise FileExistsError(message)
+                raise FileExistsError(
+                    f"Archived dataset id='{ds}' version='{version}' already exists and has different data."
+                )
 
     # if previous was archived with library, we both expect some potential slight changes and will not compare
     else:
