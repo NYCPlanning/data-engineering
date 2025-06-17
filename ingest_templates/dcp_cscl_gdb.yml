@@ -1,0 +1,47 @@
+id: dcp_cscl_gdb
+acl: private
+
+attributes:
+  name: CSCL - gdb
+
+source:
+  type: s3
+  bucket: edm-private
+  key: cscl_etl/{{ version }}/ETL Working GDB.gdb.zip
+
+ingestion_defaults:
+  file_format:
+    type: geodatabase
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
+
+datasets:
+- id: dcp_cscl_addresspoints
+  attributes:
+    name: CSCL Address Points
+  ingestion:
+    file_format:
+      layer: AtomicPolygon
+
+- id: dcp_cscl_altsegmentdata
+  attributes:
+    name: CSCL Alt Segment Data
+  ingestion:
+    file_format:
+      layer: ALTSEGMENTDATA
+
+- id: dcp_cscl_atomicpolygons
+  attributes:
+    name: CSCL Atomic Polygons
+  ingestion:
+    file_format:
+      layer: AtomicPolygon
+
+- id: dcp_cscl_centerline
+  attributes:
+    name: CSCL Centerline
+  ingestion:
+    file_format:
+      layer: Centerline
