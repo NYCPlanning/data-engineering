@@ -22,7 +22,9 @@ SELECT
     n_from.nodeid AS from_nodeid,
     n_to.nodeid AS to_nodeid,
     from_sm.sectional_map AS from_sectionalmap,
-    to_sm.sectional_map AS to_sectionalmap
+    to_sm.sectional_map AS to_sectionalmap,
+    centerline.from_geom,
+    centerline.to_geom
 FROM centerline
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_from 
     ON ST_DWITHIN(centerline.from_geom, n_from.geom, 0.001)
