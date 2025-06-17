@@ -37,6 +37,8 @@ SELECT DISTINCT
     a.job_number,
     a.job_type,
     a.job_desc,
+    a.work_types,
+    a.datasource,
     b.occ_proposed,
     b.occ_initial,
     a.classa_init,
@@ -94,11 +96,18 @@ SELECT
             OR (classa_init IS NOT NULL AND classa_init != '0')
             OR (classa_prop IS NOT NULL AND classa_prop != '0')
             THEN 'Residential'
-    END AS resid_flag
+    END AS resid_flag,
+    job_type IN ('Alteration (A2)', 'Alteration (Non-CO)') AS presumed_a2_alteration,
+    CASE
+        WHEN datasource = 'bis' THEN TRUE
+        WHEN datasource = 'now' THEN (
+            job_desc IS NOT NULL
+            AND lower(job_desc) LIKE '%combin%'
+            AND lower(job_desc) NOT LIKE '%sprinkler%'
+        )
+    END AS meets_bis_a2_inclusion_rules
 INTO _units_devdb_resid_flag
 FROM _units_devdb_raw;
-
-DROP TABLE _units_devdb_raw CASCADE;
 
 /*
 CORRECTIONS
@@ -112,12 +121,13 @@ Separate A2 job types from other types of records with units
 DROP TABLE IF EXISTS export_a2_devdb;
 SELECT * INTO export_a2_devdb
 FROM _units_devdb_resid_flag
-WHERE job_type = 'Alteration (A2)';
+WHERE presumed_a2_alteration;
 
 DROP TABLE IF EXISTS _units_devdb;
 SELECT
     job_number,
     job_type,
+    work_types,
     occ_proposed,
     occ_initial,
     classa_init,
@@ -129,9 +139,7 @@ SELECT
     resid_flag
 INTO _units_devdb
 FROM _units_devdb_resid_flag
-WHERE job_number NOT IN (SELECT job_number FROM export_a2_devdb);
-
-DROP TABLE _units_devdb_resid_flag CASCADE;
+WHERE NOT presumed_a2_alteration;
 
 /*
 NULL out units fields where corrected resid_flag is NULL.
@@ -142,6 +150,7 @@ WITH null_nonres AS (
     SELECT
         job_number,
         job_type,
+        work_types,
         occ_proposed,
         occ_initial,
         CASE
