@@ -29,7 +29,7 @@ schemas = [
     {
         "name": "template.json",
         "folder": "ingest/",
-        "schema": ingest_models.Template.model_json_schema(),
+        "schema": ingest_models.TemplateStandard.model_json_schema(),
     },
     {
         "name": "config.json",
