@@ -11,7 +11,9 @@ models:
   - name: to_x
   - name: to_y
   - name: from_nodeid
+    tests: [ not_null ]
   - name: to_nodeid
+    tests: [ not_null ]
   - name: from_sectionalmap
   - name: to_sectionalmap
   tests: [] # currently doesn't pass due to duplicate rows from sectionalmap join
