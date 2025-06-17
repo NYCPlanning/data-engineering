@@ -3,7 +3,7 @@ from abc import abstractmethod
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from enum import StrEnum
+from enum import StrEnum, IntEnum
 from functools import total_ordering
 from pydantic import BaseModel
 import re
@@ -13,6 +13,12 @@ class DateVersionFormat(StrEnum):
     quarter = "Quarter"
     month = "Month"
     date = "Date"
+
+
+class CapitalBudgetRelease(IntEnum):
+    prelim = 1
+    exec = 2
+    adopt = 3
 
 
 @dataclass
@@ -45,6 +51,54 @@ class Version:
 
     def __eq__(self, other) -> bool:
         raise NotImplementedError("Version is an abstract class")
+
+
+@dataclass
+class CapitalBudget(Version):
+    year: int
+    release_num: int
+    patch: int = 0
+
+    @property
+    def release_name(self) -> str:
+        return CapitalBudgetRelease(self.release_num).name
+
+    @property
+    def label(self) -> str:
+        if self.patch == 0:
+            return f"{self.year}{self.release_name}"
+        else:
+            return f"{self.year}{self.release_name}.{self.patch}"
+
+    def __lt__(self, other) -> bool:
+        match other:
+            case CapitalBudget():
+                return (self.year, self.release_num, self.patch) < (
+                    other.year,
+                    other.release_num,
+                    other.patch,
+                )
+            case Date():
+                self_year = self.year + 2000
+                if self_year != other.date.year:
+                    return self_year < other.date.year
+                else:
+                    raise ValueError(
+                        "Cannot compare Date and CapitalBudget versions of the same year"
+                    )
+            case _:
+                raise TypeError(f"Cannot compare Version with type '{type(other)}'")
+
+    def __eq__(self, other) -> bool:
+        match other:
+            case CapitalBudget():
+                return (self.year, self.release_num, self.patch) == (
+                    other.year,
+                    other.release_num,
+                    other.patch,
+                )
+            case _:
+                return False
 
 
 @dataclass
@@ -139,6 +193,14 @@ class Date(Version):
                     raise ValueError(
                         "Cannot compare Date and MajorMinor versions of the same year"
                     )
+            case CapitalBudget():
+                other_year = other.year + 2000
+                if self.date.year != other_year:
+                    return self.date.year < other_year
+                else:
+                    raise ValueError(
+                        "Cannot compare Date and CapitalBudget versions of the same year"
+                    )
             case _:
                 raise TypeError(f"Cannot compare Version with type '{type(other)}'")
 
@@ -222,6 +284,19 @@ def parse(v: str) -> Version:
             return Date(
                 date(int(m[1]), int(m[2]), 1),
                 format=DateVersionFormat.month,
+                patch=int(m[3]),
+            )
+        case r"^(\d{2})(adopt|exec|prelim)$" as m:
+            release_num = CapitalBudgetRelease[m[2]].value
+            return CapitalBudget(
+                year=int(m[1]),
+                release_num=release_num,
+            )
+        case r"^(\d{2})(adopt|exec|prelim)\.(\d+)$" as m:
+            release_num = CapitalBudgetRelease[m[2]].value
+            return CapitalBudget(
+                year=int(m[1]),
+                release_num=release_num,
                 patch=int(m[3]),
             )
         case _:
@@ -365,6 +440,17 @@ def bump(
         case Date(), _:
             raise Exception(
                 f"Version subtype {bump_type} not applicable for Date versions"
+            )
+        case CapitalBudget(), None:
+            return CapitalBudget(
+                year=previous_version.year,
+                release_num=previous_version.release_num + bump_by,
+            )
+        case CapitalBudget(), VersionSubType.patch:
+            return CapitalBudget(
+                year=previous_version.year,
+                release_num=previous_version.release_num,
+                patch=previous_version.patch + bump_by,
             )
         case _:
             raise ValueError(f"Unsupported version format {previous_version}")
