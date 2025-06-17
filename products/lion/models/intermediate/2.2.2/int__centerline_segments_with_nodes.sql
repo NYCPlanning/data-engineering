@@ -22,13 +22,14 @@ SELECT
     n_from.nodeid AS from_nodeid,
     n_to.nodeid AS to_nodeid,
     from_sm.sectional_map AS from_sectionalmap,
-    to_sm.sectional_map AS to_sectionalmap
+    to_sm.sectional_map AS to_sectionalmap,
+    centerline.from_geom,
+    centerline.to_geom
 FROM centerline
--- ~75 segments are missing nodes
--- TODO research whether this is consistent with current method and if we might need to join spatially with some minimal buffer
-LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_from ON centerline.from_geom = n_from.geom
-LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_to ON centerline.to_geom = n_to.geom
--- 6 segments with endpoint on border. This currently results in duplicate rows
+LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_from 
+    ON ST_DWITHIN(centerline.from_geom, n_from.geom, 0.001)
+LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_to 
+    ON ST_DWITHIN(centerline.to_geom, n_to.geom, 0.001)
 LEFT JOIN
     {{ source("recipe_sources", "dcp_cscl_sectionalmap") }} AS from_sm
     ON st_contains(from_sm.geom, centerline.from_geom)
