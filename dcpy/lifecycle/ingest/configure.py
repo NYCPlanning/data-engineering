@@ -10,7 +10,7 @@ from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     Source,
     ProcessingStep,
-    Template,
+    TemplateStandard,
     Config,
 )
 from dcpy.utils import metadata
@@ -27,7 +27,7 @@ def get_jinja_vars(s: str) -> set[str]:
 
 def read_template(
     dataset_id: str, template_dir: Path, version: str | None = None
-) -> Template:
+) -> TemplateStandard:
     """
     Given _id id, read yml template in template_dir of given dataset
     and insert version as jinja var if provided.
@@ -43,7 +43,7 @@ def read_template(
             f"'version' is only suppored jinja var. Vars in template: {vars}"
         )
     template_yml = yaml.safe_load(template_string)
-    return Template(**template_yml)
+    return TemplateStandard(**template_yml)
 
 
 def get_version(source: Source, timestamp: datetime):
