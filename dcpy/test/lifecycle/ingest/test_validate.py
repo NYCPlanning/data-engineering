@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from dcpy.test.conftest import RECIPES_BUCKET
-from dcpy.models.lifecycle.ingest import Template
+from dcpy.models.lifecycle.ingest import TemplateStandard
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.connectors import processed_datastore
@@ -29,7 +29,7 @@ def test_template_dir_exists():
 def test_validate_all_templates(dataset):
     with open(PROD_TEMPLATE_DIR / dataset, "r") as f:
         s = yaml.safe_load(f)
-    template = Template(**s)
+    template = TemplateStandard(**s)
     transform.validate_processing_steps(
         template.id, template.ingestion.processing_steps
     )
