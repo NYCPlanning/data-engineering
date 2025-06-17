@@ -5,8 +5,7 @@ import yaml
 
 from dcpy.utils.logging import logger
 from dcpy.lifecycle.ingest.connectors import processed_datastore
-from dcpy.models.lifecycle.ingest import Template
-from dcpy.lifecycle.ingest import transform
+from dcpy.lifecycle.ingest import configure, transform
 
 
 def validate_against_existing_version(ds: str, version: str, filepath: Path) -> None:
@@ -43,9 +42,7 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
 
 def validate_template_file(filepath: Path) -> None:
     """Validate a single template file."""
-    with open(filepath, "r") as f:
-        s = yaml.safe_load(f)
-    template = Template(**s)
+    template = configure.read_template(filepath)
     transform.validate_processing_steps(
         template.id, template.ingestion.processing_steps
     )

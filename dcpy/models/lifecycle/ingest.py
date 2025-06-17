@@ -191,7 +191,7 @@ class Column(BaseColumn):
     data_type: COLUMN_TYPES  # override BaseColumn `data_type` to be required field
 
 
-class Template(BaseModel, extra="forbid"):
+class TemplateStandard(BaseModel, extra="forbid"):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
     id: str
@@ -202,17 +202,49 @@ class Template(BaseModel, extra="forbid"):
     columns: list[Column] = []
     checks: list[str | dict[str, Any]] | None = None
 
-    @property
-    def has_geom(self):
-        match self.ingestion.file_format:
-            case file.Shapefile() | file.Geodatabase() | file.GeoJson():
-                return True
-            case file.Csv() | file.Excel() | file.Json() | file.Html() as format:
-                return format.geometry is not None
-
     @model_validator(mode="after")
     def validate_objects(self):
         self.ingestion.source._ds_id = self.id
+
+    @property
+    def source(self):
+        return self.ingestion.source
+
+
+class _TemplateChild(BaseModel, extra="forbid"):
+    id: str
+    acl: recipes.ValidAclValues | None = None
+
+    attributes: DatasetAttributes
+    ingestion: dict[str, Any]
+    columns: list[Column] = []
+    checks: list[str | dict[str, Any]] | None = None
+
+
+class TemplateOneToMany(BaseModel, extra="forbid"):
+    id: str
+    acl: recipes.ValidAclValues | None = None
+
+    attributes: DatasetAttributes
+    source: Source
+    datasets: list[_TemplateChild]
+
+    @model_validator(mode="after")
+    def validate_objects(self):
+        self.source._ds_id = self.id
+
+
+class RawConfig(BaseModel, extra="forbid"):
+    id: str
+    attributes: DatasetAttributes
+
+    archival: ArchivalMetadata
+    source: Source
+    version: str
+
+    dataset_defaults: dict
+    datasets: list[_TemplateChild]
+    run_details: RunDetails
 
 
 class Config(SortedSerializedBase, extra="forbid"):

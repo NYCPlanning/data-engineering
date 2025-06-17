@@ -10,7 +10,9 @@ from dcpy.models.lifecycle.ingest import (
     LocalFileSource,
     Source,
     ProcessingStep,
-    Template,
+    TemplateStandard,
+    TemplateOneToMany,
+    RawConfig,
     Config,
 )
 from dcpy.utils import metadata
@@ -26,14 +28,13 @@ def get_jinja_vars(s: str) -> set[str]:
 
 
 def read_template(
-    dataset_id: str, template_dir: Path, version: str | None = None
-) -> Template:
+    template_path: Path, version: str | None = None
+) -> TemplateStandard | TemplateOneToMany:
     """
     Given _id id, read yml template in template_dir of given dataset
     and insert version as jinja var if provided.
     """
-    file = template_dir / f"{dataset_id}.yml"
-    with open(file, "r") as f:
+    with open(template_path, "r") as f:
         template_string = f.read()
     vars = get_jinja_vars(template_string)
     if vars == {"version"}:
@@ -43,7 +44,10 @@ def read_template(
             f"'version' is only suppored jinja var. Vars in template: {vars}"
         )
     template_yml = yaml.safe_load(template_string)
-    return Template(**template_yml)
+    if "datasets" in template_yml:
+        return TemplateOneToMany(**template_yml)
+    else:
+        return TemplateStandard(**template_yml)
 
 
 def get_version(source: Source, timestamp: datetime):
@@ -77,40 +81,21 @@ def determine_processing_steps(
     return steps
 
 
-def get_config(
+def get_raw_config(
     dataset_id: str,
     version: str | None = None,
     *,
-    mode: str | None = None,
     template_dir: Path,
     local_file_path: Path | None = None,
-) -> Config:
+) -> RawConfig:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
 
-    logger.info(f"Reading template from {template_dir / dataset_id}.yml")
-    template = read_template(dataset_id, version=version, template_dir=template_dir)
+    template_path = template_dir / f"{dataset_id}.yml"
+    logger.info(f"Reading template from {template_path}")
+    template = read_template(template_path, version=version)
     version = version or get_version(template.ingestion.source, run_details.timestamp)
-    template = read_template(dataset_id, version=version, template_dir=template_dir)
-
-    if local_file_path:
-        template.ingestion.source = LocalFileSource(
-            type="local_file", path=local_file_path
-        )
-
-    processing_steps = determine_processing_steps(
-        template.ingestion.processing_steps,
-        target_crs=template.ingestion.target_crs,
-        mode=mode,
-    )
-
-    ingestion = Ingestion(
-        target_crs=template.ingestion.target_crs,
-        source=template.ingestion.source,
-        file_format=template.ingestion.file_format,
-        processing_mode=mode,
-        processing_steps=processing_steps,
-    )
+    template = read_template(template_path, version=version)
 
     archival = ArchivalMetadata(
         archival_timestamp=run_details.timestamp,
@@ -118,13 +103,52 @@ def get_config(
         acl=template.acl,
     )
 
-    return Config(
+    return RawConfig(
         id=template.id,
-        version=version,
-        crs=ingestion.target_crs,
         attributes=template.attributes,
         archival=archival,
-        ingestion=ingestion,
-        columns=template.columns,
+        version=version,
+        source=(
+            LocalFileSource(type="local_file", path=local_file_path)
+            if local_file_path
+            else template.source
+        ),
+        dataset_defaults=template.dataset_defaults,
+        datasets=template.datasets,
         run_details=run_details,
     )
+
+
+def get_configs(
+    raw_config: RawConfig,
+    *,
+    mode: str | None = None,
+) -> Config:
+    """Generate config object for dataset and optional version"""
+    run_details = metadata.get_run_details()
+
+    for dataset in raw_config.datasets:
+        processing_steps = determine_processing_steps(
+            dataset.ingestion.processing_steps,
+            target_crs=dataset.ingestion.target_crs,
+            mode=mode,
+        )
+
+        ingestion = Ingestion(
+            target_crs=dataset.ingestion.target_crs,
+            source=dataset.ingestion.source,
+            file_format=dataset.ingestion.file_format,
+            processing_mode=mode,
+            processing_steps=processing_steps,
+        )
+
+        return Config(
+            id=dataset.id,
+            version=raw_config.version,
+            crs=ingestion.target_crs,
+            attributes=dataset.attributes,
+            archival=raw_config.archival,
+            ingestion=ingestion,
+            columns=dataset.columns,
+            run_details=run_details,
+        )
