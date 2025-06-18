@@ -18,19 +18,16 @@ INGEST_OUTPUT_DIR = INGEST_DIR / "datasets"
 CONFIG_FILENAME = "config.json"
 
 
-def ingest(
+def ingest_raw_dataset(
     dataset_id: str,
     version: str | None = None,
     *,
-    dataset_staging_dir: Path | None = None,
-    ingest_output_dir: Path = INGEST_OUTPUT_DIR,
+    dataset_staging_dir: Path,
     mode: str | None = None,
     latest: bool = False,
     push: bool = False,
-    output_csv: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
-    overwrite_okay: bool = False,
 ) -> Config:
     if template_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
@@ -42,17 +39,6 @@ def ingest(
         local_file_path=local_file_path,
     )
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
-
-    if not dataset_staging_dir:
-        dataset_staging_dir = (
-            INGEST_STAGING_DIR
-            / dataset_id
-            / config.archival.archival_timestamp.isoformat()
-        )
-        dataset_staging_dir.mkdir(parents=True)
-    else:
-        dataset_staging_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Using {dataset_staging_dir} to stage data")
 
     with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
@@ -74,19 +60,34 @@ def ingest(
             latest=latest,
         )
 
-    init_parquet = "init.parquet"
+
+def ingest_processed_dataset(
+    dataset_id: str,
+    version: str | None = None,
+    *,
+    dataset_staging_dir: Path,
+    ingest_output_dir: Path = INGEST_OUTPUT_DIR,
+    mode: str | None = None,
+    latest: bool = False,
+    push: bool = False,
+    output_csv: bool = False,
+    overwrite_okay: bool = False,
+) -> Config:
+    transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
+
+    init_filename = "init.parquet"
     transform.to_parquet(
         config.ingestion.file_format,
         filepath,
         dir=dataset_staging_dir,
-        output_filename=init_parquet,
+        output_filename=init_filename,
     )
 
     config.ingestion.processing_steps_summaries = transform.process(
         config.id,
         config.ingestion.processing_steps,
         config.columns,
-        dataset_staging_dir / init_parquet,
+        dataset_staging_dir / init_filename,
         dataset_staging_dir / config.filename,
         output_csv=output_csv,
     )
@@ -121,3 +122,20 @@ def ingest(
     else:
         logger.info("Skipping archival")
     return config
+
+
+def ingest(
+    dataset_id: str,
+    *,
+    dataset_staging_dir: Path | None = None,
+):
+    if not dataset_staging_dir:
+        dataset_staging_dir = (
+            INGEST_STAGING_DIR
+            / dataset_id
+            / config.archival.archival_timestamp.isoformat()
+        )
+        dataset_staging_dir.mkdir(parents=True)
+    else:
+        dataset_staging_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Using {dataset_staging_dir} to stage data")
