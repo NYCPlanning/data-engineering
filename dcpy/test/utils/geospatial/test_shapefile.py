@@ -2,24 +2,31 @@ from dcpy.utils.geospatial import shapefile
 from pytest import fixture
 import shutil
 import zipfile
+from zipfile import ZipFile
+
+SHP_ZIP = "shapefile_single_pluto_feature.shp.zip"
+METADATA_XML = "shapefile_metadata.xml"
 
 
 @fixture
 def temp_shp_zip_path(utils_resources_path, tmp_path):
     shutil.copy2(
-        src=utils_resources_path / "shapefile_single_pluto_feature.zip",
-        dst=tmp_path / "shapefile_single_pluto_feature.zip",
+        src=utils_resources_path / SHP_ZIP,
+        dst=tmp_path / SHP_ZIP,
     )
-    # assert zipfile.is_zipfile(temp_shp_zip_path), (
-    #     f"'{temp_shp_zip_path.name}' should be a valid zip file"
-    # )
-    return tmp_path / "shapefile_single_pluto_feature.zip"
+    assert zipfile.is_zipfile(tmp_path / SHP_ZIP), (
+        f"'{SHP_ZIP}' should be a valid zip file"
+    )
+    return tmp_path / SHP_ZIP
 
 
 @fixture
 def temp_xml_string(utils_resources_path):
-    with open(utils_resources_path / "shapefile_metadata.xml") as xml:
-        return xml.read()
+    xml_output = ""
+    with open(utils_resources_path / METADATA_XML) as xml:
+        xml_output = xml.read()
+    assert xml_output != "", f"Non-empty string expected, got: '{xml_output}' instead."
+    return xml_output
 
 
 # def test_unzip_shapefile(temp_shp_zip_path, tmp_path):
@@ -41,7 +48,7 @@ def temp_xml_string(utils_resources_path):
 
 
 # TODO - just test "write metadata" function directly, not each constituent step
-def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string, tmp_path):
+def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string):
     assert shapefile.read_metadata(temp_shp_zip_path) == {}, (
         "No metadata should be present"
     )
@@ -52,9 +59,11 @@ def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string, tmp_path):
         shp_name=temp_shp_zip_path.stem,
         force=True,
     )
-    print(shapefile.get_contents(temp_shp_zip_path))
-    assert shapefile.get_contents(temp_shp_zip_path) == [], (
-        "The zip file should contain shapefile components"
+    # print(shapefile.get_contents(temp_shp_zip_path))
+    items_in_zip = shapefile.get_contents(temp_shp_zip_path)
+    print(items_in_zip)
+    assert len(items_in_zip) >= 5, (
+        f"The zip file should contain at least 5 files, but {len(items_in_zip)} were found."
     )
 
     # TODO - test actual output of xml file - valid xml, has a specific value, etc.
