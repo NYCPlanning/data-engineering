@@ -47,6 +47,10 @@ def temp_xml_string(utils_resources_path):
 #     )
 
 
+# TODO - test the shapefile input path parser
+def test_parse_path_to_shp(): ...
+
+
 # TODO - just test "write metadata" function directly, not each constituent step
 def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string):
     assert shapefile.read_metadata(temp_shp_zip_path) == {}, (
