@@ -27321,6 +27321,8 @@ bbl,field,old_value,new_value,Type,reason,version
 2033310053,unitstotal,117,0,2,PTS error - vacant lots with units,24v2
 "3010407502",unitsres,100,10,2,PTS error - units,"24v2"
 "3010407502",unitstotal,100,10,2,PTS error - units,"24v2"
+"4017687502",unitsres,100,10,2,PTS error - units,"24v2"
+"4017687502",unitstotal,102,12,2,PTS error - units,"24v2"
 "1005957510",unitsres,81,9,2,PTS error - units,"24v2"
 "1005957510",unitstotal,82,10,2,PTS error - units,"24v2"
 "1007357501",unitsres,81,9,2,PTS error - units,"24v2"
@@ -27448,6 +27450,8 @@ bbl,field,old_value,new_value,Type,reason,version
 3027807501,unitstotal,91,10,2,PTS error - units,25v1
 3050307502,unitsres,64,8,2,PTS error - units,25v1
 3050307502,unitstotal,64,8,2,PTS error - units,25v1
+3008777502,unitsres,510,17,2,PTS error - units,25v1
+3008777502,unitstotal,900,30,2,PTS error - units,25v1
 4051247502,unitsres,64,8,2,PTS error - units,25v1
 4051247502,unitstotal,65,9,2,PTS error - units,25v1
 3019007516,unitsres,91,10,2,PTS error - units,25v1
