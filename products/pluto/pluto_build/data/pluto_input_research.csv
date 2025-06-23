@@ -27460,3 +27460,14 @@ bbl,field,old_value,new_value,Type,reason,version
 1018937501,unitstotal,1133,155,2,PTS error - units,25v1
 3013020001,unitsres,49,1321,2,PTS error - units,25v1
 3013020001,unitstotal,49,1321,2,PTS error - units,25v1
+1007077501,unitsres,406,532,2,PTS error - units,25v2
+1007077501,unitstotal,410,536,2,PTS error - units,25v2
+2032917501,unitsres,58,114,2,PTS error - units,25v2
+2032917501,unitstotal,58,114,2,PTS error - units,25v2
+3063430031,lotarea,24683,35088,2,PTS error - lot area,25v2
+1011110001,cd,108,164,2,Geosupport error - CD,25v2
+4017687502,unitsres,91,10,2,PTS error - units,25v2
+4017687502,unitstotal,93,12,2,PTS error - units,25v2
+3008777502,unitsres,238,17,2,PTS error - units,25v2
+3008777502,unitstotal,407,30,2,PTS error - units,25v2
+3015800010,address,57 MARCOUS GARVEY BLVD,57 MARCUS GARVEY BLVD,2,PTS error - streetname,25v2

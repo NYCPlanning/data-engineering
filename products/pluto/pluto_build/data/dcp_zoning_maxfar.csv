@@ -1,167 +1,200 @@
-zonedist,Contextual,zoningdistricttype,residfar,facilfar,commfar,mnffar,Column1,verified,
-BALL FIELD,-,-,-,-,-,-,,,
-BPC,-,-,-,-,-,-,,y,
-C1-6,Non-contextual,Local Retail and Service, 	3.44 , 	6.50 , 	2.00 ,-,,y,
-C1-6A,Contextual,Local Retail and Service, 	4.00 , 	4.00 , 	2.00 ,-,,y,
-C1-7,Non-contextual,Local Retail and Service, 	6.02 , 	6.50 , 	2.00 ,-,,y,
-C1-7A,Contextual,Local Retail and Service, 	6.02 , 	6.50 , 	2.00 ,-,,y,
-C1-8,Non-contextual,Local Retail and Service, 	7.52 , 	10.00 , 	2.00 ,-,,y,
-C1-8A,Contextual,Local Retail and Service, 	7.52 , 	7.50 , 	2.00 ,-,,y,
-C1-8X,Contextual,Local Retail and Service, 	9.00 , 	9.00 , 	2.00 ,-,,y,
-C1-9,Non-contextual,Local Retail and Service, 	10.00 , 	10.00 , 	2.00 ,-,,y,
-C1-9A,Contextual,Local Retail and Service, 	10.00 , 	10.00 , 	2.00 ,-,,y,
-C2-6,Non-contextual,Local Retail and Service, 	3.44 , 	6.50 , 	2.00 ,-,,y,
-C2-6A,Contextual,Local Retail and Service, 	4.00 , 	4.00 , 	2.00 ,-,,y,
-C2-7,Non-contextual,Local Retail and Service, 	7.52 , 	10.00 , 	2.00 ,-,,y,
-C2-7A,Contextual,Local Retail and Service, 	7.52 , 	7.50 , 	2.00 ,-,,y,
-C2-8,Non-contextual,Local Retail and Service, 	10.00 , 	10.00 , 	2.00 ,-,,y,
-C2-8A,Contextual,Local Retail and Service, 	10.00 , 	10.00 , 	2.00 ,-,,y,
-C3,Non-contextual,Waterfront Recreation, 	0.50 , 	1.00 , 	0.50 ,-,,y,
-C3A,Contextual,Waterfront Recreation, 	0.50 , 	1.00 , 	0.50 ,-,,y,
-C4-1,Non-contextual,General Commercial, 	1.25 , 	2.00 , 	1.00 ,-,,y,
-C4-2,Non-contextual,General Commercial, 	2.43 , 	4.80 , 	3.40 ,-,,y,
-C4-2A,Contextual,General Commercial, 	3.00 , 	3.00 , 	3.00 ,-,,y,
-C4-2F,Non-contextual,General Commercial, 	6.02 , 	6.50 , 	3.40 ,-,,y,
-C4-3,Non-contextual,General Commercial, 	2.43 , 	4.80 , 	3.40 ,-,,y,
-C4-3A,Contextual,General Commercial, 	3.00 , 	3.00 , 	3.00 ,-,,y,
-C4-4,Non-contextual,General Commercial, 	3.44 , 	6.50 , 	3.40 ,-,,y,
-C4-4A,Contextual,General Commercial, 	4.00 , 	4.00 , 	4.00 ,-,,y,
-C4-4D,Contextual,General Commercial, 	6.02 , 	6.50 , 	3.40 ,-,,y,
-C4-4L,Contextual,General Commercial, 	4.00 , 	4.00 , 	4.00 ,-,,y,
-C4-5,Non-contextual,General Commercial, 	3.44 , 	6.50 , 	3.40 ,-,,y,
-C4-5A,Contextual,General Commercial, 	4.00 , 	4.00 , 	4.00 ,-,,y,
-C4-5D,Contextual,General Commercial, 	4.20 , 	4.20 , 	4.20 ,-,,y,
-C4-5X,Contextual,General Commercial, 	5.00 , 	5.00 , 	4.00 ,-,,y,
-C4-6,Non-contextual,General Commercial, 	10.00 , 	10.00 , 	3.40 ,-,,y,
-C4-6A,Contextual,General Commercial, 	10.00 , 	10.00 , 	3.40 ,-,,y,
-C4-7,Non-contextual,General Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C5-1,Non-contextual,Restricted Central Commercial, 	10.00 , 	10.00 , 	4.00 ,-,,y,
-C5-1A,Contextual,Restricted Central Commercial, 	10.00 , 	10.00 , 	4.00 ,-,,y,
-C5-2,Non-contextual,Restricted Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C5-2.5,Non-contextual,Restricted Central Commercial, 	10.00 , 	12.00 , 	12.00 ,-,,y,
-C5-2A,Contextual,Restricted Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C5-3,Non-contextual,Restricted Central Commercial, 	10.00 , 	15.00 , 	15.00 ,-,,y,
-C5-4,Non-contextual,Restricted Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C5-5,Non-contextual,Restricted Central Commercial, 	10.00 , 	15.00 , 	15.00 ,-,,y,
-C5-5,Non-contextual,Restricted Central Commercial, 	10.00 , 	15.00 , 	15.00 ,-,,y,
-C5-P,Non-contextual,Restricted Central Commercial, 	8.00 , 	8.00 , 	8.00 ,-,,y,
-C6-1,Non-contextual,General Central Commercial, 	3.44 , 	6.50 , 	6.00 ,-,,y,
-C6-1A,Contextual,General Central Commercial, 	2.43 , 	4.80 , 	6.00 ,-,,y,
-C6-1G,Non-contextual,General Central Commercial, 	3.44 , 	4.80 , 	6.00 ,-,,y,
-C6-2,Non-contextual,General Central Commercial, 	6.02 , 	6.50 , 	6.00 ,-,,y,
-C6-2A,Contextual,General Central Commercial, 	6.02 , 	6.50 , 	6.00 ,-,,y,
-C6-2G,Non-contextual,General Central Commercial, 	6.02 , 	6.50 , 	6.00 ,-,,y,
-C6-2M,Non-contextual,General Central Commercial, 	6.02 , 	6.50 , 	6.00 ,-,,y,
-C6-3,Non-contextual,General Central Commercial, 	7.52 , 	10.00 , 	6.00 ,-,,y,
-C6-3A,Contextual,General Central Commercial, 	7.52 , 	7.50 , 	6.00 ,-,,y,
-C6-3D,Contextual,General Central Commercial, 	9.00 , 	9.00 , 	9.00 ,-,,y,
-C6-3X,Contextual,General Central Commercial, 	9.00 , 	9.00 , 	6.00 ,-,,y,
-C6-4,Non-contextual,General Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C6-4.5,Non-contextual,Restricted Central Commercial, 	10.00 , 	10.00 , 	12.00 ,-,,,
-C6-4A,Contextual,General Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C6-4M,Non-contextual,General Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C6-4X,Contextual,General Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C6-5,Non-contextual,General Central Commercial, 	10.00 , 	10.00 , 	10.00 ,-,,y,
-C6-5.5,Non-contextual,Restricted Central Commercial, 	10.00 , 	12.00 , 	12.00 ,-,,,
-C6-6,Non-contextual,General Central Commercial, 	10.00 , 	15.00 , 	15.00 ,-,,y,
-C6-6.5,Non-contextual,Restricted Central Commercial, 	10.00 , 	12.00 , 	12.00 ,-,,,
-C6-7,Non-contextual,General Central Commercial, 	10.00 , 	15.00 , 	15.00 ,-,,y,
-C6-7T,Non-contextual,Restricted Central Commercial, 	10.00 , 	14.00 , 	14.00 ,-,,y,
-C6-9,Non-contextual,General Central Commercial, 	10.00 , 	15.00 , 	15.00 ,-,,y,
-C7,Non-contextual,Commercial Amusement,-,-, 	2.00 ,-,,y,
-C8-1,Non-contextual,General Service,-, 	2.40 , 	1.00 ,-,,y,
-C8-2,Non-contextual,General Service,-, 	4.80 , 	2.00 ,-,,y,
-C8-3,Non-contextual,General Service,-, 	6.50 , 	2.00 ,-,,y,
-C8-4,Non-contextual,General Service,-, 	6.50 , 	5.00 ,-,,y,
-M1-1,Non-contextual,Light Manufacturing,-, 	2.40 , 	1.00 , 	1.00 ,,y,
-M1-1/R5,Non-contextual,Mixed Use, 	1.25 , 	2.00 , 	1.00 , 	1.00 ,,y,
-M1-1/R6A,Contextual,Mixed Use, 	3.00 , 	3.00 , 	1.00 , 	1.00 ,,y,
-M1-1/R7-2,Contextual,Mixed Use, 	3.44 , 	6.50 , 	1.00 , 	1.00 ,,y,
-M1-1/R7D,Contextual,Mixed Use, 	4.20 , 	4.20 , 	1.00 , 	1.00 ,,y,
-M1-1D,Non-contextual,Light Manufacturing,-, 	2.40 , 	1.00 , 	1.00 ,,y,
-M1-2,Non-contextual,Light Manufacturing,-, 	4.80 , 	2.00 , 	2.00 ,,y,
-M1-2/R5B,Contextual,Mixed Use, 	1.35 , 	2.00 , 	2.00 , 	2.00 ,,y,
-M1-2/R5D,Contextual,Mixed Use, 	2.00 , 	2.00 , 	2.00 , 	2.00 ,,y,
-M1-2/R6,Non-contextual,Mixed Use, 	2.43 , 	4.80 , 	2.00 , 	2.00 ,,y,
-M1-2/R6A,Contextual,Mixed Use, 	3.00 , 	3.00 , 	2.00 , 	2.00 ,,y,
-M1-2/R6B,Contextual,Mixed Use, 	2.00 , 	2.00 , 	2.00 , 	2.00 ,,y,
-M1-2/R7-2,Non-contextual,Mixed Use, 	3.44 , 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-2/R7A,Contextual,Mixed Use, 	4.00 , 	4.00 , 	2.00 , 	2.00 ,,y,
-M1-2/R8,Non-contextual,Mixed Use, 	6.02 , 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-2/R8A,Contextual,Mixed Use, 	6.02 , 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-2D,Non-contextual,Light Manufacturing,-, 	4.80 , 	2.00 , 	2.00 ,,y,
-M1-3,Non-contextual,Light Manufacturing,-, 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-3/R7X,Contextual,Mixed Use, 	5.00 , 	5.00 , 	5.00 , 	5.00 ,,y,
-M1-3/R8,Non-contextual,Mixed Use, 	6.02 , 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-4,Non-contextual,Light Manufacturing,-, 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-4/R6A,Contextual,Mixed Use, 	3.00 , 	3.00 , 	2.00 , 	2.00 ,,y,
-M1-4/R6B,Contextual,Mixed Use, 	2.00 , 	2.00 , 	2.00 , 	2.00 ,,y,
-M1-4/R7-2,Non-contextual,Mixed Use, 	3.44 , 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-4/R7A,Contextual,Mixed Use, 	4.00 , 	4.00 , 	2.00 , 	2.00 ,,y,
-M1-4/R7D,Contextual,Mixed Use, 	4.20 , 	4.20 , 	2.00 , 	2.00 ,,y,
-M1-4/R7X,Contextual,Mixed Use, 	5.00 , 	5.00 , 	2.00 , 	2.00 ,,y,
-M1-4/R8A,Contextual,Mixed Use, 	6.02 , 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-4D,Non-contextual,Light Manufacturing,-, 	6.50 , 	2.00 , 	2.00 ,,y,
-M1-5,Non-contextual,Light Manufacturing,-, 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-5/R10,Non-contextual,Mixed Use, 	10.00 , 	10.00 , 	5.00 , 	5.00 ,,y,
-M1-5/R7-2,Non-contextual,Mixed Use, 	3.44 , 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-5/R7-3,Non-contextual,Mixed Use, 	5.00 , 	5.00 , 	5.00 , 	5.00 ,,y,
-M1-5/R7X,Contextual,Mixed Use, 	5.00 , 	5.00 , 	5.00 , 	5.00 ,,y,
-M1-5/R8A,Contextual,Mixed Use, 	6.02 , 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-5/R9,Non-contextual,Mixed Use, 	7.52 , 	10.00 , 	5.00 , 	5.00 ,,y,
-M1-5/R9-1,Non-contextual,Mixed Use, 	9.00 , 	10.00 , 	5.00 , 	5.00 ,,y,
-M1-5A,Non-contextual,Light Manufacturing,-, 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-5B,Non-contextual,Light Manufacturing,-, 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-5M,Non-contextual,Light Manufacturing,-, 	6.50 , 	5.00 , 	5.00 ,,y,
-M1-6,Non-contextual,Light Manufacturing,-, 	10.00 , 	10.00 , 	10.00 ,,y,
-M1-6/R10,Non-contextual,Mixed Use, 	10.00 , 	10.00 , 	10.00 , 	10.00 ,,y,
-M1-6/R9,Non-contextual,Mixed Use, 	7.52 , 	10.00 , 	10.00 , 	10.00 ,,y,
-M1-6D,Contextual,Mixed Use, 	10.00 , 	10.00 , 	10.00 , 	10.00 ,,y,
-M2-1,Non-contextual,Medium Manufacturing,-,-, 	2.00 , 	2.00 ,,y,
-M2-2,Non-contextual,Medium Manufacturing,-,-, 	5.00 , 	5.00 ,,y,
-M2-3,Non-contextual,Medium Manufacturing,-,-, 	2.00 , 	2.00 ,,y,
-M2-4,Non-contextual,Medium Manufacturing,-,-, 	5.00 , 	5.00 ,,y,
-M3-1,Non-contextual,Heavy Manufacturing,-,-, 	2.00 , 	2.00 ,,y,
-M3-2,Non-contextual,Heavy Manufacturing,-,-, 	2.00 , 	2.00 ,,y,
-PARK,-,-,-,-,-,-,,,
-PLAYGROUND,-,-,-,-,-,-,,,
-PUBLIC PLACE,-,-,-,-,-,-,,,
-R10,Non-contextual,High-Density Residence District, 	10.00 , 	10.00 ,-,-,,y,
-R10A,Contextual,High-Density Residence District, 	10.00 , 	10.00 ,-,-,,y,
-R10H,Non-contextual,High-Density Residence District, 	10.00 , 	10.00 ,-,-,,y,
-R1-1,Non-contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R1-2,Non-contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R1-2A,Contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R2,Non-contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R2A,Contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R2X,Contextual,Low-Density Residence District, 	0.85 , 	1.00 ,-,-,,y,
-R3-1,Contextual,Low-Density Contextual Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R3-2,Non-contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R3A,Contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R3X,Contextual,Low-Density Residence District, 	0.50 , 	1.00 ,-,-,,y,
-R4,Non-contextual,Low-Density Residence District, 	0.75 , 	2.00 ,-,-,,y,
-R4-1,Contextual,Low-Density Contextual Residence District, 	0.75 , 	2.00 ,-,-,,y,
-R4A,Contextual,Low-Density Residence District, 	0.75 , 	2.00 ,-,-,,y,
-R4B,Contextual,Low-Density Residence District, 	0.90 , 	2.00 ,-,-,,y,
-R5,Non-contextual,Low-Density Residence District, 	1.25 , 	2.00 ,-,-,,y,
-R5A,Contextual,Low-Density Residence District, 	1.10 , 	2.00 ,-,-,,y,
-R5B,Contextual,Low-Density Residence District, 	1.35 , 	2.00 ,-,-,,y,
-R5D,Contextual,Low-Density Residence District, 	2.00 , 	2.00 ,-,-,,y,
-R6,Non-contextual,Medium-Density Residence District, 	2.43 , 	4.80 ,-,-,,y,
-R6A,Contextual,Medium-Density Residence District, 	3.00 , 	3.00 ,-,-,,y,
-R6B,Contextual,Medium-Density Residence District, 	2.00 , 	2.00 ,-,-,,y,
-R7-1,Non-contextual,Medium-Density Residence District, 	3.44 , 	4.80 ,-,-,,y,
-R7-2,Non-contextual,Medium-Density Residence District, 	3.44 , 	6.50 ,-,-,,y,
-R7-3,Non-contextual,Medium-Density Residence District, 	5.00 , 	5.00 ,-,-,,y,
-R7A,Contextual,Medium-Density Residence District, 	4.00 , 	4.00 ,-,-,,y,
-R7B,Contextual,Medium-Density Residence District, 	3.00 , 	3.00 ,-,-,,y,
-R7D,Contextual,Medium-Density Residence District, 	4.20 , 	4.20 ,-,-,,y,
-R7X,Contextual,Medium-Density Residence District, 	5.00 , 	5.00 ,-,-,,y,
-R8,Non-contextual,High-Density Residence District, 	6.02 , 	6.50 ,-,-,,y,
-R8A,Contextual,Medium-Density Residence District, 	6.02 , 	6.50 ,-,-,,y,
-R8B,Contextual,Medium-Density Residence District, 	4.00 , 	4.00 ,-,-,,y,
-R8X,Contextual,Medium-Density Residence District, 	6.02 , 	6.00 ,-,-,,y,
-R9,Non-contextual,High-Density Residence District, 	7.52 , 	10.00 ,-,-,,y,
-R9A,Contextual,High-Density Residence District, 	7.52 , 	7.50 ,-,-,,y,
-R9X,Contextual,High-Density Residence District, 	9.00 , 	9.00 ,-,-,,y,
-,,,,,,,,,
+﻿zonedist,Contextual,zoningdistricttype,ResDistEq,residfar,AffResFAR,facilfar,commfar,mnffar,verified
+BALL FIELD,-,-,,-,-,-,-,-,
+BPC,-,-,,-,-,-,-,-,y
+C1-6,Non-contextual,Local Retail and Service,R7-2,3.44,5.01,6.50,2.00,-,y
+C1-6A,Contextual,Local Retail and Service,R7A,4.00,5.01,4.00,2.00,-,y
+C1-7,Non-contextual,Local Retail and Service,R8,6.02,7.20,6.50,2.00,-,y
+C1-7A,Contextual,Local Retail and Service,R8A,6.02,7.20,6.50,2.00,-,y
+C1-8,Non-contextual,Local Retail and Service,R9,7.52,9.02,10.00,2.00,-,y
+C1-8A,Contextual,Local Retail and Service,R9A,7.52,9.02,7.50,2.00,-,y
+C1-8X,Contextual,Local Retail and Service,R9X,9.00,10.80,9.00,2.00,-,y
+C1-9,Non-contextual,Local Retail and Service,R10,10.00,12.00,10.00,2.00,-,y
+C1-9A,Contextual,Local Retail and Service,R10A,10.00,12.00,10.00,2.00,-,y
+C2-6,Non-contextual,Local Retail and Service,R7-2,3.44,5.01,6.50,2.00,-,y
+C2-6A,Contextual,Local Retail and Service,R7A,4.00,5.01,4.00,2.00,-,y
+C2-7,Non-contextual,Local Retail and Service,R9,7.52,9.02,10.00,2.00,-,y
+C2-7A,Contextual,Local Retail and Service,R9A,7.52,9.02,7.50,2.00,-,y
+C2-7X,Contextual,Local Retail and Service,R9X,9.00,10.80,9.00,2.00,-,y
+C2-8,Non-contextual,Local Retail and Service,R10,10.00,12.00,10.00,2.00,-,y
+C2-8A,Contextual,Local Retail and Service,R10A,10.00,12.00,10.00,2.00,-,y
+C3,Non-contextual,Waterfront Recreation,R3-2,0.75,1.00,1.00,0.50,-,y
+C3A,Contextual,Waterfront Recreation,R3-2,0.75,1.00,1.00,0.50,-,y
+C4-1,Non-contextual,General Commercial,R5,1.50,2.00,2.00,1.00,-,y
+C4-2,Non-contextual,General Commercial,R6,2.43,3.90,4.80,3.40,-,y
+C4-2A,Contextual,General Commercial,R6A,3.00,3.90,3.00,3.00,-,y
+C4-2F,Non-contextual,General Commercial,R8,6.02,7.20,6.50,3.40,-,y
+C4-3,Non-contextual,General Commercial,R6,2.43,3.90,4.80,3.40,-,y
+C4-3A,Contextual,General Commercial,R6A,3.00,3.90,3.00,3.00,-,y
+C4-4,Non-contextual,General Commercial,R7-2,3.44,5.01,6.50,3.40,-,y
+C4-4A,Contextual,General Commercial,R7A,4.00,5.01,4.00,4.00,-,y
+C4-4D,Contextual,General Commercial,R8A,6.02,7.20,6.50,3.40,-,y
+C4-4L,Contextual,General Commercial,R7A,4.00,5.01,4.00,4.00,-,y
+C4-5,Non-contextual,General Commercial,R7-2,3.44,5.01,6.50,3.40,-,y
+C4-5A,Contextual,General Commercial,R7A,4.00,5.01,4.00,4.00,-,y
+C4-5D,Contextual,General Commercial,R7D,4.66,5.6,4.66,4.20,-,y
+C4-5X,Contextual,General Commercial,R7X,5.00,6.00,5.00,4.00,-,y
+C4-6,Non-contextual,General Commercial,R10,10.00,12.00,10.00,3.40,-,y
+C4-6A,Contextual,General Commercial,R10A,10.00,12.00,10.00,3.40,-,y
+C4-7,Non-contextual,General Commercial,R10,10.00,12.00,10.00,10.00,-,y
+C4-7A,Contextual,General Commercial,R10A,10.00,12.00,10.00,10.00,,y
+C4-11,Non-contextual,General Commercial,R11,12.00,15.00,12.00,3.40,,y
+C4-11A,Contextual,General Commercial,R11A,12.00,15.00,12.00,3.40,,y
+C4-12,Contextual,General Commercial,R12,15.00,18.00,15.00,3.40,,y
+C5-1,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,10.00,4.00,-,y
+C5-1A,Contextual,Restricted Central Commercial,R10A,10.00,12.00,10.00,4.00,-,y
+C5-2,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,10.00,10.00,-,y
+C5-2.5,Non-contextual,Restricted Central Commercial,,10.00,12.00,12.00,12.00,-,y
+C5-2A,Contextual,Restricted Central Commercial,R10A,10.00,12.00,10.00,10.00,-,y
+C5-3,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,15.00,15.00,-,y
+C5-4,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,10.00,10.00,-,y
+C5-5,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,15.00,15.00,-,y
+C5-P,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,10.00,8.00,-,y
+C6-1,Non-contextual,General Central Commercial,R7-2,3.44,5.01,6.50,6.00,-,y
+C6-1A,Contextual,General Central Commercial,R6,2.43,3.90,6.00,6.00,-,y
+C6-1G,Non-contextual,General Central Commercial,R7-2,3.44,5.01,,6.00,-,y
+C6-2,Non-contextual,General Central Commercial,R8,6.02,7.20,6.50,6.00,-,y
+C6-2A,Contextual,General Central Commercial,R8A,6.02,7.20,6.50,6.00,-,y
+C6-2G,Non-contextual,General Central Commercial,R8,6.02,7.20,6.50,6.00,-,y
+C6-2M,Non-contextual,General Central Commercial,R8,6.02,7.20,6.50,6.00,-,y
+C6-3,Non-contextual,General Central Commercial,R9,7.52,9.02,10.00,6.00,-,y
+C6-3A,Contextual,General Central Commercial,R9A,7.52,9.02,7.50,6.00,-,y
+C6-3D,Contextual,General Central Commercial,R9D,9.00,10.80,9.00,9.00,-,y
+C6-3X,Contextual,General Central Commercial,R9X,9.00,10.80,9.00,6.00,-,y
+C6-4,Non-contextual,General Central Commercial,R10,10.00,12.00,10.00,10.00,-,y
+C6-4.5,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,12.00,12.00,-,
+C6-4A,Contextual,General Central Commercial,R10A,10.00,12.00,10.00,10.00,-,y
+C6-4M,Non-contextual,General Central Commercial,R10,10.00,12.00,10.00,10.00,-,y
+C6-4X,Contextual,General Central Commercial,R10X,10.00,12.00,10.00,10.00,-,y
+C6-5,Non-contextual,General Central Commercial,R10,10.00,12.00,10.00,10.00,-,y
+C6-5.5,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,12.00,12.00,-,
+C6-6,Non-contextual,General Central Commercial,R10,10.00,12.00,15.00,15.00,-,y
+C6-6.5,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,12.00,12.00,-,
+C6-7,Non-contextual,General Central Commercial,R10,10.00,12.00,15.00,15.00,-,y
+C6-7T,Non-contextual,Restricted Central Commercial,R10,10.00,12.00,14.00,14.00,-,y
+C6-8,Non-contextual,General Central Commercial,R10,10.00,12.00,10.00,10.00,,y
+C6-9,Non-contextual,General Central Commercial,R10,10.00,12.00,15.00,15.00,-,y
+C6-11,Non-contextual,General Central Commercial,R11,12.00,15.00,12.00,12.00,,y
+C6-12,Non-contextual,General Central Commercial,R12,15.00,18.00,15.00,15.00,,y
+C7,Non-contextual,Commercial Amusement,-,-,-,-,2.00,-,y
+C8-1,Non-contextual,General Service,-,-,-,2.40,1.00,-,y
+C8-2,Non-contextual,General Service,-,-,-,4.80,2.00,-,y
+C8-3,Non-contextual,General Service,-,-,-,6.50,2.00,-,y
+C8-4,Non-contextual,General Service,-,-,-,6.50,5.00,-,y
+M1-1,Non-contextual,Light Manufacturing,,-,-,2.40,1.00,1.00,y
+M1-1/R5,Non-contextual,Mixed Use,,1.50,2.00,2.00,1.00,1.00,y
+M1-1/R6A,Contextual,Mixed Use,,3.00,3.90,3.00,1.00,1.00,y
+M1-1/R7-2,Contextual,Mixed Use,,3.44,5.01,6.50,1.00,1.00,y
+M1-1/R7D,Contextual,Mixed Use,,4.66,5.60,4.66,1.00,1.00,y
+M1-1A/R6B,Contextual,Mixed Use,,2.00,2.40,2.00,2.00,2.00,
+M1-1A/R7-3,Non-contextual,Mixed Use,,5.00,6.00,6.50,2.00,2.00,
+M1-1D,Non-contextual,Light Manufacturing,,1.50,2.00,2.40,1.00,1.00,y
+M1-2,Non-contextual,Light Manufacturing,,-,-,4.80,2.00,2.00,y
+M1-2/R5B,Contextual,Mixed Use,,1.50,2.00,2.00,2.00,2.00,y
+M1-2/R5D,Contextual,Mixed Use,,2.00,2.00,2.00,2.00,2.00,y
+M1-2/R6,Non-contextual,Mixed Use,,2.43,3.90,4.80,2.00,2.00,y
+M1-2/R6A,Contextual,Mixed Use,,3.00,3.90,3.00,2.00,2.00,y
+M1-2/R6B,Contextual,Mixed Use,,2.00,2.40,2.00,2.00,2.00,y
+M1-2/R7-1,Non-contextual,Mixed Use,,3.44,5.01,4.80,2.00,2.00,
+M1-2/R7-2,Non-contextual,Mixed Use,,3.44,5.01,6.50,2.00,2.00,y
+M1-2/R7A,Contextual,Mixed Use,,4.00,5.01,4.00,2.00,2.00,y
+M1-2/R8,Non-contextual,Mixed Use,,6.02,7.20,6.50,2.00,2.00,y
+M1-2/R8A,Contextual,Mixed Use,,6.02,7.20,6.50,2.00,2.00,y
+M1-2A,Contextual,Light Manufacturing,,-,-,2.40,3.00,3.00,
+M1-2A/R6A,Contextual,Mixed Use,,3.00,3.90,3.00,3.00,3.00,
+M1-2D,Non-contextual,Light Manufacturing,,1.50,2.00,4.80,2.00,2.00,y
+M1-3,Non-contextual,Light Manufacturing,,-,-,6.50,5.00,5.00,y
+M1-3/R7D,Contextual,Mixed Use,,4.66,5.60,4.66,5.00,5.00,
+M1-3/R7X,Contextual,Mixed Use,,5.00,6.00,5.00,5.00,5.00,y
+M1-3/R8,Non-contextual,Mixed Use,,6.02,7.20,6.50,5.00,5.00,y
+M1-3A,Contextual,Light Manufacturing,,-,-,6.50,4.00,4.00,
+M1-3A/R7D,Contextual,Mixed Use,,4.66,5.60,4.66,4.00,4.00,
+M1-4,Non-contextual,Light Manufacturing,,-,-,6.50,2.00,2.00,y
+M1-4/R6A,Contextual,Mixed Use,,3.00,3.90,3.00,2.00,2.00,y
+M1-4/R6B,Contextual,Mixed Use,,2.00,2.40,2.00,2.00,2.00,y
+M1-4/R6,Non-contextual,Mixed Use,,2.43,3.90,4.80,2.00,2.00,
+M1-4/R7-2,Non-contextual,Mixed Use,,3.44,5.01,6.50,2.00,2.00,y
+M1-4/R7A,Contextual,Mixed Use,,4.00,5.01,4.00,2.00,2.00,y
+M1-4/R7D,Contextual,Mixed Use,,4.66,5.60,4.66,2.00,2.00,y
+M1-4/R7X,Contextual,Mixed Use,,5.00,6.00,5.00,2.00,2.00,y
+M1-4/R7-3,Non-contextual,Mixed Use,,5.00,6.00,6.50,2.00,2.00,
+M1-4/R8A,Contextual,Mixed Use,,6.02,7.20,6.50,2.00,2.00,y
+M1-4/R9,Non-contextual,Mixed Use,,7.52,9.02,10.00,2.00,2.00,
+M1-4/R9A,Contextual,Mixed Use,,7.52,9.02,7.50,2.00,2.00,
+M1-4A/R9A,Contextual,Mixed Use,,7.52,9.02,7.50,5.00,5.00,
+M1-4D,Non-contextual,Light Manufacturing,,1.50,2.00,6.50,2.00,2.00,y
+M1-5,Non-contextual,Light Manufacturing,,-,-,6.50,5.00,5.00,y
+M1-5/R10,Non-contextual,Mixed Use,,10.00,12.00,10.00,5.00,5.00,y
+M1-5/R6A,Contextual,Mixed Use,,3.00,3.90,3.00,5.00,5.00,
+M1-5/R7-2,Non-contextual,Mixed Use,,3.44,5.01,6.50,5.00,5.00,y
+M1-5/R7-3,Non-contextual,Mixed Use,,5.00,6.00,6.50,5.00,5.00,y
+M1-5/R7D,Contextual,Mixed Use,,4.66,5.60,4.66,5.00,5.00,
+M1-5/R7X,Contextual,Mixed Use,,5.00,6.00,5.00,5.00,5.00,y
+M1-5/R8A,Contextual,Mixed Use,,6.02,7.20,6.50,5.00,5.00,y
+M1-5/R9,Non-contextual,Mixed Use,,7.52,9.02,10.00,5.00,5.00,y
+M1-5/R9-1,Non-contextual,Mixed Use,,9.00,10.80,10.00,5.00,5.00,y
+M1-5/R9A,Contextual,Mixed Use,,7.52,9.02,7.50,5.00,5.00,
+M1-5/R9X,Contextual,Mixed Use,,9.00,10.80,9.00,5.00,5.00,
+M1-5A,Non-contextual,Light Manufacturing,,-,-,6.50,5.00,5.00,y
+M1-5B,Non-contextual,Light Manufacturing,,-,-,6.50,5.00,5.00,y
+M1-5M,Non-contextual,Light Manufacturing,,-,-,6.50,5.00,5.00,y
+M1-6,Non-contextual,Light Manufacturing,,-,-,10.00,10.00,10.00,y
+M1-6/R10,Non-contextual,Mixed Use,,10.00,12.00,10.00,10.00,10.00,y
+M1-6/R8X,Contextual,Mixed Use,,6.02,7.20,6.00,10.00,10.00,
+M1-6/R9,Non-contextual,Mixed Use,,7.52,9.02,10.00,10.00,10.00,y
+M1-6/R9X,Contextual,Mixed Use,,9.00,10.80,9.00,10.00,10.00,
+M1-6D,Contextual,Mixed Use,,10.00,12.00,10.00,10.00,10.00,y
+M2-1,Non-contextual,Medium Manufacturing,,-,-,-,2.00,2.00,y
+M2-2,Non-contextual,Medium Manufacturing,,-,-,-,5.00,5.00,y
+M2-3,Non-contextual,Medium Manufacturing,,-,-,-,2.00,2.00,y
+M2-4,Non-contextual,Medium Manufacturing,,-,-,-,5.00,5.00,y
+M3-1,Non-contextual,Heavy Manufacturing,,-,-,-,2.00,2.00,y
+M3-2,Non-contextual,Heavy Manufacturing,,-,-,-,2.00,2.00,y
+PARK,-,-,,-,-,-,-,-,
+PLAYGROUND,-,-,,-,-,-,-,-,
+PUBLIC PLACE,-,-,,-,-,-,-,-,
+R10,Non-contextual,High-Density Residence District,,10.00,12.00,10.00,-,-,y
+R10A,Contextual,High-Density Residence District,,10.00,12.00,10.00,-,-,y
+R10H,Non-contextual,High-Density Residence District,,10.00,12.00,10.00,,,
+R10X,Non-contextual,High-Density Residence District,,10.00,12.00,10.00,-,-,y
+R1-1,Non-contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R1-2,Non-contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R1-2A,Contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R2,Non-contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R2A,Contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R2X,Contextual,Low-Density Residence District,,1.00,1.00,1.00,-,-,y
+R3-1,Contextual,Low-Density Contextual Residence District,,0.75,1.00,1.00,-,-,y
+R3-2,Non-contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R3A,Contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R3X,Contextual,Low-Density Residence District,,0.75,1.00,1.00,-,-,y
+R4,Non-contextual,Low-Density Residence District,,1.00,1.50,2.00,-,-,y
+R4-1,Contextual,Low-Density Contextual Residence District,,1.00,1.50,2.00,-,-,y
+R4A,Contextual,Low-Density Residence District,,1.00,1.50,2.00,-,-,y
+R4B,Contextual,Low-Density Residence District,,1.00,1.50,2.00,-,-,y
+R5,Non-contextual,Low-Density Residence District,,1.50,2.00,2.00,-,-,y
+R5A,Contextual,Low-Density Residence District,,1.50,2.00,2.00,-,-,y
+R5B,Contextual,Low-Density Residence District,,1.50,2.00,2.00,-,-,y
+R5D,Contextual,Low-Density Residence District,,2.00,2.00,2.00,-,-,y
+R6,Non-contextual,Medium-Density Residence District,,2.43,3.90,4.80,-,-,y
+R6-1,Non-contextual,Medium-Density Residence District,,3,3.90,4.8,-,-,y
+R6-2,Non-contextual,Medium-Density Residence District,,2.50,3.00,2.50,-,-,y
+R6A,Contextual,Medium-Density Residence District,,3.00,3.90,3.00,-,-,y
+R6B,Contextual,Medium-Density Residence District,,2.00,2.40,2.00,-,-,y
+R6D,Contextual,Medium-Density Residence District,,2.50,3.00,2.50,-,-,y
+R7-1,Non-contextual,Medium-Density Residence District,,3.44,5.01,4.80,-,-,y
+R7-2,Non-contextual,Medium-Density Residence District,,3.44,5.01,6.50,-,-,y
+R7-3,Non-contextual,Medium-Density Residence District,,5.00,6.00,6.50,-,-,y
+R7A,Contextual,Medium-Density Residence District,,4.00,5.01,4.00,-,-,y
+R7B,Contextual,Medium-Density Residence District,,3.00,3.90,3.00,-,-,y
+R7D,Contextual,Medium-Density Residence District,,4.66,5.60,4.66,-,-,y
+R7X,Contextual,Medium-Density Residence District,,5.00,6.00,5.00,-,-,y
+R8,Non-contextual,High-Density Residence District,,6.02,7.20,6.50,-,-,y
+R8A,Contextual,Medium-Density Residence District,,6.02,7.20,6.50,-,-,y
+R8B,Contextual,Medium-Density Residence District,,4.00,4.80,4.00,-,-,y
+R8X,Contextual,Medium-Density Residence District,,6.02,7.20,6.00,-,-,y
+R9,Non-contextual,High-Density Residence District,,7.52,9.02,10.00,-,-,y
+R9-1,Non-contextual,High-Density Residence District,,9.00,10.80,10.00,-,-,y
+R9A,Contextual,High-Density Residence District,,7.52,9.02,7.50,-,-,y
+R9X,Contextual,High-Density Residence District,,9.00,10.80,9.00,-,-,y
+R11,Non-contextual,High-Density Residence District,,12.00,15.00,12.00,,,y
+R11A,Contextual,High-Density Residence District,,12.00,15.00,12.00,,,y
+R12,Non-contextual,High-Density Residence District,,15.00,18.00,15.00,,,y

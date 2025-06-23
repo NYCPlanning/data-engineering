@@ -99,7 +99,7 @@ WHERE
     a.bbl = b.primebbl
     AND b.tl LIKE '75%'
     AND b.condo_number IS NOT NULL
-    AND b.condo_number != '0';
+    AND b.condo_number <> '0';
 
 -- populate the fields that where values are aggregated
 -- Building area
@@ -111,7 +111,7 @@ WITH bldgareasums AS (
     WHERE
         b.tl NOT LIKE '75%'
         AND b.condo_number IS NOT NULL
-        AND b.condo_number != '0'
+        AND b.condo_number <> '0'
     GROUP BY primebbl
 )
 
@@ -159,6 +159,24 @@ SET
     exempttot = b.exempttot
 FROM primesums AS b
 WHERE a.bbl = b.primebbl;
+
+-- appbbl - when missing from condo lot, assign from unit lot
+WITH unit_appbbls AS (
+    SELECT
+        prg.primebbl,
+        min(prg.ap_boro || lpad(prg.ap_block, 5, '0') || lpad(prg.ap_lot, 4, '0')) AS appbbl
+    FROM pluto_allocated AS pa
+    INNER JOIN pluto_rpad_geo AS prg ON pa.bbl = prg.primebbl AND prg.primebbl <> prg.bbl
+    WHERE
+        pa.appbbl IS NULL
+        AND right(pa.bbl, 4) LIKE '75%'
+    GROUP BY prg.primebbl
+)
+
+UPDATE pluto_allocated pa
+SET appbbl = unit_appbbls.appbbl
+FROM unit_appbbls
+WHERE pa.bbl = unit_appbbls.primebbl;
 
 -- fill in missing attributes from supplementary table (temp solution)
 UPDATE pluto_allocated a
