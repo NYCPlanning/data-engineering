@@ -18,7 +18,8 @@ CREATE TABLE lookup_ownership (
 DROP TABLE IF EXISTS lookup_now_types;
 CREATE TABLE lookup_now_types (
     code text,
-    description text
+    description text,
+    source text
 );
 \COPY lookup_now_types FROM 'data/lookup_now_types.csv' DELIMITER ',' CSV HEADER;
 

@@ -1,24 +1,24 @@
-code,description
-AN,Antenna
-BE,Boiler Equipment
-CC,Curb Cut
-EA,Earthwork
-EL,Electrical
-FN,Construction Fence
-FO,Foundation
-GC-CX,Combined (GC + others)
-GC,General Construction
-LA,Limited Alteration Applications (LAA)
-MS,Mechanical Systems
-PA,Place of Assembly
-PL,Plumbing
-PM,Protection and Mechanical Methods
-SD,Standpipe
-SE,Support of Excavation
-SF,Supported Scaffold
-SG,Sign
-SH,Sidewalk Shed
-SP,Sprinkler
-ST,Structural
-TA,Temporary Place of Assembly
-VT,Elevator
+code,description,source
+AN,Antenna,DOB website
+BE,Boiler Equipment,DOB website
+CC,Curb Cut,DOB website
+EA,Earthwork,DOB website
+EL,Electrical,DOB website
+FN,Construction Fence,DOB website
+FO,Foundation,DOB website
+GC-CX,Combined (GC + others),DOB website
+GC,General Construction,DOB website
+LA,Limited Alteration Applications (LAA),DOB website
+MS,Mechanical Systems,DOB website
+PA,Place of Assembly,DOB website
+PL,Plumbing,DOB website
+PM,Protection and Mechanical Methods,DOB website
+SD,Standpipe,DOB website
+SE,Support of Excavation,DOB website
+SF,Supported Scaffold,DOB website
+SG,Sign,DOB website
+SH,Sidewalk Shed,DOB website
+SP,Sprinkler,DOB website
+ST,Structural,DOB website
+TA,Temporary Place of Assembly,DOB website
+VT,Elevator,DOB website
