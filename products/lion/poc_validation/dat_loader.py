@@ -87,7 +87,7 @@ def load_all(
     for boro in boros:
         file = boro.replace(" ", "") + "LION.dat"
         table = boro.lower().replace(" ", "_") + "_lion" + suffix
-        load_dat(folderpath / file, table, "production_outputs", schema=schema)
+        load_dat(folderpath / file, table, schema=schema)
 
 
 if __name__ == "__main__":
