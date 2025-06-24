@@ -8,7 +8,7 @@ ingestion:
   source:
     type: s3
     bucket: edm-private
-    key: cscl_etl/ETL Working GDB.gdb.zip
+    key: cscl_etl/{{ version }}/ETL Working GDB.gdb.zip
   file_format:
     type: geodatabase
     layer: SPECIALSEDAT
