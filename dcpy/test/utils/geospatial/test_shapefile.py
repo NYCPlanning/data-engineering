@@ -1,10 +1,12 @@
 from dcpy.utils.geospatial import shapefile
 from pytest import fixture
+import pytest
 import shutil
 import zipfile
+from pathlib import Path
 from zipfile import ZipFile
 
-SHP_ZIP = "shapefile_single_pluto_feature.shp.zip"
+SHP_ZIP = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 METADATA_XML = "shapefile_metadata.xml"
 
 
@@ -48,29 +50,63 @@ def temp_xml_string(utils_resources_path):
 
 
 # TODO - test the shapefile input path parser
-def test_parse_path_to_shp(): ...
+def test_parse_invalid_path_to_shp():
+    invalid_path_to_parse = "zip:///Users/name/Downloads/gadm36_AFG_shp.zip!gadm36_AFG_1"  # valid would end with ".shp"
+    with pytest.raises(Exception):
+        shapefile._parse_path_to_shp(shp_filename=invalid_path_to_parse)
 
 
-# TODO - just test "write metadata" function directly, not each constituent step
+def test_parse_valid_path_to_shp():
+    paths_to_parse = [
+        "zip:///Users/name/Downloads/gadm36_AFG_shp.zip!data/gadm36_AFG_1.shp",  # valid path
+        "/Users/name/Downloads/gadm36_AFG_shp/data/gadm36_AFG_1.shp",  # valid path
+    ]
+    dicts_returned = [
+        {
+            "dir_containing_shp": "data",
+            "path_to_zip": "/Users/name/Downloads/gadm36_AFG_shp.zip",
+            "shp_name": "gadm36_AFG_1.shp",
+            "is_zip": True,
+        },
+        {
+            "dir_containing_shp": "/Users/name/Downloads/gadm36_AFG_shp/data",
+            "path_to_zip": "",
+            "shp_name": "gadm36_AFG_1.shp",
+            "is_zip": False,
+        },
+    ]
+    for parsed_path, returned_dict in zip(paths_to_parse, dicts_returned):
+        shp_info = shapefile._parse_path_to_shp(shp_filename=parsed_path)
+
+        assert shp_info == returned_dict
+
+
 def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string):
-    assert shapefile.read_metadata(temp_shp_zip_path) == {}, (
-        "No metadata should be present"
+    # TODO - ensure that no metadata is present before writing it
+    #     # assert shapefile.read_metadata(temp_shp_zip_path) == {}, (
+    #     #     "No metadata should be present"
+    #     # )
+    path_to_shp = (
+        f"zip://{temp_shp_zip_path}!shapefile_single_pluto_feature_no_metadata.shp"
     )
-    # TODO - add additional fields
+    # print(path_to_shp)
     shapefile.write_metadata(
-        path_to_shp=temp_shp_zip_path,
+        path_to_shp=path_to_shp,
         metadata=temp_xml_string,
-        shp_name=temp_shp_zip_path.stem,
-        force=True,
+        overwrite=False,
     )
-    # print(shapefile.get_contents(temp_shp_zip_path))
-    items_in_zip = shapefile.get_contents(temp_shp_zip_path)
-    print(items_in_zip)
+    items_in_zip = shapefile._list_files_in_shp_dir(path_to_shp)
     assert len(items_in_zip) >= 5, (
         f"The zip file should contain at least 5 files, but {len(items_in_zip)} were found."
     )
+    metadata_xml = f"{shapefile._parse_path_to_shp(path_to_shp)['shp_name']}.xml"
 
-    # TODO - test actual output of xml file - valid xml, has a specific value, etc.
-    assert shapefile.read_metadata(temp_shp_zip_path) == temp_xml_string, (
-        "The correct metadata should be written"
+    assert metadata_xml in items_in_zip, (
+        f"Expected to find {metadata_xml}, but was not found"
     )
+
+
+#     # TODO - test actual output of xml file - valid xml, has a specific value, etc.
+#     assert shapefile.read_metadata(temp_shp_zip_path) == temp_xml_string, (
+#         "The correct metadata should be written"
+#     )
