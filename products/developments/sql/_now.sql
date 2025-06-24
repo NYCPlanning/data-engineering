@@ -269,7 +269,7 @@ description_lists AS (
     SELECT
         work_type_codes,
         string_agg(
-            work_types_lookup.description, '/'
+            coalesce(work_types_lookup.description, concat('UNKNOWN (', work_type_codes, ')')), '/'
             ORDER BY work_types_lookup.description ASC
         ) AS work_type_descriptions
     FROM exploded_codes
