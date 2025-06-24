@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 
 metadata_xml_template = """
 <?xml version="1.0"?>
@@ -60,6 +60,19 @@ metadata_xml_template = """
 # is a zip file, whether it is a folder containing 1 shp or
 # more than one shp. See geopandas.read_file() for syntax.
 # TODO - verify with Alex, and fold into other functions if approved
+def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
+    zip_file = Path(zip_file)
+    temp_zip = zip_file.parent / (zip_file.name + ".tmp")
+
+    with ZipFile(zip_file, "r") as old_zip:
+        with ZipFile(temp_zip, "w", compression=ZIP_DEFLATED) as new_zip:
+            for item in old_zip.infolist():
+                if item.filename != file_to_remove:
+                    data = old_zip.read(item.filename)
+                    new_zip.writestr(item, data)
+    os.replace(temp_zip, zip_file)
+
+
 def _parse_path_to_shp(shp_filename: str) -> dict:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
@@ -80,97 +93,129 @@ def _parse_path_to_shp(shp_filename: str) -> dict:
         dict: _description_
     """
     shp_filename = str(shp_filename)
+
     if not shp_filename.endswith(".shp"):
         raise Exception("Filename must be a full shapefile path, ending with '.shp'")
 
-    # TODO - should this return path objects for the relevant values?
+    # TODO - should this return path objects for the relevant values, or handle empty values more safely?
     output = {
         "dir_containing_shp": "",
         "path_to_zip": "",
         "shp_name": "",
-        "zip": False,
+        "is_zip": False,
     }
     # indicators / delimiters
     zip_indicator = "zip://"
-    end_of_zip_indicator = ".zip!"
+    end_of_zip_delimiter = ".zip!"
 
     if shp_filename.startswith(zip_indicator):  # syntax indicating a zip file
         start_path_idx = len(zip_indicator)
 
-        # Get zip bool ------------------------
-        output["zip"] = True
+        # Set zip bool ------------------------
+        output["is_zip"] = True
 
-        # Get zip dir -------------------------
-        if end_of_zip_indicator in shp_filename:
-            end_of_zip_idx = shp_filename.find(end_of_zip_indicator) + (
-                len(end_of_zip_indicator) - 1
+        # Set zip dir -------------------------
+        if end_of_zip_delimiter in shp_filename:
+            end_of_zip_idx = shp_filename.find(end_of_zip_delimiter) + (
+                len(end_of_zip_delimiter) - 1
             )
 
             output["path_to_zip"] = shp_filename[start_path_idx:end_of_zip_idx]
 
-        # Get shp dir -------------------------
+        # Set shp dir -------------------------
         path_in_zip_to_shp = Path(shp_filename[end_of_zip_idx + 1 :])
         if len(path_in_zip_to_shp.parts) > 1:
             output["dir_containing_shp"] = str(path_in_zip_to_shp.parent)
 
-        # Get shp name ------------------------
+        # Set shp name ------------------------
         output["shp_name"] = path_in_zip_to_shp.name
     else:
-        # Get shp dir -------------------------
+        # Set shp dir -------------------------
         output["dir_containing_shp"] = str(Path(shp_filename).parent)
 
-        # Get shp name ------------------------
+        # Set shp name ------------------------
         output["shp_name"] = Path(shp_filename).name
 
     return output
 
 
-def _remove_item_from_zip_file(zip_file: Path, file_to_remove: str):
-    temp_zip = zip_file.parent / (zip_file.name + ".tmp")
+def write_metadata(
+    path_to_shp: str | Path,
+    metadata: str,
+    overwrite: bool = False,
+) -> None:
+    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
 
-    with ZipFile(zip_file, "r") as old_zip:
-        with ZipFile(temp_zip, "w") as new_zip:
-            for item in old_zip.infolist():
-                if item.filename != file_to_remove:
-                    data = old_zip.read(item.filename)
-                    new_zip.writestr(item, data)
-    os.replace(temp_zip, zip_file)
+    xml_output = f"{shp_info['shp_name']}.xml"
+    # md_exists_msg = "Metadata exists, and 'overwrite' set to False. Will not overwrite."
+
+    # process zip files ------------------------
+    if shp_info["is_zip"]:
+        with ZipFile(shp_info["path_to_zip"], "r") as zf:
+            items_in_zip = zf.namelist()
+        # handle existing metadata
+        if xml_output in items_in_zip:
+            if overwrite:
+                _remove_item_from_zip_file(
+                    zip_file=shp_info["path_to_zip"], file_to_remove=xml_output
+                )
+
+                with ZipFile(
+                    shp_info["path_to_zip"], "a", compression=ZIP_DEFLATED
+                ) as shp:
+                    shp.writestr(xml_output, metadata)
+
+            if not overwrite:
+                pass
+
+        else:
+            with ZipFile(shp_info["path_to_zip"], "a", compression=ZIP_DEFLATED) as shp:
+                shp.writestr(xml_output, metadata)
+
+    # process non zipped files -------------------
+    elif not shp_info["is_zip"]:
+        # handle existing metadata
+        if (Path(shp_info["dir_containing_shp"] / xml_output)).is_file():
+            if overwrite:
+                with open(xml_output, "w") as xml_file:
+                    xml_file.write(metadata)
+            if not overwrite:
+                pass
 
 
 def remove_metadata(): ...
 
 
-def write_metadata(
-    path_to_shp: Path, metadata: str, shp_name: str, force: bool = False
-) -> None:
-    # coerce provided shp name to include '.shp' suffix, if not already
-    if not shp_name.endswith(".shp"):
-        shp_name = f"{shp_name}.shp"
+def _list_files_in_shp_dir(path_to_shp: Path) -> list[str] | None:
+    """Returns all files present at same level as specified {filename}.shp file
 
-    xml_output = f"{shp_name}.xml"
+    Args:
+        path_to_shp (Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip:///Users/name/files.zip!data/gadm36_AFG_1.shp"
+            - example without zip file: "/Users/name/files/data/gadm36_AFG_1.shp"
 
-    with ZipFile(path_to_shp, "r") as zf:
-        items_in_zip = zf.namelist()
+    Returns:
+        list[str]: List of files in same directory as specified shapefile
+    """
+    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
 
-    if xml_output in items_in_zip and force is False:
-        return print(
-            "Metadata file already exists, and 'force' is set to False. Nothing will be overwritten."
-        )
+    # process zip files ------------------------
+    if shp_info["is_zip"]:
+        with ZipFile(shp_info["path_to_zip"], "r") as archive:
+            return archive.namelist()
 
-    if xml_output in items_in_zip and force is True:
-        _remove_item_from_zip_file(zip_file=path_to_shp, file_to_remove=xml_output)
-
-    with ZipFile(path_to_shp, "a") as shp:
-        if shp_name in shp.namelist():
-            shp.writestr(xml_output, metadata)
+    # process non zipped files -----------------
+    elif not shp_info["is_zip"]:
+        if not shp_info["dir_containing_shp"]:
+            shp_dir = Path(os.getcwd())
         else:
-            print(f"\n'{shp_name}' not found in zip contents:")
-            print(f"{shp.printdir()}")
-
-
-def get_contents(zip_file: Path) -> list:
-    with ZipFile(zip_file, "r") as archive:
-        return archive.namelist()
+            shp_dir = Path(shp_info["dir_containing_shp"])
+        return [str(item) for item in shp_dir.iterdir()]
+    else:
+        return None
 
 
 ##---------------------------------------------------------------
