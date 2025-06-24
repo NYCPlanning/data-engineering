@@ -4,20 +4,25 @@ BE,Boiler Equipment,DOB website
 CC,Curb Cut,DOB website
 EA,Earthwork,DOB website
 EL,Electrical,DOB website
+FD,Full Demolition,DCP research
 FN,Construction Fence,DOB website
 FO,Foundation,DOB website
 GC-CX,Combined (GC + others),DOB website
 GC,General Construction,DOB website
+GR,Green Roof,DCP research
 LA,Limited Alteration Applications (LAA),DOB website
 MS,Mechanical Systems,DOB website
 PA,Place of Assembly,DOB website
 PL,Plumbing,DOB website
 PM,Protection and Mechanical Methods,DOB website
+PMM,Protection and Mechanical Methods,DCP research
+SC,Suspended Scaffold,DCP research
 SD,Standpipe,DOB website
 SE,Support of Excavation,DOB website
 SF,Supported Scaffold,DOB website
 SG,Sign,DOB website
 SH,Sidewalk Shed,DOB website
+SL,Solar,DCP research
 SP,Sprinkler,DOB website
 ST,Structural,DOB website
 TA,Temporary Place of Assembly,DOB website
