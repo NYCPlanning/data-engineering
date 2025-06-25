@@ -104,13 +104,7 @@ SELECT
             OR (classa_init IS NOT NULL AND classa_init != '0')
             OR (classa_prop IS NOT NULL AND classa_prop != '0')
             THEN 'Residential'
-    END AS resid_flag,
-    job_type IN ('Alteration (A2)', 'Alteration (Non-CO)') AS presumed_a2_alteration,
-    datasource = 'bis' OR (
-        job_desc IS NOT NULL
-        AND lower(job_desc) LIKE '%combin%'
-        AND lower(job_desc) NOT LIKE '%sprinkler%'
-    ) AS meets_bis_a2_inclusion_rules
+    END AS resid_flag
 INTO _units_devdb_resid_flag
 FROM _units_devdb_raw;
 
@@ -121,11 +115,28 @@ CORRECTIONS
 CALL apply_correction(:'build_schema', '_UNITS_devdb_resid_flag', '_manual_corrections', 'resid_flag');
 
 /*
-Separate A2 job types from other types of records with units
+Determine all A2 job details
 */
+DROP TABLE IF EXISTS _units_devdb_a2_details;
+SELECT
+    _units_devdb_resid_flag.*,
+    job_type IN ('Alteration (A2)', 'Alteration (Non-CO)') AS presumed_a2_alteration,
+    datasource = 'bis' OR (
+        job_desc IS NOT NULL
+        AND lower(job_desc) LIKE '%combin%'
+        AND lower(job_desc) NOT LIKE '%sprinkler%'
+    ) AS meets_bis_a2_inclusion_rules,
+    a2_corrections.job_number IS NOT NULL AS include_a2_record,
+    a2_corrections.reason AS a2_inclusion_reason
+INTO _units_devdb_a2_details
+FROM _units_devdb_resid_flag
+LEFT JOIN a2_corrections
+    ON _units_devdb_resid_flag.job_number = a2_corrections.job_number;
+
+
 DROP TABLE IF EXISTS export_a2_devdb;
 SELECT * INTO export_a2_devdb
-FROM _units_devdb_resid_flag
+FROM _units_devdb_a2_details
 WHERE presumed_a2_alteration;
 
 DROP TABLE IF EXISTS _units_devdb;
@@ -143,8 +154,8 @@ SELECT
     otherb_prop,
     resid_flag
 INTO _units_devdb
-FROM _units_devdb_resid_flag
-WHERE NOT presumed_a2_alteration;
+FROM _units_devdb_a2_details
+WHERE NOT (presumed_a2_alteration AND NOT include_a2_record);
 
 /*
 NULL out units fields where corrected resid_flag is NULL.
