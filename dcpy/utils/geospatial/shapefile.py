@@ -1,5 +1,4 @@
 import os
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -36,8 +35,8 @@ metadata_xml_template = """
 
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
-# TODO - account for more complex nesting within zip
 # TODO - add argument create new shp output, rather than overwriting in place
+# DONE - account for more complex nesting within zip - see zipfile work
 # DONE - explore using zipfile to add xml metadata within context manager
 # DONE - swap out xml Path for str - adjust to read from stringified XML template
 # DONE - call from within shapefile fxn
@@ -184,6 +183,42 @@ def write_metadata(
 
 
 def remove_metadata(): ...
+
+
+def _get_metadata_xml_name(file_list: list, shp_name: str) -> str:
+    shp_name_no_suffix = Path(shp_name).stem
+    file_list_names_only = [Path(item).name for item in file_list]
+    matched_files = [
+        item
+        for item in file_list_names_only
+        if item.startswith(shp_name_no_suffix) and item.endswith((".xml", ".shp.xml"))
+    ]
+    if len(matched_files) != 1:
+        raise Exception(
+            f"Expected a single xml with name '{shp_name_no_suffix}', but found {len(matched_files)}"
+        )
+    else:
+        return matched_files[0]
+
+
+def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
+    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
+    items_present: list = _list_files_in_shp_dir(path_to_shp)
+    # this is req'd to handle metadata ending in either ".xml" or ".shp.xml"
+    xml_filename: str = _get_metadata_xml_name(
+        file_list=items_present, shp_name=shp_info["shp_name"]
+    )
+    # access zip files ------------------------
+    if shp_info["is_zip"]:
+        with ZipFile(shp_info["path_to_zip"], "r") as zf:
+            metadata = zf.read(xml_filename).decode(encoding=encoding)
+            return metadata
+
+    # access non zipped files -------------------
+    else:
+        path_to_xml = Path(shp_info["dir_containing_shp"]) / xml_filename
+        with open(path_to_xml, "r") as metadata:
+            return metadata.read()
 
 
 def _list_files_in_shp_dir(path_to_shp: Path) -> list[str] | None:
