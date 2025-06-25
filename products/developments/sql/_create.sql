@@ -33,21 +33,13 @@ CREATE TABLE _manual_corrections (
     edited_date text,
     editor text
 );
-\COPY _manual_corrections FROM 'data/manual_corrections.csv' DELIMITER ',' CSV HEADER;
+\COPY _manual_corrections FROM 'data/corrections/manual_corrections.csv' DELIMITER ',' CSV HEADER;
 
-DROP TABLE IF EXISTS corr_hny_matches;
-CREATE TABLE corr_hny_matches (
+DROP TABLE IF EXISTS hny_corrections;
+CREATE TABLE hny_corrections (
     hny_id text,
     job_number text,
     hny_project_id text,
     action text
 );
-\COPY CORR_hny_matches FROM 'data/CORR_hny_matches.csv' DELIMITER ',' CSV HEADER;
-
-
-DROP TABLE IF EXISTS housing_input_hny;
-CREATE TABLE housing_input_hny (
-    job_number text,
-    hny_id text
-);
-\COPY housing_input_hny FROM 'data/housing_input_hny.csv' DELIMITER ',' CSV HEADER;
+\COPY hny_corrections FROM 'data/corrections/hny_corrections.csv' DELIMITER ',' CSV HEADER;
