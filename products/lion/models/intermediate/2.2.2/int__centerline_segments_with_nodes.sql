@@ -25,9 +25,9 @@ SELECT
     to_sm.sectional_map AS to_sectionalmap
 FROM centerline
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_from
-    ON st_dwithin(centerline.from_geom, n_from.geom, 0.001)
+    ON st_dwithin(centerline.from_geom, n_from.geom, 0.01)
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_to
-    ON st_dwithin(centerline.to_geom, n_to.geom, 0.001)
+    ON st_dwithin(centerline.to_geom, n_to.geom, 0.01)
 LEFT JOIN
     {{ source("recipe_sources", "dcp_cscl_sectionalmap") }} AS from_sm
     ON st_contains(from_sm.geom, centerline.from_geom)
