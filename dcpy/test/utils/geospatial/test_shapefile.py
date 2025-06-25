@@ -3,8 +3,6 @@ from pytest import fixture
 import pytest
 import shutil
 import zipfile
-from pathlib import Path
-from zipfile import ZipFile
 
 SHP_ZIP = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 METADATA_XML = "shapefile_metadata.xml"
