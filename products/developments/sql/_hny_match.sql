@@ -25,7 +25,7 @@ DESCRIPTION:
     4) Create HNY_matches:
         For each hny_id, find the highest-priority match(es). This will either be the best
         match, or multiple matches at the same priority-level. Add/remove matches using
-        CORR_hny_matches.
+        hny_corrections.
     5) Assign flags to indicate one_hny_to_many_dev and/or one_dev_to_many_hny.
     6) Resolve the one-to-many, many-to-one, and many-to-many cases in HNY_matches
         in order to create HNY_lookup
@@ -70,7 +70,7 @@ INPUTS:
         ...
     )
 
-    CORR_hny_matches (
+    hny_corrections (
         job_number text,
 		hny_id text,
 		hny_project_id text,
@@ -111,7 +111,7 @@ IN PREVIOUS VERSION:
     dob_affordable_units.sql
 */
 
-CREATE TABLE IF NOT EXISTS corr_hny_matches (
+CREATE TABLE IF NOT EXISTS hny_corrections (
     hny_id text,
     job_number text,
     hny_project_id text,
@@ -313,7 +313,7 @@ WHERE
     hny_id || job_number
     IN (
         SELECT hny_id || job_number
-        FROM corr_hny_matches
+        FROM hny_corrections
         WHERE action = 'remove'
     )
     AND hny_id || job_number
@@ -329,14 +329,14 @@ SELECT
     a.job_number,
     b.total_units,
     b.all_counted_units
-FROM corr_hny_matches AS a
+FROM hny_corrections AS a
 INNER JOIN hny_geo AS b
     ON a.hny_id = b.hny_id
 WHERE
     a.hny_id || a.job_number
     IN (
         SELECT hny_id || job_number
-        FROM corr_hny_matches
+        FROM hny_corrections
         WHERE action = 'add'
     )
     AND a.hny_id || a.job_number

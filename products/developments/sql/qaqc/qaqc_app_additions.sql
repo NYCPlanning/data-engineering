@@ -20,7 +20,7 @@ FROM final_devdb AS a;
 ALTER TABLE qaqc_app_additions ADD manual_hny_match_check int;
 WITH manual_hny_match AS (
     SELECT job_number
-    FROM corr_hny_matches
+    FROM hny_corrections
     WHERE
         action = 'add'
         AND

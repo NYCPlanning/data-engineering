@@ -36,7 +36,7 @@ mkdir -p output
     wait
     
     display "Export Corrections"
-    csv_export CORR_hny_matches &
+    csv_export hny_corrections &
     csv_export corrections_applied &
     csv_export corrections_not_applied &
     csv_export corrections_reference &
