@@ -155,7 +155,7 @@ SELECT
     resid_flag
 INTO _units_devdb
 FROM _units_devdb_a2_details
-WHERE NOT (presumed_a2_alteration AND NOT include_a2_record);
+WHERE (NOT presumed_a2_alteration) OR include_a2_record;
 
 /*
 NULL out units fields where corrected resid_flag is NULL.
