@@ -26,4 +26,4 @@ SELECT
     offsets.left_offset_point,
     offsets.right_offset_point
 FROM centerline,
-    LATERAL offset_points(centerline.geom, 1.9) AS offsets (left_offset_point geometry, right_offset_point geometry)
+    LATERAL offset_points(centerline.geom, 2) AS offsets (left_offset_point geometry, right_offset_point geometry)
