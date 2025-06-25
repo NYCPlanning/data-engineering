@@ -35,6 +35,15 @@ CREATE TABLE _manual_corrections (
 );
 \COPY _manual_corrections FROM 'data/corrections/manual_corrections.csv' DELIMITER ',' CSV HEADER;
 
+DROP TABLE IF EXISTS a2_corrections;
+CREATE TABLE a2_corrections (
+    job_number text,
+    reason text,
+    edited_date text,
+    editor text
+);
+\COPY a2_corrections FROM 'data/corrections/a2_corrections.csv' DELIMITER ',' CSV HEADER;
+
 DROP TABLE IF EXISTS hny_corrections;
 CREATE TABLE hny_corrections (
     hny_id text,
