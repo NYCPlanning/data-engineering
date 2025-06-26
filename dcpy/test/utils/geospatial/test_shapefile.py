@@ -3,21 +3,35 @@ from pytest import fixture
 import pytest
 import shutil
 import zipfile
+from pathlib import Path
 
-SHP_ZIP = "shapefile_single_pluto_feature_no_metadata.shp.zip"
+SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
+SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
 METADATA_XML = "shapefile_metadata.xml"
 
 
 @fixture
-def temp_shp_zip_path(utils_resources_path, tmp_path):
+def temp_shp_zip_no_md_path(utils_resources_path, tmp_path):
     shutil.copy2(
-        src=utils_resources_path / SHP_ZIP,
-        dst=tmp_path / SHP_ZIP,
+        src=utils_resources_path / SHP_ZIP_NO_MD,
+        dst=tmp_path / SHP_ZIP_NO_MD,
     )
-    assert zipfile.is_zipfile(tmp_path / SHP_ZIP), (
-        f"'{SHP_ZIP}' should be a valid zip file"
+    assert zipfile.is_zipfile(tmp_path / SHP_ZIP_NO_MD), (
+        f"'{SHP_ZIP_NO_MD}' should be a valid zip file"
     )
-    return tmp_path / SHP_ZIP
+    return tmp_path / SHP_ZIP_NO_MD
+
+
+@fixture
+def temp_shp_zip_with_md_path(utils_resources_path, tmp_path):
+    shutil.copy2(
+        src=utils_resources_path / SHP_ZIP_WITH_MD,
+        dst=tmp_path / SHP_ZIP_WITH_MD,
+    )
+    assert zipfile.is_zipfile(tmp_path / SHP_ZIP_WITH_MD), (
+        f"'{SHP_ZIP_WITH_MD}' should be a valid zip file"
+    )
+    return tmp_path / SHP_ZIP_WITH_MD
 
 
 @fixture
@@ -29,20 +43,20 @@ def temp_xml_string(utils_resources_path):
     return xml_output
 
 
-# def test_unzip_shapefile(temp_shp_zip_path, tmp_path):
+# def test_unzip_shapefile(temp_shp_zip_no_md_path, tmp_path):
 #     shapefile._unpack_simple_shp(
-#         zip_file_path=Path(temp_shp_zip_path), unzip_to=tmp_path
+#         zip_file_path=Path(temp_shp_zip_no_md_path), unzip_to=tmp_path
 #     )
-#     assert (tmp_path / temp_shp_zip_path.stem).is_dir(), (
-#         f"'{temp_shp_zip_path.stem}' should be a directory"
+#     assert (tmp_path / temp_shp_zip_no_md_path.stem).is_dir(), (
+#         f"'{temp_shp_zip_no_md_path.stem}' should be a directory"
 #     )
 #     assert (
-#         tmp_path / temp_shp_zip_path.stem / f"{temp_shp_zip_path.stem}.shp"
+#         tmp_path / temp_shp_zip_no_md_path.stem / f"{temp_shp_zip_no_md_path.stem}.shp"
 #     ).is_file(), "A .shp file should be present"
 
 
-# def test_shp_w_no_metadata(temp_shp_zip_path):
-#     assert shapefile.read_metadata(temp_shp_zip_path) == {}, (
+# def test_shp_w_no_metadata(temp_shp_zip_no_md_path):
+#     assert shapefile.read_metadata(temp_shp_zip_no_md_path) == {}, (
 #         "No metadata should be present"
 #     )
 
@@ -79,14 +93,12 @@ def test_parse_valid_path_to_shp():
         assert shp_info == returned_dict
 
 
-def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string):
-    # TODO - ensure that no metadata is present before writing it
-    #     # assert shapefile.read_metadata(temp_shp_zip_path) == {}, (
-    #     #     "No metadata should be present"
-    #     # )
-    path_to_shp = (
-        f"zip://{temp_shp_zip_path}!shapefile_single_pluto_feature_no_metadata.shp"
-    )
+def test_add_metadata_to_shp_no_existing_metadata(
+    temp_shp_zip_no_md_path, temp_xml_string
+):
+    # TODO - ensure that metadata is *not* present before writing it
+
+    path_to_shp = f"zip://{temp_shp_zip_no_md_path}!{temp_shp_zip_no_md_path.stem}"
     # print(path_to_shp)
     shapefile.write_metadata(
         path_to_shp=path_to_shp,
@@ -104,7 +116,28 @@ def test_add_metadata_to_shp(temp_shp_zip_path, temp_xml_string):
     )
 
 
-#     # TODO - test actual output of xml file - valid xml, has a specific value, etc.
-#     assert shapefile.read_metadata(temp_shp_zip_path) == temp_xml_string, (
-#         "The correct metadata should be written"
-#     )
+def test_add_metadata_to_shp_with_existing_metadata(
+    temp_shp_zip_with_md_path, temp_xml_string
+):
+    # TODO - ensure that metadata *is* present before writing it
+
+    path_to_shp = f"zip://{temp_shp_zip_with_md_path}!{temp_shp_zip_with_md_path.stem}"
+    # print(path_to_shp)
+    shapefile.write_metadata(
+        path_to_shp=path_to_shp,
+        metadata=temp_xml_string,
+        overwrite=False,
+    )
+    items_in_zip = shapefile._list_files_in_shp_dir(path_to_shp)
+    assert len(items_in_zip) >= 5, (
+        f"The zip file should contain at least 5 files, but {len(items_in_zip)} were found."
+    )
+    metadata_xml = f"{shapefile._parse_path_to_shp(path_to_shp)['shp_name']}.xml"
+
+    assert metadata_xml in items_in_zip, (
+        f"Expected to find {metadata_xml}, but was not found"
+    )
+
+
+# TODO - test actual output of xml file - valid xml, has a specific value, etc.
+# def test_read_metadata(temp_shp_zip_no_md_path)
