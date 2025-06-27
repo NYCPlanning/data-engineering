@@ -12,6 +12,10 @@ on:
         options:
           - dcp_projects
           - dcp_projectbbls
+      dev_bucket:
+        description: dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'
+        type: string
+        required: false
 
 jobs:
   build:
@@ -23,9 +27,10 @@ jobs:
     container:
       image: nycplanning/build-base:latest
     env:
-      RECIPES_BUCKET: edm-recipes
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      PRIVATE_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-private' }}
       EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
-
     steps:
       - uses: actions/checkout@v4
 

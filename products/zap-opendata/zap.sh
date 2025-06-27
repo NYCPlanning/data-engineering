@@ -70,16 +70,16 @@ case $1 in
     upload_crm_do )
         dataset=$2
         version=${3:-$VERSION}
-        upload_to_digital_ocean ${dataset} ${version} "crm" "edm-private"
+        upload_to_digital_ocean ${dataset} ${version} "crm" "$PRIVATE_BUCKET"
     ;;
     upload_internal_do )
         dataset=$2
         version=${3:-$VERSION}
-        upload_to_digital_ocean ${dataset} ${version} "internal" "edm-private"
+        upload_to_digital_ocean ${dataset} ${version} "internal" "$PRIVATE_BUCKET"
     ;;
     upload_visible_do )
         dataset=$2
         version=${3:-$VERSION}
-        upload_to_digital_ocean ${dataset} ${version} "visible" "edm-publishing"
+        upload_to_digital_ocean ${dataset} ${version} "visible" "$PUBLISHING_BUCKET"
 
 esac
