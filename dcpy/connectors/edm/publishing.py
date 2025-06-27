@@ -420,36 +420,17 @@ def publish(
     """Publishes a specific draft build of a data product
     By default, keeps draft output folder"""
     bucket = _bucket()
-    version = get_version(draft_key)
-    new_version = validate_or_patch_version(draft_key.product, version, is_patch)
+    new_version = get_version(draft_key)
 
     logger.info(
         f'Publishing {draft_key.path} as version {new_version} with ACL "{acl}"'
     )
-    # if it's patch, update version in metadata and dump it locally
-    build_metadata = None
-    if new_version != version:
-        build_metadata = get_build_metadata(product_key=draft_key)
-        build_metadata.version = new_version
-        build_metadata_path = Path("build_metadata.json")
-        with open(build_metadata_path, "w", encoding="utf-8") as f:
-            json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
     publish_key = PublishKey(draft_key.product, new_version)
     source = draft_key.path + "/"
     target = publish_key.path + "/"
     s3.copy_folder(bucket, source, target, acl, max_files=max_files)
 
-    # upload metadata if version was patched
-    if build_metadata:
-        s3.upload_file(
-            bucket,
-            build_metadata_path,
-            f"{target}{build_metadata_path.name}",
-            acl,
-        )
-    # if current version comes after 'latest' version or there are no files in 'latest' folder,
-    # update 'latest' folder
     if latest:
         latest_version = get_latest_version(draft_key.product)
         if latest_version:
@@ -469,13 +450,6 @@ def publish(
                 acl,
                 max_files=max_files,
             )
-            if build_metadata:
-                s3.upload_file(
-                    bucket,
-                    build_metadata_path,
-                    f"{draft_key.product}/publish/latest/{build_metadata_path.name}",
-                    acl,
-                )
         else:
             raise ValueError(
                 f"Unable to update 'latest' folder: the version {new_version} is older than 'latest' ({latest_version})"
