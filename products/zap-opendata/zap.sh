@@ -39,8 +39,8 @@ function upload_to_digital_ocean {
     output_filepath=.output/${dataset}/${filename}
     do_directory="spaces/${do_bucket}/db-zap"
 
-    mc cp --attr acl=public-read ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
-    mc cp --attr acl=public-read ${output_filepath} ${do_directory}/latest/${dataset}/${filename}
+    mc cp --attr x-amz-acl=public-read ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
+    mc cp --attr x-amz-acl=public-read ${output_filepath} ${do_directory}/latest/${dataset}/${filename}
 }
 
 case $1 in
