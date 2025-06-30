@@ -1,5 +1,6 @@
 name: 🏗️ Repeat a Product Build
-run-name: "🏗️ Repeat a Product Build: ${{ inputs.product }}/${{ inputs.product_type }}/${{ inputs.version_or_build }}"
+run-name: "🏗️ Repeat a Product Build: ${{ inputs.product }}/${{ inputs.product_type
+  }}/${{ inputs.version_or_build }}"
 
 on:
   workflow_dispatch:
@@ -9,27 +10,27 @@ on:
         type: choice
         required: true
         options:
-          - template
-          - cbbr
-          - cdbg
-          - ceqr
-          #- checkbook
-          - colp
-          - cpdb
-          - developments
-          - facilities
-          #- factfinder
-          - green_fast_track
-          #- knownprojects
-          - pluto
-          - zoningtaxlots
+        - template
+        - cbbr
+        - cdbg
+        - ceqr
+        #- checkbook
+        - colp
+        - cpdb
+        - developments
+        - facilities
+        #- factfinder
+        - green_fast_track
+        #- knownprojects
+        - pluto
+        - zoningtaxlots
       product_type:
         description: "What type of product/build to repeat"
         type: choice
         options:
-          - publish
-          - draft
-          - build
+        - publish
+        - draft
+        - build
         required: true
       version_or_build:
         description: "Key of product instance (publish version, draft version, or build name)"
@@ -39,7 +40,7 @@ on:
         description: "If repeating draft product type, provide draft number"
         type: number
         required: false
-      dev_image: 
+      dev_image:
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
         required: true
@@ -50,9 +51,9 @@ on:
         required: true
         default: INFO
         options:
-          - WARNING
-          - INFO
-          - DEBUG
+        - WARNING
+        - INFO
+        - DEBUG
       build_name:
         description: "Build name (defaults to branch name)"
         type: string
@@ -63,7 +64,8 @@ on:
         required: false
 
 env:
-  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}',
+    github.head_ref || github.ref_name) || 'latest' }}
   build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
 
 jobs:
@@ -79,11 +81,11 @@ jobs:
       tag: ${{ env.tag }}
       build_name: ${{ env.build_name }}
     steps:
-      - name: Check inputs
-        run: |
-          echo "running with image tag ${{ env.tag }}"
-          echo "Workflow inputs are:"
-          echo "${{ toJSON(github.event.inputs) }}"
+    - name: Check inputs
+      run: |
+        echo "running with image tag ${{ env.tag }}"
+        echo "Workflow inputs are:"
+        echo "${{ toJSON(github.event.inputs) }}"
   template:
     needs: health_check
     if: inputs.product == 'template'
