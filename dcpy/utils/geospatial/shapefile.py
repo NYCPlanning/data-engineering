@@ -22,6 +22,25 @@ def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
     os.replace(temp_zip, zip_file)
 
 
+def _validate_shp_input(shp_string) -> None:
+    if not shp_string.endswith(".shp"):
+        raise ValueError("Filename must end with '.shp'")
+
+    has_zip_prefix = shp_string.startswith("zip://")
+    has_zip_suffix = ".zip!" in shp_string
+    contains_zip = ".zip" in shp_string
+
+    # Check for valid zip format: must have both prefix and suffix
+    if has_zip_prefix and not has_zip_suffix:
+        raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
+
+    # Check for invalid zip format: has .zip but incorrect structure
+    if contains_zip and not (has_zip_prefix and has_zip_suffix):
+        raise ValueError(
+            "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
+        )
+
+
 def _parse_path_to_shp(shp_filename: str | Path) -> dict:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
@@ -43,22 +62,8 @@ def _parse_path_to_shp(shp_filename: str | Path) -> dict:
     """
     shp_filename = str(shp_filename)
 
-    if not shp_filename.endswith(".shp"):
-        raise ValueError("Filename must end with '.shp'")
-
-    has_zip_prefix = shp_filename.startswith("zip://")
-    has_zip_suffix = ".zip!" in shp_filename
-    contains_zip = ".zip" in shp_filename
-
-    # Check for valid zip format: must have both prefix and suffix
-    if has_zip_prefix and not has_zip_suffix:
-        raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
-
-    # Check for invalid zip format: has .zip but incorrect structure
-    if contains_zip and not (has_zip_prefix and has_zip_suffix):
-        raise ValueError(
-            "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
-        )
+    # confirm input conforms to required pattern
+    _validate_shp_input(shp_filename)
 
     # TODO - should this return path objects for the relevant values, or handle empty values more safely?
     output = {
