@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
+from typing import Optional
 
 metadata_xml_template = """
 <?xml version="1.0"?>
@@ -72,7 +73,7 @@ def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
     os.replace(temp_zip, zip_file)
 
 
-def _parse_path_to_shp(shp_filename: str) -> dict:
+def _parse_path_to_shp(shp_filename: str | Path) -> dict:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
         - shp name
@@ -185,27 +186,30 @@ def write_metadata(
 def remove_metadata(): ...
 
 
-def _get_metadata_xml_name(file_list: list, shp_name: str) -> str:
-    shp_name_no_suffix = Path(shp_name).stem
+def _get_metadata_xml_name(file_list: list, shp_name: str) -> Optional[str]:
+    shp_stem = Path(shp_name).stem
     file_list_names_only = [Path(item).name for item in file_list]
     matched_files = [
         item
         for item in file_list_names_only
-        if item.startswith(shp_name_no_suffix) and item.endswith((".xml", ".shp.xml"))
+        if item.startswith(shp_stem) and item.endswith((".xml", ".shp.xml"))
     ]
-    if len(matched_files) != 1:
-        raise Exception(
-            f"Expected a single xml with name '{shp_name_no_suffix}', but found {len(matched_files)}"
-        )
-    else:
-        return matched_files[0]
+    match len(matched_files):
+        case 0:
+            return None
+        case 1:
+            return matched_files[0]
+        case _:
+            raise ValueError(
+                f"Expected a single xml with name '{shp_stem}', but found {len(matched_files)}"
+            )
 
 
 def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
     shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
-    items_present: list = _list_files_in_shp_dir(path_to_shp)
+    items_present = _list_files_in_shp_dir(path_to_shp)
     # this is req'd to handle metadata ending in either ".xml" or ".shp.xml"
-    xml_filename: str = _get_metadata_xml_name(
+    xml_filename = _get_metadata_xml_name(
         file_list=items_present, shp_name=shp_info["shp_name"]
     )
     # access zip files ------------------------
@@ -221,7 +225,7 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
             return metadata.read()
 
 
-def _list_files_in_shp_dir(path_to_shp: Path) -> list[str] | None:
+def _list_files_in_shp_dir(path_to_shp: Path) -> Optional[list[str]]:
     """Returns all files present at same level as specified {filename}.shp file
 
     Args:
@@ -251,6 +255,18 @@ def _list_files_in_shp_dir(path_to_shp: Path) -> list[str] | None:
         return [str(item) for item in shp_dir.iterdir()]
     else:
         return None
+
+
+def metadata_exists(path_to_shp: str | Path) -> bool:
+    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
+    file_list: list = _list_files_in_shp_dir(path_to_shp=path_to_shp)
+    xml_filename: str | None = _get_metadata_xml_name(
+        file_list=file_list, shp_name=shp_info["shp_name"]
+    )
+    if xml_filename is not None and xml_filename in file_list:
+        return True
+    else:
+        return False
 
 
 ##---------------------------------------------------------------
