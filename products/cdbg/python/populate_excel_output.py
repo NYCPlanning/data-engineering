@@ -9,7 +9,7 @@ from . import PRODUCT_PATH, OUTPUT_PATH, CENSUS_TRACTS_YEAR
 
 TEMPLATE_EXCEL_PATH = PRODUCT_PATH / "census-tract-eligibility-template.xlsx"
 OUTPUT_EXCEL_PATH = (
-    OUTPUT_PATH / f"cdbg_eligibile_{CENSUS_TRACTS_YEAR}_census_tracts.xlsx"
+    OUTPUT_PATH / f"cdbg_eligible_{CENSUS_TRACTS_YEAR}_census_tracts.xlsx"
 )
 
 
