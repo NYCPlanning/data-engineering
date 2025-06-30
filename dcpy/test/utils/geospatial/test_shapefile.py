@@ -3,7 +3,6 @@ from pytest import fixture
 import pytest
 import shutil
 import zipfile
-from pathlib import Path
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
@@ -41,24 +40,6 @@ def temp_xml_string(utils_resources_path):
         xml_output = xml.read()
     assert xml_output != "", f"Non-empty string expected, got: '{xml_output}' instead."
     return xml_output
-
-
-# def test_unzip_shapefile(temp_shp_zip_no_md_path, tmp_path):
-#     shapefile._unpack_simple_shp(
-#         zip_file_path=Path(temp_shp_zip_no_md_path), unzip_to=tmp_path
-#     )
-#     assert (tmp_path / temp_shp_zip_no_md_path.stem).is_dir(), (
-#         f"'{temp_shp_zip_no_md_path.stem}' should be a directory"
-#     )
-#     assert (
-#         tmp_path / temp_shp_zip_no_md_path.stem / f"{temp_shp_zip_no_md_path.stem}.shp"
-#     ).is_file(), "A .shp file should be present"
-
-
-# def test_shp_w_no_metadata(temp_shp_zip_no_md_path):
-#     assert shapefile.read_metadata(temp_shp_zip_no_md_path) == {}, (
-#         "No metadata should be present"
-#     )
 
 
 # TODO - test the shapefile input path parser
@@ -122,7 +103,6 @@ def test_add_metadata_to_shp_with_existing_metadata(
     # TODO - ensure that metadata *is* present before writing it
 
     path_to_shp = f"zip://{temp_shp_zip_with_md_path}!{temp_shp_zip_with_md_path.stem}"
-    # print(path_to_shp)
     shapefile.write_metadata(
         path_to_shp=path_to_shp,
         metadata=temp_xml_string,
@@ -136,6 +116,21 @@ def test_add_metadata_to_shp_with_existing_metadata(
 
     assert metadata_xml in items_in_zip, (
         f"Expected to find {metadata_xml}, but was not found"
+    )
+
+
+def test_metadata_exists(temp_shp_zip_no_md_path, temp_shp_zip_with_md_path):
+    path_to_shp_w_md = (
+        f"zip://{temp_shp_zip_with_md_path}!shapefile_single_pluto_feature.shp"
+    )
+    path_to_shp_no_md = (
+        f"zip://{temp_shp_zip_no_md_path}!shapefile_single_pluto_feature.shp"
+    )
+    assert shapefile.metadata_exists(path_to_shp=path_to_shp_no_md) is False, (
+        "Expected no metadata, but found some"
+    )
+    assert shapefile.metadata_exists(path_to_shp=path_to_shp_w_md) is True, (
+        "Expected metadata, but found none"
     )
 
 
