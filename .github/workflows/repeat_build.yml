@@ -11,6 +11,8 @@ on:
         options:
           - template
           - cbbr
+          - cdbg
+          - ceqr
           #- checkbook
           - colp
           - cpdb
@@ -96,7 +98,7 @@ jobs:
       build_note: ${{ inputs.build_note }}
   cbbr:
     needs: health_check
-    if: inputs.product == 'cbbr' || inputs.product  == 'all'
+    if: inputs.product == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
     with:
@@ -106,9 +108,29 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
+  cdbg:
+    needs: health_check
+    if: inputs.product == 'cdbg'
+    uses: ./.github/workflows/cdbg_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  ceqr:
+    needs: health_check
+    if: inputs.product == 'ceqr'
+    uses: ./.github/workflows/ceqr_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
   #checkbook:
   #  needs: health_check
-  #  if: inputs.product == 'checkbook' || inputs.product  == 'all'
+  #  if: inputs.product == 'checkbook'
   #  uses: ./.github/workflows/checkbook_build.yml
   #  secrets: inherit
   #  with:
@@ -116,7 +138,7 @@ jobs:
   #    build_name: ${{ needs.health_check.outputs.build_name }}
   colp:
     needs: health_check
-    if: inputs.product == 'colp' || inputs.product  == 'all'
+    if: inputs.product == 'colp'
     uses: ./.github/workflows/colp_build.yml
     secrets: inherit
     with:
@@ -126,7 +148,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   cpdb:
     needs: health_check
-    if: inputs.product == 'cpdb' || inputs.product  == 'all'
+    if: inputs.product == 'cpdb'
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
@@ -136,7 +158,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   developments:
     needs: health_check
-    if: inputs.product == 'developments' || inputs.product  == 'all'
+    if: inputs.product == 'developments'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
@@ -146,7 +168,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   facilities:
     needs: health_check
-    if: inputs.product == 'facilities' || inputs.product  == 'all'
+    if: inputs.product == 'facilities'
     uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
@@ -166,7 +188,7 @@ jobs:
   #    build_name: ${{ needs.health_check.outputs.build_name }}
   green_fast_track:
     needs: health_check
-    if: inputs.product == 'green_fast_track' || inputs.product  == 'all'
+    if: inputs.product == 'green_fast_track'
     uses: ./.github/workflows/green_fast_track_build.yml
     secrets: inherit
     with:
@@ -176,7 +198,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   #knownprojects:
   #  needs: health_check
-  #  if: inputs.product == 'knownprojects' || inputs.product  == 'all'
+  #  if: inputs.product == 'knownprojects'
   #  uses: ./.github/workflows/knownprojects_build.yml
   #  secrets: inherit
   #  with:
@@ -184,7 +206,7 @@ jobs:
   #    build_name: ${{ needs.health_check.outputs.build_name }}
   pluto:
     needs: health_check
-    if: inputs.product == 'pluto' || inputs.product  == 'all'
+    if: inputs.product == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
@@ -194,7 +216,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   ztl:
     needs: health_check
-    if: inputs.product == 'zoningtaxlots' || inputs.product  == 'all'
+    if: inputs.product == 'zoningtaxlots'
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
