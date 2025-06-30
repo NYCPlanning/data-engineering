@@ -3,37 +3,6 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 from typing import Optional
 
-metadata_xml_template = """
-<?xml version="1.0"?>
-<metadata xml:lang="en">
-    <Esri>
-        <CreaDate></CreaDate>
-        <CreaTime></CreaTime>
-        <ArcGISFormat>1.0</ArcGISFormat>
-        <SyncOnce>TRUE</SyncOnce>
-        <DataProperties>
-            <lineage>
-                <Process></Process>
-            </lineage>
-        </DataProperties>
-        <scaleRange>
-            <minScale>150000000</minScale>
-            <maxScale>5000</maxScale>
-        </scaleRange>
-        <ArcGISProfile></ArcGISProfile>
-    </Esri>
-    <dataIdInfo>
-        <idCitation>
-            <resTitle></resTitle>
-        </idCitation>
-    </dataIdInfo>
-    <mdHrLv>
-        <ScopeCd value="005"></ScopeCd>
-    </mdHrLv>
-    <mdDateSt Sync="TRUE"></mdDateSt>
-</metadata>
-"""
-
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 # TODO - add logic to create new shp output, rather than overwriting in place
@@ -257,7 +226,7 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
 def metadata_exists(path_to_shp: str | Path) -> bool:
     shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
     file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
-    xml_filename: str | None = _get_metadata_xml_name(
+    xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=file_list, shp_name=shp_info["shp_name"]
     )
     if xml_filename is not None and xml_filename in file_list:
