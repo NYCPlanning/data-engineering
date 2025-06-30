@@ -77,10 +77,13 @@ def test_parse_valid_path_to_shp():
 def test_add_metadata_to_shp_no_existing_metadata(
     temp_shp_zip_no_md_path, temp_xml_string
 ):
-    # TODO - ensure that metadata is *not* present before writing it
+    path_to_shp = f"zip://{temp_shp_zip_no_md_path}!shapefile_single_pluto_feature.shp"
 
-    path_to_shp = f"zip://{temp_shp_zip_no_md_path}!{temp_shp_zip_no_md_path.stem}"
-    # print(path_to_shp)
+    # ensure that metadata is *not* present before writing it
+    assert shapefile.metadata_exists(path_to_shp) is False, (
+        "Expected no metadata, but found some"
+    )
+
     shapefile.write_metadata(
         path_to_shp=path_to_shp,
         metadata=temp_xml_string,
@@ -100,15 +103,22 @@ def test_add_metadata_to_shp_no_existing_metadata(
 def test_add_metadata_to_shp_with_existing_metadata(
     temp_shp_zip_with_md_path, temp_xml_string
 ):
-    # TODO - ensure that metadata *is* present before writing it
+    path_to_shp = (
+        f"zip://{temp_shp_zip_with_md_path}!shapefile_single_pluto_feature.shp"
+    )
 
-    path_to_shp = f"zip://{temp_shp_zip_with_md_path}!{temp_shp_zip_with_md_path.stem}"
+    # ensure that metadata *is* present before writing it
+    assert shapefile.metadata_exists(path_to_shp) is True, (
+        "Expected metadata, but found none"
+    )
+
     shapefile.write_metadata(
         path_to_shp=path_to_shp,
         metadata=temp_xml_string,
         overwrite=False,
     )
     items_in_zip = shapefile._list_files_in_shp_dir(path_to_shp)
+    print(items_in_zip)
     assert len(items_in_zip) >= 5, (
         f"The zip file should contain at least 5 files, but {len(items_in_zip)} were found."
     )
