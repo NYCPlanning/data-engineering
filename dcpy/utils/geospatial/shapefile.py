@@ -36,30 +36,10 @@ metadata_xml_template = """
 
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
-# TODO - add argument create new shp output, rather than overwriting in place
-# DONE - account for more complex nesting within zip - see zipfile work
-# DONE - explore using zipfile to add xml metadata within context manager
-# DONE - swap out xml Path for str - adjust to read from stringified XML template
-# DONE - call from within shapefile fxn
-# DONE - add flag for xml overwrite vs edit
-# OR - add flag to level above this fxn, and then either
-#   call this one or an update xml fxn, depending on logical path
+# TODO - add logic to create new shp output, rather than overwriting in place
+# TODO - (possible) write `remove_metadata()` function
 
 
-# TODO - complete function to read shapefile metadata from XML file
-# def read_metadata(path_to_zip: Path, shp_name: str, return_as: str = "xml" | "str"):
-#     # TODO - add logic to read xml from zipped shp
-#     if return_as.lower == "xml":
-#         return ET.parse(...)
-#     elif return_as.lower == "str":
-#         with open(...) as metadata:
-#             return metadata.read()
-
-
-# DONE - determine from input path string whether provided path
-# is a zip file, whether it is a folder containing 1 shp or
-# more than one shp. See geopandas.read_file() for syntax.
-# TODO - verify with Alex, and fold into other functions if approved
 def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
     zip_file = Path(zip_file)
     temp_zip = zip_file.parent / (zip_file.name + ".tmp")
@@ -95,7 +75,21 @@ def _parse_path_to_shp(shp_filename: str | Path) -> dict:
     shp_filename = str(shp_filename)
 
     if not shp_filename.endswith(".shp"):
-        raise Exception("Filename must be a full shapefile path, ending with '.shp'")
+        raise ValueError("Filename must end with '.shp'")
+
+    has_zip_prefix = shp_filename.startswith("zip://")
+    has_zip_suffix = ".zip!" in shp_filename
+    contains_zip = ".zip" in shp_filename
+
+    # Check for valid zip format: must have both prefix and suffix
+    if has_zip_prefix and not has_zip_suffix:
+        raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
+
+    # Check for invalid zip format: has .zip but incorrect structure
+    if contains_zip and not (has_zip_prefix and has_zip_suffix):
+        raise ValueError(
+            "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
+        )
 
     # TODO - should this return path objects for the relevant values, or handle empty values more safely?
     output = {
@@ -147,8 +141,7 @@ def write_metadata(
     shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
 
     xml_output = f"{shp_info['shp_name']}.xml"
-    # md_exists_msg = "Metadata exists, and 'overwrite' set to False. Will not overwrite."
-
+    # TODO - incorporate metadata_exists() fn instead of custom code below
     # process zip files ------------------------
     if shp_info["is_zip"]:
         with ZipFile(shp_info["path_to_zip"], "r") as zf:
@@ -183,10 +176,12 @@ def write_metadata(
                 pass
 
 
-def remove_metadata(): ...
+# TODO - write this function
+def remove_metadata():
+    return "This functionality has not been added yet"
 
 
-def _get_metadata_xml_name(file_list: list, shp_name: str) -> Optional[str]:
+def _get_metadata_xml_name(file_list: list[str], shp_name: str) -> Optional[str]:
     shp_stem = Path(shp_name).stem
     file_list_names_only = [Path(item).name for item in file_list]
     matched_files = [
@@ -207,11 +202,13 @@ def _get_metadata_xml_name(file_list: list, shp_name: str) -> Optional[str]:
 
 def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
     shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
-    items_present = _list_files_in_shp_dir(path_to_shp)
-    # this is req'd to handle metadata ending in either ".xml" or ".shp.xml"
-    xml_filename = _get_metadata_xml_name(
+    items_present: list[str] = _list_files_in_shp_dir(path_to_shp)
+    xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=items_present, shp_name=shp_info["shp_name"]
     )
+    if xml_filename is None:
+        raise ValueError("No xml file found with that name.")
+
     # access zip files ------------------------
     if shp_info["is_zip"]:
         with ZipFile(shp_info["path_to_zip"], "r") as zf:
@@ -221,11 +218,11 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
     # access non zipped files -------------------
     else:
         path_to_xml = Path(shp_info["dir_containing_shp"]) / xml_filename
-        with open(path_to_xml, "r") as metadata:
-            return metadata.read()
+        with open(path_to_xml, "r") as f:
+            return f.read()
 
 
-def _list_files_in_shp_dir(path_to_shp: Path) -> Optional[list[str]]:
+def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
     """Returns all files present at same level as specified {filename}.shp file
 
     Args:
@@ -254,12 +251,12 @@ def _list_files_in_shp_dir(path_to_shp: Path) -> Optional[list[str]]:
             shp_dir = Path(shp_info["dir_containing_shp"])
         return [str(item) for item in shp_dir.iterdir()]
     else:
-        return None
+        raise Exception("More than one .xml files found that match the name provided")
 
 
 def metadata_exists(path_to_shp: str | Path) -> bool:
     shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
-    file_list: list = _list_files_in_shp_dir(path_to_shp=path_to_shp)
+    file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
     xml_filename: str | None = _get_metadata_xml_name(
         file_list=file_list, shp_name=shp_info["shp_name"]
     )
@@ -267,54 +264,3 @@ def metadata_exists(path_to_shp: str | Path) -> bool:
         return True
     else:
         return False
-
-
-##---------------------------------------------------------------
-## Functions using shutil module - will likely get rid of these
-
-
-# def _unpack_simple_shp(zip_file_path: Path, unzip_to: Path) -> Path:
-#     """Unpacks a simple zipped shapefile into a directory of the same name as the shapefile.
-
-#     "Simple" in this context means that the zip file contains one shapefile at the top level
-#     of the zip file.
-
-#     Args:
-#         zip_file_path (Path): Path to zip file to be unpacked
-#         unzip_to (Path): Path to parent of directory containing unzipped files
-#     """
-#     new_shp_path = unzip_to / zip_file_path.stem
-#     new_shp_path.mkdir(exist_ok=True)
-#     shutil.unpack_archive(filename=zip_file_path, extract_dir=new_shp_path)
-#     return new_shp_path
-
-
-# def _add_metadata_xml_to_shp_dir(
-#     shp_dir: Path, metadata_xml_str: str, shp_name: str
-# ) -> None:
-#     """Writes a string to new .xml file within a directory containing one or more shapefiles.
-#     If a shp name is provided, the resulting .shp.xml is given that name.
-
-#     Args:
-#         shp_dir (Path): Path to the directory containing loose shp constituent files.
-#         metadata_xml_str (str): .xml content as string.
-#         shp_name (str): Name of shp relevant to .xml. Should not
-#             include ".shp" in name.
-#     """
-#     out_xml_name = shp_dir / f"{shp_name}.shp.xml"
-
-#     with open(out_xml_name, "w") as xml_file:
-#         xml_file.write(metadata_xml_str)
-
-
-# def write_metadata(path: Path, metadata: str, overwrite: bool = False):
-#     # get the metadata - defined at top of notebook
-#     # I think these next two should be a different function altogether:
-#         # xml.etree - read xml template (handle case where xml exists, and shouldn't be overwritten)
-#         # set values - create date, etc.
-#     with
-#     # call shp unzip function
-#     _unpack_simple_shp(zip_file_path=path, unzip_to=)
-#     # call add metadata xml to shp internal function (must be edited to accept xml string, not Path)
-#     # zip back up
-#     pass
