@@ -132,7 +132,3 @@ def test_metadata_exists(temp_shp_zip_no_md_path, temp_shp_zip_with_md_path):
     assert shapefile.metadata_exists(path_to_shp=path_to_shp_w_md) is True, (
         "Expected metadata, but found none"
     )
-
-
-# TODO - test actual output of xml file - valid xml, has a specific value, etc.
-# def test_read_metadata(temp_shp_zip_no_md_path)
