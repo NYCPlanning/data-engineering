@@ -1,6 +1,5 @@
 name: 🏗️ Repeat a Product Build
-run-name: "🏗️ Repeat a Product Build: ${{ inputs.product }}/${{ inputs.product_type
-  }}/${{ inputs.version_or_build }}"
+run-name: "🏗️ Repeat a Product Build: ${{ inputs.product }}/${{ inputs.product_type }}/${{ inputs.version_or_build }}"
 
 on:
   workflow_dispatch:
