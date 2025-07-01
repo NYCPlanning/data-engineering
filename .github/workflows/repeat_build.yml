@@ -9,25 +9,27 @@ on:
         type: choice
         required: true
         options:
-          - template
-          - cbbr
-          #- checkbook
-          - colp
-          - cpdb
-          - developments
-          - facilities
-          #- factfinder
-          - green_fast_track
-          #- knownprojects
-          - pluto
-          - zoningtaxlots
+        - template
+        - cbbr
+        - cdbg
+        - ceqr
+        #- checkbook
+        - colp
+        - cpdb
+        - developments
+        - facilities
+        #- factfinder
+        - green_fast_track
+        #- knownprojects
+        - pluto
+        - zoningtaxlots
       product_type:
         description: "What type of product/build to repeat"
         type: choice
         options:
-          - publish
-          - draft
-          - build
+        - publish
+        - draft
+        - build
         required: true
       version_or_build:
         description: "Key of product instance (publish version, draft version, or build name)"
@@ -37,7 +39,7 @@ on:
         description: "If repeating draft product type, provide draft number"
         type: number
         required: false
-      dev_image: 
+      dev_image:
         description: "Use dev image specific to this branch (if exists)"
         type: boolean
         required: true
@@ -48,9 +50,9 @@ on:
         required: true
         default: INFO
         options:
-          - WARNING
-          - INFO
-          - DEBUG
+        - WARNING
+        - INFO
+        - DEBUG
       build_name:
         description: "Build name (defaults to branch name)"
         type: string
@@ -61,7 +63,8 @@ on:
         required: false
 
 env:
-  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+  tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}',
+    github.head_ref || github.ref_name) || 'latest' }}
   build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
 
 jobs:
@@ -77,11 +80,11 @@ jobs:
       tag: ${{ env.tag }}
       build_name: ${{ env.build_name }}
     steps:
-      - name: Check inputs
-        run: |
-          echo "running with image tag ${{ env.tag }}"
-          echo "Workflow inputs are:"
-          echo "${{ toJSON(github.event.inputs) }}"
+    - name: Check inputs
+      run: |
+        echo "running with image tag ${{ env.tag }}"
+        echo "Workflow inputs are:"
+        echo "${{ toJSON(github.event.inputs) }}"
   template:
     needs: health_check
     if: inputs.product == 'template'
@@ -96,7 +99,7 @@ jobs:
       build_note: ${{ inputs.build_note }}
   cbbr:
     needs: health_check
-    if: inputs.product == 'cbbr' || inputs.product  == 'all'
+    if: inputs.product == 'cbbr'
     uses: ./.github/workflows/cbbr_build.yml
     secrets: inherit
     with:
@@ -106,9 +109,29 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
+  cdbg:
+    needs: health_check
+    if: inputs.product == 'cdbg'
+    uses: ./.github/workflows/cdbg_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
+  ceqr:
+    needs: health_check
+    if: inputs.product == 'ceqr'
+    uses: ./.github/workflows/ceqr_build.yml
+    secrets: inherit
+    with:
+      plan_command: ${{ needs.health_check.outputs.plan_command }}
+      recipe_file: recipe
+      image_tag: ${{ needs.health_check.outputs.tag }}
+      build_name: ${{ needs.health_check.outputs.build_name }}
   #checkbook:
   #  needs: health_check
-  #  if: inputs.product == 'checkbook' || inputs.product  == 'all'
+  #  if: inputs.product == 'checkbook'
   #  uses: ./.github/workflows/checkbook_build.yml
   #  secrets: inherit
   #  with:
@@ -116,7 +139,7 @@ jobs:
   #    build_name: ${{ needs.health_check.outputs.build_name }}
   colp:
     needs: health_check
-    if: inputs.product == 'colp' || inputs.product  == 'all'
+    if: inputs.product == 'colp'
     uses: ./.github/workflows/colp_build.yml
     secrets: inherit
     with:
@@ -126,7 +149,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   cpdb:
     needs: health_check
-    if: inputs.product == 'cpdb' || inputs.product  == 'all'
+    if: inputs.product == 'cpdb'
     uses: ./.github/workflows/cpdb_build.yml
     secrets: inherit
     with:
@@ -136,7 +159,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   developments:
     needs: health_check
-    if: inputs.product == 'developments' || inputs.product  == 'all'
+    if: inputs.product == 'developments'
     uses: ./.github/workflows/developments_build.yml
     secrets: inherit
     with:
@@ -146,7 +169,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   facilities:
     needs: health_check
-    if: inputs.product == 'facilities' || inputs.product  == 'all'
+    if: inputs.product == 'facilities'
     uses: ./.github/workflows/facilities_build.yml
     secrets: inherit
     with:
@@ -166,7 +189,7 @@ jobs:
   #    build_name: ${{ needs.health_check.outputs.build_name }}
   green_fast_track:
     needs: health_check
-    if: inputs.product == 'green_fast_track' || inputs.product  == 'all'
+    if: inputs.product == 'green_fast_track'
     uses: ./.github/workflows/green_fast_track_build.yml
     secrets: inherit
     with:
@@ -176,7 +199,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   #knownprojects:
   #  needs: health_check
-  #  if: inputs.product == 'knownprojects' || inputs.product  == 'all'
+  #  if: inputs.product == 'knownprojects'
   #  uses: ./.github/workflows/knownprojects_build.yml
   #  secrets: inherit
   #  with:
@@ -184,7 +207,7 @@ jobs:
   #    build_name: ${{ needs.health_check.outputs.build_name }}
   pluto:
     needs: health_check
-    if: inputs.product == 'pluto' || inputs.product  == 'all'
+    if: inputs.product == 'pluto'
     uses: ./.github/workflows/pluto_build.yml
     secrets: inherit
     with:
@@ -194,7 +217,7 @@ jobs:
       build_name: ${{ needs.health_check.outputs.build_name }}
   ztl:
     needs: health_check
-    if: inputs.product == 'zoningtaxlots' || inputs.product  == 'all'
+    if: inputs.product == 'zoningtaxlots'
     uses: ./.github/workflows/zoningtaxlots_build.yml
     secrets: inherit
     with:
