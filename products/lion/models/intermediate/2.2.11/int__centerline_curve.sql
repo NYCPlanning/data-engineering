@@ -15,9 +15,7 @@ points AS (
         curve AS curve_flag,
         st_startpoint(geom) AS start_point,
         st_endpoint(geom) AS end_point,
-        -- if n = 3, we need the second point
-        -- if n = 4, we will still take the second. With int rounding, 5/2 = 2
-        st_pointn(geom, (st_numpoints(geom) + 1) / 2) AS mid_point,
+        ST_LineInterpolatePoint(geom, 0.5) AS mid_point,
         geom
     FROM curves
 ),
