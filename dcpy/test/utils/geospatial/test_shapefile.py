@@ -46,7 +46,7 @@ def temp_xml_string(utils_resources_path):
 def test_parse_invalid_path_to_shp():
     invalid_path_to_parse = "zip:///Users/name/Downloads/gadm36_AFG_shp.zip!gadm36_AFG_1"  # valid would end with ".shp"
     with pytest.raises(Exception):
-        shapefile._parse_path_to_shp(shp_filename=invalid_path_to_parse)
+        shapefile._parse_path_to_shp(path_to_shp=invalid_path_to_parse)
 
 
 def test_parse_valid_path_to_shp():
@@ -69,7 +69,7 @@ def test_parse_valid_path_to_shp():
         },
     ]
     for parsed_path, returned_dict in zip(paths_to_parse, dicts_returned):
-        shp_info = shapefile._parse_path_to_shp(shp_filename=parsed_path)
+        shp_info = shapefile._parse_path_to_shp(path_to_shp=parsed_path)
 
         assert shp_info == returned_dict
 

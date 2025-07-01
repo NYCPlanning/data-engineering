@@ -22,7 +22,18 @@ def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
     os.replace(temp_zip, zip_file)
 
 
-def _validate_shp_input(shp_string) -> None:
+def _validate_shp_input(shp_string: str | Path) -> None:
+    """Ensure the input string conforms to the required format:
+    Format if zip file: 'zip://path/to/file.zip!shapefile.shp'
+    Format if not zip file: 'path/to/shapefile.shp'
+
+    Args:
+        shp_string (str | Path): Path to shapefile
+
+    Raises:
+        ValueError: Indicates when input does not conform to required format
+    """
+    shp_string = str(shp_string)
     if not shp_string.endswith(".shp"):
         raise ValueError("Filename must end with '.shp'")
 
@@ -41,7 +52,8 @@ def _validate_shp_input(shp_string) -> None:
         )
 
 
-def _parse_path_to_shp(shp_filename: str | Path) -> dict:
+# TODO - swap out returned dict for a TypedDict?
+def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
         - shp name
@@ -50,22 +62,25 @@ def _parse_path_to_shp(shp_filename: str | Path) -> dict:
         - path to shp (starting at top level within zip, or complete path if no zip exists.)
 
     Args:
-        shp_filename (str):
-            - Path to shapefile, must end in ".shp"
+        path_to_shp (str):
+            - Path to shapefile - must end in ".shp"
             - If shp is in a zip file: arg must be prefixed with "zip://"
             - If shp is in a zip file: zip file to contents must be delimited by "!"
-            - example with zip file: "zip:///Users/name/files.zip!data/gadm36_AFG_1.shp"
-            - example without zip file: "/Users/name/files/data/gadm36_AFG_1.shp"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
 
     Returns:
-        dict: _description_
+        dict: Containing shapefile location info with keys:
+        - 'dir_containing_shp': Directory path containing the shapefile
+        - 'path_to_zip': Path to zip file (empty string if not zipped)
+        - 'shp_name': Name of the shapefile, ending in ".shp"
+        - 'is_zip': Boolean indicating if shapefile is in a zip archive
     """
-    shp_filename = str(shp_filename)
+    path_to_shp = str(path_to_shp)
 
     # confirm input conforms to required pattern
-    _validate_shp_input(shp_filename)
+    _validate_shp_input(path_to_shp)
 
-    # TODO - should this return path objects for the relevant values, or handle empty values more safely?
     output = {
         "dir_containing_shp": "",
         "path_to_zip": "",
@@ -76,22 +91,22 @@ def _parse_path_to_shp(shp_filename: str | Path) -> dict:
     zip_indicator = "zip://"
     end_of_zip_delimiter = ".zip!"
 
-    if shp_filename.startswith(zip_indicator):  # syntax indicating a zip file
+    if path_to_shp.startswith(zip_indicator):  # syntax indicating a zip file
         start_path_idx = len(zip_indicator)
 
         # Set zip bool ------------------------
         output["is_zip"] = True
 
         # Set zip dir -------------------------
-        if end_of_zip_delimiter in shp_filename:
-            end_of_zip_idx = shp_filename.find(end_of_zip_delimiter) + (
+        if end_of_zip_delimiter in path_to_shp:
+            end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
                 len(end_of_zip_delimiter) - 1
             )
 
-            output["path_to_zip"] = shp_filename[start_path_idx:end_of_zip_idx]
+            output["path_to_zip"] = path_to_shp[start_path_idx:end_of_zip_idx]
 
         # Set shp dir -------------------------
-        path_in_zip_to_shp = Path(shp_filename[end_of_zip_idx + 1 :])
+        path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
         if len(path_in_zip_to_shp.parts) > 1:
             output["dir_containing_shp"] = str(path_in_zip_to_shp.parent)
 
@@ -99,23 +114,103 @@ def _parse_path_to_shp(shp_filename: str | Path) -> dict:
         output["shp_name"] = path_in_zip_to_shp.name
     else:
         # Set shp dir -------------------------
-        output["dir_containing_shp"] = str(Path(shp_filename).parent)
+        output["dir_containing_shp"] = str(Path(path_to_shp).parent)
 
         # Set shp name ------------------------
-        output["shp_name"] = Path(shp_filename).name
+        output["shp_name"] = Path(path_to_shp).name
 
     return output
 
 
+def _get_metadata_xml_name(file_list: list[str], shp_name: str) -> Optional[str]:
+    """Extracts name of metadata .xml file matching specified .shp file from a
+    list of filenames. Does not require an actual directory/zip location. Only
+    parses a list of names as produced by other functions.
+    Handles cases where metadata ends with either ".xml" or ".shp.xml"
+
+    Args:
+        file_list (list[str]): List of file names to parse
+        shp_name (str): Shapefile name, not path, ending with ".shp"
+
+    Raises:
+        ValueError: Error if more than one .xml file matching the pattern are found.
+
+    Returns:
+        Optional[str]: Either name of metadata file, or None if no file is found
+    """
+    shp_stem = Path(shp_name).stem
+    file_list_names_only = [Path(item).name for item in file_list]
+    matched_files = [
+        item
+        for item in file_list_names_only
+        if item.startswith(shp_stem) and item.endswith((".xml", ".shp.xml"))
+    ]
+    match len(matched_files):
+        case 0:
+            return None
+        case 1:
+            return matched_files[0]
+        case _:
+            raise ValueError(
+                f"Expected a single xml with name '{shp_stem}', but found {len(matched_files)}"
+            )
+
+
+def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
+    """Returns all files present at same level as specified {filename}.shp file
+
+    Args:
+        path_to_shp (str | Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
+
+    Returns:
+        list[str]: List of files in same directory as specified shapefile
+    """
+    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
+
+    # process zip files ------------------------
+    if shp_info["is_zip"]:
+        with ZipFile(shp_info["path_to_zip"], "r") as archive:
+            return archive.namelist()
+
+    # process non zipped files -----------------
+    elif not shp_info["is_zip"]:
+        if not shp_info["dir_containing_shp"]:
+            shp_dir = Path(os.getcwd())
+        else:
+            shp_dir = Path(shp_info["dir_containing_shp"])
+        return [str(item) for item in shp_dir.iterdir()]
+    else:
+        raise Exception("More than one .xml files found that match the name provided")
+
+
+# TODO - incorporate metadata_exists() fn instead of custom code below
 def write_metadata(
     path_to_shp: str | Path,
     metadata: str,
     overwrite: bool = False,
 ) -> None:
-    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
+    """Writes metadata to shapefile. Handles either zipped on unzipped shapefiles.
+    If metadata already exists, this function can overwrite it or bypass it.
+
+    Args:
+        path_to_shp (str | Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
+        metadata (str): String containing metadata values in XML format.
+        overwrite (bool, optional): If True, existing metadata will be overwritten.
+            If False, function will not overwrite existing metadata. Defaults to False.
+    """
+    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
 
     xml_output = f"{shp_info['shp_name']}.xml"
-    # TODO - incorporate metadata_exists() fn instead of custom code below
     # process zip files ------------------------
     if shp_info["is_zip"]:
         with ZipFile(shp_info["path_to_zip"], "r") as zf:
@@ -152,30 +247,30 @@ def write_metadata(
 
 # TODO - write this function
 def remove_metadata():
-    return "This functionality has not been added yet"
-
-
-def _get_metadata_xml_name(file_list: list[str], shp_name: str) -> Optional[str]:
-    shp_stem = Path(shp_name).stem
-    file_list_names_only = [Path(item).name for item in file_list]
-    matched_files = [
-        item
-        for item in file_list_names_only
-        if item.startswith(shp_stem) and item.endswith((".xml", ".shp.xml"))
-    ]
-    match len(matched_files):
-        case 0:
-            return None
-        case 1:
-            return matched_files[0]
-        case _:
-            raise ValueError(
-                f"Expected a single xml with name '{shp_stem}', but found {len(matched_files)}"
-            )
+    """Removes existing metadata from shapefile."""
+    raise NotImplementedError("This function doesn't exist yet.")
 
 
 def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
-    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
+    """_summary_
+
+    Args:
+        path_to_shp (str | Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
+        encoding (str, optional): Expected encoding of metadata file. Only relevant
+            if metadata exists in a zip file. Defaults to "utf-8".
+
+    Raises:
+        ValueError: Error if no xml file exists with expected name.
+
+    Returns:
+        str: Metadata content as string.
+    """
+    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
     items_present: list[str] = _list_files_in_shp_dir(path_to_shp)
     xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=items_present, shp_name=shp_info["shp_name"]
@@ -196,40 +291,21 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
             return f.read()
 
 
-def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
-    """Returns all files present at same level as specified {filename}.shp file
+def metadata_exists(path_to_shp: str | Path) -> bool:
+    """Detect whether shapefile has existing metadata.
 
     Args:
-        path_to_shp (Path):
+        path_to_shp (str | Path):
             - Path to shapefile, must end in ".shp"
             - If shp is in a zip file: arg must be prefixed with "zip://"
             - If shp is in a zip file: zip file to contents must be delimited by "!"
-            - example with zip file: "zip:///Users/name/files.zip!data/gadm36_AFG_1.shp"
-            - example without zip file: "/Users/name/files/data/gadm36_AFG_1.shp"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
 
     Returns:
-        list[str]: List of files in same directory as specified shapefile
+        bool: True if shapefile has metadata, False if no metadata is found.
     """
-    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
-
-    # process zip files ------------------------
-    if shp_info["is_zip"]:
-        with ZipFile(shp_info["path_to_zip"], "r") as archive:
-            return archive.namelist()
-
-    # process non zipped files -----------------
-    elif not shp_info["is_zip"]:
-        if not shp_info["dir_containing_shp"]:
-            shp_dir = Path(os.getcwd())
-        else:
-            shp_dir = Path(shp_info["dir_containing_shp"])
-        return [str(item) for item in shp_dir.iterdir()]
-    else:
-        raise Exception("More than one .xml files found that match the name provided")
-
-
-def metadata_exists(path_to_shp: str | Path) -> bool:
-    shp_info: dict = _parse_path_to_shp(shp_filename=path_to_shp)
+    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
     file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
     xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=file_list, shp_name=shp_info["shp_name"]
