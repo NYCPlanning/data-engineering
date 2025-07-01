@@ -3,7 +3,7 @@ source ../../bash/utils.sh
 set_error_traps
 
 # Export tables to DAT files
-# fixed-width text files with no header or delimeter are specific to LION
+# fixed-width text files with no header or delimiter are specific to LION
 function dat_export {
     local table=${1}
     local output_file=${2:-${table}}
