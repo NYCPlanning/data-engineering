@@ -15,7 +15,7 @@ points AS (
         curve AS curve_flag,
         st_startpoint(geom) AS start_point,
         st_endpoint(geom) AS end_point,
-        ST_LineInterpolatePoint(geom, 0.5) AS mid_point,
+        st_lineinterpolatepoint(geom, 0.5) AS mid_point,
         geom
     FROM curves
 ),
