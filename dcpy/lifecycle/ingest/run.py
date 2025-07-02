@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 
 from dcpy.utils.logging import logger
-from dcpy.models.lifecycle.ingest import Config
+from dcpy.models.lifecycle.ingest import Config, RawConfig
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
 from dcpy.lifecycle.ingest.connectors import raw_datastore, processed_datastore
@@ -23,29 +23,28 @@ def ingest_raw_dataset(
     version: str | None = None,
     *,
     dataset_staging_dir: Path,
-    mode: str | None = None,
     latest: bool = False,
     push: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
-) -> Config:
+) -> RawConfig:
     if template_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
-    config = configure.get_config(
+    config = configure.get_raw_config(
         dataset_id,
         version=version,
-        mode=mode,
         template_dir=template_dir,
         local_file_path=local_file_path,
     )
-    transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
+    # should still do this
+    # transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
         json.dump(config.model_dump(mode="json"), f, indent=4)
 
     # download dataset
     filepath = extract.download_file_from_source(
-        config.ingestion.source,
+        config.source,
         config.version,
         dataset_staging_dir,
     )
@@ -60,10 +59,12 @@ def ingest_raw_dataset(
             latest=latest,
         )
 
+    return config
+
 
 def ingest_processed_dataset(
     dataset_id: str,
-    version: str | None = None,
+    archival_timestamp: str | None = None,
     *,
     dataset_staging_dir: Path,
     ingest_output_dir: Path = INGEST_OUTPUT_DIR,
@@ -73,6 +74,11 @@ def ingest_processed_dataset(
     output_csv: bool = False,
     overwrite_okay: bool = False,
 ) -> Config:
+    archival_timestamp = archival_timestamp or raw_datastore.get_latest_version(
+        dataset_id
+    )
+    raw_config = raw_datastore.get_config(dataset_id, archival_timestamp)
+
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     init_filename = "init.parquet"
