@@ -183,7 +183,7 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
             shp_dir = Path(os.getcwd())
         else:
             shp_dir = Path(shp_info["dir_containing_shp"])
-        return [str(item) for item in shp_dir.iterdir()]
+        return [str(item.name) for item in shp_dir.iterdir()]
     else:
         raise Exception("More than one .xml files found that match the name provided")
 
@@ -210,11 +210,7 @@ def write_metadata(
             If False, function will not overwrite existing metadata. Defaults to False.
     """
     shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
-    print(shp_info)
-    file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
-    print(file_list)
     xml_filename = f"{shp_info['shp_name']}.xml"
-    print(xml_filename)
 
     def _write_text_to_file(
         is_zip: bool,
@@ -227,7 +223,6 @@ def write_metadata(
             with ZipFile(path_to_zip, "a", compression=ZIP_DEFLATED) as shp:
                 shp.writestr(xml_filename, metadata)
         else:
-            # if (Path(shp_info["dir_containing_shp"] / xml_output)).is_file()
             with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
                 xml_file.write(metadata)
 
@@ -309,7 +304,6 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
             return f.read()
 
 
-# BUG - fails on unzipped shapefiles with existing metadata
 def metadata_exists(path_to_shp: str | Path) -> bool:
     """Detect whether shapefile has existing metadata.
 
@@ -326,12 +320,9 @@ def metadata_exists(path_to_shp: str | Path) -> bool:
     """
     shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
     file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
-    print(*file_list, sep="\n")
-    # print(file_list)
     xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=file_list, shp_name=shp_info["shp_name"]
     )
-    print(xml_filename)
     if xml_filename is not None and xml_filename in file_list:
         return True
     else:
