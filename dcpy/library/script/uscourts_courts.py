@@ -28,7 +28,8 @@ class Scriptor:
     def ingest(self) -> pd.DataFrame:
         data = self.get_location("NY") + self.get_location("BK")
         data = list(self.removeduplicate(data))
-        df = pd.DataFrame.from_dict(data, orient="columns")
+        ## mypy was unhappy. moot point - these urls are dead. See #1326
+        df = pd.DataFrame.from_dict(data, orient="columns")  # type: ignore
         return df
 
     def runner(self) -> str:

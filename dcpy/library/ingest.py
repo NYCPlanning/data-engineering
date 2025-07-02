@@ -107,7 +107,7 @@ def translator(func):
         # Create postgres database schema and table version if needed
         if output_format == "PostgreSQL":
             schema_name = dataset.name
-            dstDS.ExecuteSQL(f"CREATE SCHEMA IF NOT EXISTS {schema_name};")
+            dstDS.ExecuteSQL(f"CREATE SCHEMA IF NOT EXISTS {schema_name};")  # type: ignore
             version = (
                 datetime.date.today().strftime("%Y/%m/%d")
                 if dataset.version == ""
