@@ -220,12 +220,11 @@ def validate_df(
             accepted_values = {str(v.value) for v in col.values} | {""}
             invalids = df_no_col_nulls[~df_no_col_nulls[col.name].isin(accepted_values)]
             if not invalids.empty:
-                invalid_counts = dict(invalids.groupby(by=col.name).size())
-                invalid_counts_int = {k: int(v) for k, v in invalid_counts.items()}
+                invalid_counts = invalids.groupby(by=col.name).size().to_dict()
                 errors.append(
                     ValidationError(
                         error_type=ErrorType.INVALID_DATA,
-                        message=f"Found counts of non-standardized values for column {col.name}: {invalid_counts_int}",
+                        message=f"Found counts of non-standardized values for column {col.name}: {invalid_counts}",
                     )
                 )
 
