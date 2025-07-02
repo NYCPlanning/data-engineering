@@ -55,6 +55,11 @@ prioritized AS (
 SELECT
     segmentid,
     boroughcode,
-    saftype AS special_address_flag
+    CASE
+        -- The SAFTYPE "F" in CSCL is a "D" in LION/Geosupport
+        -- Future exports may or may not expect this mapping
+        WHEN saftype = 'F' THEN 'D'
+        ELSE saftype
+    END AS special_address_flag
 FROM prioritized
 WHERE row_number = 1
