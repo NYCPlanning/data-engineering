@@ -82,7 +82,6 @@ models:
   - name: face_code
     tests:
     - not_null
-  # the test below should be here but dbt errors while building staging tables
-  # tests:
-  # - dbt_expectations.expect_table_row_count_to_equal_other_table:
-  #    compare_model: ref("stg__centerline")
+  tests:
+  - dbt_expectations.expect_table_row_count_to_equal_other_table:
+     compare_model: ref("stg__centerline")
