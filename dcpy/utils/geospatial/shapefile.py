@@ -188,8 +188,6 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
         raise Exception("More than one .xml files found that match the name provided")
 
 
-# TODO - incorporate metadata_exists() fn instead of custom code below
-# TODO - make overwrite=False with existing metadata fail loudly! Test is passing falsely. See both "if not overwrite: pass" clauses
 def write_metadata(
     path_to_shp: str | Path,
     metadata: str,
