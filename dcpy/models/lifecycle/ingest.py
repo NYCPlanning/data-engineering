@@ -206,6 +206,10 @@ class TemplateStandard(BaseModel, extra="forbid"):
     def validate_objects(self):
         self.ingestion.source._ds_id = self.id
 
+    @property
+    def source(self):
+        return self.ingestion.source
+
 
 class _TemplateChild(BaseModel, extra="forbid"):
     id: str
@@ -227,7 +231,20 @@ class TemplateOneToMany(BaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_objects(self):
-        self.ingestion.source._ds_id = self.id
+        self.source._ds_id = self.id
+
+
+class RawConfig(BaseModel, extra="forbid"):
+    id: str
+    attributes: DatasetAttributes
+
+    archival: ArchivalMetadata
+    source: Source
+    version: str
+
+    dataset_defaults: dict
+    datasets: list[_TemplateChild]
+    run_details: RunDetails
 
 
 class Config(SortedSerializedBase, extra="forbid"):

@@ -11,6 +11,8 @@ from dcpy.models.lifecycle.ingest import (
     Source,
     ProcessingStep,
     TemplateStandard,
+    TemplateOneToMany,
+    RawConfig,
     Config,
 )
 from dcpy.utils import metadata
@@ -27,7 +29,7 @@ def get_jinja_vars(s: str) -> set[str]:
 
 def read_template(
     dataset_id: str, template_dir: Path, version: str | None = None
-) -> TemplateStandard:
+) -> TemplateStandard | TemplateOneToMany:
     """
     Given _id id, read yml template in template_dir of given dataset
     and insert version as jinja var if provided.
@@ -43,7 +45,10 @@ def read_template(
             f"'version' is only suppored jinja var. Vars in template: {vars}"
         )
     template_yml = yaml.safe_load(template_string)
-    return TemplateStandard(**template_yml)
+    if "datasets" in template_yml:
+        return TemplateOneToMany(**template_yml)
+    else:
+        return TemplateStandard(**template_yml)
 
 
 def get_version(source: Source, timestamp: datetime):
@@ -75,6 +80,43 @@ def determine_processing_steps(
     steps = [s for s in steps if s.mode is None or s.mode == mode]
 
     return steps
+
+
+def get_raw_config(
+    dataset_id: str,
+    version: str | None = None,
+    *,
+    template_dir: Path,
+    local_file_path: Path | None = None,
+) -> RawConfig:
+    """Generate config object for dataset and optional version"""
+    run_details = metadata.get_run_details()
+
+    logger.info(f"Reading template from {template_dir / dataset_id}.yml")
+    template = read_template(dataset_id, version=version, template_dir=template_dir)
+    version = version or get_version(template.source, run_details.timestamp)
+    template = read_template(dataset_id, version=version, template_dir=template_dir)
+
+    archival = ArchivalMetadata(
+        archival_timestamp=run_details.timestamp,
+        raw_filename="",  # TODO - this is now set after pulling file
+        acl=template.acl,
+    )
+
+    return RawConfig(
+        id=template.id,
+        attributes=template.attributes,
+        archival=archival,
+        version=version,
+        source=(
+            LocalFileSource(type="local_file", path=local_file_path)
+            if local_file_path
+            else template.source
+        ),
+        dataset_defaults=template.dataset_defaults,
+        datasets=template.datasets,
+        run_details=run_details,
+    )
 
 
 def get_config(
