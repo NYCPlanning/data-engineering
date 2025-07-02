@@ -7,7 +7,7 @@
 WITH all_ranked_lgc AS (
     SELECT preferred_lgc.*
     FROM {{ ref("int__preferred_local_group_code") }} AS preferred_lgc
-    UNION
+    UNION ALL
     SELECT nonpreferred_lgc.*
     FROM {{ ref("int__nonpreferred_local_group_code") }} AS nonpreferred_lgc
 )
