@@ -189,6 +189,7 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
 
 
 # TODO - incorporate metadata_exists() fn instead of custom code below
+# TODO - make overwrite=False with existing metadata fail loudly! Test is passing falsely. See both "if not overwrite: pass" clauses
 def write_metadata(
     path_to_shp: str | Path,
     metadata: str,
@@ -209,40 +210,57 @@ def write_metadata(
             If False, function will not overwrite existing metadata. Defaults to False.
     """
     shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
+    print(shp_info)
+    file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
+    print(file_list)
+    xml_filename = f"{shp_info['shp_name']}.xml"
+    print(xml_filename)
 
-    xml_output = f"{shp_info['shp_name']}.xml"
-    # process zip files ------------------------
-    if shp_info["is_zip"]:
-        with ZipFile(shp_info["path_to_zip"], "r") as zf:
-            items_in_zip = zf.namelist()
-        # handle existing metadata
-        if xml_output in items_in_zip:
-            if overwrite:
-                _remove_item_from_zip_file(
-                    zip_file=shp_info["path_to_zip"], file_to_remove=xml_output
-                )
-
-                with ZipFile(
-                    shp_info["path_to_zip"], "a", compression=ZIP_DEFLATED
-                ) as shp:
-                    shp.writestr(xml_output, metadata)
-
-            if not overwrite:
-                pass
-
+    def _write_text_to_file(
+        is_zip: bool,
+        path_to_zip: str,
+        path_to_shp: str,
+        xml_filename: str,
+        metadata: str,
+    ) -> None:
+        if is_zip:
+            with ZipFile(path_to_zip, "a", compression=ZIP_DEFLATED) as shp:
+                shp.writestr(xml_filename, metadata)
         else:
-            with ZipFile(shp_info["path_to_zip"], "a", compression=ZIP_DEFLATED) as shp:
-                shp.writestr(xml_output, metadata)
+            # if (Path(shp_info["dir_containing_shp"] / xml_output)).is_file()
+            with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
+                xml_file.write(metadata)
 
-    # process non zipped files -------------------
-    elif not shp_info["is_zip"]:
-        # handle existing metadata
-        if (Path(shp_info["dir_containing_shp"] / xml_output)).is_file():
-            if overwrite:
-                with open(xml_output, "w") as xml_file:
-                    xml_file.write(metadata)
-            if not overwrite:
-                pass
+    if metadata_exists(path_to_shp):
+        if overwrite:
+            _remove_item_from_zip_file(
+                zip_file=shp_info["path_to_zip"], file_to_remove=xml_filename
+            )
+            _write_text_to_file(
+                is_zip=shp_info["is_zip"],
+                path_to_zip=shp_info["path_to_zip"],
+                path_to_shp=shp_info["dir_containing_shp"],
+                xml_filename=xml_filename,
+                metadata=metadata,
+            )
+        else:
+            raise Exception(
+                "Metadata XML already exists, and overwrite is False. Nothing will be written"
+            )
+
+    if not metadata_exists(path_to_shp):
+        if overwrite:
+            _write_text_to_file(
+                is_zip=shp_info["is_zip"],
+                path_to_zip=shp_info["path_to_zip"],
+                path_to_shp=shp_info["dir_containing_shp"],
+                xml_filename=xml_filename,
+                metadata=metadata,
+            )
+        else:
+            raise Exception(
+                "Metadata XML already exists, and overwrite is False. Nothing will be written"
+            )
 
 
 # TODO - write this function
@@ -276,7 +294,7 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
         file_list=items_present, shp_name=shp_info["shp_name"]
     )
     if xml_filename is None:
-        raise ValueError("No xml file found with that name.")
+        raise ValueError("Could not compute a metadata filename.")
 
     # access zip files ------------------------
     if shp_info["is_zip"]:
@@ -291,6 +309,7 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
             return f.read()
 
 
+# BUG - fails on unzipped shapefiles with existing metadata
 def metadata_exists(path_to_shp: str | Path) -> bool:
     """Detect whether shapefile has existing metadata.
 
@@ -307,9 +326,12 @@ def metadata_exists(path_to_shp: str | Path) -> bool:
     """
     shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
     file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
+    print(*file_list, sep="\n")
+    # print(file_list)
     xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=file_list, shp_name=shp_info["shp_name"]
     )
+    print(xml_filename)
     if xml_filename is not None and xml_filename in file_list:
         return True
     else:
