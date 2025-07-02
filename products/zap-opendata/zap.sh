@@ -34,13 +34,14 @@ function upload_to_digital_ocean {
     version=${2}
     output_suffix=${3}
     do_bucket=${4}
+    acl=${5:-private}
 
     filename=${dataset}_${output_suffix}.csv
     output_filepath=.output/${dataset}/${filename}
     do_directory="spaces/${do_bucket}/db-zap"
 
-    mc cp --attr acl=public-read ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
-    mc cp --attr acl=public-read ${output_filepath} ${do_directory}/latest/${dataset}/${filename}
+    mc cp --attr x-amz-acl=${acl} ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
+    mc cp --attr x-amz-acl=${acl} ${output_filepath} ${do_directory}/latest/${dataset}/${filename}
 }
 
 case $1 in
@@ -70,16 +71,16 @@ case $1 in
     upload_crm_do )
         dataset=$2
         version=${3:-$VERSION}
-        upload_to_digital_ocean ${dataset} ${version} "crm" "edm-private"
+        upload_to_digital_ocean ${dataset} ${version} "crm" "$PRIVATE_BUCKET"
     ;;
     upload_internal_do )
         dataset=$2
         version=${3:-$VERSION}
-        upload_to_digital_ocean ${dataset} ${version} "internal" "edm-private"
+        upload_to_digital_ocean ${dataset} ${version} "internal" "$PRIVATE_BUCKET"
     ;;
     upload_visible_do )
         dataset=$2
         version=${3:-$VERSION}
-        upload_to_digital_ocean ${dataset} ${version} "visible" "edm-publishing"
+        upload_to_digital_ocean ${dataset} ${version} "visible" "$PUBLISHING_BUCKET" public-read
 
 esac
