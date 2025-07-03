@@ -16,4 +16,6 @@ inputs:
   - name: dcp_cscl_sedat
   - name: dcp_cscl_specialsedat
   - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_railroads
+  - name: dcp_cscl_subways
   missing_versions_strategy: find_latest # TODO - they should all match

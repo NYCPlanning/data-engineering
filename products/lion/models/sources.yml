@@ -16,7 +16,9 @@ sources:
   - name: dcp_cscl_segment_lgc
   - name: dcp_cscl_sedat
   - name: dcp_cscl_specialsedat
+  - name: dcp_cscl_subways
   - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_railroads
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs
