@@ -119,54 +119,36 @@ def get_raw_config(
     )
 
 
-def get_config(
-    dataset_id: str,
-    version: str | None = None,
+def get_configs(
+    raw_config: RawConfig,
     *,
     mode: str | None = None,
-    template_dir: Path,
-    local_file_path: Path | None = None,
 ) -> Config:
     """Generate config object for dataset and optional version"""
     run_details = metadata.get_run_details()
 
-    logger.info(f"Reading template from {template_dir / dataset_id}.yml")
-    template = read_template(dataset_id, version=version, template_dir=template_dir)
-    version = version or get_version(template.ingestion.source, run_details.timestamp)
-    template = read_template(dataset_id, version=version, template_dir=template_dir)
-
-    if local_file_path:
-        template.ingestion.source = LocalFileSource(
-            type="local_file", path=local_file_path
+    for dataset in raw_config.datasets:
+        processing_steps = determine_processing_steps(
+            dataset.ingestion.processing_steps,
+            target_crs=dataset.ingestion.target_crs,
+            mode=mode,
         )
 
-    processing_steps = determine_processing_steps(
-        template.ingestion.processing_steps,
-        target_crs=template.ingestion.target_crs,
-        mode=mode,
-    )
+        ingestion = Ingestion(
+            target_crs=dataset.ingestion.target_crs,
+            source=dataset.ingestion.source,
+            file_format=dataset.ingestion.file_format,
+            processing_mode=mode,
+            processing_steps=processing_steps,
+        )
 
-    ingestion = Ingestion(
-        target_crs=template.ingestion.target_crs,
-        source=template.ingestion.source,
-        file_format=template.ingestion.file_format,
-        processing_mode=mode,
-        processing_steps=processing_steps,
-    )
-
-    archival = ArchivalMetadata(
-        archival_timestamp=run_details.timestamp,
-        raw_filename="",  # TODO - this is now set after pulling file
-        acl=template.acl,
-    )
-
-    return Config(
-        id=template.id,
-        version=version,
-        crs=ingestion.target_crs,
-        attributes=template.attributes,
-        archival=archival,
-        ingestion=ingestion,
-        columns=template.columns,
-        run_details=run_details,
-    )
+        return Config(
+            id=dataset.id,
+            version=raw_config.version,
+            crs=ingestion.target_crs,
+            attributes=dataset.attributes,
+            archival=raw_config.archival,
+            ingestion=ingestion,
+            columns=dataset.columns,
+            run_details=run_details,
+        )
