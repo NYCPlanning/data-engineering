@@ -23,7 +23,6 @@ def ingest_raw_dataset(
     version: str | None = None,
     *,
     dataset_staging_dir: Path,
-    latest: bool = False,
     push: bool = False,
     template_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
@@ -56,29 +55,21 @@ def ingest_raw_dataset(
             version=config.archival.archival_timestamp.isoformat(),
             filepath=filepath,
             config=config,
-            latest=latest,
         )
 
     return config
 
 
 def ingest_processed_dataset(
-    dataset_id: str,
-    archival_timestamp: str | None = None,
+    config: Config,
     *,
     dataset_staging_dir: Path,
-    ingest_output_dir: Path = INGEST_OUTPUT_DIR,
-    mode: str | None = None,
+    ingest_output_dir: Path,
     latest: bool = False,
     push: bool = False,
     output_csv: bool = False,
     overwrite_okay: bool = False,
 ) -> Config:
-    archival_timestamp = archival_timestamp or raw_datastore.get_latest_version(
-        dataset_id
-    )
-    raw_config = raw_datastore.get_config(dataset_id, archival_timestamp)
-
     transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     init_filename = "init.parquet"
@@ -130,18 +121,72 @@ def ingest_processed_dataset(
     return config
 
 
+def ingest_previously_processed_dataset(
+    dataset_id: str,
+    archival_timestamp: str,
+    *,
+    mode: str | None = None,
+    dataset_staging_dir: Path,
+    ingest_output_dir: Path = INGEST_OUTPUT_DIR,
+    latest: bool = False,
+    push: bool = False,
+    output_csv: bool = False,
+    overwrite_okay: bool = False,
+):
+    archival_timestamp = archival_timestamp or raw_datastore.get_latest_version(
+        dataset_id
+    )
+    raw_config = raw_datastore.get_config(dataset_id, archival_timestamp)
+    configs = configure.get_configs(raw_config, mode=mode)
+    for config in configs:
+        ingest_processed_dataset(
+            config,
+            dataset_staging_dir=dataset_staging_dir,
+            ingest_output_dir=ingest_output_dir,
+            latest=latest,
+            push=push,
+            output_csv=output_csv,
+            overwrite_okay=overwrite_okay,
+        )
+
+
 def ingest(
     dataset_id: str,
     *,
-    dataset_staging_dir: Path | None = None,
+    version: str | None = None,
+    mode: str | None = None,
+    dataset_staging_dir: Path,
+    ingest_output_dir: Path = INGEST_OUTPUT_DIR,
+    latest: bool = False,
+    push: bool = False,
+    output_csv: bool = False,
+    overwrite_okay: bool = False,
+    local_file_path: Path | None = None,
 ):
     if not dataset_staging_dir:
         dataset_staging_dir = (
-            INGEST_STAGING_DIR
-            / dataset_id
-            / config.archival.archival_timestamp.isoformat()
+            INGEST_STAGING_DIR / dataset_id / datetime.now().isoformat()
         )
         dataset_staging_dir.mkdir(parents=True)
     else:
         dataset_staging_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Using {dataset_staging_dir} to stage data")
+
+    raw_config = ingest_raw_dataset(
+        dataset_id,
+        version=version,
+        dataset_staging_dir=dataset_staging_dir,
+        push=push,
+        local_file_path=local_file_path,
+    )
+    configs = configure.get_configs(raw_config, mode=mode)
+    for config in configs:
+        ingest_processed_dataset(
+            config,
+            dataset_staging_dir=dataset_staging_dir,
+            ingest_output_dir=ingest_output_dir,
+            latest=latest,
+            push=push,
+            output_csv=output_csv,
+            overwrite_okay=overwrite_okay,
+        )
