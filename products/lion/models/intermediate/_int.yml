@@ -1,0 +1,7 @@
+models:
+- name: int__segments_to_nodes
+  description: Lookup table from all segments to joined nodes
+  columns:
+  - name: segmentid
+  - name: nodeid
+  - name: direction
