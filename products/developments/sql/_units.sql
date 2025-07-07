@@ -121,10 +121,13 @@ DROP TABLE IF EXISTS _units_devdb_a2_details;
 SELECT
     _units_devdb_resid_flag.*,
     job_type IN ('Alteration (A2)', 'Alteration (Non-CO)') AS presumed_a2_alteration,
+    lower(coalesce(work_types, '')) LIKE '%general construction%' AS flag_general_construction,
+    lower(coalesce(job_desc, '')) LIKE '%combin%' AS flag_combin,
+    lower(coalesce(job_desc, '')) LIKE '%separate apartment%' AS flag_separate_apartment,
+    lower(coalesce(job_desc, '')) LIKE '%separate unit%' AS flag_separate_unit,
     datasource = 'bis' OR (
-        job_desc IS NOT NULL
-        AND lower(job_desc) LIKE '%combin%'
-        AND lower(job_desc) NOT LIKE '%sprinkler%'
+        lower(coalesce(job_desc, '')) LIKE '%combin%'
+        AND lower(coalesce(job_desc, '')) NOT LIKE '%sprinkler%'
     ) AS meets_bis_a2_inclusion_rules,
     a2_corrections.job_number IS NOT NULL AS include_a2_record,
     a2_corrections.reason AS a2_inclusion_reason
