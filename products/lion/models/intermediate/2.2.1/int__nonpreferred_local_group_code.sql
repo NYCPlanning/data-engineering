@@ -14,7 +14,7 @@ nonpreferred_ranked_by_lgc AS (
     SELECT
         segmentid,
         lgc,
-        RANK() OVER (
+        ROW_NUMBER() OVER (
             PARTITION BY segmentid
             ORDER BY lgc ASC
         ) + 1 AS lgc_rank, -- value of 1 is reserved for preferred lgc
