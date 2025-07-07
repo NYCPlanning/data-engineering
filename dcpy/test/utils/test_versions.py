@@ -171,6 +171,7 @@ class TestVersions(TestCase):
             [None, 2, "23Q4.1", "24Q2"],
             [None, 1, "24exec", "24adopt"],
             [None, 1, "24adopt", "25prelim"],
+            [None, 2, "24adopt", "25exec"],
             [None, 6, "23prelim", "25prelim"],
             [None, 2, "24prelim", "24adopt"],
             ["patch", 1, "24prelim", "24prelim.1"],
