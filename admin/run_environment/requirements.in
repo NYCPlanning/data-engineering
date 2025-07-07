@@ -21,7 +21,7 @@ lxml>=4.6.2
 mapclassify
 matplotlib
 moto[s3]
-msal==1.23.0
+msal>=1.23.0
 mypy
 numerize
 openpyxl
