@@ -10,6 +10,7 @@ inputs:
   - name: dcp_cscl_featurename
   - name: dcp_cscl_segment_lgc
   - name: dcp_cscl_atomicpolygons
+    version: 25b_fixed_polys
   - name: dcp_cscl_altsegmentdata
   - name: dcp_cscl_addresspoints
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
