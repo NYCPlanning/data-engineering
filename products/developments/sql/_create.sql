@@ -38,9 +38,10 @@ CREATE TABLE _manual_corrections (
 DROP TABLE IF EXISTS a2_corrections;
 CREATE TABLE a2_corrections (
     job_number text,
+    include_record boolean,
     reason text,
-    edited_date text,
-    editor text
+    date_reviewed text,
+    reviewer text
 );
 \COPY a2_corrections FROM 'data/corrections/a2_corrections.csv' DELIMITER ',' CSV HEADER;
 
