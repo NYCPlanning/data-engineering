@@ -20,20 +20,6 @@ class CapitalBudgetRelease(IntEnum):
     exec = 2
     adopt = 3
 
-    @classmethod
-    def resolve_bumped_release(cls, value: int) -> CapitalBudgetRelease:
-        """
-        Resolves a bumped release value (e.g. original + bump) to a valid
-        release value, cycling through 1–3.
-        """
-        mod = value % 3
-        if mod == 0:
-            return cls.adopt
-        elif mod == 1:
-            return cls.prelim
-        else:  # mod == 2
-            return cls.exec
-
 
 @dataclass
 class RegexSpmMatch:
@@ -457,10 +443,16 @@ def bump(
             )
         case CapitalBudget(), None:
             total_bumped_value = previous_version.release_num + bump_by
-            bumped_release = CapitalBudgetRelease.resolve_bumped_release(
-                total_bumped_value
-            ).value
             bumped_year = previous_version.year + ((total_bumped_value - 1) // 3)
+
+            # Map total bump value to a valid release value: adopt (0), prelim (1), exec (2)
+            if total_bumped_value % 3 == 0:
+                bumped_release = CapitalBudgetRelease.adopt.value
+            elif total_bumped_value % 3 == 1:
+                bumped_release = CapitalBudgetRelease.prelim.value
+            else:
+                bumped_release = CapitalBudgetRelease.exec.value
+
             return CapitalBudget(
                 year=bumped_year,
                 release_num=bumped_release,
