@@ -237,23 +237,18 @@ def write_metadata(
                 metadata=metadata,
             )
         else:
-            raise Exception(
+            raise FileExistsError(
                 "Metadata XML already exists, and overwrite is False. Nothing will be written"
             )
 
     if not metadata_exists(path_to_shp):
-        if overwrite:
-            _write_text_to_file(
-                is_zip=shp_info["is_zip"],
-                path_to_zip=shp_info["path_to_zip"],
-                path_to_shp=shp_info["dir_containing_shp"],
-                xml_filename=xml_filename,
-                metadata=metadata,
-            )
-        else:
-            raise Exception(
-                "Metadata XML already exists, and overwrite is False. Nothing will be written"
-            )
+        _write_text_to_file(
+            is_zip=shp_info["is_zip"],
+            path_to_zip=shp_info["path_to_zip"],
+            path_to_shp=shp_info["dir_containing_shp"],
+            xml_filename=xml_filename,
+            metadata=metadata,
+        )
 
 
 # TODO - write this function
