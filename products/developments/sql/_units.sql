@@ -129,8 +129,11 @@ SELECT
         lower(coalesce(job_desc, '')) LIKE '%combin%'
         AND lower(coalesce(job_desc, '')) NOT LIKE '%sprinkler%'
     ) AS meets_bis_a2_inclusion_rules,
-    a2_corrections.job_number IS NOT NULL AS include_a2_record,
-    a2_corrections.reason AS a2_inclusion_reason
+    a2_corrections.job_number IS NOT NULL AS was_reviewed,
+    coalesce(a2_corrections.include_record, FALSE) AS include_a2_record,
+    a2_corrections.reason,
+    a2_corrections.date_reviewed,
+    a2_corrections.reviewer
 INTO _units_devdb_a2_details
 FROM _units_devdb_resid_flag
 LEFT JOIN a2_corrections
