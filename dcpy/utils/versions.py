@@ -73,9 +73,9 @@ class CapitalBudget(Version):
     def __lt__(self, other) -> bool:
         match other:
             case CapitalBudget():
-                return (self.year, self.release.value, self.patch) < (
+                return (self.year, self.release, self.patch) < (
                     other.year,
-                    other.release.value,
+                    other.release,
                     other.patch,
                 )
             case Date():
@@ -92,9 +92,9 @@ class CapitalBudget(Version):
     def __eq__(self, other) -> bool:
         match other:
             case CapitalBudget():
-                return (self.year, self.release.value, self.patch) == (
+                return (self.year, self.release, self.patch) == (
                     other.year,
-                    other.release.value,
+                    other.release,
                     other.patch,
                 )
             case _:
@@ -440,20 +440,13 @@ def bump(
                 f"Version subtype {bump_type} not applicable for Date versions"
             )
         case CapitalBudget(), None:
-            total_bumped_value = previous_version.release.value + bump_by
+            total_bumped_value = previous_version.release + bump_by
+            bumped_release = (total_bumped_value - 1) % 3 + 1
             bumped_year = previous_version.year + ((total_bumped_value - 1) // 3)
-
-            # Map total bump value to a valid release value: adopt (0), prelim (1), exec (2)
-            if total_bumped_value % 3 == 0:
-                bumped_release = CapitalBudgetRelease(3)
-            elif total_bumped_value % 3 == 1:
-                bumped_release = CapitalBudgetRelease(1)
-            else:
-                bumped_release = CapitalBudgetRelease(2)
 
             return CapitalBudget(
                 year=bumped_year,
-                release=bumped_release,
+                release=CapitalBudgetRelease(bumped_release),
             )
         case CapitalBudget(), VersionSubType.patch:
             return CapitalBudget(
