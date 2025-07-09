@@ -24,11 +24,36 @@ class TestVersions(TestCase):
                     format=versions.DateVersionFormat.quarter,
                 ),
             ],
-            ["26prelim", versions.CapitalBudget(year=26, release_num=1)],
-            ["24exec", versions.CapitalBudget(year=24, release_num=2)],
-            ["22adopt", versions.CapitalBudget(year=22, release_num=3)],
-            ["25adopt.3", versions.CapitalBudget(year=25, release_num=3, patch=3)],
-            ["25prelim", versions.CapitalBudget(year=25, release_num=1, patch=0)],
+            [
+                "26prelim",
+                versions.CapitalBudget(
+                    year=26, release=versions.CapitalBudgetRelease(1)
+                ),
+            ],
+            [
+                "24exec",
+                versions.CapitalBudget(
+                    year=24, release=versions.CapitalBudgetRelease(2)
+                ),
+            ],
+            [
+                "22adopt",
+                versions.CapitalBudget(
+                    year=22, release=versions.CapitalBudgetRelease(3)
+                ),
+            ],
+            [
+                "25adopt.3",
+                versions.CapitalBudget(
+                    year=25, release=versions.CapitalBudgetRelease(3), patch=3
+                ),
+            ],
+            [
+                "25prelim",
+                versions.CapitalBudget(
+                    year=25, release=versions.CapitalBudgetRelease(1), patch=0
+                ),
+            ],
         ]:
             self.assertEqual(parsed, versions.parse(version))
 
@@ -124,7 +149,9 @@ class TestVersions(TestCase):
             ].sort()
         with self.assertRaises(ValueError):
             [
-                versions.CapitalBudget(year=25, release_num=1),
+                versions.CapitalBudget(
+                    year=25, release=versions.CapitalBudgetRelease(1)
+                ),
                 versions.Date(date(2025, 1, 1), format=versions.DateVersionFormat.date),
             ].sort()
 
@@ -170,6 +197,9 @@ class TestVersions(TestCase):
             ["minor", None, "23v2.2.1", "23v2.3"],
             [None, 2, "23Q4.1", "24Q2"],
             [None, 1, "24exec", "24adopt"],
+            [None, 1, "24adopt", "25prelim"],
+            [None, 2, "24adopt", "25exec"],
+            [None, 6, "23prelim", "25prelim"],
             [None, 2, "24prelim", "24adopt"],
             ["patch", 1, "24prelim", "24prelim.1"],
             ["patch", 2, "24prelim.2", "24prelim.4"],

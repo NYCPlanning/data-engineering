@@ -56,12 +56,12 @@ class Version:
 @dataclass
 class CapitalBudget(Version):
     year: int
-    release_num: int
+    release: CapitalBudgetRelease
     patch: int = 0
 
     @property
     def release_name(self) -> str:
-        return CapitalBudgetRelease(self.release_num).name
+        return self.release.name
 
     @property
     def label(self) -> str:
@@ -73,9 +73,9 @@ class CapitalBudget(Version):
     def __lt__(self, other) -> bool:
         match other:
             case CapitalBudget():
-                return (self.year, self.release_num, self.patch) < (
+                return (self.year, self.release, self.patch) < (
                     other.year,
-                    other.release_num,
+                    other.release,
                     other.patch,
                 )
             case Date():
@@ -92,9 +92,9 @@ class CapitalBudget(Version):
     def __eq__(self, other) -> bool:
         match other:
             case CapitalBudget():
-                return (self.year, self.release_num, self.patch) == (
+                return (self.year, self.release, self.patch) == (
                     other.year,
-                    other.release_num,
+                    other.release,
                     other.patch,
                 )
             case _:
@@ -287,16 +287,14 @@ def parse(v: str) -> Version:
                 patch=int(m[3]),
             )
         case r"^(\d{2})(adopt|exec|prelim)$" as m:
-            release_num = CapitalBudgetRelease[m[2]].value
             return CapitalBudget(
                 year=int(m[1]),
-                release_num=release_num,
+                release=CapitalBudgetRelease[m[2]],
             )
         case r"^(\d{2})(adopt|exec|prelim)\.(\d+)$" as m:
-            release_num = CapitalBudgetRelease[m[2]].value
             return CapitalBudget(
                 year=int(m[1]),
-                release_num=release_num,
+                release=CapitalBudgetRelease[m[2]],
                 patch=int(m[3]),
             )
         case _:
@@ -442,14 +440,18 @@ def bump(
                 f"Version subtype {bump_type} not applicable for Date versions"
             )
         case CapitalBudget(), None:
+            total_bumped_value = previous_version.release + bump_by
+            bumped_release = (total_bumped_value - 1) % 3 + 1
+            bumped_year = previous_version.year + ((total_bumped_value - 1) // 3)
+
             return CapitalBudget(
-                year=previous_version.year,
-                release_num=previous_version.release_num + bump_by,
+                year=bumped_year,
+                release=CapitalBudgetRelease(bumped_release),
             )
         case CapitalBudget(), VersionSubType.patch:
             return CapitalBudget(
                 year=previous_version.year,
-                release_num=previous_version.release_num,
+                release=previous_version.release,
                 patch=previous_version.patch + bump_by,
             )
         case _:
