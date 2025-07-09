@@ -3,20 +3,26 @@ product: lion
 version_strategy: first_of_month # TODO 
 inputs:
   datasets:
+  # segment source layers - backbone
   - name: dcp_cscl_centerline
-  - name: dcp_cscl_nonstreetfeatures
-  - name: dcp_cscl_nodes
-  - name: dcp_cscl_sectionalmap
-  - name: dcp_cscl_streetname
-  - name: dcp_cscl_featurename
-  - name: dcp_cscl_segment_lgc
-  - name: dcp_cscl_atomicpolygons
-  - name: dcp_cscl_altsegmentdata
-  - name: dcp_cscl_addresspoints
-  - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
-  - name: dcp_cscl_sedat
-  - name: dcp_cscl_specialsedat
-  - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_shoreline
   - name: dcp_cscl_railroads
   - name: dcp_cscl_subways
+  - name: dcp_cscl_nonstreetfeatures
+
+  # other more "primary" layers
+  - name: dcp_cscl_atomicpolygons
+  - name: dcp_cscl_nodes
+
+  # all other tables
+  - name: dcp_cscl_addresspoints
+  - name: dcp_cscl_altsegmentdata
+  - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
+  - name: dcp_cscl_featurename
+  - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_sectionalmap
+  - name: dcp_cscl_sedat
+  - name: dcp_cscl_segment_lgc
+  - name: dcp_cscl_specialsedat
+  - name: dcp_cscl_streetname
   missing_versions_strategy: find_latest # TODO - they should all match
