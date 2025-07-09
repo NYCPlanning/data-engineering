@@ -35,7 +35,7 @@ inexact_matches AS (
 ),
 all_together AS (
     SELECT * FROM inexact_matches
-    UNION
+    UNION ALL
     SELECT * FROM exact_matches
 )
 SELECT
