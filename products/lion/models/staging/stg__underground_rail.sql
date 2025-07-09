@@ -1,0 +1,25 @@
+{{ config(
+    materialized = 'table',
+    indexes=[
+      {'columns': ['geom'], 'type': 'gist'},
+      {'columns': ['midpoint'], 'type': 'gist'},
+      {'columns': ['segmentid']}
+    ]
+) }}
+
+
+SELECT
+    segmentid,
+    geom,
+    ST_LINEINTERPOLATEPOINT(ST_LINEMERGE(geom), 0.5) AS midpoint,
+    'subway' AS rail_type
+FROM {{ source("recipe_sources", "dcp_cscl_subways") }}
+WHERE row_type = '1'
+UNION
+SELECT
+    segmentid,
+    geom,
+    ST_LINEINTERPOLATEPOINT(ST_LINEMERGE(geom), 0.5) AS midpoint,
+    'railroad' AS rail_type
+FROM {{ source("recipe_sources", "dcp_cscl_railroads") }}
+WHERE row_type = '1' -- FYI: row_type == Right of Way type, and a value of 1 = "subterranean"
