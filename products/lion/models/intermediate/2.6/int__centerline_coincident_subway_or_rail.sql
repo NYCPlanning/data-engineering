@@ -1,5 +1,8 @@
 {{ config(
     materialized = 'table',
+    indexes=[
+      {'columns': ['segmentid']},
+    ]
 ) }}
 
 -- Exact matches catches all but ~50 or so
