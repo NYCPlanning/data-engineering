@@ -6,8 +6,8 @@ inputs:
   # segment source layers - backbone
   - name: dcp_cscl_centerline
   - name: dcp_cscl_shoreline
-  - name: dcp_cscl_railroads
-  - name: dcp_cscl_subways
+  - name: dcp_cscl_rail
+  - name: dcp_cscl_subway
   - name: dcp_cscl_nonstreetfeatures
 
   # other more "primary" layers

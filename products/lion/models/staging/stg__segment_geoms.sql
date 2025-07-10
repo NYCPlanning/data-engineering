@@ -2,8 +2,8 @@
     for source_layer in [
         "dcp_cscl_centerline",
         "dcp_cscl_shoreline",
-        "dcp_cscl_railroads",
-        "dcp_cscl_subways",
+        "dcp_cscl_rail",
+        "dcp_cscl_subway",
         "dcp_cscl_nonstreetfeatures",
     ] 
 -%}
