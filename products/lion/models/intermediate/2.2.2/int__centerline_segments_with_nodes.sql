@@ -11,6 +11,10 @@ WITH centerline AS (
         st_startpoint(geom) AS from_geom,
         st_endpoint(geom) AS to_geom
     FROM {{ ref("stg__centerline") }}
+),
+
+segments_to_nodes AS (
+    SELECT * FROM {{ ref("int__segments_to_nodes") }}
 )
 
 SELECT
@@ -24,10 +28,10 @@ SELECT
     from_sm.sectional_map AS from_sectionalmap,
     to_sm.sectional_map AS to_sectionalmap
 FROM centerline
-LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_from
-    ON st_dwithin(centerline.from_geom, n_from.geom, 0.01)
-LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nodes") }} AS n_to
-    ON st_dwithin(centerline.to_geom, n_to.geom, 0.01)
+LEFT JOIN segments_to_nodes AS n_from
+    ON centerline.segmentid = n_from.segmentid AND n_from.direction = 'from'
+LEFT JOIN segments_to_nodes AS n_to
+    ON centerline.segmentid = n_to.segmentid AND n_to.direction = 'to'
 LEFT JOIN
     {{ source("recipe_sources", "dcp_cscl_sectionalmap") }} AS from_sm
     ON st_contains(from_sm.geom, centerline.from_geom)

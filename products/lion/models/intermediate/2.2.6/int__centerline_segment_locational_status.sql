@@ -4,6 +4,7 @@
       {'columns': ['segmentid']},
     ]
 ) }}
+
 WITH atomicpolygons AS (
     SELECT
         segmentid,
@@ -16,14 +17,27 @@ WITH atomicpolygons AS (
         right_2010_census_tract
     FROM {{ ref("int__centerline_atomicpolygons") }}
 ),
-segments_with_neighbors AS (
-    SELECT * FROM {{ ref("int__centerline_segment_neighbors") }}
+
+-- many-to-many of segments to nodes
+segments_to_nodes AS (
+    SELECT * FROM {{ ref("int__segments_to_nodes") }}
 ),
-segments_with_orphan_node AS (
+
+-- total number of segments associated with each node
+segments_by_node AS (
+    SELECT
+        nodeid,
+        count(*) AS n_segments
+    FROM segments_to_nodes
+    GROUP BY nodeid
+),
+
+segments_n_neighbors AS (
     SELECT
         segmentid,
-        MAX(node_missing_neighbor) AS segment_missing_neighbor
-    FROM segments_with_neighbors
+        min(n_segments) AS minimum_neighbors -- between the two nodes, minimum number of segments joined
+    FROM segments_to_nodes AS s2n
+    INNER JOIN segments_by_node AS sbn ON s2n.nodeid = sbn.nodeid
     GROUP BY segmentid
 ),
 
@@ -54,12 +68,12 @@ same_ap AS (
         NULL AS borough_boundary_indicator,
         centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
         CASE
-            WHEN o.segment_missing_neighbor = 1 THEN 'I'
-            WHEN o.segment_missing_neighbor = 0 THEN 'H'
+            -- not joined or impossible < 1 case -> NULL
+            WHEN snn.minimum_neighbors = 1 THEN 'I'
+            WHEN snn.minimum_neighbors > 1 THEN 'H'
         END AS segment_locational_status
     FROM atomicpolygons AS ap
-    LEFT JOIN segments_with_orphan_node AS o
-        ON ap.segmentid = o.segmentid
+    LEFT JOIN segments_n_neighbors AS snn ON ap.segmentid = snn.segmentid
     WHERE ap.left_atomicid = ap.right_atomicid
 ),
 different_aps_different_boros AS (

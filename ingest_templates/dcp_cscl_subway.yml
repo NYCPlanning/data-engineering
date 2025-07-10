@@ -1,8 +1,8 @@
-id: dcp_cscl_subways
+id: dcp_cscl_subway
 acl: private
 
 attributes:
-  name: CSCL Railroads
+  name: CSCL Subway Lines
 
 ingestion:
   source:

@@ -4,28 +4,35 @@ sources:
 - name: recipe_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
-  - name: dcp_cscl_atomicpolygons
+  # segment source layers - backbone
   - name: dcp_cscl_centerline
+  - name: dcp_cscl_shoreline
+  - name: dcp_cscl_rail
+  - name: dcp_cscl_subway
+  - name: dcp_cscl_nonstreetfeatures
+
+  # other more "primary" layers
+  - name: dcp_cscl_atomicpolygons
   - name: dcp_cscl_nodes
-  - name: dcp_cscl_sectionalmap
-  - name: dcp_cscl_altsegmentdata
+
+  # all other tables
   - name: dcp_cscl_addresspoints
-  - name: dcp_cscl_commonplace_gdb
-  - name: dcp_cscl_streetname
+  - name: dcp_cscl_altsegmentdata
+  - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
   - name: dcp_cscl_featurename
+  - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_sectionalmap
+  - name: dcp_cscl_sedat
   - name: dcp_cscl_segment_lgc
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - segmentid
-            - lgc
-          config:
-            severity: warn
-  - name: dcp_cscl_sedat
+    - dbt_utils.unique_combination_of_columns:
+        combination_of_columns:
+        - segmentid
+        - lgc
+        config:
+          severity: warn
   - name: dcp_cscl_specialsedat
-  - name: dcp_cscl_subways
-  - name: dcp_cscl_nypdbeat
-  - name: dcp_cscl_railroads
+  - name: dcp_cscl_streetname
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs

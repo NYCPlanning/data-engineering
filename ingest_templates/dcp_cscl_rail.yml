@@ -1,8 +1,8 @@
-id: dcp_cscl_railroads
+id: dcp_cscl_rail
 acl: private
 
 attributes:
-  name: CSCL Railroads
+  name: CSCL Rail Lines
 
 ingestion:
   source:
