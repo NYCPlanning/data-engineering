@@ -56,3 +56,5 @@ sources:
       - name: previous_pluto
       - name: export_pluto
         description: final PLUTO table
+      - name: dcp_zoningdistricts
+      - name: dcp_zoningmaxfar
