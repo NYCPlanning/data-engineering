@@ -3,9 +3,9 @@ product: db-developments
 version_strategy: 
   bump_latest_release: 2
 vars:
-  GEOSUPPORT_VERSION: 24d
-  CAPTURE_DATE: 01-01-2025
-  CAPTURE_DATE_PREV: 07-01-2024
+  GEOSUPPORT_VERSION: 25b
+  CAPTURE_DATE: 07-01-2025
+  CAPTURE_DATE_PREV: 01-01-2025
 
 inputs:
   missing_versions_strategy: find_latest
