@@ -26,6 +26,9 @@ PRODUCTS_TO_LOG = [
 ]
 IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
+# TODO: Move this to lifecycle.config, and read from pyproject.toml
+# The intent being to localize configuration into just the modules that need it.
+# E.g. Utils and connectors don't need to know about product metadata paths.
 PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
 
 TEMPLATE_DIR: Path | None = (
