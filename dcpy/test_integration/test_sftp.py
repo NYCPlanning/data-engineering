@@ -4,11 +4,11 @@ from tempfile import TemporaryDirectory
 from datetime import datetime
 import pytz
 from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
-from dcpy.connectors import sftp
+import dcpy.utils.sftp as sftp_utils
 
 
 @pytest.fixture
-def default_sftp_kwargs(tmp_path):
+def default_sftp_kwargs(tmp_path: Path):
     return {
         "server": SFTPServer(hostname="sftp-server", port=22),
         "user": SFTPUser(
@@ -23,14 +23,14 @@ def default_sftp_kwargs(tmp_path):
 
 def test_list_directory(default_sftp_kwargs: dict):
     print(f"{default_sftp_kwargs['user']}")
-    entries = sftp.list_directory(
+    entries = sftp_utils.list_directory(
         server=default_sftp_kwargs["server"], user=default_sftp_kwargs["user"]
     )
     assert entries == [".ssh", "remote_files"]
 
 
 def test_list_directory_specific_path(default_sftp_kwargs: dict):
-    entries = sftp.list_directory(
+    entries = sftp_utils.list_directory(
         server=default_sftp_kwargs["server"],
         user=default_sftp_kwargs["user"],
         path="/.ssh/",
@@ -39,7 +39,7 @@ def test_list_directory_specific_path(default_sftp_kwargs: dict):
 
 
 def test_get_file(default_sftp_kwargs: dict):
-    sftp.get_file(**default_sftp_kwargs)
+    sftp_utils.get_file(**default_sftp_kwargs)
     assert default_sftp_kwargs["local_file_path"].exists()
 
 
@@ -56,9 +56,9 @@ def test_put_file(default_sftp_kwargs: dict):
         with open(local_file_path, "w") as f:
             f.write("Some local test text. File size should be 51 bytes.")
 
-        _ = sftp.put_file(**sftp_put_kwargs)
+        _ = sftp_utils.put_file(**sftp_put_kwargs)
 
-    remote_filenames = sftp.list_directory(
+    remote_filenames = sftp_utils.list_directory(
         server=default_sftp_kwargs["server"],
         user=default_sftp_kwargs["user"],
         path="/remote_files/",
