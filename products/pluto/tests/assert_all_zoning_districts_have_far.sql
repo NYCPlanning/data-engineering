@@ -3,7 +3,7 @@
         tags = ['de_check', 'minor', 'major'], 
         meta = {
             'description': '''
-				This test checks ensures that all zoning districts have defined FAR values in data/dcp_zoning_maxfar.csv
+				This test checks for any zoning districts missing from data/dcp_zoning_maxfar.csv (that would therefore be missing FAR values in PLUTO)
                 This could change eventually, if we implement more complete logic around resolving mixed use districts
 			''',
             'next_steps': 'Contact Zoning to get updated FAR table'
