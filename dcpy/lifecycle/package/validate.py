@@ -88,6 +88,10 @@ def _is_valid_wkb(g):
         return False
 
 
+def _is_bool(s):
+    return str(s).lower() in ("true", "false")
+
+
 def _is_int(s):
     if s[0] in ("-", "+"):
         return s[1:].isdigit()
@@ -121,22 +125,23 @@ def _is_geom_poly(s):
 
 col_validators = {
     "bbl": lambda df, col_name: df[~df[col_name].str.match(r"^\d{10}$")],
-    "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
+    "bool": lambda df, col_name: df[~df[col_name].apply(_is_bool)],
+    "decimal": lambda df, col_name: df[~df[col_name].apply(_is_decimal)],
     "geom_point": lambda df, col_name: df[~df[col_name].apply(_is_geom_point)],
     "geom_poly": lambda df, col_name: df[~df[col_name].apply(_is_geom_poly)],
     "integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
-    "decimal": lambda df, col_name: df[~df[col_name].apply(_is_decimal)],
     "number": lambda df, col_name: df[~df[col_name].apply(_is_number)],
+    "wkb": lambda df, col_name: df[~df[col_name].apply(_is_valid_wkb)],
     # TODO
-    "geometry": lambda df, col_name: df.iloc[0:0],
-    "datetime": lambda df, col_name: df.iloc[0:0],
-    "uid": lambda df, col_name: df.iloc[0:0],
-    "boro_code": lambda df, col_name: df.iloc[0:0],
     "block": lambda df, col_name: df.iloc[0:0],
-    "lot": lambda df, col_name: df.iloc[0:0],
+    "boro_code": lambda df, col_name: df.iloc[0:0],
+    "datetime": lambda df, col_name: df.iloc[0:0],
+    "geometry": lambda df, col_name: df.iloc[0:0],
     "latitude": lambda df, col_name: df.iloc[0:0],
     "longitude": lambda df, col_name: df.iloc[0:0],
+    "lot": lambda df, col_name: df.iloc[0:0],
     "text": lambda df, col_name: df.iloc[0:0],
+    "uid": lambda df, col_name: df.iloc[0:0],
 }
 
 

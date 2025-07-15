@@ -40,6 +40,10 @@ class DCPFakes:
         return str(random.randrange(1, 1000))
 
     @staticmethod
+    def bool():
+        return random.choice(["true", "false", "True", "False", "TRUE", "FALSE"])
+
+    @staticmethod
     def bbl(boro_code, block, lot):
         return f"{boro_code}{block.zfill(5)}{lot.zfill(4)}"
 
@@ -51,6 +55,7 @@ fakes: dict[str, Callable] = {
     "boro_code": DCPFakes.boro_code,
     "block": DCPFakes.block,
     "lot": DCPFakes.lot,
+    "bool": DCPFakes.bool,
     "bbl": DCPFakes.bbl,
     "uid": lambda: str(uuid.UUID(int=rd.getrandbits(128), version=4)),
     "text": faker.pystr,
