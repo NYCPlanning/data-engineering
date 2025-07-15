@@ -191,7 +191,7 @@ def test_additional_cols_in_source():
     errors = validate.validate_df(fake_ds, metadata.columns)
     assert len(errors) == 1, "One error should have been found"
 
-    assert errors[0].error_type == validate.ErrorType.COLUMM_MISMATCH, (
+    assert errors[0].error_type == validate.ErrorType.COLUMN_MISMATCH, (
         "The correct error type should be returned"
     )
 
