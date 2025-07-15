@@ -105,7 +105,6 @@ env:
 
 - [ ] `dcp_mappluto_wi`
 - [ ] `dof_shoreline` updated with zoningtaxlots, safe to ignore
-- [ ] `council_members` [check opendate](https://data.cityofnewyork.us/City-Government/Council-Members/uvw5-9znb)
 - [ ] `doitt_buildingfootprints` [check opendata](https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh)
 - [ ] `doitt_buildingfootprints_historical` [check opendata](https://data.cityofnewyork.us/Housing-Development/Building-Footprints-Historical-Shape/s5zg-yzea)
 - [ ] `doitt_zipcodeboundaries` -> never changed, safe to ignore
