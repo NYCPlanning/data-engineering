@@ -15,7 +15,7 @@ from dcpy.utils.logging import logger
 class ErrorType(Enum):
     INVALID_DATA = "INVALID_DATA"
     NULLS_FOUND = "NULLS_FOUND"
-    COLUMM_MISMATCH = "COLUMN_MISMATCH"
+    COLUMN_MISMATCH = "COLUMN_MISMATCH"
     INVALID_METADATA = "INVALID_METADATA"
     UNHANDLED_EXCEPTION = "UNHANDLED_EXCEPTION"
     MISSING_FILE = "MISSING_FILE"
@@ -164,7 +164,7 @@ def validate_df(
     if extras_in_source:
         errors.append(
             ValidationError(
-                error_type=ErrorType.COLUMM_MISMATCH,
+                error_type=ErrorType.COLUMN_MISMATCH,
                 message=f"Invalid column(s) found in source data: {extras_in_source}.",
             )
         )
@@ -173,7 +173,7 @@ def validate_df(
     if not_found_in_source:
         errors.append(
             ValidationError(
-                error_type=ErrorType.COLUMM_MISMATCH,
+                error_type=ErrorType.COLUMN_MISMATCH,
                 message=f"Column(s) missing from source data: {not_found_in_source}.",
             )
         )
