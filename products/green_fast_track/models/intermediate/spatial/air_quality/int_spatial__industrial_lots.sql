@@ -18,5 +18,5 @@ SELECT
     bbl AS variable_id,
     geom AS raw_geom,
     geom AS lot_geom,
-    ST_BUFFER(geom, 400) AS buffer_geom
+    st_buffer(geom, 400) AS buffer_geom
 FROM filtered

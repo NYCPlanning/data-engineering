@@ -8,5 +8,5 @@ SELECT
     'vent_towers' AS variable_type,
     name AS variable_id,
     wkb_geometry AS raw_geom,
-    ST_BUFFER(wkb_geometry, 75) AS buffer_geom
+    st_buffer(wkb_geometry, 75) AS buffer_geom
 FROM vents_raw

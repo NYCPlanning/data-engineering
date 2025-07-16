@@ -5,7 +5,7 @@ WITH dcp_lion AS (
 filtered AS (
     SELECT
         street,
-        ST_UNION(shape) AS geom
+        st_union(shape) AS geom
     FROM dcp_lion
     WHERE row_type IN ('2', '3', '4', '5', '6', '7')
     GROUP BY street
@@ -14,5 +14,5 @@ filtered AS (
 SELECT
     'exposed_railways' AS variable_type,
     street AS variable_id,
-    ST_MULTI(geom) AS raw_geom
+    st_multi(geom) AS raw_geom
 FROM filtered

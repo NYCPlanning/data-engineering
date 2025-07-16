@@ -19,7 +19,7 @@ state_facility_permits_with_pluto AS (
         s.permit_geom AS raw_geom,
         p.geom AS lot_geom
     FROM state_facility_permits AS s
-    LEFT JOIN pluto AS p ON ST_WITHIN(s.permit_geom, p.geom)
+    LEFT JOIN pluto AS p ON st_within(s.permit_geom, p.geom)
 
 ),
 
@@ -30,9 +30,9 @@ final AS (
         'state_facility' AS flag_id_field_name,
         variable_type,
         variable_id,
-        ST_MULTI(raw_geom) AS raw_geom,
-        ST_MULTI(lot_geom) AS lot_geom,
-        ST_MULTI(ST_BUFFER(COALESCE(lot_geom, raw_geom), 1000)) AS buffer_geom
+        st_multi(raw_geom) AS raw_geom,
+        st_multi(lot_geom) AS lot_geom,
+        st_multi(st_buffer(coalesce(lot_geom, raw_geom), 1000)) AS buffer_geom
     FROM state_facility_permits_with_pluto
 )
 

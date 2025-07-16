@@ -5,5 +5,5 @@ SELECT
     variable_id,
     raw_geom,
     lot_geom,
-    ST_MULTI(ST_BUFFER(COALESCE(lot_geom, raw_geom), 200)) AS buffer_geom
+    st_multi(st_buffer(coalesce(lot_geom, raw_geom), 200)) AS buffer_geom
 FROM {{ ref('int_spatial__historic_resources') }}

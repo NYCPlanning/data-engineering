@@ -26,5 +26,5 @@ SELECT
     'natural_resources' AS flag_id_field_name,
     variable_type,
     variable_id,
-    ST_MULTI(raw_geom) AS raw_geom
+    st_multi(raw_geom) AS raw_geom
 FROM all_natural_resources

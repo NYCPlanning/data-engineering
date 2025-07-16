@@ -38,9 +38,9 @@ pluto AS (
 
 hexes AS (
     {% set nyc_rel = ref('stg__nyc_boundary') %}
-    SELECT * FROM ST_HEXAGONGRID(
+    SELECT * FROM st_hexagongrid(
         8000,
-        ST_SETSRID(ST_ESTIMATEDEXTENT('{{ nyc_rel.schema }}', '{{ nyc_rel.identifier }}', 'geom'), 2263)
+        st_setsrid(st_estimatedextent('{{ nyc_rel.schema }}', '{{ nyc_rel.identifier }}', 'geom'), 2263)
     )
 ),
 
@@ -49,7 +49,7 @@ variable_geom_hexes AS (
         b.*,
         hexes.geom
     FROM variable_geoms AS b
-    LEFT JOIN hexes ON ST_INTERSECTS(b.variable_geom, hexes.geom)
+    LEFT JOIN hexes ON st_intersects(b.variable_geom, hexes.geom)
 ),
 
 joined_hexes AS (
@@ -61,7 +61,7 @@ joined_hexes AS (
         b.variable_id,
         b.raw_geom
     FROM variable_geom_hexes AS b INNER JOIN pluto AS p
-        ON ST_INTERSECTS(b.geom, p.bbl_geom) AND ST_INTERSECTS(b.variable_geom, p.bbl_geom)
+        ON st_intersects(b.geom, p.bbl_geom) AND st_intersects(b.variable_geom, p.bbl_geom)
 )
 
 SELECT
@@ -76,7 +76,7 @@ SELECT
                 'archaeological_area', 'shadow_open_spaces', 'shadow_nat_resources', 'shadow_hist_resources'
             )
             THEN 0
-        ELSE ST_DISTANCE(bbl_geom, raw_geom)
+        ELSE st_distance(bbl_geom, raw_geom)
     END AS distance
 FROM joined_hexes
 ORDER BY bbl ASC, flag_id_field_name ASC, variable_type ASC, variable_id ASC

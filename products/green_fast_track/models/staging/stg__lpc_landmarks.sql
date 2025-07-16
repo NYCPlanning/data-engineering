@@ -9,7 +9,7 @@ all_landmarks AS (
         status,
         last_actio,
         most_curre,
-        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
+        st_transform(wkb_geometry, 2263) AS raw_geom
     FROM lpc_landmarks
 ),
 

@@ -18,5 +18,5 @@ SELECT
     variable_type,
     variable_id,
     raw_geom,
-    ST_BUFFER(raw_geom, 200) AS buffer_geom
+    st_buffer(raw_geom, 200) AS buffer_geom
 FROM all_natural_resources

@@ -7,5 +7,5 @@ SELECT
     'arterial_highways' AS variable_type,
     name AS variable_id,
     wkb_geometry AS raw_geom,
-    ST_BUFFER(wkb_geometry, 200) AS buffer_geom
+    st_buffer(wkb_geometry, 200) AS buffer_geom
 FROM arterial_highways

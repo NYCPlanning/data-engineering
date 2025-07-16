@@ -8,15 +8,15 @@ WITH source AS (
 filtered AS (
     SELECT
         'nys_parks_properties' AS variable_type,
-        COALESCE(uid || '-', '') || name AS variable_id,
-        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
+        coalesce(uid || '-', '') || name AS variable_id,
+        st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
-    WHERE UPPER(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
+    WHERE upper(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
 )
 
 SELECT
     variable_type,
     variable_id,
-    ST_UNION(raw_geom) AS raw_geom
+    st_union(raw_geom) AS raw_geom
 FROM filtered
 GROUP BY variable_type, variable_id

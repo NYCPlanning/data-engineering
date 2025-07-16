@@ -7,7 +7,7 @@ WITH source AS (
 reprojected AS (
     SELECT
         *,
-        ST_TRANSFORM(wkt, 2263) AS geom
+        st_transform(wkt, 2263) AS geom
     FROM source
 ),
 
@@ -20,7 +20,7 @@ final AS (
         'us_parks_properties' AS variable_type,
         gnis_id,
         parkname,
-        COALESCE(gnis_id || '-', '') || parkname AS variable_id,
+        coalesce(gnis_id || '-', '') || parkname AS variable_id,
         geom AS raw_geom
     FROM clipped_to_nyc
 )
@@ -28,6 +28,6 @@ final AS (
 SELECT
     variable_type,
     variable_id,
-    ST_UNION(raw_geom) AS raw_geom
+    st_union(raw_geom) AS raw_geom
 FROM final
 GROUP BY variable_type, variable_id

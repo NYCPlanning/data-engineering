@@ -11,7 +11,7 @@ base AS (
         name,
         agency,
         name || '-' || agency AS variable_id,
-        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
+        st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 ),
 
@@ -24,15 +24,15 @@ filtered AS (
         raw_geom
     FROM base
     WHERE
-        UPPER(name) IN (
+        upper(name) IN (
             'BUSH TERMINAL PIERS PARK', 'SHERMAN CREEK STREET END PARKS'
         )
-        OR UPPER(agency) != 'NYC DPR'
+        OR upper(agency) != 'NYC DPR'
 )
 
 SELECT
     variable_type,
     variable_id,
-    ST_UNION(raw_geom) AS raw_geom
+    st_union(raw_geom) AS raw_geom
 FROM filtered
 GROUP BY variable_type, variable_id

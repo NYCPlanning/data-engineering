@@ -11,7 +11,7 @@ selected_columns AS (
         name311,
         typecategory,
         gispropnum || '-' || name311 AS variable_id,
-        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
+        st_transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 ),
 
@@ -31,6 +31,6 @@ filtered AS (
 SELECT
     variable_type,
     variable_id,
-    ST_UNION(raw_geom) AS raw_geom
+    st_union(raw_geom) AS raw_geom
 FROM filtered
 GROUP BY variable_type, variable_id

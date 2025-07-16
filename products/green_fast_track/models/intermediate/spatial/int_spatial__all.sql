@@ -44,8 +44,8 @@ SELECT
     flag_id_field_name,
     variable_type,
     variable_id,
-    ST_MULTI(raw_geom) AS raw_geom,
-    ST_MULTI(lot_geom) AS lot_geom,
-    ST_MULTI(buffer_geom) AS buffer_geom,
-    ST_MULTI(COALESCE(buffer_geom, lot_geom, raw_geom)) AS variable_geom
+    st_multi(raw_geom) AS raw_geom,
+    st_multi(lot_geom) AS lot_geom,
+    st_multi(buffer_geom) AS buffer_geom,
+    st_multi(coalesce(buffer_geom, lot_geom, raw_geom)) AS variable_geom
 FROM all_buffers

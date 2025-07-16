@@ -15,8 +15,8 @@ WITH polys_clipped AS (
 final AS (
     SELECT
         'nys_historic_districts' AS variable_type,
-        usnnum || COALESCE('-' || usnname, '') AS variable_id,
-        ST_TRANSFORM(geom, 2263) AS raw_geom,
+        usnnum || coalesce('-' || usnname, '') AS variable_id,
+        st_transform(geom, 2263) AS raw_geom,
         NULL AS buffer
     FROM polys_clipped
 )

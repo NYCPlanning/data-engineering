@@ -26,7 +26,7 @@ districts_mapped AS (
 lot_with_zoning_categories AS (
     SELECT
         bbl,
-        ARRAY_AGG(DISTINCT category_type) AS category_type_array
+        array_agg(DISTINCT category_type) AS category_type_array
     FROM districts_mapped
     GROUP BY bbl
 ),
@@ -35,9 +35,9 @@ lots_with_flags AS (
     SELECT
         bbl,
         category_type_array,
-        'other' = ANY(category_type_array) AS has_other,
-        'c_or_m' = ANY(category_type_array) AS has_c_or_m,
-        'low_res' = ANY(category_type_array) AS has_low_res
+        'other' = any(category_type_array) AS has_other,
+        'c_or_m' = any(category_type_array) AS has_c_or_m,
+        'low_res' = any(category_type_array) AS has_low_res
     FROM lot_with_zoning_categories
 ),
 
