@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import paramiko
+import stat
 
 from dcpy.utils.logging import logger
 
@@ -67,8 +68,22 @@ def list_directory(
     return entries
 
 
-def get_subfolders(server: SFTPServer, user: SFTPUser, prefix: str) -> list:
-    with _connection(server, user) as connection:
+def get_subfolders(
+    hostname: str,
+    username: str,
+    prefix: str,
+    *,
+    known_hosts_path: str,
+    private_key_path: str,
+    port: int = 22,
+) -> list:
+    with _connection(
+        hostname=hostname,
+        known_hosts_path=known_hosts_path,
+        port=port,
+        username=username,
+        private_key_path=private_key_path,
+    ) as connection:
         logger.info(f"Listing subfolders for remote path '{prefix}' ...")
         folder_objects = connection.listdir_attr(prefix)
         subfolders = [
@@ -129,12 +144,22 @@ def put_file(
 
 
 def object_exists(
-    server: SFTPServer,
-    user: SFTPUser,
+    hostname: str,
+    username: str,
     path: str,
+    *,
+    known_hosts_path: str,
+    private_key_path: str,
+    port: int = 22,
 ) -> bool:
     try:
-        with _connection(server, user) as connection:
+        with _connection(
+            hostname=hostname,
+            known_hosts_path=known_hosts_path,
+            port=port,
+            username=username,
+            private_key_path=private_key_path,
+        ) as connection:
             connection.stat(path)
         return True
     except FileNotFoundError:
