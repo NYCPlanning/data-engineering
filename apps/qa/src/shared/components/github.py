@@ -1,12 +1,12 @@
 import streamlit as st
-from dcpy.connectors.github import dispatch_workflow
+from dcpy.utils.git import github
 
 
 def dispatch_workflow_button(
     repo, workflow_name, key, label="Run", disabled=False, run_after=None, **inputs
 ):
     def on_click():
-        dispatch_workflow(repo, workflow_name, **inputs)
+        github.dispatch_workflow(repo, workflow_name, **inputs)
         if run_after is not None:
             run_after()
 

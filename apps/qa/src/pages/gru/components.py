@@ -4,14 +4,14 @@ from urllib.error import HTTPError
 import streamlit as st
 import time
 
-from dcpy.connectors.github import WorkflowRun
+from dcpy.utils.git import github
 from dcpy.utils import s3
 from src.shared.components.github import dispatch_workflow_button
 from .constants import qa_checks, bucket
 from .helpers import get_source_versions, get_geosupport_versions
 
 
-def status_details(workflow_run: WorkflowRun) -> None:
+def status_details(workflow_run: github.WorkflowRun) -> None:
     timestamp = workflow_run.timestamp.astimezone(pytz.timezone("US/Eastern")).strftime(
         "%Y-%m-%d %H:%M"
     )
@@ -47,7 +47,9 @@ def source_table() -> None:
         col3.write(source_versions[source]["timestamp"].strftime("%Y-%m-%d"))
 
 
-def check_table(workflows: dict[str, WorkflowRun], geosupport_version: str) -> None:
+def check_table(
+    workflows: dict[str, github.WorkflowRun], geosupport_version: str
+) -> None:
     column_widths = (3, 3, 4, 3, 2)
     cols = st.columns(column_widths)
     fields = ["Name", "Sources", "Latest results", "Status"]
