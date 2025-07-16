@@ -17,11 +17,11 @@
 }}
 
 WITH current_pluto AS (
-    SELECT COUNT(*) AS record_count
+    SELECT count(*) AS record_count
     FROM {{ source('build_sources', 'export_pluto') }}
 ),
 previous_pluto AS (
-    SELECT COUNT(*) AS record_count
+    SELECT count(*) AS record_count
     FROM {{ source('build_sources', 'previous_pluto') }}
 )
 

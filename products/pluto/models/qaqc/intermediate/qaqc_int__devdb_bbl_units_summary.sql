@@ -8,7 +8,7 @@ WITH completed_construction_records AS (
         bin,
         units_co,
         CASE
-            WHEN classa_prop IS null AND job_status = '5. Completed Construction' THEN 0
+            WHEN classa_prop IS NULL AND job_status = '5. Completed Construction' THEN 0
             ELSE classa_prop
         END AS classa_prop_modified,
         job_type,

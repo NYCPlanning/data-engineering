@@ -29,8 +29,8 @@ previous_pluto AS (
 
 -- query to detect differences and isolate records absent in one of the tables
 SELECT
-    COALESCE(current_pluto.bbl, previous_pluto.bbl) AS bbl,
-    COALESCE(current_pluto.source, previous_pluto.source) AS source
+    coalesce(current_pluto.bbl, previous_pluto.bbl) AS bbl,
+    coalesce(current_pluto.source, previous_pluto.source) AS source
 FROM current_pluto
 FULL OUTER JOIN previous_pluto
     ON current_pluto.bbl = previous_pluto.bbl

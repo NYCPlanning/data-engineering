@@ -135,8 +135,8 @@ WITH current AS (
         {{ dbt_utils.star(
             from=source('build_sources', 'export_pluto'), except=["latitude", "longitude"]
         ) }},
-        ROUND(latitude, 6) AS latitude,
-        ROUND(longitude, 6) AS longitude
+        round(latitude, 6) AS latitude,
+        round(longitude, 6) AS longitude
     FROM {{ source('build_sources', 'export_pluto') }}
 ),
 
@@ -146,23 +146,25 @@ prev AS (
         {% for col in columns %}
             {%- if col in numeric_columns -%}
                 
+                
                 {{ col }}::numeric,
             {%- elif col not in ["latitude", "longitude"] -%}
+                
                 
                 {{ col }},
             {%- endif -%}
         {% endfor %}
-        ROUND(latitude::decimal, 6) AS latitude,
-        ROUND(longitude::decimal, 6) AS longitude
+        round(latitude::decimal, 6) AS latitude,
+        round(longitude::decimal, 6) AS longitude
     FROM {{ source('build_sources', 'previous_pluto') }}
 ),
 
 mismatches AS (
     SELECT
         current.bbl,
-        JSONB_BUILD_ARRAY(
+        jsonb_build_array(
             {% for col in columns %}
-                JSONB_BUILD_OBJECT(
+                jsonb_build_object(
                     'column', '{{ col }}',
                     'previous', prev.{{ col }},
                     'current', current.{{ col }}
@@ -185,7 +187,7 @@ mismatches AS (
 unnested AS (
     SELECT
         bbl,
-        JSONB_ARRAY_ELEMENTS(mismatches) AS mismatch
+        jsonb_array_elements(mismatches) AS mismatch
     FROM mismatches
 )
 
@@ -193,5 +195,5 @@ SELECT
     bbl,
     j.*
 FROM unnested,
-    LATERAL JSONB_TO_RECORD(mismatch) AS j ("column" text, "previous" text, "current" text)
+    LATERAL jsonb_to_record(mismatch) AS j ("column" text, "previous" text, "current" text)
 WHERE current IS DISTINCT FROM previous
