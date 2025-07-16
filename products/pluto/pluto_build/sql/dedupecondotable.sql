@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS pluto_condo;
 CREATE TABLE pluto_condo AS (
     SELECT * FROM dof_condo
 );
-ALTER TABLE pluto_condo ADD COLUMN id SERIAL PRIMARY KEY;
+ALTER TABLE pluto_condo ADD COLUMN id serial PRIMARY KEY;
 
 -- remove duplicate records
 DELETE FROM pluto_condo
@@ -12,7 +12,7 @@ WHERE id IN (
     FROM (
         SELECT
             id,
-            ROW_NUMBER() OVER (
+            row_number() OVER (
                 PARTITION BY condo_base_bbl, condo_billing_bbl
                 ORDER BY condo_base_bbl, condo_billing_bbl
             ) AS row_num
@@ -28,7 +28,7 @@ WHERE id IN (
     FROM (
         SELECT
             id,
-            ROW_NUMBER() OVER (
+            row_number() OVER (
                 PARTITION BY condo_base_bbl
                 ORDER BY condo_base_bbl
             ) AS row_num
@@ -45,7 +45,7 @@ WHERE id IN (
     FROM (
         SELECT
             id,
-            ROW_NUMBER() OVER (
+            row_number() OVER (
                 PARTITION BY condo_base_bbl
                 ORDER BY condo_billing_bbl
             ) AS row_num

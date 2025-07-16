@@ -23,17 +23,17 @@ INSERT INTO pluto (
 )
 SELECT
     b.bbl,
-    LEFT(b.bbl, 1) AS borocode,
+    left(b.bbl, 1) AS borocode,
     CASE
-        WHEN LEFT(b.bbl, 1) = '1' THEN 'MN'
-        WHEN LEFT(b.bbl, 1) = '2' THEN 'BX'
-        WHEN LEFT(b.bbl, 1) = '3' THEN 'BK'
-        WHEN LEFT(b.bbl, 1) = '4' THEN 'QN'
-        WHEN LEFT(b.bbl, 1) = '5' THEN 'SI'
+        WHEN left(b.bbl, 1) = '1' THEN 'MN'
+        WHEN left(b.bbl, 1) = '2' THEN 'BX'
+        WHEN left(b.bbl, 1) = '3' THEN 'BK'
+        WHEN left(b.bbl, 1) = '4' THEN 'QN'
+        WHEN left(b.bbl, 1) = '5' THEN 'SI'
     END AS borough,
-    TRIM(LEADING '0' FROM SUBSTRING(b.bbl, 2, 5)) AS block,
-    TRIM(LEADING '0' FROM RIGHT(b.bbl, 4)) AS lot,
-    ST_MAKEVALID(ST_MULTI(b.geom)) AS geom,
+    trim(LEADING '0' FROM substring(b.bbl, 2, 5)) AS block,
+    trim(LEADING '0' FROM right(b.bbl, 4)) AS lot,
+    st_makevalid(st_multi(b.geom)) AS geom,
     '3' AS plutomapid
 FROM notinpluto AS b;
 

@@ -13,7 +13,7 @@ WITH dcpcamavals AS (
             primebbl AS bbl,
             bsmnt_type,
             bsmntgradient,
-            ROW_NUMBER()
+            row_number()
                 OVER (
                     PARTITION BY primebbl
                     ORDER BY bsmnt_type DESC, bsmntgradient DESC

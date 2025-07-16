@@ -18,7 +18,7 @@ WHERE
     AND a.numfloors::numeric < 1;
 -- remove commas from lot area
 UPDATE pluto a
-SET lotarea = REPLACE(lotarea, ',', '')
+SET lotarea = replace(lotarea, ',', '')
 WHERE lotarea LIKE '%,%';
 
 -- repetitive with numericfields_geomfields

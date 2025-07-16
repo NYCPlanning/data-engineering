@@ -18,7 +18,7 @@ WHERE
 WITH primesums AS (
     SELECT
         billingbbl AS primebbl,
-        SUM(grossarea::double precision) AS grossarea
+        sum(grossarea::double precision) AS grossarea
     FROM pluto_input_cama
     WHERE bldgnum = '1' AND billingbbl::numeric > 0
     GROUP BY billingbbl

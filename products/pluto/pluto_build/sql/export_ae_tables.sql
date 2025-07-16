@@ -3,29 +3,29 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS ae_tax_lot;
 CREATE TABLE ae_tax_lot AS
 SELECT
-    e.bbl::CHAR(10),
-    e.borocode::CHAR(1) AS borough_id,
-    e.block::TEXT,
-    e.lot::TEXT,
-    e.address::TEXT,
-    e.landuse::CHAR(2) AS land_use_id,
-    ST_TRANSFORM(g.geom_2263, 4326) AS wgs84,
+    e.bbl::char(10),
+    e.borocode::char(1) AS borough_id,
+    e.block::text,
+    e.lot::text,
+    e.address::text,
+    e.landuse::char(2) AS land_use_id,
+    st_transform(g.geom_2263, 4326) AS wgs84,
     g.geom_2263 AS li_ft
 FROM export_pluto AS e
-INNER JOIN pluto_geom AS g ON e.bbl = g.bbl::NUMERIC
+INNER JOIN pluto_geom AS g ON e.bbl = g.bbl::numeric
 WHERE g.geom_2263 IS NOT NULL;
 
 DROP TABLE IF EXISTS ae_zoning_district;
 CREATE TABLE ae_zoning_district AS
 SELECT
-    GEN_RANDOM_UUID() AS id,
+    gen_random_uuid() AS id,
     zonedist AS label,
     geom AS wgs84,
-    ST_TRANSFORM(geom, 2263) AS li_ft
+    st_transform(geom, 2263) AS li_ft
 FROM dcp_zoningdistricts
 WHERE
     zonedist NOT IN ('PARK', 'BALL FIELD', 'PUBLIC PLACE', 'PLAYGROUND', 'BPC', '')
-    AND ST_GEOMETRYTYPE(ST_MAKEVALID(geom)) = 'ST_MultiPolygon';
+    AND st_geometrytype(st_makevalid(geom)) = 'ST_MultiPolygon';
 
 
 DROP TABLE IF EXISTS ae_zoning_district_zoning_district_class;
@@ -33,12 +33,12 @@ CREATE TABLE ae_zoning_district_zoning_district_class AS
 WITH split_zones AS (
     SELECT
         id,
-        UNNEST(STRING_TO_ARRAY(label, '/')) AS individual_zoning_district
+        unnest(string_to_array(label, '/')) AS individual_zoning_district
     FROM ae_zoning_district
 )
 SELECT
     id AS zoning_district_id,
-    (REGEXP_MATCH(individual_zoning_district, '^(\w\d+)(?:[^\d].*)?$'))[1] AS zoning_district_class_id
+    (regexp_match(individual_zoning_district, '^(\w\d+)(?:[^\d].*)?$'))[1] AS zoning_district_class_id
 FROM split_zones;
 
 DROP TABLE IF EXISTS ae_zoning_district_class_colors;
@@ -72,8 +72,8 @@ SELECT t.* FROM (
 
 DROP TABLE IF EXISTS ae_zoning_district_class_descriptions;
 CREATE TABLE ae_zoning_district_class_descriptions (
-    zoning_district_class_id TEXT,
-    description TEXT
+    zoning_district_class_id text,
+    description text
 );
 \COPY ae_zoning_district_class_descriptions FROM 'data/zoning_district_class_descriptions.csv' DELIMITER ',' CSV;
 DROP TABLE IF EXISTS ae_zoning_district_class;

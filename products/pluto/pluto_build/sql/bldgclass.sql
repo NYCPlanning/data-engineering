@@ -3,7 +3,7 @@ WITH bldgclass AS (
     SELECT DISTINCT
         billingbbl,
         bldgcl,
-        ROW_NUMBER()
+        row_number()
             OVER (
                 PARTITION BY billingbbl
                 ORDER BY bldgcl
@@ -26,7 +26,7 @@ WITH bldgclass AS (
 maxnum AS (
     SELECT
         billingbbl,
-        MAX(row_number) AS maxrow_number
+        max(row_number) AS maxrow_number
     FROM bldgclass
     GROUP BY billingbbl
 )
@@ -47,7 +47,7 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
         SELECT DISTINCT
             billingbbl,
             bldgcl,
-            ROW_NUMBER()
+            row_number()
                 OVER (
                     PARTITION BY billingbbl
                     ORDER BY bldgcl
@@ -70,7 +70,7 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
     maxnum AS (
         SELECT
             billingbbl,
-            MAX(row_number) AS maxrow_number
+            max(row_number) AS maxrow_number
         FROM bldgclass
         GROUP BY billingbbl
     ),
@@ -99,7 +99,7 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
 CREATE TEMP TABLE bblsbldgclass AS (
     SELECT
         billingbbl,
-        STRING_AGG(bldg_type, ', ') AS bldg_type
+        string_agg(bldg_type, ', ') AS bldg_type
     FROM bblsbldgclasslookup
     GROUP BY billingbbl
 );
@@ -157,25 +157,25 @@ WITH
 gardenlayper AS (
     SELECT
         p.bbl,
-        ST_AREA(
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(p.geom, n.geom)
+                WHEN st_coveredby(p.geom, n.geom)
                     THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                ELSE st_multi(st_intersection(p.geom, n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
-        ST_AREA(
+        st_area(p.geom) AS allbblgeom,
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom)
+                WHEN st_coveredby(n.geom, p.geom)
                     THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                ELSE st_multi(st_intersection(n.geom, p.geom))
             END
         ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        st_area(n.geom) AS allzonegeom
     FROM pluto AS p
     INNER JOIN dpr_greenthumb AS n
-        ON ST_INTERSECTS(p.geom, n.geom)
+        ON st_intersects(p.geom, n.geom)
     WHERE p.bldgclass LIKE 'V%' OR p.bldgclass IS NULL
 ),
 
@@ -209,7 +209,7 @@ bldgclass AS (
     SELECT DISTINCT
         bbl,
         bldgcl,
-        ROW_NUMBER()
+        row_number()
             OVER (
                 PARTITION BY bbl
                 ORDER BY bldgcl

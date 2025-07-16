@@ -6,7 +6,7 @@ CREATE TABLE pluto_temp_qc_notgeocoded AS (
         billingbbl,
         housenum_lo,
         street_name,
-        COUNT(*) AS count
+        count(*) AS count
     FROM pluto_rpad_geo
     WHERE cd IS NULL AND bbl IS NOT NULL
     GROUP BY bbl, billingbbl, housenum_lo, street_name

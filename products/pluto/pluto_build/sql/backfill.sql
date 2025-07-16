@@ -8,17 +8,17 @@ WHERE
     AND b.lotarea != 0
     AND
     (
-        ST_AREA(ST_TRANSFORM(a.geom, 2263))::numeric
-        - ST_AREA(ST_TRANSFORM(b.geom, 2263))::numeric
+        st_area(st_transform(a.geom, 2263))::numeric
+        - st_area(st_transform(b.geom, 2263))::numeric
     )
-    / ST_AREA(ST_TRANSFORM(b.geom, 2263))::numeric
+    / st_area(st_transform(b.geom, 2263))::numeric
     < 5
     AND
     (
-        ST_AREA(ST_TRANSFORM(a.geom, 2263))::numeric
-        - ST_AREA(ST_TRANSFORM(b.geom, 2263))::numeric
+        st_area(st_transform(a.geom, 2263))::numeric
+        - st_area(st_transform(b.geom, 2263))::numeric
     )
-    / ST_AREA(ST_TRANSFORM(b.geom, 2263))::numeric
+    / st_area(st_transform(b.geom, 2263))::numeric
 
     > -5;
 
@@ -52,7 +52,7 @@ WHERE
 
 -- # Recalculate lot area
 UPDATE pluto
-SET builtfar = ROUND(bldgarea::numeric / lotarea::numeric, 2)
+SET builtfar = round(bldgarea::numeric / lotarea::numeric, 2)
 WHERE lotarea != '0' AND lotarea IS NOT NULL;
 
 -- # Update irrlotcode from 18v2.1
@@ -84,7 +84,7 @@ SET zipcode = b.zipcode
 FROM dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
-    AND LENGTH(b.zipcode::text) = 5
+    AND length(b.zipcode::text) = 5
     AND a.zipcode IS NULL;
 
 UPDATE pluto a
@@ -93,7 +93,7 @@ FROM dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND (a.zipcode::numeric != b.zipcode::numeric)
-    AND LENGTH(b.zipcode::text) = 5;
+    AND length(b.zipcode::text) = 5;
 
 -- # Drop column
 ALTER TABLE pluto

@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS pluto_dtm_condosmerged;
 CREATE TABLE pluto_dtm_condosmerged AS (
     SELECT
         primebbl,
-        ST_UNION(geom) AS geom
+        st_union(geom) AS geom
     FROM pluto_dtm
     WHERE primebbl IS NOT NULL
     GROUP BY primebbl
@@ -29,7 +29,7 @@ DROP TABLE IF EXISTS pluto_dtm_noncondosmerged;
 CREATE TABLE pluto_dtm_noncondosmerged AS (
     SELECT
         bbl,
-        ST_UNION(ST_MAKEVALID(geom)) AS geom
+        st_union(st_makevalid(geom)) AS geom
     FROM pluto_dtm
     WHERE
         bbl IS NOT NULL
