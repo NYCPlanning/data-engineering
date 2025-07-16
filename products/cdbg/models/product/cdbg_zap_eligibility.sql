@@ -4,14 +4,14 @@ WITH eligibility AS (
 
 zap_projects AS (
     SELECT
-        ROW_NUMBER() OVER ()::integer AS project_row_number,
+        row_number() OVER ()::integer AS project_row_number,
         *
     FROM {{ ref("stg__zap_projects") }}
 )
 
 SELECT
     zap.*,
-    ARRAY_TO_STRING(e.bbls, ', ') AS distinct_bbls,
+    array_to_string(e.bbls, ', ') AS distinct_bbls,
     {{ bool_to_str("e.entirely_within_quarter_mile_of_eligible_tract") }} AS entirely_within_quarter_mile_of_eligible_tract, --noqa: LT05
     {{ bool_to_str("e.entirely_within_half_mile_of_eligible_tract") }} AS entirely_within_half_mile_of_eligible_tract,
     {{ bool_to_str("e.partially_within_quarter_mile_of_eligible_tract") }} AS partially_within_quarter_mile_of_eligible_tract, --noqa: LT05

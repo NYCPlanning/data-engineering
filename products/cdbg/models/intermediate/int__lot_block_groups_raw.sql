@@ -16,12 +16,12 @@ lot_block_group_intersections AS (
     SELECT
         pluto.bbl,
         pluto.wkb_geometry AS lot_geometry,
-        ST_AREA(pluto.wkb_geometry) AS lot_area_sqft,
+        st_area(pluto.wkb_geometry) AS lot_area_sqft,
         block_groups.geoid AS block_group_geoid,
         block_groups.geom AS block_group_geometry
     FROM pluto
     LEFT JOIN block_groups
-        ON ST_INTERSECTS(pluto.wkb_geometry, block_groups.geom)
+        ON st_intersects(pluto.wkb_geometry, block_groups.geom)
 ),
 
 intersection_calculations AS (
@@ -31,10 +31,10 @@ intersection_calculations AS (
         lot_area_sqft,
         block_group_geoid,
         block_group_geometry,
-        ST_AREA(
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(lot_geometry, block_group_geometry) THEN lot_geometry
-                ELSE ST_INTERSECTION(lot_geometry, block_group_geometry)
+                WHEN st_coveredby(lot_geometry, block_group_geometry) THEN lot_geometry
+                ELSE st_intersection(lot_geometry, block_group_geometry)
             END
         ) AS area_of_intersection_sqft
     FROM lot_block_group_intersections

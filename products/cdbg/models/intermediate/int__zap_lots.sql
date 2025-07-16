@@ -12,7 +12,7 @@ pluto AS (
 project_bbls AS (
     SELECT DISTINCT
         project_id,
-        TRIM(UNNEST(STRING_TO_ARRAY(bbls, ','))) AS bbl
+        trim(unnest(string_to_array(bbls, ','))) AS bbl
     FROM projects
     WHERE bbls IS NOT NULL
 ),
@@ -22,7 +22,7 @@ zap_lots AS (
         project_bbls.project_id,
         project_bbls.bbl,
         pluto.bbl IS NOT NULL AS joined_to_pluto,
-        ST_TRANSFORM(pluto.wkb_geometry, 2263) AS geom
+        st_transform(pluto.wkb_geometry, 2263) AS geom
     FROM project_bbls
     LEFT JOIN pluto
         ON project_bbls.bbl = pluto.bbl::text

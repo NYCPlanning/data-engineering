@@ -8,7 +8,7 @@ WITH lot_block_groups AS (
 
 valid_lot_block_groups AS (
     SELECT * FROM lot_block_groups
-    WHERE overlap_ratio IS NOT null
+    WHERE overlap_ratio IS NOT NULL
 ),
 
 lots_easy AS (
