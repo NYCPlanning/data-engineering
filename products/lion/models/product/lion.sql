@@ -56,7 +56,7 @@ SELECT
     streets.lgc2,
     streets.lgc3,
     streets.lgc4,
-    streets.board_of_elections_lgc_pointer::CHAR(1),
+    streets.board_of_elections_lgc_pointer::char(1),
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     nodes.from_x,
@@ -86,7 +86,7 @@ SELECT
     ap_right.right_election_district,
     ap_right.right_school_district,
     sedat.split_election_district_flag,
-    (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
+    (ARRAY['L', 'R'])[centerline.sandist_ind::int] AS sandist_ind,
     CASE
         WHEN trafdir = 'FT' THEN 'W'
         WHEN trafdir = 'TF' THEN 'A'
@@ -111,9 +111,9 @@ SELECT
     END AS twisted_parity_flag,
     saf.special_address_flag,
     curve.curve_flag,
-    round(curve.center_of_curvature_x)::INT AS center_of_curvature_x,
-    round(curve.center_of_curvature_y)::INT AS center_of_curvature_y,
-    round(centerline.shape_length)::INT AS segment_length_ft,
+    round(curve.center_of_curvature_x)::int AS center_of_curvature_x,
+    round(curve.center_of_curvature_y)::int AS center_of_curvature_y,
+    round(centerline.shape_length)::int AS segment_length_ft,
     CASE
         WHEN from_level_code BETWEEN 1 AND 26 THEN chr(64 + from_level_code)
         WHEN from_level_code = 99 THEN '*'

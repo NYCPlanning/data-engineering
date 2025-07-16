@@ -10,18 +10,18 @@ WITH centerline AS (
 all_lgc_pivoted AS (
     SELECT
         segmentid,
-        MAX(CASE WHEN lgc_rank = 1 THEN lgc END) AS lgc1,
-        MAX(CASE WHEN lgc_rank = 2 THEN lgc END) AS lgc2,
-        MAX(CASE WHEN lgc_rank = 3 THEN lgc END) AS lgc3,
-        MAX(CASE WHEN lgc_rank = 4 THEN lgc END) AS lgc4,
-        MAX(CASE WHEN lgc_rank = 5 THEN lgc END) AS lgc5,
-        MAX(CASE WHEN lgc_rank = 6 THEN lgc END) AS lgc6,
-        MAX(CASE WHEN lgc_rank = 7 THEN lgc END) AS lgc7,
-        MAX(CASE WHEN lgc_rank = 8 THEN lgc END) AS lgc8,
-        MAX(CASE WHEN lgc_rank = 9 THEN lgc END) AS lgc9,
-        MAX(board_of_elections_lgc_pointer) AS board_of_elections_lgc_pointer,
-        MAX(CASE WHEN lgc_rank = 1 THEN b5sc END) AS b5sc,
-        MAX(CASE WHEN lgc_rank = 1 THEN b7sc END) AS preferred_b7sc
+        max(CASE WHEN lgc_rank = 1 THEN lgc END) AS lgc1,
+        max(CASE WHEN lgc_rank = 2 THEN lgc END) AS lgc2,
+        max(CASE WHEN lgc_rank = 3 THEN lgc END) AS lgc3,
+        max(CASE WHEN lgc_rank = 4 THEN lgc END) AS lgc4,
+        max(CASE WHEN lgc_rank = 5 THEN lgc END) AS lgc5,
+        max(CASE WHEN lgc_rank = 6 THEN lgc END) AS lgc6,
+        max(CASE WHEN lgc_rank = 7 THEN lgc END) AS lgc7,
+        max(CASE WHEN lgc_rank = 8 THEN lgc END) AS lgc8,
+        max(CASE WHEN lgc_rank = 9 THEN lgc END) AS lgc9,
+        max(board_of_elections_lgc_pointer) AS board_of_elections_lgc_pointer,
+        max(CASE WHEN lgc_rank = 1 THEN b5sc END) AS b5sc,
+        max(CASE WHEN lgc_rank = 1 THEN b7sc END) AS preferred_b7sc
     FROM {{ ref("int__all_local_group_code_ranked") }}
     GROUP BY segmentid
 ),
@@ -52,8 +52,8 @@ SELECT
     all_lgc_pivoted.lgc8,
     all_lgc_pivoted.lgc9,
     all_lgc_pivoted.board_of_elections_lgc_pointer,
-    RIGHT(all_lgc_pivoted.b5sc, 5) AS five_digit_street_code,
-    COALESCE(principal_streetnames.facecode, principal_features.facecode) AS face_code
+    right(all_lgc_pivoted.b5sc, 5) AS five_digit_street_code,
+    coalesce(principal_streetnames.facecode, principal_features.facecode) AS face_code
 FROM
     centerline
 LEFT JOIN all_lgc_pivoted ON centerline.segmentid = all_lgc_pivoted.segmentid

@@ -19,7 +19,7 @@ WITH exact_matches AS (
         c.geom AS centerline_geom,
         c.midpoint AS centerline_midpoint
     FROM {{ ref('stg__underground_rail') }} AS r
-    INNER JOIN {{ ref('stg__centerline') }} AS c ON ST_EQUALS(r.geom, c.geom)
+    INNER JOIN {{ ref('stg__centerline') }} AS c ON st_equals(r.geom, c.geom)
 ),
 fuzzy_matches AS (
     SELECT
@@ -28,7 +28,7 @@ fuzzy_matches AS (
         r.rail_type,
         'fuzzy' AS match_type,
         c.coincident_seg_count AS starting_coincident_seg_count,
-        ST_DISTANCE(r.midpoint, c.midpoint) AS distance,
+        st_distance(r.midpoint, c.midpoint) AS distance,
         r.geom AS rail_geom,
         r.midpoint AS rail_midpoint,
         c.geom AS centerline_geom,
@@ -36,7 +36,7 @@ fuzzy_matches AS (
     FROM {{ ref('stg__underground_rail') }} AS r
     INNER JOIN {{ ref('stg__centerline') }} AS c
         -- 2.5 is probably too wide, but convenient for diagnostic/exporatory purposes
-        ON ST_DWITHIN(r.midpoint, c.midpoint, 2.5)
+        ON st_dwithin(r.midpoint, c.midpoint, 2.5)
     -- `WHERE NOT...` below shaves off a few seconds from the more conventional:
     -- WHERE r.segmentid NOT IN (SELECT trains_segment_id FROM exact_matches)
     WHERE NOT EXISTS (

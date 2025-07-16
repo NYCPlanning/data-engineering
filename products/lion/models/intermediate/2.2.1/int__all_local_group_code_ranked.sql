@@ -17,7 +17,7 @@ SELECT
     lgc_rank,
     CASE WHEN boe_preferred_lgc_flag = 'Y' THEN lgc_rank END AS board_of_elections_lgc_pointer,
     b5sc,
-    RANK() OVER (
+    rank() OVER (
         PARTITION BY segmentid
         ORDER BY b5sc
     ) AS b5sc_segmentid_rank, -- for sanity check. A segment should only have one b5sc (rank = 1)

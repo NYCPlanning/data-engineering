@@ -9,7 +9,7 @@
 -%}
     SELECT
         segmentid,
-        ST_LINEMERGE(geom) AS geom
+        st_linemerge(geom) AS geom
     FROM {{ source("recipe_sources", source_layer) }}
     {% if not loop.last -%}
         UNION ALL
