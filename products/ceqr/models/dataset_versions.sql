@@ -5,7 +5,7 @@ datasets AS (SELECT * FROM {{ ref("datasets") }}),
 -- preserve the order of rows in the seed file
 datasets_indexed AS (
     SELECT
-        ROW_NUMBER() OVER (
+        row_number() OVER (
             ORDER BY (SELECT NULL)
         ) AS row_number,
         *
@@ -19,7 +19,7 @@ recipe_versions AS (
         (CASE
             WHEN datasets_indexed.availability_type = 'webpage'
                 THEN NULL
-            ELSE COALESCE(source_data_versions.v, '{{ var('build_version') }}')
+            ELSE coalesce(source_data_versions.v, '{{ var('build_version') }}')
         END) AS version,
         datasets_indexed.availability_type,
         datasets_indexed.file_type,
