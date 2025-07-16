@@ -9,7 +9,7 @@ SELECT
     e.lot::text,
     e.address::text,
     e.landuse::char(2) AS land_use_id,
-    st_transform(g.geom_2263, 4326) AS wgs84,
+    ST_Transform(g.geom_2263, 4326) AS wgs84,
     g.geom_2263 AS li_ft
 FROM export_pluto AS e
 INNER JOIN pluto_geom AS g ON e.bbl = g.bbl::numeric
@@ -21,11 +21,11 @@ SELECT
     gen_random_uuid() AS id,
     zonedist AS label,
     geom AS wgs84,
-    st_transform(geom, 2263) AS li_ft
+    ST_Transform(geom, 2263) AS li_ft
 FROM dcp_zoningdistricts
 WHERE
     zonedist NOT IN ('PARK', 'BALL FIELD', 'PUBLIC PLACE', 'PLAYGROUND', 'BPC', '')
-    AND st_geometrytype(st_makevalid(geom)) = 'ST_MultiPolygon';
+    AND ST_GeometryType(ST_MakeValid(geom)) = 'ST_MultiPolygon';
 
 
 DROP TABLE IF EXISTS ae_zoning_district_zoning_district_class;

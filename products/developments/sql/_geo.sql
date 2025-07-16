@@ -119,7 +119,7 @@ geom_dob_bin_bldgfootprints AS (
         a.geo_bin,
         a.geo_latitude,
         a.geo_longitude,
-        st_centroid(b.wkb_geometry) AS geom,
+        ST_Centroid(b.wkb_geometry) AS geom,
         CASE
             WHEN b.wkb_geometry IS NOT NULL THEN 'BIN DOB buildingfootprints'
         END AS geomsource
@@ -138,7 +138,7 @@ geom_geo_bin_bldgfootprints AS (
         a.geo_bin,
         a.geo_latitude,
         a.geo_longitude,
-        coalesce(a.geom, st_centroid(b.wkb_geometry)) AS geom,
+        coalesce(a.geom, ST_Centroid(b.wkb_geometry)) AS geom,
         CASE
             WHEN a.geomsource IS NOT NULL
                 THEN a.geomsource
@@ -160,7 +160,7 @@ geom_geosupport AS (
         a.geo_bin,
         coalesce(
             a.geom,
-            st_setsrid(st_point(a.geo_longitude, a.geo_latitude), 4326)
+            ST_SetSRID(ST_Point(a.geo_longitude, a.geo_latitude), 4326)
         ) AS geom,
         CASE
             WHEN a.geomsource IS NOT NULL
@@ -177,7 +177,7 @@ geom_dob_bbl_mappluto AS (
         a.bbl,
         a.bin,
         a.geo_bbl,
-        coalesce(a.geom, st_centroid(b.wkb_geometry)) AS geom,
+        coalesce(a.geom, ST_Centroid(b.wkb_geometry)) AS geom,
         CASE
             WHEN a.geomsource IS NOT NULL
                 THEN a.geomsource
@@ -191,7 +191,7 @@ geom_dob_bbl_mappluto AS (
 buildingfootprints_historical AS (
     SELECT
         bin,
-        st_union(wkb_geometry) AS wkb_geometry
+        ST_Union(wkb_geometry) AS wkb_geometry
     FROM doitt_buildingfootprints_historical
     GROUP BY bin
 ),
@@ -199,7 +199,7 @@ geom_dob_bin_bldgfp_historical AS (
     SELECT DISTINCT
         a.id,
         a.job_number,
-        coalesce(a.geom, st_centroid(b.wkb_geometry)) AS geom,
+        coalesce(a.geom, ST_Centroid(b.wkb_geometry)) AS geom,
         CASE
             WHEN a.geomsource IS NOT NULL
                 THEN a.geomsource
@@ -230,8 +230,8 @@ geom_dob_latlon AS (
 )
 SELECT DISTINCT
     a.*,
-    st_y(b.geom) AS latitude,
-    st_x(b.geom) AS longitude,
+    ST_Y(b.geom) AS latitude,
+    ST_X(b.geom) AS longitude,
     b.geom,
     b.geomsource
 INTO geo_devdb

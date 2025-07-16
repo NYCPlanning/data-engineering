@@ -13,9 +13,9 @@ points AS (
     SELECT
         segmentid,
         curve AS curve_flag,
-        st_startpoint(geom) AS start_point,
-        st_endpoint(geom) AS end_point,
-        st_lineinterpolatepoint(geom, 0.5) AS mid_point,
+        ST_StartPoint(geom) AS start_point,
+        ST_EndPoint(geom) AS end_point,
+        ST_LineInterpolatePoint(geom, 0.5) AS mid_point,
         geom
     FROM curves
 ),
@@ -35,6 +35,6 @@ center_calculated AS (
 )
 SELECT
     *,
-    st_x(center_of_curvature) AS center_of_curvature_x,
-    st_y(center_of_curvature) AS center_of_curvature_y
+    ST_X(center_of_curvature) AS center_of_curvature_x,
+    ST_Y(center_of_curvature) AS center_of_curvature_y
 FROM center_calculated

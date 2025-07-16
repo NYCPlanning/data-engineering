@@ -92,13 +92,13 @@ SELECT
     a.latitude AS "Latitude",
     a.longitude AS "Longitude",
     a.notes AS "Notes",
-    round(st_length(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Leng",
-    round(st_area(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Area",
-    st_makevalid(b.:GEOM) AS geom
+    round(ST_Length(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Leng",
+    round(ST_Area(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Area",
+    ST_MakeValid(b.:GEOM) AS geom
 INTO :TABLE
 FROM export_pluto AS a, pluto_geom AS b
 WHERE
-    b.:GEOM IS NOT NULL AND NOT st_isempty(b.:GEOM)
+    b.:GEOM IS NOT NULL AND NOT ST_IsEmpty(b.:GEOM)
     AND a.bbl::bigint = b.bbl::bigint;
 
 ALTER TABLE :TABLE ALTER COLUMN "Borough" SET NOT NULL;

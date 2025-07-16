@@ -3,7 +3,7 @@ SELECT
     b.borocode::varchar AS borough
 INTO _combined
 FROM combined AS a
-LEFT JOIN dcp_boroboundaries AS b ON st_intersects(a.geom, b.wkb_geometry);
+LEFT JOIN dcp_boroboundaries AS b ON ST_Intersects(a.geom, b.wkb_geometry);
 
 DROP TABLE combined;
 SELECT * INTO combined FROM _combined;
@@ -25,8 +25,8 @@ max_area AS (
     INNER JOIN dcp_boroboundaries AS b ON b.borocode::varchar = combined.borough
     ORDER BY
         combined.record_id,
-        st_area(st_intersection(combined.geom, b.wkb_geometry))
-        / st_area(combined.geom) DESC
+        ST_Area(ST_Intersection(combined.geom, b.wkb_geometry))
+        / ST_Area(combined.geom) DESC
 )
 
 DELETE FROM combined

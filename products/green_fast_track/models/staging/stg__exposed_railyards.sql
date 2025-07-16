@@ -18,7 +18,7 @@ joined_and_corrected AS (
         c.name,
         CASE
             WHEN hudson_correction.complexid IS NULL THEN c.wkb_geometry
-            ELSE st_difference(c.wkb_geometry, hudson_correction.geom, 1)
+            ELSE ST_Difference(c.wkb_geometry, hudson_correction.geom, 1)
         END AS raw_geom
     FROM cscl_commonplace AS p
     INNER JOIN cscl_complex AS c ON p.complexid = c.complexid
@@ -29,6 +29,6 @@ joined_and_corrected AS (
 SELECT
     'exposed_railyards' AS variable_type,
     variable_id,
-    st_multi(raw_geom) AS raw_geom
+    ST_Multi(raw_geom) AS raw_geom
 FROM
     joined_and_corrected

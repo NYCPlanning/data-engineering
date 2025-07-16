@@ -9,7 +9,7 @@ filtered AS (
     SELECT
         'waterfront_access_wpaa' AS variable_type,
         wpaa_id || '-' || name AS variable_id,
-        st_transform(wkb_geometry, 2263) AS raw_geom
+        ST_Transform(wkb_geometry, 2263) AS raw_geom
     FROM source
     WHERE upper(status) != 'CLOSED'
 )

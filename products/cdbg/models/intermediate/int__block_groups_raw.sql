@@ -17,7 +17,7 @@ SELECT
     borough_name,
     bct2020,
     ct2020,
-    st_union(geom) AS geom
+    ST_Union(geom) AS geom
 FROM census_blocks
 GROUP BY
     block_group_geoid,

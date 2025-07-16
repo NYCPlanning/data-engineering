@@ -2,7 +2,7 @@
 
 WITH proj AS (
     SELECT
-        st_multi(st_union(wkb_geometry)) AS geom,
+        ST_Multi(ST_Union(wkb_geometry)) AS geom,
         pjid
     FROM edc_capitalprojects
     GROUP BY pjid

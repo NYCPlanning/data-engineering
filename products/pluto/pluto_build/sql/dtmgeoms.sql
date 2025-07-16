@@ -33,7 +33,7 @@ SELECT
     END AS borough,
     trim(LEADING '0' FROM substring(b.bbl, 2, 5)) AS block,
     trim(LEADING '0' FROM right(b.bbl, 4)) AS lot,
-    st_makevalid(st_multi(b.geom)) AS geom,
+    ST_MakeValid(ST_Multi(b.geom)) AS geom,
     '3' AS plutomapid
 FROM notinpluto AS b;
 

@@ -22,7 +22,7 @@ SELECT
     NULL AS captype,
     coalesce(
         wkt::geometry,
-        st_point(longitude::double precision, latitude::double precision)
+        ST_Point(longitude::double precision, latitude::double precision)
     ) AS wkb_geometry,
     geo_1b,
     geo_bl,

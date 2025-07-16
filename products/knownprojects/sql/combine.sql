@@ -61,7 +61,7 @@ _edc_projects AS (
     geom_bbl AS (
         SELECT
             a.uid,
-            st_union(b.wkb_geometry) AS geom
+            ST_Union(b.wkb_geometry) AS geom
         FROM (
             SELECT
                 uid,
@@ -75,7 +75,7 @@ _edc_projects AS (
     geom_borough_block AS (
         SELECT
             a.uid,
-            st_union(b.wkb_geometry) AS geom
+            ST_Union(b.wkb_geometry) AS geom
         FROM edc_projects AS a
         LEFT JOIN dcp_mappluto_wi AS b
             ON
@@ -250,7 +250,7 @@ _esd_projects AS (
         0 AS phasing_known,
         md5(array_to_string(array_agg(a.uid), '')) AS record_id,
         array_agg(a.uid) AS record_id_input,
-        st_union(b.wkb_geometry) AS geom,
+        ST_Union(b.wkb_geometry) AS geom,
         flag_nycha(array_agg(row_to_json(a))::text) AS nycha,
         flag_classb(array_agg(row_to_json(a))::text) AS classb,
         flag_senior_housing(array_agg(row_to_json(a))::text) AS senior_housing
@@ -366,7 +366,7 @@ _hpd_rfp AS (
             WHEN closed_date = '-' THEN NULL
             ELSE to_char(closed_date::date, 'YYYY/MM')
         END) AS date,
-        st_union(b.wkb_geometry) AS geom,
+        ST_Union(b.wkb_geometry) AS geom,
         flag_nycha(array_agg(row_to_json(a))::text) AS nycha,
         flag_classb(array_agg(row_to_json(a))::text) AS classb,
         flag_senior_housing(array_agg(row_to_json(a))::text) AS senior_housing
@@ -431,7 +431,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _dcp_application
         UNION
         SELECT
@@ -451,7 +451,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _edc_projects
         UNION
         SELECT
@@ -471,7 +471,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _dcp_planneradded
         UNION
         SELECT
@@ -491,7 +491,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _dcp_n_study
         UNION
         SELECT
@@ -511,7 +511,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _dcp_n_study_future
         UNION
         SELECT
@@ -531,7 +531,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _dcp_n_study_projected
         UNION
         SELECT
@@ -551,7 +551,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _esd_projects
         UNION
         SELECT
@@ -571,7 +571,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _hpd_pc
         UNION
         SELECT
@@ -591,7 +591,7 @@ FROM (
             classb,
             senior_housing,
             record_id_input,
-            st_makevalid(geom) AS geom
+            ST_MakeValid(geom) AS geom
         FROM _hpd_rfp
     ) AS a
     UNION
@@ -612,7 +612,7 @@ FROM (
         classb,
         senior_housing,
         record_id_input,
-        st_makevalid(geom) AS geom,
+        ST_MakeValid(geom) AS geom,
         inactive,
         no_classa
     FROM _dcp_housing
@@ -624,9 +624,9 @@ WHERE record_id NOT IN (
 
 UPDATE combined
 SET geom = CASE
-    WHEN st_isempty(geom) THEN NULL
-    WHEN geometrytype(geom) = 'GEOMETRYCOLLECTION' THEN st_makevalid(st_collectionextract(geom, 3))
-    ELSE st_makevalid(geom)
+    WHEN ST_IsEmpty(geom) THEN NULL
+    WHEN geometrytype(geom) = 'GEOMETRYCOLLECTION' THEN ST_MakeValid(ST_CollectionExtract(geom, 3))
+    ELSE ST_MakeValid(geom)
 END;
 
 CREATE INDEX combined_geom_idx ON combined USING gist (geom);

@@ -22,7 +22,7 @@ SELECT
     'shadow_open_spaces' AS flag_id_field_name,
     variable_type,
     variable_id,
-    st_multi(raw_geom) AS raw_geom,
-    st_multi(lot_geom) AS lot_geom,
-    st_multi(st_buffer(coalesce(lot_geom, raw_geom), 200)) AS buffer_geom
+    ST_Multi(raw_geom) AS raw_geom,
+    ST_Multi(lot_geom) AS lot_geom,
+    ST_Multi(ST_Buffer(coalesce(lot_geom, raw_geom), 200)) AS buffer_geom
 FROM all_natural_resources

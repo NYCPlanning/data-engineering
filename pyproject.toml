@@ -39,7 +39,7 @@ capitalisation_policy = "upper"
 [tool.sqlfluff.rules.capitalisation.identifiers]
 extended_capitalisation_policy = "lower"
 [tool.sqlfluff.rules.capitalisation.functions]
-extended_capitalisation_policy = "lower"
+extended_capitalisation_policy = "pascal"
 [tool.sqlfluff.rules.capitalisation.types]
 extended_capitalisation_policy = "lower"
 

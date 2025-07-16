@@ -18,13 +18,13 @@ segment_endpoints AS (
     SELECT
         segmentid,
         'from' AS direction,
-        st_startpoint(geom) AS geom
+        ST_StartPoint(geom) AS geom
     FROM segments
     UNION ALL
     SELECT
         segmentid,
         'to' AS direction,
-        st_endpoint(geom) AS geom
+        ST_EndPoint(geom) AS geom
     FROM segments
 )
 
@@ -33,4 +33,4 @@ SELECT
     seg.direction,
     nodes.nodeid
 FROM segment_endpoints AS seg
-INNER JOIN nodes ON st_dwithin(seg.geom, nodes.geom, 0.01)
+INNER JOIN nodes ON ST_DWithin(seg.geom, nodes.geom, 0.01)

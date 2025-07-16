@@ -131,7 +131,7 @@ WITH hny AS (
         b.geo_longitude,
         CASE
             WHEN b.geo_longitude IS NOT NULL AND b.geo_latitude IS NOT NULL
-                THEN st_setsrid(st_makepoint(
+                THEN ST_SetSRID(ST_MakePoint(
                     b.geo_longitude::numeric,
                     b.geo_latitude::numeric
                 ), 4326)
@@ -211,7 +211,7 @@ spatial_match AS (
     FROM hny_geo AS h
     INNER JOIN mid_devdb AS d
         ON
-            st_dwithin(h.geom::geography, d.geom::geography, 5)
+            ST_DWithin(h.geom::geography, d.geom::geography, 5)
             AND (h.geo_bbl != d.geo_bbl OR h.geo_bbl IS NULL OR d.geo_bbl IS NULL)
             AND (h.geo_bin != d.geo_bin OR h.geo_bin IS NULL OR d.geo_bin IS NULL)
             AND abs(h.total_units::numeric - d.classa_prop::numeric) <= 5

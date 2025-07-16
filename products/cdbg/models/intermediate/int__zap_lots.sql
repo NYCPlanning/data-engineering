@@ -22,7 +22,7 @@ zap_lots AS (
         project_bbls.project_id,
         project_bbls.bbl,
         pluto.bbl IS NOT NULL AS joined_to_pluto,
-        st_transform(pluto.wkb_geometry, 2263) AS geom
+        ST_Transform(pluto.wkb_geometry, 2263) AS geom
     FROM project_bbls
     LEFT JOIN pluto
         ON project_bbls.bbl = pluto.bbl::text

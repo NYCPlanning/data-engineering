@@ -69,7 +69,7 @@ spatial_join AS (
         b.wkb_geometry AS spatial_join_geom
     FROM bbl_join AS a
     INNER JOIN dcp_mappluto_wi AS b
-        ON st_intersects(a.point_geom, b.wkb_geometry)
+        ON ST_Intersects(a.point_geom, b.wkb_geometry)
     WHERE a.bbl_join_geom IS NULL AND a.point_geom IS NOT NULL
 ),
 

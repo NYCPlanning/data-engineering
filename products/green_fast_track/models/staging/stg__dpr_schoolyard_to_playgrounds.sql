@@ -11,7 +11,7 @@ selected_columns AS (
         gispropnum,
         location,
         gispropnum || '-' || location AS variable_id,
-        st_transform(wkb_geometry, 2263) AS raw_geom
+        ST_Transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 )
 

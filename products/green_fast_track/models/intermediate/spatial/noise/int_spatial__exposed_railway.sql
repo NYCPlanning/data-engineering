@@ -17,5 +17,5 @@ SELECT
     variable_type,
     variable_id,
     raw_geom,
-    st_buffer(raw_geom, 1500) AS buffer_geom
+    ST_Buffer(raw_geom, 1500) AS buffer_geom
 FROM all_rails

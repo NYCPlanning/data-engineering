@@ -20,7 +20,7 @@ dbscan AS (
     SELECT
         record_id,
         geom,
-        st_clusterdbscan(geom, 0, 1) OVER () AS id
+        ST_ClusterDBSCAN(geom, 0, 1) OVER () AS id
     FROM combined
     WHERE
         source NOT IN (
@@ -43,7 +43,7 @@ project_record_join AS (
 all_intersections AS (
     SELECT
         a.id,
-        st_union(st_intersection(a.geom, b.geom)) AS intersect_geom
+        ST_Union(ST_Intersection(a.geom, b.geom)) AS intersect_geom
     FROM project_record_join AS a, project_record_join AS b
     WHERE
         a.record_id < b.record_id
@@ -69,9 +69,9 @@ INTO _project_record_ids
 FROM project_record_join AS a, all_intersections AS b
 WHERE
     (
-        st_overlaps(a.geom, b.intersect_geom)
-        OR st_within(b.intersect_geom, a.geom)
-        OR st_contains(b.intersect_geom, a.geom)
+        ST_Overlaps(a.geom, b.intersect_geom)
+        OR ST_Within(b.intersect_geom, a.geom)
+        OR ST_Contains(b.intersect_geom, a.geom)
     )
     AND a.id IS NOT NULL
     AND a.id = b.id

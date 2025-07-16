@@ -20,7 +20,7 @@ inzonechange AS (
     FROM dtm AS a
     INNER JOIN dcp_zoningmapamendments AS b
         ON
-            st_intersects(a.geom, b.geom)
+            ST_Intersects(a.geom, b.geom)
             AND b.effective::date > current_date - interval '2 months'
 )
 -- left join to the product ztl table 

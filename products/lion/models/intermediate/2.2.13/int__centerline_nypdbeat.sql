@@ -16,9 +16,9 @@ FROM centerline_offsets AS co
 -- using a cte around reference can confus the postgres compiler to not use index
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nypdbeat") }} AS left_beat
     ON
-        st_within(co.left_offset_point, left_beat.geom)
+        ST_Within(co.left_offset_point, left_beat.geom)
         AND left_beat.geo_type = 'HP'
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nypdbeat") }} AS right_beat
     ON
-        st_within(co.right_offset_point, right_beat.geom)
+        ST_Within(co.right_offset_point, right_beat.geom)
         AND right_beat.geo_type = 'HP'

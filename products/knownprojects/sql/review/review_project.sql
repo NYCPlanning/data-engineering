@@ -36,15 +36,15 @@ SELECT
     b.dummy_id,
     (a.geom IS NULL)::integer AS no_geom,
     CASE
-        WHEN st_isempty(geom) THEN NULL
-        WHEN geometrytype(geom) = 'GEOMETRYCOLLECTION' THEN st_makevalid(st_collectionextract(a.geom, 3))
-        ELSE st_makevalid(geom)
+        WHEN ST_IsEmpty(geom) THEN NULL
+        WHEN geometrytype(geom) = 'GEOMETRYCOLLECTION' THEN ST_MakeValid(ST_CollectionExtract(a.geom, 3))
+        ELSE ST_MakeValid(geom)
     END AS geom,
     now() AS v,
     array_to_string(b.project_record_ids, ',') AS project_record_ids,
     cardinality(b.project_record_ids) AS records_in_project,
     round(
-        (st_area(st_orientedenvelope(a.geom)::geography))::numeric
+        (ST_Area(ST_OrientedEnvelope(a.geom)::geography))::numeric
         / (1609.34 ^ 2),
         5
     ) AS bbox_area

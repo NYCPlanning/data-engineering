@@ -84,8 +84,8 @@ matches AS (
     FROM projects AS a
     INNER JOIN combined AS b
         ON
-            st_intersects(a.geom, b.geom)
-            AND st_geometrytype(st_intersection(a.geom, b.geom)) = 'ST_Polygon'
+            ST_Intersects(a.geom, b.geom)
+            AND ST_GeometryType(ST_Intersection(a.geom, b.geom)) = 'ST_Polygon'
             AND (CASE
                 -- EDC Projected Projects match with DOB records of any date
                 WHEN a.source = 'EDC Projected Projects' THEN TRUE
@@ -189,7 +189,7 @@ SELECT
         a.project_id IN (SELECT project_id FROM multimatchproject)
     )::integer AS project_has_dob_multi,
     (a.geom IS NULL)::integer AS no_geom,
-    st_collectionextract(a.geom, 3) AS geom,
+    ST_CollectionExtract(a.geom, 3) AS geom,
     now() AS v
 INTO _review_dob
 FROM combined_dob AS a

@@ -26,6 +26,6 @@ SELECT
     boro,
     block,
     lot,
-    st_multi(st_union(st_makevalid(geom))) AS geom
+    ST_Multi(ST_Union(ST_MakeValid(geom))) AS geom
 FROM coalesced
 GROUP BY bbl, boro, block, lot

@@ -231,10 +231,10 @@ SELECT
     row_number() OVER (
         ORDER BY wkb_geometry
     ) AS id,
-    st_makevalid(wkb_geometry) AS wkb_geometry
+    ST_MakeValid(wkb_geometry) AS wkb_geometry
 INTO dof_shoreline_subdivide
 FROM (
-    SELECT st_subdivide(wkb_geometry, 100) AS wkb_geometry
+    SELECT ST_Subdivide(wkb_geometry, 100) AS wkb_geometry
     FROM dof_shoreline
 ) AS a;
 CREATE INDEX dof_shoreline_subdivide_wkb_geometry_geom_idx ON dof_shoreline_subdivide USING gist (
@@ -247,7 +247,7 @@ AS $$
   SELECT EXISTS(
     SELECT id 
     FROM dof_shoreline_subdivide b 
-    WHERE st_intersects(_geom, b.wkb_geometry)
+    WHERE ST_Intersects(_geom, b.wkb_geometry)
   );
 $$ LANGUAGE sql;
 

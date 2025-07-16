@@ -7,7 +7,7 @@ WITH source AS (
 reprojected AS (
     SELECT
         *,
-        st_transform(wkt, 2263) AS geom
+        ST_Transform(wkt, 2263) AS geom
     FROM source
 ),
 
@@ -28,6 +28,6 @@ final AS (
 SELECT
     variable_type,
     variable_id,
-    st_union(raw_geom) AS raw_geom
+    ST_Union(raw_geom) AS raw_geom
 FROM final
 GROUP BY variable_type, variable_id

@@ -24,12 +24,12 @@ SELECT
     NULL AS captype,
     (CASE
         WHEN location IS NULL
-            THEN st_transform(st_setsrid(st_point(
+            THEN ST_Transform(ST_SetSRID(ST_Point(
                 xcoordinate::double precision,
                 ycoordinate::double precision
             ),
             2263), 4326)
-        ELSE st_setsrid(location::geometry, 4326)
+        ELSE ST_SetSRID(location::geometry, 4326)
     END) AS wkb_geometry,
     geo_1b,
     geo_bl,

@@ -3,7 +3,7 @@ SELECT
     variable_id,
     raw_geom AS geom
 FROM {{ ref("int_spatial__shadow_open_spaces") }}
-WHERE st_geometrytype(raw_geom) = 'ST_MultiPolygon' AND lot_geom IS NULL
+WHERE ST_GeometryType(raw_geom) = 'ST_MultiPolygon' AND lot_geom IS NULL
 UNION ALL
 SELECT
     variable_type,

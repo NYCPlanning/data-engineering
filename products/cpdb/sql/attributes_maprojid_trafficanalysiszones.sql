@@ -10,6 +10,6 @@ CREATE TABLE attributes_maprojid_trafficanalysiszones AS (
             b.geoid10::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
             dcp_trafficanalysiszones AS b
-        WHERE st_intersects(a.geom, st_setsrid(b.wkb_geometry, 4326))
+        WHERE ST_Intersects(a.geom, ST_SetSRID(b.wkb_geometry, 4326))
     ) AS a
 );

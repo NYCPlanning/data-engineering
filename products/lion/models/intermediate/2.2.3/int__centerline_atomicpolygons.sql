@@ -55,7 +55,7 @@ FROM centerline_offsets AS co
 -- using a cte around atomicpolygons confused the postgres compiler to not use index
 LEFT JOIN
     {{ ref("stg__atomicpolygons") }} AS left_poly
-    ON st_within(co.left_offset_point, left_poly.geom)
+    ON ST_Within(co.left_offset_point, left_poly.geom)
 LEFT JOIN
     {{ ref("stg__atomicpolygons") }} AS right_poly
-    ON st_within(co.right_offset_point, right_poly.geom)
+    ON ST_Within(co.right_offset_point, right_poly.geom)

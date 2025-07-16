@@ -20,7 +20,7 @@ rezone_bbl AS (
         '1' AS notes
     FROM dtm AS a
     INNER JOIN dcp_zoningmapamendments AS b
-        ON st_intersects(a.geom, b.geom)
+        ON ST_Intersects(a.geom, b.geom)
     WHERE
         b.project_na = 'Inwood Rezoning'
         AND a.bbl != '1022552000'

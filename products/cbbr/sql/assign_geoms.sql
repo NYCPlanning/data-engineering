@@ -25,7 +25,7 @@ SET
     geom = (
         CASE
             WHEN a.geo_bbl || a.geo_bin IS NOT NULL
-                THEN st_centroid(b.geom)
+                THEN ST_Centroid(b.geom)
             ELSE a.geom
         END
     )
@@ -39,8 +39,8 @@ WHERE
 UPDATE _cbbr_submissions
 SET
     geo_from_geom
-    = st_transform(st_setsrid(st_makepoint(geo_from_x_coord::numeric, geo_from_y_coord::numeric), 2263), 4326),
-    geo_to_geom = st_transform(st_setsrid(st_makepoint(geo_to_x_coord::numeric, geo_to_y_coord::numeric), 2263), 4326);
+    = ST_Transform(ST_SetSRID(ST_MakePoint(geo_from_x_coord::numeric, geo_from_y_coord::numeric), 2263), 4326),
+    geo_to_geom = ST_Transform(ST_SetSRID(ST_MakePoint(geo_to_x_coord::numeric, geo_to_y_coord::numeric), 2263), 4326);
 
 -- Assign geoms based on the centroid of the bin
 -- based on geo_longitude, geo_latitude, geo_x_coord and geo_y_coord
@@ -52,17 +52,17 @@ SET
                 geo_longitude IS NOT NULL
                 AND geom IS NULL
                 THEN
-                    st_setsrid(st_makepoint(geo_longitude::double precision, geo_latitude::double precision), 4326)
+                    ST_SetSRID(ST_MakePoint(geo_longitude::double precision, geo_latitude::double precision), 4326)
             WHEN
                 geo_x_coord IS NOT NULL
                 AND geom IS NULL
                 THEN
-                    st_transform(st_setsrid(st_makepoint(geo_x_coord::numeric, geo_y_coord::numeric), 2263), 4326)
+                    ST_Transform(ST_SetSRID(ST_MakePoint(geo_x_coord::numeric, geo_y_coord::numeric), 2263), 4326)
             WHEN
                 geo_from_geom IS NOT NULL
                 AND geom IS NULL
                 THEN
-                    st_makeline(geo_from_geom, geo_to_geom)
+                    ST_MakeLine(geo_from_geom, geo_to_geom)
             ELSE
                 geom
         END

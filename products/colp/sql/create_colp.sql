@@ -166,8 +166,8 @@ geo_merge AS (
         (CASE
             WHEN b.longitude IS NOT NULL AND b.longitude <> ''
                 THEN
-                    st_setsrid(
-                        st_makepoint(cast(b.longitude AS double precision), cast(b.latitude AS double precision)),
+                    ST_SetSRID(
+                        ST_MakePoint(cast(b.longitude AS double precision), cast(b.latitude AS double precision)),
                         4326
                     )
         END) AS geom
@@ -340,6 +340,6 @@ SELECT DISTINCT
     cast(latitude AS numeric(19, 7)) AS "LATITUDE",
     cast(longitude AS numeric(19, 7)) AS "LONGITUDE",
     NULL AS "DCPEDITED",
-    st_transform(geom, 2263) AS "GEOM"
+    ST_Transform(geom, 2263) AS "GEOM"
 INTO _colp
 FROM categorized;

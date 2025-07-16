@@ -7,7 +7,7 @@ final AS (
         'cats_permits' AS variable_type,
         applicationid AS variable_id,
         status,
-        st_transform(geom::geometry, 2263) AS permit_geom
+        ST_Transform(geom::geometry, 2263) AS permit_geom
     FROM source
 )
 

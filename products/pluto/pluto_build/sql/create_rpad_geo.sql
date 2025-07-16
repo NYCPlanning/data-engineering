@@ -4,8 +4,8 @@ RENAME bbl TO geo_bbl;
 
 UPDATE pluto_input_geocodes
 SET
-    xcoord = st_x(st_transform(geom, 2263))::integer,
-    ycoord = st_y(st_transform(geom, 2263))::integer,
+    xcoord = ST_X(ST_Transform(geom, 2263))::integer,
+    ycoord = ST_Y(ST_Transform(geom, 2263))::integer,
     ct2010 = (CASE WHEN ct2010::numeric = 0 THEN NULL ELSE ct2010 END);
 
 DROP TABLE IF EXISTS pluto_rpad_geo;
@@ -45,12 +45,12 @@ UPDATE pluto_rpad_geo SET bbl = borough || lpad(block, 5, '0') || lpad(lot, 4, '
 
 -- backfill X and Y coordinates
 UPDATE pluto_rpad_geo a SET
-    xcoord = st_x(st_transform(b.geom, 2263))::integer,
-    ycoord = st_y(st_transform(b.geom, 2263))::integer
+    xcoord = ST_X(ST_Transform(b.geom, 2263))::integer,
+    ycoord = ST_Y(ST_Transform(b.geom, 2263))::integer
 FROM (
     SELECT
         a.bbl,
-        st_setsrid(st_makepoint(a.longitude::double precision, a.latitude::double precision), 4326) AS geom
+        ST_SetSRID(ST_MakePoint(a.longitude::double precision, a.latitude::double precision), 4326) AS geom
     FROM pluto_rpad_geo AS a
     WHERE a.longitude IS NOT NULL
 ) AS b

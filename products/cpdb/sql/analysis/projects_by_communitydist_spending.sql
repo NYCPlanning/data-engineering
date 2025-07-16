@@ -25,12 +25,12 @@ CREATE TABLE projects_by_communitydist_spending AS (
         SELECT
             maprojid,
             description,
-            sum(total_spend) / st_numgeometries(geom) AS amt_per_pt,
-            (st_dump(geom)).geom AS geom
+            sum(total_spend) / ST_NumGeometries(geom) AS amt_per_pt,
+            (ST_Dump(geom)).geom AS geom
         FROM fmsmerge
         WHERE
             geom IS NOT NULL
-            AND st_geometrytype(geom) = 'ST_MultiPoint'
+            AND ST_GeometryType(geom) = 'ST_MultiPoint'
         GROUP BY
             maprojid,
             description,
@@ -45,7 +45,7 @@ CREATE TABLE projects_by_communitydist_spending AS (
             b.description,
             sum(b.amt_per_pt) AS amt_pt
         FROM dcp_cdboundaries AS a
-        LEFT JOIN per_pt AS b ON st_within(b.geom, a.wkb_geometry)
+        LEFT JOIN per_pt AS b ON ST_Within(b.geom, a.wkb_geometry)
         GROUP BY a.borocd, b.maprojid, b.description
     ),
 
@@ -54,12 +54,12 @@ CREATE TABLE projects_by_communitydist_spending AS (
             maprojid,
             description,
             sum(total_spend) AS total_amt,
-            st_area(geom) AS total_area,
-            (st_dump(geom)).geom AS geom
+            ST_Area(geom) AS total_area,
+            (ST_Dump(geom)).geom AS geom
         FROM fmsmerge
         WHERE
             geom IS NOT NULL
-            AND st_geometrytype(geom) = 'ST_MultiPolygon'
+            AND ST_GeometryType(geom) = 'ST_MultiPolygon'
         GROUP BY
             maprojid,
             description,
@@ -76,14 +76,14 @@ CREATE TABLE projects_by_communitydist_spending AS (
             c.description,
             sum(
                 c.total_amt
-                * (st_area(c.geom) / c.total_area)
-                * st_area(st_intersection(c.geom, a.wkb_geometry)) / st_area(c.geom)
+                * (ST_Area(c.geom) / c.total_area)
+                * ST_Area(ST_Intersection(c.geom, a.wkb_geometry)) / ST_Area(c.geom)
             ) AS amt_poly
         FROM dcp_cdboundaries AS a
-        LEFT JOIN per_poly AS c ON st_intersects(c.geom, a.wkb_geometry)
+        LEFT JOIN per_poly AS c ON ST_Intersects(c.geom, a.wkb_geometry)
         WHERE
-            st_isvalid(a.wkb_geometry) = 't'
-            AND st_isvalid(c.geom) = 't'
+            ST_IsValid(a.wkb_geometry) = 't'
+            AND ST_IsValid(c.geom) = 't'
         GROUP BY
             a.borocd,
             c.maprojid,

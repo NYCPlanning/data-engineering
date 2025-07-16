@@ -4,10 +4,10 @@ DROP TABLE IF EXISTS attributes_maprojid_parkid;
 -- then string matching on id
 -- then spatial join
 UPDATE dpr_parksproperties
-SET wkb_geometry = st_makevalid(wkb_geometry);
+SET wkb_geometry = ST_MakeValid(wkb_geometry);
 
 UPDATE cpdb_dcpattributes
-SET geom = st_makevalid(geom);
+SET geom = ST_MakeValid(geom);
 
 CREATE TABLE attributes_maprojid_parkid AS (
     SELECT *
@@ -30,7 +30,7 @@ CREATE TABLE attributes_maprojid_parkid AS (
             b.gispropnum AS parkid
         FROM cpdb_dcpattributes AS a,
             dpr_parksproperties AS b
-        WHERE st_within(a.geom, b.wkb_geometry) AND st_isvalid(a.geom)
+        WHERE ST_Within(a.geom, b.wkb_geometry) AND ST_IsValid(a.geom)
     ) AS a
     ORDER BY maprojid
 );

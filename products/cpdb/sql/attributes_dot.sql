@@ -13,7 +13,7 @@ WHERE cpdb_dcpattributes.maprojid = regexp_replace(a.fms_id, ' ', '');
 -- intersections: needs to be aggregated to project level
 WITH proj AS (
     SELECT
-        st_multi(st_union(wkb_geometry)) AS geom,
+        ST_Multi(ST_Union(wkb_geometry)) AS geom,
         fmsagencyid || fmsid AS fmsid
     FROM dot_projects_intersections
     GROUP BY fmsagencyid, fmsid
@@ -30,7 +30,7 @@ WHERE cpdb_dcpattributes.maprojid = proj.fmsid;
 -- streets
 WITH proj AS (
     SELECT
-        st_multi(st_union(wkb_geometry)) AS geom,
+        ST_Multi(ST_Union(wkb_geometry)) AS geom,
         fmsagencyid || fmsid AS fmsid
     FROM dot_projects_streets
     GROUP BY fmsagencyid, fmsid

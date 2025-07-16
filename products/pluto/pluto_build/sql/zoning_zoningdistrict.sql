@@ -10,9 +10,9 @@ CREATE TABLE validdtm AS (
     SELECT
         id,
         bbl,
-        st_makevalid(geom) AS geom
+        ST_MakeValid(geom) AS geom
     FROM pluto
-    WHERE st_geometrytype(st_makevalid(geom)) = 'ST_MultiPolygon'
+    WHERE ST_GeometryType(ST_MakeValid(geom)) = 'ST_MultiPolygon'
 );
 CREATE INDEX validdtm_geom_idx ON validdtm USING gist (geom gist_geometry_ops_2d);
 
@@ -25,9 +25,9 @@ CREATE TABLE validzones AS (
             WHEN zonedist = any('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'
             ELSE zonedist
         END AS zonedist,
-        st_makevalid(geom) AS geom
+        ST_MakeValid(geom) AS geom
     FROM dcp_zoningdistricts
-    WHERE st_geometrytype(st_makevalid(geom)) = 'ST_MultiPolygon'
+    WHERE ST_GeometryType(ST_MakeValid(geom)) = 'ST_MultiPolygon'
 );
 
 CREATE INDEX validzones_geom_idx ON validzones USING gist (geom gist_geometry_ops_2d);
@@ -40,24 +40,24 @@ SELECT
     p.id,
     bbl,
     n.zonedist,
-    st_area(
+    ST_Area(
         CASE
-            WHEN st_coveredby(p.geom, n.geom) THEN p.geom::geography
-            ELSE st_multi(st_intersection(p.geom, n.geom))::geography
+            WHEN ST_CoveredBy(p.geom, n.geom) THEN p.geom::geography
+            ELSE ST_Multi(ST_Intersection(p.geom, n.geom))::geography
         END
     ) AS segbblgeom,
-    st_area(
+    ST_Area(
         CASE
-            WHEN st_coveredby(n.geom, p.geom) THEN n.geom::geography
-            ELSE st_multi(st_intersection(n.geom, p.geom))::geography
+            WHEN ST_CoveredBy(n.geom, p.geom) THEN n.geom::geography
+            ELSE ST_Multi(ST_Intersection(n.geom, p.geom))::geography
         END
     ) AS segzonegeom,
-    st_area(p.geom::geography) AS allbblgeom,
-    st_area(n.geom::geography) AS allzonegeom
+    ST_Area(p.geom::geography) AS allbblgeom,
+    ST_Area(n.geom::geography) AS allzonegeom
 
 FROM validdtm AS p
 INNER JOIN validzones AS n
-    ON st_intersects(p.geom, n.geom);
+    ON ST_Intersects(p.geom, n.geom);
 
 ALTER TABLE lotzoneper
 SET (parallel_workers = 30);

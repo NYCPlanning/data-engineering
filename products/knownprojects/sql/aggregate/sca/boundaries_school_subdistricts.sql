@@ -47,9 +47,9 @@ FROM (
             b.district AS distzone,
             b.subdistrict AS subdistzone,
             b.name AS a_dist_zone_name,
-            st_distance(
+            ST_Distance(
                 a.geometry::geography, b.geometry::geography
-            ) AS subdist_distance
+            ) AS subdiST_Distance
         FROM
             kpdb AS a
         LEFT JOIN
@@ -59,7 +59,7 @@ FROM (
                     /*Treating large developments as polygons*/
                     WHEN
                         (
-                            st_area(a.geometry::geography) > 10000
+                            ST_Area(a.geometry::geography) > 10000
                             OR units_gross > 500
                         )
                         AND a.source IN (
@@ -68,11 +68,11 @@ FROM (
                             'DCP Planner-Added Projects'
                         )
                         THEN
-                            st_intersects(a.geometry, b.geometry)
-                            AND (st_area(
-                                st_intersection(a.geometry, b.geometry)
+                            ST_Intersects(a.geometry, b.geometry)
+                            AND (ST_Area(
+                                ST_Intersection(a.geometry, b.geometry)
                             )
-                            / st_area(a.geometry))::decimal
+                            / ST_Area(a.geometry))::decimal
                             >= .1
 
                     /*Treating subdivisions in SI across many lots as polygons*/
@@ -82,11 +82,11 @@ FROM (
                         )
                         AND a.record_name LIKE '%SD %'
                         THEN
-                            st_intersects(a.geometry, b.geometry)
-                            AND (st_area(
-                                st_intersection(a.geometry, b.geometry)
+                            ST_Intersects(a.geometry, b.geometry)
+                            AND (ST_Area(
+                                ST_Intersection(a.geometry, b.geometry)
                             )
-                            / st_area(a.geometry))::decimal
+                            / ST_Area(a.geometry))::decimal
                             >= .1
 
                     /*Treating Resilient Housing Sandy Recovery PROJECTs, across many DISTINCT lots as polygons. These are three PROJECTs*/
@@ -96,11 +96,11 @@ FROM (
                             'DCP Application', 'DCP Planner-Added Projects'
                         )
                         THEN
-                            st_intersects(a.geometry, b.geometry)
-                            AND (st_area(
-                                st_intersection(a.geometry, b.geometry)
+                            ST_Intersects(a.geometry, b.geometry)
+                            AND (ST_Area(
+                                ST_Intersection(a.geometry, b.geometry)
                             )
-                            / st_area(a.geometry))::decimal
+                            / ST_Area(a.geometry))::decimal
                             >= .1
 
                     /*Treating NCP and NIHOP projects, which are usually noncontiguous clusters, as polygons*/
@@ -113,11 +113,11 @@ FROM (
                             'DCP Application', 'DCP Planner-Added Projects'
                         )
                         THEN
-                            st_intersects(a.geometry, b.geometry)
-                            AND (st_area(
-                                st_intersection(a.geometry, b.geometry)
+                            ST_Intersects(a.geometry, b.geometry)
+                            AND (ST_Area(
+                                ST_Intersection(a.geometry, b.geometry)
                             )
-                            / st_area(a.geometry))::decimal
+                            / ST_Area(a.geometry))::decimal
                             >= .1
 
                     /*Treating neighborhood study projected sites, and future neighborhood studies as polygons*/
@@ -127,21 +127,21 @@ FROM (
                             'Neighborhood Study Projected Development Sites'
                         )
                         THEN
-                            st_intersects(a.geometry, b.geometry)
-                            AND (st_area(
-                                st_intersection(a.geometry, b.geometry)
+                            ST_Intersects(a.geometry, b.geometry)
+                            AND (ST_Area(
+                                ST_Intersection(a.geometry, b.geometry)
                             )
-                            / st_area(a.geometry))::decimal
+                            / ST_Area(a.geometry))::decimal
                             >= .1
 
                     /*Treating other polygons as points, using their centroid*/
-                    WHEN st_area(a.geometry) > 0
+                    WHEN ST_Area(a.geometry) > 0
                         THEN
-                            st_intersects(st_centroid(a.geometry), b.geometry)
+                            ST_Intersects(ST_Centroid(a.geometry), b.geometry)
 
                     /*Treating points as points*/
                     ELSE
-                        st_intersects(a.geometry, b.geometry)
+                        ST_Intersects(a.geometry, b.geometry)
                 END
     /*Only matching if at least 10% of the polygon is in the boundary. Otherwise, the polygon will be apportioned to its other boundaries only*/
     ),
@@ -168,11 +168,11 @@ FROM (
                         SELECT concat(source, record_id)
                         FROM multi_geocoded_projects
                     )
-                    AND st_area(a.geometry) > 0
+                    AND ST_Area(a.geometry) > 0
                     THEN
                         (
-                            st_area(st_intersection(a.geometry, a.subdist_geom))
-                            / st_area(a.geometry)
+                            ST_Area(ST_Intersection(a.geometry, a.subdist_geom))
+                            / ST_Area(a.geometry)
                         )::decimal
                 ELSE
                     1
@@ -241,13 +241,13 @@ FROM (
             coalesce(a.subdistzone, b.subdistrict) AS subdistzone_1,
             coalesce(a.a_dist_zone_name, b.name) AS a_dist_zone_name_1,
             coalesce(
-                a.subdist_distance,
-                st_distance(
+                a.subdiST_Distance,
+                ST_Distance(
                     b.geometry::geography,
                     CASE
                         WHEN
                             (
-                                st_area(a.geometry::geography) > 10000
+                                ST_Area(a.geometry::geography) > 10000
                                 OR units_gross > 500
                             )
                             AND a.source IN (
@@ -255,42 +255,42 @@ FROM (
                             )
                             THEN a.geometry::geography
                         WHEN
-                            st_area(a.geometry) > 0
-                            THEN st_centroid(a.geometry)::geography
+                            ST_Area(a.geometry) > 0
+                            THEN ST_Centroid(a.geometry)::geography
                         ELSE a.geometry::geography
                     END
                 )
-            ) AS subdist_distance1
+            ) AS subdiST_Distance1
         FROM
             aggregated_subdist_cp_assumptions AS a
         LEFT JOIN
             doe_school_subdistricts AS b
             ON
-                a.subdist_distance IS NULL
+                a.subdiST_Distance IS NULL
                 AND CASE
                     WHEN
                         (
-                            st_area(a.geometry::geography) > 10000
+                            ST_Area(a.geometry::geography) > 10000
                             OR units_gross > 500
                         )
                         AND a.source IN (
                             'DCP Application', 'DCP Planner-Added Projects'
                         )
                         THEN
-                            st_dwithin(
+                            ST_DWithin(
                                 a.geometry::geography,
                                 b.geometry::geography,
                                 500
                             )
-                    WHEN st_area(a.geometry) > 0
+                    WHEN ST_Area(a.geometry) > 0
                         THEN
-                            st_dwithin(
-                                st_centroid(a.geometry)::geography,
+                            ST_DWithin(
+                                ST_Centroid(a.geometry)::geography,
                                 b.geometry::geography,
                                 500
                             )
                     ELSE
-                        st_dwithin(
+                        ST_DWithin(
                             a.geometry::geography, b.geometry::geography, 500
                         )
                 END
@@ -309,7 +309,7 @@ FROM (
     WITH min_distances AS (
         SELECT
             record_id,
-            min(subdist_distance1) AS min_distance
+            min(subdiST_Distance1) AS min_distance
         FROM
             ungeocoded_projects_subdist_cp_assumptions
         GROUP BY
@@ -324,7 +324,7 @@ FROM (
             min_distances AS b
             ON
                 a.record_id = b.record_id
-                AND a.subdist_distance1 = b.min_distance
+                AND a.subdiST_Distance1 = b.min_distance
     )
 
     SELECT
@@ -459,8 +459,8 @@ UPDATE aggregated_subdist_longform_cp_assumptions a
 FROM dcp_school_districts b
 WHERE a.distzone IS NULL
     AND a.subdistzone IS NULL
-    AND NOT st_isempty(a.geometry)
-    AND st_intersects(a.geometry, b.geometry);
+    AND NOT ST_IsEmpty(a.geometry)
+    AND ST_Intersects(a.geometry, b.geometry);
 */
 
 SELECT *

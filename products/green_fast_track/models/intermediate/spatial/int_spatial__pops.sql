@@ -23,7 +23,7 @@ pops_with_pluto AS (
         po.raw_geom,
         pl.geom AS lot_geom
     FROM pops AS po
-    LEFT JOIN pluto AS pl ON st_within(po.raw_geom, pl.geom)
+    LEFT JOIN pluto AS pl ON ST_Within(po.raw_geom, pl.geom)
 )
 
 SELECT

@@ -25,7 +25,7 @@ historic_resources_with_pluto AS (
         h.raw_geom,
         p.geom AS lot_geom
     FROM historic_resources AS h
-    LEFT JOIN pluto AS p ON st_within(h.raw_geom, p.geom)
+    LEFT JOIN pluto AS p ON ST_Within(h.raw_geom, p.geom)
 ),
 
 final AS (
@@ -34,8 +34,8 @@ final AS (
         'historic_resources' AS flag_id_field_name,
         variable_type,
         variable_id,
-        st_multi(raw_geom) AS raw_geom,
-        st_multi(lot_geom) AS lot_geom
+        ST_Multi(raw_geom) AS raw_geom,
+        ST_Multi(lot_geom) AS lot_geom
     FROM historic_resources_with_pluto
 )
 

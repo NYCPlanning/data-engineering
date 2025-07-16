@@ -8,6 +8,6 @@ SELECT
     'archaeological_area' AS flag_id_field_name,
     'archaeological_areas' AS variable_type,
     'Archaeological Areas' AS variable_id,
-    st_union(geom) AS raw_geom,
+    ST_Union(geom) AS raw_geom,
     NULL AS buffer
 FROM clipped_to_nyc

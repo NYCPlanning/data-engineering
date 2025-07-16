@@ -17,7 +17,7 @@ final AS (
         'pops' AS variable_type,
         pops_number AS variable_id,
         bbl::text,
-        st_transform(wkb_geometry, 2263) AS raw_geom
+        ST_Transform(wkb_geometry, 2263) AS raw_geom
     FROM source
 
 )

@@ -162,7 +162,7 @@ SELECT
     'NYCDOE' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    st_point(
+    ST_Point(
         gis_longitute_x::double precision,
         gis_latitude_y::double precision
     ) AS wkb_geometry,

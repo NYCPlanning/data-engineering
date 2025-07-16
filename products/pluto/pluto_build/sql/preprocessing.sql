@@ -1,7 +1,7 @@
 UPDATE pluto_input_geocodes
 SET
-    xcoord = st_x(st_transform(wkb_geometry, 2263)),
-    ycoord = st_y(st_transform(wkb_geometry, 2263));
+    xcoord = ST_X(ST_Transform(wkb_geometry, 2263)),
+    ycoord = ST_Y(ST_Transform(wkb_geometry, 2263));
 
 -- change all wkb_geometry to geom
 ALTER TABLE dcp_ct2010_wi RENAME wkb_geometry TO geom;

@@ -10,6 +10,6 @@ CREATE TABLE attributes_maprojid_municipalcourtdistricts AS (
             b.municourt::text AS admin_boundary_id
         FROM cpdb_dcpattributes AS a,
             dcp_municipalcourtdistricts AS b
-        WHERE st_intersects(a.geom, b.wkb_geometry)
+        WHERE ST_Intersects(a.geom, b.wkb_geometry)
     ) AS a
 );

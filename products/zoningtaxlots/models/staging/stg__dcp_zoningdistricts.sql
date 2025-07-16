@@ -23,9 +23,9 @@ validzones AS (
             WHEN zonedist = any('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'
             ELSE zonedist
         END AS zonedist,
-        st_makevalid(geom) AS geom
+        ST_MakeValid(geom) AS geom
     FROM rename
-    WHERE st_geometrytype(st_makevalid(geom)) = 'ST_MultiPolygon'
+    WHERE ST_GeometryType(ST_MakeValid(geom)) = 'ST_MultiPolygon'
 )
 
 SELECT * FROM validzones

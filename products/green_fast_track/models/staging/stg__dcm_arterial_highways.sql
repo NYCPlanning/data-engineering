@@ -4,7 +4,7 @@ WITH arterial_highways_raw AS (
 
 SELECT
     name,
-    st_multi(st_union(wkb_geometry)) AS wkb_geometry
+    ST_Multi(ST_Union(wkb_geometry)) AS wkb_geometry
 FROM arterial_highways_raw
 WHERE source = 'Appendix H'
 GROUP BY name

@@ -18,22 +18,22 @@ limitedheightper AS (
         p.dtm_id,
         p.bbl,
         n.lhlbl,
-        st_area(
+        ST_Area(
             CASE
-                WHEN st_coveredby(p.geom, n.geom) THEN p.geom
-                ELSE st_multi(st_intersection(p.geom, n.geom))
+                WHEN ST_CoveredBy(p.geom, n.geom) THEN p.geom
+                ELSE ST_Multi(ST_Intersection(p.geom, n.geom))
             END
         ) AS segbblgeom,
-        st_area(
+        ST_Area(
             CASE
-                WHEN st_coveredby(n.geom, p.geom) THEN n.geom
-                ELSE st_multi(st_intersection(n.geom, p.geom))
+                WHEN ST_CoveredBy(n.geom, p.geom) THEN n.geom
+                ELSE ST_Multi(ST_Intersection(n.geom, p.geom))
             END
         ) AS segzonegeom,
-        st_area(p.geom) AS allbblgeom
+        ST_Area(p.geom) AS allbblgeom
     FROM dtm AS p
     INNER JOIN dcp_limitedheight AS n
-        ON st_intersects(p.geom, n.geom)
+        ON ST_Intersects(p.geom, n.geom)
 ),
 
 limitedheightperorder AS (

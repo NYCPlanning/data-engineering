@@ -11,23 +11,23 @@ CREATE TABLE zoningmapperorder AS (
             p.id,
             p.bbl,
             n.zoning_map,
-            st_area(
+            ST_Area(
                 CASE
-                    WHEN st_coveredby(st_makevalid(p.geom), n.geom) THEN p.geom
-                    ELSE st_multi(st_intersection(st_makevalid(p.geom), n.geom))
+                    WHEN ST_CoveredBy(ST_MakeValid(p.geom), n.geom) THEN p.geom
+                    ELSE ST_Multi(ST_Intersection(ST_MakeValid(p.geom), n.geom))
                 END
             ) AS segbblgeom,
-            st_area(p.geom) AS allbblgeom,
-            st_area(
+            ST_Area(p.geom) AS allbblgeom,
+            ST_Area(
                 CASE
-                    WHEN st_coveredby(n.geom, st_makevalid(p.geom)) THEN n.geom
-                    ELSE st_multi(st_intersection(n.geom, st_makevalid(p.geom)))
+                    WHEN ST_CoveredBy(n.geom, ST_MakeValid(p.geom)) THEN n.geom
+                    ELSE ST_Multi(ST_Intersection(n.geom, ST_MakeValid(p.geom)))
                 END
             ) AS segzonegeom,
-            st_area(n.geom) AS allzonegeom
+            ST_Area(n.geom) AS allzonegeom
         FROM pluto AS p
         INNER JOIN dcp_zoningmapindex AS n
-            ON st_intersects(p.geom, n.geom)
+            ON ST_Intersects(p.geom, n.geom)
     )
 
     SELECT

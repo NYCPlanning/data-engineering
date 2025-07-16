@@ -16,7 +16,7 @@ final AS (
     SELECT
         'nys_historic_buildings' AS variable_type,
         usnnum || coalesce('-' || usnname, '') AS variable_id,
-        st_transform(geom, 2263) AS raw_geom
+        ST_Transform(geom, 2263) AS raw_geom
     FROM points_clipped
 )
 

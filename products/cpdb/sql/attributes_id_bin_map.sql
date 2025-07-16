@@ -2,7 +2,7 @@
 
 UPDATE cpdb_dcpattributes a
 SET
-    geom = st_centroid(b.wkb_geometry),
+    geom = ST_Centroid(b.wkb_geometry),
     geomsource = 'footprint_script'
 FROM doitt_buildingfootprints AS b,
     dcp_id_bin_map AS c

@@ -20,8 +20,8 @@ lonlat_corrections AS (
     SELECT
         a.job_number,
         coalesce(a.reason, b.reason) AS reason,
-        st_setsrid(st_makepoint(a.old_lon, b.old_lat), 4326) AS old_geom,
-        st_setsrid(st_makepoint(a.new_lon, b.new_lat), 4326) AS new_geom,
+        ST_SetSRID(ST_MakePoint(a.old_lon, b.old_lat), 4326) AS old_geom,
+        ST_SetSRID(ST_MakePoint(a.new_lon, b.new_lat), 4326) AS new_geom,
         a.old_lon,
         a.new_lon,
         b.old_lat,
@@ -56,7 +56,7 @@ geom_corrections AS (
         a.old_lon,
         b.latitude AS current_latitude,
         b.longitude AS current_longitude,
-        coalesce(st_distance(a.new_geom, b.geom), 0) < 10 AS distance,
+        coalesce(ST_Distance(a.new_geom, b.geom), 0) < 10 AS distance,
         get_bbl(b.geom) IS NULL AS null_bbl,
         in_water(b.geom) AS in_water
     FROM lonlat_corrections AS a
@@ -155,8 +155,8 @@ Apply corrections where applicable
 */
 UPDATE geo_devdb a
 SET
-    latitude = st_y(b.new_geom),
-    longitude = st_x(b.new_geom),
+    latitude = ST_Y(b.new_geom),
+    longitude = ST_X(b.new_geom),
     geom = b.new_geom,
     geomsource = 'Lat/Lon DCP'
 FROM corrections_geom AS b

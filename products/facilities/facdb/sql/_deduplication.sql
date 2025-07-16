@@ -155,9 +155,9 @@ WHERE
 DELETE FROM facdb
 WHERE geom IS NOT NULL AND uid NOT IN (
     SELECT a.uid FROM facdb AS a, (
-        SELECT st_union(wkb_geometry) AS geom FROM dcp_boroboundaries_wi
+        SELECT ST_Union(wkb_geometry) AS geom FROM dcp_boroboundaries_wi
     ) AS b
-    WHERE st_contains(st_setsrid(b.geom, 4326), a.geom)
+    WHERE ST_Contains(ST_SetSRID(b.geom, 4326), a.geom)
 );
 
 -- remove all facdb_duplicates records in facdb

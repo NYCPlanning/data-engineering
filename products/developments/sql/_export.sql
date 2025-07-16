@@ -137,7 +137,7 @@ SELECT
     hny_id AS "HNY_ID",
     hny_jobrelate AS "HNY_Relate",
     version AS "Version",
-    st_setsrid(st_makepoint(longitude, latitude), 4326) AS geom
+    ST_SetSRID(ST_MakePoint(longitude, latitude), 4326) AS geom
 FROM export_devdb;
 
 CREATE VIEW shp_housing AS

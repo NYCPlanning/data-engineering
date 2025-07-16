@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS facdb_geom;
 WITH facdb_base_geom AS (
     SELECT
         uid,
-        st_centroid(wkb_geometry) AS wkb_geometry,
+        ST_Centroid(wkb_geometry) AS wkb_geometry,
         geo_1b -> 'result' ->> 'geo_bbl' AS geo_bbl,
         (CASE
             WHEN geo_1b -> 'result' ->> 'geo_bin' IN (
@@ -15,15 +15,15 @@ WITH facdb_base_geom AS (
             ) THEN NULL
             ELSE geo_1b -> 'result' ->> 'geo_bin'
         END) AS geo_bin,
-        st_point(
+        ST_Point(
             nullif(geo_1b -> 'result' ->> 'geo_longitude', '')::double precision,
             nullif(geo_1b -> 'result' ->> 'geo_latitude', '')::double precision
         ) AS geom_1b,
-        st_point(
+        ST_Point(
             nullif(geo_bl -> 'result' ->> 'geo_longitude', '')::double precision,
             nullif(geo_bl -> 'result' ->> 'geo_latitude', '')::double precision
         ) AS geom_bl,
-        st_point(
+        ST_Point(
             nullif(geo_bn -> 'result' ->> 'geo_longitude', '')::double precision,
             nullif(geo_bn -> 'result' ->> 'geo_latitude', '')::double precision
         ) AS geom_bn
@@ -39,8 +39,8 @@ geom_sources AS (
         facdb_base_geom.geom_1b,
         facdb_base_geom.geom_bl,
         facdb_base_geom.geom_bn,
-        st_centroid(dcp_mappluto_wi.wkb_geometry) AS geom_pluto,
-        st_centroid(doitt_buildingfootprints.wkb_geometry) AS geom_bldg,
+        ST_Centroid(dcp_mappluto_wi.wkb_geometry) AS geom_pluto,
+        ST_Centroid(doitt_buildingfootprints.wkb_geometry) AS geom_bldg,
         (CASE WHEN facdb_base_geom.wkb_geometry IS NOT NULL THEN 'wkb_geometry' END) AS source_wkb,
         (CASE WHEN geom_1b IS NOT NULL THEN '1b' END) AS source_1b,
         (CASE WHEN geom_bl IS NOT NULL THEN 'bl' END) AS source_bl,
@@ -57,7 +57,7 @@ geom_sources AS (
 coalesced_geoms AS (
     SELECT
         uid,
-        st_setsrid(
+        ST_SetSRID(
             coalesce(
                 geom_bldg,
                 geom_pluto,
@@ -90,11 +90,11 @@ final AS (
         uid,
         geom,
         geomsource,
-        st_astext(geom) AS wkt,
-        st_x(geom) AS longitude,
-        st_y(geom) AS latitude,
-        st_x(st_transform(geom, 2263)) AS x,
-        st_y(st_transform(geom, 2263)) AS y,
+        ST_AsText(geom) AS wkt,
+        ST_X(geom) AS longitude,
+        ST_Y(geom) AS latitude,
+        ST_X(ST_Transform(geom, 2263)) AS x,
+        ST_Y(ST_Transform(geom, 2263)) AS y,
         wkb_geometry,
         geom_1b,
         geom_bl,

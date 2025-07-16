@@ -49,7 +49,7 @@ lots_with_features AS (
         a.block AS taxblock,
         a.lot AS taxlot,
         a.geom,
-        st_area(a.geom) AS area,
+        ST_Area(a.geom) AS area,
         b1.overlay AS commercialoverlay1,
         b2.overlay AS commercialoverlay2,
         c1.sdlbl AS specialdistrict1,

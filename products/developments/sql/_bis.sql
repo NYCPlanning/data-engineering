@@ -238,7 +238,7 @@ mapping_and_cleaning AS (
         buildingclass AS bldg_class,
         otherdesc AS desc_other,
         specialactionstatus AS x_withdrawal,
-        st_setsrid(st_point(
+        ST_SetSRID(ST_Point(
             longitude::double precision,
             latitude::double precision
         ), 4326) AS dob_geom

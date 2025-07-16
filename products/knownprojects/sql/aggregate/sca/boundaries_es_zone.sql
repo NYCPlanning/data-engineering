@@ -48,7 +48,7 @@ FROM
                 b.geometry AS es_zone_geom,
                 b.dbn AS es_zone,
                 b.remarks AS es_remarks,
-                st_distance(
+                ST_Distance(
                     a.geometry::geography, b.geometry::geography
                 ) AS es_zone_distance
             FROM
@@ -60,7 +60,7 @@ FROM
                         /*Treating large developments as polygons*/
                         WHEN
                             (
-                                st_area(a.geometry::geography) > 10000
+                                ST_Area(a.geometry::geography) > 10000
                                 OR units_gross > 500
                             )
                             AND a.source IN (
@@ -70,11 +70,11 @@ FROM
                             )
                             THEN
                                 /*Only distribute units to a geography if at least 10% of the project is within that boundary*/
-                                st_intersects(a.geometry, b.geometry)
-                                AND (st_area(
-                                    st_intersection(a.geometry, b.geometry)
+                                ST_Intersects(a.geometry, b.geometry)
+                                AND (ST_Area(
+                                    ST_Intersection(a.geometry, b.geometry)
                                 )
-                                / st_area(a.geometry))::decimal
+                                / ST_Area(a.geometry))::decimal
                                 >= .1
 
                         /*Treating subdivisions in SI across many lots as polygons*/
@@ -85,11 +85,11 @@ FROM
                             AND a.record_name LIKE '%SD %'
                             THEN
                                 /*Only distribute units to a geography if at least 10% of the project is within that boundary*/
-                                st_intersects(a.geometry, b.geometry)
-                                AND (st_area(
-                                    st_intersection(a.geometry, b.geometry)
+                                ST_Intersects(a.geometry, b.geometry)
+                                AND (ST_Area(
+                                    ST_Intersection(a.geometry, b.geometry)
                                 )
-                                / st_area(a.geometry))::decimal
+                                / ST_Area(a.geometry))::decimal
                                 >= .1
 
                         /*Treating Resilient Housing Sandy Recovery PROJECTs, across many DISTINCT lots as polygons. These are three PROJECTs*/
@@ -100,11 +100,11 @@ FROM
                             )
                             THEN
                                 /*Only distribute units to a geography if at least 10% of the project is within that boundary*/
-                                st_intersects(a.geometry, b.geometry)
-                                AND (st_area(
-                                    st_intersection(a.geometry, b.geometry)
+                                ST_Intersects(a.geometry, b.geometry)
+                                AND (ST_Area(
+                                    ST_Intersection(a.geometry, b.geometry)
                                 )
-                                / st_area(a.geometry))::decimal
+                                / ST_Area(a.geometry))::decimal
                                 >= .1
 
                         /*Treating NCP and NIHOP projects, which are usually noncontiguous clusters, as polygons*/
@@ -118,11 +118,11 @@ FROM
                             )
                             THEN
                                 /*Only distribute units to a geography if at least 10% of the project is within that boundary*/
-                                st_intersects(a.geometry, b.geometry)
-                                AND (st_area(
-                                    st_intersection(a.geometry, b.geometry)
+                                ST_Intersects(a.geometry, b.geometry)
+                                AND (ST_Area(
+                                    ST_Intersection(a.geometry, b.geometry)
                                 )
-                                / st_area(a.geometry))::decimal
+                                / ST_Area(a.geometry))::decimal
                                 >= .1
 
                         /*Treating neighborhood study projected sites, and future neighborhood studies as polygons*/
@@ -133,23 +133,23 @@ FROM
                             )
                             THEN
                                 /*Only distribute units to a geography if at least 10% of the project is within that boundary*/
-                                st_intersects(a.geometry, b.geometry)
-                                AND (st_area(
-                                    st_intersection(a.geometry, b.geometry)
+                                ST_Intersects(a.geometry, b.geometry)
+                                AND (ST_Area(
+                                    ST_Intersection(a.geometry, b.geometry)
                                 )
-                                / st_area(a.geometry))::decimal
+                                / ST_Area(a.geometry))::decimal
                                 >= .1
 
                         /*Treating other polygons as points, using their centroid*/
-                        WHEN st_area(a.geometry) > 0
+                        WHEN ST_Area(a.geometry) > 0
                             THEN
-                                st_intersects(
-                                    st_centroid(a.geometry), b.geometry
+                                ST_Intersects(
+                                    ST_Centroid(a.geometry), b.geometry
                                 )
 
                         /*Treating points as points*/
                         ELSE
-                            st_intersects(a.geometry, b.geometry)
+                            ST_Intersects(a.geometry, b.geometry)
                     END
         /*Only matching if at least 10% of the polygon is in the boundary. Otherwise, the polygon will be apportioned to its other boundaries only*/
         ),
@@ -178,12 +178,12 @@ FROM
                             SELECT concat(source, record_id)
                             FROM multi_geocoded_projects
                         )
-                        AND st_area(a.geometry) > 0
+                        AND ST_Area(a.geometry) > 0
                         THEN
-                            (st_area(
-                                st_intersection(a.geometry, a.es_zone_geom)
+                            (ST_Area(
+                                ST_Intersection(a.geometry, a.es_zone_geom)
                             )
-                            / st_area(a.geometry))::decimal
+                            / ST_Area(a.geometry))::decimal
                     ELSE
                         1
                 END AS proportion_in_es_zone
@@ -261,12 +261,12 @@ FROM
                 coalesce(a.es_remarks, b.remarks) AS es_remarks_1,
                 coalesce(
                     a.es_zone_distance,
-                    st_distance(
+                    ST_Distance(
                         b.geometry::geography,
                         CASE
                             WHEN
                                 (
-                                    st_area(a.geometry::geography) > 10000
+                                    ST_Area(a.geometry::geography) > 10000
                                     OR units_gross > 500
                                 )
                                 AND a.source IN (
@@ -275,8 +275,8 @@ FROM
                                 )
                                 THEN a.geometry::geography
                             WHEN
-                                st_area(a.geometry) > 0
-                                THEN st_centroid(a.geometry)::geography
+                                ST_Area(a.geometry) > 0
+                                THEN ST_Centroid(a.geometry)::geography
                             ELSE a.geometry::geography
                         END
                     )
@@ -290,27 +290,27 @@ FROM
                     AND CASE
                         WHEN
                             (
-                                st_area(a.geometry::geography) > 10000
+                                ST_Area(a.geometry::geography) > 10000
                                 OR units_gross > 500
                             )
                             AND a.source IN (
                                 'DCP Application', 'DCP Planner-Added PROJECTs'
                             )
                             THEN
-                                st_dwithin(
+                                ST_DWithin(
                                     a.geometry::geography,
                                     b.geometry::geography,
                                     500
                                 )
-                        WHEN st_area(a.geometry) > 0
+                        WHEN ST_Area(a.geometry) > 0
                             THEN
-                                st_dwithin(
-                                    st_centroid(a.geometry)::geography,
+                                ST_DWithin(
+                                    ST_Centroid(a.geometry)::geography,
                                     b.geometry::geography,
                                     500
                                 )
                         ELSE
-                            st_dwithin(
+                            ST_DWithin(
                                 a.geometry::geography,
                                 b.geometry::geography,
                                 500

@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS pluto_dtm_condosmerged;
 CREATE TABLE pluto_dtm_condosmerged AS (
     SELECT
         primebbl,
-        st_union(geom) AS geom
+        ST_Union(geom) AS geom
     FROM pluto_dtm
     WHERE primebbl IS NOT NULL
     GROUP BY primebbl
@@ -29,12 +29,12 @@ DROP TABLE IF EXISTS pluto_dtm_noncondosmerged;
 CREATE TABLE pluto_dtm_noncondosmerged AS (
     SELECT
         bbl,
-        st_union(st_makevalid(geom)) AS geom
+        ST_Union(ST_MakeValid(geom)) AS geom
     FROM pluto_dtm
     WHERE
         bbl IS NOT NULL
         AND primebbl IS NULL
-    -- AND st_isvalidreason(geom) <> 'IllegalArgumentException: Invalid number of points in LinearRing found 3 - must be 0 or >= 4'
+    -- AND ST_IsValidreason(geom) <> 'IllegalArgumentException: Invalid number of points in LinearRing found 3 - must be 0 or >= 4'
     GROUP BY bbl
 );
 -- merge condo and non condo records into one table

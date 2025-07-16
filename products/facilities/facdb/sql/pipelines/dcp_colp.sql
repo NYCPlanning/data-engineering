@@ -417,7 +417,7 @@ WITH _dcp_colp_tmp AS (
         END) AS overabbrev,
         NULL AS capacity,
         NULL AS captype,
-        st_transform(geom::geometry, 4326) AS wkb_geometry,
+        ST_Transform(geom::geometry, 4326) AS wkb_geometry,
         NULL AS geo_1b,
         NULL AS geo_bl,
         NULL AS geo_bn

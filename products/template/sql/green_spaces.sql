@@ -43,7 +43,7 @@ CREATE TABLE green_spaces AS
         SELECT
             space_name,
             borough,
-            st_union(wkb_geometry) AS wkb_geometry
+            ST_Union(wkb_geometry) AS wkb_geometry
         FROM
             standardized_values
         GROUP BY space_name, borough

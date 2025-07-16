@@ -8,17 +8,17 @@ WHERE
     AND b.lotarea != 0
     AND
     (
-        st_area(st_transform(a.geom, 2263))::numeric
-        - st_area(st_transform(b.geom, 2263))::numeric
+        ST_Area(ST_Transform(a.geom, 2263))::numeric
+        - ST_Area(ST_Transform(b.geom, 2263))::numeric
     )
-    / st_area(st_transform(b.geom, 2263))::numeric
+    / ST_Area(ST_Transform(b.geom, 2263))::numeric
     < 5
     AND
     (
-        st_area(st_transform(a.geom, 2263))::numeric
-        - st_area(st_transform(b.geom, 2263))::numeric
+        ST_Area(ST_Transform(a.geom, 2263))::numeric
+        - ST_Area(ST_Transform(b.geom, 2263))::numeric
     )
-    / st_area(st_transform(b.geom, 2263))::numeric
+    / ST_Area(ST_Transform(b.geom, 2263))::numeric
 
     > -5;
 

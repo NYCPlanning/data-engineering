@@ -52,7 +52,7 @@ SELECT
 FROM cpdb_dcpattributes AS b,
     doitt_buildingfootprints AS c
 WHERE
-    st_within(b.geom, c.wkb_geometry)
+    ST_Within(b.geom, c.wkb_geometry)
     AND b.maprojid NOT IN (SELECT maprojid FROM attributes_maprojid_bin_tmp)
     AND maprojid = b.maprojid
     AND c.bin IS NOT NULL;

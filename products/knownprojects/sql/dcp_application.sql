@@ -294,7 +294,7 @@ WITH
 geom_pluto AS (
     SELECT
         applications.record_id,
-        st_union(pluto.wkb_geometry) AS geom
+        ST_Union(pluto.wkb_geometry) AS geom
     FROM (
         SELECT
             a.record_id,
@@ -327,7 +327,7 @@ geom_ulurp AS (
     SELECT
         a.record_id,
         CASE
-            WHEN st_union(zma.wkb_geometry) IS NULL
+            WHEN ST_Union(zma.wkb_geometry) IS NULL
                 THEN a.geom
         END AS geom
     FROM (

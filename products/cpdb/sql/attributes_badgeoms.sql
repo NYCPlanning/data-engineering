@@ -42,14 +42,14 @@ WITH point_projects_not_entirely_in_nyc AS (
         geom
     FROM cpdb_dcpattributes
     WHERE
-        st_geometrytype(geom) = 'ST_MultiPoint'
-        AND st_xmax(geom) > 0
+        ST_GeometryType(geom) = 'ST_MultiPoint'
+        AND ST_XMax(geom) > 0
 ),
 
 project_points AS (
     SELECT
         maprojid,
-        (st_dump(geom)).geom AS single_point
+        (ST_Dump(geom)).geom AS single_point
     FROM point_projects_not_entirely_in_nyc
 ),
 
@@ -57,8 +57,8 @@ fixed_points AS (
     SELECT
         maprojid,
         CASE
-            WHEN st_x(single_point) > 0
-                THEN st_setsrid(st_makepoint(-st_x(single_point), st_y(single_point)), 4326)
+            WHEN ST_X(single_point) > 0
+                THEN ST_SetSRID(ST_MakePoint(-ST_X(single_point), ST_Y(single_point)), 4326)
             ELSE single_point
         END AS single_point_fixed
     FROM project_points
@@ -67,7 +67,7 @@ fixed_points AS (
 projects AS (
     SELECT
         maprojid,
-        st_multi(st_union(single_point_fixed)) AS geom
+        ST_Multi(ST_Union(single_point_fixed)) AS geom
     FROM fixed_points
     GROUP BY maprojid
 )

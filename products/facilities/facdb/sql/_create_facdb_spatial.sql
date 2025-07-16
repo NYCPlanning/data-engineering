@@ -26,60 +26,60 @@ WITH boundary_geosupport AS (
         coalesce(
             (
                 SELECT left(bbl::text, 1)::integer FROM dcp_mappluto_wi AS b
-                WHERE st_intersects(b.wkb_geometry, a.geom)
+                WHERE ST_Intersects(b.wkb_geometry, a.geom)
             ),
             (
                 SELECT borocode::integer FROM dcp_boroboundaries_wi AS b
-                WHERE st_intersects(b.wkb_geometry, a.geom)
+                WHERE ST_Intersects(b.wkb_geometry, a.geom)
             )
         ) AS borocode,
         (
             SELECT zipcode FROM doitt_zipcodeboundaries AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom) LIMIT 1
+            WHERE ST_Intersects(b.wkb_geometry, a.geom) LIMIT 1
         ) AS zipcode,
         (
             SELECT bin::bigint::text FROM doitt_buildingfootprints AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom) LIMIT 1
+            WHERE ST_Intersects(b.wkb_geometry, a.geom) LIMIT 1
         ) AS bin,
         (
             SELECT bbl::bigint::text FROM dcp_mappluto_wi AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS bbl,
         (
             SELECT upper(po_name) FROM doitt_zipcodeboundaries AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom) LIMIT 1
+            WHERE ST_Intersects(b.wkb_geometry, a.geom) LIMIT 1
         ) AS city,
         (
             SELECT borocd::text FROM dcp_cdboundaries AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS commboard,
         (
             SELECT ntacode FROM dcp_nta2010 AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS nta2010,
         (
             SELECT nta2020 FROM dcp_nta2020 AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS nta2020,
         (
             SELECT coundist::text FROM dcp_councildistricts AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS council,
         (
             SELECT right(boroct2010::text, 6) FROM dcp_ct2010 AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS ct2010,
         (
             SELECT right(boroct2020::text, 6) FROM dcp_ct2020 AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS ct2020,
         (
             SELECT precinct::text FROM dcp_policeprecincts AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS policeprct,
         (
             SELECT schooldist::text FROM dcp_school_districts AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE ST_Intersects(b.wkb_geometry, a.geom)
         ) AS schooldist,
         'spatial join' AS boundarysource
     FROM facdb_geom AS a
