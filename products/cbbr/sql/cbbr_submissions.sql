@@ -6,14 +6,14 @@ SELECT
     omb.dcpuniqid AS unique_id,
     omb.trkno AS tracking_code,
     omb.borough,
-    RIGHT(omb.cb_label, 2) AS cd,
+    right(omb.cb_label, 2) AS cd,
     omb.cb_label,
     dcp.type,
     omb.type AS type_br,
     omb.priority,
     dcp.need,
     omb.request,
-    REPLACE(omb.reason, E'\n', ' ') AS explanation,
+    replace(omb.reason, E'\n', ' ') AS explanation,
     dcp.location_specific,
     dcp.address,
     dcp.site_or_facility_name,
@@ -34,6 +34,6 @@ SELECT
     omb.agency,
     omb.agyrspcat AS agency_category_response, -- all null
     omb.agency_response,
-    REPLACE(omb.explanation, E'\n', ' ') AS additional_comment
+    replace(omb.explanation, E'\n', ' ') AS additional_comment
 FROM omb_cbbr_agency_responses AS omb
 INNER JOIN dcp_cbbr_requests AS dcp ON omb.dcpuniqid = dcp.current_year_id

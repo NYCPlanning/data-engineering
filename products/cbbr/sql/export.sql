@@ -144,7 +144,7 @@ DROP TABLE IF EXISTS cbbr_export_poly;
 SELECT *
 INTO cbbr_export_poly
 FROM cbbr_export
-WHERE ST_GEOMETRYTYPE(geom) = 'ST_MultiPolygon';
+WHERE st_geometrytype(geom) = 'ST_MultiPolygon';
 
 -- cbbr_export_pts
 DROP TABLE IF EXISTS cbbr_export_pts;
@@ -152,7 +152,7 @@ DROP TABLE IF EXISTS cbbr_export_pts;
 SELECT *
 INTO cbbr_export_pts
 FROM cbbr_export
-WHERE ST_GEOMETRYTYPE(geom) = 'ST_MultiPoint';
+WHERE st_geometrytype(geom) = 'ST_MultiPoint';
 
 -- Export Records with GeometryCollection introduced in the manual mapping process 
 
@@ -161,7 +161,7 @@ DROP TABLE IF EXISTS cbbr_export_geocollection;
 SELECT *
 INTO cbbr_export_geocollection
 FROM cbbr_export
-WHERE ST_GEOMETRYTYPE(geom) = 'ST_GeometryCollection';
+WHERE st_geometrytype(geom) = 'ST_GeometryCollection';
 
 
 -- -- drop geom column from cbbr_export

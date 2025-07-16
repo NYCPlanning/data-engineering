@@ -5,9 +5,9 @@ DROP COLUMN IF EXISTS geo_to_geom,
 DROP COLUMN IF EXISTS geom;
 
 ALTER TABLE _cbbr_submissions
-ADD geo_from_geom GEOMETRY,
-ADD geo_to_geom GEOMETRY,
-ADD geom GEOMETRY;
+ADD geo_from_geom geometry,
+ADD geo_to_geom geometry,
+ADD geom geometry;
 
 --clean up empty values
 UPDATE _cbbr_submissions
@@ -39,8 +39,8 @@ WHERE
 UPDATE _cbbr_submissions
 SET
     geo_from_geom
-    = st_transform(st_setsrid(st_makepoint(geo_from_x_coord::NUMERIC, geo_from_y_coord::NUMERIC), 2263), 4326),
-    geo_to_geom = st_transform(st_setsrid(st_makepoint(geo_to_x_coord::NUMERIC, geo_to_y_coord::NUMERIC), 2263), 4326);
+    = st_transform(st_setsrid(st_makepoint(geo_from_x_coord::numeric, geo_from_y_coord::numeric), 2263), 4326),
+    geo_to_geom = st_transform(st_setsrid(st_makepoint(geo_to_x_coord::numeric, geo_to_y_coord::numeric), 2263), 4326);
 
 -- Assign geoms based on the centroid of the bin
 -- based on geo_longitude, geo_latitude, geo_x_coord and geo_y_coord
@@ -52,12 +52,12 @@ SET
                 geo_longitude IS NOT NULL
                 AND geom IS NULL
                 THEN
-                    st_setsrid(st_makepoint(geo_longitude::DOUBLE PRECISION, geo_latitude::DOUBLE PRECISION), 4326)
+                    st_setsrid(st_makepoint(geo_longitude::double precision, geo_latitude::double precision), 4326)
             WHEN
                 geo_x_coord IS NOT NULL
                 AND geom IS NULL
                 THEN
-                    st_transform(st_setsrid(st_makepoint(geo_x_coord::NUMERIC, geo_y_coord::NUMERIC), 2263), 4326)
+                    st_transform(st_setsrid(st_makepoint(geo_x_coord::numeric, geo_y_coord::numeric), 2263), 4326)
             WHEN
                 geo_from_geom IS NOT NULL
                 AND geom IS NULL

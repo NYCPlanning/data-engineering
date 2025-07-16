@@ -2,7 +2,7 @@
 WITH filtered AS (
     SELECT
         facname,
-        COUNT(facname) AS namecount
+        count(facname) AS namecount
     FROM _dcp_facilities
     GROUP BY facname
 ),
@@ -24,13 +24,13 @@ master AS (
         a.geom IS NULL
         AND a.site_or_facility_name IS NOT NULL
         AND b.facname LIKE ('%' || ' ' || '%' || ' ' || '%')
-        AND '%' || UPPER(a.site_or_facility_name) || '%' LIKE '%' || UPPER(b.facname) || '%'
+        AND '%' || upper(a.site_or_facility_name) || '%' LIKE '%' || upper(b.facname) || '%'
         AND b.facname IN (
             SELECT facname
             FROM
                 singlename
         )
-        AND UPPER(a.borough) = UPPER(b.boro)
+        AND upper(a.borough) = upper(b.boro)
 )
 UPDATE _cbbr_submissions
 SET
@@ -55,30 +55,30 @@ WITH master AS (
             FROM
                 _dcp_facilities
             WHERE
-                UPPER(facgroup) = 'LIBRARIES'
+                upper(facgroup) = 'LIBRARIES'
         ) AS b
     WHERE (
-        UPPER(a.site_or_facility_name)
+        upper(a.site_or_facility_name)
         LIKE '%LIBRARY%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%BRANCH%'
     )
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%&%'
     AND (
         (
             '%'
-            || UPPER(REPLACE(a.site_or_facility_name, ' Branch', ' Library'))
+            || upper(replace(a.site_or_facility_name, ' Branch', ' Library'))
             || '%' LIKE '%'
-            || UPPER(b.facname)
+            || upper(b.facname)
             || '%'
         )
-        OR ('%' || UPPER(REPLACE(a.site_or_facility_name, ' Branch', '')) || '%' LIKE '%' || UPPER(b.facname) || '%')
-        OR ('%' || UPPER(a.site_or_facility_name) || '%' LIKE '%' || UPPER(b.facname) || '%')
+        OR ('%' || upper(replace(a.site_or_facility_name, ' Branch', '')) || '%' LIKE '%' || upper(b.facname) || '%')
+        OR ('%' || upper(a.site_or_facility_name) || '%' LIKE '%' || upper(b.facname) || '%')
     )
-    AND UPPER(a.borough) = UPPER(b.boro)
+    AND upper(a.borough) = upper(b.boro)
     AND a.geom IS NULL
 )
 UPDATE _cbbr_submissions
@@ -104,19 +104,19 @@ WITH master AS (
             FROM
                 _dcp_facilities
             WHERE
-                UPPER(facsubgrp) = 'POLICE SERVICES'
+                upper(facsubgrp) = 'POLICE SERVICES'
         ) AS b
     WHERE (
-        UPPER(a.site_or_facility_name)
+        upper(a.site_or_facility_name)
         LIKE '%PRECINCT%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%PCT%'
     )
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') = REGEXP_REPLACE(b.facname, '\D', '', 'g')
-    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') IS NOT NULL
-    AND UPPER(a.borough) = UPPER(b.boro)
+    AND regexp_replace(a.site_or_facility_name, '\D', '', 'g') = regexp_replace(b.facname, '\D', '', 'g')
+    AND regexp_replace(a.site_or_facility_name, '\D', '', 'g') IS NOT NULL
+    AND upper(a.borough) = upper(b.boro)
     AND a.geom IS NULL
 )
 UPDATE _cbbr_submissions
@@ -142,29 +142,29 @@ WITH master AS (
             FROM
                 _dcp_facilities
             WHERE
-                UPPER(facsubgrp) = 'PUBLIC K-12 SCHOOLS'
+                upper(facsubgrp) = 'PUBLIC K-12 SCHOOLS'
         ) AS b
     WHERE (
-        UPPER(a.site_or_facility_name)
+        upper(a.site_or_facility_name)
         LIKE '%SCHOOL%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%P.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%I.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%M.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%H.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE 'PS%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE 'P.S%'
     )
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') = REGEXP_REPLACE(b.facname, '\D', '', 'g')
-    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') != ''
-    AND UPPER(a.borough) = UPPER(b.boro)
+    AND regexp_replace(a.site_or_facility_name, '\D', '', 'g') = regexp_replace(b.facname, '\D', '', 'g')
+    AND regexp_replace(a.site_or_facility_name, '\D', '', 'g') != ''
+    AND upper(a.borough) = upper(b.boro)
     AND a.geom IS NULL
 )
 UPDATE _cbbr_submissions
@@ -191,30 +191,30 @@ WITH master AS (
             FROM
                 _dcp_facilities
             WHERE
-                UPPER(facsubgrp) = 'PUBLIC K-12 SCHOOLS'
+                upper(facsubgrp) = 'PUBLIC K-12 SCHOOLS'
         ) AS b
     WHERE (
-        UPPER(a.site_or_facility_name)
+        upper(a.site_or_facility_name)
         LIKE '%SCHOOL%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%P.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%I.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%M.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%H.S.%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE 'PS%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE 'P.S%'
     )
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%AND%'
-    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g')
-    = REGEXP_REPLACE(REPLACE(REPLACE(b.facname, ' 0', ' '), ' 0', ' '), '\D', '', 'g')
-    AND REGEXP_REPLACE(a.site_or_facility_name, '\D', '', 'g') != ''
-    AND UPPER(a.borough) = UPPER(b.boro)
+    AND regexp_replace(a.site_or_facility_name, '\D', '', 'g')
+    = regexp_replace(replace(replace(b.facname, ' 0', ' '), ' 0', ' '), '\D', '', 'g')
+    AND regexp_replace(a.site_or_facility_name, '\D', '', 'g') != ''
+    AND upper(a.borough) = upper(b.boro)
     AND a.geom IS NULL
 )
 UPDATE _cbbr_submissions
@@ -242,60 +242,60 @@ WITH master AS (
             FROM
                 _dcp_facilities
             WHERE
-                UPPER(facgroup) = 'PARKS AND PLAZAS'
+                upper(facgroup) = 'PARKS AND PLAZAS'
         ) AS b
     WHERE (
-        UPPER(a.site_or_facility_name)
+        upper(a.site_or_facility_name)
         LIKE '%PARK%'
-        OR UPPER(a.site_or_facility_name)
+        OR upper(a.site_or_facility_name)
         LIKE '%PLAYGROUND%'
         OR agency_acronym = 'DPR'
     )
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%AND%'
     AND (
         (
             '%'
-            || REPLACE(UPPER(a.site_or_facility_name), ' PARK', '')
+            || replace(upper(a.site_or_facility_name), ' PARK', '')
             || '%' LIKE '%'
-            || REPLACE(UPPER(b.facname), ' PARK', '')
+            || replace(upper(b.facname), ' PARK', '')
             || '%'
         )
         OR (
             '%'
-            || REPLACE(UPPER(a.site_or_facility_name), ' PARK', '')
+            || replace(upper(a.site_or_facility_name), ' PARK', '')
             || '%' LIKE '%'
-            || REPLACE(UPPER(b.facname), ' PLAYGROUND', '')
+            || replace(upper(b.facname), ' PLAYGROUND', '')
             || '%'
         )
         OR (
             '%'
-            || REPLACE(UPPER(a.site_or_facility_name), ' PLAYGROUND', '')
+            || replace(upper(a.site_or_facility_name), ' PLAYGROUND', '')
             || '%' LIKE '%'
-            || REPLACE(UPPER(b.facname), ' PLAYGROUND', '')
+            || replace(upper(b.facname), ' PLAYGROUND', '')
             || '%'
         )
         OR (
             '%'
-            || REPLACE(UPPER(a.site_or_facility_name), ' PLAYGROUND', '')
+            || replace(upper(a.site_or_facility_name), ' PLAYGROUND', '')
             || '%' LIKE '%'
-            || REPLACE(UPPER(b.facname), ' PARK', '')
+            || replace(upper(b.facname), ' PARK', '')
             || '%'
         )
     )
-    AND UPPER(b.facname) != 'PARK'
-    AND UPPER(b.facname) != 'LOT'
-    AND UPPER(b.facname) != 'GARDEN'
-    AND UPPER(b.facname) != 'TRIANGLE'
-    AND UPPER(b.facname) != 'SITTING AREA'
-    AND UPPER(b.facname) != 'BRIDGE PARK'
-    AND UPPER(b.facname)
+    AND upper(b.facname) != 'PARK'
+    AND upper(b.facname) != 'LOT'
+    AND upper(b.facname) != 'GARDEN'
+    AND upper(b.facname) != 'TRIANGLE'
+    AND upper(b.facname) != 'SITTING AREA'
+    AND upper(b.facname) != 'BRIDGE PARK'
+    AND upper(b.facname)
     NOT LIKE '%GARDEN%'
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%GARDEN%'
-    AND UPPER(a.site_or_facility_name)
+    AND upper(a.site_or_facility_name)
     NOT LIKE '%WOOD%'
-    AND UPPER(a.borough) = UPPER(b.boro)
+    AND upper(a.borough) = upper(b.boro)
     AND a.geom IS NULL
 )
 UPDATE _cbbr_submissions

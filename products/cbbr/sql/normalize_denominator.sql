@@ -8,7 +8,7 @@ WITH denominatorcount AS (
     SELECT
         commdist,
         type_br,
-        COUNT(*) AS count
+        count(*) AS count
     FROM
         _cbbr_submissions
     GROUP BY
