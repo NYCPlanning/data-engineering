@@ -3,11 +3,11 @@ DROP TABLE IF EXISTS projects_by_communitydist_spending;
 CREATE TABLE projects_by_communitydist_spending AS (
     WITH spending_merged AS (
         SELECT
-            TRIM(LEFT(capital_project, 12)) AS maprojid,
-            SUM(check_amount::double precision) AS total_spend
+            trim(left(capital_project, 12)) AS maprojid,
+            sum(check_amount::double precision) AS total_spend
         FROM nycoc_checkbook
         -- WHERE LEFT(issue_date, 4)::double precision >= 2014
-        GROUP BY TRIM(LEFT(capital_project, 12))
+        GROUP BY trim(left(capital_project, 12))
     ),
 
     fmsmerge AS (
@@ -25,12 +25,12 @@ CREATE TABLE projects_by_communitydist_spending AS (
         SELECT
             maprojid,
             description,
-            SUM(total_spend) / ST_NUMGEOMETRIES(geom) AS amt_per_pt,
-            (ST_DUMP(geom)).geom AS geom
+            sum(total_spend) / st_numgeometries(geom) AS amt_per_pt,
+            (st_dump(geom)).geom AS geom
         FROM fmsmerge
         WHERE
             geom IS NOT NULL
-            AND ST_GEOMETRYTYPE(geom) = 'ST_MultiPoint'
+            AND st_geometrytype(geom) = 'ST_MultiPoint'
         GROUP BY
             maprojid,
             description,
@@ -43,9 +43,9 @@ CREATE TABLE projects_by_communitydist_spending AS (
             a.borocd,
             b.maprojid,
             b.description,
-            SUM(b.amt_per_pt) AS amt_pt
+            sum(b.amt_per_pt) AS amt_pt
         FROM dcp_cdboundaries AS a
-        LEFT JOIN per_pt AS b ON ST_WITHIN(b.geom, a.wkb_geometry)
+        LEFT JOIN per_pt AS b ON st_within(b.geom, a.wkb_geometry)
         GROUP BY a.borocd, b.maprojid, b.description
     ),
 
@@ -53,13 +53,13 @@ CREATE TABLE projects_by_communitydist_spending AS (
         SELECT
             maprojid,
             description,
-            SUM(total_spend) AS total_amt,
-            ST_AREA(geom) AS total_area,
-            (ST_DUMP(geom)).geom AS geom
+            sum(total_spend) AS total_amt,
+            st_area(geom) AS total_area,
+            (st_dump(geom)).geom AS geom
         FROM fmsmerge
         WHERE
             geom IS NOT NULL
-            AND ST_GEOMETRYTYPE(geom) = 'ST_MultiPolygon'
+            AND st_geometrytype(geom) = 'ST_MultiPolygon'
         GROUP BY
             maprojid,
             description,
@@ -74,16 +74,16 @@ CREATE TABLE projects_by_communitydist_spending AS (
             a.borocd,
             c.maprojid,
             c.description,
-            SUM(
+            sum(
                 c.total_amt
-                * (ST_AREA(c.geom) / c.total_area)
-                * ST_AREA(ST_INTERSECTION(c.geom, a.wkb_geometry)) / ST_AREA(c.geom)
+                * (st_area(c.geom) / c.total_area)
+                * st_area(st_intersection(c.geom, a.wkb_geometry)) / st_area(c.geom)
             ) AS amt_poly
         FROM dcp_cdboundaries AS a
-        LEFT JOIN per_poly AS c ON ST_INTERSECTS(c.geom, a.wkb_geometry)
+        LEFT JOIN per_poly AS c ON st_intersects(c.geom, a.wkb_geometry)
         WHERE
-            ST_ISVALID(a.wkb_geometry) = 't'
-            AND ST_ISVALID(c.geom) = 't'
+            st_isvalid(a.wkb_geometry) = 't'
+            AND st_isvalid(c.geom) = 't'
         GROUP BY
             a.borocd,
             c.maprojid,

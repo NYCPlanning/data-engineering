@@ -4,8 +4,8 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     WITH newgeoms AS (
         SELECT
             a.agency,
-            COUNT(a.*) AS countnew,
-            SUM(b.plannedcommit_total) AS totalplannedcommitnew
+            count(a.*) AS countnew,
+            sum(b.plannedcommit_total) AS totalplannedcommitnew
         FROM dcp_cpdb_agencyverified AS a
         LEFT JOIN ccp_projects AS b
             ON a.maprojid = b.maprojid
@@ -18,8 +18,8 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     correctedgeoms AS (
         SELECT
             a.agency,
-            COUNT(a.*) AS countcorrected,
-            SUM(b.plannedcommit_total) AS totalplannedcommitcorrected
+            count(a.*) AS countcorrected,
+            sum(b.plannedcommit_total) AS totalplannedcommitcorrected
         FROM dcp_cpdb_agencyverified AS a
         LEFT JOIN ccp_projects AS b
             ON a.maprojid = b.maprojid
@@ -32,8 +32,8 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     removedgeoms AS (
         SELECT
             a.agency,
-            COUNT(a.*) AS countremoved,
-            SUM(b.plannedcommit_total) AS totalplannedcommitremoved
+            count(a.*) AS countremoved,
+            sum(b.plannedcommit_total) AS totalplannedcommitremoved
         FROM dcp_cpdb_agencyverified AS a
         LEFT JOIN ccp_projects AS b
             ON a.maprojid = b.maprojid
@@ -49,7 +49,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     totalmappedrecords AS (
         SELECT
             a.agency,
-            COUNT(a.*) AS totalmapped
+            count(a.*) AS totalmapped
         FROM dcp_cpdb_agencyverified AS a
         WHERE origin = 'mapped'
         GROUP BY agency
@@ -58,7 +58,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
     totalunmappedrecords AS (
         SELECT
             a.agency,
-            COUNT(a.*) AS totalunmapped
+            count(a.*) AS totalunmapped
         FROM dcp_cpdb_agencyverified AS a
         WHERE origin = 'unmapped'
         GROUP BY agency

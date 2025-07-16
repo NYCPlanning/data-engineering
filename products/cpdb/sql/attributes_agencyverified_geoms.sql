@@ -22,7 +22,7 @@ WHERE
 
 -- add geom for projects based on bin
 UPDATE dcp_cpdb_agencyverified a
-SET geom = ST_CENTROID(b.wkb_geometry)
+SET geom = st_centroid(b.wkb_geometry)
 FROM doitt_buildingfootprints AS b
 WHERE
     a.bin::float::bigint = b.bin::bigint
@@ -33,7 +33,7 @@ WHERE
 
 -- add geom for projects based on bbl
 UPDATE dcp_cpdb_agencyverified a
-SET geom = ST_CENTROID(b.wkb_geometry)
+SET geom = st_centroid(b.wkb_geometry)
 FROM dcp_mappluto_wi AS b
 WHERE
     a.bbl::text = b.bbl::text

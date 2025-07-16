@@ -7,7 +7,7 @@ WITH master AS (
         WITH filtered AS (
             SELECT
                 facname,
-                COUNT(facname) AS namecount
+                count(facname) AS namecount
             FROM dcp_facilities
             GROUP BY facname
         )
@@ -30,7 +30,7 @@ WITH master AS (
         a.geom IS NULL
         AND a.magency IN ('850', '801', '806', '126', '819', '57', '72', '858', '827', '71', '56', '816', '125', '998')
         AND b.facname LIKE '%' || ' ' || '%' || ' ' || '%'
-        AND UPPER(a.description) LIKE '%' || UPPER(b.facname) || '%'
+        AND upper(a.description) LIKE '%' || upper(b.facname) || '%'
         AND b.facname IN (SELECT facname FROM singlename)
 ),
 
@@ -50,8 +50,8 @@ lib_master AS (
         ) AS b
     WHERE
         a.magency::int IN (39, 37, 38, 35)
-        AND UPPER(a.description) NOT LIKE '%AND%'
-        AND '%' || UPPER(a.description) || '%' LIKE '%' || UPPER(b.facname) || '%'
+        AND upper(a.description) NOT LIKE '%AND%'
+        AND '%' || upper(a.description) || '%' LIKE '%' || upper(b.facname) || '%'
 )
 
 SELECT

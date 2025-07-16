@@ -10,14 +10,14 @@ DROP TABLE IF EXISTS ccp_commitments CASCADE;
 CREATE TABLE ccp_commitments AS
 SELECT
     'fisa_' || p.cycle_fy AS ccpversion,
-    LPAD(p.managing_agcy_cd, 3, '0') AS magency,
-    REPLACE(p.project_id, ' ', '') AS projectid,
-    LPAD(p.managing_agcy_cd, 3, '0') || REPLACE(p.project_id, ' ', '') AS maprojid,
-    REPLACE(p.budget_proj_type, ' ', '') || '-' || p.budget_line_id AS budgetline,
+    lpad(p.managing_agcy_cd, 3, '0') AS magency,
+    replace(p.project_id, ' ', '') AS projectid,
+    lpad(p.managing_agcy_cd, 3, '0') || replace(p.project_id, ' ', '') AS maprojid,
+    replace(p.budget_proj_type, ' ', '') || '-' || p.budget_line_id AS budgetline,
     b.projecttype,
     b.agencyacronym AS sagencyacro,
     b.agency AS sagencyname,
-    RIGHT(p.planned_commit_date, 2) || '/' || SUBSTRING(p.planned_commit_date FROM 3 FOR 2) AS plancommdate,
+    right(p.planned_commit_date, 2) || '/' || substring(p.planned_commit_date FROM 3 FOR 2) AS plancommdate,
     p.short_descr AS projectdescription,
     p.object_name AS commitmentdescription,
     p.object AS commitmentcode,
@@ -36,4 +36,4 @@ SELECT
     + p.fcst_fd_amt::double precision + fcst_pv_amt::double precision
     AS plannedcommit_total
 FROM fisa_capitalcommitments AS p
-LEFT JOIN dcp_projecttypes_agencies AS b ON TRIM(p.budget_proj_type) = TRIM(b.projecttypeabbrev);
+LEFT JOIN dcp_projecttypes_agencies AS b ON trim(p.budget_proj_type) = trim(b.projecttypeabbrev);

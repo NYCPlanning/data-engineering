@@ -8,8 +8,8 @@ WHERE lat = 0 OR lon = 0;
 
 WITH proj AS (
     SELECT
-        ST_MULTI(ST_UNION(wkb_geometry)) AS geom,
-        REPLACE(fmsid, ' ', '') AS fmsid
+        st_multi(st_union(wkb_geometry)) AS geom,
+        replace(fmsid, ' ', '') AS fmsid
     FROM dpr_capitalprojects
     GROUP BY fmsid
 )

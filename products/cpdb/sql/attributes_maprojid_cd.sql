@@ -11,7 +11,7 @@ CREATE TABLE attributes_maprojid_cd AS (
         FROM cpdb_dcpattributes AS a,
             dcp_cdboundaries AS b
         WHERE
-            ST_INTERSECTS(a.geom, b.wkb_geometry)
-            AND ST_GEOMETRYTYPE(b.wkb_geometry) = 'ST_MultiPolygon'
+            st_intersects(a.geom, b.wkb_geometry)
+            AND st_geometrytype(b.wkb_geometry) = 'ST_MultiPolygon'
     ) AS a
 );

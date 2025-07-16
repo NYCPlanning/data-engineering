@@ -2,8 +2,8 @@ DROP VIEW IF EXISTS fisa_budget_data_init;
 CREATE VIEW fisa_budget_data_init AS
 
 SELECT
-    LPAD(mng_dpt_cd, 3, '0') || cptl_proj_id AS maprojid,
-    LPAD(mng_dpt_cd, 3, '0') AS magency,
+    lpad(mng_dpt_cd, 3, '0') || cptl_proj_id AS maprojid,
+    lpad(mng_dpt_cd, 3, '0') AS magency,
     cptl_proj_id AS projectid,
     rcls_cd AS occurance,
     atyp_cd AS fundingsource,
@@ -28,15 +28,15 @@ SELECT
     b.magency,
     b.projectid,
     b.fundingsource,
-    SUM(cmtmnt_am) AS cmtmnt_am,
-    SUM(oblgtns_am) AS oblgtns_am,
-    SUM(adpt_am) AS adpt_am,
-    SUM(penc_am) AS penc_am,
-    SUM(enc_am) AS enc_am,
-    SUM(acrd_exp_am) AS acrd_exp_am,
-    SUM(cash_exp_am) AS cash_exp_am,
-    SUM(ucomit_am) AS ucomit_am,
-    SUM(actu_exp_am) AS actu_exp_am
+    sum(cmtmnt_am) AS cmtmnt_am,
+    sum(oblgtns_am) AS oblgtns_am,
+    sum(adpt_am) AS adpt_am,
+    sum(penc_am) AS penc_am,
+    sum(enc_am) AS enc_am,
+    sum(acrd_exp_am) AS acrd_exp_am,
+    sum(cash_exp_am) AS cash_exp_am,
+    sum(ucomit_am) AS ucomit_am,
+    sum(actu_exp_am) AS actu_exp_am
 FROM ccp_projects AS a
 INNER JOIN fisa_budget_data_init AS b ON a.maprojid = b.maprojid
 GROUP BY b.magency, b.projectid, b.maprojid, b.fundingsource;
@@ -97,7 +97,7 @@ SELECT
     + spent.spent_nccfederal
     + spent.spent_nccother AS spent_total
 FROM ccp_projects AS projects
-INNER JOIN CROSSTAB(
+INNER JOIN crosstab(
     'SELECT 
         maprojid, 
         fundingsource, 
@@ -112,7 +112,7 @@ INNER JOIN CROSSTAB(
     adopt_nccother numeric,
     adopt_nccstate numeric
 ) ON projects.maprojid = adopt.maprojid
-INNER JOIN CROSSTAB(
+INNER JOIN crosstab(
     'SELECT 
         maprojid, 
         fundingsource, 
@@ -127,7 +127,7 @@ INNER JOIN CROSSTAB(
     allocate_nccother numeric,
     allocate_nccstate numeric
 ) ON projects.maprojid = allocate.maprojid
-INNER JOIN CROSSTAB(
+INNER JOIN crosstab(
     'SELECT 
         maprojid, 
         fundingsource, 
@@ -142,7 +142,7 @@ INNER JOIN CROSSTAB(
     commit_nccother numeric,
     commit_nccstate numeric
 ) ON projects.maprojid = commit.maprojid
-INNER JOIN CROSSTAB(
+INNER JOIN crosstab(
     'SELECT 
         maprojid, 
         fundingsource, 

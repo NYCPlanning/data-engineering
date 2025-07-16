@@ -2,7 +2,7 @@
 
 WITH proj AS (
     SELECT
-        ST_MULTI(ST_UNION(wkb_geometry)) AS geom,
+        st_multi(st_union(wkb_geometry)) AS geom,
         '850' || projectid AS fmsid
     FROM ddc_capitalprojects_infrastructure
     GROUP BY projectid
@@ -20,7 +20,7 @@ WHERE cpdb_dcpattributes.maprojid = proj.fmsid;
 -- - buildings
 WITH proj AS (
     SELECT
-        ST_MULTI(ST_UNION(ST_CENTROID(wkb_geometry))) AS geom,
+        st_multi(st_union(st_centroid(wkb_geometry))) AS geom,
         '850' || projectid AS fmsid
     FROM ddc_capitalprojects_publicbuildings
     GROUP BY projectid
