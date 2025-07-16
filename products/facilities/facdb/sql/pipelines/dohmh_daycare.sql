@@ -4,7 +4,7 @@ inspection_dates AS (
     SELECT
         uid,
         (CASE
-            WHEN UPPER(inspection_date) = 'NONE' THEN '01/01/2000'
+            WHEN upper(inspection_date) = 'NONE' THEN '01/01/2000'
             ELSE inspection_date
         END) AS inspection_date
     FROM dohmh_daycare
@@ -12,12 +12,12 @@ inspection_dates AS (
 latest_inspections AS (
     SELECT
         day_care_id,
-        MAX(inspection_date::date) AS latest_inspection
+        max(inspection_date::date) AS latest_inspection
     FROM dohmh_daycare
     GROUP BY day_care_id
 ),
 first_latest_inspection AS (
-    SELECT MIN(uid) AS relevant_uid
+    SELECT min(uid) AS relevant_uid
     FROM dohmh_daycare AS a, latest_inspections AS b
     WHERE
         a.day_care_id = b.day_care_id
@@ -28,11 +28,11 @@ _dohmh_daycare_tmp AS (
     SELECT
         uid,
         source,
-        REGEXP_REPLACE(
+        regexp_replace(
             (CASE
-                WHEN center_name LIKE '%SBCC%' THEN INITCAP(legal_name)
-                WHEN center_name LIKE '%SCHOOL BASED CHILD CARE%' THEN INITCAP(legal_name)
-                ELSE INITCAP(center_name)
+                WHEN center_name LIKE '%SBCC%' THEN initcap(legal_name)
+                WHEN center_name LIKE '%SCHOOL BASED CHILD CARE%' THEN initcap(legal_name)
+                ELSE initcap(center_name)
             END), '\x1a', ''''
         ) AS facname,
         building AS addressnum,
@@ -68,14 +68,14 @@ _dohmh_daycare_tmp AS (
                 THEN 'School Based Child Care - Age Unspecified'
             WHEN facility_type = 'GDC'
                 THEN 'Group Day Care - Age Unspecified'
-            ELSE CONCAT(facility_type, ' - ', program_type)
+            ELSE concat(facility_type, ' - ', program_type)
         END) AS factype,
         (CASE
             WHEN (facility_type ~* 'CAMP' OR program_type ILIKE '%CAMP%')
                 THEN 'Camps'
             ELSE 'Day Care'
         END) AS facsubgrp,
-        INITCAP(legal_name) AS opname,
+        initcap(legal_name) AS opname,
         'Non-public' AS opabbrev,
         'NYCDOHMH' AS overabbrev,
         NULL AS capacity,
@@ -94,10 +94,10 @@ FROM _dohmh_daycare_tmp
 WHERE
     factype <> 'Day Care'
     OR uid IN (
-        SELECT MIN(filtered.uid) AS min_uid
+        SELECT min(filtered.uid) AS min_uid
         FROM _dohmh_daycare_tmp AS filtered
         WHERE filtered.factype = 'Day Care'
         GROUP BY (filtered.opname, filtered.addressnum, filtered.streetname)
     );
 
-CALL APPEND_TO_FACDB_BASE('_dohmh_daycare');
+CALL append_to_facdb_base('_dohmh_daycare');

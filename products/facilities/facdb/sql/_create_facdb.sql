@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS facdb;
 SELECT
-    TRIM(UPPER(facdb_base.facname)) AS facname,
+    trim(upper(facdb_base.facname)) AS facname,
     facdb_address.addressnum,
     facdb_address.streetname,
     facdb_address.address,
@@ -18,10 +18,10 @@ SELECT
     facdb_spatial.policeprct,
     facdb_spatial.ct2010,
     facdb_spatial.ct2020,
-    TRIM(UPPER(REGEXP_REPLACE(facdb_base.factype, '\s+', ' ', 'g'))) AS factype,
-    UPPER(facdb_classification.facsubgrp) AS facsubgrp,
-    UPPER(facdb_classification.facgroup) AS facgroup,
-    UPPER(facdb_classification.facdomain) AS facdomain,
+    trim(upper(regexp_replace(facdb_base.factype, '\s+', ' ', 'g'))) AS factype,
+    upper(facdb_classification.facsubgrp) AS facsubgrp,
+    upper(facdb_classification.facgroup) AS facgroup,
+    upper(facdb_classification.facdomain) AS facdomain,
     facdb_classification.servarea,
     facdb_base.opname,
     facdb_agency.opabbrev,
@@ -68,4 +68,4 @@ WHERE uid IN (
     WHERE field = 'remove'
 );
 
-CALL APPLY_CORRECTION(:'build_schema', 'facdb', 'manual_corrections');
+CALL apply_correction(:'build_schema', 'facdb', 'manual_corrections');

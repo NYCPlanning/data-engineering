@@ -2,13 +2,13 @@ DROP TABLE IF EXISTS _dsny_electronicsdrop;
 SELECT
     uid,
     source,
-    CONCAT(dropoff_sitename, ' Electronics Drop-off Site') AS facname,
+    concat(dropoff_sitename, ' Electronics Drop-off Site') AS facname,
     NULL AS addressnum,
     NULL AS streetname,
     address,
     NULL AS city,
     zipcode,
-    LEFT(censustract, 1) AS boro,
+    left(censustract, 1) AS boro,
     NULL AS borocode,
     bin,
     bbl,
@@ -26,4 +26,4 @@ SELECT
 INTO _dsny_electronicsdrop
 FROM dsny_electronicsdrop;
 
-CALL APPEND_TO_FACDB_BASE('_dsny_electronicsdrop');
+CALL append_to_facdb_base('_dsny_electronicsdrop');

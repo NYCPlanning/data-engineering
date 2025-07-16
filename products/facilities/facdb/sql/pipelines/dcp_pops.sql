@@ -24,12 +24,12 @@ SELECT
     NULL AS captype,
     (CASE
         WHEN location IS NULL
-            THEN ST_TRANSFORM(ST_SETSRID(ST_POINT(
-                xcoordinate::DOUBLE PRECISION,
-                ycoordinate::DOUBLE PRECISION
+            THEN st_transform(st_setsrid(st_point(
+                xcoordinate::double precision,
+                ycoordinate::double precision
             ),
             2263), 4326)
-        ELSE ST_SETSRID(location::GEOMETRY, 4326)
+        ELSE st_setsrid(location::geometry, 4326)
     END) AS wkb_geometry,
     geo_1b,
     geo_bl,
@@ -37,4 +37,4 @@ SELECT
 INTO _dcp_pops
 FROM dcp_pops;
 
-CALL APPEND_TO_FACDB_BASE('_dcp_pops');
+CALL append_to_facdb_base('_dcp_pops');

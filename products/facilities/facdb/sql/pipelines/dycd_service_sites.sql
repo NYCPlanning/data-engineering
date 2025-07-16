@@ -31,12 +31,12 @@ SELECT
     'NYCDYCD' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    ST_POINT(longitude::double precision, latitude::double precision) AS wkb_geometry,
+    st_point(longitude::double precision, latitude::double precision) AS wkb_geometry,
     geo_1b,
     geo_bl,
     geo_bn
 INTO _dycd_service_sites
 FROM dycd_service_sites
-WHERE fiscalyear = (SELECT MAX(d.fiscalyear) FROM dycd_service_sites AS d);;
+WHERE fiscalyear = (SELECT max(d.fiscalyear) FROM dycd_service_sites AS d);;
 
-CALL APPEND_TO_FACDB_BASE('_dycd_service_sites');
+CALL append_to_facdb_base('_dycd_service_sites');

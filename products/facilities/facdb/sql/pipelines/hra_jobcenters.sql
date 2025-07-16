@@ -10,7 +10,7 @@ SELECT
     city,
     post_code AS zipcode,
     borough AS boro,
-    LEFT(bin::text, 1) AS borocode,
+    left(bin::text, 1) AS borocode,
     bin,
     bbl,
     'Jobs and Service Center' AS factype,
@@ -27,4 +27,4 @@ SELECT
 INTO _hra_jobcenters
 FROM hra_jobcenters;
 
-CALL APPEND_TO_FACDB_BASE('_hra_jobcenters');
+CALL append_to_facdb_base('_hra_jobcenters');

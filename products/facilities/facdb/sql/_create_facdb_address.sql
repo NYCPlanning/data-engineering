@@ -5,14 +5,14 @@ addresses AS (
         uid,
         source,
         addressnum,
-        TRIM(REGEXP_REPLACE(streetname, '\s+', ' ', 'g')) AS streetname,
-        NULLIF(geo_1b -> 'result' ->> 'geo_house_number', '') AS geo_house_number,
-        NULLIF(geo_1b -> 'result' ->> 'geo_street_name', '') AS geo_street_name,
-        NULLIF(geo_1b -> 'result' ->> 'geo_grc', '') AS geo_grc,
-        NULLIF(geo_1b -> 'result' ->> 'geo_grc2', '') AS geo_grc2,
+        trim(regexp_replace(streetname, '\s+', ' ', 'g')) AS streetname,
+        nullif(geo_1b -> 'result' ->> 'geo_house_number', '') AS geo_house_number,
+        nullif(geo_1b -> 'result' ->> 'geo_street_name', '') AS geo_street_name,
+        nullif(geo_1b -> 'result' ->> 'geo_grc', '') AS geo_grc,
+        nullif(geo_1b -> 'result' ->> 'geo_grc2', '') AS geo_grc2,
         geo_1b -> 'inputs' ->> 'input_hnum' AS input_hnum,
         geo_1b -> 'inputs' ->> 'input_sname' AS input_sname,
-        TRIM(REGEXP_REPLACE(address, '\s+', ' ', 'g')) AS address
+        trim(regexp_replace(address, '\s+', ' ', 'g')) AS address
     FROM facdb_base
 )
 SELECT *
@@ -40,12 +40,12 @@ FROM
             uid,
             source,
             geo_house_number AS addressnum,
-            TRIM(REGEXP_REPLACE(geo_street_name, '\s+', ' ', 'g')) AS streetname,
-            TRIM(
-                UPPER(
-                    NULLIF(
-                        CONCAT(
-                            geo_house_number, ' ', REGEXP_REPLACE(geo_street_name, '\s+', ' ', 'g')
+            trim(regexp_replace(geo_street_name, '\s+', ' ', 'g')) AS streetname,
+            trim(
+                upper(
+                    nullif(
+                        concat(
+                            geo_house_number, ' ', regexp_replace(geo_street_name, '\s+', ' ', 'g')
                         ),
                         ' '
                     )
@@ -72,7 +72,7 @@ FROM
                     OR address LIKE '%&%'
                     OR address ~* 'PO BOX'
                     THEN NULL
-                ELSE UPPER(address)
+                ELSE upper(address)
             END) AS address
         FROM addresses
         WHERE (

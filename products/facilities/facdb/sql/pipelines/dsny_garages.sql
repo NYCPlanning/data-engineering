@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS _dsny_garages;
 SELECT
     uid,
     source,
-    CONCAT(name, ' ', type) AS facname,
+    concat(name, ' ', type) AS facname,
     parsed_hnum AS addressnum,
     parsed_sname AS streetname,
     address,
@@ -26,4 +26,4 @@ SELECT
 INTO _dsny_garages
 FROM dsny_garages;
 
-CALL APPEND_TO_FACDB_BASE('_dsny_garages');
+CALL append_to_facdb_base('_dsny_garages');

@@ -10,7 +10,7 @@ SELECT
     NULL AS city,
     postcode AS zipcode,
     borough AS boro,
-    LEFT(bin::text, 1) AS borocode,
+    left(bin::text, 1) AS borocode,
     bin,
     bbl,
     'Medicaid Office' AS factype,
@@ -27,4 +27,4 @@ SELECT
 INTO _hra_medicaid
 FROM hra_medicaid;
 
-CALL APPEND_TO_FACDB_BASE('_hra_medicaid');
+CALL append_to_facdb_base('_hra_medicaid');

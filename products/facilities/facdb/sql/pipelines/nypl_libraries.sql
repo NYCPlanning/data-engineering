@@ -27,4 +27,4 @@ SELECT
 INTO _nypl_libraries
 FROM nypl_libraries;
 
-CALL APPEND_TO_FACDB_BASE('_nypl_libraries');
+CALL append_to_facdb_base('_nypl_libraries');

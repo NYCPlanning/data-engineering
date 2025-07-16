@@ -10,7 +10,7 @@ SELECT
     city,
     postcode AS zipcode,
     NULL AS boro,
-    LEFT(bin::text, 1) AS borocode,
+    left(bin::text, 1) AS borocode,
     bin,
     bbl,
     'SNAP Center' AS factype,
@@ -27,4 +27,4 @@ SELECT
 INTO _hra_snapcenters
 FROM hra_snapcenters;
 
-CALL APPEND_TO_FACDB_BASE('_hra_snapcenters');
+CALL append_to_facdb_base('_hra_snapcenters');

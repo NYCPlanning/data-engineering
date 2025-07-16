@@ -156,7 +156,7 @@ geom_new AS (
         factype,
         datasource,
         count(*) AS count_new,
-        sum((geom IS NOT null)::integer) AS with_geom_new
+        sum((geom IS NOT NULL)::integer) AS with_geom_new
     FROM facdb
     GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
 ),
@@ -168,7 +168,7 @@ geom_old AS (
         factype,
         datasource,
         count(*) AS count_old,
-        count(*) FILTER (WHERE mapped = true) AS with_geom_old
+        count(*) FILTER (WHERE mapped = TRUE) AS with_geom_old
     FROM dcp_facilities_with_unmapped
     GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
 )
@@ -214,7 +214,7 @@ FROM
             datasource,
             coalesce(count(*), 0) AS count_new
         FROM facdb
-        WHERE geom IS NOT null
+        WHERE geom IS NOT NULL
         GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
     ) AS a FULL JOIN
     (
@@ -226,7 +226,7 @@ FROM
             datasource,
             coalesce(count(*), 0) AS count_old
         FROM dcp_facilities_with_unmapped
-        WHERE mapped IS true
+        WHERE mapped IS TRUE
         GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
     ) AS b
     ON
@@ -266,10 +266,10 @@ SELECT
     facsubgrp,
     count(*) AS count_total,
     count(DISTINCT bin) AS count_distinct_bin,
-    count(*) FILTER (WHERE bin IS NOT null) - count(DISTINCT bin) AS count_repeat_bin,
-    count(*) FILTER (WHERE bin IS null) AS count_null_bin,
+    count(*) FILTER (WHERE bin IS NOT NULL) - count(DISTINCT bin) AS count_repeat_bin,
+    count(*) FILTER (WHERE bin IS NULL) AS count_null_bin,
     count(*) FILTER (WHERE bin::text LIKE '%000000') AS count_million_bin,
-    count(*) FILTER (WHERE geom IS null) AS count_wo_geom
+    count(*) FILTER (WHERE geom IS NULL) AS count_wo_geom
 INTO qc_subgrpbins
 FROM facdb
 GROUP BY facsubgrp

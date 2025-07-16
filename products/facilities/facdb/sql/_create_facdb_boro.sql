@@ -9,13 +9,13 @@ WITH coalesced_boro AS (
     FROM (
         SELECT
             uid,
-            UPPER(COALESCE(zipcodes.county, facdb_boro.boro)) AS boro,
+            upper(coalesce(zipcodes.county, facdb_boro.boro)) AS boro,
             input_zipcode AS zipcode,
-            UPPER(zipcodes.po_name) AS city
+            upper(zipcodes.po_name) AS city
         FROM (
             SELECT
                 uid,
-                UPPER(boro) AS boro,
+                upper(boro) AS boro,
                 borocode,
                 geo_1b -> 'inputs' ->> 'input_zipcode' AS input_zipcode
             FROM facdb_base
@@ -49,6 +49,6 @@ SELECT
         WHEN boro IN ('BROOKLYN', 'BRONX', 'STATEN ISLAND') THEN boro
         ELSE city
     END) AS city,
-    NULLIF(NULLIF(REGEXP_REPLACE(LEFT(zipcode, 5), '[^0-9]+', '', 'g'), '0'), '') AS zipcode
+    nullif(nullif(regexp_replace(left(zipcode, 5), '[^0-9]+', '', 'g'), '0'), '') AS zipcode
 INTO facdb_boro
 FROM coalesced_boro

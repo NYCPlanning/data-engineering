@@ -7,9 +7,9 @@ SELECT
     streetname,
     address,
     city,
-    SPLIT_PART(zipcode, '.', 1) AS zipcode,
+    split_part(zipcode, '.', 1) AS zipcode,
     boro,
-    SPLIT_PART(borocode, '.', 1) AS borocode,
+    split_part(borocode, '.', 1) AS borocode,
     bin,
     bbl,
     factype,
@@ -26,4 +26,4 @@ SELECT
 INTO _dcp_sfpsd
 FROM dcp_sfpsd;
 
-CALL APPEND_TO_FACDB_BASE('_dcp_sfpsd');
+CALL append_to_facdb_base('_dcp_sfpsd');

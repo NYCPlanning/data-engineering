@@ -35,4 +35,4 @@ SELECT
 INTO _nysomh_mentalhealth
 FROM nysomh_mentalhealth;
 
-CALL APPEND_TO_FACDB_BASE('_nysomh_mentalhealth');
+CALL append_to_facdb_base('_nysomh_mentalhealth');

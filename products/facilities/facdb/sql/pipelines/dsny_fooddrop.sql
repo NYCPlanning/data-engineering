@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS _dsny_fooddrop;
 SELECT
     uid,
     source,
-    CONCAT(food_scrap_drop_off_site, ' Food Drop-off Site') AS facname,
+    concat(food_scrap_drop_off_site, ' Food Drop-off Site') AS facname,
     parsed_hnum AS addressnum,
     parsed_sname AS streetname,
     location AS address,
@@ -25,4 +25,4 @@ SELECT
     NULL AS geo_bn
 INTO _dsny_fooddrop
 FROM dsny_fooddrop;
-CALL APPEND_TO_FACDB_BASE('_dsny_fooddrop');
+CALL append_to_facdb_base('_dsny_fooddrop');

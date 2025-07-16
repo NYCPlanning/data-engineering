@@ -5,12 +5,12 @@ WITH latest_sca_data AS (
     WHERE
         data_as_of::date
         = (
-            SELECT MAX(s.data_as_of::date)
+            SELECT max(s.data_as_of::date)
             FROM sca_enrollment_capacity AS s
         )
 )
 SELECT
-    MD5(a.uid || COALESCE(b.uid, '')) AS uid,
+    md5(a.uid || coalesce(b.uid, '')) AS uid,
     a.source,
     a.location_name AS facname,
     a.parsed_hnum AS addressnum,
@@ -30,8 +30,8 @@ SELECT
                 THEN CASE
                     WHEN
                         a.location_type_description NOT LIKE '%Special%'
-                        THEN CONCAT(a.location_category_description, ' - Charter')
-                    WHEN a.location_type_description LIKE '%Special%' THEN CONCAT(
+                        THEN concat(a.location_category_description, ' - Charter')
+                    WHEN a.location_type_description LIKE '%Special%' THEN concat(
                         a.location_category_description,
                         ' - Charter, Special Education'
                     )
@@ -39,9 +39,9 @@ SELECT
             WHEN a.managed_by_name = 'Charter'
                 THEN CASE
                     WHEN a.location_type_description NOT LIKE '%Special%'
-                        THEN CONCAT(
-                            TRIM(
-                                REGEXP_REPLACE(
+                        THEN concat(
+                            trim(
+                                regexp_replace(
                                     a.location_category_description,
                                     'school|School',
                                     ''
@@ -49,7 +49,7 @@ SELECT
                             ),
                             ' School - Charter'
                         )
-                    WHEN a.location_type_description LIKE '%Special%' THEN CONCAT(
+                    WHEN a.location_type_description LIKE '%Special%' THEN concat(
                         a.location_category_description,
                         ' School - Charter, Special Education'
                     )
@@ -58,16 +58,16 @@ SELECT
                 THEN CASE
                     WHEN
                         a.location_type_description NOT LIKE '%Special%'
-                        THEN CONCAT(a.location_category_description, ' - Public')
-                    WHEN a.location_type_description LIKE '%Special%' THEN CONCAT(
+                        THEN concat(a.location_category_description, ' - Public')
+                    WHEN a.location_type_description LIKE '%Special%' THEN concat(
                         a.location_category_description,
                         ' - Public, Special Education'
                     )
                 END
             WHEN a.location_type_description LIKE '%Special%'
-                THEN CONCAT(
-                    TRIM(
-                        REGEXP_REPLACE(
+                THEN concat(
+                    trim(
+                        regexp_replace(
                             a.location_category_description,
                             'school|School',
                             ''
@@ -75,9 +75,9 @@ SELECT
                     ),
                     ' School - Public, Special Education'
                 )
-            ELSE CONCAT(
-                TRIM(
-                    REGEXP_REPLACE(
+            ELSE concat(
+                trim(
+                    regexp_replace(
                         a.location_category_description,
                         'school|School',
                         ''
@@ -123,4 +123,4 @@ LEFT JOIN latest_sca_data AS b
         (a.location_code || a.building_code) = (b.org_id || b.bldg_id)
     )
 WHERE a.location_category_description NOT IN ('Early Childhood', 'District Pre-K Center');
-CALL APPEND_TO_FACDB_BASE('_doe_lcgms');
+CALL append_to_facdb_base('_doe_lcgms');

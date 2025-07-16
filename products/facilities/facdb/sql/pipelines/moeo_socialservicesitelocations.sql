@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS _moeo_socialservicesitelocations; -- noqa: disable=LT05
 
 WITH tmp AS (
-    SELECT MIN(uid) AS uid
+    SELECT min(uid) AS uid
     FROM moeo_socialservicesitelocations
     GROUP BY program_name || provider_name, address_1
 )
@@ -15,14 +15,14 @@ SELECT
     city,
     postcode AS zipcode,
     borough AS boro,
-    LEFT(bin::text, 1) AS borocode,
+    left(bin::text, 1) AS borocode,
     bin,
     bbl,
     (CASE
         WHEN program_name = 'NORC SITES' THEN 'NORC Services'
         WHEN program_name = 'TRANSPORTATION ONLY' THEN 'Transportation'
         WHEN program_name = 'School’s Out New York City (SONYC)' THEN 'School''s Out New York City (SONYC)'
-        ELSE INITCAP(program_name)
+        ELSE initcap(program_name)
     END) AS factype,
     (CASE
         WHEN
@@ -319,4 +319,4 @@ WHERE
     uid IN (SELECT uid FROM tmp)
     AND program_name !~* 'Home Delivered Meals|senior center|CONDOM DISTRIBUTION SERVICES|GROWING UP NYC INITIATIVE SUPPORT SERVICES|PLANNING AND EVALUATION [BASE]|TO BE DETERMINED - UNKNOWN';
 
-CALL APPEND_TO_FACDB_BASE('_moeo_socialservicesitelocations');
+CALL append_to_facdb_base('_moeo_socialservicesitelocations');

@@ -14,8 +14,8 @@ SELECT
     NULL AS bin,
     bbl,
     (CASE
-        WHEN UPPER(site) LIKE '%TERMINAL%' THEN 'Ferry Terminal'
-        WHEN UPPER(site) LIKE '%LANDING%' THEN 'Ferry Landing'
+        WHEN upper(site) LIKE '%TERMINAL%' THEN 'Ferry Terminal'
+        WHEN upper(site) LIKE '%LANDING%' THEN 'Ferry Landing'
     END) AS factype,
     'Ports and Ferry Landings' AS facsubgrp,
     'NYC Department of Transportation' AS opname,
@@ -30,4 +30,4 @@ SELECT
 INTO _dot_ferryterminals
 FROM dot_ferryterminals;
 
-CALL APPEND_TO_FACDB_BASE('_dot_ferryterminals');
+CALL append_to_facdb_base('_dot_ferryterminals');

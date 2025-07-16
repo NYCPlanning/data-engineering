@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS _dsny_leafdrop;
 SELECT
     uid,
     source,
-    CONCAT(site_name, ' Leaf Drop-off Site') AS facname,
+    concat(site_name, ' Leaf Drop-off Site') AS facname,
     parsed_hnum AS addressnum,
     parsed_sname AS streetname,
     address,
@@ -26,4 +26,4 @@ SELECT
 INTO _dsny_leafdrop
 FROM dsny_leafdrop;
 
-CALL APPEND_TO_FACDB_BASE('_dsny_leafdrop');
+CALL append_to_facdb_base('_dsny_leafdrop');

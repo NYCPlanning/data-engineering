@@ -21,9 +21,9 @@ SELECT
     (CASE
         WHEN uid IN (SELECT non_summons_uid FROM colocated_summons)
             THEN name || ' (Colocated Summons Court)'
-        ELSE REPLACE(
-            REPLACE(
-                REPLACE(name, '( ', '('),
+        ELSE replace(
+            replace(
+                replace(name, '( ', '('),
                 ' )', ')'
             ),
             'The ', ''
@@ -53,4 +53,4 @@ INTO _nycourts_courts
 FROM nycourts_courts
 WHERE uid NOT IN (SELECT summons_uid FROM colocated_summons);
 
-CALL APPEND_TO_FACDB_BASE('_nycourts_courts');
+CALL append_to_facdb_base('_nycourts_courts');
