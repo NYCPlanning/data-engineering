@@ -4,7 +4,7 @@ import typer
 
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-from dcpy.connectors import github
+from dcpy.utils.git import github
 from dcpy.lifecycle.builds import metadata, BUILD_REPO, BUILD_DBS
 
 PROTECTED_BUILD_NAMES = ["nightly_qa"]

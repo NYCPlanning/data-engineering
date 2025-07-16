@@ -1,15 +1,15 @@
-from dcpy.connectors.github import clone_repo, get_default_branch, get_branches
+from dcpy.utils.git import github
 
 TEST_REPO = "data-engineering"
 
 
 def test_get_default_branch():
-    branch = get_default_branch(repo=TEST_REPO)
+    branch = github.get_default_branch(repo=TEST_REPO)
     assert branch == "main"
 
 
 def test_download_repo(create_temp_filesystem):
-    repo_path = clone_repo(
+    repo_path = github.clone_repo(
         repo=TEST_REPO,
         output_directory=create_temp_filesystem,
         branch="main",
@@ -18,5 +18,5 @@ def test_download_repo(create_temp_filesystem):
 
 
 def test_get_branches():
-    branches = get_branches(repo=TEST_REPO, branches_blacklist=[])
+    branches = github.get_branches(repo=TEST_REPO, branches_blacklist=[])
     assert "main" in branches

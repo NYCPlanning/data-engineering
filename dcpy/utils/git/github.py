@@ -52,14 +52,16 @@ def clone_repo(repo: str, output_directory: Path, *, branch: str | None = None) 
 
 def get_default_branch(repo: str) -> str:
     url = f"https://api.github.com/repos/nycplanning/{repo}"
-    response = requests.get(url).json()
-    return response["default_branch"]
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()["default_branch"]
 
 
 def get_branches(repo: str, branches_blacklist: List[str] | None = None):
     url = f"https://api.github.com/repos/nycplanning/{repo}/branches?per_page=100"
-    response = requests.get(url).json()
-    all_branches = [branch_info["name"] for branch_info in response]
+    response = requests.get(url)
+    response.raise_for_status()
+    all_branches = [branch_info["name"] for branch_info in response.json()]
     if branches_blacklist is None:
         branches_blacklist = []
     return [b for b in all_branches if b not in branches_blacklist]
@@ -69,13 +71,15 @@ def get_pull_requests(repo: str) -> list[str]:
     url = (
         f"https://api.github.com/repos/nycplanning/{repo}/pulls?state=open&per_page=100"
     )
-    response = requests.get(url).json()
-    return [str(pr_info["number"]) for pr_info in response]
+    response = requests.get(url)
+    response.raise_for_status()
+    return [str(pr_info["number"]) for pr_info in response.json()]
 
 
 def get_workflow(repo: str, name: str):
     url = f"{BASE_URL}/{repo}/actions/workflows/{name}"
     r = requests.get(url, headers=headers)
+    r.raise_for_status()
     return r.json()
 
 

@@ -1,6 +1,6 @@
 import streamlit as st
 
-from dcpy.connectors.github import get_default_branch
+from dcpy.utils.git import github
 from .helpers import (
     REPO_NAME,
     PRODUCT,
@@ -20,7 +20,7 @@ from .components import (
 def edde():
     st.title("EDDE QAQC")
 
-    default_branch = get_default_branch(REPO_NAME)
+    default_branch = github.get_default_branch(REPO_NAME)
     branch = branch_selectbox(
         repo=REPO_NAME,
         s3_folder=PRODUCT,

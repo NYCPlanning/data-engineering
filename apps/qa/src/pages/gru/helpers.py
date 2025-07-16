@@ -5,7 +5,7 @@ import requests
 import re
 
 from dcpy.utils import s3
-from dcpy.connectors import github
+from dcpy.utils.git import github
 from dcpy.connectors.edm import recipes
 from .constants import qa_checks
 

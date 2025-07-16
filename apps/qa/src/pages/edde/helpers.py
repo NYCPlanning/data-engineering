@@ -5,7 +5,7 @@ import streamlit as st
 
 from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.utils import s3
-from dcpy.connectors import github
+from dcpy.utils.git import github
 from dcpy.connectors.edm import publishing
 
 REPO_NAME = "db-equitable-development-tool"
