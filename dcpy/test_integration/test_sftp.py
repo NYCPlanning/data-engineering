@@ -63,3 +63,42 @@ def test_put_file():
         path=str(SFTP_REMOTE_FILES_DIR),
     )
     assert filename in remote_filenames
+
+
+def test_object_exists():
+    filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+    server_file_path = SFTP_REMOTE_FILES_DIR / filename
+
+    exists = sftp_utils.object_exists(**SFTP_DEFAULTS, path=str(server_file_path))
+    assert not exists  # sanity check
+
+    with TemporaryDirectory() as temp_dir:
+        local_file_path = Path(temp_dir) / filename
+
+        with open(local_file_path, "w") as f:
+            f.write("Some local test text. File size should be 51 bytes.")
+
+        _ = sftp_utils.put_file(
+            **SFTP_DEFAULTS,
+            local_file_path=str(local_file_path),
+            server_file_path=str(server_file_path),
+        )
+
+    exists = sftp_utils.object_exists(**SFTP_DEFAULTS, path=str(server_file_path))
+    assert exists
+
+
+def test_get_subfolders():
+    entries = sftp_utils.get_subfolders(
+        **SFTP_DEFAULTS,
+        prefix="/.ssh/",
+    )
+    assert entries == ["keys"]
+
+
+def test_get_subfolders_nonexistent_folder():
+    with pytest.raises(FileNotFoundError):
+        sftp_utils.get_subfolders(
+            **SFTP_DEFAULTS,
+            prefix="/my_nonexistent_folder_xyz",
+        )
