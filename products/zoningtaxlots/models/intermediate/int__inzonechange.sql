@@ -20,8 +20,8 @@ inzonechange AS (
     FROM dtm AS a
     INNER JOIN dcp_zoningmapamendments AS b
         ON
-            ST_INTERSECTS(a.geom, b.geom)
-            AND b.effective::DATE > CURRENT_DATE - INTERVAL '2 months'
+            st_intersects(a.geom, b.geom)
+            AND b.effective::date > current_date - interval '2 months'
 )
 -- left join to the product ztl table 
 -- use coalesce to set null to 0 

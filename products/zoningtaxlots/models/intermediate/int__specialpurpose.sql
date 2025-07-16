@@ -22,23 +22,23 @@ specialpurposeper AS (
         p.dtm_id,
         p.bbl,
         n.sdlbl,
-        ST_AREA(
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                WHEN st_coveredby(p.geom, n.geom) THEN p.geom
+                ELSE st_multi(st_intersection(p.geom, n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
-        ST_AREA(
+        st_area(p.geom) AS allbblgeom,
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                WHEN st_coveredby(n.geom, p.geom) THEN n.geom
+                ELSE st_multi(st_intersection(n.geom, p.geom))
             END
         ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        st_area(n.geom) AS allzonegeom
     FROM dtm AS p
     INNER JOIN dcp_specialpurpose AS n
-        ON ST_INTERSECTS(p.geom, n.geom)
+        ON st_intersects(p.geom, n.geom)
 ),
 
 specialpurposeperorder_init AS (
@@ -55,7 +55,7 @@ specialpurposeperorder_init AS (
         -- This is to get cases where special sp district may only be assigned to one lot. 
         -- 1) is to cover edge case where largest section of specific large (but common) sp district that happens to have largest area on small fraction of huge lot
         -- See BBL 1013730001 in ZoLa - largest section of special district but should not be assigned spdist SRI
-        ROW_NUMBER() OVER (
+        row_number() OVER (
             PARTITION BY sdlbl
             ORDER BY (segbblgeom / allbblgeom) * 100 < 10, segzonegeom DESC
         ) AS sd_row_number
@@ -70,7 +70,7 @@ specialpurposeperorder AS (
         a.segbblgeom,
         a.segzonegeom,
         b.priority,
-        ROW_NUMBER() OVER (
+        row_number() OVER (
             PARTITION BY a.dtm_id
             ORDER BY a.segbblgeom DESC, b.priority ASC, a.sdlbl ASC
         ) AS row_number

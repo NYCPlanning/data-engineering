@@ -18,23 +18,23 @@ commoverlayper AS (
         p.dtm_id,
         p.bbl,
         n.overlay,
-        ST_AREA(
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(p.geom, n.geom) THEN p.geom
-                ELSE ST_MULTI(ST_INTERSECTION(p.geom, n.geom))
+                WHEN st_coveredby(p.geom, n.geom) THEN p.geom
+                ELSE st_multi(st_intersection(p.geom, n.geom))
             END
         ) AS segbblgeom,
-        ST_AREA(p.geom) AS allbblgeom,
-        ST_AREA(
+        st_area(p.geom) AS allbblgeom,
+        st_area(
             CASE
-                WHEN ST_COVEREDBY(n.geom, p.geom) THEN n.geom
-                ELSE ST_MULTI(ST_INTERSECTION(n.geom, p.geom))
+                WHEN st_coveredby(n.geom, p.geom) THEN n.geom
+                ELSE st_multi(st_intersection(n.geom, p.geom))
             END
         ) AS segzonegeom,
-        ST_AREA(n.geom) AS allzonegeom
+        st_area(n.geom) AS allzonegeom
     FROM dtm AS p
     INNER JOIN dcp_commercialoverlay AS n
-        ON ST_INTERSECTS(p.geom, n.geom)
+        ON st_intersects(p.geom, n.geom)
 ),
 
 grouped AS (
@@ -42,10 +42,10 @@ grouped AS (
         dtm_id,
         bbl,
         overlay,
-        SUM(segbblgeom) AS segbblgeom,
-        SUM(segzonegeom) AS segzonegeom,
-        SUM(segbblgeom / allbblgeom) * 100 AS perbblgeom,
-        MAX(segzonegeom / allzonegeom) * 100 AS maxperzonegeom
+        sum(segbblgeom) AS segbblgeom,
+        sum(segzonegeom) AS segzonegeom,
+        sum(segbblgeom / allbblgeom) * 100 AS perbblgeom,
+        max(segzonegeom / allzonegeom) * 100 AS maxperzonegeom
     FROM commoverlayper
     GROUP BY dtm_id, bbl, overlay
 ),
@@ -72,7 +72,7 @@ commoverlayperorder AS (
         perbblgeom,
         maxperzonegeom,
         overlay,
-        ROW_NUMBER()
+        row_number()
             OVER (
                 PARTITION BY dtm_id
                 ORDER BY segbblgeom DESC, segzonegeom DESC

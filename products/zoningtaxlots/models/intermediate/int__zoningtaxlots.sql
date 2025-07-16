@@ -41,15 +41,15 @@ lots_with_features AS (
     SELECT
         a.dtm_id,
         CASE
-            WHEN a.bbl IS NULL OR LENGTH(a.bbl) < 10
-                THEN a.boro || LPAD(a.block, 5, '0') || LPAD(a.lot, 4, '0')::text
+            WHEN a.bbl IS NULL OR length(a.bbl) < 10
+                THEN a.boro || lpad(a.block, 5, '0') || lpad(a.lot, 4, '0')::text
             ELSE a.bbl
         END AS bbl,
         a.boro AS boroughcode,
         a.block AS taxblock,
         a.lot AS taxlot,
         a.geom,
-        ST_AREA(a.geom) AS area,
+        st_area(a.geom) AS area,
         b1.overlay AS commercialoverlay1,
         b2.overlay AS commercialoverlay2,
         c1.sdlbl AS specialdistrict1,
@@ -173,7 +173,7 @@ drop_invalid AS (
 SELECT
     dtm_id::int4,
     boroughcode::text AS borough_code,
-    TRUNC(taxblock::numeric)::text AS tax_block,
+    trunc(taxblock::numeric)::text AS tax_block,
     taxlot::text AS tax_lot,
     bbl::text,
     zoningdistrict1::text AS zoning_district_1,

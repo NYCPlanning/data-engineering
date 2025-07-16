@@ -21,8 +21,8 @@ bbl_comp AS (
 
 bbl AS (
     SELECT
-        sum(CASE WHEN bblnew IS null THEN 1 ELSE 0 END) AS removed,
-        sum(CASE WHEN bblold IS null THEN 1 ELSE 0 END) AS added,
+        sum(CASE WHEN bblnew IS NULL THEN 1 ELSE 0 END) AS removed,
+        sum(CASE WHEN bblold IS NULL THEN 1 ELSE 0 END) AS added,
         '{{ env_var('VERSION') }}'::text AS version,
         '{{ env_var('VERSION_PREV') }}'::text AS version_prev
     FROM bbl_comp

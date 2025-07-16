@@ -20,12 +20,12 @@ rename AS (
 validzones AS (
     SELECT
         CASE
-            WHEN zonedist = ANY('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'
+            WHEN zonedist = any('{"BALL FIELD", "PLAYGROUND", "PUBLIC PLACE"}') THEN 'PARK'
             ELSE zonedist
         END AS zonedist,
-        ST_MAKEVALID(geom) AS geom
+        st_makevalid(geom) AS geom
     FROM rename
-    WHERE ST_GEOMETRYTYPE(ST_MAKEVALID(geom)) = 'ST_MultiPolygon'
+    WHERE st_geometrytype(st_makevalid(geom)) = 'ST_MultiPolygon'
 )
 
 SELECT * FROM validzones
