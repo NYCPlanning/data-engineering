@@ -43,20 +43,20 @@ air_rights_counts AS (
     INNER JOIN (
         SELECT
             air_lot_bbl,
-            COUNT(*) AS lot_count
+            count(*) AS lot_count
         FROM dof_air_rights_lots
         GROUP BY air_lot_bbl
     ) AS b
         ON a.air_lot_bbl = b.air_lot_bbl
-    WHERE SUBSTRING(parent_bbl, 7, 2) <> '89'
+    WHERE substring(parent_bbl, 7, 2) <> '89'
 )
 -- If an air rights BBL matches with multiple donating BBLs, take the lot with matching last 3 digits
 SELECT
-    MD5(CAST((a.*) AS text)) AS uid,
+    md5(cast((a.*) AS text)) AS uid,
     a.house_number,
     a.street_name,
     a.bbl AS ipis_bbl,
-    COALESCE(b.donating_bbl, a.bbl) AS geo_bbl
+    coalesce(b.donating_bbl, a.bbl) AS geo_bbl
 INTO geo_inputs
 FROM dcas_ipis AS a
 LEFT JOIN
@@ -73,6 +73,6 @@ LEFT JOIN
         FROM air_rights_counts
         WHERE
             lot_count > 1
-            AND RIGHT(air_rights_bbl, 3) = RIGHT(donating_bbl, 3)
+            AND right(air_rights_bbl, 3) = right(donating_bbl, 3)
     ) AS b
     ON a.bbl = b.air_rights_bbl;

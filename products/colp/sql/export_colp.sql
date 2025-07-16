@@ -11,7 +11,7 @@ SELECT
     "SNAME",
     (CASE
         WHEN "HNUM" IS NOT NULL AND "SNAME" <> ''
-            THEN CONCAT("HNUM", ' ', "SNAME")
+            THEN concat("HNUM", ' ', "SNAME")
         ELSE "SNAME"
     END) AS "ADDRESS",
     "PARCELNAME",
