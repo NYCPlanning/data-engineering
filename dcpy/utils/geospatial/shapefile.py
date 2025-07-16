@@ -316,7 +316,4 @@ def metadata_exists(path_to_shp: str | Path) -> bool:
     xml_filename: Optional[str] = _get_metadata_xml_name(
         file_list=file_list, shp_name=shp_info["shp_name"]
     )
-    if xml_filename is not None and xml_filename in file_list:
-        return True
-    else:
-        return False
+    return xml_filename in file_list
