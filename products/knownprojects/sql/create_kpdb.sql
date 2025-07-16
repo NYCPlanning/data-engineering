@@ -6,19 +6,19 @@ DROP TABLE IF EXISTS _kpdb;
 SELECT
     a.*,
     b.project_id,
-    COALESCE(b.units_net, a.units_gross) AS units_net,
-    ROUND(
-        COALESCE(a.prop_within_5_years::decimal, 0)
-        * COALESCE(b.units_net, a.units_gross)::decimal
+    coalesce(b.units_net, a.units_gross) AS units_net,
+    round(
+        coalesce(a.prop_within_5_years::decimal, 0)
+        * coalesce(b.units_net, a.units_gross)::decimal
     ) AS within_5_years,
-    ROUND(
-        COALESCE(a.prop_5_to_10_years::decimal, 0) * b.units_net::decimal
+    round(
+        coalesce(a.prop_5_to_10_years::decimal, 0) * b.units_net::decimal
     ) AS from_5_to_10_years,
-    ROUND(
-        COALESCE(a.prop_after_10_years::decimal, 0) * b.units_net::decimal
+    round(
+        coalesce(a.prop_after_10_years::decimal, 0) * b.units_net::decimal
     ) AS after_10_years,
-    COALESCE(
-        NULLIF(prop_within_5_years, 0), NULLIF(prop_5_to_10_years, 0), NULLIF(prop_after_10_years, 0)
+    coalesce(
+        nullif(prop_within_5_years, 0), nullif(prop_5_to_10_years, 0), nullif(prop_after_10_years, 0)
     ) IS NOT NULL
     AS has_project_phasing
 INTO _kpdb_combined_and_deduped
@@ -46,7 +46,7 @@ net_units_details AS (
 future_units_details AS (
     SELECT
         *,
-        NULLIF(units_net, 0) IS NOT NULL AND completed_units = 0 AS has_future_units,
+        nullif(units_net, 0) IS NOT NULL AND completed_units = 0 AS has_future_units,
         CASE
             WHEN
                 NOT has_project_phasing AND completed_units = 0
@@ -64,17 +64,17 @@ FROM future_units_details;
 UPDATE _future_units_details SET
     within_5_years = within_5_years + net_units_diff,
     net_units_diff = 0
-WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_within_5_years, 0) IS NOT NULL;
+WHERE has_future_units AND net_units_diff != 0 AND nullif(prop_within_5_years, 0) IS NOT NULL;
 
 UPDATE _future_units_details SET
     from_5_to_10_years = from_5_to_10_years + net_units_diff,
     net_units_diff = 0
-WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_5_to_10_years, 0) IS NOT NULL;
+WHERE has_future_units AND net_units_diff != 0 AND nullif(prop_5_to_10_years, 0) IS NOT NULL;
 
 UPDATE _future_units_details SET
     after_10_years = after_10_years + net_units_diff,
     net_units_diff = 0
-WHERE has_future_units AND net_units_diff != 0 AND NULLIF(prop_after_10_years, 0) IS NOT NULL;
+WHERE has_future_units AND net_units_diff != 0 AND nullif(prop_after_10_years, 0) IS NOT NULL;
 
 SELECT
     *,
@@ -93,16 +93,16 @@ SET
             THEN
                 (
                     '{"M": 1, "X": 2, "K": 3, "Q": 4, "R": 5}'::json
-                    -> SUBSTRING(a.record_id, 6, 1)
+                    -> substring(a.record_id, 6, 1)
                 )::varchar
         WHEN
             a.source = 'DCP Application'
             THEN
                 (
                     '{"M": 1, "X": 2, "K": 3, "Q": 4, "R": 5}'::json
-                    -> SUBSTRING(a.record_id, 5, 1)
+                    -> substring(a.record_id, 5, 1)
                 )::varchar
-        WHEN a.source = 'DOB' THEN SUBSTRING(a.record_id, 1, 1)
+        WHEN a.source = 'DOB' THEN substring(a.record_id, 1, 1)
     END
 WHERE borough IS NULL;
 

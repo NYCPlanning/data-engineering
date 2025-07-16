@@ -36,13 +36,13 @@ zap_translated AS (
         END) AS dcp_projectphase,
         (CASE
             WHEN
-                COALESCE(
+                coalesce(
                     certified_referred, dcp_dcptargetcertificationdate
                 ) IS NULL
                 THEN NULL
             ELSE
-                TO_CHAR(
-                    COALESCE(
+                to_char(
+                    coalesce(
                         certified_referred, dcp_dcptargetcertificationdate
                     )::timestamp,
                     'YYYY/MM/DD'
@@ -50,20 +50,20 @@ zap_translated AS (
         END) AS dcp_certifiedreferred,
         (CASE
             WHEN completed_date IS NULL THEN NULL
-            ELSE TO_CHAR(completed_date::timestamp, 'YYYY/MM/DD')
+            ELSE to_char(completed_date::timestamp, 'YYYY/MM/DD')
         END) AS completed_date,
-        COALESCE(
+        coalesce(
             dcp_totalnoofdusinprojecd::numeric, 0
         ) AS dcp_totalnoofdusinprojecd,
-        COALESCE(dcp_mihdushighernumber::numeric, 0) AS dcp_mihdushighernumber,
-        COALESCE(dcp_mihduslowernumber::numeric, 0) AS dcp_mihduslowernumber,
-        COALESCE(
+        coalesce(dcp_mihdushighernumber::numeric, 0) AS dcp_mihdushighernumber,
+        coalesce(dcp_mihduslowernumber::numeric, 0) AS dcp_mihduslowernumber,
+        coalesce(
             dcp_numberofnewdwellingunits::numeric, 0
         ) AS dcp_numberofnewdwellingunits,
-        COALESCE(
+        coalesce(
             dcp_noofvoluntaryaffordabledus::numeric, 0
         ) AS dcp_noofvoluntaryaffordabledus,
-        COALESCE(dcp_residentialsqft::numeric, 0) AS dcp_residentialsqft
+        coalesce(dcp_residentialsqft::numeric, 0) AS dcp_residentialsqft
     FROM dcp_projects
 ),
 
@@ -92,8 +92,8 @@ year_filter AS (
     SELECT dcp_name
     FROM zap_translated
     WHERE (
-        EXTRACT(YEAR FROM completed_date::date) >= 2010
-        OR EXTRACT(YEAR FROM dcp_certifiedreferred::date) >= 2010
+        extract(YEAR FROM completed_date::date) >= 2010
+        OR extract(YEAR FROM dcp_certifiedreferred::date) >= 2010
         OR (completed_date IS NULL AND dcp_certifiedreferred IS NULL)
     )
 ),
@@ -186,14 +186,14 @@ SELECT DISTINCT
     dcp_mihduslowernumber,
     dcp_noofvoluntaryaffordabledus,
     dcp_residentialsqft,
-    COALESCE(
-        NULLIF(dcp_numberofnewdwellingunits, 0),
-        NULLIF(dcp_totalnoofdusinprojecd, 0),
-        NULLIF(
+    coalesce(
+        nullif(dcp_numberofnewdwellingunits, 0),
+        nullif(dcp_totalnoofdusinprojecd, 0),
+        nullif(
             dcp_mihdushighernumber
             + dcp_noofvoluntaryaffordabledus, 0
         ),
-        NULLIF(
+        nullif(
             dcp_mihduslowernumber
             + dcp_noofvoluntaryaffordabledus, 0
         )
@@ -260,25 +260,25 @@ SELECT DISTINCT
     END) AS status,
 
     --identify unit source
-    COALESCE(
+    coalesce(
         (CASE
-            WHEN NULLIF(dcp_numberofnewdwellingunits, 0) IS NOT NULL
+            WHEN nullif(dcp_numberofnewdwellingunits, 0) IS NOT NULL
                 THEN 'dcp_numberofnewdwellingunits'
         END),
         (CASE
-            WHEN NULLIF(dcp_totalnoofdusinprojecd, 0) IS NOT NULL
+            WHEN nullif(dcp_totalnoofdusinprojecd, 0) IS NOT NULL
                 THEN 'dcp_totalnoofdusinprojecd'
         END),
         (CASE
             WHEN
-                NULLIF(
+                nullif(
                     dcp_mihdushighernumber + dcp_noofvoluntaryaffordabledus, 0
                 ) IS NOT NULL
                 THEN 'dcp_mihdushighernumber + dcp_noofvoluntaryaffordabledus'
         END),
         (CASE
             WHEN
-                NULLIF(
+                nullif(
                     dcp_mihduslowernumber + dcp_noofvoluntaryaffordabledus, 0
                 ) IS NOT NULL
                 THEN 'dcp_mihduslowernumber + dcp_noofvoluntaryaffordabledus'
@@ -294,14 +294,14 @@ WITH
 geom_pluto AS (
     SELECT
         applications.record_id,
-        ST_UNION(pluto.wkb_geometry) AS geom
+        st_union(pluto.wkb_geometry) AS geom
     FROM (
         SELECT
             a.record_id,
             b.bbl
         FROM _dcp_application AS a
         LEFT JOIN dcp_projectbbls AS b
-            ON a.record_id = TRIM(SPLIT_PART(b.project_id, '-', 1))
+            ON a.record_id = trim(split_part(b.project_id, '-', 1))
         WHERE b.project_status != '2'
     ) AS applications LEFT JOIN dcp_mappluto_wi AS pluto
         ON applications.bbl::numeric = pluto.bbl::numeric
@@ -327,7 +327,7 @@ geom_ulurp AS (
     SELECT
         a.record_id,
         CASE
-            WHEN ST_UNION(zma.wkb_geometry) IS NULL
+            WHEN st_union(zma.wkb_geometry) IS NULL
                 THEN a.geom
         END AS geom
     FROM (

@@ -39,7 +39,7 @@ FROM (
 ) AS a
 WHERE
     record_id NOT IN (
-        SELECT UNNEST(project_record_ids)
+        SELECT unnest(project_record_ids)
         FROM project_record_ids
     );
 
@@ -73,7 +73,7 @@ matches_to_remove AS (
     INNER JOIN corrections_dob_match AS b
         ON
             a.record_id = b.record_id_dob
-            AND b.record_id = ANY(a.project_record_ids)
+            AND b.record_id = any(a.project_record_ids)
             AND b.action = 'remove'
 ),
 
@@ -99,7 +99,7 @@ verified_matches AS (
 
 SELECT
     record_id_match,
-    ARRAY_AGG(record_id) AS dob_record_ids
+    array_agg(record_id) AS dob_record_ids
 INTO dob_record_ids
 FROM verified_matches
 GROUP BY record_id_match;
@@ -107,4 +107,4 @@ GROUP BY record_id_match;
 UPDATE project_record_ids a
 SET project_record_ids = a.project_record_ids || b.dob_record_ids
 FROM dob_record_ids AS b
-WHERE b.record_id_match = ANY(a.project_record_ids);
+WHERE b.record_id_match = any(a.project_record_ids);

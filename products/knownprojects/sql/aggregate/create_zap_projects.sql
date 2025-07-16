@@ -5,7 +5,7 @@ SELECT
     -- Rename dcp_bblnumber to bbl 
     bbl,
     -- Extract the first 9 characters of the "dcp_name" column and rename it as "dcp_name" to match 
-    SUBSTRING(project_id FROM 1 FOR 9) AS dcp_name
+    substring(project_id FROM 1 FOR 9) AS dcp_name
 FROM dcp_projectbbls;
 
 -- Get dcp_name/record_ids that have multiple bbls assoicated with them 
@@ -14,7 +14,7 @@ CREATE TABLE dcp_projectbbl_sca AS (
     WITH counts AS (
         SELECT
             dcp_name,
-            COUNT(*) AS count
+            count(*) AS count
         FROM (
             SELECT DISTINCT
                 dcp_name,
@@ -33,7 +33,7 @@ CREATE TABLE dcp_projectbbl_sca AS (
 DROP TABLE IF EXISTS zap_project_many_bbls;
 -- Create the zap_projects table
 CREATE TABLE zap_project_many_bbls (
-    record_id TEXT
+    record_id text
 );
 -- Insert only distinct values from dcp_projectbbl_sca into zap_project_many_bbls table for sca aggregate tables
 INSERT INTO zap_project_many_bbls (record_id)

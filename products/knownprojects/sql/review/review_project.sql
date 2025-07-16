@@ -2,13 +2,13 @@ DROP TABLE IF EXISTS review_project;
 WITH dcp_planner AS (
     SELECT
         project_id,
-        ARRAY_TO_STRING(ARRAY_AGG(DISTINCT planner), ' ,') AS dcp_plannernames
+        array_to_string(array_agg(DISTINCT planner), ' ,') AS dcp_plannernames
     FROM (
         SELECT
             a.dcp_name AS planner,
             b.project_id
         FROM dcp_dcpprojectteams AS a LEFT JOIN dcp_projects AS b
-            ON SPLIT_PART(a.dcp_dmsourceid, '_', 1) = b.project_id
+            ON split_part(a.dcp_dmsourceid, '_', 1) = b.project_id
     ) AS a
     GROUP BY project_id
 )
@@ -32,19 +32,19 @@ SELECT
     a.nycha,
     a.classb,
     a.senior_housing,
-    (CARDINALITY(b.project_record_ids) > 1)::integer AS multirecord_project,
+    (cardinality(b.project_record_ids) > 1)::integer AS multirecord_project,
     b.dummy_id,
     (a.geom IS NULL)::integer AS no_geom,
     CASE
-        WHEN ST_ISEMPTY(geom) THEN NULL
-        WHEN GEOMETRYTYPE(geom) = 'GEOMETRYCOLLECTION' THEN ST_MAKEVALID(ST_COLLECTIONEXTRACT(a.geom, 3))
-        ELSE ST_MAKEVALID(geom)
+        WHEN st_isempty(geom) THEN NULL
+        WHEN geometrytype(geom) = 'GEOMETRYCOLLECTION' THEN st_makevalid(st_collectionextract(a.geom, 3))
+        ELSE st_makevalid(geom)
     END AS geom,
-    NOW() AS v,
-    ARRAY_TO_STRING(b.project_record_ids, ',') AS project_record_ids,
-    CARDINALITY(b.project_record_ids) AS records_in_project,
-    ROUND(
-        (ST_AREA(ST_ORIENTEDENVELOPE(a.geom)::geography))::numeric
+    now() AS v,
+    array_to_string(b.project_record_ids, ',') AS project_record_ids,
+    cardinality(b.project_record_ids) AS records_in_project,
+    round(
+        (st_area(st_orientedenvelope(a.geom)::geography))::numeric
         / (1609.34 ^ 2),
         5
     ) AS bbox_area
@@ -53,8 +53,8 @@ FROM combined AS a
 LEFT JOIN (
     SELECT
         project_record_ids,
-        UNNEST(project_record_ids) AS record_id,
-        ROW_NUMBER() OVER (
+        unnest(project_record_ids) AS record_id,
+        row_number() OVER (
             ORDER BY project_record_ids
         ) AS dummy_id
     FROM _project_record_ids
