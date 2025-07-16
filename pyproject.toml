@@ -34,6 +34,15 @@ large_file_skip_byte_limit = 40000
 
 ignore_paths = ["products/colp/sql/clean_parcelname.sql"] # hits max recursion depth -> needs refactor
 
+[tool.sqlfluff.rules.capitalisation.literals]
+capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.identifiers]
+extended_capitalisation_policy = "lower"
+[tool.sqlfluff.rules.capitalisation.functions]
+extended_capitalisation_policy = "lower"
+[tool.sqlfluff.rules.capitalisation.types]
+extended_capitalisation_policy = "lower"
+
 [tool.sqlfluff.templater.placeholder]
 param_style = "colon_optional_quotes"
 TABLE = "dummy_table_name"
