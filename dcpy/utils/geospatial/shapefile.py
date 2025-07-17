@@ -139,20 +139,18 @@ def _get_metadata_xml_name(file_list: list[str], shp_name: str) -> Optional[str]
         Optional[str]: Either name of metadata file, or None if no file is found
     """
     shp_stem = Path(shp_name).stem
-    file_list_names_only = [Path(item).name for item in file_list]
-    matched_files = [
-        item
-        for item in file_list_names_only
-        if item.startswith(shp_stem) and item.endswith((".xml", ".shp.xml"))
+    file_names = [Path(item).name for item in file_list]
+    matched_names = [
+        f for f in file_names if f in {f"{shp_stem}.shp.xml", f"{shp_stem}.xml"}
     ]
-    match len(matched_files):
+    match len(matched_names):
         case 0:
             return None
         case 1:
-            return matched_files[0]
+            return matched_names[0]
         case _:
             raise ValueError(
-                f"Expected a single xml with name '{shp_stem}', but found {len(matched_files)}"
+                f"Expected a single xml with name '{shp_stem}', but found {len(matched_names)}"
             )
 
 
