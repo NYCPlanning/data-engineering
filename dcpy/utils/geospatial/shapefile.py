@@ -52,7 +52,7 @@ def _validate_shp_input(shp_string: str | Path) -> None:
         )
 
 
-# TODO - swap out returned dict for a TypedDict?
+# TODO - implement dataclasses instead of dictionary
 def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
@@ -78,7 +78,6 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
     """
     path_to_shp = str(path_to_shp)
 
-    # confirm input conforms to required pattern
     _validate_shp_input(path_to_shp)
 
     output = {
@@ -87,17 +86,16 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
         "shp_name": "",
         "is_zip": False,
     }
-    # indicators / delimiters
+
     zip_indicator = "zip://"
     end_of_zip_delimiter = ".zip!"
 
-    if path_to_shp.startswith(zip_indicator):  # syntax indicating a zip file
+    if path_to_shp.startswith(zip_indicator):
         start_path_idx = len(zip_indicator)
 
-        # Set zip bool ------------------------
         output["is_zip"] = True
 
-        # Set zip dir -------------------------
+        # Get zip dir -------------------------
         if end_of_zip_delimiter in path_to_shp:
             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
                 len(end_of_zip_delimiter) - 1
@@ -105,18 +103,15 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
 
             output["path_to_zip"] = path_to_shp[start_path_idx:end_of_zip_idx]
 
-        # Set shp dir -------------------------
+        # Get shp dir -------------------------
         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
         if len(path_in_zip_to_shp.parts) > 1:
             output["dir_containing_shp"] = str(path_in_zip_to_shp.parent)
 
-        # Set shp name ------------------------
         output["shp_name"] = path_in_zip_to_shp.name
     else:
-        # Set shp dir -------------------------
         output["dir_containing_shp"] = str(Path(path_to_shp).parent)
 
-        # Set shp name ------------------------
         output["shp_name"] = Path(path_to_shp).name
 
     return output
@@ -170,12 +165,10 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
     """
     shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
 
-    # process zip files ------------------------
     if shp_info["is_zip"]:
         with ZipFile(shp_info["path_to_zip"], "r") as archive:
             return archive.namelist()
 
-    # process non zipped files -----------------
     elif not shp_info["is_zip"]:
         if not shp_info["dir_containing_shp"]:
             shp_dir = Path(os.getcwd())
@@ -282,13 +275,11 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
     if xml_filename is None:
         raise ValueError("Could not compute a metadata filename.")
 
-    # access zip files ------------------------
     if shp_info["is_zip"]:
         with ZipFile(shp_info["path_to_zip"], "r") as zf:
             metadata = zf.read(xml_filename).decode(encoding=encoding)
             return metadata
 
-    # access non zipped files -------------------
     else:
         path_to_xml = Path(shp_info["dir_containing_shp"]) / xml_filename
         with open(path_to_xml, "r") as f:
