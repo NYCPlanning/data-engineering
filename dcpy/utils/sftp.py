@@ -1,12 +1,17 @@
 from contextlib import contextmanager
 import paramiko
 
-from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
 from dcpy.utils.logging import logger
 
 
 @contextmanager
-def _connection(server: SFTPServer, user: SFTPUser):
+def _connection(
+    hostname: str,
+    username: str,
+    port: int,
+    private_key_path: str,
+    known_hosts_path: str,
+):
     """
     Establishes a secure SFTP connection using Paramiko.
 
@@ -17,18 +22,18 @@ def _connection(server: SFTPServer, user: SFTPUser):
     first host key the server offers. If that key type isn't in known_hosts, the connection fails
     even if another valid key is listed (https://github.com/paramiko/paramiko/issues/2411).
     """
-    logger.info(f"Connecting to SFTP server {server.hostname}")
+    logger.info(f"Connecting to SFTP server {hostname}")
 
     client = paramiko.SSHClient()
-    client.load_host_keys(user.known_hosts_path)
+    client.load_host_keys(known_hosts_path)
     client.set_missing_host_key_policy(
         paramiko.RejectPolicy()
     )  # if server presents unknown host key, client won't connect to the server
     client.connect(
-        hostname=server.hostname,
-        port=server.port,
-        username=user.username,
-        key_filename=user.private_key_path,
+        hostname=hostname,
+        port=port,
+        username=username,
+        key_filename=private_key_path,
         look_for_keys=False,
         allow_agent=False,
     )
@@ -41,17 +46,54 @@ def _connection(server: SFTPServer, user: SFTPUser):
         client.close()
 
 
-def list_directory(server: SFTPServer, user: SFTPUser, path: str = ".") -> list[str]:
-    with _connection(server, user) as connection:
+def list_directory(
+    hostname: str,
+    username: str,
+    *,
+    known_hosts_path: str,
+    private_key_path: str,
+    path: str = ".",
+    port: int = 22,
+) -> list[str]:
+    with _connection(
+        hostname=hostname,
+        known_hosts_path=known_hosts_path,
+        port=port,
+        username=username,
+        private_key_path=private_key_path,
+    ) as connection:
         logger.info(f"Listing files/directories for remote path '{path}' ...")
         entries = connection.listdir(path=path)
     return entries
 
 
-def get_file(
-    server: SFTPServer, user: SFTPUser, server_file_path: str, local_file_path: str
-):
+def get_subfolders(server: SFTPServer, user: SFTPUser, prefix: str) -> list:
     with _connection(server, user) as connection:
+        logger.info(f"Listing subfolders for remote path '{prefix}' ...")
+        folder_objects = connection.listdir_attr(prefix)
+        subfolders = [
+            obj.filename for obj in folder_objects if stat.S_ISDIR(obj.st_mode)
+        ]
+        return sorted(subfolders)
+
+
+def get_file(
+    hostname: str,
+    username: str,
+    *,
+    server_file_path: str,
+    local_file_path: str,
+    known_hosts_path: str,
+    private_key_path: str,
+    port: int = 22,
+):
+    with _connection(
+        hostname=hostname,
+        known_hosts_path=known_hosts_path,
+        port=port,
+        username=username,
+        private_key_path=private_key_path,
+    ) as connection:
         logger.info(
             f"Copying file from remote path '{server_file_path}' to '{local_file_path}' ..."
         )
@@ -59,9 +101,22 @@ def get_file(
 
 
 def put_file(
-    server: SFTPServer, user: SFTPUser, local_file_path: str, server_file_path: str
+    hostname: str,
+    username: str,
+    *,
+    local_file_path: str,
+    server_file_path: str,
+    known_hosts_path: str,
+    private_key_path: str,
+    port: int = 22,
 ) -> paramiko.SFTPAttributes:
-    with _connection(server, user) as connection:
+    with _connection(
+        hostname=hostname,
+        known_hosts_path=known_hosts_path,
+        port=port,
+        username=username,
+        private_key_path=private_key_path,
+    ) as connection:
         logger.info(
             f"Copying file to remote path '{server_file_path}' from '{local_file_path}' ..."
         )
@@ -71,3 +126,16 @@ def put_file(
             confirm=True,
         )
     return response
+
+
+def object_exists(
+    server: SFTPServer,
+    user: SFTPUser,
+    path: str,
+) -> bool:
+    try:
+        with _connection(server, user) as connection:
+            connection.stat(path)
+        return True
+    except FileNotFoundError:
+        return False
