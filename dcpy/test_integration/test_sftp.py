@@ -3,12 +3,21 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from datetime import datetime
 import pytz
+from typing import TypedDict
 
 import dcpy.utils.sftp as sftp_utils
 from dcpy.connectors.sftp import SFTPConnector
 
 
-SFTP_DEFAULTS = {
+class SFTPDefaults(TypedDict):
+    hostname: str
+    port: int
+    username: str
+    known_hosts_path: Path
+    private_key_path: Path
+
+
+SFTP_DEFAULTS: SFTPDefaults = {
     "hostname": "sftp-server",
     "port": 22,
     "username": "dedev",
@@ -106,7 +115,7 @@ def test_get_subfolders_nonexistent_folder():
 
 
 class TestConnector:
-    connector: SFTPConnector = SFTPConnector(**SFTP_DEFAULTS)
+    connector = SFTPConnector(**SFTP_DEFAULTS)
 
     def test_push(self):
         filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
