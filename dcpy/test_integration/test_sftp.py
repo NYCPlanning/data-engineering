@@ -11,8 +11,8 @@ SFTP_DEFAULTS = {
     "hostname": "sftp-server",
     "port": 22,
     "username": "dedev",
-    "known_hosts_path": "./.devcontainer/sftp/known_hosts_integration_test",
-    "private_key_path": "./.devcontainer/sftp/id_rsa_key_integration_test",
+    "known_hosts_path": Path("./.devcontainer/sftp/known_hosts_integration_test"),
+    "private_key_path": Path("./.devcontainer/sftp/id_rsa_key_integration_test"),
 }
 SFTP_REMOTE_FILES_DIR = Path("remote_files")
 SFTP_REMOTE_FILE = SFTP_REMOTE_FILES_DIR / "a_file.txt"
@@ -26,7 +26,7 @@ def test_list_directory():
 def test_list_directory_specific_path():
     entries = sftp_utils.list_directory(
         **SFTP_DEFAULTS,
-        path="/.ssh/",
+        path=Path("/.ssh/"),
     )
     assert entries == ["authorized_keys", "keys"]
 
@@ -35,8 +35,8 @@ def test_get_file(tmp_path: Path):
     local_filepath = tmp_path / "test.txt"
     sftp_utils.get_file(
         **SFTP_DEFAULTS,
-        server_file_path=str(SFTP_REMOTE_FILE),
-        local_file_path=str(local_filepath),
+        server_file_path=SFTP_REMOTE_FILE,
+        local_file_path=local_filepath,
     )
     assert local_filepath.exists()
 
@@ -54,13 +54,13 @@ def test_put_file():
 
         _ = sftp_utils.put_file(
             **SFTP_DEFAULTS,
-            local_file_path=str(local_file_path),
-            server_file_path=str(server_file_path),
+            local_file_path=local_file_path,
+            server_file_path=server_file_path,
         )
 
     remote_filenames = sftp_utils.list_directory(
         **SFTP_DEFAULTS,
-        path=str(SFTP_REMOTE_FILES_DIR),
+        path=SFTP_REMOTE_FILES_DIR,
     )
     assert filename in remote_filenames
 
@@ -69,7 +69,7 @@ def test_object_exists():
     filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
     server_file_path = SFTP_REMOTE_FILES_DIR / filename
 
-    exists = sftp_utils.object_exists(**SFTP_DEFAULTS, path=str(server_file_path))
+    exists = sftp_utils.object_exists(**SFTP_DEFAULTS, path=server_file_path)
     assert not exists  # sanity check
 
     with TemporaryDirectory() as temp_dir:
@@ -80,11 +80,11 @@ def test_object_exists():
 
         _ = sftp_utils.put_file(
             **SFTP_DEFAULTS,
-            local_file_path=str(local_file_path),
-            server_file_path=str(server_file_path),
+            local_file_path=local_file_path,
+            server_file_path=server_file_path,
         )
 
-    exists = sftp_utils.object_exists(**SFTP_DEFAULTS, path=str(server_file_path))
+    exists = sftp_utils.object_exists(**SFTP_DEFAULTS, path=server_file_path)
     assert exists
 
 
