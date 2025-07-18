@@ -2,7 +2,7 @@ from dcpy.configuration import RECIPES_BUCKET
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.socrata.connector import SocrataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
-from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
+from dcpy.connectors import filesystem, web, s3, ingest_datastore
 from dcpy.connectors.registry import (
     ConnectorRegistry,
     Connector,
@@ -27,7 +27,6 @@ def _set_default_connectors():
     connectors.register(
         connector=publishing.BuildsConnector(), conn_type="edm.publishing.builds"
     )
-    connectors.register(connector=sftp.SFTPConnector())
     logger.info(f"Registered Connectors: {connectors.list_registered()}")
 
 
