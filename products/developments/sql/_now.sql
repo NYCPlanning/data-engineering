@@ -242,7 +242,7 @@ mapping_and_cleaning AS (
             WHEN uselabel ~* 'Manufacturing' THEN total_floor_area
         END)::numeric AS zsfm_prop,
         no_of_parking_spaces::numeric + gc_numberofenclosedparkingspaces::numeric AS prkng_init,
-        total_number_of_open_parking_space::numeric + total_number_of_enclosed_parking_space::numeric AS prking_prop,
+        total_number_of_open_parking_space::numeric + total_number_of_enclosed_parking_space::numeric AS prkng_prop,
         building_type AS bldg_class,
         CASE
             WHEN filing_status ~* 'Withdrawn' THEN 'W'
