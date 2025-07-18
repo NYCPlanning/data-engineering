@@ -5,6 +5,7 @@ from datetime import datetime
 import pytz
 
 import dcpy.utils.sftp as sftp_utils
+from dcpy.connectors.sftp import SFTPConnector
 
 
 SFTP_DEFAULTS = {
@@ -102,3 +103,28 @@ def test_get_subfolders_nonexistent_folder():
             **SFTP_DEFAULTS,
             prefix="/my_nonexistent_folder_xyz",
         )
+
+
+class TestConnector:
+    connector: SFTPConnector = SFTPConnector(**SFTP_DEFAULTS)
+
+    def test_push(self):
+        filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+
+        with TemporaryDirectory() as temp_dir:
+            tmp_dir_path = Path(temp_dir)
+            local_file_path = tmp_dir_path / filename
+            server_file_path = SFTP_REMOTE_FILES_DIR / filename
+
+            with open(local_file_path, "w") as f:
+                f.write("Some local test text. File size should be 51 bytes.")
+
+            _ = self.connector.push(key=str(server_file_path), filepath=local_file_path)
+
+        assert self.connector.exists(key=str(server_file_path))
+
+    def test_pull(self, tmp_path: Path):
+        local_filepath = tmp_path / "testtt.txt"
+        self.connector.pull(key=str(SFTP_REMOTE_FILE), destination_path=local_filepath)
+
+        assert local_filepath.exists()
