@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import paramiko
 import stat
+from pathlib import Path
 
 from dcpy.utils.logging import logger
 
@@ -10,8 +11,8 @@ def _connection(
     hostname: str,
     username: str,
     port: int,
-    private_key_path: str,
-    known_hosts_path: str,
+    private_key_path: Path,
+    known_hosts_path: Path,
 ):
     """
     Establishes a secure SFTP connection using Paramiko.
@@ -26,7 +27,7 @@ def _connection(
     logger.info(f"Connecting to SFTP server {hostname}")
 
     client = paramiko.SSHClient()
-    client.load_host_keys(known_hosts_path)
+    client.load_host_keys(str(known_hosts_path))
     client.set_missing_host_key_policy(
         paramiko.RejectPolicy()
     )  # if server presents unknown host key, client won't connect to the server
@@ -34,7 +35,7 @@ def _connection(
         hostname=hostname,
         port=port,
         username=username,
-        key_filename=private_key_path,
+        key_filename=str(private_key_path),
         look_for_keys=False,
         allow_agent=False,
     )
@@ -51,9 +52,9 @@ def list_directory(
     hostname: str,
     username: str,
     *,
-    known_hosts_path: str,
-    private_key_path: str,
-    path: str = ".",
+    known_hosts_path: Path,
+    private_key_path: Path,
+    path: Path = Path("."),
     port: int = 22,
 ) -> list[str]:
     with _connection(
@@ -64,7 +65,7 @@ def list_directory(
         private_key_path=private_key_path,
     ) as connection:
         logger.info(f"Listing files/directories for remote path '{path}' ...")
-        entries = connection.listdir(path=path)
+        entries = connection.listdir(path=str(path))
     return entries
 
 
@@ -73,8 +74,8 @@ def get_subfolders(
     username: str,
     prefix: str,
     *,
-    known_hosts_path: str,
-    private_key_path: str,
+    known_hosts_path: Path,
+    private_key_path: Path,
     port: int = 22,
 ) -> list:
     with _connection(
@@ -96,10 +97,10 @@ def get_file(
     hostname: str,
     username: str,
     *,
-    server_file_path: str,
-    local_file_path: str,
-    known_hosts_path: str,
-    private_key_path: str,
+    server_file_path: Path,
+    local_file_path: Path,
+    known_hosts_path: Path,
+    private_key_path: Path,
     port: int = 22,
 ):
     with _connection(
@@ -112,17 +113,17 @@ def get_file(
         logger.info(
             f"Copying file from remote path '{server_file_path}' to '{local_file_path}' ..."
         )
-        connection.get(remotepath=server_file_path, localpath=local_file_path)
+        connection.get(remotepath=str(server_file_path), localpath=str(local_file_path))
 
 
 def put_file(
     hostname: str,
     username: str,
     *,
-    local_file_path: str,
-    server_file_path: str,
-    known_hosts_path: str,
-    private_key_path: str,
+    local_file_path: Path,
+    server_file_path: Path,
+    known_hosts_path: Path,
+    private_key_path: Path,
     port: int = 22,
 ) -> paramiko.SFTPAttributes:
     with _connection(
@@ -136,8 +137,8 @@ def put_file(
             f"Copying file to remote path '{server_file_path}' from '{local_file_path}' ..."
         )
         response = connection.put(
-            localpath=local_file_path,
-            remotepath=server_file_path,
+            localpath=str(local_file_path),
+            remotepath=str(server_file_path),
             confirm=True,
         )
     return response
@@ -146,10 +147,10 @@ def put_file(
 def object_exists(
     hostname: str,
     username: str,
-    path: str,
+    path: Path,
     *,
-    known_hosts_path: str,
-    private_key_path: str,
+    known_hosts_path: Path,
+    private_key_path: Path,
     port: int = 22,
 ) -> bool:
     try:
@@ -160,7 +161,7 @@ def object_exists(
             username=username,
             private_key_path=private_key_path,
         ) as connection:
-            connection.stat(path)
+            connection.stat(str(path))
         return True
     except FileNotFoundError:
         return False
