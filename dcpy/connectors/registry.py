@@ -4,8 +4,6 @@ from pathlib import Path
 from pydantic import BaseModel
 from typing import Protocol, Any, TypeVar, Generic, overload, Callable
 
-from dcpy.utils.logging import logger
-
 
 ### Dispatchers
 
@@ -151,7 +149,6 @@ class ConnectorRegistry(Generic[_C]):
 
     def register(self, connector: _C, *, conn_type: str = ""):
         conn_type = conn_type or connector.conn_type
-        logger.info(f"registering {conn_type}")
         self._connectors[conn_type] = connector
 
     def clear(self):

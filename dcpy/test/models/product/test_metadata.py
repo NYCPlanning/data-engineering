@@ -67,43 +67,80 @@ def test_org_md_overrides(org_md: md.OrgMetadata, package_and_dist_test_resource
     ), "The field `agency` should use the org-level default"
 
 
-def test_query_destinations_by_type(org_md: md.OrgMetadata):
+@pytest.mark.parametrize(
+    ("filters", "expected_destination_paths", "description"),
+    [
+        (
+            {
+                "destination_types": {"socrata", "socrata_2"},
+                "dataset_ids": {"school_districts"},
+            },
+            {
+                "lion.school_districts.socrata",
+                "lion.school_districts.socrata_2",
+            },
+            "Filtering for a single product with multiple types",
+        ),
+        (
+            {
+                "destination_paths": {
+                    "lion.pseudo_lots.socrata",
+                    "lion.school_districts.socrata",
+                }
+            },
+            {
+                "lion.pseudo_lots.socrata",
+                "lion.school_districts.socrata",
+            },
+            "Filtering by a few full_paths",
+        ),
+        (
+            {"destination_tags": {"school_districts_tag"}},
+            {"lion.school_districts.socrata_2"},
+            "Filtering with just tags",
+        ),
+        (
+            {
+                "tags": {"prod_tag", "NONSENSE"},
+                "destination_types": {"socrata"},
+                "dataset_ids": {"pseudo_lots", "school_districts"},
+            },
+            {
+                "lion.pseudo_lots.socrata",
+                "lion.school_districts.socrata",
+                "lion.school_districts.socrata_2",
+            },
+            "Filtering with dataset_ids an a nonsense tag",
+        ),
+    ],
+)
+def test_query_destinations(
+    org_md: md.OrgMetadata, filters, expected_destination_paths, description
+):
     lion_product = org_md.product("lion")
+    dataset_destination_paths = {
+        dest["destination_path"] for dest in lion_product.query_destinations(**filters)
+    }
 
-    DEST_TYPE = "socrata"
-    datasets = lion_product.query_destinations(destination_type=DEST_TYPE)
-
-    assert 2 == len(datasets.keys())
-    assert "school_districts" in datasets
-    assert datasets["school_districts"].keys() == {"socrata", "socrata_2"}
-
-
-def test_get_tagged_destinations(org_md: md.OrgMetadata):
-    lion_product = org_md.product("lion")
-
-    TAG = "school_districts_tag"
-    datasets = lion_product.query_destinations(destination_tag=TAG)
-
-    assert 1 == len(datasets.keys())
-    assert "school_districts" in datasets
-    assert datasets["school_districts"].keys() == {"socrata_2"}
-
-
-def test_query_multiple_filters_destinations(org_md: md.OrgMetadata):
-    lion_product = org_md.product("lion")
-
-    TAG = "prod_tag"
-    DEST_TYPE = "socrata"
-    DATASET_NAMES = frozenset({"pseudo_lots", "school_districts"})
-    datasets = lion_product.query_destinations(
-        destination_tag=TAG,
-        destination_type=DEST_TYPE,
-        datasets=frozenset(DATASET_NAMES),
+    assert expected_destination_paths == dataset_destination_paths, (
+        f"Failure: {description}"
     )
 
-    assert DATASET_NAMES == datasets.keys(), "The correct datasets should be returned"
-    for ds in DATASET_NAMES:
-        assert datasets[ds].keys() == {"socrata"}
+
+def test_query_destinations_no_filters(org_md: md.OrgMetadata):
+    lion_product = org_md.product("lion")
+    filters: dict[str, set] = {"destination_tags": {}}  # type: ignore
+    dataset_destination_paths = {
+        dest["destination_path"] for dest in lion_product.query_destinations(**filters)
+    }
+
+    all_dataset_destination_paths = {
+        dest["destination_path"] for dest in lion_product.all_destinations()
+    }
+
+    assert all_dataset_destination_paths == dataset_destination_paths, (
+        "If no truthy filters are passed, all destinations should be returned"
+    )
 
 
 def test_product_metadata_validation_happy_path(org_md: md.OrgMetadata):
