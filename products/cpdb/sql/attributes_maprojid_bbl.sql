@@ -43,7 +43,7 @@ CREATE TABLE attributes_maprojid_bbl_tmp AS (
 INSERT INTO attributes_maprojid_bbl_tmp
 SELECT
     a.maprojid,
-    b.mpluto_bbl
+    b.mappluto_bbl
 FROM cpdb_dcpattributes AS a,
     doitt_buildingfootprints AS b
 WHERE

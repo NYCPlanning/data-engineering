@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS pluto_devdb CASCADE;
 SELECT
     a.*,
     b.version AS pluto_version,
-    b.bbl AS mpluto_bbl,
+    b.bbl AS mappluto_bbl,
     b.unitsres AS pluto_unitres,
     b.bldgarea AS pluto_bldgsf,
     b.comarea AS pluto_comsf,

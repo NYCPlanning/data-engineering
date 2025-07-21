@@ -26,12 +26,12 @@ ingestion:
         map: { "geom": "wkb_geometry" }
     - name: coerce_column_types
       args:
-        column_types: { 
-            "bin": "integer", 
-            "heightroof": "numeric", 
-            "cnstrct_yr": "integer", 
-            "feat_code": "numeric", 
-            "groundelev": "numeric" 
+        column_types: {
+            "bin": "integer",
+            "height_roof": "numeric",
+            "construction_year": "integer",
+            "feature_code": "numeric",
+            "ground_elevation": "numeric"
         }
         errors: coerce
     - name: multi
@@ -39,7 +39,7 @@ ingestion:
 columns:
 - id: base_bbl
   data_type: text
-- id: mpluto_bbl
+- id: mappluto_bbl
   data_type: text
 - id: bin
   data_type: integer
