@@ -1,12 +1,25 @@
 import os
+from dataclasses import dataclass
 from pathlib import Path
-from zipfile import ZipFile, ZIP_DEFLATED
 from typing import Optional
-
+from zipfile import ZIP_DEFLATED, ZipFile
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 # TODO - add logic to create new shp output, rather than overwriting in place
 # TODO - (possible) write `remove_metadata()` function
+
+
+@dataclass
+class Shapefile:
+    shp_dir: Path | None
+    shp_name: str
+
+
+@dataclass
+class ZippedShapefile:
+    zip_path: Path
+    subdir: str | None
+    shp_name: str
 
 
 def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
@@ -52,8 +65,7 @@ def _validate_shp_input(shp_string: str | Path) -> None:
         )
 
 
-# TODO - implement dataclasses instead of dictionary
-def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
+def _parse_path_to_shp(path_to_shp: str | Path) -> Shapefile | ZippedShapefile:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
         - shp name
@@ -70,51 +82,45 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
             - example without zip file: "path/to/shapefile.shp"
 
     Returns:
-        dict: Containing shapefile location info with keys:
-        - 'dir_containing_shp': Directory path containing the shapefile
-        - 'path_to_zip': Path to zip file (empty string if not zipped)
-        - 'shp_name': Name of the shapefile, ending in ".shp"
-        - 'is_zip': Boolean indicating if shapefile is in a zip archive
+        Shapefile | ZippedShapefile: Dataclasses with fields
+        (see relevant class definitions for details.)
     """
+
     path_to_shp = str(path_to_shp)
 
     _validate_shp_input(path_to_shp)
 
-    output = {
-        "dir_containing_shp": "",
-        "path_to_zip": "",
-        "shp_name": "",
-        "is_zip": False,
-    }
-
     zip_indicator = "zip://"
     end_of_zip_delimiter = ".zip!"
+
+    subdir = None
 
     if path_to_shp.startswith(zip_indicator):
         start_path_idx = len(zip_indicator)
 
-        output["is_zip"] = True
-
-        # Get zip dir -------------------------
+        # Get zip path -------------------------
         if end_of_zip_delimiter in path_to_shp:
             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
                 len(end_of_zip_delimiter) - 1
             )
 
-            output["path_to_zip"] = path_to_shp[start_path_idx:end_of_zip_idx]
+            zip_path = path_to_shp[start_path_idx:end_of_zip_idx]
 
-        # Get shp dir -------------------------
+        # Get sub directory --------------------
         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
         if len(path_in_zip_to_shp.parts) > 1:
-            output["dir_containing_shp"] = str(path_in_zip_to_shp.parent)
+            subdir = str(path_in_zip_to_shp.parent)
 
-        output["shp_name"] = path_in_zip_to_shp.name
+        return ZippedShapefile(
+            zip_path=Path(zip_path),
+            subdir=subdir,
+            shp_name=path_in_zip_to_shp.name,
+        )
     else:
-        output["dir_containing_shp"] = str(Path(path_to_shp).parent)
-
-        output["shp_name"] = Path(path_to_shp).name
-
-    return output
+        return Shapefile(
+            shp_dir=Path(path_to_shp).parent,
+            shp_name=Path(path_to_shp).name,
+        )
 
 
 def _get_metadata_xml_name(file_list: list[str], shp_name: str) -> Optional[str]:
@@ -163,20 +169,16 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
     Returns:
         list[str]: List of files in same directory as specified shapefile
     """
-    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
+    file = _parse_path_to_shp(path_to_shp=path_to_shp)
 
-    if shp_info["is_zip"]:
-        with ZipFile(shp_info["path_to_zip"], "r") as archive:
-            return archive.namelist()
-
-    elif not shp_info["is_zip"]:
-        if not shp_info["dir_containing_shp"]:
-            shp_dir = Path(os.getcwd())
-        else:
-            shp_dir = Path(shp_info["dir_containing_shp"])
-        return [str(item.name) for item in shp_dir.iterdir()]
-    else:
-        raise Exception("More than one .xml files found that match the name provided")
+    match file:
+        case ZippedShapefile():
+            with ZipFile(file.zip_path, "r") as archive:
+                return archive.namelist()
+        case Shapefile():
+            return [str(item.name) for item in file.shp_dir.iterdir()]
+        case _:
+            return []
 
 
 def write_metadata(
@@ -198,32 +200,32 @@ def write_metadata(
         overwrite (bool, optional): If True, existing metadata will be overwritten.
             If False, function will not overwrite existing metadata. Defaults to False.
     """
-    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
-    xml_filename = f"{shp_info['shp_name']}.xml"
+    shp_info: ZippedShapefile | Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
+    xml_filename = f"{shp_info.shp_name}.xml"
 
     def _write_text_to_file(
-        is_zip: bool,
-        path_to_zip: str,
-        path_to_shp: str,
+        shp_info: ZippedShapefile | Shapefile,
+        # is_zip: bool,
+        # path_to_zip: str,
+        # path_to_shp: str,
         xml_filename: str,
         metadata: str,
     ) -> None:
-        if is_zip:
-            with ZipFile(path_to_zip, "a", compression=ZIP_DEFLATED) as shp:
-                shp.writestr(xml_filename, metadata)
-        else:
-            with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
-                xml_file.write(metadata)
+        match shp_info:
+            case ZippedShapefile():
+                with ZipFile(shp_info.zip_path, "a", compression=ZIP_DEFLATED) as shp:
+                    shp.writestr(xml_filename, metadata)
+            case _:
+                with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
+                    xml_file.write(metadata)
 
     if metadata_exists(path_to_shp):
         if overwrite:
             _remove_item_from_zip_file(
-                zip_file=shp_info["path_to_zip"], file_to_remove=xml_filename
+                zip_file=shp_info.zip_path, file_to_remove=xml_filename
             )
             _write_text_to_file(
-                is_zip=shp_info["is_zip"],
-                path_to_zip=shp_info["path_to_zip"],
-                path_to_shp=shp_info["dir_containing_shp"],
+                shp_info=shp_info,
                 xml_filename=xml_filename,
                 metadata=metadata,
             )
@@ -234,9 +236,7 @@ def write_metadata(
 
     if not metadata_exists(path_to_shp):
         _write_text_to_file(
-            is_zip=shp_info["is_zip"],
-            path_to_zip=shp_info["path_to_zip"],
-            path_to_shp=shp_info["dir_containing_shp"],
+            shp_info=shp_info,
             xml_filename=xml_filename,
             metadata=metadata,
         )
@@ -267,23 +267,23 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
     Returns:
         str: Metadata content as string.
     """
-    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
+    shp_info: ZippedShapefile | Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
     items_present: list[str] = _list_files_in_shp_dir(path_to_shp)
     xml_filename: Optional[str] = _get_metadata_xml_name(
-        file_list=items_present, shp_name=shp_info["shp_name"]
+        file_list=items_present, shp_name=shp_info.shp_name
     )
     if xml_filename is None:
         raise ValueError("Could not compute a metadata filename.")
 
-    if shp_info["is_zip"]:
-        with ZipFile(shp_info["path_to_zip"], "r") as zf:
-            metadata = zf.read(xml_filename).decode(encoding=encoding)
-            return metadata
-
-    else:
-        path_to_xml = Path(shp_info["dir_containing_shp"]) / xml_filename
-        with open(path_to_xml, "r") as f:
-            return f.read()
+    match shp_info:
+        case ZippedShapefile():
+            with ZipFile(shp_info.zip_path, "r") as zf:
+                metadata = zf.read(xml_filename).decode(encoding=encoding)
+                return metadata
+        case _:
+            path_to_xml = Path(shp_info.shp_dir) / xml_filename
+            with open(path_to_xml, "r") as f:
+                return f.read()
 
 
 def metadata_exists(path_to_shp: str | Path) -> bool:
@@ -300,9 +300,9 @@ def metadata_exists(path_to_shp: str | Path) -> bool:
     Returns:
         bool: True if shapefile has metadata, False if no metadata is found.
     """
-    shp_info: dict = _parse_path_to_shp(path_to_shp=path_to_shp)
+    shp_info: ZippedShapefile | Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
     file_list: list[str] = _list_files_in_shp_dir(path_to_shp=path_to_shp)
     xml_filename: Optional[str] = _get_metadata_xml_name(
-        file_list=file_list, shp_name=shp_info["shp_name"]
+        file_list=file_list, shp_name=shp_info.shp_name
     )
     return xml_filename in file_list
