@@ -241,7 +241,8 @@ mapping_and_cleaning AS (
         (CASE
             WHEN uselabel ~* 'Manufacturing' THEN total_floor_area
         END)::numeric AS zsfm_prop,
-        no_of_parking_spaces::numeric AS prkng_prop,
+        no_of_parking_spaces::numeric + gc_numberofenclosedparkingspaces::numeric AS prkng_init,
+        total_number_of_open_parking_space::numeric + total_number_of_enclosed_parking_space::numeric AS prkng_prop,
         building_type AS bldg_class,
         CASE
             WHEN filing_status ~* 'Withdrawn' THEN 'W'
@@ -294,7 +295,6 @@ missing_columns AS (
         NULL::numeric AS zoningsft_prop,
         NULL::text AS zsf_init,
         NULL::text AS zsf_prop,
-        NULL::numeric AS prkng_init,
         NULL AS date_statusd,
         NULL AS zoningdist1,
         NULL AS zoningdist2,
