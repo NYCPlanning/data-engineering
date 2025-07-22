@@ -69,14 +69,18 @@ class SFTPConnector(BaseModel):
         *,
         server_file_path: Path,
         local_file_path: Path,
-    ):
+    ) -> dict:
+        if local_file_path.is_dir():
+            filepath = local_file_path / server_file_path.name
+        else:
+            local_file_path.parent.mkdir(parents=True, exist_ok=True)
+            filepath = local_file_path
         with self._connection() as connection:
             logger.info(
                 f"Copying file from remote path '{server_file_path}' to '{local_file_path}' ..."
             )
-            connection.get(
-                remotepath=str(server_file_path), localpath=str(local_file_path)
-            )
+            connection.get(remotepath=str(server_file_path), localpath=str(filepath))
+        return {"path": filepath}
 
     def put_file(
         self,
@@ -94,6 +98,19 @@ class SFTPConnector(BaseModel):
                 confirm=True,
             )
         return response
+
+    def _push(
+        self,
+        key: str,
+        *,
+        filepath: Path,
+        **kwargs,
+    ) -> dict:
+        self.put_file(
+            local_file_path=filepath,
+            server_file_path=Path(key),
+        )
+        return {"key": key}
 
     def object_exists(self, path: Path) -> bool:
         try:

@@ -43,10 +43,11 @@ class TestSFTPConnector:
 
     def test_get_file(self, tmp_path: Path):
         local_filepath = tmp_path / "test.txt"
-        self.connector.get_file(
+        result = self.connector.get_file(
             server_file_path=SFTP_REMOTE_FILE,
             local_file_path=local_filepath,
         )
+        assert result == {"path": local_filepath}
         assert local_filepath.exists()
 
     def test_put_file(self):
