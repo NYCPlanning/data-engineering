@@ -1,6 +1,5 @@
 #!/bin/bash
-source bash/config.sh
-
+source ../../bash/utils.sh
 set_error_traps
 
 run_sql_file sql/_create_export.sql

@@ -1,5 +1,6 @@
 #!/bin/bash
-source bash/config.sh
+source ../../bash/utils.sh
+set_error_traps
 
 echo
 echo "#########################################"

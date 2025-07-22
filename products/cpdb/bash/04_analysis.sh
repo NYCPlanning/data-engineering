@@ -1,5 +1,6 @@
 #!/bin/bash
-source bash/config.sh
+source ../../bash/utils.sh
+set_error_traps
 
 # Summary table by managing and sponsor agency
 echo 'Creating summary tables by managing and sponsor agency'
