@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dcpy.connectors.registry import StorageConnector
-import dcpy.utils.sftp as sftp_utils
+from dcpy.utils.sftp import SFTPConnector
 
 
 class FTPConnector:
@@ -12,13 +12,8 @@ class FTPConnector:
         raise Exception("Pull not implemented for FTP")
 
 
-class SFTPConnector(StorageConnector):
+class SFTPConnectorAdapter(StorageConnector, SFTPConnector):
     conn_type: str = "sftp"
-    hostname: str
-    username: str
-    private_key_path: Path
-    known_hosts_path: Path = Path("~/.ssh/known_hosts")
-    port: int = 22
 
     def _push(
         self,
@@ -27,14 +22,9 @@ class SFTPConnector(StorageConnector):
         filepath: Path,
         **kwargs,
     ) -> dict:
-        sftp_utils.put_file(
-            self.hostname,
-            self.username,
+        self.put_file(
             local_file_path=filepath,
             server_file_path=Path(key),
-            known_hosts_path=self.known_hosts_path,
-            private_key_path=self.private_key_path,
-            port=self.port,
         )
         return {"key": key}
 
@@ -53,33 +43,14 @@ class SFTPConnector(StorageConnector):
             destination_path.parent.mkdir(parents=True, exist_ok=True)
             filepath = destination_path
 
-        sftp_utils.get_file(
-            self.hostname,
-            self.username,
+        self.get_file(
             server_file_path=Path(key),
             local_file_path=filepath,
-            known_hosts_path=self.known_hosts_path,
-            private_key_path=self.private_key_path,
-            port=self.port,
         )
         return {"path": filepath}
 
     def exists(self, key: str) -> bool:
-        return sftp_utils.object_exists(
-            self.hostname,
-            self.username,
-            Path(key),
-            known_hosts_path=self.known_hosts_path,
-            private_key_path=self.private_key_path,
-            port=self.port,
-        )
+        return self.object_exists(Path(key))
 
     def get_subfolders(self, prefix: str) -> list[str]:
-        return sftp_utils.get_subfolders(
-            self.hostname,
-            self.username,
-            prefix,
-            known_hosts_path=self.known_hosts_path,
-            private_key_path=self.private_key_path,
-            port=self.port,
-        )
+        return self.get_subfolders(prefix)
