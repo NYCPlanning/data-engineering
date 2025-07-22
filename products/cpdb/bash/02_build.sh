@@ -1,6 +1,6 @@
 #!/bin/bash
-source bash/config.sh
-
+source ../../bash/utils.sh
+set_error_traps
 
 run_sql_file sql/ccp_commitments.sql
 run_sql_file sql/ccp_budgets.sql
