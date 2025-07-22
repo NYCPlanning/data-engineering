@@ -1,6 +1,7 @@
 boto3
 census
 contextily
+dbt-postgres
 gdal
 geoalchemy2
 geopandas
