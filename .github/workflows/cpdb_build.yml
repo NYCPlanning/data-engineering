@@ -48,6 +48,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
       - name: Finish container setup
         working-directory: ./
@@ -64,4 +68,7 @@ jobs:
         run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
       - name: Build
-        run: ./cpdb.sh build
+        run: |
+          dbt deps
+          dbt debug
+          ./cpdb.sh build
