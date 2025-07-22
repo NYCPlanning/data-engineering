@@ -1,4 +1,5 @@
 from pathlib import Path
+from functools import cached_property
 
 from dcpy.connectors.registry import StorageConnector
 from dcpy.utils.sftp import SFTPConnector
@@ -12,11 +13,39 @@ class FTPConnector:
         raise Exception("Pull not implemented for FTP")
 
 
-class SFTPConnectorAdapter(StorageConnector, SFTPConnector):
+class SFTPConnectorAdapter(StorageConnector):
     conn_type: str = "sftp"
+    hostname: str | None
+    username: str | None
+    port: int
+    private_key_path: Path | None
+    known_hosts_path: Path | None
+
+    _connector_cache: SFTPConnector | None = None
+
+    @cached_property
+    def _connector(self) -> SFTPConnector:
+        if not all(
+            [
+                self.hostname,
+                self.username,
+                self.private_key_path,
+                self.known_hosts_path,
+            ]
+        ):
+            raise Exception(
+                f"Connector '{self.conn_type}' is missing required config fields"
+            )
+        return SFTPConnector(
+            hostname=self.hostname,
+            username=self.username,
+            private_key_path=self.private_key_path,
+            known_hosts_path=self.known_hosts_path,
+            port=self.port,
+        )
 
     def push(self, key: str, **kwargs) -> dict:
-        return self._push(key, **kwargs)
+        return self._connector._push(key, **kwargs)
 
     def pull(
         self,
@@ -24,13 +53,13 @@ class SFTPConnectorAdapter(StorageConnector, SFTPConnector):
         destination_path: Path,
         **kwargs,
     ) -> dict:
-        return self.get_file(
+        return self._connector.get_file(
             server_file_path=Path(key),
             local_file_path=destination_path,
         )
 
     def exists(self, key: str) -> bool:
-        return self.object_exists(Path(key))
+        return self._connector.object_exists(Path(key))
 
     def get_subfolders(self, prefix: str) -> list[str]:
-        return self.get_subfolders(prefix)
+        return self._connector.get_subfolders(prefix)
