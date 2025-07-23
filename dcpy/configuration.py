@@ -31,3 +31,13 @@ PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
 TEMPLATE_DIR: Path | None = (
     Path(env["TEMPLATE_DIR"]) if env.get("TEMPLATE_DIR") else None
 )
+
+SFTP_HOST = env.get("SFTP_HOST")
+SFTP_USER = env.get("SFTP_USER")
+SFTP_PORT = str(env.get("SFTP_PORT", "22"))
+SFTP_KNOWN_HOSTS_KEY_PATH: Path | None = (
+    Path(env["SFTP_HOST_KEY_PATH"]) if env.get("SFTP_HOST_KEY_PATH") else None
+)
+SFTP_PRIVATE_KEY_PATH: Path | None = (
+    Path(env["SFTP_PRIVATE_KEY_PATH"]) if env.get("SFTP_PRIVATE_KEY_PATH") else None
+)

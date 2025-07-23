@@ -1,76 +1,9 @@
-from contextlib import contextmanager
-import paramiko
+from pathlib import Path
+from functools import cached_property
+from typing import cast
 
-from dcpy.utils.logging import logger
-from dcpy.models.connectors.sftp import SFTPServer, SFTPUser
-
-
-@contextmanager
-def _connection(server: SFTPServer, user: SFTPUser):
-    """
-    Establishes a secure SFTP connection using Paramiko.
-
-    The connection succeeds only if the server's host key is present in known_hosts and matches
-    what the server presents during the handshake. Unknown or mismatched keys are rejected.
-
-    Note: Unlike OpenSSH, Paramiko does not negotiate host key algorithms. It accepts only the
-    first host key the server offers. If that key type isn't in known_hosts, the connection fails
-    even if another valid key is listed (https://github.com/paramiko/paramiko/issues/2411).
-    """
-    logger.info(f"Connecting to SFTP server {server.hostname}")
-
-    client = paramiko.SSHClient()
-    client.load_host_keys(user.known_hosts_path)
-    client.set_missing_host_key_policy(
-        paramiko.RejectPolicy()
-    )  # if server presents unknown host key, client won't connect to the server
-    client.connect(
-        hostname=server.hostname,
-        port=server.port,
-        username=user.username,
-        key_filename=user.private_key_path,
-        look_for_keys=False,
-        allow_agent=False,
-    )
-
-    try:
-        sftp = client.open_sftp()
-        yield sftp
-    finally:
-        sftp.close()
-        client.close()
-
-
-def list_directory(server: SFTPServer, user: SFTPUser, path: str = ".") -> list[str]:
-    with _connection(server, user) as connection:
-        logger.info(f"Listing files/directories for remote path '{path}' ...")
-        entries = connection.listdir(path=path)
-    return entries
-
-
-def get_file(
-    server: SFTPServer, user: SFTPUser, server_file_path: str, local_file_path: str
-):
-    with _connection(server, user) as connection:
-        logger.info(
-            f"Copying file from remote path '{server_file_path}' to '{local_file_path}' ..."
-        )
-        connection.get(remotepath=server_file_path, localpath=local_file_path)
-
-
-def put_file(
-    server: SFTPServer, user: SFTPUser, local_file_path: str, server_file_path: str
-) -> paramiko.SFTPAttributes:
-    with _connection(server, user) as connection:
-        logger.info(
-            f"Copying file to remote path '{server_file_path}' from '{local_file_path}' ..."
-        )
-        response = connection.put(
-            localpath=local_file_path,
-            remotepath=server_file_path,
-            confirm=True,
-        )
-    return response
+from dcpy.connectors.registry import StorageConnector
+from dcpy.utils.sftp import SFTPConnector
 
 
 class FTPConnector:
@@ -79,3 +12,55 @@ class FTPConnector:
 
     def pull(self, **kwargs):
         raise Exception("Pull not implemented for FTP")
+
+
+class SFTPConnectorAdapter(StorageConnector):
+    conn_type: str = "sftp"
+    hostname: str | None
+    username: str | None
+    port: int
+    private_key_path: Path | None
+    known_hosts_path: Path | None
+
+    _connector_cache: SFTPConnector | None = None
+
+    @cached_property
+    def _connector(self) -> SFTPConnector:
+        if not all(
+            [
+                self.hostname,
+                self.username,
+                self.private_key_path,
+                self.known_hosts_path,
+            ]
+        ):
+            raise Exception(
+                f"Connector '{self.conn_type}' is missing required config fields"
+            )
+        return SFTPConnector(
+            hostname=cast(str, self.hostname),
+            username=cast(str, self.username),
+            private_key_path=cast(Path, self.private_key_path),
+            known_hosts_path=cast(Path, self.known_hosts_path),
+            port=self.port,
+        )
+
+    def push(self, key: str, **kwargs) -> dict:
+        return self._connector._push(key, **kwargs)
+
+    def pull(
+        self,
+        key: str,
+        destination_path: Path,
+        **kwargs,
+    ) -> dict:
+        return self._connector.get_file(
+            server_file_path=Path(key),
+            local_file_path=destination_path,
+        )
+
+    def exists(self, key: str) -> bool:
+        return self._connector.object_exists(Path(key))
+
+    def get_subfolders(self, prefix: str) -> list[str]:
+        return self._connector.get_subfolders(prefix)
