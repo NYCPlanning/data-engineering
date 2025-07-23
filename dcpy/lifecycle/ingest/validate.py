@@ -7,8 +7,9 @@ import yaml
 from dcpy.utils.logging import logger
 from dcpy.utils import introspect
 from dcpy.lifecycle.ingest.connectors import processed_datastore
-from dcpy.models.lifecycle.ingest import Template, ProcessingStep
+from dcpy.models.lifecycle.ingest import Template, Source, ProcessingStep
 from .transform import ProcessingFunctions
+from .connectors import source_connectors
 
 
 def validate_against_existing_version(ds: str, version: str, filepath: Path) -> None:
@@ -41,6 +42,25 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
         logger.warning(
             f"Config of existing dataset id='{ds}' version='{version}' cannot be parsed."
         )
+
+
+def validate_source(source: Source) -> dict:
+    violations: dict = {}
+    if source.type not in source_connectors.list_registered():
+        violations["invalid source type"] = (
+            f"Connector with id '{source.type}' not registered"
+        )
+    connector = source_connectors[source.type]
+    func = connector._pull if "_pull" in dir(connector) else connector.pull  # type: ignore
+    kwarg_violations = introspect.validate_kwargs(
+        func,
+        source.model_dump(),
+        ignore_args=["type", "destination_path", "version"],
+        strict_enums=False,
+    )
+    if kwarg_violations:
+        violations["invalid arguments"] = kwarg_violations
+    return violations
 
 
 def _validate_pd_series_func(
@@ -92,16 +112,31 @@ def validate_processing_steps(
     return violations
 
 
+def validate_template(template: Template) -> dict:
+    """Validate a single template object."""
+    violations = {}
+
+    source_violations = validate_source(template.ingestion.source)
+    if source_violations:
+        violations["source"] = source_violations
+
+    invalid_processing_steps = validate_processing_steps(
+        template.id, template.ingestion.processing_steps
+    )
+    if invalid_processing_steps:
+        violations["processing_steps"] = invalid_processing_steps
+
+    return violations
+
+
 def validate_template_file(filepath: Path) -> None:
     """Validate a single template file."""
     with open(filepath, "r") as f:
         s = yaml.safe_load(f)
     template = Template(**s)
-    invalid_processing_steps = validate_processing_steps(
-        template.id, template.ingestion.processing_steps
-    )
-    if invalid_processing_steps:
-        raise Exception(f"Invalid processing steps:\n{invalid_processing_steps}")
+    violations = validate_template(template)
+    if violations:
+        raise ValueError(f"Template violations found: {violations}")
 
 
 def validate_template_folder(folder_path: Path) -> list[str]:

@@ -26,8 +26,14 @@ class WebConnector(Pull):
         destination_path: Path,
         *,
         filename: str | None = None,
+        _ds_id: str | None = None,  # TODO hack for ingest
+        format: str | None = None,  # TODO hack for ingest
         **kwargs,
     ) -> dict:
-        filename = filename or Path(key).name
+        if not filename:
+            if _ds_id and format:
+                filename = f"{_ds_id}.{format}"
+            else:
+                filename = Path(key).name
         download_file(key, destination_path / filename)
         return {"path": destination_path / filename}

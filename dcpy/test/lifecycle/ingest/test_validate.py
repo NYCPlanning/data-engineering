@@ -77,32 +77,14 @@ def test_validate_template_folder_nonexistent():
     assert "doesn't exist" in errors[0]
 
 
-def test_validate_processing_steps():
-    steps = [
-        ProcessingStep(name="multi"),
-        ProcessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
-    ]
-    compiled_steps = validate.validate_processing_steps("test", steps)
-    assert len(compiled_steps) == 2
-
-    df = gpd.GeoDataFrame(
-        {
-            "col1": [1, 2, 3],
-            "col2": [4, 5, 6],
-            "col3": gpd.GeoSeries([None, None, None]),
-        }
-    ).set_geometry("col3")
-    for step in compiled_steps:
-        df = step(df).df
-    expected = gpd.GeoDataFrame(
-        {"col3": gpd.GeoSeries([None, None, None])}
-    ).set_geometry("col3")
-    assert df.equals(expected)
-
-
 @pytest.mark.parametrize(
     ("step", "expected_error"),
     [
+        # No Error
+        (
+            ProcessingStep(name="drop_columns", args={"columns": [0]}),
+            {},
+        ),
         # Non-existent function
         (
             ProcessingStep(name="fake_function_name"),

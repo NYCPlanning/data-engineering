@@ -1,22 +1,14 @@
 from datetime import datetime
 from pathlib import Path
 
-from dcpy.models.connectors import socrata, esri
 from dcpy.models.connectors.edm.recipes import Dataset
 from dcpy.models import file, library
 from dcpy.models.lifecycle.ingest import (
-    LocalFileSource,
-    S3Source,
-    GisDataset,
-    SocrataSource,
-    GenericApiSource,
-    FileDownloadSource,
-    DEPublished,
+    Source,
     DatasetAttributes,
     ArchivalMetadata,
     Ingestion,
     Config,
-    ESRIFeatureServer,
 )
 from dcpy.utils.metadata import get_run_details
 from dcpy.test.conftest import RECIPES_BUCKET
@@ -34,31 +26,52 @@ PROD_TEMPLATE_DIR = (
 
 
 class Sources:
-    local_file = LocalFileSource(type="local_file", path=Path("subfolder/dummy.txt"))
-    gis = GisDataset(type="edm.publishing.gis", name=TEST_DATASET_NAME)
-    file_download = FileDownloadSource(
-        type="file_download",
-        url="https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_24a.zip",
+    local_file = Source(**{"type": "local_file", "path": "subfolder/dummy.txt"})
+    gis = Source(**{"type": "edm.publishing.gis", "name": TEST_DATASET_NAME})
+    file_download = Source(
+        **{
+            "type": "file_download",
+            "url": "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_24a.zip",
+        }
     )
-    api = GenericApiSource(
-        type="api",
-        endpoint="https://www.bklynlibrary.org/locations/json",
-        format="json",
+    api = Source(
+        **{
+            "type": "api",
+            "endpoint": "https://www.bklynlibrary.org/locations/json",
+            "format": "json",
+        },
+        _ds_id=TEST_DATASET_NAME,
     )
-    api._ds_id = TEST_DATASET_NAME  # for proper filename generation
-    socrata = SocrataSource(
-        type="socrata", org=socrata.Org.nyc, uid="w7w3-xahh", format="csv"
+    socrata = Source(
+        **{
+            "type": "socrata",
+            "org": "nyc",
+            "uid": "w7w3-xahh",
+            "format": "csv",
+        }
     )
-    s3 = S3Source(type="s3", bucket=RECIPES_BUCKET, key="inbox/test/test.txt")
-    de_publish = DEPublished(
-        type="edm.publishing.published", product=TEST_DATASET_NAME, filepath="file.csv"
+    s3 = Source(
+        **{
+            "type": "s3",
+            "bucket": RECIPES_BUCKET,
+            "key": "inbox/test/test.txt",
+        }
     )
-    esri = ESRIFeatureServer(
-        type="arcgis_feature_server",
-        server=esri.Server.nys_parks,
-        dataset="National_Register_Building_Listings",
-        layer_id=13,
-        layer_name="National Register Building Listings",
+    de_publish = Source(
+        **{
+            "type": "edm.publishing.published",
+            "product": TEST_DATASET_NAME,
+            "filepath": "file.csv",
+        }
+    )
+    esri = Source(
+        **{
+            "type": "arcgis_feature_server",
+            "server": "nys_parks",
+            "dataset": "National_Register_Building_Listings",
+            "layer_id": "13",
+            "layer_name": "National Register Building Listings",
+        }
     )
 
 
@@ -94,7 +107,7 @@ SOURCE_FILENAMES = [
     (Sources.gis, f"{TEST_DATASET_NAME}.zip"),
     (Sources.file_download, "pad_24a.zip"),
     (Sources.api, f"{TEST_DATASET_NAME}.json"),
-    (Sources.socrata, f"{Sources.socrata.uid}.csv"),
+    (Sources.socrata, f"{Sources.socrata.key}.csv"),
     (Sources.s3, "test.txt"),
-    (Sources.esri, f"{Sources.esri.layer_name}.geojson"),
+    (Sources.esri, f"{Sources.esri.model_dump()['layer_name']}.geojson"),
 ]

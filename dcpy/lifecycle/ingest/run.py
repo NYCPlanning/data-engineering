@@ -41,11 +41,6 @@ def ingest(
         template_dir=template_dir,
         local_file_path=local_file_path,
     )
-    invalid_processing_steps = validate.validate_processing_steps(
-        config.id, config.ingestion.processing_steps
-    )
-    if invalid_processing_steps:
-        raise Exception(f"Invalid processing steps:\n{invalid_processing_steps}")
 
     if not dataset_staging_dir:
         dataset_staging_dir = (
