@@ -1,0 +1,35 @@
+sources:
+- name: recipe_sources
+  schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+  tables:
+  - name: dcp_boroboundaries_wi
+  - name: dcp_stateassemblydistricts
+  - name: dcp_ct2020
+  - name: dcp_congressionaldistricts
+  - name: dcp_cdboundaries
+  - name: dcp_statesenatedistricts
+  - name: dcp_municipalcourtdistricts
+  - name: dcp_school_districts
+  - name: dcp_trafficanalysiszones
+  - name: dcp_councildistricts
+  - name: dcp_policeprecincts
+  - name: dcp_firecompanies
+
+  # Building and lot-level info
+  - name: dcp_mappluto_wi
+  - name: dcp_facilities
+  - name: doitt_buildingfootprints
+  
+  # Projects
+  - name: nycoc_checkbook
+  - name: fisa_capitalcommitments
+  - name: fisa_dailybudget
+  - name: dot_projects_intersections
+  - name: dot_projects_streets
+  - name: dot_projects_bridges
+  - name: dpr_capitalprojects
+  - name: dpr_parksproperties
+  - name: edc_capitalprojects_ferry
+  - name: edc_capitalprojects
+  - name: ddc_capitalprojects_infrastructure
+  - name: ddc_capitalprojects_publicbuildings
