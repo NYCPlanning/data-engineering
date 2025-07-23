@@ -1,5 +1,6 @@
 from pathlib import Path
 from functools import cached_property
+from typing import cast
 
 from dcpy.connectors.registry import StorageConnector
 from dcpy.utils.sftp import SFTPConnector
@@ -37,10 +38,10 @@ class SFTPConnectorAdapter(StorageConnector):
                 f"Connector '{self.conn_type}' is missing required config fields"
             )
         return SFTPConnector(
-            hostname=self.hostname,
-            username=self.username,
-            private_key_path=self.private_key_path,
-            known_hosts_path=self.known_hosts_path,
+            hostname=cast(str, self.hostname),
+            username=cast(str, self.username),
+            private_key_path=cast(Path, self.private_key_path),
+            known_hosts_path=cast(Path, self.known_hosts_path),
             port=self.port,
         )
 
