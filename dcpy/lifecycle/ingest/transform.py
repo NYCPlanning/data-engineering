@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Callable, Literal
 
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import (
+from dcpy.models.lifecycle.ingest_inputs import (
     ProcessingStep,
     Column,
     ProcessingSummary,
