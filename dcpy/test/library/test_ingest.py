@@ -27,12 +27,61 @@ class TestFormatFieldNames:
 \tcol2 AS col2,
 \tGeometry AS "WKT" FROM field_names"""
 
+    sql_with = (
+        "WITH __cte__ AS (Column 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom), "
+        "SELECT * FROM __cte__ WHERE col2 > 10"
+    )
+    sql_no_with = (
+        "WITH __cte__ AS (Column 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom) \n"
+        "SELECT * FROM __cte__ WHERE col2 > 10"
+    )
+
     def test_basic(self):
         assert format_field_names(self.ds, [], None, False, "csv") == self.basic
 
     def test_geom(self):
-        print(format_field_names(self.ds, [], None, True, "csv"))
-        assert format_field_names(self.ds, [], None, True, "csv") == self.basic
+        assert format_field_names(self.ds, [], None, True, "csv") == self.wkt
+
+    def test_with_fields(self):
+        fields = ["col1", "col2", "geom"]
+        expected = """SELECT 
+\tColumn 1 AS col1,
+\tcol2 AS col2,
+\tthe_geom AS geom,
+\tGeometry AS "WKT" FROM field_names"""
+        result = format_field_names(self.ds, fields, None, True, "csv")
+        assert result == expected
+
+    def test_with_sql_with(self):
+        sql = "WITH something AS (SELECT * FROM @filename WHERE col2 > 10)"
+        expected = (
+            "WITH __cte__ AS (Column 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom), "
+            "something AS (SELECT * FROM __cte__ WHERE col2 > 10)"
+        )
+        result = format_field_names(self.ds, [], sql, True, "csv")
+        assert result == expected
+
+    def test_with_sql_no_with(self):
+        sql = "SELECT * FROM @filename WHERE col2 > 10"
+        expected = (
+            "WITH __cte__ AS (Column 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom) \n"
+            "SELECT * FROM __cte__ WHERE col2 > 10"
+        )
+        result = format_field_names(self.ds, [], sql, True, "csv")
+        assert result == expected
+
+    def test_output_format_parquet(self):
+        expected = """SELECT 
+\tColumn 1 AS column_1,
+\tcol2 AS col2,
+\tthe_geom AS the_geom,
+\tGeometry AS "geom" FROM field_names"""
+        result = format_field_names(self.ds, [], None, True, "parquet")
+        assert result == expected
+
+    def test_no_geom(self):
+        result = format_field_names(self.ds, [], None, False, "csv")
+        assert result == self.basic
 
 
 @patch("requests.get", side_effect=mock_request_get)
