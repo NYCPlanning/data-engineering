@@ -8,18 +8,65 @@ from zipfile import ZIP_DEFLATED, ZipFile
 # TODO - add logic to create new shp output, rather than overwriting in place
 # TODO - (possible) write `remove_metadata()` function
 
+# abstract (ABC module Python) -> Abstract, meaning you never instantiate
+# concrete -> instantiable
 
 @dataclass
 class Shapefile:
-    shp_dir: Path | None
     shp_name: str
 
+    def _file_exists(self):
+        raise Exception("not implemented on base class")
 
-@dataclass
-class ZippedShapefile:
-    zip_path: Path
-    subdir: str | None
-    shp_name: str
+    def list_files(self):
+        raise Exception("not implemented on base class")
+
+    def path_to_md_xml(self):
+        raise Exception("not implemented on base class")
+
+    def clear_metadata(self):
+        raise Exception("not implemented on base class")
+
+    def write_file(self, filename, contents):
+        raise Exception("not implemented on base class")
+
+
+class ShapefileNonZipped(Shapefile):
+    _shp_dir: Path | None
+
+    def _file_exists(self):
+        return
+
+    def list_files(self):
+        return []
+
+    def path_to_md_xml(self):
+        return "./whatever"
+
+    def clear_metadata(self):
+        return
+
+    def write_file(self, filename, contents):
+        with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
+            xml_file.write(metadata)
+
+class ShapefileZipped(Shapefile):
+    _zip_path: Path
+    _subdir: str | None
+
+    def list_files(self):
+        return []
+
+    def clear_metadata(self):
+        # Do zipfile stuff
+        return
+
+    def path_to_md_xml(self):
+        return "./my_path/"
+
+    def write_file(self, filename, contents):
+        with ZipFile(shp_info.zip_path, "a", compression=ZIP_DEFLATED) as shp:
+            shp.writestr(xml_filename, metadata)
 
 
 def _remove_item_from_zip_file(zip_file: str | Path, file_to_remove: str):
@@ -65,7 +112,7 @@ def _validate_shp_input(shp_string: str | Path) -> None:
         )
 
 
-def _parse_path_to_shp(path_to_shp: str | Path) -> Shapefile | ZippedShapefile:
+def _parse_path_to_shp(path_to_shp: str | Path) -> Shapefile:
     """
     Takes path to shapefile (shp) and returns relevant information, such as:
         - shp name
@@ -111,7 +158,7 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> Shapefile | ZippedShapefile:
         if len(path_in_zip_to_shp.parts) > 1:
             subdir = str(path_in_zip_to_shp.parent)
 
-        return ZippedShapefile(
+        return ShapefileZipped(
             zip_path=Path(zip_path),
             subdir=subdir,
             shp_name=path_in_zip_to_shp.name,
@@ -171,9 +218,10 @@ def _list_files_in_shp_dir(path_to_shp: str | Path) -> list[str]:
     """
     file = _parse_path_to_shp(path_to_shp=path_to_shp)
 
+    path = file.path_to_md_xml()
     match file:
-        case ZippedShapefile():
-            with ZipFile(file.zip_path, "r") as archive:
+        case ShapefileZipped():
+            with ZipFile(file._zip_path, "r") as archive:
                 return archive.namelist()
         case Shapefile():
             return [str(item.name) for item in file.shp_dir.iterdir()]
@@ -200,46 +248,29 @@ def write_metadata(
         overwrite (bool, optional): If True, existing metadata will be overwritten.
             If False, function will not overwrite existing metadata. Defaults to False.
     """
-    shp_info: ZippedShapefile | Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
+    shp_info: Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
     xml_filename = f"{shp_info.shp_name}.xml"
 
-    def _write_text_to_file(
-        shp_info: ZippedShapefile | Shapefile,
-        # is_zip: bool,
-        # path_to_zip: str,
-        # path_to_shp: str,
-        xml_filename: str,
-        metadata: str,
-    ) -> None:
-        match shp_info:
-            case ZippedShapefile():
-                with ZipFile(shp_info.zip_path, "a", compression=ZIP_DEFLATED) as shp:
-                    shp.writestr(xml_filename, metadata)
-            case _:
-                with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
-                    xml_file.write(metadata)
+    # def _write_text_to_file(
+    #     shp_info: ZippedShapefile | Shapefile,
+    #     # is_zip: bool,
+    #     # path_to_zip: str,
+    #     # path_to_shp: str,
+    #     xml_filename: str,
+    #     metadata: str,
+    # ) -> None:
+    #     match shp_info:
 
-    if metadata_exists(path_to_shp):
-        if overwrite:
-            _remove_item_from_zip_file(
-                zip_file=shp_info.zip_path, file_to_remove=xml_filename
-            )
-            _write_text_to_file(
-                shp_info=shp_info,
-                xml_filename=xml_filename,
-                metadata=metadata,
-            )
-        else:
-            raise FileExistsError(
-                "Metadata XML already exists, and overwrite is False. Nothing will be written"
-            )
+    if metadata_exists(path_to_shp) and not overwrite:
+        raise Exception("can't do that")
 
-    if not metadata_exists(path_to_shp):
-        _write_text_to_file(
-            shp_info=shp_info,
-            xml_filename=xml_filename,
-            metadata=metadata,
-        )
+    if overwrite:
+        shp_info.clear_metadata()
+
+    _write_text_to_file(
+        shp_info=shp_info,
+        xml_filename=xml_filename,
+        metadata=metadata,
 
 
 # TODO - write this function
