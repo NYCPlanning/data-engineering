@@ -11,7 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 @dataclass
 class Shapefile:
-    shp_dir: Path | None
+    shp_dir: Path
     shp_name: str
 
 
@@ -205,9 +205,6 @@ def write_metadata(
 
     def _write_text_to_file(
         shp_info: ZippedShapefile | Shapefile,
-        # is_zip: bool,
-        # path_to_zip: str,
-        # path_to_shp: str,
         xml_filename: str,
         metadata: str,
     ) -> None:
@@ -219,7 +216,7 @@ def write_metadata(
                 with open(Path(path_to_shp) / xml_filename, "w") as xml_file:
                     xml_file.write(metadata)
 
-    if metadata_exists(path_to_shp):
+    if metadata_exists(path_to_shp) and overwrite:
         if overwrite:
             _remove_item_from_zip_file(
                 zip_file=shp_info.zip_path, file_to_remove=xml_filename
@@ -280,7 +277,7 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
             with ZipFile(shp_info.zip_path, "r") as zf:
                 metadata = zf.read(xml_filename).decode(encoding=encoding)
                 return metadata
-        case _:
+        case Shapefile():
             path_to_xml = Path(shp_info.shp_dir) / xml_filename
             with open(path_to_xml, "r") as f:
                 return f.read()
