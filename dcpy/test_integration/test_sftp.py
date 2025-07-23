@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from datetime import datetime
 import pytz
 from typing import TypedDict
@@ -50,43 +49,36 @@ class TestSFTPConnector:
         assert result == {"path": local_filepath}
         assert local_filepath.exists()
 
-    def test_put_file(self):
+    def test_put_file(self, tmp_path: Path):
         filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+        local_file_path = tmp_path / filename
+        server_file_path = SFTP_REMOTE_FILES_DIR / filename
 
-        with TemporaryDirectory() as temp_dir:
-            tmp_dir_path = Path(temp_dir)
-            local_file_path = tmp_dir_path / filename
-            server_file_path = SFTP_REMOTE_FILES_DIR / filename
+        with open(local_file_path, "w") as f:
+            f.write("Some local test text. File size should be 51 bytes.")
 
-            with open(local_file_path, "w") as f:
-                f.write("Some local test text. File size should be 51 bytes.")
-
-            _ = self.connector.put_file(
-                local_file_path=local_file_path,
-                server_file_path=server_file_path,
-            )
-
+        _ = self.connector.put_file(
+            local_file_path=local_file_path,
+            server_file_path=server_file_path,
+        )
         remote_filenames = self.connector.list_directory(SFTP_REMOTE_FILES_DIR)
         assert filename in remote_filenames
 
-    def test_object_exists(self):
+    def test_object_exists(self, tmp_path: Path):
         filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+        local_file_path = tmp_path / filename
         server_file_path = SFTP_REMOTE_FILES_DIR / filename
+
+        with open(local_file_path, "w") as f:
+            f.write("Some local test text. File size should be 51 bytes.")
 
         exists = self.connector.object_exists(server_file_path)
         assert not exists  # sanity check
 
-        with TemporaryDirectory() as temp_dir:
-            local_file_path = Path(temp_dir) / filename
-
-            with open(local_file_path, "w") as f:
-                f.write("Some local test text. File size should be 51 bytes.")
-
-            _ = self.connector.put_file(
-                local_file_path=local_file_path,
-                server_file_path=server_file_path,
-            )
-
+        _ = self.connector.put_file(
+            local_file_path=local_file_path,
+            server_file_path=server_file_path,
+        )
         exists = self.connector.object_exists(server_file_path)
         assert exists
 
@@ -106,18 +98,15 @@ class TestSFTPConnector:
 class TestSFTPConnectorAdapter:
     connector = SFTPConnectorAdapter(**SFTP_DEFAULTS)
 
-    def test_push(self):
+    def test_push(self, tmp_path: Path):
         filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"
+        local_file_path = tmp_path / filename
+        server_file_path = SFTP_REMOTE_FILES_DIR / filename
 
-        with TemporaryDirectory() as temp_dir:
-            tmp_dir_path = Path(temp_dir)
-            local_file_path = tmp_dir_path / filename
-            server_file_path = SFTP_REMOTE_FILES_DIR / filename
+        with open(local_file_path, "w") as f:
+            f.write("Some local test text. File size should be 51 bytes.")
 
-            with open(local_file_path, "w") as f:
-                f.write("Some local test text. File size should be 51 bytes.")
-
-            _ = self.connector.push(key=str(server_file_path), filepath=local_file_path)
+        _ = self.connector.push(key=str(server_file_path), filepath=local_file_path)
 
         assert self.connector.exists(key=str(server_file_path))
 
