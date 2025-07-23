@@ -150,9 +150,7 @@ echo 'Cleaning geometries: lines to polygons and geoms to multi'
 run_sql_file sql/attributes_geomclean.sql
 
 # remove faulty geometries	
-echo 'Removing bad geometries'	
-run_sql_command "DROP TABLE IF EXISTS cpdb_badgeoms; CREATE TABLE cpdb_badgeoms (maprojid text);"
-run_sql_command "\COPY cpdb_badgeoms FROM './data/cpdb_geomsremove.csv' DELIMITER ',' CSV;"
+echo 'Removing bad geometries'
 run_sql_file sql/attributes_badgeoms.sql	
 
 # create final table

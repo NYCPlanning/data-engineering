@@ -1,0 +1,68 @@
+seeds:
+  - name: dcp_projecttypes_agencies
+    description: |
+      The agency associated with each project type.
+    columns:
+      - name: projecttype
+        tests: [ unique, not_null ]
+      - name: agencyacronym
+        tests: [ not_null ]
+      - name: agency
+        tests: [ not_null ]
+
+  - name: dcp_agencylookup
+    description: |
+      Agency lookup table for mapping various agency identifiers and names.
+    columns:
+      - name: cape_agencycode
+      - name: cape_agencyacronym
+        tests: [ not_null ]
+      - name: cape_agency
+        tests: [ not_null ]
+    config:
+      column_types:
+        cape_agencycode: text
+
+  - name: dcp_json
+    description: |
+      Project geometry by maprojid.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: geom
+        tests: [ not_null ]
+
+  - name: cpdb_badgeoms
+    description: |
+      List of maprojid values to remove.
+    columns:
+      - name: maprojid
+        tests: [ not_null ]
+
+  - name: dcp_id_bin_map
+    description: |
+      Mapping between maprojid and BIN.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: bin
+        tests: [ not_null ]
+
+  - name: dcp_cpdb_agencyverified
+    description: |
+      Agency-verified CPDB records with address and project details.
+    columns:
+      - name: address
+      - name: agency
+      - name: bbl
+      - name: bin
+      - name: borough
+      - name: bridgeid
+      - name: category
+      - name: description
+      - name: mappable
+      - name: maprojid
+      - name: origin
+      - name: parkid
+      - name: parkname
+      - name: zipcode

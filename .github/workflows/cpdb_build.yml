@@ -71,4 +71,5 @@ jobs:
         run: |
           dbt deps
           dbt debug
+          dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
           ./cpdb.sh build
