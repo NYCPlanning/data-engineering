@@ -36,6 +36,7 @@ def validate_kwargs(
     kwargs: dict,
     raise_error=False,
     ignore_args: list[str] | None = None,
+    refuse_extra_kwargs: bool = False,
 ) -> dict[str, str]:
     """
     Given a function and dict containing kwargs, validates that kwargs satiffy the
@@ -67,6 +68,7 @@ def validate_kwargs(
         if a not in ignore_args
         and sig.parameters[a].kind != sig.parameters[a].VAR_KEYWORD
     ]
+    print(expected_args)
     defaults = [a for a in expected_args if not _isempty(sig.parameters[a].default)]
     violating_args = {}
 
@@ -85,11 +87,13 @@ def validate_kwargs(
         elif arg_name not in defaults:
             violating_args[arg_name] = "Missing"
 
+    ## if **kwargs is present
     varkw = [a for a in sig.parameters.values() if a.kind == a.VAR_KEYWORD]
+    print(varkw)
 
-    if not varkw:
+    if not varkw or refuse_extra_kwargs:
         for arg in kwargs:
-            if arg not in expected_args:
+            if arg not in expected_args and arg not in ignore_args:
                 violating_args[arg] = "Unexpected"
 
     if violating_args and raise_error:

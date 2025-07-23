@@ -16,7 +16,7 @@ class SocrataConnector(Connector):
         key: str,
         destination_path: Path,
         *,
-        org: socrata.Org,
+        org: str,
         format: socrata.ValidSourceFormats,
         **kwargs,
     ) -> dict:

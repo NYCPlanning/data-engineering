@@ -30,11 +30,15 @@ class Source(BaseModel, extra="allow"):
         if conn_type not in connectors.pull.list_registered():
             raise ValueError(f"Connector type '{conn_type}' not registered.")
         connector = connectors.pull[conn_type]
-        missing = validate_kwargs(connector.pull, self.model_dump(), ignore_args=["destination_path"])
+        func = connector._pull if "_pull" in dir(connector) else connector.pull
+        missing = validate_kwargs(
+            func,
+            self.model_dump(),
+            ignore_args=["type", "destination_path", "version"],
+            refuse_extra_kwargs=True,
+        )
         if missing:
-            raise ValueError(
-                f"Missing required fields for '{conn_type}': {missing}"
-            )
+            raise ValueError(f"Missing required fields for '{conn_type}': {missing}")
         return self
 
 
