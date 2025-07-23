@@ -177,6 +177,3 @@ models:
   - dbt_utils.equality:
       name: equality_green_fast_track_pilot_projects
       compare_model: ref('test_expected__pilot_projects')
-      config:
-        # TEMP
-        severity: warn
