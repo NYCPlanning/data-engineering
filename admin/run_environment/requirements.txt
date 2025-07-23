@@ -179,7 +179,7 @@ folium==0.20.0
     #   streamlit-folium
 fonttools==4.58.5
     # via matplotlib
-gdal==3.8.3
+gdal==3.11.3
     # via -r requirements.in
 gdown==5.2.0
     # via leafmap
