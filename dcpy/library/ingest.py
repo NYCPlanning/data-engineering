@@ -178,6 +178,11 @@ def translator(func):
                 else dataset.version.lower()
             )
             layerName = f"{schema_name}.{version}"
+            create_latest_query = f"""
+                CREATE VIEW {schema_name}.latest
+                as (SELECT \'{version}\' as v, *
+                from {schema_name}."{version}");
+            """
         else:
             layerName = dataset.name
 
@@ -200,12 +205,9 @@ def translator(func):
             # This addresses a gdal issue where translation will fail
             # to generate a csv from a shapefile if a csv already exists at
             # the target path
-            if (
-                isinstance(dstDS, str)
-                and dstDS.endswith(".csv")
-                and Path(dstDS).exists()
-            ):
-                Path(dstDS).unlink()
+
+            if output_format in ("CSV", "Parquet") and Path(dstDS).exists():  # type: ignore
+                Path(dstDS).unlink()  # type: ignore
 
             srcSRS = dataset.source.geometry.SRS if dataset.source.geometry else None
 
@@ -229,15 +231,9 @@ def translator(func):
 
         # Create latest view in postgres database if needed
         if output_format == "PostgreSQL":
-            dstDS.ExecuteSQL(f"DROP VIEW IF EXISTS {schema_name}.latest;")
-            dstDS.ExecuteSQL(f"DROP TABLE IF EXISTS {schema_name}.latest;")
-            dstDS.ExecuteSQL(
-                f"""
-                CREATE VIEW {schema_name}.latest
-                as (SELECT \'{version}\' as v, *
-                from {schema_name}."{version}");
-                """
-            )
+            dstDS.ExecuteSQL(f"DROP VIEW IF EXISTS {schema_name}.latest;")  # type: ignore
+            dstDS.ExecuteSQL(f"DROP TABLE IF EXISTS {schema_name}.latest;")  # type: ignore
+            dstDS.ExecuteSQL(create_latest_query)  # type: ignore
 
         # Compression if needed
         if compress and destination_path:
