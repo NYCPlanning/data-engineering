@@ -58,7 +58,7 @@ def format_field_names(
         geom_clause = f',\n\tGeometry AS "{geom_column}"'
     else:
         geom_clause = ""
-    query = f"""SELECT \n\t{select}{geom_clause} FROM {layer_name}"""
+    query = f"""SELECT \n\t{select}{geom_clause}\nFROM {layer_name}"""
     if not sql:
         return query
     else:
@@ -66,9 +66,9 @@ def format_field_names(
         sql = sql.replace("@filename", cte_name)
         if sql.startswith("WITH "):
             sql = sql.strip("WITH ")
-            return f"WITH {cte_name} AS ({select}), {sql}"
+            return f"WITH {cte_name} AS ({select}),\n{sql}"
         else:
-            return f"WITH {cte_name} AS ({select}) \n{sql}"
+            return f"WITH {cte_name} AS ({select})\n{sql}"
 
 
 def translator(func):
