@@ -9,21 +9,21 @@ from dcpy.connectors.registry import VersionedConnector
 from dcpy.utils.logging import logger
 
 
-class _RawBytesCatalogueYear(BaseModel):
+class _RawBytesCatalogYear(BaseModel):
     link: str
     text: str  # Note: this is actually the version string
 
 
-class _RawBytesCatalogueVersion(BaseModel):
+class _RawBytesCatalogVersion(BaseModel):
     dataset: str
     year: str
-    releases: list[_RawBytesCatalogueYear]
+    releases: list[_RawBytesCatalogYear]
 
 
 class BytesConnector(VersionedConnector):
     conn_type: str = "bytes"
 
-    BYTES_CATALOGUE_URL_PREFIX: str = (
+    BYTES_CATALOG_URL_PREFIX: str = (
         "https://www.nyc.gov/assets/planning/json/content/resources/dataset-archives"
     )
     BYTES_API_PREFIX: str = (
@@ -57,14 +57,26 @@ class BytesConnector(VersionedConnector):
 
     def _fetch_archived_product_versions_by_dataset(self, product, dataset):
         """Fetch the json config for the archived dataset versions.
-        This includes all versions except for the current one."""
+        This includes all versions except for the current one. It also includes
+        all datasets on the given page, so e.g. for PLUTO this fetch returns
+        PLUTO, MapPLUTO, and the Change File.
+
+        # MAYBE TODO: we're not cleanly mapping or filtering the returned files on Bytes per dataset.
+        E.g. the fetch for `pluto.change_file` might return something like:
+        [{'dataset': 'MapPLUTO™ - Shapefile', 'version': '25v1'...} ...
+         {'dataset': 'PLUTO™', 'version': '25v1'...}
+        This then acts as though 25v1 is a version of the changefile as well,
+        even if the change_file is not returned in the response. It might be a safe assumption.
+
+        TLDR: for BYTES pages with multiple datasets, we act as though each dataset will have every version.
+        """
         resource_name = self._get_product_dataset_bytes_resource(product, dataset)
         dataset = dataset or product
-        catalogue_url_file = f"{self.BYTES_CATALOGUE_URL_PREFIX}/{resource_name}.json"
+        catalog_url_file = f"{self.BYTES_CATALOG_URL_PREFIX}/{resource_name}.json"
 
-        logger.debug(f"Grabbing version catalogue from {catalogue_url_file}")
-        response = requests.get(catalogue_url_file)
-        product_versions = TypeAdapter(list[_RawBytesCatalogueVersion]).validate_python(
+        logger.debug(f"Grabbing version catalog from {catalog_url_file}")
+        response = requests.get(catalog_url_file)
+        product_versions = TypeAdapter(list[_RawBytesCatalogVersion]).validate_python(
             response.json()
         )
 
