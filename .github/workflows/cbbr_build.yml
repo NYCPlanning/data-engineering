@@ -23,7 +23,7 @@ on:
         default: recipe
       dev_bucket:
         type: string
-        default: false
+        required: false
 
 jobs:
   build:
