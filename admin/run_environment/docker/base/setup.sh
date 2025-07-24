@@ -41,8 +41,8 @@ function install_gdal {
         sudo cmake --build . --target install
 
         cd ~
-        rm -rf gdal-3.8-revert-null-date-behavior
-        rm "3.8-revert-null-date-behavior.zip"
+        rm -rf gdal-${gdal_version}
+        rm gdal${gdal_short_version}.zip
     )
     echo "gdal installed successfully"
 }
