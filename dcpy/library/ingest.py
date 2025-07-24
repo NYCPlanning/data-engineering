@@ -66,9 +66,9 @@ def format_field_names(
         sql = sql.replace("@filename", cte_name)
         if sql.startswith("WITH "):
             sql = sql.strip("WITH ")
-            return f"WITH {cte_name} AS ({select}),\n{sql}"
+            return f"WITH {cte_name} AS ({query}),\n{sql}"
         else:
-            return f"WITH {cte_name} AS ({select})\n{sql}"
+            return f"WITH {cte_name} AS ({query})\n{sql}"
 
 
 def translator(func):

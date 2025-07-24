@@ -41,7 +41,7 @@ class TestFormatFieldNames:
     def test_with_sql_cte(self):
         sql = "WITH something AS (SELECT * FROM @filename WHERE col2 > 10) SELECT * FROM something"
         expected = (
-            "WITH __cte__ AS (Column 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom),\n"
+            "WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom),\n"
             "something AS (SELECT * FROM __cte__ WHERE col2 > 10) SELECT * FROM something"
         )
         result = format_field_names(self.ds, [], sql, True, "csv")
@@ -50,7 +50,7 @@ class TestFormatFieldNames:
     def test_with_sql_no_cte(self):
         sql = "SELECT * FROM @filename WHERE col2 > 10"
         expected = (
-            "WITH __cte__ AS (Column 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom)\n"
+            "WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom)\n"
             "SELECT * FROM __cte__ WHERE col2 > 10"
         )
         result = format_field_names(self.ds, [], sql, True, "csv")
