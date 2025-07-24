@@ -23,37 +23,43 @@ class TestFormatFieldNames:
         expected = "SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom\nFROM field_names"
         assert format_field_names(self.ds, [], None, False, "csv") == expected
 
+    def test_geom_dont_remove(self):
+        expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom,\n\tGeometry AS "WKT"\nFROM field_names'
+        assert format_field_names(self.ds, [], None, True, "csv") == expected
+
     def test_geom(self):
         expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "WKT"\nFROM field_names'
-        assert format_field_names(self.ds, [], None, True, "csv") == expected
+        assert (
+            format_field_names(self.ds, [], None, True, "csv", ["the_geom"]) == expected
+        )
 
     def test_with_fields(self):
         fields = ["col1", "col2", "geom"]
         expected = """SELECT\n\tColumn 1 AS col1,\n\tcol2 AS col2,\n\tthe_geom AS geom,\n\tGeometry AS "WKT"\nFROM field_names"""
-        result = format_field_names(self.ds, fields, None, True, "csv")
+        result = format_field_names(self.ds, fields, None, True, "csv", ["the_geom"])
         assert result == expected
 
     def test_with_sql_cte(self):
         sql = "WITH something AS (SELECT * FROM @filename WHERE col2 > 10) SELECT * FROM something"
         expected = (
-            'WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "WKT"),\n'
+            'WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "WKT"\nFROM field_names),\n'
             "something AS (SELECT * FROM __cte__ WHERE col2 > 10) SELECT * FROM something"
         )
-        result = format_field_names(self.ds, [], sql, True, "csv")
+        result = format_field_names(self.ds, [], sql, True, "csv", ["the_geom"])
         assert result == expected
 
     def test_with_sql_no_cte(self):
         sql = "SELECT * FROM @filename WHERE col2 > 10"
         expected = (
-            "WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom)\n"
+            "WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom\nFROM field_names)\n"
             "SELECT * FROM __cte__ WHERE col2 > 10"
         )
         result = format_field_names(self.ds, [], sql, False, "csv")
         assert result == expected
 
     def test_output_format_parquet(self):
-        expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom,\n\tGeometry AS "geom"\nFROM field_names'
-        result = format_field_names(self.ds, [], None, True, "parquet")
+        expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "geom"\nFROM field_names'
+        result = format_field_names(self.ds, [], None, True, "parquet", ["the_geom"])
         assert result == expected
 
 

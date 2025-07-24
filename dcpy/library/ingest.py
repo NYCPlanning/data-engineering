@@ -33,6 +33,7 @@ def format_field_names(
     sql: str | None,
     has_geom: bool,
     output_format: str,
+    csv_geom_fields: list[str] | None = None,
 ):
     layer = dataset.GetLayer(0)
     layer_defn = layer.GetLayerDefn()
@@ -48,6 +49,11 @@ def format_field_names(
             fieldDefn = layer_defn.GetFieldDefn(i)
             fieldName = fieldDefn.GetName()
             field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
+    if csv_geom_fields:
+        for field in field_mapping:
+            if field in csv_geom_fields:
+                field_mapping.pop(field)
+
     select = ",\n\t".join([f"{old} AS {field_mapping[old]}" for old in field_mapping])
     if has_geom:
         geom_columns = {"csv": "WKT", "pg_dump": "wkb_geometry", "parquet": "geom"}
@@ -139,12 +145,23 @@ def translator(func):
         else:
             src_layer = srcDS.GetLayer(0).GetName()
 
+        csv_geom_names = (
+            [
+                o.split("=")[1]
+                for o in dataset.source.options
+                if o.startswith("GEOM_POSSIBLE_NAMES=")
+            ]
+            if dataset.source.options
+            else None
+        )
+
         sql = format_field_names(
             srcDS,
             dataset.destination.fields,
             dataset.destination.sql,
             dataset.source.geometry is not None,
             output_format,
+            csv_geom_fields=csv_geom_names,
         )
 
         # Create postgres database schema and table version if needed
