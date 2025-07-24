@@ -58,7 +58,7 @@ def format_field_names(
         geom_clause = f',\n\tGeometry AS "{geom_column}"'
     else:
         geom_clause = ""
-    query = f"""SELECT \n\t{select}{geom_clause}\nFROM {layer_name}"""
+    query = f"""SELECT\n\t{select}{geom_clause}\nFROM {layer_name}"""
     if not sql:
         return query
     else:
