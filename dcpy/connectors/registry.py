@@ -64,9 +64,8 @@ class VersionSearch(ABC):
     def get_latest_version(self, key: str, **kwargs) -> str:
         pass
 
-    @abstractmethod
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
-        pass
+        return version in self.list_versions(key, **kwargs)
 
 
 class Pull(GenericConnector, ABC):
@@ -151,7 +150,7 @@ class ConnectorRegistry(Generic[_C]):
 
     def register(self, connector: _C, *, conn_type: str = ""):
         conn_type = conn_type or connector.conn_type
-        logger.info(f"registering {conn_type}")
+        logger.debug(f"registering {conn_type}")
         self._connectors[conn_type] = connector
 
     def clear(self):

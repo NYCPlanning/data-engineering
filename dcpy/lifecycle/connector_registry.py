@@ -7,6 +7,7 @@ from dcpy.configuration import (
     SFTP_PRIVATE_KEY_PATH,
 )
 from dcpy.connectors.edm import recipes, publishing
+from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.socrata.connector import SocrataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
@@ -24,6 +25,7 @@ def _set_default_connectors():
     connectors.register(connector=recipes.Connector())
     connectors.register(connector=publishing.DraftsConnector())
     connectors.register(connector=publishing.PublishedConnector())
+    connectors.register(connector=BytesConnector())
     connectors.register(connector=publishing.GisDatasetsConnector())
     connectors.register(connector=SocrataConnector())
     connectors.register(connector=ArcGISFeatureServiceConnector())
@@ -43,7 +45,7 @@ def _set_default_connectors():
             private_key_path=SFTP_PRIVATE_KEY_PATH,
         )
     )
-    logger.info(f"Registered Connectors: {connectors.list_registered()}")
+    logger.debug(f"Registered Connectors: {connectors.list_registered()}")
 
 
 def _register_ingest_datastores():
