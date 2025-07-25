@@ -6,6 +6,7 @@ from pydantic import BaseModel, TypeAdapter
 import requests
 
 from dcpy.connectors.registry import VersionedConnector
+from dcpy.connectors import web
 from dcpy.utils.logging import logger
 
 
@@ -23,6 +24,10 @@ class _RawBytesCatalogVersion(BaseModel):
 class BytesConnector(VersionedConnector):
     conn_type: str = "bytes"
 
+    S_MEDIA_ZIP_PREFIX: str = (
+        "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes"
+    )
+
     BYTES_CATALOG_URL_PREFIX: str = (
         "https://www.nyc.gov/assets/planning/json/content/resources/dataset-archives"
     )
@@ -31,14 +36,28 @@ class BytesConnector(VersionedConnector):
     )
 
     # Overrides for BYTES resources. These are only needed where dataset names don't match up with bytes url info.
-    BYTES_URL_RESOURCE_OVERRIDES: dict[str, dict] = {
+    BYTES_PAGE_CONFIGS: dict[str, dict] = {
         "pluto": {
-            "change_file": "mappluto-pluto-change",
-            "pluto": "mappluto-pluto-change",
+            "change_file": {"bytes_resource_name": "mappluto-pluto-change"},
+            "pluto": {"bytes_resource_name": "mappluto-pluto-change"},
         },
         "lion": {
-            "2010_census_blocks": "census-blocks",
-            "2020_census_blocks": "census-blocks",
+            "2010_census_blocks": {
+                "bytes_resource_name": "census-blocks",
+                "files": {
+                    "shapefile_water_not_included": {
+                        "filename_template": lambda v: f"nycb2010_{v}.zip",
+                    }
+                },
+            },
+            "2020_census_blocks": {"bytes_resource_name": "census-blocks"},
+            "borough_boundaries": {
+                "files": {
+                    "shapefile_wi": {
+                        "filename_template": lambda v: f"nybb_{v}.zip",
+                    }
+                }
+            },
         },
         # TODO: Add other datasets here. Or move this to product metadata, where it probably belongs
     }
@@ -51,8 +70,8 @@ class BytesConnector(VersionedConnector):
         For a dataset like lion.atomic_polygons, their dataset name matches up with ours (after twiddling the dash and underscore)
         but for a dataset like pluto, we're not so lucky so we need to do some overriding.
         """
-        return self.BYTES_URL_RESOURCE_OVERRIDES.get(product, {}).get(
-            dataset
+        return self.BYTES_PAGE_CONFIGS.get(product, {}).get(dataset, {}).get(
+            "bytes_resource_name"
         ) or dataset.replace("_", "-")
 
     def _fetch_archived_product_versions_by_dataset(self, product, dataset):
@@ -74,7 +93,7 @@ class BytesConnector(VersionedConnector):
         dataset = dataset or product
         catalog_url_file = f"{self.BYTES_CATALOG_URL_PREFIX}/{resource_name}.json"
 
-        logger.debug(f"Grabbing version catalog from {catalog_url_file}")
+        logger.info(f"Grabbing version catalog from {catalog_url_file}")
         response = requests.get(catalog_url_file)
         product_versions = TypeAdapter(list[_RawBytesCatalogVersion]).validate_python(
             response.json()
@@ -86,7 +105,9 @@ class BytesConnector(VersionedConnector):
                 versions.append(
                     {
                         "dataset": pv.dataset,
-                        "version": year_version.text,
+                        # Somewhat frustratingly, return versions are up-cased, e.g. 25A,
+                        # whereas the versions in filenames are downcased, e.g. myshapefile_25a.zip
+                        "version": year_version.text.lower(),
                         "url": year_version.link,
                     }
                 )
@@ -113,7 +134,7 @@ class BytesConnector(VersionedConnector):
             "No `Latest Release:` text was found! Can't parse version."
         )
 
-        return latest_release_text.text.split(": ")[1]
+        return latest_release_text.text.split(": ")[1].lower()
 
     def _key_to_product_dataset(self, key: str) -> tuple[str, str]:
         """e.g.
@@ -133,7 +154,24 @@ class BytesConnector(VersionedConnector):
     def pull_versioned(
         self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
-        raise NotImplementedError()
+        product, dataset = self._key_to_product_dataset(key)
+        files = self.BYTES_PAGE_CONFIGS[product][dataset]["files"]
+        resource_name = self._get_product_dataset_bytes_resource(product, dataset)
+
+        file_id = (
+            kwargs.get("file_id") or list(files.keys())[0]
+        )  # default to the first file if none are spec'd
+
+        assert file_id in files, (
+            f"{file_id} was specified, but the Bytes connector does not have this file mapped."
+        )
+        bytes_filename = files[file_id]["filename_template"](version)
+        file_url = f"{self.S_MEDIA_ZIP_PREFIX}/{resource_name}/{bytes_filename}"
+
+        destination_path.mkdir(exist_ok=True, parents=True)
+
+        web.download_file(file_url, path=destination_path / bytes_filename)
+        return {"path": destination_path}
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         raise NotImplementedError()
