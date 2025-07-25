@@ -11,4 +11,8 @@ inputs:
     - name: dpr_parksproperties
     - name: dpr_greenthumb
     - name: lpc_landmarks
+    - name: lion.borough_boundaries
+      source: bytes
+      file_type: shapefile
+      destination: file
   missing_versions_strategy: find_latest
