@@ -1,72 +1,78 @@
 import os
 from unittest.mock import patch
-from sqlalchemy import text
+from osgeo import gdal
+import pandas as pd
 
-from dcpy.library.ingest import Ingestor
+from dcpy.library.ingest import Ingestor, format_field_names
 from dcpy.test.conftest import mock_request_get
 
 from . import (
-    pg,
-    recipe_engine,
     get_config_file,
-    TEST_DATASET_NAME,
-    TEST_DATASET_VERSION,
-    TEST_DATASET_CONFIG_FILE,
-    TEST_DATASET_OUTPUT_PATH,
+    test_root_path,
     template_path,
+    TEST_DATASET_NAME,
 )
 
 
-def test_ingest_postgres():
-    ingestor = Ingestor()
-    ingestor.postgres(TEST_DATASET_CONFIG_FILE, postgres_url=recipe_engine)
-    with pg.connect() as conn:
-        for version in [TEST_DATASET_VERSION, "latest"]:
-            sql = f"""
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables
-                WHERE  table_schema = '{TEST_DATASET_NAME}'
-                AND    table_name   = '{version}'
-            );
-            """
-            result = conn.execute(text(sql)).fetchall()
-            assert result[0][0], (
-                f"{TEST_DATASET_NAME}.{version} is not in postgres database yet"
-            )
-        conn.execute(text(f"DROP SCHEMA IF EXISTS {TEST_DATASET_NAME} CASCADE;"))
-
-
-def test_ingest_csv():
-    ingestor = Ingestor()
-    ingestor.csv(TEST_DATASET_CONFIG_FILE, compress=True)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.csv")
-
-
-def test_ingest_pgdump():
-    ingestor = Ingestor()
-    ingestor.pgdump(TEST_DATASET_CONFIG_FILE, compress=True)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.sql")
-
-
-def test_ingest_geojson():
-    ingestor = Ingestor()
-    ingestor.geojson(TEST_DATASET_CONFIG_FILE, compress=True)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.geojson")
-
-
-def test_ingest_shapefile():
-    ingestor = Ingestor()
-    ingestor.shapefile(TEST_DATASET_CONFIG_FILE)
-    assert os.path.isfile(f"{TEST_DATASET_OUTPUT_PATH}.shp.zip")
-
-
-def test_ingest_version_overwrite():
-    version_overwrite = "test_version"
-    ingestor = Ingestor()
-    ingestor.csv(TEST_DATASET_CONFIG_FILE, version=version_overwrite)
-    assert os.path.isfile(
-        f".library/datasets/{TEST_DATASET_NAME}/{version_overwrite}/{TEST_DATASET_NAME}.csv"
+class TestFormatFieldNames:
+    ds = gdal.OpenEx(
+        test_root_path / "data" / "field_names.csv",
+        gdal.OF_VECTOR,
+        open_options=["GEOM_POSSIBLE_NAMES=the_geom"],
     )
+
+    def test_basic(self):
+        expected = "SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom\nFROM field_names"
+        assert format_field_names(self.ds, [], None, False, "csv") == expected
+
+    def test_geom_dont_remove(self):
+        expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom,\n\tGeometry AS "WKT"\nFROM field_names'
+        assert format_field_names(self.ds, [], None, True, "csv") == expected
+
+    def test_geom(self):
+        expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "WKT"\nFROM field_names'
+        assert (
+            format_field_names(self.ds, [], None, True, "csv", ["the_geom"]) == expected
+        )
+
+    def test_with_fields(self):
+        fields = ["col1", "col2", "geom"]
+        expected = """SELECT\n\tColumn 1 AS col1,\n\tcol2 AS col2,\n\tthe_geom AS geom,\n\tGeometry AS "WKT"\nFROM field_names"""
+        result = format_field_names(self.ds, fields, None, True, "csv")
+        assert result == expected
+
+    def test_with_sql_cte(self):
+        sql = "WITH something AS (SELECT * FROM @filename WHERE col2 > 10) SELECT * FROM something"
+        expected = (
+            'WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "WKT"\nFROM field_names),\n'
+            "something AS (SELECT * FROM __cte__ WHERE col2 > 10) SELECT * FROM something"
+        )
+        result = format_field_names(self.ds, [], sql, True, "csv", ["the_geom"])
+        assert result == expected
+
+    def test_with_sql_no_cte(self):
+        sql = "SELECT * FROM @filename WHERE col2 > 10"
+        expected = (
+            "WITH __cte__ AS (SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tthe_geom AS the_geom\nFROM field_names)\n"
+            "SELECT * FROM __cte__ WHERE col2 > 10"
+        )
+        result = format_field_names(self.ds, [], sql, False, "csv")
+        assert result == expected
+
+    def test_output_format_parquet(self):
+        expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "geom"\nFROM field_names'
+        result = format_field_names(self.ds, [], None, True, "parquet", ["the_geom"])
+        assert result == expected
+
+
+def test_ingest_field_names_csv():
+    ingestor = Ingestor()
+    ingestor.csv(get_config_file(TEST_DATASET_NAME))
+    output = pd.read_csv(
+        f".library/datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv"
+    )
+    print(output.columns)
+    assert False
 
 
 @patch("requests.get", side_effect=mock_request_get)

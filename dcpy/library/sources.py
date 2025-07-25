@@ -5,32 +5,6 @@ from osgeo import gdal
 from .utils import parse_engine
 
 
-def format_field_names(dataset: gdal.Dataset, fields: list[str] | None = None):
-    """
-    dataset: Given source data source, usually a local file / s3 url
-    fields: a list of predefined field names
-
-    If we have a list of new field names, then rename fields with "fields"
-    otherwise, change all field names to lower case connected by underscore
-    """
-    assert dataset, "dataset: gdal.Dataset shouldn't be None"
-    fields = fields or []
-    layer = dataset.GetLayer(0)
-    layerDefn = layer.GetLayerDefn()
-
-    if len(fields) == 0:
-        for i in range(layerDefn.GetFieldCount()):
-            fieldDefn = layerDefn.GetFieldDefn(i)
-            fieldName = fieldDefn.GetName()
-            fieldDefn.SetName(fieldName.replace(" ", "_").lower())
-    else:
-        for i in range(len(fields)):
-            fieldDefn = layerDefn.GetFieldDefn(i)
-            fieldDefn.SetName(fields[i])
-
-    return dataset
-
-
 def get_allowed_drivers(url: str) -> list:
     """
     Returns allowed drivers for OpenEx
@@ -55,9 +29,7 @@ def postgres_source(url: str) -> gdal.Dataset:
     return gdal.OpenEx(parsed, gdal.OF_VECTOR)
 
 
-def generic_source(
-    path: str, options: list | None = None, fields: list | None = None
-) -> gdal.Dataset:
+def generic_source(path: str, options: list | None = None) -> gdal.Dataset:
     """
     path: filepath, http url or s3 file url
     e.g.
@@ -71,5 +43,4 @@ def generic_source(
         path, gdal.OF_VECTOR, open_options=options, allowed_drivers=allowed_drivers
     )
     assert dataset, f"{path} is invalid"
-    dataset = format_field_names(dataset, fields)
     return dataset
