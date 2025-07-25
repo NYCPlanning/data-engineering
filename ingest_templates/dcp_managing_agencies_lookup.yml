@@ -1,0 +1,46 @@
+id: dcp_managing_agencies_lookup
+acl: public-read
+
+attributes:
+  name: NYC Managing Agencies Lookup Table
+  description: >-
+    This dataset contains a mapping of managing NYC agency codes to their corresponding agency abbreviations 
+    and full agency names. It is intended to serve as the single source of truth for agency mapping used during 
+    the build process of the CPDB and CBBR data products.
+
+    Source of this table:
+    The dataset was created in response to past issues where CPDB and CBBR were out of sync due to inconsistencies 
+    in agency code mappings. To address this, DCP Data Engineering and Application Engineering teams developed a unified 
+    mapping by combining data from Checkbook NYC "Agency Codes List" (link: https://www.checkbooknyc.com/agency_codes/newwindow) 
+    with additional information provided by OMB via email in summer 2025. DCP then manually refined the mappings, including 
+    updates to agency names and abbreviations where appropriate (for example, changing "DOITT" to "OTI"). 
+    The final mapping was reviewed and approved by the CAPS team and GDE leadership.
+
+    Some codes in the dataset are mapped to "Unknown." This was an intentional choice by DCP, as these codes typically represent 
+    entities that are not NYC agencies, such as banks. A small number of records do not contain an agency code. These are included 
+    to support abbreviation-to-name mapping but are not intended for use in mapping codes to names.
+
+    In addition to supporting CPDB and CBBR, this dataset may also be used as a reference for agency names and abbreviations across 
+    other DCP data products. 
+    
+    It is not expected to change often. A full review may occur annually, using updated information from Checkbook NYC and, 
+    if available, refreshed data from OMB.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcp/dcp_managing_agencies_lookup/{{ version }}/dcp_managing_agencies_lookup.csv
+  file_format:
+    type: csv
+    dtype: str
+
+columns:
+- id: agency_code
+  data_type: text
+- id: source
+  data_type: text
+- id: managing_agency_acronym
+  data_type: text
+- id: managing_agency
+  data_type: text
