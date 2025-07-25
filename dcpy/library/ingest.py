@@ -50,7 +50,8 @@ def format_field_names(
             fieldName = fieldDefn.GetName()
             field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
     if csv_geom_fields:
-        for field in field_mapping:
+        field_names = [k for k in field_mapping]
+        for field in field_names:
             if field in csv_geom_fields:
                 field_mapping.pop(field)
 

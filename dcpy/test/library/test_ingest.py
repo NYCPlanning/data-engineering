@@ -36,7 +36,7 @@ class TestFormatFieldNames:
     def test_with_fields(self):
         fields = ["col1", "col2", "geom"]
         expected = """SELECT\n\tColumn 1 AS col1,\n\tcol2 AS col2,\n\tthe_geom AS geom,\n\tGeometry AS "WKT"\nFROM field_names"""
-        result = format_field_names(self.ds, fields, None, True, "csv", ["the_geom"])
+        result = format_field_names(self.ds, fields, None, True, "csv")
         assert result == expected
 
     def test_with_sql_cte(self):
