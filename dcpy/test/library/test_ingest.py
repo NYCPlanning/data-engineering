@@ -1,6 +1,7 @@
 import os
 from unittest.mock import patch
 from osgeo import gdal
+import pandas as pd
 
 from dcpy.library.ingest import Ingestor, format_field_names
 from dcpy.test.conftest import mock_request_get
@@ -9,6 +10,7 @@ from . import (
     get_config_file,
     test_root_path,
     template_path,
+    TEST_DATASET_NAME,
 )
 
 
@@ -61,6 +63,16 @@ class TestFormatFieldNames:
         expected = 'SELECT\n\tColumn 1 AS column_1,\n\tcol2 AS col2,\n\tGeometry AS "geom"\nFROM field_names'
         result = format_field_names(self.ds, [], None, True, "parquet", ["the_geom"])
         assert result == expected
+
+
+def test_ingest_field_names_csv():
+    ingestor = Ingestor()
+    ingestor.csv(get_config_file(TEST_DATASET_NAME))
+    output = pd.read_csv(
+        f".library/datasets/{TEST_DATASET_NAME}/latest/{TEST_DATASET_NAME}.csv"
+    )
+    print(output.columns)
+    assert False
 
 
 @patch("requests.get", side_effect=mock_request_get)
