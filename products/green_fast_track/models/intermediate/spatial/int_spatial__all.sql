@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-        {'columns': ['buffer_geom'], 'type': 'gist'},
+        {'columns': ['variable_geom'], 'type': 'gist'},
     ]
 ) }}
 
