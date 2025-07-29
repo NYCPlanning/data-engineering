@@ -3,6 +3,7 @@ import typer
 
 from .run import ingest
 from dcpy.configuration import TEMPLATE_DIR
+from . import validate
 
 app = typer.Typer(add_completion=False)
 
@@ -55,11 +56,7 @@ def _cli_wrapper_run(
     )
 
 
-from .validate import validate_template_folder
-from .validate import validate_template_file
-
-
-@app.command("validate")
+@app.command("validate_templates")
 def _cli_wrapper_validate(
     path: Path = typer.Argument(
         help="Path to template file or folder containing template files to validate",
@@ -80,7 +77,7 @@ def _cli_wrapper_validate(
     if path.is_file():
         # Handle single file validation
         try:
-            validate_template_file(path)
+            validate.validate_template_file(path)
             typer.echo("✓ Template file validation passed")
         except Exception as e:
             typer.echo(f"Validation failed: {e}", err=True)
@@ -88,7 +85,7 @@ def _cli_wrapper_validate(
                 raise typer.Exit(1)
     elif path.is_dir():
         # Handle folder validation
-        errors = validate_template_folder(
+        errors = validate.validate_template_folder(
             folder_path=path,
             print_report=print_report,
             raise_on_error=raise_on_error,
