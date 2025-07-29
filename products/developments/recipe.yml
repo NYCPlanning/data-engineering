@@ -31,25 +31,43 @@ inputs:
     - name: dcp_policeprecincts
       version_env_var: GEOSUPPORT_VERSION
     - name: doitt_zipcodeboundaries
+      version: 20180910
     - name: dof_shoreline
+      version: 20220429
     - name: dcp_mappluto_wi
+      version: 25v2
     - name: doe_eszones
+      version: 20240313
     - name: doe_mszones
+      version: 20240313
     - name: doe_school_subdistricts
+      version: 2017
     - name: hpd_hny_units_by_building
+      version: 20250617
     - name: hny_geocode_results
+      version: 20250617
     - name: hpd_historical_units_by_building
+      version: 20230630
     - name: hpd_historical_geocode_results
+      version: 20230630
     - name: dob_now_applications
+      version: 20250630
     - name: dob_now_permits
+      version: 20250630
     - name: dob_cofos
       file_type: parquet
+      version: 20250101
     - name: doitt_buildingfootprints
+      version: 20250513
     - name: doitt_buildingfootprints_historical
+      version: 20250706
     - name: dcp_censusdata
       version: "2020"
     - name: dcp_censusdata_blocks
       version: "2020"
     - name: dob_permitissuance
+      version: 20250712
     - name: dob_jobapplications
+      version: 20250713
     - name: dob_jobapplications_parkingspaces
+      version: 20240603
