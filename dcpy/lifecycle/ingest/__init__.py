@@ -54,8 +54,10 @@ def _cli_wrapper_run(
         overwrite_okay=overwrite,
     )
 
+
 from .validate import validate_template_folder
 from .validate import validate_template_file
+
 
 @app.command("validate")
 def _cli_wrapper_validate(
