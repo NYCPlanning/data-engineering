@@ -238,3 +238,13 @@ jobs:
       env:
         RECIPES_BUCKET: edm-recipes
         PUBLISHING_BUCKET: edm-publishing
+
+  validate-templates:
+    name: Validate ingest templates
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:${{ inputs.image_tag }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Validate all ingest templates
+      run: python -m dcpy.lifecycle.ingest.cli validate ./ingest_templates --strict --report
