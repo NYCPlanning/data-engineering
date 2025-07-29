@@ -53,3 +53,30 @@ def _cli_wrapper_run(
         template_dir=template_dir,
         overwrite_okay=overwrite,
     )
+
+from .validate import validate_template_folder
+
+@app.command("validate")
+def _cli_wrapper_validate(
+   folder_path: Path = typer.Argument(
+       TEMPLATE_DIR,
+       help="Path to folder containing template files to validate",
+   ),
+   print_report: bool = typer.Option(
+       True,
+       "--report/--no-report",
+       help="Print validation report",
+   ),
+   raise_on_error: bool = typer.Option(
+       False,
+       "--strict",
+       "-s",
+       help="Raise exception if any validation errors found",
+   ),
+):
+   """Validate all template files in a folder."""
+   errors = validate_template_folder(
+       folder_path=folder_path,
+       print_report=print_report,
+       raise_on_error=raise_on_error,
+   )
