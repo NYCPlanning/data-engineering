@@ -55,28 +55,44 @@ def _cli_wrapper_run(
     )
 
 from .validate import validate_template_folder
+from .validate import validate_template_file
 
 @app.command("validate")
 def _cli_wrapper_validate(
-   folder_path: Path = typer.Argument(
-       TEMPLATE_DIR,
-       help="Path to folder containing template files to validate",
-   ),
-   print_report: bool = typer.Option(
-       True,
-       "--report/--no-report",
-       help="Print validation report",
-   ),
-   raise_on_error: bool = typer.Option(
-       False,
-       "--strict",
-       "-s",
-       help="Raise exception if any validation errors found",
-   ),
+    path: Path = typer.Argument(
+        help="Path to template file or folder containing template files to validate",
+    ),
+    print_report: bool = typer.Option(
+        True,
+        "--report/--no-report",
+        help="Print validation report",
+    ),
+    raise_on_error: bool = typer.Option(
+        False,
+        "--strict",
+        "-s",
+        help="Raise exception if any validation errors found",
+    ),
 ):
-   """Validate all template files in a folder."""
-   errors = validate_template_folder(
-       folder_path=folder_path,
-       print_report=print_report,
-       raise_on_error=raise_on_error,
-   )
+    """Validate template file(s)."""
+    if path.is_file():
+        # Handle single file validation
+        try:
+            validate_template_file(path)
+            typer.echo("✓ Template file validation passed")
+        except Exception as e:
+            typer.echo(f"Validation failed: {e}", err=True)
+            if raise_on_error:
+                raise typer.Exit(1)
+    elif path.is_dir():
+        # Handle folder validation
+        errors = validate_template_folder(
+            folder_path=path,
+            print_report=print_report,
+            raise_on_error=raise_on_error,
+        )
+        if not errors and not print_report:
+            typer.echo("✓ All templates validated successfully")
+    else:
+        typer.echo(f"Error: Path '{path}' is neither a file nor a directory", err=True)
+        raise typer.Exit(1)
