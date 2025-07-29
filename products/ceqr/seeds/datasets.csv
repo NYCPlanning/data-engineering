@@ -38,7 +38,7 @@ Flood Elevation Worksheet,,webpage,,,https://www.nyc.gov/site/planning/planning-
 Census Tract Boundaries,dcp_ct2020_wi,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/site/planning/data-maps/open-data/census-download-metadata.page
 Population Fact Finder,,webpage,,,https://popfactfinder.planning.nyc.gov/
 Rent by AMI,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
-HUD CHAS,hud_chas_nyc,download,excel,,https://www.huduser.gov/portal/datasets/cp.html
+DCP Vulnerable Population Estimate,dcp_vulnerable_population_estimate,download,excel,,https://www.huduser.gov/portal/datasets/cp.html
 LEHD,,webpage,,,https://lehd.ces.census.gov/data/#lodes
 Area Median Income,,webpage,,,https://www.nyc.gov/site/hpd/services-and-information/area-median-income.page
 School District Boundaries,dcp_school_districts,download,shapefile,MULTIPOLYGON,https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/ArcGIS/rest/services/NYC_School_Districts/FeatureServer/0
