@@ -50,10 +50,7 @@ INGEST_TEMPLATES = Path(__file__).parent / "resources" / "templates"
 
 def test_validate_template_file_valid():
     """Test validation of a valid template file."""
-    valid_file = (
-        INGEST_TEMPLATES
-        / "dcpy\test\lifecycle\ingest\resources\templates\dcp_addresspoints.yml"
-    )
+    valid_file = INGEST_TEMPLATES / "dcp_addresspoints.yml"
     validate.validate_template_file(valid_file)
 
 
