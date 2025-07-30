@@ -247,4 +247,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Validate all ingest templates
-      run: python -m dcpy.lifecycle.ingest.cli validate ./ingest_templates --strict --report
+      run: python -m dcpy.lifecycle.ingest validate ./ingest_templates --strict --report
