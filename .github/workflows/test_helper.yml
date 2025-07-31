@@ -239,12 +239,12 @@ jobs:
         RECIPES_BUCKET: edm-recipes
         PUBLISHING_BUCKET: edm-publishing
 
-  validate-templates:
-    name: Validate ingest templates
+  test-helper:
+    name: Run validation tests
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
-    - name: Validate all ingest templates
-      run: python -m dcpy.lifecycle.ingest validate ./ingest_templates --strict --report
+    - name: Run validation tests
+      run: python -m dcpy lifecycle ingest validate_templates ingest_templates
