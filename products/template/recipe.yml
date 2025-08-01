@@ -15,4 +15,6 @@ inputs:
       source: bytes
       file_type: shapefile
       destination: file
+      custom:
+        file_id: shapefile
   missing_versions_strategy: find_latest
