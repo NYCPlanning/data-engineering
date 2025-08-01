@@ -6,8 +6,8 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
-    args:
-      TAG: ${IMAGE_TAG:-latest}
+      args:
+        TAG: ${IMAGE_TAG:-latest}
     env_file:
       - ../.env
     working_dir: /home/vscode/workspace
