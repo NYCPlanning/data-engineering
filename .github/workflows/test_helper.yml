@@ -169,6 +169,7 @@ jobs:
       RECIPES_BUCKET: edm-recipes
       BUILD_ENGINE_DB: ${{ matrix.db }}
       TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
 
     steps:
     - uses: actions/checkout@v4
