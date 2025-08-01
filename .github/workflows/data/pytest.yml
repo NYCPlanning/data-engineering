@@ -1,11 +1,14 @@
+# This file determines what pytests are run as part of test_helper.yml
+# Each element in the list is a pytest job that will get run in by the matrix strategy
+# Each job can have multiple calls, which will be run in order with the prefix "python3 -m pytest"
 - name: checkbook
   db: db-checkbook
-  calls: ["./products/checkbook -s --verbose --verbose"]
+  calls: [ "./products/checkbook -s --verbose --verbose" ]
 - name: zap
   working-directory: products/zap-opendata
   calls:
-    - "-m 'not end_to_end' -s --verbose --verbose --durations=0 --cov ."
-    - "-m 'end_to_end' -s --verbose --verbose --durations=0 --cov ."
+  - -m 'not end_to_end' -s --verbose --verbose --durations=0 --cov .
+  - -m 'end_to_end' -s --verbose --verbose --durations=0 --cov .
 - name: qa
   working-directory: apps/qa
-  calls: ["."]
+  calls: [ "." ]
