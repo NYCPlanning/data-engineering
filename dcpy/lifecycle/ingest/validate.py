@@ -1,9 +1,12 @@
 import pandas as pd
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import yaml
 
 from dcpy.utils.logging import logger
 from dcpy.lifecycle.ingest.connectors import processed_datastore
+from dcpy.models.lifecycle.ingest import Template
+from dcpy.lifecycle.ingest import transform
 
 
 def validate_against_existing_version(ds: str, version: str, filepath: Path) -> None:
@@ -36,3 +39,29 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
         logger.warning(
             f"Config of existing dataset id='{ds}' version='{version}' cannot be parsed."
         )
+
+
+def validate_template_file(filepath: Path) -> None:
+    """Validate a single template file."""
+    with open(filepath, "r") as f:
+        s = yaml.safe_load(f)
+    template = Template(**s)
+    transform.validate_processing_steps(
+        template.id, template.ingestion.processing_steps
+    )
+
+
+def validate_template_folder(folder_path: Path) -> list[str]:
+    """Validate all template files in a folder and return a list of error messages."""
+    if not folder_path.exists():
+        return [f"Template directory '{folder_path}' doesn't exist."]
+
+    errors = []
+    for file_path in folder_path.glob("*"):
+        if file_path.is_file():
+            try:
+                validate_template_file(file_path)
+            except Exception as e:
+                errors.append(f"{file_path.name}: {str(e)}")
+
+    return errors

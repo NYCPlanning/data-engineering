@@ -1,38 +1,18 @@
 from io import BytesIO
 import json
 import pytest
-import yaml
+from pathlib import Path
 
 from dcpy.test.conftest import RECIPES_BUCKET
-from dcpy.models.lifecycle.ingest import Template
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.connectors import processed_datastore
-from dcpy.lifecycle.ingest import transform, validate
-
+from dcpy.lifecycle.ingest import validate
 from .shared import (
     TEST_OUTPUT,
     BASIC_CONFIG,
     BASIC_LIBRARY_CONFIG,
-    PROD_TEMPLATE_DIR,
 )
-
-
-def test_template_dir_exists():
-    """Sanity check. It must exist for test below."""
-    assert PROD_TEMPLATE_DIR.exists(), (
-        f"Template directory (production) '{PROD_TEMPLATE_DIR}' doesn't exist."
-    )
-
-
-@pytest.mark.parametrize("dataset", [t.name for t in PROD_TEMPLATE_DIR.glob("*")])
-def test_validate_all_templates(dataset):
-    with open(PROD_TEMPLATE_DIR / dataset, "r") as f:
-        s = yaml.safe_load(f)
-    template = Template(**s)
-    transform.validate_processing_steps(
-        template.id, template.ingestion.processing_steps
-    )
 
 
 class TestValidateAgainstExistingVersion:
@@ -62,3 +42,34 @@ class TestValidateAgainstExistingVersion:
             validate.validate_against_existing_version(
                 ds.id, ds.version, TEST_OUTPUT.parent / "test.parquet"
             )
+
+
+INGEST_TEMPLATES = Path(__file__).parent / "resources" / "templates"
+
+
+def test_validate_template_file_valid():
+    """Test validation of a valid template file."""
+    valid_file = INGEST_TEMPLATES / "dcp_addresspoints.yml"
+    validate.validate_template_file(valid_file)  # Should not raise
+
+
+def test_validate_template_file_invalid():
+    """Test validation of an invalid template file."""
+    invalid_file = INGEST_TEMPLATES / "invalid_template.yml"
+    with pytest.raises(Exception):
+        validate.validate_template_file(invalid_file)
+
+
+def test_validate_template_folder():
+    """Test validation of the ingest_templates folder."""
+    errors = validate.validate_template_folder(INGEST_TEMPLATES)
+    # hypothetically an invalid "invalid_template.yml" in the folder
+    assert len(errors) == 1
+    assert any("invalid_template.yml" in error for error in errors)
+
+
+def test_validate_template_folder_nonexistent():
+    """Test validation of a non-existent folder."""
+    errors = validate.validate_template_folder(Path("nonexistent"))
+    assert len(errors) == 1
+    assert "doesn't exist" in errors[0]
