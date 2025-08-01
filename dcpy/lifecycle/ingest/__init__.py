@@ -61,37 +61,19 @@ def _cli_wrapper_validate(
     path: Path = typer.Argument(
         help="Path to template file or folder containing template files to validate",
     ),
-    print_report: bool = typer.Option(
-        True,
-        "--report/--no-report",
-        help="Print validation report",
-    ),
-    raise_on_error: bool = typer.Option(
-        False,
-        "--strict",
-        "-s",
-        help="Raise exception if any validation errors found",
-    ),
 ):
     """Validate template file(s)."""
     if path.is_file():
-        # Handle single file validation
         try:
             validate.validate_template_file(path)
             typer.echo("✓ Template file validation passed")
         except Exception as e:
             typer.echo(f"Validation failed: {e}", err=True)
-            if raise_on_error:
-                raise typer.Exit(1)
-    elif path.is_dir():
-        # Handle folder validation
-        errors = validate.validate_template_folder(
-            folder_path=path,
-            print_report=print_report,
-            raise_on_error=raise_on_error,
-        )
-        if not errors and not print_report:
-            typer.echo("✓ All templates validated successfully")
+            raise typer.Exit(1)
     else:
-        typer.echo(f"Error: Path '{path}' is neither a file nor a directory", err=True)
-        raise typer.Exit(1)
+        errors = validate.validate_template_folder(path)
+        if errors:
+            for error in errors:
+                typer.echo(error, err=True)
+            raise typer.Exit(1)
+        typer.echo("✓ All templates validated successfully")

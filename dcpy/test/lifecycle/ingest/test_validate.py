@@ -8,7 +8,6 @@ from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.connectors import processed_datastore
 from dcpy.lifecycle.ingest import validate
-
 from .shared import (
     TEST_OUTPUT,
     BASIC_CONFIG,
@@ -51,7 +50,7 @@ INGEST_TEMPLATES = Path(__file__).parent / "resources" / "templates"
 def test_validate_template_file_valid():
     """Test validation of a valid template file."""
     valid_file = INGEST_TEMPLATES / "dcp_addresspoints.yml"
-    validate.validate_template_file(valid_file)
+    validate.validate_template_file(valid_file)  # Should not raise
 
 
 def test_validate_template_file_invalid():
@@ -64,12 +63,13 @@ def test_validate_template_file_invalid():
 def test_validate_template_folder():
     """Test validation of the ingest_templates folder."""
     errors = validate.validate_template_folder(INGEST_TEMPLATES)
-    # hypothetically an invalid "invalid_template.yaml" in the folder
+    # hypothetically an invalid "invalid_template.yml" in the folder
     assert len(errors) == 1
-    assert "invalid_template.yml" in errors
+    assert any("invalid_template.yml" in error for error in errors)
 
 
-def test_validate_template_folder_raise_on_error():
-    """Test validation with raise_on_error=True."""
-    with pytest.raises(ValueError, match="Validation failed"):
-        validate.validate_template_folder(INGEST_TEMPLATES, raise_on_error=True)
+def test_validate_template_folder_nonexistent():
+    """Test validation of a non-existent folder."""
+    errors = validate.validate_template_folder(Path("nonexistent"))
+    assert len(errors) == 1
+    assert "doesn't exist" in errors[0]

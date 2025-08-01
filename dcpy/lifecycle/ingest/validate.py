@@ -51,28 +51,17 @@ def validate_template_file(filepath: Path) -> None:
     )
 
 
-def validate_template_folder(
-    folder_path: Path, print_report: bool = False, raise_on_error: bool = False
-) -> dict[str, str]:
-    """Validate all template files in a folder and return errors as {filename: error_string}."""
+def validate_template_folder(folder_path: Path) -> list[str]:
+    """Validate all template files in a folder and return a list of error messages."""
     if not folder_path.exists():
-        raise FileNotFoundError(f"Template directory '{folder_path}' doesn't exist.")
+        return [f"Template directory '{folder_path}' doesn't exist."]
 
-    errors = {}
+    errors = []
     for file_path in folder_path.glob("*"):
         if file_path.is_file():
             try:
                 validate_template_file(file_path)
             except Exception as e:
-                errors[file_path.name] = str(e)
-
-    if print_report:
-        total = len(list(folder_path.glob("*")))
-        logger.info(f"Validated {total} templates, {len(errors)} failed")
-        for filename, error in errors.items():
-            logger.error(f"  {filename}: {error}")
-
-    if raise_on_error and errors:
-        raise ValueError(f"Validation failed for {len(errors)} template(s)")
+                errors.append(f"{file_path.name}: {str(e)}")
 
     return errors
