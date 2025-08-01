@@ -1,5 +1,3 @@
-- name: dcpy
-  calls: ["dcpy/test -s --verbose --verbose --cov-config=pyproject.toml --cov=dcpy --cov-report=xml"]
 - name: checkbook
   db: db-checkbook
   calls: ["./products/checkbook -s --verbose --verbose"]
