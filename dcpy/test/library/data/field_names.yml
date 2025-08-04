@@ -1,0 +1,24 @@
+dataset:
+  name: field_names
+  version: test
+  acl: public-read
+  source:
+    url:
+      path: dcpy/test/library/data/field_names.csv
+    options:
+    - "AUTODETECT_TYPE=NO"
+    - "EMPTY_STRING_AS_NULL=YES"
+    - "GEOM_POSSIBLE_NAMES=the_geom"
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+
+  destination:
+    geometry:
+      SRS: EPSG:4326
+      type: POINT
+    options:
+    - "OVERWRITE=YES"
+    - "GEOMETRY=AS_WKT"
+    fields: []
+    sql: null
