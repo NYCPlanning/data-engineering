@@ -1,3 +1,4 @@
+from dcpy import configuration
 from pathlib import Path
 
 
@@ -5,6 +6,11 @@ def _set_default_conf():
     ## the default is a little sparse at the moment, and a little duplicative
     ## (ie each `local_data_path` is just the `stage` name.)
     return {
+        "product_metadata": {
+            "repo_path": Path(configuration.PRODUCT_METADATA_REPO_PATH).absolute()
+            if configuration.PRODUCT_METADATA_REPO_PATH
+            else None
+        },
         "local_data_path": ".lifecycle",
         "stages": {
             "ingest": {
@@ -21,7 +27,10 @@ def _set_default_conf():
             "package": {
                 "local_data_path": "package",
                 "stages": {
-                    "assemble": {"local_data_path": "assemble"},
+                    "assemble": {
+                        "local_data_path": "assemble",
+                        "default_connectors": {"pull": "bytes", "push": "TODO"},
+                    },
                     "qa": {"local_data_path": "qa"},
                 },
             },

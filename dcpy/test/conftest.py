@@ -10,6 +10,8 @@ import shutil
 import yaml
 
 
+TEST_RESOURCES_PATH = Path(__file__).parent / "resources"
+
 TEST_BUCKET = "test-bucket"
 RECIPES_BUCKET = "test-recipes"
 PUBLISHING_BUCKET = "test-publishing"
@@ -20,6 +22,9 @@ TEST_BUCKETS = [
 ]
 os.environ["RECIPES_BUCKET"] = RECIPES_BUCKET
 os.environ["PUBLISHING_BUCKET"] = PUBLISHING_BUCKET
+os.environ["PRODUCT_METADATA_REPO_PATH"] = str(
+    TEST_RESOURCES_PATH / "package_and_distribute" / "metadata_repo"
+)
 
 from dcpy import configuration
 from dcpy.utils import s3, versions
@@ -34,7 +39,7 @@ UTILS_RESOURCES = Path(__file__).parent / "utils" / "resources"
 
 @pytest.fixture(scope="function")
 def resources_path():
-    return RESOURCES
+    return TEST_RESOURCES_PATH
 
 
 @pytest.fixture(scope="function")
@@ -210,7 +215,9 @@ def mock_request_get(
     ]
 
     if url in test_files:
-        with open(RESOURCES / "mocked_responses" / test_files[url], "rb") as file:
+        with open(
+            TEST_RESOURCES_PATH / "mocked_responses" / test_files[url], "rb"
+        ) as file:
             return MockResponse(file.read())
     elif url in error_urls:
         return MockResponse(b'{"error": "fake api error"}')

@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.lifecycle import product_metadata
+
 
 MODULE_PATH = Path(__file__).parent
 REPO_PATH = MODULE_PATH / "metadata_repo"
@@ -20,8 +21,4 @@ DEFAULT_TEMPLATE_VARS = {
 }
 PRODUCT_WITH_ERRORS = "mock_product_with_errors"
 
-
-def org_md(template_vars: dict | None = None) -> OrgMetadata:
-    return OrgMetadata.from_path(
-        REPO_PATH, template_vars=template_vars or DEFAULT_TEMPLATE_VARS
-    )
+org_md = product_metadata.load(**DEFAULT_TEMPLATE_VARS)

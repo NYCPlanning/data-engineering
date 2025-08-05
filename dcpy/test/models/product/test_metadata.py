@@ -13,7 +13,7 @@ def test_metadata_repo_path(package_and_dist_test_resources):
 
 @pytest.fixture
 def org_md(package_and_dist_test_resources):
-    return package_and_dist_test_resources.org_md()
+    return package_and_dist_test_resources.org_md
 
 
 def test_missing_product(org_md: md.OrgMetadata):
