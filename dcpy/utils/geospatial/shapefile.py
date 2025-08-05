@@ -132,33 +132,51 @@ class _FileManager:
         with open(self.path / filename, "w") as f:
             f.write(contents)
 
-    def remove_file(self, filename):
-        return
-
     def metadata_exists(self, filename):
         return (self.path / filename).is_file()
+
+    def remove_file(self, filename):
+        os.remove(self.path / filename)
 
 
 class _FileManagerZipped:
     def __init__(self, attributes: dict):
         self.attributes = attributes
-        self.zip_path = zipfile.Path(attributes["zip_path"])  # ends in .zip
+        self.zip_path = Path(attributes["zip_path"])  # ends in .zip
         self.zip_subdir = attributes["zip_subdir"]
         self.file_parent = (
-            (self.zip_path / self.zip_subdir) if self.zip_subdir else (self.zip_path)
+            (zipfile.Path(self.zip_path) / self.zip_subdir)
+            if self.zip_subdir
+            else zipfile.Path(self.zip_path)
         )
 
     def read_file(self, filename):
         return (self.file_parent / filename).read_text()
 
     def write_file(self, filename, contents):
-        return
-
-    def remove_file(self, filename):
-        return
+        with zipfile.ZipFile(
+            self.zip_path, "a", compression=zipfile.ZIP_DEFLATED
+        ) as zf:
+            internal_path = (
+                f"{self.zip_subdir}/{filename}" if self.zip_subdir else filename
+            )
+            zf.writestr(internal_path, contents)
 
     def metadata_exists(self, filename):
         return (self.file_parent / filename).is_file()
+
+    def remove_file(self, filename):
+        temp_zip = self.zip_path.parent / (self.zip_path.name + ".tmp")
+        with zipfile.ZipFile(self.zip_path, "r") as old_zip:
+            with zipfile.ZipFile(
+                temp_zip, "w", compression=zipfile.ZIP_DEFLATED
+            ) as new_zip:
+                for item in old_zip.infolist():
+                    if not item.filename.endswith(filename):
+                        data = old_zip.read(item.filename)
+                        new_zip.writestr(item, data)
+
+        os.replace(temp_zip, self.zip_path)
 
 
 class Shapefile:
@@ -174,14 +192,17 @@ class Shapefile:
             _FileManagerZipped(values) if self.is_zipped else _FileManager(values)
         )
 
-    def write_metadata(self, contents: str):
-        self.file_manager.write_file(f"{self.name}.xml", contents)
-
     def read_metadata(self):
         return self.file_manager.read_file(f"{self.name}.xml")
 
+    def write_metadata(self, contents: str):
+        self.file_manager.write_file(f"{self.name}.xml", contents)
+
     def metadata_exists(self):
         return self.file_manager.metadata_exists(f"{self.name}.xml")
+
+    def remove_metadata(self):
+        self.file_manager.remove_file(f"{self.name}.xml")
 
 
 def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
@@ -204,9 +225,8 @@ def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
         str: Metadata content as string.
     """
     shp: Shapefile = Shapefile(path_to_shp)
-    metadata: str = shp.read_metadata()
 
-    return metadata
+    return shp.read_metadata()
 
 
 def metadata_exists(path_to_shp: str | Path) -> bool:
@@ -247,123 +267,20 @@ def write_metadata(
         overwrite (bool, optional): If True, existing metadata will be overwritten.
             If False, function will not overwrite existing metadata. Defaults to False.
     """
-    shp_info: Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
-    # TODO - can the xml filename be moved to a class attr? If so - how to handle the possible file ext. combinations?
-    xml_filename = f"{shp_info.shp_name}.xml"
+    shp: Shapefile = Shapefile(path_to_shp)
 
     if metadata_exists(path_to_shp) and not overwrite:
         raise FileExistsError(
             "Metadata XML already exists, and overwrite is False. Nothing will be written"
         )
     if overwrite:
-        # TODO - consider changing to .remove_metadata() 'external' fn, once it's been written
-        shp_info._remove_file(xml_filename)
+        remove_metadata(path_to_shp)
 
-    shp_info._write_file(filename=xml_filename, contents=metadata)
+    shp.write_metadata(contents=metadata)
 
 
 # TODO - write this function
-def remove_metadata():
-    """Removes existing metadata from shapefile."""
-    raise NotImplementedError("This function doesn't exist yet.")
-
-
-# @dataclass
-# class Shapefile:
-#     shp_name: str
-
-# def _get_metadata_xml_name(self, file_list: list[str]) -> Optional[str]:
-#     """Extracts name of metadata .xml file matching specified .shp file from a
-#     list of filenames. Does not require an actual directory/zip location. Only
-#     parses a list of names as produced by other functions.
-#     Handles cases where metadata ends with either ".xml" or ".shp.xml"
-
-#     Args:
-#         file_list (list[str]): List of file names to parse
-#         shp_name (str): Shapefile name, not path, ending with ".shp"
-
-#     Raises:
-#         ValueError: Error if more than one .xml file matching the pattern are found.
-
-#     Returns:
-#         Optional[str]: Either name of metadata file, or None if no file is found
-#     """
-#     shp_stem = Path(self.shp_name).stem
-#     file_names = [Path(f).name for f in file_list]
-#     matched_names = [
-#         f for f in file_names if f in {f"{shp_stem}.shp.xml", f"{shp_stem}.xml"}
-#     ]
-#     match len(matched_names):
-#         case 0:
-#             return None
-#         case 1:
-#             return matched_names[0]
-#         case _:
-#             raise ValueError(
-#                 f"Expected a single xml with name '{shp_stem}', but found {len(matched_names)}"
-#             )
-
-#     def _write_file(self, filename, contents):
-#         raise NotImplementedError("Not implemented on base class")
-
-#     def _remove_file(self, filename):
-#         raise NotImplementedError("Not implemented on base class")
-
-#     def _list_all_files(self):
-#         raise NotImplementedError("Not implemented on base class")
-
-#     def _read_file(self, filename) -> str:
-#         raise NotImplementedError("Not implemented on base class")
-
-
-# @dataclass
-# class ShapefileNonZipped(Shapefile):
-#     _shp_dir: Path
-
-#     def _write_file(self, filename, contents):
-#         with open(Path(self._shp_dir) / filename, "w") as xml_file:
-#             xml_file.write(contents)
-
-#     def _remove_file(self, filename):
-#         return
-
-#     def _list_all_files(self) -> list[str]:
-#         return [str(f.name) for f in self._shp_dir.iterdir()]
-
-#     def _read_file(self, filename) -> str:
-#         path_to_xml = Path(self._shp_dir) / filename
-#         with open(path_to_xml, "r") as f:
-#             return f.read()
-
-
-# @dataclass
-# class ShapefileZipped(Shapefile):
-#     _zip_path: Path
-#     _subdir: str | None
-
-#     def _write_file(self, filename, contents):
-#         with zipfile.ZipFile(self._zip_path, "a", compression=zipfile.ZIP_DEFLATED) as shp:
-#             shp.writestr(filename, contents)
-
-#     def _remove_file(self, filename):
-#         if self._subdir:
-#             filename = Path(self._subdir) / filename
-
-#         zip_file = Path(self._zip_path)
-#         temp_zip = zip_file.parent / (zip_file.name + ".tmp")
-#         with zipfile.ZipFile(zip_file, "r") as old_zip:
-#             with zipfile.ZipFile(temp_zip, "w", compression=zipfile.ZIP_DEFLATED) as new_zip:
-#                 for item in old_zip.infolist():
-#                     if item.filename != filename:
-#                         data = old_zip.read(item.filename)
-#                         new_zip.writestr(item, data)
-#         os.replace(temp_zip, zip_file)
-
-#     def _list_all_files(self) -> list[str]:
-#         with zipfile.ZipFile(self._zip_path, "r") as archive:
-#             return archive.namelist()
-
-#     def _read_file(self, filename) -> str:
-#         with zipfile.ZipFile(self._zip_path, "r") as zf:
-#             metadata = zf.read(filename).decode(encoding="utf-8")
-#             return metadata
+def remove_metadata(path_to_shp: str | Path):
+    """Removes existing metadata file from shapefile."""
+    shp: Shapefile = Shapefile(path_to_shp)
+    shp.remove_metadata()
