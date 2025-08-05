@@ -9,7 +9,7 @@ from dcpy.lifecycle.package import yaml_writer, pdf_writer, xlsx_writer
 
 @pytest.fixture
 def org_metadata(package_and_dist_test_resources):
-    return package_and_dist_test_resources.org_md()
+    return package_and_dist_test_resources.org_md
 
 
 @pytest.mark.usefixtures("file_setup_teardown")
