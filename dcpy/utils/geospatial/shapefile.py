@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from zipfile import ZIP_DEFLATED, ZipFile
+import zipfile
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 # TODO - add logic to create new shp output, rather than overwriting in place
@@ -69,13 +69,13 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
         "is_zipped": bool,
         "shp_dir": Path | None,
         "zip_path": Path | None,
-        "subdir": str | None,
+        "zip_subdir": str | None,
     }
 
     zip_indicator = "zip://"
     end_of_zip_delimiter = ".zip!"
 
-    subdir = None
+    zip_subdir = None
 
     if path_to_shp.startswith(zip_indicator):
         start_path_idx = len(zip_indicator)
@@ -92,25 +92,25 @@ def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
         # Get sub directory --------------------
         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
         if len(path_in_zip_to_shp.parts) > 1:
-            subdir = str(path_in_zip_to_shp.parent)
+            zip_subdir = str(path_in_zip_to_shp.parent)
 
         output["name"] = path_in_zip_to_shp.name
         output["is_zipped"] = True
         output["shp_dir"] = None
         output["zip_path"] = zip_path
-        output["subdir"] = subdir
+        output["zip_subdir"] = zip_subdir
 
         # return ShapefileZipped(
         #     shp_name=path_in_zip_to_shp.name,
         #     _zip_path=Path(zip_path),
-        #     _subdir=subdir,
+        #     _subdir=zip_subdir,
         # )
     else:
         output["name"] = Path(path_to_shp).name
         output["is_zipped"] = False
         output["shp_dir"] = Path(path_to_shp).parent
         output["zip_path"] = None
-        output["subdir"] = None
+        output["zip_subdir"] = None
 
         # return ShapefileNonZipped(
         #     shp_name=Path(path_to_shp).name,
@@ -123,7 +123,10 @@ class _FileManager:
     def __init__(self, attributes):
         self.attributes = attributes
         self.path = Path(attributes["shp_dir"])
-        self.filename = attributes["name"]
+
+    def read_file(self, filename):
+        with open(self.path / filename, "r") as f:
+            return f.read()
 
     def write_file(self, filename, contents: str):
         with open(self.path / filename, "w") as f:
@@ -132,38 +135,41 @@ class _FileManager:
     def remove_file(self, filename):
         return
 
-    # def list_all_files(self) -> list[str]:
-    #     return [str(f.name) for f in self.shp_dir.iterdir()]
-
-    def read_file(self, filename):
-        with open(self.path / filename, "r") as f:
-            return f.read()
+    def metadata_exists(self, filename):
+        return (self.path / filename).is_file()
 
 
-@dataclass
 class _FileManagerZipped:
     def __init__(self, attributes: dict):
         self.attributes = attributes
-        self.zip_path = Path(attributes["zip_path"])  # ends in .zip
-        self.zip_subdir = attributes["subdir"]
+        self.zip_path = zipfile.Path(attributes["zip_path"])  # ends in .zip
+        self.zip_subdir = attributes["zip_subdir"]
+        self.file_parent = (
+            (self.zip_path / self.zip_subdir) if self.zip_subdir else (self.zip_path)
+        )
 
     def read_file(self, filename):
-        return
+        return (self.file_parent / filename).read_text()
 
     def write_file(self, filename, contents):
         return
+
+    def remove_file(self, filename):
+        return
+
+    def metadata_exists(self, filename):
+        return (self.file_parent / filename).is_file()
 
 
 class Shapefile:
     def __init__(self, input_string: str | Path):
         values: dict = _parse_path_to_shp(input_string)
-
         self.input_string = input_string
         self.name: str = values["name"]
         self.is_zipped = values["is_zipped"]
         self.shp_dir = values["shp_dir"]
         self.zip_path = values["zip_path"]
-        self.subdir = values["subdir"]
+        self.zip_subdir = values["zip_subdir"]
         self.file_manager = (
             _FileManagerZipped(values) if self.is_zipped else _FileManager(values)
         )
@@ -173,6 +179,93 @@ class Shapefile:
 
     def read_metadata(self):
         return self.file_manager.read_file(f"{self.name}.xml")
+
+    def metadata_exists(self):
+        return self.file_manager.metadata_exists(f"{self.name}.xml")
+
+
+def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
+    """_summary_
+
+    Args:
+        path_to_shp (str | Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
+        encoding (str, optional): Expected encoding of metadata file. Only relevant
+            if metadata exists in a zip file. Defaults to "utf-8".
+
+    Raises:
+        ValueError: Error if no xml file exists with expected name.
+
+    Returns:
+        str: Metadata content as string.
+    """
+    shp: Shapefile = Shapefile(path_to_shp)
+    metadata: str = shp.read_metadata()
+
+    return metadata
+
+
+def metadata_exists(path_to_shp: str | Path) -> bool:
+    """Detect whether shapefile has existing metadata.
+
+    Args:
+        path_to_shp (str | Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
+
+    Returns:
+        bool: True if shapefile has metadata, False if no metadata is found.
+    """
+    shp: Shapefile = Shapefile(path_to_shp)
+
+    return shp.metadata_exists()
+
+
+def write_metadata(
+    path_to_shp: str | Path,
+    metadata: str,
+    overwrite: bool = False,
+) -> None:
+    """Writes metadata to shapefile. Handles either zipped on unzipped shapefiles.
+    If metadata already exists, this function can overwrite it or bypass it.
+
+    Args:
+        path_to_shp (str | Path):
+            - Path to shapefile, must end in ".shp"
+            - If shp is in a zip file: arg must be prefixed with "zip://"
+            - If shp is in a zip file: zip file to contents must be delimited by "!"
+            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
+            - example without zip file: "path/to/shapefile.shp"
+        metadata (str): String containing metadata values in XML format.
+        overwrite (bool, optional): If True, existing metadata will be overwritten.
+            If False, function will not overwrite existing metadata. Defaults to False.
+    """
+    shp_info: Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
+    # TODO - can the xml filename be moved to a class attr? If so - how to handle the possible file ext. combinations?
+    xml_filename = f"{shp_info.shp_name}.xml"
+
+    if metadata_exists(path_to_shp) and not overwrite:
+        raise FileExistsError(
+            "Metadata XML already exists, and overwrite is False. Nothing will be written"
+        )
+    if overwrite:
+        # TODO - consider changing to .remove_metadata() 'external' fn, once it's been written
+        shp_info._remove_file(xml_filename)
+
+    shp_info._write_file(filename=xml_filename, contents=metadata)
+
+
+# TODO - write this function
+def remove_metadata():
+    """Removes existing metadata from shapefile."""
+    raise NotImplementedError("This function doesn't exist yet.")
 
 
 # @dataclass
@@ -249,7 +342,7 @@ class Shapefile:
 #     _subdir: str | None
 
 #     def _write_file(self, filename, contents):
-#         with ZipFile(self._zip_path, "a", compression=ZIP_DEFLATED) as shp:
+#         with zipfile.ZipFile(self._zip_path, "a", compression=zipfile.ZIP_DEFLATED) as shp:
 #             shp.writestr(filename, contents)
 
 #     def _remove_file(self, filename):
@@ -258,8 +351,8 @@ class Shapefile:
 
 #         zip_file = Path(self._zip_path)
 #         temp_zip = zip_file.parent / (zip_file.name + ".tmp")
-#         with ZipFile(zip_file, "r") as old_zip:
-#             with ZipFile(temp_zip, "w", compression=ZIP_DEFLATED) as new_zip:
+#         with zipfile.ZipFile(zip_file, "r") as old_zip:
+#             with zipfile.ZipFile(temp_zip, "w", compression=zipfile.ZIP_DEFLATED) as new_zip:
 #                 for item in old_zip.infolist():
 #                     if item.filename != filename:
 #                         data = old_zip.read(item.filename)
@@ -267,98 +360,10 @@ class Shapefile:
 #         os.replace(temp_zip, zip_file)
 
 #     def _list_all_files(self) -> list[str]:
-#         with ZipFile(self._zip_path, "r") as archive:
+#         with zipfile.ZipFile(self._zip_path, "r") as archive:
 #             return archive.namelist()
 
 #     def _read_file(self, filename) -> str:
-#         with ZipFile(self._zip_path, "r") as zf:
+#         with zipfile.ZipFile(self._zip_path, "r") as zf:
 #             metadata = zf.read(filename).decode(encoding="utf-8")
 #             return metadata
-
-
-def write_metadata(
-    path_to_shp: str | Path,
-    metadata: str,
-    overwrite: bool = False,
-) -> None:
-    """Writes metadata to shapefile. Handles either zipped on unzipped shapefiles.
-    If metadata already exists, this function can overwrite it or bypass it.
-
-    Args:
-        path_to_shp (str | Path):
-            - Path to shapefile, must end in ".shp"
-            - If shp is in a zip file: arg must be prefixed with "zip://"
-            - If shp is in a zip file: zip file to contents must be delimited by "!"
-            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-            - example without zip file: "path/to/shapefile.shp"
-        metadata (str): String containing metadata values in XML format.
-        overwrite (bool, optional): If True, existing metadata will be overwritten.
-            If False, function will not overwrite existing metadata. Defaults to False.
-    """
-    shp_info: Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
-    # TODO - can the xml filename be moved to a class attr? If so - how to handle the possible file ext. combinations?
-    xml_filename = f"{shp_info.shp_name}.xml"
-
-    if metadata_exists(path_to_shp) and not overwrite:
-        raise FileExistsError(
-            "Metadata XML already exists, and overwrite is False. Nothing will be written"
-        )
-    if overwrite:
-        # TODO - consider changing to .remove_metadata() 'external' fn, once it's been written
-        shp_info._remove_file(xml_filename)
-
-    shp_info._write_file(filename=xml_filename, contents=metadata)
-
-
-# TODO - write this function
-def remove_metadata():
-    """Removes existing metadata from shapefile."""
-    raise NotImplementedError("This function doesn't exist yet.")
-
-
-def read_metadata(path_to_shp: str | Path, encoding: str = "utf-8") -> str:
-    """_summary_
-
-    Args:
-        path_to_shp (str | Path):
-            - Path to shapefile, must end in ".shp"
-            - If shp is in a zip file: arg must be prefixed with "zip://"
-            - If shp is in a zip file: zip file to contents must be delimited by "!"
-            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-            - example without zip file: "path/to/shapefile.shp"
-        encoding (str, optional): Expected encoding of metadata file. Only relevant
-            if metadata exists in a zip file. Defaults to "utf-8".
-
-    Raises:
-        ValueError: Error if no xml file exists with expected name.
-
-    Returns:
-        str: Metadata content as string.
-    """
-    shp_info: Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
-    file_list: list[str] = shp_info._list_all_files()
-    xml_filename: Optional[str] = shp_info._get_metadata_xml_name(file_list=file_list)
-    if xml_filename is None:
-        raise ValueError("Could not compute a metadata filename.")
-
-    return shp_info._read_file(xml_filename)
-
-
-def metadata_exists(path_to_shp: str | Path) -> bool:
-    """Detect whether shapefile has existing metadata.
-
-    Args:
-        path_to_shp (str | Path):
-            - Path to shapefile, must end in ".shp"
-            - If shp is in a zip file: arg must be prefixed with "zip://"
-            - If shp is in a zip file: zip file to contents must be delimited by "!"
-            - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-            - example without zip file: "path/to/shapefile.shp"
-
-    Returns:
-        bool: True if shapefile has metadata, False if no metadata is found.
-    """
-    shp_info: Shapefile = _parse_path_to_shp(path_to_shp=path_to_shp)
-    file_list: list[str] = shp_info._list_all_files()
-    xml_filename: Optional[str] = shp_info._get_metadata_xml_name(file_list=file_list)
-    return xml_filename in file_list
