@@ -7,7 +7,7 @@ from dcpy.models.design import elements as de
 
 @pytest.fixture
 def org_metadata(package_and_dist_test_resources):
-    return package_and_dist_test_resources.org_md()
+    return package_and_dist_test_resources.org_md
 
 
 def _assert_is_title_subtitle_row(row, comp_def):

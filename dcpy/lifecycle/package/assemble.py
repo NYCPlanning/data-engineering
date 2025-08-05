@@ -5,9 +5,9 @@ import shutil
 import tempfile
 import typer
 
-from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.lifecycle import config
 from dcpy.lifecycle.package import xlsx_writer
+from dcpy.lifecycle import product_metadata
 import dcpy.models.product.dataset.metadata as md
 import dcpy.models.product.metadata as prod_md
 from dcpy.utils.logging import logger
@@ -318,12 +318,6 @@ app = typer.Typer()
 def assemble_dataset_cli(
     product: str,
     version: str,
-    org_metadata_path: Path = typer.Option(
-        PRODUCT_METADATA_REPO_PATH,
-        "-z",
-        "--metadata-path",
-        help="Path to metadata repo. Optionally, set in your env.",
-    ),
     dataset: str = typer.Option(
         None,
         "--dataset",
@@ -352,9 +346,7 @@ def assemble_dataset_cli(
         f"A {source_destination_id} is required to pull files."
     )
     dataset_name = dataset or product
-    org_md = prod_md.OrgMetadata.from_path(
-        org_metadata_path, template_vars={"version": version}
-    )
+    org_md = product_metadata.load(version=version)
     assemble_package(
         org_md=org_md,
         product=product,
@@ -377,17 +369,9 @@ def _pull_dataset_cli(
         "-d",
         help="Dataset, if different from product",
     ),
-    org_metadata_path: Path = typer.Option(
-        PRODUCT_METADATA_REPO_PATH,
-        "-z",
-        "--metadata-path",
-        help="Path to metadata repo. Optionally, set in your env.",
-    ),
 ):
     dataset = dataset or product
-    org_md = prod_md.OrgMetadata.from_path(
-        org_metadata_path, template_vars={"version": version}
-    )
+    org_md = product_metadata.load(version=version)
     out_dir = ASSEMBLY_DIR / product / version / dataset
     dataset_metadata = org_md.product(product).dataset(dataset)
     pull_destination_package_files(
