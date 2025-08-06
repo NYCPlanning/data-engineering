@@ -273,6 +273,16 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             raise Exception(f"There should exist one package with id: {id}")
         return packages[0]
 
+    def query_destinations(self, *, ids=None, types=None, tags=None):
+        return [
+            d.id
+            for d in self.destinations
+            if (not ids or d.id in ids)
+            and (not types or d.type in types)
+            # if there's any overlap in the tags
+            and (not tags or set(d.tags) & tags)
+        ]
+
     def get_destination(self, id: str) -> DestinationWithFiles:
         dests = [d for d in self.destinations if d.id == id]
         if len(dests) != 1:
