@@ -147,7 +147,7 @@ class Shapefile:
 def from_path(
     path: Path,
     shp_name: str,
-    zip_subdir: str | None,
+    zip_subdir: str | None = None,
 ) -> Shapefile:
     """_summary_
 
