@@ -35,7 +35,7 @@ def temp_shp_zip_with_md_path(utils_resources_path, tmp_path):
 
 
 @fixture
-def temp_unzipped_shp_no_md_path(temp_shp_zip_no_md_path, tmp_path):
+def temp_nonzipped_shp_no_md_path(temp_shp_zip_no_md_path, tmp_path):
     shutil.unpack_archive(filename=temp_shp_zip_no_md_path, extract_dir=tmp_path)
     shp_path = tmp_path / temp_shp_zip_no_md_path.stem
     assert shp_path.is_file(), "Expected a shapefile, but found none"
@@ -44,7 +44,7 @@ def temp_unzipped_shp_no_md_path(temp_shp_zip_no_md_path, tmp_path):
 
 
 @fixture
-def temp_unzipped_shp_with_md_path(temp_shp_zip_with_md_path, tmp_path):
+def temp_nonzipped_shp_with_md_path(temp_shp_zip_with_md_path, tmp_path):
     shutil.unpack_archive(filename=temp_shp_zip_with_md_path, extract_dir=tmp_path)
     shp_path = tmp_path / temp_shp_zip_with_md_path.stem
     assert shp_path.is_file(), "Expected a shapefile, but found none"
@@ -61,127 +61,78 @@ def temp_xml_string(utils_resources_path):
     return xml_output
 
 
-def test_parse_invalid_path_to_shp():
-    invalid_paths_to_parse = [
-        "zip:///Users/name/Downloads/gadm36_AFG_shp.zip!gadm36_AFG_1",  # valid would end with ".shp"
-        "/Users/name/Downloads/gadm36_AFG_shp.zip!gadm36_AFG_1.shp",  # valid would begin with "zip://"
-        "zip:///Users/name/Downloads/gadm36_AFG_shp.zip/gadm36_AFG_1.shp",  # valid would include "!" after .zip
-        "/Users/name/Downloads/gadm36_AFG_shp/data",  # valid would end with ".shp"
-    ]
-    for invalid_path in invalid_paths_to_parse:
-        with pytest.raises(Exception):
-            print(invalid_path)
-            shapefile._parse_path_to_shp(path_to_shp=invalid_path)
-
-
-def test_parse_valid_path_to_shp():
-    paths_to_parse = [
-        "zip:///Users/name/Downloads/gadm36_AFG_shp.zip!data/gadm36_AFG_1.shp",  # valid path
-        "/Users/name/Downloads/gadm36_AFG_shp/data/gadm36_AFG_1.shp",  # valid path
-    ]
-    dicts_returned = [
-        {
-            "dir_containing_shp": "data",
-            "path_to_zip": "/Users/name/Downloads/gadm36_AFG_shp.zip",
-            "shp_name": "gadm36_AFG_1.shp",
-            "is_zip": True,
-        },
-        {
-            "dir_containing_shp": "/Users/name/Downloads/gadm36_AFG_shp/data",
-            "path_to_zip": "",
-            "shp_name": "gadm36_AFG_1.shp",
-            "is_zip": False,
-        },
-    ]
-    for parsed_path, returned_dict in zip(paths_to_parse, dicts_returned):
-        shp_info = shapefile._parse_path_to_shp(path_to_shp=parsed_path)
-
-        assert shp_info == returned_dict
-
-
 def test_add_metadata_to_shp_no_existing_metadata(
-    temp_shp_zip_no_md_path, temp_unzipped_shp_no_md_path, temp_xml_string
+    temp_shp_zip_no_md_path, temp_nonzipped_shp_no_md_path, temp_xml_string
 ):
-    paths_to_shp = [
-        f"zip://{temp_shp_zip_no_md_path}!{temp_shp_zip_no_md_path.stem}",
-        temp_unzipped_shp_no_md_path,
-    ]
+    path = temp_shp_zip_no_md_path
+    shp_name = temp_shp_zip_no_md_path.stem
 
-    for shp in paths_to_shp:
-        print(shp)
-        # ensure that metadata is *not* present before writing it
-        assert shapefile.metadata_exists(shp) is False, (
-            "Expected no metadata, but found some"
-        )
+    shp = shapefile.from_path(path, shp_name)
+    assert not shp.metadata_exists(), "Expected no metadata, but found some"
+    shp.write_metadata(
+        metadata=temp_xml_string,
+    )
+    assert shp.metadata_exists(), "Expected metadata, but found none"
 
-        shapefile.write_metadata(
-            path_to_shp=shp,
-            metadata=temp_xml_string,
-            overwrite=False,
-        )
-        assert shapefile.metadata_exists(shp) is True, (
-            "Expected metadata, but found none"
-        )
 
-        items_in_zip = shapefile._list_files_in_shp_dir(shp)
+def test_overwrite_existing_shp_metadata(
+    temp_shp_zip_with_md_path, temp_nonzipped_shp_with_md_path, temp_xml_string
+):
+    path = temp_shp_zip_with_md_path
+    shp_name = temp_shp_zip_with_md_path.stem
 
-        metadata_xml = f"{shapefile._parse_path_to_shp(shp)['shp_name']}.xml"
-
-        assert metadata_xml in items_in_zip, (
-            f"Expected to find {metadata_xml}, but was not found"
-        )
+    shp = shapefile.from_path(path, shp_name)
+    assert shp.metadata_exists(), "Expected metadata, but found none"
+    shp.write_metadata(metadata=temp_xml_string, overwrite=True)
+    assert shp.metadata_exists(), "Expected metadata, but found none"
 
 
 def test_dont_overwrite_existing_shp_metadata(
-    temp_shp_zip_with_md_path, temp_unzipped_shp_with_md_path, temp_xml_string
+    temp_shp_zip_with_md_path, temp_nonzipped_shp_with_md_path, temp_xml_string
 ):
-    paths_to_shp = [
-        f"zip://{temp_shp_zip_with_md_path}!{temp_shp_zip_with_md_path.stem}",
-        temp_unzipped_shp_with_md_path,
-    ]
-    for shp in paths_to_shp:
-        # ensure that metadata *is* present before writing it
-        assert shapefile.metadata_exists(shp) is True, (
-            "Expected metadata, but found none"
-        )
+    path = temp_shp_zip_with_md_path
+    shp_name = temp_shp_zip_with_md_path.stem
 
-        with pytest.raises(
-            FileExistsError,
-            match="Metadata XML already exists, and overwrite is False. Nothing will be written",
-        ):
-            shapefile.write_metadata(
-                path_to_shp=shp,
-                metadata=temp_xml_string,
-                overwrite=False,
-            )
+    with pytest.raises(
+        FileExistsError,
+        match="Metadata XML already exists, and overwrite is False. Nothing will be written",
+    ):
+        shp = shp = shapefile.from_path(path, shp_name)
+        shp.write_metadata(
+            metadata=temp_xml_string,
+        )
 
 
 def test_metadata_exists(
     temp_shp_zip_no_md_path,
     temp_shp_zip_with_md_path,
-    temp_unzipped_shp_no_md_path,
-    temp_unzipped_shp_with_md_path,
+    temp_nonzipped_shp_no_md_path,
+    temp_nonzipped_shp_with_md_path,
 ):
-    path_to_zip_shp_w_md = (
-        f"zip://{temp_shp_zip_with_md_path}!{temp_shp_zip_with_md_path.stem}"
-    )
-    path_to_zip_shp_no_md = (
-        f"zip://{temp_shp_zip_no_md_path}!{temp_shp_zip_no_md_path.stem}"
-    )
-    path_to_unzip_shp_w_md = temp_unzipped_shp_with_md_path
-    path_to_unzip_shp_no_md = temp_unzipped_shp_no_md_path
-    assert shapefile.metadata_exists(path_to_shp=path_to_zip_shp_w_md) is True, (
-        "Expected metadata, but found none"
-    )
-    assert shapefile.metadata_exists(path_to_shp=path_to_zip_shp_no_md) is False, (
-        "Expected no metadata, but found some"
-    )
-    assert shapefile.metadata_exists(path_to_shp=path_to_unzip_shp_w_md) is True, (
-        "Expected metadata, but found none"
-    )
-    assert shapefile.metadata_exists(path_to_shp=path_to_unzip_shp_no_md) is False, (
-        "Expected no metadata, but found some"
-    )
+    path = temp_shp_zip_no_md_path
+    shp_name = temp_shp_zip_no_md_path.stem
+    print(f"{temp_shp_zip_no_md_path=}\n{path=}\n{shp_name=}\n")
+    shp = shapefile.from_path(path, shp_name)
+    assert not shp.metadata_exists(), "Expected no metadata, but found some"
+
+    path = temp_shp_zip_with_md_path
+    shp_name = temp_shp_zip_with_md_path.stem
+    print(f"{temp_shp_zip_with_md_path=}\n{path=}\n{shp_name=}\n")
+    shp = shapefile.from_path(path, shp_name)
+    assert shp.metadata_exists(), "Expected metadata, but found none"
+
+    path = temp_nonzipped_shp_no_md_path.parent
+    shp_name = temp_nonzipped_shp_no_md_path.name
+    print(f"{temp_nonzipped_shp_no_md_path=}\n{path=}\n{shp_name=}\n")
+    shp = shapefile.from_path(path, shp_name)
+    assert not shp.metadata_exists(), "Expected no metadata, but found some"
+
+    path = temp_nonzipped_shp_with_md_path.parent
+    shp_name = temp_nonzipped_shp_with_md_path.name
+    print(f"{temp_nonzipped_shp_with_md_path=}\n{path=}\n{shp_name=}\n")
+    shp = shapefile.from_path(path, shp_name)
+    assert shp.metadata_exists(), "Expected metadata, but found none"
+
     # test_cases = [
     #     {
     #         "path": f"zip://{temp_shp_zip_with_md_path}!{temp_shp_zip_with_md_path.stem}",
@@ -194,12 +145,12 @@ def test_metadata_exists(
     #         "msg": "Expected no metadata, but found some",
     #     },
     #     {
-    #         "path": temp_unzipped_shp_with_md_path,
+    #         "path": temp_nonzipped_shp_with_md_path,
     #         "bool": True,
     #         "msg": "Expected metadata, but found none",
     #     },
     #     {
-    #         "path": temp_unzipped_shp_no_md_path,
+    #         "path": temp_nonzipped_shp_no_md_path,
     #         "bool": True,
     #         "msg": "Expected no metadata, but found some",
     #     },
