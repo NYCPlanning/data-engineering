@@ -8,14 +8,13 @@ attributes:
 ingestion:
   source:
     type: api
-    endpoint: https://www.bklynlibrary.org/locations/json
+    endpoint: https://www.bklynlibrary.org/api/locations/v1/map
     format: json
   file_format:
     type: json
     json_read_fn: normalize
-    json_read_kwargs: { "record_path": [ "locations" ] }
     geometry:
-      geom_column: data.position
+      geom_column: position
       crs: EPSG:4326
       format:
         point_xy_str: "y, x"

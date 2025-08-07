@@ -17,6 +17,9 @@ ingestion:
   processing_steps: 
   - name: clean_column_names
     args: {"lower": True}
+  - name: rename_columns
+    args:
+      map: {"g01": "gr1", "g02": "gr2", "g03": "gr3", "g04": "gr4", "g05": "gr5", "g06": "gr6", "g07": "gr7", "g08": "gr8", "g09": "gr9", "g10": "gr10", "g11": "gr11", "g12": "gr12"}
 
 columns:
 - id: institution_id
@@ -25,9 +28,7 @@ columns:
   data_type: text
 - id: beds_code
   data_type: integer
-- id: affliation
-  data_type: text
-- id: school_year
+- id: affiliation
   data_type: text
 - id: county
   data_type: text

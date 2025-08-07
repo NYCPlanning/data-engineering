@@ -36,11 +36,14 @@ jobs:
   dataloading:
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref
+        || github.ref_name) || 'latest' }}
     env:
       TEMPLATE_DIR: ./ingest_templates
-      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
-      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) ||
+        'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) ||
+        'edm-publishing' }}
     strategy:
       matrix:
         dataset:
@@ -75,7 +78,7 @@ jobs:
 
     - name: Ingest
       run: |
-        python3 -m dcpy lifecycle ingest ${{ matrix.dataset }} \
+        python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} \
           --latest \
           --push \
           ${{ inputs.overwrite && '--overwrite' || '' }}

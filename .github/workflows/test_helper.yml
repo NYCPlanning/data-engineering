@@ -160,7 +160,65 @@ jobs:
         echo "matrix_raw=$matrix" >> $GITHUB_OUTPUT
         echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
 
-  pytest:
+  pytest_dcpy:
+    name: Pytest - dcpy
+    runs-on: ubuntu-22.04
+    #if: (inputs.path_filter == '') || contains(inputs.path_filter, 'dcpy')
+    env:
+      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
+      RECIPES_BUCKET: edm-recipes
+      BUILD_ENGINE_DB: ${{ matrix.db }}
+      TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        RECIPE_ENGINE: "op://Data Engineering/EDM_DATA/defaultdb_url"
+
+    - name: Start images
+      run: |
+        env > .env
+        docker compose -f .devcontainer/docker-compose.yml up -d --wait de postgis sftp-server
+
+    - name: Run Container Setup
+      run: docker exec -u 0 de ./bash/docker_container_setup.sh
+
+    - name: dcpy main pytests
+      run: |
+        docker exec -u 0 de \
+        python3 -m pytest dcpy/test --ignore dcpy/test/library -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
+
+    # separate because of issues w/ gdal and pyarrow
+    # errors occur when writing/reading parquet files after importing gdal
+    - name: dcpy library pytests
+      run: |
+        docker exec -u 0 de \
+        python3 -m pytest dcpy/test/library -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+
+    - name: dcpy integration pytests
+      run: |
+        docker exec -u 0 de \
+        python3 -m pytest dcpy/test_integration -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+
+    - name: Upload dcpy test coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        verbose: true
+
+  pytest_other:
     name: Pytest - ${{ matrix.name }}
     needs: set_pytest_matrix
     runs-on: ubuntu-22.04
@@ -186,7 +244,6 @@ jobs:
         export-env: true
       env:
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
@@ -208,14 +265,6 @@ jobs:
           IFS=$'\n' arr=( $(xargs -n1 <<<"$call") )
           python3 -m pytest ${arr[@]}
         done
-
-    - name: Upload dcpy test coverage to Codecov
-      if: ${{ matrix.name =='dcpy' }}
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        verbose: true
 
   validate_product_metadata:
     if: contains(inputs.path_filter, 'dcpy')

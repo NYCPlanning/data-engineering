@@ -53,7 +53,7 @@ class SFTPConnector(BaseModel):
         with self._connection() as connection:
             logger.info(f"Listing files/directories for remote path '{path}' ...")
             entries = connection.listdir(path=str(path))
-        return entries
+        return sorted(entries)
 
     def get_subfolders(self, prefix: str) -> list:
         with self._connection() as connection:

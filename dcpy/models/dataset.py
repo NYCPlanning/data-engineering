@@ -4,15 +4,15 @@ from typing import Literal, Any, Callable
 from pydantic import field_validator
 
 COLUMN_TYPES = Literal[
-    "text",
-    "integer",
-    "decimal",
-    "number",  # TODO: Need to delete. Keeping it now for compatibility with metadata files
-    "geometry",
-    "bool",
     "bbl",
+    "bool",
     "date",
     "datetime",
+    "decimal",
+    "geometry",
+    "integer",
+    "number",  # TODO: Need to delete. Keeping it now for compatibility with metadata files
+    "text",
 ]
 
 
