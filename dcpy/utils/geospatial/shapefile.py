@@ -90,16 +90,6 @@ class Shapefile:
     def _post_init(self):
         self.has_metadata = self.metadata_exists()
 
-    def __repr__(self):
-        return (
-            f"{type(self).__name__}("
-            f"shp_name='{self.name}', "
-            f"is_zipped={self.is_zipped}, "
-            f"path={self.path}, "
-            f"zip_subdir={self.zip_subdir}, "
-            f"has_metadata={self.has_metadata})"
-        )
-
     def read_metadata(self):
         """Read shapefile metadata from file.
         Works for both zipped and non-zipped shapefiles.
