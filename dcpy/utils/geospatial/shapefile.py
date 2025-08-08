@@ -6,21 +6,21 @@ import zipfile
 
 
 class _FileManager:
-    def __init__(self, path):
+    def __init__(self, path: Path):
         self.path = path
 
-    def read_file(self, filename):
+    def read_file(self, filename: str) -> str:
         with open(self.path / filename, "r") as f:
             return f.read()
 
-    def write_file(self, filename, contents: str):
+    def write_file(self, filename: str, contents: str):
         with open(self.path / filename, "w") as f:
             f.write(contents)
 
-    def metadata_exists(self, filename):
+    def metadata_exists(self, filename: str) -> bool:
         return (self.path / filename).is_file()
 
-    def remove_file(self, filename):
+    def remove_file(self, filename: str):
         os.remove(self.path / filename)
 
 
@@ -29,7 +29,7 @@ class _FileManagerZipped:
         self.zip_path = path  # ends in .zip
         self.zip_subdir = zip_subdir
 
-    def read_file(self, filename) -> str:
+    def read_file(self, filename: str) -> str:
         path_to_file_in_zip = (
             (f"{self.zip_subdir}/{filename}") if self.zip_subdir else filename
         )
@@ -37,7 +37,7 @@ class _FileManagerZipped:
             metadata: str = zf.read(path_to_file_in_zip).decode(encoding="utf-8")
             return metadata
 
-    def write_file(self, filename, contents):
+    def write_file(self, filename: str, contents):
         with zipfile.ZipFile(
             self.zip_path, "a", compression=zipfile.ZIP_DEFLATED
         ) as zf:
@@ -46,7 +46,7 @@ class _FileManagerZipped:
             )
             zf.writestr(internal_path, contents)
 
-    def metadata_exists(self, filename):
+    def metadata_exists(self, filename: str) -> bool:
         self.file_parent = (
             (zipfile.Path(self.zip_path) / self.zip_subdir)
             if self.zip_subdir
@@ -102,6 +102,7 @@ class Shapefile:
 
     def read_metadata(self):
         """Read shapefile metadata from file.
+        Works for both zipped and non-zipped shapefiles.
 
         Returns:
         str: Metadata content as string.
@@ -113,14 +114,15 @@ class Shapefile:
         metadata: str,
         overwrite: bool = False,
     ) -> None:
-        """_summary_
+        """Write shapefile metadata.
+        Works for both zipped and non-zipped shapefiles.
 
         Args:
-            metadata (str): _description_
-            overwrite (bool, optional): _description_. Defaults to False.
+            metadata (str): Metadata content to write to file.
+            overwrite (bool, optional): Whether to overwrite existing metadata. Defaults to False.
 
         Raises:
-            FileExistsError: _description_
+            FileExistsError: Raises when metadata already exists and overwrite is set to False.
         """
         if self.metadata_exists() and not overwrite:
             raise FileExistsError(
@@ -149,15 +151,15 @@ def from_path(
     shp_name: str,
     zip_subdir: str | None = None,
 ) -> Shapefile:
-    """_summary_
+    """Instantiate Shapefile object.
 
     Args:
-        path (Path): _description_
-        shp_name (str): _description_
-        zip_subdir (str | None): _description_
+        path (Path): Path to directory or zip file containing shapefile.
+        shp_name (str): Name of shapefile. Example: "filename.shp"
+        zip_subdir (str | None): Path to shapefile within zip file, if relevant. Defaults to None.
 
     Returns:
-        Shapefile: _description_
+        Shapefile: See Shapefile class definition.
     """
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
 
