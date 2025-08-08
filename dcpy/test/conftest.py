@@ -29,11 +29,17 @@ from dcpy.lifecycle.builds import plan
 from dcpy.test.resources import package_and_distribute
 
 RESOURCES = Path(__file__).parent / "resources"
+UTILS_RESOURCES = Path(__file__).parent / "utils" / "resources"
 
 
 @pytest.fixture(scope="function")
 def resources_path():
     return RESOURCES
+
+
+@pytest.fixture(scope="function")
+def utils_resources_path():
+    return UTILS_RESOURCES
 
 
 @pytest.fixture(scope="function")
