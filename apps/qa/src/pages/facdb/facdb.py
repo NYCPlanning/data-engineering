@@ -165,11 +165,12 @@ def facdb():
                 """
             )
             dff = qc_diff.groupby(level).sum()
+            max_val = dff["diff"].max() - 1
             thresh = st.sidebar.number_input(
                 "difference threshold",
                 min_value=0,
-                max_value=dff["diff"].max() - 1,
-                value=5,
+                max_value=max_val,
+                value=min(5, max_val),
                 step=1,
             )
 
