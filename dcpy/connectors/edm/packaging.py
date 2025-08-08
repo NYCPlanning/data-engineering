@@ -8,6 +8,8 @@ from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.edm import product_metadata
 
+from dcpy.connectors.registry import VersionedConnector
+
 BUCKET = "edm-publishing"
 DATASETS_FOLDER = "product_datasets"
 BUCKET_ACL: s3.ACL = "public-read"
@@ -161,3 +163,34 @@ def _generate_package_scaffold(
     s3.upload_file(
         "edm-publishing", Path(tf.name), f"{base_path}/metadata.yml", "public-read"
     )
+
+
+
+
+### Another Go At this
+
+class BytesPackageConnector(VersionedConnector):
+    """Eventually, will just pull packaged files from EDM_Publishing.
+    For now, if the package isn't present on the machine, it will pull the zipped package and
+    re-assemble into our package format.
+    """
+    conn_type: str = "edm.publishing.bytes"
+
+    def pull_versioned(
+        self, key: str, version: str, destination_path: Path, **kwargs
+    ) -> dict:
+        # Infer the package from the metadata
+        package.pull_destination_package_files(
+            local_package_path=package_path,
+            source_destination_id=source_destination_id,
+            dataset_metadata=dataset_md,
+        )
+
+        package.assemble_package(
+            org_md=org_md,
+            product=product,
+            dataset=dataset,
+            version=version,
+            source_destination_id=source_destination_id,
+            metadata_only=metadata_only,
+        )

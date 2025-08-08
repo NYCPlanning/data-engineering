@@ -5,11 +5,26 @@ from pathlib import Path
 import dcpy.models.product.dataset.metadata as ds_md
 
 
+class DatasetDestination(TypedDict):
+    product: str
+    dataset_id: str
+    destination_id: str
+    destination_type: str
+    tags: NotRequired[set[str]]
+    custom: NotRequired[dict]
+    destination_path: str
+
+
 class DatasetDestinationFilters(TypedDict):
-    datasets: NotRequired[frozenset[str]]
-    destination_tag: NotRequired[str]
-    destination_id: NotRequired[str]
-    destination_type: NotRequired[str]
+    dataset_ids: NotRequired[set[str]]
+    destination_tags: NotRequired[set[str]]
+    destination_ids: NotRequired[set[str]]
+    destination_types: NotRequired[set[str]]
+    destination_paths: NotRequired[set[str]]
+
+
+class ProductDatasetDestinationFilters(DatasetDestinationFilters):
+    product_ids: NotRequired[set[str]]
 
 
 class DatasetDestinationPushArgs(TypedDict):
@@ -28,6 +43,9 @@ class DistributeResult:
 
     result: str | None = None
     success: bool | None = None
+
+    def __repr__(self):
+        return f"{self.dataset_id}.{self.destination_id}.{self.destination_type} {'SUCCESS' if self.success else 'FAIL'}"
 
     @staticmethod
     def from_push_kwargs(
