@@ -44,7 +44,7 @@ WITH histdistricts AS (
         FROM lpc_historic_districts
         WHERE
             hist_dist != '0'
-            AND hist_dist != 'Individual Landmarks'
+            AND hist_dist NOT LIKE 'Individual Landmark%'
     ) AS x
     WHERE x.row_number = 1
 )
