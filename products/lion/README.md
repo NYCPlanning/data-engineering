@@ -24,7 +24,7 @@ As other dbt projects, we have:
 
 Any new output needs to be validated against prod outputs generated from the same source version gdb (25a, 25b, etc). For text files, we can take a similar approach to the LION flat (.dat) files.
 
-#### Validating text outputs
+### Validating text outputs
 As a straightforward summary (and as a most concrete check that the outputs actually match), it's useful to compare the formatted text outputs using bash-based text comparisons. For the LION .dat files, this is done in a few ways. For comparisons to be made, the following steps must be taken:
 
 1. Downloading production outputs from sharepoint into a folder named `prod`.
@@ -35,7 +35,7 @@ As a straightforward summary (and as a most concrete check that the outputs actu
    - prints all rows present in one file and not the other (and all NOT in the first but in the second).
    This captures some broad strokes differences. Technically, it can't really differentiate between "duplicates/missing" rows and rows that just have differences, but that's the scope of this comparison, it's not intended to get into details about what the differences are, just see how close the outputs are. Also, if order matters in the outputs, this will currently ignore that since it sorts both outputs.
 
-#### Validating specific rows/fields based on key
+### Validating specific rows/fields based on key
 If the above validation works (and 100% match), this may not be needed (like potentially for SEDAT outputs...).
 
 With the concept of a "key" in the data, we can make actual comparisons between specific fields of records in prod vs this pipeline. Again, what's been done so far is fairly specific to the LION dat outputs, but a similar approach could be taken and some code re-used. For comparisons to be made, the following steps must be taken:
