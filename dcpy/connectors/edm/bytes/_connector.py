@@ -2,12 +2,15 @@ from bs4 import BeautifulSoup
 from itertools import groupby
 import json
 from pathlib import Path
+import pandas as pd
 from pydantic import BaseModel, TypeAdapter
 import requests
 
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.connectors import web
 from dcpy.utils.logging import logger
+
+from . import _sitemap
 
 
 class _RawBytesCatalogYear(BaseModel):
@@ -24,56 +27,6 @@ class _RawBytesCatalogVersion(BaseModel):
 class BytesConnector(VersionedConnector):
     conn_type: str = "bytes"
 
-    S_MEDIA_ZIP_PREFIX: str = (
-        "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes"
-    )
-
-    BYTES_CATALOG_URL_PREFIX: str = (
-        "https://www.nyc.gov/assets/planning/json/content/resources/dataset-archives"
-    )
-    BYTES_API_PREFIX: str = (
-        "https://apps.nyc.gov/content-api/v1/content/planning/resources/datasets"
-    )
-
-    # Overrides for BYTES resources. These are only needed where dataset names don't match up with bytes url info.
-    BYTES_PAGE_CONFIGS: dict[str, dict] = {
-        "pluto": {
-            "change_file": {"bytes_resource_name": "mappluto-pluto-change"},
-            "pluto": {"bytes_resource_name": "mappluto-pluto-change"},
-        },
-        "lion": {
-            "2010_census_blocks": {
-                "bytes_resource_name": "census-blocks",
-                "files": {
-                    "shapefile_water_not_included": {
-                        "filename_template": lambda v: f"nycb2010_{v}.zip",
-                    }
-                },
-            },
-            "2020_census_blocks": {"bytes_resource_name": "census-blocks"},
-            "borough_boundaries": {
-                "files": {
-                    "shapefile_wi": {
-                        "filename_template": lambda v: f"nybb_{v}.zip",
-                    }
-                }
-            },
-        },
-        # TODO: Add other datasets here. Or move this to product metadata, where it probably belongs
-    }
-
-    def _get_product_dataset_bytes_resource(self, product, dataset) -> str | None:
-        """The Bytes convention for datasets seems to be that for each, there's a resource name like 'atomic-polygons' below:
-                https://www.nyc.gov/content/planning/pages/resources/datasets/atomic-polygons
-                https://apps.nyc.gov/content-api/v1/content/planning/resources/datasets/atomic-polygons
-                https://www.nyc.gov/assets/planning/json/content/resources/dataset-archives/atomic-polygons.json
-        For a dataset like lion.atomic_polygons, their dataset name matches up with ours (after twiddling the dash and underscore)
-        but for a dataset like pluto, we're not so lucky so we need to do some overriding.
-        """
-        return self.BYTES_PAGE_CONFIGS.get(product, {}).get(dataset, {}).get(
-            "bytes_resource_name"
-        ) or dataset.replace("_", "-")
-
     def _fetch_archived_product_versions_by_dataset(self, product, dataset):
         """Fetch the json config for the archived dataset versions.
         This includes all versions except for the current one. It also includes
@@ -89,9 +42,9 @@ class BytesConnector(VersionedConnector):
 
         TLDR: for BYTES pages with multiple datasets, we act as though each dataset will have every version.
         """
-        resource_name = self._get_product_dataset_bytes_resource(product, dataset)
-        dataset = dataset or product
-        catalog_url_file = f"{self.BYTES_CATALOG_URL_PREFIX}/{resource_name}.json"
+        catalog_url_file = _sitemap.get_dataset_catalog_json_url(product, dataset)
+        if not catalog_url_file:
+            return {}
 
         logger.info(f"Grabbing version catalog from {catalog_url_file}")
         response = requests.get(catalog_url_file)
@@ -118,9 +71,8 @@ class BytesConnector(VersionedConnector):
 
     def _parse_most_recent_version_from_html(self, product, dataset) -> str:
         """Unfortunately the most recent version isn't recorded in a JSON file, so we need to parse it from the HTML."""
-        resource_name = self._get_product_dataset_bytes_resource(product, dataset)
-        url = f"{self.BYTES_API_PREFIX}/{resource_name}"
-        logger.debug(f"Grabbing latest version from {url}")
+        url = _sitemap.get_most_recent_version_url(product, dataset)
+        logger.info(f"Grabbing latest version from {url}")
         content = json.loads(requests.get(url).content)
         assert "description" in content, (
             f"The JSON response should have a `description` field. If not, it indicates the url is probably wrong. Response: {content}"
@@ -155,33 +107,28 @@ class BytesConnector(VersionedConnector):
         self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
         product, dataset = self._key_to_product_dataset(key)
-        files = self.BYTES_PAGE_CONFIGS[product][dataset]["files"]
-        resource_name = self._get_product_dataset_bytes_resource(product, dataset)
+        file_id = kwargs["file_id"]
+        file_url = _sitemap.get_file_url(product, dataset, file_id, version=version)
 
-        file_id = (
-            kwargs.get("file_id") or list(files.keys())[0]
-        )  # default to the first file if none are spec'd
+        if destination_path.is_dir() or str(destination_path).endswith("/"):
+            filename = _sitemap.get_filename(product, dataset, file_id, version=version)
+            out_path = destination_path / filename
+        else:
+            destination_path.parent.mkdir(exist_ok=True, parents=True)
+            out_path = destination_path
 
-        assert file_id in files, (
-            f"{file_id} was specified, but the Bytes connector does not have this file mapped."
-        )
-        bytes_filename = files[file_id]["filename_template"](version)
-        file_url = f"{self.S_MEDIA_ZIP_PREFIX}/{resource_name}/{bytes_filename}"
-
-        destination_path.mkdir(exist_ok=True, parents=True)
-
-        web.download_file(file_url, path=destination_path / bytes_filename)
-        return {"path": destination_path}
+        web.download_file(file_url, path=out_path)
+        return {"path": out_path}
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         raise NotImplementedError()
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **_) -> list[str]:
-        product, dataset = self._key_to_product_dataset(key)
-        latest_version = self._parse_most_recent_version_from_html(product, dataset)
+        latest_version = self.get_latest_version(key)
 
         # Unfortunately, the versions on BYTES often don't match our convention.
         # E.g. Facilities has versions like "March". Let's filter them out until we can fix or map them.
+        product, dataset = self._key_to_product_dataset(key)
         dataset_versions = [
             v
             for v in self._fetch_archived_product_versions_by_dataset(
@@ -196,3 +143,50 @@ class BytesConnector(VersionedConnector):
         return self._parse_most_recent_version_from_html(
             *self._key_to_product_dataset(key)
         )
+
+    def fetch_all_latest_versions(self) -> list[tuple[str, str, str]]:
+        """Fetch latest versions for all datasets.
+
+        Returns a tuple of (product.dataset, version, maybe_fetch_error)
+        """
+        versions = []
+        for prod, ds in _sitemap.all_product_datasets():
+            key = f"{prod}.{ds}"
+            logger.info(f"Fetching latest version for {key}")
+            try:
+                versions.append((key, self.get_latest_version(key), ""))
+            except Exception as e:
+                versions.append((key, "", str(e)))
+        return versions
+
+    def fetch_all_latest_versions_df(self):
+        """Dataframe version of `fetch_all_latest_versions` for ease of use."""
+        df = pd.DataFrame(self.fetch_all_latest_versions())
+        df.columns = ["key", "version", "version_fetch_error"]
+
+        def _split_ds_key(row):
+            prod, ds = row["key"].split(".")
+            row["product"] = prod
+            row["dataset"] = ds
+            return row
+
+        return (
+            df.apply(_split_ds_key, axis="columns")
+            .set_index(["product", "dataset"])
+            .sort_index()[["version", "version_fetch_error"]]
+        )
+
+    def validate_product_file_urls(self, product, version):
+        """Validate all product dataset files on BYTES.
+
+        Returns a list of [(product, dataset, file_id), http_status_code]
+        """
+        product_files = [
+            [file_key_tuple, url]
+            for file_key_tuple, url in _sitemap.all_urls(version).items()
+            if file_key_tuple[0] == product
+        ]
+        return [
+            [file_key_tuple, requests.head(url).status_code, url]
+            for file_key_tuple, url in product_files
+        ]
