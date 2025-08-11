@@ -9,7 +9,7 @@ from openpyxl.utils import get_column_letter
 from pathlib import Path
 import typer
 
-from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
+from dcpy.lifecycle import product_metadata
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.models.design import elements as de
 from dcpy.utils.logging import logger
@@ -230,6 +230,7 @@ app = typer.Typer()
 def _write_xlsx_cli(
     product: str,
     dataset: str,
+    version: str,
     artifact_name: Path = typer.Option(
         None,
         "--artifact-name",
@@ -248,21 +249,11 @@ def _write_xlsx_cli(
         "-t",
         help="(Override) Template Path",
     ),
-    metadata_path_override: Path = typer.Option(
-        None,
-        "--metadata-path",
-        "-m",
-        help="Metadata repo path override",
-    ),
 ):
-    assert metadata_path_override or PRODUCT_METADATA_REPO_PATH
-    org_md = OrgMetadata.from_path(
-        metadata_path_override or Path(PRODUCT_METADATA_REPO_PATH)  # type: ignore
-    )
     write_xlsx(
         product=product,
         dataset=dataset,
-        org_md=org_md,
+        org_md=product_metadata.load(version=version),
         output_path=output_path,
         template_path_override=template_path_override,
     )
