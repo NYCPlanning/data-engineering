@@ -599,9 +599,12 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
 def download_file(
     product_key: ProductKey, filepath: str, output_dir: Path | None = None
 ) -> Path:
-    logger.info(f"Downloading {product_key}, {filepath}")
     output_dir = output_dir or Path(".")
-    output_filepath = output_dir / Path(filepath).name
+    is_file_path = output_dir.suffix
+    output_filepath = (
+        output_dir / Path(filepath).name if not is_file_path else output_dir
+    )
+    logger.info(f"Downloading {product_key}, {filepath} -> {output_filepath}")
     s3.download_file(_bucket(), f"{product_key.path}/{filepath}", output_filepath)
     return output_filepath
 

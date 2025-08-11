@@ -196,7 +196,7 @@ def pull_destination_files(
     id_to_paths = _get_file_package_paths(product_metadata, source_id)
 
     assembled_file_ids = {p.id for p in product_metadata.assembly}
-    logger.info(f"Pulling file ids for assembly: {assembled_file_ids}")
+    logger.info(f"Pulling file ids for assembly: {[f.id for f in dest.files]}")
     for f in dest.files:
         if (
             metadata_only
@@ -206,12 +206,19 @@ def pull_destination_files(
 
         ds_id = f"{product}.{dataset}"
         try:
+            connector_args = {k: v for k, v in f.custom.items() if k != "key"}
+            if "file_id" not in connector_args:
+                logger.warning(
+                    f"No file_id was provided in connector args for {dest.type}. Using {f.id}"
+                )
+                connector_args["file_id"] = f.id
+
             ds = InputDataset(
-                id=ds_id,
+                id=f.custom.get("key", ds_id),
                 version=version,
-                source=source_id,
+                source=dest.type,
                 destination=InputDatasetDestination.file,
-                custom={"file_id": f.id},
+                custom=connector_args,
             )
             file_path = data_loader.pull_dataset(
                 ds,
@@ -258,6 +265,14 @@ def assemble_dataset_package(
     metadata_only: bool = False,
     validate_dataset_files: bool = False,
 ) -> PackageAssembleResult:
+    assemble_result = lambda **remaining_kwargs: PackageAssembleResult(
+        product=product,
+        dataset=dataset,
+        version=version,
+        source_id=source_id,
+        **remaining_kwargs,
+    )
+
     org_md = org_metadata_loader.load(version=version)
     dataset_metadata = org_md.product(product).dataset(dataset)
 
@@ -266,14 +281,6 @@ def assemble_dataset_package(
         / product
         / dataset
         / version
-    )
-
-    finish_assemble_result = lambda **remaining_kwargs: PackageAssembleResult(
-        product=product,
-        dataset=dataset,
-        version=version,
-        source_id=source_id,
-        **remaining_kwargs,
     )
 
     try:
@@ -287,16 +294,16 @@ def assemble_dataset_package(
             destination_path=package_path,
         )
     except Exception as e:
-        return finish_assemble_result(
+        return assemble_result(
             success=False,
-            result_summary="Failed to pull destination files.",
-            details=str(e),
+            result_summary="Failed to pull destination files",
+            result_details=str(e),
         )
 
     if validate_dataset_files:
         validation_result = validate.validate(package_path, dataset_metadata)
         if validation_result.has_errors:
-            return finish_assemble_result(
+            return assemble_result(
                 success=False,
                 result_summary="Pulled dataset had validation errors.",
                 package_path=package_path,
@@ -319,7 +326,7 @@ def assemble_dataset_package(
             dataset=dataset,
             output_path=package_path / "attachments" / f.filename,
         )
-    return finish_assemble_result(
+    return assemble_result(
         success=True,
         package_path=package_path,
     )
