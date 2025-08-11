@@ -19,6 +19,7 @@ class LifecycleDatasetResult(SortedSerializedBase):
 
 class DistributeResult(LifecycleDatasetResult):
     destination_id: str
+    local_package_path: Path | None = None
 
     def other_identifying_info(self) -> str:
         return self.destination_id
@@ -33,18 +34,18 @@ class PackageAssembleResult(LifecycleDatasetResult):
         return self.source_id
 
 
-def make_results_table(distribute_results: list[LifecycleDatasetResult]) -> str:
+def make_results_table(distribute_results: list[DistributeResult]) -> str:
     return tabulate(
         [
             [
+                r.destination_id,
                 f"{r.product}.{r.dataset}:{r.version}",
-                r.other_identifying_info(),
                 "✅" if r.success else "❌",
-                f"{r.result_details} - {r.result_details}",
+                f"{r.result_summary} - {r.result_details}",
             ]
             for r in distribute_results
         ],
-        headers=["dataset", "source/dest id", "success?", "result"],
+        headers=["destination", "dataset", "success?", "result"],
         tablefmt="presto",
-        maxcolwidths=[20, 10, 8, 70],
+        maxcolwidths=[50, 10, 8, 70],
     )

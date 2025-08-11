@@ -1,34 +1,15 @@
 from itertools import groupby
-from tabulate import tabulate  # type: ignore
 import typer
 
 from dcpy.lifecycle import package, distribute, product_metadata
-from dcpy.models.lifecycle.distribute import DistributeResult
+from dcpy.models.lifecycle import dataset_event
 from dcpy.utils.logging import logger
 
 
-def _make_results_table(distribute_results: list[DistributeResult]) -> str:
-    return tabulate(
-        [
-            [
-                r.dataset_id,
-                r.destination_id,
-                r.destination_type,
-                "✅" if r.success else "❌",
-                r.result,
-            ]
-            for r in distribute_results
-        ],
-        headers=["dataset", "destination_id", "destination type", "success?", "result"],
-        tablefmt="presto",
-        maxcolwidths=[20, 10, 10, 8, 70],
-    )
-
-
 def get_destinations_by_product_dataset_and_type(
-    destination_filters, org_md
+    prod_ds_dest_filters, org_md
 ) -> list[list[str]]:
-    dest_paths = org_md.query_product_dataset_destinations(**destination_filters)
+    dest_paths = org_md.query_product_dataset_destinations(**prod_ds_dest_filters)
 
     dests_with_type = [
         {
@@ -52,48 +33,59 @@ def get_destinations_by_product_dataset_and_type(
 def run(
     version,
     *,
-    destination_filters,
+    prod_ds_dest_filters,
+    source_id,
     metadata_only=False,
     publish=False,
     validate_dataset_files=False,
-    MAX_DESTINATIONS=50,
-):
+    max_destinations=50,
+) -> list[dataset_event.DistributeResult]:
     """Package and Distribute to dataset destinations.
 
     Destinations are batched by product, dataset, and destination type.
     Files for the dataset are assembled, then distributed to the destinations.
     """
     org_md = product_metadata.load(version=version)
-    results = []
     destinations = get_destinations_by_product_dataset_and_type(
-        destination_filters, org_md
+        prod_ds_dest_filters, org_md
     )
 
     # Sanity check that we're not accidently distributing way to much (ie. every destination)
     total_destinations = len(sum(destinations, []))
-    assert total_destinations <= MAX_DESTINATIONS, (
-        f"Filters returned {total_destinations} destinations, which exceeds max allowed ({MAX_DESTINATIONS})"
+    logger.info(f"Found destinations: {destinations}")
+    assert total_destinations > 0, "Found no destinations for provided filters"
+    assert total_destinations <= max_destinations, (
+        f"Filters returned {total_destinations} destinations, which exceeds max allowed ({max_destinations})"
     )
 
+    results: list[dataset_event.DistributeResult] = []
     for batch in destinations:
         product, dataset, _ = batch[0].split(".")
-        logger.info(f"distributing destinations for {product}-{dataset}: {batch}")
-        package_path, err = package.assemble_dataset_package(
-            source_id="bytes",
+        logger.info(
+            f"Beginning Package + Assembling files for destinations: {', '.join(batch)}"
+        )
+        package_result = package.assemble_dataset_package(
+            source_id=source_id,
             product=product,
             dataset=dataset,
             version=version,
             validate_dataset_files=validate_dataset_files,
         )
-        if err:
-            results.append(err)
+        if not package_result.success:
+            result = dataset_event.DistributeResult(
+                destination_id=",".join(batch), **package_result.model_dump()
+            )
+            results.append(result)
             continue
 
+        assert package_result.package_path
         results += [
             distribute.to_dataset_destination(
-                metadata=org_md.product(product).dataset(dataset),
-                dataset_destination_id=dest,
-                dataset_package_path=package_path,
+                product=product,
+                dataset=dataset,
+                destination_id=dest.split(".")[2],
+                version=version,
+                package_path=package_result.package_path,
                 metadata_only=metadata_only,
                 publish=publish,
             )
@@ -110,16 +102,23 @@ app = typer.Typer()
 def package_and_distribute_product(
     product: str,
     version: str,
+    source: str,
     datasets: list[str] = typer.Option(
-        None,
+        [],
         "-d",
         "--datasets",
         help="List of Datasets",
     ),
-    destination_tag: str = typer.Option(
-        None,
+    destination_tags: list[str] = typer.Option(
+        [],
         "-t",
         "--dest-tag",
+        help="Destination tag to filter for.",
+    ),
+    destination_types: list[str] = typer.Option(
+        [],
+        "-y",
+        "--dest-types",
         help="Destination tag to filter for.",
     ),
     # Overrides
@@ -144,18 +143,26 @@ def package_and_distribute_product(
 ):
     results = run(
         version,
-        destination_filters={"product_ids": {product}, "dataset_ids": set(datasets)},
-        metadata_only=False,
-        publish=False,
-        validate_dataset_files=not validate_dataset_files,
+        source_id=source,
+        prod_ds_dest_filters={
+            "product_ids": {product},
+            "dataset_ids": set(datasets),
+            "destination_filter": {
+                "tags": set(destination_tags),
+                "types": set(destination_types),
+            },
+        },
+        metadata_only=metadata_only,
+        publish=publish,
+        validate_dataset_files=validate_dataset_files,
     )
 
     if any([not r.success for r in results]):
         logger.error(
-            f"Distribution for {product}.{version}.{datasets}. Finished, but issues occurred!"
+            f"Distribution for {product}.{version} finished, but issues occurred!"
         )
         logger.error(str(results))
     else:
-        logger.info("Finished distributing batch. No Errors.")
+        logger.info("Finished distributing batches with no errors.")
 
-    _make_results_table(results)
+    typer.echo(dataset_event.make_results_table(results))
