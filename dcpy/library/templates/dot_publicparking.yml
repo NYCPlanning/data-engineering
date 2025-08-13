@@ -4,7 +4,7 @@ dataset:
   source:
     url:
       path: s3://edm-recipes/inbox/dot/{{ version }}
-      subpath: MUNICIPAL_PARKING.shp
+      subpath: Municipal_Parking.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
