@@ -21,6 +21,8 @@ mkdir -p output
 
     echo "Export LION dat files"
     dat_export manhattan_lion_dat ManhattanLION &
+    dat_export sedat SEDAT_RECORD &
+    dat_export sedat_special SPECIAL_SEDAT_RECORD &
     dat_export bronx_lion_dat BronxLION &
     dat_export brooklyn_lion_dat BrooklynLION &
     dat_export queens_lion_dat QueensLION &
