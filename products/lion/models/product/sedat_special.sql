@@ -19,6 +19,6 @@ SELECT
         RPAD(COALESCE(HIGH_ADDR_SUFFIX, ''), 8, ' '),       
         LPAD(COALESCE(ELECTION_DISTRICT, ''), 3, '0'),       
         LPAD(COALESCE(ASSEMBLY_DISTRICT, ''), 2, '0'),       
-        RPAD(COALESCE(B7SC, ''), 8, ' ')                     
+        SUBSTR(RPAD(COALESCE(B7SC, ''), 8, ' '), 1, 8)                    
     ) as SPECIAL_SEDAT_RECORD
 FROM int_special_sedat
