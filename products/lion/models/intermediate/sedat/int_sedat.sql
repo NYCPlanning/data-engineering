@@ -6,7 +6,7 @@
 ) }}
 
 WITH sedat AS (
-    SELECT * FROM {{ ref("stg__sedat") }}
+    SELECT * FROM {{ source("recipe_sources", "dcp_cscl_sedat") }}
 ),
 
 preferred_lgc AS (
