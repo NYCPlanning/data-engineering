@@ -10,43 +10,45 @@ WITH sedat AS (
 ),
 
 preferred_lgc AS (
-    SELECT 
-        SEGMENTID,
-        CONCAT(B5SC, LGC) as B7SC,
-        SUBSTR(B5SC, 1, 1) as BOROUGH_CODE
+    SELECT
+        segmentid,
+        CONCAT(b5sc, lgc) AS b7sc,
+        SUBSTR(b5sc, 1, 1) AS borough_code
     FROM {{ source("recipe_sources", "dcp_cscl_segment_lgc") }}
-    WHERE PREFERRED_LGC_FLAG = 'Y'
+    WHERE preferred_lgc_flag = 'Y'
 ),
 
 sedat_with_b7sc AS (
-    SELECT 
+    SELECT
         s.*,
-        SUBSTR(s.LIONKEY, 1, 1) as BOROUGHCODE,
-        pl.B7SC as PREFERRED_B7SC
-    FROM sedat s
-    LEFT JOIN preferred_lgc pl 
-        ON s.SEGMENTID = pl.SEGMENTID
-        AND SUBSTR(s.LIONKEY, 1, 1) = pl.BOROUGH_CODE
+        SUBSTR(s.lionkey, 1, 1) AS boroughcode,
+        pl.b7sc AS preferred_b7sc
+    FROM sedat AS s
+    LEFT JOIN preferred_lgc AS pl
+        ON
+            s.segmentid = pl.segmentid
+            AND SUBSTR(s.lionkey, 1, 1) = pl.borough_code
 )
 
-SELECT 
-    sb.LIONKEY,
-    sb.PARITY,
-    sb.SEGMENTID,
-    sb.BOROUGHCODE,
-    sn.LOOKUP_KEY as STREET_NAME,
-    CASE 
-        WHEN sb.SIDE = '1' THEN 'L'
-        WHEN sb.SIDE = '2' THEN 'R'
-    END as SIDE_OF_STREET,
-    sb.LOWADDRESS,
-    sb.LOW_ADDR_SUFFIX,
-    sb.HIGHADDRESS,
-    sb.HIGH_ADDR_SUFFIX,
-    sb.ELECTION_DISTRICT,
-    sb.ASSEMBLY_DISTRICT,
-    sb.PREFERRED_B7SC
-FROM sedat_with_b7sc sb
-LEFT JOIN {{ source("recipe_sources", "dcp_cscl_streetname") }} sn
-    ON sb.PREFERRED_B7SC = sn.B7SC
-    AND sn.PRINCIPAL_FLAG = 'Y'
+SELECT
+    sb.lionkey,
+    sb.parity,
+    sb.segmentid,
+    sb.boroughcode,
+    sn.lookup_key AS street_name,
+    CASE
+        WHEN sb.side = '1' THEN 'L'
+        WHEN sb.side = '2' THEN 'R'
+    END AS side_of_street,
+    sb.lowaddress,
+    sb.low_addr_suffix,
+    sb.highaddress,
+    sb.high_addr_suffix,
+    sb.election_district,
+    sb.assembly_district,
+    sb.preferred_b7sc
+FROM sedat_with_b7sc AS sb
+LEFT JOIN {{ source("recipe_sources", "dcp_cscl_streetname") }} AS sn
+    ON
+        sb.preferred_b7sc = sn.b7sc
+        AND sn.principal_flag = 'Y'

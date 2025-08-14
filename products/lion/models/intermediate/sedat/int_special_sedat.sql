@@ -10,41 +10,37 @@ WITH special_sedat AS (
 ),
 
 street_names AS (
-    SELECT 
-        B7SC,
-        LOOKUP_KEY as STREET_NAME
+    SELECT
+        b7sc,
+        lookup_key AS street_name
     FROM {{ source("recipe_sources", "dcp_cscl_streetname") }}
-    WHERE PRINCIPAL_FLAG = 'Y'
+    WHERE principal_flag = 'Y'
 ),
 
 feature_names AS (
-    SELECT 
-        B7SC,
-        LOOKUP_KEY as STREET_NAME
+    SELECT
+        b7sc,
+        lookup_key AS street_name
     FROM {{ source("recipe_sources", "dcp_cscl_featurename") }}
-    WHERE PRINCIPAL_FLAG = 'Y'
+    WHERE principal_flag = 'Y'
 )
 
-SELECT 
-    ss.LIONKEY,
-    ss.PARITY,
-    COALESCE(sn.STREET_NAME, fn.STREET_NAME) as STREET_NAME,
-    CASE 
-        WHEN ss.SIDE = '1' THEN 'L'
-        WHEN ss.SIDE = '2' THEN 'R'
-    END as SIDE_OF_STREET,
-    ss.LOWADDRESS,
-    ss.LOW_ADDR_SUFFIX,
-    ss.HIGHADDRESS,
-    ss.HIGH_ADDR_SUFFIX,
-    ss.ELECTION_DISTRICT,
-    ss.ASSEMBLY_DISTRICT,
-    ss.B7SC,
-    CASE 
-        WHEN COALESCE(sn.STREET_NAME, fn.STREET_NAME) IS NULL 
-        THEN TRUE 
-        ELSE FALSE 
-    END as MISSING_STREET_NAME
-FROM special_sedat ss
-LEFT JOIN street_names sn ON ss.B7SC = sn.B7SC
-LEFT JOIN feature_names fn ON ss.B7SC = fn.B7SC
+SELECT
+    ss.lionkey,
+    ss.parity,
+    COALESCE(sn.street_name, fn.street_name) AS street_name,
+    CASE
+        WHEN ss.side = '1' THEN 'L'
+        WHEN ss.side = '2' THEN 'R'
+    END AS side_of_street,
+    ss.lowaddress,
+    ss.low_addr_suffix,
+    ss.highaddress,
+    ss.high_addr_suffix,
+    ss.election_district,
+    ss.assembly_district,
+    ss.b7sc,
+    COALESCE(COALESCE(sn.street_name, fn.street_name) IS NULL, FALSE) AS missing_street_name
+FROM special_sedat AS ss
+LEFT JOIN street_names AS sn ON ss.b7sc = sn.b7sc
+LEFT JOIN feature_names AS fn ON ss.b7sc = fn.b7sc
