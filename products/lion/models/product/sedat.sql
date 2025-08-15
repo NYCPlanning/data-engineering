@@ -16,4 +16,4 @@ SELECT
         FORMAT_LION_TEXT(assembly_district, 2, '0'),
         FORMAT_LION_TEXT(preferred_b7sc, 8, ' ', FALSE, TRUE)
     ) AS sedat_record
-FROM {{ ref("int_sedat") }}
+FROM {{ ref("int__sedat") }}

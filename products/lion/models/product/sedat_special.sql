@@ -16,5 +16,5 @@ SELECT
        format_lion_text(assembly_district, 2, '0'),
        format_lion_text(b7sc, 8, ' ', FALSE, TRUE)
    ) AS special_sedat_record
-FROM {{ ref("int_special_sedat") }}
+FROM {{ ref("int__special_sedat") }}
 WHERE missing_street_name = FALSE
