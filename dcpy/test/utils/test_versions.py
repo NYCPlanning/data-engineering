@@ -25,6 +25,13 @@ class TestVersions(TestCase):
                 ),
             ],
             [
+                "FY2020",
+                versions.Date(
+                    date=date(2020, 1, 1),
+                    format=versions.DateVersionFormat.fiscal_year,
+                ),
+            ],
+            [
                 "26prelim",
                 versions.CapitalBudget(
                     year=26, release=versions.CapitalBudgetRelease(1)
@@ -62,6 +69,8 @@ class TestVersions(TestCase):
             versions.parse("23v")
         with self.assertRaises(Exception):
             versions.parse("2v12")
+        with self.assertRaises(Exception):
+            versions.parse("FY26")
         with self.assertRaises(Exception):
             versions.parse("20231212")
         with self.assertRaises(Exception):
@@ -158,6 +167,7 @@ class TestVersions(TestCase):
     def test_is_newer_valid_versions(self):
         for version_1, version_2, bool_expected in [
             ["23v2", "22v3.4", True],
+            ["FY2019", "FY2020", False],
             ["23Q1", "23Q2", False],
             ["23v2.0.1", "23v2", True],
             ["23Q1.1", "23Q1", True],
@@ -182,6 +192,7 @@ class TestVersions(TestCase):
             ["major", None, "23v2.1", "23v3"],
             ["minor", None, "23v2", "23v2.1"],
             ["minor", None, "23v2.1", "23v2.2"],
+            [None, 1, "FY2020", "FY2021"],
             [None, 1, "23Q1", "23Q2"],
             [None, 2, "23Q4", "24Q2"],
             [None, 7, "23Q2", "25Q1"],
@@ -205,6 +216,27 @@ class TestVersions(TestCase):
             ["patch", 2, "24prelim.2", "24prelim.4"],
         ]:
             self.assertEqual(v_expected, versions.bump(v, bumped_part, bump_by).label)
+
+    def test_bumping_versions_errors(self):
+        with self.assertRaises(NotImplementedError):
+            versions.bump("2023-01-01")
+
+        with self.assertRaises(ValueError):
+            versions.bump(versions.Date(date(2023, 1, 1), format="unsupported"))
+
+        with self.assertRaises(ValueError):
+            versions.bump(
+                versions.Date(
+                    date(2023, 1, 1), format=versions.DateVersionFormat.fiscal_year
+                ),
+                bump_type=versions.VersionSubType.major,
+            )
+
+        class UnsupportedVersion:
+            pass
+
+        with self.assertRaises(ValueError):
+            versions.bump(UnsupportedVersion())
 
     def test_group_versions_by_base(self):
         for version, versions_list, expected_output in [

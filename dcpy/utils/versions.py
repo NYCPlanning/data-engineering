@@ -10,6 +10,7 @@ import re
 
 
 class DateVersionFormat(StrEnum):
+    fiscal_year = "Fiscal Year"
     quarter = "Quarter"
     month = "Month"
     date = "Date"
@@ -159,6 +160,11 @@ class Date(Version):
     @property
     def label(self) -> str:
         match self.format:
+            case DateVersionFormat.fiscal_year:
+                if self.patch == 0:
+                    return f"FY{self.date.strftime('%Y')}"
+                else:
+                    return f"FY{self.date.strftime('%Y')}.{self.patch}"
             case DateVersionFormat.quarter:
                 if self.patch == 0:
                     return (
@@ -176,6 +182,8 @@ class Date(Version):
                     return self.date.strftime("%Y-%m-%d")
                 else:
                     return f"{self.date.strftime('%Y-%m-%d')}.{self.patch}"
+            case _:
+                raise ValueError(f"Unsupported DateVersionFormat '{self.format}'")
 
     def __lt__(self, other) -> bool:
         match other:
@@ -252,6 +260,11 @@ def parse(v: str) -> Version:
         case r"^(\d{2})v(\d+)\.(\d+)\.(\d+)$" as m:
             return MajorMinor(
                 year=int(m[1]), major=int(m[2]), minor=int(m[3]), patch=int(m[4])
+            )
+        case r"^FY(\d{4})$" as m:
+            return Date(
+                date(int(m[1]), 1, 1),
+                format=DateVersionFormat.fiscal_year,
             )
         case r"^(\d{2})Q(\d)$" as m:
             return Date(
@@ -403,6 +416,11 @@ def bump(
                 minor=previous_version.minor,
                 patch=previous_version.patch + bump_by,
             )
+        case Date(format=DateVersionFormat.fiscal_year), None:
+            return Date(
+                date=previous_version.date + relativedelta(years=bump_by),
+                format=previous_version.format,
+            )
         case Date(format=DateVersionFormat.quarter), None:
             return Date(
                 date=previous_version.date + relativedelta(months=bump_by * 3),
@@ -436,7 +454,7 @@ def bump(
         case Date(), None:
             raise ValueError(f"Unsupported date format {previous_version.format}")
         case Date(), _:
-            raise Exception(
+            raise ValueError(
                 f"Version subtype {bump_type} not applicable for Date versions"
             )
         case CapitalBudget(), None:
