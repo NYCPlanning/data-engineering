@@ -38,14 +38,15 @@ def to_dataset_destination(
     dest = ds_md.get_destination(destination_id)
     dest_type = dest.type
 
-    dist_result = lambda **remaining_kwargs: DistributeResult(
-        product=product,
-        dataset=dataset,
-        version=version,
-        destination_id=destination_id,
-        local_package_path=package_path,
-        **remaining_kwargs,
-    )
+    def dist_result(**remaining_kwargs):
+        return DistributeResult(
+            product=product,
+            dataset=dataset,
+            version=version,
+            destination_id=destination_id,
+            local_package_path=package_path,
+            **remaining_kwargs,
+        )
 
     try:
         # TODO: In a followup, replace dispatcher with connector_registry.
