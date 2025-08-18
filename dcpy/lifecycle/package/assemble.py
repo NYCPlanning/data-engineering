@@ -265,13 +265,14 @@ def assemble_dataset_package(
     metadata_only: bool = False,
     validate_dataset_files: bool = False,
 ) -> PackageAssembleResult:
-    assemble_result = lambda **remaining_kwargs: PackageAssembleResult(
-        product=product,
-        dataset=dataset,
-        version=version,
-        source_id=source_id,
-        **remaining_kwargs,
-    )
+    def assemble_result(**remaining_kwargs) -> PackageAssembleResult:
+        return PackageAssembleResult(
+            product=product,
+            dataset=dataset,
+            version=version,
+            source_id=source_id,
+            **remaining_kwargs,
+        )
 
     org_md = org_metadata_loader.load(version=version)
     dataset_metadata = org_md.product(product).dataset(dataset)
@@ -302,7 +303,7 @@ def assemble_dataset_package(
 
     if validate_dataset_files:
         validation_result = validate.validate(package_path, dataset_metadata)
-        if validation_result.has_errors:
+        if validation_result.has_errors():
             return assemble_result(
                 success=False,
                 result_summary="Pulled dataset had validation errors.",

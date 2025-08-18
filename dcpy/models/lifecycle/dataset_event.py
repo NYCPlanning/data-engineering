@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from tabulate import tabulate
+from tabulate import tabulate  # type: ignore
 from dcpy.models.base import SortedSerializedBase
 
 
