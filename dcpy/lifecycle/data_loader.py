@@ -26,7 +26,7 @@ def pull_dataset(
     if ds.source is None:
         raise Exception(f"Cannot import a dataset with no source: {ds}")
 
-    # ds.custom["file_type"] = ds.file_type or "Other"
+    ds.custom["file_type"] = ds.file_type or "Other"
     connector = connectors.pull[ds.source]
 
     stage_path = config.local_data_path_for_stage(stage)
