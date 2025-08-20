@@ -1,5 +1,5 @@
 name: 🚀 Publish a Dataset
-run-name: "🚀 Publish a Dataset: ${{ inputs.product }}"
+run-name: "🚀 Publish a Dataset: ${{ inputs.product }} ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
