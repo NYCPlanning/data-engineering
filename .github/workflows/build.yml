@@ -1,5 +1,5 @@
 name: 🏗️ Build a Dataset
-run-name: "🏗️ Build a Dataset: ${{ inputs.dataset_name }}"
+run-name: "🏗️ Build a Dataset: ${{ inputs.dataset_name }} ${{ inputs.version }}"
 
 on:
   workflow_dispatch:
