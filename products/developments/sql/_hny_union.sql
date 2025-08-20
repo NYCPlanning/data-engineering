@@ -10,6 +10,8 @@ UPDATE hpd_hny_units_by_building
 SET ogc_fid_text = 'hny' || '-' || cast(ogc_fid AS text);
 ALTER TABLE hpd_hny_units_by_building DROP COLUMN ogc_fid;
 ALTER TABLE hpd_hny_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
+-- Our ingest code seems to erroneously add the column wkb_geometry
+ALTER TABLE hpd_hny_units_by_building DROP COLUMN wkb_geometry;
 
 ALTER TABLE _init_hpd_historical_units_by_building ADD COLUMN ogc_fid_text text;
 UPDATE _init_hpd_historical_units_by_building
