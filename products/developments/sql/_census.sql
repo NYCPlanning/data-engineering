@@ -6,7 +6,7 @@ CREATE TABLE census2020_housing_units_by_geography AS
 SELECT
     geotype,
     CASE
-        WHEN geotype = 'CT2020' THEN bct2020
+        WHEN geotype = 'CT2020' THEN ((bct2020::numeric)::int)::text
         WHEN geotype = 'CCD2023' THEN substring(geoid, 9)
         ELSE geoid
     END AS aggregate_join,
