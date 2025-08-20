@@ -38,7 +38,7 @@ def run(
     metadata_only=False,
     publish=False,
     validate_dataset_files=False,
-    max_destinations=50,
+    max_destinations=100,
     dry_run=False,
 ) -> list[dataset_event.DistributeResult]:
     """Package and Distribute to dataset destinations.
