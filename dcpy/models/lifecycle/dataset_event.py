@@ -47,5 +47,5 @@ def make_results_table(distribute_results: list[DistributeResult]) -> str:
         ],
         headers=["destination", "dataset", "success?", "result"],
         tablefmt="presto",
-        maxcolwidths=[50, 10, 8, 70],
+        maxcolwidths=[50, 50, 8, 100],
     )
