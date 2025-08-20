@@ -1,5 +1,5 @@
 name: 🛫  Promote a Dataset to Draft
-run-name: "🛫 Promote a Dataset to Draft: ${{ inputs.product }}"
+run-name: "🛫 Promote a Dataset to Draft: ${{ inputs.product }} ${{ inputs.build }}"
 
 on:
   workflow_dispatch:
