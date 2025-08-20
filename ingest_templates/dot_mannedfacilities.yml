@@ -1,0 +1,33 @@
+id: dot_mannedfacilities
+acl: public-read
+
+attributes:
+  name: DOT Manned Facilities
+  description: >-
+    Recieved from DOT via email update. Source data has been sent in two ways:
+    * Individual zipped shapefile
+    * Part of geodatabase
+    If the data is sent via a geodatabase, there are some additional steps to load the data into data-library:
+    1. Open the geodatabase in a GIS program (QGIS or ArcGIS)
+    2. Export individual shapefile following naming convention established in template.yml
+       * Make sure to save the file in the proper epsg (2263) which data-library converts to 4326
+    3. If not already compressed, compress shapefile, rename following naming conventions in template and move into library/tmp/dot_xxxx.zip
+    4. Follow steps to update latest data in data-library
+  url:
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dot/{{ version }}/Manned_Facilities.zip
+  target_crs: EPSG:4326
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+    unzipped_filename: Manned_Facilities
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "geometry" }
