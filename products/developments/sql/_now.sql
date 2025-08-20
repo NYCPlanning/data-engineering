@@ -103,15 +103,8 @@ mapping_and_cleaning AS (
         existingoccupancyclassification::text AS _occ_initial,
         proposedoccupancyclassification::text AS _occ_proposed,
 
-        -- set 0 -> null for jobtype = Alteration
-        (CASE
-            WHEN jobtype ~* 'Alteration' THEN nullif(existing_stories, '0')::numeric
-        END)::numeric AS stories_init,
-
-        -- set 0 -> null for jobtype = Alteration
-        (CASE
-            WHEN jobtype ~* 'Alteration' THEN nullif(proposed_no_of_stories, '0')::numeric
-        END)::numeric AS stories_prop,
+        existing_stories::numeric AS stories_init,
+        proposed_no_of_stories::numeric AS stories_prop,
 
         -- if existingdwellingunits is not a number then null
         (CASE
@@ -154,15 +147,8 @@ mapping_and_cleaning AS (
         zip AS owner_zipcode,
         ownerphone AS owner_phone,
 
-        (CASE
-            WHEN jobtype ~* 'Alteration'
-                THEN nullif(existingbuildingheight, '0')
-        END)::numeric AS height_init,
-
-        (CASE
-            WHEN jobtype ~* 'Alteration'
-                THEN nullif(proposedbuildingheight, '0')
-        END)::numeric AS height_prop,
+        existingbuildingheight::numeric AS height_init,
+        proposedbuildingheight::numeric AS height_prop,
 
         CASE
             WHEN horizontalenlargement ~* 'true' AND NOT verticalenlargement ~* 'false'
