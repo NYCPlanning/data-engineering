@@ -39,6 +39,7 @@ def run(
     publish=False,
     validate_dataset_files=False,
     max_destinations=50,
+    dry_run=False,
 ) -> list[dataset_event.DistributeResult]:
     """Package and Distribute to dataset destinations.
 
@@ -61,6 +62,20 @@ def run(
     results: list[dataset_event.DistributeResult] = []
     for batch in destinations:
         product, dataset, _ = batch[0].split(".")
+        if dry_run:
+            results += [
+                dataset_event.DistributeResult(
+                    product=product,
+                    dataset=dataset,
+                    version=version,
+                    success=True,
+                    destination_id=b.split(".")[2],
+                    result_summary="Dry Run",
+                    result_details="Nothing to report.",
+                )
+                for b in batch
+            ]
+            continue
         logger.info(
             f"Beginning Package + Assembling files for destinations: {', '.join(batch)}"
         )
@@ -83,13 +98,13 @@ def run(
             distribute.to_dataset_destination(
                 product=product,
                 dataset=dataset,
-                destination_id=dest.split(".")[2],
+                destination_id=b.split(".")[2],
                 version=version,
                 package_path=package_result.package_path,
                 metadata_only=metadata_only,
                 publish=publish,
             )
-            for dest in batch
+            for b in batch
         ]
 
     return results
@@ -140,6 +155,11 @@ def package_and_distribute_product(
         "--validate",
         help="Validate assembled dataset files?",
     ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Perform a dry run (will just list destinations).",
+    ),
 ):
     results = run(
         version,
@@ -155,13 +175,13 @@ def package_and_distribute_product(
         metadata_only=metadata_only,
         publish=publish,
         validate_dataset_files=validate_dataset_files,
+        dry_run=dry_run,
     )
 
     if any([not r.success for r in results]):
         logger.error(
             f"Distribution for {product}.{version} finished, but issues occurred!"
         )
-        logger.error(str(results))
     else:
         logger.info("Finished distributing batches with no errors.")
 
