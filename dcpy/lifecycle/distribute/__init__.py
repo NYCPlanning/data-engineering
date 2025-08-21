@@ -4,7 +4,7 @@ from dcpy.lifecycle.distribute.connectors import (
     SocrataPublishConnector,
 )
 from dcpy.models.lifecycle.distribute import DatasetDestinationPushArgs
-from dcpy.models.lifecycle.dataset_event import DistributeResult
+from dcpy.models.lifecycle.event_result import DistributeResult
 from dcpy.lifecycle import product_metadata
 
 from dcpy.connectors.registry import ConnectorDispatcher

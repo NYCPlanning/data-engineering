@@ -2,7 +2,7 @@ from itertools import groupby
 import typer
 
 from dcpy.lifecycle import package, distribute, product_metadata
-from dcpy.models.lifecycle import dataset_event
+from dcpy.models.lifecycle import event_result
 from dcpy.utils.logging import logger
 
 
@@ -40,7 +40,7 @@ def run(
     validate_dataset_files=False,
     max_destinations=100,
     dry_run=False,
-) -> list[dataset_event.DistributeResult]:
+) -> list[event_result.DistributeResult]:
     """Package and Distribute to dataset destinations.
 
     Destinations are batched by product, dataset, and destination type.
@@ -59,12 +59,12 @@ def run(
         f"Filters returned {total_destinations} destinations, which exceeds max allowed ({max_destinations})"
     )
 
-    results: list[dataset_event.DistributeResult] = []
+    results: list[event_result.DistributeResult] = []
     for batch in destinations:
         product, dataset, _ = batch[0].split(".")
         if dry_run:
             results += [
-                dataset_event.DistributeResult(
+                event_result.DistributeResult(
                     product=product,
                     dataset=dataset,
                     version=version,
@@ -87,7 +87,7 @@ def run(
             validate_dataset_files=validate_dataset_files,
         )
         if not package_result.success:
-            result = dataset_event.DistributeResult(
+            result = event_result.DistributeResult(
                 destination_id=",".join(batch), **package_result.model_dump()
             )
             results.append(result)
@@ -185,4 +185,4 @@ def package_and_distribute_product(
     else:
         logger.info("Finished distributing batches with no errors.")
 
-    typer.echo(dataset_event.make_results_table(results))
+    typer.echo(event_result.make_results_table(results))

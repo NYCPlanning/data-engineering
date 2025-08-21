@@ -7,7 +7,7 @@ from dcpy.lifecycle import config, product_metadata as org_metadata_loader
 from dcpy.lifecycle import data_loader
 from dcpy.lifecycle.package import xlsx_writer, validate
 from dcpy.models.lifecycle.builds import InputDataset, InputDatasetDestination
-from dcpy.models.lifecycle.dataset_event import PackageAssembleResult
+from dcpy.models.lifecycle.event_result import PackageAssembleResult
 import dcpy.models.product.dataset.metadata as md
 from dcpy.utils.logging import logger
 
