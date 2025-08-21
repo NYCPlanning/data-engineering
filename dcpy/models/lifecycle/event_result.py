@@ -13,25 +13,16 @@ class LifecycleDatasetResult(SortedSerializedBase):
     result_summary: str | None = None
     result_details: str | None = None
 
-    def other_identifying_info(self) -> str:
-        return ""
-
 
 class DistributeResult(LifecycleDatasetResult):
     destination_id: str
     local_package_path: Path | None = None
-
-    def other_identifying_info(self) -> str:
-        return self.destination_id
 
 
 class PackageAssembleResult(LifecycleDatasetResult):
     source_id: str
     package_path: Path | None = None
     validation_errors: list[tuple] = []
-
-    def other_identifying_info(self) -> str:
-        return self.source_id
 
 
 def make_results_table(distribute_results: list[DistributeResult]) -> str:
