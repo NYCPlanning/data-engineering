@@ -164,3 +164,8 @@ dcpy = [
     "library/templates/*.yml",
     "lifecycle/package/resources/**",
 ]
+
+[tool.pyright]
+venvPath = "./"
+venv = ".venv"
+include = ["src", "dcpy", "apps"]

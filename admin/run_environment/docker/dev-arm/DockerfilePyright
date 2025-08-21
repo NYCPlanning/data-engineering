@@ -1,0 +1,7 @@
+FROM node:18-alpine
+
+WORKDIR /workspace
+RUN npm install -g pyright
+
+EXPOSE 2087
+CMD ["pyright-langserver", "--stdio"]
