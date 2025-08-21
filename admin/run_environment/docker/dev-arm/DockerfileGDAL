@@ -1,0 +1,9 @@
+FROM astral/uv:python3.13-bookworm
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+COPY install_gdal.sh .
+
+RUN ./install_gdal.sh

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Export the current direnv environment and run the given command
+direnv allow
+eval "$(direnv export bash)"
+exec "$@"

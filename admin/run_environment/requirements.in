@@ -23,6 +23,7 @@ matplotlib
 moto[s3]
 msal>=1.23.0
 mypy
+notebook
 numerize
 openpyxl
 openpyxl-stubs

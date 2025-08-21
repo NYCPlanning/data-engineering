@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  devcontainer:
+    image: dcp-arm-dev:0.0.1
+    container_name: devcontainer
+    ports:
+      - "8888:8888" # jupyter
+      - "4214:4213" # duckdb ui
+    working_dir: /de/data-engineering
+    command: ["bash/with_direnv", "jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--IdentityProvider.token=''", "--ServerApp.password=''"]
+    volumes:
+      - ${DATA_ENGINEERING_REPO_PATH}:/de/data-engineering
+      - ${PRODUCT_METADATA_REPO_PATH}:/de/product-metadata
+  # mypy:
+  #   image: dcp-arm-dev:0.0.1
+  #   command: ["dmypy", "daemon", "-- --strict"]
+  #   working_dir: /de/data-engineering/dcpy
+  #   volumes:
+  #     - ${DATA_ENGINEERING_REPO_PATH}:/de/data-engineering
+  # pyright:
+  #   image: dcp-de-pyright-lsp
+  #   working_dir: /de/data-engineering
+  #   ports:
+  #     - "2087:2087"
+  #   volumes:
+  #     - ${DATA_ENGINEERING_REPO_PATH}:/de/data-engineering
+  #   command: ["pyright-langserver", "--node-ipc"]
