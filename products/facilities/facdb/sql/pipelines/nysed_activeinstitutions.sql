@@ -44,7 +44,7 @@ WITH merged AS (
         ) AS enrollment
     FROM nysed_activeinstitutions
     LEFT JOIN nysed_nonpublicenrollment
-        ON nysed_activeinstitutions.sed_code = nysed_nonpublicenrollment.beds_code
+        ON nysed_activeinstitutions.sed_code::bigint = nysed_nonpublicenrollment.beds_code
     WHERE (
         inst_type_description = 'PUBLIC SCHOOLS'
         AND inst_sub_type_description LIKE '%GED%'
