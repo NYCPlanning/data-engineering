@@ -196,9 +196,13 @@ def get_preferred_file_type(
     dataset: Dataset | DatasetKey, preferences: list[DatasetType]
 ) -> DatasetType:
     file_types = get_file_types(dataset)
+    if len(file_types) == 0:
+        raise FileNotFoundError(
+            f"No files found for dataset {dataset.id} {dataset.version}."
+        )
     if len(file_types.intersection(preferences)) == 0:
         raise FileNotFoundError(
-            f"Dataset {dataset.id} could not find filetype of any of {preferences}. Found filetypes for {dataset.id}: {file_types}"
+            f"No preferred file types found for dataset {dataset.id} {dataset.version}. Preferred file types: {preferences}. Found filetypes: {file_types}."
         )
     return next(t for t in preferences if t in file_types)
 
