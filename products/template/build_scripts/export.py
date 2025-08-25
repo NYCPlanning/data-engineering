@@ -1,10 +1,8 @@
 import shutil
-from pathlib import Path
 
-from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
 from dcpy.utils.logging import logger
-from dcpy.models.product.metadata import OrgMetadata
 from dcpy.connectors.edm import publishing
+from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.package import xlsx_writer, pdf_writer, yaml_writer
 
 from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
@@ -26,7 +24,7 @@ BUILD_TABLES = {
 
 
 def generate_data_dictionaries():
-    org_metadata = OrgMetadata.from_path(Path(PRODUCT_METADATA_REPO_PATH))
+    org_metadata = product_metadata.load(version="DUMMY VERSION")
 
     yaml_writer.write_yaml(
         org_metadata=org_metadata,
