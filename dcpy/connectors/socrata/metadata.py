@@ -124,6 +124,7 @@ app = typer.Typer(add_completion=False)
 
 @app.command("export")
 def _export_socrata_metadata(
+    socrata_domain: str,
     four_four: str,
     output_path: Path = typer.Option(
         None,
@@ -138,5 +139,5 @@ def _export_socrata_metadata(
 
     logger.info(f"exporting {four_four} metadata to {output_path}")
     metadata.make_dcp_metadata(
-        pub.Dataset(four_four=four_four).fetch_metadata()
+        pub.Dataset(socrata_domain=socrata_domain, four_four=four_four).fetch_metadata()
     ).write_to_yaml(output_path)

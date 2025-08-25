@@ -6,7 +6,11 @@ from unittest.mock import MagicMock, call
 
 import dcpy.models.product.dataset.metadata as md
 from dcpy.connectors.socrata import publish
+from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from socrata.output_schema import OutputSchema
+
+open_data_conn = OpenDataConnector()
+open_data_conn.SOCRATA_DOMAIN = "mock.data.cityofnewyork.us"
 
 
 @pytest.fixture
@@ -24,7 +28,7 @@ def test_push_dataset_raises_exceptions_wrong_dest_type(metadata: md.Metadata):
     with pytest.raises(
         Exception, match=f"{publish.ERROR_WRONG_DESTINATION_TYPE}: bytes"
     ):
-        publish.push_dataset(
+        open_data_conn.distribute_dataset(
             metadata=metadata,
             dataset_destination_id="bytes_dest_with_individual_files",
             dataset_package_path=Path("./"),
@@ -41,7 +45,7 @@ def test_push_dataset_raises_exceptions_no_four_four(
     ][0]
     # No four-four for socrata
     with pytest.raises(Exception, match=publish.ERROR_MISSING_FOUR_FOUR):
-        publish.push_dataset(
+        open_data_conn.distribute_dataset(
             metadata=metadata,
             dataset_destination_id=non_socrata_dest.id,
             dataset_package_path=Path("./"),
@@ -61,7 +65,7 @@ def test_socrata_destination_file_uses_multiple_dataset_files(metadata: md.Metad
         f.custom["destination_use"] = publish.DestinationUses.dataset_file
 
     with pytest.raises(Exception, match=publish.ERROR_WRONG_DATASET_FILE_COUNT):
-        publish.push_dataset(
+        open_data_conn.distribute_dataset(
             metadata=metadata,
             dataset_destination_id=destination,
             dataset_package_path=Path("./"),
@@ -78,7 +82,7 @@ def test_flow_happy_path(mock_dataset, metadata: md.Metadata):
     destination = "socrata"
     dataset_file_id = "data_file"
 
-    publish.push_dataset(
+    open_data_conn.distribute_dataset(
         metadata=metadata,
         dataset_destination_id=destination,
         dataset_package_path=Path("./"),
@@ -138,7 +142,7 @@ def test_flow_shapefile(mock_dataset, metadata: md.Metadata):
             else publish.DestinationUses.attachment
         )
 
-    publish.push_dataset(
+    open_data_conn.distribute_dataset(
         metadata=metadata,
         dataset_destination_id=destination,
         dataset_package_path=Path("./"),
@@ -166,7 +170,7 @@ def test_flow_csv(mock_dataset, metadata: md.Metadata):
             else publish.DestinationUses.attachment
         )
 
-    publish.push_dataset(
+    open_data_conn.distribute_dataset(
         metadata=metadata,
         dataset_destination_id=destination,
         dataset_package_path=Path("./"),
@@ -202,7 +206,7 @@ def test_overriden_dataset_file_name(mock_dataset, metadata: md.Metadata):
     ][0].file_overrides
     file_overrides.filename = overridden_dataset_file_name
 
-    publish.push_dataset(
+    open_data_conn.distribute_dataset(
         metadata=metadata,
         dataset_destination_id=destination,
         dataset_package_path=Path("./"),
@@ -341,7 +345,7 @@ def test_metadata_only_deployments(mock_dataset, metadata: md.Metadata):
 
     destination = "socrata"
 
-    publish.push_dataset(
+    open_data_conn.distribute_dataset(
         metadata=metadata,
         dataset_destination_id=destination,
         dataset_package_path=Path("./"),
