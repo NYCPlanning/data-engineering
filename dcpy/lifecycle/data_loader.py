@@ -21,8 +21,8 @@ def pull_dataset(
 
     if ds.version == "latest" or ds.version is None:
         raise Exception(f"Cannot import a dataset without a resolved version: {ds}")
-    if ds.file_type is None:
-        raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
+    # if ds.file_type is None:
+    #     raise Exception(f"Cannot import a dataset without a resolved file type: {ds}")
     if ds.source is None:
         raise Exception(f"Cannot import a dataset with no source: {ds}")
 

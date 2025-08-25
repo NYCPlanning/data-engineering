@@ -8,6 +8,7 @@ from dcpy.configuration import (
 )
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.edm.bytes import BytesConnector
+from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.socrata.connector import SocrataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
@@ -29,6 +30,7 @@ def _set_default_connectors():
         BytesConnector(),
         publishing.GisDatasetsConnector(),
         SocrataConnector(),
+        OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
         web.WebConnector(),
         [web.WebConnector(), "api"],

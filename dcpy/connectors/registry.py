@@ -2,47 +2,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Protocol, Any, TypeVar, Generic, overload, Callable
+from typing import Any, TypeVar, Generic, overload, Callable
 
 from dcpy.utils.logging import logger
-
-
-### Dispatchers
-
-_O = TypeVar("_O", contravariant=True)
-_I = TypeVar("_I", contravariant=True)
-
-
-class PushPullProtocol(Protocol, Generic[_O, _I]):
-    conn_type: str
-
-    def push(self, arg: _O, /) -> Any:
-        """push"""
-
-    def pull(self, arg: _I, /) -> Any:
-        """pull"""
-
-
-class ConnectorDispatcher(Generic[_O, _I]):
-    _connectors: dict[str, PushPullProtocol[_O, _I]]
-
-    def __init__(self):
-        self._connectors = {}
-
-    def register(self, conn_type: str, connector: PushPullProtocol[_O, _I]):
-        self._connectors[conn_type] = connector
-
-    def push(self, dest_type: str, arg: _O) -> str:
-        if dest_type not in self._connectors:
-            raise Exception(f"No connector registered for {dest_type}")
-        connector: PushPullProtocol = self._connectors[dest_type]
-        return connector.push(arg)
-
-    def pull(self, source_type: str, arg: _I) -> str:
-        if source_type not in self._connectors:
-            raise Exception(f"No connector registered for {source_type}")
-        connector: PushPullProtocol = self._connectors[source_type]
-        return connector.pull(arg)
 
 
 ### Connector Base Classes
@@ -52,7 +14,7 @@ class GenericConnector(ABC, BaseModel, extra="forbid"):
 
 class Push(GenericConnector, ABC):
     def push(self, key: str, **kwargs) -> Any:
-        """Push to a destination that implements versioning."""
+        """Push to a destination."""
 
 
 class VersionSearch(ABC):

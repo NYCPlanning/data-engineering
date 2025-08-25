@@ -40,4 +40,4 @@ class TestConnector:
 
     def test_push(self):
         with pytest.raises(NotImplementedError):
-            self.connector.push(source.uid, **source.model_dump())
+            self.connector.push(source.uid, version="asfd", **source.model_dump())
