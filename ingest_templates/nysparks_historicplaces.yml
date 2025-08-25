@@ -1,0 +1,26 @@
+id: nysparks_historicplaces
+acl: public-read
+
+attributes:
+  name:
+  description: |
+    ## National Register Building Listings
+
+    New York State Office of Parks, Recreation and Historic Preservation Property
+
+    Boundaries for primarily non-archaeological properties in New York State that are listed on the State or National Register of Historic Places, or are National Historic Landmarks.
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nys_parks
+    dataset: National_Register_Building_Listings
+    # layer_name: 13
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "geometry" }

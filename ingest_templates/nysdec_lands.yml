@@ -1,0 +1,25 @@
+id: nysdec_lands
+acl: public-read
+
+attributes:
+  name:
+  description: |
+  url: |
+    ## DEC Lands and Campgrounds
+    Lands under the care, custody and control of DEC, including Wildlife Management areas, Unique Areas, State Forests, Forest Preserve, and DEC-operated campgrounds.
+    Download Shapefile here: https://data.gis.ny.gov/datasets/84b4cce8a8974c31a1c5584540f3aaae_0/about
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nys_clearinghouse
+    dataset: NYS_DEC_Lands
+    # layer_name:
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "geometry" }
