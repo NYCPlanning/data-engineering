@@ -21,7 +21,7 @@ def test_unpack_package(metadata, tmp_path, package_path):
         zip_path=package_path / "zip_files" / "readme_and_data_file.zip",
         package_path=Path(tmp_path),
         package_id="my_zip",
-        product_metadata=metadata,
+        dataset_metadata=metadata,
     )
 
     # Check that dataset_files and attachments folders exist

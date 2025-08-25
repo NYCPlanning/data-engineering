@@ -14,7 +14,9 @@ from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
 
-def pull_dataset(ds: InputDataset, stage: str) -> Path:
+def pull_dataset(
+    ds: InputDataset, stage: str, *, dest_dir_override: Path | None = None
+) -> Path:
     logger.info(f"Pulling {ds.id} to destination: {ds.destination}")
 
     if ds.version == "latest" or ds.version is None:
@@ -24,7 +26,7 @@ def pull_dataset(ds: InputDataset, stage: str) -> Path:
     if ds.source is None:
         raise Exception(f"Cannot import a dataset with no source: {ds}")
 
-    ds.custom["file_type"] = ds.file_type
+    ds.custom["file_type"] = ds.file_type or "Other"
     connector = connectors.pull[ds.source]
 
     stage_path = config.local_data_path_for_stage(stage)
@@ -34,7 +36,7 @@ def pull_dataset(ds: InputDataset, stage: str) -> Path:
     pull_res = connector.pull(
         key=ds.id,
         version=ds.version,
-        destination_path=stage_path / conn_sub_path,
+        destination_path=dest_dir_override or stage_path / conn_sub_path,
         **ds.custom,
     )
     logger.info(f"Pulled {ds.id} to {pull_res['path']}.")
