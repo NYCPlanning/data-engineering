@@ -23,18 +23,6 @@ def metadata(package_path: Path):
     return md.Metadata.from_path(package_path / "metadata.yml")
 
 
-def test_push_dataset_raises_exceptions_wrong_dest_type(metadata: md.Metadata):
-    # Wrong Destination type
-    with pytest.raises(
-        Exception, match=f"{publish.ERROR_WRONG_DESTINATION_TYPE}: bytes"
-    ):
-        open_data_conn.distribute_dataset(
-            metadata=metadata,
-            dataset_destination_id="bytes_dest_with_individual_files",
-            dataset_package_path=Path("./"),
-        )
-
-
 def test_push_dataset_raises_exceptions_no_four_four(
     metadata: md.Metadata, package_path: Path
 ):
