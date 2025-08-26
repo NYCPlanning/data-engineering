@@ -358,7 +358,7 @@ sources:
     - name: name
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geometry
       tests:
       - not_null
     tests:

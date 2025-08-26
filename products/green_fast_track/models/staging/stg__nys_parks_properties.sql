@@ -9,7 +9,7 @@ filtered AS (
     SELECT
         'nys_parks_properties' AS variable_type,
         COALESCE(uid || '-', '') || name AS variable_id,
-        ST_TRANSFORM(wkb_geometry, 2263) AS raw_geom
+        ST_TRANSFORM(geometry, 2263) AS raw_geom
     FROM source
     WHERE UPPER(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
 )

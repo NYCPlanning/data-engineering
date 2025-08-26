@@ -8,7 +8,7 @@ all_historic_places AS (
         historicname,
         countyname,
         citytown,
-        ST_TRANSFORM(wkb_geometry, 2263) AS geom
+        ST_TRANSFORM(geometry, 2263) AS geom
     FROM historic_places
 ),
 
