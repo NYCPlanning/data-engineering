@@ -1,19 +1,24 @@
 import os
 from pathlib import Path
-import urllib.request
 import shutil
 import tempfile
-import typer
 
-from dcpy.configuration import PRODUCT_METADATA_REPO_PATH
-from dcpy.lifecycle import config
-from dcpy.lifecycle.package import xlsx_writer
+from dcpy.lifecycle import config, product_metadata as org_metadata_loader
+from dcpy.lifecycle import data_loader
+from dcpy.lifecycle.package import xlsx_writer, validate
+from dcpy.models.lifecycle.builds import InputDataset, InputDatasetDestination
+from dcpy.models.lifecycle.event_result import PackageAssembleResult
 import dcpy.models.product.dataset.metadata as md
-import dcpy.models.product.metadata as prod_md
 from dcpy.utils.logging import logger
 
 
+STAGE = "package.assemble"
 ASSEMBLY_DIR = config.local_data_path_for_stage("package.assemble")
+
+ASSEMBLY_INSTRUCTIONS_KEY = "assembly"
+METADATA_OVERRIDE_KEY = "with_metadata_from"
+
+SHAPEFILE_SUFFIXES = {"shx", "shp.xml", "shp", "sbx", "sbn", "prj", "dbf", "cpg", "shx"}
 
 
 def make_package_folder(path: Path):
@@ -42,9 +47,6 @@ def _file_id_to_zipped_paths(
             "zipped_path": Path(pf.filename or f.file.filename),
         }
     return mapping
-
-
-SHAPEFILE_SUFFIXES = {"shx", "shp.xml", "shp", "sbx", "sbn", "prj", "dbf", "cpg", "shx"}
 
 
 def unpack_multilayer_shapefile(
@@ -110,7 +112,7 @@ def unzip_into_package(
     zip_path: Path,
     package_path: Path,
     package_id: str,
-    product_metadata: md.Metadata,
+    dataset_metadata: md.Metadata,
 ):
     """Unpackages a zipped file into our package format.
 
@@ -118,8 +120,8 @@ def unzip_into_package(
     This allows us to reverse that process, to construct packages straight from what's
     zipped up on a destination.
     """
-    package = product_metadata.get_package(package_id)
-    file_ids_to_paths = _file_id_to_zipped_paths(product_metadata, package_id)
+    package = dataset_metadata.get_package(package_id)
+    file_ids_to_paths = _file_id_to_zipped_paths(dataset_metadata, package_id)
     logger.info(f"Unpackaging files: {file_ids_to_paths}")
 
     make_package_folder(package_path)
@@ -151,11 +153,11 @@ def unzip_into_package(
             )
 
 
-def _get_file_url_mappings_by_id(
+def _get_file_package_paths(
     product_metadata: md.Metadata, destination_id: str
-) -> dict[str, dict]:
+) -> dict[str, str]:
     """Find the destination urls for all destination files and zips in a package."""
-    ids_to_paths_and_dests = {}
+    ids_to_paths = {}
 
     for df in product_metadata.get_destination(destination_id).files:
         # The destination file could be either a `file` or a `package` zip
@@ -164,59 +166,70 @@ def _get_file_url_mappings_by_id(
         if files:
             f = files[0]
             folder = "attachments" if f.file.is_metadata else "dataset_files"
-            ids_to_paths_and_dests[df.id] = {
-                "path": f"{folder}/{f.file.filename}",
-                "url": df.custom["url"],
-            }
+            ids_to_paths[df.id] = f"{folder}/{f.file.filename}"
         elif packages:
             p = packages[0]
-            ids_to_paths_and_dests[df.id] = {
-                "path": f"zip_files/{p.filename}",
-                "url": df.custom["url"],
-            }
+            ids_to_paths[df.id] = f"zip_files/{p.filename}"
 
-    return ids_to_paths_and_dests
+    return ids_to_paths
 
 
 def pull_destination_files(
-    local_package_path: Path,
-    product_metadata: md.Metadata,
-    destination_id: str,
-    *,
-    unpackage_zips: bool = False,
+    product: str,
+    dataset: str,
+    source_id: str,
+    version: str,
+    destination_path: Path,
+    unpackage_zips: bool = True,
     metadata_only: bool = False,
 ):
     """Pull all files for a given destination."""
-    dest = product_metadata.get_destination(destination_id)
 
-    logger.info(f"Pulling package from {destination_id}")
-    ids_to_paths_and_dests = _get_file_url_mappings_by_id(
-        product_metadata=product_metadata, destination_id=destination_id
-    )
-    make_package_folder(local_package_path)
-    product_metadata.write_to_yaml(local_package_path / "metadata.yml")
+    org_md = org_metadata_loader.load(version=version)
+    product_metadata = org_md.product(product).dataset(dataset)
+    dest = product_metadata.get_destination(source_id)
+
+    logger.info(f"Pulling package from {source_id}")
+    make_package_folder(destination_path)
+    product_metadata.write_to_yaml(destination_path / "packaged_metadata.yml")
+
+    id_to_paths = _get_file_package_paths(product_metadata, source_id)
 
     assembled_file_ids = {p.id for p in product_metadata.assembly}
+    logger.info(f"Pulling file ids for assembly: {[f.id for f in dest.files]}")
     for f in dest.files:
-        paths_and_dests = ids_to_paths_and_dests[f.id]
-        f_is_metadata = (
-            f.id in product_metadata.get_file_ids()
-            and product_metadata.get_file_and_overrides(f.id).file.is_metadata
-        )
-        if metadata_only and not f_is_metadata:
+        if (
+            metadata_only
+            and not product_metadata.get_file_and_overrides(f.id).file.is_metadata
+        ):
             continue
-        file_path = local_package_path / (paths_and_dests["path"])
-        logger.info(f"{local_package_path} - {paths_and_dests['path']} - {file_path}")
 
-        url = paths_and_dests["url"]
-
+        ds_id = f"{product}.{dataset}"
         try:
-            # By default, urllib doesn't mention the url in its stack trace, which makes it difficult to debug
-            logger.info(f"Retrieving file at url: {url}")
-            urllib.request.urlretrieve(url, file_path)
-        except Exception:
-            raise Exception(f"Assembly error Retrieving file at {url}")
+            connector_args = {k: v for k, v in f.custom.items() if k != "key"}
+            if "file_id" not in connector_args:
+                logger.warning(
+                    f"No file_id was provided in connector args for {dest.type}. Using {f.id}"
+                )
+                connector_args["file_id"] = f.id
 
+            ds = InputDataset(
+                id=f.custom.get("key", ds_id),
+                version=version,
+                source=dest.type,
+                destination=InputDatasetDestination.file,
+                custom=connector_args,
+            )
+            file_path = data_loader.pull_dataset(
+                ds,
+                STAGE,
+                dest_dir_override=destination_path / id_to_paths[f.id],
+            )
+        except Exception as e:
+            raise Exception(f"Assembly error Retrieving file {f.id} for {ds_id}: {e}")
+
+        # If the file was a zipped collection of files, or a shapefile with multiple layers
+        # Unzip the datset file into their correct spots
         if unpackage_zips and f.id in assembled_file_ids:
             logger.info(f"Unpackaging zip: {f.id}")
 
@@ -224,15 +237,15 @@ def pull_destination_files(
             if assembled_file.type == "zip":
                 unzip_into_package(
                     zip_path=file_path,
-                    package_path=local_package_path,
+                    package_path=destination_path,
                     package_id=f.id,
-                    product_metadata=product_metadata,
+                    dataset_metadata=product_metadata,
                 )
             # TODO: move these to constants
             elif assembled_file.type == "multilayer_shapefile":
                 unpack_multilayer_shapefile(
                     file_path=file_path,
-                    package_path=local_package_path,
+                    package_path=destination_path,
                     package_id=f.id,
                     dataset_metadata=product_metadata,
                 )
@@ -242,55 +255,61 @@ def pull_destination_files(
                 )
 
 
-def pull_destination_package_files(
+def assemble_dataset_package(
     *,
-    source_destination_id: str,
-    local_package_path: Path,
-    dataset_metadata: md.Metadata,
-):
-    """Pull all files for a destination."""
-    dests = [
-        d for d in dataset_metadata.destinations if d.type == source_destination_id
-    ]
-    for d in dests:
-        pull_destination_files(
-            local_package_path, dataset_metadata, d.id, unpackage_zips=True
-        )
-
-    if not local_package_path.exists():
-        raise Exception(
-            f"The package page {local_package_path} was never created. Likely no files were pulled."
-        )
-    dataset_metadata.write_to_yaml(local_package_path / "metadata.yml")
-
-
-ASSEMBLY_INSTRUCTIONS_KEY = "assembly"
-METADATA_OVERRIDE_KEY = "with_metadata_from"
-
-
-def assemble_package(
-    *,
-    org_md: prod_md.OrgMetadata,
     product: str,
     dataset: str,
     version: str,
-    source_destination_id: str,
-    out_path: Path | None = None,
+    source_id: str,
+    path_override: Path | None = None,
     metadata_only: bool = False,
-) -> Path:
-    out_path = out_path or ASSEMBLY_DIR / product / version / dataset
-    logger.info(
-        f"Assembling dataset from {source_destination_id}. Writing to: {out_path}"
+    validate_dataset_files: bool = False,
+) -> PackageAssembleResult:
+    def assemble_result(**remaining_kwargs) -> PackageAssembleResult:
+        return PackageAssembleResult(
+            product=product,
+            dataset=dataset,
+            version=version,
+            source_id=source_id,
+            **remaining_kwargs,
+        )
+
+    org_md = org_metadata_loader.load(version=version)
+    dataset_metadata = org_md.product(product).dataset(dataset)
+
+    package_path = (
+        (path_override or config.local_data_path_for_stage(STAGE))
+        / product
+        / dataset
+        / version
     )
 
-    dataset_metadata = org_md.product(product).dataset(dataset)
-    pull_destination_files(
-        out_path,
-        dataset_metadata,
-        source_destination_id,
-        unpackage_zips=True,
-        metadata_only=metadata_only,
-    )
+    try:
+        pull_destination_files(
+            product,
+            dataset,
+            source_id,
+            version,
+            unpackage_zips=True,
+            metadata_only=metadata_only,
+            destination_path=package_path,
+        )
+    except Exception as e:
+        return assemble_result(
+            success=False,
+            result_summary="Failed to pull destination files",
+            result_details=str(e),
+        )
+
+    if validate_dataset_files:
+        validation_result = validate.validate(package_path, dataset_metadata)
+        if validation_result.has_errors():
+            return assemble_result(
+                success=False,
+                result_summary="Pulled dataset had validation errors.",
+                package_path=package_path,
+                validation_errors=validation_result.get_errors_list(),
+            )
 
     excel_data_dictionaries = [
         f.file
@@ -306,92 +325,9 @@ def assemble_package(
             org_md=org_md,
             product=product,
             dataset=dataset,
-            output_path=out_path / "attachments" / f.filename,
+            output_path=package_path / "attachments" / f.filename,
         )
-    return out_path
-
-
-app = typer.Typer()
-
-
-@app.command("assemble_from_source")
-def assemble_dataset_cli(
-    product: str,
-    version: str,
-    org_metadata_path: Path = typer.Option(
-        PRODUCT_METADATA_REPO_PATH,
-        "-z",
-        "--metadata-path",
-        help="Path to metadata repo. Optionally, set in your env.",
-    ),
-    dataset: str = typer.Option(
-        None,
-        "--dataset",
-        "-d",
-        help="Dataset, if different from product",
-    ),
-    out_path: Path = typer.Option(
-        None,
-        "--output-path",
-        "-o",
-        help="Output Path. Defaults to ./data_dictionary.xlsx",
-    ),
-    metadata_only: bool = typer.Option(
-        False,
-        "--output-path",
-        "-m",
-        help="Only Assemble Metadata.",
-    ),
-    source_destination_id: str = typer.Option(
-        "--source-destination-id",
-        "-s",
-        help="The Destination which acts as a source for this assembly",
-    ),
-):
-    assert source_destination_id, (
-        f"A {source_destination_id} is required to pull files."
-    )
-    dataset_name = dataset or product
-    org_md = prod_md.OrgMetadata.from_path(
-        org_metadata_path, template_vars={"version": version}
-    )
-    assemble_package(
-        org_md=org_md,
-        product=product,
-        dataset=dataset_name,
-        source_destination_id=source_destination_id,
-        version=version,
-        out_path=out_path,
-        metadata_only=metadata_only,
-    )
-
-
-@app.command("pull_dataset")
-def _pull_dataset_cli(
-    product: str,
-    version: str,
-    source_destination_id: str,
-    dataset: str = typer.Option(
-        None,
-        "--dataset",
-        "-d",
-        help="Dataset, if different from product",
-    ),
-    org_metadata_path: Path = typer.Option(
-        PRODUCT_METADATA_REPO_PATH,
-        "-z",
-        "--metadata-path",
-        help="Path to metadata repo. Optionally, set in your env.",
-    ),
-):
-    dataset = dataset or product
-    org_md = prod_md.OrgMetadata.from_path(
-        org_metadata_path, template_vars={"version": version}
-    )
-    out_dir = ASSEMBLY_DIR / product / version / dataset
-    dataset_metadata = org_md.product(product).dataset(dataset)
-    pull_destination_package_files(
-        source_destination_id=source_destination_id,
-        local_package_path=out_dir,
-        dataset_metadata=dataset_metadata,
+    return assemble_result(
+        success=True,
+        package_path=package_path,
     )

@@ -46,7 +46,7 @@ class PackageValidation:
     file_validations: list[DatasetFileValidation]
     errors: list[ValidationError]
 
-    def has_errors(self):
+    def has_errors(self) -> bool:
         return bool(self.errors or any([e.errors for e in self.file_validations]))
 
     def make_errors_table(self):

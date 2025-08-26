@@ -26,6 +26,7 @@ class DatasetType(StrEnum):
     xlsx = "xlsx"  # needed for a few "legacy" products. Aim to phase out
     json = "json"
     shapefile = "shapefile"
+    other = "Other"
 
 
 def _type_to_extension(dst: DatasetType) -> str:

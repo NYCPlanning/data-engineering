@@ -110,9 +110,12 @@ class BytesConnector(VersionedConnector):
         file_id = kwargs["file_id"]
         file_url = _sitemap.get_file_url(product, dataset, file_id, version=version)
 
-        if destination_path.is_dir() or str(destination_path).endswith("/"):
+        if (
+            not destination_path.suffix
+        ):  # If it lacks a suffix (e.g. .txt), we'll guess that it's a dir
             filename = _sitemap.get_filename(product, dataset, file_id, version=version)
             out_path = destination_path / filename
+            destination_path.mkdir(exist_ok=True, parents=True)
         else:
             destination_path.parent.mkdir(exist_ok=True, parents=True)
             out_path = destination_path

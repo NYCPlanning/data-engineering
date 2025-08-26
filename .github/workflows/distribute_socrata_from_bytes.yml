@@ -1,51 +1,57 @@
-name: 📬 Distribute From Bytes
-run-name: "📬 Distribute From Bytes: ${{ inputs.PRODUCT_NAME }}-${{ inputs.PRODUCT_VERSION }}-${{ inputs.DATASET }}-${{ inputs.DESTINATION_ID_FILTER }}-${{ inputs.DESTINATION_TYPE_FILTER }}"
+name: 📬 Distribute Datasets
+run-name: "📬 Distribute Datasets: ${{ inputs.product }}-${{ inputs.version }}-${{ inputs.datasets }}-${{ inputs.destination_tags }}-${{ inputs.destination_types }}"
 
 on:
   workflow_dispatch:
     inputs:
-      PRODUCT_NAME:
+      product:
         description: "Name of the product"
         type: string
         required: true
-      PRODUCT_VERSION:
+      version:
         description: "Version to push"
         type: string
         required: true
-      DATASET:
-        description: "Dataset to push"
+      source:
+        description: "Source ID (e.g. bytes)"
         type: string
         required: true
-      PUBLISH:
-        description: "Publish the revision? (if not, will leave the revision open)"
-        type: boolean
-        default: false
-        required: false
-      METADATA_ONLY:
-        description: "Distribute just the metadata?"
-        type: boolean
-        default: false
-        required: false
-      DESTINATION_ID_FILTER:
-        description: "Destination ID (e.g. `colp_socrata`)"
+      datasets:
+        description: "Comma-separated list of datasets to push"
         type: string
         required: false
-      DESTINATION_TYPE_FILTER:
-        description: "Destination type (e.g. 'ftp')"
+      destination_tags:
+        description: "Comma-separated list of destination tags to filter for."
         type: string
         required: false
-      SKIP_VALIDATION:
-        description: "Skip validation altogether?"
-        type: boolean
-        default: false
-      IGNORE_VALIDATION_ERRORS:
-        description: "Ignore Validation Errors? (Will still perform validation, but will just log the outputs to the console)"
-        type: boolean
-        default: false
-      MD_REPO_BRANCH:
-        description: "(Override) Product-Metadata branch/commit/ref"
+      destination_types:
+        description: "Comma-separated list of destination types to filter for."
         type: string
-        default: "main"
+        required: false
+      publish:
+        description: "Publish the Socrata Revision? Or leave it open."
+        type: boolean
+        default: false
+        required: false
+      metadata_only:
+        description: "Only push metadata (including attachments)."
+        type: boolean
+        default: false
+        required: false
+      validate_dataset_files:
+        description: "Validate assembled dataset files?"
+        type: boolean
+        default: false
+        required: false
+      # MD_REPO_BRANCH:
+      #   description: "(Override) Product-Metadata branch/commit/ref"
+      #   type: string
+      #   default: "main"
+      dry_run:
+        description: "Perform a dry run (will just list destinations)."
+        type: boolean
+        default: false
+        required: false
 jobs:
   publish:
     runs-on: ubuntu-22.04
@@ -66,7 +72,7 @@ jobs:
         with:
           repository: NYCPlanning/product-metadata
           path: product-metadata
-          ref: ${{ inputs.MD_REPO_BRANCH }}
+          # ref: ${{ inputs.MD_REPO_BRANCH }}
 
 
       - name: Load Secrets
@@ -87,14 +93,14 @@ jobs:
 
       - name: Distribute to Destinations
         run: |
-          python3 -m dcpy lifecycle scripts package_and_distribute \
-            ${{ inputs.PRODUCT_NAME }} \
-            ${{ inputs.PRODUCT_VERSION }} \
-            ${{ inputs.DATASET }} \
-            bytes \
-            $(if [ ${{ inputs.DESTINATION_ID_FILTER }} != "" ]; then echo "-a ${{ inputs.DESTINATION_ID_FILTER }}"; fi) \
-            $(if [ ${{ inputs.DESTINATION_TYPE_FILTER }} != "" ]; then echo "-e ${{ inputs.DESTINATION_TYPE_FILTER }}"; fi) \
-            $(if [ ${{ inputs.SKIP_VALIDATION }} = "true" ]; then echo "-y"; fi) \
-            $(if [ ${{ inputs.IGNORE_VALIDATION_ERRORS }} = "true" ]; then echo "-i"; fi) \
-            $(if [ ${{ inputs.PUBLISH }} = "true" ]; then echo "-p"; fi) \
-            $(if [ ${{ inputs.METADATA_ONLY }} = "true" ]; then echo "-m"; fi)
+          python3 -m dcpy lifecycle scripts package_and_distribute product \
+            ${{ inputs.product }} \
+            ${{ inputs.version }} \
+            ${{ inputs.source }} \
+            $(if [ "${{ inputs.datasets }}" != "" ]; then for ds in $(echo ${{ inputs.datasets }} | tr ',' ' '); do echo -d $ds; done; fi) \
+            $(if [ "${{ inputs.destination_tags }}" != "" ]; then for tag in $(echo ${{ inputs.destination_tags }} | tr ',' ' '); do echo -t $tag; done; fi) \
+            $(if [ "${{ inputs.destination_types }}" != "" ]; then for typ in $(echo ${{ inputs.destination_types }} | tr ',' ' '); do echo -y $typ; done; fi) \
+            $(if [ "${{ inputs.publish }}" = "true" ]; then echo "-p"; fi) \
+            $(if [ "${{ inputs.metadata_only }}" = "true" ]; then echo "-m"; fi) \
+            $(if [ "${{ inputs.validate_dataset_files }}" = "true" ]; then echo "-v"; fi) \
+            $(if [ "${{ inputs.dry_run }}" = "true" ]; then echo "--dry-run"; fi)

@@ -8,7 +8,7 @@ from dcpy.lifecycle.distribute import dispatcher
 
 @pytest.fixture
 def org_metadata(package_and_dist_test_resources):
-    return package_and_dist_test_resources.org_md()
+    return package_and_dist_test_resources.org_md
 
 
 SNOWFLAKE_CONNECTOR_TYPE = "snowflake"
