@@ -6,6 +6,7 @@ import tempfile
 from dcpy.lifecycle import config, product_metadata as org_metadata_loader
 from dcpy.lifecycle import data_loader
 from dcpy.lifecycle.package import xlsx_writer, validate
+from dcpy.models.connectors.edm import recipes
 from dcpy.models.lifecycle.builds import InputDataset, InputDatasetDestination
 from dcpy.models.lifecycle.event_result import PackageAssembleResult
 import dcpy.models.product.dataset.metadata as md
@@ -217,6 +218,7 @@ def pull_destination_files(
                 id=f.custom.get("key", ds_id),
                 version=version,
                 source=dest.type,
+                file_type=recipes.DatasetType.other,  # We don't yet put file_types in product-metadata files.
                 destination=InputDatasetDestination.file,
                 custom=connector_args,
             )
