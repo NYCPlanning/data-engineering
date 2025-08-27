@@ -230,7 +230,7 @@ sources:
 
   - name: nysparks_historicplaces
     columns:
-    - name: wkb_geometry
+    - name: geometry
       tests:
       - not_null
     - name: historicname
@@ -358,7 +358,7 @@ sources:
     - name: name
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geometry
       tests:
       - not_null
     tests:
@@ -367,7 +367,7 @@ sources:
         combination_of_columns:
         - uid
         - name
-        - wkb_geometry
+        - geometry
         config:
           severity: warn
 
