@@ -1,0 +1,118 @@
+id: dcp_pluto
+acl: public-read
+attributes:
+  name: DCP PLUTO
+  description: |
+    # PLUTO
+    PLUTO is the csv (non-spatial) version of MapPLUTO
+  url: >-
+    https://www.nyc.gov/content/planning/pages/resources/datasets/mappluto-pluto-change
+ingestion:
+  target_crs: 'EPSG:4326'
+  source:
+    type: file_download
+    url: >-
+      https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pluto/nyc_pluto_{{
+      version | replace(".","_") }}_csv.zip
+  file_format:
+    type: csv
+    unzipped_filename: 'pluto_{{ version | replace(".","_") }}.csv'
+    geometry:
+      crs: 'EPSG:4326'
+      geom_column:
+        x: longitude
+        'y': latitude
+  processing_steps:
+    - name: rename_columns
+      args:
+        map:
+          geom: geometry
+    - name: coerce_column_types
+      args:
+        column_types:
+          borough: string
+          block: string
+          lot: string
+          cd: string
+          bct2020: string
+          bctcb2020: string
+          ct2010: string
+          cb2010: string
+          schooldist: string
+          council: string
+          zipcode: string
+          firecomp: string
+          policeprct: string
+          healthcenterdistrict: string
+          healtharea: string
+          sanitboro: string
+          sanitdistrict: string
+          sanitsub: string
+          address: string
+          zonedist1: string
+          zonedist2: string
+          zonedist3: string
+          zonedist4: string
+          overlay1: string
+          overlay2: string
+          spdist1: string
+          spdist2: string
+          spdist3: string
+          ltdheight: string
+          splitzone: string
+          bldgclass: string
+          landuse: string
+          easements: string
+          ownertype: string
+          ownername: string
+          lotarea: string
+          bldgarea: string
+          comarea: string
+          resarea: string
+          officearea: string
+          retailarea: string
+          garagearea: string
+          strgearea: string
+          factryarea: string
+          otherarea: string
+          areasource: string
+          numbldgs: string
+          numfloors: string
+          unitsres: string
+          unitstotal: string
+          lotfront: string
+          lotdepth: string
+          bldgfront: string
+          bldgdepth: string
+          ext: string
+          proxcode: string
+          irrlotcode: string
+          lottype: string
+          bsmtcode: string
+          assessland: string
+          assesstot: string
+          exempttot: string
+          yearbuilt: string
+          yearalter1: string
+          yearalter2: string
+          histdist: string
+          landmark: string
+          builtfar: string
+          residfar: string
+          commfar: string
+          facilfar: string
+          borocode: string
+          bbl: string
+          condono: string
+          tract2010: string
+          zonemap: string
+          zmcode: string
+          sanborn: string
+          taxmap: string
+          edesignum: string
+          appbbl: string
+          appdate: string
+          plutomapid: string
+          firm07_flag: string
+          pfirm15_flag: string
+          notes: string
