@@ -6,48 +6,30 @@ https://dev.socrata.com/docs/other/publishing.html#?route=overview
 Additionally, when it's mysterious about which endpoint to hit, or what the
 arguments should be, opening the web interface and watching the requests is
 quite informative.
+
+TODO: This module should be "pure" - ie it should contain nothing DCP Specific.
+This is more of a starting point for other connectors
 """
 
 from __future__ import annotations
 from dataclasses import dataclass
 import json
+import os
 from pathlib import Path
 from pydantic import BaseModel
+import requests
 from socrata.authorization import Authorization
 from socrata import Socrata as SocrataPy
 from socrata.output_schema import OutputSchema
 from socrata.sources import Source
 from socrata.revisions import Revision as SocrataPyRevision
 import textwrap
-import time
 from typing import TypedDict, Literal, NotRequired, Any
 
 from dcpy.utils.logging import logger
 
 import dcpy.models.product.dataset.metadata as md
 import dcpy.models.dataset as dataset
-from .utils import SOCRATA_USER, SOCRATA_PASSWORD, _socrata_request
-
-SOCRATA_REVISION_APPLY_TIMEOUT_SECS = 10 * 60  # Ten Mins
-
-SOCRATA_DOMAIN = "data.cityofnewyork.us"
-SOCRATA_API_EP = f"https://{SOCRATA_DOMAIN}/api"
-_revisions_root = f"{SOCRATA_API_EP}/publishing/v1/revision"
-_views_root = f"{SOCRATA_API_EP}/views"
-
-DISTRIBUTIONS_BUCKET = "edm-distributions"
-
-
-def _socratapy_client():
-    return SocrataPy(Authorization(SOCRATA_DOMAIN, SOCRATA_USER, SOCRATA_PASSWORD))
-
-
-def _request(
-    url,
-    method: Literal["GET", "PUT", "POST", "PATCH", "DELETE"],
-    **kwargs,
-) -> dict:
-    return _socrata_request(url, method, **kwargs).json()
 
 
 # There are required publishing frequency fields in two different sections of
@@ -321,27 +303,91 @@ class RevisionDataSource:
         return self.output_schema.run()
 
 
-@dataclass(frozen=True)
-class Dataset:
+class AuthedSocrataResource:
+    socrata_domain: str
+    _socrata_user: str
+    _socrata_password: str
+
+    socrata_user_env_var: str = "SOCRATA_USER"
+    socrata_user_pw_env_var: str = "SOCRATA_PASSWORD"
+
+    def __init__(self, socrata_domain):
+        self.socrata_domain = socrata_domain
+        self._socrata_user = os.environ[self.socrata_user_env_var]
+        self._socrata_password = os.environ[self.socrata_user_pw_env_var]
+
+    def _simple_auth(self) -> tuple[str, str] | None:
+        return (self._socrata_user, self._socrata_password)
+
+    def _socrata_request(
+        self,
+        url,
+        method: Literal["GET", "PUT", "POST", "PATCH", "DELETE"],
+        **kwargs,
+    ) -> dict:
+        """Request wrapper to add auth, and raise exceptions on error."""
+        request_fn = getattr(requests, method.lower())
+        resp: requests.Response = request_fn(url, auth=self._simple_auth(), **kwargs)
+        resp.raise_for_status()
+        return resp.json()
+
+    @property
+    def socrata_api_ep(self):
+        return f"https://{self.socrata_domain}/api"
+
+    @property
+    def views_root(self):
+        return f"{self.socrata_api_ep}/views"
+
+    @property
+    def revisions_root(self):
+        return f"{self.socrata_api_ep}/publishing/v1/revision"
+
+    def _socratapy_client(self):
+        return SocrataPy(
+            Authorization(
+                self.socrata_domain, self._socrata_user, self._socrata_password
+            )
+        )
+
+
+class Dataset(AuthedSocrataResource):
+    """Main class for interacting with the Socrata API.
+    Retrieves creds from configurable env vars"""
+
     four_four: str
+
+    def __init__(self, socrata_domain, four_four):
+        super().__init__(socrata_domain)
+        self.four_four = four_four
 
     @property
     def revisions_endpoint(self):
-        return f"{_revisions_root}/{self.four_four}"
+        return f"{self.revisions_root}/{self.four_four}"
 
     def fetch_metadata(self):
         """Fetch metadata (e.g. dataset name, tags) for a dataset."""
-        return _request(f"{_views_root}/{self.four_four}.json", "GET")
+        return self._socrata_request(f"{self.views_root}/{self.four_four}.json", "GET")
+
+    def make_revision_obj(self, revision_num: str):
+        return Revision(
+            four_four=self.four_four,
+            socrata_domain=self.socrata_domain,
+            revision_num=revision_num,
+        )
 
     def fetch_open_revisions(self) -> list[Revision]:
         """Fetch all open revisions for a given dataset."""
-        revs = _request(
+        revs = self._socrata_request(
             self.revisions_endpoint,
             "GET",
             params={"open": "true"},
         )
         return list(
-            [Revision(r["resource"]["revision_seq"], self.four_four) for r in revs]
+            [
+                self.make_revision_obj(revision_num=r["resource"]["revision_seq"])
+                for r in revs
+            ]
         )
 
     def discard_open_revisions(self):
@@ -353,10 +399,12 @@ class Dataset:
     def create_replace_revision(self) -> Revision:
         """Create a revision that will replace/overwrite the existing dataset, rather than upserting."""
         logger.info(f"Creating a revision at: {self.revisions_endpoint}")
-        resp = _request(
+        resp = self._socrata_request(
             self.revisions_endpoint, "POST", json={"action": {"type": "replace"}}
         )["resource"]
-        revision = Revision(revision_num=resp["revision_seq"], four_four=self.four_four)
+        revision = self.make_revision_obj(
+            revision_num=resp["revision_seq"],
+        )
 
         logger.info(
             f"Revision {revision.revision_num} created for {revision.four_four}"
@@ -364,28 +412,36 @@ class Dataset:
         return revision
 
 
-@dataclass(frozen=True)
-class Revision:
+class Revision(AuthedSocrataResource):
     revision_num: str
     four_four: str
 
+    SOCRATA_REVISION_APPLY_TIMEOUT_SECS = 10 * 60  # Ten Mins
+
+    def __init__(self, socrata_domain, four_four, revision_num):
+        super().__init__(socrata_domain)
+        self.four_four = four_four
+        self.revision_num = revision_num
+
+    @property
+    def revisions_root(self):
+        return f"{self.socrata_api_ep}/publishing/v1/revision"
+
     @property
     def revision_endpoint(self):
-        return f"{_revisions_root}/{self.four_four}/{self.revision_num}"
+        return f"{self.revisions_root}/{self.four_four}/{self.revision_num}"
 
     @property
     def page_url(self):
-        return (
-            f"https://{SOCRATA_DOMAIN}/d/{self.four_four}/revisions/{self.revision_num}"
-        )
+        return f"https://{self.socrata_domain}/d/{self.four_four}/revisions/{self.revision_num}"
 
     def apply(self):
         """Apply the revision to the dataset, closing the revision."""
-        return _request(f"{self.revision_endpoint}/apply", "put")
+        return self._socrata_request(f"{self.revision_endpoint}/apply", "put")
 
     def discard(self):
         """Discard this revision."""
-        return _request(self.revision_endpoint, "delete")
+        return self._socrata_request(self.revision_endpoint, "delete")
 
     def fetch_default_metadata(self) -> Socrata.Responses.Revision:
         """Fetch default metadata for a revision.
@@ -394,7 +450,9 @@ class Revision:
         e.g. If you patch an update to `contact email` for this revision, that change will not
         be reflected in the revision you fetch here, nor on the Socrata revision page.
         """
-        return Socrata.Responses.Revision(_request(self.revision_endpoint, "GET"))
+        return Socrata.Responses.Revision(
+            self._socrata_request(self.revision_endpoint, "GET")
+        )
 
     def patch_metadata(
         self,
@@ -402,7 +460,7 @@ class Revision:
         attachments: list[Socrata.Inputs.Attachment],
     ):
         return Socrata.Responses.Revision(
-            _request(
+            self._socrata_request(
                 self.revision_endpoint,
                 "PATCH",
                 # TODO: should this header be a default?
@@ -421,7 +479,7 @@ class Revision:
     def _fetch_socratapy_revision(self) -> SocrataPyRevision:
         """Fetches the SocrataPy object wrapper around the revision object.
         This is useful for uploading to open revisions."""
-        view = _socratapy_client().views.lookup(self.four_four)
+        view = self._socratapy_client().views.lookup(self.four_four)
         return view.revisions.lookup(self.revision_num)
 
     def push_blob(self, path: Path, *, dest_filename: str):
@@ -517,7 +575,7 @@ class Revision:
         }
 
         with open(path, "rb") as f:
-            attachment_md_raw = _request(
+            attachment_md_raw = self._socrata_request(
                 f"{self.revision_endpoint}/attachment",
                 "POST",
                 headers={
@@ -557,8 +615,8 @@ class SocrataDestination:
     def __init__(self, metadata: md.Metadata, destination_id: str):
         self.attachment_ids = set()
         dest = metadata.get_destination(destination_id)
-        if dest.type != SOCRATA_DESTINATION_TYPE:
-            raise Exception(f"{ERROR_WRONG_DESTINATION_TYPE}: {dest.type}")
+        # if dest.type != SOCRATA_DESTINATION_TYPE:
+        #     raise Exception(f"{ERROR_WRONG_DESTINATION_TYPE}: {dest.type}")
 
         self.four_four = dest.custom.get("four_four", "")
         if not self.four_four:
@@ -575,115 +633,3 @@ class SocrataDestination:
             raise Exception(f"{ERROR_WRONG_DATASET_FILE_COUNT}: {dataset_file_ids}")
         self.dataset_file_id = dataset_file_ids[0]
         self.is_unparsed_dataset = dest.custom.get("is_unparsed_dataset", False)
-
-
-def push_dataset(
-    *,
-    metadata: md.Metadata,
-    dataset_destination_id: str,
-    dataset_package_path: Path,
-    publish: bool = False,
-    metadata_only: bool = False,
-):
-    """Push a dataset and sync metadata."""
-    logger.info(
-        f"Pushing dataset {metadata.id} -> {dataset_destination_id} from {dataset_package_path}"
-    )
-    socrata_dest = SocrataDestination(metadata, dataset_destination_id)
-    dataset = Dataset(four_four=socrata_dest.four_four)
-
-    overridden_attachments = [  # we really just care about the overridden filenames
-        metadata.calculate_destination_metadata(
-            file_id=attachment_id, destination_id=dataset_destination_id
-        )
-        for attachment_id in socrata_dest.attachment_ids
-    ]
-
-    rev = dataset.create_replace_revision()
-
-    attachments_metadata = [
-        rev.upload_attachment(
-            dest_file_name=attachment.file.filename,
-            path=dataset_package_path
-            / "attachments"
-            / metadata.get_file_and_overrides(attachment.file.id).file.filename,
-        )
-        for attachment in overridden_attachments
-    ]
-
-    overridden_dataset_md = metadata.calculate_destination_metadata(
-        file_id=socrata_dest.dataset_file_id, destination_id=dataset_destination_id
-    )
-    rev.patch_metadata(
-        attachments=attachments_metadata,
-        metadata=Socrata.Inputs.DatasetMetadata.from_dataset_attributes(
-            overridden_dataset_md.dataset.attributes
-        ),
-    )
-
-    package_dataset_file_path = (
-        dataset_package_path
-        / "dataset_files"
-        / metadata.get_file_and_overrides(socrata_dest.dataset_file_id).file.filename
-    )  # TODO: this isn't the right place for this calculation. Move to lifecycle.package.
-
-    if not metadata_only:
-        data_source = None
-        dataset_file = overridden_dataset_md.file
-        if socrata_dest.is_unparsed_dataset:
-            rev.push_blob(
-                package_dataset_file_path,
-                dest_filename=overridden_dataset_md.file.filename
-                or package_dataset_file_path.name,
-            )
-        elif dataset_file.type == "csv":
-            data_source = rev.push_csv(package_dataset_file_path)
-        elif dataset_file.type == "shapefile":
-            data_source = rev.push_shp(package_dataset_file_path)
-        elif dataset_file.type == "xlsx":
-            data_source = rev.push_xlsx(package_dataset_file_path)
-        else:
-            raise Exception(f"Pushing unsupported file type: {dataset_file.type}")
-
-        if not socrata_dest.is_unparsed_dataset and data_source:
-            try:
-                data_source.push_socrata_column_metadata(
-                    overridden_dataset_md.dataset.columns
-                )
-            except Exception as e:
-                # Upating column Metadata is tricky, and there's still some work to be done
-                logger.error(
-                    "Error Updating Column Metadata! However, the Dataset File was uploaded "
-                    f"and the revision can still be applied manually, here:\n    {rev.page_url}\n"
-                    f"Error:\n{textwrap.indent(str(e), '    ')}"
-                )
-                raise Exception(
-                    f"Error publishing {metadata.attributes.display_name} - destination: {dataset_destination_id}. Revision: {rev.revision_num}.\n {str(e)}"
-                )
-
-    if not publish:
-        result = f"""Finished syncing product {metadata.attributes.display_name} to Socrata, but did not publish. Find revision {rev.revision_num}, and apply manually here {rev.page_url}"""
-        logger.info(result)
-        return result
-    else:
-        logger.info("Publishing")
-        rev.apply()
-        logger.info(
-            "Revision Applied. Polling for publication completion (this can take minutes)."
-        )
-
-        elapsed_secs = 0
-        while not rev.fetch_default_metadata().closed_at:
-            logger.info("Polling for completion.")
-            time.sleep(5)
-            elapsed_secs += 5
-            if elapsed_secs > SOCRATA_REVISION_APPLY_TIMEOUT_SECS:
-                raise Exception(
-                    f"""waited {SOCRATA_REVISION_APPLY_TIMEOUT_SECS} seconds for the Socrata \
-                    revision to apply, but it didn't. Note: it may just be a very long running job.
-                    Please investigate manually here: {rev.page_url}"""
-                )
-        logger.info("Job Finished Successfully")
-
-        dataset.discard_open_revisions()
-        return f"Published {metadata.attributes.display_name} - destination: {dataset_destination_id}"

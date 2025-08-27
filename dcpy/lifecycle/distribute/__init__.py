@@ -1,22 +1,8 @@
 from pathlib import Path
-from dcpy.lifecycle.distribute.connectors import (
-    DistributionSFTPConnector,
-    SocrataPublishConnector,
-)
-from dcpy.models.lifecycle.distribute import DatasetDestinationPushArgs
+
 from dcpy.models.lifecycle.event_result import DistributeResult
 from dcpy.lifecycle import product_metadata
-
-from dcpy.connectors.registry import ConnectorDispatcher
-
-
-# Register all default connectors for `lifecycle.distribute`.
-# Third parties can similarly register their own connectors,
-# so long as the connector implements a ConnectorDispatcher protocol.
-dispatcher = ConnectorDispatcher[DatasetDestinationPushArgs, dict]()
-
-dispatcher.register(conn_type="socrata", connector=SocrataPublishConnector())
-dispatcher.register(conn_type="sftp", connector=DistributionSFTPConnector())
+from dcpy.lifecycle.connector_registry import connectors
 
 
 def to_dataset_destination(
@@ -49,22 +35,19 @@ def to_dataset_destination(
         )
 
     try:
-        # TODO: In a followup, replace dispatcher with connector_registry.
-        # Need to implement for Socrata and FTP, else I'd just do it here.
-        result = dispatcher.push(
-            dest_type,
-            arg={
-                "metadata": ds_md,
-                "dataset_destination_id": destination_id,
-                "dataset_package_path": package_path,
-                "publish": publish,
-                "metadata_only": metadata_only,
-            },
+        conn = connectors.push[dest_type]
+
+        result = conn.push(
+            key=f"{product}.{dataset}.{destination_id}",
+            version=version,
+            dataset_package_path=package_path,
+            publish=publish,
+            metadata_only=metadata_only,
         )
         return dist_result(
             success=True,
             result_summary="Distribution succeeded",
-            result_details=result,
+            result_details=str(result),
         )
     except Exception as e:
         return dist_result(

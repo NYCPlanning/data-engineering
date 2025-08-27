@@ -8,6 +8,7 @@ from dcpy.configuration import (
 )
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.connectors.edm.bytes import BytesConnector
+from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.socrata.connector import SocrataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
@@ -22,29 +23,35 @@ connectors = ConnectorRegistry[Connector]()
 
 def _set_default_connectors():
     connectors.clear()
-    connectors.register(connector=recipes.Connector())
-    connectors.register(connector=publishing.DraftsConnector())
-    connectors.register(connector=publishing.PublishedConnector())
-    connectors.register(connector=BytesConnector())
-    connectors.register(connector=publishing.GisDatasetsConnector())
-    connectors.register(connector=SocrataConnector())
-    connectors.register(connector=ArcGISFeatureServiceConnector())
-    connectors.register(connector=web.WebConnector())
-    connectors.register(connector=web.WebConnector(), conn_type="api")
-    connectors.register(connector=filesystem.Connector(), conn_type="local_file")
-    connectors.register(connector=s3.S3Connector(), conn_type="s3")
-    connectors.register(
-        connector=publishing.BuildsConnector(), conn_type="edm.publishing.builds"
-    )
-    connectors.register(
-        connector=sftp.SFTPConnectorAdapter(
+    conns = [
+        recipes.Connector(),
+        publishing.DraftsConnector(),
+        publishing.PublishedConnector(),
+        BytesConnector(),
+        publishing.GisDatasetsConnector(),
+        SocrataConnector(),
+        OpenDataConnector(),
+        ArcGISFeatureServiceConnector(),
+        web.WebConnector(),
+        [web.WebConnector(), "api"],
+        [filesystem.Connector(), "local_file"],
+        [s3.S3Connector(), "s3"],
+        [publishing.BuildsConnector(), "edm.publishing.builds"],
+        sftp.SFTPConnectorAdapter(
             hostname=SFTP_HOST,
             username=SFTP_USER,
-            port=SFTP_PORT,
+            port=int(SFTP_PORT),
             known_hosts_path=SFTP_KNOWN_HOSTS_KEY_PATH,
             private_key_path=SFTP_PRIVATE_KEY_PATH,
-        )
-    )
+        ),
+    ]
+
+    for conn in conns:
+        if type(conn) is list:
+            connectors.register(conn[0], conn_type=conn[1])
+        else:
+            connectors.register(conn)
+
     logger.debug(f"Registered Connectors: {connectors.list_registered()}")
 
 
