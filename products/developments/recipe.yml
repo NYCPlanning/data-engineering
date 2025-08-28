@@ -53,7 +53,7 @@ inputs:
     - name: dob_now_applications
       version: 20250630
     - name: dob_now_permits
-      version: 20250630
+      version: 20250827
     - name: dob_cofos
       file_type: parquet
       version: 20250101
