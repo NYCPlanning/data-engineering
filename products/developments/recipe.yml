@@ -53,10 +53,10 @@ inputs:
     - name: dob_now_applications
       version: 20250630
     - name: dob_now_permits
-      version: 20250630
+      version: 20250827
     - name: dob_cofos
       file_type: parquet
-      version: 20250101
+      version: 20250829.2
     - name: doitt_buildingfootprints
       version: 20250513
     - name: doitt_buildingfootprints_historical
