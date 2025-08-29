@@ -56,7 +56,7 @@ inputs:
       version: 20250827
     - name: dob_cofos
       file_type: parquet
-      version: 20250829
+      version: 20250829.1
     - name: doitt_buildingfootprints
       version: 20250513
     - name: doitt_buildingfootprints_historical
