@@ -6,7 +6,7 @@ dataset:
       path: .library/upload/dob_cofos.csv
       ## This field must be updated manually when archiving. Should eventually be refactored out of here
       ## Do not check in a specific version, leave blank version check in - this has led to issues in the past
-      previous_version: 20240105
+      previous_version: PLACEHOLDER
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
