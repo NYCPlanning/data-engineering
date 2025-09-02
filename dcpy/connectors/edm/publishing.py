@@ -596,11 +596,24 @@ def get_zip(product_key: ProductKey, filepath: str) -> ZipFile:
     return zip
 
 
+# This is a (hopefully) temporary hack while we think about
+# distinguishing filepaths vs directories in the connector interface.
+_TEMP_PUBLISHING_FILE_SUFFIXES = {
+    ".zip",
+    ".parquet",
+    ".csv",
+    ".pdf",
+    ".xlsx",
+    ".json",
+    ".text",
+}
+
+
 def download_file(
     product_key: ProductKey, filepath: str, output_dir: Path | None = None
 ) -> Path:
     output_dir = output_dir or Path(".")
-    is_file_path = output_dir.suffix
+    is_file_path = output_dir.suffix in _TEMP_PUBLISHING_FILE_SUFFIXES
     output_filepath = (
         output_dir / Path(filepath).name if not is_file_path else output_dir
     )
