@@ -178,11 +178,9 @@ def package_and_distribute_product(
         dry_run=dry_run,
     )
 
-    if any([not r.success for r in results]):
-        logger.error(
-            f"Distribution for {product}.{version} finished, but issues occurred!"
-        )
-    else:
-        logger.info("Finished distributing batches with no errors.")
-
     typer.echo(event_result.make_results_table(results))
+    if any([not r.success for r in results]):
+        msg = f"Distribution for {product}.{version} finished, but issues occurred!"
+        logger.error(msg)
+        raise Exception(msg)
+    logger.info("Finished distributing batches with no errors.")
