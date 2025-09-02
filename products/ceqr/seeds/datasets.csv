@@ -99,7 +99,7 @@ Stormwater Flood Map - Limited Current Sea Levels,dep_stormwater_limited_current
 Open Sewer Atlas,,webpage,,,https://opendata.cityofnewyork.us/projects/open-sewer-atlas-nyc/
 Water and sewer calculations,,webpage,,,http://www.nyc.gov/html/oec/downloads/pdf/2021_ceqr_tm/2021_ceqr_tm_ch13_water_sewer_infrastructure_flow_calculations_matrix.xls
 Housing Database,dcp_housing,download,shapefile,MULTIPOINT,https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level
-"Blue Book- Enrollment, Capacity and Utilization Report",sca_bluebook,download,csv,,
+"Blue Book - Enrollment, Capacity and Utilization Report",sca_bluebook,download,csv,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Enrollment-Capacity-Utilization-69
 Early Childcare Capacity and Enrollment,dcp_capacity_and_enrollment,download,excel,,
 ZOLA,,webpage,,,https://zola.planning.nyc.gov/
 FastTracker Application,,webpage,,,https://www.nyc.gov/content/planning/pages/our-work/plans/citywide/green-fast-track-for-housing
