@@ -82,14 +82,10 @@ INSERT INTO qaqc_mismatch (
             OR ((a.otherarea IS NULL)::int + (b.otherarea IS NULL)::int) = 1
         ) AS otherarea,
         count(*) FILTER (WHERE a.areasource IS DISTINCT FROM b.areasource) AS areasource,
-        count(*) FILTER (WHERE a.numbldgs::numeric IS DISTINCT FROM b.numbldgs::numeric)
-        AS numbldgs,
-        count(*) FILTER (WHERE a.numfloors::numeric IS DISTINCT FROM b.numfloors::numeric)
-        AS numfloors,
-        count(*) FILTER (WHERE a.unitsres::numeric IS DISTINCT FROM b.unitsres::numeric)
-        AS unitsres,
-        count(*) FILTER (WHERE a.unitstotal::numeric IS DISTINCT FROM b.unitstotal::numeric)
-        AS unitstotal,
+        count(*) FILTER (WHERE a.numbldgs::numeric IS DISTINCT FROM b.numbldgs::numeric) AS numbldgs,
+        count(*) FILTER (WHERE a.numfloors::numeric IS DISTINCT FROM b.numfloors::numeric) AS numfloors,
+        count(*) FILTER (WHERE a.unitsres::numeric IS DISTINCT FROM b.unitsres::numeric) AS unitsres,
+        count(*) FILTER (WHERE a.unitstotal::numeric IS DISTINCT FROM b.unitstotal::numeric) AS unitstotal,
         count(*) FILTER (
             WHERE abs(a.lotfront::numeric - b.lotfront::numeric) >= 5
             OR ((a.lotfront IS NULL)::int + (b.lotfront IS NULL)::int) = 1
@@ -123,12 +119,9 @@ INSERT INTO qaqc_mismatch (
             WHERE abs(a.exempttot::numeric - b.exempttot::numeric) >= 10
             OR ((a.exempttot IS NULL)::int + (b.exempttot IS NULL)::int) = 1
         ) AS exempttot,
-        count(*) FILTER (WHERE a.yearbuilt::numeric IS DISTINCT FROM b.yearbuilt::numeric)
-        AS yearbuilt,
-        count(*) FILTER (WHERE a.yearalter1::numeric IS DISTINCT FROM b.yearalter1::numeric)
-        AS yearalter1,
-        count(*) FILTER (WHERE a.yearalter2::numeric IS DISTINCT FROM b.yearalter2::numeric)
-        AS yearalter2,
+        count(*) FILTER (WHERE a.yearbuilt::numeric IS DISTINCT FROM b.yearbuilt::numeric) AS yearbuilt,
+        count(*) FILTER (WHERE a.yearalter1::numeric IS DISTINCT FROM b.yearalter1::numeric) AS yearalter1,
+        count(*) FILTER (WHERE a.yearalter2::numeric IS DISTINCT FROM b.yearalter2::numeric) AS yearalter2,
         count(*) FILTER (WHERE a.histdist IS DISTINCT FROM b.histdist) AS histdist,
         count(*) FILTER (WHERE a.landmark IS DISTINCT FROM b.landmark) AS landmark,
         count(*) FILTER (
@@ -147,8 +140,7 @@ INSERT INTO qaqc_mismatch (
             WHERE a.facilfar::double precision IS DISTINCT FROM
             b.facilfar::double precision
         ) AS facilfar,
-        count(*) FILTER (WHERE a.borocode::numeric IS DISTINCT FROM b.borocode::numeric)
-        AS borocode,
+        count(*) FILTER (WHERE a.borocode::numeric IS DISTINCT FROM b.borocode::numeric) AS borocode,
         0 AS bbl, -- can't have bbl changes when we're joining on bbl. But included for backwards compatibility
         count(*) FILTER (WHERE a.condono::numeric IS DISTINCT FROM b.condono::numeric) AS condono,
         count(*) FILTER (WHERE a.tract2010 IS DISTINCT FROM b.tract2010) AS tract2010,

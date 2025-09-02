@@ -13,12 +13,10 @@ WITH dcpcamavals AS (
             primebbl AS bbl,
             bsmnt_type,
             bsmntgradient,
-            ROW_NUMBER()
-                OVER (
-                    PARTITION BY primebbl
-                    ORDER BY bsmnt_type DESC, bsmntgradient DESC
-                )
-            AS row_number
+            ROW_NUMBER() OVER (
+                PARTITION BY primebbl
+                ORDER BY bsmnt_type DESC, bsmntgradient DESC
+            ) AS row_number
         FROM pluto_input_cama
         WHERE
             bsmnt_type != '0'

@@ -21,13 +21,10 @@ descriptions AS (
     SELECT
         maprojid,
         projectdescription AS description,
-        ROW_NUMBER()
-            OVER
-            (
-                PARTITION BY maprojid
-                ORDER BY LENGTH(REPLACE(projectdescription, ' ', '')) DESC
-            )
-        AS rk
+        ROW_NUMBER() OVER (
+            PARTITION BY maprojid
+            ORDER BY LENGTH(REPLACE(projectdescription, ' ', '')) DESC
+        ) AS rk
     FROM ccp_commitments
 )
 

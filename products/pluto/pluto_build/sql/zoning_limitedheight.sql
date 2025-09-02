@@ -38,12 +38,10 @@ CREATE TABLE limitedheightperorder AS (
         segbblgeom,
         (segbblgeom / allbblgeom) * 100 AS perbblgeom,
         (segzonegeom / allzonegeom) * 100 AS perzonegeom,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY id
-                ORDER BY segbblgeom DESC
-            )
-        AS row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY id
+            ORDER BY segbblgeom DESC
+        ) AS row_number
     FROM limitedheightper
 );
 

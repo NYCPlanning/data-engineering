@@ -19,8 +19,7 @@ SELECT
     ) AS after_10_years,
     COALESCE(
         NULLIF(prop_within_5_years, 0), NULLIF(prop_5_to_10_years, 0), NULLIF(prop_after_10_years, 0)
-    ) IS NOT NULL
-    AS has_project_phasing
+    ) IS NOT NULL AS has_project_phasing
 INTO _kpdb_combined_and_deduped
 FROM combined AS a
 LEFT JOIN deduped_units AS b

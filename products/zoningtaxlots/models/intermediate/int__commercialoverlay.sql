@@ -72,12 +72,10 @@ commoverlayperorder AS (
         perbblgeom,
         maxperzonegeom,
         overlay,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY dtm_id
-                ORDER BY segbblgeom DESC, segzonegeom DESC
-            )
-        AS row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY dtm_id
+            ORDER BY segbblgeom DESC, segzonegeom DESC
+        ) AS row_number
     FROM filtered
 )
 

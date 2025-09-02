@@ -283,8 +283,7 @@ SELECT DISTINCT
                 ) IS NOT NULL
                 THEN 'dcp_mihduslowernumber + dcp_noofvoluntaryaffordabledus'
         END)
-    )
-    AS units_gross_source
+    ) AS units_gross_source
 INTO _dcp_application
 FROM zap_translated;
 

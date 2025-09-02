@@ -35,12 +35,10 @@ WITH histdistricts AS (
         SELECT
             bbl,
             hist_dist,
-            ROW_NUMBER()
-                OVER (
-                    PARTITION BY bbl
-                    ORDER BY hist_dist
-                )
-            AS row_number
+            ROW_NUMBER() OVER (
+                PARTITION BY bbl
+                ORDER BY hist_dist
+            ) AS row_number
         FROM lpc_historic_districts
         WHERE
             hist_dist != '0'
@@ -59,12 +57,10 @@ WITH landmarks AS (
     SELECT DISTINCT
         bbl,
         lm_type,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY bbl
-                ORDER BY lm_type
-            )
-        AS row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY bbl
+            ORDER BY lm_type
+        ) AS row_number
     FROM (
         SELECT DISTINCT
             bbl,

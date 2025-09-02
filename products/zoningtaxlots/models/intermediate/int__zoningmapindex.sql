@@ -56,12 +56,10 @@ ordered AS (
         segzonegeom,
         zoning_map,
         perbblgeom,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY dtm_id
-                ORDER BY segbblgeom DESC
-            )
-        AS row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY dtm_id
+            ORDER BY segbblgeom DESC
+        ) AS row_number
     FROM zoningmapperorder
 )
 

@@ -13,12 +13,10 @@ CREATE TABLE pluto_rpad_geo AS (
     WITH pluto_rpad_rownum AS (
         SELECT
             a.*,
-            ROW_NUMBER()
-                OVER (
-                    PARTITION BY boro || tb || tl
-                    ORDER BY curavt_act DESC, land_area DESC, ease ASC
-                )
-            AS row_number
+            ROW_NUMBER() OVER (
+                PARTITION BY boro || tb || tl
+                ORDER BY curavt_act DESC, land_area DESC, ease ASC
+            ) AS row_number
         FROM dof_pts_propmaster AS a
     ),
 

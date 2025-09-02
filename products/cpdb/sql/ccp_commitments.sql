@@ -29,11 +29,17 @@ SELECT
     p.fcst_st_amt::double precision AS plannedcommit_nccstate,
     p.fcst_fd_amt::double precision AS plannedcommit_nccfederal,
     p.fcst_pv_amt::double precision AS plannedcommit_nccother,
-    p.fcst_st_amt::double precision
-    + p.fcst_fd_amt::double precision
-    + p.fcst_pv_amt::double precision AS plannedcommit_noncitycost,
-    p.fcst_cnx_amt::double precision + p.fcst_cex_amt::double precision + p.fcst_st_amt::double precision
-    + p.fcst_fd_amt::double precision + fcst_pv_amt::double precision
-    AS plannedcommit_total
+    (
+        p.fcst_st_amt::double precision
+        + p.fcst_fd_amt::double precision
+        + p.fcst_pv_amt::double precision
+    ) AS plannedcommit_noncitycost,
+    (
+        p.fcst_cnx_amt::double precision
+        + p.fcst_cex_amt::double precision
+        + p.fcst_st_amt::double precision
+        + p.fcst_fd_amt::double precision
+        + fcst_pv_amt::double precision
+    ) AS plannedcommit_total
 FROM fisa_capitalcommitments AS p
 LEFT JOIN dcp_projecttypes_agencies AS b ON TRIM(p.budget_proj_type) = TRIM(b.projecttypeabbrev);
