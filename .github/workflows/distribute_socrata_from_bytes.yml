@@ -15,6 +15,7 @@ on:
       source:
         description: "Source ID (e.g. bytes)"
         type: string
+        default: bytes
         required: true
       datasets:
         description: "Comma-separated list of datasets to push"
@@ -26,6 +27,7 @@ on:
         required: false
       destination_types:
         description: "Comma-separated list of destination types to filter for."
+        default: open_data
         type: string
         required: false
       publish:
