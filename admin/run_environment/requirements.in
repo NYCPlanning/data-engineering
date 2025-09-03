@@ -14,6 +14,7 @@ GDAL==3.11.3
 geopandas
 geoalchemy2
 graphviz>=0.20.1
+ijson
 ipykernel
 Jinja2>=3.1.2
 leafmap

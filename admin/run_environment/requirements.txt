@@ -207,6 +207,8 @@ identify==2.6.14
     # via pre-commit
 idna==3.10
     # via requests
+ijson==3.4.0
+    # via -r requirements.in
 importlib-metadata==8.7.0
     # via dbt-semantic-interfaces
 iniconfig==2.1.0
