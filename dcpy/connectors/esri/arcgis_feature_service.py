@@ -289,7 +289,7 @@ class ArcGISFeatureServiceConnector(Connector):
             FeatureServer(server=server, name=key), layer_name, layer_id
         )
         output = destination_path / f"{layer.layer_name}.geojson"
-        download_layer(layer, "EPSG:4326", path=output)
+        download_layer(layer, kwargs.get("crs", "EPSG:4326"), path=output)
         return {"path": output}
 
     def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
