@@ -1263,6 +1263,7 @@ SITE_MAP: dict[str, dict[str, DatasetConfig]] = {
             },
             "bytes_dataset_key": "georeferenced-map",
             "catalog_file_override": "georeferenced-maps",
+            "file_resource_override": "georeferenced-zoning-maps",
         },
     },
     "ztl": {
@@ -1274,6 +1275,7 @@ SITE_MAP: dict[str, dict[str, DatasetConfig]] = {
             },
             "bytes_dataset_key": "zoning-taxlot-database",
             "catalog_file_override": "zoning-tax-lot-database",
+            "file_resource_override": "zoning-tax-lot-database",
         }
     },
 }
