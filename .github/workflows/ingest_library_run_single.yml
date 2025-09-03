@@ -1,38 +1,48 @@
-name: Ingest Migration Tool (Single run)
-run-name: "Ingest Migration Tool (Single run): ${{ inputs.dataset }} with ${{ inputs.tool }}"
+name: Ingest Migration Tool
+run-name: "Ingest Migration Tool: ${{ inputs.dataset }}"
 
 on:
   workflow_dispatch:
     inputs:
-      dataset:
-        description: "Name of the dataset (required)"
-        required: true
-      tool:
-        description: "Which tool to use for extraction (required)"
-        required: true
-        type: choice
-        options:
-          - library
-          - ingest
-      schema_name:
-        description: "Schema name where to store data tables (required)"
+      datasets:
+        description: "Name of the datasets (required), space-separated"
         required: true
       version:
         description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
         required: false
 
 jobs:
+  set_matrix:
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
+    steps:
+    - id: set_matrix
+      name: Set matrix
+      run: |
+        export input="${{ inputs.datasets }}"
+        echo $input
+        export matrix=[\"$(echo $input | xargs | sed -e "s/ /\",\"/g")\"]
+        echo $matrix
+        echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
   dataloading:
     runs-on: ubuntu-22.04
+    needs: set_matrix
     container:
       image: nycplanning/build-base:latest
     defaults:
       run:
         shell: bash
     env:
-      BUILD_NAME: ${{ inputs.schema_name }}
+      BUILD_NAME: ingest_validation
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        dataset: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -56,4 +66,4 @@ jobs:
         env:
           version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
         run: |
-          python3 -m dcpy lifecycle scripts validate_ingest run_single ${{ inputs.tool }} ${{ inputs.dataset }} $version
+          python3 -m dcpy lifecycle scripts validate_ingest run_and_compare ${{ matrix.dataset }} $version -c
