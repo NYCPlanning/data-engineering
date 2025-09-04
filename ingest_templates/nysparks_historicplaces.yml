@@ -2,10 +2,8 @@ id: nysparks_historicplaces
 acl: public-read
 
 attributes:
-  name:
+  name: National Register Building Listings
   description: |
-    ## National Register Building Listings
-
     New York State Office of Parks, Recreation and Historic Preservation Property
 
     Boundaries for primarily non-archaeological properties in New York State that are listed on the State or National Register of Historic Places, or are National Historic Landmarks.
