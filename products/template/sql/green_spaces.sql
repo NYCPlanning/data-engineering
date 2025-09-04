@@ -31,8 +31,7 @@ CREATE TABLE green_spaces AS
                 WHEN borough = 'R' THEN 'Staten Island'
                 WHEN borough = 'X' THEN 'Bronx'
                 ELSE borough
-            END
-            AS borough,
+            END AS borough,
             wkb_geometry
         FROM
             all_green_spaces

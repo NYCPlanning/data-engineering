@@ -9,22 +9,19 @@ SELECT
         WHEN in_water(geom)
             THEN 1
         ELSE 0
-    END
-    AS geo_water,
+    END AS geo_water,
     CASE
         WHEN get_bbl(geom) IS NULL
             THEN 1
         ELSE 0
-    END
-    AS geo_taxlot,
+    END AS geo_taxlot,
     CASE
         WHEN
             longitude IS NULL
             OR latitude IS NULL
             THEN 1
         ELSE 0
-    END
-    AS geo_null_latlong,
+    END AS geo_null_latlong,
     CASE
         WHEN
             geo_zipcode IS NULL
@@ -47,7 +44,6 @@ SELECT
             OR geo_schoolsubdist IS NULL
             THEN 1
         ELSE 0
-    END
-    AS geo_null_boundary
+    END AS geo_null_boundary
 INTO geo_qaqc
 FROM mid_devdb;

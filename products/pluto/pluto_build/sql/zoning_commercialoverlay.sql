@@ -50,12 +50,10 @@ SELECT
     segbblgeom,
     perbblgeom,
     maxperzonegeom,
-    ROW_NUMBER()
-        OVER (
-            PARTITION BY id
-            ORDER BY segbblgeom DESC, segzonegeom DESC
-        )
-    AS row_number
+    ROW_NUMBER() OVER (
+        PARTITION BY id
+        ORDER BY segbblgeom DESC, segzonegeom DESC
+    ) AS row_number
 FROM grouped
 WHERE perbblgeom >= 10 OR maxperzonegeom >= 50;
 

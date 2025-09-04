@@ -9,12 +9,10 @@ WITH dcpcamavals AS (
         SELECT
             primebbl AS bbl,
             lottype,
-            ROW_NUMBER()
-                OVER (
-                    PARTITION BY primebbl
-                    ORDER BY lottype
-                )
-            AS row_number
+            ROW_NUMBER() OVER (
+                PARTITION BY primebbl
+                ORDER BY lottype
+            ) AS row_number
         FROM pluto_input_cama
         WHERE
             lottype != '0'

@@ -102,12 +102,10 @@ WITH initial_rankings AS (
         --   2) area of coverage
         -- This is to get cases where special zoning district may only be assigned to one lot. 
         -- 1) is to cover edge case where largest section of specific large (but common) zoning district that happens to have largest area on small fraction of huge lot
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY zonedist
-                ORDER BY (segbblgeom / allbblgeom) * 100 < 10, segzonegeom DESC
-            )
-        AS zonedist_row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY zonedist
+            ORDER BY (segbblgeom / allbblgeom) * 100 < 10, segzonegeom DESC
+        ) AS zonedist_row_number
     FROM lotzoneper_grouped
 )
 

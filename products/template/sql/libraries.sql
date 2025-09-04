@@ -14,8 +14,7 @@ CREATE TABLE libraries AS
             CASE
                 WHEN borough = 'New York' THEN 'Manhattan'
                 ELSE borough
-            END
-            AS borough
+            END AS borough
         FROM
             all_other_libraries
     ),

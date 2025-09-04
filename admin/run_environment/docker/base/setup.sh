@@ -5,7 +5,7 @@ set -e
 
 gdal_version=3.11.3
 gdal_short_version="$(echo "$gdal_version" | tr -d ".")"
-COMMON_APT_PACKAGES="curl zip unzip git wget ca-certificates lsb-release build-essential sudo postgresql-client-15 libpq-dev jq locales pandoc weasyprint"
+COMMON_APT_PACKAGES="curl zip unzip git wget ca-certificates lsb-release build-essential sudo postgresql-client libpq-dev jq locales pandoc weasyprint"
 
 apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y -V install $COMMON_APT_PACKAGES \

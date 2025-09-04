@@ -3,12 +3,10 @@ WITH bldgclass AS (
     SELECT DISTINCT
         billingbbl,
         bldgcl,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY billingbbl
-                ORDER BY bldgcl
-            )
-        AS row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY billingbbl
+            ORDER BY bldgcl
+        ) AS row_number
     FROM (
         SELECT DISTINCT
             billingbbl,
@@ -47,12 +45,10 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
         SELECT DISTINCT
             billingbbl,
             bldgcl,
-            ROW_NUMBER()
-                OVER (
-                    PARTITION BY billingbbl
-                    ORDER BY bldgcl
-                )
-            AS row_number
+            ROW_NUMBER() OVER (
+                PARTITION BY billingbbl
+                ORDER BY bldgcl
+            ) AS row_number
         FROM (
             SELECT DISTINCT
                 billingbbl,
@@ -209,12 +205,10 @@ bldgclass AS (
     SELECT DISTINCT
         bbl,
         bldgcl,
-        ROW_NUMBER()
-            OVER (
-                PARTITION BY bbl
-                ORDER BY bldgcl
-            )
-        AS row_number
+        ROW_NUMBER() OVER (
+            PARTITION BY bbl
+            ORDER BY bldgcl
+        ) AS row_number
     FROM (
         SELECT DISTINCT
             b.bldgcl,
