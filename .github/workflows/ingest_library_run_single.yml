@@ -19,6 +19,11 @@ on:
       version:
         description: The version of the dataset (i.e. 22v2, 21C) if needed (optional)
         required: false
+      dev_image:
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   set_matrix:
@@ -39,7 +44,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs: set_matrix
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref
+        || github.ref_name) || 'latest' }}
     defaults:
       run:
         shell: bash
