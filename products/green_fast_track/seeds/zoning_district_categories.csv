@@ -1,6 +1,6 @@
 category_type,label
 low_res,"R1-R4"
-high_res,"R5-R12"
+high_res,"R5-R10"
 c_or_m,"Commercial or Manufacturing"
 other,"Other"
 low_res_c_or_m,"R1-R4 with Commercial or Manufacturing"
