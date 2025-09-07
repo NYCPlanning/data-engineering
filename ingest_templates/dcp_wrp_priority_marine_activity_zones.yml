@@ -1,0 +1,25 @@
+id: dcp_wrp_priority_marine_activity_zones
+acl: public-read
+
+attributes:
+  name: Waterfront Revitalization Program Priority Marine Activity Zone
+  description: >-
+    The Coastal Zone Boundary defines the geographic scope of New York City's Waterfront
+    Revitalization Program (WRP). Pursuant to federal statute, the boundary encompasses
+    all land and water of direct and significant impact on coastal waters. Federal lands
+    and facilities are excluded from the coastal zone and consistency review in
+    accordance with federal legislation.
+
+    The Priority Marine Activity Zones (PMAZs) are a special area designation of the NYC
+    Waterfront Revitalization Program.
+  url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: dcp
+    dataset: WRP
+    layer_name: Priority Marine Activity Zone
+    crs: EPSG:2263
+  file_format:
+    type: geojson

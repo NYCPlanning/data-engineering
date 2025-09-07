@@ -1,0 +1,21 @@
+id: nysshpo_archaeological_buffer_areas
+acl: public-read
+
+attributes:
+  name: NYSSHPO Archelogical Buffer Areas
+  description: >-
+    Buffer areas that are a specified distance around archaeological sites that SHPO has
+    inventoried.
+
+    This feature class comprises areas that are a specified distance around
+    archaeological sites that SHPO has inventoried.
+  url: https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Archaeological_Buffer_Areas/FeatureServer
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nys_parks
+    dataset: Archaeological_Buffer_Areas
+    crs: EPSG:2263
+  file_format:
+    type: geojson

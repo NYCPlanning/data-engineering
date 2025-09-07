@@ -1,0 +1,21 @@
+id: dcp_cscl_complex
+acl: public-read
+
+attributes:
+  name: CSCL Complex
+  description: >-
+    Complex is a polygon representation of New York City complexes including colleges,
+    hospitals, \nrail yards, parks, commercial centers, and other govermental buildings
+    campuses. Each complex has a corresponding common place point, which must be linked
+    to in order to get relevant information such as name, street code (B7SC), and SAF
+    Type.
+  url: https://nycmaps.nyc.gov/datasets/nyc::complex/about
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nyc_maphub
+    dataset: Complex_view
+    crs: EPSG:2263
+  file_format:
+    type: geojson
