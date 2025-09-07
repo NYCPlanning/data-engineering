@@ -10,7 +10,7 @@ attributes:
     This feature class comprises areas that are a specified distance around
     archaeological sites that SHPO has inventoried.
   url: https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Archaeological_Buffer_Areas/FeatureServer
-  
+
 ingestion:
   source:
     type: arcgis_feature_server
@@ -20,6 +20,7 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
+  - name: multi
   - name: rename_columns
     args:
       map: { "geom": "wkb_geometry" }

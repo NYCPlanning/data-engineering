@@ -21,6 +21,7 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
+  - name: multi
   - name: rename_columns
     args:
       map: { "geom": "wkb_geometry" }
