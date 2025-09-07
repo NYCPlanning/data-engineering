@@ -3,10 +3,9 @@ acl: public-read
 
 attributes:
   name: NY State Parks Property
-  description: |
-    ## NY State Parks Property
-    New York State Office of Parks, Recreation and Historic Preservation Property
-    This service contains the NY state park boundary polygon data.
+  description: >-
+    New York State Office of Parks, Recreation and Historic Preservation Property This
+    service contains the NY state park boundary polygon data.
   url: https://data.gis.ny.gov/datasets/nysparks::ny-state-parks-property/about
 
 ingestion:
@@ -17,8 +16,8 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
-    - name: clean_column_names
-      args: { "replace": { " ": "_" }, "lower": True }
-    - name: rename_columns
-      args:
-        map: { "geom": "geometry" }
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "geometry" }
