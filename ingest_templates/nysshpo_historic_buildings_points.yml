@@ -1,0 +1,19 @@
+id: nysshpo_historic_buildings_points
+acl: public-read
+
+attributes:
+  name: Building USN Points
+  description: >-
+    Buildings, structures, objects, and above-ground sites that the New York State
+    Division for Historic Preservation has inventoried in the New York State Cultural
+    Resource Information System (CRIS).
+  url: https://services.arcgis.com/1xFZPtKn1wKC6POA/ArcGIS/rest/services/Building_USN_Points/FeatureServer
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nys_parks
+    dataset: Building_USN_Points
+    crs: EPSG:2263
+  file_format:
+    type: geojson
