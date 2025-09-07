@@ -35,3 +35,5 @@ ingestion:
     layer_name: nps_boundary
   file_format:
     type: geojson
+  processing_steps:
+  - name: multi

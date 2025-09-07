@@ -13,7 +13,7 @@ attributes:
     The Special Natural Waterfront Area (SNWA) is a special area designation of the NYC
     Waterfront Revitalization Program.
   url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
-  
+
 ingestion:
   source:
     type: arcgis_feature_server
@@ -24,6 +24,7 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
+  - name: multi
   - name: rename_columns
     args:
       map: { "geom": "wkb_geometry" }

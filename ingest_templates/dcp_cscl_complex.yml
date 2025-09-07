@@ -10,7 +10,7 @@ attributes:
     to in order to get relevant information such as name, street code (B7SC), and SAF
     Type.
   url: https://nycmaps.nyc.gov/datasets/nyc::complex/about
-  
+
 ingestion:
   source:
     type: arcgis_feature_server
@@ -20,6 +20,7 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
+  - name: multi
   - name: rename_columns
     args:
       map: { "geom": "wkb_geometry" }

@@ -5,7 +5,7 @@ attributes:
   name: DEC Regulatory Tidal Wetlands
   description: Tidal wetlands in New York State
   url: https://data.gis.ny.gov/datasets/661acb5eaffb4be39b0d6d2203e636c3/about
-  
+
 ingestion:
   source:
     type: arcgis_feature_server
@@ -15,6 +15,7 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
+  - name: multi
   - name: rename_columns
     args:
       map: { "geom": "wkb_geometry" }
