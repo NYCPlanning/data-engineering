@@ -1,0 +1,25 @@
+id: dcp_wrp_special_natural_waterfront_areas
+acl: public-read
+
+attributes:
+  name: Waterfront Revitalization Program Special Natural Waterfront Area
+  description: >-
+    The Coastal Zone Boundary defines the geographic scope of New York City's Waterfront
+    Revitalization Program (WRP). Pursuant to federal statute, the boundary encompasses
+    all land and water of direct and significant impact on coastal waters. Federal lands
+    and facilities are excluded from the coastal zone and consistency review in
+    accordance with federal legislation.
+
+    The Special Natural Waterfront Area (SNWA) is a special area designation of the NYC
+    Waterfront Revitalization Program.
+  url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-wrp.page
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: dcp
+    dataset: WRP
+    layer_name: Special Natural Waterfront Area
+    crs: EPSG:2263
+  file_format:
+    type: geojson
