@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from dcpy.models.connectors import socrata
 from dcpy.connectors.registry import Connector
+from dcpy.connectors.socrata.configuration import Org, ValidFormat
 from dcpy.connectors.socrata import extract
 
 
@@ -16,14 +16,13 @@ class SocrataConnector(Connector):
         key: str,
         destination_path: Path,
         *,
-        org: socrata.Org,
-        format: socrata.ValidSourceFormats,
+        org: Org,
+        format: ValidFormat,
         **kwargs,
     ) -> dict:
-        source = extract.Source(type="socrata", org=org, uid=key, format=format)
         extension = "shp.zip" if format == "shapefile" else format
         filepath = destination_path / f"{key}.{extension}"
-        extract.download(source, filepath)
+        extract.download(org=org, uid=key, format=format, path=filepath)
         return {"path": filepath}
 
     def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
@@ -33,12 +32,10 @@ class SocrataConnector(Connector):
         self,
         key: str,
         *,
-        org: socrata.Org,
-        format: socrata.ValidSourceFormats,
+        org: Org,
         **kwargs,
     ) -> str:
-        source = extract.Source(type="socrata", org=org, uid=key, format=format)
-        return extract.get_version(source)
+        return extract.get_version(org=org, uid=key)
 
     def get_latest_version(self, key: str, **kwargs) -> str:
         return self.get_date_last_updated(key, **kwargs)

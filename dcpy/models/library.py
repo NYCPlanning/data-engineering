@@ -6,7 +6,7 @@ from typing import Literal
 
 from dcpy.utils import metadata
 from dcpy.models.connectors.edm import recipes
-from dcpy.models.connectors import esri, socrata
+from dcpy.models.connectors import esri
 
 
 #### library objects
@@ -56,7 +56,7 @@ class DatasetDefinition(BaseModel):
 
         class Socrata(BaseModel):
             uid: str
-            format: socrata.ValidSourceFormats
+            format: Literal["csv", "geojson", "shapefile"]
 
         class Script(BaseModel, extra="allow"):
             name: str | None = None
