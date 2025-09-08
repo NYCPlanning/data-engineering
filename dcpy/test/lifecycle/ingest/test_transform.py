@@ -7,7 +7,7 @@ from pydantic import TypeAdapter, BaseModel
 import pytest
 from shapely import Polygon, MultiPolygon, Point
 import yaml
-from unittest import TestCase, mock
+from unittest import mock
 
 from dcpy.models.file import Format
 from dcpy.models.lifecycle.ingest import ProcessingStep, Column
@@ -89,85 +89,6 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
         check_dtype=False,
         check_like=True,  # ignores order of rows and columns
     )
-
-
-def test_validate_processing_steps():
-    steps = [
-        ProcessingStep(name="multi"),
-        ProcessingStep(name="drop_columns", args={"columns": ["col1", "col2"]}),
-    ]
-    compiled_steps = transform.validate_processing_steps("test", steps)
-    assert len(compiled_steps) == 2
-
-    df = gpd.GeoDataFrame(
-        {
-            "col1": [1, 2, 3],
-            "col2": [4, 5, 6],
-            "col3": gpd.GeoSeries([None, None, None]),
-        }
-    ).set_geometry("col3")
-    for step in compiled_steps:
-        df = step(df).df
-    expected = gpd.GeoDataFrame(
-        {"col3": gpd.GeoSeries([None, None, None])}
-    ).set_geometry("col3")
-    assert df.equals(expected)
-
-
-@pytest.mark.parametrize(
-    "step",
-    [
-        # Non-existent function
-        ProcessingStep(name="fake_function_name"),
-        # Missing arg
-        ProcessingStep(name="drop_columns", args={}),
-        # Unexpected arg
-        ProcessingStep(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
-        # Invalid pd series func
-        ProcessingStep(
-            name="pd_series_func",
-            args={"function_name": "str.fake_function", "column_name": "_"},
-        ),
-    ],
-)
-def test_validate_processing_steps_errors(step):
-    with pytest.raises(Exception, match="Invalid processing steps"):
-        transform.validate_processing_steps("test", [step])
-
-
-class TestValidatePdSeriesFunc(TestCase):
-    """transorm.validate_pd_series_func returns dictionary of validation errors"""
-
-    def test_first_level(self):
-        assert not transform.validate_pd_series_func(
-            function_name="map", arg={"value 1": "other value 1"}
-        )
-
-    def test_str_series(self):
-        assert not transform.validate_pd_series_func(
-            function_name="str.replace", pat="pat", repl="repl"
-        )
-
-    def test_missing_arg(self):
-        assert "repl" in transform.validate_pd_series_func(
-            function_name="str.replace", pat="pat"
-        )
-
-    def test_extra_arg(self):
-        assert "extra_arg" in transform.validate_pd_series_func(
-            function_name="str.replace", pat="pat", repl="repl", extra_arg="foo"
-        )
-
-    def test_invalid_function(self):
-        res = transform.validate_pd_series_func(function_name="str.fake_function")
-        assert res == "'pd.Series.str' has no attribute 'fake_function'"
-
-    def test_gpd_without_flag(self):
-        res = transform.validate_pd_series_func(function_name="force_2d")
-        assert res == "'pd.Series' has no attribute 'force_2d'"
-
-    def test_gpd(self):
-        assert not transform.validate_pd_series_func(function_name="force_2d", geo=True)
 
 
 class TestProcessors:

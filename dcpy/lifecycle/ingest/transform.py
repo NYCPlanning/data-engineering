@@ -1,8 +1,7 @@
-from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-from typing import Callable, Literal
+from typing import Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import (
@@ -11,7 +10,7 @@ from dcpy.models.lifecycle.ingest import (
     ProcessingSummary,
     ProcessingResult,
 )
-from dcpy.utils import data, introspect
+from dcpy.utils import data
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
@@ -457,64 +456,6 @@ class ProcessingFunctions:
         return ProcessingResult(df=transformed, summary=summary)
 
 
-def validate_pd_series_func(
-    *, function_name: str, column_name: str = "", geo=False, **kwargs
-) -> str | dict[str, str]:
-    parts = function_name.split(".")
-    if geo:
-        func = gpd.GeoSeries()
-        func_str = "gpd.GeoSeries"
-    else:
-        func = pd.Series()
-        func_str = "pd.Series"
-    for part in parts:
-        if part not in func.__dir__():
-            return f"'{func_str}' has no attribute '{part}'"
-        func = func.__getattribute__(part)
-        func_str += f".{part}"
-    return introspect.validate_kwargs(func, kwargs)  # type: ignore
-
-
-def validate_processing_steps(
-    dataset_id: str, processing_steps: list[ProcessingStep]
-) -> list[Callable]:
-    """
-    Given config of ingest dataset, violates that defined processing steps
-    exist and that appropriate arguments are supplied. Raises error detailing
-    violations if any are found
-
-    Returns list of callables, which expect a dataframe and return a dataframe
-    """
-    violations: dict[str, str | dict[str, str]] = {}
-    compiled_steps: list[Callable] = []
-    processor = ProcessingFunctions(dataset_id)
-    for step in processing_steps:
-        if step.name not in processor.__dir__():
-            violations[step.name] = "Function not found"
-        else:
-            func = getattr(processor, step.name)
-
-            # assume that function takes args "self, df"
-            kw_error = introspect.validate_kwargs(
-                func, step.args, raise_error=False, ignore_args=["self", "df"]
-            )
-            if kw_error:
-                violations[step.name] = kw_error
-
-            # extra validation needed
-            elif step.name == "pd_series_func":
-                series_error = validate_pd_series_func(**step.args)
-                if series_error:
-                    violations[step.name] = series_error
-
-            compiled_steps.append(partial(func, **step.args))
-
-    if violations:
-        raise Exception(f"Invalid processing steps:\n{violations}")
-
-    return compiled_steps
-
-
 def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
     """
     For now, simply validates that expected columns exists
@@ -538,12 +479,13 @@ def process(
     """Validates and runs processing steps defined in config object"""
     logger.info(f"Processing {input_path.name} to {output_path.name}")
     df = geoparquet.read_df(input_path)
-    compiled_steps = validate_processing_steps(dataset_id, processing_steps)
+    processor = ProcessingFunctions(dataset_id)
 
     logger.info("Running processing steps")
     summaries = []
-    for step in compiled_steps:
-        result = step(df)
+    for step in processing_steps:
+        step_callable = getattr(processor, step.name)
+        result = step_callable(df, **step.args)
         df = result.df
         summaries.append(result.summary)
 
