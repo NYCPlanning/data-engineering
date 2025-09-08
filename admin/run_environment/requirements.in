@@ -2,6 +2,7 @@ beautifulsoup4>=4.9.3
 boto3>=1.28.1
 boto3-stubs[s3]>=1.28.1
 cached-property
+cloudpathlib[all]
 contextily
 css-inline
 dbt-core

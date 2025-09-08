@@ -178,6 +178,7 @@ jobs:
       with:
         export-env: true
       env:
+        AZURE_STORAGE_CONNECTION_STRING: "op://Data Engineering/azure_integration_test/AZURE_STORAGE_CONNECTION_STRING"
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"

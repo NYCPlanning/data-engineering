@@ -1,15 +1,22 @@
+from cloudpathlib import CloudPath
 from datetime import datetime
 import json
 import os
 import pandas as pd
-from pathlib import Path
 from pyarrow import parquet
+from pathlib import Path
 import shutil
 from tempfile import TemporaryDirectory
 from typing import Callable
 import yaml
 
 from dcpy import configuration
+from dcpy.connectors.registry import VersionedConnector
+from dcpy.connectors.hybrid_pathed_storage import (
+    HybridPathedStorage,
+    HybridPath,
+    LocalPathWrapper,
+)
 from dcpy.models.connectors.edm.recipes import (
     Dataset,
     DatasetType,
@@ -18,7 +25,6 @@ from dcpy.models.connectors.edm.recipes import (
     ValidAclValues,
 )
 from dcpy.models import library
-from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
@@ -478,8 +484,162 @@ def get_logged_metadata(datasets: list[str]) -> pd.DataFrame:
     return pg_client.execute_select_query(query, datasets=datasets)
 
 
-class Connector(VersionedConnector):
+DEFAULT_DATASET_FOLDER = "datasets"
+DEFAULT_RAW_DATASET_FOLDER = "raw"
+
+
+class RecipesRepo(VersionedConnector):
+    remote_repo: HybridPathedStorage
+    local_recipes_path: Path
+    dataset_folder: str = "datasets"
+    raw_folder: str = "raw"
     conn_type: str = "edm.recipes"
+
+    # Recipe Repo Interaction
+    def _get_dataset_dir(
+        self, ds: Dataset | DatasetKey
+    ) -> LocalPathWrapper | CloudPath:
+        # v = version if version is not None else getattr(ds, "version", None)
+        return self.remote_repo.root_path / self.dataset_folder / ds.id / ds.version
+
+    def _get_dataset_file_path(self, ds: Dataset) -> HybridPath:
+        return self._get_dataset_dir(ds) / ds.file_name
+
+    def exists(self, ds: Dataset):
+        return self._get_dataset_file_path(ds).exists()
+
+    def archive_dataset(
+        self,
+        config: ingest.Config,
+        file_path: Path,
+        *,
+        acl: ValidAclValues | None = None,
+        raw: bool = False,
+        latest: bool = False,
+    ) -> None:
+        target_path = (
+            self.remote_repo.root_path
+            / self.raw_folder
+            / config.raw_dataset_key.id
+            / config.raw_dataset_key.timestamp.isoformat()
+            if raw
+            else self._get_dataset_dir(config.dataset_key)
+        )
+
+        target_config_path = target_path / "config.json"
+        config_json = json.dumps(
+            config.model_dump(exclude_none=True, mode="json"), indent=4
+        )
+
+        if target_path.exists():
+            raise Exception(
+                f"Archived dataset at {target_path} already exists, cannot overwrite"
+            )
+
+        target_path.copytree(file_path)
+        target_config_path.write_text(config_json)
+        # TODO: set ACL
+
+        if latest:
+            assert not raw, "Cannot set raw dataset to 'latest'"
+            latest_target_path = target_path.parent / "latest"
+            if latest_target_path.exists():
+                latest_target_path.rmtree()
+            target_path.copytree(latest_target_path)
+            # TODO: set ACL
+
+    def get_config_obj(self, name: str, version="latest") -> dict:
+        config_path = (
+            self._get_dataset_dir(DatasetKey(id=name, version=version)) / "config.json"
+        )
+        assert config_path.exists(), f"Config file not found at {config_path}"
+        return yaml.safe_load(config_path.read_text())
+
+    def get_config(self, name: str, version="latest") -> library.Config | ingest.Config:
+        config_path = (
+            self._get_dataset_dir(DatasetKey(id=name, version=version)) / "config.json"
+        )
+        config = yaml.safe_load(config_path.read_text())
+        if "dataset" in config:
+            return library.Config(**config)
+        else:
+            return ingest.Config(**config)
+
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        config_path = (
+            self._get_dataset_dir(DatasetKey(id=key, version="latest")) / "config.json"
+        )
+        config = yaml.safe_load(config_path.read_text())
+        if "dataset" in config:
+            return config["dataset"]["version"]
+        else:
+            return config["version"]
+
+    def get_all_versions(self, name: str) -> list[str]:
+        dataset_dir = self._get_dataset_dir(DatasetKey(id=name, version=""))
+        assert dataset_dir.exists(), f"Dataset {name} does not exist in {dataset_dir}"
+        return [
+            folder.name
+            for folder in dataset_dir.iterdir()
+            if folder.is_dir() and folder.name != "latest"
+        ]
+
+    def get_file_types(self, dataset: Dataset | DatasetKey) -> set[DatasetType]:
+        folder = self._get_dataset_dir(dataset)
+        files = [f.name for f in folder.iterdir() if f.is_file()]
+        valid_types = {
+            _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
+        }
+        return {t for t in valid_types if t is not None}
+
+    def get_preferred_file_type(
+        self, dataset: Dataset | DatasetKey, preferences: list[DatasetType]
+    ) -> DatasetType:
+        file_types = self.get_file_types(dataset)
+        if len(file_types) == 0:
+            raise FileNotFoundError(
+                f"No files found for dataset {dataset.id} {dataset.version}."
+            )
+        if len(file_types.intersection(preferences)) == 0:
+            raise FileNotFoundError(
+                f"No preferred file types found for dataset {dataset.id} {dataset.version}. Preferred file types: {preferences}. Found filetypes: {file_types}."
+            )
+        return next(t for t in preferences if t in file_types)
+
+    def fetch_dataset(
+        self,
+        ds: Dataset,
+        *,
+        _target_dataset_path_override: Path | None = None,
+    ) -> Path:
+        local_recipe_repo_root = (
+            _target_dataset_path_override
+            or self.local_recipes_path / self.dataset_folder / ds.id / ds.version
+        )
+        target_file_path = Path(local_recipe_repo_root) / ds.file_name
+        source_file_path = self._get_dataset_file_path(ds)
+        if target_file_path.exists():
+            logger.info(f"✅ {ds.file_name} exists in cache")
+        else:
+            if not local_recipe_repo_root.exists():
+                local_recipe_repo_root.mkdir(parents=True)
+            logger.info(
+                f"🛠 {ds.file_name} doesn't exists in cache, downloading {source_file_path}"
+            )
+            source_file_path.copy(target_file_path)
+        return target_file_path
+
+    def get_parquet_metadata(self, id: str, version="latest") -> parquet.FileMetaData:
+        # TODO: this currently only works for public s3 files... I think?
+        file_path = (
+            self._get_dataset_dir(DatasetKey(id=id, version=version)) / f"{id}.parquet"
+        )
+        assert file_path.exists(), f"Parquet file not found at {file_path}"
+        ds = parquet.ParquetDataset(str(file_path))
+        assert len(ds.fragments) == 1, (
+            "recipes does not support multi-fragment datasets"
+        )
+        return ds.fragments[0].metadata
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         raise NotImplementedError("edm.recipes deprecated for archiving")
@@ -494,18 +654,14 @@ class Connector(VersionedConnector):
         **kwargs,
     ) -> dict:
         return {
-            "path": fetch_dataset(
+            "path": self.fetch_dataset(
                 Dataset(id=key, version=version, file_type=file_type),
-                target_dir=Path(),
                 _target_dataset_path_override=destination_path,
             )
         }
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
-        return sorted(get_all_versions(name=key), reverse=sort_desc)
-
-    def get_latest_version(self, key: str, **kwargs) -> str:
-        return get_latest_version(name=key)
+        return sorted(self.get_all_versions(name=key), reverse=sort_desc)
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return exists(Dataset(id=key, version=version))
