@@ -135,6 +135,7 @@ dependencies = [
     "pyarrow",
     "pydantic",
     "pyogrio",
+    "pytest-xdist",
     "paramiko",
     "python-dateutil",
     "python-dotenv",

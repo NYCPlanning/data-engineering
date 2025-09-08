@@ -28,6 +28,18 @@ class DatasetType(StrEnum):
     shapefile = "shapefile"
     other = "Other"
 
+    def to_extension(self) -> str:
+        mapping = {
+            "pg_dump": "sql",
+            "csv": "csv",
+            "parquet": "parquet",
+            "xlsx": "xlsx",
+            "json": "json",
+            "shapefile": "shp",
+            "other": "dat",
+        }
+        return mapping[self.value]
+
 
 def _type_to_extension(dst: DatasetType) -> str:
     mapping = {"pg_dump": "sql", "csv": "csv", "parquet": "parquet", "xlsx": "xlsx"}
