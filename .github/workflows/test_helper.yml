@@ -169,7 +169,6 @@ jobs:
       RECIPES_BUCKET: edm-recipes
       BUILD_ENGINE_DB: ${{ matrix.db }}
       TEST_SCHEMA_SUFFIX: pr_${{ github.event.pull_request.number || 'workflow_dispatch' }}
-      IMAGE_TAG: ${{ inputs.image_tag }}
 
     steps:
     - uses: actions/checkout@v4
@@ -197,14 +196,7 @@ jobs:
     - name: dcpy main pytests
       run: |
         docker exec -u 0 de \
-        python3 -m pytest dcpy/test --ignore dcpy/test/library -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
-
-    # separate because of issues w/ gdal and pyarrow
-    # errors occur when writing/reading parquet files after importing gdal
-    - name: dcpy library pytests
-      run: |
-        docker exec -u 0 de \
-        python3 -m pytest dcpy/test/library -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        python3 -m pytest dcpy/test -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
 
     - name: dcpy integration pytests
       run: |

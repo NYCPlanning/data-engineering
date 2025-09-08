@@ -3,8 +3,7 @@
 source config.sh
 set -e
 
-gdal_version=3.11.3
-gdal_short_version="$(echo "$gdal_version" | tr -d ".")"
+
 COMMON_APT_PACKAGES="curl zip unzip git wget ca-certificates lsb-release build-essential sudo postgresql-client libpq-dev jq locales pandoc weasyprint"
 
 apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -31,9 +30,9 @@ function install_gdal {
 
     echo "installing gdal from source" && (
         cd ~
-        wget download.osgeo.org/gdal/${gdal_version}/gdal${gdal_short_version}.zip
-        unzip gdal${gdal_short_version}.zip
-        cd gdal-${gdal_version}
+        wget https://github.com/fvankrieken/gdal/archive/refs/heads/3.8-revert-null-date-behavior.zip
+        unzip "3.8-revert-null-date-behavior.zip"
+        cd gdal-3.8-revert-null-date-behavior
         mkdir build
         cd build
         sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
@@ -41,8 +40,8 @@ function install_gdal {
         sudo cmake --build . --target install
 
         cd ~
-        rm -rf gdal-${gdal_version}
-        rm gdal${gdal_short_version}.zip
+        rm -rf gdal-3.8-revert-null-date-behavior
+        rm "3.8-revert-null-date-behavior.zip"
     )
     echo "gdal installed successfully"
 }

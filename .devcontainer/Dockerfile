@@ -1,5 +1,4 @@
-ARG TAG=latest
-FROM nycplanning/dev:${TAG}
+FROM nycplanning/dev:latest
 
 ENV PYTHONUNBUFFERED 1
 

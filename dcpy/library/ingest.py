@@ -27,57 +27,6 @@ from .config import Config
 from .sources import generic_source, postgres_source
 
 
-def format_field_names(
-    dataset: gdal.Dataset,
-    fields: list[str] | None,
-    sql: str | None,
-    has_geom: bool,
-    output_format: str,
-    csv_geom_fields: list[str] | None = None,
-):
-    layer = dataset.GetLayer(0)
-    layer_defn = layer.GetLayerDefn()
-    layer_name = layer.GetName()
-
-    field_mapping: dict[str, str] = {}
-    if fields:
-        for i in range(len(fields)):
-            fieldDefn = layer_defn.GetFieldDefn(i)
-            field_mapping[fieldDefn.GetName()] = fields[i]
-    else:
-        for i in range(layer_defn.GetFieldCount()):
-            fieldDefn = layer_defn.GetFieldDefn(i)
-            fieldName = fieldDefn.GetName()
-            field_mapping[fieldName] = fieldName.replace(" ", "_").lower()
-    if csv_geom_fields:
-        field_names = [k for k in field_mapping]
-        for field in field_names:
-            if field in csv_geom_fields:
-                field_mapping.pop(field)
-
-    select = ",\n\t".join(
-        [f'"{old}" AS "{field_mapping[old]}"' for old in field_mapping]
-    )
-    if has_geom:
-        geom_columns = {"CSV": "WKT", "PGDump": "wkb_geometry", "Parquet": "geom"}
-        geom_column = geom_columns.get(output_format, "geom")
-        geom_clause = f',\n\t"Geometry" AS "{geom_column}"'
-    else:
-        geom_clause = ""
-    query = f"""SELECT\n\t{select}{geom_clause}\nFROM {layer_name}"""
-    print(query)
-    if not sql:
-        return query
-    else:
-        cte_name = "__cte__"
-        sql = sql.replace("@filename", cte_name)
-        if sql.startswith("WITH "):
-            sql = sql.strip("WITH ")
-            return f"WITH {cte_name} AS ({query}),\n{sql}"
-        else:
-            return f"WITH {cte_name} AS ({query})\n{sql}"
-
-
 def translator(func):
     @wraps(func)
     def wrapper(self: Ingestor, *args, **kwargs) -> tuple[list[str], library.Config]:
@@ -136,7 +85,9 @@ def translator(func):
         # Default dstDS is destination_path if no dstDS is specificed
         dstDS = destination_path if not dstDS else dstDS
         srcDS = generic_source(
-            path=dataset.source.gdalpath, options=dataset.source.options
+            path=dataset.source.gdalpath,
+            options=dataset.source.options,
+            fields=dataset.destination.fields,
         )
 
         if srcDS.GetLayerCount() > 1:
@@ -149,24 +100,9 @@ def translator(func):
         else:
             src_layer = srcDS.GetLayer(0).GetName()
 
-        csv_geom_names = (
-            [
-                o.split("=")[1]
-                for o in dataset.source.options
-                if o.startswith("GEOM_POSSIBLE_NAMES=")
-            ]
-            if dataset.source.options
-            else None
-        )
-
-        sql = format_field_names(
-            srcDS,
-            dataset.destination.fields,
-            dataset.destination.sql,
-            dataset.source.geometry is not None,
-            output_format,
-            csv_geom_fields=csv_geom_names,
-        )
+        sql = dataset.destination.sql
+        if sql:
+            sql = sql.replace("@filename", src_layer)
 
         # Create postgres database schema and table version if needed
         if output_format == "PostgreSQL":
@@ -178,11 +114,6 @@ def translator(func):
                 else dataset.version.lower()
             )
             layerName = f"{schema_name}.{version}"
-            create_latest_query = f"""
-                CREATE VIEW {schema_name}.latest
-                as (SELECT \'{version}\' as v, *
-                from {schema_name}."{version}");
-            """
         else:
             layerName = dataset.name
 
@@ -205,9 +136,12 @@ def translator(func):
             # This addresses a gdal issue where translation will fail
             # to generate a csv from a shapefile if a csv already exists at
             # the target path
-
-            if output_format in ("CSV", "Parquet") and Path(dstDS).exists():  # type: ignore
-                Path(dstDS).unlink()  # type: ignore
+            if (
+                isinstance(dstDS, str)
+                and dstDS.endswith(".csv")
+                and Path(dstDS).exists()
+            ):
+                Path(dstDS).unlink()
 
             srcSRS = dataset.source.geometry.SRS if dataset.source.geometry else None
 
@@ -231,9 +165,15 @@ def translator(func):
 
         # Create latest view in postgres database if needed
         if output_format == "PostgreSQL":
-            dstDS.ExecuteSQL(f"DROP VIEW IF EXISTS {schema_name}.latest;")  # type: ignore
-            dstDS.ExecuteSQL(f"DROP TABLE IF EXISTS {schema_name}.latest;")  # type: ignore
-            dstDS.ExecuteSQL(create_latest_query)  # type: ignore
+            dstDS.ExecuteSQL(f"DROP VIEW IF EXISTS {schema_name}.latest;")
+            dstDS.ExecuteSQL(f"DROP TABLE IF EXISTS {schema_name}.latest;")
+            dstDS.ExecuteSQL(
+                f"""
+                CREATE VIEW {schema_name}.latest
+                as (SELECT \'{version}\' as v, *
+                from {schema_name}."{version}");
+                """
+            )
 
         # Compression if needed
         if compress and destination_path:
