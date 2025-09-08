@@ -4,6 +4,10 @@ on:
   - cron: 0 13 * * MON
   workflow_dispatch:
     inputs:
+      dev_image: 
+        description: "Use custom image tag? (If exists)"
+        type: string
+        required: false
       dev_bucket:
         description: dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'
         type: string
@@ -17,7 +21,7 @@ jobs:
         shell: bash
         working-directory: products/pluto/pluto_build
     container:
-      image: nycplanning/build-geosupport:latest
+      image: nycplanning/build-geosupport:${{ inputs.dev_image || 'latest' }}
     env:
       RECIPE_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
