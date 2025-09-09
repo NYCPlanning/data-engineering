@@ -61,6 +61,11 @@ on:
         description: "An optional note about this build"
         type: string
         required: false
+      dev_bucket:
+        description: "dev bucket to use in place of recipes/publishing. If name of bucket is
+          'de-dev-a' simply put 'a'"
+        type: string
+        required: false
 
 env:
   tag: ${{ (inputs.dev_image == 'true' || inputs.dev_image == true) && format('dev-{0}',
@@ -79,6 +84,7 @@ jobs:
           ${{ (inputs.draft_number != '' && format('--draft-number {0}', inputs.draft_number)) || ''}}
       tag: ${{ env.tag }}
       build_name: ${{ env.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
     steps:
     - name: Check inputs
       run: |
@@ -95,6 +101,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
   cbbr:
@@ -107,6 +114,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
       logging_level: ${{ inputs.logging_level }}
       build_note: ${{ inputs.build_note }}
   cdbg:
@@ -119,6 +127,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   ceqr:
     needs: health_check
     if: inputs.product == 'ceqr'
@@ -129,6 +138,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   #checkbook:
   #  needs: health_check
   #  if: inputs.product == 'checkbook'
@@ -147,6 +157,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   cpdb:
     needs: health_check
     if: inputs.product == 'cpdb'
@@ -157,6 +168,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   developments:
     needs: health_check
     if: inputs.product == 'developments'
@@ -167,6 +179,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   facilities:
     needs: health_check
     if: inputs.product == 'facilities'
@@ -177,6 +190,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   #factfinder:
   #  needs: health_check
   #  if: inputs.product == 'factfinder'
@@ -197,6 +211,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   #knownprojects:
   #  needs: health_check
   #  if: inputs.product == 'knownprojects'
@@ -215,6 +230,7 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   ztl:
     needs: health_check
     if: inputs.product == 'zoningtaxlots'
@@ -225,3 +241,4 @@ jobs:
       recipe_file: recipe
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
+      dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
