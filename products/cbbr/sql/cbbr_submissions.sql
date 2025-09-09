@@ -11,6 +11,8 @@ SELECT
     dcp.type,
     omb.type AS type_br,
     omb.priority,
+    dcp.policy_area,
+    dcp.need_group,
     dcp.need,
     omb.request,
     REPLACE(omb.reason, E'\n', ' ') AS explanation,
