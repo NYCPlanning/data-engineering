@@ -34,6 +34,7 @@ jobs:
       run:
         shell: bash
     env:
+      TEMPLATE_DIR: ./ingest_templates
       BUILD_NAME: ${{ inputs.schema_name }}
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
