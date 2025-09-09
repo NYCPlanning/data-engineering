@@ -17,7 +17,7 @@ from dcpy.lifecycle.builds import metadata as build_metadata
 
 DATABASE = "sandbox"
 LIBRARY_PATH = recipes.LIBRARY_DEFAULT_PATH / "datasets"
-SCHEMA = build_metadata.build_name(os.environ.get("BUILD_NAME"))
+SCHEMA = build_metadata.build_name(os.environ.get("SCHEMA_NAME"))
 
 
 class Converter(SortedSerializedBase, YamlWriter):
