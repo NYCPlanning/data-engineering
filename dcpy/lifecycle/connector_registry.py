@@ -37,7 +37,7 @@ def _set_default_connectors():
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
         [publishing.BuildsConnector(), "edm.publishing.builds"],
-        sftp.SFTPConnectorAdapter(
+        sftp.SFTPConnector(
             hostname=SFTP_HOST,
             username=SFTP_USER,
             port=int(SFTP_PORT),

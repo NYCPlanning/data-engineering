@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from dcpy.utils.logging import logger
 
 
-class SFTPConnector(BaseModel):
+class SFTPServer(BaseModel):
     hostname: str
     username: str
     private_key_path: Path
@@ -98,19 +98,6 @@ class SFTPConnector(BaseModel):
                 confirm=True,
             )
         return response
-
-    def _push(
-        self,
-        key: str,
-        *,
-        filepath: Path,
-        **kwargs,
-    ) -> dict:
-        self.put_file(
-            local_file_path=filepath,
-            server_file_path=Path(key),
-        )
-        return {"key": key}
 
     def object_exists(self, path: Path) -> bool:
         try:
