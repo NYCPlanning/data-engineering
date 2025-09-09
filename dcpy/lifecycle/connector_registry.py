@@ -3,7 +3,6 @@ from dcpy.configuration import (
     SFTP_HOST,
     SFTP_USER,
     SFTP_PORT,
-    SFTP_KNOWN_HOSTS_KEY_PATH,
     SFTP_PRIVATE_KEY_PATH,
 )
 from dcpy.connectors.edm import recipes, publishing
@@ -37,13 +36,15 @@ def _set_default_connectors():
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
         [publishing.BuildsConnector(), "edm.publishing.builds"],
-        sftp.SFTPConnector(
-            hostname=SFTP_HOST,
-            username=SFTP_USER,
-            port=int(SFTP_PORT),
-            known_hosts_path=SFTP_KNOWN_HOSTS_KEY_PATH,
-            private_key_path=SFTP_PRIVATE_KEY_PATH,
-        ),
+        [
+            sftp.SFTPConnector(
+                hostname=SFTP_HOST,
+                username=SFTP_USER,
+                port=int(SFTP_PORT),
+                private_key_path=SFTP_PRIVATE_KEY_PATH,
+            ),
+            "ginger",  # TODO - name and env var names should be configurable
+        ],
     ]
 
     for conn in conns:

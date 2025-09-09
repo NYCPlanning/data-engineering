@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import cast
 
 from dcpy.connectors.registry import StorageConnector
-from dcpy.utils.sftp import SFTPServer
+from dcpy.utils.sftp import SFTPServer, KNOWN_HOSTS_DEFAULT_PATH
 
 
 class SFTPConnector(StorageConnector):
@@ -12,10 +12,11 @@ class SFTPConnector(StorageConnector):
     username: str | None
     port: int
     private_key_path: Path | None
-    known_hosts_path: Path | None
+    known_hosts_path: Path = KNOWN_HOSTS_DEFAULT_PATH
 
     @cached_property
     def _server(self) -> SFTPServer:
+        # TODO - this validation should ideally happen when registering configured connectors
         if not all(
             [
                 self.hostname,

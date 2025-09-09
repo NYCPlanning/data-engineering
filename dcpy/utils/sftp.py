@@ -6,12 +6,14 @@ from pydantic import BaseModel
 
 from dcpy.utils.logging import logger
 
+KNOWN_HOSTS_DEFAULT_PATH = Path.home() / ".ssh/known_hosts"
+
 
 class SFTPServer(BaseModel):
     hostname: str
     username: str
     private_key_path: Path
-    known_hosts_path: Path = Path("~/.ssh/known_hosts")
+    known_hosts_path: Path = KNOWN_HOSTS_DEFAULT_PATH
     port: int = 22
 
     @contextmanager
@@ -79,7 +81,11 @@ class SFTPServer(BaseModel):
             logger.info(
                 f"Copying file from remote path '{server_file_path}' to '{local_file_path}' ..."
             )
-            connection.get(remotepath=str(server_file_path), localpath=str(filepath))
+            connection.get(
+                remotepath=str(server_file_path),
+                localpath=str(filepath),
+                max_concurrent_prefetch_requests=64,
+            )
         return {"path": filepath}
 
     def put_file(
