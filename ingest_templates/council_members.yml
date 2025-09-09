@@ -1,0 +1,23 @@
+id: council_members
+acl: public-read
+
+attributes:
+  name: Council Members
+  description: >-
+    This list contains information on Council Members
+  url: https://data.cityofnewyork.us/d/uvw5-9znb
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: uvw5-9znb
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+    - name: clean_column_names
+      args: { "replace": { " ": "_" }, "lower": True }
+    - name: coerce_column_types
+      args:
+        column_types: { "district": "string" }
