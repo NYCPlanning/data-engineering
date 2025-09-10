@@ -11,6 +11,8 @@ SELECT
     dcp.type,
     omb.type AS type_br,
     omb.priority,
+    dcp.policy_area,
+    dcp.need_group,
     dcp.need,
     omb.request,
     REPLACE(omb.reason, E'\n', ' ') AS explanation,
@@ -32,8 +34,7 @@ SELECT
     omb.budline3 AS budget_line_3,
     omb.agency_acronym,
     omb.agency,
-    omb.agyrspcat AS agency_category_response, -- all null
-    omb.agency_response,
-    REPLACE(omb.explanation, E'\n', ' ') AS additional_comment
+    REPLACE(omb.explanation, E'\n', ' ') AS agency_response,
+    omb.agency_response AS agency_category_response
 FROM omb_cbbr_agency_responses AS omb
 INNER JOIN dcp_cbbr_requests AS dcp ON omb.dcpuniqid = dcp.current_year_id
