@@ -163,4 +163,5 @@ library = "dcpy.library.cli:run"
 dcpy = [
     "library/templates/*.yml",
     "lifecycle/package/resources/**",
+    "connectors/edm/bytes/site_map.json",
 ]
