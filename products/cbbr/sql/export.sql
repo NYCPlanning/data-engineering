@@ -131,7 +131,7 @@ SELECT
     END AS supporters_2,
     agency_acronym,
     agency,
-    substring(agency_category_response from '^[^;]*') AS agency_category_response,
+    substring(agency_category_response FROM '^[^;]*') AS agency_category_response,
     agency_response,
     geo_function,
     geom
