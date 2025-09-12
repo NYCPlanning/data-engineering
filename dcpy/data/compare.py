@@ -2,6 +2,7 @@ import pandas as pd
 
 from dcpy.models.data import comparison
 from dcpy.utils import postgres
+from dcpy.utils.logging import logger
 
 
 def compare_df_columns(left: pd.DataFrame, right: pd.DataFrame):
@@ -109,6 +110,7 @@ def compare_sql_keyed_rows(
     ignore_columns: list[str] | None = None,
     cast_to_numeric: list[str] | None = None,
 ):
+    logger.info(f"Comparing {left} (left) and {right} (right) by keys {key_columns}")
     left_columns = client.get_table_columns(left)
     right_columns = client.get_table_columns(right)
     assert set(key_columns).issubset(set(left_columns))
@@ -116,6 +118,7 @@ def compare_sql_keyed_rows(
 
     columns = set(left_columns) & set(right_columns) - set(ignore_columns or [])
     non_key_columns = columns - set(key_columns)
+    keys = ", ".join([f'"{c}"' for c in key_columns])
     left_keys = ", ".join([f'"left"."{c}"' for c in key_columns])
     left_keys_alias = ", ".join([f'"left"."{c}" AS "{c}_left"' for c in key_columns])
     right_keys_alias = ", ".join([f'"right"."{c}"AS "{c}_right"' for c in key_columns])
@@ -130,36 +133,52 @@ def compare_sql_keyed_rows(
         f'SELECT {right_keys_alias} {from_clause} WHERE "left"."{key_columns[0]}" IS NULL'
     )
 
-    comps: dict[str, pd.DataFrame] = {}
-
-    def query(column: str) -> str:
-        lc = f'"left"."{column}"'
-        rc = f'"right"."{column}"'
-        if cast_to_numeric and column in cast_to_numeric:
-            lc = lc + "::numeric"
-            rc = rc + "::numeric"
-        return f"""
+    temp_table = f"_{left}__{right}__comp"
+    temp_table_columns = [
+        f'"left"."{c}" AS "{c}__left", "right"."{c}" AS "{c}__right"' for c in columns
+    ]
+    logger.info(f"Creating temporary table {temp_table}")
+    client.execute_query(
+        f"""
+            CREATE TEMPORARY TABLE {temp_table} AS
             SELECT 
-                {left_keys}, {lc} AS "left", {rc} AS "right" 
+                {left_keys}, {", ".join(temp_table_columns)}
             FROM {left} AS "left" 
                 INNER JOIN {right} AS "right"
                 ON {on}
+        """
+    )
+
+    comps: dict[str, pd.DataFrame] = {}
+
+    def query(column: str) -> str:
+        lc = f'"{column}__left"'
+        rc = f'"{column}__right"'
+        if cast_to_numeric and column in cast_to_numeric:
+            logger.info(f"Comparing column {column} with coercion to numeric types")
+            lc = lc + "::numeric"
+            rc = rc + "::numeric"
+        else:
+            logger.info(f"Comparing column {column} with simple equality")
+        return f"""
+            SELECT 
+                {keys}, {lc}, {rc}
+            FROM {temp_table}
             WHERE {lc} IS DISTINCT FROM {rc}
         """
 
     def spatial_query(column: str) -> str:
-        lc = f'"left"."{column}"'
-        rc = f'"right"."{column}"'
+        logger.info(f"Comparing column {column} spatially")
+        lc = f'"{column}__left"'
+        rc = f'"{column}__right"'
         return f"""
             SELECT 
-                {left_keys},
+                {keys},
                 st_orderingequals({lc}, {rc}) AS "ordering_equal",
                 st_equals({lc}, {rc}) AS "spatially_equal",
                 st_geometrytype({lc}) AS "left_geom_type",
                 st_geometrytype({rc}) AS "right_geom_type"
-            FROM {left} AS "left" 
-                INNER JOIN {right} AS "right"
-                ON {on}
+            FROM {temp_table}
             WHERE {lc} IS DISTINCT FROM {rc}
         """
 
@@ -169,6 +188,7 @@ def compare_sql_keyed_rows(
     for column in non_key_columns:
         # simple inequality is not informative for spatial columns
         if (column in left_geom_columns) and (column in right_geom_columns):
+            logger.info(f"Comparing column {column} spatially")
             comp_df = client.execute_select_query(spatial_query(column))
             comp_df = comp_df.set_index(key_columns)
             comp_df.columns = pd.Index(

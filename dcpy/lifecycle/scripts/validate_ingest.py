@@ -1,10 +1,13 @@
+import importlib
 import os
 from pathlib import Path
 import shutil
+from tempfile import TemporaryDirectory
 import typer
 from typing import Literal
 import yaml
 
+from dcpy import configuration
 from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
 from dcpy.models.data import comparison
@@ -13,11 +16,10 @@ from dcpy.models.lifecycle.ingest import DatasetAttributes
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import INGEST_DIR, ingest as run_ingest
-from dcpy.lifecycle.builds import metadata as build_metadata
 
 DATABASE = "sandbox"
 LIBRARY_PATH = recipes.LIBRARY_DEFAULT_PATH / "datasets"
-SCHEMA = build_metadata.build_name(os.environ.get("BUILD_NAME"))
+SCHEMA = "ingest_validation"
 
 
 class Converter(SortedSerializedBase, YamlWriter):
@@ -156,6 +158,37 @@ def load_recipe(
         client,
         import_as=target_table,
     )
+
+
+def load_recipe_from_s3(
+    ds_id: str,
+    s3_version: str,
+    validation_version: Literal["library", "ingest"],
+    bucket: str | None = None,
+    library_ds_type: recipes.DatasetType = recipes.DatasetType.pg_dump,
+):
+    if bucket:
+        os.environ["RECIPES_BUCKET"] = bucket
+        importlib.reload(configuration)
+    target_table = f"{ds_id}_{validation_version}"
+
+    if validation_version == "library":
+        file_type = library_ds_type
+    else:
+        file_type = recipes.DatasetType.parquet
+
+    client = postgres.PostgresClient(schema=SCHEMA, database=DATABASE)
+    client.drop_table(ds_id)
+    client.drop_table(target_table)
+
+    ds = recipes.Dataset(id=ds_id, version=s3_version, file_type=file_type)
+
+    # often use case would be archiving to dev bucket multiple times
+    # just ensure that local copy is not re-used
+    with TemporaryDirectory() as _dir:
+        recipes.import_dataset(
+            ds, client, import_as=target_table, local_library_dir=Path(_dir)
+        )
 
 
 def compare_recipes_in_postgres(
@@ -340,3 +373,28 @@ def _get_columns(
 
     for _, row in res.iterrows():
         print(row["t"])
+
+
+@app.command("load_from_s3")
+def _load_from_s3(
+    ds_id: str = typer.Argument(),
+    s3_version: str = typer.Argument(help="the version in S3 to load"),
+    validation_version: str = typer.Argument(
+        help="which tool the ds was archived with"
+    ),
+    bucket: str = typer.Option(None, "--bucket", "-b", help="S3 bucket to use"),
+):
+    """Load a dataset version from S3 into the validation schema
+
+    Note that this does not run ingest or library - it just loads the specified version from S3
+    into the validation schema as either the 'library' or 'ingest' version.
+
+    This is useful if you have a dataset version in S3 that you want to validate against a new
+    ingest or library run.
+
+    Example:
+
+        python -m dcpy lifecycle scripts validate_ingest load_from_s3 \
+            nyc_parking_permits 20250101 library --bucket de-dev-f
+    """
+    load_recipe_from_s3(ds_id, s3_version, validation_version, bucket)  # type: ignore

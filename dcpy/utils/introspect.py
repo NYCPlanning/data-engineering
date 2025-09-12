@@ -1,3 +1,4 @@
+from enum import Enum
 import inspect
 from types import UnionType
 from typing import Callable, get_args, get_origin, Literal, Union
@@ -7,7 +8,7 @@ def _isempty(obj) -> bool:
     return obj == inspect._empty
 
 
-def _isinstance(obj, cls):
+def _isinstance(obj, cls, strict_enums=True) -> bool:
     """
     _isinstance extends behavior of basic python `isinstance` to allow for
     parameterized generics (i.e. check if an object is dict[str, str])
@@ -27,6 +28,8 @@ def _isinstance(obj, cls):
             and all([_isinstance(key, keytype) for key in obj])
             and all([_isinstance(obj[key], valtype) for key in obj])
         )
+    elif issubclass(cls, Enum):
+        return isinstance(obj, cls) or (not strict_enums and obj in cls)
     else:
         return isinstance(obj, cls)
 
@@ -36,6 +39,7 @@ def validate_kwargs(
     kwargs: dict,
     raise_error=False,
     ignore_args: list[str] | None = None,
+    strict_enums: bool = True,
 ) -> dict[str, str]:
     """
     Given a function and dict containing kwargs, validates that kwargs satiffy the
@@ -74,10 +78,10 @@ def validate_kwargs(
         if arg_name in kwargs:
             arg = kwargs[arg_name]
             annotation = sig.parameters[arg_name].annotation
-            if (
-                not _isempty(annotation)
-                and not isinstance(annotation, str)
-                and not _isinstance(arg, annotation)
+            if not (
+                _isempty(annotation)
+                or isinstance(annotation, str)
+                or _isinstance(arg, annotation, strict_enums=strict_enums)
             ):
                 violating_args[arg_name] = (
                     f"Type mismatch, expected '{annotation}' and got {type(arg)}"
@@ -85,11 +89,12 @@ def validate_kwargs(
         elif arg_name not in defaults:
             violating_args[arg_name] = "Missing"
 
+    ## if **kwargs is present
     varkw = [a for a in sig.parameters.values() if a.kind == a.VAR_KEYWORD]
 
     if not varkw:
         for arg in kwargs:
-            if arg not in expected_args:
+            if arg not in expected_args and arg not in ignore_args:
                 violating_args[arg] = "Unexpected"
 
     if violating_args and raise_error:

@@ -1,0 +1,58 @@
+id: pluto_input_cama_dof
+acl: public-read
+
+attributes:
+  name: DOF CAMA
+  description: >-
+    TODO - not production-ready. The cama file is not always present on the server and
+    library doesn't store the raw output... so we have no file to test with or validate
+
+    DOF uses the Computer-Assisted Mass Appraisal System (CAMA) for property tax
+    valuations. Assessors determine parcel market value using one of several valuation
+    methods based on the parcels tax class. Once market value is determined, the
+    assessed value is a percentage calculation of the market value.
+
+ingestion:
+  source:
+    type: ginger
+    path: Prod_FromDOF/CAMA.zip
+  file_format:
+    type: csv
+    delimiter: "|"
+    dtype: str
+    column_names:
+    - bbl
+    - parcelcard
+    - bldgnum
+    - bldgclass
+    - primaryusecode
+    - developmentname
+    - streettype
+    - lottype
+    - residarea
+    - officearea
+    - retailarea
+    - garagearea
+    - storagearea
+    - factoryarea
+    - otherarea
+    - grossarea
+    - ownerarea
+    - grossvolume
+    - commercialarea
+    - proxcode
+    - bsmnt_type
+    - bsmntgradient
+    - bsmntarea
+    - firstfloorarea
+    - secondfloorarea
+    - upperfloorarea
+    - partresfloorarea
+    - unfinishedfloorarea
+    - finishedfloorarea
+    - nonresidfloorarea
+    - residconstrtype
+    - commercialconstrtype
+    - condomainconstrtype
+    - condounitsconstrtype
+  processing_steps: []

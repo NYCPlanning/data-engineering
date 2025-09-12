@@ -1,8 +1,7 @@
-from functools import partial
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
-from typing import Callable, Literal
+from typing import Literal
 
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import (
@@ -11,7 +10,7 @@ from dcpy.models.lifecycle.ingest import (
     ProcessingSummary,
     ProcessingResult,
 )
-from dcpy.utils import data, introspect
+from dcpy.utils import data
 from dcpy.utils.geospatial import transform, parquet as geoparquet
 from dcpy.utils.logging import logger
 from dcpy.connectors.edm import recipes
@@ -407,6 +406,18 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=multi_gdf, summary=summary)
 
+    def groupby(
+        self,
+        df: pd.DataFrame,
+        by: str | list[str],
+        agg: str | list | dict,
+    ) -> ProcessingResult:
+        grouped = df.groupby(by, as_index=False).agg(agg)
+        summary = make_generic_change_stats(
+            df, grouped, description="Grouped and aggregated", name="group_by"
+        )
+        return ProcessingResult(df=grouped, summary=summary)
+
     def pd_series_func(
         self,
         df: pd.DataFrame,
@@ -456,63 +467,86 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=transformed, summary=summary)
 
+    def convert_to_geometry(
+        self,
+        df: pd.DataFrame,
+        # either column or x and y. A little unsafe but this is a rare case
+        geom_column: str | dict,
+        output_geom_column: str = OUTPUT_GEOM_COLUMN,
+        crs: str = "EPSG:4326",
+    ) -> ProcessingResult:
+        """
+        Note - in general, if x and y are in the source data as separate columns,
+        it's preferred to read them as geom as part of reading in the file. However,
+        if x/y are populated during course of preprocessing, this function is
+        appropriate to use
+        """
+        geometry = file.Geometry(
+            geom_column=(
+                geom_column
+                if isinstance(geom_column, str)
+                else file.Geometry.PointColumns(**geom_column)
+            ),
+            crs=crs,
+        )
+        gdf = transform.df_to_gdf(df, geometry)
 
-def validate_pd_series_func(
-    *, function_name: str, column_name: str = "", geo=False, **kwargs
-) -> str | dict[str, str]:
-    parts = function_name.split(".")
-    if geo:
-        func = gpd.GeoSeries()
-        func_str = "gpd.GeoSeries"
-    else:
-        func = pd.Series()
-        func_str = "pd.Series"
-    for part in parts:
-        if part not in func.__dir__():
-            return f"'{func_str}' has no attribute '{part}'"
-        func = func.__getattribute__(part)
-        func_str += f".{part}"
-    return introspect.validate_kwargs(func, kwargs)  # type: ignore
+        if gdf.geometry.name != OUTPUT_GEOM_COLUMN:
+            gdf.rename_geometry(OUTPUT_GEOM_COLUMN, inplace=True)
 
+        summary = ProcessingSummary(
+            name="df_to_gdf",
+            description="Converted text or x/y columns to geom",
+            custom={
+                "geom_source_column(s)": geometry,
+                "rows_with_geom": int(gdf.geometry.notna().sum()),
+                "total_rows": len(df),
+            },
+        )
+        return ProcessingResult(df=gdf, summary=summary)
 
-def validate_processing_steps(
-    dataset_id: str, processing_steps: list[ProcessingStep]
-) -> list[Callable]:
-    """
-    Given config of ingest dataset, violates that defined processing steps
-    exist and that appropriate arguments are supplied. Raises error detailing
-    violations if any are found
+    def geocode_bbl(
+        self,
+        df: pd.DataFrame,
+        # boro_column: str = "boro",
+        # block_column: str = "block",
+        # lot_column: str = "lot",
+    ) -> ProcessingResult:
+        from dcpy.geosupport import pluto as geosupport_pluto
 
-    Returns list of callables, which expect a dataframe and return a dataframe
-    """
-    violations: dict[str, str | dict[str, str]] = {}
-    compiled_steps: list[Callable] = []
-    processor = ProcessingFunctions(dataset_id)
-    for step in processing_steps:
-        if step.name not in processor.__dir__():
-            violations[step.name] = "Function not found"
-        else:
-            func = getattr(processor, step.name)
+        transformed = geosupport_pluto.geocode_df_bbl(df)
+        summary = ProcessingSummary(
+            name="geocode_bbl",
+            description="Geocoded with function BL",
+            column_modifications={
+                "added": sorted(list(set(transformed.columns) - set(df.columns)))
+            },
+            custom={
+                "rows_geocoded": int(transformed["latitude"].notna().sum()),
+                "total_rows": len(transformed),
+            },
+        )
+        return ProcessingResult(df=transformed, summary=summary)
 
-            # assume that function takes args "self, df"
-            kw_error = introspect.validate_kwargs(
-                func, step.args, raise_error=False, ignore_args=["self", "df"]
-            )
-            if kw_error:
-                violations[step.name] = kw_error
+    def geocode_bin(
+        self,
+        df: pd.DataFrame,
+    ) -> ProcessingResult:
+        from dcpy.geosupport import pluto as geosupport_pluto
 
-            # extra validation needed
-            elif step.name == "pd_series_func":
-                series_error = validate_pd_series_func(**step.args)
-                if series_error:
-                    violations[step.name] = series_error
-
-            compiled_steps.append(partial(func, **step.args))
-
-    if violations:
-        raise Exception(f"Invalid processing steps:\n{violations}")
-
-    return compiled_steps
+        transformed = geosupport_pluto.geocode_df_bin(df)
+        summary = ProcessingSummary(
+            name="geocode_bin",
+            description="Geocoded with function BN",
+            column_modifications={
+                "added": sorted(list(set(transformed.columns) - set(df.columns)))
+            },
+            custom={
+                "rows_geocoded": sum(transformed["bbl"] != ""),
+                "total_rows": len(transformed),
+            },
+        )
+        return ProcessingResult(df=transformed, summary=summary)
 
 
 def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
@@ -538,12 +572,13 @@ def process(
     """Validates and runs processing steps defined in config object"""
     logger.info(f"Processing {input_path.name} to {output_path.name}")
     df = geoparquet.read_df(input_path)
-    compiled_steps = validate_processing_steps(dataset_id, processing_steps)
+    processor = ProcessingFunctions(dataset_id)
 
     logger.info("Running processing steps")
     summaries = []
-    for step in compiled_steps:
-        result = step(df)
+    for step in processing_steps:
+        step_callable = getattr(processor, step.name)
+        result = step_callable(df, **step.args)
         df = result.df
         summaries.append(result.summary)
 

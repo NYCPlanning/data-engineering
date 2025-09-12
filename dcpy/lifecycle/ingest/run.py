@@ -41,7 +41,6 @@ def ingest(
         template_dir=template_dir,
         local_file_path=local_file_path,
     )
-    transform.validate_processing_steps(config.id, config.ingestion.processing_steps)
 
     if not dataset_staging_dir:
         dataset_staging_dir = (

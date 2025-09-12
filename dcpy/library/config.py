@@ -7,8 +7,8 @@ from pathlib import Path
 import yaml
 
 from dcpy.models.library import DatasetDefinition
-from dcpy.models.connectors.socrata import Org as SocrataOrg
 from dcpy.connectors.esri import arcgis_feature_service
+from dcpy.connectors.socrata.configuration import Org as SocrataOrg
 from dcpy.connectors.socrata import extract as socrata
 from .utils import format_url
 from .validator import Validator, Dataset
@@ -72,13 +72,9 @@ class Config:
 
         _config = self.parsed_unrendered_template
         if _config.source.socrata:
-            socrata_source = socrata.Source(
-                type="socrata",
-                org=SocrataOrg.nyc,
-                uid=_config.source.socrata.uid,
-                format=_config.source.socrata.format,
+            version = socrata.get_version(
+                org=SocrataOrg.nyc, uid=_config.source.socrata.uid
             )
-            version = socrata.get_version(socrata_source)
         elif _config.source.arcgis_feature_server:
             fs = _config.source.arcgis_feature_server
             feature_server_layer = arcgis_feature_service.resolve_layer(
@@ -130,13 +126,12 @@ class Config:
                 raise Exception(
                     "Socrata source format must be 'csv', 'geojson', or 'shapefile'."
                 )
-            socrata_source = socrata.Source(
-                type="socrata",
+            socrata.download(
                 org=SocrataOrg.nyc,
                 uid=source.uid,
                 format=source.format,
+                path=Path(path),
             )
-            socrata.download(socrata_source, Path(path))
             config.source.gdalpath = path
 
         elif config.source.arcgis_feature_server:

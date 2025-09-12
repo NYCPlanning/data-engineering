@@ -4,7 +4,7 @@ import pytest
 from shutil import SameFileError
 from unittest import mock
 
-from dcpy.models.lifecycle.ingest import Source, LocalFileSource, S3Source, GisDataset
+from dcpy.models.lifecycle.ingest import Source
 from dcpy.utils import s3
 from dcpy.connectors import web
 from dcpy.lifecycle.ingest import extract
@@ -17,20 +17,20 @@ web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
 
 
 def setup(source: Source, filename: str, file_system: Path) -> Source:
-    match source:
-        case LocalFileSource():
-            tmp_file = file_system / source.path
+    match source.type:
+        case "local_file":
+            tmp_file = file_system / source.key
             tmp_file.parent.mkdir(exist_ok=True)
             tmp_file.touch()
-            source.path = tmp_file
-        case GisDataset():
+            source.key = str(tmp_file)
+        case "edm.publishing.gis":
             s3.client().put_object(
                 Bucket=PUBLISHING_BUCKET,
                 Key=f"datasets/{TEST_DATASET_NAME}/{FAKE_VERSION}/{filename}",
             )
-        case S3Source():
+        case "s3":
             s3.client().put_object(
-                Bucket=source.bucket,
+                Bucket=source.model_dump()["bucket"],
                 Key=source.key,
             )
     return source
@@ -54,9 +54,9 @@ def test_download_file_invalid_source():
         )
 
 
-def _temp_test_local_already_exists(tmp_path):
+def test_local_already_exists(tmp_path):
     filename = "dummy.txt"
-    source = LocalFileSource(type="local_file", path=Path(filename))
+    source = Source(type="local_file", key=filename)
     setup(source, filename, tmp_path)
     with pytest.raises(SameFileError):
-        extract.download_file_from_source(source, filename, FAKE_VERSION, tmp_path)
+        extract.download_file_from_source(source, FAKE_VERSION, tmp_path)

@@ -4,8 +4,8 @@ from datetime import datetime
 import pytz
 from typing import TypedDict
 
-from dcpy.utils.sftp import SFTPConnector
-from dcpy.connectors.sftp import SFTPConnectorAdapter
+from dcpy.utils.sftp import SFTPServer
+from dcpy.connectors.sftp import SFTPConnector
 
 
 class SFTPDefaults(TypedDict):
@@ -27,8 +27,8 @@ SFTP_REMOTE_FILES_DIR = Path("remote_files")
 SFTP_REMOTE_FILE = SFTP_REMOTE_FILES_DIR / "a_file.txt"
 
 
-class TestSFTPConnector:
-    connector = SFTPConnector(**SFTP_DEFAULTS)
+class TestSFTPUtils:
+    connector = SFTPServer(**SFTP_DEFAULTS)
 
     def test_list_directory(self):
         entries = self.connector.list_directory()
@@ -95,8 +95,8 @@ class TestSFTPConnector:
             )
 
 
-class TestSFTPConnectorAdapter:
-    connector = SFTPConnectorAdapter(**SFTP_DEFAULTS)
+class TestSFTPConnector:
+    connector = SFTPConnector(**SFTP_DEFAULTS)
 
     def test_push(self, tmp_path: Path):
         filename = f"{datetime.now(pytz.timezone('America/New_York')).isoformat()}.txt"

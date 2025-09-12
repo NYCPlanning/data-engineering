@@ -1,0 +1,30 @@
+id: pluto_input_geocodes
+acl: public-read
+
+attributes:
+  name: Geocoded PTS
+  description: distinct boro, block, lot from pluto_pts, geocoded
+
+ingestion:
+  source:
+    type: ginger
+    path: Prod_FromDOF/PTS_Propmast.gz
+  file_format:
+    type: csv
+    delimiter: "\t"
+    column_names:
+    - boro
+    - block
+    - lot
+    usecols: [ 1, 2, 3 ]
+    dtype: str
+  processing_steps:
+  - name: deduplicate
+  - name: geocode_bbl
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: convert_to_geometry
+    args:
+      geom_column:
+        x: latitude
+        y: longitude
