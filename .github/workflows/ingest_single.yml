@@ -20,10 +20,14 @@ on:
         description: "Preprocessing 'mode', if applicable"
         required: false
       dev_image: 
-        description: "Use dev image specific to this branch? (If exists)"
+        description: "Use dev image specific to this branch (if exists)? Overridden by below"
         type: boolean
         required: true
         default: false
+      custom_dev_image:
+        description: "Manually specify custom image tag?"
+        type: string
+        required: false
       dev_bucket:
         description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
         type: string
@@ -33,7 +37,7 @@ jobs:
   dataloading:
     runs-on: ubuntu-22.04
     container: 
-      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image: nycplanning/build-geosupport:${{ inputs.custom_dev_image || (inputs.dev_image && format('dev-{0}', github.head_ref || github.ref_name) || 'latest') }}
     defaults:
       run:
         shell: bash
