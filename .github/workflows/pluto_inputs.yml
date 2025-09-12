@@ -14,6 +14,8 @@ on:
           simply put 'a'
         type: string
         required: false
+  push:
+
 
 jobs:
   dataloading:
@@ -24,7 +26,7 @@ jobs:
         pluto_pts
         pluto_input_geocodes
         pluto_input_numbldgs
-      dev_bucket: ${{ inputs.dev_bucket }}
+      dev_bucket: f
       dev_image: ${{ inputs.dev_image }}
       latest: true
       create_issue: ${{ github.event_name == 'schedule' }}
