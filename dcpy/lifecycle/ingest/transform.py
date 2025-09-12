@@ -406,6 +406,18 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=multi_gdf, summary=summary)
 
+    def groupby(
+        self,
+        df: pd.DataFrame,
+        by: str | list[str],
+        agg: str | list | dict,
+    ) -> ProcessingResult:
+        grouped = df.groupby(by, as_index=False).agg(agg)
+        summary = make_generic_change_stats(
+            df, grouped, description="Grouped and aggregated", name="group_by"
+        )
+        return ProcessingResult(df=grouped, summary=summary)
+
     def pd_series_func(
         self,
         df: pd.DataFrame,
@@ -455,6 +467,44 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=transformed, summary=summary)
 
+    def convert_to_geometry(
+        self,
+        df: pd.DataFrame,
+        # either column or x and y. A little unsafe but this is a rare case
+        geom_column: str | dict,
+        output_geom_column: str = OUTPUT_GEOM_COLUMN,
+        crs: str = "EPSG:4326",
+    ) -> ProcessingResult:
+        """
+        Note - in general, if x and y are in the source data as separate columns,
+        it's preferred to read them as geom as part of reading in the file. However,
+        if x/y are populated during course of preprocessing, this function is
+        appropriate to use
+        """
+        geometry = file.Geometry(
+            geom_column=(
+                geom_column
+                if isinstance(geom_column, str)
+                else file.Geometry.PointColumns(**geom_column)
+            ),
+            crs=crs,
+        )
+        gdf = transform.df_to_gdf(df, geometry)
+
+        if gdf.geometry.name != OUTPUT_GEOM_COLUMN:
+            gdf.rename_geometry(OUTPUT_GEOM_COLUMN, inplace=True)
+
+        summary = ProcessingSummary(
+            name="df_to_gdf",
+            description="Converted text or x/y columns to geom",
+            custom={
+                "geom_source_column(s)": geometry,
+                "rows_with_geom": int(gdf.geometry.notna().sum()),
+                "total_rows": len(df),
+            },
+        )
+        return ProcessingResult(df=gdf, summary=summary)
+
     def geocode_bbl(
         self,
         df: pd.DataFrame,
@@ -473,6 +523,26 @@ class ProcessingFunctions:
             },
             custom={
                 "rows_geocoded": int(transformed["latitude"].notna().sum()),
+                "total_rows": len(transformed),
+            },
+        )
+        return ProcessingResult(df=transformed, summary=summary)
+
+    def geocode_bin(
+        self,
+        df: pd.DataFrame,
+    ) -> ProcessingResult:
+        from dcpy.geosupport import pluto as geosupport_pluto
+
+        transformed = geosupport_pluto.geocode_df_bin(df)
+        summary = ProcessingSummary(
+            name="geocode_bin",
+            description="Geocoded with function BN",
+            column_modifications={
+                "added": sorted(list(set(transformed.columns) - set(df.columns)))
+            },
+            custom={
+                "rows_geocoded": sum(transformed["bbl"] != ""),
                 "total_rows": len(transformed),
             },
         )
