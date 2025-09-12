@@ -79,21 +79,25 @@ def get_sname(b5sc):
         return ""
 
 
-def geocode(inputs):
-    boro = inputs.pop("boro")
-    block = inputs.pop("block")
-    lot = inputs.pop("lot")
+def geocode(record):
+    boro = record["boro"]
+    block = record["block"]
+    lot = record["lot"]
     ease = ""
 
     bbl = boro + block + lot
+    if not isinstance(bbl, str) and len(bbl) == 10:
+        raise ValueError(
+            f"Malformatted bbl. Boro '{boro}', block '{block}', lot '{lot}'"
+        )
+
     address = get_address(bbl)
 
     sname = address.get("sname", "")
     hnum = address.get("hnum", "")
-    numberOfExistingStructures = address.get("numberOfExistingStructures", "")
-    borough = boro
+    numberOfExistingStructures = address.get("numberOfExistingStructures")
     extra = dict(
-        borough=borough,
+        borough=boro,
         block=block,
         lot=lot,
         easement=ease,
@@ -103,10 +107,10 @@ def geocode(inputs):
     )
     try:
         geo_regular = g["1A"](
-            street_name=sname, house_number=hnum, borough=borough, mode="regular"
+            street_name=sname, house_number=hnum, borough=boro, mode="regular"
         )
         geo_extended = g["1E"](
-            street_name=sname, house_number=hnum, borough=borough, mode="extended"
+            street_name=sname, house_number=hnum, borough=boro, mode="extended"
         )
         geo = {**geo_extended, **geo_regular}
         geo = parse_output(geo)
@@ -126,53 +130,42 @@ def geocode(inputs):
 
 def parse_output(geo):
     return dict(
-        billingbbl=geo.get("Condominium Billing BBL", ""),
-        bbl=geo.get("BOROUGH BLOCK LOT (BBL)", "").get("BOROUGH BLOCK LOT (BBL)", ""),
-        cd=geo.get("COMMUNITY DISTRICT", {}).get("COMMUNITY DISTRICT", ""),
-        ct2010=geo.get("2010 Census Tract", ""),
-        cb2010=geo.get("2010 Census Block", ""),
-        ct2020=geo.get("2020 Census Tract", ""),
-        cb2020=geo.get("2020 Census Block", ""),
-        schooldist=geo.get("Community School District", ""),
-        council=geo.get("City Council District", ""),
-        zipcode=geo.get("ZIP Code", ""),
-        firecomp=geo.get("Fire Company Type", "")
-        + geo.get("Fire Company Number", ""),  # e.g E219
-        policeprct=geo.get("Police Precinct", ""),
-        healthCenterDistrict=geo.get("Health Center District", ""),
-        healthArea=geo.get("Health Area", ""),
-        sanitdistrict=geo.get("Sanitation District", ""),
-        sanitsub=geo.get("Sanitation Collection Scheduling Section and Subsection", ""),
-        boePreferredStreetName=geo.get("BOE Preferred Street Name", ""),
-        taxmap=geo.get("Tax Map Number Section & Volume", ""),
-        sanbornMapIdentifier=geo.get("SBVP (SANBORN MAP IDENTIFIER)", {}).get(
-            "SBVP (SANBORN MAP IDENTIFIER)", ""
+        billingbbl=geo.get("Condominium Billing BBL"),
+        bbl=geo.get("BOROUGH BLOCK LOT (BBL)").get("BOROUGH BLOCK LOT (BBL)"),
+        cd=geo.get("COMMUNITY DISTRICT", {}).get("COMMUNITY DISTRICT"),
+        ct2010=geo.get("2010 Census Tract"),
+        cb2010=geo.get("2010 Census Block"),
+        ct2020=geo.get("2020 Census Tract"),
+        cb2020=geo.get("2020 Census Block"),
+        schooldist=geo.get("Community School District"),
+        council=geo.get("City Council District"),
+        zipcode=geo.get("ZIP Code"),
+        firecomp=(
+            geo.get("Fire Company Type", "")
+            + geo.get("Fire Company Number", "")  # e.g E219
+            or None
         ),
-        latitude=geo.get("Latitude", ""),
-        longitude=geo.get("Longitude", ""),
-        xcoord="",
-        ycoord="",
-        grc=geo.get("Geosupport Return Code (GRC)", ""),
-        grc2=geo.get("Geosupport Return Code 2 (GRC 2)", ""),
-        msg=geo.get("Message", ""),
-        msg2=geo.get("Message 2", ""),
+        policeprct=geo.get("Police Precinct"),
+        healthCenterDistrict=geo.get("Health Center District"),
+        healthArea=geo.get("Health Area"),
+        sanitdistrict=geo.get("Sanitation District"),
+        sanitsub=geo.get("Sanitation Collection Scheduling Section and Subsection"),
+        boePreferredStreetName=geo.get("BOE Preferred Street Name"),
+        taxmap=geo.get("Tax Map Number Section & Volume"),
+        sanbornMapIdentifier=geo.get("SBVP (SANBORN MAP IDENTIFIER)", {}).get(
+            "SBVP (SANBORN MAP IDENTIFIER)"
+        ),
+        latitude=geo.get("Latitude") or None,
+        longitude=geo.get("Longitude") or None,
+        grc=geo.get("Geosupport Return Code (GRC)"),
+        grc2=geo.get("Geosupport Return Code 2 (GRC 2)"),
+        msg=geo.get("Message"),
+        msg2=geo.get("Message 2"),
     )
 
 
-if __name__ == "__main__":
-    df = pd.read_csv("geocode_input_pluto_pts.csv", dtype=str, index_col=False)
-    # get the row number
-    records = df.to_dict("records")
-
+def geocode_df_bbl(df: pd.DataFrame) -> pd.DataFrame:
     print("geocoding begins here ...")
-
-    # Multiprocess
-    with Pool(processes=cpu_count()) as pool:
-        it = pool.map(geocode, records, chunksize=100000)
-
+    df = df.apply(geocode, axis=1, result_type="expand")
     print("geocoding finished ...")
-    result = pd.DataFrame(it)
-    del it
-    print(result.head())
-
-    result.to_csv("pluto_input_geocodes.csv", index=False)
+    return df

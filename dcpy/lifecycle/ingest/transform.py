@@ -455,6 +455,29 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=transformed, summary=summary)
 
+    def geocode_bbl(
+        self,
+        df: pd.DataFrame,
+        # boro_column: str = "boro",
+        # block_column: str = "block",
+        # lot_column: str = "lot",
+    ) -> ProcessingResult:
+        from dcpy.geosupport import pluto as geosupport_pluto
+
+        transformed = geosupport_pluto.geocode_df_bbl(df)
+        summary = ProcessingSummary(
+            name="geocode_bbl",
+            description="Geocoded with function BL",
+            column_modifications={
+                "added": sorted(list(set(transformed.columns) - set(df.columns)))
+            },
+            custom={
+                "rows_geocoded": int(transformed["latitude"].notna().sum()),
+                "total_rows": len(transformed),
+            },
+        )
+        return ProcessingResult(df=transformed, summary=summary)
+
 
 def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
     """
