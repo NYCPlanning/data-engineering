@@ -1,0 +1,40 @@
+id: dycd_service_sites
+acl: public-read
+
+attributes:
+  name: DYCD DYCD Program Sites
+  description: |
+    This dataset provides a breakdown of all the Service Categories that are provided and funded by DYCD.
+      
+    For each Service Category, the datasets list their DYCD business unit (Program Area), sub-divisions (Program Types), the DYCD-funded organization (Provider) that provide their respective services, and the Program Sites where these services are available.
+
+    Each row is a Program Site for each fiscal year.
+  url: https://data.cityofnewyork.us/d/ebkm-iyma
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: ebkm-iyma
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+    - name: clean_column_names
+      args: { "replace": { " ": "_" }, "strip": True, "lower": True }
+    - name: coerce_column_types
+      args:
+        column_types:
+          {
+            "y_coordinate": "string",
+            "x_coordinate": "string",
+            "latitude": "string",
+            "longitude": "string",
+            "bin": "string",
+            "census_tract_2010": "string",
+            "bbl": "string",
+            "postcode": "string",
+            "totalslots": "string",
+            "totalparticipants": "string",
+            "fiscalyear": "string"
+          }
