@@ -111,8 +111,8 @@ SELECT
     END AS twisted_parity_flag,
     saf.special_address_flag,
     curve.curve_flag,
-    round(curve.center_of_curvature_x)::INT AS center_of_curvature_x,
-    round(curve.center_of_curvature_y)::INT AS center_of_curvature_y,
+    round(curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
+    round(curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
     round(centerline.shape_length)::INT AS segment_length_ft,
     CASE
         WHEN from_level_code BETWEEN 1 AND 26 THEN chr(64 + from_level_code)
