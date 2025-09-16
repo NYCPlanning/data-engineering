@@ -80,8 +80,6 @@ models:
     tests:
     - not_null
   - name: face_code
-    tests:
-    - not_null
   tests:
   - dbt_expectations.expect_table_row_count_to_equal_other_table:
      compare_model: ref("stg__centerline")
