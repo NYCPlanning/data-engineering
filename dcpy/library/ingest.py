@@ -159,11 +159,15 @@ def translator(func):
             else None
         )
 
+        has_geom = (
+            dataset.source.geometry is not None
+            and dataset.source.geometry.type != "NONE"
+        )
         sql = format_field_names(
             srcDS,
             dataset.destination.fields,
             dataset.destination.sql,
-            dataset.source.geometry is not None,
+            has_geom,
             output_format,
             csv_geom_fields=csv_geom_names,
         )
