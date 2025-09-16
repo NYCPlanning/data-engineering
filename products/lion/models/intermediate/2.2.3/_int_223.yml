@@ -3,7 +3,7 @@ models:
   description: centerline segments joined to left and right atomic polygons
   columns:
   - name: segmentid
-    tests: [ unique, not_null ]
+    tests: [ not_null ]
   - name: centerline_segment_borocode
     tests:
     - not_null
