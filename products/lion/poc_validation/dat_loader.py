@@ -42,6 +42,25 @@ def load_dat(dat_file: Path, table_name: str | None, schema: str | None = None) 
     client.insert_dataframe(dat_df, table_name)
 
 
+def create_full_lion(schema: str = "production_outputs"):
+    client = postgres.PostgresClient(database="db-lion", schema=schema)
+    client.execute_query(
+        """
+            DROP TABLE IF EXISTS citywide_lion;
+            CREATE TABLE citywide_lion AS
+            SELECT * FROM bronx_lion
+            UNION ALL
+            SELECT * FROM brooklyn_lion
+            UNION ALL
+            SELECT * FROM manhattan_lion
+            UNION ALL
+            SELECT * FROM queens_lion
+            UNION ALL
+            SELECT * FROM staten_island_lion;
+        """
+    )
+
+
 app = typer.Typer()
 
 
@@ -88,6 +107,7 @@ def load_all(
         file = boro.replace(" ", "") + "LION.dat"
         table = boro.lower().replace(" ", "_") + "_lion" + suffix
         load_dat(folderpath / file, table, schema=schema)
+    create_full_lion()
 
 
 if __name__ == "__main__":
