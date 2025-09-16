@@ -15,7 +15,7 @@ from dcpy.models.lifecycle.ingest import (
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
 from dcpy.lifecycle.ingest.connectors import source_connectors
-from dcpy.lifecycle.ingest.validate import validate_template
+from dcpy.lifecycle.ingest.validate import find_template_validation_errors
 
 
 def get_jinja_vars(s: str) -> set[str]:
@@ -91,7 +91,7 @@ def get_config(
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
-    violations = validate_template(template)
+    violations = find_template_validation_errors(template)
     if violations:
         raise ValueError(f"Template violations found: {violations}")
 

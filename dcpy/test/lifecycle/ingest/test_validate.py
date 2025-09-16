@@ -110,8 +110,8 @@ def test_validate_template_folder_nonexistent():
         ),
     ],
 )
-def test_validate_processing_steps_errors(step, expected_error):
-    errors = validate.validate_processing_steps("test", [step])
+def test_find_processing_step_validation_errors_errors(step, expected_error):
+    errors = validate.find_processing_step_validation_errors("test", [step])
     assert errors == expected_error
 
 

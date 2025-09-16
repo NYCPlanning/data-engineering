@@ -44,7 +44,7 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
         )
 
 
-def validate_source(source: Source) -> dict:
+def find_source_validation_errors(source: Source) -> dict:
     violations: dict = {}
     if source.type not in source_connectors.list_registered():
         violations["invalid source type"] = (
@@ -81,7 +81,7 @@ def _validate_pd_series_func(
     return introspect.validate_kwargs(func, kwargs)  # type: ignore
 
 
-def validate_processing_steps(
+def find_processing_step_validation_errors(
     dataset_id: str, processing_steps: list[ProcessingStep]
 ) -> dict:
     """
@@ -112,15 +112,15 @@ def validate_processing_steps(
     return violations
 
 
-def validate_template(template: Template) -> dict:
+def find_template_validation_errors(template: Template) -> dict:
     """Validate a single template object."""
     violations = {}
 
-    source_violations = validate_source(template.ingestion.source)
+    source_violations = find_source_validation_errors(template.ingestion.source)
     if source_violations:
         violations["source"] = source_violations
 
-    invalid_processing_steps = validate_processing_steps(
+    invalid_processing_steps = find_processing_step_validation_errors(
         template.id, template.ingestion.processing_steps
     )
     if invalid_processing_steps:
@@ -134,7 +134,7 @@ def validate_template_file(filepath: Path) -> None:
     with open(filepath, "r") as f:
         s = yaml.safe_load(f)
     template = Template(**s)
-    violations = validate_template(template)
+    violations = find_template_validation_errors(template)
     if violations:
         raise ValueError(f"Template violations found: {violations}")
 
