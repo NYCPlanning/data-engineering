@@ -1,0 +1,34 @@
+id: pluto_input_numbldgs
+acl: public-read
+
+attributes:
+  name: Number of Buildings by BBL
+  description: >-
+    This pulls the dataset doitt_buildingfootprints, which has one row per building. It
+    geocodes using function BN to get bbl, then groups by bbl to get number of buildings
+    per bbl.
+
+    This should absolutely just be done as part of a PLUTO build rather than be its own
+    source dataset.
+  url: https://data.cityofnewyork.us/City-Government/Building-Footprints/5zhs-2jue/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 5zhs-2jue
+    format: csv
+  file_format:
+    type: csv
+    usecols: [ "BIN" ]
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: geocode_bin
+  - name: groupby
+    args:
+      by: bbl
+      agg: size
+  - name: rename_columns
+    args:
+      map: { "size": "count" }

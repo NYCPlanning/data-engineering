@@ -1,0 +1,49 @@
+name: PLUTO Inputs
+on:
+  schedule:
+  - cron: 0 13 * * MON
+  workflow_dispatch:
+    inputs:
+      dev_image:
+        description: "Use dev image specific to this branch (if exists)?"
+        type: boolean
+        required: true
+        default: false
+      dev_bucket:
+        description: dev bucket to use in place of recipes. If name of bucket is 'de-dev-a'
+          simply put 'a'
+        type: string
+        required: false
+
+jobs:
+  dataloading:
+    uses: ./.github/workflows/ingest_multiple.yml
+    secrets: inherit
+    with:
+      datasets: |- # eventually add pluto_input_cama
+        pluto_pts
+        pluto_input_geocodes
+        pluto_input_numbldgs
+      dev_bucket: ${{ inputs.dev_bucket }}
+      dev_image: ${{ inputs.dev_image }}
+      latest: true
+      create_issue: ${{ github.event_name == 'schedule' }}
+      label: ${{ github.workflow }}
+
+  create_issue_on_failure:
+    needs: dataloading
+    runs-on: ubuntu-22.04
+    if: ${{ failure() && (github.event_name == 'schedule') }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Create issue on failure
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACTION: ${{ github.workflow }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+          github.run_id }}
+      with:
+        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md

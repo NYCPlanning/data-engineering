@@ -10,11 +10,7 @@ def download_file_from_source(source: Source, version: str, dir: Path) -> Path:
     From parsed config template and version, download raw data from source to provided path
     """
     logger.info(f"Extracting {source} from source to staging folder")
-    pull_conf = source.model_dump()
-    pull_conf.pop("key", None)
 
     connector = source_connectors[source.type]
-    res = connector.pull(
-        source.get_key(), destination_path=dir, version=version, **pull_conf
-    )
+    res = connector.pull(destination_path=dir, version=version, **source.model_dump())
     return res["path"]

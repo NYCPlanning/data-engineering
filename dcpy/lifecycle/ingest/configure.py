@@ -7,7 +7,6 @@ import yaml
 from dcpy.models.lifecycle.ingest import (
     ArchivalMetadata,
     Ingestion,
-    LocalFileSource,
     Source,
     ProcessingStep,
     Template,
@@ -16,6 +15,7 @@ from dcpy.models.lifecycle.ingest import (
 from dcpy.utils import metadata
 from dcpy.utils.logging import logger
 from dcpy.lifecycle.ingest.connectors import source_connectors
+from dcpy.lifecycle.ingest.validate import find_template_validation_errors
 
 
 def get_jinja_vars(s: str) -> set[str]:
@@ -48,9 +48,7 @@ def read_template(
 
 def get_version(source: Source, timestamp: datetime):
     connector = source_connectors[source.type]
-    source_model_dict = source.model_dump()
-    source_model_dict.pop("key", None)  # Safely remove "key" if it exists
-    version = connector.get_latest_version(source.get_key(), **source_model_dict)
+    version = connector.get_latest_version(**source.model_dump())
     return version or timestamp.strftime("%Y%m%d")
 
 
@@ -93,10 +91,12 @@ def get_config(
     version = version or get_version(template.ingestion.source, run_details.timestamp)
     template = read_template(dataset_id, version=version, template_dir=template_dir)
 
+    violations = find_template_validation_errors(template)
+    if violations:
+        raise ValueError(f"Template violations found: {violations}")
+
     if local_file_path:
-        template.ingestion.source = LocalFileSource(
-            type="local_file", path=local_file_path
-        )
+        template.ingestion.source = Source(type="local_file", key=str(local_file_path))
 
     processing_steps = determine_processing_steps(
         template.ingestion.processing_steps,

@@ -81,7 +81,7 @@ class TestArchiveDataset:
         ),
         # ingestion won't be used - just mocked here
         ingestion=ingest.Ingestion(
-            source=ingest.FileDownloadSource(type="file_download", url="dummy"),
+            source=ingest.Source(type="file_download", key="dummy"),
             file_format=file.Csv(type="csv"),
         ),
         run_details=metadata.get_run_details(),

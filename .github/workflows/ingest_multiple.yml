@@ -66,12 +66,14 @@ jobs:
     runs-on: ubuntu-22.04
     needs: set_matrix
     container:
-      image: nycplanning/build-base:${{ inputs.dev_image == 'true' && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
+      image: nycplanning/build-geosupport:${{ inputs.dev_image == 'true' && format('dev-{0}', github.head_ref || github.ref_name) || 'latest' }}
     env:
       TEMPLATE_DIR: ./ingest_templates
+      BUILD_NAME: ${{ github.head_ref || github.ref_name }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+      SFTP_PRIVATE_KEY_PATH: /github/home/.ssh/id_rsa_ginger # TODO as mentioned elsewhere, this should be configured
     strategy:
       fail-fast: false
       max-parallel: 10
@@ -81,6 +83,22 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Load Secrets
+      id: op-load-secret
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: false
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        SSH_PRIVATE_KEY_GINGER: "op://Data Engineering/DOF_SFTP/private key"
+        KNOWN_HOSTS: "op://Data Engineering/DOF_SFTP/text" # should rename this but 1pass was being weird
+
+    - name: Set up SSH for Ginger
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ steps.op-load-secret.outputs.SSH_PRIVATE_KEY_GINGER }}" > ~/.ssh/id_rsa_ginger
+        echo "${{ steps.op-load-secret.outputs.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+    - name: Load Secrets to Env
       uses: 1password/load-secrets-action@v1
       with:
         export-env: true
@@ -92,6 +110,8 @@ jobs:
         BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
         SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
         SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
+        SFTP_HOST: "op://Data Engineering/DOF_SFTP/url"
+        SFTP_USER: "op://Data Engineering/DOF_SFTP/username"
 
     - name: Finish container setup ...
       run: ./bash/docker_container_setup.sh
