@@ -12,7 +12,7 @@ from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
 from dcpy.models.data import comparison
 from dcpy.models.base import SortedSerializedBase, YamlWriter
-from dcpy.models.lifecycle.ingest import DatasetAttributes
+from dcpy.models.lifecycle.ingest.definitions import DatasetAttributes
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import INGEST_DIR, ingest as run_ingest
@@ -128,10 +128,10 @@ def ingest(
     config = run_ingest(
         dataset,
         version=version,
-        dataset_staging_dir=dataset_staging_dir,
+        staging_dir=dataset_staging_dir,
         ingest_output_dir=ingest_output_dir,
         push=False,
-    )
+    )[0]  # TODO - hack
 
     ## copy so that it's in the "library" file system for easy import
     output_path = ingest_output_dir / dataset / config.version / f"{dataset}.parquet"
