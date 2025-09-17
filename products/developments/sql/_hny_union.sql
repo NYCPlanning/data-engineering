@@ -10,8 +10,9 @@ UPDATE hpd_hny_units_by_building
 SET ogc_fid_text = 'hny' || '-' || cast(ogc_fid AS text);
 ALTER TABLE hpd_hny_units_by_building DROP COLUMN ogc_fid;
 ALTER TABLE hpd_hny_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
--- Our ingest code seems to erroneously add the column wkb_geometry
-ALTER TABLE hpd_hny_units_by_building DROP COLUMN wkb_geometry;
+-- Some datasets had an erroneous dummy "wkb_geometry" column
+-- This can be dropped after 25Q4. Leaving for now in case we want to rebuild 25Q2 with same source data
+ALTER TABLE hpd_hny_units_by_building DROP COLUMN IF EXISTS wkb_geometry;
 
 ALTER TABLE _init_hpd_historical_units_by_building ADD COLUMN ogc_fid_text text;
 UPDATE _init_hpd_historical_units_by_building
