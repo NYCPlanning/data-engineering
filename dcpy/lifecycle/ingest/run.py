@@ -9,7 +9,7 @@ from dcpy.models.lifecycle.ingest.definitions import (
 )
 from dcpy.models.lifecycle.ingest.configuration import (
     ResolvedConfig,
-    DatasourceConfig,
+    RawDataConfig,
     DatasetConfig,
     Transformation,
 )
@@ -35,7 +35,7 @@ def extract_and_archive_raw_dataset(
     staging_dir: Path | None = None,
     push: bool = False,
     run_details: metadata.RunDetails | None = None,
-) -> DatasourceConfig:
+) -> RawDataConfig:
     run_details = run_details or metadata.get_run_details()
 
     if not staging_dir:
@@ -122,21 +122,14 @@ def ingest(
     latest: bool = False,
     push: bool = False,
     output_csv: bool = False,
-    template_dir: Path | None = TEMPLATE_DIR,
+    definition_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
     overwrite_okay: bool = False,
 ) -> list[DatasetConfig]:
-    if template_dir is None:
+    if definition_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
 
     run_details = metadata.get_run_details()
-
-    resolved_config = configure.get_resolved_config(
-        dataset_id,
-        version=version,
-        template_dir=template_dir,
-        local_file_path=local_file_path,
-    )
 
     if not staging_dir:
         staging_dir = (
@@ -147,6 +140,22 @@ def ingest(
         staging_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Using {staging_dir} to stage data")
 
+    resolved_config = configure.resolve_config(
+        dataset_id,
+        version=version,
+        definition_dir=definition_dir,
+        local_file_path=local_file_path,
+    )
+
+    with open(staging_dir / "definition.lock.json", "w") as f:
+        json.dump(
+            resolved_config.model_dump(
+                mode="json", exclude_none=True, exclude_defaults=True
+            ),
+            f,
+            indent=4,
+        )
+    raise Exception("AAgh")
     datasource_config = extract_and_archive_raw_dataset(
         resolved_config,
         staging_dir=staging_dir,

@@ -4,7 +4,7 @@ from dcpy.models.lifecycle.ingest.definitions import Source
 from dcpy.models.lifecycle.ingest.configuration import (
     Archival,
     ResolvedConfig,
-    DatasourceConfig,
+    RawDataConfig,
 )
 from dcpy.utils.logging import logger
 from dcpy.utils.metadata import RunDetails
@@ -24,7 +24,7 @@ def _pull(source: Source, version: str | None, dir: Path) -> Path:
 
 def extract_source(
     config: ResolvedConfig, run_details: RunDetails, dir: Path
-) -> DatasourceConfig:
+) -> RawDataConfig:
     file = _pull(config.source, config.version, dir)
     archival = Archival(
         id=config.id,
@@ -35,7 +35,7 @@ def extract_source(
     )
     args = config.model_dump()
     args.pop("source")
-    return DatasourceConfig(
+    return RawDataConfig(
         timestamp=run_details.timestamp,
         archival=archival,
         **config.model_dump(),

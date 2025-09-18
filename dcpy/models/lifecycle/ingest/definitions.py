@@ -62,7 +62,7 @@ class DatasetDefinitionSimple(BaseModel, extra="forbid"):
 
 
 class DatasetTransformation(BaseModel, extra="forbid"):
-    id: str | None = None
+    id: str
     acl: recipes.ValidAclValues | None = None
     attributes: DatasetAttributes
 
@@ -78,7 +78,6 @@ class DatasetDefaults(BaseModel, extra="forbid"):
     target_crs: str | None = None
     file_format: dict | None = None
     processing_steps: list[ProcessingStep] = []
-    processing_step_default_override: bool = False
 
 
 class DatasetDefinitionOneToMany(BaseModel, extra="forbid"):
@@ -86,5 +85,5 @@ class DatasetDefinitionOneToMany(BaseModel, extra="forbid"):
     acl: recipes.ValidAclValues | None = None
     attributes: DatasetAttributes
     source: Source
-    dataset_defaults: DatasetDefaults
+    dataset_defaults: DatasetDefaults = DatasetDefaults()
     datasets: list[DatasetTransformation]

@@ -1,6 +1,7 @@
 from datetime import datetime
 import pandas as pd
 from pydantic import BaseModel, Field, AliasChoices
+from typing import Any
 
 from dcpy.models import file
 from dcpy.models.connectors.edm import recipes
@@ -8,6 +9,19 @@ from dcpy.models.base import SortedSerializedBase
 from dcpy.utils.metadata import RunDetails
 
 from dcpy.models.lifecycle.ingest import definitions
+
+
+# todo - clean up this being duplicated with definition
+class DatasetTransformation(BaseModel, extra="forbid"):
+    id: str
+    acl: recipes.ValidAclValues | None = None
+    attributes: definitions.DatasetAttributes
+
+    target_crs: str | None = None
+    file_format: file.Format
+    processing_steps: list[definitions.ProcessingStep] = []
+    columns: list[definitions.Column] = []
+    checks: list[str | dict[str, Any]] | None = None
 
 
 class ResolvedConfig(BaseModel, extra="forbid"):
@@ -19,7 +33,7 @@ class ResolvedConfig(BaseModel, extra="forbid"):
     version: str | None = None
     attributes: definitions.DatasetAttributes
     source: definitions.Source
-    transformation: list[definitions.DatasetTransformation]
+    transformation: list[DatasetTransformation]
 
 
 class Archival(SortedSerializedBase):
@@ -30,7 +44,7 @@ class Archival(SortedSerializedBase):
     run_details: RunDetails
 
 
-class DatasourceConfig(SortedSerializedBase):
+class RawDataConfig(SortedSerializedBase):
     """What is stored with an archived raw dataset"""
 
     id: str
