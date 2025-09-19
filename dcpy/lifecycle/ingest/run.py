@@ -3,7 +3,16 @@ from pathlib import Path
 import shutil
 
 from dcpy.utils.logging import logger
-from dcpy.models.lifecycle.ingest import Config
+from dcpy.utils import metadata
+from dcpy.models.lifecycle.ingest.definitions import (
+    DatasetTransformation as TransformationDefinition,
+)
+from dcpy.models.lifecycle.ingest.configuration import (
+    ResolvedConfig,
+    RawDataConfig,
+    DatasetConfig,
+    Transformation,
+)
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
 from dcpy.lifecycle.ingest.connectors import raw_datastore, processed_datastore
@@ -15,108 +24,201 @@ INGEST_DIR = config.local_data_path_for_stage(LIFECYCLE_STAGE)
 
 INGEST_STAGING_DIR = INGEST_DIR / "staging"
 INGEST_OUTPUT_DIR = INGEST_DIR / "datasets"
-CONFIG_FILENAME = "config.json"
+RESOLVED_CONFIG_FILENAME = "config.json"
+STAGING_DATASOURCE_CONFIG_FILENAME = "datasource_config.json"
+DATASET_CONFIG_FILENAME = "dataset_config.json"
+
+
+def extract_and_archive_raw_dataset(
+    config: ResolvedConfig,
+    *,
+    staging_dir: Path | None = None,
+    push: bool = False,
+    run_details: metadata.RunDetails | None = None,
+) -> RawDataConfig:
+    run_details = run_details or metadata.get_run_details()
+
+    if not staging_dir:
+        staging_dir = INGEST_STAGING_DIR / config.id / run_details.timestamp.isoformat()
+        staging_dir.mkdir(parents=True)
+    else:
+        staging_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Using {staging_dir} to stage data")
+
+    # download dataset
+    datasource_config = extract.extract_source(
+        config,
+        run_details,
+        staging_dir,
+    )
+
+    with open(staging_dir / STAGING_DATASOURCE_CONFIG_FILENAME, "w") as f:
+        json.dump(datasource_config.model_dump(mode="json"), f, indent=4)
+
+    if push:
+        raw_datastore.push(
+            config.id,
+            version=datasource_config.timestamp.isoformat(),
+            filepath=staging_dir / datasource_config.archival.raw_filename,
+            acl=datasource_config.acl,
+            config=datasource_config,
+            latest=True,
+        )
+
+    return datasource_config
+
+
+def transform_dataset(
+    transformation: TransformationDefinition,
+    raw_filename: str,
+    *,
+    staging_dir: Path,
+    mode: str | None = None,
+    run_details: metadata.RunDetails | None = None,
+    output_csv: bool = False,
+) -> Transformation:
+    run_details = run_details or metadata.get_run_details()
+    ds_id = transformation.id or ""  # todo
+    dataset_staging_dir = staging_dir / ds_id
+
+    init_parquet = "init.parquet"
+    transform.to_parquet(
+        transformation.file_format,
+        staging_dir / raw_filename,
+        dir=dataset_staging_dir,
+        output_filename=init_parquet,
+    )
+
+    processing_steps = transform.determine_processing_steps(
+        transformation.processing_steps, target_crs=transformation.target_crs, mode=mode
+    )
+
+    processing_steps_summaries = transform.process(
+        ds_id,
+        processing_steps,
+        transformation.columns,
+        dataset_staging_dir / init_parquet,
+        dataset_staging_dir / f"{ds_id}.parquet",  # todo
+        output_csv=output_csv,
+    )
+
+    return Transformation(
+        target_crs=transformation.target_crs,
+        file_format=transformation.file_format,
+        processing_steps=processing_steps,
+        processing_mode=mode,
+        processing_steps_summaries=processing_steps_summaries,
+        run_details=run_details,
+    )
 
 
 def ingest(
     dataset_id: str,
     version: str | None = None,
     *,
-    dataset_staging_dir: Path | None = None,
+    staging_dir: Path | None = None,
     ingest_output_dir: Path = INGEST_OUTPUT_DIR,
     mode: str | None = None,
     latest: bool = False,
     push: bool = False,
     output_csv: bool = False,
-    template_dir: Path | None = TEMPLATE_DIR,
+    definition_dir: Path | None = TEMPLATE_DIR,
     local_file_path: Path | None = None,
     overwrite_okay: bool = False,
-) -> Config:
-    if template_dir is None:
+) -> list[DatasetConfig]:
+    if definition_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
-    config = configure.get_config(
+
+    run_details = metadata.get_run_details()
+
+    if not staging_dir:
+        staging_dir = (
+            INGEST_STAGING_DIR / dataset_id / run_details.timestamp.isoformat()
+        )
+        staging_dir.mkdir(parents=True)
+    else:
+        staging_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Using {staging_dir} to stage data")
+
+    resolved_config = configure.resolve_config(
         dataset_id,
         version=version,
-        mode=mode,
-        template_dir=template_dir,
+        definition_dir=definition_dir,
         local_file_path=local_file_path,
     )
 
-    if not dataset_staging_dir:
-        dataset_staging_dir = (
-            INGEST_STAGING_DIR
-            / dataset_id
-            / config.archival.archival_timestamp.isoformat()
+    with open(staging_dir / "definition.lock.json", "w") as f:
+        json.dump(
+            resolved_config.model_dump(
+                mode="json", exclude_none=True, exclude_defaults=True
+            ),
+            f,
+            indent=4,
         )
-        dataset_staging_dir.mkdir(parents=True)
-    else:
-        dataset_staging_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Using {dataset_staging_dir} to stage data")
-
-    with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
-        json.dump(config.model_dump(mode="json"), f, indent=4)
-
-    # download dataset
-    filepath = extract.download_file_from_source(
-        config.ingestion.source,
-        config.version,
-        dataset_staging_dir,
-    )
-    config.archival.raw_filename = filepath.name
-
-    if push:
-        raw_datastore.push(
-            dataset_id,
-            version=config.archival.archival_timestamp.isoformat(),
-            filepath=filepath,
-            config=config,
-            latest=latest,
-        )
-
-    init_parquet = "init.parquet"
-    transform.to_parquet(
-        config.ingestion.file_format,
-        filepath,
-        dir=dataset_staging_dir,
-        output_filename=init_parquet,
+    raise Exception("AAgh")
+    datasource_config = extract_and_archive_raw_dataset(
+        resolved_config,
+        staging_dir=staging_dir,
+        push=push,
+        run_details=run_details,
     )
 
-    config.ingestion.processing_steps_summaries = transform.process(
-        config.id,
-        config.ingestion.processing_steps,
-        config.columns,
-        dataset_staging_dir / init_parquet,
-        dataset_staging_dir / config.filename,
-        output_csv=output_csv,
-    )
+    configs = []
 
-    with open(dataset_staging_dir / CONFIG_FILENAME, "w") as f:
-        json.dump(config.model_dump(mode="json"), f, indent=4)
+    for transformation in datasource_config.transformation:
+        assert transformation.id  # todo
+        dataset_staging_dir = staging_dir / transformation.id
+        dataset_staging_dir.mkdir()
 
-    dataset_output_dir = ingest_output_dir / dataset_id / config.version
-    dataset_output_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Copying {config.filename} to {dataset_output_dir}")
-    shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
-    shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
-
-    version_exists = processed_datastore.version_exists(dataset_id, config.version)
-    if version_exists and not overwrite_okay:
-        validate.validate_against_existing_version(
-            dataset_id,
-            config.version,
-            dataset_staging_dir / config.filename,
+        transformation_result = transform_dataset(
+            transformation,
+            raw_filename=datasource_config.archival.raw_filename,
+            staging_dir=staging_dir,
+            mode=mode,
+            run_details=run_details,
+            output_csv=output_csv,
         )
 
-    if push and (overwrite_okay or not version_exists):
-        assert config.archival.acl
-        processed_datastore.push(
-            dataset_id,
-            version=config.version,
-            filepath=dataset_staging_dir / config.filename,
-            config=config,
-            overwrite=overwrite_okay,
-            latest=latest,
+        dataset_config = DatasetConfig(
+            id=transformation.id,
+            version=version,  # todo
+            crs=transformation.target_crs,
+            attributes=transformation.attributes,
+            archival=datasource_config.archival,
+            transformation=transformation_result,
         )
-    else:
-        logger.info("Skipping archival")
-    return config
+
+        with open(dataset_staging_dir / DATASET_CONFIG_FILENAME, "w") as f:
+            json.dump(dataset_config.model_dump(mode="json"), f, indent=4)
+
+        dataset_output_dir = ingest_output_dir / dataset_id / dataset_config.version
+        dataset_output_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Copying {dataset_config.filename} to {dataset_output_dir}")
+        shutil.copy(dataset_staging_dir / DATASET_CONFIG_FILENAME, dataset_output_dir)
+        shutil.copy(dataset_staging_dir / dataset_config.filename, dataset_output_dir)
+
+        version_exists = processed_datastore.version_exists(
+            dataset_id, dataset_config.version
+        )
+        if version_exists and not overwrite_okay:
+            validate.validate_against_existing_version(
+                dataset_id,
+                dataset_config.version,
+                dataset_staging_dir / dataset_config.filename,
+            )
+
+        if push and (overwrite_okay or not version_exists):
+            assert dataset_config.archival.acl
+            processed_datastore.push(
+                dataset_id,
+                version=dataset_config.version,
+                filepath=dataset_staging_dir / dataset_config.filename,
+                config=config,
+                overwrite=overwrite_okay,
+                latest=latest,
+            )
+        else:
+            logger.info("Skipping archival")
+        configs.append(dataset_config)
+
+    return configs

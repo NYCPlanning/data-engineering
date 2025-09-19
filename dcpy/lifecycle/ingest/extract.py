@@ -1,11 +1,17 @@
 from pathlib import Path
 
+from dcpy.models.lifecycle.ingest.definitions import Source
+from dcpy.models.lifecycle.ingest.configuration import (
+    Archival,
+    ResolvedConfig,
+    RawDataConfig,
+)
 from dcpy.utils.logging import logger
-from dcpy.models.lifecycle.ingest import Source
+from dcpy.utils.metadata import RunDetails
 from dcpy.lifecycle.ingest.connectors import source_connectors
 
 
-def download_file_from_source(source: Source, version: str, dir: Path) -> Path:
+def _pull(source: Source, version: str | None, dir: Path) -> Path:
     """
     From parsed config template and version, download raw data from source to provided path
     """
@@ -14,3 +20,23 @@ def download_file_from_source(source: Source, version: str, dir: Path) -> Path:
     connector = source_connectors[source.type]
     res = connector.pull(destination_path=dir, version=version, **source.model_dump())
     return res["path"]
+
+
+def extract_source(
+    config: ResolvedConfig, run_details: RunDetails, dir: Path
+) -> RawDataConfig:
+    file = _pull(config.source, config.version, dir)
+    archival = Archival(
+        id=config.id,
+        source=config.source,
+        raw_filename=file.name,
+        acl=config.acl,
+        run_details=run_details,
+    )
+    args = config.model_dump()
+    args.pop("source")
+    return RawDataConfig(
+        timestamp=run_details.timestamp,
+        archival=archival,
+        **config.model_dump(),
+    )

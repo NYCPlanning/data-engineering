@@ -2,12 +2,17 @@ import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import yaml
 
 from dcpy.utils.logging import logger
 from dcpy.utils import introspect
 from dcpy.lifecycle.ingest.connectors import processed_datastore
-from dcpy.models.lifecycle.ingest import Template, Source, ProcessingStep
+from dcpy.models.lifecycle.ingest.definitions import (
+    Source,
+    ProcessingStep,
+    DatasetDefinitionSimple,
+    DatasetDefinitionOneToMany,
+)
+from .configure import read_definition
 from .transform import ProcessingFunctions
 from .connectors import source_connectors
 
@@ -112,17 +117,30 @@ def find_processing_step_validation_errors(
     return violations
 
 
-def find_template_validation_errors(template: Template) -> dict:
+def find_template_validation_errors(
+    definition: DatasetDefinitionSimple | DatasetDefinitionOneToMany,
+) -> dict:
     """Validate a single template object."""
     violations = {}
 
-    source_violations = find_source_validation_errors(template.ingestion.source)
+    source_violations = find_source_validation_errors(definition.source)
     if source_violations:
         violations["source"] = source_violations
 
-    invalid_processing_steps = find_processing_step_validation_errors(
-        template.id, template.ingestion.processing_steps
-    )
+    match definition:
+        case DatasetDefinitionSimple():
+            invalid_processing_steps = find_processing_step_validation_errors(
+                definition.id, definition.ingestion.processing_steps
+            )
+        case DatasetDefinitionOneToMany():
+            invalid_processing_steps = {
+                d.id: find_processing_step_validation_errors(
+                    d.id or "",  # todo
+                    d.processing_steps,
+                )
+                for d in definition.datasets
+            }
+
     if invalid_processing_steps:
         violations["processing_steps"] = invalid_processing_steps
 
@@ -131,9 +149,7 @@ def find_template_validation_errors(template: Template) -> dict:
 
 def validate_template_file(filepath: Path) -> None:
     """Validate a single template file."""
-    with open(filepath, "r") as f:
-        s = yaml.safe_load(f)
-    template = Template(**s)
+    template = read_definition(filepath)
     violations = find_template_validation_errors(template)
     if violations:
         raise ValueError(f"Template violations found: {violations}")

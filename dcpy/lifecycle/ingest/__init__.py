@@ -31,7 +31,7 @@ def _cli_wrapper_run(
         "-f",
         help="Use local file path as source, overriding source in template",
     ),
-    template_dir: Path = typer.Option(
+    definition_dir: Path = typer.Option(
         TEMPLATE_DIR,
         "--template-dir",
         "-t",
@@ -51,7 +51,7 @@ def _cli_wrapper_run(
         push=push,
         output_csv=csv,
         local_file_path=local_file_path,
-        template_dir=template_dir,
+        definition_dir=definition_dir,
         overwrite_okay=overwrite,
     )
 
