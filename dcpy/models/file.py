@@ -74,6 +74,8 @@ class GeoJson(SortedSerializedBase, extra="forbid"):
     unzipped_filename: str | None = None
     encoding: str = "utf-8"
     # Note, crs is not an attribute for geojson format. Geojson has a specification of "EPSG:4326"
+    # regardless of this, we have gotten geojson files with other crs, so we allow it to be overridden
+    crs: str | None = None
 
 
 class Html(SortedSerializedBase, extra="forbid"):

@@ -1,0 +1,25 @@
+id: dcp_cscl_commonplace
+acl: public-read
+
+attributes:
+  name: CSCL Common Place
+  description: Common Places throughout NYC
+  url: https://nycmaps.nyc.gov/maps/5ae6c324eb09493596aee04af3025179/about
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nyc_maphub
+    dataset: CommonPlace_view
+    crs: EPSG:2263
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: coerce_column_types
+    args:
+      column_types: {
+        "segmentid": "integer",
+        "primaryaddresspointid": "integer",
+        "bin": "integer",
+        "complexid": "integer"
+      }

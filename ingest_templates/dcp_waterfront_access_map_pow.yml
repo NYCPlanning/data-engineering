@@ -1,0 +1,18 @@
+id: dcp_waterfront_access_map_pow
+acl: public-read
+
+attributes:
+  name: Waterfront Access Map - Publicly Owned Waterfront
+  description: >-
+    City, State, and Federally owned public parks and facilities that provide waterfront
+    parkland and open space for public enjoyment.
+  url: https://www.nyc.gov/site/planning/data-maps/open-data/dwn-waterfront.page
+  
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: dcp
+    dataset: nypubliclyownedwaterfront
+    crs: EPSG:2263
+  file_format:
+    type: geojson

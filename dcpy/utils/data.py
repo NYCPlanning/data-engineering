@@ -1,4 +1,5 @@
 from collections import defaultdict
+import ijson
 import json
 import pandas as pd
 import geopandas as gpd
@@ -27,6 +28,18 @@ def _get_dtype(dtype: str | dict | None) -> str | dict | defaultdict | None:
                 return dtype
         case _:
             return dtype
+
+
+def _read_geojson_crs(local_data_path: Path) -> str | None:
+    file_crs = None
+    with open(local_data_path, "rb") as f:
+        for item in ijson.items(f, "crs"):
+            if isinstance(item, dict):
+                file_crs = item.get("properties", {}).get("name")
+            else:
+                file_crs = str(item)
+            break
+    return file_crs
 
 
 def read_data_to_df(
@@ -88,7 +101,9 @@ def read_data_to_df(
                 layer=data_format.layer,
             )
         case file.GeoJson():
+            crs = data_format.crs or _read_geojson_crs(local_data_path) or "EPSG:4326"
             gdf = gpd.read_file(local_data_path, encoding=data_format.encoding)
+            gdf.set_crs(crs, allow_override=True, inplace=True)
         case file.Csv():
             df = pd.read_csv(
                 local_data_path,
