@@ -14,6 +14,7 @@ SELECT
     dcp.policy_area,
     dcp.need_group,
     dcp.need,
+    dcp.budget_request_title AS title,
     omb.request,
     REPLACE(omb.reason, E'\n', ' ') AS explanation,
     dcp.location_specific,
