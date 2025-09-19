@@ -7,7 +7,7 @@ attributes:
     The Waterbody Inventory/Priority Waterbodies List (WI/PWL) dataset is an inventory
     of the state's surface water quality.
   url: https://data.gis.ny.gov/maps/fe6e369f89444618920a5b49f603e34a/about
-  
+
 ingestion:
   source:
     type: arcgis_feature_server
@@ -19,6 +19,3 @@ ingestion:
     type: geojson
   processing_steps:
   - name: multi
-  - name: rename_columns
-    args:
-      map: { "geom": "wkb_geometry" }

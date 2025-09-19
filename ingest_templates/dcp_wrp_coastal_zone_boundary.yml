@@ -24,7 +24,3 @@ ingestion:
     crs: EPSG:2263
   file_format:
     type: geojson
-  processing_steps:
-  - name: rename_columns
-    args:
-      map: { "geom": "wkb_geometry" }
