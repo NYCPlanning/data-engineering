@@ -29,8 +29,19 @@ def _get_dtype(dtype: str | dict | None) -> str | dict | defaultdict | None:
             return dtype
 
 
+def try_get_file_format(filename: str) -> str | None:
+    p = Path(filename)
+    suffix = p.suffix.strip(".")
+    if suffix in ["csv", "json", "xlsx", "html", "geojson", "parquet", "shp"]:
+        return suffix
+    if suffix in ["gz", "tar"]:
+        return try_get_file_format(p.stem)
+    else:
+        return None
+
+
 def read_data_to_df(
-    data_format: file.Format, local_data_path: Path, clean_extracted_zip: bool = True
+    data_format: file.File, local_data_path: Path, clean_extracted_zip: bool = True
 ) -> gpd.GeoDataFrame | pd.DataFrame:
     """
     Reads data from a specified path and returns a pandas or geopandas dataframe depending
@@ -45,7 +56,7 @@ def read_data_to_df(
         pd.DataFrame or gpd.GeoDataFrame: The loaded data as a DataFrame.
 
     Raises:
-        AssertionError: If a file with `unzipped_filename` exists in local filesystem before unzipping (for zipped files).
+        AssertionError: If a file with `unzipped_filepath` exists in local filesystem before unzipping (for zipped files).
         AssertionError: If the expected unzipped filename is not present in the unzipped files (for zipped files).
         AssertionError: If a specified geometry column does not exist in the DataFrame (for csv data format case).
 
@@ -54,61 +65,61 @@ def read_data_to_df(
         - The function will load the data into a GeoDataFrame if it is geospatial, otherwise into a DataFrame.
     """
 
+    file_format = data_format.type or try_get_file_format(
+        data_format.unzipped_filepath or local_data_path.name
+    )
+
+    if not file_format:
+        raise ValueError(
+            f"Could not determine format of {data_format.unzipped_filepath or local_data_path.name}, please specify in datasource definition"
+        )
+
+    data_format.type = file_format
+
     # case when an input file is a zip
-    if data_format.unzipped_filename is not None:
+    if data_format.unzipped_filepath is not None:
         logger.info(f"Unzipping files from {local_data_path}...")
 
         extracted_files_dir = local_data_path.parent / "extracted_files"
 
-        unzipped_filename = data_format.unzipped_filename
-        unzipped_file_path = extracted_files_dir / unzipped_filename
+        unzipped_filepath = data_format.unzipped_filepath
+        unzipped_file_path = extracted_files_dir / unzipped_filepath
 
         unzipped_files = unzip_file(
             zipped_filename=local_data_path, output_dir=extracted_files_dir
         )
 
-        assert unzipped_filename in unzipped_files, (
-            f"❌ {unzipped_filename} is not present in unzipped files after extraction. Aborting..."
+        assert unzipped_filepath in unzipped_files, (
+            f"❌ {unzipped_filepath} is not present in unzipped files after extraction. Aborting..."
         )
 
         local_data_path = unzipped_file_path
 
-    match data_format:
-        case file.Shapefile():
-            gdf = gpd.read_file(
-                local_data_path,
-                crs=data_format.crs,
-                encoding=data_format.encoding,
-            )
-        case file.Geodatabase():
-            gdf = gpd.read_file(
-                local_data_path,
-                crs=data_format.crs,
-                encoding=data_format.encoding,
-                layer=data_format.layer,
-            )
-        case file.GeoJson():
-            gdf = gpd.read_file(local_data_path, encoding=data_format.encoding)
-        case file.Csv():
+    read_kwargs = data_format.model_dump()
+    for v in ("type", "unzipped_filepath", "geometry"):
+        read_kwargs.pop(v, "")
+
+    match file_format:
+        case "shapefile", "gdb", "geojson":
+            gdf = gpd.read_file(local_data_path, **read_kwargs)
+        case "csv":
+            dtype = _get_dtype(read_kwargs.pop("dtype", None))
             df = pd.read_csv(
                 local_data_path,
                 index_col=False,
-                encoding=data_format.encoding,
-                delimiter=data_format.delimiter,
-                names=data_format.column_names,
-                dtype=_get_dtype(data_format.dtype),
-                usecols=data_format.usecols,
+                dtype=dtype,
                 low_memory=False,
+                **read_kwargs,
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
-        case file.Excel():
+        case "excel", "xlsx":
+            dtype = _get_dtype(read_kwargs.pop("dtype", None))
             df = pd.read_excel(
                 local_data_path,
-                sheet_name=data_format.sheet_name,
-                engine=data_format.engine,
-                dtype=_get_dtype(data_format.dtype),
+                dtype=dtype,
+                **read_kwargs,
             )
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
@@ -140,7 +151,7 @@ def read_data_to_df(
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
 
-    if data_format.unzipped_filename and clean_extracted_zip:
+    if data_format.unzipped_filepath and clean_extracted_zip:
         assert extracted_files_dir
         shutil.rmtree(extracted_files_dir)
 

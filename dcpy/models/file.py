@@ -26,6 +26,24 @@ class Geometry(SortedSerializedBase, extra="forbid"):
         y: str
 
 
+class File(SortedSerializedBase, extra="allow"):
+    type: (
+        Literal[
+            "csv",
+            "excel",
+            "xlsx",
+            "shapefile",
+            "geodatabase",
+            "json",
+            "geojson",
+            "html",
+        ]
+        | None
+    ) = None
+    geometry: Geometry | None = None
+    unzipped_filepath: str | None = None
+
+
 class Csv(SortedSerializedBase, extra="forbid"):
     type: Literal["csv"]
     unzipped_filename: str | None = None
