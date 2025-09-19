@@ -18,9 +18,6 @@ ingestion:
   file_format:
     type: geojson
   processing_steps:
-  - name: rename_columns
-    args:
-      map: { "geom": "wkb_geometry" }
   - name: coerce_column_types
     args:
       column_types: { "wpaa_id": "integer" }
