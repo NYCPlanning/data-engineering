@@ -1,9 +1,9 @@
 name: Ingest - 📁 ArcGIS Feature Server Updates
 
 on:
-  schedule:
+  #schedule:
   # Weekly Cron job
-  - cron: "0 0 * * 0"
+  #- cron: "0 0 * * 0"
   workflow_dispatch:
     inputs:
       dev_image:
