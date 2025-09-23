@@ -1,59 +1,95 @@
-name: Ingest Migration Tool (Single run)
-run-name: "Ingest Migration Tool (Single run): ${{ inputs.dataset }} with ${{ inputs.tool }}"
+name: Ingest Migration Tool
+run-name: "Ingest Migration Tool: ${{ inputs.dataset }}"
 
 on:
   workflow_dispatch:
     inputs:
-      dataset:
-        description: "Name of the dataset (required)"
+      datasets:
+        description: Name of the datasets (required), space-separated
         required: true
-      tool:
-        description: "Which tool to use for extraction (required)"
-        required: true
-        type: choice
-        options:
-          - library
-          - ingest
-      schema_name:
-        description: "Schema name where to store data tables (required)"
-        required: true
+      ingest:
+        description: Run ingest?
+        type: boolean
+      library:
+        description: Run library?
+        type: boolean
+      compare_columns_only:
+        description: Only compare column names?
+        type: boolean
       version:
-        description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
+        description: The version of the dataset (i.e. 22v2, 21C) if needed (optional)
         required: false
+      dev_image:
+        description: "Use dev image specific to this branch? (If exists)"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
+  set_matrix:
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
+    steps:
+    - id: set_matrix
+      name: Set matrix
+      run: |
+        export input="${{ inputs.datasets }}"
+        echo $input
+        export matrix=[\"$(echo $input | xargs | sed -e "s/ /\",\"/g")\"]
+        echo $matrix
+        echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
   dataloading:
     runs-on: ubuntu-22.04
+    needs: set_matrix
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/build-base:${{ inputs.dev_image && format('dev-{0}', github.head_ref
+        || github.ref_name) || 'latest' }}
     defaults:
       run:
         shell: bash
     env:
-      BUILD_NAME: ${{ inputs.schema_name }}
+      BUILD_NAME: ingest_validation
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
+      TEMPLATE_DIR: ./ingest_templates
+      version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        dataset: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
-          SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
+        SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
 
-      - name: Finish container setup ...
-        run: ./bash/docker_container_setup.sh
+    - name: Finish container setup ...
+      run: ./bash/docker_container_setup.sh
 
-      - name: Extract dataset with selected tool and upload result to database
-        env:
-          version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
-        run: |
-          python3 -m dcpy lifecycle scripts validate_ingest run_single ${{ inputs.tool }} ${{ inputs.dataset }} $version
+    - name: Run ingest
+      if: ${{ inputs.ingest }}
+      run: python3 -m dcpy lifecycle scripts validate_ingest run_single ingest ${{
+        matrix.dataset }} $version
+
+    - name: Run library
+      if: ${{ inputs.library }}
+      run: python3 -m dcpy lifecycle scripts validate_ingest run_single library ${{
+        matrix.dataset }} $version
+
+    - name: compare
+      run: >-
+        python3 -m dcpy lifecycle scripts validate_ingest compare ${{ matrix.dataset }}
+        ${{ inputs.compare_columns_only && '-c' || '' }}

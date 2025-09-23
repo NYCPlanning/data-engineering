@@ -1,0 +1,21 @@
+id: nysdec_priority_estuaries
+acl: public-read
+
+attributes:
+  name: DEC Waterbody Inventory List - Estuaries
+  description: >-
+    The Waterbody Inventory/Priority Waterbodies List (WI/PWL) dataset is an inventory
+    of the state's surface water quality.
+  url: https://data.gis.ny.gov/maps/fe6e369f89444618920a5b49f603e34a/about
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nys_clearinghouse
+    dataset: Waterbody_Inventory_List
+    layer_name: Priority Waterbody List - Estuaries
+    crs: EPSG:2263
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: multi

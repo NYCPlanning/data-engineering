@@ -186,7 +186,7 @@ sources:
               "Not Eligible - Demolished",
               "Undetermined"
             ]
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
     tests:
@@ -213,7 +213,7 @@ sources:
               "Not Eligible - Demolished",
               "Undetermined"
             ]
-    - name: wkb_geometry
+    - name: geom
     tests:
     - dbt_utils.unique_combination_of_columns:
         name: nysshpo_historic_buildings_points_compound_key
@@ -223,7 +223,7 @@ sources:
 
   - name: nysshpo_archaeological_buffer_areas
     columns:
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
       - is_epsg_2263

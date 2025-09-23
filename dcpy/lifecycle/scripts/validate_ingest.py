@@ -22,6 +22,11 @@ LIBRARY_PATH = recipes.LIBRARY_DEFAULT_PATH / "datasets"
 SCHEMA = "ingest_validation"
 
 
+def _dataset_label(dataset: str) -> str:
+    """Ensure dataset label will not result in too long geom index name (<63 chars)."""
+    return dataset[:39]
+
+
 class Converter(SortedSerializedBase, YamlWriter):
     _exclude_falsey_values: bool = False
     _exclude_none: bool = False
@@ -146,7 +151,7 @@ def load_recipe(
         else:
             file_type = recipes.DatasetType.parquet
 
-    target_table = f"{dataset}_{version}"
+    target_table = f"{_dataset_label(dataset)}_{version}"
 
     client = postgres.PostgresClient(schema=SCHEMA, database=DATABASE)
     client.drop_table(dataset)
@@ -201,6 +206,7 @@ def compare_recipes_in_postgres(
     columns_only_comparison: bool = False,
     cast_to_numeric: list[str] | None = None,
 ) -> comparison.SqlReport:
+    dataset = _dataset_label(dataset)
     ignore_columns = ignore_columns or []
     ignore_columns.append("ogc_fid")
     ignore_columns.append("data_library_version")
