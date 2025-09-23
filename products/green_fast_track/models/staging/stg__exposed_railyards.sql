@@ -17,8 +17,8 @@ joined_and_corrected AS (
         c.complexid AS c_complexid,
         c.name,
         CASE
-            WHEN hudson_correction.complexid IS NULL THEN c.wkb_geometry
-            ELSE st_difference(c.wkb_geometry, hudson_correction.geom, 1)
+            WHEN hudson_correction.complexid IS NULL THEN c.geom
+            ELSE st_difference(c.geom, hudson_correction.geom, 1)
         END AS raw_geom
     FROM cscl_commonplace AS p
     INNER JOIN cscl_complex AS c ON p.complexid = c.complexid
