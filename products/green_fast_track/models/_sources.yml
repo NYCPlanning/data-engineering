@@ -84,13 +84,13 @@ sources:
 
   - name: dcp_cscl_commonplace
     columns:
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
   - name: dcp_cscl_complex
     columns:
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
