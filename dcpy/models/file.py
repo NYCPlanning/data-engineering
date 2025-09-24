@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pydantic import BaseModel
 from typing import Literal, TypeAlias
 
 from dcpy.models.base import SortedSerializedBase
@@ -26,7 +27,7 @@ class Geometry(SortedSerializedBase, extra="forbid"):
         y: str
 
 
-class Csv(SortedSerializedBase, extra="allow"):
+class Csv(BaseModel, extra="allow"):
     type: Literal["csv"]
     unzipped_filename: str | None = None
     dtype: str | dict | None = None
