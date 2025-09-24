@@ -20,10 +20,11 @@ jobs:
     uses: ./.github/workflows/ingest_multiple.yml
     secrets: inherit
     with:
-      datasets: |- # eventually add pluto_input_cama
+      datasets: |-
         pluto_pts
         pluto_input_geocodes
         pluto_input_numbldgs
+        pluto_input_cama_dof
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
       latest: true
