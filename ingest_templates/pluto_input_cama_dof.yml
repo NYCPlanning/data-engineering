@@ -19,6 +19,7 @@ ingestion:
   file_format:
     type: csv
     delimiter: "|"
+    quoting: 3
     dtype: str
     names:
     - bbl
