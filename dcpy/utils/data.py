@@ -105,16 +105,16 @@ def read_data_to_df(
             gdf = gpd.read_file(local_data_path, encoding=data_format.encoding)
             gdf.set_crs(crs, allow_override=True, inplace=True)
         case file.Csv():
-            df = pd.read_csv(
-                local_data_path,
-                index_col=False,
-                encoding=data_format.encoding,
-                delimiter=data_format.delimiter,
-                names=data_format.column_names,
-                dtype=_get_dtype(data_format.dtype),
-                usecols=data_format.usecols,
-                low_memory=False,
-            )
+            model_kwargs = data_format.model_dump()
+            for key in ["type", "geometry", "unzipped_filename", "dtype"]:
+                model_kwargs.pop(key, None)
+            kwargs = {
+                "index_col": False,
+                "low_memory": False,
+                "dtype": _get_dtype(data_format.dtype),
+            }
+            kwargs.update(model_kwargs)
+            df = pd.read_csv(local_data_path, **kwargs)
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )

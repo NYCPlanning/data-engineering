@@ -12,7 +12,7 @@ ingestion:
   file_format:
     type: csv
     delimiter: "\t"
-    column_names:
+    names:
     - boro
     - block
     - lot

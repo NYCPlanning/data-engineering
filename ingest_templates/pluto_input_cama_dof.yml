@@ -20,7 +20,7 @@ ingestion:
     type: csv
     delimiter: "|"
     dtype: str
-    column_names:
+    names:
     - bbl
     - parcelcard
     - bldgnum

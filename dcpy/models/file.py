@@ -26,15 +26,11 @@ class Geometry(SortedSerializedBase, extra="forbid"):
         y: str
 
 
-class Csv(SortedSerializedBase, extra="forbid"):
+class Csv(SortedSerializedBase, extra="allow"):
     type: Literal["csv"]
     unzipped_filename: str | None = None
-    encoding: str = "utf-8"
-    delimiter: str | None = None
-    column_names: list[str] | None = None
     dtype: str | dict | None = None
     geometry: Geometry | None = None
-    usecols: list[str] | list[int] | None = None
 
 
 class Excel(SortedSerializedBase, extra="forbid"):
