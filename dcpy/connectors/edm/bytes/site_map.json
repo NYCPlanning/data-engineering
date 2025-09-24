@@ -178,13 +178,13 @@
       "bytes_dataset_key": "housing-project-level",
       "files": {
         "csv": {
-          "filename": "nychousingdb_{v}_csv.zip"
+          "filename": "nychdb_{v}_csv.zip"
         },
         "gdb": {
-          "filename": "nychousingdb_{v}_gdb.zip"
+          "filename": "nychdb_{v}_gdb.zip"
         },
         "shapefile": {
-          "filename": "nychousingdb_{v}_shp.zip"
+          "filename": "nychdb_{v}_shp.zip"
         },
         "data_dictionary": {
           "filename": "Housing_Database_Data_Dictionary.xlsx"
@@ -215,7 +215,7 @@
       }
     },
     "housing_database_by_2020_census_block": {
-      "bytes_dataset_key": "housing-unit-change-summary",
+      "bytes_dataset_key": "housing-unit-summary",
       "files": {
         "shapefile": {
           "filename": "nychdb_cblock_{v}_shp.zip"
@@ -229,7 +229,7 @@
       }
     },
     "housing_database_by_2020_census_tract": {
-      "bytes_dataset_key": "housing-unit-change-summary",
+      "bytes_dataset_key": "housing-unit-summary",
       "files": {
         "shapefile": {
           "filename": "nychdb_ctract_{v}_shp.zip"
@@ -243,7 +243,7 @@
       }
     },
     "housing_database_by_2020_nta": {
-      "bytes_dataset_key": "housing-unit-change-summary",
+      "bytes_dataset_key": "housing-unit-summary",
       "files": {
         "shapefile": {
           "filename": "nychdb_nta_{v}_shp.zip"
@@ -257,7 +257,7 @@
       }
     },
     "housing_database_by_2020_cdta": {
-      "bytes_dataset_key": "housing-unit-change-summary",
+      "bytes_dataset_key": "housing-unit-summary",
       "files": {
         "shapefile": {
           "filename": "nychdb_cdta_{v}_shp.zip"
@@ -271,7 +271,7 @@
       }
     },
     "housing_database_by_2024_city_council": {
-      "bytes_dataset_key": "housing-unit-change-summary",
+      "bytes_dataset_key": "housing-unit-summary",
       "files": {
         "shapefile": {
           "filename": "nychdb_council_{v}_shp.zip"
@@ -285,7 +285,7 @@
       }
     },
     "housing_database_by_community_district": {
-      "bytes_dataset_key": "housing-unit-change-summary",
+      "bytes_dataset_key": "housing-unit-summary",
       "files": {
         "shapefile": {
           "filename": "nychdb_community_{v}_shp.zip"
