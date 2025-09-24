@@ -27487,3 +27487,4 @@ bbl,field,old_value,new_value,Type,reason,version
 1014297503,unitstotal,1681,42,2,PTS error - units,25v2
 4051097501,unitsres,64,8,2,PTS error - units,25v2
 4051097501,unitstotal,64,8,2,PTS error - units,25v2
+3050830001,numbldgs,3,1,2,Geosupport error - CD,25v3
