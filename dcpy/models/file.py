@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pydantic import BaseModel
 from typing import Literal, TypeAlias
 
 from dcpy.models.base import SortedSerializedBase
@@ -26,15 +27,11 @@ class Geometry(SortedSerializedBase, extra="forbid"):
         y: str
 
 
-class Csv(SortedSerializedBase, extra="forbid"):
+class Csv(BaseModel, extra="allow"):
     type: Literal["csv"]
     unzipped_filename: str | None = None
-    encoding: str = "utf-8"
-    delimiter: str | None = None
-    column_names: list[str] | None = None
     dtype: str | dict | None = None
     geometry: Geometry | None = None
-    usecols: list[str] | list[int] | None = None
 
 
 class Excel(SortedSerializedBase, extra="forbid"):

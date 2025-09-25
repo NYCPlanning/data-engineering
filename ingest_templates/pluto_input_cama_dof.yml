@@ -19,8 +19,9 @@ ingestion:
   file_format:
     type: csv
     delimiter: "|"
+    quoting: 3
     dtype: str
-    column_names:
+    names:
     - bbl
     - parcelcard
     - bldgnum

@@ -13,7 +13,7 @@ ingestion:
     type: csv
     delimiter: "\t"
     dtype: str # we don't necessarily need this, but it keeps consistent with library archival
-    column_names:
+    names:
     - parid
     - boro
     - block
