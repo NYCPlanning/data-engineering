@@ -165,6 +165,8 @@ def facdb():
                 """
             )
             dff = qc_diff.groupby(level).sum()
+            dff["diff_abs"] = dff["diff"].abs()
+            dff["diff_abs_pct"] = (dff["diff_abs"] / dff["count_old"]).round(3) * 100
             max_val = dff["diff"].max() - 1
             thresh = st.sidebar.number_input(
                 "difference threshold",
