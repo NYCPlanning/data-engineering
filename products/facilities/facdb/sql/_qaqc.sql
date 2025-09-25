@@ -221,47 +221,46 @@ FULL JOIN geom_old AS b
 
 -- report Change in distribution of number of records by fac subgroup / group / domain between current and previous version
 DROP TABLE IF EXISTS qc_diff;
+WITH new AS (
+    SELECT
+        facdomain,
+        facgroup,
+        facsubgrp,
+        factype,
+        datasource,
+        coalesce(count(*), 0) AS count_new
+    FROM facdb
+    GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
+), old AS (
+    SELECT
+        facdomain,
+        facgroup,
+        facsubgrp,
+        factype,
+        datasource,
+        coalesce(count(*), 0) AS count_old
+    FROM dcp_facilities_with_unmapped
+    GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
+)
 SELECT
-    coalesce(a.facdomain, b.facdomain) AS facdomain,
-    coalesce(a.facgroup, b.facgroup) AS facgroup,
-    coalesce(a.facsubgrp, b.facsubgrp) AS facsubgrp,
-    coalesce(a.factype, b.factype) AS factype,
-    coalesce(a.datasource, b.datasource) AS datasource,
+    coalesce(old.facdomain, new.facdomain) AS facdomain,
+    coalesce(old.facgroup, new.facgroup) AS facgroup,
+    coalesce(old.facsubgrp, new.facsubgrp) AS facsubgrp,
+    coalesce(old.factype, new.factype) AS factype,
+    coalesce(old.datasource, new.datasource) AS datasource,
     coalesce(count_old, 0) AS count_old,
     coalesce(count_new, 0) AS count_new,
     coalesce(count_new, 0) - coalesce(count_old, 0) AS diff,
     abs(coalesce(count_new, 0) - coalesce(count_old, 0)) AS diff_abs,
     abs(count_new - count_old) / count_old AS diff_abs_pct
 INTO qc_diff
-FROM
-    (
-        SELECT
-            facdomain,
-            facgroup,
-            facsubgrp,
-            factype,
-            datasource,
-            coalesce(count(*), 0) AS count_new
-        FROM facdb
-        GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
-    ) AS a FULL JOIN
-    (
-        SELECT
-            facdomain,
-            facgroup,
-            facsubgrp,
-            factype,
-            datasource,
-            coalesce(count(*), 0) AS count_old
-        FROM dcp_facilities_with_unmapped
-        GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
-    ) AS b
+FROM old FULL JOIN new
     ON
-        a.facdomain = b.facdomain
-        AND a.facgroup = b.facgroup
-        AND a.facsubgrp = b.facsubgrp
-        AND a.factype = b.factype
-        AND a.datasource = b.datasource
+        old.facdomain = new.facdomain
+        AND old.facgroup = new.facgroup
+        AND old.facsubgrp = new.facsubgrp
+        AND old.factype = new.factype
+        AND old.datasource = new.datasource  
 ORDER BY facdomain, facgroup, facsubgrp, factype;
 
 -- QC Number of records source vs facdb
