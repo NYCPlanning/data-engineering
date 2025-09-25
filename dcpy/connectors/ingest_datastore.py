@@ -105,7 +105,12 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
         return "dataset" in config_dict
 
     def get_latest_version(self, key: str, **kwargs) -> str:
-        return self._get_config_obj(key, "latest")["version"]
+        conf = self._get_config_obj(key, "latest")
+        if "version" in conf:
+            # library
+            return conf["version"]
+        else:
+            return conf["dataset"]["version"]
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return self.storage.exists(f"{key}/{version}")

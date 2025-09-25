@@ -30,7 +30,10 @@ def _set_default_conf():
                 "local_data_path": "builds",
                 "stages": {
                     "plan": {"local_data_path": "plan"},
-                    "load": {"local_data_path": "load"},
+                    "load": {
+                        "local_data_path": "load",
+                        "default_connector": "edm.recipes.datasets",
+                    },
                     "build": {"local_data_path": "build"},
                     "qa": {"local_data_path": "qa"},
                 },
