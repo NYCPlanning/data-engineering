@@ -32,6 +32,7 @@ def _set_default_conf():
                     "plan": {"local_data_path": "plan"},
                     "load": {"local_data_path": "load"},
                     "build": {"local_data_path": "build"},
+                    "qa": {"local_data_path": "qa"},
                 },
             },
             "package": {
