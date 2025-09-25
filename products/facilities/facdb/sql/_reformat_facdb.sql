@@ -2,7 +2,7 @@
 -- mapping of data types between postgres and geodabase reference: https://pro.arcgis.com/en/pro-app/3.1/help/data/geodatabases/manage-postgresql/data-types-postgresql.htm
 
 -- create facdb table with expected column names and data types
-CREATE TABLE temp_facdb AS
+CREATE TABLE facdb_export AS
 SELECT
     facname::VARCHAR(250) AS "FACNAME",
     addressnum::VARCHAR(12) AS "ADDRESSNUM",
@@ -46,7 +46,7 @@ FROM facdb;
 
 
 -- create facdb table without geometry column
-CREATE TABLE facdb_without_geom_col AS
+CREATE TABLE facdb_export_csv AS
 SELECT
     facname::VARCHAR(250) AS "FACNAME",
     addressnum::VARCHAR(12) AS "ADDRESSNUM",
@@ -87,10 +87,6 @@ SELECT
     uid::VARCHAR AS "UID"
 FROM facdb;
 
--- delete old facdb table and rename the new one
-DROP TABLE facdb;
-ALTER TABLE temp_facdb RENAME TO facdb;
-
 -- replace empty strings ('' or ' ') with NULL value in facdb
-CALL replace_empty_strings(:'build_schema', 'facdb');
-CALL replace_empty_strings(:'build_schema', 'facdb_without_geom_col')
+CALL replace_empty_strings(:'build_schema', 'facdb_export');
+CALL replace_empty_strings(:'build_schema', 'facdb_export_csv')

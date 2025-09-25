@@ -260,7 +260,7 @@ FROM old FULL JOIN new
         AND old.facgroup = new.facgroup
         AND old.facsubgrp = new.facsubgrp
         AND old.factype = new.factype
-        AND old.datasource = new.datasource  
+        AND old.datasource = new.datasource
 ORDER BY facdomain, facgroup, facsubgrp, factype;
 
 -- QC Number of records source vs facdb
