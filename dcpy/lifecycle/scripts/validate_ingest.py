@@ -10,8 +10,10 @@ import yaml
 from dcpy import configuration
 from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
+from dcpy.lifecycle import data_loader
 from dcpy.models.data import comparison
 from dcpy.models.base import SortedSerializedBase, YamlWriter
+from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.models.lifecycle.ingest import DatasetAttributes
 from dcpy.data import compare
 from dcpy.connectors.edm import recipes
@@ -135,6 +137,25 @@ def ingest(
     shutil.copy(output_path, ingest_path)
 
 
+def _import_dataset(
+    dataset_id, version, file_type, dest_table_name, dest_dir: Path | None = None
+):
+    pg_client = postgres.PostgresClient(schema=SCHEMA, database=DATABASE)
+    data_loader.import_dataset(
+        InputDataset(
+            id=dataset_id,
+            version=version,
+            source="edm.recipes",
+            file_type=file_type,
+            custom={"file_type": file_type},
+            import_as=dest_table_name,
+        ),
+        stage="builds.qa",
+        pg_client=pg_client,
+        dest_dir_override=dest_dir,
+    )
+
+
 def load_recipe(
     dataset: str,
     version: Literal["library", "ingest"],
@@ -152,12 +173,7 @@ def load_recipe(
     client.drop_table(dataset)
     client.drop_table(target_table)
 
-    left_ds = recipes.Dataset(id=dataset, version=version, file_type=file_type)
-    recipes.import_dataset(
-        left_ds,
-        client,
-        import_as=target_table,
-    )
+    _import_dataset(dataset, version, file_type=file_type, dest_table_name=target_table)
 
 
 def load_recipe_from_s3(
@@ -186,8 +202,12 @@ def load_recipe_from_s3(
     # often use case would be archiving to dev bucket multiple times
     # just ensure that local copy is not re-used
     with TemporaryDirectory() as _dir:
-        recipes.import_dataset(
-            ds, client, import_as=target_table, local_library_dir=Path(_dir)
+        _import_dataset(
+            ds_id,
+            s3_version,
+            file_type=file_type,
+            dest_table_name=target_table,
+            dest_dir=Path(_dir),
         )
 
 
@@ -340,18 +360,18 @@ def _get_columns(
     res = client.execute_select_query(f"""
         with setup(schema, table_name) as (select '{SCHEMA}', '{dataset}'),
         all_rows as (
-        select 
+        select
             '- id: ' || column_name as t,
             ordinal_position as n
         from information_schema."columns" c
-        inner join setup s 
-            on c.table_name = s.table_name || '_ingest' 
+        inner join setup s
+            on c.table_name = s.table_name || '_ingest'
             and c.table_schema = s.schema
         where column_name not in ('ogc_fid', 'data_library_version')
         union all
-        select 
+        select
             '  data_type: ' || (
-                CASE 
+                CASE
                     WHEN data_type = 'USER-DEFINED' THEN udt_name
                     when data_type = 'bigint' then 'integer'
                     when data_type = 'smallint' then 'integer'
@@ -360,11 +380,11 @@ def _get_columns(
                     when data_type = 'timestamp without time zone' then 'datetime'
                     ELSE data_type
                 END
-            ) as t, 
+            ) as t,
             ordinal_position + 0.5 as n
         from information_schema."columns" c
-        inner join setup s 
-            on c.table_name = s.table_name || '_ingest' 
+        inner join setup s
+            on c.table_name = s.table_name || '_ingest'
             and c.table_schema = s.schema
         where column_name not in ('ogc_fid', 'data_library_version')
         )
