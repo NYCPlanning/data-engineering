@@ -108,7 +108,7 @@ def read_data_to_df(
             model_kwargs = data_format.model_dump()
             for key in ["type", "geometry", "unzipped_filename", "dtype"]:
                 model_kwargs.pop(key, None)
-            kwargs = {
+            kwargs: dict = {
                 "index_col": False,
                 "low_memory": False,
                 "dtype": _get_dtype(data_format.dtype),
