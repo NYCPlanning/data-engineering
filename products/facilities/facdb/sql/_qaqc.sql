@@ -35,7 +35,7 @@ SELECT
     a.count_new,
     a.count_new - b.count_old AS diff,
     abs(a.count_new - b.count_old) AS diff_abs,
-    abs(a.count_new - b.count_old) / b.count_old AS diff_abs_pct
+    abs(a.count_new - b.count_old)::numeric * 100 / b.count_old AS diff_abs_pct
 INTO qc_operator
 FROM new AS a INNER JOIN old AS b
     ON
@@ -76,7 +76,7 @@ SELECT
     a.count_new,
     a.count_new - b.count_old AS diff,
     abs(a.count_new - b.count_old) AS diff_abs,
-    abs(a.count_new - b.count_old) / b.count_old AS diff_abs_pct
+    abs(a.count_new - b.count_old)::numeric * 100 / b.count_old AS diff_abs_pct
 INTO qc_oversight
 FROM new AS a
 INNER JOIN old AS b
@@ -118,7 +118,7 @@ SELECT
     a.count_new,
     a.count_new - b.count_old AS diff,
     abs(a.count_new - b.count_old) AS diff_abs,
-    abs(a.count_new - b.count_old) / b.count_old AS diff_abs_pct
+    abs(a.count_new - b.count_old)::numeric * 100 / b.count_old AS diff_abs_pct
 INTO qc_classification
 FROM new AS a
 INNER JOIN old AS b
@@ -155,7 +155,7 @@ SELECT
     a.sum_new,
     a.sum_new - b.sum_old AS diff,
     abs(a.sum_new - b.sum_old) AS diff_abs,
-    abs(a.sum_new - b.sum_old) / b.sum_old AS diff_abs_pct
+    abs(a.sum_new - b.sum_old)::numeric * 100 / b.sum_old AS diff_abs_pct
 INTO qc_captype
 FROM new AS a
 INNER JOIN old AS b
@@ -169,7 +169,7 @@ SELECT
     sum(sum_new) AS sum_new,
     sum(diff) AS diff,
     abs(sum(diff)) AS diff_abs,
-    abs(sum(diff)) / sum(sum_old) AS diff_abs_pct
+    abs(sum(diff))::numeric * 100 / sum(sum_old) AS diff_abs_pct
 FROM qc_captype
 GROUP BY captype;
 
@@ -252,7 +252,7 @@ SELECT
     coalesce(count_new, 0) AS count_new,
     coalesce(count_new, 0) - coalesce(count_old, 0) AS diff,
     abs(coalesce(count_new, 0) - coalesce(count_old, 0)) AS diff_abs,
-    abs(count_new - count_old) / count_old AS diff_abs_pct
+    abs(coalesce(count_new, 0) - count_old)::numeric * 100 / count_old AS diff_abs_pct
 INTO qc_diff
 FROM old FULL JOIN new
     ON
