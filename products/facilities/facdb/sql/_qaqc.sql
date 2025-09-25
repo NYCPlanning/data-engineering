@@ -243,7 +243,6 @@ FROM
             datasource,
             coalesce(count(*), 0) AS count_new
         FROM facdb
-        WHERE geom IS NOT null
         GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
     ) AS a FULL JOIN
     (
@@ -255,7 +254,6 @@ FROM
             datasource,
             coalesce(count(*), 0) AS count_old
         FROM dcp_facilities_with_unmapped
-        WHERE mapped IS true
         GROUP BY facdomain, facgroup, facsubgrp, factype, datasource
     ) AS b
     ON
