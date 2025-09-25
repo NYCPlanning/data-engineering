@@ -86,7 +86,9 @@ class OutlierReport:
             # round values to integer in numeric-like columns
             for col in df.columns:
                 if col != "bbl":
-                    df[col] = pd.to_numeric(df[col], errors="coerce").astype(int)
+                    df[col] = pd.to_numeric(
+                        df[col], errors="coerce", downcast="integer"
+                    )
                 else:
                     df["bbl"] = pd.to_numeric(df["bbl"], downcast="integer")
 
