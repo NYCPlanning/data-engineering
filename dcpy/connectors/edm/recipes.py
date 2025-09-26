@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 from pathlib import Path
 import yaml
@@ -22,11 +21,7 @@ def _bucket() -> str:
     return configuration.RECIPES_BUCKET
 
 
-LIBRARY_DEFAULT_PATH = (
-    Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
-)
 DATASET_FOLDER = "datasets"
-RAW_FOLDER = "raw_datasets"
 
 
 def s3_folder_path(ds: Dataset | DatasetKey) -> str:

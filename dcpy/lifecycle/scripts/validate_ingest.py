@@ -20,7 +20,10 @@ from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import INGEST_DIR, ingest as run_ingest
 
 DATABASE = "sandbox"
-LIBRARY_PATH = recipes.LIBRARY_DEFAULT_PATH / "datasets"
+LIBRARY_DEFAULT_PATH = (
+    Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
+)
+LIBRARY_PATH = LIBRARY_DEFAULT_PATH / "datasets"
 SCHEMA = "ingest_validation"
 
 
