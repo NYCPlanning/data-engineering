@@ -50,18 +50,6 @@ def get_config(name: str, version="latest") -> library.Config | ingest.Config:
         return ingest.Config(**config)
 
 
-def get_latest_version(name: str) -> str:
-    """
-    Get latest version of a dataset
-    Just uses dicts to avoid issues regarding changing pydantic models
-    """
-    config = get_config_obj(name)
-    if "dataset" in config:
-        return config["dataset"]["version"]
-    else:
-        return config["version"]
-
-
 def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
     return [

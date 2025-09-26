@@ -96,10 +96,6 @@ def test_get_ingest_config(load_ingest: ingest.Config):
     assert config == load_ingest
 
 
-def test_get_latest_version(load_ingest):
-    assert recipes.get_latest_version(TEST_DATASET) == INGEST_VERSION
-
-
 def test_get_all_versions(load_library, load_ingest):
     assert set(recipes.get_all_versions(TEST_DATASET)) == {
         LIBRARY_VERSION,
