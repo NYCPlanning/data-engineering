@@ -24,15 +24,14 @@ def _set_default_conf():
         "stages": {
             "ingest": {
                 "local_data_path": "ingest",
-                "default_connector": {"default_storage_args": {}},
             },
             "builds": {
+                "default_recipes_connector": "edm.recipes.datasets",
                 "local_data_path": "builds",
                 "stages": {
                     "plan": {"local_data_path": "plan"},
                     "load": {
                         "local_data_path": "load",
-                        "default_connector": "edm.recipes.datasets",
                     },
                     "build": {"local_data_path": "build"},
                     "qa": {"local_data_path": "qa"},

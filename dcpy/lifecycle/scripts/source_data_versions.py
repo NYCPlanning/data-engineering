@@ -1,6 +1,7 @@
 import pandas as pd
 
-from dcpy.connectors.edm import recipes, publishing
+from dcpy.connectors.edm import publishing
+from dcpy.lifecycle import builds
 
 
 def get_latest_source_data_versions(product: str) -> pd.DataFrame:
@@ -11,7 +12,9 @@ def get_latest_source_data_versions(product: str) -> pd.DataFrame:
     source_data_versions = publishing.get_source_data_versions(
         publishing.PublishKey(product, "latest")
     )
+
+    recipes_connector = builds.get_recipes_default_connector()
     source_data_versions["version"] = source_data_versions.index.map(
-        recipes.get_latest_version
+        recipes_connector.get_latest_version
     )
     return source_data_versions
