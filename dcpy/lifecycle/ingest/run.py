@@ -106,6 +106,7 @@ def transform_datasets(
     version: str,
     *,
     staging_dir: Path = INGEST_STAGING_DIR,
+    run_details: metadata.RunDetails | None = None,
     mode: str | None = None,
     output_csv: bool = False,
 ) -> list[IngestedDataset]:
@@ -139,6 +140,7 @@ def transform_datasets(
             archival=datasource_config.archival,
             transformation=transformation_result,
             columns=dataset.columns,
+            run_details=run_details or datasource_config.archival.run_details,
         )
 
         dataset_config.dump_json(dataset_staging_dir / DATASET_CONFIG_FILENAME)
