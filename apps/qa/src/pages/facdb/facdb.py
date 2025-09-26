@@ -164,8 +164,12 @@ def facdb():
                 Use the dropdown input bar to select an attribute to review
                 """
             )
-            dff = qc_diff.groupby(level).sum()
-            max_val = dff["diff"].max() - 1
+            qc_diff_agg = qc_diff.groupby(level).sum()
+            qc_diff_agg["diff_abs"] = qc_diff_agg["diff"].abs()
+            qc_diff_agg["diff_abs_pct"] = (
+                qc_diff_agg["diff_abs"] / qc_diff_agg["count_old"]
+            ).round(3) * 100
+            max_val = qc_diff_agg["diff"].max() - 1
             thresh = st.sidebar.number_input(
                 "difference threshold",
                 min_value=0,
@@ -183,7 +187,9 @@ def facdb():
             st.header(f"Change in total number of records by {level}")
             st.write(f"total change (positive or negative) > {thresh}")
 
-            dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
+            qc_diff_agg = qc_diff_agg.loc[
+                (qc_diff_agg["diff"] != 0) & (~qc_diff_agg["diff"].isna()), :
+            ]
             if level == "factype":
                 st.warning(
                     "plot not available for this level,\
@@ -191,14 +197,16 @@ def facdb():
                 )
             else:
                 count_comparison(
-                    dff.loc[dff["diff"].abs() > thresh, :].sort_values("diff")
+                    qc_diff_agg.loc[qc_diff_agg["diff"].abs() > thresh, :].sort_values(
+                        "diff"
+                    )
                 )
 
             # st.header(f"Change in counts by {level}")
-            dff.insert(0, level, dff.index)
-            dff = dff.sort_values("diff", key=abs, ascending=False)
+            qc_diff_agg.insert(0, level, qc_diff_agg.index)
+            qc_diff_agg = qc_diff_agg.sort_values("diff", key=abs, ascending=False)
 
-            plot_diff_table(dff, ["count_old", "count_new", "diff"])
+            plot_diff_table(qc_diff_agg, ["count_old", "count_new", "diff"])
 
             """
             qc_mapped visualization
@@ -210,28 +218,39 @@ def facdb():
                 of mapped records
             """
             )
-            dfff = qc_mapped.groupby(level).sum()
-            # dfff.insert(0, level, dfff.index)
-            dfff["pct_mapped_old"] = dfff["with_geom_old"] / dfff["count_old"]
-            dfff["pct_mapped_new"] = dfff["with_geom_new"] / dfff["count_new"]
-            dfff["with_geom_old"] = dfff["with_geom_old"].round(2)
-            dfff["with_geom_new"] = dfff["with_geom_new"].round(2)
-            dfff["mapped_diff"] = dfff["with_geom_new"] - dfff["with_geom_old"]
-            dfff["mapped_pct_diff"] = dfff["pct_mapped_new"] - dfff["pct_mapped_old"]
-            dfff["mapped_pct_diff"] = dfff["mapped_pct_diff"].round(3)
-            dfff = dfff[
-                (dfff["mapped_pct_diff"] != 0 & ~dfff["mapped_pct_diff"].isna())
+            qc_map_agg = qc_mapped.groupby(level).sum()
+            # qc_map_agg.insert(0, level, qc_map_agg.index)
+            qc_map_agg["pct_mapped_old"] = (
+                qc_map_agg["with_geom_old"] / qc_map_agg["count_old"]
+            )
+            qc_map_agg["pct_mapped_new"] = (
+                qc_map_agg["with_geom_new"] / qc_map_agg["count_new"]
+            )
+            qc_map_agg["with_geom_old"] = qc_map_agg["with_geom_old"].round(2)
+            qc_map_agg["with_geom_new"] = qc_map_agg["with_geom_new"].round(2)
+            qc_map_agg["mapped_diff"] = (
+                qc_map_agg["with_geom_new"] - qc_map_agg["with_geom_old"]
+            )
+            qc_map_agg["mapped_pct_diff"] = (
+                qc_map_agg["pct_mapped_new"] - qc_map_agg["pct_mapped_old"]
+            )
+            qc_map_agg["mapped_pct_diff"] = qc_map_agg["mapped_pct_diff"].round(3)
+            qc_map_agg = qc_map_agg[
+                (
+                    qc_map_agg["mapped_pct_diff"]
+                    != 0 & ~qc_map_agg["mapped_pct_diff"].isna()
+                )
             ]
-            dfff.sort_values("mapped_pct_diff", ascending=True, inplace=True)
-            geom_comparison(dfff)
-            dfff = dfff[
+            qc_map_agg.sort_values("mapped_pct_diff", ascending=True, inplace=True)
+            geom_comparison(qc_map_agg)
+            qc_map_agg = qc_map_agg[
                 ["pct_mapped_old", "pct_mapped_new", "mapped_pct_diff"]
                 + ["mapped_diff"]
-                + list(dfff.columns[:-4])
+                + list(qc_map_agg.columns[:-4])
             ]
             st.header(f"Percentage mapped records by {level}")
             plot_diff_table(
-                dfff,
+                qc_map_agg,
                 ["pct_mapped_old", "pct_mapped_new", "mapped_pct_diff"],
                 as_pct=True,
             )

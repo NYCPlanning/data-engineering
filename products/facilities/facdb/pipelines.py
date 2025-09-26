@@ -163,7 +163,7 @@ def doe_universalprek(df: pd.DataFrame):
         {
             "M": "Manhattan",
             "X": "Bronx",
-            "B": "Brooklyn",
+            "K": "Brooklyn",
             "Q": "Queens",
             "R": "Staten Island",
         }
@@ -174,7 +174,7 @@ def doe_universalprek(df: pd.DataFrame):
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",
         borough_field="boro",
-        zipcode_field="state",
+        zipcode_field="zip_code",
     ).geocode_a_dataframe(df)
     return df
 

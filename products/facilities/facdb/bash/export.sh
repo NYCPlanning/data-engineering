@@ -11,7 +11,7 @@ mkdir -p output && (
     cp ../facdb/metadata.yml ./
     cp ../build_metadata.json ./
     cp ../source_data_versions.csv ./
-    csv_export facdb_without_geom_col facilities &
+    csv_export facdb_export_csv facilities &
     csv_export qc_operator &
     csv_export qc_oversight &
     csv_export qc_classification &
@@ -22,8 +22,8 @@ mkdir -p output && (
     csv_export qc_subgrpbins &
     # csv_export geo_rejects &
     # csv_export geo_result &
-    shp_export facdb POINT -f facilities -t_srs "EPSG:2263"
-    fgdb_export facdb POINT facilities
+    shp_export facdb_export POINT -f facilities -t_srs "EPSG:2263"
+    fgdb_export facdb_export POINT facilities
     wait
     echo "export complete"
 )
