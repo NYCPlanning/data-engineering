@@ -107,7 +107,6 @@ class IngestedDataset(SortedSerializedBase, extra="forbid"):
     archival: Archival
     transformation: Transformation
     columns: list[definitions.Column] = []
-    run_details: RunDetails
 
     _head_sort_order = [
         "id",

@@ -128,7 +128,7 @@ def transform_datasets(
             raw_filename=datasource_config.archival.raw_filename,
             staging_dir=staging_dir,
             mode=mode,
-            run_details=datasource_config.archival.run_details,
+            run_details=run_details or datasource_config.archival.run_details,
             output_csv=output_csv,
         )
 
@@ -140,7 +140,6 @@ def transform_datasets(
             archival=datasource_config.archival,
             transformation=transformation_result,
             columns=dataset.columns,
-            run_details=run_details or datasource_config.archival.run_details,
         )
 
         dataset_config.dump_json(dataset_staging_dir / DATASET_CONFIG_FILENAME)
