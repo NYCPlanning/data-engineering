@@ -4,12 +4,9 @@ import shutil
 import typer
 
 from dcpy.models.lifecycle.ingest.configuration import (
-    ResolvedDataSource,
     ArchivedDataSource,
-    IngestedDataset,
-    Transformation,
 )
-from dcpy.configuration import TEMPLATE_DIR
+from dcpy.configuration import INGEST_DEF_DIR
 from . import validate, configure
 from .run import (
     ingest,
@@ -33,19 +30,19 @@ def _cli_extract(
     staging_dir: Path = typer.Option(INGEST_STAGING_DIR, "--staging-dir", "-s"),
     push: bool = typer.Option(False, "--push", "-p"),
 ):
-    # if staging_dir.exists():
-    # shutil.rmtree(staging_dir)
-    # staging_dir.mkdir(parents=True)
+    if staging_dir.exists():
+        shutil.rmtree(staging_dir)
+        staging_dir.mkdir(parents=True)
 
     resolved_config = configure.resolve_config(
         dataset_id,
         version=version,
-        definition_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
         local_file_path=None,
     )
 
     resolved_config.dump_json(staging_dir / "definition.lock.json")
-    raise Exception("ag")
+
     return extract_and_archive_raw_dataset(
         resolved_config,
         staging_dir=staging_dir,

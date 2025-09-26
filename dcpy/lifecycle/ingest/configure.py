@@ -1,11 +1,14 @@
+import geopandas as gpd
 import jinja2
 from jinja2 import meta
+import pandas as pd
 from pathlib import Path
 import yaml
 
 from dcpy.models.lifecycle.ingest.definitions import (
     Source,
     ProcessingStep,
+    IngestDefinition,
     IngestDefinitionSimple,
     IngestDefinitionOneToMany,
 )
@@ -40,22 +43,20 @@ def read_definition(
     if vars == {"version"}:
         definition_string = jinja2.Template(definition_string).render(version=version)
     elif vars:
-        raise Exception(
+        raise ValueError(
             f"'version' is only suppored jinja var. Vars in definition: {vars}"
         )
     definition_yml = yaml.safe_load(definition_string)
-    if "datasets" in definition_yml:
-        return IngestDefinitionOneToMany(**definition_yml)
-    else:
-        return IngestDefinitionSimple(**definition_yml)
+    return IngestDefinition.validate_python(definition_yml)
 
 
 def get_version(source: Source) -> str | None:
     connector = source_connectors[source.type]
-    if "get_latest_version" in connector.__dir__():
-        return connector.get_latest_version(**source.model_dump())
-    else:
-        return None
+    return (
+        connector.get_latest_version(**source.model_dump())
+        if "get_latest_version" in connector.__dir__()
+        else None
+    )
 
 
 def find_source_validation_errors(source: Source) -> dict:

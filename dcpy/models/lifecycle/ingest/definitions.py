@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, AliasChoices
+from pydantic import BaseModel, Field, AliasChoices, TypeAdapter
 from typing import Any
 
 from dcpy.models.connectors.edm import recipes
@@ -87,3 +87,6 @@ class IngestDefinitionOneToMany(BaseModel, extra="forbid"):
     source: Source
     dataset_defaults: DatasetDefaults = DatasetDefaults()
     datasets: list[DownstreamDatasetDefinition]
+
+
+IngestDefinition = TypeAdapter(IngestDefinitionSimple | IngestDefinitionOneToMany)  # type: ignore

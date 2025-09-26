@@ -21,7 +21,7 @@
     "run_details": {
         "type": "manual",
         "runner": {
-            "username": "Finn van Krieken"
+            "username": "user"
         },
         "timestamp": "2024-09-05T12:04:03.450135-04:00",
         "logged": false

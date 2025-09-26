@@ -104,6 +104,7 @@ class SortedSerializedBase(BaseModel):
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(
                 self.model_dump(
+                    mode="json",
                     exclude_none=exclude_none,
                     exclude_defaults=exclude_defaults,
                     **kwargs,

@@ -10,21 +10,16 @@ from dcpy.utils.metadata import RunDetails
 from dcpy.lifecycle.ingest.connectors import source_connectors
 
 
-def _pull(source: Source, version: str | None, dir: Path) -> Path:
-    """
-    From parsed config template and version, download raw data from source to provided path
-    """
-    logger.info(f"Extracting {source} from source to staging folder")
-
-    connector = source_connectors[source.type]
-    res = connector.pull(destination_path=dir, version=version, **source.model_dump())
-    return res["path"]
-
-
 def extract_source(
     config: ResolvedDataSource, run_details: RunDetails, dir: Path
 ) -> ArchivedDataSource:
-    file = _pull(config.source, config.version, dir)
+    source = config.source
+    logger.info(f"Extracting {source} from source to staging folder")
+
+    connector = source_connectors[source.type]
+    file = connector.pull(
+        destination_path=dir, version=config.version, **source.model_dump()
+    )["path"]
     archival = Archival(
         id=config.id,
         source=config.source,
@@ -32,8 +27,6 @@ def extract_source(
         acl=config.acl,
         run_details=run_details,
     )
-    args = config.model_dump()
-    args.pop("source")
     return ArchivedDataSource(
         id=config.id,
         timestamp=run_details.timestamp,

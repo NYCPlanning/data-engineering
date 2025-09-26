@@ -1,0 +1,15 @@
+id: simple
+acl: public-read
+
+attributes:
+  name: Simple Definition
+
+ingestion:
+  source:
+    type: local_file
+    endpoint: dummy.csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
