@@ -4,7 +4,7 @@ from typing import cast
 
 from dcpy.connectors.edm import recipes, publishing
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
-from src.shared.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
+from src.shared.constants import construct_dataset_by_version
 from dcpy.lifecycle import data_loader
 from dcpy.models.lifecycle.builds import InputDataset
 
@@ -20,20 +20,6 @@ def get_source_dataset_ids(product_key: publishing.ProductKey) -> list[str]:
     """
     source_data_versions = publishing.get_source_data_versions(product_key)
     return sorted(source_data_versions.index.values.tolist())
-
-
-def get_latest_source_data_versions(product: str) -> pd.DataFrame:
-    """Gets latest available versions of source datasets for specific data product
-    Does NOT return versions used in any specific build
-    TODO this should not come from publishing, but should be defined in code for each data product
-    """
-    source_data_versions = publishing.get_source_data_versions(
-        publishing.PublishKey(product, "latest")
-    )
-    source_data_versions["version"] = source_data_versions.index.map(
-        recipes.get_latest_version
-    )
-    return source_data_versions
 
 
 def get_source_data_versions_to_compare(
