@@ -14,6 +14,9 @@ from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
 
+# TODO: continuing hacking away until this module is no more.
+
+
 def _bucket() -> str:
     assert configuration.RECIPES_BUCKET, (
         "'RECIPES_BUCKET' must be defined to use edm.recipes connector"
