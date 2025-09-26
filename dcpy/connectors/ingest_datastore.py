@@ -1,13 +1,14 @@
 import json
 from pathlib import Path
+from pydantic import BaseModel
 from tempfile import TemporaryDirectory
 import yaml
 
+from dcpy.models.lifecycle.ingest.configuration import SparseConfig
 from dcpy.connectors.registry import (
     StorageConnector,
     VersionedConnector,
 )
-from dcpy.models.lifecycle import ingest
 
 config_filename = "config.json"
 
@@ -21,8 +22,9 @@ class Connector(VersionedConnector):
         key: str,
         *,
         version: str,
+        acl: str | None = None,
         filepath: Path,
-        config: ingest.Config,
+        config: BaseModel,
         overwrite: bool = False,
         latest: bool = False,
         **kwargs,
@@ -46,12 +48,12 @@ class Connector(VersionedConnector):
             self.storage.push(
                 f"{dest_folder_path}/{filepath.name}",
                 filepath=filepath,
-                acl=config.archival.acl,
+                acl=acl,
             )
             self.storage.push(
                 f"{dest_folder_path}/config.json",
                 filepath=config_path,
-                acl=config.archival.acl,
+                acl=acl,
             )
 
             if latest:
@@ -59,12 +61,12 @@ class Connector(VersionedConnector):
                 self.storage.push(
                     f"{latest_folder_path}/{filepath.name}",
                     filepath=filepath,
-                    acl=config.archival.acl,
+                    acl=acl,
                 )
                 self.storage.push(
                     f"{latest_folder_path}/config.json",
                     filepath=config_path,
-                    acl=config.archival.acl,
+                    acl=acl,
                 )
         return {}
 
@@ -91,8 +93,8 @@ class Connector(VersionedConnector):
             with open(Path(tmp_dir) / config_filename, "r", encoding="utf-8") as raw:
                 return yaml.safe_load(raw.read())
 
-    def get_config(self, key: str, version: str) -> ingest.Config:
-        return ingest.Config(**self._get_config_obj(key, version))
+    def get_config(self, key: str, version: str) -> SparseConfig:
+        return SparseConfig(**self._get_config_obj(key, version))
 
     def _is_library(self, key: str, version: str) -> bool:
         """

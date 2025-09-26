@@ -17,7 +17,9 @@ TEST_DATA_NAME = "test"
 @pytest.fixture()
 def generate_fake_data(gdf: gpd.GeoDataFrame = None):
     """Generates test data in various data formats"""
-    if not gdf:
+    if gdf is not None:
+        gdf2 = gdf.copy()
+    else:
         gdf = generate_gdf()
         gdf2 = generate_gdf(
             columns=[

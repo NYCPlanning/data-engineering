@@ -19,7 +19,7 @@ from dcpy.models.connectors.edm.recipes import (
 )
 from dcpy.models import library
 from dcpy.connectors.registry import VersionedConnector
-from dcpy.models.lifecycle import ingest
+from dcpy.models.lifecycle.ingest import configuration as ingest
 from dcpy.utils import s3, postgres
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -63,7 +63,7 @@ def exists(ds: Dataset) -> bool:
 
 
 def archive_dataset(
-    config: ingest.Config,
+    config: ingest.IngestedDataset,
     file_path: Path,
     *,
     acl: ValidAclValues,
@@ -122,16 +122,16 @@ def get_config_obj(name: str, version="latest") -> dict:
     return yaml.safe_load(obj)
 
 
-def get_config(name: str, version="latest") -> library.Config | ingest.Config:
+def get_config(name: str, version="latest") -> library.Config | ingest.IngestedDataset:
     """Retrieve a recipe config from s3."""
     config = get_config_obj(name, version)
     if "dataset" in config:
         return library.Config(**config)
     else:
-        return ingest.Config(**config)
+        return ingest.IngestedDataset(**config)
 
 
-def try_get_config(dataset: Dataset) -> library.Config | ingest.Config | None:
+def try_get_config(dataset: Dataset) -> library.Config | ingest.IngestedDataset | None:
     """Retrieve a recipe config object, if exists"""
     if not exists(dataset):
         return None
@@ -383,8 +383,8 @@ def get_archival_metadata(
     match config:
         case library.Config():
             execution_details = config.execution_details
-        case ingest.Config():
-            execution_details = config.run_details
+        case ingest.IngestedDataset():
+            execution_details = config.transformation.run_details
     if execution_details:
         timestamp = execution_details.timestamp
         runner = execution_details.runner_string
