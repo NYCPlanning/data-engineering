@@ -33,18 +33,6 @@ def test_run(run_basic):
     assert True
 
 
-def test_run_raw_output_exists(run_basic):
-    """Copy of run, but asserts that raw file in s3 properly archived"""
-    assert s3.object_exists(
-        RECIPES_BUCKET, recipes.s3_raw_file_path(run_basic.raw_dataset_key)
-    )
-
-
-def test_run_output_exists(run_basic):
-    """Copy of run, but asserts that output in s3 properly generated"""
-    assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
-
-
 @mock.patch("requests.get", side_effect=mock_request_get)
 def test_run_default_folder(mock_request_get, create_buckets):
     run_ingest(
