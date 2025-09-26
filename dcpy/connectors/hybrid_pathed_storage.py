@@ -1,16 +1,20 @@
-import os
 from cloudpathlib.azure import AzureBlobClient
 from cloudpathlib import S3Client, CloudPath
 from dataclasses import dataclass
 from enum import Enum
-import logging
+import logging as default_logging
+import os
 from pathlib import Path
 import shutil
 from typing import Any, TypedDict, Optional, Union, Unpack
 
+from dcpy.utils.logging import logger
+from dcpy.connectors.registry import Connector
 
 DEFAULT_S3_URL = "https://nyc3.digitaloceanspaces.com"
-logging.getLogger("azure").setLevel("ERROR")  # The Azure info logging is... verbose
+default_logging.getLogger("azure").setLevel(
+    "ERROR"
+)  # The Azure info logging is... verbose
 
 
 class LocalPathWrapper:
@@ -182,8 +186,7 @@ class HybridPathedStorage:
                 raise ValueError(f"Unsupported storage backend: {storage_backend}")
 
 
-@dataclass
-class PathedStorageConnector:  # (StorageConnector):
+class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
     """Connector where all the keys are expected to be stringified relative paths.
 
     In theory they all work the same across all providers (s3, azure, localstorage, etc.) provided
@@ -192,25 +195,32 @@ class PathedStorageConnector:  # (StorageConnector):
 
     conn_type: str
     storage: HybridPathedStorage
-    _base_storage_kwargs: StorageKwargs
 
-    def __init__(
-        self,
+    # In the ideal world we'd use `StorageKwargs` here but Pydantic complains when
+    # optional TypedDict keys aren't present. (it expects the key to be present
+    # with a value of None)
+    base_storage_kwargs: dict[str, Any]
+
+    @staticmethod
+    def from_storage_kwargs(
         conn_type: str,
         _validate_root_path: bool = True,
         **storage_kwargs: Unpack[StorageKwargs],
-    ):
-        self.conn_type = conn_type
-        self.storage = HybridPathedStorage.from_args(**storage_kwargs)
+    ) -> "PathedStorageConnector":
+        storage = HybridPathedStorage.from_args(**storage_kwargs)
         if _validate_root_path:
-            print(f"validating {self.storage.root_path}")
-            assert self.storage.root_path.exists(), (
-                f"The root path {self.storage.root_path} doesn't exist"
+            logger.info(f"validating {storage.root_path}")
+            assert storage.root_path.exists(), (
+                f"The root path {storage.root_path} doesn't exist"
             )
 
         # there is a case where we have to create a different storage object, ie uploading to s3
         # so we need to stash the kwargs
-        self._base_storage_kwargs = storage_kwargs
+        return PathedStorageConnector(
+            conn_type=conn_type,
+            base_storage_kwargs=storage_kwargs,  # type: ignore
+            storage=storage,
+        )
 
     def push(self, key: str, **kwargs) -> dict:
         # Push a file or directory from local to storage at key
@@ -230,9 +240,9 @@ class PathedStorageConnector:  # (StorageConnector):
         # with the ACL and file metadata
         if self.storage.storage_type == StorageType.S3:
             dest_storage = HybridPathedStorage.Factory.s3(
-                root_folder=self._base_storage_kwargs.get("root_folder") or "",
-                s3_bucket=self._base_storage_kwargs["s3_bucket"],  # type: ignore
-                s3_endpoint_url=self._base_storage_kwargs.get("s3_endpoint_url"),
+                root_folder=self.base_storage_kwargs.get("root_folder") or "",
+                s3_bucket=self.base_storage_kwargs["s3_bucket"],  # type: ignore
+                s3_endpoint_url=self.base_storage_kwargs.get("s3_endpoint_url"),
                 s3_public_upload_files=(acl == "public-read"),
                 s3_file_metadata=metadata,
             )

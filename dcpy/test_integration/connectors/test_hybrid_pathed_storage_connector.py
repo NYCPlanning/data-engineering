@@ -43,7 +43,7 @@ def _test_paths(conn: PathedStorageConnector, local_dir: Path):
 
 
 def test_local_paths(tmp_path):
-    conn = PathedStorageConnector(
+    conn = PathedStorageConnector.from_storage_kwargs(
         conn_type="local_test",
         storage_backend=StorageType.LOCAL,
         local_dir=tmp_path,

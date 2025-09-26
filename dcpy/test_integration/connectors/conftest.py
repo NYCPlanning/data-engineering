@@ -23,7 +23,7 @@ def test_path():
 
 @pytest.fixture
 def azure_storage_connector():
-    conn = PathedStorageConnector(
+    conn = PathedStorageConnector.from_storage_kwargs(
         conn_type="az_test",
         storage_backend=StorageType.AZURE,
         az_container_name="test",
@@ -42,7 +42,7 @@ def azure_storage_connector():
 def s3_storage_connector():
     s3_bucket = os.getenv("TEST_S3_BUCKET")
     assert s3_bucket, "Integration tests require a s3 bucket to be specified"
-    conn = PathedStorageConnector(
+    conn = PathedStorageConnector.from_storage_kwargs(
         conn_type="s3_test",
         storage_backend=StorageType.S3,
         s3_bucket=s3_bucket,

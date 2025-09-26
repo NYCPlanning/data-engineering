@@ -3,9 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import yaml
 
-from dcpy.connectors.registry import (
-    VersionedConnector,
-)
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector
 from dcpy.models.lifecycle import ingest
 

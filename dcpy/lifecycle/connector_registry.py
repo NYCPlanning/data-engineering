@@ -29,7 +29,7 @@ def _make_ingest_datastores():
     return [
         [
             ingest_datastore.Connector(
-                storage=PathedStorageConnector(
+                storage=PathedStorageConnector.from_storage_kwargs(
                     conn_type="s3_test",
                     storage_backend=StorageType.S3,
                     s3_bucket="edm-recipes",
@@ -41,7 +41,7 @@ def _make_ingest_datastores():
         ],
         [
             ingest_datastore.Connector(
-                storage=PathedStorageConnector(
+                storage=PathedStorageConnector.from_storage_kwargs(
                     conn_type="s3_test",
                     storage_backend=StorageType.S3,
                     s3_bucket="edm-recipes",

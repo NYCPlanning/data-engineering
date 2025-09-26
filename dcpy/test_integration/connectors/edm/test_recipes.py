@@ -66,7 +66,7 @@ def s3_recipes_repo(s3_storage_connector):
 @pytest.fixture
 def local_recipes_repo(tmp_path):
     repo = Connector(
-        storage=PathedStorageConnector(
+        storage=PathedStorageConnector.from_storage_kwargs(
             conn_type="local_test",
             storage_backend=StorageType.LOCAL,
             local_dir=tmp_path,
