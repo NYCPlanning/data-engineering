@@ -21,8 +21,7 @@ from dcpy.models.connectors.edm.publishing import (
 from dcpy.utils.s3 import get_subfolders
 from dcpy.connectors.edm import recipes, publishing
 from dcpy.lifecycle.builds import plan
-from dcpy.lifecycle.connector_registry import connectors
-from dcpy.lifecycle import config
+from dcpy.lifecycle.builds import get_recipes_default_connector
 
 
 ROOT_PATH = Path(__file__).parent.parent.parent
@@ -71,8 +70,7 @@ def resolve_latest_recipe(
     assert configuration.RECIPES_BUCKET != PROD_RECIPES_BUCKET
     input = recipes.Dataset(id=ds, version="latest")
 
-    recipes_conn_name = config.stage_config("builds.load")["default_connector"]
-    version = connectors.versioned[recipes_conn_name].get_latest_version(ds)
+    version = get_recipes_default_connector().get_latest_version(ds)
     resolved = recipes.Dataset(id=ds, version=version)
     os.environ["RECIPES_BUCKET"] = PROD_RECIPES_BUCKET
     importlib.reload(configuration)
