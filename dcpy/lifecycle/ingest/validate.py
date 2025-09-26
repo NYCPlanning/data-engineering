@@ -39,25 +39,24 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
         )
 
 
-def validate_template_file(filepath: Path) -> None:
-    """Validate a single template file."""
-    template = read_definition(filepath)
-    violations = find_definition_validation_errors(template)
+def validate_definition_file(filepath: Path) -> None:
+    """Validate a single definition file."""
+    definition = read_definition(filepath)
+    violations = find_definition_validation_errors(definition)
     if violations:
-        raise ValueError(f"Template violations found: {violations}")
+        raise ValueError(f"Definition violations found: {violations}")
 
 
-def validate_template_folder(folder_path: Path) -> list[str]:
-    """Validate all template files in a folder and return a list of error messages."""
+def validate_definition_folder(folder_path: Path) -> dict[str, str]:
+    """Validate all definition files in a folder and return a list of error messages."""
     if not folder_path.exists():
-        return [f"Template directory '{folder_path}' doesn't exist."]
+        raise FileNotFoundError(f"Definition directory '{folder_path}' doesn't exist.")
 
-    errors = []
+    errors = {}
     for file_path in folder_path.glob("*"):
-        if file_path.is_file():
-            try:
-                validate_template_file(file_path)
-            except (TypeError, ValueError) as e:
-                errors.append(f"{file_path.name}: {str(e)}")
+        try:
+            validate_definition_file(file_path)
+        except (TypeError, ValueError) as e:
+            errors[file_path.name] = str(e)
 
     return errors

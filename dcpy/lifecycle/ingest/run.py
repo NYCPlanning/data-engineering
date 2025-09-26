@@ -10,7 +10,7 @@ from dcpy.models.lifecycle.ingest.configuration import (
     IngestedDataset,
     Transformation,
 )
-from dcpy.configuration import TEMPLATE_DIR
+from dcpy.configuration import INGEST_DEF_DIR
 from dcpy.lifecycle import config
 from dcpy.lifecycle.ingest.connectors import raw_datastore, processed_datastore
 
@@ -21,9 +21,9 @@ INGEST_DIR = config.local_data_path_for_stage(LIFECYCLE_STAGE)
 
 INGEST_STAGING_DIR = INGEST_DIR / "staging"
 INGEST_OUTPUT_DIR = INGEST_DIR / "datasets"
-RESOLVED_CONFIG_FILENAME = "config.json"
-STAGING_DATASOURCE_CONFIG_FILENAME = "datasource_config.json"
-DATASET_CONFIG_FILENAME = "dataset_config.json"
+RESOLVED_CONFIG_FILENAME = "definition.lock.json"
+STAGING_DATASOURCE_CONFIG_FILENAME = "datasource.json"
+DATASET_CONFIG_FILENAME = "config.json"
 
 
 def extract_and_archive_raw_dataset(
@@ -158,13 +158,10 @@ def ingest(
     latest: bool = False,
     push: bool = False,
     output_csv: bool = False,
-    definition_dir: Path | None = TEMPLATE_DIR,
+    definition_dir: Path = INGEST_DEF_DIR,
     local_file_path: Path | None = None,
     overwrite_okay: bool = False,
 ) -> list[IngestedDataset]:
-    if definition_dir is None:
-        raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
-
     run_details = metadata.get_run_details()
 
     if staging_dir.exists():
@@ -180,7 +177,7 @@ def ingest(
         local_file_path=local_file_path,
     )
 
-    resolved_config.dump_json(staging_dir / "definition.lock.json")
+    resolved_config.dump_json(staging_dir / RESOLVED_CONFIG_FILENAME)
 
     datasource_config = extract_and_archive_raw_dataset(
         resolved_config,
@@ -234,6 +231,5 @@ def ingest(
             )
         else:
             logger.info("Skipping archival")
-        configs.append(dataset_config)
 
     return configs

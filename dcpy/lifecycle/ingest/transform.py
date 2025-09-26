@@ -20,8 +20,8 @@ OUTPUT_GEOM_COLUMN = "geom"
 def determine_processing_steps(
     steps: list[ProcessingStep],
     *,
-    target_crs: str | None,
-    mode: str | None,
+    target_crs: str | None = None,
+    mode: str | None = None,
 ) -> list[ProcessingStep]:
     # TODO default steps like this should probably be configuration
     step_names = {p.name for p in steps}
