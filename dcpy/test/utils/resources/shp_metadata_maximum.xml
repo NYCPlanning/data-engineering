@@ -1,0 +1,2289 @@
+<?xml version="1.0"?>
+<metadata xml:lang="en">
+    <Esri>
+        <CreaDate>20250912</CreaDate>
+        <CreaTime>17452500</CreaTime>
+        <ArcGISFormat>1.0</ArcGISFormat>
+        <SyncOnce>FALSE</SyncOnce>
+        <scaleRange>
+            <minScale>150000000</minScale>
+            <maxScale>5000</maxScale>
+        </scaleRange>
+        <DataProperties>
+            <itemProps>
+                <imsContentType export="False">002</imsContentType>
+                <itemName Sync="TRUE">filename</itemName>
+                <itemSize Sync="TRUE">0.000</itemSize>
+                <itemLocation>
+                    <linkage Sync="TRUE">
+                        file://\\MACHINE-NAME\C$\Users\J_Jacobs\Desktop\_scratch\filename.shp</linkage>
+                    <protocol Sync="TRUE">Local Area Network</protocol>
+                </itemLocation>
+            </itemProps>
+            <coordRef>
+                <type Sync="TRUE">Projected</type>
+                <geogcsn Sync="TRUE">GCS_North_American_1983</geogcsn>
+                <csUnits Sync="TRUE">Linear Unit: Foot_US (0.304801)</csUnits>
+                <projcsn Sync="TRUE">NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet</projcsn>
+                <peXml Sync="TRUE">
+                    &lt;ProjectedCoordinateSystem
+                    xsi:type='typens:ProjectedCoordinateSystem'
+                    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                    xmlns:xs='http://www.w3.org/2001/XMLSchema'
+                    xmlns:typens='http://www.esri.com/schemas/ArcGIS/3.1.0'&gt;&lt;WKT&gt;PROJCS[&amp;quot;NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet&amp;quot;,GEOGCS[&amp;quot;GCS_North_American_1983&amp;quot;,DATUM[&amp;quot;D_North_American_1983&amp;quot;,SPHEROID[&amp;quot;GRS_1980&amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;quot;Greenwich&amp;quot;,0.0],UNIT[&amp;quot;Degree&amp;quot;,0.0174532925199433]],PROJECTION[&amp;quot;Lambert_Conformal_Conic&amp;quot;],PARAMETER[&amp;quot;False_Easting&amp;quot;,984250.0],PARAMETER[&amp;quot;False_Northing&amp;quot;,0.0],PARAMETER[&amp;quot;Central_Meridian&amp;quot;,-74.0],PARAMETER[&amp;quot;Standard_Parallel_1&amp;quot;,40.66666666666666],PARAMETER[&amp;quot;Standard_Parallel_2&amp;quot;,41.03333333333333],PARAMETER[&amp;quot;Latitude_Of_Origin&amp;quot;,40.16666666666666],UNIT[&amp;quot;Foot_US&amp;quot;,0.3048006096012192],AUTHORITY[&amp;quot;EPSG&amp;quot;,2263]]&lt;/WKT&gt;&lt;XOrigin&gt;-120039300&lt;/XOrigin&gt;&lt;YOrigin&gt;-96540300&lt;/YOrigin&gt;&lt;XYScale&gt;37212589.015695661&lt;/XYScale&gt;&lt;ZOrigin&gt;-100000&lt;/ZOrigin&gt;&lt;ZScale&gt;10000&lt;/ZScale&gt;&lt;MOrigin&gt;-100000&lt;/MOrigin&gt;&lt;MScale&gt;10000&lt;/MScale&gt;&lt;XYTolerance&gt;0.0032808333333333331&lt;/XYTolerance&gt;&lt;ZTolerance&gt;0.001&lt;/ZTolerance&gt;&lt;MTolerance&gt;0.001&lt;/MTolerance&gt;&lt;HighPrecision&gt;true&lt;/HighPrecision&gt;&lt;WKID&gt;102718&lt;/WKID&gt;&lt;LatestWKID&gt;2263&lt;/LatestWKID&gt;&lt;/ProjectedCoordinateSystem&gt;</peXml>
+            </coordRef>
+            <lineage>
+                <Process
+                    ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Conversion Tools.tbx\ExportFeatures"
+                    Date="20250923" Time="145201" Name="" export="">ExportFeatures iso_mvp
+                    C:\Users\J_Jacobs\Desktop\_scratch\filename.shp # NOT_USE_ALIAS "Id "Id"
+                    true true false 6 Long 0 6,First,#,iso_mvp,Id,-1,-1;lorem "lorem" true true
+                    false 254 Text 0 0,First,#,iso_mvp,lorem,0,254;ipsum "ipsum" true true false 19
+                    Double 0 0,First,#,iso_mvp,ipsum,-1,-1" #</Process>
+            </lineage>
+        </DataProperties>
+        <ArcGISProfile>ISO19139</ArcGISProfile>
+        <locales>
+            <locale language="eng" country="US" xmlns="">
+                <resTitle>Locale title</resTitle>
+                <idAbs>Locale abstract</idAbs>
+            </locale>
+        </locales>
+        <SyncDate>20250923</SyncDate>
+        <SyncTime>14520100</SyncTime>
+        <ModDate>20250924</ModDate>
+        <ModTime>11360600</ModTime>
+    </Esri>
+    <dataIdInfo>
+        <idAbs>&lt;DIV STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;This
+            is a description&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</idAbs>
+        <idCitation xmlns="">
+            <resTitle>This is a title</resTitle>
+            <date>
+                <pubDate>1970-01-01T00:00:00</pubDate>
+                <createDate>1970-01-01T00:00:00</createDate>
+                <reviseDate>1970-01-01T00:00:00</reviseDate>
+            </date>
+            <citRespParty xmlns="">
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+            </citRespParty>
+            <resAltTitle>This is an alternative title</resAltTitle>
+            <collTitle>This is a collective title</collTitle>
+            <resEd>1</resEd>
+            <resEdDate>19700101</resEdDate>
+            <datasetSeries>
+                <seriesName>Series name</seriesName>
+                <issId>Series issue</issId>
+                <artPage>Series page</artPage>
+            </datasetSeries>
+            <isbn>ISBN</isbn>
+            <issn>ISSN</issn>
+            <otherCitDet>Other details</otherCitDet>
+            <citId xmlns="">
+                <identCode>Identifier code</identCode>
+            </citId>
+            <presForm>
+                <PresFormCd value="005" Sync="TRUE" />
+            </presForm>
+        </idCitation>
+        <dataExt xmlns="">
+            <geoEle xmlns="">
+                <GeoBndBox esriExtentType="search">
+                    <westBL>-74.27</westBL>
+                    <eastBL>-73.68</eastBL>
+                    <northBL>40.92</northBL>
+                    <southBL>40.49</southBL>
+                    <exTypeCode>0</exTypeCode>
+                </GeoBndBox>
+            </geoEle>
+            <exDesc>Description</exDesc>
+            <tempEle>
+                <TempExtent>
+                    <exTemp>
+                        <TM_Period xmlns="">
+                            <tmBegin>1970-01-01T00:00:00</tmBegin>
+                            <tmEnd>1970-01-01T00:00:00</tmEnd>
+                        </TM_Period>
+                    </exTemp>
+                </TempExtent>
+            </tempEle>
+            <tempEle>
+                <TempExtent>
+                    <exTemp>
+                        <TM_Instant>
+                            <tmPosition>1970-01-01T00:00:00</tmPosition>
+                        </TM_Instant>
+                    </exTemp>
+                </TempExtent>
+            </tempEle>
+            <vertEle xmlns="">
+                <vertMinVal>0</vertMinVal>
+                <vertMaxVal>1</vertMaxVal>
+            </vertEle>
+            <geoEle xmlns="">
+                <GeoDesc>
+                    <exTypeCode>0</exTypeCode>
+                    <geoId xmlns="">
+                        <identCode>Code</identCode>
+                        <identAuth xmlns="">
+                            <resTitle>Title</resTitle>
+                            <resAltTitle>Alternate title</resAltTitle>
+                            <collTitle>Collective title</collTitle>
+                            <date>
+                                <createDate>1970-01-01T00:00:00</createDate>
+                                <pubDate>1970-01-01T00:00:00</pubDate>
+                                <reviseDate>1970-01-01T00:00:00</reviseDate>
+                            </date>
+                            <resEd>Edition</resEd>
+                            <resEdDate>19700101</resEdDate>
+                            <datasetSeries>
+                                <seriesName>Name</seriesName>
+                                <issId>Issue</issId>
+                                <artPage>Page</artPage>
+                            </datasetSeries>
+                            <isbn>ISBN</isbn>
+                            <issn>ISSN</issn>
+                            <otherCitDet>Other details</otherCitDet>
+                            <citOnlineRes xmlns="">
+                                <linkage>Linkage</linkage>
+                                <protocol>Protocol</protocol>
+                                <appProfile>Profile</appProfile>
+                                <orName>Name</orName>
+                                <orDesc>Description</orDesc>
+                                <orFunct>
+                                    <OnFunctCd value="001" />
+                                </orFunct>
+                            </citOnlineRes>
+                            <citRespParty xmlns="">
+                                <editorSource>external</editorSource>
+                                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                                <rpCntInfo xmlns="">
+                                    <cntAddress addressType="both">
+                                        <delPoint>120 Broadway</delPoint>
+                                        <city>New York</city>
+                                        <adminArea>New York</adminArea>
+                                        <postCode>10271</postCode>
+                                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                        <country>US</country>
+                                    </cntAddress>
+                                    <cntPhone>
+                                        <voiceNum tddtty="">Phone number</voiceNum>
+                                        <faxNum>Fax number</faxNum>
+                                    </cntPhone>
+                                    <cntHours>Hours</cntHours>
+                                    <cntInstr>Instructions</cntInstr>
+                                </rpCntInfo>
+                                <rpIndName>Name</rpIndName>
+                                <rpPosName>Position</rpPosName>
+                                <editorSave>True</editorSave>
+                                <displayName>Name</displayName>
+                                <role>
+                                    <RoleCd value="007" />
+                                </role>
+                            </citRespParty>
+                        </identAuth>
+                    </geoId>
+                </GeoDesc>
+            </geoEle>
+        </dataExt>
+        <dataLang>
+            <languageCode value="eng" />
+            <countryCode value="USA" Sync="TRUE" />
+        </dataLang>
+        <dataChar>
+            <CharSetCd value="004" />
+        </dataChar>
+        <idPurp>This is a summary</idPurp>
+        <idCredit>These are credits</idCredit>
+        <themeKeys xmlns="">
+            <keyword>theme keyword</keyword>
+        </themeKeys>
+        <placeKeys xmlns="">
+            <keyword>place keyword</keyword>
+        </placeKeys>
+        <tempKeys xmlns="">
+            <keyword>temporal keyword</keyword>
+        </tempKeys>
+        <discKeys xmlns="">
+            <keyword>discipline keyword</keyword>
+        </discKeys>
+        <stratKeys xmlns="">
+            <keyword>stratum keyword</keyword>
+        </stratKeys>
+        <otherKeys xmlns="">
+            <keyword>other keyword</keyword>
+        </otherKeys>
+        <dataScale xmlns="">
+            <equScale>
+                <rfDenom>1961</rfDenom>
+            </equScale>
+            <scaleDist>
+                <value uom="[ft_us]">0</value>
+            </scaleDist>
+        </dataScale>
+        <envirDesc>Processing environment</envirDesc>
+        <suppInfo>Supplemental information</suppInfo>
+        <idStatus>
+            <ProgCd value="004" />
+        </idStatus>
+        <graphOver xmlns="">
+            <bgFileName>File name</bgFileName>
+            <bgFileDesc>Description</bgFileDesc>
+            <bgFileType>File type</bgFileType>
+        </graphOver>
+        <idSpecUse xmlns="">
+            <specUsage>Specific usage</specUsage>
+            <usageDate>1970-01-01T00:00:00</usageDate>
+            <usrDetLim>Limitations</usrDetLim>
+            <usrCntInfo xmlns="">
+                <editorSource>external</editorSource>
+                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+                <editorSave>True</editorSave>
+                <displayName>Name</displayName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+            </usrCntInfo>
+        </idSpecUse>
+        <dsFormat xmlns="">
+            <formatName>Format name</formatName>
+            <formatVer>Format version</formatVer>
+            <formatAmdNum>Amendment number</formatAmdNum>
+            <formatSpec>Specification</formatSpec>
+            <fileDecmTech>Decompression technique</fileDecmTech>
+            <formatInfo>Information content</formatInfo>
+        </dsFormat>
+        <idPoC xmlns="">
+            <editorSource>external</editorSource>
+            <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+            <rpOrgName>New York City Department of City Planning</rpOrgName>
+            <rpCntInfo xmlns="">
+                <cntAddress addressType="both">
+                    <delPoint>120 Broadway</delPoint>
+                    <city>New York</city>
+                    <adminArea>New York</adminArea>
+                    <postCode>10271</postCode>
+                    <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                    <country>US</country>
+                </cntAddress>
+                <cntPhone>
+                    <voiceNum tddtty="">Phone number</voiceNum>
+                    <faxNum>Fax number</faxNum>
+                </cntPhone>
+                <cntHours>Hours</cntHours>
+                <cntInstr>Instructions</cntInstr>
+            </rpCntInfo>
+            <rpIndName>Name</rpIndName>
+            <rpPosName>Position</rpPosName>
+            <editorSave>True</editorSave>
+            <displayName>Name</displayName>
+            <role>
+                <RoleCd value="007" />
+            </role>
+        </idPoC>
+        <resMaint xmlns="">
+            <maintFreq>
+                <MaintFreqCd value="012" />
+            </maintFreq>
+            <dateNext>1970-01-01T00:00:00</dateNext>
+            <usrDefFreq>
+                <duration>Custom frequency</duration>
+            </usrDefFreq>
+            <maintScp>
+                <ScopeCd value="005" />
+            </maintScp>
+            <upScpDesc xmlns="">
+                <attribSet>Attributes</attribSet>
+                <featSet>Features</featSet>
+                <featIntSet>Feature instances</featIntSet>
+                <attribIntSet>Attribute instances</attribIntSet>
+                <datasetSet>Dataset</datasetSet>
+                <other>Other instances</other>
+            </upScpDesc>
+            <maintCont xmlns="">
+                <editorSource>external</editorSource>
+                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+                <editorSave>True</editorSave>
+                <displayName>Name</displayName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+            </maintCont>
+            <maintNote>Maintenance note</maintNote>
+        </resMaint>
+        <resConst>
+            <Consts xmlns="">
+                <useLimit>&lt;DIV
+                    STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;Use
+                    limitation&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</useLimit>
+            </Consts>
+        </resConst>
+        <resConst>
+            <LegConsts xmlns="">
+                <accessConsts>
+                    <RestrictCd value="005" />
+                </accessConsts>
+                <useConsts>
+                    <RestrictCd value="005" />
+                </useConsts>
+                <useLimit>Use limitation</useLimit>
+                <othConsts>Other constraints</othConsts>
+            </LegConsts>
+        </resConst>
+        <resConst>
+            <SecConsts xmlns="">
+                <class>
+                    <ClasscationCd value="001" />
+                </class>
+                <userNote>User note</userNote>
+                <classSys>Classification system</classSys>
+                <handDesc>Handling description</handDesc>
+                <useLimit>Use limitation</useLimit>
+            </SecConsts>
+        </resConst>
+        <aggrInfo xmlns="">
+            <assocType>
+                <AscTypeCd value="001" />
+            </assocType>
+            <initType>
+                <InitTypCd value="001" />
+            </initType>
+            <aggrDSName xmlns="">
+                <resTitle>Title</resTitle>
+                <resAltTitle>Alternate title</resAltTitle>
+                <collTitle>Collective title</collTitle>
+                <date>
+                    <createDate>1970-01-01T00:00:00</createDate>
+                    <pubDate>1970-01-01T00:00:00</pubDate>
+                    <reviseDate>1970-01-01T00:00:00</reviseDate>
+                </date>
+                <resEd>Edition</resEd>
+                <resEdDate>19700101</resEdDate>
+                <datasetSeries>
+                    <seriesName>Name</seriesName>
+                    <issId>Issue</issId>
+                    <artPage>Page</artPage>
+                </datasetSeries>
+                <isbn>ISBN</isbn>
+                <issn>ISSN</issn>
+                <otherCitDet>Other details</otherCitDet>
+                <citOnlineRes xmlns="">
+                    <linkage>Linkage</linkage>
+                    <protocol>Protocol</protocol>
+                    <appProfile>Profile</appProfile>
+                    <orName>Name</orName>
+                    <orDesc>Description</orDesc>
+                    <orFunct>
+                        <OnFunctCd value="001" />
+                    </orFunct>
+                </citOnlineRes>
+                <presForm xmlns="">
+                    <fgdcGeoform>atlas</fgdcGeoform>
+                    <PresFormCd value="001" />
+                </presForm>
+                <citId xmlns="">
+                    <identCode>Code</identCode>
+                </citId>
+                <citRespParty xmlns="">
+                    <editorSource>external</editorSource>
+                    <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                    <rpOrgName>New York City Department of City Planning</rpOrgName>
+                    <rpCntInfo xmlns="">
+                        <cntAddress addressType="both">
+                            <delPoint>120 Broadway</delPoint>
+                            <city>New York</city>
+                            <adminArea>New York</adminArea>
+                            <postCode>10271</postCode>
+                            <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                            <country>US</country>
+                        </cntAddress>
+                        <cntPhone>
+                            <voiceNum tddtty="">Phone number</voiceNum>
+                            <faxNum>Fax number</faxNum>
+                        </cntPhone>
+                        <cntHours>Hours</cntHours>
+                        <cntInstr>Instructions</cntInstr>
+                    </rpCntInfo>
+                    <rpIndName>Name</rpIndName>
+                    <rpPosName>Position</rpPosName>
+                    <editorSave>True</editorSave>
+                    <displayName>Name</displayName>
+                    <role>
+                        <RoleCd value="007" />
+                    </role>
+                </citRespParty>
+            </aggrDSName>
+            <aggrDSIdent xmlns="">
+                <identCode>Code</identCode>
+            </aggrDSIdent>
+        </aggrInfo>
+        <spatRpType>
+            <SpatRepTypCd value="001" Sync="TRUE" />
+        </spatRpType>
+        <searchKeys>
+            <keyword>tag</keyword>
+            <keyword>tag_1</keyword>
+            <keyword>tag_2</keyword>
+        </searchKeys>
+        <tpCat>
+            <TopicCatCd value="015" />
+        </tpCat>
+        <tpCat>
+            <TopicCatCd value="003" />
+        </tpCat>
+    </dataIdInfo>
+    <mdHrLv>
+        <ScopeCd value="005" />
+    </mdHrLv>
+    <mdLang>
+        <languageCode value="eng" />
+        <countryCode value="USA" Sync="TRUE" />
+    </mdLang>
+    <mdChar>
+        <CharSetCd value="004" />
+    </mdChar>
+    <mdDateSt Sync="FALSE">19700101</mdDateSt>
+    <dataSetURI>Dataset URI</dataSetURI>
+    <mdFileID>File identifier</mdFileID>
+    <mdParentID>Parent identifier</mdParentID>
+    <mdHrLvName>Hierarchy level name</mdHrLvName>
+    <mdContact xmlns="">
+        <editorSource>external</editorSource>
+        <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+        <rpOrgName>New York City Department of City Planning</rpOrgName>
+        <rpCntInfo xmlns="">
+            <cntAddress addressType="both">
+                <delPoint>120 Broadway</delPoint>
+                <city>New York</city>
+                <adminArea>New York</adminArea>
+                <postCode>10271</postCode>
+                <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                <country>US</country>
+            </cntAddress>
+            <cntPhone>
+                <voiceNum tddtty="">Phone number</voiceNum>
+                <faxNum>Fax number</faxNum>
+            </cntPhone>
+            <cntHours>Hours</cntHours>
+            <cntInstr>Instructions</cntInstr>
+        </rpCntInfo>
+        <rpIndName>Name</rpIndName>
+        <rpPosName>Position</rpPosName>
+        <editorSave>True</editorSave>
+        <displayName>Name</displayName>
+        <role>
+            <RoleCd value="007" />
+        </role>
+    </mdContact>
+    <mdMaint xmlns="">
+        <maintFreq>
+            <MaintFreqCd value="012" />
+        </maintFreq>
+        <dateNext>1970-01-01T00:00:00</dateNext>
+        <usrDefFreq>
+            <duration>Custom frequency</duration>
+        </usrDefFreq>
+        <maintScp>
+            <ScopeCd value="005" />
+        </maintScp>
+        <upScpDesc xmlns="">
+            <attribSet>Scope description attributes</attribSet>
+            <featSet>Scope description features</featSet>
+            <featIntSet>Scope description feature instances</featIntSet>
+            <attribIntSet>Scope description attribute instances</attribIntSet>
+            <datasetSet>Scope description dataset</datasetSet>
+            <other>Scope description other instances</other>
+        </upScpDesc>
+        <maintCont xmlns="">
+            <editorSource>external</editorSource>
+            <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+            <rpOrgName>New York City Department of City Planning</rpOrgName>
+            <rpCntInfo xmlns="">
+                <cntAddress addressType="both">
+                    <delPoint>120 Broadway</delPoint>
+                    <city>New York</city>
+                    <adminArea>New York</adminArea>
+                    <postCode>10271</postCode>
+                    <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                    <country>US</country>
+                </cntAddress>
+                <cntPhone>
+                    <voiceNum tddtty="">Phone number</voiceNum>
+                    <faxNum>Fax number</faxNum>
+                </cntPhone>
+                <cntHours>Hours</cntHours>
+                <cntInstr>Instructions</cntInstr>
+            </rpCntInfo>
+            <rpIndName>Name</rpIndName>
+            <rpPosName>Position</rpPosName>
+            <editorSave>True</editorSave>
+            <displayName>Name</displayName>
+            <role>
+                <RoleCd value="007" />
+            </role>
+        </maintCont>
+        <maintNote>Maintenance note</maintNote>
+    </mdMaint>
+    <mdConst>
+        <Consts xmlns="">
+            <useLimit>&lt;DIV
+                STYLE="text-align:Left;"&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;General
+                constraints - use
+                limitation&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</useLimit>
+        </Consts>
+    </mdConst>
+    <mdConst>
+        <LegConsts xmlns="">
+            <useLimit>Legal constraints - use limitation</useLimit>
+            <othConsts>Legal constraints - other constraints</othConsts>
+        </LegConsts>
+    </mdConst>
+    <mdConst>
+        <SecConsts xmlns="">
+            <class>
+                <ClasscationCd value="001" />
+            </class>
+            <userNote>User note</userNote>
+            <classSys>Classification system</classSys>
+            <handDesc>Handling description</handDesc>
+            <useLimit>Security constraints - use limitation</useLimit>
+        </SecConsts>
+    </mdConst>
+    <refSysInfo>
+        <RefSystem dimension="">
+            <refSysID xmlns="">
+                <identCode code="Code" />
+                <idCodeSpace>Code space</idCodeSpace>
+                <idVersion>Version</idVersion>
+                <identAuth xmlns="">
+                    <resTitle>Title</resTitle>
+                    <resAltTitle>Alternate title</resAltTitle>
+                    <collTitle>Collective title</collTitle>
+                    <date>
+                        <createDate>1970-01-01T00:00:00</createDate>
+                        <pubDate>1970-01-01T00:00:00</pubDate>
+                        <reviseDate>1970-01-01T00:00:00</reviseDate>
+                    </date>
+                    <resEd>Edition</resEd>
+                    <resEdDate>19700101</resEdDate>
+                    <datasetSeries>
+                        <seriesName>Name</seriesName>
+                        <issId>Issue</issId>
+                        <artPage>Page</artPage>
+                    </datasetSeries>
+                    <isbn>ISBN</isbn>
+                    <issn>ISSN</issn>
+                    <otherCitDet>Other details</otherCitDet>
+                    <citOnlineRes xmlns="">
+                        <linkage>Linkage</linkage>
+                        <protocol>Protocol</protocol>
+                        <appProfile>Profile</appProfile>
+                        <orName>Name</orName>
+                        <orDesc>Description</orDesc>
+                    </citOnlineRes>
+                    <presForm xmlns="">
+                        <fgdcGeoform>document</fgdcGeoform>
+                        <PresFormCd value="001" />
+                    </presForm>
+                    <citId xmlns="">
+                        <identCode>Code</identCode>
+                    </citId>
+                    <citRespParty xmlns="">
+                        <editorSource>external</editorSource>
+                        <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                        <rpOrgName>New York City Department of City Planning</rpOrgName>
+                        <rpCntInfo xmlns="">
+                            <cntAddress addressType="both">
+                                <delPoint>120 Broadway</delPoint>
+                                <city>New York</city>
+                                <adminArea>New York</adminArea>
+                                <postCode>10271</postCode>
+                                <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                <country>US</country>
+                            </cntAddress>
+                            <cntPhone>
+                                <voiceNum tddtty="">Phone number</voiceNum>
+                                <faxNum>Fax number</faxNum>
+                            </cntPhone>
+                            <cntHours>Hours</cntHours>
+                            <cntInstr>Instructions</cntInstr>
+                        </rpCntInfo>
+                        <rpIndName>Name</rpIndName>
+                        <rpPosName>Position</rpPosName>
+                        <editorSave>True</editorSave>
+                        <displayName>Name</displayName>
+                        <role>
+                            <RoleCd value="007" />
+                        </role>
+                    </citRespParty>
+                </identAuth>
+            </refSysID>
+        </RefSystem>
+    </refSysInfo>
+    <spatRepInfo>
+        <GridSpatRep xmlns="">
+            <numDims>1961</numDims>
+            <axisDimension type="001" xmlns="">
+                <dimSize>1</dimSize>
+                <dimResol>
+                    <value uom="[ft_us]">1</value>
+                </dimResol>
+            </axisDimension>
+            <cellGeo>
+                <CellGeoCd value="001" />
+            </cellGeo>
+            <tranParaAv>True</tranParaAv>
+            <axisDimension type="002" xmlns="">
+                <dimSize>1</dimSize>
+                <dimResol>
+                    <value uom="[ft_us]">1</value>
+                </dimResol>
+            </axisDimension>
+        </GridSpatRep>
+        <VectSpatRep>
+            <geometObjs Name="filename">
+                <geoObjTyp>
+                    <GeoObjTypCd value="004" Sync="TRUE" />
+                </geoObjTyp>
+                <geoObjCnt Sync="TRUE">0</geoObjCnt>
+            </geometObjs>
+            <topLvl>
+                <TopoLevCd value="001" Sync="TRUE" />
+            </topLvl>
+        </VectSpatRep>
+    </spatRepInfo>
+    <spatRepInfo>
+        <Georect xmlns="">
+            <numDims>1961</numDims>
+            <axisDimension type="001" xmlns="">
+                <dimSize>1</dimSize>
+                <dimResol>
+                    <value uom="[ft_us]">1</value>
+                </dimResol>
+            </axisDimension>
+            <cellGeo>
+                <CellGeoCd value="001" />
+            </cellGeo>
+            <tranParaAv>True</tranParaAv>
+            <chkPtAv>True</chkPtAv>
+            <chkPtDesc>Check point description</chkPtDesc>
+            <centerPt xmlns="">
+                <gmlDesc>Description</gmlDesc>
+                <gmlDescRef>Reference</gmlDescRef>
+                <gmlIdent codeSpace="Identifier codespace">Identifier</gmlIdent>
+                <pos>1961</pos>
+            </centerPt>
+            <ptInPixel>
+                <PixOrientCd value="001" />
+            </ptInPixel>
+            <transDimDesc>Transformation dimension description</transDimDesc>
+            <transDimMap>Transformation dimension mapping</transDimMap>
+            <cornerPts xmlns="">
+                <gmlDesc>Description</gmlDesc>
+                <gmlDescRef>Reference</gmlDescRef>
+                <gmlIdent codeSpace="Identifier codespace">Identifier</gmlIdent>
+                <pos>1961</pos>
+            </cornerPts>
+        </Georect>
+        <VectSpatRep>
+            <geometObjs Name="filename">
+                <geoObjTyp>
+                    <GeoObjTypCd value="004" Sync="TRUE" />
+                </geoObjTyp>
+                <geoObjCnt Sync="TRUE">0</geoObjCnt>
+            </geometObjs>
+            <topLvl>
+                <TopoLevCd value="001" Sync="TRUE" />
+            </topLvl>
+        </VectSpatRep>
+    </spatRepInfo>
+    <spatRepInfo>
+        <Georef xmlns="">
+            <numDims>1961</numDims>
+            <axisDimension type="001" xmlns="">
+                <dimSize>1</dimSize>
+                <dimResol>
+                    <value uom="[ft_us]">1</value>
+                </dimResol>
+            </axisDimension>
+            <cellGeo>
+                <CellGeoCd value="001" />
+            </cellGeo>
+            <tranParaAv>True</tranParaAv>
+            <ctrlPtAv>True</ctrlPtAv>
+            <orieParaAv>True</orieParaAv>
+            <orieParaDs>Orientation parameter description</orieParaDs>
+            <georefPars>Georeferenced parameters</georefPars>
+            <paraCit xmlns="">
+                <resTitle>Title</resTitle>
+                <resAltTitle>Alternate title</resAltTitle>
+                <collTitle>Collective title</collTitle>
+                <date>
+                    <createDate>1970-01-01T00:00:00</createDate>
+                    <pubDate>1970-01-01T00:00:00</pubDate>
+                    <reviseDate>1970-01-01T00:00:00</reviseDate>
+                </date>
+                <resEd>Edition</resEd>
+                <resEdDate>19700101</resEdDate>
+                <datasetSeries>
+                    <seriesName>Name</seriesName>
+                    <issId>Issue</issId>
+                    <artPage>Page</artPage>
+                </datasetSeries>
+                <isbn>ISBN</isbn>
+                <issn>ISSN</issn>
+                <otherCitDet>Other details</otherCitDet>
+                <citOnlineRes xmlns="">
+                    <linkage>Linkage</linkage>
+                    <protocol>Protocol</protocol>
+                    <appProfile>Profile</appProfile>
+                    <orName>Name</orName>
+                    <orDesc>Description</orDesc>
+                    <orFunct>
+                        <OnFunctCd value="001" />
+                    </orFunct>
+                </citOnlineRes>
+                <presForm xmlns="">
+                    <fgdcGeoform>atlas</fgdcGeoform>
+                    <PresFormCd value="001" />
+                </presForm>
+                <citId xmlns="">
+                    <identCode>Code</identCode>
+                    <identAuth xmlns="">
+                        <resTitle>Title</resTitle>
+                        <resAltTitle>Alternate title</resAltTitle>
+                        <collTitle>Collective title</collTitle>
+                        <date>
+                            <createDate>1970-01-01T00:00:00</createDate>
+                            <pubDate>1970-01-01T00:00:00</pubDate>
+                            <reviseDate>1970-01-01T00:00:00</reviseDate>
+                        </date>
+                        <resEd>Edition</resEd>
+                        <resEdDate>19700101</resEdDate>
+                        <datasetSeries>
+                            <seriesName>Name</seriesName>
+                            <issId>Issue</issId>
+                            <artPage>Page</artPage>
+                        </datasetSeries>
+                        <isbn>ISBN</isbn>
+                        <issn>ISSN</issn>
+                        <otherCitDet>Other details</otherCitDet>
+                        <citOnlineRes xmlns="">
+                            <linkage>Linkage</linkage>
+                            <protocol>Protocol</protocol>
+                            <appProfile>Profile</appProfile>
+                            <orName>Name</orName>
+                            <orDesc>Description</orDesc>
+                            <orFunct>
+                                <OnFunctCd value="001" />
+                            </orFunct>
+                        </citOnlineRes>
+                        <presForm xmlns="">
+                            <fgdcGeoform>atlas</fgdcGeoform>
+                            <PresFormCd value="001" />
+                        </presForm>
+                        <citRespParty xmlns="">
+                            <editorSource>external</editorSource>
+                            <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                            <rpOrgName>New York City Department of City Planning</rpOrgName>
+                            <rpCntInfo xmlns="">
+                                <cntAddress addressType="both">
+                                    <delPoint>120 Broadway</delPoint>
+                                    <city>New York</city>
+                                    <adminArea>New York</adminArea>
+                                    <postCode>10271</postCode>
+                                    <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                    <country>US</country>
+                                </cntAddress>
+                                <cntPhone>
+                                    <voiceNum tddtty="">Phone number</voiceNum>
+                                    <faxNum>Fax number</faxNum>
+                                </cntPhone>
+                                <cntHours>Hours</cntHours>
+                                <cntInstr>Instructions</cntInstr>
+                            </rpCntInfo>
+                            <rpIndName>Name</rpIndName>
+                            <rpPosName>Position</rpPosName>
+                            <editorSave>True</editorSave>
+                            <displayName>Name</displayName>
+                            <role>
+                                <RoleCd value="007" />
+                            </role>
+                        </citRespParty>
+                    </identAuth>
+                </citId>
+                <citRespParty xmlns="">
+                    <editorSource>external</editorSource>
+                    <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                    <rpOrgName>New York City Department of City Planning</rpOrgName>
+                    <rpCntInfo xmlns="">
+                        <cntAddress addressType="both">
+                            <delPoint>120 Broadway</delPoint>
+                            <city>New York</city>
+                            <adminArea>New York</adminArea>
+                            <postCode>10271</postCode>
+                            <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                            <country>US</country>
+                        </cntAddress>
+                        <cntPhone>
+                            <voiceNum tddtty="">Phone number</voiceNum>
+                            <faxNum>Fax number</faxNum>
+                        </cntPhone>
+                        <cntHours>Hours</cntHours>
+                        <cntInstr>Instructions</cntInstr>
+                    </rpCntInfo>
+                    <rpIndName>Name</rpIndName>
+                    <rpPosName>Position</rpPosName>
+                    <editorSave>True</editorSave>
+                    <displayName>Name</displayName>
+                    <role>
+                        <RoleCd value="007" />
+                    </role>
+                </citRespParty>
+            </paraCit>
+        </Georef>
+        <VectSpatRep>
+            <geometObjs Name="filename">
+                <geoObjTyp>
+                    <GeoObjTypCd value="004" Sync="TRUE" />
+                </geoObjTyp>
+                <geoObjCnt Sync="TRUE">0</geoObjCnt>
+            </geometObjs>
+            <topLvl>
+                <TopoLevCd value="001" Sync="TRUE" />
+            </topLvl>
+        </VectSpatRep>
+    </spatRepInfo>
+    <spatRepInfo>
+        <VectSpatRep>
+            <geometObjs Name="filename">
+                <geoObjTyp>
+                    <GeoObjTypCd value="004" Sync="TRUE" />
+                </geoObjTyp>
+                <geoObjCnt Sync="TRUE">0</geoObjCnt>
+            </geometObjs>
+            <topLvl>
+                <TopoLevCd value="001" Sync="TRUE" />
+            </topLvl>
+        </VectSpatRep>
+    </spatRepInfo>
+    <spatRepInfo>
+        <Indref>Indirect spatial representation</Indref>
+        <VectSpatRep>
+            <geometObjs Name="filename">
+                <geoObjTyp>
+                    <GeoObjTypCd value="004" Sync="TRUE" />
+                </geoObjTyp>
+                <geoObjCnt Sync="TRUE">0</geoObjCnt>
+            </geometObjs>
+            <topLvl>
+                <TopoLevCd value="001" Sync="TRUE" />
+            </topLvl>
+        </VectSpatRep>
+    </spatRepInfo>
+    <contInfo>
+        <CovDesc xmlns="">
+            <attDesc>Attribute description</attDesc>
+            <contentTyp>
+                <ContentTypCd value="001" />
+            </contentTyp>
+            <covDim>
+                <RangeDim xmlns="">
+                    <seqID>
+                        <aName>Sequence identifier</aName>
+                        <attributeType>
+                            <aName>1961</aName>
+                        </attributeType>
+                    </seqID>
+                    <dimDescrp>Descriptor</dimDescrp>
+                </RangeDim>
+            </covDim>
+            <covDim>
+                <Band xmlns="">
+                    <seqID>
+                        <aName>Sequence identifier</aName>
+                        <attributeType>
+                            <aName>1961</aName>
+                        </attributeType>
+                    </seqID>
+                    <dimDescrp>Descriptor</dimDescrp>
+                    <maxVal>1961</maxVal>
+                    <minVal>1916</minVal>
+                    <valUnit>
+                        <UOM gmlID="" type="">
+                            <unitSymbol>[ft_us]</unitSymbol>
+                        </UOM>
+                    </valUnit>
+                    <pkResp>1961</pkResp>
+                    <bitsPerVal>1961</bitsPerVal>
+                    <toneGrad>1961</toneGrad>
+                    <sclFac>1961</sclFac>
+                    <offset>1961</offset>
+                </Band>
+            </covDim>
+        </CovDesc>
+    </contInfo>
+    <contInfo>
+        <ImgDesc xmlns="">
+            <attDesc>Attribute description</attDesc>
+            <contentTyp>
+                <ContentTypCd value="001" />
+            </contentTyp>
+            <illElevAng>0</illElevAng>
+            <illAziAng>0</illAziAng>
+            <imagCond>
+                <ImgCondCd value="001" />
+            </imagCond>
+            <cloudCovPer>100</cloudCovPer>
+            <cmpGenQuan>1961</cmpGenQuan>
+            <trianInd>True</trianInd>
+            <radCalDatAv>True</radCalDatAv>
+            <camCalInAv>True</camCalInAv>
+            <filmDistInAv>True</filmDistInAv>
+            <lensDistInAv>True</lensDistInAv>
+            <covDim>
+                <RangeDim xmlns="">
+                    <seqID>
+                        <aName>Sequence identifier</aName>
+                        <attributeType>
+                            <aName>1961</aName>
+                        </attributeType>
+                    </seqID>
+                    <dimDescrp>Descriptor</dimDescrp>
+                </RangeDim>
+            </covDim>
+            <covDim>
+                <Band xmlns="">
+                    <seqID>
+                        <aName>Sequence identifier</aName>
+                        <attributeType>
+                            <aName>1961</aName>
+                        </attributeType>
+                    </seqID>
+                    <dimDescrp>Descriptor</dimDescrp>
+                    <maxVal>1961</maxVal>
+                    <minVal>1916</minVal>
+                    <valUnit>
+                        <UOM gmlID="" type="">
+                            <unitSymbol>[ft_us]</unitSymbol>
+                        </UOM>
+                    </valUnit>
+                    <pkResp>1961</pkResp>
+                    <bitsPerVal>1961</bitsPerVal>
+                    <toneGrad>1961</toneGrad>
+                    <sclFac>1961</sclFac>
+                    <offset>1961</offset>
+                </Band>
+            </covDim>
+            <imagQuCode xmlns="">
+                <identCode>Code</identCode>
+                <identAuth xmlns="">
+                    <resTitle>Title</resTitle>
+                    <resAltTitle>Alternate title</resAltTitle>
+                    <collTitle>Collective title</collTitle>
+                    <date>
+                        <createDate>1970-01-01T00:00:00</createDate>
+                        <pubDate>1970-01-01T00:00:00</pubDate>
+                        <reviseDate>1970-01-01T00:00:00</reviseDate>
+                    </date>
+                    <resEd>Edition</resEd>
+                    <resEdDate>19700101</resEdDate>
+                    <datasetSeries>
+                        <seriesName>Name</seriesName>
+                        <issId>Issue</issId>
+                        <artPage>Page</artPage>
+                    </datasetSeries>
+                    <isbn>ISBN</isbn>
+                    <issn>ISSN</issn>
+                    <otherCitDet>Other details</otherCitDet>
+                    <citOnlineRes xmlns="">
+                        <linkage>Linkage</linkage>
+                        <protocol>Protocol</protocol>
+                        <appProfile>Profile</appProfile>
+                        <orName>Name</orName>
+                        <orDesc>Description</orDesc>
+                        <orFunct>
+                            <OnFunctCd value="001" />
+                        </orFunct>
+                    </citOnlineRes>
+                    <presForm xmlns="">
+                        <fgdcGeoform>atlas</fgdcGeoform>
+                        <PresFormCd value="001" />
+                    </presForm>
+                    <citRespParty xmlns="">
+                        <editorSource>external</editorSource>
+                        <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                        <rpOrgName>New York City Department of City Planning</rpOrgName>
+                        <rpCntInfo xmlns="">
+                            <cntAddress addressType="both">
+                                <delPoint>120 Broadway</delPoint>
+                                <city>New York</city>
+                                <adminArea>New York</adminArea>
+                                <postCode>10271</postCode>
+                                <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                <country>US</country>
+                            </cntAddress>
+                            <cntPhone>
+                                <voiceNum tddtty="">Phone number</voiceNum>
+                                <faxNum>Fax number</faxNum>
+                            </cntPhone>
+                            <cntHours>Hours</cntHours>
+                            <cntInstr>Instructions</cntInstr>
+                        </rpCntInfo>
+                        <rpIndName>Name</rpIndName>
+                        <rpPosName>Position</rpPosName>
+                        <editorSave>True</editorSave>
+                        <displayName>Name</displayName>
+                        <role>
+                            <RoleCd value="007" />
+                        </role>
+                    </citRespParty>
+                </identAuth>
+            </imagQuCode>
+            <prcTypCde xmlns="">
+                <identCode>Code</identCode>
+                <identAuth xmlns="">
+                    <resTitle>Title</resTitle>
+                    <resAltTitle>Alternate title</resAltTitle>
+                    <collTitle>Collective title</collTitle>
+                    <date>
+                        <createDate>1970-01-01T00:00:00</createDate>
+                        <pubDate>1970-01-01T00:00:00</pubDate>
+                        <reviseDate>1970-01-01T00:00:00</reviseDate>
+                    </date>
+                    <resEd>Edition</resEd>
+                    <resEdDate>19700101</resEdDate>
+                    <datasetSeries>
+                        <seriesName>Name</seriesName>
+                        <issId>Issue</issId>
+                        <artPage>Page</artPage>
+                    </datasetSeries>
+                    <isbn>ISBN</isbn>
+                    <issn>ISSN</issn>
+                    <otherCitDet>Other details</otherCitDet>
+                    <citOnlineRes xmlns="">
+                        <linkage>Linkage</linkage>
+                        <protocol>Protocol</protocol>
+                        <appProfile>Profile</appProfile>
+                        <orName>Name</orName>
+                        <orDesc>Description</orDesc>
+                        <orFunct>
+                            <OnFunctCd value="001" />
+                        </orFunct>
+                    </citOnlineRes>
+                    <presForm xmlns="">
+                        <fgdcGeoform>atlas</fgdcGeoform>
+                        <PresFormCd value="001" />
+                    </presForm>
+                    <citId xmlns="">
+                        <identCode>Code</identCode>
+                    </citId>
+                    <citRespParty xmlns="">
+                        <editorSource>external</editorSource>
+                        <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                        <rpOrgName>New York City Department of City Planning</rpOrgName>
+                        <rpCntInfo xmlns="">
+                            <cntAddress addressType="both">
+                                <delPoint>120 Broadway</delPoint>
+                                <city>New York</city>
+                                <adminArea>New York</adminArea>
+                                <postCode>10271</postCode>
+                                <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                <country>US</country>
+                            </cntAddress>
+                            <cntPhone>
+                                <voiceNum tddtty="">Phone number</voiceNum>
+                                <faxNum>Fax number</faxNum>
+                            </cntPhone>
+                            <cntHours>Hours</cntHours>
+                            <cntInstr>Instructions</cntInstr>
+                        </rpCntInfo>
+                        <rpIndName>Name</rpIndName>
+                        <rpPosName>Position</rpPosName>
+                        <editorSave>True</editorSave>
+                        <displayName>Name</displayName>
+                        <role>
+                            <RoleCd value="007" />
+                        </role>
+                    </citRespParty>
+                </identAuth>
+            </prcTypCde>
+        </ImgDesc>
+    </contInfo>
+    <contInfo>
+        <FetCatDesc xmlns="">
+            <compCode>False</compCode>
+            <incWithDS>False</incWithDS>
+            <catCitation xmlns="">
+                <resTitle>Title</resTitle>
+                <resAltTitle>Alternate title</resAltTitle>
+                <collTitle>Collective title</collTitle>
+                <date>
+                    <createDate>1970-01-01T00:00:00</createDate>
+                    <pubDate>1970-01-01T00:00:00</pubDate>
+                    <reviseDate>1970-01-01T00:00:00</reviseDate>
+                </date>
+                <resEd>Edition</resEd>
+                <resEdDate>19700101</resEdDate>
+                <datasetSeries>
+                    <seriesName>Name</seriesName>
+                    <issId>Issue</issId>
+                    <artPage>Page</artPage>
+                </datasetSeries>
+                <isbn>ISBN</isbn>
+                <issn>ISSN</issn>
+                <otherCitDet>Other details</otherCitDet>
+                <citOnlineRes xmlns="">
+                    <linkage>Linkage</linkage>
+                    <protocol>Protocol</protocol>
+                    <appProfile>Profile</appProfile>
+                    <orName>Name</orName>
+                    <orDesc>Description</orDesc>
+                    <orFunct>
+                        <OnFunctCd value="001" />
+                    </orFunct>
+                </citOnlineRes>
+                <presForm xmlns="">
+                    <fgdcGeoform>atlas</fgdcGeoform>
+                    <PresFormCd value="001" />
+                </presForm>
+                <citId xmlns="">
+                    <identCode>Code</identCode>
+                </citId>
+                <citRespParty xmlns="">
+                    <editorSource>external</editorSource>
+                    <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                    <rpOrgName>New York City Department of City Planning</rpOrgName>
+                    <rpCntInfo xmlns="">
+                        <cntAddress addressType="both">
+                            <delPoint>120 Broadway</delPoint>
+                            <city>New York</city>
+                            <adminArea>New York</adminArea>
+                            <postCode>10271</postCode>
+                            <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                            <country>US</country>
+                        </cntAddress>
+                        <cntPhone>
+                            <voiceNum tddtty="">Phone number</voiceNum>
+                            <faxNum>Fax number</faxNum>
+                        </cntPhone>
+                        <cntHours>Hours</cntHours>
+                        <cntInstr>Instructions</cntInstr>
+                    </rpCntInfo>
+                    <rpIndName>Name</rpIndName>
+                    <rpPosName>Position</rpPosName>
+                    <editorSave>True</editorSave>
+                    <displayName>Name</displayName>
+                    <role>
+                        <RoleCd value="007" />
+                    </role>
+                </citRespParty>
+            </catCitation>
+        </FetCatDesc>
+    </contInfo>
+    <dqInfo xmlns="">
+        <dqScope>
+            <scpLvl>
+                <ScopeCd value="005" />
+            </scpLvl>
+            <scpLvlDesc xmlns="">
+                <attribSet>Attributes</attribSet>
+                <featSet>Features</featSet>
+                <featIntSet>Feature Instances</featIntSet>
+                <attribIntSet>Attribute Instances</attribIntSet>
+                <datasetSet>Dataset</datasetSet>
+                <other>Other instances</other>
+            </scpLvlDesc>
+            <scpExt xmlns="">
+                <exDesc>Description</exDesc>
+                <geoEle xmlns="">
+                    <GeoBndBox>
+                        <westBL>-74.27</westBL>
+                        <eastBL>-73.68</eastBL>
+                        <southBL>40.49</southBL>
+                        <northBL>40.92</northBL>
+                    </GeoBndBox>
+                </geoEle>
+                <geoEle xmlns="">
+                    <GeoDesc>
+                        <exTypeCode>0</exTypeCode>
+                        <geoId xmlns="">
+                            <identCode>Code</identCode>
+                        </geoId>
+                    </GeoDesc>
+                </geoEle>
+                <tempEle>
+                    <TempExtent>
+                        <exTemp>
+                            <TM_Period xmlns="">
+                                <tmBegin>1970-01-01T00:00:00</tmBegin>
+                                <tmEnd>1970-01-01T00:00:00</tmEnd>
+                            </TM_Period>
+                        </exTemp>
+                    </TempExtent>
+                </tempEle>
+                <tempEle>
+                    <TempExtent>
+                        <exTemp>
+                            <TM_Instant>
+                                <tmPosition>1970-01-01T00:00:00</tmPosition>
+                            </TM_Instant>
+                        </exTemp>
+                    </TempExtent>
+                </tempEle>
+                <vertEle xmlns="">
+                    <vertMinVal>1916</vertMinVal>
+                    <vertMaxVal>1961</vertMaxVal>
+                </vertEle>
+            </scpExt>
+        </dqScope>
+        <dataLineage>
+            <statement>Statement</statement>
+            <dataSource xmlns="" type="">
+                <srcDesc>Source description</srcDesc>
+                <srcMedName>
+                    <MedNameCd value="015" />
+                </srcMedName>
+                <srcScale>
+                    <rfDenom>1961</rfDenom>
+                </srcScale>
+                <srcRefSys xmlns="">
+                    <identCode code="Code" />
+                    <idCodeSpace>Code space</idCodeSpace>
+                    <idVersion>Version</idVersion>
+                    <identAuth xmlns="">
+                        <resTitle>Title</resTitle>
+                        <resAltTitle>Alternate title</resAltTitle>
+                        <collTitle>Collective title</collTitle>
+                        <date>
+                            <createDate>1970-01-01T00:00:00</createDate>
+                            <pubDate>1970-01-01T00:00:00</pubDate>
+                            <reviseDate>1970-01-01T00:00:00</reviseDate>
+                        </date>
+                        <resEd>Edition</resEd>
+                        <resEdDate>19700101</resEdDate>
+                        <datasetSeries>
+                            <seriesName>Name</seriesName>
+                            <issId>Issue</issId>
+                            <artPage>Page</artPage>
+                        </datasetSeries>
+                        <isbn>ISBN</isbn>
+                        <issn>ISSN</issn>
+                        <otherCitDet>Other details</otherCitDet>
+                        <citOnlineRes xmlns="">
+                            <linkage>Linkage</linkage>
+                            <protocol>Protocol</protocol>
+                            <appProfile>Profile</appProfile>
+                            <orName>Name</orName>
+                            <orDesc>Description</orDesc>
+                            <orFunct>
+                                <OnFunctCd value="001" />
+                            </orFunct>
+                        </citOnlineRes>
+                        <presForm xmlns="">
+                            <fgdcGeoform>atlas</fgdcGeoform>
+                            <PresFormCd value="001" />
+                        </presForm>
+                        <citId xmlns="">
+                            <identCode>Code</identCode>
+                        </citId>
+                        <citRespParty xmlns="">
+                            <editorSource>external</editorSource>
+                            <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                            <rpOrgName>New York City Department of City Planning</rpOrgName>
+                            <rpCntInfo xmlns="">
+                                <cntAddress addressType="both">
+                                    <delPoint>120 Broadway</delPoint>
+                                    <city>New York</city>
+                                    <adminArea>New York</adminArea>
+                                    <postCode>10271</postCode>
+                                    <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                    <country>US</country>
+                                </cntAddress>
+                                <cntPhone>
+                                    <voiceNum tddtty="">Phone number</voiceNum>
+                                    <faxNum>Fax number</faxNum>
+                                </cntPhone>
+                                <cntHours>Hours</cntHours>
+                                <cntInstr>Instructions</cntInstr>
+                            </rpCntInfo>
+                            <rpIndName>Name</rpIndName>
+                            <rpPosName>Position</rpPosName>
+                            <editorSave>True</editorSave>
+                            <displayName>Name</displayName>
+                            <role>
+                                <RoleCd value="007" />
+                            </role>
+                        </citRespParty>
+                    </identAuth>
+                </srcRefSys>
+                <srcCitatn xmlns="">
+                    <resTitle>Title</resTitle>
+                    <resAltTitle>Alternate title</resAltTitle>
+                    <collTitle>Collective title</collTitle>
+                    <date>
+                        <createDate>1970-01-01T00:00:00</createDate>
+                        <pubDate>1970-01-01T00:00:00</pubDate>
+                        <reviseDate>1970-01-01T00:00:00</reviseDate>
+                    </date>
+                    <resEd>Edition</resEd>
+                    <resEdDate>19700101</resEdDate>
+                    <datasetSeries>
+                        <seriesName>Name</seriesName>
+                        <issId>Issue</issId>
+                        <artPage>Page</artPage>
+                    </datasetSeries>
+                    <isbn>ISBN</isbn>
+                    <issn>ISSN</issn>
+                    <otherCitDet>Other details</otherCitDet>
+                    <citOnlineRes xmlns="">
+                        <linkage>Linkage</linkage>
+                        <protocol>Protocol</protocol>
+                        <appProfile>Profile</appProfile>
+                        <orName>Name</orName>
+                        <orDesc>Description</orDesc>
+                        <orFunct>
+                            <OnFunctCd value="001" />
+                        </orFunct>
+                    </citOnlineRes>
+                    <presForm xmlns="">
+                        <fgdcGeoform>atlas</fgdcGeoform>
+                        <PresFormCd value="001" />
+                    </presForm>
+                    <citId xmlns="">
+                        <identCode>Code</identCode>
+                    </citId>
+                    <citRespParty xmlns="">
+                        <editorSource>external</editorSource>
+                        <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                        <rpOrgName>New York City Department of City Planning</rpOrgName>
+                        <rpCntInfo xmlns="">
+                            <cntAddress addressType="both">
+                                <delPoint>120 Broadway</delPoint>
+                                <city>New York</city>
+                                <adminArea>New York</adminArea>
+                                <postCode>10271</postCode>
+                                <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                <country>US</country>
+                            </cntAddress>
+                            <cntPhone>
+                                <voiceNum tddtty="">Phone number</voiceNum>
+                                <faxNum>Fax number</faxNum>
+                            </cntPhone>
+                            <cntHours>Hours</cntHours>
+                            <cntInstr>Instructions</cntInstr>
+                        </rpCntInfo>
+                        <rpIndName>Name</rpIndName>
+                        <rpPosName>Position</rpPosName>
+                        <editorSave>True</editorSave>
+                        <displayName>Name</displayName>
+                        <role>
+                            <RoleCd value="007" />
+                        </role>
+                    </citRespParty>
+                </srcCitatn>
+                <srcExt xmlns="">
+                    <exDesc>Description</exDesc>
+                    <vertEle xmlns="">
+                        <vertMinVal>1916</vertMinVal>
+                        <vertMaxVal>1961</vertMaxVal>
+                    </vertEle>
+                    <tempEle>
+                        <TempExtent>
+                            <exTemp>
+                                <TM_Instant>
+                                    <tmPosition>1970-01-01T00:00:00</tmPosition>
+                                </TM_Instant>
+                            </exTemp>
+                        </TempExtent>
+                    </tempEle>
+                    <tempEle>
+                        <TempExtent>
+                            <exTemp>
+                                <TM_Period xmlns="">
+                                    <tmBegin>1970-01-01T00:00:00</tmBegin>
+                                    <tmEnd>1970-01-01T00:00:00</tmEnd>
+                                </TM_Period>
+                            </exTemp>
+                        </TempExtent>
+                    </tempEle>
+                    <geoEle xmlns="">
+                        <GeoDesc>
+                            <exTypeCode>0</exTypeCode>
+                            <geoId xmlns="">
+                                <identCode>Code</identCode>
+                            </geoId>
+                        </GeoDesc>
+                    </geoEle>
+                    <geoEle xmlns="">
+                        <GeoBndBox>
+                            <westBL>-74.2</westBL>
+                            <eastBL>-73.68</eastBL>
+                            <southBL>40.49</southBL>
+                            <northBL>40.92</northBL>
+                        </GeoBndBox>
+                    </geoEle>
+                </srcExt>
+            </dataSource>
+            <prcStep xmlns="">
+                <stepDesc>Process description</stepDesc>
+                <stepRat>Rationale</stepRat>
+                <stepDateTm>1970-01-01T00:00:00</stepDateTm>
+                <stepSrc type="used" xmlns="">
+                    <srcDesc>Source description</srcDesc>
+                    <srcMedName>
+                        <MedNameCd value="015" />
+                    </srcMedName>
+                    <srcScale>
+                        <rfDenom>1961</rfDenom>
+                    </srcScale>
+                    <srcRefSys xmlns="">
+                        <identCode code="Code" />
+                        <idCodeSpace>Code space</idCodeSpace>
+                        <idVersion>Version</idVersion>
+                    </srcRefSys>
+                    <srcCitatn xmlns="">
+                        <resTitle>Title</resTitle>
+                        <resAltTitle>Alternate title</resAltTitle>
+                        <collTitle>Collective title</collTitle>
+                        <date>
+                            <createDate>1970-01-01T00:00:00</createDate>
+                            <pubDate>1970-01-01T00:00:00</pubDate>
+                            <reviseDate>1970-01-01T00:00:00</reviseDate>
+                        </date>
+                        <resEd>Edition</resEd>
+                        <resEdDate>19700101</resEdDate>
+                        <datasetSeries>
+                            <seriesName>Name</seriesName>
+                            <issId>Issue</issId>
+                            <artPage>Page</artPage>
+                        </datasetSeries>
+                        <isbn>ISBN</isbn>
+                        <issn>ISSN</issn>
+                        <otherCitDet>Other details</otherCitDet>
+                        <citOnlineRes xmlns="">
+                            <linkage>Linkage</linkage>
+                            <protocol>Protocol</protocol>
+                            <appProfile>Profile</appProfile>
+                            <orName>Name</orName>
+                            <orDesc>Description</orDesc>
+                            <orFunct>
+                                <OnFunctCd value="001" />
+                            </orFunct>
+                        </citOnlineRes>
+                        <presForm xmlns="">
+                            <fgdcGeoform>atlas</fgdcGeoform>
+                            <PresFormCd value="001" />
+                        </presForm>
+                        <citId xmlns="">
+                            <identCode>Code</identCode>
+                        </citId>
+                        <citRespParty xmlns="">
+                            <editorSource>external</editorSource>
+                            <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                            <rpOrgName>New York City Department of City Planning</rpOrgName>
+                            <rpCntInfo xmlns="">
+                                <cntAddress addressType="both">
+                                    <delPoint>120 Broadway</delPoint>
+                                    <city>New York</city>
+                                    <adminArea>New York</adminArea>
+                                    <postCode>10271</postCode>
+                                    <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                    <country>US</country>
+                                </cntAddress>
+                                <cntPhone>
+                                    <voiceNum tddtty="">Phone number</voiceNum>
+                                    <faxNum>Fax number</faxNum>
+                                </cntPhone>
+                                <cntHours>Hours</cntHours>
+                                <cntInstr>Instructions</cntInstr>
+                            </rpCntInfo>
+                            <rpIndName>Name</rpIndName>
+                            <rpPosName>Position</rpPosName>
+                            <editorSave>True</editorSave>
+                            <displayName>Name</displayName>
+                            <role>
+                                <RoleCd value="007" />
+                            </role>
+                        </citRespParty>
+                    </srcCitatn>
+                    <srcExt xmlns="">
+                        <exDesc>Description</exDesc>
+                        <geoEle xmlns="">
+                            <GeoBndBox>
+                                <westBL>-74.27</westBL>
+                                <eastBL>-73.68</eastBL>
+                                <southBL>40.49</southBL>
+                                <northBL>40.92</northBL>
+                            </GeoBndBox>
+                        </geoEle>
+                        <geoEle xmlns="">
+                            <GeoDesc>
+                                <exTypeCode>0</exTypeCode>
+                                <geoId xmlns="">
+                                    <identCode>Code</identCode>
+                                </geoId>
+                            </GeoDesc>
+                        </geoEle>
+                        <tempEle>
+                            <TempExtent>
+                                <exTemp>
+                                    <TM_Period xmlns="">
+                                        <tmBegin>1970-01-01T00:00:00</tmBegin>
+                                        <tmEnd>1970-01-01T00:00:00</tmEnd>
+                                    </TM_Period>
+                                </exTemp>
+                            </TempExtent>
+                        </tempEle>
+                        <tempEle>
+                            <TempExtent>
+                                <exTemp>
+                                    <TM_Instant>
+                                        <tmPosition>1970-01-01T00:00:00</tmPosition>
+                                    </TM_Instant>
+                                </exTemp>
+                            </TempExtent>
+                        </tempEle>
+                        <vertEle xmlns="">
+                            <vertMinVal>1916</vertMinVal>
+                            <vertMaxVal>1961</vertMaxVal>
+                        </vertEle>
+                    </srcExt>
+                </stepSrc>
+                <stepProc xmlns="">
+                    <editorSource>external</editorSource>
+                    <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                    <rpOrgName>New York City Department of City Planning</rpOrgName>
+                    <rpCntInfo xmlns="">
+                        <cntAddress addressType="both">
+                            <delPoint>120 Broadway</delPoint>
+                            <city>New York</city>
+                            <adminArea>New York</adminArea>
+                            <postCode>10271</postCode>
+                            <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                            <country>US</country>
+                        </cntAddress>
+                        <cntPhone>
+                            <voiceNum tddtty="">Phone number</voiceNum>
+                            <faxNum>Fax number</faxNum>
+                        </cntPhone>
+                        <cntHours>Hours</cntHours>
+                        <cntInstr>Instructions</cntInstr>
+                    </rpCntInfo>
+                    <rpIndName>Name</rpIndName>
+                    <rpPosName>Position</rpPosName>
+                    <editorSave>True</editorSave>
+                    <displayName>Name</displayName>
+                    <role>
+                        <RoleCd value="007" />
+                    </role>
+                </stepProc>
+            </prcStep>
+        </dataLineage>
+        <report type="DQCompComm" dimension="horizontal" xmlns="">
+            <measDesc>Description</measDesc>
+            <evalMethDesc>Description</evalMethDesc>
+            <evalMethType>
+                <EvalMethTypeCd value="001" />
+            </evalMethType>
+            <measResult>
+                <ConResult xmlns="">
+                    <conSpec xmlns="">
+                        <resTitle>Title</resTitle>
+                        <resAltTitle>Alternate title</resAltTitle>
+                        <collTitle>Collective title</collTitle>
+                        <date>
+                            <createDate>1970-01-01T00:00:00</createDate>
+                            <pubDate>1970-01-01T00:00:00</pubDate>
+                            <reviseDate>1970-01-01T00:00:00</reviseDate>
+                        </date>
+                        <resEd>Edition</resEd>
+                        <resEdDate>19700101</resEdDate>
+                        <datasetSeries>
+                            <seriesName>Name</seriesName>
+                            <issId>Issue</issId>
+                            <artPage>Page</artPage>
+                        </datasetSeries>
+                        <isbn>ISBN</isbn>
+                        <issn>ISSB</issn>
+                        <otherCitDet>Other details</otherCitDet>
+                        <citOnlineRes xmlns="">
+                            <linkage>Linkage</linkage>
+                            <protocol>Protocol</protocol>
+                            <appProfile>Profile</appProfile>
+                            <orName>Name</orName>
+                            <orDesc>Description</orDesc>
+                            <orFunct>
+                                <OnFunctCd value="001" />
+                            </orFunct>
+                        </citOnlineRes>
+                        <presForm xmlns="">
+                            <fgdcGeoform>atlas</fgdcGeoform>
+                            <PresFormCd value="001" />
+                        </presForm>
+                        <citId xmlns="">
+                            <identCode>Code</identCode>
+                        </citId>
+                        <citRespParty xmlns="">
+                            <editorSource>external</editorSource>
+                            <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                            <rpOrgName>New York City Department of City Planning</rpOrgName>
+                            <rpCntInfo xmlns="">
+                                <cntAddress addressType="both">
+                                    <delPoint>120 Broadway</delPoint>
+                                    <city>New York</city>
+                                    <adminArea>New York</adminArea>
+                                    <postCode>10271</postCode>
+                                    <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                    <country>US</country>
+                                </cntAddress>
+                                <cntPhone>
+                                    <voiceNum tddtty="">Phone number</voiceNum>
+                                    <faxNum>Fax number</faxNum>
+                                </cntPhone>
+                                <cntHours>Hours</cntHours>
+                                <cntInstr>Instructions</cntInstr>
+                            </rpCntInfo>
+                            <rpIndName>Name</rpIndName>
+                            <rpPosName>Position</rpPosName>
+                            <editorSave>True</editorSave>
+                            <displayName>Name</displayName>
+                            <role>
+                                <RoleCd value="007" />
+                            </role>
+                        </citRespParty>
+                    </conSpec>
+                    <conExpl>Explanation</conExpl>
+                    <conPass>1</conPass>
+                </ConResult>
+                <QuanResult xmlns="">
+                    <quanValType>Value type</quanValType>
+                    <quanValUnit>
+                        <UOM gmlID="" type="">
+                            <unitSymbol>[ft_us]</unitSymbol>
+                        </UOM>
+                    </quanValUnit>
+                    <errStat>Error statistic</errStat>
+                    <quanVal>Value</quanVal>
+                </QuanResult>
+            </measResult>
+            <measDateTm>1970-01-01T00:00:00</measDateTm>
+            <measName>Name</measName>
+            <measId xmlns="">
+                <identCode>Code</identCode>
+            </measId>
+            <evalProc xmlns="">
+                <resTitle>Title</resTitle>
+                <resAltTitle>Alternate title</resAltTitle>
+                <collTitle>Collective title</collTitle>
+                <date>
+                    <createDate>1970-01-01T00:00:00</createDate>
+                    <pubDate>1970-01-01T00:00:00</pubDate>
+                    <reviseDate>1970-01-01T00:00:00</reviseDate>
+                </date>
+                <resEd>Edition</resEd>
+                <resEdDate>19700101</resEdDate>
+                <datasetSeries>
+                    <seriesName>Name</seriesName>
+                    <issId>Issue</issId>
+                    <artPage>Page</artPage>
+                </datasetSeries>
+                <isbn>ISBN</isbn>
+                <issn>ISSN</issn>
+                <otherCitDet>Other details</otherCitDet>
+                <citOnlineRes xmlns="">
+                    <linkage>Linkage</linkage>
+                    <protocol>Protocol</protocol>
+                    <appProfile>Profile</appProfile>
+                    <orName>Name</orName>
+                    <orDesc>Description</orDesc>
+                    <orFunct>
+                        <OnFunctCd value="001" />
+                    </orFunct>
+                </citOnlineRes>
+                <presForm xmlns="">
+                    <fgdcGeoform>atlas</fgdcGeoform>
+                    <PresFormCd value="001" />
+                </presForm>
+                <citId xmlns="">
+                    <identCode>Code</identCode>
+                </citId>
+                <citRespParty xmlns="">
+                    <editorSource>external</editorSource>
+                    <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                    <rpOrgName>New York City Department of City Planning</rpOrgName>
+                    <rpCntInfo xmlns="">
+                        <cntAddress addressType="both">
+                            <delPoint>120 Broadway</delPoint>
+                            <city>New York</city>
+                            <adminArea>New York</adminArea>
+                            <postCode>10271</postCode>
+                            <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                            <country>US</country>
+                        </cntAddress>
+                        <cntPhone>
+                            <voiceNum tddtty="">Phone number</voiceNum>
+                            <faxNum>Fax number</faxNum>
+                        </cntPhone>
+                        <cntHours>Hours</cntHours>
+                        <cntInstr>Instructions</cntInstr>
+                    </rpCntInfo>
+                    <rpIndName>Name</rpIndName>
+                    <rpPosName>Position</rpPosName>
+                    <editorSave>True</editorSave>
+                    <displayName>Name</displayName>
+                    <role>
+                        <RoleCd value="007" />
+                    </role>
+                </citRespParty>
+            </evalProc>
+        </report>
+    </dqInfo>
+    <distInfo xmlns="">
+        <distFormat xmlns="">
+            <formatName>Format name</formatName>
+            <formatVer>Format version</formatVer>
+            <formatAmdNum>Amendment number</formatAmdNum>
+            <formatSpec>Specification</formatSpec>
+            <fileDecmTech>Decompression technique</fileDecmTech>
+            <formatInfo>Information content</formatInfo>
+        </distFormat>
+        <distributor xmlns="">
+            <distorCont xmlns="">
+                <editorSource>external</editorSource>
+                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+                <editorSave>True</editorSave>
+                <displayName>Name</displayName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+            </distorCont>
+            <distorOrdPrc xmlns="">
+                <resFees units="USD">0</resFees>
+                <planAvDtTm>1970-01-01T00:00:00</planAvDtTm>
+                <ordInstr>Ordering instructions</ordInstr>
+                <ordTurn>Turnaround</ordTurn>
+                <planAvTmPd xmlns="">
+                    <tmBegin>1970-01-01T00:00:00</tmBegin>
+                    <tmEnd>1970-01-01T00:00:00</tmEnd>
+                </planAvTmPd>
+            </distorOrdPrc>
+            <distorFormat xmlns="">
+                <formatName>Format name</formatName>
+                <formatVer>Format version</formatVer>
+                <formatAmdNum>Amendment number</formatAmdNum>
+                <formatSpec>Specification</formatSpec>
+                <fileDecmTech>Decompression technique</fileDecmTech>
+                <formatInfo>Information content</formatInfo>
+            </distorFormat>
+            <distorTran xmlns="">
+                <unitsODist>Units of distribution</unitsODist>
+                <transSize>1961</transSize>
+                <offLineMed xmlns="">
+                    <medName>
+                        <MedNameCd value="015" />
+                    </medName>
+                    <medFormat>
+                        <MedFormCd value="004" />
+                    </medFormat>
+                    <medDensity>1961</medDensity>
+                    <medDenUnits>Density units</medDenUnits>
+                    <medVol>1961</medVol>
+                    <medNote>Medium note</medNote>
+                </offLineMed>
+                <onLineSrc xmlns="">
+                    <linkage>Linkage</linkage>
+                    <protocol>Protocol</protocol>
+                    <appProfile>Profile</appProfile>
+                    <orName>Name</orName>
+                    <orDesc>Description</orDesc>
+                    <orFunct>
+                        <OnFunctCd value="001" />
+                    </orFunct>
+                </onLineSrc>
+            </distorTran>
+        </distributor>
+        <distTranOps xmlns="">
+            <unitsODist>Units of distribution</unitsODist>
+            <transSize>1961</transSize>
+            <offLineMed xmlns="">
+                <medName>
+                    <MedNameCd value="015" />
+                </medName>
+                <medFormat>
+                    <MedFormCd value="004" />
+                </medFormat>
+                <medDensity>1961</medDensity>
+                <medDenUnits>Density units</medDenUnits>
+                <medVol>1961</medVol>
+                <medNote>Medium note</medNote>
+            </offLineMed>
+            <onLineSrc xmlns="">
+                <linkage>Linkage</linkage>
+                <protocol>Protocol</protocol>
+                <appProfile>Profile</appProfile>
+                <orName>Name</orName>
+                <orDesc>Description</orDesc>
+                <orFunct>
+                    <OnFunctCd value="001" />
+                </orFunct>
+            </onLineSrc>
+            <onLineSrc xmlns="">
+                <linkage>Linkage</linkage>
+                <protocol>Protocol</protocol>
+                <appProfile>Profile</appProfile>
+                <orName>Name</orName>
+                <orDesc>Description</orDesc>
+                <orFunct>
+                    <OnFunctCd value="001" />
+                </orFunct>
+            </onLineSrc>
+        </distTranOps>
+    </distInfo>
+    <eainfo>
+        <detailed xmlns="" Name="filename">
+            <enttyp>
+                <enttypl>Label</enttypl>
+                <enttypt>Object</enttypt>
+                <enttypc>1961</enttypc>
+                <enttypd>Definition</enttypd>
+                <enttypds>Definition source</enttypds>
+            </enttyp>
+            <attr xmlns="">
+                <attrlabl Sync="TRUE">FID</attrlabl>
+                <attalias Sync="TRUE">FID</attalias>
+                <attrtype Sync="TRUE">OID</attrtype>
+                <attwidth Sync="TRUE">4</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+                <attrdef Sync="TRUE">Internal feature number.</attrdef>
+                <attrdefs Sync="TRUE">Esri</attrdefs>
+                <attrdomv>
+                    <udom Sync="TRUE">Sequential unique whole numbers that are automatically
+                        generated.</udom>
+                </attrdomv>
+            </attr>
+            <attr xmlns="">
+                <attrlabl Sync="TRUE">Shape</attrlabl>
+                <attalias Sync="TRUE">Shape</attalias>
+                <attrtype Sync="TRUE">Geometry</attrtype>
+                <attwidth Sync="TRUE">0</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+                <attrdef Sync="TRUE">Feature geometry.</attrdef>
+                <attrdefs Sync="TRUE">Esri</attrdefs>
+                <attrdomv>
+                    <udom Sync="TRUE">Coordinates defining the features.</udom>
+                </attrdomv>
+            </attr>
+            <attr xmlns="">
+                <attrlabl Sync="TRUE">Id</attrlabl>
+                <attalias Sync="TRUE">Id</attalias>
+                <attrtype Sync="TRUE">Integer</attrtype>
+                <attwidth Sync="TRUE">6</attwidth>
+                <atprecis Sync="TRUE">6</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+                <attrdef>Definition</attrdef>
+                <attrdefs>Definition source</attrdefs>
+            </attr>
+            <attr xmlns="">
+                <attrlabl Sync="TRUE">lorem</attrlabl>
+                <attalias Sync="TRUE">lorem</attalias>
+                <attrtype Sync="TRUE">String</attrtype>
+                <attwidth Sync="TRUE">254</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+                <attrdef>Definition</attrdef>
+                <attrdefs>Definition source</attrdefs>
+            </attr>
+            <attr xmlns="">
+                <attrlabl Sync="TRUE">ipsum</attrlabl>
+                <attalias Sync="TRUE">ipsum</attalias>
+                <attrtype Sync="TRUE">Double</attrtype>
+                <attwidth Sync="TRUE">19</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+                <attrdef>Definition</attrdef>
+                <attrdefs>Definition source</attrdefs>
+            </attr>
+        </detailed>
+        <overview xmlns="">
+            <eaover>Summary</eaover>
+            <eadetcit>Citation</eadetcit>
+        </overview>
+    </eainfo>
+    <porCatInfo>
+        <portCatCit xmlns="">
+            <resTitle>Title</resTitle>
+            <resAltTitle>Alternate title</resAltTitle>
+            <collTitle>Collective title</collTitle>
+            <date>
+                <createDate>1970-01-01T00:00:00</createDate>
+                <pubDate>1970-01-01T00:00:00</pubDate>
+                <reviseDate>1970-01-01T00:00:00</reviseDate>
+            </date>
+            <resEd>Edition</resEd>
+            <resEdDate>19700101</resEdDate>
+            <datasetSeries>
+                <seriesName>Name</seriesName>
+                <issId>Issue</issId>
+                <artPage>Page</artPage>
+            </datasetSeries>
+            <isbn>ISBN</isbn>
+            <issn>ISSN</issn>
+            <otherCitDet>Other details</otherCitDet>
+            <citOnlineRes xmlns="">
+                <linkage>Linkage</linkage>
+                <protocol>Protocol</protocol>
+                <appProfile>Profile</appProfile>
+                <orName>Name</orName>
+                <orDesc>Description</orDesc>
+                <orFunct>
+                    <OnFunctCd value="001" />
+                </orFunct>
+            </citOnlineRes>
+            <presForm xmlns="">
+                <fgdcGeoform>atlas</fgdcGeoform>
+                <PresFormCd value="001" />
+            </presForm>
+            <citId xmlns="">
+                <identCode>Code</identCode>
+                <identAuth xmlns="">
+                    <resTitle>Title</resTitle>
+                    <resAltTitle>Alternate title</resAltTitle>
+                    <collTitle>Collective title</collTitle>
+                    <date>
+                        <createDate>1970-01-01T00:00:00</createDate>
+                        <pubDate>1970-01-01T00:00:00</pubDate>
+                        <reviseDate>1970-01-01T00:00:00</reviseDate>
+                    </date>
+                    <resEd>Edition</resEd>
+                    <resEdDate>19700101</resEdDate>
+                    <datasetSeries>
+                        <seriesName>Name</seriesName>
+                        <issId>Issue</issId>
+                        <artPage>Page</artPage>
+                    </datasetSeries>
+                    <isbn>ISBN</isbn>
+                    <issn>ISSN</issn>
+                    <otherCitDet>Other details</otherCitDet>
+                    <citOnlineRes xmlns="">
+                        <linkage>Linkage</linkage>
+                        <protocol>Protocol</protocol>
+                        <appProfile>Profile</appProfile>
+                        <orName>name</orName>
+                        <orDesc>Description</orDesc>
+                        <orFunct>
+                            <OnFunctCd value="001" />
+                        </orFunct>
+                    </citOnlineRes>
+                    <presForm xmlns="">
+                        <fgdcGeoform>atlas</fgdcGeoform>
+                        <PresFormCd value="001" />
+                    </presForm>
+                    <citId xmlns="">
+                        <identCode>Code</identCode>
+                    </citId>
+                    <citRespParty xmlns="">
+                        <editorSource>external</editorSource>
+                        <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                        <rpOrgName>New York City Department of City Planning</rpOrgName>
+                        <rpCntInfo xmlns="">
+                            <cntAddress addressType="both">
+                                <delPoint>120 Broadway</delPoint>
+                                <city>New York</city>
+                                <adminArea>New York</adminArea>
+                                <postCode>10271</postCode>
+                                <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                                <country>US</country>
+                            </cntAddress>
+                            <cntPhone>
+                                <voiceNum tddtty="">Phone number</voiceNum>
+                                <faxNum>Fax number</faxNum>
+                            </cntPhone>
+                            <cntHours>Hours</cntHours>
+                            <cntInstr>Instructions</cntInstr>
+                        </rpCntInfo>
+                        <rpIndName>Name</rpIndName>
+                        <rpPosName>Position</rpPosName>
+                        <editorSave>True</editorSave>
+                        <displayName>Name</displayName>
+                        <role>
+                            <RoleCd value="007" />
+                        </role>
+                    </citRespParty>
+                </identAuth>
+            </citId>
+            <citRespParty xmlns="">
+                <editorSource>external</editorSource>
+                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+                <editorSave>True</editorSave>
+                <displayName>Name</displayName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+            </citRespParty>
+        </portCatCit>
+    </porCatInfo>
+    <appSchInfo xmlns="">
+        <asName xmlns="">
+            <resTitle>Title</resTitle>
+            <resAltTitle>Alternate title</resAltTitle>
+            <collTitle>Collective title</collTitle>
+            <date>
+                <createDate>1970-01-01T00:00:00</createDate>
+                <pubDate>1970-01-01T00:00:00</pubDate>
+                <reviseDate>1970-01-01T00:00:00</reviseDate>
+            </date>
+            <resEd>Edition</resEd>
+            <resEdDate>19700101</resEdDate>
+            <datasetSeries>
+                <seriesName>Name</seriesName>
+                <issId>Issue</issId>
+                <artPage>Page</artPage>
+            </datasetSeries>
+            <isbn>ISBN</isbn>
+            <issn>ISSN</issn>
+            <otherCitDet>Other details</otherCitDet>
+            <citOnlineRes xmlns="">
+                <linkage>Linkage</linkage>
+                <protocol>Protocol</protocol>
+                <appProfile>Profile</appProfile>
+                <orName>Name</orName>
+                <orDesc>Description</orDesc>
+                <orFunct>
+                    <OnFunctCd value="001" />
+                </orFunct>
+            </citOnlineRes>
+            <presForm xmlns="">
+                <fgdcGeoform>atlas</fgdcGeoform>
+                <PresFormCd value="001" />
+            </presForm>
+            <citId xmlns="">
+                <identCode>Code</identCode>
+            </citId>
+            <citRespParty xmlns="">
+                <editorSource>external</editorSource>
+                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+                <editorSave>True</editorSave>
+                <displayName>Name</displayName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+            </citRespParty>
+        </asName>
+        <asSchLang>Schema language</asSchLang>
+        <asCstLang>Constraint language</asCstLang>
+        <asAscii>ASCII</asAscii>
+        <asGraFile src="Graphics file source">Graphics file</asGraFile>
+        <asSwDevFile src="Software development file source">Software development file</asSwDevFile>
+        <asSwDevFiFt>Software development file format</asSwDevFiFt>
+    </appSchInfo>
+    <appSchInfo xmlns="">
+        <asName xmlns="">
+            <resTitle>Title</resTitle>
+            <resAltTitle>Alternative title</resAltTitle>
+            <collTitle>Collective title</collTitle>
+            <date>
+                <createDate>1970-01-01T00:00:00</createDate>
+                <pubDate>1970-01-01T00:00:00</pubDate>
+                <reviseDate>1970-01-01T00:00:00</reviseDate>
+            </date>
+            <resEd>Edition</resEd>
+            <resEdDate>19700101</resEdDate>
+            <datasetSeries>
+                <seriesName>Name</seriesName>
+                <issId>Issue</issId>
+                <artPage>Page</artPage>
+            </datasetSeries>
+            <isbn>ISBN</isbn>
+            <issn>ISSN</issn>
+            <otherCitDet>Other details</otherCitDet>
+            <citOnlineRes xmlns="">
+                <linkage>Linkage</linkage>
+                <protocol>Protocol</protocol>
+                <appProfile>Profile</appProfile>
+                <orName>Name</orName>
+                <orDesc>Description</orDesc>
+                <orFunct>
+                    <OnFunctCd value="001" />
+                </orFunct>
+            </citOnlineRes>
+            <presForm xmlns="">
+                <fgdcGeoform>atlas</fgdcGeoform>
+                <PresFormCd value="001" />
+            </presForm>
+            <citId xmlns="">
+                <identCode>Code</identCode>
+            </citId>
+            <citRespParty xmlns="">
+                <editorSource>external</editorSource>
+                <editorDigest>3108c856e0bbe3129a83e5a4b8f34db469d1f95b</editorDigest>
+                <rpOrgName>New York City Department of City Planning</rpOrgName>
+                <rpCntInfo xmlns="">
+                    <cntAddress addressType="both">
+                        <delPoint>120 Broadway</delPoint>
+                        <city>New York</city>
+                        <adminArea>New York</adminArea>
+                        <postCode>10271</postCode>
+                        <eMailAdd>DCPOpenData@planning.nyc.gov</eMailAdd>
+                        <country>US</country>
+                    </cntAddress>
+                    <cntPhone>
+                        <voiceNum tddtty="">Phone number</voiceNum>
+                        <faxNum>Fax number</faxNum>
+                    </cntPhone>
+                    <cntHours>Hours</cntHours>
+                    <cntInstr>Instructions</cntInstr>
+                </rpCntInfo>
+                <rpIndName>Name</rpIndName>
+                <rpPosName>Position</rpPosName>
+                <editorSave>True</editorSave>
+                <displayName>Name</displayName>
+                <role>
+                    <RoleCd value="007" />
+                </role>
+            </citRespParty>
+        </asName>
+        <asSchLang>Schema language</asSchLang>
+        <asCstLang>Constraint language</asCstLang>
+        <asAscii>ASCII</asAscii>
+        <asGraFile src="Graphics file source">Graphics file</asGraFile>
+        <asSwDevFile src="Software development file source">Software development file</asSwDevFile>
+        <asSwDevFiFt>Software development file format</asSwDevFiFt>
+    </appSchInfo>
+    <spdoinfo>
+        <ptvctinf>
+            <esriterm Name="filename">
+                <efeatyp Sync="TRUE">Simple</efeatyp>
+                <efeageom code="1" Sync="TRUE" />
+                <esritopo Sync="TRUE">FALSE</esritopo>
+                <efeacnt Sync="TRUE">0</efeacnt>
+                <spindex Sync="TRUE">FALSE</spindex>
+                <linrefer Sync="TRUE">FALSE</linrefer>
+            </esriterm>
+        </ptvctinf>
+    </spdoinfo>
+    <Binary>
+        <Thumbnail>
+            <Data EsriPropertyType="PictureX">somebinarycodebleepbloopbleepbloop</Data>
+        </Thumbnail>
+    </Binary>
+</metadata>
