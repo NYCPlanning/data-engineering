@@ -27497,8 +27497,10 @@ bbl,field,old_value,new_value,Type,reason,version
 1002737503,unitsres,100,10,2,PTS error - units,25v3
 1002737503,unitstotal,101,11,2,PTS error - units,25v3
 3008777502,unitsres,302,17,2,PTS error - units,25v3
-3008777502,unitstotal,503,30,2,PTS error - units,25v3
+3008777502,unitstotal,523,30,2,PTS error - units,25v3
 3031557502,unitsres,64,8,2,PTS error - units,25v3
 3031557502,unitstotal,64,8,2,PTS error - units,25v3
 1022037501,unitsres,1120,224,2,PTS error - units,25v3
 1022037501,unitstotal,1122,234,2,PTS error - units,25v3
+1022037502,unitsres,1422,474,2,PTS error - units,25v3
+1022037502,unitstotal,1532,584,2,PTS error - units,25v3
