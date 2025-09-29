@@ -1,7 +1,7 @@
 import typer
 
 from dcpy.lifecycle.data_loader import app as data_loader_app
-from dcpy.lifecycle.ingest import app as ingest_app
+from dcpy.lifecycle.ingest._cli import app as ingest_app
 from dcpy.lifecycle.builds._cli import app as builds_app
 from dcpy.lifecycle.package._cli import app as package_app
 from dcpy.lifecycle.distribute import _cli as distribute_cli
