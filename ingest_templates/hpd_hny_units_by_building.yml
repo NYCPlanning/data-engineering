@@ -1,0 +1,27 @@
+id: hpd_hny_units_by_building
+acl: public-read
+
+attributes:
+  name: Housing New York Units by Building
+  description: |
+    The Department of Housing Preservation and Development (HPD) reports on buildings, units, 
+    and projects that began after January 1, 2014 and are counted towards the Housing New York plan. 
+    The Housing New York Units by Project file presents this data by project, and includes project-level data, 
+    such as senior units, but does not include building-level data. 
+    The unit counts are provided for each project, rather than by building. 
+    For additional documentation, including a data dictionary, review the attachments in the 
+    “About this Dataset” section of the Primer landing page.
+  url: https://data.cityofnewyork.us/d/hg8x-zxpr
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: hg8x-zxpr
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    - name: clean_column_names
+      args: { "replace": { " ": "_" }, "strip": True, "lower": True }
