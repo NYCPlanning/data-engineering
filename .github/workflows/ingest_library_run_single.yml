@@ -1,5 +1,5 @@
 name: Ingest Migration Tool
-run-name: "Ingest Migration Tool: ${{ inputs.dataset }}"
+run-name: "Ingest Migration Tool: ${{ inputs.datasets }}"
 
 on:
   workflow_dispatch:
