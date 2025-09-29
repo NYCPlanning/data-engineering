@@ -33,6 +33,10 @@ def extract_and_archive_raw_dataset(
     push: bool = False,
     run_details: metadata.RunDetails | None = None,
 ) -> ArchivedDataSource:
+    """
+    Given a resolved data source configuration, extract the raw dataset from its source
+    and optionally archive it.
+    """
     run_details = run_details or metadata.get_run_details()
 
     # download dataset
@@ -66,6 +70,10 @@ def transform_dataset(
     run_details: metadata.RunDetails | None = None,
     output_csv: bool = False,
 ) -> Transformation:
+    """
+    Given a resolved downstream dataset configuration, transform the raw dataset
+    by converting to parquet and running all defined processing steps
+    """
     run_details = run_details or metadata.get_run_details()
     ds_id = transformation.id or ""  # todo
     dataset_staging_dir = staging_dir / ds_id
@@ -110,6 +118,8 @@ def transform_datasets(
     mode: str | None = None,
     output_csv: bool = False,
 ) -> list[IngestedDataset]:
+    """Given an archived data source configuration, transform all defined downstream datasets"""
+
     configs = []
 
     for dataset in datasource_config.datasets:
@@ -163,6 +173,14 @@ def ingest(
     local_file_path: Path | None = None,
     overwrite_okay: bool = False,
 ) -> list[IngestedDataset]:
+    """
+    Main function to run the full ingest lifecycle for a given datasource.
+    - resolve definition of dataset/datasource
+    - extract raw data from source
+    - optionally archive raw data
+    - transform raw data into downstream dataset(s)
+    - optionally archive downstream dataset(s)
+    """
     run_details = metadata.get_run_details()
 
     if staging_dir.exists():
