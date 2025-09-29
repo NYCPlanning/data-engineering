@@ -221,7 +221,7 @@ CREATE OR REPLACE FUNCTION get_schoolsubdist(
 RETURNS varchar AS $$
       SELECT b.district||'_'||b.subdistrict
       FROM doe_school_subdistricts b
-      WHERE ST_Within(_geom, b.wkb_geometry)
+      WHERE ST_Within(_geom, b.geom)
       LIMIT 1
   $$ LANGUAGE sql;
 

@@ -1,0 +1,38 @@
+id: doe_school_subdistricts
+acl: public-read
+
+attributes:
+  name: DOE School Subdistricts
+  description: >-
+      This file is provided by capital planning and created by SCA
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/sca/{{ version }}/sub_districts.zip
+  file_format:
+    type: shapefile
+    crs: EPSG:4326
+    unzipped_filename: sub_districts
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map:
+        {
+          "schooldist": "district",
+          "zone": "subdistrict",
+          "subdist": "name"
+        }
+
+columns:
+- id: district
+  data_type: text
+- id: subdistrict
+  data_type: text
+- id: name
+  data_type: text
+- id: geom
+  data_type: geometry
