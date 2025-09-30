@@ -66,7 +66,13 @@ OUTPUTS:
 
 DROP TABLE IF EXISTS _init_bis_devdb;
 
-WITH applications AS (SELECT * FROM dob_jobapplications),
+WITH applications AS (
+    SELECT 
+        *,
+        ROW_NUMBER() OVER(PARTITION BY jobnumber ORDER BY SUBSTR(dobrundate, 7, 4)||SUBSTR(dobrundate, 1, 2)||SUBSTR(dobrundate, 4, 2) DESC) as gid,
+        SUBSTR(dobrundate, 7, 4)||SUBSTR(dobrundate, 1, 2)||SUBSTR(dobrundate, 4, 2) as dobrundate
+    FROM dob_jobapplications
+),
 
 parking_spaces AS (SELECT * FROM dob_jobapplications_parkingspaces),
 
