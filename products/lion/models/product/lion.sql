@@ -15,7 +15,7 @@ atomic_polygons AS (
 ),
 
 nodes AS (
-    SELECT * FROM {{ ref("int__centerline_segments_with_nodes") }}
+    SELECT * FROM {{ ref("int__segments_with_nodes") }}
 ),
 
 saf AS (

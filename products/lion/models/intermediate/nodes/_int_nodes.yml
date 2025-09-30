@@ -1,6 +1,16 @@
+##### Node-Based Logic #####
+# These models contain node-based logic for segments, defined in section 2.2.2 of the etl documentation
+
 models:
-- name: int__centerline_segments_with_nodes
-  description: centerline segments joined to to and from nodes
+- name: int__segments_to_nodes
+  description: Lookup table from all segments to joined nodes
+  columns:
+  - name: segmentid
+  - name: nodeid
+  - name: direction
+
+- name: int__segments_with_nodes
+  description: segment-based table with to and from nodes
   columns:
   - name: segmentid
     tests:
