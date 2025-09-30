@@ -1,0 +1,23 @@
+id: dob_bis_applications
+acl: public-read
+
+attributes:
+  name: Department of Buildings (DOB) BIS Job Applications
+  description: |
+    This dataset contains all job applications submitted through the BIS portal to DOB Borough Offices, 
+    through eFiling, or through the HUB, which have a "Latest Action Date" since January 1, 2000.
+    This dataset does not include jobs submitted through DOB NOW. See the DOB NOW: Build - Job Application Filings dataset for DOB NOW jobs.
+  url: https://data.cityofnewyork.us/d/ic3t-wcy2
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: ic3t-wcy2
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+  - name: clean_column_names
+    args: {"replace": {" ": "_"}, "lower": True}
