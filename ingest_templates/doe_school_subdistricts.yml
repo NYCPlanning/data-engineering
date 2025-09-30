@@ -26,6 +26,12 @@ ingestion:
           "zone": "subdistrict",
           "subdist": "name"
         }
+  - name: coerce_column_types
+    args:
+      column_types:
+        {
+          "district": "string"
+        }
 
 columns:
 - id: district
