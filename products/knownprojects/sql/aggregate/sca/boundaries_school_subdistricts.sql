@@ -44,7 +44,7 @@ FROM (
             a.senior_housing,
             a.inactive,
             b.geometry AS subdist_geom,
-            b.district AS distzone,
+            b.district::text AS distzone,
             b.subdistrict AS subdistzone,
             b.name AS a_dist_zone_name,
             st_distance(
