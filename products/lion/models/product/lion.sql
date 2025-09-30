@@ -56,7 +56,7 @@ SELECT
     streets.lgc2,
     streets.lgc3,
     streets.lgc4,
-    streets.board_of_elections_lgc_pointer::CHAR(1),
+    streets.boe_lgc_pointer::CHAR(1),
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     nodes.from_x,
