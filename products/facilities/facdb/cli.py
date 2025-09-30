@@ -38,7 +38,6 @@ def _cli_init():
         BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql"
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
-    postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_functions.sql")
 
 
 @app.command("build")
