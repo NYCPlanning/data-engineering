@@ -129,27 +129,19 @@ WHERE
 	here we are saving the duplicates in facdb_duplicates for review
 */
 INSERT INTO facdb_duplicates
-SELECT * FROM facdb
-WHERE
-    facsubgrp = 'CHARTER K-12 SCHOOLS'
-    AND bin IS NOT NULL
-    AND uid IN (
-        SELECT a.uid
-        FROM (
-            SELECT * FROM facdb
-            WHERE datasource = 'nysed_activeinstitutions'
-        ) AS a
-        INNER JOIN (
-            SELECT * FROM facdb
-            WHERE datasource = 'doe_lcgms'
-        ) AS b
-            ON
-                a.facsubgrp = b.facsubgrp
-                AND a.facsubgrp = 'CHARTER K-12 SCHOOLS'
-                AND a.bin = b.bin
-                AND UPPER(REGEXP_REPLACE(a.facname, '[^a-zA-Z0-9]+', '', 'g'))
-                = UPPER(REGEXP_REPLACE(b.facname, '[^a-zA-Z0-9]+', '', 'g'))
-    );
+WITH doe AS (
+    SELECT * FROM facdb
+    WHERE datasource = 'doe_lcgms' AND facsubgrp = 'CHARTER K-12 SCHOOLS'
+),
+nysed AS (
+    SELECT * FROM facdb
+    WHERE datasource = 'nysed_activeinstitutions' AND facsubgrp = 'CHARTER K-12 SCHOOLS'
+)
+SELECT nysed.*
+FROM nysed
+INNER JOIN doe ON
+    nysed.bin = doe.bin
+    AND CLEAN_CHARTER_SCHOOL_NAME(nysed.facname) = CLEAN_CHARTER_SCHOOL_NAME(doe.facname);
 
 -- Remove records outside of NYC based on geometry
 DELETE FROM facdb

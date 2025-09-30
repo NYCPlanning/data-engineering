@@ -72,7 +72,10 @@ WITH merged AS (
 SELECT
     uid,
     source,
-    popular_name AS facname,
+    CASE
+        WHEN inst_sub_type_description LIKE '%CHARTER SCHOOL%' THEN legal_name
+        ELSE popular_name
+    END AS facname, -- TODO - maybe just use legal for all, but for fix in 25v2 limiting scope
     NULL AS addressnum,
     NULL AS streetname,
     physical_address_line1 AS address,
