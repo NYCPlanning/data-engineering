@@ -10,7 +10,7 @@ WITH exact_matches AS (
     SELECT
         r.segmentid AS trains_segment_id,
         c.segmentid AS all_segments_id,
-        rail_type,
+        r.feature_type AS rail_type,
         'exact' AS match_type,
         c.coincident_seg_count AS starting_coincident_seg_count,
         0 AS distance,
@@ -18,14 +18,14 @@ WITH exact_matches AS (
         r.midpoint AS rail_midpoint,
         c.geom AS centerline_geom,
         c.midpoint AS centerline_midpoint
-    FROM {{ ref('stg__underground_rail') }} AS r
+    FROM {{ ref('int__underground_rail') }} AS r
     INNER JOIN {{ ref('stg__centerline') }} AS c ON ST_EQUALS(r.geom, c.geom)
 ),
 fuzzy_matches AS (
     SELECT
         r.segmentid AS trains_segment_id,
         c.segmentid AS all_segments_id,
-        r.rail_type,
+        r.feature_type AS rail_type,
         'fuzzy' AS match_type,
         c.coincident_seg_count AS starting_coincident_seg_count,
         ST_DISTANCE(r.midpoint, c.midpoint) AS distance,
@@ -33,7 +33,7 @@ fuzzy_matches AS (
         r.midpoint AS rail_midpoint,
         c.geom AS centerline_geom,
         c.midpoint AS centerline_midpoint
-    FROM {{ ref('stg__underground_rail') }} AS r
+    FROM {{ ref('int__underground_rail') }} AS r
     INNER JOIN {{ ref('stg__centerline') }} AS c
         -- 2.5 is probably too wide, but convenient for diagnostic/exporatory purposes
         ON ST_DWITHIN(r.midpoint, c.midpoint, 2.5)

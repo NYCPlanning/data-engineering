@@ -7,7 +7,7 @@
 ) }}
 
 WITH segments AS (
-    SELECT * FROM {{ ref("stg__segment_geoms") }}
+    SELECT * FROM {{ ref("int__segments") }}
 ),
 
 nodes AS (
