@@ -16,7 +16,7 @@ SELECT
     format_lion_text(lgc2, 2, '0', TRUE) AS "LGC2",
     format_lion_text(lgc3, 2, '0', TRUE) AS "LGC3",
     format_lion_text(lgc4, 2, '0', TRUE) AS "LGC4",
-    coalesce(board_of_elections_lgc_pointer, ' ') AS "Board of Elections LGC Pointer",
+    coalesce(boe_lgc_pointer, ' ') AS "Board of Elections LGC Pointer",
     format_lion_text(from_sectionalmap, 2, '0') AS "From-Sectional Map",
     format_lion_text(from_nodeid::TEXT, 7, '0') AS "From-Node ID",
     format_lion_text(round(from_x)::INT::TEXT, 7, '0') AS "From-X Coordinate",

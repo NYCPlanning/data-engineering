@@ -4,10 +4,7 @@
       {'columns': ['segmentid']},
     ]
 ) }}
-WITH centerline AS (
-    SELECT * FROM {{ ref("stg__centerline") }}
-),
-all_lgc_pivoted AS (
+WITH lgcs_by_segment AS (
     SELECT
         segmentid,
         MAX(CASE WHEN lgc_rank = 1 THEN lgc END) AS lgc1,
@@ -19,10 +16,10 @@ all_lgc_pivoted AS (
         MAX(CASE WHEN lgc_rank = 7 THEN lgc END) AS lgc7,
         MAX(CASE WHEN lgc_rank = 8 THEN lgc END) AS lgc8,
         MAX(CASE WHEN lgc_rank = 9 THEN lgc END) AS lgc9,
-        MAX(board_of_elections_lgc_pointer) AS board_of_elections_lgc_pointer,
+        MAX(CASE WHEN boe_preferred_lgc_flag = 'Y' THEN lgc_rank END) AS boe_lgc_pointer,
         MAX(CASE WHEN lgc_rank = 1 THEN b5sc END) AS b5sc,
         MAX(CASE WHEN lgc_rank = 1 THEN b7sc END) AS preferred_b7sc
-    FROM {{ ref("int__all_local_group_code_ranked") }}
+    FROM {{ ref("int__lgc") }}
     GROUP BY segmentid
 ),
 principal_streetnames AS (
@@ -41,21 +38,20 @@ principal_features AS (
 )
 
 SELECT
-    centerline.segmentid,
-    all_lgc_pivoted.lgc1,
-    all_lgc_pivoted.lgc2,
-    all_lgc_pivoted.lgc3,
-    all_lgc_pivoted.lgc4,
-    all_lgc_pivoted.lgc5,
-    all_lgc_pivoted.lgc6,
-    all_lgc_pivoted.lgc7,
-    all_lgc_pivoted.lgc8,
-    all_lgc_pivoted.lgc9,
-    all_lgc_pivoted.board_of_elections_lgc_pointer,
-    RIGHT(all_lgc_pivoted.b5sc, 5) AS five_digit_street_code,
+    LEFT(lgcs_by_segment.b5sc, 1) AS boroughcode,
+    lgcs_by_segment.segmentid,
+    lgcs_by_segment.lgc1,
+    lgcs_by_segment.lgc2,
+    lgcs_by_segment.lgc3,
+    lgcs_by_segment.lgc4,
+    lgcs_by_segment.lgc5,
+    lgcs_by_segment.lgc6,
+    lgcs_by_segment.lgc7,
+    lgcs_by_segment.lgc8,
+    lgcs_by_segment.lgc9,
+    lgcs_by_segment.boe_lgc_pointer,
+    RIGHT(lgcs_by_segment.b5sc, 5) AS five_digit_street_code,
     COALESCE(principal_streetnames.facecode, principal_features.facecode) AS face_code
-FROM
-    centerline
-LEFT JOIN all_lgc_pivoted ON centerline.segmentid = all_lgc_pivoted.segmentid
-LEFT JOIN principal_streetnames ON all_lgc_pivoted.preferred_b7sc = principal_streetnames.b7sc
-LEFT JOIN principal_features ON all_lgc_pivoted.preferred_b7sc = principal_features.b7sc
+FROM lgcs_by_segment
+LEFT JOIN principal_streetnames ON lgcs_by_segment.preferred_b7sc = principal_streetnames.b7sc
+LEFT JOIN principal_features ON lgcs_by_segment.preferred_b7sc = principal_features.b7sc
