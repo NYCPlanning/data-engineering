@@ -16,13 +16,13 @@ WITH spatial_matches AS (
 proto_segments AS (
     SELECT
         segmentid,
-        count(*) AS ps_count
+        COUNT(*) AS ps_count
     FROM {{ source('recipe_sources', 'dcp_cscl_altsegmentdata') }}
     WHERE alt_segdata_type <> 'S'
     GROUP BY segmentid
 )
 SELECT
     sm.segmentid,
-    coalesce(sm_count, 1) + coalesce(ps_count, 0) AS coincident_seg_count
+    COALESCE(sm_count, 1) + COALESCE(ps_count, 0) AS coincident_seg_count
 FROM spatial_matches AS sm
 FULL JOIN proto_segments AS ps ON sm.segmentid = ps.segmentid

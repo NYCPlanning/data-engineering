@@ -22,14 +22,17 @@
             NULL AS legacy_segmentid,
             NULL AS from_level_code,
             NULL AS to_level_code,
+            source.segment_seqnum,
         {% elif source_layer == 'dcp_cscl_nonstreetfeatures' -%}
             source.legacy_segmentid,
             NULL AS from_level_code,
             NULL AS to_level_code,
+            seqnum.segment_seqnum,
         {% else -%}
             source.legacy_segmentid,
             source.from_level_code,
             source.to_level_code,
+            source.segment_seqnum,
         {% endif -%}
         ST_LINEMERGE(source.geom) AS geom,
         ST_LINEINTERPOLATEPOINT(ST_LINEMERGE(source.geom), 0.5) AS midpoint,
@@ -49,6 +52,9 @@
         {% endif -%}
     FROM {{ source("recipe_sources", source_layer) }} AS source
     LEFT JOIN {{ ref("int__streetcode_and_facecode") }} AS boro ON source.segmentid = boro.segmentid
+    {% if source_layer == 'dcp_cscl_nonstreetfeatures' -%} 
+        LEFT JOIN {{ ref("int__nonstreetfeature_seqnum") }} AS seqnum ON source.segmentid = seqnum.segmentid
+    {% endif %}
     {% if not loop.last -%}
         UNION ALL
     {%- endif %}
