@@ -19,7 +19,7 @@ nodes AS (
 ),
 
 saf AS (
-    SELECT * FROM {{ ref("int__centerline_specialaddress") }}
+    SELECT * FROM {{ ref("int__segment_specialaddress") }}
 ),
 
 curve AS (
@@ -39,7 +39,7 @@ nypd_service_areas AS (
 ),
 
 segment_locational_status AS (
-    SELECT * FROM {{ ref("int__centerline_segment_locational_status") }}
+    SELECT * FROM {{ ref("int__segment_locational_status") }}
 ),
 
 diff_coincident_segment AS (

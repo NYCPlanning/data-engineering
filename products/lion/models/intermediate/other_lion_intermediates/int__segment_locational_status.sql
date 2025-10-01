@@ -8,7 +8,7 @@
 WITH atomicpolygons AS (
     SELECT
         segmentid,
-        centerline_segment_borocode AS centerline_borocode,
+        segment_borocode,
         left_atomicid,
         left_borocode,
         left_2010_census_tract, -- TODO all these 2010 fields should be 2020, but this aligns with current ETL tool
@@ -66,7 +66,7 @@ same_ap AS (
     SELECT
         ap.*,
         NULL AS borough_boundary_indicator,
-        centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
+        segment_borocode <> left_borocode AS is_ap_boro_boundary_error,
         CASE
             -- not joined or impossible < 1 case -> NULL
             WHEN snn.minimum_neighbors = 1 THEN 'I'
@@ -80,13 +80,13 @@ different_aps_different_boros AS (
     SELECT
         *,
         CASE
-            WHEN centerline_borocode = right_borocode THEN 'L'
-            WHEN centerline_borocode = left_borocode THEN 'R'
+            WHEN segment_borocode = right_borocode THEN 'L'
+            WHEN segment_borocode = left_borocode THEN 'R'
         END AS borough_boundary_indicator,
-        centerline_borocode <> left_borocode AND centerline_borocode <> right_borocode AS is_ap_boro_boundary_error,
+        segment_borocode <> left_borocode AND segment_borocode <> right_borocode AS is_ap_boro_boundary_error,
         CASE
-            WHEN centerline_borocode = right_borocode THEN left_borocode::char(1)
-            WHEN centerline_borocode = left_borocode THEN right_borocode::char(1)
+            WHEN segment_borocode = right_borocode THEN left_borocode::char(1)
+            WHEN segment_borocode = left_borocode THEN right_borocode::char(1)
         END AS segment_locational_status
     FROM atomicpolygons
     WHERE left_atomicid <> right_atomicid AND left_borocode <> right_borocode   -- borocode alone should be sufficient but who knows...
@@ -95,7 +95,7 @@ different_aps_same_boro AS (
     SELECT
         *,
         NULL AS borough_boundary_indicator,
-        centerline_borocode <> left_borocode AS is_ap_boro_boundary_error,
+        segment_borocode <> left_borocode AS is_ap_boro_boundary_error,
         CASE
             WHEN left_2010_census_tract <> right_2010_census_tract THEN 'X'
         END AS segment_locational_status
