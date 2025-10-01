@@ -11,7 +11,7 @@ WITH centerline AS (
 ),
 
 atomic_polygons AS (
-    SELECT * FROM {{ ref("int__centerline_atomicpolygons") }}
+    SELECT * FROM {{ ref("int__segment_atomicpolygons") }}
 ),
 
 nodes AS (
@@ -35,7 +35,7 @@ sedat AS (
 ),
 
 nypd_service_areas AS (
-    SELECT * FROM {{ ref("int__centerline_nypdbeat") }}
+    SELECT * FROM {{ ref("int__segment_nypdbeat") }}
 ),
 
 segment_locational_status AS (
