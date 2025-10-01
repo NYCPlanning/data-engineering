@@ -157,7 +157,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
         if (
-            ds.source == "edm.recipes"
+            ds.source == "edm.recipes.datasets"
         ):  # Hack for now, to accomodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
                 ds.dataset, RECIPE_FILE_TYPE_PREFERENCE

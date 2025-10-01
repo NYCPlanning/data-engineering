@@ -54,7 +54,7 @@ class InputDataset(BaseModel, extra="forbid"):
 
 class InputDatasetDefaults(BaseModel):
     file_type: recipes.DatasetType | None = None
-    source: str = "edm.recipes"
+    source: str = "edm.recipes.datasets"
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination = InputDatasetDestination.postgres
 

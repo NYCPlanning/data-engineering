@@ -168,7 +168,7 @@ def _import_dataset(
         help="Lifecycle Stage",
     ),
     source: str = typer.Option(
-        "edm.recipes",
+        "edm.recipes.datasets",
         "-f",
         "--source",
         help="Registered source to import from",
