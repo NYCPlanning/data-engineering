@@ -54,8 +54,12 @@ segment_locational_status AS (
     SELECT * FROM {{ ref("int__segment_locational_status") }}
 ),
 
-diff_coincident_segment AS (
+centerline_diff_coincident_segment AS (
     SELECT * FROM {{ ref("int__centerline_coincident_subway_or_rail") }}
+),
+
+noncl_coincident_segment AS (
+    SELECT * FROM {{ ref("int__noncenterline_coincident_segment_count") }}
 )
 
 SELECT
@@ -159,7 +163,13 @@ SELECT
         WHEN segments.feature_type = 'centerline' THEN centerline.segment_type
         WHEN segments.feature_type = 'shoreline' THEN 'U'
     END AS segment_type,
-    centerline.coincident_seg_count - coalesce(diff_coincident_segment.subway_or_rail_count, 0) AS coincident_seg_count,
+    CASE
+        WHEN segments.feature_type = 'centerline'
+            THEN
+                centerline.coincident_seg_count - coalesce(centerline_diff_coincident_segment.subway_or_rail_count, 0)
+        ELSE
+            coalesce(noncl_coincident_segment.coincident_seg_count, 1)
+    END AS coincident_seg_count,
     centerline.incex_flag,
     centerline.rw_type,
     centerline.physicalid,
@@ -239,9 +249,11 @@ LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode
 -- centerline only
 LEFT JOIN centerline ON segments.segmentid = centerline.segmentid
 LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid
-LEFT JOIN diff_coincident_segment ON centerline.segmentid = diff_coincident_segment.segmentid
+LEFT JOIN centerline_diff_coincident_segment ON centerline.segmentid = centerline_diff_coincident_segment.segmentid
 -- shoreline only
 -- rail only
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
 -- nsf only
 LEFT JOIN nsf ON segments.segmentid = nsf.segmentid
+-- other
+LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
