@@ -4,13 +4,13 @@
       {'columns': ['segmentid']},
     ]
 ) }}
-WITH centerline_offsets AS (
-    SELECT * FROM {{ ref("int__centerline_offsets") }}
+WITH segment_offsets AS (
+    SELECT * FROM {{ ref("int__segment_offsets") }}
 )
 
 SELECT
-    co.segmentid,
-    co.boroughcode AS centerline_segment_borocode,
+    so.segmentid,
+    so.boroughcode AS segment_borocode,
     left_poly.atomicid AS left_atomicid,
     left_poly.borocode AS left_borocode,
     left_poly.censustract_2000_basic AS left_2000_census_tract_basic,
@@ -51,11 +51,11 @@ SELECT
     right_poly.assemdist AS right_assembly_district,
     right_poly.electdist AS right_election_district,
     right_poly.schooldist AS right_school_district
-FROM centerline_offsets AS co
+FROM segment_offsets AS so
 -- using a cte around atomicpolygons confused the postgres compiler to not use index
 LEFT JOIN
     {{ ref("stg__atomicpolygons") }} AS left_poly
-    ON st_within(co.left_offset_point, left_poly.geom)
+    ON st_within(so.left_offset_point, left_poly.geom)
 LEFT JOIN
     {{ ref("stg__atomicpolygons") }} AS right_poly
-    ON st_within(co.right_offset_point, right_poly.geom)
+    ON st_within(so.right_offset_point, right_poly.geom)

@@ -1,10 +1,10 @@
 models:
-- name: int__centerline_atomicpolygons
-  description: centerline segments joined to left and right atomic polygons
+- name: int__segment_atomicpolygons
+  description: segment segments joined to left and right atomic polygons
   columns:
   - name: segmentid
     tests: [ not_null ]
-  - name: centerline_segment_borocode
+  - name: segment_segment_borocode
     tests:
     - not_null
   - name: left_atomicid
@@ -55,9 +55,9 @@ models:
   - name: right_school_district
   tests: [] #
   #- dbt_expectations.expect_table_row_count_to_equal_other_table: TODO: commented out while weird rows in source data are unresolved
-  #    compare_model: ref("stg__centerline")
+  #    compare_model: ref("int__segments")
 
-- name: int__centerline_offsets
+- name: int__segment_offsets
   columns:
   - name: segmentid
   - name: boroughcode

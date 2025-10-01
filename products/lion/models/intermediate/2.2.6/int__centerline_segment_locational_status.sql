@@ -15,7 +15,7 @@ WITH atomicpolygons AS (
         right_atomicid,
         right_borocode,
         right_2010_census_tract
-    FROM {{ ref("int__centerline_atomicpolygons") }}
+    FROM {{ ref("int__segment_atomicpolygons") }}
 ),
 
 -- many-to-many of segments to nodes
