@@ -43,4 +43,6 @@ inputs:
     version_env_var: VERSION
   - name: dcp_cscl_streetname
     version_env_var: VERSION
+  - name: dcp_cscl_zipcode
+    version_env_var: VERSION
   missing_versions_strategy: find_latest # TODO - they should all match
