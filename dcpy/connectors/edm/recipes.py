@@ -1,12 +1,5 @@
-from datetime import datetime
-import json
-import os
 import pandas as pd
 from pathlib import Path
-from pyarrow import parquet
-import shutil
-from tempfile import TemporaryDirectory
-from typing import Callable
 import yaml
 
 from dcpy import configuration
@@ -14,15 +7,14 @@ from dcpy.models.connectors.edm.recipes import (
     Dataset,
     DatasetType,
     DatasetKey,
-    RawDatasetKey,
-    ValidAclValues,
 )
 from dcpy.models import library
-from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.lifecycle import ingest
-from dcpy.utils import s3, postgres
-from dcpy.utils.geospatial import parquet as geoparquet
+from dcpy.utils import s3
 from dcpy.utils.logging import logger
+
+
+# TODO: continuing hacking away until this module is no more.
 
 
 def _bucket() -> str:
@@ -32,11 +24,7 @@ def _bucket() -> str:
     return configuration.RECIPES_BUCKET
 
 
-LIBRARY_DEFAULT_PATH = (
-    Path(os.environ.get("PROJECT_ROOT_PATH") or os.getcwd()) / ".library"
-)
 DATASET_FOLDER = "datasets"
-RAW_FOLDER = "raw_datasets"
 
 
 def s3_folder_path(ds: Dataset | DatasetKey) -> str:
@@ -45,69 +33,6 @@ def s3_folder_path(ds: Dataset | DatasetKey) -> str:
 
 def s3_file_path(ds: Dataset) -> str:
     return f"{s3_folder_path(ds)}/{ds.file_name}"
-
-
-def s3_raw_folder_path(ds: RawDatasetKey) -> str:
-    return f"{RAW_FOLDER}/{ds.id}/{ds.timestamp.isoformat()}"
-
-
-def s3_raw_file_path(ds: RawDatasetKey) -> str:
-    return f"{s3_raw_folder_path(ds)}/{ds.filename}"
-
-
-def exists(ds: Dataset) -> bool:
-    return s3.folder_exists(_bucket(), s3_folder_path(ds))
-
-
-def archive_dataset(
-    config: ingest.Config,
-    file_path: Path,
-    *,
-    acl: ValidAclValues,
-    raw: bool = False,
-    latest: bool = False,
-) -> None:
-    """
-    Given a config and a path to a file and an s3_path, archive it in edm-recipe
-    It is assumed that s3_path has taken care of figuring out which top-level folder,
-    how the dataset is being versioned, etc.
-    """
-    bucket = _bucket()
-    s3_path = (
-        s3_raw_folder_path(config.raw_dataset_key)
-        if raw
-        else s3_folder_path(config.dataset_key)
-    )
-    if s3.folder_exists(bucket, s3_path):
-        raise Exception(
-            f"Archived dataset at {s3_path} already exists, cannot overwrite"
-        )
-    with TemporaryDirectory() as tmp_dir:
-        tmp_dir_path = Path(tmp_dir)
-        shutil.copy(file_path, tmp_dir_path)
-        with open(tmp_dir_path / "config.json", "w") as f:
-            f.write(
-                json.dumps(config.model_dump(exclude_none=True, mode="json"), indent=4)
-            )
-        s3.upload_folder(
-            bucket,
-            tmp_dir_path,
-            Path(s3_path),
-            acl=acl,
-            contents_only=True,
-        )
-    if latest:
-        assert not raw, "Cannot set raw dataset to 'latest'"
-        set_latest(config.dataset_key, acl)
-
-
-def set_latest(key: DatasetKey, acl):
-    s3.copy_folder(
-        _bucket(),
-        f"{s3_folder_path(key)}/",
-        f"{DATASET_FOLDER}/{key.id}/latest/",
-        acl=acl,
-    )
 
 
 def get_config_obj(name: str, version="latest") -> dict:
@@ -126,36 +51,6 @@ def get_config(name: str, version="latest") -> library.Config | ingest.Config:
         return library.Config(**config)
     else:
         return ingest.Config(**config)
-
-
-def try_get_config(dataset: Dataset) -> library.Config | ingest.Config | None:
-    """Retrieve a recipe config object, if exists"""
-    if not exists(dataset):
-        return None
-    else:
-        return get_config(dataset.id, dataset.version)
-
-
-def get_parquet_metadata(id: str, version="latest") -> parquet.FileMetaData:
-    s3_fs = s3.pyarrow_fs()
-    ds = parquet.ParquetDataset(
-        f"{_bucket()}/{DATASET_FOLDER}/{id}/{version}/{id}.parquet", filesystem=s3_fs
-    )
-
-    assert len(ds.fragments) == 1, "recipes does not support multi-fragment datasets"
-    return ds.fragments[0].metadata
-
-
-def get_latest_version(name: str) -> str:
-    """
-    Get latest version of a dataset
-    Just uses dicts to avoid issues regarding changing pydantic models
-    """
-    config = get_config_obj(name)
-    if "dataset" in config:
-        return config["dataset"]["version"]
-    else:
-        return config["version"]
 
 
 def get_all_versions(name: str) -> list[str]:
@@ -250,119 +145,3 @@ def read_df(
         with s3.get_file_as_stream(_bucket(), s3_file_path(ds)) as stream:
             data = reader(stream, **kwargs)
         return data
-
-
-def load_into_postgres(
-    ds: Dataset,
-    pg_client: postgres.PostgresClient,
-    local_dataset_path: Path,
-    *,
-    local_library_dir=LIBRARY_DEFAULT_PATH,
-    import_as: str | None = None,
-    preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
-):
-    logger.info(f"preproc: {preprocessor}")
-    ds_table_name = import_as or ds.id
-    if ds.file_type == DatasetType.pg_dump:
-        pg_client.import_pg_dump(
-            local_dataset_path,
-            pg_dump_table_name=ds.id,
-            target_table_name=ds_table_name,
-        )
-
-    elif ds.file_type in (DatasetType.csv, DatasetType.parquet):
-        df = (
-            pd.read_csv(local_dataset_path, dtype=str)
-            if ds.file_type == DatasetType.csv
-            else geoparquet.read_df(local_dataset_path)
-        )
-        if preprocessor is not None:
-            df = preprocessor(ds.id, df)
-
-        # make column names more sql-friendly
-        columns = {
-            column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
-            for column in df.columns
-        }
-        df.rename(columns=columns, inplace=True)
-        pg_client.insert_dataframe(df, ds_table_name)
-        pg_client.add_pk(ds_table_name, "ogc_fid")
-
-    pg_client.add_table_column(
-        ds_table_name,
-        col_name="data_library_version",
-        col_type="text",
-        default_value=ds.version,
-    )
-
-    return f"{pg_client.schema}.{ds_table_name}"
-
-
-# TODO: Kill this after evaluating references in Ingest and the QAQC app
-def import_dataset(
-    ds: Dataset,
-    pg_client: postgres.PostgresClient,
-    *,
-    local_library_dir=LIBRARY_DEFAULT_PATH,
-    import_as: str | None = None,
-    preprocessor: Callable[[str, pd.DataFrame], pd.DataFrame] | None = None,
-) -> str:
-    """Import a recipe to local data library folder and build engine."""
-    assert ds.file_type, f"Cannot import dataset {ds.id}, no file type defined."
-    logger.info(
-        f"Importing {ds.id} {ds.file_type} into {pg_client.database}.{pg_client.schema}"
-    )
-
-    local_dataset_path = fetch_dataset(ds, target_dir=local_library_dir)
-    return load_into_postgres(
-        ds=ds,
-        pg_client=pg_client,
-        local_dataset_path=local_dataset_path,
-        local_library_dir=local_library_dir,
-        import_as=import_as,
-        preprocessor=preprocessor,
-    )
-
-
-def purge_recipe_cache():
-    """Delete locally stored recipe files."""
-    logger.info(f"Purging local recipes from {LIBRARY_DEFAULT_PATH}")
-    shutil.rmtree(LIBRARY_DEFAULT_PATH)
-
-
-
-
-class Connector(VersionedConnector):
-    conn_type: str = "edm.recipes"
-
-    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
-        raise NotImplementedError("edm.recipes deprecated for archiving")
-
-    def pull_versioned(
-        self,
-        key: str,
-        version: str,
-        destination_path: Path,
-        *,
-        file_type: DatasetType = DatasetType.parquet,
-        **kwargs,
-    ) -> dict:
-        return {
-            "path": fetch_dataset(
-                Dataset(id=key, version=version, file_type=file_type),
-                target_dir=Path(),
-                _target_dataset_path_override=destination_path,
-            )
-        }
-
-    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
-        return sorted(get_all_versions(name=key), reverse=sort_desc)
-
-    def get_latest_version(self, key: str, **kwargs) -> str:
-        return get_latest_version(name=key)
-
-    def version_exists(self, key: str, version: str, **kwargs) -> bool:
-        return exists(Dataset(id=key, version=version))
-
-    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:
-        return Path("edm") / "recipes" / DATASET_FOLDER / key / version
