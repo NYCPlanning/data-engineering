@@ -59,11 +59,6 @@ def load_ingest(create_buckets):
 
 
 def test_dataset_type_from_extension():
-    assert recipes._dataset_type_from_extension("sql") == DatasetType.pg_dump
-    assert recipes._dataset_type_from_extension("csv") == DatasetType.csv
-    assert recipes._dataset_type_from_extension("parquet") == DatasetType.parquet
-    assert recipes._dataset_type_from_extension("xlsx") == DatasetType.xlsx
-    assert recipes._dataset_type_from_extension("other") is None
 
 
 class TestArchiveDataset:
@@ -120,6 +115,11 @@ class TestArchiveDataset:
             match=f"Archived dataset at {folder_path} already exists, cannot overwrite",
         ):
             recipes.archive_dataset(self.config, Path("."), acl=self.acl)
+    assert recipes.DatasetType.from_extension("sql") == DatasetType.pg_dump
+    assert recipes.DatasetType.from_extension("csv") == DatasetType.csv
+    assert recipes.DatasetType.from_extension("parquet") == DatasetType.parquet
+    assert recipes.DatasetType.from_extension("xlsx") == DatasetType.xlsx
+    assert recipes.DatasetType.from_extension("other") is None
 
 
 def test_get_preferred_file_type(load_library):

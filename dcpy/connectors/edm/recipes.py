@@ -167,24 +167,10 @@ def get_all_versions(name: str) -> list[str]:
     ]
 
 
-def _dataset_type_from_extension(s: str) -> DatasetType | None:
-    match s:
-        case "sql":
-            return DatasetType.pg_dump
-        case "csv":
-            return DatasetType.csv
-        case "parquet":
-            return DatasetType.parquet
-        case "xlsx":
-            return DatasetType.xlsx
-        case _:
-            return None
-
-
 def get_file_types(dataset: Dataset | DatasetKey) -> set[DatasetType]:
     files = s3.get_filenames(bucket=_bucket(), prefix=s3_folder_path(dataset))
     valid_types = {
-        _dataset_type_from_extension(Path(file).suffix.strip(".")) for file in files
+        DatasetType.from_extension(Path(file).suffix.strip(".")) for file in files
     }
     return {t for t in valid_types if t is not None}
 
