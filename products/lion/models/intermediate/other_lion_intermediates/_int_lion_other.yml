@@ -1,5 +1,11 @@
 models:
-- name: int__centerline_segment_locational_status
+- name: int__segment_specialaddress
+  columns:
+  - name: segmentid
+  - name: boroughcode
+  - name: special_address_flag
+
+- name: int__segment_locational_status
   description: |
     Centerline segments with Locational Status & Borough Boundary Indicator columns.
   columns:
