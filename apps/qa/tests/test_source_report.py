@@ -5,7 +5,6 @@ from dcpy.utils.postgres import PostgresClient
 from dcpy.connectors.edm import publishing
 from src.shared.constants import DATASET_NAMES
 from src.shared.utils.source_report import (
-    get_latest_source_data_versions,
     get_source_dataset_ids,
     compare_source_data_columns,
     compare_source_data_row_count,
@@ -45,16 +44,6 @@ def test_get_source_data_versions_from_build():
     assert (
         source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
         == TEST_DATA_SOURCE_VERSION_REFERENCE
-    )
-
-
-@pytest.mark.skip(reason="requires mock data")
-def test_get_latest_source_data_versions():
-    source_data_versions = get_latest_source_data_versions(dataset=TEST_DATASET_NAME)
-    assert isinstance(source_data_versions, pd.DataFrame)
-    assert (
-        source_data_versions.loc[TEST_DATA_SOURCE_NAME, "version"]
-        == TEST_DATA_SOURCE_VERSION_LATEST
     )
 
 
