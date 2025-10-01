@@ -26,8 +26,8 @@ curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
 ),
 
-streets AS (
-    SELECT * FROM {{ ref("int__centerline_streetcode_and_facecode") }}
+street_and_facecode AS (
+    SELECT * FROM {{ ref("int__streetcode_and_facecode") }}
 ),
 
 sedat AS (
@@ -48,15 +48,15 @@ diff_coincident_segment AS (
 
 SELECT
     centerline.boroughcode,
-    streets.face_code,
+    street_and_facecode.face_code,
     centerline.segment_seqnum,
     centerline.segmentid,
-    streets.five_digit_street_code,
-    streets.lgc1,
-    streets.lgc2,
-    streets.lgc3,
-    streets.lgc4,
-    streets.boe_lgc_pointer::CHAR(1),
+    street_and_facecode.five_digit_street_code,
+    street_and_facecode.lgc1,
+    street_and_facecode.lgc2,
+    street_and_facecode.lgc3,
+    street_and_facecode.lgc4,
+    street_and_facecode.boe_lgc_pointer::CHAR(1),
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     nodes.from_x,
@@ -145,11 +145,11 @@ SELECT
     ap_left.left_2010_census_tract_suffix,
     ap_right.right_2010_census_tract_basic,
     ap_right.right_2010_census_tract_suffix,
-    streets.lgc5,
-    streets.lgc6,
-    streets.lgc7,
-    streets.lgc8,
-    streets.lgc9,
+    street_and_facecode.lgc5,
+    street_and_facecode.lgc6,
+    street_and_facecode.lgc7,
+    street_and_facecode.lgc8,
+    street_and_facecode.lgc9,
     centerline.legacy_segmentid,
     ap_left.left_2000_census_block_basic,
     ap_left.left_2000_census_block_suffix,
@@ -184,7 +184,7 @@ FROM centerline
 LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
 LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode = saf.boroughcode
 LEFT JOIN curve ON centerline.segmentid = curve.segmentid
-LEFT JOIN streets ON centerline.segmentid = streets.segmentid
+LEFT JOIN street_and_facecode ON centerline.segmentid = street_and_facecode.segmentid
 LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
 LEFT JOIN nypd_service_areas ON centerline.segmentid = nypd_service_areas.segmentid
 LEFT JOIN segment_locational_status ON centerline.segmentid = segment_locational_status.segmentid

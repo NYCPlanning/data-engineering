@@ -16,8 +16,8 @@ models:
         inclusive: true
   - name: boe_lgc_pointer
 
-- name: int__centerline_streetcode_and_facecode
-  description: Centerline segments joined to street codes and face codes
+- name: int__streetcode_and_facecode
+  description: Street codes and face code-related data for all segments
   columns:
   - name: boroughcode
   - name: segmentid
