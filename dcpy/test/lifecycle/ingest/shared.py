@@ -82,7 +82,7 @@ BASIC_CONFIG = Config(
     archival=ArchivalMetadata(
         archival_timestamp=datetime(2024, 1, 1),
         raw_filename="dummy.txt",
-        acl="public-read",
+        acl="private",
     ),
     ingestion=Ingestion(source=Sources.local_file, file_format=file.Csv(type="csv")),
     run_details=get_run_details(),
