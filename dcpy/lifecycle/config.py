@@ -1,17 +1,26 @@
-from dcpy import configuration
+from os import environ as env
 from pathlib import Path
+
+from dcpy import configuration
 
 
 def _set_default_conf():
     ## the default is a little sparse at the moment, and a little duplicative
     ## (ie each `local_data_path` is just the `stage` name.)
+    _env_data_path = env.get("DCPY_LIFECYCLE_DATA_DIR")
+    data_path = (
+        Path(_env_data_path)
+        if _env_data_path
+        else Path(__file__).parent.parent.parent / ".lifecycle"  # ugh
+    )
+
     return {
         "product_metadata": {
             "repo_path": Path(configuration.PRODUCT_METADATA_REPO_PATH).absolute()
             if configuration.PRODUCT_METADATA_REPO_PATH
             else None
         },
-        "local_data_path": ".lifecycle",
+        "local_data_path": data_path,
         "stages": {
             "ingest": {
                 "local_data_path": "ingest",
@@ -22,6 +31,7 @@ def _set_default_conf():
                     "plan": {"local_data_path": "plan"},
                     "load": {"local_data_path": "load"},
                     "build": {"local_data_path": "build"},
+                    "qa": {"local_data_path": "qa"},
                 },
             },
             "package": {
@@ -39,7 +49,6 @@ def _set_default_conf():
 
 
 # Configuration for lifecycle stages (like directories for stage data)
-# can live in the configuration.
 CONF = _set_default_conf()
 
 
