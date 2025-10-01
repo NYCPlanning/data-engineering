@@ -6,7 +6,10 @@ from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.ingest import Config
 from dcpy.configuration import TEMPLATE_DIR
 from dcpy.lifecycle import config
-from dcpy.lifecycle.ingest.connectors import raw_datastore, processed_datastore
+from dcpy.lifecycle.ingest.connectors import (
+    get_raw_datastore_connector,
+    get_processed_datastore_connector,
+)
 
 from . import configure, extract, transform, validate
 
@@ -65,7 +68,7 @@ def ingest(
     config.archival.raw_filename = filepath.name
 
     if push:
-        raw_datastore.push(
+        get_raw_datastore_connector().push(
             dataset_id,
             version=config.archival.archival_timestamp.isoformat(),
             filepath=filepath,
@@ -99,7 +102,9 @@ def ingest(
     shutil.copy(dataset_staging_dir / CONFIG_FILENAME, dataset_output_dir)
     shutil.copy(dataset_staging_dir / config.filename, dataset_output_dir)
 
-    version_exists = processed_datastore.version_exists(dataset_id, config.version)
+    version_exists = get_processed_datastore_connector().version_exists(
+        dataset_id, config.version
+    )
     if version_exists and not overwrite_okay:
         validate.validate_against_existing_version(
             dataset_id,
@@ -109,7 +114,7 @@ def ingest(
 
     if push and (overwrite_okay or not version_exists):
         assert config.archival.acl
-        processed_datastore.push(
+        get_processed_datastore_connector().push(
             dataset_id,
             version=config.version,
             filepath=dataset_staging_dir / config.filename,
