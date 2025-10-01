@@ -18,13 +18,13 @@ segment_endpoints AS (
     SELECT
         segmentid,
         'from' AS direction,
-        st_startpoint(geom) AS geom
+        start_point AS geom
     FROM segments
     UNION ALL
     SELECT
         segmentid,
         'to' AS direction,
-        st_endpoint(geom) AS geom
+        end_point AS geom
     FROM segments
 )
 
