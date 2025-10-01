@@ -20,4 +20,4 @@ ingestion:
     dtype: str
   processing_steps:
   - name: clean_column_names
-    args: {"replace": {"_": ""}, "lower": True}
+    args: {"replace": {"_": "X"}, "lower": True}
