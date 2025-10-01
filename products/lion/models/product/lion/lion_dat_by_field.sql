@@ -125,4 +125,4 @@ SELECT
     format_lion_text(right_2020_census_block_basic::TEXT, 4, ' ') AS "RIGHT CENSUS BLOCK 2020 BASIC",
     coalesce(right_2020_census_block_suffix::TEXT, ' ') AS "RIGHT CENSUS BLOCK 2020 SUFFIX",
     format_lion_text('', 45, ' ') AS "Filler L199"
-FROM {{ ref("lion") }}
+FROM {{ ref("int__lion") }}

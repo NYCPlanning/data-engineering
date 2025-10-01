@@ -1,7 +1,7 @@
 version: 2
 
 models:
-- name: lion_dat_fields
+- name: lion_dat_by_field
   description: lion with individual fields formatted for export
   config:
     contract:
