@@ -21,28 +21,39 @@ attrs==25.3.0
     #   jsonschema
     #   rasterio
     #   referencing
+azure-core==1.35.1
+    # via
+    #   azure-storage-blob
+    #   azure-storage-file-datalake
+azure-storage-blob==12.26.0
+    # via
+    #   azure-storage-file-datalake
+    #   cloudpathlib
+azure-storage-file-datalake==12.21.0
+    # via cloudpathlib
 babel==2.17.0
     # via agate
-bcrypt==4.3.0
+bcrypt==5.0.0
     # via paramiko
-beautifulsoup4==4.13.5
+beautifulsoup4==4.14.2
     # via
     #   -r requirements.in
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.40.26
+boto3==1.40.40
     # via
     #   -r requirements.in
+    #   cloudpathlib
     #   moto
-boto3-stubs[s3]==1.40.26
+boto3-stubs[s3]==1.40.40
     # via -r requirements.in
-botocore==1.40.26
+botocore==1.40.40
     # via
     #   boto3
     #   moto
     #   s3transfer
-botocore-stubs==1.40.25
+botocore-stubs==1.40.33
     # via boto3-stubs
 bqplot==0.12.45
     # via leafmap
@@ -54,15 +65,17 @@ branca==0.8.1
     #   streamlit-folium
 cached-property==2.0.1
     # via -r requirements.in
-cachetools==6.2.0
-    # via streamlit
+cachetools==5.5.2
+    # via
+    #   google-auth
+    #   streamlit
 certifi==2025.8.3
     # via
     #   pyogrio
     #   pyproj
     #   rasterio
     #   requests
-cffi==1.17.1
+cffi==2.0.0
     # via
     #   cryptography
     #   pynacl
@@ -74,7 +87,7 @@ chardet==5.2.0
     #   sqlfluff
 charset-normalizer==3.4.3
     # via requests
-click==8.2.1
+click==8.3.0
     # via
     #   click-plugins
     #   cligj
@@ -90,6 +103,8 @@ click-plugins==1.1.1.2
     # via rasterio
 cligj==0.7.2
     # via rasterio
+cloudpathlib[all]==0.22.0
+    # via -r requirements.in
 colorama==0.4.6
     # via
     #   dbt-common
@@ -102,10 +117,11 @@ contextily==1.6.2
     # via -r requirements.in
 contourpy==1.3.3
     # via matplotlib
-coverage[toml]==7.10.6
+coverage[toml]==7.10.7
     # via pytest-cov
-cryptography==45.0.7
+cryptography==46.0.1
     # via
+    #   azure-storage-blob
     #   moto
     #   msal
     #   paramiko
@@ -117,16 +133,16 @@ cycler==0.12.1
     # via matplotlib
 daff==1.4.2
     # via dbt-core
-dbt-adapters==1.16.6
+dbt-adapters==1.16.7
     # via
     #   dbt-core
     #   dbt-postgres
-dbt-common==1.29.0
+dbt-common==1.32.0
     # via
     #   dbt-adapters
     #   dbt-core
     #   dbt-postgres
-dbt-core==1.10.11
+dbt-core==1.10.13
     # via
     #   -r requirements.in
     #   dbt-postgres
@@ -135,14 +151,14 @@ dbt-extractor==0.6.0
     # via dbt-core
 dbt-postgres==1.9.1
     # via -r requirements.in
-dbt-protos==1.0.348
+dbt-protos==1.0.375
     # via
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
 dbt-semantic-interfaces==0.9.0
     # via dbt-core
-debugpy==1.8.16
+debugpy==1.8.17
     # via ipykernel
 decorator==5.2.1
     # via ipython
@@ -150,11 +166,11 @@ deepdiff==8.6.1
     # via dbt-common
 diagrams==0.24.4
     # via -r requirements.in
-diff-cover==9.6.0
+diff-cover==9.7.1
     # via sqlfluff
 distlib==0.4.0
     # via virtualenv
-duckdb==1.3.2
+duckdb==1.4.0
     # via
     #   -r requirements.in
     #   leafmap
@@ -162,9 +178,11 @@ et-xmlfile==2.0.0
     # via openpyxl
 eval-type-backport==0.2.2
     # via maplibre
+execnet==2.1.1
+    # via pytest-xdist
 executing==2.2.1
     # via stack-data
-faker==37.6.0
+faker==37.8.0
     # via -r requirements.in
 filelock==3.19.1
     # via
@@ -175,7 +193,7 @@ folium==0.20.0
     #   -r requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.59.2
+fonttools==4.60.0
     # via matplotlib
 gdal==3.11.3
     # via -r requirements.in
@@ -197,6 +215,27 @@ gitdb==4.0.12
     # via gitpython
 gitpython==3.1.45
     # via streamlit
+google-api-core==2.25.1
+    # via
+    #   google-cloud-core
+    #   google-cloud-storage
+google-auth==2.40.3
+    # via
+    #   google-api-core
+    #   google-cloud-core
+    #   google-cloud-storage
+google-cloud-core==2.4.3
+    # via google-cloud-storage
+google-cloud-storage==3.4.0
+    # via cloudpathlib
+google-crc32c==1.7.1
+    # via
+    #   google-cloud-storage
+    #   google-resumable-media
+google-resumable-media==2.7.2
+    # via google-cloud-storage
+googleapis-common-protos==1.70.0
+    # via google-api-core
 graphviz==0.20.3
     # via
     #   -r requirements.in
@@ -215,7 +254,7 @@ iniconfig==2.1.0
     # via pytest
 invoke==2.2.0
     # via paramiko
-ipyevents==2.0.2
+ipyevents==2.0.4
     # via leafmap
 ipyfilechooser==0.6.0
     # via
@@ -225,7 +264,7 @@ ipykernel==6.30.1
     # via -r requirements.in
 ipyleaflet==0.20.0
     # via leafmap
-ipython==9.5.0
+ipython==9.6.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -233,7 +272,7 @@ ipython-pygments-lexers==1.1.1
     # via ipython
 ipytree==0.2.2
     # via whiteboxgui
-ipyvue==1.11.2
+ipyvue==1.11.3
     # via ipyvuetify
 ipyvuetify==1.11.3
     # via leafmap
@@ -251,6 +290,8 @@ ipywidgets==8.1.7
 isodate==0.6.1
     # via
     #   agate
+    #   azure-storage-blob
+    #   azure-storage-file-datalake
     #   dbt-common
 jedi==0.19.2
     # via ipython
@@ -304,11 +345,11 @@ jupyterlab-widgets==3.0.15
     # via ipywidgets
 kiwisolver==1.4.9
     # via matplotlib
-leafmap==0.52.0
+leafmap==0.52.4
     # via -r requirements.in
 leather==0.4.0
     # via agate
-lxml==6.0.1
+lxml==6.0.2
     # via -r requirements.in
 mapclassify==2.10.0
     # via -r requirements.in
@@ -316,7 +357,7 @@ maplibre==0.3.5
     # via leafmap
 markdown-it-py==4.0.0
     # via rich
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via
     #   jinja2
     #   werkzeug
@@ -340,13 +381,13 @@ mercantile==1.2.1
     # via contextily
 more-itertools==10.8.0
     # via dbt-semantic-interfaces
-moto[s3]==5.1.12
+moto[s3]==5.1.13
     # via -r requirements.in
-msal==1.33.0
+msal==1.34.0
     # via -r requirements.in
 msgpack==1.1.1
     # via mashumaro
-mypy==1.17.1
+mypy==1.18.2
     # via
     #   -r requirements.in
     #   openpyxl-stubs
@@ -357,7 +398,7 @@ mypy-extensions==1.1.0
     # via
     #   mypy
     #   typing-inspect
-narwhals==2.4.0
+narwhals==2.6.0
     # via
     #   altair
     #   plotly
@@ -371,7 +412,7 @@ nodeenv==1.9.1
     # via pre-commit
 numerize==0.12
     # via -r requirements.in
-numpy==2.3.2
+numpy==2.3.3
     # via
     #   bqplot
     #   contourpy
@@ -419,7 +460,7 @@ pandas==2.3.2
     #   mapclassify
     #   streamlit
     #   streamlit-aggrid
-pandas-stubs==2.3.2.250827
+pandas-stubs==2.3.2.250926
     # via -r requirements.in
 pandera==0.26.1
     # via -r requirements.in
@@ -464,20 +505,25 @@ probableparsing==0.0.1
     # via usaddress
 prompt-toolkit==3.0.52
     # via ipython
-protobuf==6.32.0
+proto-plus==1.26.1
+    # via google-api-core
+protobuf==6.32.1
     # via
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
     #   dbt-protos
+    #   google-api-core
+    #   googleapis-common-protos
+    #   proto-plus
     #   streamlit
-psutil==7.0.0
+psutil==7.1.0
     # via ipykernel
 psycopg2-binary==2.9.10
     # via
     #   -r requirements.in
     #   dbt-postgres
-psygnal==0.14.1
+psygnal==0.14.2
     # via anywidget
 ptyprocess==0.7.0
     # via pexpect
@@ -490,11 +536,17 @@ pyarrow==21.0.0
     #   -r requirements.in
     #   pyarrow-stubs
     #   streamlit
-pyarrow-stubs==20.0.0.20250825
+pyarrow-stubs==20.0.0.20250928
     # via -r requirements.in
-pycparser==2.22
+pyasn1==0.6.1
+    # via
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.4.2
+    # via google-auth
+pycparser==2.23
     # via cffi
-pydantic==2.11.7
+pydantic==2.11.9
     # via
     #   -r requirements.in
     #   dbt-core
@@ -514,11 +566,11 @@ pygments==2.19.2
     #   rich
 pyjwt[crypto]==2.10.1
     # via msal
-pynacl==1.5.0
+pynacl==1.6.0
     # via paramiko
 pyogrio==0.11.1
     # via geopandas
-pyparsing==3.2.3
+pyparsing==3.2.5
     # via
     #   matplotlib
     #   rasterio
@@ -526,7 +578,7 @@ pyproj==3.7.2
     # via geopandas
 pysocks==1.7.1
     # via requests
-pystac[validation]==1.13.0
+pystac[validation]==1.14.1
     # via pystac-client
 pystac-client==0.9.0
     # via leafmap
@@ -534,8 +586,11 @@ pytest==8.4.2
     # via
     #   -r requirements.in
     #   pytest-cov
+    #   pytest-xdist
     #   sqlfluff
-pytest-cov==6.3.0
+pytest-cov==7.0.0
+    # via -r requirements.in
+pytest-xdist==3.8.0
     # via -r requirements.in
 python-box==7.3.2
     # via leafmap
@@ -568,7 +623,7 @@ pytz==2025.2
     #   dbt-adapters
     #   dbt-core
     #   pandas
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via
     #   -r requirements.in
     #   dbt-core
@@ -577,7 +632,7 @@ pyyaml==6.0.2
     #   pre-commit
     #   responses
     #   sqlfluff
-pyzmq==27.0.2
+pyzmq==27.1.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -587,15 +642,18 @@ referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-regex==2025.9.1
+regex==2025.9.18
     # via sqlfluff
 requests[socks]==2.32.5
     # via
+    #   azure-core
     #   contextily
     #   dbt-common
     #   dbt-core
     #   folium
     #   gdown
+    #   google-api-core
+    #   google-cloud-storage
     #   moto
     #   msal
     #   pystac-client
@@ -613,26 +671,29 @@ rpds-py==0.27.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.12.12
+rsa==4.9.1
+    # via google-auth
+ruff==0.13.2
     # via -r requirements.in
-s3transfer==0.13.1
+s3transfer==0.14.0
     # via boto3
-scikit-learn==1.7.1
+scikit-learn==1.7.2
     # via mapclassify
-scipy==1.16.1
+scipy==1.16.2
     # via
     #   mapclassify
     #   scikit-learn
-scooby==0.10.1
+scooby==0.10.2
     # via leafmap
 setuptools==80.9.0
     # via -r requirements.in
-shapely==2.1.1
+shapely==2.1.2
     # via geopandas
 shellingham==1.5.4
     # via typer
 six==1.17.0
     # via
+    #   azure-core
     #   isodate
     #   python-dateutil
 smmap==5.0.2
@@ -659,14 +720,14 @@ sqlparse==0.5.3
     # via dbt-core
 stack-data==0.6.3
     # via ipython
-streamlit==1.49.1
+streamlit==1.50.0
     # via
     #   -r requirements.in
     #   streamlit-aggrid
     #   streamlit-folium
-streamlit-aggrid==1.1.8.post1
+streamlit-aggrid==1.1.9
     # via -r requirements.in
-streamlit-folium==0.25.1
+streamlit-folium==0.25.2
     # via -r requirements.in
 tabulate==0.9.0
     # via -r requirements.in
@@ -706,25 +767,25 @@ traittypes==0.2.1
     #   ipyleaflet
 typeguard==4.4.4
     # via pandera
-typer==0.17.4
+typer==0.19.2
     # via -r requirements.in
 types-awscrt==0.27.6
     # via botocore-stubs
 types-beautifulsoup4==4.12.0.20250516
     # via -r requirements.in
-types-html5lib==1.1.11.20250809
+types-html5lib==1.1.11.20250917
     # via types-beautifulsoup4
 types-paramiko==4.0.0.20250822
     # via -r requirements.in
-types-psycopg2==2.9.21.20250809
+types-psycopg2==2.9.21.20250915
     # via -r requirements.in
 types-python-dateutil==2.9.0.20250822
     # via -r requirements.in
 types-pytz==2025.2.0.20250809
     # via pandas-stubs
-types-pyyaml==6.0.12.20250822
+types-pyyaml==6.0.12.20250915
     # via -r requirements.in
-types-requests==2.32.4.20250809
+types-requests==2.32.4.20250913
     # via
     #   -r requirements.in
     #   types-tqdm
@@ -738,6 +799,9 @@ typing-extensions==4.15.0
     # via
     #   altair
     #   anywidget
+    #   azure-core
+    #   azure-storage-blob
+    #   azure-storage-file-datalake
     #   beautifulsoup4
     #   dbt-adapters
     #   dbt-common
@@ -776,13 +840,13 @@ us==3.2.0
     # via -r requirements.in
 usaddress==0.5.16
     # via -r requirements.in
-uv==0.8.15
+uv==0.8.22
     # via -r requirements.in
 virtualenv==20.34.0
     # via pre-commit
 watchdog==6.0.0
     # via streamlit
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via prompt-toolkit
 werkzeug==3.1.3
     # via moto
@@ -794,7 +858,7 @@ widgetsnbextension==4.0.14
     # via ipywidgets
 xlrd==2.0.2
     # via -r requirements.in
-xmltodict==0.15.1
+xmltodict==1.0.2
     # via moto
 xyzservices==2025.4.0
     # via

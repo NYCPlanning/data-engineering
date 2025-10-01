@@ -2,6 +2,7 @@ beautifulsoup4>=4.9.3
 boto3>=1.28.1
 boto3-stubs[s3]>=1.28.1
 cached-property
+cloudpathlib[all]
 contextily
 css-inline
 dbt-core
@@ -41,6 +42,7 @@ pyarrow-stubs
 pydantic
 pytest
 pytest-cov
+pytest-xdist
 python-dotenv>=0.20.0
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
 pytz>=2023.3
