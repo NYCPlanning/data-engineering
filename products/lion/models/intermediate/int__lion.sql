@@ -50,6 +50,10 @@ nypd_service_areas AS (
     SELECT * FROM {{ ref("int__segment_nypdbeat") }}
 ),
 
+zips AS (
+    SELECT * FROM {{ ref("int__segment_zipcodes") }}
+),
+
 segment_locational_status AS (
     SELECT * FROM {{ ref("int__segment_locational_status") }}
 ),
@@ -87,7 +91,10 @@ SELECT
     centerline.l_low_hn,
     centerline.l_high_hn,
     centerline.lsubsect,
-    centerline.l_zip,
+    CASE
+        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L') THEN
+            coalesce(centerline.l_zip, zips.l_zip)
+    END AS l_zip,
     ap_left.left_assembly_district,
     ap_left.left_election_district,
     ap_left.left_school_district,
@@ -97,7 +104,10 @@ SELECT
     centerline.r_low_hn,
     centerline.r_high_hn,
     centerline.rsubsect,
-    centerline.r_zip,
+    CASE
+        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R') THEN
+            coalesce(centerline.r_zip, zips.r_zip)
+    END AS r_zip,
     ap_right.right_assembly_district,
     ap_right.right_election_district,
     ap_right.right_school_district,
@@ -159,10 +169,7 @@ SELECT
     convert_level_code(segments.from_level_code, segments.feature_type) AS from_level_code,
     convert_level_code(segments.to_level_code, segments.feature_type) AS to_level_code,
     centerline.trafdir_ver_flag,
-    CASE
-        WHEN segments.feature_type = 'centerline' THEN centerline.segment_type
-        WHEN segments.feature_type = 'shoreline' THEN 'U'
-    END AS segment_type,
+    coalesce(centerline.segment_type, 'U') AS segment_type,
     CASE
         WHEN segments.feature_type = 'centerline'
             THEN
@@ -257,3 +264,4 @@ LEFT JOIN rail ON segments.segmentid = rail.segmentid
 LEFT JOIN nsf ON segments.segmentid = nsf.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
+LEFT JOIN zips ON segments.segmentid = zips.segmentid AND segments.feature_type <> 'centerline'
