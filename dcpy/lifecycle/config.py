@@ -26,6 +26,7 @@ def _set_default_conf():
                 "local_data_path": "ingest",
             },
             "builds": {
+                "default_recipes_connector": "edm.recipes.datasets",
                 "local_data_path": "builds",
                 "stages": {
                     "plan": {"local_data_path": "plan"},
