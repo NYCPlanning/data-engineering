@@ -67,10 +67,15 @@ OUTPUTS:
 DROP TABLE IF EXISTS _init_bis_devdb;
 
 WITH applications AS (
-    SELECT 
+    SELECT
         *,
-        ROW_NUMBER() OVER(PARTITION BY jobnumber ORDER BY SUBSTR(dobrundate, 7, 4)||SUBSTR(dobrundate, 1, 2)||SUBSTR(dobrundate, 4, 2) DESC) as gid,
-        SUBSTR(dobrundate, 7, 4)||SUBSTR(dobrundate, 1, 2)||SUBSTR(dobrundate, 4, 2) as dobrundate
+        ROW_NUMBER()
+            OVER (
+                PARTITION BY jobnumber
+                ORDER BY SUBSTR(dobrundate, 7, 4) || SUBSTR(dobrundate, 1, 2) || SUBSTR(dobrundate, 4, 2) DESC
+            )
+            AS gid,
+        SUBSTR(dobrundate, 7, 4) || SUBSTR(dobrundate, 1, 2) || SUBSTR(dobrundate, 4, 2) AS dobrundate
     FROM dob_jobapplications
 ),
 
@@ -83,8 +88,8 @@ applications_of_interest AS (
             jobtype ~* 'A1|DM|NB' OR (
                 jobtype = 'A2'
                 AND sprinkler IS NULL
-                AND lower(jobdescription) LIKE '%combin%'
-                AND lower(jobdescription) NOT LIKE '%sprinkler%'
+                AND LOWER(jobdescription) LIKE '%combin%'
+                AND LOWER(jobdescription) NOT LIKE '%sprinkler%'
             )
         ) AND gid = 1
 ),
@@ -110,32 +115,32 @@ mapping_and_cleaning AS (
 
         -- removing '.' for existingoccupancy 
         -- and proposedoccupancy (3 records affected)
-        replace(existingoccupancy, '.', '') AS _occ_initial,
-        replace(proposedoccupancy, '.', '') AS _occ_proposed,
+        REPLACE(existingoccupancy, '.', '') AS _occ_initial,
+        REPLACE(proposedoccupancy, '.', '') AS _occ_proposed,
 
         -- set 0 -> null for jobtype = A1 or DM
         CASE
             WHEN jobtype ~* 'A1|DM'
-                THEN nullif(existingnumstories, '0')::numeric
+                THEN NULLIF(existingnumstories, '0')::numeric
         END AS stories_init,
 
         -- set 0 -> null for jobtype = A1 or NB
         CASE
             WHEN jobtype ~* 'A1|NB'
-                THEN nullif(proposednumstories, '0')::numeric
+                THEN NULLIF(proposednumstories, '0')::numeric
         END AS stories_prop,
 
         -- set 0 -> null for jobtype = A1 or DM\
         CASE
             WHEN jobtype ~* 'A1|DM'
-                THEN nullif(existingzoningsqft, '0')::numeric
+                THEN NULLIF(existingzoningsqft, '0')::numeric
             ELSE existingzoningsqft::numeric
         END AS zoningsft_init,
 
         -- set 0 -> null for jobtype = A1 or DM
         CASE
             WHEN jobtype ~* 'A1|DM'
-                THEN nullif(proposedzoningsqft, '0')::numeric
+                THEN NULLIF(proposedzoningsqft, '0')::numeric
             ELSE proposedzoningsqft::numeric
         END AS zoningsft_prop,
 
@@ -171,7 +176,7 @@ mapping_and_cleaning AS (
             WHEN landmarked = 'Y' THEN 'Yes'
         END AS landmark,
 
-        ownership_translate(
+        OWNERSHIP_TRANSLATE(
             cityowned,
             ownertype,
             nonprofit
@@ -185,12 +190,12 @@ mapping_and_cleaning AS (
 
         CASE
             WHEN jobtype ~* 'A1|DM'
-                THEN nullif(existingheight, '0')
+                THEN NULLIF(existingheight, '0')
         END::numeric AS height_init,
 
         CASE
             WHEN jobtype ~* 'A1|NB'
-                THEN nullif(proposedheight, '0')
+                THEN NULLIF(proposedheight, '0')
         END::numeric AS height_prop,
 
         totalconstructionfloorarea AS constructnsf,
@@ -221,17 +226,17 @@ mapping_and_cleaning AS (
         END AS curbcut,
 
         cluster AS tracthomes,
-        regexp_replace(
-            trim(housenumber),
+        REGEXP_REPLACE(
+            TRIM(housenumber),
             '(^|)0*', '', ''
         ) AS address_numbr,
-        trim(streetname) AS address_street,
-        regexp_replace(
-            trim(housenumber),
+        TRIM(streetname) AS address_street,
+        REGEXP_REPLACE(
+            TRIM(housenumber),
             '(^|)0*', '', ''
-        ) || ' ' || trim(streetname) AS address,
+        ) || ' ' || TRIM(streetname) AS address,
         bin,
-        left(bin, 1) || lpad(block, 5, '0') || lpad(right(lot, 4), 4, '0') AS bbl,
+        LEFT(bin, 1) || LPAD(block, 5, '0') || LPAD(RIGHT(lot, 4), 4, '0') AS bbl,
         CASE
             WHEN borough ~* 'Manhattan' THEN '1'
             WHEN borough ~* 'Bronx' THEN '2'
@@ -244,7 +249,7 @@ mapping_and_cleaning AS (
         buildingclass AS bldg_class,
         otherdesc AS desc_other,
         specialactionstatus AS x_withdrawal,
-        st_setsrid(st_point(
+        ST_SETSRID(ST_POINT(
             longitude::double precision,
             latitude::double precision
         ), 4326) AS dob_geom
