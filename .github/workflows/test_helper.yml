@@ -178,6 +178,7 @@ jobs:
       with:
         export-env: true
       env:
+        AZURE_STORAGE_CONNECTION_STRING: "op://Data Engineering/azure_integration_test/AZURE_STORAGE_CONNECTION_STRING"
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
@@ -210,6 +211,8 @@ jobs:
       run: |
         docker exec -u 0 de \
         python3 -m pytest dcpy/test_integration -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=term --cov-report=xml --cov-append
+      env:
+        RECIPES_BUCKET: "test-recipes"
 
     - name: Upload dcpy test coverage to Codecov
       uses: codecov/codecov-action@v4
