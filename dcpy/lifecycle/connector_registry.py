@@ -1,13 +1,17 @@
+from dcpy import configuration
 from dcpy.configuration import (
-    RECIPES_BUCKET,
     SFTP_HOST,
     SFTP_USER,
     SFTP_PORT,
     SFTP_PRIVATE_KEY_PATH,
 )
-from dcpy.connectors.edm import recipes, publishing
+from dcpy.connectors.edm import publishing
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
+from dcpy.connectors.hybrid_pathed_storage import (
+    StorageType,
+    PathedStorageConnector,
+)
 from dcpy.connectors.socrata.connector import SocrataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
@@ -20,10 +24,42 @@ from dcpy.utils.logging import logger
 connectors = ConnectorRegistry[Connector]()
 
 
+def _make_ingest_datastores():
+    assert configuration.RECIPES_BUCKET
+    return [
+        [
+            ingest_datastore.Connector(
+                storage=PathedStorageConnector.from_storage_kwargs(
+                    conn_type="edm.recipes.datasets",
+                    storage_backend=StorageType.S3,
+                    s3_bucket=configuration.RECIPES_BUCKET,
+                    root_folder="datasets",
+                    _validate_root_path=False,
+                )
+            ),
+            "edm.recipes.datasets",
+        ],
+        [
+            ingest_datastore.Connector(
+                storage=PathedStorageConnector.from_storage_kwargs(
+                    conn_type="edm.recipes.raw_datasets",
+                    storage_backend=StorageType.S3,
+                    s3_bucket=configuration.RECIPES_BUCKET,
+                    root_folder="raw",
+                    _validate_root_path=False,
+                )
+            ),
+            "edm.recipes.raw_datasets",
+        ],
+    ]
+
+
 def _set_default_connectors():
     connectors.clear()
+    recipes_datasets, recipes_raw = _make_ingest_datastores()
     conns = [
-        recipes.Connector(),
+        recipes_datasets,
+        recipes_raw,
         publishing.DraftsConnector(),
         publishing.PublishedConnector(),
         BytesConnector(),
@@ -56,21 +92,4 @@ def _set_default_connectors():
     logger.debug(f"Registered Connectors: {connectors.list_registered()}")
 
 
-def _register_ingest_datastores():
-    """TODO - this should ideally happen from config"""
-    recipes_datasets_s3 = s3.S3Connector(bucket=RECIPES_BUCKET, prefix="datasets/")
-    recipes_raw_datasets_s3 = s3.S3Connector(
-        bucket=RECIPES_BUCKET, prefix="raw_datasets/"
-    )
-    connectors.register(
-        ingest_datastore.Connector(storage=recipes_datasets_s3),
-        conn_type="edm.recipes.datasets",
-    )
-    connectors.register(
-        ingest_datastore.Connector(storage=recipes_raw_datasets_s3),
-        conn_type="edm.recipes.raw_datasets",
-    )
-
-
 _set_default_connectors()
-_register_ingest_datastores()
