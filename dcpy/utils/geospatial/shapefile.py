@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 import zipfile
 from dataclasses import dataclass, field
-from lxml import objectify, etree
-from typing import Optional, List
+from lxml import objectify
+from typing import Optional
 from datetime import datetime
 import xml.etree.ElementTree as ET  # TODO remove me, once lxml is implemented
 # from xml.etree.ElementTree import ParseError
@@ -160,16 +160,6 @@ def from_path(
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
 
 
-## AI-generated classes below
-
-"""
-ArcGIS Metadata Dataclasses
-
-This module defines dataclasses to represent ArcGIS metadata structure
-based on XML xpath hierarchy and EPA compliance requirements.
-"""
-
-
 @dataclass
 class ScaleRange:
     """Scale range information for the dataset."""
@@ -204,81 +194,75 @@ class ResponsibleParty:
     individual_name: Optional[str] = None  # Publisher / rpIndName
     email: Optional[str] = None  # Publisher Email / eMailAdd
     role_code: Optional[str] = None  # What is this?
-    display_name: Optional[str] = None  # Should default to rpIndName value
+    # display_name: Optional[str] = None  # Not required anywhere - delete?
 
 
 @dataclass
 class SpatialReference:
     """Spatial reference container (Spatial Reference)"""
 
-    identification_code: Optional[int] = None  # Spatial Reference
-    id_code_space: Optional[str] = None  # Spatial Reference
+    code: Optional[int] = None  # e.g. "2263"
+    authority: Optional[str] = None  # e.g. "EPSG"
 
 
 @dataclass
 class SpatialRepresentation:
     """Spatial data representation (Spatial Data Representation)"""
 
-    name: Optional[str] = None  # Spatial Data Representation
+    # TODO - must be amended to handle other data types besides vector data
+    spatial_representation_type: Optional[str] = None  # SpatRepTypCd
+    geometric_object_name: Optional[str] = (
+        None  # appears to be same as title, but doesn't update when title or shp are renamed
+    )
     geometric_object_type_code: Optional[str] = None  # Spatial Data Representation
     geometric_object_count: Optional[int] = None  # Spatial Data Representation
     topology_level_code: Optional[str] = None  # Spatial Data Representation
 
 
 @dataclass
-class Distribution:
-    """Distribution information (Distribution URL and related)"""
+class Constraints:
+    """Access constraint information."""
 
-    format_name: Optional[str] = None
-    transfer_size: Optional[float] = None
-    linkage: Optional[str] = None  # Distribution URL
-
-
-@dataclass
-class SecurityConstraints:
-    """Security constraint information."""
-
-    classification_code: Optional[str] = None  # Access Level
-    user_note: Optional[str] = None  # Rights
+    access_level: Optional[str] = None  # ClasscationCd
+    data_license: Optional[str] = None  # othConst
+    # general_use_limitation: Optional[str] = None  # useLimit -- marked as optional, per EPA
+    # rights: Optional[str] = None  # userNote -- req'd by EPA if item is not public
+    # system_of_record: Optional[str] = None  # useLimit -- may not be required?
 
 
-@dataclass
-class LegalConstraints:
-    """Legal constraint information."""
+# --------------
+## Unclear if the following attrs are required, will be reviewed
+# --------------
+# @dataclass
+# class Distribution:
+#     """Distribution information (Distribution URL and related)"""
+#     # These don't seem to actually be req'd in our source refs
+#     format_name: Optional[str] = None   # e.g. "Shapefile"
+#     transfer_size: Optional[float] = None
 
-    access_constraints_code: Optional[str] = None  # Unknown usage
-    use_limit: Optional[str] = None  # System of Records
-    other_constraints: Optional[str] = None  # Data License
+# @dataclass
+# class ItemProperties:
+#     """Properties of the dataset item."""
+#     item_name: str    # This updates to reflect *file name* when sync is run
+#     ims_content_type: Optional[str] = None  # What is this?
+#     item_size: Optional[float] = None  # I think this is the size of the file on disk?
 
+# @dataclass
+# class DataProperties:
+#     """Data properties from Esri section."""
+#     item_properties: ItemProperties
+#     coord_ref: Optional[CoordinateReference] = None  # Unknown if needed
 
-@dataclass
-class ItemProperties:
-    """Properties of the dataset item."""
+# @dataclass
+# class CoordinateReference:
+#     """Coordinate reference system information."""
 
-    item_name: str
-    # Optional/Unknown fields marked with comments
-    ims_content_type: Optional[str] = None  # What is this?
-    item_size: Optional[float] = None  # What is this?
-
-
-@dataclass
-class CoordinateReference:
-    """Coordinate reference system information."""
-
-    # These fields marked as unknown - may be redundant with RefSystem
-    type: Optional[str] = None  # Is it enough to have the refSysID fields?
-    geogcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
-    cs_units: Optional[str] = None  # Is it enough to have the refSysID fields?
-    projcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
-    pe_xml: Optional[str] = None  # What is this?
-
-
-@dataclass
-class DataProperties:
-    """Data properties from Esri section."""
-
-    item_props: ItemProperties
-    coord_ref: Optional[CoordinateReference] = None  # Unknown if needed
+#     # These fields marked as unknown - may be redundant with RefSystem
+#     type: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     geogcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     cs_units: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     projcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     pe_xml: Optional[str] = None  # What is this?
 
 
 @dataclass
@@ -291,7 +275,9 @@ class EsriMetadata:
     sync_once: str
     scale_range: ScaleRange
     arcgis_profile: str
-    data_properties: DataProperties
+    # data_properties: DataProperties   # see commented out classes
+    # These next attrs will need to be calculated based on run time of
+    # specific methods, sync etc.
     sync_date: datetime
     sync_time: datetime
     mod_date: datetime
@@ -302,6 +288,7 @@ class EsriMetadata:
 class Language:
     """Language information."""
 
+    # TODO - later, allow for a different metadata and data language
     language_code: str
     country_code: str
 
@@ -310,27 +297,29 @@ class Language:
 class ArcGISMetadata:
     """Root metadata container representing the complete ArcGIS metadata structure."""
 
+    ## TODO Requires categorization
+    metadata_file_id: Optional[str] = None  # UUID - four-four or BoBA dataset name?
+
     # Core identity
     title: Optional[str] = None  # Title (res_title)
-    abstract: Optional[str] = None  # Description (HTML content)
-    metadata_file_id: Optional[str] = (
-        None  # Identifier - could be socrata four-four or BoBA dataset name
-    )
+    description: Optional[str] = None  # Description (HTML content)
 
     # Keywords and tags
-    search_keys: List[str] = field(
+    topic_category: Optional[str] = None  # Required per Esri ISO
+    search_tags: list[str] = field(
         default_factory=list
     )  # Tags (General) - DCP overrode EPA path
-    theme_keys: List[str] = field(default_factory=list)  # Tags (ISO)
-    place_keys: List[str] = field(default_factory=list)  # Tags (Place)
+    place_tags: list[str] = field(default_factory=list)  # Tags (Place)
 
     # Dates
     last_update: Optional[datetime] = None  # Last Update (reviseDate)
+    update_frequency: Optional[str] = None  # Update Frequency
     metadata_date_stamp: Optional[datetime] = None  # Metadata Date Stamp
-    maintenance_frequency_code: Optional[str] = None  # Update Frequency
 
     # Contact information
-    point_of_contact: Optional[ResponsibleParty] = None
+    data_contact: Optional[ResponsibleParty] = None
+    # TODO - allow metadata contact to be different from dataset contact:
+    #   - perhaps - define a MetadataResponsibleParty w/ same attrs, attrs default to data contact if not present in XML, or provided
     metadata_contact: Optional[ResponsibleParty] = None
 
     # Spatial and temporal extents
@@ -339,15 +328,14 @@ class ArcGISMetadata:
 
     # Technical details
     spatial_reference: Optional[SpatialReference] = None
-    spatial_representation: Optional[SpatialRepresentation] = None
-    distribution: Optional[Distribution] = None
+    metadata_hierarchy_level_code: Optional[str] = (
+        None  # numeric code indicating type of item: software, dataset, etc.
+    )
+    # distribution: Optional[Distribution] = None   # may not be req'd
 
     # Constraints and access
-    security_constraints: Optional[SecurityConstraints] = None
-    legal_constraints: Optional[LegalConstraints] = None
-    general_use_limitation: Optional[str] = (
-        None  # General Use Limitation (HTML content)
-    )
+    distribution_url: Optional[str] = None  # Distribution URL
+    constraints: Optional[Constraints] = None
 
     # Language and metadata
     data_language: Optional[Language] = None
@@ -356,15 +344,26 @@ class ArcGISMetadata:
     # Esri-specific section (kept nested due to complexity)
     esri: Optional[EsriMetadata] = None
 
-    # Optional/unknown fields
-    environment_description: Optional[str] = None  # Unknown usage
-    spatial_representation_type_code: Optional[str] = None  # What is this?
-    data_character_set_code: Optional[str] = None  # What is this?
-    topic_category_code: Optional[str] = None  # Required per Esri ISO
-    metadata_hierarchy_level_name: Optional[str] = None
-    metadata_hierarchy_level_code: Optional[str] = None  # What is this?
-    metadata_character_set_code: Optional[str] = None  # Unknown usage
-    pres_form_code: Optional[str] = None  # What is this?
+    # Optional/unknown/later development fields
+    # spatial_representation: Optional[SpatialRepresentation] = (
+    #     None  # TODO: must incl. other types
+    # )
+    # environment_description: Optional[str] = None  # e.g. "Microsoft Windows 10 Version 10.0"...
+    # spatial_representation_type: Optional[str] = None  # e.g. vector, grid, tin, etc. -> may not be req'd
+    # data_character_set_code: Optional[str] = None  # numeric code, indicating character encoding of dataset
+    # metadata_hierarchy_level_name: Optional[str] = None # I think: mdHrLvName --> req'd if mdHrLv is not dataset
+    # metadata_character_set_code: Optional[str] = None  # numeric code, indicating character encoding of metadata
+    # pres_form_code: Optional[str] = None  # see presForm
+
+
+class MetadataParser:
+    def parse_from_shapefile(self, filename) -> ArcGISMetadata:
+        return ArcGISMetadata(title=self._get_title(filename))
+
+    def generate_metadata(self): ...
+    def _get_title(self, filename) -> str:
+        stem = Path(filename).stem
+        return stem
 
 
 # ----------------------------------------------------------------------------
