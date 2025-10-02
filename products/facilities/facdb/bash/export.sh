@@ -23,7 +23,7 @@ mkdir -p output && (
     # csv_export geo_rejects &
     # csv_export geo_result &
     shp_export facdb_export POINT -f facilities -t_srs "EPSG:2263"
-    fgdb_export facdb_export POINT facilities
+    fgdb_export facdb_export POINT facilities EPSG:2263 facdb
     wait
     echo "export complete"
 )
