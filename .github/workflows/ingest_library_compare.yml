@@ -7,9 +7,6 @@ on:
       dataset:
         description: "Name of the dataset (required)"
         required: true
-      schema_name:
-        description: "Schema name where to store data tables (required)"
-        required: true
       version:
         description: "The version of the dataset (i.e. 22v2, 21C) if needed (optional)"
         required: false
@@ -34,7 +31,7 @@ jobs:
       run:
         shell: bash
     env:
-      BUILD_NAME: ${{ inputs.schema_name }}
+      TEMPLATE_DIR: ./ingest_templates
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
     steps:
