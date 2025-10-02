@@ -164,3 +164,40 @@ BEGIN
     END LOOP;
 END
 $BODY$ LANGUAGE plpgsql;
+
+
+DROP FUNCTION IF EXISTS clean_charter_school_name;
+/*
+This is only used for cleaning charter school names from doe_lcgms
+and nysed_activeinstitutions at time of deduplication
+
+Any other use should evaluate whether all of these rules are appropriate
+*/
+CREATE FUNCTION clean_charter_school_name(facname text) RETURNS text AS $$
+DECLARE
+    _name text := facname;
+BEGIN
+    _name := replace(_name, '-', ' ');
+    _name := replace(_name, '–', ' ');
+    _name := replace(_name, '.', '');
+    _name := replace(_name, ':', '');
+    _name := replace(_name, '&', 'AND');
+    _name := regexp_replace(_name, ' CS(?= |$)', ' CHARTER SCHOOL');
+    _name := regexp_replace(_name, ' MS(?= |$)', ' MIDDLE SCHOOL');
+    _name := regexp_replace(_name, ' HS(?= |$)', ' HIGH SCHOOL');
+    _name := regexp_replace(_name, ' NY(?= |$)', ' NEW YORK');
+    _name := regexp_replace(_name, '(?= |^)NYC(?= |$)', 'NEW YORK CITY');
+    _name := regexp_replace(_name, ' PREP(?= |$)', ' PREPARATORY');
+    _name := regexp_replace(_name, ' (II|LL)(?= |$)', ' 2');
+    _name := regexp_replace(_name, ' LLL(?= |$)', ' III');
+    -- very specific case. one record has 4 as "lV" - lowercase L, uppercase V
+    -- FacDB cleans to all caps by default
+    _name := regexp_replace(_name, ' (LV)(?= |$)', ' IV');
+    _name := regexp_replace(_name, '(?= |^)THE ', '', 'g');
+    _name := regexp_replace(_name, '\(.*\)', '', 'g');
+    _name := regexp_replace(_name, '\s+', ' ', 'g');
+    _name := regexp_replace(_name, '\s+$', '');
+    _name := regexp_replace(_name, '^\s+', '');
+    return _name;
+END
+$$ LANGUAGE plpgsql;
