@@ -14,27 +14,26 @@ TEST_DATA_DIR = RESOURCES / "test_data"
 TEST_DATA_NAME = "test"
 
 
-@pytest.fixture()
-def generate_fake_data(gdf: gpd.GeoDataFrame = None):
+@pytest.fixture(scope="session", autouse=True)
+def generate_fake_data():
     """Generates test data in various data formats"""
-    if not gdf:
-        gdf = generate_gdf()
-        gdf2 = generate_gdf(
-            columns=[
-                "boro_code",
-                "block",
-                "lot",
-                "bbl",
-                "text",
-                "longitude",
-                "latitude",
-            ]
-        )
+    gdf: gpd.GeoDataFrame = generate_gdf()
+    gdf2 = generate_gdf(
+        columns=[
+            "boro_code",
+            "block",
+            "lot",
+            "bbl",
+            "text",
+            "longitude",
+            "latitude",
+        ]
+    )
 
     csv_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.csv"
     csv_path_2 = TEST_DATA_DIR / f"{TEST_DATA_NAME}2.csv"
     excel_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.xlsx"
-    shp_path = TEST_DATA_DIR / TEST_DATA_NAME
+    shp_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.shp"
     gdb_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.gdb"
     json_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.json"
     geojson_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.geojson"
@@ -52,7 +51,7 @@ def generate_fake_data(gdf: gpd.GeoDataFrame = None):
 
 def generate_gdf(
     columns: list = ["boro_code", "block", "lot", "bbl", "text", "wkt"],
-) -> gpd.GeoDataFrame | pd.DataFrame:
+) -> gpd.GeoDataFrame | pd.DataFram:
     """Generates a geodataframe with specified columns using fake data."""
 
     def generate_row(columns) -> dict:

@@ -1,22 +1,21 @@
-from datetime import datetime
 from pathlib import Path
 import pytest
-from unittest import mock
 from pydantic import BaseModel
 
-from dcpy.configuration import RECIPES_BUCKET, PUBLISHING_BUCKET
 from dcpy.models import file
-from dcpy.models.lifecycle.ingest import Source
-from dcpy.utils import s3
+from dcpy.models.lifecycle.ingest.definitions import (
+    ProcessingStep,
+    Source,
+    IngestDefinitionSimple,
+    IngestDefinitionOneToMany,
+)
 from dcpy.lifecycle.ingest import configure
 
-from dcpy.test.conftest import mock_request_get
-from .shared import (
-    RESOURCES,
-    TEST_DATASET_NAME,
-    Sources,
-    TEMPLATE_DIR,
-)
+from .shared import INGEST_DEF_DIR, TEST_DATASET_NAME, RESOLVED
+
+
+def _d_path(ds_id: str) -> Path:
+    return INGEST_DEF_DIR / f"{ds_id}.yml"
 
 
 def test_jinja_vars():
@@ -26,129 +25,141 @@ def test_jinja_vars():
     assert vars == {"version"}, "One var, 'version', should have been found"
 
 
-class TestReadTemplate:
+class TestReadDefinition:
     """
-    Tests configure.read_template
-    In addition to ensuring templates are parsed correctly, catches specific errors around jinja templating
+    Tests configure.read_definition
+    In addition to ensuring definitions are parsed correctly, catches specific errors around jinja templating
     """
 
     def test_simple(self):
-        template = configure.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
+        definition = configure.read_definition(_d_path("simple"))
+        assert isinstance(definition, IngestDefinitionSimple)
         assert isinstance(
-            template.ingestion.file_format,
-            file.Json,
+            definition.ingestion.file_format,
+            file.Csv,
         )
 
+    def test_one_to_many(self):
+        definition = configure.read_definition(_d_path("one_to_many"))
+        assert isinstance(definition, IngestDefinitionOneToMany)
+
     def test_jinja(self):
-        template = configure.read_template(
-            "dcp_atomicpolygons", version="test", template_dir=TEMPLATE_DIR
-        )
-        assert isinstance(
-            template.ingestion.file_format,
-            file.Shapefile,
-        )
+        definition = configure.read_definition(_d_path("jinja"), version="test")
+        assert isinstance(definition, IngestDefinitionSimple)
 
     def test_invalid_jinja(self):
         with pytest.raises(
-            Exception,
-            match="'version' is only suppored jinja var. Vars in template: ",
+            ValueError,
+            match="'version' is only suppored jinja var. Vars in definition: ",
         ):
-            configure.read_template(
-                "invalid_jinja", version="dummy", template_dir=RESOURCES
-            )
+            configure.read_definition(_d_path("invalid_jinja"), version="dummy")
+
+
+@pytest.mark.parametrize(
+    ("step", "expected_error"),
+    [
+        # No Error
+        (
+            ProcessingStep(name="drop_columns", args={"columns": [0]}),
+            {},
+        ),
+        # Non-existent function
+        (
+            ProcessingStep(name="fake_function_name"),
+            {"fake_function_name": "Function not found"},
+        ),
+        # Missing arg
+        (
+            ProcessingStep(name="drop_columns", args={}),
+            {"drop_columns": {"columns": "Missing"}},
+        ),
+        # Unexpected arg
+        (
+            ProcessingStep(name="drop_columns", args={"columns": [0], "fake_arg": 0}),
+            {"drop_columns": {"fake_arg": "Unexpected"}},
+        ),
+        # Invalid pd series func
+        (
+            ProcessingStep(
+                name="pd_series_func",
+                args={"function_name": "str.fake_function", "column_name": "_"},
+            ),
+            {"pd_series_func": "'pd.Series.str' has no attribute 'fake_function'"},
+        ),
+    ],
+)
+def test_find_processing_step_validation_errors_errors(step, expected_error):
+    errors = configure.find_processing_step_validation_errors("test", [step])
+    assert errors == expected_error
+
+
+class TestValidatePdSeriesFunc:
+    """transorm._validate_pd_series_func returns dictionary of validation errors"""
+
+    def test_first_level(self):
+        assert not configure._validate_pd_series_func(
+            function_name="map", arg={"value 1": "other value 1"}
+        )
+
+    def test_str_series(self):
+        assert not configure._validate_pd_series_func(
+            function_name="str.replace", pat="pat", repl="repl"
+        )
+
+    def test_missing_arg(self):
+        assert "repl" in configure._validate_pd_series_func(
+            function_name="str.replace", pat="pat"
+        )
+
+    def test_extra_arg(self):
+        assert "extra_arg" in configure._validate_pd_series_func(
+            function_name="str.replace", pat="pat", repl="repl", extra_arg="foo"
+        )
+
+    def test_invalid_function(self):
+        res = configure._validate_pd_series_func(function_name="str.fake_function")
+        assert res == "'pd.Series.str' has no attribute 'fake_function'"
+
+    def test_gpd_without_flag(self):
+        res = configure._validate_pd_series_func(function_name="force_2d")
+        assert res == "'pd.Series' has no attribute 'force_2d'"
+
+    def test_gpd(self):
+        assert not configure._validate_pd_series_func(
+            function_name="force_2d", geo=True
+        )
 
 
 class SparseBuildMetadata(BaseModel):
     version: str
 
 
-class TestGetVersion:
-    @mock.patch("requests.get", side_effect=mock_request_get)
-    def test_socrata(self, get):
-        ### based on mocked response in dcpy/test/conftest.py
-        assert configure.get_version(Sources.socrata, None) == "20240412"
-
-    @mock.patch("requests.get", side_effect=mock_request_get)
-    def test_esri(self, get):
-        ### based on mocked response in dcpy/test/conftest.py
-        assert configure.get_version(Sources.esri, None) == "20240806"
-
-    def test_s3(self, create_buckets):
-        timestamp = datetime.today()
-        version = timestamp.strftime("%Y%m%d")
-        s3.client().put_object(
-            Bucket=RECIPES_BUCKET,
-            Key=f"datasets/{TEST_DATASET_NAME}/{version}/{TEST_DATASET_NAME}.zip",
-        )
-        assert configure.get_version(Sources.s3, timestamp) == version
-
-    def test_gis_dataset(self, create_buckets):
-        datestring = "20240412"
-        s3.client().put_object(
-            Bucket=PUBLISHING_BUCKET,
-            Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
-        )
-        assert configure.get_version(Sources.gis, None) == datestring
-
-    @mock.patch("dcpy.connectors.edm.publishing.BuildMetadata", SparseBuildMetadata)
-    def test_de_publishing(self, create_buckets):
-        datestring = "20240412"
-        s3.client().put_object(
-            Bucket=PUBLISHING_BUCKET,
-            Key=f"{TEST_DATASET_NAME}/publish/{datestring}/build_metadata.json",
-            Body=f"{{'version': '{datestring}'}}".encode(),
-        )
-        assert configure.get_version(Sources.de_publish, None) == datestring
-
-    def test_rely_on_timestamp(self):
-        timestamp = datetime.today()
-        source = Source(type="local_file", key=".")
-        assert configure.get_version(source, timestamp) == timestamp.strftime("%Y%m%d")
-
-
-class TestGetConfig:
-    """Tests both get_config and determine_processing_steps"""
-
-    def test_reproject(self):
-        config = configure.get_config(
-            "dcp_addresspoints", version="24c", template_dir=TEMPLATE_DIR
-        )
-        assert len(config.ingestion.processing_steps) == 1
-        assert config.ingestion.processing_steps[0].name == "reproject"
-
-    def test_no_mode(self):
-        standard = configure.get_config(
-            "dcp_pop_acs2010_demographic", version="test", template_dir=TEMPLATE_DIR
-        )
-        assert standard.ingestion.processing_steps
-        assert "append_prev" not in [
-            s.name for s in standard.ingestion.processing_steps
-        ]
-
-    def test_mode(self):
-        append = configure.get_config(
-            "dcp_pop_acs2010_demographic",
-            version="test",
-            mode="append",
-            template_dir=TEMPLATE_DIR,
-        )
-        assert "append_prev" in [s.name for s in append.ingestion.processing_steps]
-
-    def test_invalid_mode(self):
-        with pytest.raises(ValueError):
-            configure.get_config(
-                "dcp_pop_acs2010_demographic",
-                version="test",
-                mode="fake_mode",
-                template_dir=TEMPLATE_DIR,
-            )
-
+class TestResolveConfig:
     def test_file_path_override(self):
         file_path = Path("dir/fake_file_path")
-        config = configure.get_config(
-            "dcp_addresspoints",
+        config = configure.resolve_config(
+            "simple",
             version="24c",
-            template_dir=TEMPLATE_DIR,
+            definition_dir=INGEST_DEF_DIR,
             local_file_path=file_path,
         )
-        assert config.ingestion.source == Source(type="local_file", key=str(file_path))
+        assert config.source == Source(type="local_file", key=str(file_path))
+
+    def test_simple(self):
+        config = configure.resolve_config("simple", definition_dir=INGEST_DEF_DIR)
+        assert len(config.datasets) == 1
+
+    def test_one_to_many(self):
+        config = configure.resolve_config("one_to_many", definition_dir=INGEST_DEF_DIR)
+        assert len(config.datasets) == 2
+        ds1, ds2 = config.datasets
+        assert ds1.id == TEST_DATASET_NAME
+        assert ds2.id == "downstream_dataset_2"
+        # test defaults get applied correctly
+        assert len(ds1.processing_steps) == 1
+        assert ds1.processing_steps[0].name == "clean_column_names"
+        assert ds1.file_format == file.Geodatabase(
+            type="geodatabase", crs="EPSG:2263", layer="downstream_1"
+        )
+        # final catch-all
+        assert config == RESOLVED

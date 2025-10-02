@@ -1,8 +1,8 @@
 {
-    "id": "test_dataset",
+    "id": "downstream_dataset_2",
     "version": "20250926",
     "attributes": {
-        "name": "Downstream Dataset 1"
+        "name": "Downstream Dataset 2"
     },
     "archival": {
         "id": "one_to_many",
@@ -23,7 +23,7 @@
     "transformation": {
         "file_format": {
             "crs": "EPSG:2263",
-            "layer": "downstream_1",
+            "layer": "downstream_2",
             "type": "geodatabase"
         },
         "processing_steps": [
