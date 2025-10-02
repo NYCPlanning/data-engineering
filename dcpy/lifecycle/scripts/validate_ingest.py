@@ -205,8 +205,6 @@ def load_recipe_from_s3(
     client.drop_table(ds_id)
     client.drop_table(target_table)
 
-    recipes.Dataset(id=ds_id, version=s3_version, file_type=file_type)
-
     # often use case would be archiving to dev bucket multiple times
     # just ensure that local copy is not re-used
     with TemporaryDirectory() as _dir:
