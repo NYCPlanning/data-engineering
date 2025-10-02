@@ -3,18 +3,17 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import yaml
 
-from dcpy.connectors.registry import (
-    StorageConnector,
-    VersionedConnector,
-)
+from dcpy.connectors.registry import VersionedConnector
+from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector
+from dcpy.models.connectors.edm.recipes import DatasetType
 from dcpy.models.lifecycle import ingest
 
 config_filename = "config.json"
 
 
-class Connector(VersionedConnector):
+class Connector(VersionedConnector, arbitrary_types_allowed=True):
     conn_type: str = "ingest_datastore"
-    storage: StorageConnector
+    storage: PathedStorageConnector
 
     def _push(
         self,
@@ -74,9 +73,10 @@ class Connector(VersionedConnector):
     def pull_versioned(
         self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
+        file_ext = DatasetType(kwargs.get("file_type", "parquet")).to_extension()
         return self.storage.pull(
-            f"{key}/{version}/{key}.parquet",  # TODO a little hacky
-            destination_path / key / version,
+            f"{key}/{version}/{key}.{file_ext}",
+            destination_path,
         )
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
@@ -105,7 +105,12 @@ class Connector(VersionedConnector):
         return "dataset" in config_dict
 
     def get_latest_version(self, key: str, **kwargs) -> str:
-        return self._get_config_obj(key, "latest")["version"]
+        conf = self._get_config_obj(key, "latest")
+        if "version" in conf:
+            # library
+            return conf["version"]
+        else:
+            return conf["dataset"]["version"]
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
-        return self.storage.exists(f"{key}/{version}/{config_filename}")
+        return self.storage.exists(f"{key}/{version}")

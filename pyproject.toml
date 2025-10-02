@@ -122,6 +122,7 @@ requires-python = ">=3.11"
 dependencies = [
     "beautifulsoup4",
     "boto3",
+    "cloudpathlib[all]",
     "duckdb",
     "faker",
     "geoalchemy2",
@@ -136,6 +137,7 @@ dependencies = [
     "pyarrow",
     "pydantic",
     "pyogrio",
+    "pytest-xdist",
     "paramiko",
     "python-dateutil",
     "python-dotenv",

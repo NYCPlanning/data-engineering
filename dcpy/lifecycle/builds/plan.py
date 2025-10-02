@@ -13,7 +13,9 @@ from dcpy.models.lifecycle.builds import (
     InputDatasetDefaults,
 )
 from dcpy.lifecycle.connector_registry import connectors
+from dcpy.lifecycle.builds.connector import get_recipes_default_connector
 from dcpy.connectors.edm import recipes, publishing
+
 
 DEFAULT_RECIPE = "recipe.yml"
 RECIPE_FILE_TYPE_PREFERENCE = [
@@ -62,7 +64,9 @@ def resolve_version(recipe: Recipe) -> str:
                 raise ValueError(
                     "To use 'pin to source dataset' version strategy, source input dataset must either be latest or explicit version"
                 )
-            return input.version or recipes.get_latest_version(dataset)
+            return input.version or get_recipes_default_connector().get_latest_version(
+                dataset
+            )
 
 
 def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
@@ -157,7 +161,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     # Determine the recipe file type
     for ds in recipe.inputs.datasets:
         if (
-            ds.source == "edm.recipes"
+            ds.source == "edm.recipes.datasets"
         ):  # Hack for now, to accomodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
                 ds.dataset, RECIPE_FILE_TYPE_PREFERENCE

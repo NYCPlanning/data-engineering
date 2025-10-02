@@ -4,7 +4,7 @@ product: db-factfinder-qa
 inputs:
   dataset_defaults:
     destination: postgres
-    source: edm.recipes
+    source: edm.recipes.datasets
   datasets:
     - name: dcp_pop_acs2010_housing
       version: 20240524

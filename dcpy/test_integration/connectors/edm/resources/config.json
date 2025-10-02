@@ -1,0 +1,29 @@
+{
+    "name": "test",
+    "version": "ingest",
+    "attributes": {
+        "name": "Test"
+    },
+    "archival": {
+        "archival_timestamp": "2024-09-05T12:04:03.450135-04:00",
+        "raw_filename": "dummy.csv",
+        "acl": "private"
+    },
+    "ingestion": {
+        "source": {
+            "type": "local_file",
+            "path": "dummy.csv"
+        },
+        "file_format": {
+            "type": "csv"
+        }
+    },
+    "run_details": {
+        "type": "manual",
+        "runner": {
+            "username": "Finn van Krieken"
+        },
+        "timestamp": "2024-09-05T12:04:03.450135-04:00",
+        "logged": false
+    }
+}

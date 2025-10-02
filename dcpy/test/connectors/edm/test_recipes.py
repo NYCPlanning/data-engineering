@@ -3,14 +3,12 @@ import json
 import pandas as pd
 from pathlib import Path
 import pytest
-from typing import Literal
-from unittest import mock
 import yaml
 
-from dcpy.models import library, file
+from dcpy.models import library
 from dcpy.models.connectors.edm.recipes import DatasetType
 from dcpy.models.lifecycle import ingest
-from dcpy.utils import s3, metadata
+from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 
 from dcpy.test.conftest import RECIPES_BUCKET
@@ -59,67 +57,11 @@ def load_ingest(create_buckets):
 
 
 def test_dataset_type_from_extension():
-    assert recipes._dataset_type_from_extension("sql") == DatasetType.pg_dump
-    assert recipes._dataset_type_from_extension("csv") == DatasetType.csv
-    assert recipes._dataset_type_from_extension("parquet") == DatasetType.parquet
-    assert recipes._dataset_type_from_extension("xlsx") == DatasetType.xlsx
-    assert recipes._dataset_type_from_extension("other") is None
-
-
-class TestArchiveDataset:
-    dataset = "bpl_libraries"  # doesn't actually get queried, just to fill out config
-    raw_file_name = "tmp.txt"
-    acl: Literal["private"] = "private"
-    config = ingest.Config(
-        id=dataset,
-        version="dummy",
-        attributes=ingest.DatasetAttributes(name=dataset),
-        archival=ingest.ArchivalMetadata(
-            archival_timestamp=datetime.now(),
-            acl="private",
-            raw_filename=raw_file_name,
-        ),
-        # ingestion won't be used - just mocked here
-        ingestion=ingest.Ingestion(
-            source=ingest.Source(type="file_download", key="dummy"),
-            file_format=file.Csv(type="csv"),
-        ),
-        run_details=metadata.get_run_details(),
-    )
-
-    def test_archive_raw_dataset(self, create_buckets, create_temp_filesystem: Path):
-        tmp_file = create_temp_filesystem / self.raw_file_name
-        tmp_file.touch()
-        recipes.archive_dataset(self.config, tmp_file, acl=self.acl, raw=True)
-        assert s3.folder_exists(
-            RECIPES_BUCKET, recipes.s3_raw_folder_path(self.config.raw_dataset_key)
-        )
-
-    def test_archive_dataset(self, create_buckets, create_temp_filesystem: Path):
-        tmp_parquet = create_temp_filesystem / self.config.filename
-        tmp_parquet.touch()
-        recipes.archive_dataset(self.config, tmp_parquet, acl=self.acl)
-        assert s3.object_exists(
-            RECIPES_BUCKET, recipes.s3_file_path(self.config.dataset)
-        )
-
-    def test_archive_dataset_latest(self, create_buckets, create_temp_filesystem: Path):
-        tmp_parquet = create_temp_filesystem / self.config.filename
-        tmp_parquet.touch()
-        recipes.archive_dataset(self.config, tmp_parquet, acl=self.acl, latest=True)
-        assert s3.object_exists(
-            RECIPES_BUCKET,
-            f"{recipes.DATASET_FOLDER}/{self.dataset}/latest/{self.config.filename}",
-        )
-
-    def test_fails_when_exists(self, create_buckets):
-        folder_path = recipes.s3_folder_path(self.config.dataset)
-        s3.client().put_object(Bucket=RECIPES_BUCKET, Key=folder_path + "/config.json")
-        with pytest.raises(
-            Exception,
-            match=f"Archived dataset at {folder_path} already exists, cannot overwrite",
-        ):
-            recipes.archive_dataset(self.config, Path("."), acl=self.acl)
+    assert recipes.DatasetType.from_extension("sql") == DatasetType.pg_dump
+    assert recipes.DatasetType.from_extension("csv") == DatasetType.csv
+    assert recipes.DatasetType.from_extension("parquet") == DatasetType.parquet
+    assert recipes.DatasetType.from_extension("xlsx") == DatasetType.xlsx
+    assert recipes.DatasetType.from_extension("other") is None
 
 
 def test_get_preferred_file_type(load_library):
@@ -153,10 +95,6 @@ def test_get_ingest_config(load_ingest: ingest.Config):
     assert config == load_ingest
 
 
-def test_get_latest_version(load_ingest):
-    assert recipes.get_latest_version(TEST_DATASET) == INGEST_VERSION
-
-
 def test_get_all_versions(load_library, load_ingest):
     assert set(recipes.get_all_versions(TEST_DATASET)) == {
         LIBRARY_VERSION,
@@ -164,44 +102,9 @@ def test_get_all_versions(load_library, load_ingest):
     }
 
 
-def test_fetch_dataset(load_ingest: ingest.Config, create_temp_filesystem: Path):
-    ds = load_ingest.dataset
-    ds.file_type = DatasetType.parquet
-    folder_path = create_temp_filesystem / recipes.DATASET_FOLDER / ds.id / ds.version
-    folder_path.mkdir(parents=True)  # mainly for coverage
-    path = recipes.fetch_dataset(ds, target_dir=create_temp_filesystem)
-    print(path)
-    assert path.exists()
-
-
-def test_fetch_dataset_cache(load_ingest: ingest.Config, create_temp_filesystem: Path):
-    ds = load_ingest.dataset
-    ds.file_type = DatasetType.parquet
-    recipes.fetch_dataset(ds, target_dir=create_temp_filesystem)
-
-    with mock.patch("dcpy.utils.s3.download_file") as download_file:
-        recipes.fetch_dataset(ds, target_dir=create_temp_filesystem)
-        assert download_file.call_count == 0, (
-            "file did not cache properly, fetch_dataset attempted s3 call"
-        )
-
-        recipes.fetch_dataset(ds, target_dir=create_temp_filesystem / "dummy_folder")
-        assert download_file.call_count == 1, (
-            "fetch_dataset was refactored, testing of cache functionality no longer valid"
-        )
-
-
 def test_invalid_pd_reader():
     with pytest.raises(Exception, match="Cannot read pandas dataframe"):
         recipes._pd_reader(DatasetType.pg_dump)
-
-
-def test_get_dataset_metadata(load_ingest: ingest.Config):
-    assert load_ingest.run_details
-    metadata = recipes.get_archival_metadata(TEST_DATASET)
-    assert metadata.name == TEST_DATASET
-    assert metadata.version == INGEST_VERSION
-    assert metadata.timestamp == load_ingest.run_details.timestamp
 
 
 def test_read_df(load_ingest: ingest.Config):
@@ -244,10 +147,3 @@ def test_read_df_cache(load_ingest: ingest.Config, create_temp_filesystem: Path)
     )
     print(create_temp_filesystem / PARQUET_FILEPATH)
     assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
-
-
-def test_log_metadata(dev_flag):
-    with mock.patch("dcpy.utils.postgres.PostgresClient") as pg_client:
-        recipes.log_metadata(None)
-        # when dev_flag present, returns without invoking anything
-        pg_client.assert_not_called()

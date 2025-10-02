@@ -10,7 +10,7 @@ inputs:
     version: 20240813
     file_type: pg_dump
   - name: test_bpl_libraries
-    source: edm.recipes
+    source: edm.recipes.datasets
     version: latest
     preprocessor:
       module: dcpy.test_integration.connectors.preprocessor

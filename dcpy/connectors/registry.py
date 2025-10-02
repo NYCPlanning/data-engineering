@@ -141,7 +141,9 @@ class ConnectorRegistry(Generic[_C]):
 
         c = self._connectors[conn_type]
         if type_validator:
-            assert isinstance(c, type_validator)
+            assert isinstance(c, type_validator), (
+                f"expected {c} to be type {type_validator}. Found {type(c)}"
+            )
         return c
 
     def __contains__(self, item):

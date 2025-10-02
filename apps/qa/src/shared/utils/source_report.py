@@ -4,7 +4,9 @@ from typing import cast
 
 from dcpy.connectors.edm import recipes, publishing
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
-from src.shared.constants import construct_dataset_by_version, SQL_FILE_DIRECTORY
+from src.shared.constants import construct_dataset_by_version
+from dcpy.lifecycle import data_loader
+from dcpy.models.lifecycle.builds import InputDataset
 
 
 def dataframe_style_source_report_results(value) -> str:
@@ -18,20 +20,6 @@ def get_source_dataset_ids(product_key: publishing.ProductKey) -> list[str]:
     """
     source_data_versions = publishing.get_source_data_versions(product_key)
     return sorted(source_data_versions.index.values.tolist())
-
-
-def get_latest_source_data_versions(product: str) -> pd.DataFrame:
-    """Gets latest available versions of source datasets for specific data product
-    Does NOT return versions used in any specific build
-    TODO this should not come from publishing, but should be defined in code for each data product
-    """
-    source_data_versions = publishing.get_source_data_versions(
-        publishing.PublishKey(product, "latest")
-    )
-    source_data_versions["version"] = source_data_versions.index.map(
-        recipes.get_latest_version
-    )
-    return source_data_versions
 
 
 def get_source_data_versions_to_compare(
@@ -107,21 +95,25 @@ def load_source_data_to_compare(
 
 
 def load_source_data(dataset_id: str, version: str, pg_client) -> str:
-    dataset = recipes.Dataset(
-        id=dataset_id, version=version, file_type=recipes.DatasetType.pg_dump
-    )
-    recipes.fetch_dataset(dataset, target_dir=SQL_FILE_DIRECTORY)
-
-    dataset_by_version = construct_dataset_by_version(dataset.id, version)
+    dataset_by_version = construct_dataset_by_version(dataset_id, version)
     schema_tables = pg_client.get_schema_tables()
 
-    status_message = None
-    if dataset_by_version not in schema_tables:
-        recipes.import_dataset(dataset, pg_client, local_library_dir=SQL_FILE_DIRECTORY)
-        status_message = f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
-    else:
-        status_message = (
+    if dataset_by_version in schema_tables:
+        return (
             f"Database already has `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
         )
 
-    return status_message
+    ds_type = recipes.DatasetType.pg_dump
+    data_loader.import_dataset(
+        InputDataset(
+            id=dataset_id,
+            version=version,
+            source="edm.recipes.datasets",
+            file_type=ds_type,
+            custom={"file_type": ds_type},
+            import_as=dataset_by_version,
+        ),
+        stage="builds.qa",
+        pg_client=pg_client,
+    )
+    return f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"

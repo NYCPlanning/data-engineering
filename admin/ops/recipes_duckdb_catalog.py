@@ -6,7 +6,7 @@ such that they can be queried as `{dataset}.{version}`
 """
 
 from pathlib import Path
-import duckdb
+import duckdb  # type: ignore
 
 from dcpy.utils import s3, duckdb as dcpy_duckdb
 from dcpy.connectors.edm import recipes

@@ -4,7 +4,7 @@ import pytest
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, Mock
 
-from dcpy.connectors.registry import ConnectorRegistry
+from dcpy.connectors.registry import ConnectorRegistry, VersionedConnector
 from dcpy.models.lifecycle.builds import InputDataset, StageConfigValue
 from dcpy.utils import versions
 from dcpy.connectors.edm import recipes, publishing
@@ -25,6 +25,28 @@ SOURCE_VERSIONS_PATH = RESOURCES_DIR / "source_data_versions.csv"
 
 PRODUCT = "Tester"
 MOCKED_LATEST_VERSION = "v1"
+
+
+@pytest.fixture(autouse=True)
+def set_mock_recipes_connector_defaults():
+    set_mock_recipes_connector(
+        method_responses={"get_latest_version": MOCKED_LATEST_VERSION}
+    )
+    # TODO... we should probably at some point figure out a default set of
+    # connectors that we can reset to after this fixture yields
+
+
+def set_mock_recipes_connector(
+    method_responses: dict[str, str], conn_type="edm.recipes.datasets"
+):
+    connector_registry.connectors.clear()
+
+    edm_recipes_mock = MagicMock(spec=VersionedConnector)
+    edm_recipes_mock.conn_type = conn_type
+    for method, response in method_responses.items():
+        setattr(edm_recipes_mock, method, Mock(return_value=response))
+    connector_registry.connectors.register(edm_recipes_mock, conn_type=conn_type)
+    assert 1 == len(connector_registry.connectors.list_registered())
 
 
 def add_required_version_var_to_env():
@@ -68,10 +90,12 @@ class TestVersionStrategies(TestCase):
         get_latest.return_value = "24v1"
         assert plan.resolve_version(self.recipe) == "24v3"
 
-    @patch("dcpy.connectors.edm.recipes.get_latest_version")
-    def test_pin_to_source_dataset(self, get_latest):
+    def test_pin_to_source_dataset(self):
         version = "20240101"
-        get_latest.return_value = version
+        set_mock_recipes_connector(
+            conn_type="edm.recipes.datasets",
+            method_responses={"get_latest_version": version},
+        )
         self.recipe.version_strategy = versions.PinToSourceDataset(
             pin_to_source_dataset="has_no_version_or_type"
         )
@@ -108,9 +132,8 @@ class TestVersionStrategies(TestCase):
 
 @pytest.mark.usefixtures("file_setup_teardown")
 @pytest.mark.usefixtures("create_buckets")
-@patch("dcpy.connectors.edm.recipes.get_latest_version")
 class TestRecipesWithDefaults(TestCase):
-    def test_plan_recipe_failing_env_var(self, get_latest_version):
+    def test_plan_recipe_failing_env_var(self):
         """One of the datasets requires a REQUIRED_VERSION_ENV_VAR environment variable for the version.
         Plan should fail since no variable is present.
         """
@@ -119,17 +142,16 @@ class TestRecipesWithDefaults(TestCase):
             plan.plan(RECIPE_PATH)
             assert REQUIRED_VERSION_ENV_VAR in str(e.exception)
 
-    def test_provide_manual_version(self, get_latest_version):
+    def test_provide_manual_version(self):
         add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_PATH, version=version)
         assert planned.version == version
         assert planned.is_resolved, "Dataset is not resolved"
 
-    def test_plan_recipe_defaults(self, get_latest_version):
+    def test_plan_recipe_defaults(self):
         """Tests that defaults are set correctly when a recipe is planned."""
         add_required_version_var_to_env()
-        get_latest_version.return_value = MOCKED_LATEST_VERSION
         planned = plan.plan_recipe(RECIPE_PATH)
 
         missing_source = [ds for ds in planned.inputs.datasets if not ds.source]
@@ -140,8 +162,7 @@ class TestRecipesWithDefaults(TestCase):
         ][0]
 
         assert had_no_version_or_type.version == MOCKED_LATEST_VERSION, (
-            "The missing version strategy should be applied \
-            to find the latest version for this dataset."
+            f"The missing version strategy should be applied to find the latest version for this dataset. Found {had_no_version_or_type.version}"
         )
         assert had_no_version_or_type.file_type == recipes.DatasetType.csv, (
             "The datatype should default to a csv, as specified in the dataset_defaults"
@@ -155,8 +176,7 @@ class TestRecipesWithNoVersion(TestCase):
         with pytest.raises(Exception, match="No version or version_strategy provided"):
             plan.plan_recipe(RECIPE_NO_VERSION_PATH)
 
-    @patch("dcpy.connectors.edm.recipes.get_latest_version")
-    def test_provide_manual_version(self, get_latest_version):
+    def test_provide_manual_version(self):
         add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_NO_VERSION_PATH, version=version)
@@ -189,9 +209,8 @@ class TestRecipesNoDefaults(TestCase):
         plan.recipe_from_yaml(lock_file)
 
 
-@patch("dcpy.connectors.edm.recipes.get_latest_version")
 class TestRecipeVars(TestCase):
-    def test_version_type_var_is_absent(self, get_latest_version):
+    def test_version_type_var_is_absent(self):
         """Ensures VERSION_TYPE is absent in recipe 'vars' attribute when version_type is None."""
         add_required_version_var_to_env()
         version = "test_version"
@@ -199,7 +218,7 @@ class TestRecipeVars(TestCase):
         assert planned.version_type is None  # sanity check
         assert "VERSION_TYPE" not in planned.vars
 
-    def test_version_type_is_present(self, get_latest_version):
+    def test_version_type_is_present(self):
         """Test that the version_type is set correctly and matches env 'VERSION_TYPE' variable."""
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE, version)

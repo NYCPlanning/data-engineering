@@ -6,7 +6,7 @@ import yaml
 
 from dcpy.utils.logging import logger
 from dcpy.utils import introspect
-from dcpy.lifecycle.ingest.connectors import processed_datastore
+from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
 from dcpy.models.lifecycle.ingest import Template, Source, ProcessingStep
 from .transform import ProcessingFunctions
 from .connectors import source_connectors
@@ -21,6 +21,7 @@ def validate_against_existing_version(ds: str, version: str, filepath: Path) -> 
     The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
     If they differ, an error is raised
     """
+    processed_datastore = get_processed_datastore_connector()
     if not processed_datastore._is_library(ds, version):
         with TemporaryDirectory() as tmp:
             existing_file = processed_datastore.pull_versioned(ds, version, Path(tmp))[

@@ -1,28 +1,15 @@
-import os
+from pathlib import Path
 import pytest
 
-# Connector buckets
-TEST_EDM_BUCKET = "test-recipes"
-
-os.environ["RECIPES_BUCKET"] = TEST_EDM_BUCKET
-os.environ["PUBLISHING_BUCKET"] = TEST_EDM_BUCKET
-
-# Build Engine setup
-BUILD_ENGINE_SCHEMA = "connectors_edm_tests"
-os.environ["BUILD_ENGINE_SCHEMA"] = BUILD_ENGINE_SCHEMA
-os.environ["BUILD_ENGINE_DB"] = "postgres"
-os.environ["BUILD_ENGINE_SERVER"] = "postgresql://postgis"
-
-os.environ["PGUSER"] = "postgres"
-os.environ["PGPASSWORD"] = "postgres"
-
-TEST_LIFECYCLE_DATA_PATH = ".lifecycle_test"
-
-# NOTE: dcpy imports must be after set the env vars above
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 from dcpy.lifecycle import config
 from dcpy import configuration
+
+
+BUILD_ENGINE_SCHEMA = "connectors_edm_tests"
+TEST_LIFECYCLE_DATA_PATH = ".lifecycle_test"
+TEST_EDM_BUCKET = "test-recipes"
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -33,7 +20,7 @@ def edm_connector_guards():
 
 @pytest.fixture(scope="function", autouse=True)
 def set_lifecycle_default_conf(tmp_path):
-    config.CONF["local_data_path"] = str(tmp_path / TEST_LIFECYCLE_DATA_PATH)
+    config.CONF["local_data_path"] = Path(str(tmp_path / TEST_LIFECYCLE_DATA_PATH))
     yield
     config.CONF = config._set_default_conf()
 
