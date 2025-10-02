@@ -1,3 +1,4 @@
+import os
 from os import environ as env
 from pathlib import Path
 
@@ -7,12 +8,7 @@ from dcpy import configuration
 def _set_default_conf():
     ## the default is a little sparse at the moment, and a little duplicative
     ## (ie each `local_data_path` is just the `stage` name.)
-    _env_data_path = env.get("DCPY_LIFECYCLE_DATA_DIR")
-    data_path = (
-        Path(_env_data_path)
-        if _env_data_path
-        else Path(__file__).parent.parent.parent / ".lifecycle"  # ugh
-    )
+    data_path = env.get("DCPY_LIFECYCLE_DATA_DIR") or Path(os.getcwd()) / ".lifecycle"
 
     return {
         "product_metadata": {
