@@ -43,7 +43,6 @@ inputs:
     - name: dcp_ct2020_wi
     - name: dcp_school_districts
     - name: doe_school_subdistricts
-      file_type: pg_dump
     - name: dcp_facilities
       file_type: pg_dump
     - name: dcp_pops
