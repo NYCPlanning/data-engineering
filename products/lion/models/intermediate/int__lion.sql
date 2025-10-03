@@ -14,6 +14,14 @@ centerline AS (
     SELECT * FROM {{ ref("stg__centerline") }}
 ),
 
+rail AS (
+    SELECT * FROM {{ ref("stg__rail_and_subway" ) }}
+),
+
+nsf AS (
+    SELECT * FROM {{ ref("stg__nonstreetfeatures") }}
+),
+
 atomic_polygons AS (
     SELECT * FROM {{ ref("int__segment_atomicpolygons") }}
 ),
@@ -51,7 +59,7 @@ diff_coincident_segment AS (
 )
 
 SELECT
-    segments.boroughcode,
+    centerline.boroughcode,
     street_and_facecode.face_code,
     segments.segment_seqnum,
     segments.segmentid,
@@ -99,21 +107,36 @@ SELECT
     END AS traffic_direction,
     segment_locational_status.segment_locational_status,
     CASE
-        WHEN centerline.status = '3' THEN '5'
-        WHEN centerline.status = '2' AND centerline.rwjurisdiction = '3' THEN '6'
-        WHEN centerline.status = '9' THEN '9'
-        WHEN centerline.rw_type = 10 THEN 'A'
-        WHEN
-            centerline.trafdir = 'NV'
-            AND (
-                centerline.l_low_hn <> '0'
-                OR centerline.l_high_hn <> '0'
-                OR centerline.r_low_hn <> '0'
-                OR centerline.r_high_hn <> '0'
+        WHEN segments.feature_type = 'centerline'
+            THEN (
+                CASE
+                    WHEN centerline.status = '3' THEN '5'
+                    WHEN centerline.status = '2' AND centerline.rwjurisdiction = '3' THEN '6'
+                    WHEN centerline.status = '9' THEN '9'
+                    WHEN centerline.rw_type = 10 THEN 'A'
+                    WHEN
+                        centerline.trafdir = 'NV'
+                        AND (
+                            centerline.l_low_hn <> '0'
+                            OR centerline.l_high_hn <> '0'
+                            OR centerline.r_low_hn <> '0'
+                            OR centerline.r_high_hn <> '0'
+                        )
+                        THEN 'W'
+                    WHEN centerline.rw_type = 14 THEN 'F'
+                    WHEN centerline.status = '2' AND centerline.rwjurisdiction = '5' THEN 'C'
+                END
             )
-            THEN 'W'
-        WHEN centerline.rw_type = 14 THEN 'F'
-        WHEN centerline.status = '2' AND centerline.rwjurisdiction = '5' THEN 'C'
+        WHEN segments.feature_type = 'shoreline' THEN '2'
+        WHEN segments.feature_type IN ('rail', 'subway') THEN '1'
+        WHEN segments.feature_type = 'nonstreetfeatures' THEN (
+            CASE
+                WHEN nsf.linetype = 3 THEN '3'
+                WHEN nsf.linetype = 7 THEN '4'
+                WHEN nsf.linetype IN (1, 2, 6) THEN '7'
+                WHEN nsf.linetype IN (4, 5) THEN '8'
+            END
+        )
     END AS feature_type_code,
     centerline.nonped,
     centerline.continuous_parity_flag,
@@ -122,20 +145,20 @@ SELECT
         WHEN centerline.twisted_parity_flag = 'Y' THEN 'T'
     END AS twisted_parity_flag,
     saf.special_address_flag,
-    centerline_curve.curve_flag,
+    CASE
+        WHEN segments.feature_type = 'centerline' THEN centerline_curve.curve_flag
+        WHEN st_numpoints(segments.geom) > 2 THEN 'I'
+    END AS curve_flag,
     round(centerline_curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
     round(centerline_curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
     round(segments.shape_length)::INT AS segment_length_ft,
-    CASE
-        WHEN from_level_code BETWEEN 1 AND 26 THEN chr(64 + from_level_code)
-        WHEN from_level_code = 99 THEN '*'
-    END AS from_level_code,
-    CASE
-        WHEN to_level_code BETWEEN 1 AND 26 THEN chr(64 + to_level_code)
-        WHEN to_level_code = 99 THEN '*'
-    END AS to_level_code,
+    convert_level_code(segments.from_level_code, segments.feature_type) AS from_level_code,
+    convert_level_code(segments.to_level_code, segments.feature_type) AS to_level_code,
     centerline.trafdir_ver_flag,
-    centerline.segment_type,
+    CASE
+        WHEN segments.feature_type = 'centerline' THEN centerline.segment_type
+        WHEN segments.feature_type = 'shoreline' THEN 'U'
+    END AS segment_type,
     centerline.coincident_seg_count - coalesce(diff_coincident_segment.subway_or_rail_count, 0) AS coincident_seg_count,
     centerline.incex_flag,
     centerline.rw_type,
@@ -152,7 +175,7 @@ SELECT
         ELSE centerline.bike_lane
     END AS bike_lane,
     centerline.fcc,
-    NULL AS right_of_way_type, -- blank for centerline
+    rail.row_type AS right_of_way_type,
     ap_left.left_2010_census_tract_basic,
     ap_left.left_2010_census_tract_suffix,
     ap_right.right_2010_census_tract_basic,
@@ -162,7 +185,7 @@ SELECT
     street_and_facecode.lgc7,
     street_and_facecode.lgc8,
     street_and_facecode.lgc9,
-    centerline.legacy_segmentid,
+    segments.legacy_segmentid,
     ap_left.left_2000_census_block_basic,
     ap_left.left_2000_census_block_suffix,
     ap_right.right_2000_census_block_basic,
@@ -197,7 +220,6 @@ SELECT
     segments.include_in_geosupport_lion,
     segments.include_in_bytes_lion
 FROM segments
--- consistent for all source layers
 LEFT JOIN street_and_facecode ON segments.segmentid = street_and_facecode.segmentid
 LEFT JOIN nodes ON segments.segmentid = nodes.segmentid
 LEFT JOIN segment_locational_status ON segments.segmentid = segment_locational_status.segmentid
@@ -218,3 +240,8 @@ LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode
 LEFT JOIN centerline ON segments.segmentid = centerline.segmentid
 LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid
 LEFT JOIN diff_coincident_segment ON centerline.segmentid = diff_coincident_segment.segmentid
+-- shoreline only
+-- rail only
+LEFT JOIN rail ON segments.segmentid = rail.segmentid
+-- nsf only
+LEFT JOIN nsf ON segments.segmentid = nsf.segmentid
