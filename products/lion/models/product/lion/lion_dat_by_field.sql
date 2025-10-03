@@ -7,7 +7,7 @@
 ) }}
 
 SELECT
-    boroughcode AS "Borough",
+    format_lion_text(boroughcode, 1, ' ') AS "Borough", -- TODO empty not impossible, but currently in dev we have some nulls
     format_lion_text(face_code, 4, '0') AS "Face Code",
     format_lion_text(segment_seqnum, 5, '0') AS "Sequence Number",
     format_lion_text(segmentid::TEXT, 7, '0') AS "Segment ID",
@@ -16,7 +16,7 @@ SELECT
     format_lion_text(lgc2, 2, '0', TRUE) AS "LGC2",
     format_lion_text(lgc3, 2, '0', TRUE) AS "LGC3",
     format_lion_text(lgc4, 2, '0', TRUE) AS "LGC4",
-    coalesce(boe_lgc_pointer, ' ') AS "Board of Elections LGC Pointer",
+    format_lion_text(boe_lgc_pointer, 1, ' ') AS "Board of Elections LGC Pointer",
     format_lion_text(from_sectionalmap, 2, '0') AS "From-Sectional Map",
     format_lion_text(from_nodeid::TEXT, 7, '0') AS "From-Node ID",
     format_lion_text(round(from_x)::INT::TEXT, 7, '0') AS "From-X Coordinate",
@@ -28,8 +28,8 @@ SELECT
     format_lion_text(left_2000_census_tract_basic::TEXT, 4, ' ') AS "Left 2000 Census Tract Basic",
     format_lion_text(left_2000_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Left 2000 Census Tract Suffix",
     coalesce(right(left_atomicid, 3), '   ') AS "Left Dynamic Block",
-    format_lion_text(l_low_hn, 7, ' ') AS "Left Low House Number",
-    format_lion_text(l_high_hn, 7, ' ') AS "Left High House Number",
+    format_lion_text(coalesce(l_low_hn, '0'), 7, ' ') AS "Left Low House Number",
+    format_lion_text(coalesce(l_high_hn, '0'), 7, ' ') AS "Left High House Number",
     format_lion_text(left(lsubsect, 2), 2, '0', TRUE) AS "Left Dept of Sanitation Subsection",
     format_lion_text(l_zip, 5, '0', TRUE) AS "Left Zip Code",
     format_lion_text(left_assembly_district, 2, '0', TRUE) AS "Left Assembly District",
@@ -38,8 +38,8 @@ SELECT
     format_lion_text(right_2000_census_tract_basic::TEXT, 4, ' ') AS "Right 2000 Census Tract Basic",
     format_lion_text(right_2000_census_tract_suffix::TEXT, 2, '0', TRUE) AS "Right 2000 Census Tract Suffix",
     coalesce(right(right_atomicid, 3), '   ') AS "Right Dynamic Block",
-    format_lion_text(r_low_hn, 7, ' ') AS "Right Low House Number",
-    format_lion_text(r_high_hn, 7, ' ') AS "Right High House Number",
+    format_lion_text(coalesce(r_low_hn, '0'), 7, ' ') AS "Right Low House Number",
+    format_lion_text(coalesce(r_high_hn, '0'), 7, ' ') AS "Right High House Number",
     format_lion_text(left(rsubsect, 2), 2, '0', TRUE) AS "Right Dept of Sanitation Subsection",
     format_lion_text(r_zip, 5, '0', TRUE) AS "Right Zip Code",
     format_lion_text(right_assembly_district, 2, '0', TRUE) AS "Right Assembly District",
