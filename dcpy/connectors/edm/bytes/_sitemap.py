@@ -55,9 +55,24 @@ class _DatasetConfig(BaseModel, extra="forbid"):
     file_resource_override: str | None = None
 
 
-with open(Path(__file__).parent / "site_map.json", "r") as site_map_file:
-    _SiteMap = TypeAdapter(dict[str, dict[str, _DatasetConfig]])
-    SITE_MAP = _SiteMap.validate_python(json.load(site_map_file))
+_site_map_path = Path(__file__).parent / "site_map.json"
+_SiteMap = TypeAdapter(dict[str, dict[str, _DatasetConfig]])
+
+# TODO: everything below should just be a class, and the site_map read into
+# the _connector on init
+
+
+def get_site_map():
+    with open(_site_map_path, "r") as site_map_file:
+        return _SiteMap.validate_python(json.load(site_map_file))
+
+
+SITE_MAP = get_site_map()
+
+
+def reload_site_map():
+    global SITE_MAP
+    SITE_MAP = get_site_map()
 
 
 def get_product_dataset_bytes_resource(product, dataset) -> str:
