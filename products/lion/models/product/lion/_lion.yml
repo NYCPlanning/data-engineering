@@ -10,6 +10,7 @@ models:
   - name: '"Borough"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         # this enforces length as well
         values: [ "1", "2", "3", "4", "5" ]
@@ -206,6 +207,7 @@ models:
   - name: '"Filler (formerly Split Community School District Flag)"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         values: [ " " ]
   - name: '"Sanitation District Boundary Indicator"'
@@ -216,21 +218,24 @@ models:
   - name: '"Traffic Direction"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         # this enforces length as well
         values: [ " ", "W", "A", "P", "T" ]
   - name: '"Segment Locational Status"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         # this enforces length as well
         values: [ " ", "9", "H", "I", "1", "2", "3", "4", "5", "X" ]
   - name: '"Feature Type Code"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         # this enforces length as well
-        values: [ " ", "5", "6", "9", "A", "W", "F", "C" ]
+        values: [ " ", "1", "2", "3", "5", "6", "7", "8", "9", "A", "W", "F", "C" ]
   - name: '"Non-Pedestrian Flag"'
     data_type: string
     tests:
@@ -244,16 +249,19 @@ models:
   - name: '"Filler (formerly the Near BQ-Boundary Flag)"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         values: [ " " ]
   - name: '"Borough Boundary Indicator"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         values: [ " ", "R", "L" ]
   - name: '"Twisted Parity Flag"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
         values: [ " ", "T" ]
   - name: '"Special Address Flag"'
@@ -284,13 +292,75 @@ models:
   - name: '"From Level Code"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
-        values: [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, "*"]
+        values:
+          [
+            A,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            H,
+            I,
+            J,
+            K,
+            L,
+            M,
+            N,
+            O,
+            P,
+            Q,
+            R,
+            S,
+            T,
+            U,
+            V,
+            W,
+            X,
+            Y,
+            Z,
+            "*",
+            $
+          ]
   - name: '"To Level Code"'
     data_type: string
     tests:
+    - not_null
     - accepted_values:
-        values: [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, "*"]
+        values:
+          [
+            A,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            H,
+            I,
+            J,
+            K,
+            L,
+            M,
+            N,
+            O,
+            P,
+            Q,
+            R,
+            S,
+            T,
+            U,
+            V,
+            W,
+            X,
+            Y,
+            Z,
+            "*",
+            $
+          ]
   - name: '"Traffic Direction Verification Flag"'
     data_type: string
     tests:
