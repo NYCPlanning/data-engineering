@@ -126,3 +126,4 @@ SELECT
     coalesce(right_2020_census_block_suffix::TEXT, ' ') AS "RIGHT CENSUS BLOCK 2020 SUFFIX",
     format_lion_text('', 45, ' ') AS "Filler L199"
 FROM {{ ref("int__lion") }}
+WHERE include_in_geosupport_lion
