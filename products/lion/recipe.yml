@@ -44,6 +44,4 @@ inputs:
     version: 25b
   - name: dcp_cscl_streetname
     version: 25b
-  - name: dcp_cscl_zipcode
-    version: 25b
   missing_versions_strategy: find_latest # TODO - they should all match
