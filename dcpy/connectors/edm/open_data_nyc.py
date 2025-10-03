@@ -137,6 +137,7 @@ class OpenDataConnector(VersionedConnector):
             return result
         else:
             logger.info("Publishing")
+            time.sleep(120)  # random time to let the file fully upload
             rev.apply()
             logger.info(
                 "Revision Applied. Polling for publication completion (this can take minutes)."
