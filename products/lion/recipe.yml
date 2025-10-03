@@ -1,28 +1,49 @@
 name: LION
 product: lion
+version: 25b
 version_strategy: first_of_month # TODO 
+
 inputs:
   datasets:
   # segment source layers - backbone
   - name: dcp_cscl_centerline
+    version: 25b
   - name: dcp_cscl_shoreline
+    version: 25b
   - name: dcp_cscl_rail
+    version: 25b
   - name: dcp_cscl_subway
+    version: 25b
   - name: dcp_cscl_nonstreetfeatures
+    version: 25b
 
   # other more "primary" layers
   - name: dcp_cscl_atomicpolygons
+    version: 25b_fixed_polys
   - name: dcp_cscl_nodes
+    version: 25b
 
   # all other tables
   - name: dcp_cscl_addresspoints
+    version: 25b
   - name: dcp_cscl_altsegmentdata
+    version: 25b
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
+    version: 25b
   - name: dcp_cscl_featurename
+    version: 25b
   - name: dcp_cscl_nypdbeat
+    version: 25b
   - name: dcp_cscl_sectionalmap
+    version: 25b
   - name: dcp_cscl_sedat
+    version: 25b
   - name: dcp_cscl_segment_lgc
+    version: 25b
   - name: dcp_cscl_specialsedat
+    version: 25b
   - name: dcp_cscl_streetname
+    version: 25b
+  - name: dcp_cscl_zipcode
+    version: 25b
   missing_versions_strategy: find_latest # TODO - they should all match
