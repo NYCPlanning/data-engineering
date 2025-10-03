@@ -6,7 +6,11 @@
     ]
 ) }}
 
-WITH centerline AS (
+WITH segments AS (
+    SELECT * FROM {{ ref("int__segments") }}
+),
+
+centerline AS (
     SELECT * FROM {{ ref("stg__centerline") }}
 ),
 
@@ -22,7 +26,7 @@ saf AS (
     SELECT * FROM {{ ref("int__segment_specialaddress") }}
 ),
 
-curve AS (
+centerline_curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
 ),
 
@@ -47,10 +51,10 @@ diff_coincident_segment AS (
 )
 
 SELECT
-    centerline.boroughcode,
+    segments.boroughcode,
     street_and_facecode.face_code,
-    centerline.segment_seqnum,
-    centerline.segmentid,
+    segments.segment_seqnum,
+    segments.segmentid,
     street_and_facecode.five_digit_street_code,
     street_and_facecode.lgc1,
     street_and_facecode.lgc2,
@@ -88,32 +92,40 @@ SELECT
     sedat.split_election_district_flag,
     (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
     CASE
-        WHEN trafdir = 'FT' THEN 'W'
-        WHEN trafdir = 'TF' THEN 'A'
-        WHEN trafdir = 'NV' THEN 'P'
-        WHEN trafdir = 'TW' THEN 'T'
+        WHEN centerline.trafdir = 'FT' THEN 'W'
+        WHEN centerline.trafdir = 'TF' THEN 'A'
+        WHEN centerline.trafdir = 'NV' THEN 'P'
+        WHEN centerline.trafdir = 'TW' THEN 'T'
     END AS traffic_direction,
     segment_locational_status.segment_locational_status,
     CASE
-        WHEN status = '3' THEN '5'
-        WHEN status = '2' AND rwjurisdiction = '3' THEN '6'
-        WHEN status = '9' THEN '9'
-        WHEN rw_type = 10 THEN 'A'
-        WHEN trafdir = 'NV' AND (l_low_hn <> '0' OR l_high_hn <> '0' OR r_low_hn <> '0' OR r_high_hn <> '0') THEN 'W'
-        WHEN rw_type = 14 THEN 'F'
-        WHEN status = '2' AND rwjurisdiction = '5' THEN 'C'
+        WHEN centerline.status = '3' THEN '5'
+        WHEN centerline.status = '2' AND centerline.rwjurisdiction = '3' THEN '6'
+        WHEN centerline.status = '9' THEN '9'
+        WHEN centerline.rw_type = 10 THEN 'A'
+        WHEN
+            centerline.trafdir = 'NV'
+            AND (
+                centerline.l_low_hn <> '0'
+                OR centerline.l_high_hn <> '0'
+                OR centerline.r_low_hn <> '0'
+                OR centerline.r_high_hn <> '0'
+            )
+            THEN 'W'
+        WHEN centerline.rw_type = 14 THEN 'F'
+        WHEN centerline.status = '2' AND centerline.rwjurisdiction = '5' THEN 'C'
     END AS feature_type_code,
     centerline.nonped,
     centerline.continuous_parity_flag,
     segment_locational_status.borough_boundary_indicator,
     CASE
-        WHEN twisted_parity_flag = 'Y' THEN 'T'
+        WHEN centerline.twisted_parity_flag = 'Y' THEN 'T'
     END AS twisted_parity_flag,
     saf.special_address_flag,
-    curve.curve_flag,
-    round(curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
-    round(curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
-    round(centerline.shape_length)::INT AS segment_length_ft,
+    centerline_curve.curve_flag,
+    round(centerline_curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
+    round(centerline_curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
+    round(segments.shape_length)::INT AS segment_length_ft,
     CASE
         WHEN from_level_code BETWEEN 1 AND 26 THEN chr(64 + from_level_code)
         WHEN from_level_code = 99 THEN '*'
@@ -179,23 +191,30 @@ SELECT
     ap_left.left_2020_census_block_basic,
     ap_left.left_2020_census_block_suffix,
     ap_right.right_2020_census_block_basic,
-    ap_right.right_2020_census_block_suffix
-FROM centerline
-LEFT JOIN nodes ON centerline.segmentid = nodes.segmentid
-LEFT JOIN saf ON centerline.segmentid = saf.segmentid AND centerline.boroughcode = saf.boroughcode
-LEFT JOIN curve ON centerline.segmentid = curve.segmentid
-LEFT JOIN street_and_facecode ON centerline.segmentid = street_and_facecode.segmentid
-LEFT JOIN sedat ON centerline.segmentid = sedat.segmentid AND centerline.boroughcode = sedat.boroughcode
-LEFT JOIN nypd_service_areas ON centerline.segmentid = nypd_service_areas.segmentid
-LEFT JOIN segment_locational_status ON centerline.segmentid = segment_locational_status.segmentid
+    ap_right.right_2020_census_block_suffix,
+    segments.feature_type,
+    segments.geom,
+    segments.include_in_geosupport_lion,
+    segments.include_in_bytes_lion
+FROM segments
+-- consistent for all source layers
+LEFT JOIN street_and_facecode ON segments.segmentid = street_and_facecode.segmentid
+LEFT JOIN nodes ON segments.segmentid = nodes.segmentid
+LEFT JOIN segment_locational_status ON segments.segmentid = segment_locational_status.segmentid
 LEFT JOIN
     atomic_polygons AS ap_left
     ON
-        centerline.segmentid = ap_left.segmentid
+        segments.segmentid = ap_left.segmentid
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L'
 LEFT JOIN
     atomic_polygons AS ap_right
     ON
-        centerline.segmentid = ap_right.segmentid
+        segments.segmentid = ap_right.segmentid
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R'
+LEFT JOIN saf ON segments.segmentid = saf.segmentid AND segments.boroughcode = saf.boroughcode
+LEFT JOIN nypd_service_areas ON segments.segmentid = nypd_service_areas.segmentid
+LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode = sedat.boroughcode
+-- centerline only
+LEFT JOIN centerline ON segments.segmentid = centerline.segmentid
+LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid
 LEFT JOIN diff_coincident_segment ON centerline.segmentid = diff_coincident_segment.segmentid
