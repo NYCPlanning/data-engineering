@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import zipfile
 from dataclasses import dataclass, field
-from lxml import objectify
+from lxml import etree
 from typing import Optional
 from datetime import datetime
 import xml.etree.ElementTree as ET  # TODO remove me, once lxml is implemented
@@ -103,7 +103,11 @@ class Shapefile:
         Returns:
         str: Metadata content as string.
         """
-        return self.file_manager.read_file(f"{self.name}.xml")
+        metadata_str = self.file_manager.read_file(f"{self.name}.xml")
+        parser = MetadataParser()
+        metadata = parser.parse_from_string(metadata_str)
+
+        return metadata
 
     def write_metadata(
         self,
@@ -230,58 +234,25 @@ class Constraints:
     # system_of_record: Optional[str] = None  # useLimit -- may not be required?
 
 
-# --------------
-## Unclear if the following attrs are required, will be reviewed
-# --------------
-# @dataclass
-# class Distribution:
-#     """Distribution information (Distribution URL and related)"""
-#     # These don't seem to actually be req'd in our source refs
-#     format_name: Optional[str] = None   # e.g. "Shapefile"
-#     transfer_size: Optional[float] = None
-
-# @dataclass
-# class ItemProperties:
-#     """Properties of the dataset item."""
-#     item_name: str    # This updates to reflect *file name* when sync is run
-#     ims_content_type: Optional[str] = None  # What is this?
-#     item_size: Optional[float] = None  # I think this is the size of the file on disk?
-
-# @dataclass
-# class DataProperties:
-#     """Data properties from Esri section."""
-#     item_properties: ItemProperties
-#     coord_ref: Optional[CoordinateReference] = None  # Unknown if needed
-
-# @dataclass
-# class CoordinateReference:
-#     """Coordinate reference system information."""
-
-#     # These fields marked as unknown - may be redundant with RefSystem
-#     type: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     geogcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     cs_units: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     projcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     pe_xml: Optional[str] = None  # What is this?
-
-
 @dataclass
 class EsriMetadata:
     """Esri-specific metadata elements."""
 
-    creation_date: datetime
-    creation_time: datetime
-    arcgis_format: float
-    sync_once: str
-    scale_range: ScaleRange
-    arcgis_profile: str
+    # NOTE: these were initially listed as non-optional, but I think all attrs should be optional
+    #   and required values should be controlled somewhere like pydantic
+    creation_date: Optional[str] = None
+    creation_time: Optional[str] = None
+    arcgis_format: Optional[float] = None
+    sync_once: Optional[str] = None
+    scale_range: Optional[ScaleRange] = None
+    arcgis_profile: Optional[str] = None
     # data_properties: DataProperties   # see commented out classes
     # These next attrs will need to be calculated based on run time of
     # specific methods, sync etc.
-    sync_date: datetime
-    sync_time: datetime
-    mod_date: datetime
-    mod_time: datetime
+    sync_date: Optional[str] = None
+    sync_time: Optional[str] = None
+    mod_date: Optional[str] = None
+    mod_time: Optional[str] = None
 
 
 @dataclass
@@ -306,7 +277,7 @@ class ArcGISMetadata:
 
     # Keywords and tags
     topic_category: Optional[str] = None  # Required per Esri ISO
-    search_tags: list[str] = field(
+    general_tags: list[str] = field(
         default_factory=list
     )  # Tags (General) - DCP overrode EPA path
     place_tags: list[str] = field(default_factory=list)  # Tags (Place)
@@ -314,7 +285,7 @@ class ArcGISMetadata:
     # Dates
     last_update: Optional[datetime] = None  # Last Update (reviseDate)
     update_frequency: Optional[str] = None  # Update Frequency
-    metadata_date_stamp: Optional[datetime] = None  # Metadata Date Stamp
+    metadata_date_stamp: Optional[str] = None  # Could be datetime?
 
     # Contact information
     data_contact: Optional[ResponsibleParty] = None
@@ -357,13 +328,147 @@ class ArcGISMetadata:
 
 
 class MetadataParser:
-    def parse_from_shapefile(self, filename) -> ArcGISMetadata:
-        return ArcGISMetadata(title=self._get_title(filename))
+    def _get_element_text(self, tree: etree._ElementTree, xpath: str) -> str:
+        result = tree.xpath(xpath)
+        if len(result) != 1:
+            raise ValueError(
+                f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
+            )
+        return result[0].text
 
-    def generate_metadata(self): ...
-    def _get_title(self, filename) -> str:
-        stem = Path(filename).stem
-        return stem
+    def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
+        text = self._get_element_text(tree=tree, xpath=xpath)
+        tags = text.split(",")
+        cleaned = [tag.strip() for tag in tags]
+        return cleaned
+
+    def _get_xml_value(self, tree: etree._ElementTree, xpath: str) -> str | None:
+        # TODO - add error handling for multiple values
+        root = tree.getroot()
+        return root.xpath(xpath)[0]
+
+    def parse_from_string(self, string) -> ArcGISMetadata:
+        tree = etree.ElementTree(etree.fromstring(string))
+
+        responsible_party = ResponsibleParty()
+        spatial_extent = GeographicBoundingBox(
+            west=self._get_element_text(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/westBL"
+            ),
+            east=self._get_element_text(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL"
+            ),
+            north=self._get_element_text(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/northBL"
+            ),
+            south=self._get_element_text(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/southBL"
+            ),
+        )
+        temporal_extent = TemporalExtent()
+        spatial_reference = SpatialReference()
+        constraints = Constraints()
+        language = Language(
+            language_code=self._get_xml_value(
+                tree, ".//dataIdInfo/dataLang/languageCode/@value"
+            ),
+            country_code=self._get_xml_value(tree, ".//mdLang/countryCode/@value"),
+        )
+
+        scale_range = ScaleRange(
+            min_scale=self._get_element_text(tree, ".//Esri/scaleRange/minScale"),
+            max_scale=self._get_element_text(tree, ".//Esri/scaleRange/maxScale"),
+        )
+
+        esri = EsriMetadata(
+            creation_date=self._get_element_text(tree, ".//Esri/CreaDate"),
+            creation_time=self._get_element_text(tree, ".//Esri/CreaTime"),
+            arcgis_format=self._get_element_text(tree, ".//Esri/ArcGISFormat"),
+            sync_once=self._get_element_text(tree, ".//Esri/SyncOnce"),
+            scale_range=scale_range,
+            arcgis_profile=self._get_element_text(tree, ".//Esri/ArcGISProfile"),
+            sync_date=self._get_element_text(tree, ".//Esri/SyncDate"),
+            sync_time=self._get_element_text(tree, ".//Esri/SyncTime"),
+            mod_date=self._get_element_text(tree, ".//Esri/ModDate"),
+            mod_time=self._get_element_text(tree, ".//Esri/ModTime"),
+        )
+
+        return ArcGISMetadata(
+            metadata_date_stamp=self._get_element_text(tree=tree, xpath=".//mdDateSt"),
+            esri=esri,
+            metadata_file_id=self._get_element_text(tree, xpath=".//mdFileID"),
+            title=self._get_element_text(
+                tree, xpath=".//dataIdInfo/idCitation/resTitle"
+            ),
+            description=self._get_element_text(tree, xpath=".//dataIdInfo/idAbs"),
+            # topic_category=self._get_element_text(tree, xpath=".//"), # TODO - get value, and allow for multiple
+            general_tags=self._get_text_as_list(
+                tree, xpath=".//dataIdInfo/themeKeys/keyword"
+            ),
+            place_tags=self._get_text_as_list(
+                tree, xpath=".//dataIdInfo/placeKeys/keyword"
+            ),
+            last_update=self._get_element_text(
+                tree, xpath=".//dataIdInfo/idCitation/date/reviseDate"
+            ),
+            update_frequency=self._get_xml_value(
+                tree, xpath=".//dataIdInfo/resMaint/maintFreq/MaintFreqCd/@value"
+            ),
+            data_contact=responsible_party,
+            metadata_contact=responsible_party,
+            spatial_extent=spatial_extent,
+            temporal_extent=temporal_extent,
+            spatial_reference=spatial_reference,
+            metadata_hierarchy_level_code=self._get_xml_value(
+                tree, xpath=".//mdHrLv/ScopeCd/@value"
+            ),
+            # distribution_url=self._get_element_text(
+            #     tree, xpath=".//distInfo/distTranOps/onLineSrc/linkage"
+            # ),    # TODO - handle multiples of this xpath
+            constraints=constraints,
+            data_language=language.language_code,
+            metadata_language=language.language_code,
+        )
+
+    # def generate_metadata(self): ...
+
+
+class MetadataWriter: ...
+
+
+# --------------
+## Unclear if the following attrs are required, will be reviewed
+# --------------
+# @dataclass
+# class Distribution:
+#     """Distribution information (Distribution URL and related)"""
+#     # These don't seem to actually be req'd in our source refs
+#     format_name: Optional[str] = None   # e.g. "Shapefile"
+#     transfer_size: Optional[float] = None
+
+# @dataclass
+# class ItemProperties:
+#     """Properties of the dataset item."""
+#     item_name: str    # This updates to reflect *file name* when sync is run
+#     ims_content_type: Optional[str] = None  # What is this?
+#     item_size: Optional[float] = None  # I think this is the size of the file on disk?
+
+# @dataclass
+# class DataProperties:
+#     """Data properties from Esri section."""
+#     item_properties: ItemProperties
+#     coord_ref: Optional[CoordinateReference] = None  # Unknown if needed
+
+# @dataclass
+# class CoordinateReference:
+#     """Coordinate reference system information."""
+
+#     # These fields marked as unknown - may be redundant with RefSystem
+#     type: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     geogcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     cs_units: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     projcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
+#     pe_xml: Optional[str] = None  # What is this?
 
 
 # ----------------------------------------------------------------------------
