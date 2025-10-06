@@ -1,28 +1,48 @@
 name: LION
 product: lion
-version_strategy: first_of_month # TODO 
+version: 25c_fixed
+
 inputs:
   datasets:
   # segment source layers - backbone
   - name: dcp_cscl_centerline
+    version_env_var: VERSION
   - name: dcp_cscl_shoreline
+    version_env_var: VERSION
   - name: dcp_cscl_rail
+    version_env_var: VERSION
   - name: dcp_cscl_subway
+    version_env_var: VERSION
   - name: dcp_cscl_nonstreetfeatures
+    version_env_var: VERSION
 
   # other more "primary" layers
   - name: dcp_cscl_atomicpolygons
+    version_env_var: VERSION
   - name: dcp_cscl_nodes
+    version_env_var: VERSION
 
   # all other tables
   - name: dcp_cscl_addresspoints
+    version_env_var: VERSION
   - name: dcp_cscl_altsegmentdata
+    version_env_var: VERSION
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
+    version_env_var: VERSION
   - name: dcp_cscl_featurename
+    version_env_var: VERSION
   - name: dcp_cscl_nypdbeat
+    version_env_var: VERSION
   - name: dcp_cscl_sectionalmap
+    version_env_var: VERSION
   - name: dcp_cscl_sedat
+    version_env_var: VERSION
   - name: dcp_cscl_segment_lgc
+    version_env_var: VERSION
   - name: dcp_cscl_specialsedat
+    version_env_var: VERSION
   - name: dcp_cscl_streetname
+    version_env_var: VERSION
+  - name: dcp_cscl_zipcode
+    version_env_var: VERSION
   missing_versions_strategy: find_latest # TODO - they should all match

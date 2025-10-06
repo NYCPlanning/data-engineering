@@ -1,0 +1,44 @@
+models:
+- name: int__lgc
+  description: All local group codes ranked for segments
+  columns:
+  - name: segmentid
+    tests:
+    - not_null
+  - name: lgc
+    tests:
+    - not_null
+  - name: lgc_rank
+    tests:
+    - dbt_utils.accepted_range:
+        min_value: 1
+        max_value: 9 # a segment shouldn't have more than 9 lgcs
+        inclusive: true
+  - name: boe_lgc_pointer
+
+- name: int__streetcode_and_facecode
+  description: Street codes and face code-related data for all segments
+  columns:
+  - name: boroughcode
+  - name: segmentid
+    tests:
+    - not_null
+    - unique
+  - name: lgc1
+    tests:
+    - not_null
+  - name: lgc2
+  - name: lgc3
+  - name: lgc4
+  - name: lgc5
+  - name: lgc6
+  - name: lgc7
+  - name: lgc8
+  - name: lgc9
+  - name: boe_lgc_pointer
+    tests:
+    - not_null
+  - name: five_digit_street_code
+    tests:
+    - not_null
+  - name: face_code
