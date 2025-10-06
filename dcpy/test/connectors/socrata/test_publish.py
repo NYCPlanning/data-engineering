@@ -11,6 +11,7 @@ from socrata.output_schema import OutputSchema
 
 open_data_conn = OpenDataConnector()
 open_data_conn.SOCRATA_DOMAIN = "mock.data.cityofnewyork.us"
+open_data_conn.PRE_PUBLISH_SLEEP_SECS = 0
 
 
 @pytest.fixture
