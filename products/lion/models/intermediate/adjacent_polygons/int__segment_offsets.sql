@@ -9,7 +9,6 @@ WITH segments AS (
 SELECT
     segmentid,
     boroughcode,
-    feature_type,
     geom,
     offsets.left_offset_point,
     offsets.right_offset_point
