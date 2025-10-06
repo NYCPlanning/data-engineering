@@ -67,7 +67,7 @@ noncl_coincident_segment AS (
 )
 
 SELECT
-    centerline.boroughcode,
+    segments.boroughcode,
     street_and_facecode.face_code,
     segments.segment_seqnum,
     segments.segmentid,
