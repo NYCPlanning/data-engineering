@@ -114,20 +114,29 @@ SELECT
     sedat.split_election_district_flag,
     (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
     CASE
-        WHEN centerline.trafdir = 'FT' THEN 'W'
-        WHEN centerline.trafdir = 'TF' THEN 'A'
-        WHEN centerline.trafdir = 'NV' THEN 'P'
-        WHEN centerline.trafdir = 'TW' THEN 'T'
+        -- With
+        WHEN trafdir = 'FT' THEN 'W'
+        -- Against
+        WHEN trafdir = 'TF' THEN 'A'
+        -- Non-vehicular
+        WHEN trafdir = 'NV' THEN 'P'
+        -- Two-way
+        WHEN trafdir = 'TW' THEN 'T'
     END AS traffic_direction,
     segment_locational_status.segment_locational_status,
     CASE
         WHEN segments.feature_type = 'centerline'
             THEN (
                 CASE
+                    -- Paper street that is not also a boundary 
                     WHEN centerline.status = '3' THEN '5'
+                    -- Private street that exists physically 
                     WHEN centerline.status = '2' AND centerline.rwjurisdiction = '3' THEN '6'
+                    -- Paper street that coincides with a non-physical boundary 
                     WHEN centerline.status = '9' THEN '9'
+                    -- Alley
                     WHEN centerline.rw_type = 10 THEN 'A'
+                    -- Path, non-vehicular, addressable
                     WHEN
                         centerline.trafdir = 'NV'
                         AND (
@@ -137,18 +146,25 @@ SELECT
                             OR centerline.r_high_hn <> '0'
                         )
                         THEN 'W'
+                    -- Ferry
                     WHEN centerline.rw_type = 14 THEN 'F'
+                    -- Constructed
                     WHEN centerline.status = '2' AND centerline.rwjurisdiction = '5' THEN 'C'
+                    -- Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W  -- redundant but to be explicit about above case
                 END
             )
         WHEN segments.feature_type = 'shoreline' THEN '2'
         WHEN segments.feature_type IN ('rail', 'subway') THEN '1'
         WHEN segments.feature_type = 'nonstreetfeatures' THEN (
             CASE
+                -- Non-physical census block boundary
                 WHEN nsf.linetype = 3 THEN '3'
-                WHEN nsf.linetype = 7 THEN '4'
+                -- Non-physical boundary other than census
                 WHEN nsf.linetype IN (1, 2, 6) THEN '7'
+                -- Physical boundary such as cemetery wall
                 WHEN nsf.linetype IN (4, 5) THEN '8'
+                -- Other non-street feature
+                WHEN nsf.linetype = 7 THEN '4'
             END
         )
     END AS feature_type_code,
