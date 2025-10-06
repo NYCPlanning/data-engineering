@@ -168,12 +168,13 @@ END;
 $BODY$
 LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS convert_level_code;
-CREATE OR REPLACE FUNCTION convert_level_code(level_code integer)
+CREATE OR REPLACE FUNCTION convert_level_code(level_code integer, feature_type text)
     RETURNS text AS
 $$
 BEGIN
-    IF level_code = 99 THEN
+    IF feature_type = 'shoreline' THEN
+        RETURN '$';
+    ELSIF feature_type = 'nonstreetfeatures' OR level_code = 99 THEN
         RETURN '*';
     ELSIF level_code BETWEEN 1 AND 26 THEN
         RETURN chr(64 + level_code);

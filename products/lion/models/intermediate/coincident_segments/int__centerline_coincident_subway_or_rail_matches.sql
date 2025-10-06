@@ -10,7 +10,7 @@ WITH exact_matches AS (
     SELECT
         r.segmentid AS trains_segment_id,
         c.segmentid AS all_segments_id,
-        r.source_feature_type AS rail_type,
+        r.feature_type AS rail_type,
         'exact' AS match_type,
         c.coincident_seg_count AS starting_coincident_seg_count,
         0 AS distance,
@@ -26,7 +26,7 @@ fuzzy_matches AS (
     SELECT
         r.segmentid AS trains_segment_id,
         c.segmentid AS all_segments_id,
-        r.source_feature_type AS rail_type,
+        r.feature_type AS rail_type,
         'fuzzy' AS match_type,
         c.coincident_seg_count AS starting_coincident_seg_count,
         ST_DISTANCE(r.midpoint, s.midpoint) AS distance,

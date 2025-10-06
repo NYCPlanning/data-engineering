@@ -5,10 +5,28 @@
     ]
 ) }}
 
-WITH center_calculated AS (
-    SELECT 
+WITH curves AS (
+    SELECT * FROM {{ ref("stg__centerline") }}
+    WHERE curve <> 'S'
+),
+segments AS (
+    SELECT * FROM {{ ref("int__segments") }}
+),
+points AS (
+    SELECT
+        curves.segmentid,
+        curves.curve AS curve_flag,
+        segments.start_point,
+        segments.end_point,
+        segments.midpoint,
+        segments.geom
+    FROM curves
+    INNER JOIN segments ON curves.segmentid = segments.segmentid
+),
+center_calculated AS (
+    SELECT
         segmentid,
-        curve AS curve_flag,
+        curve_flag,
         start_point,
         end_point,
         midpoint,
@@ -17,8 +35,7 @@ WITH center_calculated AS (
             WHEN curve_flag IN ('L', 'R') THEN
                 find_circle(start_point, midpoint, end_point)
         END AS center_of_curvature
-    FROM {{ ref("int__centerline") }}
-    where curve <> 'S'
+    FROM points
 )
 SELECT
     *,
