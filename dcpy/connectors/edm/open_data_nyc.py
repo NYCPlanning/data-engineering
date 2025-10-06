@@ -12,6 +12,7 @@ from dcpy.utils.logging import logger
 class OpenDataConnector(VersionedConnector):
     conn_type: str = "open_data"
     SOCRATA_DOMAIN: str = "data.cityofnewyork.us"
+    PRE_PUBLISH_SLEEP_SECS: int = 120
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         return []
@@ -137,7 +138,9 @@ class OpenDataConnector(VersionedConnector):
             return result
         else:
             logger.info("Publishing")
-            time.sleep(120)  # random time to let the file fully upload
+            time.sleep(
+                self.PRE_PUBLISH_SLEEP_SECS
+            )  # Time to let the file fully process after upload
             rev.apply()
             logger.info(
                 "Revision Applied. Polling for publication completion (this can take minutes)."
