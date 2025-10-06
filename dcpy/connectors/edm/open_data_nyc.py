@@ -7,6 +7,7 @@ from dcpy.connectors.socrata import publish as soc_pub
 from dcpy.lifecycle import product_metadata
 import dcpy.models.product.dataset.metadata as md
 from dcpy.utils.logging import logger
+import re
 
 
 class OpenDataConnector(VersionedConnector):
@@ -14,8 +15,8 @@ class OpenDataConnector(VersionedConnector):
     SOCRATA_DOMAIN: str = "data.cityofnewyork.us"
     PRE_PUBLISH_SLEEP_SECS: int = 120
 
-    def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
-        return []
+    def list_versions(self, key: str, *, sort_desc: bool = True, **_) -> list[str]:
+        return [self.get_latest_version(key)]
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         product, dataset, destination_id = key.split(".")
@@ -41,7 +42,20 @@ class OpenDataConnector(VersionedConnector):
         raise Exception("Not implemented yet")
 
     def get_latest_version(self, key: str, **kwargs) -> str:
-        raise Exception("Not implemented yet")
+        product, dataset, destination_id = key.split(".")
+        metadata = product_metadata.load(version="dummy")  # I don't love this...
+        four_four = (
+            metadata.product(product)
+            .dataset(dataset)
+            .get_destination(destination_id)
+            .custom.get("four_four")
+        )
+        description = soc_pub.Dataset(
+            four_four=four_four, socrata_domain=self.SOCRATA_DOMAIN
+        ).get_description()
+
+        match = re.search(r"version:\s*([A-Za-z0-9\-_.]+)", description)
+        return match.group(1) if match else ""
 
     def distribute_dataset(
         self,
