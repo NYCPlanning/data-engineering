@@ -6,8 +6,13 @@ inputs:
     file_type: parquet
   missing_versions_strategy: find_latest
   datasets:
-  - name: dcp_facilities_with_unmapped
+  - name: db-facilities
+    source: edm.publishing.published
+    file_type: csv
+    import_as: dcp_facilities_with_unmapped
     version_env_var: VERSION_PREV
+    custom:
+      filepath: facilities.csv
   - name: dcp_mappluto_wi
     file_type: pg_dump
   - name: dcp_boroboundaries_wi
