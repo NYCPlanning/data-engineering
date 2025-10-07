@@ -186,8 +186,8 @@ class GeographicBoundingBox:
 class TemporalExtent:
     """Temporal range of dataset applicability (Temporal Extent)"""
 
-    begin_date: Optional[datetime] = None  # tmBegin
-    end_date: Optional[datetime] = None  # tmEnd
+    begin_date: Optional[str] = None  # tmBegin
+    end_date: Optional[str] = None  # tmEnd
 
 
 @dataclass
@@ -285,9 +285,9 @@ class ArcGISMetadata:
     place_tags: list[str] = field(default_factory=list)  # Tags (Place)
 
     # Dates
-    last_update: Optional[datetime] = None  # Last Update (reviseDate)
+    last_update: Optional[str] = None  # Last Update (reviseDate)
     update_frequency: Optional[str] = None  # Update Frequency
-    metadata_date_stamp: Optional[str] = None  # Could be datetime?
+    metadata_date_stamp: Optional[str] = None
 
     # Contact information
     data_contact: Optional[ResponsibleParty] = None
@@ -330,14 +330,26 @@ class ArcGISMetadata:
     # metadata_character_set_code: Optional[str] = None  # numeric code, indicating character encoding of metadata
     # pres_form_code: Optional[str] = None  # see presForm
 
+    # System/process attributes
+    missing_xpaths: list[str] = field(default_factory=list)
 
+
+# TODO: add handling for when the xpath doesn't exist
 class MetadataParser:
+    def __init__(self):
+        self.missing_xpaths = []  # Track missing XPaths during parsing
+
     def _get_xml_element(self, tree: etree._ElementTree, xpath: str) -> str:
         result = tree.xpath(xpath)
-        if len(result) != 1:
+        if len(result) == 0:
+            self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
+            return None
+
+        if len(result) > 1:
             raise ValueError(
                 f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
             )
+
         return result[0].text
 
     def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
@@ -352,6 +364,7 @@ class MetadataParser:
         return root.xpath(xpath)[0]
 
     def parse_from_string(self, string) -> ArcGISMetadata:
+        self.missing_xpaths = []  # Reset missing xpath collector for each parse
         tree = etree.ElementTree(etree.fromstring(string))
 
         # TODO: ResponsibleParty has to be written to default to a single set of contacts, but to
@@ -379,11 +392,11 @@ class MetadataParser:
             ),
             end_date=self._get_xml_element(
                 tree,
-                ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmBegin",
+                ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmEnd",
             ),
         )
         spatial_reference = SpatialReference(
-            code=self._get_xml_element(
+            code=self._get_xml_attribute(
                 tree, ".//refSysInfo/RefSystem/refSysID/identCode/@code"
             ),
             authority=self._get_xml_element(
@@ -397,7 +410,7 @@ class MetadataParser:
             data_license=self._get_xml_element(
                 tree, ".//dataIdInfo/resConst/LegConsts/othConsts"
             ),
-            general_use_limitation=self._get_xml__get_xml_elementvalue(
+            general_use_limitation=self._get_xml_element(
                 tree, ".//dataIdInfo/resConst/Consts/useLimit"
             ),
         )
@@ -426,7 +439,8 @@ class MetadataParser:
             mod_time=self._get_xml_element(tree, ".//Esri/ModTime"),
         )
 
-        return ArcGISMetadata(
+        metadata = ArcGISMetadata(
+            missing_xpaths=self.missing_xpaths.copy(),  # return missing xpaths
             metadata_date_stamp=self._get_xml_element(tree=tree, xpath=".//mdDateSt"),
             esri=esri,
             metadata_file_id=self._get_xml_element(tree, xpath=".//mdFileID"),
@@ -463,10 +477,31 @@ class MetadataParser:
             metadata_language=language.language_code,
         )
 
-    # def generate_metadata(self): ...
+        return metadata
 
 
-class MetadataWriter: ...
+class MetadataWriter:
+    def _sync_metadata(self):
+        """Calculate synced value fields from dataset, e.g. row count"""
+        ...
+
+    def _write_metadata(self):
+        """Write entire metadata xml file from a string"""
+        # do some stuff
+        self._sync_metadata()
+        ...
+
+    def _patch_metadata(self):
+        """Write a single field value"""
+        # do some stuff
+        self._sync_metadata()
+        ...
+
+    def _generate_metadata(self):
+        """Generate a minimally valid metadata xml file"""
+        # do some stuff
+        self._sync_metadata()
+        ...
 
 
 # --------------
