@@ -361,6 +361,11 @@ class Dataset(AuthedSocrataResource):
         super().__init__(socrata_domain)
         self.four_four = four_four
 
+    def get_description(self) -> str:
+        """Retrieve the description from the Socrata dataset metadata."""
+        metadata = self.fetch_metadata()
+        return metadata.get("description", "")
+
     @property
     def revisions_endpoint(self):
         return f"{self.revisions_root}/{self.four_four}"
