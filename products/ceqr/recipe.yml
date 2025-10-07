@@ -26,7 +26,6 @@ inputs:
     - name: dcp_limitedheight
     - name: dcp_specialpurposesubdistricts
     - name: dcp_zoningmapamendments
-      version: 20250430
     - name: dcp_pfirms
     - name: dcp_limwa
     - name: dcp_floodplain_2050_100
