@@ -42,6 +42,11 @@ class OpenDataConnector(VersionedConnector):
         raise Exception("Not implemented yet")
 
     def get_latest_version(self, key: str, **kwargs) -> str:
+        """Parses the latest version from the description on the OpenData page.
+
+        Unfortunately, we couldn't find anywhere else to stash the version (e.g. in the page metadata)
+        so we just append " Current version: [version-string]" to the end of the description.
+        """
         product, dataset, destination_id = key.split(".")
         metadata = product_metadata.load(version="dummy")  # I don't love this...
         four_four = (
@@ -54,7 +59,7 @@ class OpenDataConnector(VersionedConnector):
             four_four=four_four, socrata_domain=self.SOCRATA_DOMAIN
         ).get_description()
 
-        match = re.search(r"version:\s*([A-Za-z0-9\-_.]+)", description)
+        match = re.search(r" Current version: ([A-Za-z0-9\-_.]+)$", description)
         return match.group(1) if match else ""
 
     def distribute_dataset(

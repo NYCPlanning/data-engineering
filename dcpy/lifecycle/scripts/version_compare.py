@@ -6,8 +6,6 @@ import pandas as pd
 def get_all_open_data_keys():
     """retrieve all product.dataset.destination_ids"""
     return product_metadata.load(version="dummy").query_product_dataset_destinations(
-        # product_ids={"lion"},
-        # dataset_ids={"atomic_polygons", "lion"},
         destination_filter={"types": {"open_data"}},
     )
 
