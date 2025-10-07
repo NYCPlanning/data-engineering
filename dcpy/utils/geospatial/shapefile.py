@@ -5,10 +5,10 @@ from dataclasses import dataclass, field
 from lxml import etree
 from typing import Optional
 from datetime import datetime
-import xml.etree.ElementTree as ET  # TODO remove me, once lxml is implemented
+import xml.etree.ElementTree as ET  # TODO: remove me, once lxml is implemented
 # from xml.etree.ElementTree import ParseError
 
-# TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
+# TODO: - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
 
 class _FileManager:
@@ -186,8 +186,8 @@ class GeographicBoundingBox:
 class TemporalExtent:
     """Temporal range of dataset applicability (Temporal Extent)"""
 
-    begin: Optional[datetime] = None  # tmBegin
-    end: Optional[datetime] = None  # tmEnd
+    begin_date: Optional[datetime] = None  # tmBegin
+    end_date: Optional[datetime] = None  # tmEnd
 
 
 @dataclass
@@ -213,7 +213,7 @@ class SpatialReference:
 class SpatialRepresentation:
     """Spatial data representation (Spatial Data Representation)"""
 
-    # TODO - must be amended to handle other data types besides vector data
+    # TODO: must be amended to handle other data types besides vector data
     spatial_representation_type: Optional[str] = None  # SpatRepTypCd
     geometric_object_name: Optional[str] = (
         None  # appears to be same as title, but doesn't update when title or shp are renamed
@@ -229,7 +229,9 @@ class Constraints:
 
     access_level: Optional[str] = None  # ClasscationCd
     data_license: Optional[str] = None  # othConst
-    # general_use_limitation: Optional[str] = None  # useLimit -- marked as optional, per EPA
+    general_use_limitation: Optional[str] = (
+        None  # useLimit -- marked as optional, per EPA
+    )
     # rights: Optional[str] = None  # userNote -- req'd by EPA if item is not public
     # system_of_record: Optional[str] = None  # useLimit -- may not be required?
 
@@ -259,7 +261,7 @@ class EsriMetadata:
 class Language:
     """Language information."""
 
-    # TODO - later, allow for a different metadata and data language
+    # TODO: later, allow for a different metadata and data language
     language_code: str
     country_code: str
 
@@ -268,7 +270,7 @@ class Language:
 class ArcGISMetadata:
     """Root metadata container representing the complete ArcGIS metadata structure."""
 
-    ## TODO Requires categorization
+    ## TODO: Requires categorization
     metadata_file_id: Optional[str] = None  # UUID - four-four or BoBA dataset name?
 
     # Core identity
@@ -289,7 +291,7 @@ class ArcGISMetadata:
 
     # Contact information
     data_contact: Optional[ResponsibleParty] = None
-    # TODO - allow metadata contact to be different from dataset contact:
+    # TODO: allow metadata contact to be different from dataset contact:
     #   - perhaps - define a MetadataResponsibleParty w/ same attrs, attrs default to data contact if not present in XML, or provided
     metadata_contact: Optional[ResponsibleParty] = None
 
@@ -315,7 +317,9 @@ class ArcGISMetadata:
     # Esri-specific section (kept nested due to complexity)
     esri: Optional[EsriMetadata] = None
 
-    # Optional/unknown/later development fields
+    # ------------------------------------------
+    ## Optional/unknown/later development fields
+    # ------------------------------------------
     # spatial_representation: Optional[SpatialRepresentation] = (
     #     None  # TODO: must incl. other types
     # )
@@ -328,7 +332,7 @@ class ArcGISMetadata:
 
 
 class MetadataParser:
-    def _get_element_text(self, tree: etree._ElementTree, xpath: str) -> str:
+    def _get_xml_element(self, tree: etree._ElementTree, xpath: str) -> str:
         result = tree.xpath(xpath)
         if len(result) != 1:
             raise ValueError(
@@ -337,81 +341,110 @@ class MetadataParser:
         return result[0].text
 
     def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
-        text = self._get_element_text(tree=tree, xpath=xpath)
+        text = self._get_xml_element(tree=tree, xpath=xpath)
         tags = text.split(",")
         cleaned = [tag.strip() for tag in tags]
         return cleaned
 
-    def _get_xml_value(self, tree: etree._ElementTree, xpath: str) -> str | None:
-        # TODO - add error handling for multiple values
+    def _get_xml_attribute(self, tree: etree._ElementTree, xpath: str) -> str | None:
+        # TODO: add error handling for multiple values
         root = tree.getroot()
         return root.xpath(xpath)[0]
 
     def parse_from_string(self, string) -> ArcGISMetadata:
         tree = etree.ElementTree(etree.fromstring(string))
 
+        # TODO: ResponsibleParty has to be written to default to a single set of contacts, but to
+        #   also allow md and data contacts to be different, and to point to different xpaths
         responsible_party = ResponsibleParty()
+
         spatial_extent = GeographicBoundingBox(
-            west=self._get_element_text(
+            west=self._get_xml_element(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/westBL"
             ),
-            east=self._get_element_text(
+            east=self._get_xml_element(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL"
             ),
-            north=self._get_element_text(
+            north=self._get_xml_element(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/northBL"
             ),
-            south=self._get_element_text(
+            south=self._get_xml_element(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/southBL"
             ),
         )
-        temporal_extent = TemporalExtent()
-        spatial_reference = SpatialReference()
-        constraints = Constraints()
+        temporal_extent = TemporalExtent(
+            begin_date=self._get_xml_element(
+                tree,
+                ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmBegin",
+            ),
+            end_date=self._get_xml_element(
+                tree,
+                ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmBegin",
+            ),
+        )
+        spatial_reference = SpatialReference(
+            code=self._get_xml_element(
+                tree, ".//refSysInfo/RefSystem/refSysID/identCode/@code"
+            ),
+            authority=self._get_xml_element(
+                tree, ".//refSysInfo/RefSystem/refSysID/idCodeSpace"
+            ),
+        )
+        constraints = Constraints(
+            access_level=self._get_xml_attribute(
+                tree, ".//dataIdInfo/resConst/SecConsts/class/ClasscationCd/@value"
+            ),
+            data_license=self._get_xml_element(
+                tree, ".//dataIdInfo/resConst/LegConsts/othConsts"
+            ),
+            general_use_limitation=self._get_xml__get_xml_elementvalue(
+                tree, ".//dataIdInfo/resConst/Consts/useLimit"
+            ),
+        )
         language = Language(
-            language_code=self._get_xml_value(
+            language_code=self._get_xml_attribute(
                 tree, ".//dataIdInfo/dataLang/languageCode/@value"
             ),
-            country_code=self._get_xml_value(tree, ".//mdLang/countryCode/@value"),
+            country_code=self._get_xml_attribute(tree, ".//mdLang/countryCode/@value"),
         )
 
         scale_range = ScaleRange(
-            min_scale=self._get_element_text(tree, ".//Esri/scaleRange/minScale"),
-            max_scale=self._get_element_text(tree, ".//Esri/scaleRange/maxScale"),
+            min_scale=self._get_xml_element(tree, ".//Esri/scaleRange/minScale"),
+            max_scale=self._get_xml_element(tree, ".//Esri/scaleRange/maxScale"),
         )
 
         esri = EsriMetadata(
-            creation_date=self._get_element_text(tree, ".//Esri/CreaDate"),
-            creation_time=self._get_element_text(tree, ".//Esri/CreaTime"),
-            arcgis_format=self._get_element_text(tree, ".//Esri/ArcGISFormat"),
-            sync_once=self._get_element_text(tree, ".//Esri/SyncOnce"),
+            creation_date=self._get_xml_element(tree, ".//Esri/CreaDate"),
+            creation_time=self._get_xml_element(tree, ".//Esri/CreaTime"),
+            arcgis_format=self._get_xml_element(tree, ".//Esri/ArcGISFormat"),
+            sync_once=self._get_xml_element(tree, ".//Esri/SyncOnce"),
             scale_range=scale_range,
-            arcgis_profile=self._get_element_text(tree, ".//Esri/ArcGISProfile"),
-            sync_date=self._get_element_text(tree, ".//Esri/SyncDate"),
-            sync_time=self._get_element_text(tree, ".//Esri/SyncTime"),
-            mod_date=self._get_element_text(tree, ".//Esri/ModDate"),
-            mod_time=self._get_element_text(tree, ".//Esri/ModTime"),
+            arcgis_profile=self._get_xml_element(tree, ".//Esri/ArcGISProfile"),
+            sync_date=self._get_xml_element(tree, ".//Esri/SyncDate"),
+            sync_time=self._get_xml_element(tree, ".//Esri/SyncTime"),
+            mod_date=self._get_xml_element(tree, ".//Esri/ModDate"),
+            mod_time=self._get_xml_element(tree, ".//Esri/ModTime"),
         )
 
         return ArcGISMetadata(
-            metadata_date_stamp=self._get_element_text(tree=tree, xpath=".//mdDateSt"),
+            metadata_date_stamp=self._get_xml_element(tree=tree, xpath=".//mdDateSt"),
             esri=esri,
-            metadata_file_id=self._get_element_text(tree, xpath=".//mdFileID"),
-            title=self._get_element_text(
+            metadata_file_id=self._get_xml_element(tree, xpath=".//mdFileID"),
+            title=self._get_xml_element(
                 tree, xpath=".//dataIdInfo/idCitation/resTitle"
             ),
-            description=self._get_element_text(tree, xpath=".//dataIdInfo/idAbs"),
-            # topic_category=self._get_element_text(tree, xpath=".//"), # TODO - get value, and allow for multiple
+            description=self._get_xml_element(tree, xpath=".//dataIdInfo/idAbs"),
+            # topic_category=self._get_xml_element(tree, xpath=".//"), # TODO: get value, and allow for multiple
             general_tags=self._get_text_as_list(
                 tree, xpath=".//dataIdInfo/themeKeys/keyword"
             ),
             place_tags=self._get_text_as_list(
                 tree, xpath=".//dataIdInfo/placeKeys/keyword"
             ),
-            last_update=self._get_element_text(
+            last_update=self._get_xml_element(
                 tree, xpath=".//dataIdInfo/idCitation/date/reviseDate"
             ),
-            update_frequency=self._get_xml_value(
+            update_frequency=self._get_xml_attribute(
                 tree, xpath=".//dataIdInfo/resMaint/maintFreq/MaintFreqCd/@value"
             ),
             data_contact=responsible_party,
@@ -419,12 +452,12 @@ class MetadataParser:
             spatial_extent=spatial_extent,
             temporal_extent=temporal_extent,
             spatial_reference=spatial_reference,
-            metadata_hierarchy_level_code=self._get_xml_value(
+            metadata_hierarchy_level_code=self._get_xml_attribute(
                 tree, xpath=".//mdHrLv/ScopeCd/@value"
             ),
-            # distribution_url=self._get_element_text(
-            #     tree, xpath=".//distInfo/distTranOps/onLineSrc/linkage"
-            # ),    # TODO - handle multiples of this xpath
+            distribution_url=self._get_xml_element(
+                tree, xpath=".//distInfo/distTranOps/onLineSrc/linkage"
+            ),  # TODO: maybe - handle multiples of this xpath
             constraints=constraints,
             data_language=language.language_code,
             metadata_language=language.language_code,
@@ -537,14 +570,14 @@ class MetadataWriter: ...
 #         self.tags_theme = self._get_xml_tags(self._root.dataIdInfo.themeKeys)
 #         self.tags_place = self._get_xml_tags(self._root.dataIdInfo.placeKeys)
 
-#         # self.access_level = self._get_xml_value(self._root.dataIdInfo.resConst.SecConsts.class.ClasscationCd)
-#         self.update_frequency = self._get_xml_value(
+#         # self.access_level = self._get_xml_attribute(self._root.dataIdInfo.resConst.SecConsts.class.ClasscationCd)
+#         self.update_frequency = self._get_xml_attribute(
 #             self._root.dataIdInfo.resMaint.maintFreq.MaintFreqCd
 #         )
-#         self.dataset_language = self._get_xml_value(
+#         self.dataset_language = self._get_xml_attribute(
 #             self._root.dataIdInfo.dataLang.languageCode
 #         )
-#         self.country = self._get_xml_value(self._root.mdLang.countryCode)
+#         self.country = self._get_xml_attribute(self._root.mdLang.countryCode)
 
 #         self.spatial_extent = self._get_bbox(
 #             self._root.dataIdInfo.dataExt.geoEle.GeoBndBox
@@ -572,7 +605,7 @@ class MetadataWriter: ...
 #             return element_path.text
 #         return None
 
-#     def _get_xml_value(self, element_path: objectify.StringElement) -> str | None:
+#     def _get_xml_attribute(self, element_path: objectify.StringElement) -> str | None:
 #         # element = self._get_xml_root().find(element_path)
 #         if element_path is not None:
 #             return element_path.get("value")
@@ -669,7 +702,7 @@ class MetadataWriter: ...
 #         start_path_idx = len(zip_indicator)
 
 #         # Get zip path -------------------------
-#         # TODO - remove conditional here - redundant when we're running validator func already
+#         # TODO: remove conditional here - redundant when we're running validator func already
 #         if end_of_zip_delimiter in path_to_shp:
 #             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
 #                 len(end_of_zip_delimiter) - 1
