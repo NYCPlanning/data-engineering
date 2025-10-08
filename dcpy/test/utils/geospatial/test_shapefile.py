@@ -232,3 +232,31 @@ def test_metadata_exists(request, path_fixture, file_type, subdir):
     )
     shp = shapefile.from_path(fixture_info["path"], fixture_info["shp_name"], subdir)
     assert shp.metadata_exists(), "Expected metadata, but found none"
+
+
+def test_read_metadata_value(
+    temp_nonzipped_shp_with_md_path, temp_shp_zip_with_md_path
+):
+    # TODO: parametrize
+    fixtures = [temp_nonzipped_shp_with_md_path, temp_shp_zip_with_md_path]
+    for item in fixtures:
+        if str(item).endswith(".zip"):
+            path = item
+            shp_name = path.stem
+        else:
+            path = item.parent
+            shp_name = item.name
+
+        shp = shapefile.from_path(
+            path=path,
+            shp_name=shp_name,
+        )
+        metadata = shp.read_metadata()
+        expected = "20250421"
+        actual = metadata.esri.creation_date
+
+        assert actual == expected, f"Expected {expected}, but found {actual}"
+
+
+# temp_shp_zip_with_md_path
+# temp_nonzipped_shp_with_md_path
