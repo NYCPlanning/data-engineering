@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <metadata xml:lang="en">
     <Esri>
-        <CreaDate>20250925</CreaDate>
-        <CreaTime>14164900</CreaTime>
+        <CreaDate>19700101</CreaDate>
+        <CreaTime>0</CreaTime>
         <ArcGISFormat>1.0</ArcGISFormat>
         <SyncOnce>TRUE</SyncOnce>
         <scaleRange>
@@ -14,5 +14,5 @@
     <mdHrLv>
         <ScopeCd value="005" />
     </mdHrLv>
-    <mdDateSt Sync="TRUE">20250925</mdDateSt>
+    <mdDateSt Sync="TRUE">19261122</mdDateSt>
 </metadata>
