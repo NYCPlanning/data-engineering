@@ -12,7 +12,8 @@ from dcpy.test.conftest import mock_request_get
 from .shared import FAKE_VERSION, TEMPLATE_DIR
 
 pytest.skip(
-    "Skipping this entire file until refactoring is complete.", allow_module_level=True
+    "Skipping this entire file until Ingest 1-many refactoring is complete. This will likely just be deleted.",
+    allow_module_level=True,
 )
 
 

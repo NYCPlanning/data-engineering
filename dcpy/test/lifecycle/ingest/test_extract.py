@@ -14,7 +14,8 @@ from dcpy.test.connectors.test_esri import mock_query_layer
 from .shared import TEST_DATASET_NAME, FAKE_VERSION, SOURCE_FILENAMES
 
 pytest.skip(
-    "Skipping this entire file until refactoring is complete.", allow_module_level=True
+    "Skipping this entire file until Ingest 1-many refactoring is complete. This will likely just be deleted.",
+    allow_module_level=True,
 )
 
 web.get_df = mock.MagicMock(return_value=pd.DataFrame())  # type: ignore
