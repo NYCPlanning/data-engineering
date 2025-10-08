@@ -354,14 +354,25 @@ class MetadataParser:
 
     def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
         text = self._get_xml_element(tree=tree, xpath=xpath)
-        tags = text.split(",")
-        cleaned = [tag.strip() for tag in tags]
-        return cleaned
+        if text:
+            tags = text.split(",")
+            text = [tag.strip() for tag in tags]
+        return text
 
     def _get_xml_attribute(self, tree: etree._ElementTree, xpath: str) -> str | None:
         # TODO: add error handling for multiple values
-        root = tree.getroot()
-        return root.xpath(xpath)[0]
+        # TODO: combine with _get_xml_element - almost the same logic, minus the .text call
+        result = tree.xpath(xpath)
+        if len(result) == 0:
+            self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
+            return None
+
+        if len(result) > 1:
+            raise ValueError(
+                f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
+            )
+
+        return result[0]
 
     def parse_from_string(self, string) -> ArcGISMetadata:
         self.missing_xpaths = []  # Reset missing xpath collector for each parse
