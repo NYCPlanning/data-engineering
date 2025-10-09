@@ -5,7 +5,6 @@ from rich.console import Console
 from rich.table import Table
 import typer
 
-from dcpy.connectors.edm import recipes
 from dcpy.models.library import Config
 from . import aws_s3_bucket
 from .archive import Archive
@@ -56,8 +55,6 @@ def archive(
                 source_path_override=source_path_override,
             )
         assert config
-        if push:
-            recipes.log_metadata(config)
 
 # fmt: off
 @app.command()

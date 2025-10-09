@@ -8,10 +8,10 @@ def test_get_default_branch():
     assert branch == "main"
 
 
-def test_download_repo(create_temp_filesystem):
+def test_download_repo(tmp_path):
     repo_path = github.clone_repo(
         repo=TEST_REPO,
-        output_directory=create_temp_filesystem,
+        output_directory=tmp_path,
         branch="main",
     )
     assert repo_path.exists()

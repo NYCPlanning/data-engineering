@@ -28,6 +28,32 @@ class DatasetType(StrEnum):
     shapefile = "shapefile"
     other = "Other"
 
+    def to_extension(self) -> str:
+        mapping = {
+            "pg_dump": "sql",
+            "csv": "csv",
+            "parquet": "parquet",
+            "xlsx": "xlsx",
+            "json": "json",
+            "shapefile": "shp",
+            "other": "dat",
+        }
+        return mapping[self.value]
+
+    @classmethod
+    def from_extension(cls, s: str) -> "DatasetType | None":
+        match s:
+            case "sql":
+                return cls.pg_dump
+            case "csv":
+                return cls.csv
+            case "parquet":
+                return cls.parquet
+            case "xlsx":
+                return cls.xlsx
+            case _:
+                return None
+
 
 def _type_to_extension(dst: DatasetType) -> str:
     mapping = {"pg_dump": "sql", "csv": "csv", "parquet": "parquet", "xlsx": "xlsx"}

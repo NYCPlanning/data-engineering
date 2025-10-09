@@ -129,10 +129,11 @@ def import_dataset(
     stage: str,
     pg_client: postgres.PostgresClient,
     *,
+    dest_dir_override: Path | None = None,
     include_version_col: bool = True,
     include_ogc_fid_col: bool = True,
 ):
-    local_dataset_path = pull_dataset(ds, stage)
+    local_dataset_path = pull_dataset(ds, stage, dest_dir_override=dest_dir_override)
 
     # TODO: this should probably just be a registered connector, instead of pg
     load_dataset_into_pg(
@@ -168,7 +169,7 @@ def _import_dataset(
         help="Lifecycle Stage",
     ),
     source: str = typer.Option(
-        "edm.recipes",
+        "edm.recipes.datasets",
         "-f",
         "--source",
         help="Registered source to import from",

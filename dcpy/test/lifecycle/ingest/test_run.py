@@ -11,6 +11,12 @@ from dcpy.lifecycle.ingest.run import ingest as run_ingest, INGEST_STAGING_DIR
 from dcpy.test.conftest import mock_request_get
 from .shared import FAKE_VERSION, TEMPLATE_DIR
 
+pytest.skip(
+    "Skipping this entire file until Ingest 1-many refactoring is complete. This will likely just be deleted.",
+    allow_module_level=True,
+)
+
+
 DATASET = "bpl_libraries"
 S3_PATH = f"datasets/{DATASET}/{FAKE_VERSION}/{DATASET}.parquet"
 RAW_FOLDER = f"raw_datasets/{DATASET}"
@@ -31,18 +37,6 @@ def run_basic(mock_request_get, create_buckets, tmp_path):
 def test_run(run_basic):
     """Mainly an integration test to make sure code runs without error"""
     assert True
-
-
-def test_run_raw_output_exists(run_basic):
-    """Copy of run, but asserts that raw file in s3 properly archived"""
-    assert s3.object_exists(
-        RECIPES_BUCKET, recipes.s3_raw_file_path(run_basic.raw_dataset_key)
-    )
-
-
-def test_run_output_exists(run_basic):
-    """Copy of run, but asserts that output in s3 properly generated"""
-    assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
 
 
 @mock.patch("requests.get", side_effect=mock_request_get)

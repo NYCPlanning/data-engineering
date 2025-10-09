@@ -2,6 +2,17 @@ from dcpy.lifecycle.connector_registry import connectors
 from dcpy.connectors.ingest_datastore import Connector
 from dcpy.connectors.registry import Pull
 
+# todo: make all references to this this dynamic
 source_connectors = connectors.get_subregistry(Pull)
-raw_datastore = connectors["edm.recipes.raw_datasets", Connector]
-processed_datastore = connectors["edm.recipes.datasets", Connector]
+
+
+def get_source_connectors():
+    return connectors.get_subregistry(Pull)
+
+
+def get_raw_datastore_connector() -> Connector:
+    return connectors["edm.recipes.raw_datasets", Connector]
+
+
+def get_processed_datastore_connector() -> Connector:
+    return connectors["edm.recipes.datasets", Connector]

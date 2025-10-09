@@ -7,7 +7,14 @@ BUILD_NAME = env.get("BUILD_NAME")
 
 DEV_FLAG = env.get("DEV_FLAG") == "true"
 
-RECIPES_BUCKET = env.get("RECIPES_BUCKET")
+# Defaulting this is maybe not ideal. However, it does enable us ensure
+# that we're NOT using the default bucket in integration tests.
+# This should also probably eventually live in pyproject.
+_DEFAULT_RECIPES_BUCKET = "edm-recipes"
+RECIPES_BUCKET = env.get("RECIPES_BUCKET", _DEFAULT_RECIPES_BUCKET)
+
+DEFAULT_S3_URL = "https://nyc3.digitaloceanspaces.com"
+
 PUBLISHING_BUCKET = env.get("PUBLISHING_BUCKET")
 
 LOGGING_DB = "edm-qaqc"

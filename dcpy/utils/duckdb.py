@@ -1,4 +1,4 @@
-import duckdb
+import duckdb  # type: ignore
 import os
 
 

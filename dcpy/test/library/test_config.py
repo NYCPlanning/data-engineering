@@ -31,7 +31,8 @@ def test_config_parsed_rendered_template():
     assert rendered.version == "20v7"
 
 
-def test_config_source_type():
+@patch("requests.get", side_effect=mock_request_get)
+def test_config_source_type(mock_request_get):
     c = Config(get_config_file("socrata")).compute
     assert c.source.socrata
     c = Config(get_config_file("url")).compute
@@ -46,7 +47,8 @@ def test_config_version_today():
     assert int(version[-4:-2]) <= 12  # check month
 
 
-def test_config_compute():
+@patch("requests.get", side_effect=mock_request_get)
+def test_config_compute(mock_request_get):
     dataset = Config(get_config_file("socrata")).compute
     assert dataset.source.gdalpath
     assert dataset.source.options

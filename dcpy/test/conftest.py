@@ -37,6 +37,16 @@ RESOURCES = Path(__file__).parent / "resources"
 UTILS_RESOURCES = Path(__file__).parent / "utils" / "resources"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def ensure_no_callouts():
+    import socket
+
+    def guard(*args, **kwargs):
+        raise Exception("No internet allowed in the unit tests!")
+
+    socket.socket = guard
+
+
 @pytest.fixture(scope="function")
 def resources_path():
     return TEST_RESOURCES_PATH
