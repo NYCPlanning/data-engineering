@@ -16,7 +16,7 @@ anywidget==0.9.18
     # via leafmap
 asttokens==3.0.0
     # via stack-data
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   jsonschema
     #   rasterio
@@ -41,14 +41,14 @@ beautifulsoup4==4.14.2
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.40.40
+boto3==1.40.48
     # via
     #   -r requirements.in
     #   cloudpathlib
     #   moto
-boto3-stubs[s3]==1.40.40
+boto3-stubs[s3]==1.40.48
     # via -r requirements.in
-botocore==1.40.40
+botocore==1.40.48
     # via
     #   boto3
     #   moto
@@ -57,7 +57,7 @@ botocore-stubs==1.40.33
     # via boto3-stubs
 bqplot==0.12.45
     # via leafmap
-branca==0.8.1
+branca==0.8.2
     # via
     #   folium
     #   ipyleaflet
@@ -65,11 +65,11 @@ branca==0.8.1
     #   streamlit-folium
 cached-property==2.0.1
     # via -r requirements.in
-cachetools==5.5.2
+cachetools==6.2.0
     # via
     #   google-auth
     #   streamlit
-certifi==2025.8.3
+certifi==2025.10.5
     # via
     #   pyogrio
     #   pyproj
@@ -103,7 +103,7 @@ click-plugins==1.1.1.2
     # via rasterio
 cligj==0.7.2
     # via rasterio
-cloudpathlib[all]==0.22.0
+cloudpathlib[all]==0.23.0
     # via -r requirements.in
 colorama==0.4.6
     # via
@@ -119,7 +119,7 @@ contourpy==1.3.3
     # via matplotlib
 coverage[toml]==7.10.7
     # via pytest-cov
-cryptography==46.0.1
+cryptography==46.0.2
     # via
     #   azure-storage-blob
     #   moto
@@ -133,7 +133,7 @@ cycler==0.12.1
     # via matplotlib
 daff==1.4.2
     # via dbt-core
-dbt-adapters==1.16.7
+dbt-adapters==1.17.2
     # via
     #   dbt-core
     #   dbt-postgres
@@ -151,7 +151,7 @@ dbt-extractor==0.6.0
     # via dbt-core
 dbt-postgres==1.9.1
     # via -r requirements.in
-dbt-protos==1.0.375
+dbt-protos==1.0.382
     # via
     #   dbt-adapters
     #   dbt-common
@@ -170,7 +170,7 @@ diff-cover==9.7.1
     # via sqlfluff
 distlib==0.4.0
     # via virtualenv
-duckdb==1.4.0
+duckdb==1.4.1
     # via
     #   -r requirements.in
     #   leafmap
@@ -182,9 +182,9 @@ execnet==2.1.1
     # via pytest-xdist
 executing==2.2.1
     # via stack-data
-faker==37.8.0
+faker==37.11.0
     # via -r requirements.in
-filelock==3.19.1
+filelock==3.20.0
     # via
     #   gdown
     #   virtualenv
@@ -193,7 +193,7 @@ folium==0.20.0
     #   -r requirements.in
     #   leafmap
     #   streamlit-folium
-fonttools==4.60.0
+fonttools==4.60.1
     # via matplotlib
 gdal==3.11.3
     # via -r requirements.in
@@ -215,18 +215,18 @@ gitdb==4.0.12
     # via gitpython
 gitpython==3.1.45
     # via streamlit
-google-api-core==2.25.1
+google-api-core==2.26.0
     # via
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.40.3
+google-auth==2.41.1
     # via
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
 google-cloud-core==2.4.3
     # via google-cloud-storage
-google-cloud-storage==3.4.0
+google-cloud-storage==3.4.1
     # via cloudpathlib
 google-crc32c==1.7.1
     # via
@@ -242,7 +242,7 @@ graphviz==0.20.3
     #   diagrams
 greenlet==3.2.4
     # via sqlalchemy
-identify==2.6.14
+identify==2.6.15
     # via pre-commit
 idna==3.10
     # via requests
@@ -345,7 +345,7 @@ jupyterlab-widgets==3.0.15
     # via ipywidgets
 kiwisolver==1.4.9
     # via matplotlib
-leafmap==0.52.4
+leafmap==0.53.0
     # via -r requirements.in
 leather==0.4.0
     # via agate
@@ -366,7 +366,7 @@ mashumaro[msgpack]==3.14
     #   dbt-adapters
     #   dbt-common
     #   dbt-core
-matplotlib==3.10.6
+matplotlib==3.10.7
     # via
     #   -r requirements.in
     #   contextily
@@ -381,11 +381,11 @@ mercantile==1.2.1
     # via contextily
 more-itertools==10.8.0
     # via dbt-semantic-interfaces
-moto[s3]==5.1.13
+moto[s3]==5.1.14
     # via -r requirements.in
 msal==1.34.0
     # via -r requirements.in
-msgpack==1.1.1
+msgpack==1.1.2
     # via mashumaro
 mypy==1.18.2
     # via
@@ -398,7 +398,7 @@ mypy-extensions==1.1.0
     # via
     #   mypy
     #   typing-inspect
-narwhals==2.6.0
+narwhals==2.7.0
     # via
     #   altair
     #   plotly
@@ -451,7 +451,7 @@ packaging==25.0
     #   pyogrio
     #   pytest
     #   streamlit
-pandas==2.3.2
+pandas==2.3.3
     # via
     #   -r requirements.in
     #   bqplot
@@ -483,12 +483,12 @@ pillow==11.3.0
     #   contextily
     #   matplotlib
     #   streamlit
-platformdirs==4.4.0
+platformdirs==4.5.0
     # via
     #   jupyter-core
     #   sqlfluff
     #   virtualenv
-plotly==6.3.0
+plotly==6.3.1
     # via
     #   -r requirements.in
     #   leafmap
@@ -546,14 +546,14 @@ pyasn1-modules==0.4.2
     # via google-auth
 pycparser==2.23
     # via cffi
-pydantic==2.11.9
+pydantic==2.12.0
     # via
     #   -r requirements.in
     #   dbt-core
     #   dbt-semantic-interfaces
     #   maplibre
     #   pandera
-pydantic-core==2.33.2
+pydantic-core==2.41.1
     # via pydantic
 pydeck==0.9.1
     # via streamlit
@@ -663,7 +663,7 @@ requests[socks]==2.32.5
     #   streamlit
 responses==0.25.8
     # via moto
-rich==14.1.0
+rich==14.2.0
     # via
     #   -r requirements.in
     #   typer
@@ -673,7 +673,7 @@ rpds-py==0.27.1
     #   referencing
 rsa==4.9.1
     # via google-auth
-ruff==0.13.2
+ruff==0.14.0
     # via -r requirements.in
 s3transfer==0.14.0
     # via boto3
@@ -727,7 +727,7 @@ streamlit==1.50.0
     #   streamlit-folium
 streamlit-aggrid==1.1.9
     # via -r requirements.in
-streamlit-folium==0.25.2
+streamlit-folium==0.25.3
     # via -r requirements.in
 tabulate==0.9.0
     # via -r requirements.in
@@ -779,7 +779,7 @@ types-paramiko==4.0.0.20250822
     # via -r requirements.in
 types-psycopg2==2.9.21.20250915
     # via -r requirements.in
-types-python-dateutil==2.9.0.20250822
+types-python-dateutil==2.9.0.20251008
     # via -r requirements.in
 types-pytz==2025.2.0.20250809
     # via pandas-stubs
@@ -823,7 +823,7 @@ typing-extensions==4.15.0
     #   typing-inspection
 typing-inspect==0.9.0
     # via pandera
-typing-inspection==0.4.1
+typing-inspection==0.4.2
     # via pydantic
 tzdata==2025.2
     # via
@@ -840,7 +840,7 @@ us==3.2.0
     # via -r requirements.in
 usaddress==0.5.16
     # via -r requirements.in
-uv==0.8.22
+uv==0.9.0
     # via -r requirements.in
 virtualenv==20.34.0
     # via pre-commit
