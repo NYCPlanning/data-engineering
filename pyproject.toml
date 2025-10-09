@@ -133,6 +133,7 @@ dependencies = [
     "lxml",
     "openpyxl",
     "pandas",
+    "prefect",
     "psycopg2-binary",
     "pyarrow",
     "pydantic",
