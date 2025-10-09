@@ -91,6 +91,27 @@ def test_to_parquet(file: dict, create_temp_filesystem: Path):
     )
 
 
+class TestDetermineProcessingSteps:  # TODO
+    steps = [
+        ProcessingStep(name="clean_column_names", args={"lower": True}),
+        ProcessingStep(name="append_prev", mode="append"),
+    ]
+
+    def test_no_mode(self):
+        steps = transform.determine_processing_steps(self.steps)
+        assert len(steps) == 1
+        assert "append_prev" not in [s.name for s in steps]
+
+    def test_mode(self):
+        steps = transform.determine_processing_steps(self.steps, mode="append")
+        assert len(steps) == 2
+        assert "append_prev" in [s.name for s in steps]
+
+    def test_invalid_mode(self):
+        with pytest.raises(ValueError):
+            transform.determine_processing_steps(self.steps, mode="invalid_mode")
+
+
 class TestProcessors:
     proc = transform.ProcessingFunctions(TEST_DATASET_NAME)
     gdf = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "test.parquet")
@@ -435,9 +456,7 @@ class TestProcessors:
             )
 
     def test_rename_geodataframe(self):
-        transformed: gpd.GeoDataFrame = self.proc.rename_columns(
-            self.gdf, map={"wkt": "geom"}
-        )
+        transformed = self.proc.rename_columns(self.gdf, map={"wkt": "geom"})
         assert transformed.df.active_geometry_name == "geom"
         expected = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "renamed.parquet")
         assert transformed.df.equals(expected)
