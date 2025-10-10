@@ -26,6 +26,7 @@ class DatasetType(StrEnum):
     xlsx = "xlsx"  # needed for a few "legacy" products. Aim to phase out
     json = "json"
     shapefile = "shapefile"
+    geodatabase = "gdb"
     other = "Other"
 
     def to_extension(self) -> str:
@@ -36,6 +37,7 @@ class DatasetType(StrEnum):
             "xlsx": "xlsx",
             "json": "json",
             "shapefile": "shp",
+            "gdb": "gdb.zip",
             "other": "dat",
         }
         return mapping[self.value]

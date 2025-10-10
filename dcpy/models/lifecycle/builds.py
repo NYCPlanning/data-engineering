@@ -36,6 +36,7 @@ class InputDataset(BaseModel, extra="forbid"):
     import_as: str | None = None
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination | None = None
+    load_engine: str | None = None
     custom: dict = Field(default_factory=dict)
 
     @property
@@ -57,6 +58,7 @@ class InputDatasetDefaults(BaseModel):
     source: str = "edm.recipes.datasets"
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination = InputDatasetDestination.postgres
+    load_engine: str = "pandas"
 
 
 class RecipeInputs(BaseModel):
