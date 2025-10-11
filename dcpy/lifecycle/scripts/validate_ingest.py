@@ -318,11 +318,7 @@ def _compare(
         columns_only_comparison=columns_only_comparison,
         cast_to_numeric=cast_to_numeric_columns,
     )
-    print(
-        indented_report(
-            report.model_dump(), pretty_print_fields=True, include_line_breaks=True
-        )
-    )
+    print(indented_report(report.model_dump(), include_line_breaks=True))
 
 
 @app.command("run_and_compare")
@@ -351,11 +347,7 @@ def _run_and_compare(
         columns_only_comparison=columns_only_comparison,
         cast_to_numeric=cast_to_numeric_columns,
     )
-    print(
-        indented_report(
-            report.model_dump(), pretty_print_fields=True, include_line_breaks=True
-        )
-    )
+    print(indented_report(report.model_dump(), include_line_breaks=True))
 
 
 @app.command("get_columns")
