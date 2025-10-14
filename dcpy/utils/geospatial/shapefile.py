@@ -339,40 +339,56 @@ class MetadataParser:
     def __init__(self):
         self.missing_xpaths = []  # Track missing XPaths during parsing
 
-    def _get_xml_element(self, tree: etree._ElementTree, xpath: str) -> str:
+    def _get_xpath_results(
+        self, tree: etree._ElementTree, xpath: str
+    ) -> list[str] | None:
         result = tree.xpath(xpath)
         if len(result) == 0:
             self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
             return None
 
-        if len(result) > 1:
-            raise ValueError(
-                f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
-            )
+        for index, item in enumerate(result):
+            # print(index, item)
+            if hasattr(item, "text"):
+                # print(f"replacing {item} with {item.text}")
+                result[index] = item.text
 
-        return result[0].text
+        return result
 
-    def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
-        text = self._get_xml_element(tree=tree, xpath=xpath)
-        if text:
-            tags = text.split(",")
-            text = [tag.strip() for tag in tags]
-        return text
+    # def _get_xml_element(self, tree: etree._ElementTree, xpath: str) -> str:
+    #     result = tree.xpath(xpath)
+    #     if len(result) == 0:
+    #         self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
+    #         return None
 
-    def _get_xml_attribute(self, tree: etree._ElementTree, xpath: str) -> str | None:
-        # TODO: add error handling for multiple values
-        # TODO: combine with _get_xml_element - almost the same logic, minus the .text call
-        result = tree.xpath(xpath)
-        if len(result) == 0:
-            self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
-            return None
+    #     if len(result) > 1:
+    #         raise ValueError(
+    #             f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
+    #         )
 
-        if len(result) > 1:
-            raise ValueError(
-                f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
-            )
+    #     return result[0].text
 
-        return result[0]
+    # def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
+    #     text = self._get_xml_element(tree=tree, xpath=xpath)
+    #     if text:
+    #         tags = text.split(",")
+    #         text = [tag.strip() for tag in tags]
+    #     return text
+
+    # def _get_xml_attribute(self, tree: etree._ElementTree, xpath: str) -> str | None:
+    #     # TODO: add error handling for multiple values
+    #     # TODO: combine with _get_xml_element - almost the same logic, minus the .text call
+    #     result = tree.xpath(xpath)
+    #     if len(result) == 0:
+    #         self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
+    #         return None
+
+    #     if len(result) > 1:
+    #         raise ValueError(
+    #             f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
+    #         )
+
+    #     return result[0]
 
     def parse_from_string(self, string) -> ArcGISMetadata:
         self.missing_xpaths = []  # Reset missing xpath collector for each parse
@@ -383,93 +399,95 @@ class MetadataParser:
         responsible_party = ResponsibleParty()
 
         spatial_extent = GeographicBoundingBox(
-            west=self._get_xml_element(
+            west=self._get_xpath_results(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/westBL"
             ),
-            east=self._get_xml_element(
+            east=self._get_xpath_results(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL"
             ),
-            north=self._get_xml_element(
+            north=self._get_xpath_results(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/northBL"
             ),
-            south=self._get_xml_element(
+            south=self._get_xpath_results(
                 tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/southBL"
             ),
         )
         temporal_extent = TemporalExtent(
-            begin_date=self._get_xml_element(
+            begin_date=self._get_xpath_results(
                 tree,
                 ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmBegin",
             ),
-            end_date=self._get_xml_element(
+            end_date=self._get_xpath_results(
                 tree,
                 ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmEnd",
             ),
         )
         spatial_reference = SpatialReference(
-            code=self._get_xml_attribute(
+            code=self._get_xpath_results(
                 tree, ".//refSysInfo/RefSystem/refSysID/identCode/@code"
             ),
-            authority=self._get_xml_element(
+            authority=self._get_xpath_results(
                 tree, ".//refSysInfo/RefSystem/refSysID/idCodeSpace"
             ),
         )
         constraints = Constraints(
-            access_level=self._get_xml_attribute(
+            access_level=self._get_xpath_results(
                 tree, ".//dataIdInfo/resConst/SecConsts/class/ClasscationCd/@value"
             ),
-            data_license=self._get_xml_element(
+            data_license=self._get_xpath_results(
                 tree, ".//dataIdInfo/resConst/LegConsts/othConsts"
             ),
-            general_use_limitation=self._get_xml_element(
+            general_use_limitation=self._get_xpath_results(
                 tree, ".//dataIdInfo/resConst/Consts/useLimit"
             ),
         )
         language = Language(
-            language_code=self._get_xml_attribute(
+            language_code=self._get_xpath_results(
                 tree, ".//dataIdInfo/dataLang/languageCode/@value"
             ),
-            country_code=self._get_xml_attribute(tree, ".//mdLang/countryCode/@value"),
+            country_code=self._get_xpath_results(tree, ".//mdLang/countryCode/@value"),
         )
 
         scale_range = ScaleRange(
-            min_scale=self._get_xml_element(tree, ".//Esri/scaleRange/minScale"),
-            max_scale=self._get_xml_element(tree, ".//Esri/scaleRange/maxScale"),
+            min_scale=self._get_xpath_results(tree, ".//Esri/scaleRange/minScale"),
+            max_scale=self._get_xpath_results(tree, ".//Esri/scaleRange/maxScale"),
         )
 
         esri = EsriMetadata(
-            creation_date=self._get_xml_element(tree, ".//Esri/CreaDate"),
-            creation_time=self._get_xml_element(tree, ".//Esri/CreaTime"),
-            arcgis_format=self._get_xml_element(tree, ".//Esri/ArcGISFormat"),
-            sync_once=self._get_xml_element(tree, ".//Esri/SyncOnce"),
+            creation_date=self._get_xpath_results(tree, ".//Esri/CreaDate"),
+            creation_time=self._get_xpath_results(tree, ".//Esri/CreaTime"),
+            arcgis_format=self._get_xpath_results(tree, ".//Esri/ArcGISFormat"),
+            sync_once=self._get_xpath_results(tree, ".//Esri/SyncOnce"),
             scale_range=scale_range,
-            arcgis_profile=self._get_xml_element(tree, ".//Esri/ArcGISProfile"),
-            sync_date=self._get_xml_element(tree, ".//Esri/SyncDate"),
-            sync_time=self._get_xml_element(tree, ".//Esri/SyncTime"),
-            mod_date=self._get_xml_element(tree, ".//Esri/ModDate"),
-            mod_time=self._get_xml_element(tree, ".//Esri/ModTime"),
+            arcgis_profile=self._get_xpath_results(tree, ".//Esri/ArcGISProfile"),
+            sync_date=self._get_xpath_results(tree, ".//Esri/SyncDate"),
+            sync_time=self._get_xpath_results(tree, ".//Esri/SyncTime"),
+            mod_date=self._get_xpath_results(tree, ".//Esri/ModDate"),
+            mod_time=self._get_xpath_results(tree, ".//Esri/ModTime"),
         )
 
         metadata = ArcGISMetadata(
             missing_xpaths=self.missing_xpaths.copy(),  # return missing xpaths
-            metadata_date_stamp=self._get_xml_element(tree=tree, xpath=".//mdDateSt"),
+            metadata_date_stamp=self._get_xpath_results(tree=tree, xpath=".//mdDateSt"),
             esri=esri,
-            metadata_file_id=self._get_xml_element(tree, xpath=".//mdFileID"),
-            title=self._get_xml_element(
+            metadata_file_id=self._get_xpath_results(tree, xpath=".//mdFileID"),
+            title=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/idCitation/resTitle"
             ),
-            description=self._get_xml_element(tree, xpath=".//dataIdInfo/idAbs"),
-            # topic_category=self._get_xml_element(tree, xpath=".//"), # TODO: get value, and allow for multiple
-            general_tags=self._get_text_as_list(
+            description=self._get_xpath_results(tree, xpath=".//dataIdInfo/idAbs"),
+            topic_category=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/tpCat/TopicCatCd/@value"
+            ),  # TODO: get value, and allow for multiple
+            general_tags=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/themeKeys/keyword"
             ),
-            place_tags=self._get_text_as_list(
+            place_tags=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/placeKeys/keyword"
             ),
-            last_update=self._get_xml_element(
+            last_update=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/idCitation/date/reviseDate"
             ),
-            update_frequency=self._get_xml_attribute(
+            update_frequency=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/resMaint/maintFreq/MaintFreqCd/@value"
             ),
             data_contact=responsible_party,
@@ -477,10 +495,10 @@ class MetadataParser:
             spatial_extent=spatial_extent,
             temporal_extent=temporal_extent,
             spatial_reference=spatial_reference,
-            metadata_hierarchy_level_code=self._get_xml_attribute(
+            metadata_hierarchy_level_code=self._get_xpath_results(
                 tree, xpath=".//mdHrLv/ScopeCd/@value"
             ),
-            distribution_url=self._get_xml_element(
+            distribution_url=self._get_xpath_results(
                 tree, xpath=".//distInfo/distTranOps/onLineSrc/linkage"
             ),  # TODO: maybe - handle multiples of this xpath
             constraints=constraints,
