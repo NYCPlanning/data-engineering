@@ -198,19 +198,19 @@ jobs:
     - name: dcpy main pytests
       run: |
         docker exec -u 0 de \
-        python3 -m pytest dcpy/test --ignore dcpy/test/library -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=term --cov-report=xml
+        python3 -m pytest dcpy/test --ignore dcpy/test/library -vv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
 
     # separate because of issues w/ gdal and pyarrow
     # errors occur when writing/reading parquet files after importing gdal
     - name: dcpy library pytests
       run: |
         docker exec -u 0 de \
-        python3 -m pytest dcpy/test/library -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=term --cov-report=xml --cov-append
+        python3 -m pytest dcpy/test/library -vv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
 
     - name: dcpy integration pytests
       run: |
         docker exec -u 0 de \
-        python3 -m pytest dcpy/test_integration -svv --cov-config=pyproject.toml --cov=dcpy --cov-report=term --cov-report=xml --cov-append
+        python3 -m pytest dcpy/test_integration -vv --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
       env:
         RECIPES_BUCKET: "test-recipes"
 
