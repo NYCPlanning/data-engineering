@@ -252,7 +252,7 @@ def test_read_metadata_value(
             shp_name=shp_name,
         )
         metadata = shp.read_metadata()
-        expected = "20250421"
+        expected = ["20250421"]
         actual = metadata.esri.creation_date
 
         assert actual == expected, f"Expected {expected}, but found {actual}"
