@@ -3,10 +3,6 @@ from pathlib import Path
 import zipfile
 from dataclasses import dataclass, field
 from lxml import etree
-from typing import Optional
-from datetime import datetime
-import xml.etree.ElementTree as ET  # TODO: remove me, once lxml is implemented
-# from xml.etree.ElementTree import ParseError
 
 # TODO: - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
@@ -176,37 +172,36 @@ class ScaleRange:
 class GeographicBoundingBox:
     """Geographic extent as bounding box coordinates (Spatial Extent)"""
 
-    west: Optional[float] = None  # westBL
-    east: Optional[float] = None  # eastBL
-    north: Optional[float] = None  # northBL
-    south: Optional[float] = None  # southBL
+    west: float | None = None  # westBL
+    east: float | None = None  # eastBL
+    north: float | None = None  # northBL
+    south: float | None = None  # southBL
 
 
 @dataclass
 class TemporalExtent:
     """Temporal range of dataset applicability (Temporal Extent)"""
 
-    begin_date: Optional[str] = None  # tmBegin
-    end_date: Optional[str] = None  # tmEnd
+    begin_date: str | None = None  # tmBegin
+    end_date: str | None = None  # tmEnd
 
 
 @dataclass
 class ResponsibleParty:
     """Contact / publishing party info (Publishing Organization, Publisher, Metadata Responsible Party)"""
 
-    organization_name: Optional[str] = None  # Publishing Organization / rpOrgName
-    individual_name: Optional[str] = None  # Publisher / rpIndName
-    email: Optional[str] = None  # Publisher Email / eMailAdd
-    role_code: Optional[str] = None  # What is this?
-    # display_name: Optional[str] = None  # Not required anywhere - delete?
+    organization_name: str | None = None  # Publishing Organization / rpOrgName
+    individual_name: str | None = None  # Publisher / rpIndName
+    email: str | None = None  # Publisher Email / eMailAdd
+    role_code: str | None = None  # What is this?
 
 
 @dataclass
 class SpatialReference:
     """Spatial reference container (Spatial Reference)"""
 
-    code: Optional[int] = None  # e.g. "2263"
-    authority: Optional[str] = None  # e.g. "EPSG"
+    code: int | None = None = None  # e.g. "2263"
+    authority: str | None = None  # e.g. "EPSG"
 
 
 @dataclass
@@ -214,26 +209,26 @@ class SpatialRepresentation:
     """Spatial data representation (Spatial Data Representation)"""
 
     # TODO: must be amended to handle other data types besides vector data
-    spatial_representation_type: Optional[str] = None  # SpatRepTypCd
-    geometric_object_name: Optional[str] = (
+    spatial_representation_type: str | None = None  # SpatRepTypCd
+    geometric_object_name: str | None = (
         None  # appears to be same as title, but doesn't update when title or shp are renamed
     )
-    geometric_object_type_code: Optional[str] = None  # Spatial Data Representation
-    geometric_object_count: Optional[int] = None  # Spatial Data Representation
-    topology_level_code: Optional[str] = None  # Spatial Data Representation
+    geometric_object_type_code: str | None = None  # Spatial Data Representation
+    geometric_object_count: int | None = None = None  # Spatial Data Representation
+    topology_level_code: str | None = None  # Spatial Data Representation
 
 
 @dataclass
 class Constraints:
     """Access constraint information."""
 
-    access_level: Optional[str] = None  # ClasscationCd
-    data_license: Optional[str] = None  # othConst
-    general_use_limitation: Optional[str] = (
+    access_level: str | None = None  # ClasscationCd
+    data_license: str | None = None  # othConst
+    general_use_limitation: str | None = (
         None  # useLimit -- marked as optional, per EPA
     )
-    # rights: Optional[str] = None  # userNote -- req'd by EPA if item is not public
-    # system_of_record: Optional[str] = None  # useLimit -- may not be required?
+    # rights: str | None = None  # userNote -- req'd by EPA if item is not public
+    # system_of_record: str | None = None  # useLimit -- may not be required?
 
 
 @dataclass
@@ -241,20 +236,20 @@ class EsriMetadata:
     """Esri-specific metadata elements."""
 
     # NOTE: these were initially listed as non-optional, but I think all attrs should be optional
-    #   and required values should be controlled somewhere like pydantic
-    creation_date: Optional[str] = None
-    creation_time: Optional[str] = None
-    arcgis_format: Optional[float] = None
-    sync_once: Optional[str] = None
-    scale_range: Optional[ScaleRange] = None
-    arcgis_profile: Optional[str] = None
+    #   and required values should be controlled via pydantic or other
+    creation_date: str | None = None
+    creation_time: str | None = None
+    arcgis_format: float | None = None
+    sync_once: str | None = None
+    scale_range: ScaleRange | None = None
+    arcgis_profile: str | None = None
     # data_properties: DataProperties   # see commented out classes
     # These next attrs will need to be calculated based on run time of
     # specific methods, sync etc.
-    sync_date: Optional[str] = None
-    sync_time: Optional[str] = None
-    mod_date: Optional[str] = None
-    mod_time: Optional[str] = None
+    sync_date: str | None = None
+    sync_time: str | None = None
+    mod_date: str | None = None
+    mod_time: str | None = None
 
 
 @dataclass
@@ -271,64 +266,64 @@ class ArcGISMetadata:
     """Root metadata container representing the complete ArcGIS metadata structure."""
 
     ## TODO: Requires categorization
-    metadata_file_id: Optional[str] = None  # UUID - four-four or BoBA dataset name?
+    metadata_file_id: str | None = None  # UUID - four-four or BoBA dataset name?
 
     # Core identity
-    title: Optional[str] = None  # Title (res_title)
-    description: Optional[str] = None  # Description (HTML content)
+    title: str | None = None  # Title (res_title)
+    description: str | None = None  # Description (HTML content)
 
     # Keywords and tags
-    topic_category: Optional[str] = None  # Required per Esri ISO
+    topic_category: str | None = None  # Required per Esri ISO
     general_tags: list[str] = field(
         default_factory=list
     )  # Tags (General) - DCP overrode EPA path
     place_tags: list[str] = field(default_factory=list)  # Tags (Place)
 
     # Dates
-    last_update: Optional[str] = None  # Last Update (reviseDate)
-    update_frequency: Optional[str] = None  # Update Frequency
-    metadata_date_stamp: Optional[str] = None
+    last_update: str | None = None  # Last Update (reviseDate)
+    update_frequency: str | None = None  # Update Frequency
+    metadata_date_stamp: str | None = None
 
     # Contact information
-    data_contact: Optional[ResponsibleParty] = None
+    data_contact: ResponsibleParty | None = None
     # TODO: allow metadata contact to be different from dataset contact:
     #   - perhaps - define a MetadataResponsibleParty w/ same attrs, attrs default to data contact if not present in XML, or provided
-    metadata_contact: Optional[ResponsibleParty] = None
+    metadata_contact: ResponsibleParty | None = None
 
     # Spatial and temporal extents
-    spatial_extent: Optional[GeographicBoundingBox] = None
-    temporal_extent: Optional[TemporalExtent] = None
+    spatial_extent: GeographicBoundingBox | None = None
+    temporal_extent: TemporalExtent | None = None
 
     # Technical details
-    spatial_reference: Optional[SpatialReference] = None
-    metadata_hierarchy_level_code: Optional[str] = (
+    spatial_reference: SpatialReference | None = None
+    metadata_hierarchy_level_code: str | None = (
         None  # numeric code indicating type of item: software, dataset, etc.
     )
-    # distribution: Optional[Distribution] = None   # may not be req'd
+    # distribution: Distribution | None = None   # may not be req'd
 
     # Constraints and access
-    distribution_url: Optional[str] = None  # Distribution URL
-    constraints: Optional[Constraints] = None
+    distribution_url: str | None = None  # Distribution URL
+    constraints: Constraints | None = None
 
     # Language and metadata
-    data_language: Optional[Language] = None
-    metadata_language: Optional[Language] = None
+    data_language: Language | None = None
+    metadata_language: Language | None = None
 
     # Esri-specific section (kept nested due to complexity)
-    esri: Optional[EsriMetadata] = None
+    esri: EsriMetadata | None = None
 
     # ------------------------------------------
     ## Optional/unknown/later development fields
     # ------------------------------------------
-    # spatial_representation: Optional[SpatialRepresentation] = (
+    # spatial_representation: SpatialRepresentation | None = (
     #     None  # TODO: must incl. other types
     # )
-    # environment_description: Optional[str] = None  # e.g. "Microsoft Windows 10 Version 10.0"...
-    # spatial_representation_type: Optional[str] = None  # e.g. vector, grid, tin, etc. -> may not be req'd
-    # data_character_set_code: Optional[str] = None  # numeric code, indicating character encoding of dataset
-    # metadata_hierarchy_level_name: Optional[str] = None # I think: mdHrLvName --> req'd if mdHrLv is not dataset
-    # metadata_character_set_code: Optional[str] = None  # numeric code, indicating character encoding of metadata
-    # pres_form_code: Optional[str] = None  # see presForm
+    # environment_description: str | None = None  # e.g. "Microsoft Windows 10 Version 10.0"...
+    # spatial_representation_type: str | None = None  # e.g. vector, grid, tin, etc. -> may not be req'd
+    # data_character_set_code: str | None = None  # numeric code, indicating character encoding of dataset
+    # metadata_hierarchy_level_name: str | None = None # I think: mdHrLvName --> req'd if mdHrLv is not dataset
+    # metadata_character_set_code: str | None = None  # numeric code, indicating character encoding of metadata
+    # pres_form_code: str | None = None  # see presForm
 
     # System/process attributes
     missing_xpaths: list[str] = field(default_factory=list)
@@ -354,41 +349,6 @@ class MetadataParser:
                 result[index] = item.text
 
         return result
-
-    # def _get_xml_element(self, tree: etree._ElementTree, xpath: str) -> str:
-    #     result = tree.xpath(xpath)
-    #     if len(result) == 0:
-    #         self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
-    #         return None
-
-    #     if len(result) > 1:
-    #         raise ValueError(
-    #             f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
-    #         )
-
-    #     return result[0].text
-
-    # def _get_text_as_list(self, tree: etree._ElementTree, xpath: str) -> list:
-    #     text = self._get_xml_element(tree=tree, xpath=xpath)
-    #     if text:
-    #         tags = text.split(",")
-    #         text = [tag.strip() for tag in tags]
-    #     return text
-
-    # def _get_xml_attribute(self, tree: etree._ElementTree, xpath: str) -> str | None:
-    #     # TODO: add error handling for multiple values
-    #     # TODO: combine with _get_xml_element - almost the same logic, minus the .text call
-    #     result = tree.xpath(xpath)
-    #     if len(result) == 0:
-    #         self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
-    #         return None
-
-    #     if len(result) > 1:
-    #         raise ValueError(
-    #             f"Expected 1 match, found {len(result)}, for xpath: {xpath}"
-    #         )
-
-    #     return result[0]
 
     def parse_from_string(self, string) -> ArcGISMetadata:
         self.missing_xpaths = []  # Reset missing xpath collector for each parse
@@ -477,7 +437,7 @@ class MetadataParser:
             description=self._get_xpath_results(tree, xpath=".//dataIdInfo/idAbs"),
             topic_category=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/tpCat/TopicCatCd/@value"
-            ),  # TODO: get value, and allow for multiple
+            ),
             general_tags=self._get_xpath_results(
                 tree, xpath=".//dataIdInfo/themeKeys/keyword"
             ),
@@ -500,7 +460,11 @@ class MetadataParser:
             ),
             distribution_url=self._get_xpath_results(
                 tree, xpath=".//distInfo/distTranOps/onLineSrc/linkage"
-            ),  # TODO: maybe - handle multiples of this xpath
+            ),  # TODO: properly handle multiples of this xpath - may need to have specific
+            # fn to handle instances where, say, a linkage (url) is listed for Bytes and
+            # also Socrata, and where each needs to retain the other associated info.
+            # Perhaps a dict that grabs everything under 'onLineSrc'?
+            # Could be handled via instances of Distribution dataclass
             constraints=constraints,
             data_language=language.language_code,
             metadata_language=language.language_code,
@@ -540,256 +504,29 @@ class MetadataWriter:
 # class Distribution:
 #     """Distribution information (Distribution URL and related)"""
 #     # These don't seem to actually be req'd in our source refs
-#     format_name: Optional[str] = None   # e.g. "Shapefile"
-#     transfer_size: Optional[float] = None
+#     format_name: str | None = None   # e.g. "Shapefile"
+#     transfer_size: float | None = None
 
 # @dataclass
 # class ItemProperties:
 #     """Properties of the dataset item."""
 #     item_name: str    # This updates to reflect *file name* when sync is run
-#     ims_content_type: Optional[str] = None  # What is this?
-#     item_size: Optional[float] = None  # I think this is the size of the file on disk?
+#     ims_content_type: str | None = None  # What is this?
+#     item_size: float | None = None  # I think this is the size of the file on disk?
 
 # @dataclass
 # class DataProperties:
 #     """Data properties from Esri section."""
 #     item_properties: ItemProperties
-#     coord_ref: Optional[CoordinateReference] = None  # Unknown if needed
+#     coord_ref: CoordinateReference | None = None  # Unknown if needed
 
 # @dataclass
 # class CoordinateReference:
 #     """Coordinate reference system information."""
 
 #     # These fields marked as unknown - may be redundant with RefSystem
-#     type: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     geogcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     cs_units: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     projcsn: Optional[str] = None  # Is it enough to have the refSysID fields?
-#     pe_xml: Optional[str] = None  # What is this?
-
-
-# ----------------------------------------------------------------------------
-## Temporarily retaining initial attempt at metadata class instantiation, so I can reference the methods
-# ----------------------------------------------------------------------------
-
-# @dataclass
-# class Metadata:
-#     path: Path
-#     _root: ET.Element = field(init=False)
-#     title: Optional[str] = field(init=False)
-#     description: Optional[str] = field(init=False)
-#     tags_general: Optional[list] = field(init=False)
-#     tags_theme: Optional[list] = field(init=False)
-#     tags_place: Optional[list] = field(init=False)
-#     revised_date: Optional[str] = field(init=False)
-#     publishing_organization: Optional[str] = field(init=False)
-#     publisher: Optional[str] = field(init=False)
-#     publisher_email: Optional[str] = field(init=False)
-#     identifier: Optional[str] = field(init=False)
-#     # access_level: Optional[str] = field(init=False)
-#     # rights: Optional[str] = field(init=False)
-#     data_license: Optional[str] = field(init=False)
-#     system_of_records: Optional[str] = field(init=False)
-#     general_use_limitation: Optional[str] = field(init=False)
-#     spatial_extent: Optional[tuple] = field(init=False)
-#     temporal_extent: Optional[tuple] = field(init=False)
-#     distribution_url: Optional[str] = field(init=False)
-#     metadata_date_stamp: Optional[str] = field(init=False)
-#     update_frequency: Optional[str] = field(init=False)
-#     metadata_responsible_party: Optional[dict] = field(init=False)
-#     dataset_language: Optional[str] = field(init=False)
-#     country: Optional[str] = field(init=False)
-#     spatial_reference: Optional[dict] = field(init=False)
-#     spatial_data_representation: Optional[dict] = field(init=False)
-
-#     def __post_init__(self):
-#         self._root = self._get_xml_root()
-
-#         self.title = self._get_xml_text(self._root.dataIdInfo.idCitation.resTitle)
-#         self.description = self._get_xml_text(self._root.dataIdInfo.idAbs)
-#         self.revised_date = self._get_xml_text(
-#             self._root.dataIdInfo.idCitation.date.reviseDate
-#         )
-#         self.publishing_organization = self._get_xml_text(
-#             self._root.dataIdInfo.idPoC.rpOrgName
-#         )
-#         self.publisher = self._get_xml_text(self._root.dataIdInfo.idPoC.rpIndName)
-#         self.publisher_email = self._get_xml_text(
-#             self._root.dataIdInfo.idPoC.rpCntInfo.cntAddress.eMailAdd
-#         )
-#         # self.rights = self._get_xml_text(
-#         #     self._root.dataIdInfo.resConst.SecConsts.userNote
-#         # )  # only req'd if access level is not public
-#         self.general_use_limitation = self._get_xml_text(
-#             self._root.dataIdInfo.resConst.Consts.useLimit
-#         )
-#         self.temporal_extent = self._get_xml_text(
-#             self._root.dataIdInfo.dataExt.tempEle.TempExtent.exTemp.TM_Period
-#         )  # may not be necessary for most DCP datasets
-#         self.distribution_url = self._get_xml_text(
-#             self._root.distInfo.distTranOps.onLineSrc.linkage
-#         )
-#         self.metadata_date_stamp = self._get_xml_text(self._root.mdDateSt)
-
-#         self.tags_theme = self._get_xml_tags(self._root.dataIdInfo.themeKeys)
-#         self.tags_place = self._get_xml_tags(self._root.dataIdInfo.placeKeys)
-
-#         # self.access_level = self._get_xml_attribute(self._root.dataIdInfo.resConst.SecConsts.class.ClasscationCd)
-#         self.update_frequency = self._get_xml_attribute(
-#             self._root.dataIdInfo.resMaint.maintFreq.MaintFreqCd
-#         )
-#         self.dataset_language = self._get_xml_attribute(
-#             self._root.dataIdInfo.dataLang.languageCode
-#         )
-#         self.country = self._get_xml_attribute(self._root.mdLang.countryCode)
-
-#         self.spatial_extent = self._get_bbox(
-#             self._root.dataIdInfo.dataExt.geoEle.GeoBndBox
-#         )
-
-#         self.system_of_records = None  # exact path TBD (multiples of resConst tag)
-#         self.data_license = None  # exact path TBD (multiples of resConst tag)
-#         self.spatial_reference = None  # exact path TBD
-#         self.spatial_data_representation = None  # exact path TBD
-#         self.metadata_responsible_party = None  # exact path TBD
-#         self.tags_general = None  # exact path TBD, and is it necessary for DCP
-#         self.identifier = None  # need to identify what this means at DCP
-
-#     def _get_xml_root(self) -> objectify.ObjectifiedElement:
-#         with open(self.path) as f:
-#             xml = f.read()
-
-#         return objectify.fromstring(xml)
-#         # tree = ET.parse(self.path)
-#         # return tree.getroot()
-
-#     def _get_xml_text(self, element_path: objectify.StringElement) -> str | None:
-#         # element = self._get_xml_root().find(element_path)
-#         if element_path is not None:
-#             return element_path.text
-#         return None
-
-#     def _get_xml_attribute(self, element_path: objectify.StringElement) -> str | None:
-#         # element = self._get_xml_root().find(element_path)
-#         if element_path is not None:
-#             return element_path.get("value")
-#         return None
-
-#     # def _get_contact(): ...
-#     def _get_xml_tags(self, element_path: objectify.StringElement) -> list | None: ...
-
-#     def _get_bbox(self, element_path: objectify.StringElement) -> tuple | None:
-#         # element = self._get_xml_root().find(element_path)
-
-#         # if element is not None:
-#         #     bbox = tuple((item.text) for item in element)
-#         #     return bbox
-#         return None
-
-#     def override_element_path(
-#         self, attribute_with_path_to_override: str, new_path: objectify.StringElement
-#     ) -> None: ...
-
-# ----------------------------------------------------------------------------
-## Temporarily retaining logic to process a formatted input string
-# ----------------------------------------------------------------------------
-
-# def _validate_shp_input(shp_string: str | Path) -> None:
-#     """Ensure the input string conforms to the required format:
-#     Format if zip file: 'zip://path/to/file.zip!shapefile.shp'
-#     Format if not zip file: 'path/to/shapefile.shp'
-
-#     Args:
-#         shp_string (str | Path): Path to shapefile
-
-#     Raises:
-#         ValueError: Indicates when input does not conform to required format
-#     """
-#     shp_string = str(shp_string)
-#     if not shp_string.endswith(".shp"):
-#         raise ValueError("Filename must end with '.shp'")
-
-#     has_zip_prefix = shp_string.startswith("zip://")
-#     has_zip_suffix = ".zip!" in shp_string
-#     contains_zip = ".zip" in shp_string
-
-#     # Check for valid zip format: must have both prefix and suffix
-#     if has_zip_prefix and not has_zip_suffix:
-#         raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
-
-#     # Check for invalid zip format: has .zip but incorrect structure
-#     if contains_zip and not (has_zip_prefix and has_zip_suffix):
-#         raise ValueError(
-#             "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
-#         )
-
-
-# def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
-#     """
-#     Takes path to shapefile (shp) and returns relevant information, such as:
-#         - shp name
-#         - whether the shp is in a zip file
-#         - path to zip file (if it exists)
-#         - path to shp (starting at top level within zip, or complete path if no zip exists.)
-
-#     Args:
-#         path_to_shp (str):
-#             - Path to shapefile - must end in ".shp"
-#             - If shp is in a zip file: arg must be prefixed with "zip://"
-#             - If shp is in a zip file: zip file to contents must be delimited by "!"
-#             - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-#             - example without zip file: "path/to/shapefile.shp"
-
-#     Returns:
-#         Shapefile | ShapefileZipped: Dataclasses with relevant fields
-#         (see class definitions for details.)
-#     """
-
-#     path_to_shp = str(path_to_shp)
-
-#     _validate_shp_input(path_to_shp)
-
-#     output = {
-#         "name": str,
-#         "is_zipped": bool,
-#         "shp_dir": Path | None,
-#         "zip_path": Path | None,
-#         "zip_subdir": str | None,
-#     }
-
-#     zip_indicator = "zip://"
-#     end_of_zip_delimiter = ".zip!"
-
-#     zip_subdir = None
-
-#     if path_to_shp.startswith(zip_indicator):
-#         start_path_idx = len(zip_indicator)
-
-#         # Get zip path -------------------------
-#         # TODO: remove conditional here - redundant when we're running validator func already
-#         if end_of_zip_delimiter in path_to_shp:
-#             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
-#                 len(end_of_zip_delimiter) - 1
-#             )
-
-#             zip_path = path_to_shp[start_path_idx:end_of_zip_idx]
-
-#         # Get sub directory --------------------
-#         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
-#         if len(path_in_zip_to_shp.parts) > 1:
-#             zip_subdir = str(path_in_zip_to_shp.parent)
-
-#         output["name"] = path_in_zip_to_shp.name
-#         output["is_zipped"] = True
-#         output["shp_dir"] = None
-#         output["zip_path"] = zip_path
-#         output["zip_subdir"] = zip_subdir
-
-#     else:
-#         output["name"] = Path(path_to_shp).name
-#         output["is_zipped"] = False
-#         output["shp_dir"] = Path(path_to_shp).parent
-#         output["zip_path"] = None
-#         output["zip_subdir"] = None
-
-#     return output
+#     type: str | None = None  # Is it enough to have the refSysID fields?
+#     geogcsn: str | None = None  # Is it enough to have the refSysID fields?
+#     cs_units: str | None = None  # Is it enough to have the refSysID fields?
+#     projcsn: str | None = None  # Is it enough to have the refSysID fields?
+#     pe_xml: str | None = None  # What is this?
