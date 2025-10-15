@@ -127,4 +127,4 @@ SELECT
     format_lion_text('', 45, ' ') AS "Filler L199",
     source_table AS _source_table -- TODO should be dropped when pipeline is in production. Helpful in comp to prod
 FROM {{ ref("int__lion") }}
-WHERE include_in_geosupport_lion
+WHERE include_in_geosupport_lion AND is_based_on_primary_segment
