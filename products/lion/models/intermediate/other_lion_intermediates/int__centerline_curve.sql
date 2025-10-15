@@ -10,7 +10,7 @@ WITH curves AS (
     WHERE curve <> 'S'
 ),
 segments AS (
-    SELECT * FROM {{ ref("int__segments") }}
+    SELECT * FROM {{ ref("int__primary_segments") }}
 ),
 points AS (
     SELECT

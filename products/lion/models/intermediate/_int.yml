@@ -1,28 +1,32 @@
 version: 2
 
 models:
+- name: int__primary_segments
+  columns:
+  - name: segmentid
+    tests: [ not_null, unique ]
+
+- name: int__segments
+  columns:
+  - name: lionkey_dev
+    tests: [ unique ]
+  - name: segmentid
+    tests: [ not_null ]
+  - name: feature_type
+    tests: [ not_null ]
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int__segments__key_ideal
+      combination_of_columns:
+      - boroughcode
+      - face_code
+      - segment_seqnum
+      config:
+        severity: warn
+
 - name: int__lion
   columns:
   - name: segmentid
-    tests: [ not_null ]
-  - name: boroughcode
-    tests:
-      - not_null:
-          config:
-            severity: warn
-  - name: face_code
-    tests:
-      - not_null:
-          config:
-            severity: warn
-  - name: segment_seqnum
-    tests:
-      - not_null:
-          config:
-            severity: warn
-  - name: from_nodeid
-    tests: [ not_null ]
-  - name: to_nodeid
     tests: [ not_null ]
   tests:
   - dbt_utils.unique_combination_of_columns:
@@ -34,26 +38,11 @@ models:
       config:
         severity: warn
   - dbt_utils.unique_combination_of_columns:
-      name: int__lion__key_temp # while nonstreetfeatures do not have segment_seqnum generated
+      name: int__lion__key_temp # while nonstreetfeatures don't have segment_seqnum generated
       combination_of_columns:
       - boroughcode
-      - segmentid
       - face_code
+      - segment_seqnum
+      - segmentid
       config:
         severity: warn
-  - dbt_utils.unique_combination_of_columns:
-      name: int__lion__key # from trying different column combinations, is unique except for duplicate rows
-      combination_of_columns:
-      - segmentid
-      - from_sectionalmap
-      - to_sectionalmap
-      - from_nodeid
-      - to_nodeid
-      - right_atomicid
-      - left_atomicid
-      - r_zip
-      - l_zip
-      - segment_locational_status
-      config:
-        # There are 8 rows caused by 4 pairs of duplicates
-        error_if: ">4"
