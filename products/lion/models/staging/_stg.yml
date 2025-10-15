@@ -1,6 +1,20 @@
 version: 2
 
 models:
+- name: stg__altsegmentdata_saf
+  columns:
+  - name: ogc_fid
+    tests: [ unique, not_null ]
+  - name: segmentid
+    tests: [ not_null ]
+  - name: saftype
+    tests: [ not_null ]
+  - name: borough
+    tests: [ not_null ]
+- name: stg__atomicpolygons
+  columns:
+  - name: atomicid
+    tests: [ unique, not_null ]
 - name: stg__centerline
   # only columns with tests currently listed
   columns:
