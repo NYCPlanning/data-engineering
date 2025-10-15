@@ -17,8 +17,7 @@ proto_segments AS (
     SELECT
         segmentid,
         COUNT(*) AS ps_count
-    FROM {{ source('recipe_sources', 'dcp_cscl_altsegmentdata') }}
-    WHERE alt_segdata_type <> 'S'
+    FROM {{ ref('stg__altsegmentdata_proto') }}
     GROUP BY segmentid
 )
 SELECT
