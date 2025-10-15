@@ -7,6 +7,7 @@
 
 WITH segments AS (
     SELECT
+        lionkey_dev,
         segmentid,
         st_startpoint(geom) AS from_geom,
         st_endpoint(geom) AS to_geom
@@ -18,6 +19,7 @@ segments_to_nodes AS (
 )
 
 SELECT
+    segments.lionkey_dev,
     segments.segmentid,
     st_x(segments.from_geom) AS from_x,
     st_y(segments.from_geom) AS from_y,
@@ -29,9 +31,9 @@ SELECT
     to_sm.sectional_map AS to_sectionalmap
 FROM segments
 LEFT JOIN segments_to_nodes AS n_from
-    ON segments.segmentid = n_from.segmentid AND n_from.direction = 'from'
+    ON segments.lionkey_dev = n_from.lionkey_dev AND n_from.direction = 'from'
 LEFT JOIN segments_to_nodes AS n_to
-    ON segments.segmentid = n_to.segmentid AND n_to.direction = 'to'
+    ON segments.lionkey_dev = n_to.lionkey_dev AND n_to.direction = 'to'
 LEFT JOIN
     {{ source("recipe_sources", "dcp_cscl_sectionalmap") }} AS from_sm
     ON st_contains(from_sm.geom, segments.from_geom)

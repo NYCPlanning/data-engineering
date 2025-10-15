@@ -9,6 +9,7 @@ WITH segment_offsets AS (
 )
 
 SELECT
+    so.lionkey_dev,
     so.segmentid,
     so.boroughcode AS segment_borocode,
     left_poly.atomicid AS left_atomicid,
