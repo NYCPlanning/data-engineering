@@ -1,8 +1,10 @@
+from lxml.builder import E
 import os
 from pathlib import Path
 import zipfile
 from dataclasses import dataclass, field
 from lxml import etree
+from datetime import datetime
 
 # TODO: - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
@@ -164,8 +166,8 @@ def from_path(
 class ScaleRange:
     """Scale range information for the dataset."""
 
-    min_scale: int
-    max_scale: int
+    min_scale: str = "150000000"
+    max_scale: str = "5000"
 
 
 @dataclass
@@ -200,7 +202,7 @@ class ResponsibleParty:
 class SpatialReference:
     """Spatial reference container (Spatial Reference)"""
 
-    code: int | None = None = None  # e.g. "2263"
+    code: int | None = None  # e.g. "2263"
     authority: str | None = None  # e.g. "EPSG"
 
 
@@ -214,7 +216,7 @@ class SpatialRepresentation:
         None  # appears to be same as title, but doesn't update when title or shp are renamed
     )
     geometric_object_type_code: str | None = None  # Spatial Data Representation
-    geometric_object_count: int | None = None = None  # Spatial Data Representation
+    geometric_object_count: int | None = None  # Spatial Data Representation
     topology_level_code: str | None = None  # Spatial Data Representation
 
 
@@ -224,9 +226,7 @@ class Constraints:
 
     access_level: str | None = None  # ClasscationCd
     data_license: str | None = None  # othConst
-    general_use_limitation: str | None = (
-        None  # useLimit -- marked as optional, per EPA
-    )
+    general_use_limitation: str | None = None  # useLimit -- marked as optional, per EPA
     # rights: str | None = None  # userNote -- req'd by EPA if item is not public
     # system_of_record: str | None = None  # useLimit -- may not be required?
 
@@ -237,19 +237,51 @@ class EsriMetadata:
 
     # NOTE: these were initially listed as non-optional, but I think all attrs should be optional
     #   and required values should be controlled via pydantic or other
-    creation_date: str | None = None
-    creation_time: str | None = None
-    arcgis_format: float | None = None
-    sync_once: str | None = None
-    scale_range: ScaleRange | None = None
-    arcgis_profile: str | None = None
+    creation_date: str = None  # YYYYMMDD
+    creation_time: str = None  # esri fmt: HHMMSSFF
+    arcgis_format: float = "1.0"
+    sync_once: str = "TRUE"
+    scale_range: ScaleRange = field(default_factory=ScaleRange)
+    arcgis_profile: str = "ISO19139"
     # data_properties: DataProperties   # see commented out classes
     # These next attrs will need to be calculated based on run time of
     # specific methods, sync etc.
-    sync_date: str | None = None
-    sync_time: str | None = None
-    mod_date: str | None = None
-    mod_time: str | None = None
+    sync_date: str | None = None  # YYYYMMDD
+    sync_time: str | None = None  # esri fmt: HHMMSSFF
+    mod_date: str | None = None  # YYYYMMDD
+    mod_time: str | None = None  # esri fmt: HHMMSSFF
+
+    def __post_init__(self):
+        if self.creation_date is None or self.creation_time is None:
+            esri_date, esri_time = self._get_esri_timestamp()
+            if self.creation_date is None:
+                self.creation_date = esri_date
+            if self.creation_time is None:
+                self.creation_time = esri_time
+
+    def _get_esri_timestamp(self, dt_obj=None):
+        """
+        Generate Esri-style CreaDate and CreaTime values.
+
+        Args:
+            dt_obj: datetime object (uses current time if None)
+
+        Returns:
+            tuple: (CreaDate, CreaTime) as strings
+        """
+        if dt_obj is None:
+            dt_obj = datetime.now()
+
+        # CreaDate: YYYYMMDD
+        crea_date = dt_obj.strftime("%Y%m%d")
+
+        # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
+        hundredths = 0  # Esri appears to ignore the hundredths in practice
+        crea_time = (
+            f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
+        )
+
+        return crea_date, crea_time
 
 
 @dataclass
@@ -257,8 +289,8 @@ class Language:
     """Language information."""
 
     # TODO: later, allow for a different metadata and data language
-    language_code: str
-    country_code: str
+    language_code: str = "eng"
+    country_code: str = "USA"
 
 
 @dataclass
@@ -296,9 +328,8 @@ class ArcGISMetadata:
 
     # Technical details
     spatial_reference: SpatialReference | None = None
-    metadata_hierarchy_level_code: str | None = (
-        None  # numeric code indicating type of item: software, dataset, etc.
-    )
+    # ScopeCd - item type code: dataset (005), software, etc.
+    metadata_hierarchy_level_code: str = field(default="005")
     # distribution: Distribution | None = None   # may not be req'd
 
     # Constraints and access
@@ -306,11 +337,11 @@ class ArcGISMetadata:
     constraints: Constraints | None = None
 
     # Language and metadata
-    data_language: Language | None = None
-    metadata_language: Language | None = None
+    data_language: Language = field(default_factory=Language)
+    metadata_language: Language = field(default_factory=Language)
 
     # Esri-specific section (kept nested due to complexity)
-    esri: EsriMetadata | None = None
+    esri: EsriMetadata = field(default_factory=EsriMetadata)
 
     # ------------------------------------------
     ## Optional/unknown/later development fields
@@ -481,20 +512,36 @@ class MetadataWriter:
     def _write_metadata(self):
         """Write entire metadata xml file from a string"""
         # do some stuff
-        self._sync_metadata()
+        # self._sync_metadata() #?
         ...
 
     def _patch_metadata(self):
         """Write a single field value"""
         # do some stuff
-        self._sync_metadata()
+        # self._sync_metadata() #?
         ...
 
-    def _generate_metadata(self):
+    def generate(self):
         """Generate a minimally valid metadata xml file"""
-        # do some stuff
-        self._sync_metadata()
-        ...
+        metadata = ArcGISMetadata()
+
+        xml = E.metadata(
+            E.Esri(
+                E.CreaDate(metadata.esri.creation_date),
+                E.CreaTime(metadata.esri.creation_time),
+                E.ArcGISFormat(metadata.esri.arcgis_format),
+                E.SyncOnce(metadata.esri.sync_once),
+                E.scaleRange(
+                    E.minScale(metadata.esri.scale_range.min_scale),
+                    E.maxScale(metadata.esri.scale_range.max_scale),
+                ),
+                E.ArcGISProfile(metadata.esri.arcgis_profile),
+            ),
+            E.mdHrLv(E.SCopeCd(value=metadata.metadata_hierarchy_level_code)),
+            E.mdDateSt(metadata.esri.creation_date, Sync="TRUE"),
+        )
+        # self._sync_metadata() #?
+        return xml
 
 
 # --------------
