@@ -4,7 +4,7 @@ models:
   columns:
   - name: segmentid
     tests: [ not_null ]
-  - name: segment_segment_borocode
+  - name: segment_borocode
     tests:
     - not_null
   - name: left_atomicid
