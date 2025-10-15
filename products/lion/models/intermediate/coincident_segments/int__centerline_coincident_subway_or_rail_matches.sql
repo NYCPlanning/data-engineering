@@ -19,7 +19,7 @@ WITH exact_matches AS (
         s.geom AS centerline_geom,
         s.midpoint AS centerline_midpoint
     FROM {{ ref('stg__centerline') }} AS c
-    INNER JOIN {{ ref('int__segments') }} AS s ON c.segmentid = s.segmentid
+    INNER JOIN {{ ref('int__primary_segments') }} AS s ON c.segmentid = s.segmentid
     INNER JOIN {{ ref('int__underground_rail') }} AS r ON ST_EQUALS(r.geom, s.geom)
 ),
 fuzzy_matches AS (
@@ -35,7 +35,7 @@ fuzzy_matches AS (
         s.geom AS centerline_geom,
         s.midpoint AS centerline_midpoint
     FROM {{ ref('stg__centerline') }} AS c
-    INNER JOIN {{ ref('int__segments') }} AS s ON c.segmentid = s.segmentid
+    INNER JOIN {{ ref('int__primary_segments') }} AS s ON c.segmentid = s.segmentid
     INNER JOIN {{ ref('int__underground_rail') }} AS r
         -- 2.5 is probably too wide, but convenient for diagnostic/exporatory purposes
         ON ST_DWITHIN(r.midpoint, s.midpoint, 2.5)
