@@ -26,6 +26,9 @@ def get_source_version(dataset: str) -> dict:
         if "dataset" in config_obj:
             version = config_obj["dataset"]["version"]
             timestamp_str = config_obj["execution_details"]["timestamp"]
+        elif "transformation" in config_obj:
+            version = config_obj["version"]
+            timestamp_str = config_obj["transformation"]["run_details"]["timestamp"]
         else:
             version = config_obj["version"]
             timestamp_str = config_obj["run_details"]["timestamp"]
