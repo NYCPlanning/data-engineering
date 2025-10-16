@@ -44,13 +44,13 @@ def get_config_obj(name: str, version="latest") -> dict:
     return yaml.safe_load(obj)
 
 
-def get_config(name: str, version="latest") -> library.Config | ingest.IngestedDataset:
+def get_config(name: str, version="latest") -> library.Config | ingest.SparseConfig:
     """Retrieve a recipe config from s3."""
     config = get_config_obj(name, version)
     if "dataset" in config:
         return library.Config(**config)
     else:
-        return ingest.IngestedDataset(**config)
+        return ingest.SparseConfig(**config)
 
 
 def get_all_versions(name: str) -> list[str]:

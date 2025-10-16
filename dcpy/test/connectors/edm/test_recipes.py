@@ -6,8 +6,8 @@ import pytest
 import yaml
 
 from dcpy.models import library
-from dcpy.models.connectors.edm.recipes import DatasetType
-from dcpy.models.lifecycle.ingest import IngestedDataset, SparseConfig
+from dcpy.models.connectors.edm.recipes import Dataset, DatasetType
+from dcpy.models.lifecycle.ingest import SparseConfig
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 
@@ -52,7 +52,7 @@ def load_library(create_buckets):
 @pytest.fixture(scope="function")
 def load_ingest(create_buckets):
     config_json = _load_folder("ingest")
-    yield IngestedDataset(**config_json)
+    yield SparseConfig(**config_json)
 
 
 def test_dataset_type_from_extension():
@@ -89,7 +89,7 @@ def test_get_library_config(load_library: library.Config):
     assert config == load_library
 
 
-def test_get_ingest_config(load_ingest: IngestedDataset):
+def test_get_ingest_config(load_ingest: SparseConfig):
     config = recipes.get_config(TEST_DATASET, load_ingest.version)
     assert config == load_ingest
 
@@ -106,9 +106,9 @@ def test_invalid_pd_reader():
         recipes._pd_reader(DatasetType.pg_dump)
 
 
-def test_read_df(load_ingest: IngestedDataset):
+def test_read_df(load_ingest: SparseConfig):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
-    dataset = load_ingest.dataset
+    dataset = Dataset(id=load_ingest.id, version=load_ingest.version)
     dataset.file_type = None
     file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
     assert file_type == recipes.DatasetType.parquet
@@ -135,9 +135,9 @@ def test_read_df_missing_filetype(load_library: library.Config):
         )
 
 
-def test_read_df_cache(load_ingest: IngestedDataset, create_temp_filesystem: Path):
+def test_read_df_cache(load_ingest: SparseConfig, create_temp_filesystem: Path):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
-    dataset = load_ingest.dataset
+    dataset = Dataset(id=load_ingest.id, version=load_ingest.version)
     dataset.file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
     _df = recipes.read_df(
         dataset,

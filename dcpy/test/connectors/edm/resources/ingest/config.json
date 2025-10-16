@@ -1,6 +1,7 @@
 {
-    "id": "test_dataset",
-    "version": "20250926",
+    "id": "test",
+    "version": "ingest",
+    "acl": "private",
     "attributes": {
         "name": "Downstream Dataset 1"
     },
