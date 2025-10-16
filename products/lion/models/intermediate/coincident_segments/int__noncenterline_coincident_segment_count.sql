@@ -22,7 +22,7 @@ proto_segments AS (
     GROUP BY segmentid
 )
 SELECT
-    sm.segmentid,
+    sm.segmentid, -- fyi, causes 1k null segmentid. Coalesce?
     COALESCE(sm_count, 1) + COALESCE(ps_count, 0) AS coincident_seg_count
 FROM spatial_matches AS sm
 FULL JOIN proto_segments AS ps ON sm.segmentid = ps.segmentid
