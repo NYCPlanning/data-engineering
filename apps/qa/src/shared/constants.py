@@ -10,6 +10,7 @@ SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
 PAGES = {
     "Home": "home",
     "Capital Projects DB": "cpdb",
+    "Distribution Dashboard": "dashboard",
     "City Owned and Leased Properties": "colp",
     "Developments DB": "devdb",
     "Equitable Development Data Explorer": "edde",
