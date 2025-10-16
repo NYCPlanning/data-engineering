@@ -18,7 +18,7 @@ WITH exact_matches AS (
         0 AS distance
     FROM {{ ref('int__segments') }} AS s
     INNER JOIN {{ ref('int__segments') }} AS r ON ST_EQUALS(r.geom, s.geom)
-    WHERE s.feature_type NOT IN ('centerline', 'nonstreetfeatures')
+    WHERE s.feature_type <> 'centerline'
 ),
 fuzzy_matches AS (
     SELECT
@@ -33,7 +33,7 @@ fuzzy_matches AS (
         ON ST_DWITHIN(r.midpoint, s.midpoint, 2.5)
     -- `WHERE NOT...` below shaves off a few seconds from the more conventional:
     -- WHERE r.segmentid NOT IN (SELECT trains_segment_id FROM exact_matches)
-    WHERE s.feature_type NOT IN ('centerline', 'nonstreetfeatures') AND NOT EXISTS (
+    WHERE s.feature_type <> 'centerline' AND NOT EXISTS (
         SELECT 1 FROM exact_matches AS em
         WHERE em.joined_segment_id = r.segmentid
     )

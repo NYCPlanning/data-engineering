@@ -22,7 +22,7 @@ proto_segments AS (
     GROUP BY segmentid
 )
 SELECT
-    sm.segmentid,
+    sm.segmentid, -- fyi, Full Join causes 831 cases of null sm segmentids
     COALESCE(sm_count, 1) + COALESCE(ps_count, 0) AS coincident_seg_count
 FROM spatial_matches AS sm
-FULL JOIN proto_segments AS ps ON sm.segmentid = ps.segmentid
+LEFT JOIN proto_segments AS ps ON sm.segmentid = ps.segmentid
