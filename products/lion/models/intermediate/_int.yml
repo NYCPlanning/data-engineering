@@ -2,3 +2,26 @@ version: 2
 
 models:
 - name: int__lion
+  columns:
+  - name: segmentid
+    tests: [ not_null ]
+  - name: from_nodeid
+    tests: [ not_null ]
+  - name: to_nodeid
+    tests: [ not_null ]
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - segmentid
+      - from_sectionalmap
+      - to_sectionalmap
+      - from_nodeid
+      - to_nodeid
+      - right_atomicid
+      - left_atomicid
+      - r_zip
+      - l_zip
+      - segment_locational_status
+      config:
+        # There are 8 rows caused by 4 pairs of duplicates
+        error_if: ">4"
