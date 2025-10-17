@@ -1,20 +1,34 @@
 import json
 import pytest
 from pathlib import Path
-from unittest import TestCase
 
+from dcpy.models import library
 from dcpy.models.lifecycle.ingest import ProcessingStep
-
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
-
 from dcpy.lifecycle.ingest import validate
+
 from .shared import (
     TEST_OUTPUT,
-    BASIC_CONFIG,
-    BASIC_LIBRARY_CONFIG,
+    RUN_DETAILS,
+    INGEST_DEF_DIR,
+    TEST_DATASET_NAME,
+    DOWNSTREAM_DATASET_1,
+)
+
+BASIC_LIBRARY_CONFIG = library.Config(
+    dataset=library.DatasetDefinition(
+        name=TEST_DATASET_NAME,
+        version="20240926",
+        acl="public-read",
+        source=library.DatasetDefinition.SourceSection(),
+        destination=library.DatasetDefinition.DestinationSection(
+            geometry=library.GeometryType(SRS="NONE", type="NONE")
+        ),
+    ),
+    execution_details=RUN_DETAILS,
 )
 
 
@@ -48,57 +62,26 @@ class TestValidateAgainstExistingVersion:
         assert get_processed_datastore_connector().version_exists(ds.id, ds.version), (
             "The version should be found"
         )
-        validate.validate_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
+        validate.validate_data_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
 
     def test_existing(self, connector: IngestDatastoreConnector):
-        ds = BASIC_CONFIG.dataset
+        ds = DOWNSTREAM_DATASET_1
         connector.push_versioned(
-            key=ds.id, version=ds.version, config=BASIC_CONFIG, filepath=TEST_OUTPUT
+            key=ds.id, version=ds.version, config=ds, filepath=TEST_OUTPUT
         )
         assert get_processed_datastore_connector().version_exists(ds.id, ds.version)
-        validate.validate_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
+        validate.validate_data_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
 
     def test_existing_data_diffs(self, connector: IngestDatastoreConnector):
-        ds = BASIC_CONFIG.dataset
+        ds = DOWNSTREAM_DATASET_1
         connector.push_versioned(
-            key=ds.id, version=ds.version, config=BASIC_CONFIG, filepath=TEST_OUTPUT
+            key=ds.id, version=ds.version, config=ds, filepath=TEST_OUTPUT
         )
         assert get_processed_datastore_connector().version_exists(ds.id, ds.version)
         with pytest.raises(FileExistsError):
-            validate.validate_against_existing_version(
+            validate.validate_data_against_existing_version(
                 ds.id, ds.version, TEST_OUTPUT.parent / "test.parquet"
             )
-
-
-INGEST_TEMPLATES = Path(__file__).parent / "resources" / "templates"
-
-
-def test_validate_template_file_valid():
-    """Test validation of a valid template file."""
-    valid_file = INGEST_TEMPLATES / "dcp_addresspoints.yml"
-    validate.validate_template_file(valid_file)  # Should not raise
-
-
-def test_validate_template_file_invalid():
-    """Test validation of an invalid template file."""
-    invalid_file = INGEST_TEMPLATES / "invalid_template.yml"
-    with pytest.raises(Exception):
-        validate.validate_template_file(invalid_file)
-
-
-def test_validate_template_folder():
-    """Test validation of the ingest_templates folder."""
-    errors = validate.validate_template_folder(INGEST_TEMPLATES)
-    # hypothetically an invalid "invalid_template.yml" in the folder
-    assert len(errors) == 1
-    assert any("invalid_template.yml" in error for error in errors)
-
-
-def test_validate_template_folder_nonexistent():
-    """Test validation of a non-existent folder."""
-    errors = validate.validate_template_folder(Path("nonexistent"))
-    assert len(errors) == 1
-    assert "doesn't exist" in errors[0]
 
 
 @pytest.mark.parametrize(
@@ -139,7 +122,7 @@ def test_find_processing_step_validation_errors_errors(step, expected_error):
     assert errors == expected_error
 
 
-class TestValidatePdSeriesFunc(TestCase):
+class TestValidatePdSeriesFunc:
     """transorm._validate_pd_series_func returns dictionary of validation errors"""
 
     def test_first_level(self):
@@ -172,3 +155,46 @@ class TestValidatePdSeriesFunc(TestCase):
 
     def test_gpd(self):
         assert not validate._validate_pd_series_func(function_name="force_2d", geo=True)
+
+
+class TestValidateFile:
+    @pytest.mark.parametrize("ds_id", ["simple", "one_to_many"])
+    def test_validate_definition_file_valid(self, ds_id):
+        """Test validation of a valid definition file."""
+        errors = validate.find_definition_file_validation_errors(ds_id, INGEST_DEF_DIR)
+        assert not errors
+
+    @pytest.mark.parametrize(
+        ("ds_id", "error"),
+        [
+            ("invalid_model", "malformatted yml"),
+            ("one_to_many_proc_args", "processing steps"),
+            ("one_to_many_missing_default", "malformatted yml"),
+            ("invalid_source", "source"),
+        ],
+    )
+    def test_invalid_yml(self, ds_id, error):
+        """Test validation of an invalid definition file."""
+        errors = validate.find_definition_file_validation_errors(ds_id, INGEST_DEF_DIR)
+        assert len(errors) == 1
+        assert error in errors
+
+
+def test_validate_definition_folder():
+    """Test validation of the ingest_definitions folder."""
+    errors = validate.find_definition_folder_validation_errors(INGEST_DEF_DIR)
+    # hypothetically an invalid "invalid_definition.yml" in the folder
+    assert len(errors) == 5
+    assert set(errors.keys()) == {
+        "invalid_jinja.yml",
+        "invalid_model.yml",
+        "invalid_source.yml",
+        "one_to_many_proc_args.yml",
+        "one_to_many_missing_default.yml",
+    }
+
+
+def test_validate_definition_folder_nonexistent():
+    """Test validation of a non-existent folder."""
+    with pytest.raises(FileNotFoundError):
+        validate.find_definition_folder_validation_errors(Path("nonexistent"))
