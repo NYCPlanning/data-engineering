@@ -167,9 +167,9 @@ class TestValidateFile:
     @pytest.mark.parametrize(
         ("ds_id", "error"),
         [
-            ("invaled_model", "malformatted yml"),
-            ("one_to_many_proc_args", ""),
-            ("one_to_many_missing_default", ""),
+            ("invalid_model", "malformatted yml"),
+            ("one_to_many_proc_args", "processing steps"),
+            ("one_to_many_missing_default", "malformatted yml"),
         ],
     )
     def test_invalid_yml(self, ds_id, error):
