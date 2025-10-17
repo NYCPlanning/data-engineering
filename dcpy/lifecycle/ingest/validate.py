@@ -120,8 +120,7 @@ def find_definition_file_validation_errors(
 
 
 def validate_definition(ds_id: str, definition_dir: Path) -> None:
-    file = definition_dir / f"{ds_id}.yml"
-    errors = find_definition_file_validation_errors(file)
+    errors = find_definition_file_validation_errors(ds_id, definition_dir)
     if errors:
         raise ValidationError(errors)
 
@@ -135,7 +134,9 @@ def find_definition_folder_validation_errors(
 
     errors = {}
     for file_path in folder_path.glob("*"):
-        file_errors = find_definition_file_validation_errors(file_path)
+        file_errors = find_definition_file_validation_errors(
+            file_path.stem, folder_path
+        )
         if file_errors:
             errors[file_path.name] = file_errors
 

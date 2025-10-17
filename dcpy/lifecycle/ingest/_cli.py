@@ -118,7 +118,9 @@ def _cli_wrapper_validate(
 ):
     """Validate definition file(s)."""
     if path.is_file():
-        errors: dict = validate.find_definition_file_validation_errors(path)
+        errors: dict = validate.find_definition_file_validation_errors(
+            path.stem, path.parent
+        )
     else:
         errors = validate.find_definition_folder_validation_errors(path)
     if errors:
