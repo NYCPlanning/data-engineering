@@ -7,7 +7,8 @@ from pathlib import Path
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
-METADATA_XML = "shapefile_metadata.xml"
+MIN_METADATA_XML = "shp_metadata_minimum.xml"
+MAX_METADATA_XML = "shp_metadata_maximum.xml"
 
 
 @fixture
@@ -55,7 +56,7 @@ def temp_nonzipped_shp_with_md_path(temp_shp_zip_with_md_path, tmp_path):
 @fixture
 def temp_xml_string(utils_resources_path):
     xml_output = ""
-    with open(utils_resources_path / METADATA_XML) as xml:
+    with open(utils_resources_path / MIN_METADATA_XML) as xml:
         xml_output = xml.read()
     assert xml_output != "", f"Non-empty string expected, got: '{xml_output}' instead."
     return xml_output
@@ -231,3 +232,31 @@ def test_metadata_exists(request, path_fixture, file_type, subdir):
     )
     shp = shapefile.from_path(fixture_info["path"], fixture_info["shp_name"], subdir)
     assert shp.metadata_exists(), "Expected metadata, but found none"
+
+
+def test_read_metadata_value(
+    temp_nonzipped_shp_with_md_path, temp_shp_zip_with_md_path
+):
+    # TODO: parametrize
+    fixtures = [temp_nonzipped_shp_with_md_path, temp_shp_zip_with_md_path]
+    for item in fixtures:
+        if str(item).endswith(".zip"):
+            path = item
+            shp_name = path.stem
+        else:
+            path = item.parent
+            shp_name = item.name
+
+        shp = shapefile.from_path(
+            path=path,
+            shp_name=shp_name,
+        )
+        metadata = shp.read_metadata()
+        expected = ["20250421"]
+        actual = metadata.esri.creation_date
+
+        assert actual == expected, f"Expected {expected}, but found {actual}"
+
+
+# temp_shp_zip_with_md_path
+# temp_nonzipped_shp_with_md_path

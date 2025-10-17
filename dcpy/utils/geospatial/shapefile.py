@@ -1,8 +1,12 @@
+from lxml.builder import E
 import os
 from pathlib import Path
 import zipfile
+from dataclasses import dataclass, field
+from lxml import etree
+from datetime import datetime
 
-# TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
+# TODO: - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
 
 class _FileManager:
@@ -97,7 +101,11 @@ class Shapefile:
         Returns:
         str: Metadata content as string.
         """
-        return self.file_manager.read_file(f"{self.name}.xml")
+        metadata_str = self.file_manager.read_file(f"{self.name}.xml")
+        parser = MetadataParser()
+        metadata = parser.parse_from_string(metadata_str)
+
+        return metadata
 
     def write_metadata(
         self,
@@ -154,102 +162,418 @@ def from_path(
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
 
 
-# def _validate_shp_input(shp_string: str | Path) -> None:
-#     """Ensure the input string conforms to the required format:
-#     Format if zip file: 'zip://path/to/file.zip!shapefile.shp'
-#     Format if not zip file: 'path/to/shapefile.shp'
+@dataclass
+class ScaleRange:
+    """Scale range information for the dataset."""
 
-#     Args:
-#         shp_string (str | Path): Path to shapefile
-
-#     Raises:
-#         ValueError: Indicates when input does not conform to required format
-#     """
-#     shp_string = str(shp_string)
-#     if not shp_string.endswith(".shp"):
-#         raise ValueError("Filename must end with '.shp'")
-
-#     has_zip_prefix = shp_string.startswith("zip://")
-#     has_zip_suffix = ".zip!" in shp_string
-#     contains_zip = ".zip" in shp_string
-
-#     # Check for valid zip format: must have both prefix and suffix
-#     if has_zip_prefix and not has_zip_suffix:
-#         raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
-
-#     # Check for invalid zip format: has .zip but incorrect structure
-#     if contains_zip and not (has_zip_prefix and has_zip_suffix):
-#         raise ValueError(
-#             "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
-#         )
+    min_scale: str = "150000000"
+    max_scale: str = "5000"
 
 
-# def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
-#     """
-#     Takes path to shapefile (shp) and returns relevant information, such as:
-#         - shp name
-#         - whether the shp is in a zip file
-#         - path to zip file (if it exists)
-#         - path to shp (starting at top level within zip, or complete path if no zip exists.)
+@dataclass
+class GeographicBoundingBox:
+    """Geographic extent as bounding box coordinates (Spatial Extent)"""
 
-#     Args:
-#         path_to_shp (str):
-#             - Path to shapefile - must end in ".shp"
-#             - If shp is in a zip file: arg must be prefixed with "zip://"
-#             - If shp is in a zip file: zip file to contents must be delimited by "!"
-#             - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-#             - example without zip file: "path/to/shapefile.shp"
+    west: float | None = None  # westBL
+    east: float | None = None  # eastBL
+    north: float | None = None  # northBL
+    south: float | None = None  # southBL
 
-#     Returns:
-#         Shapefile | ShapefileZipped: Dataclasses with relevant fields
-#         (see class definitions for details.)
-#     """
 
-#     path_to_shp = str(path_to_shp)
+@dataclass
+class TemporalExtent:
+    """Temporal range of dataset applicability (Temporal Extent)"""
 
-#     _validate_shp_input(path_to_shp)
+    begin_date: str | None = None  # tmBegin
+    end_date: str | None = None  # tmEnd
 
-#     output = {
-#         "name": str,
-#         "is_zipped": bool,
-#         "shp_dir": Path | None,
-#         "zip_path": Path | None,
-#         "zip_subdir": str | None,
-#     }
 
-#     zip_indicator = "zip://"
-#     end_of_zip_delimiter = ".zip!"
+@dataclass
+class ResponsibleParty:
+    """Contact / publishing party info (Publishing Organization, Publisher, Metadata Responsible Party)"""
 
-#     zip_subdir = None
+    organization_name: str | None = None  # Publishing Organization / rpOrgName
+    individual_name: str | None = None  # Publisher / rpIndName
+    email: str | None = None  # Publisher Email / eMailAdd
+    role_code: str | None = None  # What is this?
 
-#     if path_to_shp.startswith(zip_indicator):
-#         start_path_idx = len(zip_indicator)
 
-#         # Get zip path -------------------------
-#         # TODO - remove conditional here - redundant when we're running validator func already
-#         if end_of_zip_delimiter in path_to_shp:
-#             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
-#                 len(end_of_zip_delimiter) - 1
-#             )
+@dataclass
+class SpatialReference:
+    """Spatial reference container (Spatial Reference)"""
 
-#             zip_path = path_to_shp[start_path_idx:end_of_zip_idx]
+    code: int | None = None  # e.g. "2263"
+    authority: str | None = None  # e.g. "EPSG"
 
-#         # Get sub directory --------------------
-#         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
-#         if len(path_in_zip_to_shp.parts) > 1:
-#             zip_subdir = str(path_in_zip_to_shp.parent)
 
-#         output["name"] = path_in_zip_to_shp.name
-#         output["is_zipped"] = True
-#         output["shp_dir"] = None
-#         output["zip_path"] = zip_path
-#         output["zip_subdir"] = zip_subdir
+@dataclass
+class SpatialRepresentation:
+    """Spatial data representation (Spatial Data Representation)"""
 
-#     else:
-#         output["name"] = Path(path_to_shp).name
-#         output["is_zipped"] = False
-#         output["shp_dir"] = Path(path_to_shp).parent
-#         output["zip_path"] = None
-#         output["zip_subdir"] = None
+    # TODO: must be amended to handle other data types besides vector data
+    spatial_representation_type: str | None = None  # SpatRepTypCd
+    geometric_object_name: str | None = (
+        None  # appears to be same as title, but doesn't update when title or shp are renamed
+    )
+    geometric_object_type_code: str | None = None  # Spatial Data Representation
+    geometric_object_count: int | None = None  # Spatial Data Representation
+    topology_level_code: str | None = None  # Spatial Data Representation
 
-#     return output
+
+@dataclass
+class Constraints:
+    """Access constraint information."""
+
+    access_level: str | None = None  # ClasscationCd
+    data_license: str | None = None  # othConst
+    general_use_limitation: str | None = None  # useLimit -- marked as optional, per EPA
+    # rights: str | None = None  # userNote -- req'd by EPA if item is not public
+    # system_of_record: str | None = None  # useLimit -- may not be required?
+
+
+@dataclass
+class EsriMetadata:
+    """Esri-specific metadata elements."""
+
+    # NOTE: these were initially listed as non-optional, but I think all attrs should be optional
+    #   and required values should be controlled via pydantic or other
+    creation_date: str = None  # YYYYMMDD
+    creation_time: str = None  # esri fmt: HHMMSSFF
+    arcgis_format: float = "1.0"
+    sync_once: str = "TRUE"
+    scale_range: ScaleRange = field(default_factory=ScaleRange)
+    arcgis_profile: str = "ISO19139"
+    # data_properties: DataProperties   # see commented out classes
+    # These next attrs will need to be calculated based on run time of
+    # specific methods, sync etc.
+    sync_date: str | None = None  # YYYYMMDD
+    sync_time: str | None = None  # esri fmt: HHMMSSFF
+    mod_date: str | None = None  # YYYYMMDD
+    mod_time: str | None = None  # esri fmt: HHMMSSFF
+
+    def __post_init__(self):
+        if self.creation_date is None or self.creation_time is None:
+            esri_date, esri_time = self._get_esri_timestamp()
+            if self.creation_date is None:
+                self.creation_date = esri_date
+            if self.creation_time is None:
+                self.creation_time = esri_time
+
+    def _get_esri_timestamp(self, dt_obj=None):
+        """
+        Generate Esri-style CreaDate and CreaTime values.
+
+        Args:
+            dt_obj: datetime object (uses current time if None)
+
+        Returns:
+            tuple: (CreaDate, CreaTime) as strings
+        """
+        if dt_obj is None:
+            dt_obj = datetime.now()
+
+        # CreaDate: YYYYMMDD
+        crea_date = dt_obj.strftime("%Y%m%d")
+
+        # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
+        hundredths = 0  # Esri appears to ignore the hundredths in practice
+        crea_time = (
+            f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
+        )
+
+        return crea_date, crea_time
+
+
+@dataclass
+class Language:
+    """Language information."""
+
+    # TODO: later, allow for a different metadata and data language
+    language_code: str = "eng"
+    country_code: str = "USA"
+
+
+@dataclass
+class ArcGISMetadata:
+    """Root metadata container representing the complete ArcGIS metadata structure."""
+
+    ## TODO: Requires categorization
+    metadata_file_id: str | None = None  # UUID - four-four or BoBA dataset name?
+
+    # Core identity
+    title: str | None = None  # Title (res_title)
+    description: str | None = None  # Description (HTML content)
+
+    # Keywords and tags
+    topic_category: str | None = None  # Required per Esri ISO
+    general_tags: list[str] = field(
+        default_factory=list
+    )  # Tags (General) - DCP overrode EPA path
+    place_tags: list[str] = field(default_factory=list)  # Tags (Place)
+
+    # Dates
+    last_update: str | None = None  # Last Update (reviseDate)
+    update_frequency: str | None = None  # Update Frequency
+    metadata_date_stamp: str | None = None
+
+    # Contact information
+    data_contact: ResponsibleParty | None = None
+    # TODO: allow metadata contact to be different from dataset contact:
+    #   - perhaps - define a MetadataResponsibleParty w/ same attrs, attrs default to data contact if not present in XML, or provided
+    metadata_contact: ResponsibleParty | None = None
+
+    # Spatial and temporal extents
+    spatial_extent: GeographicBoundingBox | None = None
+    temporal_extent: TemporalExtent | None = None
+
+    # Technical details
+    spatial_reference: SpatialReference | None = None
+    # ScopeCd - item type code: dataset (005), software, etc.
+    metadata_hierarchy_level_code: str = field(default="005")
+    # distribution: Distribution | None = None   # may not be req'd
+
+    # Constraints and access
+    distribution_url: str | None = None  # Distribution URL
+    constraints: Constraints | None = None
+
+    # Language and metadata
+    data_language: Language = field(default_factory=Language)
+    metadata_language: Language = field(default_factory=Language)
+
+    # Esri-specific section (kept nested due to complexity)
+    esri: EsriMetadata = field(default_factory=EsriMetadata)
+
+    # ------------------------------------------
+    ## Optional/unknown/later development fields
+    # ------------------------------------------
+    # spatial_representation: SpatialRepresentation | None = (
+    #     None  # TODO: must incl. other types
+    # )
+    # environment_description: str | None = None  # e.g. "Microsoft Windows 10 Version 10.0"...
+    # spatial_representation_type: str | None = None  # e.g. vector, grid, tin, etc. -> may not be req'd
+    # data_character_set_code: str | None = None  # numeric code, indicating character encoding of dataset
+    # metadata_hierarchy_level_name: str | None = None # I think: mdHrLvName --> req'd if mdHrLv is not dataset
+    # metadata_character_set_code: str | None = None  # numeric code, indicating character encoding of metadata
+    # pres_form_code: str | None = None  # see presForm
+
+    # System/process attributes
+    missing_xpaths: list[str] = field(default_factory=list)
+
+
+# TODO: add handling for when the xpath doesn't exist
+class MetadataParser:
+    def __init__(self):
+        self.missing_xpaths = []  # Track missing XPaths during parsing
+
+    def _get_xpath_results(
+        self, tree: etree._ElementTree, xpath: str
+    ) -> list[str] | None:
+        result = tree.xpath(xpath)
+        if len(result) == 0:
+            self.missing_xpaths.append(xpath)  # Flag missing xpaths by adding to list
+            return None
+
+        for index, item in enumerate(result):
+            # print(index, item)
+            if hasattr(item, "text"):
+                # print(f"replacing {item} with {item.text}")
+                result[index] = item.text
+
+        return result
+
+    def parse_from_string(self, string) -> ArcGISMetadata:
+        self.missing_xpaths = []  # Reset missing xpath collector for each parse
+        tree = etree.ElementTree(etree.fromstring(string))
+
+        # TODO: ResponsibleParty has to be written to default to a single set of contacts, but to
+        #   also allow md and data contacts to be different, and to point to different xpaths
+        responsible_party = ResponsibleParty()
+
+        spatial_extent = GeographicBoundingBox(
+            west=self._get_xpath_results(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/westBL"
+            ),
+            east=self._get_xpath_results(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL"
+            ),
+            north=self._get_xpath_results(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/northBL"
+            ),
+            south=self._get_xpath_results(
+                tree, ".//dataIdInfo/dataExt/geoEle/GeoBndBox/southBL"
+            ),
+        )
+        temporal_extent = TemporalExtent(
+            begin_date=self._get_xpath_results(
+                tree,
+                ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmBegin",
+            ),
+            end_date=self._get_xpath_results(
+                tree,
+                ".//dataIdInfo/dataExt/tempEle/TempExtent/exTemp/TM_Period/tmEnd",
+            ),
+        )
+        spatial_reference = SpatialReference(
+            code=self._get_xpath_results(
+                tree, ".//refSysInfo/RefSystem/refSysID/identCode/@code"
+            ),
+            authority=self._get_xpath_results(
+                tree, ".//refSysInfo/RefSystem/refSysID/idCodeSpace"
+            ),
+        )
+        constraints = Constraints(
+            access_level=self._get_xpath_results(
+                tree, ".//dataIdInfo/resConst/SecConsts/class/ClasscationCd/@value"
+            ),
+            data_license=self._get_xpath_results(
+                tree, ".//dataIdInfo/resConst/LegConsts/othConsts"
+            ),
+            general_use_limitation=self._get_xpath_results(
+                tree, ".//dataIdInfo/resConst/Consts/useLimit"
+            ),
+        )
+        language = Language(
+            language_code=self._get_xpath_results(
+                tree, ".//dataIdInfo/dataLang/languageCode/@value"
+            ),
+            country_code=self._get_xpath_results(tree, ".//mdLang/countryCode/@value"),
+        )
+
+        scale_range = ScaleRange(
+            min_scale=self._get_xpath_results(tree, ".//Esri/scaleRange/minScale"),
+            max_scale=self._get_xpath_results(tree, ".//Esri/scaleRange/maxScale"),
+        )
+
+        esri = EsriMetadata(
+            creation_date=self._get_xpath_results(tree, ".//Esri/CreaDate"),
+            creation_time=self._get_xpath_results(tree, ".//Esri/CreaTime"),
+            arcgis_format=self._get_xpath_results(tree, ".//Esri/ArcGISFormat"),
+            sync_once=self._get_xpath_results(tree, ".//Esri/SyncOnce"),
+            scale_range=scale_range,
+            arcgis_profile=self._get_xpath_results(tree, ".//Esri/ArcGISProfile"),
+            sync_date=self._get_xpath_results(tree, ".//Esri/SyncDate"),
+            sync_time=self._get_xpath_results(tree, ".//Esri/SyncTime"),
+            mod_date=self._get_xpath_results(tree, ".//Esri/ModDate"),
+            mod_time=self._get_xpath_results(tree, ".//Esri/ModTime"),
+        )
+
+        metadata = ArcGISMetadata(
+            missing_xpaths=self.missing_xpaths.copy(),  # return missing xpaths
+            metadata_date_stamp=self._get_xpath_results(tree=tree, xpath=".//mdDateSt"),
+            esri=esri,
+            metadata_file_id=self._get_xpath_results(tree, xpath=".//mdFileID"),
+            title=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/idCitation/resTitle"
+            ),
+            description=self._get_xpath_results(tree, xpath=".//dataIdInfo/idAbs"),
+            topic_category=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/tpCat/TopicCatCd/@value"
+            ),
+            general_tags=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/themeKeys/keyword"
+            ),
+            place_tags=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/placeKeys/keyword"
+            ),
+            last_update=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/idCitation/date/reviseDate"
+            ),
+            update_frequency=self._get_xpath_results(
+                tree, xpath=".//dataIdInfo/resMaint/maintFreq/MaintFreqCd/@value"
+            ),
+            data_contact=responsible_party,
+            metadata_contact=responsible_party,
+            spatial_extent=spatial_extent,
+            temporal_extent=temporal_extent,
+            spatial_reference=spatial_reference,
+            metadata_hierarchy_level_code=self._get_xpath_results(
+                tree, xpath=".//mdHrLv/ScopeCd/@value"
+            ),
+            distribution_url=self._get_xpath_results(
+                tree, xpath=".//distInfo/distTranOps/onLineSrc/linkage"
+            ),  # TODO: properly handle multiples of this xpath - may need to have specific
+            # fn to handle instances where, say, a linkage (url) is listed for Bytes and
+            # also Socrata, and where each needs to retain the other associated info.
+            # Perhaps a dict that grabs everything under 'onLineSrc'?
+            # Could be handled via instances of Distribution dataclass
+            constraints=constraints,
+            data_language=language.language_code,
+            metadata_language=language.language_code,
+        )
+
+        return metadata
+
+
+class MetadataWriter:
+    def _sync_metadata(self):
+        """Calculate synced value fields from dataset, e.g. row count"""
+        ...
+
+    def _write_metadata(self):
+        """Write entire metadata xml file from a string"""
+        # do some stuff
+        # self._sync_metadata() #?
+        ...
+
+    def _patch_metadata(self):
+        """Write a single field value"""
+        # do some stuff
+        # self._sync_metadata() #?
+        ...
+
+    def generate(self):
+        """Generate a minimally valid metadata xml file"""
+        metadata = ArcGISMetadata()
+
+        xml = E.metadata(
+            E.Esri(
+                E.CreaDate(metadata.esri.creation_date),
+                E.CreaTime(metadata.esri.creation_time),
+                E.ArcGISFormat(metadata.esri.arcgis_format),
+                E.SyncOnce(metadata.esri.sync_once),
+                E.scaleRange(
+                    E.minScale(metadata.esri.scale_range.min_scale),
+                    E.maxScale(metadata.esri.scale_range.max_scale),
+                ),
+                E.ArcGISProfile(metadata.esri.arcgis_profile),
+            ),
+            E.mdHrLv(E.SCopeCd(value=metadata.metadata_hierarchy_level_code)),
+            E.mdDateSt(metadata.esri.creation_date, Sync="TRUE"),
+        )
+        # self._sync_metadata() #?
+        return xml
+
+
+# --------------
+## Unclear if the following attrs are required, will be reviewed
+# --------------
+# @dataclass
+# class Distribution:
+#     """Distribution information (Distribution URL and related)"""
+#     # These don't seem to actually be req'd in our source refs
+#     format_name: str | None = None   # e.g. "Shapefile"
+#     transfer_size: float | None = None
+
+# @dataclass
+# class ItemProperties:
+#     """Properties of the dataset item."""
+#     item_name: str    # This updates to reflect *file name* when sync is run
+#     ims_content_type: str | None = None  # What is this?
+#     item_size: float | None = None  # I think this is the size of the file on disk?
+
+# @dataclass
+# class DataProperties:
+#     """Data properties from Esri section."""
+#     item_properties: ItemProperties
+#     coord_ref: CoordinateReference | None = None  # Unknown if needed
+
+# @dataclass
+# class CoordinateReference:
+#     """Coordinate reference system information."""
+
+#     # These fields marked as unknown - may be redundant with RefSystem
+#     type: str | None = None  # Is it enough to have the refSysID fields?
+#     geogcsn: str | None = None  # Is it enough to have the refSysID fields?
+#     cs_units: str | None = None  # Is it enough to have the refSysID fields?
+#     projcsn: str | None = None  # Is it enough to have the refSysID fields?
+#     pe_xml: str | None = None  # What is this?
