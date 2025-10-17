@@ -170,6 +170,7 @@ class TestValidateFile:
             ("invalid_model", "malformatted yml"),
             ("one_to_many_proc_args", "processing steps"),
             ("one_to_many_missing_default", "malformatted yml"),
+            ("invalid_source", "source"),
         ],
     )
     def test_invalid_yml(self, ds_id, error):
@@ -183,10 +184,11 @@ def test_validate_definition_folder():
     """Test validation of the ingest_definitions folder."""
     errors = validate.find_definition_folder_validation_errors(INGEST_DEF_DIR)
     # hypothetically an invalid "invalid_definition.yml" in the folder
-    assert len(errors) == 4
+    assert len(errors) == 5
     assert set(errors.keys()) == {
-        "invalid_model.yml",
         "invalid_jinja.yml",
+        "invalid_model.yml",
+        "invalid_source.yml",
         "one_to_many_proc_args.yml",
         "one_to_many_missing_default.yml",
     }
