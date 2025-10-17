@@ -164,7 +164,7 @@ class TestValidateFile:
         errors = validate.find_definition_file_validation_errors(ds_id, INGEST_DEF_DIR)
         assert not errors
 
-    @pytest.mark.parameterize(
+    @pytest.mark.parametrize(
         ("ds_id", "error"),
         [
             ("invaled_model", "malformatted yml"),
