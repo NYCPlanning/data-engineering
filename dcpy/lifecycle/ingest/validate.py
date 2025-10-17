@@ -20,6 +20,7 @@ def find_source_validation_errors(source: Source) -> dict:
         violations["invalid source type"] = (
             f"Connector with id '{source.type}' not registered"
         )
+        return violations
     connector = connectors.source_connectors[source.type]
     func = connector._pull if "_pull" in dir(connector) else connector.pull  # type: ignore
     kwarg_violations = introspect.validate_kwargs(
