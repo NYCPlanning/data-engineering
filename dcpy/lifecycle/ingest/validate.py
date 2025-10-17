@@ -7,8 +7,7 @@ from tempfile import TemporaryDirectory
 from dcpy.models.lifecycle.ingest import (
     Source,
     ProcessingStep,
-    DatasetDefinition,
-    DataSourceDefinition,
+    ResolvedDataSource,
 )
 from dcpy.utils import introspect
 from dcpy.utils.logging import logger
@@ -83,9 +82,7 @@ def find_processing_step_validation_errors(
     return violations
 
 
-def find_definition_validation_errors(
-    definition: DatasetDefinition | DataSourceDefinition,
-) -> dict:
+def find_definition_validation_errors(definition: ResolvedDataSource) -> dict:
     """Validate a single template object."""
     violations = {}
 
@@ -93,20 +90,14 @@ def find_definition_validation_errors(
     if source_violations:
         violations["source"] = source_violations
 
-    match definition:
-        case DatasetDefinition():
-            invalid_processing_steps = find_processing_step_validation_errors(
-                definition.id, definition.ingestion.processing_steps
-            )
-        case DataSourceDefinition():
-            invalid_processing_steps = {}
-            for d in definition.datasets:
-                errors = find_processing_step_validation_errors(
-                    d.id,
-                    d.processing_steps,
-                )
-                if errors:
-                    invalid_processing_steps[d.id] = errors
+    invalid_processing_steps = {}
+    for d in definition.datasets:
+        errors = find_processing_step_validation_errors(
+            d.id,
+            d.processing_steps,
+        )
+        if errors:
+            invalid_processing_steps[d.id] = errors
 
     if invalid_processing_steps:
         violations["processing steps"] = invalid_processing_steps
@@ -114,11 +105,15 @@ def find_definition_validation_errors(
     return violations
 
 
-def find_definition_file_validation_errors(filepath: Path) -> dict[str, str]:
+def find_definition_file_validation_errors(
+    ds_id: str, definition_dir: Path
+) -> dict[str, str]:
     """Validate a single definition file."""
-    logger.debug(f"Validating template at '{filepath}'")
+    logger.debug(f"Validating definition of '{ds_id}'")
     try:
-        definition = plan.read_definition_file(filepath, version="version")
+        definition = plan.resolve_config(
+            ds_id, version="version", definition_dir=definition_dir
+        )
         return find_definition_validation_errors(definition)
     except (ValidationError, ValueError) as e:
         return {"malformatted yml": str(e)}
