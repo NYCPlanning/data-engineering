@@ -161,41 +161,34 @@ class TestValidateFile:
     @pytest.mark.parametrize("ds_id", ["simple", "one_to_many"])
     def test_validate_definition_file_valid(self, ds_id):
         """Test validation of a valid definition file."""
-        valid_file = INGEST_DEF_DIR / f"{ds_id}.yml"
-        errors = validate.find_definition_file_validation_errors(valid_file)
+        errors = validate.find_definition_file_validation_errors(ds_id, INGEST_DEF_DIR)
         assert not errors
 
-    def test_invalid_yml(self):
+    @pytest.mark.parameterize(
+        ("ds_id", "error"),
+        [
+            ("invaled_model", "malformatted yml"),
+            ("one_to_many_proc_args", ""),
+            ("one_to_many_missing_default", ""),
+        ],
+    )
+    def test_invalid_yml(self, ds_id, error):
         """Test validation of an invalid definition file."""
-        invalid_file = INGEST_DEF_DIR / "invalid_model.yml"
-        errors = validate.find_definition_file_validation_errors(invalid_file)
+        errors = validate.find_definition_file_validation_errors(ds_id, INGEST_DEF_DIR)
         assert len(errors) == 1
-        assert "malformatted yml" in errors
-
-    def test_one_to_many_proc_step_error(self):
-        """Test validation default proc step with incorrect args."""
-        invalid_file = INGEST_DEF_DIR / "one_to_many_proc_args.yml"
-        errors = validate.find_definition_file_validation_errors(invalid_file)
-        assert len(errors) == 1
-        assert "processing steps" in errors
-
-    def test_one_to_many_missing_defaults(self):
-        """Test validation with missing default file format options."""
-        invalid_file = INGEST_DEF_DIR / "one_to_many_missing_default.yml"
-        errors = validate.find_definition_file_validation_errors(invalid_file)
-        assert len(errors) == 1
-        # end result is missing required fields in "resolved" definition
-        assert "malformatted yml" in errors
+        assert error in errors
 
 
 def test_validate_definition_folder():
     """Test validation of the ingest_definitions folder."""
     errors = validate.find_definition_folder_validation_errors(INGEST_DEF_DIR)
     # hypothetically an invalid "invalid_definition.yml" in the folder
-    assert len(errors) == 2
+    assert len(errors) == 4
     assert set(errors.keys()) == {
         "invalid_model.yml",
         "invalid_jinja.yml",
+        "one_to_many_proc_args.yml",
+        "one_to_many_missing_default.yml",
     }
 
 
