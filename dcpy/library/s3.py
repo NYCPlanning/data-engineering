@@ -50,7 +50,6 @@ class S3:
             config=config,
         )
         self.bucket = aws_s3_bucket
-        print(self.bucket)
         if self.bucket not in [
             b["Name"] for b in self.client.list_buckets()["Buckets"]
         ]:

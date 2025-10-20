@@ -1,0 +1,20 @@
+id: doe_eszones
+acl: public-read
+
+attributes:
+  name: 2024-2025 School Zones (Elementary)
+  description: |
+    Polygon boundaries of school zones used for school assignment and access.
+  url: https://data.cityofnewyork.us/d/cmjf-yawu
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: cmjf-yawu
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+    - name: clean_column_names
+      args: { "replace": { " ": "_" }, "strip": True, "lower": True }
