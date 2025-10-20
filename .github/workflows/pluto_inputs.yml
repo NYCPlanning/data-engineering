@@ -27,7 +27,6 @@ jobs:
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
       latest: true
-      create_issue: ${{ github.event_name == 'schedule' }}
       label: ${{ github.workflow }}
 
   dataloading_cama:
@@ -37,9 +36,8 @@ jobs:
       datasets: pluto_input_cama_dof
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
-      error_behavior: cancel
+      error_behavior: ignore
       latest: true
-      create_issue: ${{ github.event_name == 'schedule' }}
       label: ${{ github.workflow }}
 
   create_issue_on_failure:
@@ -55,7 +53,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ACTION: ${{ github.workflow }}
-        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
-          github.run_id }}
+        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       with:
         filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
