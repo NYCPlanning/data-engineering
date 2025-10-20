@@ -1,33 +1,24 @@
 repos:
-  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
-    rev: v1.2.0
-    hooks:
-      - id: dbt-clean
-        name: dbt clean
-        args:
-          [
-            "--cmd-flags",
-            "++no-clean-project-files-only"
-          ]
-      - id: dbt-docs-generate
-        name: dbt docs generate
+- repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+  rev: v2.0.7
+  hooks:
+  - id: dbt-clean
+    name: dbt clean
+    args: [ "--cmd-flags", "++no-clean-project-files-only" ]
+  - id: dbt-docs-generate
+    name: dbt docs generate
 
-      - id: check-script-semicolon
-        name: Model scripts have no semicolon
-        files: ^./models/
-        args: ["--manifest", "./target/manifest.json"]
+  - id: check-script-semicolon
+    name: Model scripts have no semicolon
+    files: ^./models/
+    args: [ "--manifest", "./target/manifest.json" ]
 
-      - id: check-model-has-properties-file
-        name: Models have a properties file
-        files: ^./models/
-        args: ["--manifest", "./target/manifest.json"]
+  - id: check-model-has-properties-file
+    name: Models have a properties file
+    files: ^./models/
+    args: [ "--manifest", "./target/manifest.json" ]
 
-      - id: check-model-parents-and-childs
-        name: Staging models have at least 1 child model
-        files: ^./models/staging
-        args: [
-                "--manifest",
-                "./target/manifest.json",
-                "--min-child-cnt",
-                "1",
-              ]
+  - id: check-model-parents-and-childs
+    name: Staging models have at least 1 child model
+    files: ^./models/staging
+    args: [ "--manifest", "./target/manifest.json", "--min-child-cnt", "1" ]
