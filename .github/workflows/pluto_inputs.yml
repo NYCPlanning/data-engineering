@@ -36,7 +36,7 @@ jobs:
       datasets: pluto_input_cama_dof
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
-      error_behavior: ignore
+      error_behavior: ignore # TODO a bit of a hack. This ignores all errors. Ideally, we just ignore case where the remote file is not found
       latest: true
       label: ${{ github.workflow }}
 
