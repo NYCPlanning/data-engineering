@@ -7,18 +7,17 @@ repos:
     args: [ "--cmd-flags", "++no-clean-project-files-only" ]
   - id: dbt-docs-generate
     name: dbt docs generate
+  - id: dbt-parse
 
   - id: check-script-semicolon
     name: Model scripts have no semicolon
     files: ^./models/
-    args: [ "--manifest", "./target/manifest.json" ]
 
   - id: check-model-has-properties-file
     name: Models have a properties file
     files: ^./models/
-    args: [ "--manifest", "./target/manifest.json" ]
 
   - id: check-model-parents-and-childs
     name: Staging models have at least 1 child model
     files: ^./models/staging
-    args: [ "--manifest", "./target/manifest.json", "--min-child-cnt", "1" ]
+    args: [ "--min-child-cnt", "1" ]
