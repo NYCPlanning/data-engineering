@@ -24,15 +24,26 @@ jobs:
         pluto_pts
         pluto_input_geocodes
         pluto_input_numbldgs
-        pluto_input_cama_dof
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
       latest: true
       create_issue: ${{ github.event_name == 'schedule' }}
       label: ${{ github.workflow }}
 
+  dataloading_cama:
+    uses: ./.github/workflows/ingest_multiple.yml
+    secrets: inherit
+    with:
+      datasets: pluto_input_cama_dof
+      dev_bucket: ${{ inputs.dev_bucket }}
+      dev_image: ${{ inputs.dev_image }}
+      error_behavior: cancel
+      latest: true
+      create_issue: ${{ github.event_name == 'schedule' }}
+      label: ${{ github.workflow }}
+
   create_issue_on_failure:
-    needs: dataloading
+    needs: [ dataloading, dataloading_cama ]
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:

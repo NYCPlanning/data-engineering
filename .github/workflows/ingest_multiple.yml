@@ -26,6 +26,10 @@ on:
       create_issue:
         description: create issue on failure?
         type: string
+      error_behavior:
+        description: What to do on error? 'raise' (default), 'ignore', or 'cancel' (cancels job)
+        type: string
+        default: raise
   workflow_dispatch:
     inputs:
       datasets:
@@ -117,15 +121,29 @@ jobs:
       run: ./bash/docker_container_setup.sh
 
     - name: Ingest
+      continue-on-error: ${{ inputs.error_behavior == 'ignore' }}
       env:
         version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
         latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
       run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version $latest --push-to-s3
 
+    - name: Cancel workflow on failure
+      if: (inputs.error_behavior == 'cancel') && failure()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/NYCPlanning/data-engineering/actions/runs/$GITHUB_RUN_ID/cancel
+        sleep 5s
+
   create_issue_on_failure:
     needs: dataloading
     runs-on: ubuntu-22.04
-    if: ${{ failure() && (inputs.create_issue == 'true') }}
+    if: ${{ failure() && (inputs.error_behavior == 'raise') && (inputs.create_issue == 'true') }}
     steps:
     - uses: actions/checkout@v4
       with:
