@@ -124,6 +124,7 @@ SELECT
     coalesce(left_2020_census_block_suffix::TEXT, ' ') AS "LEFT CENSUS BLOCK 2020 SUFFIX",
     format_lion_text(right_2020_census_block_basic::TEXT, 4, ' ') AS "RIGHT CENSUS BLOCK 2020 BASIC",
     coalesce(right_2020_census_block_suffix::TEXT, ' ') AS "RIGHT CENSUS BLOCK 2020 SUFFIX",
-    format_lion_text('', 45, ' ') AS "Filler L199"
+    format_lion_text('', 45, ' ') AS "Filler L199",
+    source_table AS _source_table -- TODO should be dropped when pipeline is in production. Helpful in comp to prod
 FROM {{ ref("int__lion") }}
 WHERE include_in_geosupport_lion

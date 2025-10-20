@@ -13,7 +13,7 @@ SELECT
     count(*) FILTER (WHERE dev."Segment ID" IS NOT NULL AND prod."Segment ID" IS NOT NULL) AS keys_in_both,
     count(*) FILTER (WHERE prod."Segment ID" IS NULL) AS missing_key_in_production,
     count(*) FILTER (WHERE dev."Segment ID" IS NULL) AS missing_key_in_dev
-{%- for col in adapter.get_columns_in_relation(ref('lion_dat_by_field')) -%}
+{%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
     {%- if loop.first -%},{% endif %}
     count(*) FILTER (WHERE dev."{{ col.column }}" <> prod."{{ col.column }}") AS "{{ col.column }}"
     {%- if not loop.last -%},{% endif %}

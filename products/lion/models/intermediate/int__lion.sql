@@ -249,6 +249,7 @@ SELECT
     ap_right.right_2020_census_block_basic,
     ap_right.right_2020_census_block_suffix,
     segments.feature_type,
+    segments.source_table,
     segments.geom,
     segments.include_in_geosupport_lion,
     segments.include_in_bytes_lion
