@@ -106,9 +106,8 @@ jobs:
           sqlfluff lint tests --templater=dbt
         fi
     - name: dbt-checkpoint
-      working-directory:
+      working-directory: "."
       run: |
-        cp ../../.pre-commit-config.yaml .
         echo -e "version: 1\ndbt-project-dir: products/${{ matrix.project }}\n" >> .dbt-checkpoint.yaml
         pre-commit run --all-files
 
