@@ -122,11 +122,7 @@ def ingest(
     version: str | None = None,
 ) -> None:
     ## separate from "standard" ingest folders
-    ingest_dir = INGEST_DIR / "migrate_from_library"
-    ## where ingest will do processing
-    dataset_staging_dir = ingest_dir / "staging"
-    ## where ingest will dump outputs
-    ingest_output_dir = ingest_dir / "datasets"
+    dataset_staging_dir = INGEST_DIR / "migrate_from_library"
     if dataset_staging_dir.is_dir():
         shutil.rmtree(dataset_staging_dir)
 
@@ -134,12 +130,11 @@ def ingest(
         dataset,
         version=version,
         staging_dir=dataset_staging_dir,
-        ingest_output_dir=ingest_output_dir,
         push=False,
     )[0]  # TODO - hack
 
     ## copy so that it's in the "library" file system for easy import
-    output_path = ingest_output_dir / dataset / config.version / f"{dataset}.parquet"
+    output_path = dataset_staging_dir / dataset / config.version / f"{dataset}.parquet"
     ingest_path = LIBRARY_PATH / dataset / "ingest" / f"{dataset}.parquet"
     ingest_path.parent.mkdir(exist_ok=True, parents=True)
     shutil.copy(output_path, ingest_path)
