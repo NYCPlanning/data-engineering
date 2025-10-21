@@ -13,5 +13,6 @@ def test_parse_minimum_shp_metadata():
     assert md.esri.creadate == "19700101"
     assert md.mdhrlv is not None
     assert md.mdhrlv.scopecd.value == "005"
-    # mdDateSt included and should be parseable
-    assert md.mddatest == "19261122"
+    assert md.mddatest is not None
+    assert md.mddatest.sync == "TRUE"
+    assert md.mddatest.date == "19261122"
