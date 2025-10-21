@@ -40,6 +40,7 @@
         ST_ENDPOINT(ST_LINEMERGE(source.geom)) AS end_point,
         source.shape_length,
         SUBSTRING('{{ source_layer }}', 10) AS feature_type,
+        '{{ source_layer }}' AS source_table,
         {% if source_layer == 'dcp_cscl_centerline' -%} 
             (rwjurisdiction IS DISTINCT FROM '3' OR status = '2') AND rw_type <> 8 AS include_in_geosupport_lion,
             (rwjurisdiction IS DISTINCT FROM '3' OR status = '2') AS include_in_bytes_lion

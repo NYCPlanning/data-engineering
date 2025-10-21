@@ -652,6 +652,8 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         value: 45
+  - name: _source_table # TODO remove - see note in model sql file
+    data_type: string
 
 - name: lion_dat
   columns:
