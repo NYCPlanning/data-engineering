@@ -32,7 +32,7 @@ jobs:
         add-paths: admin/run_environment
         title: Compile python requirements
         author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-        assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey, sf-dcp' || '' }}
+        assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey' || '' }}
         branch: compile_python_reqs
         token: ${{ secrets.GHP_TOKEN }}
 
