@@ -5,6 +5,7 @@ import zipfile
 from dataclasses import dataclass, field
 from lxml import etree
 from datetime import datetime
+from dcpy.models.data.shp_xml_metadata import Metadata
 
 # TODO: - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
@@ -14,7 +15,7 @@ class _FileManager:
         self.path = path
 
     def read_file(self, filename: str) -> str:
-        with open(self.path / filename, "r") as f:
+        with open(self.path / filename, "rb") as f:
             return f.read()
 
     def write_file(self, filename: str, contents: str):
@@ -37,7 +38,7 @@ class _FileManagerZipped:
         path_to_file_in_zip = (
             (f"{self.zip_subdir}/{filename}") if self.zip_subdir else filename
         )
-        with zipfile.ZipFile(self.zip_path, "r") as zf:
+        with zipfile.ZipFile(self.zip_path, "rb") as zf:
             metadata: str = zf.read(path_to_file_in_zip).decode(encoding="utf-8")
             return metadata
 
@@ -101,9 +102,8 @@ class Shapefile:
         Returns:
         str: Metadata content as string.
         """
-        metadata_str = self.file_manager.read_file(f"{self.name}.xml")
-        parser = MetadataParser()
-        metadata = parser.parse_from_string(metadata_str)
+        xml: str = self.file_manager.read_file(f"{self.name}.xml")
+        metadata = Metadata.from_xml(xml)
 
         return metadata
 
@@ -162,6 +162,9 @@ def from_path(
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
 
 
+# ------------------------------
+# Code below is out of date, retaining temporarily for reference
+# ------------------------------
 @dataclass
 class ScaleRange:
     """Scale range information for the dataset."""
