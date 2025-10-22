@@ -27,9 +27,9 @@ fi
 
 # if specified, upgrade versions in requirements.txt
 if [[ $* == *--upgrade* ]]; then
-  upgrade=""
-else
   upgrade="--upgrade"
+else
+  upgrade=""
 fi
 
 cd $path
