@@ -135,6 +135,7 @@ dependencies = [
     "pandas",
     "psycopg2-binary",
     "pyarrow",
+    "pydantic-xml",
     "pydantic",
     "pydantic-xml",
     "pyogrio",
