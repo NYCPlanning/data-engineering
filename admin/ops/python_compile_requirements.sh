@@ -25,11 +25,11 @@ if [[ $* == *--set-gdal* ]]; then
   esac
 fi
 
-# if specified, don't attempt to upgrade versions in requirements.txt
-if [[ $* == *--no-upgrade* ]]; then
-  upgrade=""
-else
+# if specified, upgrade versions in requirements.txt
+if [[ $* == *--upgrade* ]]; then
   upgrade="--upgrade"
+else
+  upgrade=""
 fi
 
 cd $path
