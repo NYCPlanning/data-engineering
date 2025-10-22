@@ -553,8 +553,13 @@ pydantic==2.11.9
     #   dbt-semantic-interfaces
     #   maplibre
     #   pandera
+    #   pydantic-xml
 pydantic-core==2.33.2
-    # via pydantic
+    # via
+    #   pydantic
+    #   pydantic-xml
+pydantic-xml==2.18.0
+    # via -r requirements.in
 pydeck==0.9.1
     # via streamlit
 pygments==2.19.2
