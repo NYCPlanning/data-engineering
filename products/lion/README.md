@@ -49,3 +49,28 @@ With the concept of a "key" in the data, we can make actual comparisons between 
 4. Running manual sql comparisons... OR once you've settled on something adding a dbt model. See `models/poc_dat_comparison.sql` for example (both as just a sql example and how to make it a model). For a simple output where we reach 100% accuracy quickly, we probably don't need a dbt model. But you'll need to figure out how to join the two tables and actually compare data.
 
 Different outputs will have different unique keys for rows, the docs should specify.
+
+
+## Quick Primer
+This non-comprehensive cheat-sheet to help developers get up to speed with the acronyms they'll encounter in ETL work. 
+
+### Acronyms
+
+| Acronym | Meaning |
+|---|---|
+| boe | Board of Elections |
+| hn  | House Number |
+| saf | Special Address Flag |
+| lgc | Local Group Code |
+
+### Terminology
+
+| Term | Definition |
+|---|---|
+| proto segment | A "would‑be" segment with no geometry, that links to a segment that has geometry, but represents a different overlaid segment. Example: shoreline and borough boundary with the same geometry. In CSCL, these are modeled as a base (primary) segment plus one or more proto (clone/duplicate) segments that reference the base by segmentid. Called "alt segment data" in CSCL outputs. |
+| Face Code | . |
+| Sequence Number | All segment types will have a sequence number from CSCL, except non street features |
+| LION key | Unique key for LION. Except for  Borough + Face code + segment Sequence number. |
+| Non street feature | blah |
+
+proto segments come with a LION key
