@@ -29,7 +29,7 @@ class PresForm(BaseXmlModel, tag="presForm"):
     presformcd: Optional[PresFormCd] = element(tag="PresFormCd", default=None)
 
 
-class IdCitation(BaseXmlModel, tag="idCitation"):
+class IdCitation(BaseXmlModel, tag="idCitation", search_mode="unordered"):
     restitle: Optional[str] = element(tag="resTitle", default=None)
     presform: Optional[PresForm] = element(tag="presForm", default=None)
 
@@ -56,7 +56,7 @@ class CountryCode(BaseXmlModel, tag="countryCode"):
     sync: Optional[str] = attr(name="Sync", default=None)
 
 
-class DataLang(BaseXmlModel, tag="dataLang"):
+class DataLang(BaseXmlModel, tag="dataLang", search_mode="unordered"):
     languagecode: Optional[LanguageCode] = element(tag="languageCode", default=None)
     countrycode: Optional[CountryCode] = element(tag="countryCode", default=None)
 
@@ -70,13 +70,38 @@ class SpatRpType(BaseXmlModel, tag="spatRpType"):
     spatreptypcd: Optional[SpatRepTypCd] = element(tag="SpatRepTypCd", default=None)
 
 
-class GeoBndBox(BaseXmlModel, tag="GeoBndBox"):
+class ExTypeCode(BaseXmlModel, tag="exTypeCode"):
+    sync: Optional[str] = attr(name="exTypeCode", default=None)
+    code: str | None = element(text=True, default=None)
+
+
+class WestBL(BaseXmlModel, tag="westBL"):
+    sync: Optional[str] = attr(name="westBL", default=None)
+    bound: str | None = element(text=True, default=None)
+
+
+class EastBL(BaseXmlModel, tag="eastBL"):
+    sync: Optional[str] = attr(name="eastBL", default=None)
+    bound: str | None = element(text=True, default=None)
+
+
+class NorthBL(BaseXmlModel, tag="northBL"):
+    sync: Optional[str] = attr(name="northBL", default=None)
+    bound: str | None = element(text=True, default=None)
+
+
+class SouthBL(BaseXmlModel, tag="southBL"):
+    sync: Optional[str] = attr(name="southBL", default=None)
+    bound: str | None = element(text=True, default=None)
+
+
+class GeoBndBox(BaseXmlModel, tag="GeoBndBox", search_mode="unordered"):
     esriextenttype: Optional[str] = attr(name="esriExtentType", default=None)
-    extypecode: Optional[str] = element(tag="exTypeCode", default=None)
-    westbl: Optional[str] = element(tag="westBL", default=None)
-    eastbl: Optional[str] = element(tag="eastBL", default=None)
-    northbl: Optional[str] = element(tag="northBL", default=None)
-    southbl: Optional[str] = element(tag="southBL", default=None)
+    extypecode: Optional[ExTypeCode] = element(tag="exTypeCode", default=None)
+    westbl: Optional[WestBL] = element(tag="westBL", default=None)
+    eastbl: Optional[EastBL] = element(tag="eastBL", default=None)
+    northbl: Optional[NorthBL] = element(tag="northBL", default=None)
+    southbl: Optional[SouthBL] = element(tag="southBL", default=None)
 
 
 class GeoEle(BaseXmlModel, tag="geoEle"):
@@ -87,7 +112,20 @@ class DataExt(BaseXmlModel, tag="dataExt"):
     geoele: Optional[GeoEle] = element(tag="geoEle", default=None)
 
 
-class DataIdInfo(BaseXmlModel, tag="dataIdInfo"):
+class EnvirDesc(BaseXmlModel, tag="envirDesc", search_mode="unordered"):
+    sync: Optional[str] = attr(name="Sync", default="TRUE")
+    environment: str | None = element(text=True, default=None)
+
+
+class SearchKeys(BaseXmlModel, tag="searchKeys"):
+    keyword: list[str] | None = element(tag="keyword", default_factory=list)
+
+
+class OtherKeys(BaseXmlModel, tag="otherKeys"):
+    keyword: list[str] | None = element(tag="keyword", default_factory=list)
+
+
+class DataIdInfo(BaseXmlModel, tag="dataIdInfo", search_mode="unordered"):
     idcitation: Optional[IdCitation] = element(tag="idCitation", default=None)
     idabs: Optional[str] = element(tag="idAbs", default=None)
     idpurp: Optional[str] = element(tag="idPurp", default=None)
@@ -96,21 +134,13 @@ class DataIdInfo(BaseXmlModel, tag="dataIdInfo"):
     searchkeys: Optional[SearchKeys] = element(tag="searchKeys", default=None)
     resconst: Optional[ResConst] = element(tag="resConst", default=None)
     datachar: Optional[DataChar] = element(tag="dataChar", default=None)
-    envirdesc: Optional[str] = element(tag="envirDesc", default=None)
+    envirdesc: Optional[EnvirDesc] = element(tag="envirDesc", default=None)
     datalang: Optional[DataLang] = element(tag="dataLang", default=None)
     spatrptype: Optional[SpatRpType] = element(tag="spatRpType", default=None)
     dataext: Optional[DataExt] = element(tag="dataExt", default=None)
 
 
-class OtherKeys(BaseXmlModel, tag="otherKeys"):
-    keyword: list[str] = element(tag="keyword", default_factory=list)
-
-
-class SearchKeys(BaseXmlModel, tag="searchKeys"):
-    keyword: list[str] = element(tag="keyword", default_factory=list)
-
-
-class MdLang(BaseXmlModel, tag="mdLang"):
+class MdLang(BaseXmlModel, tag="mdLang", search_mode="unordered"):
     languagecode: Optional[LanguageCode] = element(tag="languageCode", default=None)
     countrycode: Optional[CountryCode] = element(tag="countryCode", default=None)
 
@@ -123,7 +153,7 @@ class DistTranOps(BaseXmlModel, tag="distTranOps"):
     transsize: Optional[str] = element(tag="transSize", default=None)
 
 
-class DistInfo(BaseXmlModel, tag="distInfo"):
+class DistInfo(BaseXmlModel, tag="distInfo", search_mode="unordered"):
     distformat: Optional[DistFormat] = element(tag="distFormat", default=None)
     disttranops: Optional[DistTranOps] = element(tag="distTranOps", default=None)
 
@@ -133,7 +163,7 @@ class IdentCode(BaseXmlModel, tag="identCode"):
     sync: Optional[str] = attr(name="Sync", default=None)
 
 
-class RefSysID(BaseXmlModel, tag="refSysID"):
+class RefSysID(BaseXmlModel, tag="refSysID", search_mode="unordered"):
     identcode: Optional[IdentCode] = element(tag="identCode")
     idcodespace: Optional[str] = element(tag="idCodeSpace", default=None)
     idversion: Optional[str] = element(tag="idVersion", default=None)
@@ -156,7 +186,7 @@ class GeoObjTyp(BaseXmlModel, tag="geoObjTyp"):
     geoobjtypc: Optional[GeoObjTypCd] = element(tag="GeoObjTypCd", default=None)
 
 
-class GeometObjs(BaseXmlModel, tag="geometObjs"):
+class GeometObjs(BaseXmlModel, tag="geometObjs", search_mode="unordered"):
     name: Optional[str] = attr(name="Name", default=None)
     geoobjtyp: Optional[GeoObjTyp] = element(tag="geoObjTyp", default=None)
     geoobjcnt: Optional[str] = element(tag="geoObjCnt", default=None)
@@ -165,13 +195,14 @@ class GeometObjs(BaseXmlModel, tag="geometObjs"):
 class TopoLevCd(BaseXmlModel, tag="TopoLevCd"):
     value: Optional[str] = attr(name="value", default=None)
     sync: Optional[str] = attr(name="Sync", default=None)
+    code: str | None = element(text=True, default=None)
 
 
 class TopLvl(BaseXmlModel, tag="topLvl"):
     topolevcd: Optional[TopoLevCd] = element(tag="TopoLevCd", default=None)
 
 
-class VectSpatRep(BaseXmlModel, tag="VectSpatRep"):
+class VectSpatRep(BaseXmlModel, tag="VectSpatRep", search_mode="unordered"):
     geometobjs: Optional[GeometObjs] = element(tag="geometObjs", default=None)
     toplvl: Optional[TopLvl] = element(tag="topLvl", default=None)
 
@@ -180,7 +211,7 @@ class SpatRepInfo(BaseXmlModel, tag="spatRepInfo"):
     vectspatrep: Optional[VectSpatRep] = element(tag="VectSpatRep", default=None)
 
 
-class Esriterm(BaseXmlModel, tag="esriterm"):
+class Esriterm(BaseXmlModel, tag="esriterm", search_mode="unordered"):
     name: Optional[str] = attr(name="Name", default=None)
     efeattyp: Optional[str] = element(tag="efeatyp", default=None)
     efeageom: Optional[str] = element(tag="efeageom", default=None)
@@ -203,12 +234,12 @@ class ScaleRange(BaseXmlModel, tag="scaleRange", search_mode="unordered"):
     maxScale: Optional[str] = element(tag="maxScale", default=None)
 
 
-class MdDateSt(BaseXmlModel, tag="mdDateSt", search_mode="unordered"):
+class MdDateSt(BaseXmlModel, tag="mdDateSt"):
     sync: Optional[str] = attr(name="Sync", default="TRUE")
-    date: Optional[str] = None
+    date: str | None = element(text=True, default=None)
 
 
-class NativeExtBox(BaseXmlModel, tag="nativeExtBox"):
+class NativeExtBox(BaseXmlModel, tag="nativeExtBox", search_mode="unordered"):
     westbl: Optional[str] = element(tag="westBL", default=None)
     eastbl: Optional[str] = element(tag="eastBL", default=None)
     southbl: Optional[str] = element(tag="southBL", default=None)
@@ -218,25 +249,25 @@ class NativeExtBox(BaseXmlModel, tag="nativeExtBox"):
 
 class ItemName(BaseXmlModel, tag="itemName"):
     sync: Optional[str] = attr(name="Sync", default=None)
-    name: Optional[str] = None
+    name: str | None = element(text=True, default=None)
 
 
 class Linkage(BaseXmlModel, tag="linkage"):
     sync: Optional[str] = attr(name="Sync", default=None)
-    path: Optional[str] = None
+    path: str | None = element(text=True, default=None)
 
 
 class Protocol(BaseXmlModel, tag="protocol"):
     sync: Optional[str] = attr(name="Sync", default=None)
-    protocol_type: Optional[str] = None
+    protocol_type: str | None = element(text=True, default=None)
 
 
-class ItemLocation(BaseXmlModel, tag="itemLocation"):
+class ItemLocation(BaseXmlModel, tag="itemLocation", search_mode="unordered"):
     linkage: Optional[Linkage] = element(tag="linkage", default=None)
     protocol: Optional[Protocol] = element(tag="protocol", default=None)
 
 
-class ItemProps(BaseXmlModel, tag="itemProps"):
+class ItemProps(BaseXmlModel, tag="itemProps", search_mode="unordered"):
     itemname: Optional[ItemName] = element(tag="itemName", default=None)
     imscontenttype: Optional[str] = element(tag="imsContentType", default=None)
     nativeextbox: Optional[NativeExtBox] = element(tag="nativeExtBox", default=None)
@@ -244,7 +275,7 @@ class ItemProps(BaseXmlModel, tag="itemProps"):
     itemlocation: Optional[ItemLocation] = element(tag="itemLocation", default=None)
 
 
-class CoordRef(BaseXmlModel, tag="coordRef"):
+class CoordRef(BaseXmlModel, tag="coordRef", search_mode="unordered"):
     type: Optional[str] = element(tag="type", default=None)
     geogcsn: Optional[str] = element(tag="geogcsn", default=None)
     csunits: Optional[str] = element(tag="csUnits", default=None)
@@ -258,6 +289,21 @@ class DataProperties(BaseXmlModel, tag="DataProperties", search_mode="unordered"
     )
     coordref: Optional[CoordRef] = element(
         tag="coordRef", search_mode="unordered", default=None
+    )
+
+
+class Data(BaseXmlModel, tag="Data", search_mode="unordered"):
+    esripropertytype: Optional[str] = attr(name="EsriPropertyType", default=None)
+    code: str | None = element(text=True, default=None)
+
+
+class Thumbnail(BaseXmlModel, tag="Thumbnail"):
+    data: Optional[Data] = element(name="Data", default=None)
+
+
+class Binary(BaseXmlModel, tag="Binary"):
+    thumbnail: Optional[Thumbnail] = element(
+        tag="Thumbnail", search_mode="unordered", default=None
     )
 
 
@@ -299,6 +345,7 @@ class Metadata(BaseXmlModel, tag="metadata", search_mode="unordered"):
     spatrepinfo: Optional[SpatRepInfo] = element(tag="spatRepInfo", default=None)
     spdoinfo: Optional[Spdoinfo] = element(tag="spdoinfo", default=None)
     mddatest: Optional[MdDateSt] = element(tag="mdDateSt", default=None)
+    binary: Optional[Binary] = element(tag="Binary", default=None)
 
 
 # from __future__ import annotations
@@ -322,7 +369,7 @@ class Metadata(BaseXmlModel, tag="metadata", search_mode="unordered"):
 
 # class MdDateSt(BaseXmlModel, tag="mdDateSt", search_mode="unordered"):
 #     sync: Optional[str] = attr(name="Sync", default="TRUE")
-#     date: Optional[str] = None
+#     date: str | None = element(text=True, default=None)
 
 
 # class ItemProps(BaseXmlModel, tag="itemProps"): ...
