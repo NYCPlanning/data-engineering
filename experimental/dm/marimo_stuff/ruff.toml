@@ -1,0 +1,3 @@
+[lint]
+# [f-string-missing-placeholders (F541)](https://docs.astral.sh/ruff/rules/f-string-missing-placeholders/#f-string-missing-placeholders-f541)
+ignore = ["E501", "F541"]
